@@ -72,7 +72,8 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['*.config.ts', '*.config.js', '*.config.cjs'],
+      files: ['*.config.ts', '*.config.*.ts', '*.config.js', '*.config.cjs'],
+      extends: ['plugin:@typescript-eslint/disable-type-checked'],
       rules: {
         '@typescript-eslint/no-var-requires': 'off',
       },
