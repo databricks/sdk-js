@@ -118,3 +118,23 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  # This job gates merging. It depends on all CI jobs so that branch protection
+  # only needs to reference this single check. When adding new jobs, append
+  # them to the "needs" list below and branch protection stays in sync.
+  ci-gate:
+    name: CI Gate
+    if: always()
+    needs: [lint, typecheck, test, test-browser, build]
+    runs-on: linux-ubuntu-latest
+    steps:
+      - name: Check results
+        run: |
+          results="${{ join(needs.*.result, ' ') }}"
+          for r in $results; do
+            if [ "$r" != "success" ]; then
+              echo "One or more CI jobs failed or were cancelled."
+              exit 1
+            fi
+          done
+          echo "All CI jobs passed."
