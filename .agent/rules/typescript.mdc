@@ -1,0 +1,719 @@
+---
+description: TypeScript language and style rules for the Databricks JS SDK.
+scope: all TypeScript files (packages/**/src/**/*.ts, packages/**/tests/**/*.ts)
+enforcement: strict
+globs: ["**/*.ts", "**/*.tsx"]
+---
+
+# TypeScript Style Guide
+
+This document defines the TypeScript coding standards for this repository. All
+code — whether written by humans or agents — must conform to these rules. The
+rules are enforced by ESLint (`strict-type-checked` + `stylistic-type-checked`),
+Prettier, and the TypeScript compiler in strict mode.
+
+When a rule says **must**, it is a hard requirement enforced by tooling or code
+review. When it says **should**, it is a strong recommendation that may be
+relaxed with a justifying comment.
+
+---
+
+## 1. Source File Structure
+
+Every `.ts` file must follow this order, separated by exactly one blank line:
+
+1. Copyright or license header (if applicable).
+2. `@fileoverview` JSDoc (optional).
+3. Imports.
+4. Implementation.
+
+### 1.1 Encoding
+
+All source files must be UTF-8.
+
+### 1.2 Special Characters
+
+- Use only ASCII horizontal space (0x20) outside of string literals.
+- Prefer literal escape sequences (`\n`, `\t`, `\\`, etc.) over numeric escapes.
+- Non-ASCII characters in strings should appear literally (e.g., `'500 μs'`)
+  when they are printable. Use hex or Unicode escapes for non-printable
+  characters, accompanied by an explanatory comment.
+
+---
+
+## 2. Imports and Exports
+
+### 2.1 Import Styles
+
+| Style              | Syntax                                | When to use                                |
+| ------------------ | ------------------------------------- | ------------------------------------------ |
+| Namespace          | `import * as foo from './foo';`       | When accessing many symbols from a module. |
+| Named              | `import {Bar} from './bar';`          | Default choice for most imports.           |
+| Default            | `import Bar from './bar';`            | Only when the external API requires it.    |
+| Side-effect        | `import './polyfill';`                | Library initialization only.               |
+
+### 2.2 Type Imports
+
+Separate type-only imports using `import type`. This is enforced by ESLint.
+
+```typescript
+import type {Token} from './auth';
+import {createToken} from './auth';
+```
+
+When re-exporting types, use `export type`.
+
+### 2.3 Import Paths
+
+- Use relative paths (`./foo`, `../bar`) within the same package.
+- Limit depth of parent traversals; if you exceed three levels (`../../../`),
+  consider restructuring.
+
+### 2.4 Named Exports Only
+
+Use named exports in all code. Never use `export default`. This ensures
+consistent import names and catches missing symbols at import time.
+
+```typescript
+// Good.
+export class TokenCache { ... }
+export function createToken(): Token { ... }
+
+// Bad — never use default exports.
+export default class TokenCache { ... }
+```
+
+### 2.5 Export Discipline
+
+- Only export symbols that are used outside the module.
+- Never use `export let`. Use a getter function if the value must change.
+- Do not create container classes with only static members. Export individual
+  constants and functions instead.
+
+---
+
+## 3. Variables and Declarations
+
+### 3.1 const and let
+
+Always use `const` or `let`. Never use `var`. Prefer `const` unless the
+variable must be reassigned.
+
+Each declaration must declare exactly one variable.
+
+```typescript
+// Good.
+const host = config.host;
+let retryCount = 0;
+
+// Bad — multiple declarations.
+const host = config.host, port = config.port;
+```
+
+### 3.2 Arrays
+
+Never use the `Array()` constructor. Use bracket notation or `Array.from()`.
+
+```typescript
+// Good.
+const items: string[] = [];
+const zeroes = Array.from<number>({length: 5}).fill(0);
+
+// Bad.
+const items = new Array<string>();
+```
+
+Do not define non-numeric properties on arrays. Use `Map` or a plain object.
+
+### 3.3 Objects
+
+Never use the `Object` constructor. Use object literals.
+
+Never use unfiltered `for (... in ...)` on objects. Use `Object.keys()`,
+`Object.values()`, or `Object.entries()` instead.
+
+---
+
+## 4. Naming
+
+### 4.1 General Principles
+
+- Names must be descriptive and clear to a reader unfamiliar with the code.
+- Do not encode type information into names (no Hungarian notation).
+- Do not prefix interfaces with `I` (e.g., use `Credentials`, not
+  `ICredentials`).
+- Do not use trailing or leading underscores for private members (TypeScript
+  visibility modifiers handle this).
+- Treat acronyms as whole words: `loadHttpUrl`, not `loadHTTPURL`.
+- Short names (1–2 chars) are acceptable only for variables scoped to fewer
+  than 10 lines.
+
+### 4.2 Naming by Identifier Type
+
+| Style             | Used for                                                         |
+| ----------------- | ---------------------------------------------------------------- |
+| `PascalCase`      | Classes, interfaces, type aliases, enums, decorators, type params, components. |
+| `camelCase`       | Variables, parameters, functions, methods, properties, module aliases.         |
+| `CONSTANT_CASE`   | Module-level constants, static class constants, enum members.                  |
+
+```typescript
+// PascalCase for types.
+interface TokenProvider { ... }
+class PatCredentials { ... }
+enum AuthType { PAT, OAUTH, AZURE_CLI }
+
+// camelCase for values.
+const tokenProvider = createTokenProvider();
+function refreshToken(): Token { ... }
+
+// CONSTANT_CASE for true constants.
+const MAX_RETRY_COUNT = 5;
+const DEFAULT_TIMEOUT_MS = 30_000;
+```
+
+### 4.3 Enum Members
+
+Enum members must use `CONSTANT_CASE`.
+
+```typescript
+enum GrantType {
+  AUTHORIZATION_CODE,
+  CLIENT_CREDENTIALS,
+  REFRESH_TOKEN,
+}
+```
+
+### 4.4 Module Imports
+
+Namespace imports use `camelCase` even when the file is `snake_case`.
+
+```typescript
+import * as tokenCache from './token_cache';
+```
+
+### 4.5 Constants
+
+Use `CONSTANT_CASE` for values declared at module level that are deeply
+immutable and intended never to change. If the value can be instantiated more
+than once (e.g., inside a function), use `camelCase`.
+
+---
+
+## 5. Type System
+
+### 5.1 Type Inference
+
+Rely on TypeScript's inference for local variables with trivially inferable
+types. Do not annotate what the compiler already knows.
+
+```typescript
+// Good — type is obvious.
+const count = 0;
+const name = 'databricks';
+const items = new Map<string, number>();
+
+// Good — complex expression benefits from annotation.
+const credentials: Credentials = await resolveCredentialChain(config);
+```
+
+### 5.2 Explicit Return Types
+
+All exported functions and all class methods must have explicit return type
+annotations. This is enforced by ESLint (`explicit-function-return-type`,
+`explicit-module-boundary-types`).
+
+```typescript
+// Good.
+export function createToken(pat: string): Token {
+  return {accessToken: pat, tokenType: 'Bearer'};
+}
+
+// Bad — missing return type on exported function.
+export function createToken(pat: string) {
+  return {accessToken: pat, tokenType: 'Bearer'};
+}
+```
+
+### 5.3 Interfaces over Type Aliases
+
+Use `interface` for object shapes. Use `type` only for unions, tuples,
+mapped types, or primitive aliases.
+
+```typescript
+// Good.
+interface TokenResponse {
+  accessToken: string;
+  expiresIn: number;
+}
+
+// Good — union is appropriate for type alias.
+type AuthMethod = 'pat' | 'oauth' | 'azure-cli';
+```
+
+### 5.4 Array Syntax
+
+Use `T[]` for simple types and `Array<T>` for complex types.
+
+```typescript
+let names: string[];
+let matrix: number[][];
+let entries: Array<{key: string; value: number}>;
+let mixed: Array<string | number>;
+```
+
+### 5.5 The `any` Type
+
+Never use `any`. This is enforced by ESLint (`strict-type-checked`).
+
+- Use `unknown` for values of indeterminate type, then narrow with type guards.
+- Use generics to preserve type information through functions.
+- In tests, if `any` is truly unavoidable, add a suppression comment explaining
+  why.
+
+```typescript
+// Good.
+function parseResponse(raw: unknown): TokenResponse {
+  if (!isTokenResponse(raw)) {
+    throw new Error('Unexpected response shape.');
+  }
+  return raw;
+}
+
+// Bad.
+function parseResponse(raw: any): TokenResponse {
+  return raw;
+}
+```
+
+### 5.6 Nullable Types
+
+- Do not include `| null` or `| undefined` in type aliases. Add nullability
+  where the alias is used.
+- Prefer optional (`?`) over `| undefined` for parameters and fields.
+- Initialize class fields eagerly to avoid optional fields where possible.
+
+```typescript
+// Good.
+interface Config {
+  host: string;
+  token?: string; // Optional field.
+}
+
+// Bad — nullability baked into the alias.
+type MaybeToken = Token | undefined;
+```
+
+### 5.7 Type Assertions
+
+Avoid `as` casts and non-null assertions (`!`). They silence the compiler
+without adding runtime safety. Both are banned by ESLint.
+
+- Prefer explicit runtime checks (`instanceof`, `typeof`, truthiness).
+- When an assertion is genuinely necessary, add a comment explaining why it is
+  safe.
+- Use `as` syntax, never angle-bracket syntax (`<Foo>x`).
+- For double assertions, cast through `unknown` (never through `any`).
+
+### 5.8 Structural Typing
+
+Provide type annotations at declaration sites to get precise structural
+checking.
+
+```typescript
+// Good — catches extra properties immediately.
+const config: AuthConfig = {
+  host: 'https://example.cloud.databricks.com',
+  tken: 'dapi...', // Typo caught at declaration.
+};
+```
+
+---
+
+## 6. Functions
+
+### 6.1 Function Declarations vs Expressions
+
+Prefer function declarations for named, top-level functions. Use arrow
+functions for callbacks and inline expressions. Never use `function`
+expressions — use arrow functions instead.
+
+```typescript
+// Good — declaration for named function.
+function refreshToken(credentials: Credentials): Promise<Token> { ... }
+
+// Good — arrow for callback.
+const names = users.map(u => u.name);
+
+// Bad — function expression.
+const refreshToken = function (credentials: Credentials): Promise<Token> { ... };
+```
+
+### 6.2 Arrow Function Bodies
+
+Use concise bodies when the return value is consumed. Use block bodies for
+multi-statement logic or when the return value is unused.
+
+```typescript
+// Good — concise body, return value used.
+const ids = items.map(item => item.id);
+
+// Good — block body, multi-statement.
+const results = items.map(item => {
+  const transformed = transform(item);
+  validate(transformed);
+  return transformed;
+});
+
+// Good — block body, return value unused.
+items.forEach(item => {
+  process(item);
+});
+```
+
+### 6.3 Parameters
+
+- Use rest parameters (`...args: T[]`) instead of `arguments`.
+- Use default values for optional parameters. Keep defaults simple and
+  side-effect-free.
+- Never name a local variable `arguments`.
+
+### 6.4 `this`
+
+Only use `this` inside class constructors, class methods, or arrow functions
+that close over a class scope. Prefer arrow functions over `.bind()`.
+
+---
+
+## 7. Classes
+
+### 7.1 Visibility
+
+Use TypeScript visibility modifiers (`private`, `protected`, `readonly`).
+Never use ES private fields (`#field`). Omit `public` — it is the default and
+is enforced by ESLint (`explicit-member-accessibility: no-public`).
+
+```typescript
+class TokenCache {
+  private readonly tokens = new Map<string, Token>();
+  private expiry: number;
+
+  constructor(private readonly ttlMs: number) {
+    this.expiry = 0;
+  }
+
+  get(key: string): Token | undefined {
+    return this.tokens.get(key);
+  }
+}
+```
+
+### 7.2 Parameter Properties
+
+Use parameter properties to reduce boilerplate in constructors.
+
+```typescript
+// Good.
+class Client {
+  constructor(
+    private readonly host: string,
+    private readonly token: string
+  ) {}
+}
+```
+
+### 7.3 readonly
+
+Mark every property that is never reassigned after construction as `readonly`.
+
+### 7.4 Getters and Setters
+
+Getters must be pure (no side effects). Do not create pass-through accessors —
+either make the property public/readonly or add real logic. Define accessors
+directly on the class, never via `Object.defineProperty`.
+
+### 7.5 Static Methods
+
+Avoid private static methods; prefer module-level functions instead. Never use
+`this` in a static method.
+
+### 7.6 Constructors
+
+Always include parentheses in constructor calls: `new Foo()`, not `new Foo`.
+
+---
+
+## 8. Control Flow
+
+### 8.1 Braces
+
+All control flow statements must use braced blocks, even for single statements.
+
+```typescript
+// Good.
+if (token.isExpired()) {
+  await refresh();
+}
+
+// Bad.
+if (token.isExpired()) await refresh();
+```
+
+### 8.2 Equality
+
+Always use `===` and `!==`. The only exception: `== null` is permitted to check
+for both `null` and `undefined`.
+
+```typescript
+if (value === 0) { ... }
+if (result == null) { ... } // Checks null and undefined.
+```
+
+### 8.3 Switch
+
+Every switch must have a `default` case (even if empty). Non-empty case groups
+must not fall through — terminate with `break`, `return`, or `throw`.
+
+### 8.4 Iteration
+
+Prefer `for...of` for arrays. Use `Object.entries()` for objects. Never use
+`for...in` on arrays.
+
+```typescript
+for (const item of items) {
+  process(item);
+}
+
+for (const [key, value] of Object.entries(config)) {
+  applyOption(key, value);
+}
+```
+
+### 8.5 Boolean Expressions
+
+Strict boolean expressions are enforced by ESLint. Do not rely on implicit
+coercion in conditionals for non-boolean values.
+
+```typescript
+// Good.
+if (items.length > 0) { ... }
+
+// Bad — implicit coercion of number to boolean.
+if (items.length) { ... }
+```
+
+---
+
+## 9. Error Handling
+
+### 9.1 Throw Only Errors
+
+Always throw `Error` instances (or subclasses). Never throw strings, numbers,
+or arbitrary objects — they lack stack traces.
+
+```typescript
+// Good.
+throw new Error('Token refresh failed.');
+
+// Bad.
+throw 'Token refresh failed.';
+```
+
+### 9.2 Promise Rejection
+
+Only reject promises with `Error` instances.
+
+```typescript
+Promise.reject(new Error('Request timed out.'));
+```
+
+### 9.3 Catch Clauses
+
+Type caught values as `unknown` and narrow before use.
+
+```typescript
+try {
+  await fetchToken();
+} catch (e: unknown) {
+  if (e instanceof Error) {
+    log(e.message);
+  }
+  throw e;
+}
+```
+
+### 9.4 Empty Catch Blocks
+
+An empty catch block is only permitted with a comment explaining why the error
+is intentionally swallowed.
+
+```typescript
+try {
+  return parseJson(response);
+} catch (_e: unknown) {
+  // Response is not JSON. Fall through to text parsing.
+}
+```
+
+---
+
+## 10. Comments and Documentation
+
+### 10.1 Sentences
+
+Every comment must be a proper sentence ending with a period.
+
+### 10.2 JSDoc vs Line Comments
+
+Use `/** JSDoc */` for documentation visible to consumers of the API (exported
+functions, classes, interfaces). Use `//` comments for internal implementation
+notes.
+
+### 10.3 Multi-line Comments
+
+Use multiple `//` lines, not `/* */` blocks.
+
+```typescript
+// Refresh the token if it expires within the next 30 seconds.
+// This prevents race conditions when the token is used immediately
+// after this check.
+```
+
+### 10.4 JSDoc Format
+
+```typescript
+/**
+ * Refreshes the authentication token using the configured credentials.
+ *
+ * @param force - When true, refresh even if the token is not yet expired.
+ * @returns The new token.
+ * @throws {AuthError} If the credentials are invalid.
+ */
+function refreshToken(force?: boolean): Promise<Token> { ... }
+```
+
+Use Markdown in JSDoc bodies. Parameters use `@param name - Description`
+format.
+
+### 10.5 No Redundant Comments
+
+Do not add comments that merely restate the code.
+
+```typescript
+// Bad — adds no information.
+// Set count to zero.
+const count = 0;
+```
+
+---
+
+## 11. Formatting
+
+Formatting is handled by **Prettier** and must not be overridden manually. The
+canonical settings are:
+
+| Setting          | Value      |
+| ---------------- | ---------- |
+| Semicolons       | Always     |
+| Quotes           | Single     |
+| Trailing commas  | ES5        |
+| Bracket spacing  | None       |
+| Print width      | 80         |
+| Indent           | 2 spaces   |
+| Tabs             | Never      |
+| Arrow parens     | Avoid      |
+| End of line      | LF         |
+
+Run `npm run format` to auto-format. Run `npm run format:check` to verify.
+
+---
+
+## 12. Disallowed Features
+
+The following are banned in this codebase:
+
+| Feature                     | Reason                                                |
+| --------------------------- | ----------------------------------------------------- |
+| `var`                       | Use `const` or `let`.                                 |
+| `any`                       | Use `unknown` or a specific type.                     |
+| `eval()` / `new Function()` | Security risk. No exceptions.                        |
+| `with` statement            | Banned in strict mode.                                |
+| `debugger`                  | Must never appear in committed code.                  |
+| `console.*`                 | Use a proper logger. Enforced by ESLint.              |
+| Default exports             | Use named exports only.                               |
+| `const enum`                | Use plain `enum`.                                     |
+| `@ts-ignore`                | Never suppress type errors. Fix the type instead.     |
+| `@ts-expect-error`          | Same as above.                                        |
+| `@ts-nocheck`               | Same as above.                                        |
+| Wrapper objects             | Never use `new String()`, `new Boolean()`, `new Number()`. |
+| `require()`                 | Use ES module `import` syntax.                        |
+| ES private fields (`#`)     | Use TypeScript `private` modifier.                    |
+| `for...in` on arrays        | Use `for...of` or array methods.                      |
+| Non-null assertion (`!`)    | Use explicit checks. Enforced by ESLint.              |
+
+---
+
+## 13. Testing
+
+Tests live alongside source in `packages/*/tests/` and use Vitest.
+
+### 13.1 File Naming
+
+Test files mirror source file names with a `.test.ts` suffix.
+
+```
+src/credentials/pat.ts  →  tests/credentials/pat.test.ts
+```
+
+### 13.2 Test Structure
+
+Use `describe` blocks to group related tests. Use `it` for individual cases.
+Test names should read as sentences.
+
+```typescript
+describe('PatCredentials', () => {
+  it('should return a bearer token with the configured PAT', () => {
+    // ...
+  });
+
+  it('should throw when the PAT is empty', () => {
+    // ...
+  });
+});
+```
+
+### 13.3 Assertions
+
+Use Vitest's `expect` API. Prefer specific matchers over generic ones.
+
+```typescript
+expect(token.accessToken).toBe('dapi...');
+expect(result).toStrictEqual({host: 'example.com', port: 443});
+expect(() => createToken('')).toThrow('PAT must not be empty.');
+```
+
+### 13.4 No Test Pollution
+
+Each test must be independent. Do not rely on execution order. Clean up side
+effects in `afterEach` or `afterAll` blocks.
+
+---
+
+## 14. Module System
+
+- This project uses ESM exclusively (`"module": "ESNext"` in tsconfig).
+- Never use `require()` or `module.exports`.
+- File extensions are not required in import paths (bundler module resolution).
+- Circular imports are forbidden. If the linter or bundler reports a cycle,
+  refactor to break it.
+
+---
+
+## 15. Platform Compatibility
+
+This SDK targets both Node.js (>= 18) and browsers.
+
+- Node.js-only APIs (filesystem, `process.env`, child processes) must be
+  isolated in modules that are **not** exported from the browser entry point.
+- Use feature detection or separate entry points, never user-agent sniffing.
+- Refer to existing patterns in `packages/auth/src/index.ts` (Node.js) vs
+  `packages/auth/src/browser.ts` (browser) for guidance.
