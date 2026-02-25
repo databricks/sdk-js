@@ -208,20 +208,18 @@ export interface HelpLink {
 
 // Reusable schema fragments. Nullish fields default to their zero values
 // (empty string, empty array, empty record) when absent or null.
-const nullishString = z.string().nullish().transform(v => v ?? '');
-const nullishStringArray = z
-  .array(z.string())
+const nullishString = z
+  .string()
   .nullish()
-  .transform(v => v ?? []);
-const nullishStringRecord = z
-  .record(z.string(), z.string())
-  .nullish()
-  .transform(v => v ?? {});
+  .transform(v => v ?? '');
 
 const errorInfoSchema = z.object({
   reason: nullishString,
   domain: nullishString,
-  metadata: nullishStringRecord,
+  metadata: z
+    .record(z.string(), z.string())
+    .nullish()
+    .transform(v => v ?? {}),
 });
 
 const requestInfoSchema = z
@@ -261,7 +259,10 @@ const retryInfoSchema = z
 
 const debugInfoSchema = z
   .object({
-    stack_entries: nullishStringArray,
+    stack_entries: z
+      .array(z.string())
+      .nullish()
+      .transform(v => v ?? []),
     detail: nullishString,
   })
   .transform(d => ({
@@ -294,11 +295,10 @@ const preconditionFailureSchema = z.object({
     .transform(v => v ?? []),
 });
 
-const fieldViolationSchema = z
-  .object({
-    field: nullishString,
-    description: nullishString,
-  });
+const fieldViolationSchema = z.object({
+  field: nullishString,
+  description: nullishString,
+});
 
 const badRequestSchema = z
   .object({
