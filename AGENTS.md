@@ -25,18 +25,23 @@ your training data, the rule wins.
 
 ```
 sdk-js/
-├── packages/           # npm workspace packages
-│   └── auth/           # @databricks/sdk-auth
-│       ├── src/        # TypeScript source
-│       └── tests/      # Vitest test files
-├── .agent/             # Agent configuration
-│   ├── rules/          # Coding, linting, and logic rules
-│   ├── skills/         # Reusable executable capabilities
-│   └── prompts/        # Reusable complex prompt templates
-├── .eslintrc.cjs       # ESLint configuration
-├── .prettierrc.json    # Prettier configuration
-├── tsconfig.base.json  # Shared TypeScript compiler options
-└── tsconfig.json       # Root TypeScript project config
+├── packages/              # npm workspace packages
+│   ├── auth/              # @databricks/sdk-auth
+│   │   ├── src/           # TypeScript source
+│   │   └── tests/         # Vitest test files
+│   └── databricks/        # @databricks/sdk-databricks (core library)
+│       ├── src/
+│       │   └── apierror/  # API error types (mirrors Go SDK apierr/)
+│       │       └── codes/ # Canonical error codes
+│       └── tests/
+├── .agent/                # Agent configuration
+│   ├── rules/             # Coding, linting, and logic rules
+│   ├── skills/            # Reusable executable capabilities
+│   └── prompts/           # Reusable complex prompt templates
+├── .eslintrc.cjs          # ESLint configuration
+├── .prettierrc.json       # Prettier configuration
+├── tsconfig.base.json     # Shared TypeScript compiler options
+└── tsconfig.json          # Root TypeScript project config
 ```
 
 ## Rules
@@ -47,6 +52,9 @@ self-contained and includes its scope, enforcement level, and examples.
 | Rule file              | Scope                                  |
 | ---------------------- | -------------------------------------- |
 | `typescript.mdc`       | TypeScript language and style rules    |
+| `packages.mdc`         | Package scaffolding and conventions    |
+| `testing.mdc`          | Testing conventions                    |
+| `porting.mdc`          | Porting code from the Go reference SDK |
 
 ## Common Commands
 

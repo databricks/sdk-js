@@ -1,0 +1,54 @@
+---
+description: Rules for porting code from the Go reference SDK to TypeScript.
+scope: all TypeScript source ported from the Go SDK
+enforcement: strict
+globs: ["packages/**/src/**/*.ts"]
+---
+
+# Porting from the Go SDK
+
+The Go SDK at <https://github.com/databricks/sdk-go> may be used as a
+reference when porting specific modules. The TypeScript SDK is an independent
+project — it may have more modules, fewer modules, or entirely different
+modules than the Go SDK. These rules only apply when a user explicitly asks
+to port something from the Go SDK.
+
+## Documentation Comments
+
+**Preserve all Go documentation comments verbatim.** Do not summarize, shorten,
+or reword them. Translate Go `//` comments to JSDoc (`/** */`) format for
+exported symbols, but keep the full content including multi-paragraph
+explanations and examples.
+
+```go
+// OutOfRange means the operation was attempted past the valid range.
+// E.g., seeking or reading past end of file.
+//
+// Unlike InvalidArgument, this error indicates a problem that may
+// be fixed if the system state changes. ...
+```
+
+Becomes:
+
+```typescript
+/**
+ * OutOfRange means the operation was attempted past the valid range.
+ * E.g., seeking or reading past end of file.
+ *
+ * Unlike InvalidArgument, this error indicates a problem that may
+ * be fixed if the system state changes. ...
+ */
+```
+
+## Directory Structure
+
+Mirror the Go SDK's package layout. Go packages map to directories in
+TypeScript:
+
+| Go                           | TypeScript                          |
+| ---------------------------- | ----------------------------------- |
+| `databricks/apierr/`        | `packages/databricks/src/apierror/` |
+| `databricks/apierr/codes/`  | `packages/databricks/src/apierror/codes/` |
+
+Each Go package that is separately importable should be a separate directory
+with its own `index.ts` and a corresponding subpath export in `package.json`.

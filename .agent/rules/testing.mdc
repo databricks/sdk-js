@@ -1,0 +1,68 @@
+---
+description: Testing conventions for the Databricks JS SDK.
+scope: all test files
+enforcement: strict
+globs: ["packages/**/tests/**/*.test.ts"]
+---
+
+# Testing Conventions
+
+## Single Source of Truth
+
+Tests must not duplicate source-of-truth data. Derive test inputs from the
+source (e.g. iterate enum values) rather than maintaining a parallel list that
+can drift.
+
+```typescript
+// Good — single source of truth.
+const ALL_CODES = Object.values(Code).filter(
+  (v): v is Code => typeof v === 'number'
+);
+
+it.each(ALL_CODES)('should round-trip code %i', code => {
+  expect(codeFromString(codeToString(code))).toBe(code);
+});
+
+// Bad — duplicated list that can drift from the enum.
+const knownCodes = [
+  {code: Code.UNKNOWN, str: 'UNKNOWN'},
+  {code: Code.OK, str: 'OK'},
+  // ...
+];
+```
+
+## File Naming
+
+Test files mirror source file names with a `.test.ts` suffix.
+
+```
+src/credentials/pat.ts  →  tests/credentials/pat.test.ts
+src/apierror/codes/codes.ts  →  tests/apierror/codes/codes.test.ts
+```
+
+## Structure
+
+Use `describe` blocks to group related tests. Use `it` for individual cases.
+Test names should read as sentences.
+
+```typescript
+describe('PatCredentials', () => {
+  it('should return a bearer token with the configured PAT', () => {
+    // ...
+  });
+});
+```
+
+## Assertions
+
+Use Vitest's `expect` API. Prefer specific matchers over generic ones.
+
+```typescript
+expect(token.accessToken).toBe('dapi...');
+expect(result).toStrictEqual({host: 'example.com', port: 443});
+```
+
+## Independence
+
+Each test must be independent. Do not rely on execution order. Clean up side
+effects in `afterEach` or `afterAll` blocks.
