@@ -1,0 +1,97 @@
+---
+description: Package scaffolding and conventions for the Databricks JS SDK.
+scope: all workspace packages (packages/*/)
+enforcement: strict
+globs: ["packages/*/package.json", "packages/*/tsconfig.json"]
+---
+
+# Package Conventions
+
+## Naming
+
+Package names follow the pattern `@databricks/sdk-<dirname>`:
+
+| Directory             | Package name                  |
+| --------------------- | ----------------------------- |
+| `packages/auth/`      | `@databricks/sdk-auth`        |
+| `packages/databricks/` | `@databricks/sdk-databricks` |
+
+## Required Files for a New Package
+
+Every workspace package must contain these files:
+
+```
+packages/<name>/
+├── src/
+│   └── index.ts              # Package entry point
+├── tests/
+│   └── tsconfig.json         # REQUIRED — see below
+├── package.json
+├── tsconfig.json
+└── vitest.config.browser.ts
+```
+
+### tests/tsconfig.json (critical)
+
+Each package **must** have a `tests/tsconfig.json`. Without it, ESLint's
+`@typescript-eslint/parser` with `project: true` cannot resolve test files
+because the package-level `tsconfig.json` only includes `src/`.
+
+```json
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": ".."
+  },
+  "include": [".", "../src"],
+  "exclude": ["../dist", "../node_modules"]
+}
+```
+
+### package.json
+
+Copy from an existing package (e.g. `packages/auth/package.json`) and adjust
+the `name`, `description`, and `exports` fields. Keep the same `devDependencies`
+versions.
+
+### tsconfig.json
+
+```json
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src"],
+  "exclude": ["dist", "node_modules", "tests"]
+}
+```
+
+## Exports
+
+Use **subpath exports only**. Each submodule is imported via its own path.
+Do not re-export children from parent `index.ts` files — this avoids a flat
+namespace that grows unwieldy and risks name collisions.
+
+```json
+{
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+    "./apierror": { "types": "./dist/apierror/index.d.ts", "import": "./dist/apierror/index.js" },
+    "./apierror/codes": { "types": "./dist/apierror/codes/index.d.ts", "import": "./dist/apierror/codes/index.js" }
+  }
+}
+```
+
+## Verification Checklist
+
+After creating a new package, run all four checks:
+
+```bash
+npm run build   --workspace=packages/<name>
+npm run lint    --workspace=packages/<name>
+npm run typecheck --workspace=packages/<name>
+npm test        --workspace=packages/<name>
+```
