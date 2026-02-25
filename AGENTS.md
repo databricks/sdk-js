@@ -55,6 +55,7 @@ self-contained and includes its scope, enforcement level, and examples.
 | `packages.mdc`         | Package scaffolding and conventions    |
 | `testing.mdc`          | Testing conventions                    |
 | `porting.mdc`          | Porting code from the Go reference SDK |
+| `libraries.mdc`        | Library selection over hand-rolling    |
 
 ## Common Commands
 
@@ -91,7 +92,11 @@ npm run clean
 
 1. **Read the rules.** Start with `.agent/rules/typescript.mdc`.
 2. **Understand existing code.** Read neighbouring files before editing.
-3. **Run checks.** After every change run `npm run lint && npm run typecheck`.
+3. **Run checks.** After every change run
+   `npm run format && npm run lint && npm run typecheck`.
 4. **Run tests.** Confirm nothing is broken with `npm test`.
 5. **Comments are sentences.** Every comment must be a proper sentence ending
    with a period.
+6. **Back up claims.** When proposing a design decision or asserting a
+   convention, provide concrete references (documentation, API links). Do not
+   state something is "idiomatic" or "standard" without evidence.

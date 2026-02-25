@@ -85,7 +85,10 @@ export default class TokenCache { ... }
 
 ### 2.5 Export Discipline
 
-- Only export symbols that are used outside the module.
+- Only export symbols that consumers of the package need. Keep implementation
+  details (internal helpers, parse functions, schemas) unexported. If a symbol
+  is only used within the package or by tests, do not export it from
+  `index.ts`.
 - Never use `export let`. Use a getter function if the value must change.
 - Do not create container classes with only static members. Export individual
   constants and functions instead.
@@ -708,7 +711,39 @@ effects in `afterEach` or `afterAll` blocks.
 
 ---
 
-## 15. Platform Compatibility
+## 15. Code Uniformity
+
+Keep similar code paths uniform. If multiple cases follow the same pattern,
+they should all use the same approach. Do not special-case one variant unless
+there is a clear, documented reason.
+
+```typescript
+// Good — all cases follow the same pattern.
+case ERROR_INFO_TYPE: {
+  const r = errorInfoSchema.safeParse(raw);
+  if (!r.success) return false;
+  ed.errorInfo = r.data;
+  return true;
+}
+case RETRY_INFO_TYPE: {
+  const r = retryInfoSchema.safeParse(raw);
+  if (!r.success) return false;
+  ed.retryInfo = r.data;
+  return true;
+}
+
+// Bad — one case uses a different approach for no good reason.
+case RETRY_INFO_TYPE: {
+  const parsed = tryParseRetryInfo(raw);
+  if (parsed === undefined) return false;
+  ed.retryInfo = parsed;
+  return true;
+}
+```
+
+---
+
+## 16. Platform Compatibility
 
 This SDK targets both Node.js (>= 18) and browsers.
 

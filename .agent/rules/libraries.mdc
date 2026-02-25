@@ -1,0 +1,23 @@
+---
+description: Guidelines for choosing libraries over hand-rolled solutions.
+scope: all source files
+enforcement: strict
+globs: ["packages/**/src/**/*.ts"]
+---
+
+# Libraries over Hand-Rolling
+
+Prefer established ecosystem libraries over hand-rolled solutions for common
+tasks like validation, parsing, and serialization. For example, use Zod for
+runtime type validation instead of writing manual type guards and validation
+helpers.
+
+When proposing a library, justify the choice with concrete references (docs,
+API examples). Do not assert that something is "idiomatic" or "standard"
+without pointing to where that convention is documented.
+
+## Current Libraries
+
+| Task                          | Library | Notes                          |
+| ----------------------------- | ------- | ------------------------------ |
+| Runtime type validation / JSON unmarshalling | Zod     | Used for API wire-format parsing |

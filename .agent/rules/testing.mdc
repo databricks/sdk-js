@@ -53,6 +53,31 @@ describe('PatCredentials', () => {
 });
 ```
 
+## Table-Driven Tests
+
+When multiple test cases share the same business logic and only differ in
+input/output data, use table-driven tests with `it.each`. Do not write
+separate `it` blocks for each case.
+
+```typescript
+// Good — table-driven.
+const testCases: {name: string; input: string; want: number}[] = [
+  {name: 'positive', input: '1', want: 1},
+  {name: 'zero', input: '0', want: 0},
+];
+it.each(testCases)('$name', ({input, want}) => {
+  expect(parse(input)).toBe(want);
+});
+
+// Bad — separate blocks with duplicated logic.
+it('should parse positive', () => {
+  expect(parse('1')).toBe(1);
+});
+it('should parse zero', () => {
+  expect(parse('0')).toBe(0);
+});
+```
+
 ## Assertions
 
 Use Vitest's `expect` API. Prefer specific matchers over generic ones.

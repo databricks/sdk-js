@@ -20,6 +20,11 @@ or reword them. Translate Go `//` comments to JSDoc (`/** */`) format for
 exported symbols, but keep the full content including multi-paragraph
 explanations and examples.
 
+**Do not add documentation beyond what the Go SDK has.** If a Go type or
+function has no doc comment, the TypeScript version should not have one either.
+Do not invent explanations, add `@packageDocumentation` summaries, or expand
+on what Go provides.
+
 ```go
 // OutOfRange means the operation was attempted past the valid range.
 // E.g., seeking or reading past end of file.
@@ -52,3 +57,54 @@ TypeScript:
 
 Each Go package that is separately importable should be a separate directory
 with its own `index.ts` and a corresponding subpath export in `package.json`.
+
+## Naming
+
+Names in the TypeScript implementation must be idiomatic TypeScript. Do not
+reference the source language in variable, function, or type names.
+
+```typescript
+// Good — describes what the schema does.
+const nullishString = z.string().nullish().transform(v => v ?? '');
+
+// Bad — references Go in the name.
+const goString = z.string().nullish().transform(v => v ?? '');
+```
+
+## Tests
+
+Port **all** test cases from the Go SDK. Do not selectively skip tests. When a
+Go test case cannot be directly ported (e.g. because of a language difference
+like `json.RawMessage` vs already-parsed JSON), explain the omission to the
+user and get confirmation before skipping.
+
+Use the same test structure as the Go SDK. Go table-driven tests map to
+Vitest's `it.each`:
+
+```go
+// Go
+testCases := []struct{ name string; input int; want int }{
+    {"positive", 1, 1},
+    {"zero", 0, 0},
+}
+for _, tc := range testCases {
+    t.Run(tc.name, func(t *testing.T) { ... })
+}
+```
+
+```typescript
+// TypeScript equivalent
+const testCases: {name: string; input: number; want: number}[] = [
+  {name: 'positive', input: 1, want: 1},
+  {name: 'zero', input: 0, want: 0},
+];
+it.each(testCases)('$name', ({input, want}) => { ... });
+```
+
+## Deviations from Go
+
+When the TypeScript implementation must differ from Go (e.g. different function
+signatures, different input types, skipped tests), **explain the deviation to
+the user** before proceeding. Do not silently change behaviour or add comments
+in the code about Go differences — keep the codebase clean of porting
+artifacts.
