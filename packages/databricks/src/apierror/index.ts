@@ -20,5 +20,3 @@ export type {
   Help,
   HelpLink,
 } from './details';
-
-export {parseErrorDetails} from './details';

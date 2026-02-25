@@ -1,9 +1,6 @@
 /**
  * Defines structured error detail types for API errors.
  *
- * These types correspond to the standard Google RPC error detail types
- * (google.rpc.*) that Databricks API responses may include.
- *
  * @packageDocumentation
  */
 
@@ -439,13 +436,8 @@ function tryAssignDetail(
 
 /**
  * Parses an array of raw error detail values into a structured ErrorDetails
- * object.
- *
- * Each element is inspected for a `@type` field and, if recognized, parsed
- * into its corresponding typed interface. Unrecognized or invalid details are
- * collected into the `unknownDetails` array.
- *
- * If multiple details of the same known type are present, the last one wins.
+ * object. If multiple details of the same known type are present, the last
+ * one wins.
  */
 export function parseErrorDetails(rawDetails: unknown[]): ErrorDetails {
   const ed: ErrorDetails = {unknownDetails: []};
