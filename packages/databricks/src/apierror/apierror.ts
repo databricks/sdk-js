@@ -59,6 +59,12 @@ export class APIError extends Error {
     readonly body: Uint8Array | undefined;
   };
 
+  /**
+   * Do not use this constructor directly. Use {@link APIError.fromHttpError}
+   * instead. This constructor is only meant for internal and testing use.
+   *
+   * @private
+   */
   constructor(options: APIErrorOptions) {
     super(options.message, {cause: options.cause});
     this.name = 'APIError';
@@ -104,6 +110,98 @@ export class APIError extends Error {
       return undefined;
     }
     return this.httpErr.body;
+  }
+
+  /**
+   * Parses an HTTP error response into an APIError. Returns undefined if the
+   * status code is 2xx.
+   */
+  static fromHttpError(
+    statusCode: number,
+    header: Headers | undefined,
+    body: Uint8Array | undefined
+  ): APIError | undefined {
+    if (statusCode >= 200 && statusCode < 300) {
+      return undefined;
+    }
+
+    const emptyDetails: ErrorDetails = {unknownDetails: []};
+
+    if (body === undefined || body.length === 0) {
+      return new APIError({
+        code: toCode(statusCode),
+        message: '',
+        details: emptyDetails,
+        httpStatusCode: statusCode,
+        httpHeader: header,
+        httpBody: body,
+      });
+    }
+
+    // Decode the body to a string for JSON parsing.
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(new TextDecoder().decode(body));
+    } catch (e: unknown) {
+      // The JSON error is simply swallowed, this typically happens when the
+      // error does not come directly from a Databricks API. A typical example
+      // is when the error is returned by a proxy.
+      return new APIError({
+        code: toCode(statusCode),
+        message: '',
+        details: emptyDetails,
+        httpStatusCode: statusCode,
+        httpHeader: header,
+        httpBody: body,
+        cause: e instanceof Error ? e : undefined,
+      });
+    }
+
+    const result = errorResponseSchema.safeParse(parsed);
+    if (!result.success) {
+      return new APIError({
+        code: toCode(statusCode),
+        message: '',
+        details: emptyDetails,
+        httpStatusCode: statusCode,
+        httpHeader: header,
+        httpBody: body,
+        cause: result.error,
+      });
+    }
+
+    const errResp = result.data;
+
+    // Error codes may be missing or be an integer (legacy APIs). In such
+    // cases, defer to the HTTP status code to infer the closest canonical
+    // error code.
+    let errorCode: Code;
+    if (typeof errResp.error_code === 'string') {
+      errorCode = codeFromString(errResp.error_code);
+    } else {
+      errorCode = toCode(statusCode);
+    }
+
+    // Determine the error message from available fields.
+    let errorMessage = '';
+    if (errResp.message !== '') {
+      errorMessage = errResp.message;
+    } else if (errResp.error !== '') {
+      errorMessage = errResp.error;
+    } else if (errResp.detail !== '') {
+      errorMessage = errResp.detail;
+    } else if (errResp.scimType !== '') {
+      errorMessage = errResp.scimType;
+    }
+
+    return new APIError({
+      code: errorCode,
+      message: errorMessage,
+      details: parseErrorDetails(errResp.details),
+      httpStatusCode: statusCode,
+      httpHeader: header,
+      httpBody: body,
+    });
   }
 }
 
@@ -151,96 +249,4 @@ export function toCode(httpCode: number): Code {
   }
 
   return Code.UNKNOWN;
-}
-
-/**
- * Parses an HTTP error response into an APIError. Returns undefined if the
- * status code is 2xx.
- */
-export function fromHttpError(
-  statusCode: number,
-  header: Headers | undefined,
-  body: Uint8Array | undefined
-): APIError | undefined {
-  if (statusCode >= 200 && statusCode < 300) {
-    return undefined;
-  }
-
-  const emptyDetails: ErrorDetails = {unknownDetails: []};
-
-  if (body === undefined || body.length === 0) {
-    return new APIError({
-      code: toCode(statusCode),
-      message: '',
-      details: emptyDetails,
-      httpStatusCode: statusCode,
-      httpHeader: header,
-      httpBody: body,
-    });
-  }
-
-  // Decode the body to a string for JSON parsing.
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(new TextDecoder().decode(body));
-  } catch (e: unknown) {
-    // The JSON error is simply swallowed, this typically happens when the
-    // error does not come directly from a Databricks API. A typical example
-    // is when the error is returned by a proxy.
-    return new APIError({
-      code: toCode(statusCode),
-      message: '',
-      details: emptyDetails,
-      httpStatusCode: statusCode,
-      httpHeader: header,
-      httpBody: body,
-      cause: e instanceof Error ? e : undefined,
-    });
-  }
-
-  const result = errorResponseSchema.safeParse(parsed);
-  if (!result.success) {
-    return new APIError({
-      code: toCode(statusCode),
-      message: '',
-      details: emptyDetails,
-      httpStatusCode: statusCode,
-      httpHeader: header,
-      httpBody: body,
-      cause: result.error,
-    });
-  }
-
-  const errResp = result.data;
-
-  // Error codes may be missing or be an integer (legacy APIs). In such
-  // cases, defer to the HTTP status code to infer the closest canonical
-  // error code.
-  let errorCode: Code;
-  if (typeof errResp.error_code === 'string') {
-    errorCode = codeFromString(errResp.error_code);
-  } else {
-    errorCode = toCode(statusCode);
-  }
-
-  // Determine the error message from available fields.
-  let errorMessage = '';
-  if (errResp.message !== '') {
-    errorMessage = errResp.message;
-  } else if (errResp.error !== '') {
-    errorMessage = errResp.error;
-  } else if (errResp.detail !== '') {
-    errorMessage = errResp.detail;
-  } else if (errResp.scimType !== '') {
-    errorMessage = errResp.scimType;
-  }
-
-  return new APIError({
-    code: errorCode,
-    message: errorMessage,
-    details: parseErrorDetails(errResp.details),
-    httpStatusCode: statusCode,
-    httpHeader: header,
-    httpBody: body,
-  });
 }

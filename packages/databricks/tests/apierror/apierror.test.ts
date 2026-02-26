@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {APIError, fromHttpError, toCode} from '../../src/apierror/apierror';
+import {APIError, toCode} from '../../src/apierror/apierror';
 import {Code} from '../../src/apierror/codes';
 import type {ErrorDetails} from '../../src/apierror/details';
 
@@ -305,7 +305,7 @@ describe('fromHttpError', () => {
   ];
 
   it.each(testCases)('$desc', tc => {
-    const got = fromHttpError(tc.statusCode, tc.header, tc.body);
+    const got = APIError.fromHttpError(tc.statusCode, tc.header, tc.body);
 
     if (tc.want === undefined) {
       expect(got).toBeUndefined();
