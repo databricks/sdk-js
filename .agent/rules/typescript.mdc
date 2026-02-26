@@ -443,6 +443,29 @@ Avoid private static methods; prefer module-level functions instead. Never use
 
 Always include parentheses in constructor calls: `new Foo()`, not `new Foo`.
 
+### 7.7 Internal Methods and `@private` JSDoc
+
+When a method or constructor must be accessible to internal code and tests but
+should not be used by consumers, mark it with `@private` JSDoc. Do not export
+the options interface from `index.ts`.
+
+```typescript
+/**
+ * Do not use this constructor directly. Use {@link MyClass.create} instead.
+ * This constructor is only meant for internal and testing use.
+ *
+ * @private
+ */
+constructor(options: MyClassOptions) { ... }
+```
+
+### 7.8 API Surface Minimization
+
+Default to the smallest public API surface. Only export from `index.ts` what
+consumers need. Internal types (options interfaces, schemas, helper functions)
+must not be re-exported. Use `@private` JSDoc for methods that are technically
+accessible but not part of the public contract.
+
 ---
 
 ## 8. Control Flow

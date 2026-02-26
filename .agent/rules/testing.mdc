@@ -87,6 +87,48 @@ expect(token.accessToken).toBe('dapi...');
 expect(result).toStrictEqual({host: 'example.com', port: 443});
 ```
 
+## Never Silently Skip Assertions
+
+Do not use `return` in a test path where a failure should be reported. If a
+precondition fails, use `expect.fail()` so the test fails loudly instead of
+silently passing with no assertions.
+
+```typescript
+// Good — fails loudly if got is unexpectedly undefined.
+if (got === undefined) {
+  expect.fail('expected a result');
+}
+
+// Bad — silently skips all remaining assertions.
+if (got === undefined) {
+  return;
+}
+```
+
+## Test All Outputs
+
+When a function returns an object, verify all its fields — not just the ones
+that seem interesting. Do not skip fields because they appear "obvious" or are
+"just pass-through." If the function sets a field, the test should check it.
+
+## Use Real Types for Expected Values
+
+When the expected output is a class instance, use that class as the type of
+the `want` field in test tables. Do not invent anonymous object types that
+duplicate the class shape.
+
+```typescript
+// Good — want is a real APIError.
+const testCases: {desc: string; want?: APIError}[] = [
+  {desc: 'not found', want: new APIError({code: Code.NOT_FOUND, ...})},
+];
+
+// Bad — anonymous type duplicates APIError's shape.
+const testCases: {desc: string; want?: {code: Code; message: string}}[] = [
+  {desc: 'not found', want: {code: Code.NOT_FOUND, message: '...'}},
+];
+```
+
 ## Independence
 
 Each test must be independent. Do not rely on execution order. Clean up side
