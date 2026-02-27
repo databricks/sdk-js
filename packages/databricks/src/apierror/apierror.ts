@@ -62,6 +62,7 @@ export class APIError extends Error {
   /**
    * Do not use this constructor directly. Use {@link APIError.fromHttpError}
    * instead. This constructor is only meant for internal and testing use.
+   * TODO: Make this constructor private.
    *
    * @private
    */
