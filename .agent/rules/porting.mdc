@@ -79,7 +79,7 @@ const goString = z.string().nullish().transform(v => v ?? '');
    explicit opt-in for features that TypeScript provides natively. For example,
    Go requires an explicit `Unwrap() error` method for error chain traversal;
    TypeScript gets this for free via `Error.cause`. Do not port such code.
-2. **Does the test test our code or the language?** If a Go test verifies
+2. **Does the test validate our code or the language?** If a Go test verifies
    behaviour that is built into the TypeScript runtime (e.g. that `Error.cause`
    preserves a reference), skip it — it tests the language, not our
    implementation. Explain the skip to the user.
