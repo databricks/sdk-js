@@ -129,6 +129,30 @@ const testCases: {desc: string; want?: {code: Code; message: string}}[] = [
 ];
 ```
 
+## Mocking Module-Level Functions
+
+To mock a module-level function in ESM, the function must be a method on an
+exported object — not a standalone exported function. Standalone functions are
+captured as local closure references and `vi.spyOn` cannot intercept them.
+
+```typescript
+// In the source file:
+export const rand = {
+  int(n: number): number {
+    return Math.floor(Math.random() * n);
+  },
+};
+
+// In the test file:
+import {rand} from '../../src/api/retrier';
+
+vi.spyOn(rand, 'int').mockImplementation(n => n - 1);
+// ... run test ...
+vi.restoreAllMocks();
+```
+
+Always call `vi.restoreAllMocks()` after mocking to avoid test pollution.
+
 ## Independence
 
 Each test must be independent. Do not rely on execution order. Clean up side

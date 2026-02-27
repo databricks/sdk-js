@@ -443,11 +443,88 @@ Avoid private static methods; prefer module-level functions instead. Never use
 
 Always include parentheses in constructor calls: `new Foo()`, not `new Foo`.
 
-### 7.7 API Surface Minimization
+### 7.7 Internal Methods and `@private` JSDoc
+
+When a method or constructor must be accessible to internal code and tests but
+should not be used by consumers, mark it with `@private` JSDoc. Do not export
+the options interface from `index.ts`.
+
+```typescript
+/**
+ * Do not use this constructor directly. Use {@link MyClass.create} instead.
+ * This constructor is only meant for internal and testing use.
+ *
+ * @private
+ */
+constructor(options: MyClassOptions) { ... }
+```
+
+**When users need to instantiate a class directly** (no factory function), the
+constructor must be public and the options interface **must** be exported from
+`index.ts`. A public constructor with an unexported options type gives consumers
+no autocomplete and no documentation — that is a broken experience. Only use
+`@private` JSDoc when there is a dedicated factory function (e.g.
+`fromHttpError`).
+
+### 7.8 API Surface Minimization
 
 Default to the smallest public API surface. Only export from `index.ts` what
 consumers need. Internal types (options interfaces, schemas, helper functions)
-must not be re-exported.
+must not be re-exported. Use `@private` JSDoc for methods that are technically
+accessible but not part of the public contract.
+
+### 7.9 Consumer Experience
+
+When creating any new public export, always consider:
+
+- Can the consumer see the types? (Are options interfaces exported?)
+- Do they get autocomplete and JSDoc in their IDE?
+- Is it clear how to use the API without reading the source?
+
+Provide consumer usage examples to the user when proposing new public APIs.
+
+### 7.10 Testing Hooks
+
+Testing hooks (e.g. a custom random number generator for deterministic tests)
+must never appear in constructor options or public interfaces. Instead, use a
+module-level object that tests can mock with `vi.spyOn`.
+
+Standalone module-level functions cannot be mocked with `vi.spyOn` in ESM.
+In ESM, when a module defines and calls its own function, the internal call is
+bound to the function's local variable at module evaluation time — not to the
+module's export binding. `vi.spyOn(module, 'fn')` replaces the export binding,
+but the class's method still holds a closure over the original function. The
+spy intercepts what *importers* see, but not what the module's *own code* calls.
+
+Wrapping the function in an object (`rand.int()`) fixes this because the call
+goes through a property lookup on the object at runtime. `vi.spyOn(rand, 'int')`
+replaces the property on the object itself, so any code that calls `rand.int()`
+— including internal code in the same module — sees the mock.
+
+```typescript
+// Good — testable via vi.spyOn(rand, 'int').
+export const rand = {
+  int(n: number): number {
+    return Math.floor(Math.random() * n);
+  },
+};
+
+class BackoffPolicy {
+  delay(): number {
+    return rand.int(this.current + 1);
+  }
+}
+
+// Bad — randomInt in constructor options pollutes the public API.
+interface BackoffPolicyOptions {
+  randomInt?: (n: number) => number; // Do not do this.
+}
+
+// Bad — standalone function cannot be mocked in ESM.
+export function randomInt(n: number): number { ... }
+```
+
+Do not export testing objects from `index.ts` — they are internal.
 
 ---
 
