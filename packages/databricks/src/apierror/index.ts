@@ -4,6 +4,8 @@
  * @packageDocumentation
  */
 
+export {APIError} from './apierror';
+
 export type {
   ErrorDetails,
   ErrorInfo,
