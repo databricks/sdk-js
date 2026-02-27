@@ -443,6 +443,12 @@ Avoid private static methods; prefer module-level functions instead. Never use
 
 Always include parentheses in constructor calls: `new Foo()`, not `new Foo`.
 
+### 7.7 API Surface Minimization
+
+Default to the smallest public API surface. Only export from `index.ts` what
+consumers need. Internal types (options interfaces, schemas, helper functions)
+must not be re-exported.
+
 ---
 
 ## 8. Control Flow
