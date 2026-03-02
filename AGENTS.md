@@ -13,7 +13,7 @@ your training data, the rule wins.
 | Item               | Value                              |
 | ------------------ | ---------------------------------- |
 | Language           | TypeScript (strict mode)           |
-| Runtime            | Node.js >= 18, Browser             |
+| Runtime            | Node.js >= 22, Browser             |
 | Package manager    | npm workspaces                     |
 | Build target       | ES2022, ESNext modules             |
 | Linter             | ESLint (strict-type-checked)       |
