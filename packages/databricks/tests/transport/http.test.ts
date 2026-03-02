@@ -13,6 +13,19 @@ import {
   newHttpClient,
 } from '../../src/transport/http';
 
+/** Helper to create a mock HttpResponse with a lazy body. */
+function mockResponse(
+  statusCode: number,
+  headers?: Headers,
+  bodyBytes?: Uint8Array
+): HttpResponse {
+  return {
+    statusCode,
+    headers: headers ?? new Headers(),
+    body: () => Promise.resolve(bodyBytes ?? new Uint8Array()),
+  };
+}
+
 /** Mock Credentials implementation for testing. */
 class MockCredentials implements Credentials {
   readonly headers: Header[];
@@ -70,11 +83,7 @@ describe('newAuthHttpClient', () => {
     {
       desc: 'adds single auth header',
       credHeaders: [{key: 'Authorization', value: 'Bearer token123'}],
-      baseResponse: {
-        statusCode: 200,
-        headers: new Headers(),
-        body: new Uint8Array(),
-      },
+      baseResponse: mockResponse(200),
     },
     {
       desc: 'adds multiple auth headers',
@@ -82,11 +91,7 @@ describe('newAuthHttpClient', () => {
         {key: 'Authorization', value: 'Bearer token123'},
         {key: 'X-Custom-Auth', value: 'custom-value'},
       ],
-      baseResponse: {
-        statusCode: 200,
-        headers: new Headers(),
-        body: new Uint8Array(),
-      },
+      baseResponse: mockResponse(200),
     },
     {
       desc: 'propagates transport error',
@@ -134,11 +139,7 @@ describe('newAuthHttpClient', () => {
     const creds = new MockCredentials([
       {key: 'Authorization', value: 'Bearer token123'},
     ]);
-    const base = new MockHttpClient({
-      statusCode: 200,
-      headers: new Headers(),
-      body: new Uint8Array(),
-    });
+    const base = new MockHttpClient(mockResponse(200));
     const client = newAuthHttpClient(base, creds);
 
     const originalHeaders = new Headers();
@@ -163,12 +164,7 @@ describe('newAuthHttpClient', () => {
 
 describe('newHttpClient', () => {
   it('returns the custom client when provided', () => {
-    const custom = new MockHttpClient({
-      statusCode: 200,
-      headers: new Headers(),
-      body: new Uint8Array(),
-    });
-
+    const custom = new MockHttpClient(mockResponse(200));
     const client = newHttpClient({httpClient: custom});
     expect(client).toBe(custom);
   });
@@ -232,7 +228,7 @@ describe('newFetchHttpClient', () => {
 
       expect(response.statusCode).toBe(201);
       expect(response.headers.get('X-Request-Id')).toBe('abc123');
-      expect(new TextDecoder().decode(response.body)).toBe('hello');
+      expect(new TextDecoder().decode(await response.body())).toBe('hello');
 
       // Verify fetch was called with the correct parameters.
       expect(mockFetch).toHaveBeenCalledOnce();
@@ -242,6 +238,30 @@ describe('newFetchHttpClient', () => {
       expect(url).toBe('https://example.com/api/resource');
       expect(init?.method).toBe('POST');
       expect(init?.body).toBe('{"key":"value"}');
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('reads the body lazily and caches the result', async () => {
+    const mockFetch = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response('cached', {status: 200})
+    );
+    vi.stubGlobal('fetch', mockFetch);
+
+    try {
+      const client = newFetchHttpClient();
+      const response = await client.send({
+        url: 'https://example.com/api',
+        method: 'GET',
+        headers: new Headers(),
+      });
+
+      // Calling body() twice should return the same cached result.
+      const first = await response.body();
+      const second = await response.body();
+      expect(first).toBe(second);
+      expect(new TextDecoder().decode(first)).toBe('cached');
     } finally {
       vi.unstubAllGlobals();
     }

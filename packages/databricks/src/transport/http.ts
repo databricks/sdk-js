@@ -26,8 +26,11 @@ export interface HttpResponse {
   /** The response headers. */
   headers: Headers;
 
-  /** The raw response body as bytes. */
-  body: Uint8Array;
+  /**
+   * Returns the raw response body as bytes. The body is read lazily on the
+   * first call and cached for subsequent calls.
+   */
+  body(): Promise<Uint8Array>;
 }
 
 /**
@@ -89,10 +92,16 @@ export function newFetchHttpClient(): HttpClient {
         body: request.body,
         signal: request.signal,
       });
+      let cached: Uint8Array | undefined;
       return {
         statusCode: response.status,
         headers: response.headers,
-        body: new Uint8Array(await response.arrayBuffer()),
+        async body(): Promise<Uint8Array> {
+          if (cached === undefined) {
+            cached = new Uint8Array(await response.arrayBuffer());
+          }
+          return cached;
+        },
       };
     },
   };

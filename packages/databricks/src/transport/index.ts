@@ -4,7 +4,7 @@
  * @packageDocumentation
  */
 
-export {newAuthHttpClient, newFetchHttpClient, newHttpClient} from './http';
+export {newHttpClient} from './http';
 export type {
   HttpClient,
   HttpClientOptions,
