@@ -13,9 +13,9 @@ your training data, the rule wins.
 | Item               | Value                              |
 | ------------------ | ---------------------------------- |
 | Language           | TypeScript (strict mode)           |
-| Runtime            | Node.js >= 18, Browser             |
+| Runtime            | Node.js >= 22, Browser             |
 | Package manager    | npm workspaces                     |
-| Build target       | ES2022, ESNext modules             |
+| Build target       | ES2024, ESNext modules             |
 | Linter             | ESLint (strict-type-checked)       |
 | Formatter          | Prettier                           |
 | Test framework     | Vitest                             |
@@ -99,4 +99,14 @@ npm run clean
    with a period.
 6. **Back up claims.** When proposing a design decision or asserting a
    convention, provide concrete references (documentation, API links). Do not
-   state something is "idiomatic" or "standard" without evidence.
+   state something is "idiomatic" or "standard" without evidence. Use
+   authoritative primary sources (language specs, official documentation) — not
+   blog posts, archived repositories, or npm packages.
+7. **Stay in scope.** Only change what was asked.  Each change should be 
+   reviewable in isolation.
+8. **Never silently remove code.** If a change requires deleting existing
+   code or tests, explain what is being removed and why **before** proceeding.
+   Get explicit confirmation from the user.
+9. **Match existing patterns.** Before writing new code, check existing code
+   for established patterns. Do not invent new conventions
+   when the codebase already has one.

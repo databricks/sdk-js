@@ -71,12 +71,33 @@ const nullishString = z.string().nullish().transform(v => v ?? '');
 const goString = z.string().nullish().transform(v => v ?? '');
 ```
 
+## Critical Thinking
+
+**Do not blindly copy.** Before porting each function, type, or test, ask:
+
+1. **Does TypeScript need it?** Some Go code exists only because Go requires
+   explicit opt-in for features that TypeScript provides natively. For example,
+   Go requires an explicit `Unwrap() error` method for error chain traversal;
+   TypeScript gets this for free via `Error.cause`. Do not port such code.
+2. **Does the test validate our code or the language?** If a Go test verifies
+   behaviour that is built into the TypeScript runtime (e.g. that `Error.cause`
+   preserves a reference), skip it — it tests the language, not our
+   implementation. Explain the skip to the user.
+
+When in doubt, ask the user before porting.
+
+## Factory Functions vs Constructors
+
+When a Go function can return `nil` (e.g. `FromHTTPError` returns `nil` for 2xx
+status codes), port it as a **factory function** that returns `T | undefined`.
+Constructors in TypeScript always return an instance and cannot express "no
+result." Use a standalone function or a static method on the class.
+
 ## Tests
 
-Port **all** test cases from the Go SDK. Do not selectively skip tests. When a
-Go test case cannot be directly ported (e.g. because of a language difference
-like `json.RawMessage` vs already-parsed JSON), explain the omission to the
-user and get confirmation before skipping.
+Port **all** test cases from the Go SDK unless they fall under the "Critical
+Thinking" exceptions above. Do not selectively skip tests without explaining
+the reason to the user.
 
 Use the same test structure as the Go SDK. Go table-driven tests map to
 Vitest's `it.each`:
@@ -99,6 +120,22 @@ const testCases: {name: string; input: number; want: number}[] = [
   {name: 'zero', input: 0, want: 0},
 ];
 it.each(testCases)('$name', ({input, want}) => { ... });
+```
+
+## No Go References in Code
+
+**Never reference Go in code or comments.** This includes variable names,
+function names, inline comments, and JSDoc. The TypeScript codebase must read
+as if Go does not exist. Do not write comments like "mirrors Go's
+tc.want.httpErr" or "equivalent of Go's errors.As."
+
+```typescript
+// Bad — references the Go implementation.
+// Input HTTP fields are always preserved (mirrors Go's
+// tc.want.httpErr = &httpError{statusCode, header, body}).
+
+// Good — describes what the code does without referencing Go.
+// Input HTTP fields are always preserved.
 ```
 
 ## Deviations from Go

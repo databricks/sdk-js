@@ -443,6 +443,12 @@ Avoid private static methods; prefer module-level functions instead. Never use
 
 Always include parentheses in constructor calls: `new Foo()`, not `new Foo`.
 
+### 7.7 API Surface Minimization
+
+Default to the smallest public API surface. Only export from `index.ts` what
+consumers need. Internal types (options interfaces, schemas, helper functions)
+must not be re-exported.
+
 ---
 
 ## 8. Control Flow
@@ -745,7 +751,7 @@ case RETRY_INFO_TYPE: {
 
 ## 16. Platform Compatibility
 
-This SDK targets both Node.js (>= 18) and browsers.
+This SDK targets both Node.js (>= 22) and browsers.
 
 - Node.js-only APIs (filesystem, `process.env`, child processes) must be
   isolated in modules that are **not** exported from the browser entry point.
