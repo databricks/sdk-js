@@ -110,3 +110,7 @@ npm run clean
 9. **Match existing patterns.** Before writing new code, check existing code
    for established patterns. Do not invent new conventions
    when the codebase already has one.
+10. **PR descriptions follow the template.** Use the structure in
+   `.github/PULL_REQUEST_TEMPLATE.md`. When writing or improving a PR
+   description, follow the workflow in
+   `.agent/skills/write-pr-description.mdc`.
