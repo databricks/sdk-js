@@ -3,7 +3,7 @@ module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    ecmaVersion: 2022,
+    ecmaVersion: 2024,
     sourceType: 'module',
     project: true,
     tsconfigRootDir: __dirname,
@@ -17,7 +17,7 @@ module.exports = {
   ],
   env: {
     node: true,
-    es2022: true,
+    es2024: true,
   },
   rules: {
     // =========================================================================
