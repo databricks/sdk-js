@@ -10,6 +10,10 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./api": {
+      "types": "./dist/api/index.d.ts",
+      "import": "./dist/api/index.js"
+    },
     "./apierror": {
       "types": "./dist/apierror/index.d.ts",
       "import": "./dist/apierror/index.js"
