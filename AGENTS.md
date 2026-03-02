@@ -15,7 +15,7 @@ your training data, the rule wins.
 | Language           | TypeScript (strict mode)           |
 | Runtime            | Node.js >= 22, Browser             |
 | Package manager    | npm workspaces                     |
-| Build target       | ES2022, ESNext modules             |
+| Build target       | ES2024, ESNext modules             |
 | Linter             | ESLint (strict-type-checked)       |
 | Formatter          | Prettier                           |
 | Test framework     | Vitest                             |
