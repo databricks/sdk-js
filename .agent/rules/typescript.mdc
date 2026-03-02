@@ -751,7 +751,7 @@ case RETRY_INFO_TYPE: {
 
 ## 16. Platform Compatibility
 
-This SDK targets both Node.js (>= 18) and browsers.
+This SDK targets both Node.js (>= 22) and browsers.
 
 - Node.js-only APIs (filesystem, `process.env`, child processes) must be
   isolated in modules that are **not** exported from the browser entry point.
