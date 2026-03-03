@@ -38,9 +38,6 @@ export interface HttpClient {
 
 /**
  * Creates a new HttpClient that uses the Fetch API as its transport.
- *
- * This works in both Node.js (>= 18) and browser environments as both
- * provide a global fetch implementation.
  */
 export function newFetchHttpClient(): HttpClient {
   return {
