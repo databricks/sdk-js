@@ -647,7 +647,7 @@ The following are banned in this codebase:
 | `eval()` / `new Function()` | Security risk. No exceptions.                        |
 | `with` statement            | Banned in strict mode.                                |
 | `debugger`                  | Must never appear in committed code.                  |
-| `console.*`                 | Use a proper logger. Enforced by ESLint.              |
+| `console.*`                 | Use the `Logger` interface from `@databricks/sdk-databricks/logger`. Enforced by ESLint. |
 | Default exports             | Use named exports only.                               |
 | `const enum`                | Use plain `enum`.                                     |
 | `@ts-ignore`                | Never suppress type errors. Fix the type instead.     |
