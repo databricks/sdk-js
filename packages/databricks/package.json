@@ -65,7 +65,6 @@
     "node": ">=22.0.0"
   },
   "dependencies": {
-    "@databricks/sdk-auth": "^0.1.0",
     "zod": "^4.3.6"
   }
 }

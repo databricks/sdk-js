@@ -1,5 +1,3 @@
-import type {Credentials} from '@databricks/sdk-auth';
-
 /** HttpRequest represents an outgoing HTTP request. */
 export interface HttpRequest {
   /** The URL to send the request to. */
@@ -12,7 +10,7 @@ export interface HttpRequest {
   headers: Headers;
 
   /** The request body. */
-  body?: RequestInit['body'];
+  body?: string | ArrayBuffer | Uint8Array | null;
 
   /** An optional signal to abort the request. */
   signal?: AbortSignal;
@@ -26,55 +24,16 @@ export interface HttpResponse {
   /** The response headers. */
   headers: Headers;
 
-  /**
-   * Returns the raw response body as bytes. The body is read lazily on the
-   * first call and cached for subsequent calls.
-   */
-  body(): Promise<Uint8Array>;
+  /** The raw response body stream. */
+  body: ReadableStream<Uint8Array> | null;
 }
 
 /**
- * HttpClient sends HTTP requests and returns responses. It is the TypeScript
- * equivalent of Go's http.RoundTripper.
+ * HttpClient sends HTTP requests and returns responses.
  */
 export interface HttpClient {
   /** Sends an HTTP request and returns the response. */
   send(request: HttpRequest): Promise<HttpResponse>;
-}
-
-/** Options for creating a new HttpClient via {@link newHttpClient}. */
-export interface HttpClientOptions {
-  /**
-   * A custom HttpClient to use. When set, all other options are ignored and
-   * the provided client is returned as-is.
-   */
-  httpClient?: HttpClient;
-
-  /** Credentials to use for authenticating requests. */
-  credentials?: Credentials;
-}
-
-/**
- * Creates a new HTTP client with the given options.
- *
- * If a custom httpClient is provided, it is returned as-is without any
- * additional configuration. Otherwise, a new fetch-based client is created
- * with authentication header injection.
- */
-export function newHttpClient(options: HttpClientOptions): HttpClient {
-  // If an HTTP client is provided, use it as is without any additional
-  // configuration.
-  if (options.httpClient !== undefined) {
-    return options.httpClient;
-  }
-
-  if (options.credentials === undefined) {
-    // TODO: Load default credentials from profile.
-    throw new Error('no credentials provided');
-  }
-
-  const base = newFetchHttpClient();
-  return newAuthHttpClient(base, options.credentials);
 }
 
 /**
@@ -92,39 +51,11 @@ export function newFetchHttpClient(): HttpClient {
         body: request.body,
         signal: request.signal,
       });
-      let cached: Uint8Array | undefined;
       return {
         statusCode: response.status,
         headers: response.headers,
-        async body(): Promise<Uint8Array> {
-          if (cached === undefined) {
-            cached = new Uint8Array(await response.arrayBuffer());
-          }
-          return cached;
-        },
+        body: response.body,
       };
-    },
-  };
-}
-
-/**
- * Creates an HttpClient that wraps a base client and injects authentication
- * headers into every request. The original request's headers are not modified;
- * a clone is created instead.
- */
-export function newAuthHttpClient(
-  base: HttpClient,
-  credentials: Credentials
-): HttpClient {
-  return {
-    async send(request: HttpRequest): Promise<HttpResponse> {
-      const authHeaders = await credentials.authHeaders();
-      // Clone the headers to avoid mutating the original request.
-      const headers = new Headers(request.headers);
-      for (const h of authHeaders) {
-        headers.set(h.key, h.value);
-      }
-      return base.send({...request, headers});
     },
   };
 }
