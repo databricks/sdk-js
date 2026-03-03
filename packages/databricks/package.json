@@ -21,6 +21,10 @@
     "./apierror/codes": {
       "types": "./dist/apierror/codes/index.d.ts",
       "import": "./dist/apierror/codes/index.js"
+    },
+    "./logger": {
+      "types": "./dist/logger/index.d.ts",
+      "import": "./dist/logger/index.js"
     }
   },
   "files": [
