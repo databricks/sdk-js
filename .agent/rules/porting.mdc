@@ -52,6 +52,7 @@ TypeScript:
 
 | Go                           | TypeScript                          |
 | ---------------------------- | ----------------------------------- |
+| `databricks/api/`           | `packages/databricks/src/api/`      |
 | `databricks/apierr/`        | `packages/databricks/src/apierror/` |
 | `databricks/apierr/codes/`  | `packages/databricks/src/apierror/codes/` |
 
@@ -137,6 +138,22 @@ tc.want.httpErr" or "equivalent of Go's errors.As."
 // Good — describes what the code does without referencing Go.
 // Input HTTP fields are always preserved.
 ```
+
+## Value Types vs Reference Types
+
+Go structs are value types — passing a struct to a function copies it. TypeScript
+objects are reference types — passing an object shares it. When Go code relies on
+value-copy semantics (e.g. a retrier getting its own copy of a backoff policy),
+the TypeScript port must account for this. Common approaches:
+
+1. **Accept options, create internally** — the function takes a plain options
+   object and creates its own instance. This is the most ergonomic.
+2. **Clone internally** — the function accepts an instance but clones it.
+3. **Document the constraint** — accept an instance, document that each caller
+   must provide a fresh one. Simple but error-prone.
+
+Do not silently share mutable state between callers. Explain the chosen approach
+to the user as a deviation.
 
 ## Deviations from Go
 
