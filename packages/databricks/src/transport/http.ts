@@ -45,8 +45,8 @@ export function newFetchHttpClient(): HttpClient {
       const response = await fetch(request.url, {
         method: request.method,
         headers: request.headers,
-        body: request.body,
-        signal: request.signal,
+        ...(request.body !== undefined && {body: request.body}),
+        ...(request.signal !== undefined && {signal: request.signal}),
       });
       return {
         statusCode: response.status,
