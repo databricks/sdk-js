@@ -13,7 +13,7 @@ export interface BackoffPolicyOptions {
   factor?: number;
 }
 
-// Random number generation, wrapped in an object for testability.
+/** @internal Random number generation, wrapped in an object for testability. */
 export const rand = {
   // Returns a random integer in [0, n).
   int(n: number): number {

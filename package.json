@@ -16,7 +16,8 @@
     "format": "npm run format --workspaces",
     "format:check": "npm run format:check --workspaces",
     "typecheck": "npm run typecheck --workspaces",
-    "clean": "npm run clean --workspaces"
+    "clean": "npm run clean --workspaces",
+    "check:internal": "node --experimental-strip-types scripts/check-internal-exports.ts"
   },
   "repository": {
     "type": "git",

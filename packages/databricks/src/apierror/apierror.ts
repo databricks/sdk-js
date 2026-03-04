@@ -206,7 +206,7 @@ export class APIError extends Error {
   }
 }
 
-// Maps an HTTP status code to the closest canonical error code.
+/** @internal Maps an HTTP status code to the closest canonical error code. */
 export function toCode(httpCode: number): Code {
   // Canonical mappings.
   switch (httpCode) {
