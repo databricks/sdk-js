@@ -21,3 +21,4 @@ without pointing to where that convention is documented.
 | Task                          | Library | Notes                          |
 | ----------------------------- | ------- | ------------------------------ |
 | Runtime type validation / JSON unmarshalling | Zod     | Used for API wire-format parsing |
+| Logging | None (interface only) | `Logger` interface is compatible with `console` and `pino` out of the box. `LogLevel` decorator adds level filtering to any `Logger`. No logging library is a direct dependency. |
