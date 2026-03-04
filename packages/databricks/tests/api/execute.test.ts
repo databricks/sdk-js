@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {execute} from '../../src/api/execute';
+import {execute, sleep} from '../../src/api/execute';
 import type {Call} from '../../src/api/execute';
 import type {Retrier} from '../../src/api/retrier';
 import type {Limiter} from '../../src/api/limiter';
@@ -10,31 +10,6 @@ import {
   withTimeout,
   withLimiter,
 } from '../../src/api/options';
-
-// Coerces an unknown value to an Error instance.
-function toError(value: unknown): Error {
-  return value instanceof Error ? value : new Error(String(value));
-}
-
-// Cancellable delay for testing. Resolves after ms or rejects if the signal
-// aborts before the duration elapses.
-function delay(ms: number, signal?: AbortSignal): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
-    if (signal?.aborted === true) {
-      reject(toError(signal.reason));
-      return;
-    }
-    const timer = setTimeout(resolve, ms);
-    signal?.addEventListener(
-      'abort',
-      () => {
-        clearTimeout(timer);
-        reject(toError(signal.reason));
-      },
-      {once: true}
-    );
-  });
-}
 
 describe('execute retries', () => {
   const retriableError = new Error('retriable error');
@@ -173,7 +148,7 @@ describe('execute timeout', () => {
       // Cancellable call that succeeds after the call delay or throws the
       // abort reason if the signal is aborted.
       const call: Call = async (signal?: AbortSignal) => {
-        await delay(callDelay, signal);
+        await sleep(callDelay, signal);
       };
 
       const signal =

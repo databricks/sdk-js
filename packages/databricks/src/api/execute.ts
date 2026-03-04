@@ -14,7 +14,7 @@ function toError(value: unknown): Error {
  * can be interrupted by the AbortSignal if the signal aborts before the
  * duration elapses.
  */
-function sleep(ms: number, signal?: AbortSignal): Promise<void> {
+export function sleep(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     if (signal?.aborted === true) {
       reject(toError(signal.reason));
