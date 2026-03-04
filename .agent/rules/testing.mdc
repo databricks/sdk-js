@@ -129,6 +129,26 @@ const testCases: {desc: string; want?: {code: Code; message: string}}[] = [
 ];
 ```
 
+## Import Paths
+
+Import public symbols from the barrel (`index.ts`), not from internal modules.
+This ensures tests break if a symbol is accidentally removed from the public
+API surface. Only import directly from internal modules when testing symbols
+that are intentionally not part of the public API.
+
+```typescript
+// Good — imports from the barrel, catches accidental de-export.
+import {NoOpLogger, LogLevel} from '../../src/logger';
+import type {Logger, Level} from '../../src/logger';
+
+// Bad — bypasses the public API surface.
+import {NoOpLogger, LogLevel} from '../../src/logger/logger';
+import type {Logger, Level} from '../../src/logger/logger';
+
+// OK — symbol is intentionally not exported from the barrel.
+import {LEVEL_SEVERITY} from '../../src/logger/logger';
+```
+
 ## Independence
 
 Each test must be independent. Do not rely on execution order. Clean up side
