@@ -1,8 +1,4 @@
-/**
- * Logger interface and built-in implementations.
- *
- * @packageDocumentation
- */
+/** Logger interface and built-in implementations. */
 
 /** Supported log levels in order of increasing severity. */
 export type Level = 'debug' | 'info' | 'warn' | 'error' | 'off';

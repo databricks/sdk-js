@@ -1,6 +1,6 @@
 import {describe, it, expect, vi, beforeEach} from 'vitest';
-import {NoOpLogger, LogLevel} from '../../src/logger/logger';
-import type {Logger, Level} from '../../src/logger/logger';
+import {NoOpLogger, LogLevel} from '../../src/logger';
+import type {Logger, Level} from '../../src/logger';
 
 describe('NoOpLogger', () => {
   it('satisfies the Logger interface', () => {
