@@ -1,0 +1,26 @@
+{
+  "name": "@databricks/sdk-examples",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Runnable examples for the Databricks JS SDK (not published)",
+  "type": "module",
+  "scripts": {
+    "auth-and-errors": "node --import tsx/esm src/auth-and-errors.ts",
+    "build": "echo 'nothing to build'",
+    "lint": "echo 'skipped'",
+    "lint:fix": "echo 'skipped'",
+    "format": "echo 'skipped'",
+    "format:check": "echo 'skipped'",
+    "test": "echo 'no tests'",
+    "test:browser": "echo 'skipped'",
+    "typecheck": "echo 'skipped'",
+    "clean": "echo 'nothing to clean'"
+  },
+  "dependencies": {
+    "@databricks/sdk-auth": "*",
+    "@databricks/sdk-databricks": "*"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0"
+  }
+}
