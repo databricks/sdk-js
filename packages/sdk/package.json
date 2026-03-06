@@ -1,0 +1,32 @@
+{
+  "author": "Databricks",
+  "description": "Databricks sdk library for JavaScript/TypeScript",
+  "engines": {
+    "node": "\u003e=22.0.0"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "license": "Apache-2.0",
+  "main": "./dist/index.js",
+  "name": "@databricks/sdk-sdk",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "typecheck": "tsc --noEmit"
+  },
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "version": "0.1.0"
+}

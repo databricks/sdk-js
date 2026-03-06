@@ -1,0 +1,30 @@
+{
+  "author": "Databricks",
+  "description": "Databricks iam library for JavaScript/TypeScript",
+  "engines": {
+    "node": "\u003e=22.0.0"
+  },
+  "exports": {
+    "./v2": {
+      "import": "./dist/v2/index.js",
+      "types": "./dist/v2/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "license": "Apache-2.0",
+  "name": "@databricks/sdk-iam",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "typecheck": "tsc --noEmit"
+  },
+  "type": "module",
+  "version": "0.1.0"
+}

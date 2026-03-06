@@ -1,0 +1,30 @@
+{
+  "author": "Databricks",
+  "description": "Databricks dataquality library for JavaScript/TypeScript",
+  "engines": {
+    "node": "\u003e=22.0.0"
+  },
+  "exports": {
+    "./v1": {
+      "import": "./dist/v1/index.js",
+      "types": "./dist/v1/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "license": "Apache-2.0",
+  "name": "@databricks/sdk-dataquality",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "typecheck": "tsc --noEmit"
+  },
+  "type": "module",
+  "version": "0.1.0"
+}
