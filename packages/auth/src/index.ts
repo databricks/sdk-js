@@ -16,3 +16,13 @@ export {tokenProviderFn, newTokenCredentials} from './auth';
 
 // Credential implementations.
 export {newPatCredentials} from './credentials';
+
+// Configuration file parsing and profile resolution.
+export {
+  parseIni,
+  resolveProfileName,
+  loadProfile,
+  listProfiles,
+  loadProfileFromString,
+} from './config';
+export type {IniFile, Profile} from './config';
