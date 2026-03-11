@@ -87,9 +87,7 @@ export function loadProfile(ini: IniFile, explicitProfile?: string): Profile {
   assertValidProfileName(name);
   const section = ini.get(name);
   if (section === undefined) {
-    throw new Error(
-      `profile "${name}" not found in configuration file`
-    );
+    throw new Error(`profile "${name}" not found in configuration file`);
   }
   return {name, values: section};
 }
