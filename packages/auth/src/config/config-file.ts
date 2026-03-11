@@ -37,8 +37,11 @@ export function resolveProfileName(
   ini: IniFile,
   explicitProfile?: string
 ): string {
-  if (explicitProfile !== undefined && explicitProfile !== '') {
-    return explicitProfile;
+  if (explicitProfile !== undefined) {
+    const trimmedExplicitProfile = explicitProfile.trim();
+    if (trimmedExplicitProfile !== '') {
+      return trimmedExplicitProfile;
+    }
   }
 
   const settings = ini.get(SETTINGS_SECTION);

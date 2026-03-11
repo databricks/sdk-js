@@ -163,6 +163,22 @@ default_profile = my-workspace
     expect(resolveProfileName(ini, 'explicit')).toBe('explicit');
   });
 
+  it('should trim explicit profile before returning it', () => {
+    const ini = parseIni(`
+[__settings__]
+default_profile = my-workspace
+`);
+    expect(resolveProfileName(ini, ' explicit ')).toBe('explicit');
+  });
+
+  it('should treat whitespace-only explicit profile as unset', () => {
+    const ini = parseIni(`
+[__settings__]
+default_profile = my-workspace
+`);
+    expect(resolveProfileName(ini, '   ')).toBe('my-workspace');
+  });
+
   it('should return DEFAULT when no settings and no explicit profile', () => {
     const ini = parseIni(`
 [DEFAULT]
