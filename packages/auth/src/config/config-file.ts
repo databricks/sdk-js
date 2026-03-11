@@ -53,6 +53,19 @@ export function resolveProfileName(
 }
 
 /**
+ * Validates that the resolved profile name is not a reserved section name.
+ *
+ * @throws Error if the profile name is `__settings__`.
+ */
+function assertValidProfileName(name: string): void {
+  if (name === SETTINGS_SECTION) {
+    throw new Error(
+      `"${SETTINGS_SECTION}" is a reserved section and cannot be used as a profile`
+    );
+  }
+}
+
+/**
  * Loads a single profile from the parsed INI file.
  *
  * Uses {@link resolveProfileName} to determine which profile to load,
@@ -68,6 +81,7 @@ export function resolveProfileName(
  */
 export function loadProfile(ini: IniFile, explicitProfile?: string): Profile {
   const name = resolveProfileName(ini, explicitProfile);
+  assertValidProfileName(name);
   const section = ini.get(name);
   if (section === undefined) {
     throw new Error(

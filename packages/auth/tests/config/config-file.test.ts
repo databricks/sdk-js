@@ -111,7 +111,35 @@ host = https://other.cloud.databricks.com
     );
   });
 
-  // Scenario 7: default_profile pointing to nonexistent section.
+  // Scenario 7: default_profile = __settings__ is rejected.
+  it('should reject default_profile pointing to __settings__', () => {
+    const ini = parseIni(`
+[__settings__]
+default_profile = __settings__
+
+[my-workspace]
+host = https://my-workspace.cloud.databricks.com
+`);
+    expect(() => loadProfile(ini)).toThrow(
+      '"__settings__" is a reserved section and cannot be used as a profile'
+    );
+  });
+
+  // Scenario 8: explicit profile = __settings__ is rejected.
+  it('should reject explicit profile __settings__', () => {
+    const ini = parseIni(`
+[__settings__]
+default_profile = my-workspace
+
+[my-workspace]
+host = https://my-workspace.cloud.databricks.com
+`);
+    expect(() => loadProfile(ini, '__settings__')).toThrow(
+      '"__settings__" is a reserved section and cannot be used as a profile'
+    );
+  });
+
+  // Scenario 9: default_profile pointing to nonexistent section.
   it('should throw when default_profile points to a nonexistent section', () => {
     const ini = parseIni(`
 [__settings__]
