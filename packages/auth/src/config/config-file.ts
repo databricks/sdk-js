@@ -4,7 +4,6 @@
  */
 
 import type {IniFile} from './ini';
-import {parseIni} from './ini';
 
 /** The reserved section name for tool settings (not a profile). */
 const SETTINGS_SECTION = '__settings__';
@@ -16,13 +15,17 @@ const DEFAULT_PROFILE_KEY = 'default_profile';
 const LEGACY_DEFAULT_PROFILE = 'DEFAULT';
 
 /**
- * A profile extracted from a `.databrickscfg` file.
+ * A profile parsed from a `.databrickscfg` file or constructed
+ * programmatically.
+ *
+ * Values are stored as a generic read-only map because profiles can contain
+ * arbitrary keys depending on the authentication method configured.
  */
 export interface Profile {
   /** The section name (e.g. "my-workspace", "DEFAULT"). */
-  name: string;
+  readonly name: string;
   /** Key-value pairs from the section. */
-  values: Map<string, string>;
+  readonly values: Readonly<Record<string, string>>;
 }
 
 /**
@@ -44,11 +47,13 @@ export function resolveProfileName(
     }
   }
 
-  const settings = ini.get(SETTINGS_SECTION);
-  if (settings !== undefined) {
-    const defaultProfile = settings.get(DEFAULT_PROFILE_KEY);
-    if (defaultProfile !== undefined && defaultProfile !== '') {
-      return defaultProfile;
+  if (SETTINGS_SECTION in ini) {
+    const settings = ini[SETTINGS_SECTION];
+    if (
+      DEFAULT_PROFILE_KEY in settings &&
+      settings[DEFAULT_PROFILE_KEY] !== ''
+    ) {
+      return settings[DEFAULT_PROFILE_KEY];
     }
   }
 
@@ -85,11 +90,10 @@ function assertValidProfileName(name: string): void {
 export function loadProfile(ini: IniFile, explicitProfile?: string): Profile {
   const name = resolveProfileName(ini, explicitProfile);
   assertValidProfileName(name);
-  const section = ini.get(name);
-  if (section === undefined) {
+  if (!(name in ini)) {
     throw new Error(`profile "${name}" not found in configuration file`);
   }
-  return {name, values: section};
+  return {name, values: ini[name]};
 }
 
 /**
@@ -101,29 +105,13 @@ export function loadProfile(ini: IniFile, explicitProfile?: string): Profile {
  */
 export function listProfiles(ini: IniFile): Profile[] {
   const profiles: Profile[] = [];
-  for (const [name, values] of ini) {
+  for (const [name, values] of Object.entries(ini)) {
     if (name === SETTINGS_SECTION) {
       continue;
     }
-    const host = values.get('host');
-    if (host !== undefined && host !== '') {
+    if ('host' in values && values.host !== '') {
       profiles.push({name, values});
     }
   }
   return profiles;
-}
-
-/**
- * Parses a `.databrickscfg` file from its raw string content and loads
- * the requested (or default) profile.
- *
- * This is a convenience function combining {@link parseIni} and
- * {@link loadProfile}.
- */
-export function loadProfileFromString(
-  content: string,
-  explicitProfile?: string
-): Profile {
-  const ini = parseIni(content);
-  return loadProfile(ini, explicitProfile);
 }

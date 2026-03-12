@@ -1,11 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {parseIni} from '../../src/config/ini';
-import {
-  resolveProfileName,
-  loadProfile,
-  listProfiles,
-  loadProfileFromString,
-} from '../../src/config/config-file';
+import {parseIni, loadProfile, listProfiles} from '../../src/config';
 
 describe('default_profile resolution', () => {
   // Scenario 1: default_profile resolves correctly.
@@ -20,10 +14,10 @@ token = dapiXYZ
 `);
     const profile = loadProfile(ini);
     expect(profile.name).toBe('my-workspace');
-    expect(profile.values.get('host')).toBe(
+    expect(profile.values.host).toBe(
       'https://my-workspace.cloud.databricks.com'
     );
-    expect(profile.values.get('token')).toBe('dapiXYZ');
+    expect(profile.values.token).toBe('dapiXYZ');
   });
 
   // Scenario 2: default_profile takes precedence over [DEFAULT].
@@ -42,7 +36,7 @@ token = dapiXYZ
 `);
     const profile = loadProfile(ini);
     expect(profile.name).toBe('my-workspace');
-    expect(profile.values.get('host')).toBe(
+    expect(profile.values.host).toBe(
       'https://my-workspace.cloud.databricks.com'
     );
   });
@@ -56,9 +50,7 @@ token = dapiXYZ
 `);
     const profile = loadProfile(ini);
     expect(profile.name).toBe('DEFAULT');
-    expect(profile.values.get('host')).toBe(
-      'https://default.cloud.databricks.com'
-    );
+    expect(profile.values.host).toBe('https://default.cloud.databricks.com');
   });
 
   // Scenario 4: Legacy fallback when default_profile is empty.
@@ -72,9 +64,7 @@ token = dapiXYZ
 `);
     const profile = loadProfile(ini);
     expect(profile.name).toBe('DEFAULT');
-    expect(profile.values.get('host')).toBe(
-      'https://default.cloud.databricks.com'
-    );
+    expect(profile.values.host).toBe('https://default.cloud.databricks.com');
   });
 
   // Scenario 5: [__settings__] is not a profile.
@@ -106,9 +96,7 @@ host = https://other.cloud.databricks.com
 `);
     const profile = loadProfile(ini, 'other');
     expect(profile.name).toBe('other');
-    expect(profile.values.get('host')).toBe(
-      'https://other.cloud.databricks.com'
-    );
+    expect(profile.values.host).toBe('https://other.cloud.databricks.com');
   });
 
   // Scenario 7: default_profile = __settings__ is rejected.
@@ -154,67 +142,37 @@ host = https://my-workspace.cloud.databricks.com
   });
 });
 
-describe('resolveProfileName', () => {
-  it('should return explicit profile when provided', () => {
-    const ini = parseIni(`
-[__settings__]
-default_profile = my-workspace
-`);
-    expect(resolveProfileName(ini, 'explicit')).toBe('explicit');
-  });
+describe('profile resolution order', () => {
+  const resolutionCases = [
+    {
+      name: 'should use explicit profile when provided',
+      ini: '[__settings__]\ndefault_profile = my-workspace\n\n[my-workspace]\nhost = h',
+      explicit: 'my-workspace',
+      want: 'my-workspace',
+    },
+    {
+      name: 'should trim explicit profile before using it',
+      ini: '[__settings__]\ndefault_profile = ws\n\n[explicit]\nhost = h',
+      explicit: ' explicit ',
+      want: 'explicit',
+    },
+    {
+      name: 'should treat whitespace-only explicit profile as unset',
+      ini: '[__settings__]\ndefault_profile = my-workspace\n\n[my-workspace]\nhost = h',
+      explicit: '   ',
+      want: 'my-workspace',
+    },
+    {
+      name: 'should return DEFAULT when no settings and no explicit profile',
+      ini: '[DEFAULT]\nhost = https://default.cloud.databricks.com',
+      explicit: undefined,
+      want: 'DEFAULT',
+    },
+  ];
 
-  it('should trim explicit profile before returning it', () => {
-    const ini = parseIni(`
-[__settings__]
-default_profile = my-workspace
-`);
-    expect(resolveProfileName(ini, ' explicit ')).toBe('explicit');
-  });
-
-  it('should treat whitespace-only explicit profile as unset', () => {
-    const ini = parseIni(`
-[__settings__]
-default_profile = my-workspace
-`);
-    expect(resolveProfileName(ini, '   ')).toBe('my-workspace');
-  });
-
-  it('should return DEFAULT when no settings and no explicit profile', () => {
-    const ini = parseIni(`
-[DEFAULT]
-host = https://default.cloud.databricks.com
-`);
-    expect(resolveProfileName(ini)).toBe('DEFAULT');
-  });
-});
-
-describe('loadProfileFromString', () => {
-  it('should parse and load a profile in one call', () => {
-    const content = `
-[__settings__]
-default_profile = ws
-
-[ws]
-host = https://ws.cloud.databricks.com
-token = dapiABC
-`;
-    const profile = loadProfileFromString(content);
-    expect(profile.name).toBe('ws');
-    expect(profile.values.get('token')).toBe('dapiABC');
-  });
-
-  it('should accept an explicit profile override', () => {
-    const content = `
-[__settings__]
-default_profile = ws
-
-[ws]
-host = https://ws.cloud.databricks.com
-
-[alt]
-host = https://alt.cloud.databricks.com
-`;
-    const profile = loadProfileFromString(content, 'alt');
-    expect(profile.name).toBe('alt');
+  it.each(resolutionCases)('$name', ({ini: raw, explicit, want}) => {
+    const ini = parseIni(raw);
+    const profile = loadProfile(ini, explicit);
+    expect(profile.name).toBe(want);
   });
 });

@@ -1,49 +1,39 @@
 /**
- * Minimal INI file parser for `.databrickscfg` files.
+ * INI file parser for `.databrickscfg` files.
  *
- * Parses the standard INI format used by Databricks configuration files.
- * Each section maps to a record of key-value pairs.
+ * Delegates to the `ini` npm package for robust parsing that handles edge
+ * cases such as inline comments, Windows line endings, and quoted values.
  */
 
-/** A parsed INI file represented as section name to key-value map. */
-export type IniFile = Map<string, Map<string, string>>;
+import {parse} from 'ini';
 
 /**
- * Parses an INI-formatted string into a structured map.
+ * A parsed INI file represented as a record of section names to key-value
+ * records.
+ */
+export type IniFile = Record<string, Record<string, string>>;
+
+/**
+ * Parses an INI-formatted string into a structured record.
  *
  * Sections are delimited by `[section_name]` headers. Key-value pairs
- * within a section are separated by `=`. Keys and values are trimmed of
- * leading and trailing whitespace. Lines starting with `#` or `;` are
- * treated as comments and ignored.
+ * within a section are separated by `=`. Lines starting with `#` or `;`
+ * are treated as comments and ignored.
+ *
+ * Global key-value pairs (those appearing before any section header) are
+ * excluded from the result since `.databrickscfg` files do not use them.
  */
 export function parseIni(content: string): IniFile {
-  const result: IniFile = new Map();
-  let currentSection: Map<string, string> | undefined;
+  const raw = parse(content);
+  const result: IniFile = {};
 
-  for (const rawLine of content.split('\n')) {
-    const line = rawLine.trim();
-
-    // Skip empty lines and comments.
-    if (line === '' || line.startsWith('#') || line.startsWith(';')) {
-      continue;
-    }
-
-    // Section header.
-    if (line.startsWith('[') && line.endsWith(']')) {
-      const name = line.slice(1, -1).trim();
-      currentSection = new Map();
-      result.set(name, currentSection);
-      continue;
-    }
-
-    // Key-value pair.
-    if (currentSection !== undefined) {
-      const eqIndex = line.indexOf('=');
-      if (eqIndex !== -1) {
-        const key = line.slice(0, eqIndex).trim();
-        const value = line.slice(eqIndex + 1).trim();
-        currentSection.set(key, value);
+  for (const [key, value] of Object.entries(raw)) {
+    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      const section: Record<string, string> = {};
+      for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+        section[k] = String(v);
       }
+      result[key] = section;
     }
   }
 
