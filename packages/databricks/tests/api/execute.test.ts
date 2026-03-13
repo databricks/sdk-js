@@ -1,0 +1,271 @@
+import {describe, it, expect} from 'vitest';
+import {execute, sleep} from '../../src/api/execute';
+import type {Call} from '../../src/api/execute';
+import type {Retrier} from '../../src/api/retrier';
+import type {Limiter} from '../../src/api/limiter';
+import type {Option, Options} from '../../src/api/options';
+import {
+  withRetrier,
+  withDisableRetry,
+  withTimeout,
+  withLimiter,
+} from '../../src/api/options';
+
+describe('execute retries', () => {
+  const retriableError = new Error('retriable error');
+  const nonRetriableError = new Error('non-retriable error');
+  const retrier: Retrier = {
+    isRetriable(err: Error): number | undefined {
+      return err === retriableError ? 0 : undefined;
+    },
+  };
+
+  const testCases: {
+    name: string;
+    callErrors: (Error | undefined)[];
+    options: Option[];
+    wantErr: Error | undefined;
+    wantCallCount: number;
+  }[] = [
+    {
+      name: 'no retrier - fail immediately',
+      callErrors: [retriableError],
+      options: [],
+      wantErr: retriableError,
+      wantCallCount: 1,
+    },
+    {
+      name: 'disable retries - fail immediately',
+      callErrors: [retriableError],
+      options: [withDisableRetry()],
+      wantErr: retriableError,
+      wantCallCount: 1,
+    },
+    {
+      name: 'non-retriable error - fail immediately',
+      callErrors: [nonRetriableError],
+      options: [withRetrier(() => retrier)],
+      wantErr: nonRetriableError,
+      wantCallCount: 1,
+    },
+    {
+      name: 'retriable error - retry once then succeed',
+      callErrors: [retriableError, undefined],
+      options: [withRetrier(() => retrier)],
+      wantErr: undefined,
+      wantCallCount: 2,
+    },
+    {
+      name: 'retriable error - retry multiple times then succeed',
+      callErrors: [retriableError, retriableError, retriableError, undefined],
+      options: [withRetrier(() => retrier)],
+      wantErr: undefined,
+      wantCallCount: 4,
+    },
+    {
+      name: 'retriable error - retry then fail with non-retriable',
+      callErrors: [retriableError, nonRetriableError],
+      options: [withRetrier(() => retrier)],
+      wantErr: nonRetriableError,
+      wantCallCount: 2,
+    },
+  ];
+
+  it.each(testCases)(
+    '$name',
+    async ({callErrors, options, wantErr, wantCallCount}) => {
+      let gotCallCount = 0;
+      const call: Call = () => {
+        const err = callErrors[gotCallCount];
+        gotCallCount++;
+        if (err) {
+          return Promise.reject(err);
+        }
+        return Promise.resolve();
+      };
+
+      if (wantErr) {
+        await expect(execute(undefined, call, ...options)).rejects.toBe(
+          wantErr
+        );
+      } else {
+        await execute(undefined, call, ...options);
+      }
+
+      expect(gotCallCount).toBe(wantCallCount);
+    }
+  );
+});
+
+describe('execute timeout', () => {
+  const testCases: {
+    name: string;
+    ctxTimeout: number;
+    optTimeout: number;
+    callDelay: number;
+    wantTimeout: boolean;
+  }[] = [
+    {
+      name: 'no timeout - call succeeds',
+      ctxTimeout: 0,
+      optTimeout: 0,
+      callDelay: 10,
+      wantTimeout: false,
+    },
+    {
+      name: 'context timeout - call times out',
+      ctxTimeout: 10,
+      optTimeout: 0,
+      callDelay: 50,
+      wantTimeout: true,
+    },
+    {
+      name: 'option timeout - call times out',
+      ctxTimeout: 0,
+      optTimeout: 10,
+      callDelay: 50,
+      wantTimeout: true,
+    },
+    {
+      name: 'minimum timeout - context timeout',
+      ctxTimeout: 10,
+      optTimeout: 100,
+      callDelay: 50,
+      wantTimeout: true,
+    },
+    {
+      name: 'minimum timeout - option timeout',
+      ctxTimeout: 100,
+      optTimeout: 10,
+      callDelay: 50,
+      wantTimeout: true,
+    },
+  ];
+
+  it.each(testCases)(
+    '$name',
+    async ({ctxTimeout, optTimeout, callDelay, wantTimeout}) => {
+      // Cancellable call that succeeds after the call delay or throws the
+      // abort reason if the signal is aborted.
+      const call: Call = async (signal?: AbortSignal) => {
+        await sleep(callDelay, signal);
+      };
+
+      const signal =
+        ctxTimeout > 0 ? AbortSignal.timeout(ctxTimeout) : undefined;
+
+      const opts: Option[] = [];
+      if (optTimeout > 0) {
+        opts.push(withTimeout(optTimeout));
+      }
+
+      if (wantTimeout) {
+        await expect(execute(signal, call, ...opts)).rejects.toMatchObject({
+          name: 'TimeoutError',
+        });
+      } else {
+        await execute(signal, call, ...opts);
+      }
+    }
+  );
+});
+
+describe('execute rate limiting', () => {
+  const testError = new Error('rate limited');
+
+  const testCases: {
+    name: string;
+    limiter: Limiter | undefined;
+    wantErr: Error | undefined;
+    wantCalls: number;
+  }[] = [
+    {
+      name: 'no limiter - call proceeds',
+      limiter: undefined,
+      wantErr: undefined,
+      wantCalls: 1,
+    },
+    {
+      name: 'limiter allows - call proceeds',
+      limiter: {
+        wait(): Promise<void> {
+          // No-op limiter that always allows.
+          return Promise.resolve();
+        },
+      },
+      wantErr: undefined,
+      wantCalls: 1,
+    },
+    {
+      name: 'limiter blocks - call fails',
+      limiter: {
+        wait(): Promise<void> {
+          return Promise.reject(testError);
+        },
+      },
+      wantErr: testError,
+      wantCalls: 0,
+    },
+  ];
+
+  it.each(testCases)('$name', async ({limiter, wantErr, wantCalls}) => {
+    let gotCalls = 0;
+    const call: Call = () => {
+      gotCalls++;
+      return Promise.resolve();
+    };
+
+    const opts: Option[] = [];
+    if (limiter) {
+      opts.push(withLimiter(limiter));
+    }
+
+    if (wantErr) {
+      await expect(execute(undefined, call, ...opts)).rejects.toBe(wantErr);
+    } else {
+      await execute(undefined, call, ...opts);
+    }
+
+    expect(gotCalls).toBe(wantCalls);
+  });
+});
+
+describe('execute context cancellation', () => {
+  it('should stop retrying when the signal is aborted', async () => {
+    const testErr = new Error('test error');
+    const call: Call = () => Promise.reject(testErr); // Always fail.
+    const retrier: Retrier = {
+      isRetriable(): number | undefined {
+        return 5; // Always retry after 5ms.
+      },
+    };
+
+    const controller = new AbortController();
+    setTimeout(() => {
+      controller.abort();
+    }, 10);
+
+    await expect(
+      execute(
+        controller.signal,
+        call,
+        withRetrier(() => retrier)
+      )
+    ).rejects.toMatchObject({name: 'AbortError'});
+  });
+});
+
+describe('execute option errors', () => {
+  it('should propagate errors thrown by options', async () => {
+    const testErr = new Error('option error');
+    const errorOption: Option = {
+      apply(_options: Options): void {
+        throw testErr;
+      },
+    };
+
+    const call: Call = () => Promise.resolve();
+
+    await expect(execute(undefined, call, errorOption)).rejects.toBe(testErr);
+  });
+});

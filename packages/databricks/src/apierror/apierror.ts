@@ -35,9 +35,9 @@ interface APIErrorOptions {
   code: Code;
   message: string;
   details: ErrorDetails;
-  httpStatusCode?: number;
-  httpHeader?: Headers;
-  httpBody?: Uint8Array;
+  httpStatusCode?: number | undefined;
+  httpHeader?: Headers | undefined;
+  httpBody?: Uint8Array | undefined;
   cause?: unknown;
 }
 
