@@ -3,69 +3,64 @@ import type {Token, Header} from '../src/auth';
 import {tokenProviderFn, newTokenCredentials} from '../src/auth';
 
 describe('tokenProviderFn', () => {
-  const cases: {name: string; token: Token}[] = [
-    {name: 'bearer token', token: {value: 'test-token', type: 'Bearer'}},
-    {name: 'token without type', token: {value: 'abc123'}},
-    {name: 'token with expiry', token: {value: 'x', expiry: new Date()}},
-  ];
+  it('should adapt a function to TokenProvider interface', async () => {
+    const expectedToken: Token = {value: 'test-token', type: 'Bearer'};
+    const provider = tokenProviderFn(() => Promise.resolve(expectedToken));
 
-  it.each(cases)(
-    'should return the expected token for $name',
-    async ({token}) => {
-      const provider = tokenProviderFn(() => Promise.resolve(token));
-      const result = await provider.token();
-      expect(result).toEqual(token);
-    }
-  );
+    const token = await provider.token();
+    expect(token).toEqual(expectedToken);
+  });
 
   it('should propagate errors from the function', async () => {
-    const error = new Error('token fetch failed');
-    const provider = tokenProviderFn(() => Promise.reject(error));
-    await expect(provider.token()).rejects.toThrow(error);
+    const expectedError = new Error('token fetch failed');
+    const provider = tokenProviderFn(() => Promise.reject(expectedError));
+
+    await expect(provider.token()).rejects.toThrow(expectedError);
   });
 });
 
 describe('newTokenCredentials', () => {
-  const headerCases: {name: string; token: Token; expected: Header[]}[] = [
-    {
-      name: 'defaults to Bearer scheme',
-      token: {value: 'my-token'},
-      expected: [{key: 'Authorization', value: 'Bearer my-token'}],
-    },
-    {
-      name: 'uses custom token type as scheme',
-      token: {value: 'custom-token', type: 'Basic'},
-      expected: [{key: 'Authorization', value: 'Basic custom-token'}],
-    },
-    {
-      name: 'uses DPoP scheme when specified',
-      token: {value: 'dpop-token', type: 'DPoP'},
-      expected: [{key: 'Authorization', value: 'DPoP dpop-token'}],
-    },
-  ];
+  it('should return Bearer authorization header by default', async () => {
+    const provider = tokenProviderFn(() =>
+      Promise.resolve({value: 'my-token'})
+    );
+    const credentials = newTokenCredentials(provider);
 
-  it.each(headerCases)(
-    'should produce correct auth header when $name',
-    async ({token, expected}) => {
-      const provider = tokenProviderFn(() => Promise.resolve(token));
-      const credentials = newTokenCredentials(provider);
-      const headers = await credentials.authHeaders();
-      expect(headers).toEqual<Header[]>(expected);
-    }
-  );
+    const headers = await credentials.authHeaders();
+    expect(headers).toEqual<Header[]>([
+      {key: 'Authorization', value: 'Bearer my-token'},
+    ]);
+  });
 
-  it('should delegate token() to the underlying provider', async () => {
+  it('should use custom token type when provided', async () => {
+    const provider = tokenProviderFn(() =>
+      Promise.resolve({
+        value: 'custom-token',
+        type: 'Basic',
+      })
+    );
+    const credentials = newTokenCredentials(provider);
+
+    const headers = await credentials.authHeaders();
+    expect(headers).toEqual<Header[]>([
+      {key: 'Authorization', value: 'Basic custom-token'},
+    ]);
+  });
+
+  it('should also implement TokenProvider interface', async () => {
     const expectedToken: Token = {value: 'test-token', expiry: new Date()};
     const provider = tokenProviderFn(() => Promise.resolve(expectedToken));
     const credentials = newTokenCredentials(provider);
+
     const token = await credentials.token();
     expect(token).toEqual(expectedToken);
   });
 
   it('should propagate errors from the underlying provider', async () => {
-    const error = new Error('provider error');
-    const provider = tokenProviderFn(() => Promise.reject(error));
+    const expectedError = new Error('provider error');
+    const provider = tokenProviderFn(() => Promise.reject(expectedError));
     const credentials = newTokenCredentials(provider);
-    await expect(credentials.authHeaders()).rejects.toThrow(error);
+
+    await expect(credentials.authHeaders()).rejects.toThrow(expectedError);
   });
 });

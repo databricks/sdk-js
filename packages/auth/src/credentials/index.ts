@@ -2,4 +2,4 @@
  * Credential implementations for the Databricks SDK.
  */
 
-export {newPatCredentials} from './pat';
+export {newPatCredentials, TokenRequiredError} from './pat';

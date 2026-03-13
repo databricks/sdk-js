@@ -3,8 +3,6 @@
  *
  * This module is not meant to be used directly by consumers of the SDK
  * and is subject to change without notice.
- *
- * @packageDocumentation
  */
 
 /**
@@ -31,8 +29,7 @@ export interface Credentials {
 export interface Token {
   /**
    * The raw value to sign requests with.
-   * It typically is an access token but can represent other types of tokens
-   * (e.g., ID tokens).
+   * It typically is an access token but can represent other types of tokens (e.g., ID tokens).
    */
   value: string;
 
@@ -54,8 +51,7 @@ export interface Token {
 export interface TokenProvider {
   /**
    * Returns a token or throws an error.
-   * The returned Token should be considered immutable and should not be
-   * modified.
+   * The returned Token should be considered immutable and should not be modified.
    */
   token(): Promise<Token>;
 }
@@ -76,8 +72,7 @@ export function tokenProviderFn(fn: () => Promise<Token>): TokenProvider {
 export interface TokenCredentials extends TokenProvider, Credentials {}
 
 /**
- * Creates a TokenCredentials that uses the given TokenProvider to return
- * authentication headers.
+ * Creates a TokenCredentials that uses the given TokenProvider to return authentication headers.
  */
 export function newTokenCredentials(provider: TokenProvider): TokenCredentials {
   return new TokenCredentialsImpl(provider);
@@ -90,13 +85,13 @@ class TokenCredentialsImpl implements TokenCredentials {
     this.provider = provider;
   }
 
-  async token(): Promise<Token> {
-    return this.provider.token();
+  async authHeaders(): Promise<Header[]> {
+    const token = await this.provider.token();
+    const tokenType = token.type ?? 'Bearer';
+    return [{key: 'Authorization', value: `${tokenType} ${token.value}`}];
   }
 
-  async authHeaders(): Promise<Header[]> {
-    const t = await this.token();
-    const scheme = t.type ?? 'Bearer';
-    return [{key: 'Authorization', value: `${scheme} ${t.value}`}];
+  async token(): Promise<Token> {
+    return this.provider.token();
   }
 }
