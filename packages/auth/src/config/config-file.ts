@@ -47,10 +47,10 @@ export function resolveProfileName(
     }
   }
 
-  if (SETTINGS_SECTION in ini) {
+  if (Object.hasOwn(ini, SETTINGS_SECTION)) {
     const settings = ini[SETTINGS_SECTION];
     if (
-      DEFAULT_PROFILE_KEY in settings &&
+      Object.hasOwn(settings, DEFAULT_PROFILE_KEY) &&
       settings[DEFAULT_PROFILE_KEY] !== ''
     ) {
       return settings[DEFAULT_PROFILE_KEY];
@@ -90,7 +90,7 @@ function assertValidProfileName(name: string): void {
 export function loadProfile(ini: IniFile, explicitProfile?: string): Profile {
   const name = resolveProfileName(ini, explicitProfile);
   assertValidProfileName(name);
-  if (!(name in ini)) {
+  if (!Object.hasOwn(ini, name)) {
     throw new Error(`profile "${name}" not found in configuration file`);
   }
   return {name, values: ini[name]};
@@ -109,7 +109,7 @@ export function listProfiles(ini: IniFile): Profile[] {
     if (name === SETTINGS_SECTION) {
       continue;
     }
-    if ('host' in values && values.host !== '') {
+    if (Object.hasOwn(values, 'host') && values.host !== '') {
       profiles.push({name, values});
     }
   }

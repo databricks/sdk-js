@@ -110,15 +110,17 @@ host = https://default.cloud.databricks.com
     expect(Object.keys(ini)).toEqual(['DEFAULT']);
   });
 
-  it('should use last occurrence when sections are duplicated', () => {
+  it('should merge duplicate sections, later keys override earlier ones', () => {
     const ini = parseIni(`
 [DEFAULT]
 host = https://first.cloud.databricks.com
+token = dapiXYZ
 
 [DEFAULT]
 host = https://second.cloud.databricks.com
 `);
     expect(ini.DEFAULT.host).toBe('https://second.cloud.databricks.com');
+    expect(ini.DEFAULT.token).toBe('dapiXYZ');
   });
 
   describe('inline comments', () => {
@@ -162,7 +164,10 @@ host = https://second.cloud.databricks.com
 
     it.each(inlineCommentCases)('$name', ({input, want}) => {
       const ini = parseIni(input);
-      expect(ini.s.key ?? ini.s.token).toBe(want);
+      const section = ini.s;
+      expect(
+        Object.hasOwn(section, 'key') ? section.key : section.token
+      ).toBe(want);
     });
   });
 });

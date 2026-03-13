@@ -40,11 +40,12 @@ function stripInlineComment(value: string): string {
  * Global key-value pairs (those appearing before any section header) are
  * excluded from the result since `.databrickscfg` files do not use them.
  *
- * When duplicate section names appear, the last occurrence wins (its
- * key-value pairs replace earlier ones entirely).
+ * When duplicate section names appear, their keys are merged into a single
+ * section. Later keys override earlier ones with the same name, matching
+ * the Go SDK (gopkg.in/ini.v1) behavior.
  */
 export function parseIni(content: string): IniFile {
-  const result: IniFile = {};
+  const result: IniFile = Object.create(null) as IniFile;
   let currentSection: string | undefined;
 
   const lines = content.split(/\r?\n/);
@@ -57,11 +58,22 @@ export function parseIni(content: string): IniFile {
       continue;
     }
 
-    // Section header.
-    if (line.startsWith('[') && line.endsWith(']')) {
-      currentSection = line.slice(1, -1).trim();
-      result[currentSection] = {};
-      continue;
+    // Section header. Strip inline comments so that
+    // `[DEFAULT] # comment` is recognized correctly.
+    if (line.startsWith('[')) {
+      const stripped = stripInlineComment(line);
+      if (stripped.endsWith(']')) {
+        currentSection = stripped.slice(1, -1).trim();
+        // Merge into existing section instead of replacing it, matching
+        // the Go SDK (gopkg.in/ini.v1) behavior.
+        if (!Object.hasOwn(result, currentSection)) {
+          result[currentSection] = Object.create(null) as Record<
+            string,
+            string
+          >;
+        }
+        continue;
+      }
     }
 
     // Key-value pair. Only record if we are inside a section.
