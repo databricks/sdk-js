@@ -79,7 +79,7 @@ async function executeImpl(
       await apiCall(signal);
       return; // Nothing to retry.
     } catch (err: unknown) {
-      const error = err instanceof Error ? err : new Error(String(err));
+      const error = toError(err);
 
       if (retrier === undefined) {
         if (opts.retrier) {
