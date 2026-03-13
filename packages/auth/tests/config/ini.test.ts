@@ -90,7 +90,6 @@ host = https://default.cloud.databricks.com
     expect(ini.DEFAULT.host).toBe('https://default.cloud.databricks.com');
   });
 
-  // Edge case: Windows line endings.
   it('should handle Windows line endings (CRLF)', () => {
     const ini = parseIni(
       '[DEFAULT]\r\nhost = https://default.cloud.databricks.com\r\ntoken = dapiXYZ\r\n'
@@ -100,21 +99,17 @@ host = https://default.cloud.databricks.com
     expect(section.token).toBe('dapiXYZ');
   });
 
-  // Edge case: key-value pairs before any section header are excluded.
   it('should exclude global key-value pairs before any section', () => {
     const ini = parseIni(`
 orphan_key = orphan_value
 [DEFAULT]
 host = https://default.cloud.databricks.com
 `);
-    // Global keys are not sections and should be excluded.
     expect(ini.DEFAULT).toBeDefined();
     expect(ini.DEFAULT.host).toBe('https://default.cloud.databricks.com');
-    // The orphan key should not appear as a section.
     expect(Object.keys(ini)).toEqual(['DEFAULT']);
   });
 
-  // Edge case: duplicate section names (last one wins).
   it('should use last occurrence when sections are duplicated', () => {
     const ini = parseIni(`
 [DEFAULT]
@@ -126,13 +121,48 @@ host = https://second.cloud.databricks.com
     expect(ini.DEFAULT.host).toBe('https://second.cloud.databricks.com');
   });
 
-  // Edge case: inline comments are stripped by the ini library.
-  it('should strip inline comments', () => {
-    const ini = parseIni(`
-[DEFAULT]
-host = https://default.cloud.databricks.com # my workspace
-`);
-    const section = ini.DEFAULT;
-    expect(section.host).toBe('https://default.cloud.databricks.com');
+  describe('inline comments', () => {
+    const inlineCommentCases = [
+      {
+        name: 'should strip # inline comment preceded by a space',
+        input: '[s]\nkey = value # comment',
+        want: 'value',
+      },
+      {
+        name: 'should strip ; inline comment preceded by a space',
+        input: '[s]\nkey = value ; comment',
+        want: 'value',
+      },
+      {
+        name: 'should preserve # when not preceded by a space',
+        input: '[s]\nkey = abc#123',
+        want: 'abc#123',
+      },
+      {
+        name: 'should preserve ; when not preceded by a space',
+        input: '[s]\nkey = abc;123',
+        want: 'abc;123',
+      },
+      {
+        name: 'should preserve value with # in URL fragment',
+        input: '[s]\nkey = https://host.com/path#anchor',
+        want: 'https://host.com/path#anchor',
+      },
+      {
+        name: 'should preserve password containing #',
+        input: '[s]\ntoken = my#secret#password',
+        want: 'my#secret#password',
+      },
+      {
+        name: 'should strip comment at first space-# boundary',
+        input: '[s]\nkey = hello world # this is a comment',
+        want: 'hello world',
+      },
+    ];
+
+    it.each(inlineCommentCases)('$name', ({input, want}) => {
+      const ini = parseIni(input);
+      expect(ini.s.key ?? ini.s.token).toBe(want);
+    });
   });
 });
