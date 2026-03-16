@@ -73,6 +73,9 @@ familiar with the codebase but has not seen this change before.
 - **Back up claims with evidence.** Use concrete data (EOL dates, security
   advisories, performance benchmarks, spec references) — not vague assertions
   like "X is too old" or "Y is better."
+- **Do not hard-wrap lines.** Write each paragraph as a single long line.
+  GitHub and other renderers handle wrapping automatically — manual line breaks
+  at 80 characters produce ragged formatting in the rendered PR.
 
 ### Phase 4: Update the PR
 

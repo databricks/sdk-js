@@ -7,5 +7,5 @@
  * @packageDocumentation
  */
 
-export {newFetchHttpClient} from './http';
+export {newFetchHttpClient, newHttpClient} from './http';
 export type {HttpClient, HttpRequest, HttpResponse} from './http';
