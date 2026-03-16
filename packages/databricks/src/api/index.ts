@@ -10,6 +10,7 @@ export type {Limiter} from './limiter';
 export {
   withDisableRetry,
   withLimiter,
+  withNoLimiter,
   withRetrier,
   withTimeout,
 } from './options';

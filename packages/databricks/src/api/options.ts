@@ -70,3 +70,12 @@ export function withLimiter(l: Limiter): Option {
     },
   };
 }
+
+/** Convenience option to disable rate limiting for a call. */
+export function withNoLimiter(): Option {
+  return {
+    apply(opts: Options): void {
+      opts.rateLimiter = undefined;
+    },
+  };
+}

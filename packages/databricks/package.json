@@ -26,6 +26,10 @@
       "types": "./dist/logger/index.d.ts",
       "import": "./dist/logger/index.js"
     },
+    "./options": {
+      "types": "./dist/options/index.d.ts",
+      "import": "./dist/options/index.js"
+    },
     "./transport": {
       "types": "./dist/transport/index.d.ts",
       "import": "./dist/transport/index.js"
@@ -52,6 +56,7 @@
     "node": ">=22.0.0"
   },
   "dependencies": {
+    "@databricks/sdk-auth": "0.1.0",
     "zod": "^4.3.6"
   }
 }
