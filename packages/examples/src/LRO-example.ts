@@ -14,18 +14,18 @@ export class CreatePipelineOperation {
      * Returns the name of the long-running operation. The name is assigned by the
      * server and is unique within the service from which the operation is created.
      */
-    name(): string {
-      return this.operation.name;
+    name(): Promise<string> {
+      return Promise.resolve(this.operation.name);
     }
   
     /**
      * Returns metadata associated with the long-running operation. If the metadata
      * is not available, returns undefined.
      */
-    metadata(): PipelineMetadata | undefined {
+    metadata(): Promise<PipelineMetadata | undefined> {
       if (!this.operation.metadata) {
-        return undefined;
+        return Promise.resolve(undefined);
       }
-      return this.operation.metadata as PipelineMetadata;
+      return Promise.resolve(this.operation.metadata as PipelineMetadata);
     }
 }
