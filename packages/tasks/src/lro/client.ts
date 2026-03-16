@@ -80,7 +80,7 @@ class PostgresClient {
     ...opts: Option[]
   ): Promise<CreateBranchOperation> {
     const op = await this.createBranch(signal, req, ...opts);
-    return new CreateBranchOperation(op);
+    return new CreateBranchOperation(this, op);
   }
 
   async getOperation(
@@ -132,7 +132,7 @@ class PostgresClient {
 
 class CreateBranchOperation {
   constructor(
-    // private readonly client: PostgresClient, // not used, will uncomment once other methods are added.
+    private readonly client: PostgresClient,
     private operation: Operation
   ) {}
 
@@ -151,6 +151,32 @@ class CreateBranchOperation {
     }
     return Promise.resolve(
       branchOperationMetadataSchema.parse(this.operation.metadata)
+    );
+  }
+
+  /** Polls once and reports whether the operation has completed. */
+  async done(
+    signal: AbortSignal | undefined,
+    ...opts: Option[]
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      ...opts
+    );
+    this.operation = op;
+    return op.done;
+  }
+
+  /** Starts asynchronous cancellation on the long-running operation. */
+  async cancel(
+    signal: AbortSignal | undefined,
+    ...opts: Option[]
+  ): Promise<void> {
+    await this.client.cancelOperation(
+      signal,
+      {name: this.operation.name},
+      ...opts
     );
   }
 }
