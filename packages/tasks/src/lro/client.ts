@@ -1,5 +1,5 @@
 import type {Call, Option} from '@databricks/sdk-databricks/api';
-import {execute} from '@databricks/sdk-databricks/api';
+import {execute, retryOn, withRetrier} from '@databricks/sdk-databricks/api';
 import type {Logger} from '@databricks/sdk-databricks/logger';
 import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
@@ -14,6 +14,7 @@ import {
   parseResponse,
 } from './genhelper';
 import type {
+  Branch,
   BranchOperationMetadata,
   CancelOperationRequest,
   CreateBranchRequest,
@@ -22,6 +23,7 @@ import type {
 } from './model';
 import {
   branchOperationMetadataSchema,
+  branchSchema,
   marshalCreateBranchRequestSchema,
   operationSchema,
 } from './model';
@@ -152,6 +154,64 @@ class CreateBranchOperation {
     return Promise.resolve(
       branchOperationMetadataSchema.parse(this.operation.metadata)
     );
+  }
+
+  /**
+   * Wait polls until the long-running operation completes or fails.
+   *
+   * For delete operations, the return type would be `Promise<void>` instead
+   * of `Promise<Branch>`, and no result deserialization is needed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    ...opts: Option[]
+  ): Promise<Branch> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Branch | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        ...opts
+      );
+      this.operation = op;
+
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`);
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed but no response available');
+      }
+
+      result = branchSchema.parse(op.response);
+    };
+
+    const waitOpts: Option[] = [
+      withRetrier(() =>
+        retryOn({}, (err: Error): boolean => err === errStillRunning)
+      ),
+    ];
+    await execute(signal, call, ...waitOpts);
+    if (result === undefined) {
+      throw new Error('result not set after successful wait');
+    }
+    return result;
   }
 
   /** Polls once and reports whether the operation has completed. */
