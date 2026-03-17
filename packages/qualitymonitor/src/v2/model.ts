@@ -25,4 +25,58 @@ enum ThresholdType {
   THRESHOLD_TYPE_MANUAL = 'THRESHOLD_TYPE_MANUAL',
 }
 
-export { AnomalyDetectionJobType, AnomalyDetectionRunStatus, ThresholdType };
+interface AnomalyDetectionConfig {}
+
+interface ColumnMatcher {}
+
+interface CreateQualityMonitorRequest {}
+
+interface CustomCheckConfiguration {}
+
+interface CustomCheckThresholds {}
+
+interface CustomScalarCheck {}
+
+interface DeleteQualityMonitorRequest {}
+
+interface GetQualityMonitorRequest {}
+
+interface ListQualityMonitorRequest {}
+
+interface ListQualityMonitorResponse {}
+
+interface PercentNullValidityCheck {}
+
+interface QualityMonitor {}
+
+interface RangeValidityCheck {}
+
+interface Threshold {}
+
+interface UniquenessValidityCheck {}
+
+interface UpdateQualityMonitorRequest {}
+
+interface ValidityCheckConfiguration {}
+
+export {AnomalyDetectionJobType, AnomalyDetectionRunStatus, ThresholdType};
+
+export type {
+  AnomalyDetectionConfig,
+  ColumnMatcher,
+  CreateQualityMonitorRequest,
+  CustomCheckConfiguration,
+  CustomCheckThresholds,
+  CustomScalarCheck,
+  DeleteQualityMonitorRequest,
+  GetQualityMonitorRequest,
+  ListQualityMonitorRequest,
+  ListQualityMonitorResponse,
+  PercentNullValidityCheck,
+  QualityMonitor,
+  RangeValidityCheck,
+  Threshold,
+  UniquenessValidityCheck,
+  UpdateQualityMonitorRequest,
+  ValidityCheckConfiguration,
+};

@@ -68,6 +68,383 @@ enum WorkspaceAccessDetail_AccessType {
   INDIRECT = 'INDIRECT',
 }
 
+/** An identity rule that controls which principals can access an account. */
+interface AccountAccessIdentityRule {}
+
+/** Request message for creating an account access identity rule. */
+interface CreateAccountAccessIdentityRuleRequest {}
+
+/** Request message for creating a group membership (assigning a principal to a group). */
+interface CreateGroupMembershipProxyRequest {}
+
+/** Request message for creating a group membership (assigning a principal to a group). */
+interface CreateGroupMembershipRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface CreateGroupProxyRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface CreateGroupRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface CreateServicePrincipalProxyRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface CreateServicePrincipalRequest {}
+
+/**
+ * Creates a user in Databricks and provisions it at the account level.
+ * Behavior depends on whether Account Identity Management (AIM) is enabled:
+ * - When AIM is enabled:
+ * The user is provisioned with an internalId. If an externalId is provided, the identity provider is
+ * treated as the source of truth for user metadata, and customer-supplied field values may be overridden.
+ * - When AIM is disabled:
+ * The user is provisioned with an internalId only, and customer-supplied metadata is used as-is.
+ */
+interface CreateUserProxyRequest {}
+
+/**
+ * Creates a user in Databricks and provisions it at the account level.
+ * Behavior depends on whether Account Identity Management (AIM) is enabled:
+ * - When AIM is enabled:
+ * The user is provisioned with an internalId. If an externalId is provided, the identity provider is
+ * treated as the source of truth for user metadata, and customer-supplied field values may be overridden.
+ * - When AIM is disabled:
+ * The user is provisioned with an internalId only, and customer-supplied metadata is used as-is.
+ */
+interface CreateUserRequest {}
+
+/** Assign an identity directly to a workspace with the specified permissions and workspace-level status. */
+interface CreateWorkspaceAssignmentDetailProxyRequest {}
+
+/** Assign an identity directly to a workspace with the specified permissions and workspace-level status. */
+interface CreateWorkspaceAssignmentDetailRequest {}
+
+/** Request message for deleting an account access identity rule. */
+interface DeleteAccountAccessIdentityRuleRequest {}
+
+/** Request message for deleting a group membership (unassigning a principal from a group). */
+interface DeleteGroupMembershipProxyRequest {}
+
+/** Request message for deleting a group membership (unassigning a principal from a group). */
+interface DeleteGroupMembershipRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface DeleteGroupProxyRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface DeleteGroupRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface DeleteServicePrincipalProxyRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface DeleteServicePrincipalRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface DeleteUserProxyRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface DeleteUserRequest {}
+
+/** Proxy request for deleting a workspace assignment detail for a principal. */
+interface DeleteWorkspaceAssignmentDetailProxyRequest {}
+
+/** If the identity is directly assigned to the workspace, remove its assignment from the workspace */
+interface DeleteWorkspaceAssignmentDetailRequest {}
+
+/** Represents a principal that is a direct member of a group, with its source of membership. */
+interface DirectGroupMember {}
+
+/** Request message for getting an account access identity rule. */
+interface GetAccountAccessIdentityRuleRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface GetGroupProxyRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface GetGroupRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface GetServicePrincipalProxyRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface GetServicePrincipalRequest {}
+
+/**
+ * Creates a user in Databricks and returns the resulting User resource.
+ * Readability of the created user depends on Account Identity Management (AIM)
+ * and the configured Boundary Enforcement mode:
+ * - When AIM is enabled and Boundary Enforcement is set to RULES_ONLY:
+ * - MVP: Any user with an internalId is readable, including users with an
+ * externalId populated.
+ * - Phase 2: Behavior to be defined.
+ * - When AIM is enabled and Boundary Enforcement is set to ALLOW_ALL:
+ * - Any user with an internalId is readable, including users with an
+ * externalId populated.
+ * - When AIM is disabled:
+ * - Returns the User resource corresponding to the given internalId.
+ */
+interface GetUserProxyRequest {}
+
+/**
+ * Creates a user in Databricks and returns the resulting User resource.
+ * Readability of the created user depends on Account Identity Management (AIM)
+ * and the configured Boundary Enforcement mode:
+ * - When AIM is enabled and Boundary Enforcement is set to RULES_ONLY:
+ * - MVP: Any user with an internalId is readable, including users with an
+ * externalId populated.
+ * - Phase 2: Behavior to be defined.
+ * - When AIM is enabled and Boundary Enforcement is set to ALLOW_ALL:
+ * - Any user with an internalId is readable, including users with an
+ * externalId populated.
+ * - When AIM is disabled:
+ * - Returns the User resource corresponding to the given internalId.
+ */
+interface GetUserRequest {}
+
+/** Request message for getting the access details for a principal in the current workspace. */
+interface GetWorkspaceAccessDetailLocalRequest {}
+
+/** Request message for getting the access details for a principal in a workspace. */
+interface GetWorkspaceAccessDetailRequest {}
+
+/** Proxy request for getting workspace assignment details for a principal in a workspace. */
+interface GetWorkspaceAssignmentDetailProxyRequest {}
+
+/** Get the workspace assignment details of a principal that is provisioned in the account and directly assigned to a workspace */
+interface GetWorkspaceAssignmentDetailRequest {}
+
+/** The details of a Group resource. */
+interface Group {}
+
+/** Represents membership of a principal (group/user/service principal) in a group. */
+interface GroupMembership {}
+
+/** Request message for listing account access identity rules. */
+interface ListAccountAccessIdentityRulesRequest {}
+
+/** Response message for listing account access identity rules. */
+interface ListAccountAccessIdentityRulesResponse {}
+
+/** Request message for listing provisioned direct group members. */
+interface ListDirectGroupMembersProxyRequest {}
+
+/** Request message for listing provisioned direct group members. */
+interface ListDirectGroupMembersRequest {}
+
+/** Response message for listing direct group members. */
+interface ListDirectGroupMembersResponse {}
+
+/** TODO: Write description later when this method is implemented */
+interface ListGroupsProxyRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface ListGroupsRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface ListGroupsResponse {}
+
+/** TODO: Write description later when this method is implemented */
+interface ListServicePrincipalsProxyRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface ListServicePrincipalsRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface ListServicePrincipalsResponse {}
+
+/** Request message for listing all transitive parent groups of a principal. */
+interface ListTransitiveParentGroupsProxyRequest {}
+
+/** Request message for listing all transitive parent groups of a principal. */
+interface ListTransitiveParentGroupsRequest {}
+
+/** Response message for listing all transitive parent groups of a principal. */
+interface ListTransitiveParentGroupsResponse {}
+
+/**
+ * Returns a paginated list of account-level users.
+ * Behavior depends on whether Account Identity Management (AIM) is enabled:
+ * - When AIM is enabled:
+ * - The "externalId eq" filter only evaluates provisioned Databricks users
+ * that have an internalId.
+ * - The "username eq" filter only evaluates provisioned Databricks users
+ * that have an internalId.
+ * - Listing without filters returns all provisioned Databricks users.
+ * - AIM Boundary Enforcement Phase 2: Behavior to be defined.
+ * - When AIM is disabled:
+ * - The "externalId eq" filter only evaluates provisioned Databricks users
+ * that have an internalId.
+ * - The "username eq" filter only evaluates provisioned Databricks users
+ * that have an internalId.
+ * - Listing without filters returns all provisioned Databricks users.
+ */
+interface ListUsersProxyRequest {}
+
+/**
+ * Returns a paginated list of account-level users.
+ * Behavior depends on whether Account Identity Management (AIM) is enabled:
+ * - When AIM is enabled:
+ * - The "externalId eq" filter only evaluates provisioned Databricks users
+ * that have an internalId.
+ * - The "username eq" filter only evaluates provisioned Databricks users
+ * that have an internalId.
+ * - Listing without filters returns all provisioned Databricks users.
+ * - AIM Boundary Enforcement Phase 2: Behavior to be defined.
+ * - When AIM is disabled:
+ * - The "externalId eq" filter only evaluates provisioned Databricks users
+ * that have an internalId.
+ * - The "username eq" filter only evaluates provisioned Databricks users
+ * that have an internalId.
+ * - Listing without filters returns all provisioned Databricks users.
+ */
+interface ListUsersRequest {}
+
+interface ListUsersResponse {}
+
+/** TODO: Write description later when this method is implemented */
+interface ListWorkspaceAccessDetailsLocalRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface ListWorkspaceAccessDetailsRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface ListWorkspaceAccessDetailsResponse {}
+
+/** Proxy request for listing workspace assignment details for a workspace. */
+interface ListWorkspaceAssignmentDetailsProxyRequest {}
+
+/** Returns a paginated list of direct assignments to the workspace. */
+interface ListWorkspaceAssignmentDetailsRequest {}
+
+/** Response message for listing workspace assignment details. */
+interface ListWorkspaceAssignmentDetailsResponse {}
+
+/**
+ * Request message for matching a group against the IDP.
+ * This will perform a sync by group_id before performing analysis to update local data which is safe to fix.
+ */
+interface MatchGroupWithIdpRequest {}
+
+/** Response message for matching a group against the IDP. */
+interface MatchGroupWithIdpResponse {}
+
+/**
+ * Request message for matching a service principal against the IDP.
+ * This will perform a sync by service_principal_id before performing analysis to update local data which is safe to fix.
+ */
+interface MatchServicePrincipalWithIdpRequest {}
+
+/** Response message for matching a service principal against the IDP. */
+interface MatchServicePrincipalWithIdpResponse {}
+
+/**
+ * Request message for matching a user against the IDP.
+ * This will perform a sync by user_id before performing analysis to update local data which is safe to fix.
+ */
+interface MatchUserWithIdpRequest {}
+
+/** Response message for matching a user against the IDP. */
+interface MatchUserWithIdpResponse {}
+
+/**
+ * Request message for resolving a group with the given external ID from the customer's IdP into <Databricks>.
+ * Will resolve metadata such as the group's groupname, and inherited parent groups.
+ */
+interface ResolveGroupProxyRequest {}
+
+/**
+ * Request message for resolving a group with the given external ID from the customer's IdP into <Databricks>.
+ * Will resolve metadata such as the group's groupname, and inherited parent groups.
+ */
+interface ResolveGroupRequest {}
+
+interface ResolveGroupResponse {}
+
+/**
+ * Request message for resolving a service principal with the given external ID from the customer's IdP into <Databricks>.
+ * Will resolve metadata such as the service principal's displayname, status, and inherited parent groups.
+ */
+interface ResolveServicePrincipalProxyRequest {}
+
+/**
+ * Request message for resolving a service principal with the given external ID from the customer's IdP into <Databricks>.
+ * Will resolve metadata such as the service principal's displayname, status, and inherited parent groups.
+ */
+interface ResolveServicePrincipalRequest {}
+
+interface ResolveServicePrincipalResponse {}
+
+/**
+ * Request message for resolving a user with the given external ID from the customer's IdP into <Databricks>.
+ * Will resolve metadata such as the user's displayname, status, and inherited parent groups.
+ */
+interface ResolveUserProxyRequest {}
+
+/**
+ * Request message for resolving a user with the given external ID from the customer's IdP into <Databricks>.
+ * Will resolve metadata such as the user's displayname, status, and inherited parent groups.
+ */
+interface ResolveUserRequest {}
+
+interface ResolveUserResponse {}
+
+/** The details of a ServicePrincipal resource. */
+interface ServicePrincipal {}
+
+/** Represents a group that is a transitive parent of a principal. */
+interface TransitiveParentGroup {}
+
+/** TODO: Write description later when this method is implemented */
+interface UpdateGroupProxyRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface UpdateGroupRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface UpdateServicePrincipalProxyRequest {}
+
+/** TODO: Write description later when this method is implemented */
+interface UpdateServicePrincipalRequest {}
+
+/**
+ * Updates an existing user in Databricks. The behavior is consistent regardless of whether
+ * Account Identity Management (AIM) is enabled or disabled. The following fields are updatable:
+ * - name.familyName
+ * - name.givenName
+ * - status
+ * - externalId
+ */
+interface UpdateUserProxyRequest {}
+
+/**
+ * Updates an existing user in Databricks. The behavior is consistent regardless of whether
+ * Account Identity Management (AIM) is enabled or disabled. The following fields are updatable:
+ * - name.familyName
+ * - name.givenName
+ * - status
+ * - externalId
+ */
+interface UpdateUserRequest {}
+
+/** Proxy request for updating a workspace assignment detail for a principal. */
+interface UpdateWorkspaceAssignmentDetailProxyRequest {}
+
+/** TBD since the only updatable field is permissions */
+interface UpdateWorkspaceAssignmentDetailRequest {}
+
+/** The details of a User resource. */
+interface User {}
+
+interface User_Name {}
+
+/** The details of a principal's access to a workspace. */
+interface WorkspaceAccessDetail {}
+
+/** The details of a principal's assignment to a workspace. */
+interface WorkspaceAssignmentDetail {}
+
 export {
   AccountAccessRuleAction,
   Entitlement,
@@ -77,4 +454,96 @@ export {
   WorkspaceAccessDetailView,
   WorkspacePermission,
   WorkspaceAccessDetail_AccessType,
+};
+
+export type {
+  AccountAccessIdentityRule,
+  CreateAccountAccessIdentityRuleRequest,
+  CreateGroupMembershipProxyRequest,
+  CreateGroupMembershipRequest,
+  CreateGroupProxyRequest,
+  CreateGroupRequest,
+  CreateServicePrincipalProxyRequest,
+  CreateServicePrincipalRequest,
+  CreateUserProxyRequest,
+  CreateUserRequest,
+  CreateWorkspaceAssignmentDetailProxyRequest,
+  CreateWorkspaceAssignmentDetailRequest,
+  DeleteAccountAccessIdentityRuleRequest,
+  DeleteGroupMembershipProxyRequest,
+  DeleteGroupMembershipRequest,
+  DeleteGroupProxyRequest,
+  DeleteGroupRequest,
+  DeleteServicePrincipalProxyRequest,
+  DeleteServicePrincipalRequest,
+  DeleteUserProxyRequest,
+  DeleteUserRequest,
+  DeleteWorkspaceAssignmentDetailProxyRequest,
+  DeleteWorkspaceAssignmentDetailRequest,
+  DirectGroupMember,
+  GetAccountAccessIdentityRuleRequest,
+  GetGroupProxyRequest,
+  GetGroupRequest,
+  GetServicePrincipalProxyRequest,
+  GetServicePrincipalRequest,
+  GetUserProxyRequest,
+  GetUserRequest,
+  GetWorkspaceAccessDetailLocalRequest,
+  GetWorkspaceAccessDetailRequest,
+  GetWorkspaceAssignmentDetailProxyRequest,
+  GetWorkspaceAssignmentDetailRequest,
+  Group,
+  GroupMembership,
+  ListAccountAccessIdentityRulesRequest,
+  ListAccountAccessIdentityRulesResponse,
+  ListDirectGroupMembersProxyRequest,
+  ListDirectGroupMembersRequest,
+  ListDirectGroupMembersResponse,
+  ListGroupsProxyRequest,
+  ListGroupsRequest,
+  ListGroupsResponse,
+  ListServicePrincipalsProxyRequest,
+  ListServicePrincipalsRequest,
+  ListServicePrincipalsResponse,
+  ListTransitiveParentGroupsProxyRequest,
+  ListTransitiveParentGroupsRequest,
+  ListTransitiveParentGroupsResponse,
+  ListUsersProxyRequest,
+  ListUsersRequest,
+  ListUsersResponse,
+  ListWorkspaceAccessDetailsLocalRequest,
+  ListWorkspaceAccessDetailsRequest,
+  ListWorkspaceAccessDetailsResponse,
+  ListWorkspaceAssignmentDetailsProxyRequest,
+  ListWorkspaceAssignmentDetailsRequest,
+  ListWorkspaceAssignmentDetailsResponse,
+  MatchGroupWithIdpRequest,
+  MatchGroupWithIdpResponse,
+  MatchServicePrincipalWithIdpRequest,
+  MatchServicePrincipalWithIdpResponse,
+  MatchUserWithIdpRequest,
+  MatchUserWithIdpResponse,
+  ResolveGroupProxyRequest,
+  ResolveGroupRequest,
+  ResolveGroupResponse,
+  ResolveServicePrincipalProxyRequest,
+  ResolveServicePrincipalRequest,
+  ResolveServicePrincipalResponse,
+  ResolveUserProxyRequest,
+  ResolveUserRequest,
+  ResolveUserResponse,
+  ServicePrincipal,
+  TransitiveParentGroup,
+  UpdateGroupProxyRequest,
+  UpdateGroupRequest,
+  UpdateServicePrincipalProxyRequest,
+  UpdateServicePrincipalRequest,
+  UpdateUserProxyRequest,
+  UpdateUserRequest,
+  UpdateWorkspaceAssignmentDetailProxyRequest,
+  UpdateWorkspaceAssignmentDetailRequest,
+  User,
+  User_Name,
+  WorkspaceAccessDetail,
+  WorkspaceAssignmentDetail,
 };

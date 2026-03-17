@@ -97,6 +97,90 @@ enum RefreshTrigger {
   MONITOR_REFRESH_TRIGGER_DATA_CHANGE = 'MONITOR_REFRESH_TRIGGER_DATA_CHANGE',
 }
 
+/** Anomaly Detection Configurations. */
+interface AnomalyDetectionConfig {}
+
+/** Request to cancel a refresh. */
+interface CancelRefreshRequest {}
+
+/** Response to cancelling a refresh. */
+interface CancelRefreshResponse {}
+
+/** Request to create a Monitor. */
+interface CreateMonitorRequest {}
+
+/** Request to create a refresh. */
+interface CreateRefreshRequest {}
+
+/** The data quality monitoring workflow cron schedule. */
+interface CronSchedule {}
+
+/** Data Profiling Configurations. */
+interface DataProfilingConfig {}
+
+/** Custom metric definition. */
+interface DataProfilingCustomMetric {}
+
+/** Request to delete a Monitor. */
+interface DeleteMonitorRequest {}
+
+/** Request to delete a ronitor. */
+interface DeleteRefreshRequest {}
+
+/** Request to get a Monitor. */
+interface GetMonitorRequest {}
+
+/** Request to get a refresh. */
+interface GetRefreshRequest {}
+
+/** Inference log configuration. */
+interface InferenceLogConfig {}
+
+/** Request to list Monitors. */
+interface ListMonitorRequest {}
+
+/** Response for listing Monitors. */
+interface ListMonitorResponse {}
+
+/** Request to list refreshes. */
+interface ListRefreshRequest {}
+
+/** Response for listing refreshes. */
+interface ListRefreshResponse {}
+
+/** Monitor for the data quality of unity catalog entities such as schema or table. */
+interface Monitor {}
+
+/** Destination of the data quality monitoring notification. */
+interface NotificationDestination {}
+
+/** Settings for sending notifications on the data quality monitoring. */
+interface NotificationSettings {}
+
+interface PercentNullValidityCheck {}
+
+interface RangeValidityCheck {}
+
+/** The Refresh object gives information on a refresh of the data quality monitoring pipeline. */
+interface Refresh {}
+
+/** Snapshot analysis configuration. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface SnapshotConfig {}
+
+/** Time series analysis configuration. */
+interface TimeSeriesConfig {}
+
+interface UniquenessValidityCheck {}
+
+/** Request to update a Monitor. */
+interface UpdateMonitorRequest {}
+
+/** Request to update a refresh. */
+interface UpdateRefreshRequest {}
+
+interface ValidityCheckConfiguration {}
+
 export {
   AggregationGranularity,
   AnomalyDetectionJobType,
@@ -106,4 +190,36 @@ export {
   InferenceProblemType,
   RefreshState,
   RefreshTrigger,
+};
+
+export type {
+  AnomalyDetectionConfig,
+  CancelRefreshRequest,
+  CancelRefreshResponse,
+  CreateMonitorRequest,
+  CreateRefreshRequest,
+  CronSchedule,
+  DataProfilingConfig,
+  DataProfilingCustomMetric,
+  DeleteMonitorRequest,
+  DeleteRefreshRequest,
+  GetMonitorRequest,
+  GetRefreshRequest,
+  InferenceLogConfig,
+  ListMonitorRequest,
+  ListMonitorResponse,
+  ListRefreshRequest,
+  ListRefreshResponse,
+  Monitor,
+  NotificationDestination,
+  NotificationSettings,
+  PercentNullValidityCheck,
+  RangeValidityCheck,
+  Refresh,
+  SnapshotConfig,
+  TimeSeriesConfig,
+  UniquenessValidityCheck,
+  UpdateMonitorRequest,
+  UpdateRefreshRequest,
+  ValidityCheckConfiguration,
 };

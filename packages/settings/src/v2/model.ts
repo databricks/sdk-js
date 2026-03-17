@@ -54,10 +54,107 @@ enum RestrictWorkspaceAdminsMessage_Status {
   RESTRICT_TOKENS_AND_JOB_RUN_AS = 'RESTRICT_TOKENS_AND_JOB_RUN_AS',
 }
 
+interface AibiDashboardEmbeddingAccessPolicy {}
+
+interface AibiDashboardEmbeddingApprovedDomains {}
+
+interface BooleanMessage {}
+
+interface ClusterAutoRestartMessage {}
+
+/**
+ * Contains an information about the enablement status judging (e.g. whether the enterprise tier
+ * is enabled)
+ * This is only additional information that MUST NOT be used to decide whether the setting is
+ * enabled or not. This is intended to use only for purposes like showing an error message to
+ * the customer with the additional details. For example, using these details we can check
+ * why exactly the feature is disabled for this customer.
+ */
+interface ClusterAutoRestartMessage_EnablementDetails {}
+
+interface ClusterAutoRestartMessage_MaintenanceWindow {}
+
+interface ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedule {}
+
+interface ClusterAutoRestartMessage_MaintenanceWindow_WindowStartTime {}
+
+interface GetPublicAccountSettingRequest {}
+
+interface GetPublicAccountUserPreferenceRequest {}
+
+interface GetPublicWorkspaceSettingRequest {}
+
+interface IntegerMessage {}
+
+interface ListAccountSettingsMetadataRequest {}
+
+interface ListAccountSettingsMetadataResponse {}
+
+interface ListAccountUserPreferencesMetadataRequest {}
+
+interface ListAccountUserPreferencesMetadataResponse {}
+
+interface ListWorkspaceSettingsMetadataRequest {}
+
+interface ListWorkspaceSettingsMetadataResponse {}
+
+interface PatchPublicAccountSettingRequest {}
+
+interface PatchPublicAccountUserPreferenceRequest {}
+
+interface PatchPublicWorkspaceSettingRequest {}
+
+interface PersonalComputeMessage {}
+
+interface RestrictWorkspaceAdminsMessage {}
+
+interface Setting {}
+
+interface SettingsMetadata {}
+
+interface StringMessage {}
+
+/**
+ * User Preference represents a user-specific setting scoped to an individual user within an account.
+ * Unlike workspace or account settings that apply to all users, user preferences allow personal
+ * customization (e.g., UI theme, editor preferences) without affecting other users.
+ */
+interface UserPreference {}
+
 export {
   AibiDashboardEmbeddingAccessPolicy_AccessPolicyType,
   ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek,
   ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency,
   PersonalComputeMessage_PersonalComputeMessageEnum,
   RestrictWorkspaceAdminsMessage_Status,
+};
+
+export type {
+  AibiDashboardEmbeddingAccessPolicy,
+  AibiDashboardEmbeddingApprovedDomains,
+  BooleanMessage,
+  ClusterAutoRestartMessage,
+  ClusterAutoRestartMessage_EnablementDetails,
+  ClusterAutoRestartMessage_MaintenanceWindow,
+  ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedule,
+  ClusterAutoRestartMessage_MaintenanceWindow_WindowStartTime,
+  GetPublicAccountSettingRequest,
+  GetPublicAccountUserPreferenceRequest,
+  GetPublicWorkspaceSettingRequest,
+  IntegerMessage,
+  ListAccountSettingsMetadataRequest,
+  ListAccountSettingsMetadataResponse,
+  ListAccountUserPreferencesMetadataRequest,
+  ListAccountUserPreferencesMetadataResponse,
+  ListWorkspaceSettingsMetadataRequest,
+  ListWorkspaceSettingsMetadataResponse,
+  PatchPublicAccountSettingRequest,
+  PatchPublicAccountUserPreferenceRequest,
+  PatchPublicWorkspaceSettingRequest,
+  PersonalComputeMessage,
+  RestrictWorkspaceAdminsMessage,
+  Setting,
+  SettingsMetadata,
+  StringMessage,
+  UserPreference,
 };
