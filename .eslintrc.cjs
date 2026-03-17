@@ -35,7 +35,7 @@ module.exports = {
       {selector: 'enumMember', format: ['UPPER_CASE']},
       {selector: 'classMethod', format: ['camelCase']},
       {selector: 'classProperty', format: ['camelCase', 'UPPER_CASE'], leadingUnderscore: 'allow'},
-      {selector: 'typeProperty', format: ['camelCase', 'snake_case']},
+      {selector: 'typeProperty', format: ['camelCase']},
       {selector: 'objectLiteralProperty', format: null},
     ],
     '@typescript-eslint/consistent-type-imports': [

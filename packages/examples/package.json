@@ -7,20 +7,29 @@
   "scripts": {
     "auth-and-errors": "node --import tsx/esm src/auth-and-errors.ts",
     "build": "echo 'nothing to build'",
-    "lint": "echo 'skipped'",
-    "lint:fix": "echo 'skipped'",
-    "format": "echo 'skipped'",
-    "format:check": "echo 'skipped'",
-    "test": "echo 'no tests'",
-    "test:browser": "echo 'skipped'",
-    "typecheck": "echo 'skipped'",
+    "lint": "eslint src tests --ext .ts",
+    "lint:fix": "eslint src tests --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "test": "vitest run",
+    "test:browser": "vitest run --config vitest.config.browser.ts",
+    "typecheck": "tsc --noEmit",
     "clean": "echo 'nothing to clean'"
   },
   "dependencies": {
     "@databricks/sdk-auth": "*",
-    "@databricks/sdk-databricks": "*"
+    "@databricks/sdk-databricks": "*",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "tsx": "^4.0.0"
+    "@types/node": "^22.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.2.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0"
   }
 }
