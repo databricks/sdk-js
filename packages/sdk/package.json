@@ -22,6 +22,8 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "typecheck": "tsc --noEmit",
+    "test": "echo 'no tests'",
+    "test:browser": "echo 'no tests'",
     "clean": "rm -rf dist"
   },
   "author": "Databricks",
