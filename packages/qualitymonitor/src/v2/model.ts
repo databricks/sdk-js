@@ -25,8 +25,4 @@ enum ThresholdType {
   THRESHOLD_TYPE_MANUAL = 'THRESHOLD_TYPE_MANUAL',
 }
 
-export {
-  AnomalyDetectionJobType,
-  AnomalyDetectionRunStatus,
-  ThresholdType,
-};
+export {AnomalyDetectionJobType, AnomalyDetectionRunStatus, ThresholdType};

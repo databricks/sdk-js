@@ -59,6 +59,7 @@ enum WorkspacePermission {
 }
 
 /** The type of access the principal has to the workspace. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 enum WorkspaceAccessDetail_AccessType {
   /** Unknown access to the workspace. */
   ACCESS_TYPE_UNSPECIFIED = 'ACCESS_TYPE_UNSPECIFIED',
