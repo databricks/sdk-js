@@ -435,6 +435,7 @@ function tryAssignDetail(
 }
 
 /**
+ * @internal
  * Parses an array of raw error detail values into a structured ErrorDetails
  * object. If multiple details of the same known type are present, the last
  * one wins.
