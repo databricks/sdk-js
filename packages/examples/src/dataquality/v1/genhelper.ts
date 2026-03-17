@@ -46,7 +46,10 @@ async function readAll(
 export async function executeHttpCall(
   opts: HttpCallOptions
 ): Promise<Uint8Array> {
-  opts.logger.debug('HTTP request', opts.request.method, opts.request.url);
+  opts.logger.debug('HTTP request', {
+    method: opts.request.method,
+    url: opts.request.url,
+  });
 
   let resp: HttpResponse;
   try {
@@ -58,11 +61,10 @@ export async function executeHttpCall(
 
   const body = await readAll(resp.body);
 
-  opts.logger.debug(
-    'HTTP response',
-    resp.statusCode,
-    new TextDecoder().decode(body)
-  );
+  opts.logger.debug('HTTP response', {
+    statusCode: resp.statusCode,
+    body: new TextDecoder().decode(body),
+  });
 
   const apiErr = APIError.fromHttpError(resp.statusCode, resp.headers, body);
   if (apiErr !== undefined) {
