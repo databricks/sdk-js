@@ -3,13 +3,7 @@ import {execute, sleep} from '../../src/api/execute';
 import type {Call} from '../../src/api/execute';
 import type {Retrier} from '../../src/api/retrier';
 import type {Limiter} from '../../src/api/limiter';
-import type {Option, Options} from '../../src/api/options';
-import {
-  withRetrier,
-  withDisableRetry,
-  withTimeout,
-  withLimiter,
-} from '../../src/api/options';
+import type {Options} from '../../src/api/options';
 
 describe('execute retries', () => {
   const retriableError = new Error('retriable error');
@@ -23,49 +17,42 @@ describe('execute retries', () => {
   const testCases: {
     name: string;
     callErrors: (Error | undefined)[];
-    options: Option[];
+    options: Options;
     wantErr: Error | undefined;
     wantCallCount: number;
   }[] = [
     {
       name: 'no retrier - fail immediately',
       callErrors: [retriableError],
-      options: [],
-      wantErr: retriableError,
-      wantCallCount: 1,
-    },
-    {
-      name: 'disable retries - fail immediately',
-      callErrors: [retriableError],
-      options: [withDisableRetry()],
+      options: {},
       wantErr: retriableError,
       wantCallCount: 1,
     },
     {
       name: 'non-retriable error - fail immediately',
       callErrors: [nonRetriableError],
-      options: [withRetrier(() => retrier)],
+      options: {retrier: () => retrier},
       wantErr: nonRetriableError,
       wantCallCount: 1,
     },
     {
       name: 'retriable error - retry once then succeed',
       callErrors: [retriableError, undefined],
-      options: [withRetrier(() => retrier)],
+      options: {retrier: () => retrier},
       wantErr: undefined,
       wantCallCount: 2,
     },
     {
       name: 'retriable error - retry multiple times then succeed',
       callErrors: [retriableError, retriableError, retriableError, undefined],
-      options: [withRetrier(() => retrier)],
+      options: {retrier: () => retrier},
       wantErr: undefined,
       wantCallCount: 4,
     },
     {
       name: 'retriable error - retry then fail with non-retriable',
       callErrors: [retriableError, nonRetriableError],
-      options: [withRetrier(() => retrier)],
+      options: {retrier: () => retrier},
       wantErr: nonRetriableError,
       wantCallCount: 2,
     },
@@ -85,11 +72,9 @@ describe('execute retries', () => {
       };
 
       if (wantErr) {
-        await expect(execute(undefined, call, ...options)).rejects.toBe(
-          wantErr
-        );
+        await expect(execute(undefined, call, options)).rejects.toBe(wantErr);
       } else {
-        await execute(undefined, call, ...options);
+        await execute(undefined, call, options);
       }
 
       expect(gotCallCount).toBe(wantCallCount);
@@ -154,17 +139,14 @@ describe('execute timeout', () => {
       const signal =
         ctxTimeout > 0 ? AbortSignal.timeout(ctxTimeout) : undefined;
 
-      const opts: Option[] = [];
-      if (optTimeout > 0) {
-        opts.push(withTimeout(optTimeout));
-      }
+      const opts: Options = optTimeout > 0 ? {timeout: optTimeout} : {};
 
       if (wantTimeout) {
-        await expect(execute(signal, call, ...opts)).rejects.toMatchObject({
+        await expect(execute(signal, call, opts)).rejects.toMatchObject({
           name: 'TimeoutError',
         });
       } else {
-        await execute(signal, call, ...opts);
+        await execute(signal, call, opts);
       }
     }
   );
@@ -215,15 +197,12 @@ describe('execute rate limiting', () => {
       return Promise.resolve();
     };
 
-    const opts: Option[] = [];
-    if (limiter) {
-      opts.push(withLimiter(limiter));
-    }
+    const opts: Options = limiter ? {rateLimiter: limiter} : {};
 
     if (wantErr) {
-      await expect(execute(undefined, call, ...opts)).rejects.toBe(wantErr);
+      await expect(execute(undefined, call, opts)).rejects.toBe(wantErr);
     } else {
-      await execute(undefined, call, ...opts);
+      await execute(undefined, call, opts);
     }
 
     expect(gotCalls).toBe(wantCalls);
@@ -246,26 +225,7 @@ describe('execute context cancellation', () => {
     }, 10);
 
     await expect(
-      execute(
-        controller.signal,
-        call,
-        withRetrier(() => retrier)
-      )
+      execute(controller.signal, call, {retrier: () => retrier})
     ).rejects.toMatchObject({name: 'AbortError'});
-  });
-});
-
-describe('execute option errors', () => {
-  it('should propagate errors thrown by options', async () => {
-    const testErr = new Error('option error');
-    const errorOption: Option = {
-      apply(_options: Options): void {
-        throw testErr;
-      },
-    };
-
-    const call: Call = () => Promise.resolve();
-
-    await expect(execute(undefined, call, errorOption)).rejects.toBe(testErr);
   });
 });

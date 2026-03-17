@@ -1,4 +1,4 @@
-import type {Option, Options} from './options';
+import type {Options} from './options';
 import type {Retrier} from './retrier';
 
 /** Call represents a call to a Databricks API. */
@@ -39,13 +39,10 @@ type Sleeper = (ms: number, signal?: AbortSignal) => Promise<void>;
 export async function execute(
   signal: AbortSignal | undefined,
   call: Call,
-  ...opts: Option[]
+  options?: Options
 ): Promise<void> {
-  const options: Options = {};
-  for (const opt of opts) {
-    opt.apply(options);
-  }
-  return executeImpl(signal, call, options, sleep);
+  const opts: Options = {...options};
+  return executeImpl(signal, call, opts, sleep);
 }
 
 /**
