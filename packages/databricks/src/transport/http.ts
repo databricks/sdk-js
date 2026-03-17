@@ -65,9 +65,14 @@ export function newFetchHttpClient(): HttpClient {
 export function newHttpClient(options?: ClientOptions): HttpClient {
   const opts = options ?? {};
 
-  // If an HTTP client is provided, use it as is without any additional
-  // configuration.
+  // If an HTTP client is provided, use it as-is. Throw if other options are
+  // also set, since they would be silently ignored.
   if (opts.httpClient !== undefined) {
+    if (opts.credentials !== undefined || opts.timeout !== undefined) {
+      throw new Error(
+        'httpClient cannot be combined with credentials or timeout'
+      );
+    }
     return opts.httpClient;
   }
 
@@ -98,7 +103,7 @@ class AuthHttpClient implements HttpClient {
     // Do not modify the original request.
     const headers = new Headers(request.headers);
     for (const h of authHeaders) {
-      headers.append(h.key, h.value);
+      headers.set(h.key, h.value);
     }
     return this.base.send({...request, headers});
   }

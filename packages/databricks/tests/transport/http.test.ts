@@ -87,6 +87,24 @@ describe('newHttpClient', () => {
     expect(client).toBe(custom);
   });
 
+  it('throws when httpClient is combined with other options', () => {
+    const custom: HttpClient = {
+      send() {
+        return Promise.resolve({
+          statusCode: 200,
+          headers: new Headers(),
+          body: null,
+        });
+      },
+    };
+    const credentials: Credentials = {
+      authHeaders: () => Promise.resolve([]),
+    };
+    expect(() => newHttpClient({httpClient: custom, credentials})).toThrow(
+      'httpClient cannot be combined with credentials or timeout'
+    );
+  });
+
   // Table-driven auth transport tests, mirroring Go's TestAuthTransport_RoundTrip.
   const roundTripCases: {
     desc: string;

@@ -14,9 +14,8 @@ export interface ClientOptions {
   host?: string;
 
   /**
-   * A specific HTTP client to use for requests.
-   *
-   * Important: When set, this option ignores all other options.
+   * A pre-configured HTTP client to use for requests. Must be set in
+   * isolation — cannot be combined with `credentials` or `timeout`.
    */
   httpClient?: HttpClient;
 
