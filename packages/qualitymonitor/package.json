@@ -1,0 +1,32 @@
+{
+  "name": "@databricks/sdk-qualitymonitor",
+  "version": "0.1.0",
+  "description": "",
+  "type": "module",
+  "exports": {
+    "./v2": {
+      "types": "./dist/v2/index.d.ts",
+      "import": "./dist/v2/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "test": "echo 'no tests'",
+    "test:browser": "echo 'no tests'",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "author": "Databricks",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
