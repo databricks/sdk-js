@@ -86,6 +86,53 @@ const goString = z.string().nullish().transform(v => v ?? '');
 
 When in doubt, ask the user before porting.
 
+## Go Patterns That Differ in TypeScript
+
+### Functional Options → Interface
+
+Go's functional options pattern (`type Option func(*opts) error` with
+`WithFoo()` factories) exists because Go lacks optional parameters and default
+values. In TypeScript, use a **plain interface with optional fields** instead.
+
+```go
+// Go
+type ClientOption func(*clientOptions) error
+func WithHost(h string) ClientOption { ... }
+func WithTimeout(d time.Duration) ClientOption { ... }
+func New(ctx context.Context, opts ...ClientOption) (*Client, error)
+```
+
+```typescript
+// TypeScript — use an interface, not functional options.
+interface ClientOptions {
+  host?: string;
+  timeout?: number;
+}
+function newClient(options?: ClientOptions): Client
+```
+
+### `internal` Package → Unexported Symbols
+
+Go uses `internal/` packages to hide types from external consumers. In
+TypeScript, simply do not export the symbol from the barrel `index.ts`. There
+is no need for a separate `internal/` directory.
+
+### `context.Context` → Omit or `AbortSignal`
+
+Go passes `context.Context` to most functions for cancellation and value
+propagation. In TypeScript:
+
+- **Construction functions** (e.g. `newClient`): omit the context parameter
+  entirely — there is nothing to cancel during object creation.
+- **Long-running or cancellable operations** (e.g. HTTP requests): accept an
+  optional `AbortSignal` parameter instead.
+
+### Error Tuples → Exceptions
+
+Go returns `(T, error)` tuples. In TypeScript, throw an `Error` for
+failures and return `T` directly for success. When the Go function can return
+`nil` without an error to indicate "no result," return `T | undefined`.
+
 ## Factory Functions vs Constructors
 
 When a Go function can return `nil` (e.g. `FromHTTPError` returns `nil` for 2xx
