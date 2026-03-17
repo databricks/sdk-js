@@ -1,12 +1,12 @@
 {
-  "name": "@databricks/sdk-iam",
+  "name": "@databricks/sdk-statementexecution",
   "version": "0.1.0",
   "description": "",
   "type": "module",
   "exports": {
-    "./v2": {
-      "types": "./dist/v2/index.d.ts",
-      "import": "./dist/v2/index.js"
+    "./v1": {
+      "types": "./dist/v1/index.d.ts",
+      "import": "./dist/v1/index.js"
     }
   },
   "files": [

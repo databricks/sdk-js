@@ -5,3 +5,23 @@ export {
   AnomalyDetectionRunStatus,
   ThresholdType,
 } from './model';
+
+export type {
+  AnomalyDetectionConfig,
+  ColumnMatcher,
+  CreateQualityMonitorRequest,
+  CustomCheckConfiguration,
+  CustomCheckThresholds,
+  CustomScalarCheck,
+  DeleteQualityMonitorRequest,
+  GetQualityMonitorRequest,
+  ListQualityMonitorRequest,
+  ListQualityMonitorResponse,
+  PercentNullValidityCheck,
+  QualityMonitor,
+  RangeValidityCheck,
+  Threshold,
+  UniquenessValidityCheck,
+  UpdateQualityMonitorRequest,
+  ValidityCheckConfiguration,
+} from './model';
