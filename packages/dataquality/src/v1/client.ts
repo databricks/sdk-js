@@ -7,8 +7,11 @@ import type {HttpClient} from '@databricks/sdk-databricks/transport';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 
 export class Client {
+  // @ts-expect-error TS6133 will be used by generated methods.
   private readonly host: string;
+  // @ts-expect-error TS6133 will be used by generated methods.
   private readonly httpClient: HttpClient;
+  // @ts-expect-error TS6133 will be used by generated methods.
   private readonly logger: Logger;
 
   constructor(options: ClientOptions) {

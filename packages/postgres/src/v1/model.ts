@@ -577,6 +577,7 @@ export enum SyncedTableState {
 }
 
 /** The state of the branch. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum BranchStatus_State {
   /** Default value, not used. */
   STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
@@ -592,6 +593,7 @@ export enum BranchStatus_State {
   ARCHIVED = 'ARCHIVED',
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum ComputeInstance_ComputeState {
   COMPUTE_STATE_UNSPECIFIED = 'COMPUTE_STATE_UNSPECIFIED',
   INIT = 'INIT',
@@ -599,6 +601,7 @@ export enum ComputeInstance_ComputeState {
   ACTIVE = 'ACTIVE',
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum ComputeInstance_ComputeType {
   COMPUTE_TYPE_UNSPECIFIED = 'COMPUTE_TYPE_UNSPECIFIED',
   /**
@@ -619,6 +622,7 @@ export enum ComputeInstance_ComputeType {
 }
 
 /** The state of the compute endpoint. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum EndpointStatus_State {
   /** Default value, not used */
   STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
@@ -628,6 +632,7 @@ export enum EndpointStatus_State {
   DEGRADED = 'DEGRADED',
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum ProvisioningInfo_State {
   STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
   PROVISIONING = 'PROVISIONING',
@@ -638,12 +643,14 @@ export enum ProvisioningInfo_State {
   DEGRADED = 'DEGRADED',
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum RequestedClaims_PermissionSet {
   PERMISSION_SET_UNSPECIFIED = 'PERMISSION_SET_UNSPECIFIED',
   READ_ONLY = 'READ_ONLY',
 }
 
 /** How the role is authenticated when connecting to Postgres. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum Role_AuthMethod {
   AUTH_METHOD_UNSPECIFIED = 'AUTH_METHOD_UNSPECIFIED',
   /** NO_LOGIN means this role cannot be used for interactive access */
@@ -661,6 +668,7 @@ export enum Role_AuthMethod {
  * The type of the <Databricks> managed identity that this Role represents.
  * Leave empty if you wish to create a regular Postgres role not associated with a <Databricks> identity.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum Role_IdentityType {
   /** Default value, not used */
   IDENTITY_TYPE_UNSPECIFIED = 'IDENTITY_TYPE_UNSPECIFIED',
@@ -673,6 +681,7 @@ export enum Role_IdentityType {
 }
 
 /** Roles that the DatabaseInstanceRole can be a member of. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum Role_MembershipRole {
   /** Indicates that the DatabaseInstanceRole is not a member of any standard, managed roles. */
   MEMBERSHIP_ROLE_UNSPECIFIED = 'MEMBERSHIP_ROLE_UNSPECIFIED',
@@ -681,6 +690,7 @@ export enum Role_MembershipRole {
 }
 
 /** Scheduling policy of the synced table's underlying pipeline. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy {
   SYNCED_TABLE_SCHEDULING_POLICY_UNSPECIFIED = 'SYNCED_TABLE_SCHEDULING_POLICY_UNSPECIFIED',
   /**
@@ -806,6 +816,7 @@ export interface Catalog {
 }
 
 /** The desired state of the Catalog. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Catalog_CatalogSpec {
   /**
    * The name of the Postgres database inside the specified Lakebase project and branch to be associated with the UC catalog.
@@ -841,6 +852,7 @@ export interface Catalog_CatalogSpec {
 }
 
 /** The observed state of the Catalog. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Catalog_CatalogStatus {
   /** The name of the Postgres database associated with the catalog. */
   postgresDatabase?: string | undefined;
@@ -999,6 +1011,7 @@ export interface Database {
   status?: Database_DatabaseStatus | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Database_DatabaseSpec {
   /**
    * The name of the role that owns the database.
@@ -1021,6 +1034,7 @@ export interface Database_DatabaseSpec {
   postgresDatabase?: string | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Database_DatabaseStatus {
   /**
    * The name of the role that owns the database.
@@ -1238,6 +1252,7 @@ export interface EndpointSettings {
   pgSettings?: Record<string, string> | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface EndpointSettings_PgSettingsEntry {
   key?: string | undefined;
   value?: string | undefined;
@@ -1721,6 +1736,7 @@ export interface ProjectDefaultEndpointSettings {
   pgSettings?: Record<string, string> | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ProjectDefaultEndpointSettings_PgSettingsEntry {
   key?: string | undefined;
   value?: string | undefined;
@@ -1829,12 +1845,14 @@ export interface Role {
  * The values follow Postgres keyword naming e.g. CREATEDB, BYPASSRLS, etc. which is why they don't include typical
  * underscores between words.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Role_Attributes {
   createdb?: boolean | undefined;
   createrole?: boolean | undefined;
   bypassrls?: boolean | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Role_RoleSpec {
   /** An enum value for a standard role that this role is a member of. */
   membershipRoles?: Role_MembershipRole[] | undefined;
@@ -1876,6 +1894,7 @@ export interface Role_RoleSpec {
   postgresRole?: string | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Role_RoleStatus {
   /** An enum value for a standard role that this role is a member of. */
   membershipRoles?: Role_MembershipRole[] | undefined;
@@ -1907,6 +1926,7 @@ export interface SyncedTable {
   createTime?: string | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface SyncedTable_SyncedTableSpec {
   /**
    * The Postgres database name where the synced table will be created in.
@@ -1969,6 +1989,7 @@ export interface SyncedTable_SyncedTableSpec {
   acceleratedSync?: boolean | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface SyncedTable_SyncedTableStatus {
   /** A text description of the current state of the synced table. */
   message?: string | undefined;
@@ -2195,6 +2216,7 @@ export const unmarshalCatalogSchema = z
     updateTime: d.update_time,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalCatalog_CatalogSpecSchema = z
   .object({
     postgres_database: z.string().optional(),
@@ -2207,6 +2229,7 @@ export const unmarshalCatalog_CatalogSpecSchema = z
     branch: d.branch,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalCatalog_CatalogStatusSchema = z
   .object({
     postgres_database: z.string().optional(),
@@ -2341,6 +2364,7 @@ export const unmarshalDatabaseSchema = z
     status: d.status,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDatabase_DatabaseSpecSchema = z
   .object({
     role: z.string().optional(),
@@ -2351,6 +2375,7 @@ export const unmarshalDatabase_DatabaseSpecSchema = z
     postgresDatabase: d.postgres_database,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDatabase_DatabaseStatusSchema = z
   .object({
     role: z.string().optional(),
@@ -2551,6 +2576,7 @@ export const unmarshalEndpointSettingsSchema = z
     pgSettings: d.pg_settings,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalEndpointSettings_PgSettingsEntrySchema = z
   .object({
     key: z.string().optional(),
@@ -3039,6 +3065,7 @@ export const unmarshalProjectDefaultEndpointSettingsSchema = z
     pgSettings: d.pg_settings,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalProjectDefaultEndpointSettings_PgSettingsEntrySchema = z
   .object({
     key: z.string().optional(),
@@ -3153,6 +3180,7 @@ export const unmarshalRoleSchema = z
     status: d.status,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalRole_AttributesSchema = z
   .object({
     createdb: z.boolean().optional(),
@@ -3165,6 +3193,7 @@ export const unmarshalRole_AttributesSchema = z
     bypassrls: d.bypassrls,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalRole_RoleSpecSchema = z
   .object({
     membership_roles: z.array(z.enum(Role_MembershipRole)).optional(),
@@ -3181,6 +3210,7 @@ export const unmarshalRole_RoleSpecSchema = z
     postgresRole: d.postgres_role,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalRole_RoleStatusSchema = z
   .object({
     membership_roles: z.array(z.enum(Role_MembershipRole)).optional(),
@@ -3215,6 +3245,7 @@ export const unmarshalSyncedTableSchema = z
     createTime: d.create_time,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalSyncedTable_SyncedTableSpecSchema = z
   .object({
     postgres_database: z.string().optional(),
@@ -3245,6 +3276,7 @@ export const unmarshalSyncedTable_SyncedTableSpecSchema = z
     acceleratedSync: d.accelerated_sync,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalSyncedTable_SyncedTableStatusSchema = z
   .object({
     message: z.string().optional(),
@@ -3453,6 +3485,7 @@ export const marshalCatalogSchema = z
     update_time: d.updateTime,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalCatalog_CatalogSpecSchema = z
   .object({
     postgresDatabase: z.string().optional(),
@@ -3465,6 +3498,7 @@ export const marshalCatalog_CatalogSpecSchema = z
     branch: d.branch,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalCatalog_CatalogStatusSchema = z
   .object({
     postgresDatabase: z.string().optional(),
@@ -3599,6 +3633,7 @@ export const marshalDatabaseSchema = z
     status: d.status,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDatabase_DatabaseSpecSchema = z
   .object({
     role: z.string().optional(),
@@ -3609,6 +3644,7 @@ export const marshalDatabase_DatabaseSpecSchema = z
     postgres_database: d.postgresDatabase,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDatabase_DatabaseStatusSchema = z
   .object({
     role: z.string().optional(),
@@ -3809,6 +3845,7 @@ export const marshalEndpointSettingsSchema = z
     pg_settings: d.pgSettings,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalEndpointSettings_PgSettingsEntrySchema = z
   .object({
     key: z.string().optional(),
@@ -4297,6 +4334,7 @@ export const marshalProjectDefaultEndpointSettingsSchema = z
     pg_settings: d.pgSettings,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalProjectDefaultEndpointSettings_PgSettingsEntrySchema = z
   .object({
     key: z.string().optional(),
@@ -4405,6 +4443,7 @@ export const marshalRoleSchema = z
     status: d.status,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalRole_AttributesSchema = z
   .object({
     createdb: z.boolean().optional(),
@@ -4417,6 +4456,7 @@ export const marshalRole_AttributesSchema = z
     bypassrls: d.bypassrls,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalRole_RoleSpecSchema = z
   .object({
     membershipRoles: z.array(z.enum(Role_MembershipRole)).optional(),
@@ -4433,6 +4473,7 @@ export const marshalRole_RoleSpecSchema = z
     postgres_role: d.postgresRole,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalRole_RoleStatusSchema = z
   .object({
     membershipRoles: z.array(z.enum(Role_MembershipRole)).optional(),
@@ -4465,6 +4506,7 @@ export const marshalSyncedTableSchema = z
     create_time: d.createTime,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalSyncedTable_SyncedTableSpecSchema = z
   .object({
     postgresDatabase: z.string().optional(),
@@ -4495,6 +4537,7 @@ export const marshalSyncedTable_SyncedTableSpecSchema = z
     accelerated_sync: d.acceleratedSync,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalSyncedTable_SyncedTableStatusSchema = z
   .object({
     message: z.string().optional(),

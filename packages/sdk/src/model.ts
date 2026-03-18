@@ -94,6 +94,7 @@ export interface LongRunningOperation {
 }
 
 /** Specifies the response and metadata types for the operation. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface LongRunningOperation_OperationInfo {
   /**
    * The message type name for the operation's final response.
@@ -121,6 +122,7 @@ export interface LongRunningOperation_OperationInfo {
  * These methods allow clients to check status, wait for completion,
  * list operations, and cancel or delete operations.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface LongRunningOperation_OperationMethods {
   /**
    * Method name to retrieve the current status of an operation.
@@ -199,6 +201,7 @@ export interface Pagination {
  * Example: To get items 0-99, set offset=0 and max_results=100.
  * To get items 100-199, set offset=100 and max_results=100.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Pagination_OffsetInfo {
   /**
    * Specifies the request field name for the starting offset.
@@ -235,6 +238,7 @@ export interface Pagination_OffsetInfo {
  * Note: Page tokens are opaque strings and should not be parsed or
  * constructed by clients. Always use the exact token returned by the API.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface Pagination_PageTokenInfo {
   /**
    * Specifies the request field name for the page token.
@@ -329,6 +333,7 @@ export interface WaitForState {
   stateInfo?: WaitForState_StateInfo | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface WaitForState_Binding {
   /** List of pairs, each of one representing a field mapping. */
   pairs?: WaitForState_Binding_BindingPair[] | undefined;
@@ -338,6 +343,7 @@ export interface WaitForState_Binding {
  * A BindingPair maps a single field in either the request or response of the annotated method
  * to a field of the method_to_poll operation.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface WaitForState_Binding_BindingPair {
   /** Field name in the method_to_poll operation. */
   pollMethodField?: string | undefined;
@@ -348,6 +354,7 @@ export interface WaitForState_Binding_BindingPair {
 }
 
 /** Groups fields used to find and interpret the operation's state. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface WaitForState_StateInfo {
   /**
    * Path to the field that holds the operation status (machine-readable).
@@ -379,6 +386,7 @@ export const unmarshalLongRunningOperationSchema = z
     operationMethods: d.operation_methods,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalLongRunningOperation_OperationInfoSchema = z
   .object({
     response_type: z.string().optional(),
@@ -389,6 +397,7 @@ export const unmarshalLongRunningOperation_OperationInfoSchema = z
     metadataType: d.metadata_type,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalLongRunningOperation_OperationMethodsSchema = z
   .object({
     get: z.string().optional(),
@@ -419,6 +428,7 @@ export const unmarshalPaginationSchema = z
     results: d.results,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalPagination_OffsetInfoSchema = z
   .object({
     offset: z.string().optional(),
@@ -431,6 +441,7 @@ export const unmarshalPagination_OffsetInfoSchema = z
     defaultMaxResults: d.default_max_results,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalPagination_PageTokenInfoSchema = z
   .object({
     request: z.string().optional(),
@@ -457,6 +468,7 @@ export const unmarshalWaitForStateSchema = z
     stateInfo: d.state_info,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalWaitForState_BindingSchema = z
   .object({
     pairs: z
@@ -467,6 +479,7 @@ export const unmarshalWaitForState_BindingSchema = z
     pairs: d.pairs,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalWaitForState_Binding_BindingPairSchema = z
   .object({
     poll_method_field: z.string().optional(),
@@ -479,6 +492,7 @@ export const unmarshalWaitForState_Binding_BindingPairSchema = z
     responseField: d.response_field,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalWaitForState_StateInfoSchema = z
   .object({
     state_path: z.array(z.string()).optional(),
@@ -507,6 +521,7 @@ export const marshalLongRunningOperationSchema = z
     operation_methods: d.operationMethods,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalLongRunningOperation_OperationInfoSchema = z
   .object({
     responseType: z.string().optional(),
@@ -517,6 +532,7 @@ export const marshalLongRunningOperation_OperationInfoSchema = z
     metadata_type: d.metadataType,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalLongRunningOperation_OperationMethodsSchema = z
   .object({
     get: z.string().optional(),
@@ -545,6 +561,7 @@ export const marshalPaginationSchema = z
     results: d.results,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalPagination_OffsetInfoSchema = z
   .object({
     offset: z.string().optional(),
@@ -557,6 +574,7 @@ export const marshalPagination_OffsetInfoSchema = z
     default_max_results: d.defaultMaxResults,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalPagination_PageTokenInfoSchema = z
   .object({
     request: z.string().optional(),
@@ -583,6 +601,7 @@ export const marshalWaitForStateSchema = z
     state_info: d.stateInfo,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalWaitForState_BindingSchema = z
   .object({
     pairs: z
@@ -593,6 +612,7 @@ export const marshalWaitForState_BindingSchema = z
     pairs: d.pairs,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalWaitForState_Binding_BindingPairSchema = z
   .object({
     pollMethodField: z.string().optional(),
@@ -605,6 +625,7 @@ export const marshalWaitForState_Binding_BindingPairSchema = z
     response_field: d.responseField,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalWaitForState_StateInfoSchema = z
   .object({
     statePath: z.array(z.string()).optional(),

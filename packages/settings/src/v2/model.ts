@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum AibiDashboardEmbeddingAccessPolicy_AccessPolicyType {
   ACCESS_POLICY_TYPE_UNSPECIFIED = 'ACCESS_POLICY_TYPE_UNSPECIFIED',
   ALLOW_ALL_DOMAINS = 'ALLOW_ALL_DOMAINS',
@@ -9,6 +10,7 @@ export enum AibiDashboardEmbeddingAccessPolicy_AccessPolicyType {
   DENY_ALL_DOMAINS = 'DENY_ALL_DOMAINS',
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek {
   DAY_OF_WEEK_UNSPECIFIED = 'DAY_OF_WEEK_UNSPECIFIED',
   MONDAY = 'MONDAY',
@@ -20,6 +22,7 @@ export enum ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek {
   SUNDAY = 'SUNDAY',
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency {
   WEEK_DAY_FREQUENCY_UNSPECIFIED = 'WEEK_DAY_FREQUENCY_UNSPECIFIED',
   FIRST_OF_MONTH = 'FIRST_OF_MONTH',
@@ -35,12 +38,14 @@ export enum ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency {
  * ON: Grants all users in all workspaces access to the Personal Compute default policy, allowing all users to create single-machine compute resources.
  * DELEGATE: Moves access control for the Personal Compute default policy to individual workspaces and requires a workspace’s users or groups to be added to the ACLs of that workspace’s Personal Compute default policy before they will be able to create compute resources through that policy.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum PersonalComputeMessage_PersonalComputeMessageEnum {
   PERSONAL_COMPUTE_MESSAGE_ENUM_UNSPECIFIED = 'PERSONAL_COMPUTE_MESSAGE_ENUM_UNSPECIFIED',
   ON = 'ON',
   DELEGATE = 'DELEGATE',
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum RestrictWorkspaceAdminsMessage_Status {
   /** Default value for proto enum */
   STATUS_UNSPECIFIED = 'STATUS_UNSPECIFIED',
@@ -86,6 +91,7 @@ export interface ClusterAutoRestartMessage {
  * the customer with the additional details. For example, using these details we can check
  * why exactly the feature is disabled for this customer.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ClusterAutoRestartMessage_EnablementDetails {
   /** The feature is unavailable if the customer doesn't have enterprise tier */
   unavailableForNonEnterpriseTier?: boolean | undefined;
@@ -95,12 +101,14 @@ export interface ClusterAutoRestartMessage_EnablementDetails {
   forcedForComplianceMode?: boolean | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ClusterAutoRestartMessage_MaintenanceWindow {
   weekDayBasedSchedule?:
     | ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedule
     | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedule {
   frequency?:
     | ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency
@@ -111,6 +119,7 @@ export interface ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedul
     | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ClusterAutoRestartMessage_MaintenanceWindow_WindowStartTime {
   hours?: number | undefined;
   minutes?: number | undefined;
@@ -386,6 +395,7 @@ export const unmarshalClusterAutoRestartMessageSchema = z
     restartEvenIfNoUpdatesAvailable: d.restart_even_if_no_updates_available,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalClusterAutoRestartMessage_EnablementDetailsSchema = z
   .object({
     unavailable_for_non_enterprise_tier: z.boolean().optional(),
@@ -398,6 +408,7 @@ export const unmarshalClusterAutoRestartMessage_EnablementDetailsSchema = z
     forcedForComplianceMode: d.forced_for_compliance_mode,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalClusterAutoRestartMessage_MaintenanceWindowSchema = z
   .object({
     week_day_based_schedule: z
@@ -411,6 +422,7 @@ export const unmarshalClusterAutoRestartMessage_MaintenanceWindowSchema = z
     weekDayBasedSchedule: d.week_day_based_schedule,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema =
   z
     .object({
@@ -433,6 +445,7 @@ export const unmarshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSc
       windowStartTime: d.window_start_time,
     }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeSchema =
   z
     .object({
@@ -765,6 +778,7 @@ export const marshalClusterAutoRestartMessageSchema = z
     restart_even_if_no_updates_available: d.restartEvenIfNoUpdatesAvailable,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalClusterAutoRestartMessage_EnablementDetailsSchema = z
   .object({
     unavailableForNonEnterpriseTier: z.boolean().optional(),
@@ -777,6 +791,7 @@ export const marshalClusterAutoRestartMessage_EnablementDetailsSchema = z
     forced_for_compliance_mode: d.forcedForComplianceMode,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalClusterAutoRestartMessage_MaintenanceWindowSchema = z
   .object({
     weekDayBasedSchedule: z
@@ -790,6 +805,7 @@ export const marshalClusterAutoRestartMessage_MaintenanceWindowSchema = z
     week_day_based_schedule: d.weekDayBasedSchedule,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema =
   z
     .object({
@@ -812,6 +828,7 @@ export const marshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSche
       window_start_time: d.windowStartTime,
     }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeSchema =
   z
     .object({

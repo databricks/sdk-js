@@ -61,6 +61,7 @@ export enum WorkspacePermission {
 }
 
 /** The type of access the principal has to the workspace. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum WorkspaceAccessDetail_AccessType {
   /** Unknown access to the workspace. */
   ACCESS_TYPE_UNSPECIFIED = 'ACCESS_TYPE_UNSPECIFIED',
@@ -978,6 +979,7 @@ export interface User {
   accountUserStatus?: State | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface User_Name {
   givenName?: string | undefined;
   familyName?: string | undefined;
@@ -1987,6 +1989,7 @@ export const unmarshalUserSchema = z
     accountUserStatus: d.account_user_status,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalUser_NameSchema = z
   .object({
     given_name: z.string().optional(),
@@ -3001,6 +3004,7 @@ export const marshalUserSchema = z
     account_user_status: d.accountUserStatus,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalUser_NameSchema = z
   .object({
     givenName: z.string().optional(),
