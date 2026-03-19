@@ -1,4 +1,4 @@
-import type {Call, Option} from '@databricks/sdk-databricks/api';
+import type {Call, Options} from '@databricks/sdk-databricks/api';
 import {execute} from '@databricks/sdk-databricks/api';
 import type {Logger} from '@databricks/sdk-databricks/logger';
 import {NoOpLogger} from '@databricks/sdk-databricks/logger';
@@ -77,7 +77,7 @@ export class Client {
   async cancelRefresh(
     signal: AbortSignal | undefined,
     req: CancelRefreshRequest,
-    ...opts: Option[]
+    options?: Options
   ): Promise<CancelRefreshResponse> {
     const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType}/${req.objectId}/refreshes/${String(req.refreshId)}/cancel`;
     const body = marshalRequest(req, marshalCancelRefreshRequestSchema);
@@ -93,7 +93,7 @@ export class Client {
       resp = parseResponse(respBody, cancelRefreshResponseSchema);
     };
 
-    await execute(signal, call, ...opts);
+    await execute(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -124,7 +124,7 @@ export class Client {
   async createMonitor(
     signal: AbortSignal | undefined,
     req: CreateMonitorRequest,
-    ...opts: Option[]
+    options?: Options
   ): Promise<Monitor> {
     const url = `${this.host}/api/data-quality/v1/monitors`;
     const body = marshalRequest(req.monitor, marshalMonitorSchema);
@@ -140,7 +140,7 @@ export class Client {
       resp = parseResponse(respBody, monitorSchema);
     };
 
-    await execute(signal, call, ...opts);
+    await execute(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -161,7 +161,7 @@ export class Client {
   async createRefresh(
     signal: AbortSignal | undefined,
     req: CreateRefreshRequest,
-    ...opts: Option[]
+    options?: Options
   ): Promise<Refresh> {
     const refresh = req.refresh;
     const url = `${this.host}/api/data-quality/v1/monitors/${refresh?.objectType ?? ''}/${refresh?.objectId ?? ''}/refreshes`;
@@ -178,7 +178,7 @@ export class Client {
       resp = parseResponse(respBody, refreshSchema);
     };
 
-    await execute(signal, call, ...opts);
+    await execute(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -206,7 +206,7 @@ export class Client {
   async deleteMonitor(
     signal: AbortSignal | undefined,
     req: DeleteMonitorRequest,
-    ...opts: Option[]
+    options?: Options
   ): Promise<void> {
     const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType}/${req.objectId}`;
 
@@ -219,14 +219,14 @@ export class Client {
       });
     };
 
-    await execute(signal, call, ...opts);
+    await execute(signal, call, options);
   }
 
   /** (Unimplemented) Delete a refresh */
   async deleteRefresh(
     signal: AbortSignal | undefined,
     req: DeleteRefreshRequest,
-    ...opts: Option[]
+    options?: Options
   ): Promise<void> {
     const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType}/${req.objectId}/refreshes/${String(req.refreshId)}`;
 
@@ -239,7 +239,7 @@ export class Client {
       });
     };
 
-    await execute(signal, call, ...opts);
+    await execute(signal, call, options);
   }
 
   /**
@@ -265,7 +265,7 @@ export class Client {
   async getMonitor(
     signal: AbortSignal | undefined,
     req: GetMonitorRequest,
-    ...opts: Option[]
+    options?: Options
   ): Promise<Monitor> {
     const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType}/${req.objectId}`;
 
@@ -280,7 +280,7 @@ export class Client {
       resp = parseResponse(respBody, monitorSchema);
     };
 
-    await execute(signal, call, ...opts);
+    await execute(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -306,7 +306,7 @@ export class Client {
   async getRefresh(
     signal: AbortSignal | undefined,
     req: GetRefreshRequest,
-    ...opts: Option[]
+    options?: Options
   ): Promise<Refresh> {
     const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType}/${req.objectId}/refreshes/${String(req.refreshId)}`;
 
@@ -321,7 +321,7 @@ export class Client {
       resp = parseResponse(respBody, refreshSchema);
     };
 
-    await execute(signal, call, ...opts);
+    await execute(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -332,7 +332,7 @@ export class Client {
   async listMonitor(
     signal: AbortSignal | undefined,
     req: ListMonitorRequest,
-    ...opts: Option[]
+    options?: Options
   ): Promise<ListMonitorResponse> {
     const baseUrl = `${this.host}/api/data-quality/v1/monitors`;
     const queryParams = new URLSearchParams();
@@ -356,7 +356,7 @@ export class Client {
       resp = parseResponse(respBody, listMonitorResponseSchema);
     };
 
-    await execute(signal, call, ...opts);
+    await execute(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -366,12 +366,12 @@ export class Client {
   async *listMonitorIter(
     signal: AbortSignal | undefined,
     req: ListMonitorRequest,
-    ...opts: Option[]
+    options?: Options
   ): AsyncGenerator<Monitor> {
     // Shallow copy to avoid mutating the caller's request.
     const pageReq: ListMonitorRequest = {...req};
     for (;;) {
-      const resp = await this.listMonitor(signal, pageReq, ...opts);
+      const resp = await this.listMonitor(signal, pageReq, options);
       for (const item of resp.monitors ?? []) {
         yield item;
       }
@@ -401,7 +401,7 @@ export class Client {
   async listRefresh(
     signal: AbortSignal | undefined,
     req: ListRefreshRequest,
-    ...opts: Option[]
+    options?: Options
   ): Promise<ListRefreshResponse> {
     const baseUrl = `${this.host}/api/data-quality/v1/monitors/${req.objectType}/${req.objectId}/refreshes`;
     const queryParams = new URLSearchParams();
@@ -425,7 +425,7 @@ export class Client {
       resp = parseResponse(respBody, listRefreshResponseSchema);
     };
 
-    await execute(signal, call, ...opts);
+    await execute(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -435,12 +435,12 @@ export class Client {
   async *listRefreshIter(
     signal: AbortSignal | undefined,
     req: ListRefreshRequest,
-    ...opts: Option[]
+    options?: Options
   ): AsyncGenerator<Refresh> {
     // Shallow copy to avoid mutating the caller's request.
     const pageReq: ListRefreshRequest = {...req};
     for (;;) {
-      const resp = await this.listRefresh(signal, pageReq, ...opts);
+      const resp = await this.listRefresh(signal, pageReq, options);
       for (const item of resp.refreshes ?? []) {
         yield item;
       }
@@ -469,7 +469,7 @@ export class Client {
   async updateMonitor(
     signal: AbortSignal | undefined,
     req: UpdateMonitorRequest,
-    ...opts: Option[]
+    options?: Options
   ): Promise<Monitor> {
     const baseUrl = `${this.host}/api/data-quality/v1/monitors/${req.objectType}/${req.objectId}`;
     const queryParams = new URLSearchParams();
@@ -491,7 +491,7 @@ export class Client {
       resp = parseResponse(respBody, monitorSchema);
     };
 
-    await execute(signal, call, ...opts);
+    await execute(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -502,7 +502,7 @@ export class Client {
   async updateRefresh(
     signal: AbortSignal | undefined,
     req: UpdateRefreshRequest,
-    ...opts: Option[]
+    options?: Options
   ): Promise<Refresh> {
     const baseUrl = `${this.host}/api/data-quality/v1/monitors/${req.objectType}/${req.objectId}/refreshes/${String(req.refreshId)}`;
     const queryParams = new URLSearchParams();
@@ -524,7 +524,7 @@ export class Client {
       resp = parseResponse(respBody, refreshSchema);
     };
 
-    await execute(signal, call, ...opts);
+    await execute(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
