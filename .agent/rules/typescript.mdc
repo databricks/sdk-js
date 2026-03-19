@@ -83,7 +83,25 @@ export function createToken(): Token { ... }
 export default class TokenCache { ... }
 ```
 
-### 2.5 Export Discipline
+### 2.5 Inline Exports
+
+Always place the `export` keyword on the declaration itself. Do not collect
+exports into a trailing `export {}` block at the bottom of the file. The only
+exception is barrel files (`index.ts`) that re-export from other modules.
+
+```typescript
+// Good — export on the declaration.
+export class Client { ... }
+export function parseResponse(...) { ... }
+export interface HttpCallOptions { ... }
+
+// Bad — trailing export block.
+class Client { ... }
+function parseResponse(...) { ... }
+export { Client, parseResponse };
+```
+
+### 2.6 Export Discipline
 
 - Only export symbols that consumers of the package need. Keep implementation
   details (internal helpers, parse functions, schemas) unexported. If a symbol

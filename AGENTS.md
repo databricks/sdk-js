@@ -114,3 +114,7 @@ npm run clean
    `.github/PULL_REQUEST_TEMPLATE.md`. When writing or improving a PR
    description, follow the workflow in
    `.agent/skills/write-pr-description.mdc`.
+11. **Fix root causes, not symptoms.** When CI or tooling fails, fix the
+   actual problem. Do not add `pretest` scripts, vitest alias configs, or
+   other workarounds to paper over missing build steps or incorrect CI
+   configuration.
