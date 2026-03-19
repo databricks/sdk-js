@@ -4,7 +4,7 @@
  * @packageDocumentation
  */
 
-export {Client} from './client';
+export {Client, CreateDataQualityOperation} from './client';
 
 export {
   AggregationGranularity,
@@ -18,7 +18,9 @@ export {
 } from './model';
 export type {
   AnomalyDetectionConfig,
+  CancelOperationRequest,
   CancelRefreshRequest,
+  CreateDataQualityRequest,
   CancelRefreshResponse,
   CreateMonitorRequest,
   CreateRefreshRequest,
@@ -28,6 +30,7 @@ export type {
   DeleteMonitorRequest,
   DeleteRefreshRequest,
   GetMonitorRequest,
+  GetOperationRequest,
   GetRefreshRequest,
   InferenceLogConfig,
   ListMonitorRequest,
@@ -35,6 +38,8 @@ export type {
   ListRefreshRequest,
   ListRefreshResponse,
   Monitor,
+  Operation,
+  OperationError,
   NotificationDestination,
   NotificationSettings,
   PercentNullValidityCheck,

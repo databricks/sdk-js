@@ -69,6 +69,37 @@ export enum RefreshTrigger {
 }
 
 // ---------------------------------------------------------------------------
+// LRO types.
+// ---------------------------------------------------------------------------
+
+export interface Operation {
+  done: boolean;
+  error?: OperationError | undefined;
+  metadata?: unknown;
+  name: string;
+  response?: unknown;
+}
+
+export interface OperationError {
+  errorCode?: string | undefined;
+  message?: string | undefined;
+}
+
+export interface GetOperationRequest {
+  name: string;
+}
+
+export interface CancelOperationRequest {
+  name: string;
+}
+
+/** Request to create a data quality pipeline.. */
+export interface CreateDataQualityRequest {
+  objectType?: string | undefined;
+  objectId?: string | undefined;
+}
+
+// ---------------------------------------------------------------------------
 // Interfaces.
 // ---------------------------------------------------------------------------
 
@@ -290,6 +321,42 @@ export interface ValidityCheckConfiguration {
   rangeValidityCheck?: RangeValidityCheck | undefined;
   uniquenessValidityCheck?: UniquenessValidityCheck | undefined;
 }
+
+// ---------------------------------------------------------------------------
+// LRO schemas.
+// ---------------------------------------------------------------------------
+
+const operationErrorSchema = z
+  .object({
+    error_code: z.string().optional(),
+    message: z.string().optional(),
+  })
+  .transform(d => ({
+    errorCode: d.error_code,
+    message: d.message,
+  }));
+
+export const operationSchema = z
+  .object({
+    done: z
+      .boolean()
+      .optional()
+      .transform(v => v ?? false),
+    error: operationErrorSchema.optional(),
+    metadata: z.unknown().optional(),
+    name: z
+      .string()
+      .optional()
+      .transform(v => v ?? ''),
+    response: z.unknown().optional(),
+  })
+  .transform(d => ({
+    done: d.done,
+    error: d.error,
+    metadata: d.metadata,
+    name: d.name,
+    response: d.response,
+  }));
 
 // ---------------------------------------------------------------------------
 // Zod schemas for the wire format (snake_case JSON from the API).
@@ -784,4 +851,14 @@ export const marshalCancelRefreshRequestSchema = z
     object_type: d.objectType,
     object_id: d.objectId,
     refresh_id: d.refreshId,
+  }));
+
+export const marshalCreateDataQualityRequestSchema = z
+  .object({
+    objectType: z.string().optional(),
+    objectId: z.string().optional(),
+  })
+  .transform(d => ({
+    object_type: d.objectType,
+    object_id: d.objectId,
   }));

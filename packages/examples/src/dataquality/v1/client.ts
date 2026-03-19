@@ -1,4 +1,5 @@
 import type {Call, Options} from '@databricks/sdk-databricks/api';
+import {retryOn} from '@databricks/sdk-databricks/api';
 import {execute} from '@databricks/sdk-databricks/api';
 import type {Logger} from '@databricks/sdk-databricks/logger';
 import {NoOpLogger} from '@databricks/sdk-databricks/logger';
@@ -13,19 +14,23 @@ import {
   parseResponse,
 } from './genhelper';
 import type {
+  CancelOperationRequest,
   CancelRefreshRequest,
   CancelRefreshResponse,
+  CreateDataQualityRequest,
   CreateMonitorRequest,
   CreateRefreshRequest,
   DeleteMonitorRequest,
   DeleteRefreshRequest,
   GetMonitorRequest,
+  GetOperationRequest,
   GetRefreshRequest,
   ListMonitorRequest,
   ListMonitorResponse,
   ListRefreshRequest,
   ListRefreshResponse,
   Monitor,
+  Operation,
   Refresh,
   UpdateMonitorRequest,
   UpdateRefreshRequest,
@@ -35,9 +40,11 @@ import {
   listMonitorResponseSchema,
   listRefreshResponseSchema,
   marshalCancelRefreshRequestSchema,
+  marshalCreateDataQualityRequestSchema,
   marshalMonitorSchema,
   marshalRefreshSchema,
   monitorSchema,
+  operationSchema,
   refreshSchema,
 } from './model';
 
@@ -529,5 +536,204 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  // -------------------------------------------------------------------------
+  // LRO methods.
+  // -------------------------------------------------------------------------
+
+  /**
+   * Creates a data quality pipeline. This is a long-running operation that
+   * returns an Operation object.
+   */
+  async createDataQuality(
+    signal: AbortSignal | undefined,
+    req: CreateDataQualityRequest,
+    options?: Options
+  ): Promise<Operation> {
+    const url = `${this.host}/api/data-quality/v1/dataquality`;
+    const body = marshalRequest(req, marshalCreateDataQualityRequestSchema);
+
+    let resp: Operation | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, operationSchema);
+    };
+
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Creates a data quality pipeline and returns an operation handle that
+   * can be used to poll for completion or cancel the operation.
+   */
+  async createDataQualityOperation(
+    signal: AbortSignal | undefined,
+    req: CreateDataQualityRequest,
+    options?: Options
+  ): Promise<CreateDataQualityOperation> {
+    const op = await this.createDataQuality(signal, req, options);
+    return new CreateDataQualityOperation(this, op);
+  }
+
+  /** Fetches the current state of a long-running operation by name. */
+  async getOperation(
+    signal: AbortSignal | undefined,
+    req: GetOperationRequest,
+    options?: Options
+  ): Promise<Operation> {
+    const url = `${this.host}/api/data-quality/v1/operations/${encodeURIComponent(req.name)}`;
+
+    let resp: Operation | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, operationSchema);
+    };
+
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Starts asynchronous cancellation on a long-running operation. */
+  async cancelOperation(
+    signal: AbortSignal | undefined,
+    req: CancelOperationRequest,
+    options?: Options
+  ): Promise<void> {
+    const url = `${this.host}/api/data-quality/v1/operations/${encodeURIComponent(req.name)}:cancel`;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const httpReq = buildHttpRequest('POST', url, callSignal);
+      await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+    };
+
+    await execute(signal, call, options);
+  }
+}
+
+/**
+ * Handle for a long-running createMonitor operation. Provides methods to
+ * poll for completion, inspect metadata, or cancel the operation.
+ */
+export class CreateDataQualityOperation {
+  private operation: Operation;
+
+  constructor(
+    private readonly client: Client,
+    operation: Operation
+  ) {
+    this.operation = operation;
+  }
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): string {
+    return this.operation.name;
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Monitor> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Monitor | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed without a response');
+      }
+
+      result = monitorSchema.parse(op.response);
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
+  }
+
+  /** Starts asynchronous cancellation on the long-running operation. */
+  async cancel(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<void> {
+    await this.client.cancelOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
   }
 }

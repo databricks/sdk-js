@@ -6,12 +6,13 @@ import type {
   HttpResponse,
 } from '@databricks/sdk-databricks/transport';
 
+import {Client} from '../../../src/dataquality/v1/client';
+import {CreateDataQualityOperation} from '../../../src/dataquality/v1/client';
 import {
-  Client,
   DataProfilingStatus,
   RefreshState,
   RefreshTrigger,
-} from '../../../src/dataquality/v1';
+} from '../../../src/dataquality/v1/model';
 import type {
   CancelRefreshRequest,
   CreateMonitorRequest,
@@ -23,7 +24,7 @@ import type {
   ListRefreshRequest,
   Refresh,
   UpdateMonitorRequest,
-} from '../../../src/dataquality/v1';
+} from '../../../src/dataquality/v1/model';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -688,6 +689,249 @@ describe('Client', () => {
           },
         },
       });
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // LRO tests.
+  // -------------------------------------------------------------------------
+
+  describe('createDataQualityOperation', () => {
+    it('should return a CreateDataQualityOperation wrapping the operation', async () => {
+      const wireResponse = {
+        done: false,
+        name: 'operations/create-monitor-123',
+        metadata: {},
+      };
+
+      const mock = mockHttpClient(wireResponse);
+      const client = buildClient(mock);
+
+      const op: CreateDataQualityOperation =
+        await client.createDataQualityOperation(undefined, {
+          objectType: 'table',
+          objectId: 'main.default.t1',
+        });
+
+      expect(op).toBeInstanceOf(CreateDataQualityOperation);
+      expect(op.name()).toBe('operations/create-monitor-123');
+    });
+  });
+
+  describe('CreateDataQualityOperation.wait', () => {
+    it('should poll until done and return the deserialized monitor', async () => {
+      let callCount = 0;
+      const httpClient: HttpClient = {
+        send(_request: HttpRequest): Promise<HttpResponse> {
+          callCount++;
+          // First call: createMonitorOperation returns an in-progress operation.
+          // Second call (first poll): still in progress.
+          // Third call (second poll): done with response.
+          let responseBody: unknown;
+          if (callCount === 1) {
+            responseBody = {
+              done: false,
+              name: 'operations/mon-456',
+            };
+          } else if (callCount === 2) {
+            responseBody = {
+              done: false,
+              name: 'operations/mon-456',
+            };
+          } else {
+            responseBody = {
+              done: true,
+              name: 'operations/mon-456',
+              response: {
+                object_type: 'table',
+                object_id: 'main.default.my_table',
+                data_profiling_config: {
+                  output_schema_id: 'main.default',
+                  status: 'DATA_PROFILING_STATUS_ACTIVE',
+                },
+              },
+            };
+          }
+
+          const body = new TextEncoder().encode(JSON.stringify(responseBody));
+          const stream = new ReadableStream<Uint8Array>({
+            start(controller): void {
+              controller.enqueue(body);
+              controller.close();
+            },
+          });
+          return Promise.resolve({
+            statusCode: 200,
+            headers: new Headers(),
+            body: stream,
+          });
+        },
+      };
+
+      const client = new Client({
+        host: 'https://test.databricks.com',
+        httpClient,
+      });
+
+      const op: CreateDataQualityOperation =
+        await client.createDataQualityOperation(undefined, {
+          objectType: 'table',
+          objectId: 'main.default.my_table',
+        });
+
+      const monitor = await op.wait(undefined);
+
+      expect(monitor.objectType).toBe('table');
+      expect(monitor.objectId).toBe('main.default.my_table');
+      expect(monitor.dataProfilingConfig?.status).toBe(
+        DataProfilingStatus.ACTIVE
+      );
+      // 1 for createMonitorOperation + 2 polls in wait.
+      expect(callCount).toBe(3);
+    });
+
+    it('should throw when the operation completes with an error', async () => {
+      let callCount = 0;
+      const httpClient: HttpClient = {
+        send(_request: HttpRequest): Promise<HttpResponse> {
+          callCount++;
+          const responseBody =
+            callCount === 1
+              ? {done: false, name: 'operations/fail-op'}
+              : {
+                  done: true,
+                  name: 'operations/fail-op',
+                  error: {
+                    error_code: 'INTERNAL',
+                    message: 'Something went wrong.',
+                  },
+                };
+
+          const body = new TextEncoder().encode(JSON.stringify(responseBody));
+          const stream = new ReadableStream<Uint8Array>({
+            start(controller): void {
+              controller.enqueue(body);
+              controller.close();
+            },
+          });
+          return Promise.resolve({
+            statusCode: 200,
+            headers: new Headers(),
+            body: stream,
+          });
+        },
+      };
+
+      const client = new Client({
+        host: 'https://test.databricks.com',
+        httpClient,
+      });
+
+      const op: CreateDataQualityOperation =
+        await client.createDataQualityOperation(undefined, {
+          objectType: 'table',
+          objectId: 'main.default.t1',
+        });
+
+      await expect(op.wait(undefined)).rejects.toThrow(
+        'operation failed: [INTERNAL] Something went wrong.'
+      );
+    });
+  });
+
+  describe('CreateDataQualityOperation.done', () => {
+    it('should return false when not done and true when done', async () => {
+      let callCount = 0;
+      const httpClient: HttpClient = {
+        send(_request: HttpRequest): Promise<HttpResponse> {
+          callCount++;
+          // First call: createDataQualityOperation.
+          // Second call: done() returns not done.
+          // Third call: done() returns done.
+          const responseBody =
+            callCount <= 2
+              ? {done: false, name: 'operations/poll-op'}
+              : {done: true, name: 'operations/poll-op'};
+
+          const body = new TextEncoder().encode(JSON.stringify(responseBody));
+          const stream = new ReadableStream<Uint8Array>({
+            start(controller): void {
+              controller.enqueue(body);
+              controller.close();
+            },
+          });
+          return Promise.resolve({
+            statusCode: 200,
+            headers: new Headers(),
+            body: stream,
+          });
+        },
+      };
+
+      const client = new Client({
+        host: 'https://test.databricks.com',
+        httpClient,
+      });
+
+      const op: CreateDataQualityOperation =
+        await client.createDataQualityOperation(undefined, {
+          objectType: 'table',
+          objectId: 'main.default.t1',
+        });
+
+      const firstCheck = await op.done(undefined);
+      expect(firstCheck).toBe(false);
+
+      const secondCheck = await op.done(undefined);
+      expect(secondCheck).toBe(true);
+    });
+  });
+
+  describe('CreateDataQualityOperation.cancel', () => {
+    it('should send a cancel request to the operation URL', async () => {
+      let lastUrl = '';
+      let lastMethod = '';
+      const httpClient: HttpClient = {
+        send(request: HttpRequest): Promise<HttpResponse> {
+          lastUrl = request.url;
+          lastMethod = request.method;
+          const responseBody =
+            lastMethod === 'POST' && !lastUrl.includes(':cancel')
+              ? {done: false, name: 'operations/cancel-op'}
+              : {};
+
+          const body = new TextEncoder().encode(JSON.stringify(responseBody));
+          const stream = new ReadableStream<Uint8Array>({
+            start(controller): void {
+              controller.enqueue(body);
+              controller.close();
+            },
+          });
+          return Promise.resolve({
+            statusCode: 200,
+            headers: new Headers(),
+            body: stream,
+          });
+        },
+      };
+
+      const client = new Client({
+        host: 'https://test.databricks.com',
+        httpClient,
+      });
+
+      const op: CreateDataQualityOperation =
+        await client.createDataQualityOperation(undefined, {
+          objectType: 'table',
+          objectId: 'main.default.t1',
+        });
+
+      await op.cancel(undefined);
+
+      expect(lastMethod).toBe('POST');
+      expect(lastUrl).toBe(
+        'https://test.databricks.com/api/data-quality/v1/operations/operations%2Fcancel-op:cancel'
+      );
     });
   });
 });
