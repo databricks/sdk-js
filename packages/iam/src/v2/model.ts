@@ -292,6 +292,24 @@ export interface GetAccountAccessIdentityRuleRequest {
   externalId?: string | undefined;
 }
 
+/** Request message for getting a provisioned direct group member. */
+export interface GetDirectGroupMemberProxyRequest {
+  /** Required. Internal ID of the group in <Databricks>. */
+  groupId?: number | undefined;
+  /** Required. Internal ID of the principal belonging to the group in <Databricks>. */
+  principalId?: number | undefined;
+}
+
+/** Request message for getting a provisioned direct group member. */
+export interface GetDirectGroupMemberRequest {
+  /** Required. The account ID for which the group membership is being fetched. */
+  accountId?: string | undefined;
+  /** Required. Internal ID of the group in <Databricks>. */
+  groupId?: number | undefined;
+  /** Required. Internal ID of the principal belonging to the group in <Databricks>. */
+  principalId?: number | undefined;
+}
+
 /** TODO: Write description later when this method is implemented */
 export interface GetGroupProxyRequest {
   /** Required. Internal ID of the group in <Databricks>. */
@@ -1273,6 +1291,28 @@ export const unmarshalGetAccountAccessIdentityRuleRequestSchema = z
   .transform(d => ({
     accountId: d.account_id,
     externalId: d.external_id,
+  }));
+
+export const unmarshalGetDirectGroupMemberProxyRequestSchema = z
+  .object({
+    group_id: z.number().optional(),
+    principal_id: z.number().optional(),
+  })
+  .transform(d => ({
+    groupId: d.group_id,
+    principalId: d.principal_id,
+  }));
+
+export const unmarshalGetDirectGroupMemberRequestSchema = z
+  .object({
+    account_id: z.string().optional(),
+    group_id: z.number().optional(),
+    principal_id: z.number().optional(),
+  })
+  .transform(d => ({
+    accountId: d.account_id,
+    groupId: d.group_id,
+    principalId: d.principal_id,
   }));
 
 export const unmarshalGetGroupProxyRequestSchema = z
@@ -2292,6 +2332,28 @@ export const marshalGetAccountAccessIdentityRuleRequestSchema = z
   .transform(d => ({
     account_id: d.accountId,
     external_id: d.externalId,
+  }));
+
+export const marshalGetDirectGroupMemberProxyRequestSchema = z
+  .object({
+    groupId: z.number().optional(),
+    principalId: z.number().optional(),
+  })
+  .transform(d => ({
+    group_id: d.groupId,
+    principal_id: d.principalId,
+  }));
+
+export const marshalGetDirectGroupMemberRequestSchema = z
+  .object({
+    accountId: z.string().optional(),
+    groupId: z.number().optional(),
+    principalId: z.number().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    group_id: d.groupId,
+    principal_id: d.principalId,
   }));
 
 export const marshalGetGroupProxyRequestSchema = z

@@ -798,7 +798,7 @@ export interface BranchStatus {
 
 export interface Catalog {
   /**
-   * The full resource path of the catalog.
+   * Output only. The full resource path of the catalog.
    *
    * Format: "catalogs/{catalog_id}".
    */
@@ -909,6 +909,11 @@ export interface CreateBranchRequest {
 }
 
 export interface CreateCatalogRequest {
+  /**
+   * The ID in the Unity Catalog.
+   * It becomes the full resource name, for example "my_catalog" becomes "catalogs/my_catalog".
+   */
+  catalogId?: string | undefined;
   catalog?: Catalog | undefined;
 }
 
@@ -981,7 +986,21 @@ export interface CreateRoleRequest {
   role?: Role | undefined;
 }
 
+/** Establish a synchronisation to the Postgres database for Reverse ETL for the source table selected from the Unity Catalog. */
 export interface CreateSyncedTableRequest {
+  /**
+   * The ID to use for the Synced Table. This becomes the final component of the SyncedTable's resource name.
+   * ID is required and is the synced table name, containing (catalog, schema, table) tuple.
+   * Elements of the tuple are the UC entity names.
+   *
+   * Example: "{catalog}.{schema}.{table}"
+   *
+   * synced_table_id represents both of the following:
+   *
+   * 1. An online VIEW virtual table in the Unity Catalog accessible via the Lakehouse Federation.
+   * 2. Postgres table named "{table}" in schema "{schema}" in the connected Postgres database
+   */
+  syncedTableId?: string | undefined;
   syncedTable?: SyncedTable | undefined;
 }
 
@@ -1425,6 +1444,11 @@ export interface GetBranchRequest {
 }
 
 export interface GetCatalogRequest {
+  /**
+   * The full resource path of the catalog to retrieve.
+   *
+   * Format: "catalogs/{catalog_id}".
+   */
   name?: string | undefined;
 }
 
@@ -1502,8 +1526,8 @@ export interface GetRoleRequest {
 
 export interface GetSyncedTableRequest {
   /**
-   * The Full resource name of the synced table, of the format "synced_tables/{catalog}.{schema}.{table}",
-   * where (catalog, schema, table) are the UC entity names.
+   * Format: "synced_tables/{catalog}.{schema}.{table}",
+   * where (catalog, schema, table) are the entity names in the Unity Catalog.
    */
   name?: string | undefined;
 }
@@ -1909,10 +1933,12 @@ export interface Role_RoleStatus {
 
 export interface SyncedTable {
   /**
-   * The Full resource name of the synced table
+   * Output only. The Full resource name of the synced table in Postgres
    * where (catalog, schema, table) are the UC entity names.
    *
-   * Format "synced_tables/{catalog}.{schema}.{table}",
+   * Format "synced_tables/{catalog}.{schema}.{table}"
+   *
+   * For the corresponding source table in the Unity catalog look for the "source_table_full_name" attribute.
    */
   name?: string | undefined;
   uid?: string | undefined;
@@ -1953,7 +1979,14 @@ export interface SyncedTable_SyncedTableSpec {
   schedulingPolicy?:
     | SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy
     | undefined;
-  /** Three-part (catalog, schema, table) name of the source Delta table. */
+  /**
+   * Three-part (catalog, schema, table) name of the source Delta table.
+   *
+   * For the corresponding destination table, use any of the two:
+   *
+   * * synced_table_id used at the creation of the SyncedTable
+   * * "name" consisting of "synced_tables/" prefix and the full name of the destination table.
+   */
   sourceTableFullName?: string | undefined;
   /** Primary Key columns to be used for data insert/update in the destination. */
   primaryKeyColumns?: string[] | undefined;
@@ -2278,9 +2311,11 @@ export const unmarshalCreateBranchRequestSchema = z
 
 export const unmarshalCreateCatalogRequestSchema = z
   .object({
+    catalog_id: z.string().optional(),
     catalog: z.lazy(() => unmarshalCatalogSchema).optional(),
   })
   .transform(d => ({
+    catalogId: d.catalog_id,
     catalog: d.catalog,
   }));
 
@@ -2332,9 +2367,11 @@ export const unmarshalCreateRoleRequestSchema = z
 
 export const unmarshalCreateSyncedTableRequestSchema = z
   .object({
+    synced_table_id: z.string().optional(),
     synced_table: z.lazy(() => unmarshalSyncedTableSchema).optional(),
   })
   .transform(d => ({
+    syncedTableId: d.synced_table_id,
     syncedTable: d.synced_table,
   }));
 
@@ -3547,9 +3584,11 @@ export const marshalCreateBranchRequestSchema = z
 
 export const marshalCreateCatalogRequestSchema = z
   .object({
+    catalogId: z.string().optional(),
     catalog: z.lazy(() => marshalCatalogSchema).optional(),
   })
   .transform(d => ({
+    catalog_id: d.catalogId,
     catalog: d.catalog,
   }));
 
@@ -3601,9 +3640,11 @@ export const marshalCreateRoleRequestSchema = z
 
 export const marshalCreateSyncedTableRequestSchema = z
   .object({
+    syncedTableId: z.string().optional(),
     syncedTable: z.lazy(() => marshalSyncedTableSchema).optional(),
   })
   .transform(d => ({
+    synced_table_id: d.syncedTableId,
     synced_table: d.syncedTable,
   }));
 
