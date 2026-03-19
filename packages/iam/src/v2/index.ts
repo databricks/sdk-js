@@ -39,6 +39,8 @@ export type {
   DeleteWorkspaceAssignmentDetailRequest,
   DirectGroupMember,
   GetAccountAccessIdentityRuleRequest,
+  GetDirectGroupMemberProxyRequest,
+  GetDirectGroupMemberRequest,
   GetGroupProxyRequest,
   GetGroupRequest,
   GetServicePrincipalProxyRequest,

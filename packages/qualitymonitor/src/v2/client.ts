@@ -1,17 +1,36 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import type {Call, Options} from '@databricks/sdk-databricks/api';
+import {execute} from '@databricks/sdk-databricks/api';
 import type {Logger} from '@databricks/sdk-databricks/logger';
 import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-databricks/transport';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
+import {
+  buildHttpRequest,
+  executeHttpCall,
+  marshalRequest,
+  parseResponse,
+} from './utils';
+import type {
+  CreateQualityMonitorRequest,
+  DeleteQualityMonitorRequest,
+  GetQualityMonitorRequest,
+  ListQualityMonitorRequest,
+  ListQualityMonitorResponse,
+  QualityMonitor,
+  UpdateQualityMonitorRequest,
+} from './model';
+import {
+  marshalQualityMonitorSchema,
+  unmarshalListQualityMonitorResponseSchema,
+  unmarshalQualityMonitorSchema,
+} from './model';
 
 export class Client {
-  // @ts-expect-error TS6133 will be used by generated methods.
   private readonly host: string;
-  // @ts-expect-error TS6133 will be used by generated methods.
   private readonly httpClient: HttpClient;
-  // @ts-expect-error TS6133 will be used by generated methods.
   private readonly logger: Logger;
 
   constructor(options: ClientOptions) {
@@ -21,5 +40,169 @@ export class Client {
     this.host = options.host.replace(/\/$/, '');
     this.logger = options.logger ?? new NoOpLogger();
     this.httpClient = newHttpClient(options);
+  }
+
+  /**
+   * Deprecated: Use Data Quality Monitoring API instead (/api/data-quality/v1/monitors).
+   * Create a quality monitor on UC object.
+   */
+  async createQualityMonitor(
+    signal: AbortSignal | undefined,
+    req: CreateQualityMonitorRequest,
+    options?: Options
+  ): Promise<QualityMonitor> {
+    const url = `${this.host}/api/2.0/quality-monitors`;
+    const body = marshalRequest(
+      req.qualityMonitor,
+      marshalQualityMonitorSchema
+    );
+    let resp: QualityMonitor | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalQualityMonitorSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Deprecated: Use Data Quality Monitoring API instead (/api/data-quality/v1/monitors).
+   * Delete a quality monitor on UC object.
+   */
+  async deleteQualityMonitor(
+    signal: AbortSignal | undefined,
+    req: DeleteQualityMonitorRequest,
+    options?: Options
+  ): Promise<void> {
+    const url = `${this.host}/api/2.0/quality-monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const httpReq = buildHttpRequest('DELETE', url, callSignal);
+      await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+    };
+    await execute(signal, call, options);
+  }
+
+  /**
+   * Deprecated: Use Data Quality Monitoring API instead (/api/data-quality/v1/monitors).
+   * Read a quality monitor on UC object.
+   */
+  async getQualityMonitor(
+    signal: AbortSignal | undefined,
+    req: GetQualityMonitorRequest,
+    options?: Options
+  ): Promise<QualityMonitor> {
+    const url = `${this.host}/api/2.0/quality-monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
+    let resp: QualityMonitor | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalQualityMonitorSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Deprecated: Use Data Quality Monitoring API instead (/api/data-quality/v1/monitors).
+   * (Unimplemented) List quality monitors.
+   */
+  async listQualityMonitor(
+    signal: AbortSignal | undefined,
+    req: ListQualityMonitorRequest,
+    options?: Options
+  ): Promise<ListQualityMonitorResponse> {
+    const url = `${this.host}/api/2.0/quality-monitors`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListQualityMonitorResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalListQualityMonitorResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listQualityMonitorIter(
+    signal: AbortSignal | undefined,
+    req: ListQualityMonitorRequest,
+    options?: Options
+  ): AsyncGenerator<QualityMonitor> {
+    const pageReq: ListQualityMonitorRequest = {...req};
+    for (;;) {
+      const resp = await this.listQualityMonitor(signal, pageReq, options);
+      for (const item of resp.qualityMonitors ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /**
+   * Deprecated: Use Data Quality Monitoring API instead (/api/data-quality/v1/monitors).
+   * (Unimplemented) Update a quality monitor on UC object.
+   */
+  async updateQualityMonitor(
+    signal: AbortSignal | undefined,
+    req: UpdateQualityMonitorRequest,
+    options?: Options
+  ): Promise<QualityMonitor> {
+    const url = `${this.host}/api/2.0/quality-monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
+    const body = marshalRequest(
+      req.qualityMonitor,
+      marshalQualityMonitorSchema
+    );
+    let resp: QualityMonitor | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const httpReq = buildHttpRequest('PUT', url, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalQualityMonitorSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
   }
 }
