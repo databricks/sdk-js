@@ -1,9 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@databricks/sdk-postgres/v1": ["../postgres/src/v1/index.ts"]
+    }
   },
   "include": ["src"]
 }
