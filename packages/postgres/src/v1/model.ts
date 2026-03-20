@@ -737,6 +737,9 @@ export interface Branch {
   status?: BranchStatus | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface BranchOperationMetadata {}
+
 export interface BranchSpec {
   /**
    * The name of the source branch from which this branch was created (data lineage for point-in-time recovery).
@@ -869,6 +872,9 @@ export interface Catalog_CatalogStatus {
    */
   branch?: string | undefined;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface CatalogOperationMetadata {}
 
 export interface ComputeInstance {
   /**
@@ -1071,6 +1077,9 @@ export interface DatabaseCredential {
   expireTime?: string | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DatabaseOperationMetadata {}
+
 /** Databricks Error that is returned by all Databricks APIs. */
 export interface DatabricksServiceExceptionWithDetailsProto {
   errorCode?: ErrorCode | undefined;
@@ -1264,6 +1273,9 @@ export interface EndpointHosts {
    */
   readOnlyPooledHost?: string | undefined;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface EndpointOperationMetadata {}
 
 /** A collection of settings for a compute endpoint. */
 export interface EndpointSettings {
@@ -1766,6 +1778,9 @@ export interface ProjectDefaultEndpointSettings_PgSettingsEntry {
   value?: string | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface ProjectOperationMetadata {}
+
 export interface ProjectSpec {
   /** Human-readable project name. Length should be between 1 and 256 characters. */
   displayName?: string | undefined;
@@ -1931,6 +1946,9 @@ export interface Role_RoleStatus {
   postgresRole?: string | undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface RoleOperationMetadata {}
+
 export interface SyncedTable {
   /**
    * Output only. The Full resource name of the synced table in Postgres
@@ -2045,6 +2063,10 @@ export interface SyncedTable_SyncedTableStatus {
   /** The provisioning state of the synced table entity in Unity Catalog. */
   unityCatalogProvisioningState?: ProvisioningInfo_State | undefined;
 }
+
+/** Metadata for SyncedTable long-running operations. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface SyncedTableOperationMetadata {}
 
 /** Progress information of the Synced Table data synchronization pipeline. */
 export interface SyncedTablePipelineProgress {
@@ -2183,6 +2205,8 @@ export const unmarshalBranchSchema = z
     status: d.status,
   }));
 
+export const unmarshalBranchOperationMetadataSchema = z.object({});
+
 export const unmarshalBranchSpecSchema = z
   .object({
     source_branch: z.string().optional(),
@@ -2274,6 +2298,8 @@ export const unmarshalCatalog_CatalogStatusSchema = z
     project: d.project,
     branch: d.branch,
   }));
+
+export const unmarshalCatalogOperationMetadataSchema = z.object({});
 
 export const unmarshalComputeInstanceSchema = z
   .object({
@@ -2432,6 +2458,8 @@ export const unmarshalDatabaseCredentialSchema = z
     token: d.token,
     expireTime: d.expire_time,
   }));
+
+export const unmarshalDatabaseOperationMetadataSchema = z.object({});
 
 export const unmarshalDatabricksServiceExceptionWithDetailsProtoSchema = z
   .object({
@@ -2604,6 +2632,8 @@ export const unmarshalEndpointHostsSchema = z
     readWritePooledHost: d.read_write_pooled_host,
     readOnlyPooledHost: d.read_only_pooled_host,
   }));
+
+export const unmarshalEndpointOperationMetadataSchema = z.object({});
 
 export const unmarshalEndpointSettingsSchema = z
   .object({
@@ -3113,6 +3143,8 @@ export const unmarshalProjectDefaultEndpointSettings_PgSettingsEntrySchema = z
     value: d.value,
   }));
 
+export const unmarshalProjectOperationMetadataSchema = z.object({});
+
 export const unmarshalProjectSpecSchema = z
   .object({
     display_name: z.string().optional(),
@@ -3264,6 +3296,8 @@ export const unmarshalRole_RoleStatusSchema = z
     postgresRole: d.postgres_role,
   }));
 
+export const unmarshalRoleOperationMetadataSchema = z.object({});
+
 export const unmarshalSyncedTableSchema = z
   .object({
     name: z.string().optional(),
@@ -3339,6 +3373,8 @@ export const unmarshalSyncedTable_SyncedTableStatusSchema = z
     pipelineId: d.pipeline_id,
     unityCatalogProvisioningState: d.unity_catalog_provisioning_state,
   }));
+
+export const unmarshalSyncedTableOperationMetadataSchema = z.object({});
 
 export const unmarshalSyncedTablePipelineProgressSchema = z
   .object({
@@ -3456,6 +3492,8 @@ export const marshalBranchSchema = z
     status: d.status,
   }));
 
+export const marshalBranchOperationMetadataSchema = z.object({});
+
 export const marshalBranchSpecSchema = z
   .object({
     sourceBranch: z.string().optional(),
@@ -3547,6 +3585,8 @@ export const marshalCatalog_CatalogStatusSchema = z
     project: d.project,
     branch: d.branch,
   }));
+
+export const marshalCatalogOperationMetadataSchema = z.object({});
 
 export const marshalComputeInstanceSchema = z
   .object({
@@ -3705,6 +3745,8 @@ export const marshalDatabaseCredentialSchema = z
     token: d.token,
     expire_time: d.expireTime,
   }));
+
+export const marshalDatabaseOperationMetadataSchema = z.object({});
 
 export const marshalDatabricksServiceExceptionWithDetailsProtoSchema = z
   .object({
@@ -3877,6 +3919,8 @@ export const marshalEndpointHostsSchema = z
     read_write_pooled_host: d.readWritePooledHost,
     read_only_pooled_host: d.readOnlyPooledHost,
   }));
+
+export const marshalEndpointOperationMetadataSchema = z.object({});
 
 export const marshalEndpointSettingsSchema = z
   .object({
@@ -4386,6 +4430,8 @@ export const marshalProjectDefaultEndpointSettings_PgSettingsEntrySchema = z
     value: d.value,
   }));
 
+export const marshalProjectOperationMetadataSchema = z.object({});
+
 export const marshalProjectSpecSchema = z
   .object({
     displayName: z.string().optional(),
@@ -4531,6 +4577,8 @@ export const marshalRole_RoleStatusSchema = z
     postgres_role: d.postgresRole,
   }));
 
+export const marshalRoleOperationMetadataSchema = z.object({});
+
 export const marshalSyncedTableSchema = z
   .object({
     name: z.string().optional(),
@@ -4604,6 +4652,8 @@ export const marshalSyncedTable_SyncedTableStatusSchema = z
     pipeline_id: d.pipelineId,
     unity_catalog_provisioning_state: d.unityCatalogProvisioningState,
   }));
+
+export const marshalSyncedTableOperationMetadataSchema = z.object({});
 
 export const marshalSyncedTablePipelineProgressSchema = z
   .object({

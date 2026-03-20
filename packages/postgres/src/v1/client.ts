@@ -1,7 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import type {Call, Options} from '@databricks/sdk-databricks/api';
-import {execute} from '@databricks/sdk-databricks/api';
+import {execute, retryOn} from '@databricks/sdk-databricks/api';
 import type {Logger} from '@databricks/sdk-databricks/logger';
 import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
@@ -13,9 +13,12 @@ import {
   marshalRequest,
   parseResponse,
 } from './utils';
+import {z} from 'zod';
 import type {
   Branch,
+  BranchOperationMetadata,
   Catalog,
+  CatalogOperationMetadata,
   ComputeInstance,
   CreateBranchRequest,
   CreateCatalogRequest,
@@ -27,6 +30,7 @@ import type {
   CreateTableRequest,
   Database,
   DatabaseCredential,
+  DatabaseOperationMetadata,
   DeleteBranchRequest,
   DeleteCatalogRequest,
   DeleteDatabaseRequest,
@@ -38,6 +42,7 @@ import type {
   DisableForwardEtlRequest,
   DisableForwardEtlResponse,
   Endpoint,
+  EndpointOperationMetadata,
   ForwardEtlMetadata,
   ForwardEtlStatus,
   GenerateDatabaseCredentialRequest,
@@ -67,8 +72,11 @@ import type {
   ListRolesResponse,
   Operation,
   Project,
+  ProjectOperationMetadata,
   Role,
+  RoleOperationMetadata,
   SyncedTable,
+  SyncedTableOperationMetadata,
   Table,
   UpdateBranchRequest,
   UpdateDatabaseRequest,
@@ -86,12 +94,16 @@ import {
   marshalRoleSchema,
   marshalSyncedTableSchema,
   marshalTableSchema,
+  unmarshalBranchOperationMetadataSchema,
   unmarshalBranchSchema,
+  unmarshalCatalogOperationMetadataSchema,
   unmarshalCatalogSchema,
   unmarshalComputeInstanceSchema,
   unmarshalDatabaseCredentialSchema,
+  unmarshalDatabaseOperationMetadataSchema,
   unmarshalDatabaseSchema,
   unmarshalDisableForwardEtlResponseSchema,
+  unmarshalEndpointOperationMetadataSchema,
   unmarshalEndpointSchema,
   unmarshalForwardEtlMetadataSchema,
   unmarshalForwardEtlStatusSchema,
@@ -102,8 +114,11 @@ import {
   unmarshalListProjectsResponseSchema,
   unmarshalListRolesResponseSchema,
   unmarshalOperationSchema,
+  unmarshalProjectOperationMetadataSchema,
   unmarshalProjectSchema,
+  unmarshalRoleOperationMetadataSchema,
   unmarshalRoleSchema,
+  unmarshalSyncedTableOperationMetadataSchema,
   unmarshalSyncedTableSchema,
   unmarshalTableSchema,
 } from './model';
@@ -153,6 +168,15 @@ export class Client {
     return resp;
   }
 
+  async createBranchOperation(
+    signal: AbortSignal | undefined,
+    req: CreateBranchRequest,
+    options?: Options
+  ): Promise<CreateBranchOperation> {
+    const op = await this.createBranch(signal, req, options);
+    return new CreateBranchOperation(this, op);
+  }
+
   /** Register a Postgres database in the Unity Catalog. */
   async createCatalog(
     signal: AbortSignal | undefined,
@@ -182,6 +206,15 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async createCatalogOperation(
+    signal: AbortSignal | undefined,
+    req: CreateCatalogRequest,
+    options?: Options
+  ): Promise<CreateCatalogOperation> {
+    const op = await this.createCatalog(signal, req, options);
+    return new CreateCatalogOperation(this, op);
   }
 
   /**
@@ -219,6 +252,15 @@ export class Client {
     return resp;
   }
 
+  async createDatabaseOperation(
+    signal: AbortSignal | undefined,
+    req: CreateDatabaseRequest,
+    options?: Options
+  ): Promise<CreateDatabaseOperation> {
+    const op = await this.createDatabase(signal, req, options);
+    return new CreateDatabaseOperation(this, op);
+  }
+
   /** Creates a new compute endpoint in the branch. */
   async createEndpoint(
     signal: AbortSignal | undefined,
@@ -248,6 +290,15 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async createEndpointOperation(
+    signal: AbortSignal | undefined,
+    req: CreateEndpointRequest,
+    options?: Options
+  ): Promise<CreateEndpointOperation> {
+    const op = await this.createEndpoint(signal, req, options);
+    return new CreateEndpointOperation(this, op);
   }
 
   /** Creates a new Lakebase Autoscaling Postgres database project, which contains branches and compute endpoints. */
@@ -281,6 +332,15 @@ export class Client {
     return resp;
   }
 
+  async createProjectOperation(
+    signal: AbortSignal | undefined,
+    req: CreateProjectRequest,
+    options?: Options
+  ): Promise<CreateProjectOperation> {
+    const op = await this.createProject(signal, req, options);
+    return new CreateProjectOperation(this, op);
+  }
+
   /** Creates a new Postgres role in the branch. */
   async createRole(
     signal: AbortSignal | undefined,
@@ -312,6 +372,15 @@ export class Client {
     return resp;
   }
 
+  async createRoleOperation(
+    signal: AbortSignal | undefined,
+    req: CreateRoleRequest,
+    options?: Options
+  ): Promise<CreateRoleOperation> {
+    const op = await this.createRole(signal, req, options);
+    return new CreateRoleOperation(this, op);
+  }
+
   /** Create a Synced Table. */
   async createSyncedTable(
     signal: AbortSignal | undefined,
@@ -341,6 +410,15 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async createSyncedTableOperation(
+    signal: AbortSignal | undefined,
+    req: CreateSyncedTableRequest,
+    options?: Options
+  ): Promise<CreateSyncedTableOperation> {
+    const op = await this.createSyncedTable(signal, req, options);
+    return new CreateSyncedTableOperation(this, op);
   }
 
   /** Create a Table (non-synced database table for Autoscaling v2 Lakebase projects). */
@@ -392,6 +470,15 @@ export class Client {
     return resp;
   }
 
+  async deleteBranchOperation(
+    signal: AbortSignal | undefined,
+    req: DeleteBranchRequest,
+    options?: Options
+  ): Promise<DeleteBranchOperation> {
+    const op = await this.deleteBranch(signal, req, options);
+    return new DeleteBranchOperation(this, op);
+  }
+
   /** Delete a Database Catalog. */
   async deleteCatalog(
     signal: AbortSignal | undefined,
@@ -414,6 +501,15 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async deleteCatalogOperation(
+    signal: AbortSignal | undefined,
+    req: DeleteCatalogRequest,
+    options?: Options
+  ): Promise<DeleteCatalogOperation> {
+    const op = await this.deleteCatalog(signal, req, options);
+    return new DeleteCatalogOperation(this, op);
   }
 
   /** Delete a Database. */
@@ -440,6 +536,15 @@ export class Client {
     return resp;
   }
 
+  async deleteDatabaseOperation(
+    signal: AbortSignal | undefined,
+    req: DeleteDatabaseRequest,
+    options?: Options
+  ): Promise<DeleteDatabaseOperation> {
+    const op = await this.deleteDatabase(signal, req, options);
+    return new DeleteDatabaseOperation(this, op);
+  }
+
   /** Deletes the specified compute endpoint. */
   async deleteEndpoint(
     signal: AbortSignal | undefined,
@@ -464,6 +569,15 @@ export class Client {
     return resp;
   }
 
+  async deleteEndpointOperation(
+    signal: AbortSignal | undefined,
+    req: DeleteEndpointRequest,
+    options?: Options
+  ): Promise<DeleteEndpointOperation> {
+    const op = await this.deleteEndpoint(signal, req, options);
+    return new DeleteEndpointOperation(this, op);
+  }
+
   /** Deletes the specified database project. */
   async deleteProject(
     signal: AbortSignal | undefined,
@@ -486,6 +600,15 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async deleteProjectOperation(
+    signal: AbortSignal | undefined,
+    req: DeleteProjectRequest,
+    options?: Options
+  ): Promise<DeleteProjectOperation> {
+    const op = await this.deleteProject(signal, req, options);
+    return new DeleteProjectOperation(this, op);
   }
 
   /** Deletes the specified Postgres role. */
@@ -518,6 +641,15 @@ export class Client {
     return resp;
   }
 
+  async deleteRoleOperation(
+    signal: AbortSignal | undefined,
+    req: DeleteRoleRequest,
+    options?: Options
+  ): Promise<DeleteRoleOperation> {
+    const op = await this.deleteRole(signal, req, options);
+    return new DeleteRoleOperation(this, op);
+  }
+
   /** Delete a Synced Table. */
   async deleteSyncedTable(
     signal: AbortSignal | undefined,
@@ -540,6 +672,15 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async deleteSyncedTableOperation(
+    signal: AbortSignal | undefined,
+    req: DeleteSyncedTableRequest,
+    options?: Options
+  ): Promise<DeleteSyncedTableOperation> {
+    const op = await this.deleteSyncedTable(signal, req, options);
+    return new DeleteSyncedTableOperation(this, op);
   }
 
   /** Delete a Table (non-synced database table for Autoscaling v2 Lakebase projects). */
@@ -1279,6 +1420,15 @@ export class Client {
     return resp;
   }
 
+  async updateBranchOperation(
+    signal: AbortSignal | undefined,
+    req: UpdateBranchRequest,
+    options?: Options
+  ): Promise<UpdateBranchOperation> {
+    const op = await this.updateBranch(signal, req, options);
+    return new UpdateBranchOperation(this, op);
+  }
+
   /** Update a Database. */
   async updateDatabase(
     signal: AbortSignal | undefined,
@@ -1308,6 +1458,15 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async updateDatabaseOperation(
+    signal: AbortSignal | undefined,
+    req: UpdateDatabaseRequest,
+    options?: Options
+  ): Promise<UpdateDatabaseOperation> {
+    const op = await this.updateDatabase(signal, req, options);
+    return new UpdateDatabaseOperation(this, op);
   }
 
   /** Updates the specified compute endpoint. You can update autoscaling limits, suspend timeout, or enable/disable the compute endpoint. */
@@ -1341,6 +1500,15 @@ export class Client {
     return resp;
   }
 
+  async updateEndpointOperation(
+    signal: AbortSignal | undefined,
+    req: UpdateEndpointRequest,
+    options?: Options
+  ): Promise<UpdateEndpointOperation> {
+    const op = await this.updateEndpoint(signal, req, options);
+    return new UpdateEndpointOperation(this, op);
+  }
+
   /** Updates the specified database project. */
   async updateProject(
     signal: AbortSignal | undefined,
@@ -1372,6 +1540,15 @@ export class Client {
     return resp;
   }
 
+  async updateProjectOperation(
+    signal: AbortSignal | undefined,
+    req: UpdateProjectRequest,
+    options?: Options
+  ): Promise<UpdateProjectOperation> {
+    const op = await this.updateProject(signal, req, options);
+    return new UpdateProjectOperation(this, op);
+  }
+
   /** Update a role for a branch. */
   async updateRole(
     signal: AbortSignal | undefined,
@@ -1401,5 +1578,1723 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async updateRoleOperation(
+    signal: AbortSignal | undefined,
+    req: UpdateRoleRequest,
+    options?: Options
+  ): Promise<UpdateRoleOperation> {
+    const op = await this.updateRole(signal, req, options);
+    return new UpdateRoleOperation(this, op);
+  }
+}
+
+export class CreateBranchOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string> {
+    return Promise.resolve(this.operation.name ?? '');
+  }
+
+  /**
+   * Returns metadata associated with the long-running operation, or
+   * undefined if metadata is not present.
+   */
+  metadata(): Promise<BranchOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalBranchOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Wait polls until the long-running operation completes or fails.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Branch> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Branch | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name ?? '',
+        },
+        options
+      );
+      this.operation = op;
+
+      if (op.done !== true) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? '[' + op.error.errorCode + '] ' + msg
+            : msg;
+        throw new Error('operation failed: ' + errorMsg);
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed but no response available');
+      }
+
+      result = z.lazy(() => unmarshalBranchSchema).parse(op.response);
+    };
+
+    const waitOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error): boolean => err === errStillRunning),
+    };
+    await execute(signal, call, waitOptions);
+    if (result === undefined) {
+      throw new Error('result not set after successful wait');
+    }
+    return result;
+  }
+
+  /** Polls once and reports whether the operation has completed. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name ?? ''},
+      options
+    );
+    this.operation = op;
+    return op.done ?? false;
+  }
+}
+
+export class CreateCatalogOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string> {
+    return Promise.resolve(this.operation.name ?? '');
+  }
+
+  /**
+   * Returns metadata associated with the long-running operation, or
+   * undefined if metadata is not present.
+   */
+  metadata(): Promise<CatalogOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalCatalogOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Wait polls until the long-running operation completes or fails.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Catalog> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Catalog | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name ?? '',
+        },
+        options
+      );
+      this.operation = op;
+
+      if (op.done !== true) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? '[' + op.error.errorCode + '] ' + msg
+            : msg;
+        throw new Error('operation failed: ' + errorMsg);
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed but no response available');
+      }
+
+      result = z.lazy(() => unmarshalCatalogSchema).parse(op.response);
+    };
+
+    const waitOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error): boolean => err === errStillRunning),
+    };
+    await execute(signal, call, waitOptions);
+    if (result === undefined) {
+      throw new Error('result not set after successful wait');
+    }
+    return result;
+  }
+
+  /** Polls once and reports whether the operation has completed. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name ?? ''},
+      options
+    );
+    this.operation = op;
+    return op.done ?? false;
+  }
+}
+
+export class CreateDatabaseOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string> {
+    return Promise.resolve(this.operation.name ?? '');
+  }
+
+  /**
+   * Returns metadata associated with the long-running operation, or
+   * undefined if metadata is not present.
+   */
+  metadata(): Promise<DatabaseOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalDatabaseOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Wait polls until the long-running operation completes or fails.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Database> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Database | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name ?? '',
+        },
+        options
+      );
+      this.operation = op;
+
+      if (op.done !== true) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? '[' + op.error.errorCode + '] ' + msg
+            : msg;
+        throw new Error('operation failed: ' + errorMsg);
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed but no response available');
+      }
+
+      result = z.lazy(() => unmarshalDatabaseSchema).parse(op.response);
+    };
+
+    const waitOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error): boolean => err === errStillRunning),
+    };
+    await execute(signal, call, waitOptions);
+    if (result === undefined) {
+      throw new Error('result not set after successful wait');
+    }
+    return result;
+  }
+
+  /** Polls once and reports whether the operation has completed. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name ?? ''},
+      options
+    );
+    this.operation = op;
+    return op.done ?? false;
+  }
+}
+
+export class CreateEndpointOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string> {
+    return Promise.resolve(this.operation.name ?? '');
+  }
+
+  /**
+   * Returns metadata associated with the long-running operation, or
+   * undefined if metadata is not present.
+   */
+  metadata(): Promise<EndpointOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalEndpointOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Wait polls until the long-running operation completes or fails.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Endpoint> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Endpoint | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name ?? '',
+        },
+        options
+      );
+      this.operation = op;
+
+      if (op.done !== true) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? '[' + op.error.errorCode + '] ' + msg
+            : msg;
+        throw new Error('operation failed: ' + errorMsg);
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed but no response available');
+      }
+
+      result = z.lazy(() => unmarshalEndpointSchema).parse(op.response);
+    };
+
+    const waitOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error): boolean => err === errStillRunning),
+    };
+    await execute(signal, call, waitOptions);
+    if (result === undefined) {
+      throw new Error('result not set after successful wait');
+    }
+    return result;
+  }
+
+  /** Polls once and reports whether the operation has completed. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name ?? ''},
+      options
+    );
+    this.operation = op;
+    return op.done ?? false;
+  }
+}
+
+export class CreateProjectOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string> {
+    return Promise.resolve(this.operation.name ?? '');
+  }
+
+  /**
+   * Returns metadata associated with the long-running operation, or
+   * undefined if metadata is not present.
+   */
+  metadata(): Promise<ProjectOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalProjectOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Wait polls until the long-running operation completes or fails.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Project> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Project | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name ?? '',
+        },
+        options
+      );
+      this.operation = op;
+
+      if (op.done !== true) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? '[' + op.error.errorCode + '] ' + msg
+            : msg;
+        throw new Error('operation failed: ' + errorMsg);
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed but no response available');
+      }
+
+      result = z.lazy(() => unmarshalProjectSchema).parse(op.response);
+    };
+
+    const waitOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error): boolean => err === errStillRunning),
+    };
+    await execute(signal, call, waitOptions);
+    if (result === undefined) {
+      throw new Error('result not set after successful wait');
+    }
+    return result;
+  }
+
+  /** Polls once and reports whether the operation has completed. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name ?? ''},
+      options
+    );
+    this.operation = op;
+    return op.done ?? false;
+  }
+}
+
+export class CreateRoleOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string> {
+    return Promise.resolve(this.operation.name ?? '');
+  }
+
+  /**
+   * Returns metadata associated with the long-running operation, or
+   * undefined if metadata is not present.
+   */
+  metadata(): Promise<RoleOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalRoleOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Wait polls until the long-running operation completes or fails.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Role> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Role | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name ?? '',
+        },
+        options
+      );
+      this.operation = op;
+
+      if (op.done !== true) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? '[' + op.error.errorCode + '] ' + msg
+            : msg;
+        throw new Error('operation failed: ' + errorMsg);
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed but no response available');
+      }
+
+      result = z.lazy(() => unmarshalRoleSchema).parse(op.response);
+    };
+
+    const waitOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error): boolean => err === errStillRunning),
+    };
+    await execute(signal, call, waitOptions);
+    if (result === undefined) {
+      throw new Error('result not set after successful wait');
+    }
+    return result;
+  }
+
+  /** Polls once and reports whether the operation has completed. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name ?? ''},
+      options
+    );
+    this.operation = op;
+    return op.done ?? false;
+  }
+}
+
+export class CreateSyncedTableOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string> {
+    return Promise.resolve(this.operation.name ?? '');
+  }
+
+  /**
+   * Returns metadata associated with the long-running operation, or
+   * undefined if metadata is not present.
+   */
+  metadata(): Promise<SyncedTableOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalSyncedTableOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Wait polls until the long-running operation completes or fails.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<SyncedTable> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: SyncedTable | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name ?? '',
+        },
+        options
+      );
+      this.operation = op;
+
+      if (op.done !== true) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? '[' + op.error.errorCode + '] ' + msg
+            : msg;
+        throw new Error('operation failed: ' + errorMsg);
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed but no response available');
+      }
+
+      result = z.lazy(() => unmarshalSyncedTableSchema).parse(op.response);
+    };
+
+    const waitOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error): boolean => err === errStillRunning),
+    };
+    await execute(signal, call, waitOptions);
+    if (result === undefined) {
+      throw new Error('result not set after successful wait');
+    }
+    return result;
+  }
+
+  /** Polls once and reports whether the operation has completed. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name ?? ''},
+      options
+    );
+    this.operation = op;
+    return op.done ?? false;
+  }
+}
+
+export class DeleteBranchOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string> {
+    return Promise.resolve(this.operation.name ?? '');
+  }
+
+  /**
+   * Returns metadata associated with the long-running operation, or
+   * undefined if metadata is not present.
+   */
+  metadata(): Promise<BranchOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalBranchOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Wait polls until the long-running operation completes or fails.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<void> {
+    const errStillRunning = new Error('operation still in progress');
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name ?? '',
+        },
+        options
+      );
+      this.operation = op;
+
+      if (op.done !== true) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? '[' + op.error.errorCode + '] ' + msg
+            : msg;
+        throw new Error('operation failed: ' + errorMsg);
+      }
+    };
+
+    const waitOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error): boolean => err === errStillRunning),
+    };
+    await execute(signal, call, waitOptions);
+  }
+
+  /** Polls once and reports whether the operation has completed. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name ?? ''},
+      options
+    );
+    this.operation = op;
+    return op.done ?? false;
+  }
+}
+
+export class DeleteCatalogOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string> {
+    return Promise.resolve(this.operation.name ?? '');
+  }
+
+  /**
+   * Returns metadata associated with the long-running operation, or
+   * undefined if metadata is not present.
+   */
+  metadata(): Promise<CatalogOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalCatalogOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Wait polls until the long-running operation completes or fails.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<void> {
+    const errStillRunning = new Error('operation still in progress');
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name ?? '',
+        },
+        options
+      );
+      this.operation = op;
+
+      if (op.done !== true) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? '[' + op.error.errorCode + '] ' + msg
+            : msg;
+        throw new Error('operation failed: ' + errorMsg);
+      }
+    };
+
+    const waitOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error): boolean => err === errStillRunning),
+    };
+    await execute(signal, call, waitOptions);
+  }
+
+  /** Polls once and reports whether the operation has completed. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name ?? ''},
+      options
+    );
+    this.operation = op;
+    return op.done ?? false;
+  }
+}
+
+export class DeleteDatabaseOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string> {
+    return Promise.resolve(this.operation.name ?? '');
+  }
+
+  /**
+   * Returns metadata associated with the long-running operation, or
+   * undefined if metadata is not present.
+   */
+  metadata(): Promise<DatabaseOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalDatabaseOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Wait polls until the long-running operation completes or fails.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<void> {
+    const errStillRunning = new Error('operation still in progress');
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name ?? '',
+        },
+        options
+      );
+      this.operation = op;
+
+      if (op.done !== true) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? '[' + op.error.errorCode + '] ' + msg
+            : msg;
+        throw new Error('operation failed: ' + errorMsg);
+      }
+    };
+
+    const waitOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error): boolean => err === errStillRunning),
+    };
+    await execute(signal, call, waitOptions);
+  }
+
+  /** Polls once and reports whether the operation has completed. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name ?? ''},
+      options
+    );
+    this.operation = op;
+    return op.done ?? false;
+  }
+}
+
+export class DeleteEndpointOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string> {
+    return Promise.resolve(this.operation.name ?? '');
+  }
+
+  /**
+   * Returns metadata associated with the long-running operation, or
+   * undefined if metadata is not present.
+   */
+  metadata(): Promise<EndpointOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalEndpointOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Wait polls until the long-running operation completes or fails.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<void> {
+    const errStillRunning = new Error('operation still in progress');
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name ?? '',
+        },
+        options
+      );
+      this.operation = op;
+
+      if (op.done !== true) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? '[' + op.error.errorCode + '] ' + msg
+            : msg;
+        throw new Error('operation failed: ' + errorMsg);
+      }
+    };
+
+    const waitOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error): boolean => err === errStillRunning),
+    };
+    await execute(signal, call, waitOptions);
+  }
+
+  /** Polls once and reports whether the operation has completed. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name ?? ''},
+      options
+    );
+    this.operation = op;
+    return op.done ?? false;
+  }
+}
+
+export class DeleteProjectOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string> {
+    return Promise.resolve(this.operation.name ?? '');
+  }
+
+  /**
+   * Returns metadata associated with the long-running operation, or
+   * undefined if metadata is not present.
+   */
+  metadata(): Promise<ProjectOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalProjectOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Wait polls until the long-running operation completes or fails.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<void> {
+    const errStillRunning = new Error('operation still in progress');
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name ?? '',
+        },
+        options
+      );
+      this.operation = op;
+
+      if (op.done !== true) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? '[' + op.error.errorCode + '] ' + msg
+            : msg;
+        throw new Error('operation failed: ' + errorMsg);
+      }
+    };
+
+    const waitOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error): boolean => err === errStillRunning),
+    };
+    await execute(signal, call, waitOptions);
+  }
+
+  /** Polls once and reports whether the operation has completed. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name ?? ''},
+      options
+    );
+    this.operation = op;
+    return op.done ?? false;
+  }
+}
+
+export class DeleteRoleOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string> {
+    return Promise.resolve(this.operation.name ?? '');
+  }
+
+  /**
+   * Returns metadata associated with the long-running operation, or
+   * undefined if metadata is not present.
+   */
+  metadata(): Promise<RoleOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalRoleOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Wait polls until the long-running operation completes or fails.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<void> {
+    const errStillRunning = new Error('operation still in progress');
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name ?? '',
+        },
+        options
+      );
+      this.operation = op;
+
+      if (op.done !== true) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? '[' + op.error.errorCode + '] ' + msg
+            : msg;
+        throw new Error('operation failed: ' + errorMsg);
+      }
+    };
+
+    const waitOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error): boolean => err === errStillRunning),
+    };
+    await execute(signal, call, waitOptions);
+  }
+
+  /** Polls once and reports whether the operation has completed. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name ?? ''},
+      options
+    );
+    this.operation = op;
+    return op.done ?? false;
+  }
+}
+
+export class DeleteSyncedTableOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string> {
+    return Promise.resolve(this.operation.name ?? '');
+  }
+
+  /**
+   * Returns metadata associated with the long-running operation, or
+   * undefined if metadata is not present.
+   */
+  metadata(): Promise<SyncedTableOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalSyncedTableOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Wait polls until the long-running operation completes or fails.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<void> {
+    const errStillRunning = new Error('operation still in progress');
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name ?? '',
+        },
+        options
+      );
+      this.operation = op;
+
+      if (op.done !== true) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? '[' + op.error.errorCode + '] ' + msg
+            : msg;
+        throw new Error('operation failed: ' + errorMsg);
+      }
+    };
+
+    const waitOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error): boolean => err === errStillRunning),
+    };
+    await execute(signal, call, waitOptions);
+  }
+
+  /** Polls once and reports whether the operation has completed. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name ?? ''},
+      options
+    );
+    this.operation = op;
+    return op.done ?? false;
+  }
+}
+
+export class UpdateBranchOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string> {
+    return Promise.resolve(this.operation.name ?? '');
+  }
+
+  /**
+   * Returns metadata associated with the long-running operation, or
+   * undefined if metadata is not present.
+   */
+  metadata(): Promise<BranchOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalBranchOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Wait polls until the long-running operation completes or fails.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Branch> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Branch | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name ?? '',
+        },
+        options
+      );
+      this.operation = op;
+
+      if (op.done !== true) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? '[' + op.error.errorCode + '] ' + msg
+            : msg;
+        throw new Error('operation failed: ' + errorMsg);
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed but no response available');
+      }
+
+      result = z.lazy(() => unmarshalBranchSchema).parse(op.response);
+    };
+
+    const waitOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error): boolean => err === errStillRunning),
+    };
+    await execute(signal, call, waitOptions);
+    if (result === undefined) {
+      throw new Error('result not set after successful wait');
+    }
+    return result;
+  }
+
+  /** Polls once and reports whether the operation has completed. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name ?? ''},
+      options
+    );
+    this.operation = op;
+    return op.done ?? false;
+  }
+}
+
+export class UpdateDatabaseOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string> {
+    return Promise.resolve(this.operation.name ?? '');
+  }
+
+  /**
+   * Returns metadata associated with the long-running operation, or
+   * undefined if metadata is not present.
+   */
+  metadata(): Promise<DatabaseOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalDatabaseOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Wait polls until the long-running operation completes or fails.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Database> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Database | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name ?? '',
+        },
+        options
+      );
+      this.operation = op;
+
+      if (op.done !== true) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? '[' + op.error.errorCode + '] ' + msg
+            : msg;
+        throw new Error('operation failed: ' + errorMsg);
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed but no response available');
+      }
+
+      result = z.lazy(() => unmarshalDatabaseSchema).parse(op.response);
+    };
+
+    const waitOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error): boolean => err === errStillRunning),
+    };
+    await execute(signal, call, waitOptions);
+    if (result === undefined) {
+      throw new Error('result not set after successful wait');
+    }
+    return result;
+  }
+
+  /** Polls once and reports whether the operation has completed. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name ?? ''},
+      options
+    );
+    this.operation = op;
+    return op.done ?? false;
+  }
+}
+
+export class UpdateEndpointOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string> {
+    return Promise.resolve(this.operation.name ?? '');
+  }
+
+  /**
+   * Returns metadata associated with the long-running operation, or
+   * undefined if metadata is not present.
+   */
+  metadata(): Promise<EndpointOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalEndpointOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Wait polls until the long-running operation completes or fails.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Endpoint> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Endpoint | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name ?? '',
+        },
+        options
+      );
+      this.operation = op;
+
+      if (op.done !== true) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? '[' + op.error.errorCode + '] ' + msg
+            : msg;
+        throw new Error('operation failed: ' + errorMsg);
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed but no response available');
+      }
+
+      result = z.lazy(() => unmarshalEndpointSchema).parse(op.response);
+    };
+
+    const waitOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error): boolean => err === errStillRunning),
+    };
+    await execute(signal, call, waitOptions);
+    if (result === undefined) {
+      throw new Error('result not set after successful wait');
+    }
+    return result;
+  }
+
+  /** Polls once and reports whether the operation has completed. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name ?? ''},
+      options
+    );
+    this.operation = op;
+    return op.done ?? false;
+  }
+}
+
+export class UpdateProjectOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string> {
+    return Promise.resolve(this.operation.name ?? '');
+  }
+
+  /**
+   * Returns metadata associated with the long-running operation, or
+   * undefined if metadata is not present.
+   */
+  metadata(): Promise<ProjectOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalProjectOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Wait polls until the long-running operation completes or fails.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Project> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Project | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name ?? '',
+        },
+        options
+      );
+      this.operation = op;
+
+      if (op.done !== true) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? '[' + op.error.errorCode + '] ' + msg
+            : msg;
+        throw new Error('operation failed: ' + errorMsg);
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed but no response available');
+      }
+
+      result = z.lazy(() => unmarshalProjectSchema).parse(op.response);
+    };
+
+    const waitOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error): boolean => err === errStillRunning),
+    };
+    await execute(signal, call, waitOptions);
+    if (result === undefined) {
+      throw new Error('result not set after successful wait');
+    }
+    return result;
+  }
+
+  /** Polls once and reports whether the operation has completed. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name ?? ''},
+      options
+    );
+    this.operation = op;
+    return op.done ?? false;
+  }
+}
+
+export class UpdateRoleOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string> {
+    return Promise.resolve(this.operation.name ?? '');
+  }
+
+  /**
+   * Returns metadata associated with the long-running operation, or
+   * undefined if metadata is not present.
+   */
+  metadata(): Promise<RoleOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalRoleOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Wait polls until the long-running operation completes or fails.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Role> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Role | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name ?? '',
+        },
+        options
+      );
+      this.operation = op;
+
+      if (op.done !== true) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? '[' + op.error.errorCode + '] ' + msg
+            : msg;
+        throw new Error('operation failed: ' + errorMsg);
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed but no response available');
+      }
+
+      result = z.lazy(() => unmarshalRoleSchema).parse(op.response);
+    };
+
+    const waitOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error): boolean => err === errStillRunning),
+    };
+    await execute(signal, call, waitOptions);
+    if (result === undefined) {
+      throw new Error('result not set after successful wait');
+    }
+    return result;
+  }
+
+  /** Polls once and reports whether the operation has completed. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name ?? ''},
+      options
+    );
+    this.operation = op;
+    return op.done ?? false;
   }
 }
