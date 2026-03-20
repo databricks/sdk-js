@@ -1,5 +1,4 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
-
 import {z} from 'zod';
 
 /** The action type for an account access identity rule (currently DENY only). */

@@ -1,6 +1,27 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {Client} from './client';
+export {
+  Client,
+  CreateBranchOperation,
+  CreateCatalogOperation,
+  CreateDatabaseOperation,
+  CreateEndpointOperation,
+  CreateProjectOperation,
+  CreateRoleOperation,
+  CreateSyncedTableOperation,
+  DeleteBranchOperation,
+  DeleteCatalogOperation,
+  DeleteDatabaseOperation,
+  DeleteEndpointOperation,
+  DeleteProjectOperation,
+  DeleteRoleOperation,
+  DeleteSyncedTableOperation,
+  UpdateBranchOperation,
+  UpdateDatabaseOperation,
+  UpdateEndpointOperation,
+  UpdateProjectOperation,
+  UpdateRoleOperation,
+} from './client';
 
 export {
   EndpointType,
@@ -21,11 +42,13 @@ export {
 
 export type {
   Branch,
+  BranchOperationMetadata,
   BranchSpec,
   BranchStatus,
   Catalog,
   Catalog_CatalogSpec,
   Catalog_CatalogStatus,
+  CatalogOperationMetadata,
   ComputeInstance,
   CreateBranchRequest,
   CreateCatalogRequest,
@@ -39,6 +62,7 @@ export type {
   Database_DatabaseSpec,
   Database_DatabaseStatus,
   DatabaseCredential,
+  DatabaseOperationMetadata,
   DatabricksServiceExceptionWithDetailsProto,
   DeleteBranchRequest,
   DeleteCatalogRequest,
@@ -55,6 +79,7 @@ export type {
   EndpointGroupSpec,
   EndpointGroupStatus,
   EndpointHosts,
+  EndpointOperationMetadata,
   EndpointSettings,
   EndpointSettings_PgSettingsEntry,
   EndpointSpec,
@@ -97,6 +122,7 @@ export type {
   ProjectCustomTag,
   ProjectDefaultEndpointSettings,
   ProjectDefaultEndpointSettings_PgSettingsEntry,
+  ProjectOperationMetadata,
   ProjectSpec,
   ProjectStatus,
   ProvisioningInfo,
@@ -106,9 +132,11 @@ export type {
   Role_Attributes,
   Role_RoleSpec,
   Role_RoleStatus,
+  RoleOperationMetadata,
   SyncedTable,
   SyncedTable_SyncedTableSpec,
   SyncedTable_SyncedTableStatus,
+  SyncedTableOperationMetadata,
   SyncedTablePipelineProgress,
   SyncedTablePosition,
   Table,

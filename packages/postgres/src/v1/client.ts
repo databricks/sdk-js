@@ -13,9 +13,12 @@ import {
   marshalRequest,
   parseResponse,
 } from './utils';
+import {z} from 'zod';
 import type {
   Branch,
+  BranchOperationMetadata,
   Catalog,
+  CatalogOperationMetadata,
   ComputeInstance,
   CreateBranchRequest,
   CreateCatalogRequest,
@@ -27,6 +30,7 @@ import type {
   CreateTableRequest,
   Database,
   DatabaseCredential,
+  DatabaseOperationMetadata,
   DeleteBranchRequest,
   DeleteCatalogRequest,
   DeleteDatabaseRequest,
@@ -38,6 +42,7 @@ import type {
   DisableForwardEtlRequest,
   DisableForwardEtlResponse,
   Endpoint,
+  EndpointOperationMetadata,
   ForwardEtlMetadata,
   ForwardEtlStatus,
   GenerateDatabaseCredentialRequest,
@@ -67,8 +72,11 @@ import type {
   ListRolesResponse,
   Operation,
   Project,
+  ProjectOperationMetadata,
   Role,
+  RoleOperationMetadata,
   SyncedTable,
+  SyncedTableOperationMetadata,
   Table,
   UpdateBranchRequest,
   UpdateDatabaseRequest,
@@ -86,12 +94,16 @@ import {
   marshalRoleSchema,
   marshalSyncedTableSchema,
   marshalTableSchema,
+  unmarshalBranchOperationMetadataSchema,
   unmarshalBranchSchema,
+  unmarshalCatalogOperationMetadataSchema,
   unmarshalCatalogSchema,
   unmarshalComputeInstanceSchema,
   unmarshalDatabaseCredentialSchema,
+  unmarshalDatabaseOperationMetadataSchema,
   unmarshalDatabaseSchema,
   unmarshalDisableForwardEtlResponseSchema,
+  unmarshalEndpointOperationMetadataSchema,
   unmarshalEndpointSchema,
   unmarshalForwardEtlMetadataSchema,
   unmarshalForwardEtlStatusSchema,
@@ -102,8 +114,11 @@ import {
   unmarshalListProjectsResponseSchema,
   unmarshalListRolesResponseSchema,
   unmarshalOperationSchema,
+  unmarshalProjectOperationMetadataSchema,
   unmarshalProjectSchema,
+  unmarshalRoleOperationMetadataSchema,
   unmarshalRoleSchema,
+  unmarshalSyncedTableOperationMetadataSchema,
   unmarshalSyncedTableSchema,
   unmarshalTableSchema,
 } from './model';
@@ -153,6 +168,15 @@ export class Client {
     return resp;
   }
 
+  async createBranchOperation(
+    signal: AbortSignal | undefined,
+    req: CreateBranchRequest,
+    options?: Options
+  ): Promise<CreateBranchOperation> {
+    const op = await this.createBranch(signal, req, options);
+    return new CreateBranchOperation(op);
+  }
+
   /** Register a Postgres database in the Unity Catalog. */
   async createCatalog(
     signal: AbortSignal | undefined,
@@ -182,6 +206,15 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async createCatalogOperation(
+    signal: AbortSignal | undefined,
+    req: CreateCatalogRequest,
+    options?: Options
+  ): Promise<CreateCatalogOperation> {
+    const op = await this.createCatalog(signal, req, options);
+    return new CreateCatalogOperation(op);
   }
 
   /**
@@ -219,6 +252,15 @@ export class Client {
     return resp;
   }
 
+  async createDatabaseOperation(
+    signal: AbortSignal | undefined,
+    req: CreateDatabaseRequest,
+    options?: Options
+  ): Promise<CreateDatabaseOperation> {
+    const op = await this.createDatabase(signal, req, options);
+    return new CreateDatabaseOperation(op);
+  }
+
   /** Creates a new compute endpoint in the branch. */
   async createEndpoint(
     signal: AbortSignal | undefined,
@@ -248,6 +290,15 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async createEndpointOperation(
+    signal: AbortSignal | undefined,
+    req: CreateEndpointRequest,
+    options?: Options
+  ): Promise<CreateEndpointOperation> {
+    const op = await this.createEndpoint(signal, req, options);
+    return new CreateEndpointOperation(op);
   }
 
   /** Creates a new Lakebase Autoscaling Postgres database project, which contains branches and compute endpoints. */
@@ -281,6 +332,15 @@ export class Client {
     return resp;
   }
 
+  async createProjectOperation(
+    signal: AbortSignal | undefined,
+    req: CreateProjectRequest,
+    options?: Options
+  ): Promise<CreateProjectOperation> {
+    const op = await this.createProject(signal, req, options);
+    return new CreateProjectOperation(op);
+  }
+
   /** Creates a new Postgres role in the branch. */
   async createRole(
     signal: AbortSignal | undefined,
@@ -312,6 +372,15 @@ export class Client {
     return resp;
   }
 
+  async createRoleOperation(
+    signal: AbortSignal | undefined,
+    req: CreateRoleRequest,
+    options?: Options
+  ): Promise<CreateRoleOperation> {
+    const op = await this.createRole(signal, req, options);
+    return new CreateRoleOperation(op);
+  }
+
   /** Create a Synced Table. */
   async createSyncedTable(
     signal: AbortSignal | undefined,
@@ -341,6 +410,15 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async createSyncedTableOperation(
+    signal: AbortSignal | undefined,
+    req: CreateSyncedTableRequest,
+    options?: Options
+  ): Promise<CreateSyncedTableOperation> {
+    const op = await this.createSyncedTable(signal, req, options);
+    return new CreateSyncedTableOperation(op);
   }
 
   /** Create a Table (non-synced database table for Autoscaling v2 Lakebase projects). */
@@ -392,6 +470,15 @@ export class Client {
     return resp;
   }
 
+  async deleteBranchOperation(
+    signal: AbortSignal | undefined,
+    req: DeleteBranchRequest,
+    options?: Options
+  ): Promise<DeleteBranchOperation> {
+    const op = await this.deleteBranch(signal, req, options);
+    return new DeleteBranchOperation(op);
+  }
+
   /** Delete a Database Catalog. */
   async deleteCatalog(
     signal: AbortSignal | undefined,
@@ -414,6 +501,15 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async deleteCatalogOperation(
+    signal: AbortSignal | undefined,
+    req: DeleteCatalogRequest,
+    options?: Options
+  ): Promise<DeleteCatalogOperation> {
+    const op = await this.deleteCatalog(signal, req, options);
+    return new DeleteCatalogOperation(op);
   }
 
   /** Delete a Database. */
@@ -440,6 +536,15 @@ export class Client {
     return resp;
   }
 
+  async deleteDatabaseOperation(
+    signal: AbortSignal | undefined,
+    req: DeleteDatabaseRequest,
+    options?: Options
+  ): Promise<DeleteDatabaseOperation> {
+    const op = await this.deleteDatabase(signal, req, options);
+    return new DeleteDatabaseOperation(op);
+  }
+
   /** Deletes the specified compute endpoint. */
   async deleteEndpoint(
     signal: AbortSignal | undefined,
@@ -464,6 +569,15 @@ export class Client {
     return resp;
   }
 
+  async deleteEndpointOperation(
+    signal: AbortSignal | undefined,
+    req: DeleteEndpointRequest,
+    options?: Options
+  ): Promise<DeleteEndpointOperation> {
+    const op = await this.deleteEndpoint(signal, req, options);
+    return new DeleteEndpointOperation(op);
+  }
+
   /** Deletes the specified database project. */
   async deleteProject(
     signal: AbortSignal | undefined,
@@ -486,6 +600,15 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async deleteProjectOperation(
+    signal: AbortSignal | undefined,
+    req: DeleteProjectRequest,
+    options?: Options
+  ): Promise<DeleteProjectOperation> {
+    const op = await this.deleteProject(signal, req, options);
+    return new DeleteProjectOperation(op);
   }
 
   /** Deletes the specified Postgres role. */
@@ -518,6 +641,15 @@ export class Client {
     return resp;
   }
 
+  async deleteRoleOperation(
+    signal: AbortSignal | undefined,
+    req: DeleteRoleRequest,
+    options?: Options
+  ): Promise<DeleteRoleOperation> {
+    const op = await this.deleteRole(signal, req, options);
+    return new DeleteRoleOperation(op);
+  }
+
   /** Delete a Synced Table. */
   async deleteSyncedTable(
     signal: AbortSignal | undefined,
@@ -540,6 +672,15 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async deleteSyncedTableOperation(
+    signal: AbortSignal | undefined,
+    req: DeleteSyncedTableRequest,
+    options?: Options
+  ): Promise<DeleteSyncedTableOperation> {
+    const op = await this.deleteSyncedTable(signal, req, options);
+    return new DeleteSyncedTableOperation(op);
   }
 
   /** Delete a Table (non-synced database table for Autoscaling v2 Lakebase projects). */
@@ -1279,6 +1420,15 @@ export class Client {
     return resp;
   }
 
+  async updateBranchOperation(
+    signal: AbortSignal | undefined,
+    req: UpdateBranchRequest,
+    options?: Options
+  ): Promise<UpdateBranchOperation> {
+    const op = await this.updateBranch(signal, req, options);
+    return new UpdateBranchOperation(op);
+  }
+
   /** Update a Database. */
   async updateDatabase(
     signal: AbortSignal | undefined,
@@ -1308,6 +1458,15 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async updateDatabaseOperation(
+    signal: AbortSignal | undefined,
+    req: UpdateDatabaseRequest,
+    options?: Options
+  ): Promise<UpdateDatabaseOperation> {
+    const op = await this.updateDatabase(signal, req, options);
+    return new UpdateDatabaseOperation(op);
   }
 
   /** Updates the specified compute endpoint. You can update autoscaling limits, suspend timeout, or enable/disable the compute endpoint. */
@@ -1341,6 +1500,15 @@ export class Client {
     return resp;
   }
 
+  async updateEndpointOperation(
+    signal: AbortSignal | undefined,
+    req: UpdateEndpointRequest,
+    options?: Options
+  ): Promise<UpdateEndpointOperation> {
+    const op = await this.updateEndpoint(signal, req, options);
+    return new UpdateEndpointOperation(op);
+  }
+
   /** Updates the specified database project. */
   async updateProject(
     signal: AbortSignal | undefined,
@@ -1372,6 +1540,15 @@ export class Client {
     return resp;
   }
 
+  async updateProjectOperation(
+    signal: AbortSignal | undefined,
+    req: UpdateProjectRequest,
+    options?: Options
+  ): Promise<UpdateProjectOperation> {
+    const op = await this.updateProject(signal, req, options);
+    return new UpdateProjectOperation(op);
+  }
+
   /** Update a role for a branch. */
   async updateRole(
     signal: AbortSignal | undefined,
@@ -1401,5 +1578,413 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async updateRoleOperation(
+    signal: AbortSignal | undefined,
+    req: UpdateRoleRequest,
+    options?: Options
+  ): Promise<UpdateRoleOperation> {
+    const op = await this.updateRole(signal, req, options);
+    return new UpdateRoleOperation(op);
+  }
+}
+
+export class CreateBranchOperation {
+  constructor(private operation: Operation) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<BranchOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalBranchOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+}
+
+export class CreateCatalogOperation {
+  constructor(private operation: Operation) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<CatalogOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalCatalogOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+}
+
+export class CreateDatabaseOperation {
+  constructor(private operation: Operation) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<DatabaseOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalDatabaseOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+}
+
+export class CreateEndpointOperation {
+  constructor(private operation: Operation) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<EndpointOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalEndpointOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+}
+
+export class CreateProjectOperation {
+  constructor(private operation: Operation) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<ProjectOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalProjectOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+}
+
+export class CreateRoleOperation {
+  constructor(private operation: Operation) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<RoleOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalRoleOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+}
+
+export class CreateSyncedTableOperation {
+  constructor(private operation: Operation) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<SyncedTableOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalSyncedTableOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+}
+
+export class DeleteBranchOperation {
+  constructor(private operation: Operation) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<BranchOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalBranchOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+}
+
+export class DeleteCatalogOperation {
+  constructor(private operation: Operation) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<CatalogOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalCatalogOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+}
+
+export class DeleteDatabaseOperation {
+  constructor(private operation: Operation) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<DatabaseOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalDatabaseOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+}
+
+export class DeleteEndpointOperation {
+  constructor(private operation: Operation) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<EndpointOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalEndpointOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+}
+
+export class DeleteProjectOperation {
+  constructor(private operation: Operation) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<ProjectOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalProjectOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+}
+
+export class DeleteRoleOperation {
+  constructor(private operation: Operation) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<RoleOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalRoleOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+}
+
+export class DeleteSyncedTableOperation {
+  constructor(private operation: Operation) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<SyncedTableOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalSyncedTableOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+}
+
+export class UpdateBranchOperation {
+  constructor(private operation: Operation) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<BranchOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalBranchOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+}
+
+export class UpdateDatabaseOperation {
+  constructor(private operation: Operation) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<DatabaseOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalDatabaseOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+}
+
+export class UpdateEndpointOperation {
+  constructor(private operation: Operation) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<EndpointOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalEndpointOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+}
+
+export class UpdateProjectOperation {
+  constructor(private operation: Operation) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<ProjectOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalProjectOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+}
+
+export class UpdateRoleOperation {
+  constructor(private operation: Operation) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<RoleOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalRoleOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
   }
 }
