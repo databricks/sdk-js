@@ -1,5 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {Temporal} from '@js-temporal/polyfill';
 import {z} from 'zod';
 
 /** The compute endpoint type. Either `read_write` or `read_only`. */
@@ -728,9 +729,9 @@ export interface Branch {
    */
   parent?: string | undefined;
   /** A timestamp indicating when the branch was created. */
-  createTime?: string | undefined;
+  createTime?: Temporal.Instant | undefined;
   /** A timestamp indicating when the branch was last updated. */
-  updateTime?: string | undefined;
+  updateTime?: Temporal.Instant | undefined;
   /** The spec contains the branch configuration. */
   spec?: BranchSpec | undefined;
   /** The current status of a Branch. */
@@ -750,13 +751,13 @@ export interface BranchSpec {
   /** The Log Sequence Number (LSN) on the source branch from which this branch was created. */
   sourceBranchLsn?: string | undefined;
   /** The point in time on the source branch from which this branch was created. */
-  sourceBranchTime?: string | undefined;
+  sourceBranchTime?: Temporal.Instant | undefined;
   /** When set to true, protects the branch from deletion and reset. Associated compute endpoints and the project cannot be deleted while the branch is protected. */
   isProtected?: boolean | undefined;
   /** Absolute expiration timestamp. When set, the branch will expire at this time. */
-  expireTime?: string | undefined;
+  expireTime?: Temporal.Instant | undefined;
   /** Relative time-to-live duration. When set, the branch will expire at creation_time + ttl. */
-  ttl?: string | undefined;
+  ttl?: Temporal.Duration | undefined;
   /**
    * Explicitly disable expiration. When set to true, the branch will not expire.
    * If set to false, the request is invalid; provide either ttl or expire_time instead.
@@ -773,7 +774,7 @@ export interface BranchStatus {
   /** The Log Sequence Number (LSN) on the source branch from which this branch was created. */
   sourceBranchLsn?: string | undefined;
   /** The point in time on the source branch from which this branch was created. */
-  sourceBranchTime?: string | undefined;
+  sourceBranchTime?: Temporal.Instant | undefined;
   /** Whether the branch is the project's default branch. */
   default?: boolean | undefined;
   /** Whether the branch is protected. */
@@ -783,11 +784,11 @@ export interface BranchStatus {
   /** The pending state of the branch, if a state transition is in progress. */
   pendingState?: BranchStatus_State | undefined;
   /** A timestamp indicating when the `current_state` began. */
-  stateChangeTime?: string | undefined;
+  stateChangeTime?: Temporal.Instant | undefined;
   /** The logical size of the branch. */
   logicalSizeBytes?: number | undefined;
   /** Absolute expiration time for the branch. Empty if expiration is disabled. */
-  expireTime?: string | undefined;
+  expireTime?: Temporal.Instant | undefined;
   /**
    * The short identifier of the branch, suitable for showing to the users.
    * For a branch with name `projects/my-project/branches/my-branch`, the branch_id is `my-branch`.
@@ -813,9 +814,9 @@ export interface Catalog {
   /** The observed state of the Catalog. */
   status?: Catalog_CatalogStatus | undefined;
   /** A timestamp indicating when the catalog was created. */
-  createTime?: string | undefined;
+  createTime?: Temporal.Instant | undefined;
   /** A timestamp indicating when the catalog was last updated. */
-  updateTime?: string | undefined;
+  updateTime?: Temporal.Instant | undefined;
 }
 
 /** The desired state of the Catalog. */
@@ -893,9 +894,9 @@ export interface ComputeInstance {
   /** A host scoped directly to the enclosing compute. This host is guaranteed to resolve to the specific compute instance. */
   computeHost?: string | undefined;
   /** A timestamp indicating when the compute was last started. */
-  startTime?: string | undefined;
+  startTime?: Temporal.Instant | undefined;
   /** A timestamp indicating when the compute was last suspended. */
-  suspendTime?: string | undefined;
+  suspendTime?: Temporal.Instant | undefined;
 }
 
 export interface CreateBranchRequest {
@@ -1027,9 +1028,9 @@ export interface Database {
    */
   parent?: string | undefined;
   /** A timestamp indicating when the database was created. */
-  createTime?: string | undefined;
+  createTime?: Temporal.Instant | undefined;
   /** A timestamp indicating when the database was last updated. */
-  updateTime?: string | undefined;
+  updateTime?: Temporal.Instant | undefined;
   /** The desired state of the Database. */
   spec?: Database_DatabaseSpec | undefined;
   /** The observed state of the Database. */
@@ -1074,7 +1075,7 @@ export interface DatabaseCredential {
   /** The OAuth token that can be used as a password when connecting to a database. */
   token?: string | undefined;
   /** Timestamp in UTC of when this credential expires. */
-  expireTime?: string | undefined;
+  expireTime?: Temporal.Instant | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -1165,7 +1166,7 @@ export interface DeltaTableSyncInfo {
    * The timestamp when the above Delta version was committed in the source Delta table.
    * Note: This is the Delta commit time, not the time the data was written to the synced table.
    */
-  deltaCommitTime?: string | undefined;
+  deltaCommitTime?: Temporal.Instant | undefined;
 }
 
 /** Request to disable Forward ETL */
@@ -1205,9 +1206,9 @@ export interface Endpoint {
    */
   parent?: string | undefined;
   /** A timestamp indicating when the compute endpoint was created. */
-  createTime?: string | undefined;
+  createTime?: Temporal.Instant | undefined;
   /** A timestamp indicating when the compute endpoint was last updated. */
-  updateTime?: string | undefined;
+  updateTime?: Temporal.Instant | undefined;
   /** The spec contains the compute endpoint configuration, including autoscaling limits, suspend timeout, and disabled state. */
   spec?: EndpointSpec | undefined;
   /** Current operational status of the compute endpoint. */
@@ -1307,7 +1308,7 @@ export interface EndpointSpec {
    * Duration of inactivity after which the compute endpoint is automatically suspended.
    * If specified should be between 60s and 604800s (1 minute to 1 week).
    */
-  suspendTimeoutDuration?: string | undefined;
+  suspendTimeoutDuration?: Temporal.Duration | undefined;
   /**
    * When set to true, explicitly disables automatic suspension (never suspend).
    * Should be set to true when provided.
@@ -1328,7 +1329,7 @@ export interface EndpointStatus {
   /** Contains host information for connecting to the endpoint. */
   hosts?: EndpointHosts | undefined;
   /** A timestamp indicating when the compute endpoint was last active. */
-  lastActiveTime?: string | undefined;
+  lastActiveTime?: Temporal.Instant | undefined;
   /** The minimum number of Compute Units. */
   autoscalingLimitMinCu?: number | undefined;
   /** The maximum number of Compute Units. */
@@ -1343,7 +1344,7 @@ export interface EndpointStatus {
    */
   disabled?: boolean | undefined;
   /** Duration of inactivity after which the compute endpoint is automatically suspended. */
-  suspendTimeoutDuration?: string | undefined;
+  suspendTimeoutDuration?: Temporal.Duration | undefined;
   settings?: EndpointSettings | undefined;
   /** Details on the HA configuration of the endpoint. */
   group?: EndpointGroupStatus | undefined;
@@ -1439,12 +1440,12 @@ export interface GenerateDatabaseCredentialRequest {
    * The requested time-to-live for the generated credential token.
    * Maximum allowed duration is 1 hour.
    */
-  ttl?: string | undefined;
+  ttl?: Temporal.Duration | undefined;
   /**
    * Timestamp in UTC of when this credential should expire.
    * Expire time should be within 1 hour of the current time.
    */
-  expireTime?: string | undefined;
+  expireTime?: Temporal.Instant | undefined;
 }
 
 export interface GetBranchRequest {
@@ -1729,9 +1730,9 @@ export interface Project {
   /** System-generated unique ID for the project. */
   uid?: string | undefined;
   /** A timestamp indicating when the project was created. */
-  createTime?: string | undefined;
+  createTime?: Temporal.Instant | undefined;
   /** A timestamp indicating when the project was last updated. */
-  updateTime?: string | undefined;
+  updateTime?: Temporal.Instant | undefined;
   /** The spec contains the project configuration, including display_name, pg_version (Postgres version), history_retention_duration, and default_endpoint_settings. */
   spec?: ProjectSpec | undefined;
   /** The current status of a Project. */
@@ -1762,7 +1763,7 @@ export interface ProjectDefaultEndpointSettings {
    * Duration of inactivity after which the compute endpoint is automatically suspended.
    * If specified should be between 60s and 604800s (1 minute to 1 week).
    */
-  suspendTimeoutDuration?: string | undefined;
+  suspendTimeoutDuration?: Temporal.Duration | undefined;
   /**
    * When set to true, explicitly disables automatic suspension (never suspend).
    * Should be set to true when provided.
@@ -1787,7 +1788,7 @@ export interface ProjectSpec {
   /** The major Postgres version number. Supported versions are 16 and 17. */
   pgVersion?: number | undefined;
   /** The number of seconds to retain the shared history for point in time recovery for all branches in this project. Value should be between 172800s (2 days) and 2592000s (30 days). */
-  historyRetentionDuration?: string | undefined;
+  historyRetentionDuration?: Temporal.Duration | undefined;
   defaultEndpointSettings?: ProjectDefaultEndpointSettings | undefined;
   /**
    * The desired budget policy to associate with the project.
@@ -1823,7 +1824,7 @@ export interface ProjectStatus {
   /** The effective major Postgres version number. */
   pgVersion?: number | undefined;
   /** The effective number of seconds to retain the shared history for point in time recovery. */
-  historyRetentionDuration?: string | undefined;
+  historyRetentionDuration?: Temporal.Duration | undefined;
   /** The effective default endpoint settings. */
   defaultEndpointSettings?: ProjectDefaultEndpointSettings | undefined;
   /** The logical size limit for a branch. */
@@ -1831,7 +1832,7 @@ export interface ProjectStatus {
   /** The current space occupied by the project in storage. */
   syntheticStorageSizeBytes?: number | undefined;
   /** The most recent time when any endpoint of this project was active. */
-  computeLastActiveTime?: string | undefined;
+  computeLastActiveTime?: Temporal.Instant | undefined;
   /** The budget policy that is applied to the project. */
   budgetPolicyId?: string | undefined;
   /** The effective custom tags associated with the project. */
@@ -1870,8 +1871,8 @@ export interface Role {
    * Format: projects/{project_id}/branches/{branch_id}
    */
   parent?: string | undefined;
-  createTime?: string | undefined;
-  updateTime?: string | undefined;
+  createTime?: Temporal.Instant | undefined;
+  updateTime?: Temporal.Instant | undefined;
   /** The spec contains the role configuration, including identity type, authentication method, and role attributes. */
   spec?: Role_RoleSpec | undefined;
   /** Current status of the role, including its identity type, authentication method, and role attributes. */
@@ -1967,7 +1968,7 @@ export interface SyncedTable {
   spec?: SyncedTable_SyncedTableSpec | undefined;
   /** Synced Table data synchronization status. */
   status?: SyncedTable_SyncedTableStatus | undefined;
-  createTime?: string | undefined;
+  createTime?: Temporal.Instant | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2057,7 +2058,7 @@ export interface SyncedTable_SyncedTableStatus {
    * The end timestamp of the last time any data was synchronized from the source table to the synced
    * table. This is when the data is available in the synced table.
    */
-  lastSyncTime?: string | undefined;
+  lastSyncTime?: Temporal.Instant | undefined;
   /** ID of the associated pipeline. */
   pipelineId?: string | undefined;
   /** The provisioning state of the synced table entity in Unity Catalog. */
@@ -2092,12 +2093,12 @@ export interface SyncedTablePosition {
    * Note this is the starting timestamp of the sync operation, not the end time.
    * E.g., for a batch, this is the time when the sync operation started.
    */
-  syncStartTime?: string | undefined;
+  syncStartTime?: Temporal.Instant | undefined;
   /**
    * The end timestamp of the most recent successful synchronization.
    * This is the time when the data is available in the synced table.
    */
-  syncEndTime?: string | undefined;
+  syncEndTime?: Temporal.Instant | undefined;
   deltaTableSyncInfo?: DeltaTableSyncInfo | undefined;
 }
 
@@ -2190,8 +2191,14 @@ export const unmarshalBranchSchema = z
     name: z.string().optional(),
     uid: z.string().optional(),
     parent: z.string().optional(),
-    create_time: z.string().optional(),
-    update_time: z.string().optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    update_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
     spec: z.lazy(() => unmarshalBranchSpecSchema).optional(),
     status: z.lazy(() => unmarshalBranchStatusSchema).optional(),
   })
@@ -2211,10 +2218,19 @@ export const unmarshalBranchSpecSchema = z
   .object({
     source_branch: z.string().optional(),
     source_branch_lsn: z.string().optional(),
-    source_branch_time: z.string().optional(),
+    source_branch_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
     is_protected: z.boolean().optional(),
-    expire_time: z.string().optional(),
-    ttl: z.string().optional(),
+    expire_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    ttl: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
     no_expiry: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2231,14 +2247,23 @@ export const unmarshalBranchStatusSchema = z
   .object({
     source_branch: z.string().optional(),
     source_branch_lsn: z.string().optional(),
-    source_branch_time: z.string().optional(),
+    source_branch_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
     default: z.boolean().optional(),
     is_protected: z.boolean().optional(),
     current_state: z.enum(BranchStatus_State).optional(),
     pending_state: z.enum(BranchStatus_State).optional(),
-    state_change_time: z.string().optional(),
+    state_change_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
     logical_size_bytes: z.number().optional(),
-    expire_time: z.string().optional(),
+    expire_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
     branch_id: z.string().optional(),
   })
   .transform(d => ({
@@ -2261,8 +2286,14 @@ export const unmarshalCatalogSchema = z
     uid: z.string().optional(),
     spec: z.lazy(() => unmarshalCatalog_CatalogSpecSchema).optional(),
     status: z.lazy(() => unmarshalCatalog_CatalogStatusSchema).optional(),
-    create_time: z.string().optional(),
-    update_time: z.string().optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    update_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2309,8 +2340,14 @@ export const unmarshalComputeInstanceSchema = z
     pending_state: z.enum(ComputeInstance_ComputeState).optional(),
     role: z.enum(ComputeInstance_ComputeType).optional(),
     compute_host: z.string().optional(),
-    start_time: z.string().optional(),
-    suspend_time: z.string().optional(),
+    start_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    suspend_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2413,8 +2450,14 @@ export const unmarshalDatabaseSchema = z
   .object({
     name: z.string().optional(),
     parent: z.string().optional(),
-    create_time: z.string().optional(),
-    update_time: z.string().optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    update_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
     spec: z.lazy(() => unmarshalDatabase_DatabaseSpecSchema).optional(),
     status: z.lazy(() => unmarshalDatabase_DatabaseStatusSchema).optional(),
   })
@@ -2452,7 +2495,10 @@ export const unmarshalDatabase_DatabaseStatusSchema = z
 export const unmarshalDatabaseCredentialSchema = z
   .object({
     token: z.string().optional(),
-    expire_time: z.string().optional(),
+    expire_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
   })
   .transform(d => ({
     token: d.token,
@@ -2544,7 +2590,10 @@ export const unmarshalDeleteTableRequestSchema = z
 export const unmarshalDeltaTableSyncInfoSchema = z
   .object({
     delta_commit_version: z.number().optional(),
-    delta_commit_time: z.string().optional(),
+    delta_commit_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
   })
   .transform(d => ({
     deltaCommitVersion: d.delta_commit_version,
@@ -2580,8 +2629,14 @@ export const unmarshalEndpointSchema = z
     name: z.string().optional(),
     uid: z.string().optional(),
     parent: z.string().optional(),
-    create_time: z.string().optional(),
-    update_time: z.string().optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    update_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
     spec: z.lazy(() => unmarshalEndpointSpecSchema).optional(),
     status: z.lazy(() => unmarshalEndpointStatusSchema).optional(),
   })
@@ -2660,7 +2715,10 @@ export const unmarshalEndpointSpecSchema = z
     autoscaling_limit_min_cu: z.number().optional(),
     autoscaling_limit_max_cu: z.number().optional(),
     disabled: z.boolean().optional(),
-    suspend_timeout_duration: z.string().optional(),
+    suspend_timeout_duration: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
     no_suspension: z.boolean().optional(),
     settings: z.lazy(() => unmarshalEndpointSettingsSchema).optional(),
     group: z.lazy(() => unmarshalEndpointGroupSpecSchema).optional(),
@@ -2680,13 +2738,19 @@ export const unmarshalEndpointStatusSchema = z
   .object({
     endpoint_type: z.enum(EndpointType).optional(),
     hosts: z.lazy(() => unmarshalEndpointHostsSchema).optional(),
-    last_active_time: z.string().optional(),
+    last_active_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
     autoscaling_limit_min_cu: z.number().optional(),
     autoscaling_limit_max_cu: z.number().optional(),
     current_state: z.enum(EndpointStatus_State).optional(),
     pending_state: z.enum(EndpointStatus_State).optional(),
     disabled: z.boolean().optional(),
-    suspend_timeout_duration: z.string().optional(),
+    suspend_timeout_duration: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
     settings: z.lazy(() => unmarshalEndpointSettingsSchema).optional(),
     group: z.lazy(() => unmarshalEndpointGroupStatusSchema).optional(),
   })
@@ -2799,8 +2863,14 @@ export const unmarshalGenerateDatabaseCredentialRequestSchema = z
     claims: z.array(z.lazy(() => unmarshalRequestedClaimsSchema)).optional(),
     endpoint: z.string().optional(),
     group_name: z.string().optional(),
-    ttl: z.string().optional(),
-    expire_time: z.string().optional(),
+    ttl: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
+    expire_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
   })
   .transform(d => ({
     claims: d.claims,
@@ -3088,8 +3158,14 @@ export const unmarshalProjectSchema = z
   .object({
     name: z.string().optional(),
     uid: z.string().optional(),
-    create_time: z.string().optional(),
-    update_time: z.string().optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    update_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
     spec: z.lazy(() => unmarshalProjectSpecSchema).optional(),
     status: z.lazy(() => unmarshalProjectStatusSchema).optional(),
     initial_endpoint_spec: z
@@ -3120,7 +3196,10 @@ export const unmarshalProjectDefaultEndpointSettingsSchema = z
   .object({
     autoscaling_limit_min_cu: z.number().optional(),
     autoscaling_limit_max_cu: z.number().optional(),
-    suspend_timeout_duration: z.string().optional(),
+    suspend_timeout_duration: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
     no_suspension: z.boolean().optional(),
     pg_settings: z.record(z.string(), z.string()).optional(),
   })
@@ -3149,7 +3228,10 @@ export const unmarshalProjectSpecSchema = z
   .object({
     display_name: z.string().optional(),
     pg_version: z.number().optional(),
-    history_retention_duration: z.string().optional(),
+    history_retention_duration: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
     default_endpoint_settings: z
       .lazy(() => unmarshalProjectDefaultEndpointSettingsSchema)
       .optional(),
@@ -3177,13 +3259,19 @@ export const unmarshalProjectStatusSchema = z
   .object({
     display_name: z.string().optional(),
     pg_version: z.number().optional(),
-    history_retention_duration: z.string().optional(),
+    history_retention_duration: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
     default_endpoint_settings: z
       .lazy(() => unmarshalProjectDefaultEndpointSettingsSchema)
       .optional(),
     branch_logical_size_limit_bytes: z.number().optional(),
     synthetic_storage_size_bytes: z.number().optional(),
-    compute_last_active_time: z.string().optional(),
+    compute_last_active_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
     budget_policy_id: z.string().optional(),
     custom_tags: z
       .array(z.lazy(() => unmarshalProjectCustomTagSchema))
@@ -3235,8 +3323,14 @@ export const unmarshalRoleSchema = z
   .object({
     name: z.string().optional(),
     parent: z.string().optional(),
-    create_time: z.string().optional(),
-    update_time: z.string().optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    update_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
     spec: z.lazy(() => unmarshalRole_RoleSpecSchema).optional(),
     status: z.lazy(() => unmarshalRole_RoleStatusSchema).optional(),
   })
@@ -3306,7 +3400,10 @@ export const unmarshalSyncedTableSchema = z
     status: z
       .lazy(() => unmarshalSyncedTable_SyncedTableStatusSchema)
       .optional(),
-    create_time: z.string().optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3358,7 +3455,10 @@ export const unmarshalSyncedTable_SyncedTableStatusSchema = z
       .optional(),
     provisioning_phase: z.enum(ProvisioningPhase).optional(),
     last_processed_commit_version: z.number().optional(),
-    last_sync_time: z.string().optional(),
+    last_sync_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
     pipeline_id: z.string().optional(),
     unity_catalog_provisioning_state: z.enum(ProvisioningInfo_State).optional(),
   })
@@ -3394,8 +3494,14 @@ export const unmarshalSyncedTablePipelineProgressSchema = z
 
 export const unmarshalSyncedTablePositionSchema = z
   .object({
-    sync_start_time: z.string().optional(),
-    sync_end_time: z.string().optional(),
+    sync_start_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    sync_end_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
     delta_table_sync_info: z
       .lazy(() => unmarshalDeltaTableSyncInfoSchema)
       .optional(),
@@ -3477,8 +3583,14 @@ export const marshalBranchSchema = z
     name: z.string().optional(),
     uid: z.string().optional(),
     parent: z.string().optional(),
-    createTime: z.string().optional(),
-    updateTime: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    updateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
     spec: z.lazy(() => marshalBranchSpecSchema).optional(),
     status: z.lazy(() => marshalBranchStatusSchema).optional(),
   })
@@ -3498,10 +3610,19 @@ export const marshalBranchSpecSchema = z
   .object({
     sourceBranch: z.string().optional(),
     sourceBranchLsn: z.string().optional(),
-    sourceBranchTime: z.string().optional(),
+    sourceBranchTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
     isProtected: z.boolean().optional(),
-    expireTime: z.string().optional(),
-    ttl: z.string().optional(),
+    expireTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    ttl: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
     noExpiry: z.boolean().optional(),
   })
   .transform(d => ({
@@ -3518,14 +3639,23 @@ export const marshalBranchStatusSchema = z
   .object({
     sourceBranch: z.string().optional(),
     sourceBranchLsn: z.string().optional(),
-    sourceBranchTime: z.string().optional(),
+    sourceBranchTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
     default: z.boolean().optional(),
     isProtected: z.boolean().optional(),
     currentState: z.enum(BranchStatus_State).optional(),
     pendingState: z.enum(BranchStatus_State).optional(),
-    stateChangeTime: z.string().optional(),
+    stateChangeTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
     logicalSizeBytes: z.number().optional(),
-    expireTime: z.string().optional(),
+    expireTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
     branchId: z.string().optional(),
   })
   .transform(d => ({
@@ -3548,8 +3678,14 @@ export const marshalCatalogSchema = z
     uid: z.string().optional(),
     spec: z.lazy(() => marshalCatalog_CatalogSpecSchema).optional(),
     status: z.lazy(() => marshalCatalog_CatalogStatusSchema).optional(),
-    createTime: z.string().optional(),
-    updateTime: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    updateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3596,8 +3732,14 @@ export const marshalComputeInstanceSchema = z
     pendingState: z.enum(ComputeInstance_ComputeState).optional(),
     role: z.enum(ComputeInstance_ComputeType).optional(),
     computeHost: z.string().optional(),
-    startTime: z.string().optional(),
-    suspendTime: z.string().optional(),
+    startTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    suspendTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3700,8 +3842,14 @@ export const marshalDatabaseSchema = z
   .object({
     name: z.string().optional(),
     parent: z.string().optional(),
-    createTime: z.string().optional(),
-    updateTime: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    updateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
     spec: z.lazy(() => marshalDatabase_DatabaseSpecSchema).optional(),
     status: z.lazy(() => marshalDatabase_DatabaseStatusSchema).optional(),
   })
@@ -3739,7 +3887,10 @@ export const marshalDatabase_DatabaseStatusSchema = z
 export const marshalDatabaseCredentialSchema = z
   .object({
     token: z.string().optional(),
-    expireTime: z.string().optional(),
+    expireTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
   })
   .transform(d => ({
     token: d.token,
@@ -3831,7 +3982,10 @@ export const marshalDeleteTableRequestSchema = z
 export const marshalDeltaTableSyncInfoSchema = z
   .object({
     deltaCommitVersion: z.number().optional(),
-    deltaCommitTime: z.string().optional(),
+    deltaCommitTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
   })
   .transform(d => ({
     delta_commit_version: d.deltaCommitVersion,
@@ -3867,8 +4021,14 @@ export const marshalEndpointSchema = z
     name: z.string().optional(),
     uid: z.string().optional(),
     parent: z.string().optional(),
-    createTime: z.string().optional(),
-    updateTime: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    updateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
     spec: z.lazy(() => marshalEndpointSpecSchema).optional(),
     status: z.lazy(() => marshalEndpointStatusSchema).optional(),
   })
@@ -3947,7 +4107,10 @@ export const marshalEndpointSpecSchema = z
     autoscalingLimitMinCu: z.number().optional(),
     autoscalingLimitMaxCu: z.number().optional(),
     disabled: z.boolean().optional(),
-    suspendTimeoutDuration: z.string().optional(),
+    suspendTimeoutDuration: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
     noSuspension: z.boolean().optional(),
     settings: z.lazy(() => marshalEndpointSettingsSchema).optional(),
     group: z.lazy(() => marshalEndpointGroupSpecSchema).optional(),
@@ -3967,13 +4130,19 @@ export const marshalEndpointStatusSchema = z
   .object({
     endpointType: z.enum(EndpointType).optional(),
     hosts: z.lazy(() => marshalEndpointHostsSchema).optional(),
-    lastActiveTime: z.string().optional(),
+    lastActiveTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
     autoscalingLimitMinCu: z.number().optional(),
     autoscalingLimitMaxCu: z.number().optional(),
     currentState: z.enum(EndpointStatus_State).optional(),
     pendingState: z.enum(EndpointStatus_State).optional(),
     disabled: z.boolean().optional(),
-    suspendTimeoutDuration: z.string().optional(),
+    suspendTimeoutDuration: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
     settings: z.lazy(() => marshalEndpointSettingsSchema).optional(),
     group: z.lazy(() => marshalEndpointGroupStatusSchema).optional(),
   })
@@ -4086,8 +4255,14 @@ export const marshalGenerateDatabaseCredentialRequestSchema = z
     claims: z.array(z.lazy(() => marshalRequestedClaimsSchema)).optional(),
     endpoint: z.string().optional(),
     groupName: z.string().optional(),
-    ttl: z.string().optional(),
-    expireTime: z.string().optional(),
+    ttl: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+    expireTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
   })
   .transform(d => ({
     claims: d.claims,
@@ -4375,8 +4550,14 @@ export const marshalProjectSchema = z
   .object({
     name: z.string().optional(),
     uid: z.string().optional(),
-    createTime: z.string().optional(),
-    updateTime: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    updateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
     spec: z.lazy(() => marshalProjectSpecSchema).optional(),
     status: z.lazy(() => marshalProjectStatusSchema).optional(),
     initialEndpointSpec: z
@@ -4407,7 +4588,10 @@ export const marshalProjectDefaultEndpointSettingsSchema = z
   .object({
     autoscalingLimitMinCu: z.number().optional(),
     autoscalingLimitMaxCu: z.number().optional(),
-    suspendTimeoutDuration: z.string().optional(),
+    suspendTimeoutDuration: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
     noSuspension: z.boolean().optional(),
     pgSettings: z.record(z.string(), z.string()).optional(),
   })
@@ -4436,7 +4620,10 @@ export const marshalProjectSpecSchema = z
   .object({
     displayName: z.string().optional(),
     pgVersion: z.number().optional(),
-    historyRetentionDuration: z.string().optional(),
+    historyRetentionDuration: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
     defaultEndpointSettings: z
       .lazy(() => marshalProjectDefaultEndpointSettingsSchema)
       .optional(),
@@ -4462,13 +4649,19 @@ export const marshalProjectStatusSchema = z
   .object({
     displayName: z.string().optional(),
     pgVersion: z.number().optional(),
-    historyRetentionDuration: z.string().optional(),
+    historyRetentionDuration: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
     defaultEndpointSettings: z
       .lazy(() => marshalProjectDefaultEndpointSettingsSchema)
       .optional(),
     branchLogicalSizeLimitBytes: z.number().optional(),
     syntheticStorageSizeBytes: z.number().optional(),
-    computeLastActiveTime: z.string().optional(),
+    computeLastActiveTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
     budgetPolicyId: z.string().optional(),
     customTags: z.array(z.lazy(() => marshalProjectCustomTagSchema)).optional(),
     owner: z.string().optional(),
@@ -4516,8 +4709,14 @@ export const marshalRoleSchema = z
   .object({
     name: z.string().optional(),
     parent: z.string().optional(),
-    createTime: z.string().optional(),
-    updateTime: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    updateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
     spec: z.lazy(() => marshalRole_RoleSpecSchema).optional(),
     status: z.lazy(() => marshalRole_RoleStatusSchema).optional(),
   })
@@ -4585,7 +4784,10 @@ export const marshalSyncedTableSchema = z
     uid: z.string().optional(),
     spec: z.lazy(() => marshalSyncedTable_SyncedTableSpecSchema).optional(),
     status: z.lazy(() => marshalSyncedTable_SyncedTableStatusSchema).optional(),
-    createTime: z.string().optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -4637,7 +4839,10 @@ export const marshalSyncedTable_SyncedTableStatusSchema = z
       .optional(),
     provisioningPhase: z.enum(ProvisioningPhase).optional(),
     lastProcessedCommitVersion: z.number().optional(),
-    lastSyncTime: z.string().optional(),
+    lastSyncTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
     pipelineId: z.string().optional(),
     unityCatalogProvisioningState: z.enum(ProvisioningInfo_State).optional(),
   })
@@ -4673,8 +4878,14 @@ export const marshalSyncedTablePipelineProgressSchema = z
 
 export const marshalSyncedTablePositionSchema = z
   .object({
-    syncStartTime: z.string().optional(),
-    syncEndTime: z.string().optional(),
+    syncStartTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    syncEndTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
     deltaTableSyncInfo: z
       .lazy(() => marshalDeltaTableSyncInfoSchema)
       .optional(),
