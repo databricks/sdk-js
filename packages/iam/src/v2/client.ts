@@ -165,10 +165,10 @@ export class Client {
     req: CreateAccountAccessIdentityRuleRequest,
     options?: Options
   ): Promise<AccountAccessIdentityRule> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/aim-control-policy/account-access-identity-rules`;
+    const url = `${this.host}/api/2.0/${req.parent ?? ''}/account-access-identity-rules`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
+    if (req.externalPrincipalId !== undefined) {
+      params.append('external_principal_id', req.externalPrincipalId);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -199,15 +199,9 @@ export class Client {
     req: DeleteAccountAccessIdentityRuleRequest,
     options?: Options
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/accounts//aim-control-policy/account-access-identity-rules/${req.externalId ?? ''}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/${req.parent ?? ''}/account-access-identity-rules/${req.externalPrincipalId ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', fullUrl, callSignal);
+      const httpReq = buildHttpRequest('DELETE', url, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -223,16 +217,10 @@ export class Client {
     req: GetAccountAccessIdentityRuleRequest,
     options?: Options
   ): Promise<AccountAccessIdentityRule> {
-    const url = `${this.host}/api/2.0/accounts//aim-control-policy/account-access-identity-rules/${req.externalId ?? ''}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/${req.parent ?? ''}/account-access-identity-rules/${req.externalPrincipalId ?? ''}`;
     let resp: AccountAccessIdentityRule | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const httpReq = buildHttpRequest('GET', url, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -257,11 +245,8 @@ export class Client {
     req: ListAccountAccessIdentityRulesRequest,
     options?: Options
   ): Promise<ListAccountAccessIdentityRulesResponse> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/aim-control-policy/account-access-identity-rules`;
+    const url = `${this.host}/api/2.0/${req.parent ?? ''}/account-access-identity-rules`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
     }

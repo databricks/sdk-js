@@ -1,7 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import type {Call, Options} from '@databricks/sdk-databricks/api';
-import {execute} from '@databricks/sdk-databricks/api';
+import {execute, retryOn} from '@databricks/sdk-databricks/api';
 import type {Logger} from '@databricks/sdk-databricks/logger';
 import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
@@ -174,7 +174,7 @@ export class Client {
     options?: Options
   ): Promise<CreateBranchOperation> {
     const op = await this.createBranch(signal, req, options);
-    return new CreateBranchOperation(op);
+    return new CreateBranchOperation(this, op);
   }
 
   /** Register a Postgres database in the Unity Catalog. */
@@ -214,7 +214,7 @@ export class Client {
     options?: Options
   ): Promise<CreateCatalogOperation> {
     const op = await this.createCatalog(signal, req, options);
-    return new CreateCatalogOperation(op);
+    return new CreateCatalogOperation(this, op);
   }
 
   /**
@@ -258,7 +258,7 @@ export class Client {
     options?: Options
   ): Promise<CreateDatabaseOperation> {
     const op = await this.createDatabase(signal, req, options);
-    return new CreateDatabaseOperation(op);
+    return new CreateDatabaseOperation(this, op);
   }
 
   /** Creates a new compute endpoint in the branch. */
@@ -298,7 +298,7 @@ export class Client {
     options?: Options
   ): Promise<CreateEndpointOperation> {
     const op = await this.createEndpoint(signal, req, options);
-    return new CreateEndpointOperation(op);
+    return new CreateEndpointOperation(this, op);
   }
 
   /** Creates a new Lakebase Autoscaling Postgres database project, which contains branches and compute endpoints. */
@@ -338,7 +338,7 @@ export class Client {
     options?: Options
   ): Promise<CreateProjectOperation> {
     const op = await this.createProject(signal, req, options);
-    return new CreateProjectOperation(op);
+    return new CreateProjectOperation(this, op);
   }
 
   /** Creates a new Postgres role in the branch. */
@@ -378,7 +378,7 @@ export class Client {
     options?: Options
   ): Promise<CreateRoleOperation> {
     const op = await this.createRole(signal, req, options);
-    return new CreateRoleOperation(op);
+    return new CreateRoleOperation(this, op);
   }
 
   /** Create a Synced Table. */
@@ -418,7 +418,7 @@ export class Client {
     options?: Options
   ): Promise<CreateSyncedTableOperation> {
     const op = await this.createSyncedTable(signal, req, options);
-    return new CreateSyncedTableOperation(op);
+    return new CreateSyncedTableOperation(this, op);
   }
 
   /** Create a Table (non-synced database table for Autoscaling v2 Lakebase projects). */
@@ -476,7 +476,7 @@ export class Client {
     options?: Options
   ): Promise<DeleteBranchOperation> {
     const op = await this.deleteBranch(signal, req, options);
-    return new DeleteBranchOperation(op);
+    return new DeleteBranchOperation(this, op);
   }
 
   /** Delete a Database Catalog. */
@@ -509,7 +509,7 @@ export class Client {
     options?: Options
   ): Promise<DeleteCatalogOperation> {
     const op = await this.deleteCatalog(signal, req, options);
-    return new DeleteCatalogOperation(op);
+    return new DeleteCatalogOperation(this, op);
   }
 
   /** Delete a Database. */
@@ -542,7 +542,7 @@ export class Client {
     options?: Options
   ): Promise<DeleteDatabaseOperation> {
     const op = await this.deleteDatabase(signal, req, options);
-    return new DeleteDatabaseOperation(op);
+    return new DeleteDatabaseOperation(this, op);
   }
 
   /** Deletes the specified compute endpoint. */
@@ -575,7 +575,7 @@ export class Client {
     options?: Options
   ): Promise<DeleteEndpointOperation> {
     const op = await this.deleteEndpoint(signal, req, options);
-    return new DeleteEndpointOperation(op);
+    return new DeleteEndpointOperation(this, op);
   }
 
   /** Deletes the specified database project. */
@@ -608,7 +608,7 @@ export class Client {
     options?: Options
   ): Promise<DeleteProjectOperation> {
     const op = await this.deleteProject(signal, req, options);
-    return new DeleteProjectOperation(op);
+    return new DeleteProjectOperation(this, op);
   }
 
   /** Deletes the specified Postgres role. */
@@ -647,7 +647,7 @@ export class Client {
     options?: Options
   ): Promise<DeleteRoleOperation> {
     const op = await this.deleteRole(signal, req, options);
-    return new DeleteRoleOperation(op);
+    return new DeleteRoleOperation(this, op);
   }
 
   /** Delete a Synced Table. */
@@ -680,7 +680,7 @@ export class Client {
     options?: Options
   ): Promise<DeleteSyncedTableOperation> {
     const op = await this.deleteSyncedTable(signal, req, options);
-    return new DeleteSyncedTableOperation(op);
+    return new DeleteSyncedTableOperation(this, op);
   }
 
   /** Delete a Table (non-synced database table for Autoscaling v2 Lakebase projects). */
@@ -1426,7 +1426,7 @@ export class Client {
     options?: Options
   ): Promise<UpdateBranchOperation> {
     const op = await this.updateBranch(signal, req, options);
-    return new UpdateBranchOperation(op);
+    return new UpdateBranchOperation(this, op);
   }
 
   /** Update a Database. */
@@ -1466,7 +1466,7 @@ export class Client {
     options?: Options
   ): Promise<UpdateDatabaseOperation> {
     const op = await this.updateDatabase(signal, req, options);
-    return new UpdateDatabaseOperation(op);
+    return new UpdateDatabaseOperation(this, op);
   }
 
   /** Updates the specified compute endpoint. You can update autoscaling limits, suspend timeout, or enable/disable the compute endpoint. */
@@ -1506,7 +1506,7 @@ export class Client {
     options?: Options
   ): Promise<UpdateEndpointOperation> {
     const op = await this.updateEndpoint(signal, req, options);
-    return new UpdateEndpointOperation(op);
+    return new UpdateEndpointOperation(this, op);
   }
 
   /** Updates the specified database project. */
@@ -1546,7 +1546,7 @@ export class Client {
     options?: Options
   ): Promise<UpdateProjectOperation> {
     const op = await this.updateProject(signal, req, options);
-    return new UpdateProjectOperation(op);
+    return new UpdateProjectOperation(this, op);
   }
 
   /** Update a role for a branch. */
@@ -1586,12 +1586,15 @@ export class Client {
     options?: Options
   ): Promise<UpdateRoleOperation> {
     const op = await this.updateRole(signal, req, options);
-    return new UpdateRoleOperation(op);
+    return new UpdateRoleOperation(this, op);
   }
 }
 
 export class CreateBranchOperation {
-  constructor(private operation: Operation) {}
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
   name(): Promise<string | undefined> {
@@ -1608,11 +1611,90 @@ export class CreateBranchOperation {
         .lazy(() => unmarshalBranchOperationMetadataSchema)
         .parse(this.operation.metadata)
     );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Branch> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Branch | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z.lazy(() => unmarshalBranchSchema).parse(op.response);
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
   }
 }
 
 export class CreateCatalogOperation {
-  constructor(private operation: Operation) {}
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
   name(): Promise<string | undefined> {
@@ -1629,11 +1711,90 @@ export class CreateCatalogOperation {
         .lazy(() => unmarshalCatalogOperationMetadataSchema)
         .parse(this.operation.metadata)
     );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Catalog> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Catalog | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z.lazy(() => unmarshalCatalogSchema).parse(op.response);
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
   }
 }
 
 export class CreateDatabaseOperation {
-  constructor(private operation: Operation) {}
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
   name(): Promise<string | undefined> {
@@ -1651,10 +1812,89 @@ export class CreateDatabaseOperation {
         .parse(this.operation.metadata)
     );
   }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Database> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Database | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z.lazy(() => unmarshalDatabaseSchema).parse(op.response);
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
+  }
 }
 
 export class CreateEndpointOperation {
-  constructor(private operation: Operation) {}
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
   name(): Promise<string | undefined> {
@@ -1672,10 +1912,89 @@ export class CreateEndpointOperation {
         .parse(this.operation.metadata)
     );
   }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Endpoint> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Endpoint | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z.lazy(() => unmarshalEndpointSchema).parse(op.response);
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
+  }
 }
 
 export class CreateProjectOperation {
-  constructor(private operation: Operation) {}
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
   name(): Promise<string | undefined> {
@@ -1693,10 +2012,89 @@ export class CreateProjectOperation {
         .parse(this.operation.metadata)
     );
   }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Project> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Project | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z.lazy(() => unmarshalProjectSchema).parse(op.response);
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
+  }
 }
 
 export class CreateRoleOperation {
-  constructor(private operation: Operation) {}
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
   name(): Promise<string | undefined> {
@@ -1714,10 +2112,89 @@ export class CreateRoleOperation {
         .parse(this.operation.metadata)
     );
   }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Role> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Role | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z.lazy(() => unmarshalRoleSchema).parse(op.response);
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
+  }
 }
 
 export class CreateSyncedTableOperation {
-  constructor(private operation: Operation) {}
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
   name(): Promise<string | undefined> {
@@ -1735,10 +2212,89 @@ export class CreateSyncedTableOperation {
         .parse(this.operation.metadata)
     );
   }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<SyncedTable> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: SyncedTable | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z.lazy(() => unmarshalSyncedTableSchema).parse(op.response);
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
+  }
 }
 
 export class DeleteBranchOperation {
-  constructor(private operation: Operation) {}
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
   name(): Promise<string | undefined> {
@@ -1756,10 +2312,78 @@ export class DeleteBranchOperation {
         .parse(this.operation.metadata)
     );
   }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<void> {
+    const errStillRunning = new Error('operation still in progress');
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
+  }
 }
 
 export class DeleteCatalogOperation {
-  constructor(private operation: Operation) {}
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
   name(): Promise<string | undefined> {
@@ -1777,10 +2401,78 @@ export class DeleteCatalogOperation {
         .parse(this.operation.metadata)
     );
   }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<void> {
+    const errStillRunning = new Error('operation still in progress');
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
+  }
 }
 
 export class DeleteDatabaseOperation {
-  constructor(private operation: Operation) {}
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
   name(): Promise<string | undefined> {
@@ -1798,10 +2490,78 @@ export class DeleteDatabaseOperation {
         .parse(this.operation.metadata)
     );
   }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<void> {
+    const errStillRunning = new Error('operation still in progress');
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
+  }
 }
 
 export class DeleteEndpointOperation {
-  constructor(private operation: Operation) {}
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
   name(): Promise<string | undefined> {
@@ -1819,10 +2579,78 @@ export class DeleteEndpointOperation {
         .parse(this.operation.metadata)
     );
   }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<void> {
+    const errStillRunning = new Error('operation still in progress');
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
+  }
 }
 
 export class DeleteProjectOperation {
-  constructor(private operation: Operation) {}
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
   name(): Promise<string | undefined> {
@@ -1840,10 +2668,78 @@ export class DeleteProjectOperation {
         .parse(this.operation.metadata)
     );
   }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<void> {
+    const errStillRunning = new Error('operation still in progress');
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
+  }
 }
 
 export class DeleteRoleOperation {
-  constructor(private operation: Operation) {}
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
   name(): Promise<string | undefined> {
@@ -1861,10 +2757,78 @@ export class DeleteRoleOperation {
         .parse(this.operation.metadata)
     );
   }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<void> {
+    const errStillRunning = new Error('operation still in progress');
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
+  }
 }
 
 export class DeleteSyncedTableOperation {
-  constructor(private operation: Operation) {}
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
   name(): Promise<string | undefined> {
@@ -1882,10 +2846,78 @@ export class DeleteSyncedTableOperation {
         .parse(this.operation.metadata)
     );
   }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<void> {
+    const errStillRunning = new Error('operation still in progress');
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
+  }
 }
 
 export class UpdateBranchOperation {
-  constructor(private operation: Operation) {}
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
   name(): Promise<string | undefined> {
@@ -1903,10 +2935,89 @@ export class UpdateBranchOperation {
         .parse(this.operation.metadata)
     );
   }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Branch> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Branch | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z.lazy(() => unmarshalBranchSchema).parse(op.response);
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
+  }
 }
 
 export class UpdateDatabaseOperation {
-  constructor(private operation: Operation) {}
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
   name(): Promise<string | undefined> {
@@ -1924,10 +3035,89 @@ export class UpdateDatabaseOperation {
         .parse(this.operation.metadata)
     );
   }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Database> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Database | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z.lazy(() => unmarshalDatabaseSchema).parse(op.response);
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
+  }
 }
 
 export class UpdateEndpointOperation {
-  constructor(private operation: Operation) {}
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
   name(): Promise<string | undefined> {
@@ -1945,10 +3135,89 @@ export class UpdateEndpointOperation {
         .parse(this.operation.metadata)
     );
   }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Endpoint> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Endpoint | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z.lazy(() => unmarshalEndpointSchema).parse(op.response);
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
+  }
 }
 
 export class UpdateProjectOperation {
-  constructor(private operation: Operation) {}
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
   name(): Promise<string | undefined> {
@@ -1966,10 +3235,89 @@ export class UpdateProjectOperation {
         .parse(this.operation.metadata)
     );
   }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Project> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Project | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z.lazy(() => unmarshalProjectSchema).parse(op.response);
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
+  }
 }
 
 export class UpdateRoleOperation {
-  constructor(private operation: Operation) {}
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
 
   /** Returns the server-assigned name of the long-running operation. */
   name(): Promise<string | undefined> {
@@ -1986,5 +3334,81 @@ export class UpdateRoleOperation {
         .lazy(() => unmarshalRoleOperationMetadataSchema)
         .parse(this.operation.metadata)
     );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<Role> {
+    const errStillRunning = new Error('operation still in progress');
+    let result: Role | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+
+      if (op.response === undefined) {
+        throw new Error('operation completed without a response');
+      }
+
+      result = z.lazy(() => unmarshalRoleSchema).parse(op.response);
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
   }
 }
