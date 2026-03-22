@@ -8,12 +8,13 @@
  *   - Well-known types: Temporal.Instant and Temporal.Duration
  *   - Custom HttpClient for request/response logging
  *
- * Prerequisites:
+ * Live mode (default):
  *   export DATABRICKS_HOST="https://<workspace>.cloud.databricks.com"
  *   export DATABRICKS_TOKEN="<your-pat>"
- *
- * Run from the repo root:
  *   npm run lakebase-postgres --workspace @databricks/sdk-examples
+ *
+ * Mock mode (no workspace required):
+ *   MOCK=true npm run lakebase-postgres --workspace @databricks/sdk-examples
  */
 
 import {newPatCredentials} from '@databricks/sdk-auth';
@@ -26,25 +27,107 @@ import type {
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {Client} from '@databricks/sdk-postgres/v1';
 
+import {createMockPostgresClient} from './mock-postgres';
+
 const log = new LogLevel('debug');
 
-const host = process.env.DATABRICKS_HOST ?? '';
+const useMock = process.env.MOCK === 'true';
+
+const host = useMock
+  ? 'https://mock.databricks.com'
+  : (process.env.DATABRICKS_HOST ?? '');
 const token = process.env.DATABRICKS_TOKEN ?? '';
 
-if (host === '' || token === '') {
+if (!useMock && (host === '' || token === '')) {
   log.error('Set DATABRICKS_HOST and DATABRICKS_TOKEN environment variables.');
+  log.error('Or run with MOCK=true for offline demo mode.');
   process.exit(1);
 }
 
-const credentials = newPatCredentials(token);
+const credentials = useMock ? undefined : newPatCredentials(token);
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/** Reads all bytes from a ReadableStream. */
+async function readAll(
+  body: ReadableStream<Uint8Array> | null
+): Promise<Uint8Array> {
+  if (body === null) {
+    return new Uint8Array(0);
+  }
+  const reader = body.getReader();
+  const chunks: Uint8Array[] = [];
+  for (;;) {
+    const {done, value} = await reader.read();
+    if (done) break;
+    chunks.push(value);
+  }
+  const total = chunks.reduce((acc, c) => acc + c.length, 0);
+  const result = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    result.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return result;
+}
+
+/** Wraps an HttpClient to log full request and response bodies. */
+function withVerboseLogging(inner: HttpClient): HttpClient {
+  return {
+    async send(request: HttpRequest): Promise<HttpResponse> {
+      // Log request.
+      log.info(`  [HTTP] --> ${request.method} ${request.url}`);
+      if (request.body !== undefined && request.body !== null) {
+        const text =
+          typeof request.body === 'string'
+            ? request.body
+            : new TextDecoder().decode(request.body as Uint8Array);
+        log.info(`  [HTTP] --> Body: ${text}`);
+      }
+
+      const response = await inner.send(request);
+
+      // Buffer the body so we can log it and still pass it downstream.
+      const bodyBytes = await readAll(response.body);
+      const bodyText = new TextDecoder().decode(bodyBytes);
+
+      log.info(`  [HTTP] <-- ${response.statusCode}`);
+      log.info(`  [HTTP] <-- Body: ${bodyText}`);
+
+      // Re-create the stream for the consumer.
+      return {
+        statusCode: response.statusCode,
+        headers: response.headers,
+        body: new ReadableStream({
+          start(controller) {
+            controller.enqueue(bodyBytes);
+            controller.close();
+          },
+        }),
+      };
+    },
+  };
+}
 
 // ---------------------------------------------------------------------------
 // Part 1: Client initialization
 // ---------------------------------------------------------------------------
 log.info('=== Part 1: Client Initialization ===\n');
 
-const client = new Client({host, credentials});
-log.info('Postgres client created with PAT credentials.');
+// Keep a reference to the base HttpClient so Part 5 can wrap the same instance.
+let baseHttpClient: HttpClient | undefined;
+let client: Client;
+if (useMock) {
+  log.info('Running in MOCK mode (no live workspace).\n');
+  baseHttpClient = createMockPostgresClient();
+  client = new Client({host, httpClient: baseHttpClient});
+} else {
+  client = new Client({host, credentials: credentials!});
+}
+log.info('Postgres client created.');
 
 // ---------------------------------------------------------------------------
 // Part 2: Pagination
@@ -57,7 +140,10 @@ const firstPage = await client.listProjects(undefined, {pageSize: 2});
 for (const p of firstPage.projects ?? []) {
   log.info('  Project:', p.name);
 }
-if (firstPage.nextPageToken !== undefined) {
+if (
+  firstPage.nextPageToken !== undefined &&
+  firstPage.nextPageToken !== ''
+) {
   log.info('  Next page token:', firstPage.nextPageToken);
   const secondPage = await client.listProjects(undefined, {
     pageSize: 2,
@@ -66,6 +152,8 @@ if (firstPage.nextPageToken !== undefined) {
   for (const p of secondPage.projects ?? []) {
     log.info('  Project (page 2):', p.name);
   }
+} else {
+  log.info('  (no more pages)');
 }
 
 // 2b: Async iterator — iterates all pages automatically.
@@ -150,24 +238,19 @@ try {
   }
 
   // ---------------------------------------------------------------------------
-  // Part 5: Custom HttpClient — add request/response logging
+  // Part 5: Custom HttpClient — verbose request/response logging
   // ---------------------------------------------------------------------------
   log.info('\n=== Part 5: Custom HttpClient ===\n');
 
-  // Build the default authenticated HttpClient, then wrap it with logging.
-  const baseClient = newHttpClient({credentials});
-
-  const loggingClient: HttpClient = {
-    async send(request: HttpRequest): Promise<HttpResponse> {
-      log.info(`  [HTTP] --> ${request.method} ${request.url}`);
-      const response = await baseClient.send(request);
-      log.info(`  [HTTP] <-- ${response.statusCode}`);
-      return response;
-    },
-  };
+  // Build a base HttpClient, then wrap it with verbose logging that shows
+  // the full request and response bodies for every HTTP call.
+  // Reuse the same base HttpClient (mock or authenticated) and wrap it.
+  const innerClient: HttpClient =
+    baseHttpClient ?? newHttpClient({credentials: credentials!});
+  const verboseClient = withVerboseLogging(innerClient);
 
   // Pass the custom HttpClient to a new postgres Client.
-  const customClient = new Client({host, httpClient: loggingClient});
+  const customClient = new Client({host, httpClient: verboseClient});
 
   log.info('Fetching project through custom HttpClient:');
   const refetched = await customClient.getProject(undefined, {
@@ -193,9 +276,7 @@ try {
         'Cleanup failed (the project may still be provisioning):',
         err instanceof Error ? err.message : String(err)
       );
-      log.warn(
-        'Delete it manually: projects/' + projectId
-      );
+      log.warn('Delete it manually:', `projects/${projectId}`);
     }
   }
 }
