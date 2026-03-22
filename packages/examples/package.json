@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "auth-and-errors": "node --import tsx/esm src/auth-and-errors.ts",
+    "lakebase-postgres": "node --import tsx/esm src/lakebase-postgres.ts",
     "build": "echo 'nothing to build'",
     "lint": "echo 'skipped'",
     "lint:fix": "echo 'skipped'",
@@ -18,7 +19,8 @@
   },
   "dependencies": {
     "@databricks/sdk-auth": "*",
-    "@databricks/sdk-databricks": "*"
+    "@databricks/sdk-databricks": "*",
+    "@databricks/sdk-postgres": "*"
   },
   "devDependencies": {
     "tsx": "^4.0.0"
