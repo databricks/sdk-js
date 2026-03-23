@@ -1,5 +1,4 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
-
 import {z} from 'zod';
 
 /** The action type for an account access identity rule (currently DENY only). */
@@ -76,20 +75,30 @@ export interface AccountAccessIdentityRule {
   /** Currently, only DENY action is supported. */
   action?: AccountAccessRuleAction | undefined;
   /** External ID of the principal in the customer's IdP. */
-  externalId?: string | undefined;
+  externalPrincipalId?: string | undefined;
   /** Display name of the principal. */
   displayName?: string | undefined;
   /**
    * The type of the principal (user/service principal/group).
-   * This field is populated by the server based on the external_id.
+   * This field is populated by the server based on the external_principal_id.
    */
   principalType?: PrincipalType | undefined;
+  /**
+   * Fully qualified name for the rule.
+   * Format: accounts/{account_id}/account-access-identity-rules/{external_principal_id}
+   */
+  name?: string | undefined;
 }
 
 /** Request message for creating an account access identity rule. */
 export interface CreateAccountAccessIdentityRuleRequest {
-  /** Required. The account ID for which to create the rule. */
-  accountId?: string | undefined;
+  /**
+   * Required. The account under which to create the rule.
+   * Format: accounts/{account_id}
+   */
+  parent?: string | undefined;
+  /** Required. The external ID of the principal in the customer's IdP. */
+  externalPrincipalId?: string | undefined;
   /** Required. The rule to create. */
   accountAccessIdentityRule?: AccountAccessIdentityRule | undefined;
 }
@@ -188,10 +197,13 @@ export interface CreateWorkspaceAssignmentDetailRequest {
 
 /** Request message for deleting an account access identity rule. */
 export interface DeleteAccountAccessIdentityRuleRequest {
-  /** Required. The account ID for which to delete the rule. */
-  accountId?: string | undefined;
+  /**
+   * Required. The account for which to delete the rule.
+   * Format: accounts/{account_id}
+   */
+  parent?: string | undefined;
   /** Required. The external ID of the principal whose rule should be deleted. */
-  externalId?: string | undefined;
+  externalPrincipalId?: string | undefined;
 }
 
 /** Request message for deleting a group membership (unassigning a principal from a group). */
@@ -286,10 +298,13 @@ export interface DirectGroupMember {
 
 /** Request message for getting an account access identity rule. */
 export interface GetAccountAccessIdentityRuleRequest {
-  /** Required. The account ID for which to get the rule. */
-  accountId?: string | undefined;
+  /**
+   * Required. The account for which to get the rule.
+   * Format: accounts/{account_id}
+   */
+  parent?: string | undefined;
   /** Required. The external ID of the principal whose rule should be retrieved. */
-  externalId?: string | undefined;
+  externalPrincipalId?: string | undefined;
 }
 
 /** Request message for getting a provisioned direct group member. */
@@ -428,8 +443,11 @@ export interface Group {
 
 /** Request message for listing account access identity rules. */
 export interface ListAccountAccessIdentityRulesRequest {
-  /** Required. The account ID for which to list the rules. */
-  accountId?: string | undefined;
+  /**
+   * Required. The account for which to list the rules.
+   * Format: accounts/{account_id}
+   */
+  parent?: string | undefined;
   /** Optional. The maximum number of rules to return. The service may return fewer than this value. */
   pageSize?: number | undefined;
   /** Optional. A page token, received from a previous call. Provide this to retrieve the subsequent page. */
@@ -1034,26 +1052,30 @@ export interface WorkspaceAssignmentDetail {
 export const unmarshalAccountAccessIdentityRuleSchema = z
   .object({
     action: z.enum(AccountAccessRuleAction).optional(),
-    external_id: z.string().optional(),
+    external_principal_id: z.string().optional(),
     display_name: z.string().optional(),
     principal_type: z.enum(PrincipalType).optional(),
+    name: z.string().optional(),
   })
   .transform(d => ({
     action: d.action,
-    externalId: d.external_id,
+    externalPrincipalId: d.external_principal_id,
     displayName: d.display_name,
     principalType: d.principal_type,
+    name: d.name,
   }));
 
 export const unmarshalCreateAccountAccessIdentityRuleRequestSchema = z
   .object({
-    account_id: z.string().optional(),
+    parent: z.string().optional(),
+    external_principal_id: z.string().optional(),
     account_access_identity_rule: z
       .lazy(() => unmarshalAccountAccessIdentityRuleSchema)
       .optional(),
   })
   .transform(d => ({
-    accountId: d.account_id,
+    parent: d.parent,
+    externalPrincipalId: d.external_principal_id,
     accountAccessIdentityRule: d.account_access_identity_rule,
   }));
 
@@ -1163,12 +1185,12 @@ export const unmarshalCreateWorkspaceAssignmentDetailRequestSchema = z
 
 export const unmarshalDeleteAccountAccessIdentityRuleRequestSchema = z
   .object({
-    account_id: z.string().optional(),
-    external_id: z.string().optional(),
+    parent: z.string().optional(),
+    external_principal_id: z.string().optional(),
   })
   .transform(d => ({
-    accountId: d.account_id,
-    externalId: d.external_id,
+    parent: d.parent,
+    externalPrincipalId: d.external_principal_id,
   }));
 
 export const unmarshalDeleteDirectGroupMemberProxyRequestSchema = z
@@ -1285,12 +1307,12 @@ export const unmarshalDirectGroupMemberSchema = z
 
 export const unmarshalGetAccountAccessIdentityRuleRequestSchema = z
   .object({
-    account_id: z.string().optional(),
-    external_id: z.string().optional(),
+    parent: z.string().optional(),
+    external_principal_id: z.string().optional(),
   })
   .transform(d => ({
-    accountId: d.account_id,
-    externalId: d.external_id,
+    parent: d.parent,
+    externalPrincipalId: d.external_principal_id,
   }));
 
 export const unmarshalGetDirectGroupMemberProxyRequestSchema = z
@@ -1429,13 +1451,13 @@ export const unmarshalGroupSchema = z
 
 export const unmarshalListAccountAccessIdentityRulesRequestSchema = z
   .object({
-    account_id: z.string().optional(),
+    parent: z.string().optional(),
     page_size: z.number().optional(),
     page_token: z.string().optional(),
     filter: z.string().optional(),
   })
   .transform(d => ({
-    accountId: d.account_id,
+    parent: d.parent,
     pageSize: d.page_size,
     pageToken: d.page_token,
     filter: d.filter,
@@ -2079,26 +2101,30 @@ export const unmarshalWorkspaceAssignmentDetailSchema = z
 export const marshalAccountAccessIdentityRuleSchema = z
   .object({
     action: z.enum(AccountAccessRuleAction).optional(),
-    externalId: z.string().optional(),
+    externalPrincipalId: z.string().optional(),
     displayName: z.string().optional(),
     principalType: z.enum(PrincipalType).optional(),
+    name: z.string().optional(),
   })
   .transform(d => ({
     action: d.action,
-    external_id: d.externalId,
+    external_principal_id: d.externalPrincipalId,
     display_name: d.displayName,
     principal_type: d.principalType,
+    name: d.name,
   }));
 
 export const marshalCreateAccountAccessIdentityRuleRequestSchema = z
   .object({
-    accountId: z.string().optional(),
+    parent: z.string().optional(),
+    externalPrincipalId: z.string().optional(),
     accountAccessIdentityRule: z
       .lazy(() => marshalAccountAccessIdentityRuleSchema)
       .optional(),
   })
   .transform(d => ({
-    account_id: d.accountId,
+    parent: d.parent,
+    external_principal_id: d.externalPrincipalId,
     account_access_identity_rule: d.accountAccessIdentityRule,
   }));
 
@@ -2204,12 +2230,12 @@ export const marshalCreateWorkspaceAssignmentDetailRequestSchema = z
 
 export const marshalDeleteAccountAccessIdentityRuleRequestSchema = z
   .object({
-    accountId: z.string().optional(),
-    externalId: z.string().optional(),
+    parent: z.string().optional(),
+    externalPrincipalId: z.string().optional(),
   })
   .transform(d => ({
-    account_id: d.accountId,
-    external_id: d.externalId,
+    parent: d.parent,
+    external_principal_id: d.externalPrincipalId,
   }));
 
 export const marshalDeleteDirectGroupMemberProxyRequestSchema = z
@@ -2326,12 +2352,12 @@ export const marshalDirectGroupMemberSchema = z
 
 export const marshalGetAccountAccessIdentityRuleRequestSchema = z
   .object({
-    accountId: z.string().optional(),
-    externalId: z.string().optional(),
+    parent: z.string().optional(),
+    externalPrincipalId: z.string().optional(),
   })
   .transform(d => ({
-    account_id: d.accountId,
-    external_id: d.externalId,
+    parent: d.parent,
+    external_principal_id: d.externalPrincipalId,
   }));
 
 export const marshalGetDirectGroupMemberProxyRequestSchema = z
@@ -2470,13 +2496,13 @@ export const marshalGroupSchema = z
 
 export const marshalListAccountAccessIdentityRulesRequestSchema = z
   .object({
-    accountId: z.string().optional(),
+    parent: z.string().optional(),
     pageSize: z.number().optional(),
     pageToken: z.string().optional(),
     filter: z.string().optional(),
   })
   .transform(d => ({
-    account_id: d.accountId,
+    parent: d.parent,
     page_size: d.pageSize,
     page_token: d.pageToken,
     filter: d.filter,
