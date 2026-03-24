@@ -1634,9 +1634,7 @@ export class CreateBranchOperation {
         options
       );
       this.operation = op;
-      if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
-      }
+
       if (!op.done) {
         throw errStillRunning;
       }
@@ -1734,9 +1732,7 @@ export class CreateCatalogOperation {
         options
       );
       this.operation = op;
-      if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
-      }
+
       if (!op.done) {
         throw errStillRunning;
       }
@@ -1834,9 +1830,7 @@ export class CreateDatabaseOperation {
         options
       );
       this.operation = op;
-      if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
-      }
+
       if (!op.done) {
         throw errStillRunning;
       }
@@ -1934,9 +1928,7 @@ export class CreateEndpointOperation {
         options
       );
       this.operation = op;
-      if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
-      }
+
       if (!op.done) {
         throw errStillRunning;
       }
@@ -2034,9 +2026,7 @@ export class CreateProjectOperation {
         options
       );
       this.operation = op;
-      if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
-      }
+
       if (!op.done) {
         throw errStillRunning;
       }
@@ -2134,9 +2124,7 @@ export class CreateRoleOperation {
         options
       );
       this.operation = op;
-      if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
-      }
+
       if (!op.done) {
         throw errStillRunning;
       }
@@ -2234,9 +2222,7 @@ export class CreateSyncedTableOperation {
         options
       );
       this.operation = op;
-      if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
-      }
+
       if (!op.done) {
         throw errStillRunning;
       }
@@ -2333,9 +2319,7 @@ export class DeleteBranchOperation {
         options
       );
       this.operation = op;
-      if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
-      }
+
       if (!op.done) {
         throw errStillRunning;
       }
@@ -2422,9 +2406,7 @@ export class DeleteCatalogOperation {
         options
       );
       this.operation = op;
-      if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
-      }
+
       if (!op.done) {
         throw errStillRunning;
       }
@@ -2511,9 +2493,7 @@ export class DeleteDatabaseOperation {
         options
       );
       this.operation = op;
-      if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
-      }
+
       if (!op.done) {
         throw errStillRunning;
       }
@@ -2600,9 +2580,7 @@ export class DeleteEndpointOperation {
         options
       );
       this.operation = op;
-      if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
-      }
+
       if (!op.done) {
         throw errStillRunning;
       }
@@ -2689,9 +2667,7 @@ export class DeleteProjectOperation {
         options
       );
       this.operation = op;
-      if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
-      }
+
       if (!op.done) {
         throw errStillRunning;
       }
@@ -2778,9 +2754,7 @@ export class DeleteRoleOperation {
         options
       );
       this.operation = op;
-      if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
-      }
+
       if (!op.done) {
         throw errStillRunning;
       }
@@ -2867,9 +2841,7 @@ export class DeleteSyncedTableOperation {
         options
       );
       this.operation = op;
-      if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
-      }
+
       if (!op.done) {
         throw errStillRunning;
       }
@@ -2957,9 +2929,7 @@ export class UpdateBranchOperation {
         options
       );
       this.operation = op;
-      if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
-      }
+
       if (!op.done) {
         throw errStillRunning;
       }
@@ -3057,9 +3027,7 @@ export class UpdateDatabaseOperation {
         options
       );
       this.operation = op;
-      if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
-      }
+
       if (!op.done) {
         throw errStillRunning;
       }
@@ -3157,9 +3125,7 @@ export class UpdateEndpointOperation {
         options
       );
       this.operation = op;
-      if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
-      }
+
       if (!op.done) {
         throw errStillRunning;
       }
@@ -3257,9 +3223,7 @@ export class UpdateProjectOperation {
         options
       );
       this.operation = op;
-      if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
-      }
+
       if (!op.done) {
         throw errStillRunning;
       }
@@ -3357,9 +3321,7 @@ export class UpdateRoleOperation {
         options
       );
       this.operation = op;
-      if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
-      }
+
       if (!op.done) {
         throw errStillRunning;
       }
