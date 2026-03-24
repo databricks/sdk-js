@@ -1,4 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
+
 import {z} from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
