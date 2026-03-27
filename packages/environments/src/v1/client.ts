@@ -439,7 +439,9 @@ export class CreateWorkspaceBaseEnvironmentOperation {
         options
       );
       this.operation = op;
-
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
       if (!op.done) {
         throw errStillRunning;
       }
@@ -539,7 +541,9 @@ export class RefreshWorkspaceBaseEnvironmentOperation {
         options
       );
       this.operation = op;
-
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
       if (!op.done) {
         throw errStillRunning;
       }
@@ -639,7 +643,9 @@ export class UpdateWorkspaceBaseEnvironmentOperation {
         options
       );
       this.operation = op;
-
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
       if (!op.done) {
         throw errStillRunning;
       }

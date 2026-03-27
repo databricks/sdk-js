@@ -1095,6 +1095,11 @@ export interface DeleteBranchRequest {
    * Format: projects/{project_id}/branches/{branch_id}
    */
   name?: string | undefined;
+  /**
+   * If true, permanently delete the branch; if false, soft delete.
+   * Soft deletion (purge=false) is not supported yet.
+   */
+  purge?: boolean | undefined;
 }
 
 export interface DeleteCatalogRequest {
@@ -1960,6 +1965,7 @@ export interface SyncedTable {
    * For the corresponding source table in the Unity catalog look for the "source_table_full_name" attribute.
    */
   name?: string | undefined;
+  /** The Unity Catalog table ID for this synced table. */
   uid?: string | undefined;
   /**
    * Configuration details of the synced table, such as the source table, scheduling policy, etc.
@@ -1982,12 +1988,6 @@ export interface SyncedTable_SyncedTableSpec {
    * A value must be specified when creating a synced table inside a Standard Catalog.
    */
   postgresDatabase?: string | undefined;
-  /**
-   * The full resource name of the project associated with the table.
-   *
-   * Format: "projects/{project_id}".
-   */
-  project?: string | undefined;
   /**
    * The full resource name the branch associated with the table.
    *
@@ -2063,6 +2063,12 @@ export interface SyncedTable_SyncedTableStatus {
   pipelineId?: string | undefined;
   /** The provisioning state of the synced table entity in Unity Catalog. */
   unityCatalogProvisioningState?: ProvisioningInfo_State | undefined;
+  /**
+   * The full resource name of the project associated with the table.
+   *
+   * Format: "projects/{project_id}".
+   */
+  project?: string | undefined;
 }
 
 /** Metadata for SyncedTable long-running operations. */
@@ -2524,9 +2530,11 @@ export const unmarshalDatabricksServiceExceptionWithDetailsProtoSchema = z
 export const unmarshalDeleteBranchRequestSchema = z
   .object({
     name: z.string().optional(),
+    purge: z.boolean().optional(),
   })
   .transform(d => ({
     name: d.name,
+    purge: d.purge,
   }));
 
 export const unmarshalDeleteCatalogRequestSchema = z
@@ -3417,7 +3425,6 @@ export const unmarshalSyncedTableSchema = z
 export const unmarshalSyncedTable_SyncedTableSpecSchema = z
   .object({
     postgres_database: z.string().optional(),
-    project: z.string().optional(),
     branch: z.string().optional(),
     scheduling_policy: z
       .enum(SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy)
@@ -3432,7 +3439,6 @@ export const unmarshalSyncedTable_SyncedTableSpecSchema = z
   })
   .transform(d => ({
     postgresDatabase: d.postgres_database,
-    project: d.project,
     branch: d.branch,
     schedulingPolicy: d.scheduling_policy,
     sourceTableFullName: d.source_table_full_name,
@@ -3461,6 +3467,7 @@ export const unmarshalSyncedTable_SyncedTableStatusSchema = z
       .optional(),
     pipeline_id: z.string().optional(),
     unity_catalog_provisioning_state: z.enum(ProvisioningInfo_State).optional(),
+    project: z.string().optional(),
   })
   .transform(d => ({
     message: d.message,
@@ -3472,6 +3479,7 @@ export const unmarshalSyncedTable_SyncedTableStatusSchema = z
     lastSyncTime: d.last_sync_time,
     pipelineId: d.pipeline_id,
     unityCatalogProvisioningState: d.unity_catalog_provisioning_state,
+    project: d.project,
   }));
 
 export const unmarshalSyncedTableOperationMetadataSchema = z.object({});
@@ -3916,9 +3924,11 @@ export const marshalDatabricksServiceExceptionWithDetailsProtoSchema = z
 export const marshalDeleteBranchRequestSchema = z
   .object({
     name: z.string().optional(),
+    purge: z.boolean().optional(),
   })
   .transform(d => ({
     name: d.name,
+    purge: d.purge,
   }));
 
 export const marshalDeleteCatalogRequestSchema = z
@@ -4801,7 +4811,6 @@ export const marshalSyncedTableSchema = z
 export const marshalSyncedTable_SyncedTableSpecSchema = z
   .object({
     postgresDatabase: z.string().optional(),
-    project: z.string().optional(),
     branch: z.string().optional(),
     schedulingPolicy: z
       .enum(SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy)
@@ -4816,7 +4825,6 @@ export const marshalSyncedTable_SyncedTableSpecSchema = z
   })
   .transform(d => ({
     postgres_database: d.postgresDatabase,
-    project: d.project,
     branch: d.branch,
     scheduling_policy: d.schedulingPolicy,
     source_table_full_name: d.sourceTableFullName,
@@ -4845,6 +4853,7 @@ export const marshalSyncedTable_SyncedTableStatusSchema = z
       .optional(),
     pipelineId: z.string().optional(),
     unityCatalogProvisioningState: z.enum(ProvisioningInfo_State).optional(),
+    project: z.string().optional(),
   })
   .transform(d => ({
     message: d.message,
@@ -4856,6 +4865,7 @@ export const marshalSyncedTable_SyncedTableStatusSchema = z
     last_sync_time: d.lastSyncTime,
     pipeline_id: d.pipelineId,
     unity_catalog_provisioning_state: d.unityCatalogProvisioningState,
+    project: d.project,
   }));
 
 export const marshalSyncedTableOperationMetadataSchema = z.object({});

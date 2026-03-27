@@ -78,7 +78,12 @@ export interface AuthConfig {
 
 /** Computes the average of values. */
 export interface AvgFunction {
-  /** The input column from which the average is computed. */
+  /**
+   * The input column from which the average is computed. For Kafka sources, use dot-prefixed path
+   * notation (e.g., "value.amount"). For nested fields, the leaf node name is used.
+   * TODO(FS-939): Colon-prefixed notation (e.g., "value:amount") is supported for backwards
+   * compatibility but is deprecated; migrate to dot notation.
+   */
   input?: string | undefined;
 }
 
@@ -102,8 +107,8 @@ export interface BatchCreateMaterializedFeaturesResponse {
 
 export interface ColumnIdentifier {
   /**
-   * String representation of the column name or variant expression path. For nested fields, the leaf value is what will be present in materialized tables
-   * and expected to match at query time. For example, the leaf node of value:trip_details.location_details.pickup_zip is pickup_zip.
+   * String representation of the column name using dot-prefixed path notation. For nested fields, the leaf value is what will be present in materialized tables
+   * and expected to match at query time. For example, the leaf node of value.trip_details.location_details.pickup_zip is pickup_zip.
    */
   variantExprPath?: string | undefined;
 }
@@ -123,7 +128,12 @@ export interface ContinuousWindow {
 
 /** Computes the count of values. */
 export interface CountFunction {
-  /** The input column from which the count is computed. */
+  /**
+   * The input column from which the count is computed. For Kafka sources, use dot-prefixed path
+   * notation (e.g., "value.amount"). For nested fields, the leaf node name is used.
+   * TODO(FS-939): Colon-prefixed notation (e.g., "value:amount") is supported for backwards
+   * compatibility but is deprecated; migrate to dot notation.
+   */
   input?: string | undefined;
 }
 
@@ -191,7 +201,14 @@ export interface DeltaTableSource {
 }
 
 export interface EntityColumn {
-  /** The name of the entity column. */
+  /**
+   * The name of the entity column. For Kafka sources, use dot-prefixed path notation to reference
+   * fields within the key or value schema (e.g., "value.user_id", "key.partition_key"). For nested
+   * fields, the leaf node name (e.g., "user_id" from "value.trip_details.user_id") is what will
+   * be present in materialized tables and expected to match at query time.
+   * TODO(FS-939): Colon-prefixed notation (e.g., "value:user_id") is supported for backwards
+   * compatibility but is deprecated; migrate to dot notation.
+   */
   name?: string | undefined;
 }
 
@@ -478,7 +495,12 @@ export interface SlidingWindow {
 
 /** Computes the population standard deviation. */
 export interface StddevPopFunction {
-  /** The input column from which the population standard deviation is computed. */
+  /**
+   * The input column from which the population standard deviation is computed. For Kafka sources,
+   * use dot-prefixed path notation (e.g., "value.amount"). For nested fields, the leaf node name is used.
+   * TODO(FS-939): Colon-prefixed notation (e.g., "value:amount") is supported for backwards
+   * compatibility but is deprecated; migrate to dot notation.
+   */
   input?: string | undefined;
 }
 
@@ -502,7 +524,12 @@ export interface SubscriptionMode {
 
 /** Computes the sum of values. */
 export interface SumFunction {
-  /** The input column from which the sum is computed. */
+  /**
+   * The input column from which the sum is computed. For Kafka sources, use dot-prefixed path
+   * notation (e.g., "value.amount"). For nested fields, the leaf node name is used.
+   * TODO(FS-939): Colon-prefixed notation (e.g., "value:amount") is supported for backwards
+   * compatibility but is deprecated; migrate to dot notation.
+   */
   input?: string | undefined;
 }
 
@@ -513,7 +540,14 @@ export interface TimeWindow {
 }
 
 export interface TimeseriesColumn {
-  /** The name of the timeseries column. */
+  /**
+   * The name of the timeseries column. For Kafka sources, use dot-prefixed path notation to
+   * reference fields within the key or value schema (e.g., "value.event_timestamp"). For nested
+   * fields, the leaf node name (e.g., "event_timestamp" from "value.event_details.event_timestamp")
+   * is what will be present in materialized tables and expected to match at query time.
+   * TODO(FS-939): Colon-prefixed notation (e.g., "value:event_timestamp") is supported for
+   * backwards compatibility but is deprecated; migrate to dot notation.
+   */
   name?: string | undefined;
 }
 

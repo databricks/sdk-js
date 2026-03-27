@@ -1,0 +1,47 @@
+// Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
+import {z} from 'zod';
+
+export interface GetWorkspaceConfRequest {
+  keys?: string | undefined;
+}
+
+export interface WorkspaceConf {
+  key?: string | undefined;
+  value?: string | undefined;
+}
+
+export const unmarshalGetWorkspaceConfRequestSchema = z
+  .object({
+    keys: z.string().optional(),
+  })
+  .transform(d => ({
+    keys: d.keys,
+  }));
+
+export const unmarshalWorkspaceConfSchema = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
+export const marshalGetWorkspaceConfRequestSchema = z
+  .object({
+    keys: z.string().optional(),
+  })
+  .transform(d => ({
+    keys: d.keys,
+  }));
+
+export const marshalWorkspaceConfSchema = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
