@@ -15,7 +15,7 @@ env:
 
 jobs:
   conftest:
-    runs-on: ubuntu-latest
+    runs-on: linux-ubuntu-latest
 
     steps:
       - name: Checkout
