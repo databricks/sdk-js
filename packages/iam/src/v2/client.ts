@@ -1891,7 +1891,12 @@ export class Client {
     return resp;
   }
 
-  /** Creates a workspace assignment detail for a principal. */
+  /**
+   * Creates a workspace assignment detail for a principal. Entitlement grants are applied
+   * individually and non-atomically — if a failure occurs partway through, the principal will be
+   * assigned to the workspace but with only a subset of the requested entitlements. Use
+   * GetWorkspaceAssignmentDetail to confirm which entitlements were successfully granted.
+   */
   async createWorkspaceAssignmentDetail(
     signal: AbortSignal | undefined,
     req: CreateWorkspaceAssignmentDetailRequest,
@@ -1925,7 +1930,13 @@ export class Client {
     return resp;
   }
 
-  /** Creates a workspace assignment detail for a principal (workspace-level proxy). */
+  /**
+   * Creates a workspace assignment detail for a principal (workspace-level proxy). Entitlement
+   * grants are applied individually and non-atomically — if a failure occurs partway through, the
+   * principal will be assigned to the workspace but with only a subset of the requested
+   * entitlements. Use GetWorkspaceAssignmentDetail to confirm which entitlements were successfully
+   * granted.
+   */
   async createWorkspaceAssignmentDetailProxy(
     signal: AbortSignal | undefined,
     req: CreateWorkspaceAssignmentDetailProxyRequest,
@@ -2124,7 +2135,12 @@ export class Client {
     return resp;
   }
 
-  /** Updates a workspace assignment detail for a principal. */
+  /**
+   * Updates the entitlements of a directly assigned principal in a workspace. Entitlement changes
+   * are applied individually and non-atomically — if a failure occurs partway through, only a
+   * subset of the requested changes may have been applied. Use GetWorkspaceAssignmentDetail to
+   * confirm the final state.
+   */
   async updateWorkspaceAssignmentDetail(
     signal: AbortSignal | undefined,
     req: UpdateWorkspaceAssignmentDetailRequest,
@@ -2161,7 +2177,12 @@ export class Client {
     return resp;
   }
 
-  /** Updates a workspace assignment detail for a principal (workspace-level proxy). */
+  /**
+   * Updates the entitlements of a directly assigned principal in a workspace (workspace-level
+   * proxy). Entitlement changes are applied individually and non-atomically — if a failure occurs
+   * partway through, only a subset of the requested changes may have been applied. Use
+   * GetWorkspaceAssignmentDetail to confirm the final state.
+   */
   async updateWorkspaceAssignmentDetailProxy(
     signal: AbortSignal | undefined,
     req: UpdateWorkspaceAssignmentDetailProxyRequest,

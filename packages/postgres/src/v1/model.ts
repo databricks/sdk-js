@@ -660,7 +660,7 @@ export enum Role_AuthMethod {
   PG_PASSWORD_SCRAM_SHA_256 = 'PG_PASSWORD_SCRAM_SHA_256',
   /**
    * LAKEBASE_OAUTH_V1 is for logging in with the managed identities like
-   * the <Databricks> service principal or <Databricks> user.
+   * the <Databricks> service principal, <Databricks> Group or <Databricks> user.
    */
   LAKEBASE_OAUTH_V1 = 'LAKEBASE_OAUTH_V1',
 }
@@ -872,6 +872,15 @@ export interface Catalog_CatalogStatus {
    * Format: projects/{project_id}/branches/{branch_id}.
    */
   branch?: string | undefined;
+  /**
+   * The short identifier of the catalog, suitable for showing to the users.
+   * For a catalog with name `catalogs/my-catalog`, the catalog_id is `my-catalog`.
+   *
+   * Use this field when building UI components that display catalogs to users (e.g., a drop-down
+   * selector). Prefer showing `catalog_id` instead of the full resource name from `Catalog.name`,
+   * which follows the `catalogs/{catalog_id}` format and is not user-friendly.
+   */
+  catalogId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -1069,6 +1078,17 @@ export interface Database_DatabaseStatus {
   role?: string | undefined;
   /** The name of the Postgres database. */
   postgresDatabase?: string | undefined;
+  /**
+   * The short identifier of the database, suitable for showing to the users.
+   * For a database with name `projects/my-project/branches/my-branch/databases/my-db`,
+   * the database_id is `my-db`.
+   *
+   * Use this field when building UI components that display databases to users (e.g., a drop-down
+   * selector). Prefer showing `database_id` instead of the full resource name from `Database.name`,
+   * which follows the `projects/{project_id}/branches/{branch_id}/databases/{database_id}` format
+   * and is not user-friendly.
+   */
+  databaseId?: string | undefined;
 }
 
 export interface DatabaseCredential {
@@ -1095,6 +1115,11 @@ export interface DeleteBranchRequest {
    * Format: projects/{project_id}/branches/{branch_id}
    */
   name?: string | undefined;
+  /**
+   * If true, permanently delete the branch; if false, soft delete.
+   * Soft deletion (purge=false) is not supported yet.
+   */
+  purge?: boolean | undefined;
 }
 
 export interface DeleteCatalogRequest {
@@ -1348,6 +1373,17 @@ export interface EndpointStatus {
   settings?: EndpointSettings | undefined;
   /** Details on the HA configuration of the endpoint. */
   group?: EndpointGroupStatus | undefined;
+  /**
+   * The short identifier of the endpoint, suitable for showing to the users.
+   * For an endpoint with name `projects/my-project/branches/my-branch/endpoints/my-endpoint`,
+   * the endpoint_id is `my-endpoint`.
+   *
+   * Use this field when building UI components that display endpoints to users (e.g., a drop-down
+   * selector). Prefer showing `endpoint_id` instead of the full resource name from `Endpoint.name`,
+   * which follows the `projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}` format
+   * and is not user-friendly.
+   */
+  endpointId?: string | undefined;
 }
 
 /** Forward ETL configuration */
@@ -1843,6 +1879,15 @@ export interface ProjectStatus {
   enablePgNativeLogin?: boolean | undefined;
   /** The full resource path of the default branch of the project */
   defaultBranch?: string | undefined;
+  /**
+   * The short identifier of the project, suitable for showing to the users.
+   * For a project with name `projects/my-project`, the project_id is `my-project`.
+   *
+   * Use this field when building UI components that display projects to users (e.g., a drop-down
+   * selector). Prefer showing `project_id` instead of the full resource name from `Project.name`,
+   * which follows the `projects/{project_id}` format and is not user-friendly.
+   */
+  projectId?: string | undefined;
 }
 
 /** The provisioning state of a resource in Unity Catalog. */
@@ -1912,8 +1957,8 @@ export interface Role_RoleSpec {
    * * For the managed identities, OAUTH is used.
    * * For the regular postgres roles, authentication based on postgres passwords is used.
    *
-   * NOTE: this is ignored for the <Databricks> identity type GROUP,
-   * and NO_LOGIN is implicitly assumed instead for the GROUP identity type.
+   * NOTE: for the <Databricks> identity type GROUP, LAKEBASE_OAUTH_V1
+   * is the default auth method (group can login as well).
    */
   authMethod?: Role_AuthMethod | undefined;
   /**
@@ -1945,6 +1990,17 @@ export interface Role_RoleStatus {
   authMethod?: Role_AuthMethod | undefined;
   /** The name of the Postgres role. */
   postgresRole?: string | undefined;
+  /**
+   * The short identifier of the role, suitable for showing to the users.
+   * For a role with name `projects/my-project/branches/my-branch/roles/my-role`,
+   * the role_id is `my-role`.
+   *
+   * Use this field when building UI components that display roles to users (e.g., a drop-down
+   * selector). Prefer showing `role_id` instead of the full resource name from `Role.name`,
+   * which follows the `projects/{project_id}/branches/{branch_id}/roles/{role_id}` format
+   * and is not user-friendly.
+   */
+  roleId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -1960,6 +2016,7 @@ export interface SyncedTable {
    * For the corresponding source table in the Unity catalog look for the "source_table_full_name" attribute.
    */
   name?: string | undefined;
+  /** The Unity Catalog table ID for this synced table. */
   uid?: string | undefined;
   /**
    * Configuration details of the synced table, such as the source table, scheduling policy, etc.
@@ -1982,12 +2039,6 @@ export interface SyncedTable_SyncedTableSpec {
    * A value must be specified when creating a synced table inside a Standard Catalog.
    */
   postgresDatabase?: string | undefined;
-  /**
-   * The full resource name of the project associated with the table.
-   *
-   * Format: "projects/{project_id}".
-   */
-  project?: string | undefined;
   /**
    * The full resource name the branch associated with the table.
    *
@@ -2063,6 +2114,12 @@ export interface SyncedTable_SyncedTableStatus {
   pipelineId?: string | undefined;
   /** The provisioning state of the synced table entity in Unity Catalog. */
   unityCatalogProvisioningState?: ProvisioningInfo_State | undefined;
+  /**
+   * The full resource name of the project associated with the table.
+   *
+   * Format: "projects/{project_id}".
+   */
+  project?: string | undefined;
 }
 
 /** Metadata for SyncedTable long-running operations. */
@@ -2323,11 +2380,13 @@ export const unmarshalCatalog_CatalogStatusSchema = z
     postgres_database: z.string().optional(),
     project: z.string().optional(),
     branch: z.string().optional(),
+    catalog_id: z.string().optional(),
   })
   .transform(d => ({
     postgresDatabase: d.postgres_database,
     project: d.project,
     branch: d.branch,
+    catalogId: d.catalog_id,
   }));
 
 export const unmarshalCatalogOperationMetadataSchema = z.object({});
@@ -2486,10 +2545,12 @@ export const unmarshalDatabase_DatabaseStatusSchema = z
   .object({
     role: z.string().optional(),
     postgres_database: z.string().optional(),
+    database_id: z.string().optional(),
   })
   .transform(d => ({
     role: d.role,
     postgresDatabase: d.postgres_database,
+    databaseId: d.database_id,
   }));
 
 export const unmarshalDatabaseCredentialSchema = z
@@ -2524,9 +2585,11 @@ export const unmarshalDatabricksServiceExceptionWithDetailsProtoSchema = z
 export const unmarshalDeleteBranchRequestSchema = z
   .object({
     name: z.string().optional(),
+    purge: z.boolean().optional(),
   })
   .transform(d => ({
     name: d.name,
+    purge: d.purge,
   }));
 
 export const unmarshalDeleteCatalogRequestSchema = z
@@ -2753,6 +2816,7 @@ export const unmarshalEndpointStatusSchema = z
       .optional(),
     settings: z.lazy(() => unmarshalEndpointSettingsSchema).optional(),
     group: z.lazy(() => unmarshalEndpointGroupStatusSchema).optional(),
+    endpoint_id: z.string().optional(),
   })
   .transform(d => ({
     endpointType: d.endpoint_type,
@@ -2766,6 +2830,7 @@ export const unmarshalEndpointStatusSchema = z
     suspendTimeoutDuration: d.suspend_timeout_duration,
     settings: d.settings,
     group: d.group,
+    endpointId: d.endpoint_id,
   }));
 
 export const unmarshalForwardEtlConfigSchema = z
@@ -3279,6 +3344,7 @@ export const unmarshalProjectStatusSchema = z
     owner: z.string().optional(),
     enable_pg_native_login: z.boolean().optional(),
     default_branch: z.string().optional(),
+    project_id: z.string().optional(),
   })
   .transform(d => ({
     displayName: d.display_name,
@@ -3293,6 +3359,7 @@ export const unmarshalProjectStatusSchema = z
     owner: d.owner,
     enablePgNativeLogin: d.enable_pg_native_login,
     defaultBranch: d.default_branch,
+    projectId: d.project_id,
   }));
 
 export const unmarshalProvisioningInfoSchema = z.object({});
@@ -3381,6 +3448,7 @@ export const unmarshalRole_RoleStatusSchema = z
     attributes: z.lazy(() => unmarshalRole_AttributesSchema).optional(),
     auth_method: z.enum(Role_AuthMethod).optional(),
     postgres_role: z.string().optional(),
+    role_id: z.string().optional(),
   })
   .transform(d => ({
     membershipRoles: d.membership_roles,
@@ -3388,6 +3456,7 @@ export const unmarshalRole_RoleStatusSchema = z
     attributes: d.attributes,
     authMethod: d.auth_method,
     postgresRole: d.postgres_role,
+    roleId: d.role_id,
   }));
 
 export const unmarshalRoleOperationMetadataSchema = z.object({});
@@ -3417,7 +3486,6 @@ export const unmarshalSyncedTableSchema = z
 export const unmarshalSyncedTable_SyncedTableSpecSchema = z
   .object({
     postgres_database: z.string().optional(),
-    project: z.string().optional(),
     branch: z.string().optional(),
     scheduling_policy: z
       .enum(SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy)
@@ -3432,7 +3500,6 @@ export const unmarshalSyncedTable_SyncedTableSpecSchema = z
   })
   .transform(d => ({
     postgresDatabase: d.postgres_database,
-    project: d.project,
     branch: d.branch,
     schedulingPolicy: d.scheduling_policy,
     sourceTableFullName: d.source_table_full_name,
@@ -3461,6 +3528,7 @@ export const unmarshalSyncedTable_SyncedTableStatusSchema = z
       .optional(),
     pipeline_id: z.string().optional(),
     unity_catalog_provisioning_state: z.enum(ProvisioningInfo_State).optional(),
+    project: z.string().optional(),
   })
   .transform(d => ({
     message: d.message,
@@ -3472,6 +3540,7 @@ export const unmarshalSyncedTable_SyncedTableStatusSchema = z
     lastSyncTime: d.last_sync_time,
     pipelineId: d.pipeline_id,
     unityCatalogProvisioningState: d.unity_catalog_provisioning_state,
+    project: d.project,
   }));
 
 export const unmarshalSyncedTableOperationMetadataSchema = z.object({});
@@ -3715,11 +3784,13 @@ export const marshalCatalog_CatalogStatusSchema = z
     postgresDatabase: z.string().optional(),
     project: z.string().optional(),
     branch: z.string().optional(),
+    catalogId: z.string().optional(),
   })
   .transform(d => ({
     postgres_database: d.postgresDatabase,
     project: d.project,
     branch: d.branch,
+    catalog_id: d.catalogId,
   }));
 
 export const marshalCatalogOperationMetadataSchema = z.object({});
@@ -3878,10 +3949,12 @@ export const marshalDatabase_DatabaseStatusSchema = z
   .object({
     role: z.string().optional(),
     postgresDatabase: z.string().optional(),
+    databaseId: z.string().optional(),
   })
   .transform(d => ({
     role: d.role,
     postgres_database: d.postgresDatabase,
+    database_id: d.databaseId,
   }));
 
 export const marshalDatabaseCredentialSchema = z
@@ -3916,9 +3989,11 @@ export const marshalDatabricksServiceExceptionWithDetailsProtoSchema = z
 export const marshalDeleteBranchRequestSchema = z
   .object({
     name: z.string().optional(),
+    purge: z.boolean().optional(),
   })
   .transform(d => ({
     name: d.name,
+    purge: d.purge,
   }));
 
 export const marshalDeleteCatalogRequestSchema = z
@@ -4145,6 +4220,7 @@ export const marshalEndpointStatusSchema = z
       .optional(),
     settings: z.lazy(() => marshalEndpointSettingsSchema).optional(),
     group: z.lazy(() => marshalEndpointGroupStatusSchema).optional(),
+    endpointId: z.string().optional(),
   })
   .transform(d => ({
     endpoint_type: d.endpointType,
@@ -4158,6 +4234,7 @@ export const marshalEndpointStatusSchema = z
     suspend_timeout_duration: d.suspendTimeoutDuration,
     settings: d.settings,
     group: d.group,
+    endpoint_id: d.endpointId,
   }));
 
 export const marshalForwardEtlConfigSchema = z
@@ -4667,6 +4744,7 @@ export const marshalProjectStatusSchema = z
     owner: z.string().optional(),
     enablePgNativeLogin: z.boolean().optional(),
     defaultBranch: z.string().optional(),
+    projectId: z.string().optional(),
   })
   .transform(d => ({
     display_name: d.displayName,
@@ -4681,6 +4759,7 @@ export const marshalProjectStatusSchema = z
     owner: d.owner,
     enable_pg_native_login: d.enablePgNativeLogin,
     default_branch: d.defaultBranch,
+    project_id: d.projectId,
   }));
 
 export const marshalProvisioningInfoSchema = z.object({});
@@ -4767,6 +4846,7 @@ export const marshalRole_RoleStatusSchema = z
     attributes: z.lazy(() => marshalRole_AttributesSchema).optional(),
     authMethod: z.enum(Role_AuthMethod).optional(),
     postgresRole: z.string().optional(),
+    roleId: z.string().optional(),
   })
   .transform(d => ({
     membership_roles: d.membershipRoles,
@@ -4774,6 +4854,7 @@ export const marshalRole_RoleStatusSchema = z
     attributes: d.attributes,
     auth_method: d.authMethod,
     postgres_role: d.postgresRole,
+    role_id: d.roleId,
   }));
 
 export const marshalRoleOperationMetadataSchema = z.object({});
@@ -4801,7 +4882,6 @@ export const marshalSyncedTableSchema = z
 export const marshalSyncedTable_SyncedTableSpecSchema = z
   .object({
     postgresDatabase: z.string().optional(),
-    project: z.string().optional(),
     branch: z.string().optional(),
     schedulingPolicy: z
       .enum(SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy)
@@ -4816,7 +4896,6 @@ export const marshalSyncedTable_SyncedTableSpecSchema = z
   })
   .transform(d => ({
     postgres_database: d.postgresDatabase,
-    project: d.project,
     branch: d.branch,
     scheduling_policy: d.schedulingPolicy,
     source_table_full_name: d.sourceTableFullName,
@@ -4845,6 +4924,7 @@ export const marshalSyncedTable_SyncedTableStatusSchema = z
       .optional(),
     pipelineId: z.string().optional(),
     unityCatalogProvisioningState: z.enum(ProvisioningInfo_State).optional(),
+    project: z.string().optional(),
   })
   .transform(d => ({
     message: d.message,
@@ -4856,6 +4936,7 @@ export const marshalSyncedTable_SyncedTableStatusSchema = z
     last_sync_time: d.lastSyncTime,
     pipeline_id: d.pipelineId,
     unity_catalog_provisioning_state: d.unityCatalogProvisioningState,
+    project: d.project,
   }));
 
 export const marshalSyncedTableOperationMetadataSchema = z.object({});
