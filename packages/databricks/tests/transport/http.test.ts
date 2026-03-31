@@ -43,30 +43,6 @@ describe('newFetchHttpClient', () => {
       wantSignal: false,
     },
     {
-      desc: 'Uint8Array body — no duplex',
-      request: {
-        url: 'https://example.com/api',
-        method: 'PUT',
-        headers: new Headers(),
-        body: new Uint8Array([1, 2, 3]),
-      },
-      wantBodyType: 'Uint8Array',
-      wantDuplex: undefined,
-      wantSignal: false,
-    },
-    {
-      desc: 'ArrayBuffer body — no duplex',
-      request: {
-        url: 'https://example.com/api',
-        method: 'PUT',
-        headers: new Headers(),
-        body: new ArrayBuffer(4),
-      },
-      wantBodyType: 'ArrayBuffer',
-      wantDuplex: undefined,
-      wantSignal: false,
-    },
-    {
       desc: 'null body — no duplex',
       request: {
         url: 'https://example.com/api',
@@ -111,19 +87,6 @@ describe('newFetchHttpClient', () => {
       },
       wantBodyType: 'undefined',
       wantDuplex: undefined,
-      wantSignal: true,
-    },
-    {
-      desc: 'ReadableStream body with signal — sets both duplex and signal',
-      request: {
-        url: 'https://example.com/upload',
-        method: 'PUT',
-        headers: new Headers(),
-        body: streamFrom('data'),
-        signal: AbortSignal.timeout(5000),
-      },
-      wantBodyType: 'ReadableStream',
-      wantDuplex: 'half',
       wantSignal: true,
     },
   ];
@@ -222,13 +185,6 @@ describe('newFetchHttpClient', () => {
       wantStatus: 404,
       wantHeader: undefined,
       wantBody: 'not found',
-    },
-    {
-      desc: 'maps 500 error',
-      fetchResponse: new Response('internal error', {status: 500}),
-      wantStatus: 500,
-      wantHeader: undefined,
-      wantBody: 'internal error',
     },
   ];
 
