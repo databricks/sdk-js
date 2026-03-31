@@ -53,6 +53,7 @@ export function newFetchHttpClient(): HttpClient {
       if (request.body !== undefined) {
         init.body = request.body;
         // The Fetch spec requires duplex: 'half' for streaming request bodies.
+        // See https://fetch.spec.whatwg.org/#dom-requestinit-duplex.
         if (request.body instanceof ReadableStream) {
           init.duplex = 'half';
         }
