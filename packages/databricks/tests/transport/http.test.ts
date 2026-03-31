@@ -133,7 +133,7 @@ describe('newFetchHttpClient', () => {
           expect(body).toBeUndefined();
           break;
         default:
-          expect.fail(`unexpected wantBodyType: ${tc.wantBodyType}`);
+          expect.fail('unexpected wantBodyType');
       }
 
       expect(init?.duplex).toBe(tc.wantDuplex);
