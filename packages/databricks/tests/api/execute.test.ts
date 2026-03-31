@@ -1,4 +1,4 @@
-import {describe, it, expect} from 'vitest';
+import {describe, it, expect, vi} from 'vitest';
 import {execute, sleep} from '../../src/api/execute';
 import type {Call} from '../../src/api/execute';
 import type {Retrier} from '../../src/api/retrier';
@@ -206,6 +206,28 @@ describe('execute rate limiting', () => {
     }
 
     expect(gotCalls).toBe(wantCalls);
+  });
+});
+
+describe('sleep listener cleanup', () => {
+  it('should not leave stale listeners on the signal after resolution', async () => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    const ctSpy = vi.spyOn(globalThis, 'clearTimeout');
+
+    // Simulate 5 retries, each sleeping 0 ms with the same signal.
+    for (let i = 0; i < 5; i++) {
+      await sleep(0, signal);
+    }
+
+    // Abort the signal. If any stale listeners remained, they would call
+    // clearTimeout. Zero calls means every listener was properly removed.
+    controller.abort();
+
+    expect(ctSpy).toHaveBeenCalledTimes(0);
+
+    ctSpy.mockRestore();
   });
 });
 
