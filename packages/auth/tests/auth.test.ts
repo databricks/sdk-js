@@ -50,7 +50,7 @@ describe('newTokenCredentials', () => {
       const provider = tokenProviderFn(() => Promise.resolve(token));
       const credentials = newTokenCredentials(provider);
       const headers = await credentials.authHeaders();
-      expect(headers).toEqual<Header[]>(expected);
+      expect(headers).toEqual(expected);
     }
   );
 

@@ -153,3 +153,12 @@ import {LEVEL_SEVERITY} from '../../src/logger/logger';
 
 Each test must be independent. Do not rely on execution order. Clean up side
 effects in `afterEach` or `afterAll` blocks.
+
+## Vite Warnings Are Errors
+
+All test-bearing packages load the `failOnViteWarnings` plugin (from
+`vitest.shared.mjs` at the repository root) via their `vitest.config.mjs`.
+This plugin overrides `config.logger.warn` and `config.logger.warnOnce` to
+throw, so any Vite warning immediately fails the test run. If you introduce a
+change that triggers a Vite warning (e.g. an unrecognized esbuild option), the
+tests will not pass until the warning is resolved.
