@@ -80,110 +80,115 @@ export interface ServicePrincipalSecret {
   expireTime?: Temporal.Instant | undefined;
 }
 
-export const unmarshalCreateServicePrincipalSecretSchema = z
-  .object({
-    account_id: z.string().optional(),
-    service_principal: z.string().optional(),
-    lifetime: z
-      .string()
-      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-      .optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    servicePrincipal: d.service_principal,
-    lifetime: d.lifetime,
-  }));
+export const unmarshalCreateServicePrincipalSecretSchema: z.ZodType<CreateServicePrincipalSecret> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      service_principal: z.string().optional(),
+      lifetime: z
+        .string()
+        .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+        .optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      servicePrincipal: d.service_principal,
+      lifetime: d.lifetime,
+    }));
 
-export const unmarshalCreateServicePrincipalSecretResponseSchema = z
-  .object({
-    id: z.string().optional(),
-    secret: z.string().optional(),
-    secret_hash: z.string().optional(),
-    create_time: z.string().optional(),
-    update_time: z.string().optional(),
-    status: z.string().optional(),
-    expire_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-    secret: d.secret,
-    secretHash: d.secret_hash,
-    createTime: d.create_time,
-    updateTime: d.update_time,
-    status: d.status,
-    expireTime: d.expire_time,
-  }));
+export const unmarshalCreateServicePrincipalSecretResponseSchema: z.ZodType<CreateServicePrincipalSecretResponse> =
+  z
+    .object({
+      id: z.string().optional(),
+      secret: z.string().optional(),
+      secret_hash: z.string().optional(),
+      create_time: z.string().optional(),
+      update_time: z.string().optional(),
+      status: z.string().optional(),
+      expire_time: z
+        .string()
+        .transform(s => Temporal.Instant.from(s))
+        .optional(),
+    })
+    .transform(d => ({
+      id: d.id,
+      secret: d.secret,
+      secretHash: d.secret_hash,
+      createTime: d.create_time,
+      updateTime: d.update_time,
+      status: d.status,
+      expireTime: d.expire_time,
+    }));
 
-export const unmarshalDeleteServicePrincipalSecretSchema = z
-  .object({
-    account_id: z.string().optional(),
-    service_principal: z.string().optional(),
-    secret_id: z.string().optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    servicePrincipal: d.service_principal,
-    secretId: d.secret_id,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteServicePrincipalSecret_ResponseSchema = z.object(
-  {}
-);
-
-export const unmarshalListServicePrincipalSecretsSchema = z
-  .object({
-    account_id: z.string().optional(),
-    service_principal: z.string().optional(),
-    page_token: z.string().optional(),
-    page_size: z.number().optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    servicePrincipal: d.service_principal,
-    pageToken: d.page_token,
-    pageSize: d.page_size,
-  }));
+export const unmarshalDeleteServicePrincipalSecretSchema: z.ZodType<DeleteServicePrincipalSecret> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      service_principal: z.string().optional(),
+      secret_id: z.string().optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      servicePrincipal: d.service_principal,
+      secretId: d.secret_id,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListServicePrincipalSecrets_ResponseSchema = z
-  .object({
-    secrets: z
-      .array(z.lazy(() => unmarshalServicePrincipalSecretSchema))
-      .optional(),
-    next_page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    secrets: d.secrets,
-    nextPageToken: d.next_page_token,
-  }));
+export const unmarshalDeleteServicePrincipalSecret_ResponseSchema: z.ZodType<DeleteServicePrincipalSecret_Response> =
+  z.object({});
 
-export const unmarshalServicePrincipalSecretSchema = z
-  .object({
-    id: z.string().optional(),
-    secret: z.string().optional(),
-    secret_hash: z.string().optional(),
-    create_time: z.string().optional(),
-    update_time: z.string().optional(),
-    status: z.string().optional(),
-    expire_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-    secret: d.secret,
-    secretHash: d.secret_hash,
-    createTime: d.create_time,
-    updateTime: d.update_time,
-    status: d.status,
-    expireTime: d.expire_time,
-  }));
+export const unmarshalListServicePrincipalSecretsSchema: z.ZodType<ListServicePrincipalSecrets> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      service_principal: z.string().optional(),
+      page_token: z.string().optional(),
+      page_size: z.number().optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      servicePrincipal: d.service_principal,
+      pageToken: d.page_token,
+      pageSize: d.page_size,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalListServicePrincipalSecrets_ResponseSchema: z.ZodType<ListServicePrincipalSecrets_Response> =
+  z
+    .object({
+      secrets: z
+        .array(z.lazy(() => unmarshalServicePrincipalSecretSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      secrets: d.secrets,
+      nextPageToken: d.next_page_token,
+    }));
+
+export const unmarshalServicePrincipalSecretSchema: z.ZodType<ServicePrincipalSecret> =
+  z
+    .object({
+      id: z.string().optional(),
+      secret: z.string().optional(),
+      secret_hash: z.string().optional(),
+      create_time: z.string().optional(),
+      update_time: z.string().optional(),
+      status: z.string().optional(),
+      expire_time: z
+        .string()
+        .transform(s => Temporal.Instant.from(s))
+        .optional(),
+    })
+    .transform(d => ({
+      id: d.id,
+      secret: d.secret,
+      secretHash: d.secret_hash,
+      createTime: d.create_time,
+      updateTime: d.update_time,
+      status: d.status,
+      expireTime: d.expire_time,
+    }));
 
 export const marshalCreateServicePrincipalSecretSchema = z
   .object({

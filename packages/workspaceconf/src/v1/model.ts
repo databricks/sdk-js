@@ -1,4 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
+
 import {z} from 'zod';
 
 export interface GetWorkspaceConfRequest {
@@ -10,15 +11,16 @@ export interface WorkspaceConf {
   value?: string | undefined;
 }
 
-export const unmarshalGetWorkspaceConfRequestSchema = z
-  .object({
-    keys: z.string().optional(),
-  })
-  .transform(d => ({
-    keys: d.keys,
-  }));
+export const unmarshalGetWorkspaceConfRequestSchema: z.ZodType<GetWorkspaceConfRequest> =
+  z
+    .object({
+      keys: z.string().optional(),
+    })
+    .transform(d => ({
+      keys: d.keys,
+    }));
 
-export const unmarshalWorkspaceConfSchema = z
+export const unmarshalWorkspaceConfSchema: z.ZodType<WorkspaceConf> = z
   .object({
     key: z.string().optional(),
     value: z.string().optional(),

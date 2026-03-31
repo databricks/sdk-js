@@ -1,4 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
+
 import {z} from 'zod';
 
 /**
@@ -371,49 +372,52 @@ export interface WaitForState_StateInfo {
   messagePath?: string[] | undefined;
 }
 
-export const unmarshalLongRunningOperationSchema = z
-  .object({
-    operation_info: z
-      .lazy(() => unmarshalLongRunningOperation_OperationInfoSchema)
-      .optional(),
-    operation_methods: z
-      .lazy(() => unmarshalLongRunningOperation_OperationMethodsSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    operationInfo: d.operation_info,
-    operationMethods: d.operation_methods,
-  }));
+export const unmarshalLongRunningOperationSchema: z.ZodType<LongRunningOperation> =
+  z
+    .object({
+      operation_info: z
+        .lazy(() => unmarshalLongRunningOperation_OperationInfoSchema)
+        .optional(),
+      operation_methods: z
+        .lazy(() => unmarshalLongRunningOperation_OperationMethodsSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      operationInfo: d.operation_info,
+      operationMethods: d.operation_methods,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalLongRunningOperation_OperationInfoSchema = z
-  .object({
-    response_type: z.string().optional(),
-    metadata_type: z.string().optional(),
-  })
-  .transform(d => ({
-    responseType: d.response_type,
-    metadataType: d.metadata_type,
-  }));
+export const unmarshalLongRunningOperation_OperationInfoSchema: z.ZodType<LongRunningOperation_OperationInfo> =
+  z
+    .object({
+      response_type: z.string().optional(),
+      metadata_type: z.string().optional(),
+    })
+    .transform(d => ({
+      responseType: d.response_type,
+      metadataType: d.metadata_type,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalLongRunningOperation_OperationMethodsSchema = z
-  .object({
-    get: z.string().optional(),
-    list: z.string().optional(),
-    wait: z.string().optional(),
-    delete: z.string().optional(),
-    cancel: z.string().optional(),
-  })
-  .transform(d => ({
-    get: d.get,
-    list: d.list,
-    wait: d.wait,
-    delete: d.delete,
-    cancel: d.cancel,
-  }));
+export const unmarshalLongRunningOperation_OperationMethodsSchema: z.ZodType<LongRunningOperation_OperationMethods> =
+  z
+    .object({
+      get: z.string().optional(),
+      list: z.string().optional(),
+      wait: z.string().optional(),
+      delete: z.string().optional(),
+      cancel: z.string().optional(),
+    })
+    .transform(d => ({
+      get: d.get,
+      list: d.list,
+      wait: d.wait,
+      delete: d.delete,
+      cancel: d.cancel,
+    }));
 
-export const unmarshalPaginationSchema = z
+export const unmarshalPaginationSchema: z.ZodType<Pagination> = z
   .object({
     offset_info: z.lazy(() => unmarshalPagination_OffsetInfoSchema).optional(),
     token_info: z
@@ -428,34 +432,36 @@ export const unmarshalPaginationSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPagination_OffsetInfoSchema = z
-  .object({
-    offset: z.string().optional(),
-    max_results: z.string().optional(),
-    default_max_results: z.number().optional(),
-  })
-  .transform(d => ({
-    offset: d.offset,
-    maxResults: d.max_results,
-    defaultMaxResults: d.default_max_results,
-  }));
+export const unmarshalPagination_OffsetInfoSchema: z.ZodType<Pagination_OffsetInfo> =
+  z
+    .object({
+      offset: z.string().optional(),
+      max_results: z.string().optional(),
+      default_max_results: z.number().optional(),
+    })
+    .transform(d => ({
+      offset: d.offset,
+      maxResults: d.max_results,
+      defaultMaxResults: d.default_max_results,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPagination_PageTokenInfoSchema = z
-  .object({
-    request: z.string().optional(),
-    response: z.string().optional(),
-    max_results: z.string().optional(),
-    default_max_results: z.number().optional(),
-  })
-  .transform(d => ({
-    request: d.request,
-    response: d.response,
-    maxResults: d.max_results,
-    defaultMaxResults: d.default_max_results,
-  }));
+export const unmarshalPagination_PageTokenInfoSchema: z.ZodType<Pagination_PageTokenInfo> =
+  z
+    .object({
+      request: z.string().optional(),
+      response: z.string().optional(),
+      max_results: z.string().optional(),
+      default_max_results: z.number().optional(),
+    })
+    .transform(d => ({
+      request: d.request,
+      response: d.response,
+      maxResults: d.max_results,
+      defaultMaxResults: d.default_max_results,
+    }));
 
-export const unmarshalWaitForStateSchema = z
+export const unmarshalWaitForStateSchema: z.ZodType<WaitForState> = z
   .object({
     method_to_poll: z.string().optional(),
     binding: z.lazy(() => unmarshalWaitForState_BindingSchema).optional(),
@@ -468,43 +474,46 @@ export const unmarshalWaitForStateSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalWaitForState_BindingSchema = z
-  .object({
-    pairs: z
-      .array(z.lazy(() => unmarshalWaitForState_Binding_BindingPairSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    pairs: d.pairs,
-  }));
+export const unmarshalWaitForState_BindingSchema: z.ZodType<WaitForState_Binding> =
+  z
+    .object({
+      pairs: z
+        .array(z.lazy(() => unmarshalWaitForState_Binding_BindingPairSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      pairs: d.pairs,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalWaitForState_Binding_BindingPairSchema = z
-  .object({
-    poll_method_field: z.string().optional(),
-    request_field: z.string().optional(),
-    response_field: z.string().optional(),
-  })
-  .transform(d => ({
-    pollMethodField: d.poll_method_field,
-    requestField: d.request_field,
-    responseField: d.response_field,
-  }));
+export const unmarshalWaitForState_Binding_BindingPairSchema: z.ZodType<WaitForState_Binding_BindingPair> =
+  z
+    .object({
+      poll_method_field: z.string().optional(),
+      request_field: z.string().optional(),
+      response_field: z.string().optional(),
+    })
+    .transform(d => ({
+      pollMethodField: d.poll_method_field,
+      requestField: d.request_field,
+      responseField: d.response_field,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalWaitForState_StateInfoSchema = z
-  .object({
-    state_path: z.array(z.string()).optional(),
-    success_states: z.array(z.string()).optional(),
-    failure_states: z.array(z.string()).optional(),
-    message_path: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    statePath: d.state_path,
-    successStates: d.success_states,
-    failureStates: d.failure_states,
-    messagePath: d.message_path,
-  }));
+export const unmarshalWaitForState_StateInfoSchema: z.ZodType<WaitForState_StateInfo> =
+  z
+    .object({
+      state_path: z.array(z.string()).optional(),
+      success_states: z.array(z.string()).optional(),
+      failure_states: z.array(z.string()).optional(),
+      message_path: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      statePath: d.state_path,
+      successStates: d.success_states,
+      failureStates: d.failure_states,
+      messagePath: d.message_path,
+    }));
 
 export const marshalLongRunningOperationSchema = z
   .object({

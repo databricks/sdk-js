@@ -1,4 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
+
 import {z} from 'zod';
 
 export enum AnomalyDetectionJobType {
@@ -149,29 +150,30 @@ export interface ValidityCheckConfiguration {
   uniquenessValidityCheck?: UniquenessValidityCheck | undefined;
 }
 
-export const unmarshalAnomalyDetectionConfigSchema = z
-  .object({
-    last_run_id: z.string().optional(),
-    latest_run_status: z.enum(AnomalyDetectionRunStatus).optional(),
-    job_type: z.enum(AnomalyDetectionJobType).optional(),
-    excluded_table_full_names: z.array(z.string()).optional(),
-    custom_check_configurations: z
-      .array(z.lazy(() => unmarshalCustomCheckConfigurationSchema))
-      .optional(),
-    validity_check_configurations: z
-      .array(z.lazy(() => unmarshalValidityCheckConfigurationSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    lastRunId: d.last_run_id,
-    latestRunStatus: d.latest_run_status,
-    jobType: d.job_type,
-    excludedTableFullNames: d.excluded_table_full_names,
-    customCheckConfigurations: d.custom_check_configurations,
-    validityCheckConfigurations: d.validity_check_configurations,
-  }));
+export const unmarshalAnomalyDetectionConfigSchema: z.ZodType<AnomalyDetectionConfig> =
+  z
+    .object({
+      last_run_id: z.string().optional(),
+      latest_run_status: z.enum(AnomalyDetectionRunStatus).optional(),
+      job_type: z.enum(AnomalyDetectionJobType).optional(),
+      excluded_table_full_names: z.array(z.string()).optional(),
+      custom_check_configurations: z
+        .array(z.lazy(() => unmarshalCustomCheckConfigurationSchema))
+        .optional(),
+      validity_check_configurations: z
+        .array(z.lazy(() => unmarshalValidityCheckConfigurationSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      lastRunId: d.last_run_id,
+      latestRunStatus: d.latest_run_status,
+      jobType: d.job_type,
+      excludedTableFullNames: d.excluded_table_full_names,
+      customCheckConfigurations: d.custom_check_configurations,
+      validityCheckConfigurations: d.validity_check_configurations,
+    }));
 
-export const unmarshalColumnMatcherSchema = z
+export const unmarshalColumnMatcherSchema: z.ZodType<ColumnMatcher> = z
   .object({
     variable_name: z.string().optional(),
     column_names: z.array(z.string()).optional(),
@@ -181,33 +183,36 @@ export const unmarshalColumnMatcherSchema = z
     columnNames: d.column_names,
   }));
 
-export const unmarshalCreateQualityMonitorRequestSchema = z
-  .object({
-    quality_monitor: z.lazy(() => unmarshalQualityMonitorSchema).optional(),
-  })
-  .transform(d => ({
-    qualityMonitor: d.quality_monitor,
-  }));
+export const unmarshalCreateQualityMonitorRequestSchema: z.ZodType<CreateQualityMonitorRequest> =
+  z
+    .object({
+      quality_monitor: z.lazy(() => unmarshalQualityMonitorSchema).optional(),
+    })
+    .transform(d => ({
+      qualityMonitor: d.quality_monitor,
+    }));
 
-export const unmarshalCustomCheckConfigurationSchema = z
-  .object({
-    scalar_check: z.lazy(() => unmarshalCustomScalarCheckSchema).optional(),
-  })
-  .transform(d => ({
-    scalarCheck: d.scalar_check,
-  }));
+export const unmarshalCustomCheckConfigurationSchema: z.ZodType<CustomCheckConfiguration> =
+  z
+    .object({
+      scalar_check: z.lazy(() => unmarshalCustomScalarCheckSchema).optional(),
+    })
+    .transform(d => ({
+      scalarCheck: d.scalar_check,
+    }));
 
-export const unmarshalCustomCheckThresholdsSchema = z
-  .object({
-    lower_bound: z.lazy(() => unmarshalThresholdSchema).optional(),
-    upper_bound: z.lazy(() => unmarshalThresholdSchema).optional(),
-  })
-  .transform(d => ({
-    lowerBound: d.lower_bound,
-    upperBound: d.upper_bound,
-  }));
+export const unmarshalCustomCheckThresholdsSchema: z.ZodType<CustomCheckThresholds> =
+  z
+    .object({
+      lower_bound: z.lazy(() => unmarshalThresholdSchema).optional(),
+      upper_bound: z.lazy(() => unmarshalThresholdSchema).optional(),
+    })
+    .transform(d => ({
+      lowerBound: d.lower_bound,
+      upperBound: d.upper_bound,
+    }));
 
-export const unmarshalCustomScalarCheckSchema = z
+export const unmarshalCustomScalarCheckSchema: z.ZodType<CustomScalarCheck> = z
   .object({
     check_name: z.string().optional(),
     sql_query: z.string().optional(),
@@ -223,59 +228,64 @@ export const unmarshalCustomScalarCheckSchema = z
     thresholds: d.thresholds,
   }));
 
-export const unmarshalDeleteQualityMonitorRequestSchema = z
-  .object({
-    object_type: z.string().optional(),
-    object_id: z.string().optional(),
-  })
-  .transform(d => ({
-    objectType: d.object_type,
-    objectId: d.object_id,
-  }));
+export const unmarshalDeleteQualityMonitorRequestSchema: z.ZodType<DeleteQualityMonitorRequest> =
+  z
+    .object({
+      object_type: z.string().optional(),
+      object_id: z.string().optional(),
+    })
+    .transform(d => ({
+      objectType: d.object_type,
+      objectId: d.object_id,
+    }));
 
-export const unmarshalGetQualityMonitorRequestSchema = z
-  .object({
-    object_type: z.string().optional(),
-    object_id: z.string().optional(),
-  })
-  .transform(d => ({
-    objectType: d.object_type,
-    objectId: d.object_id,
-  }));
+export const unmarshalGetQualityMonitorRequestSchema: z.ZodType<GetQualityMonitorRequest> =
+  z
+    .object({
+      object_type: z.string().optional(),
+      object_id: z.string().optional(),
+    })
+    .transform(d => ({
+      objectType: d.object_type,
+      objectId: d.object_id,
+    }));
 
-export const unmarshalListQualityMonitorRequestSchema = z
-  .object({
-    page_token: z.string().optional(),
-    page_size: z.number().optional(),
-  })
-  .transform(d => ({
-    pageToken: d.page_token,
-    pageSize: d.page_size,
-  }));
+export const unmarshalListQualityMonitorRequestSchema: z.ZodType<ListQualityMonitorRequest> =
+  z
+    .object({
+      page_token: z.string().optional(),
+      page_size: z.number().optional(),
+    })
+    .transform(d => ({
+      pageToken: d.page_token,
+      pageSize: d.page_size,
+    }));
 
-export const unmarshalListQualityMonitorResponseSchema = z
-  .object({
-    quality_monitors: z
-      .array(z.lazy(() => unmarshalQualityMonitorSchema))
-      .optional(),
-    next_page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    qualityMonitors: d.quality_monitors,
-    nextPageToken: d.next_page_token,
-  }));
+export const unmarshalListQualityMonitorResponseSchema: z.ZodType<ListQualityMonitorResponse> =
+  z
+    .object({
+      quality_monitors: z
+        .array(z.lazy(() => unmarshalQualityMonitorSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      qualityMonitors: d.quality_monitors,
+      nextPageToken: d.next_page_token,
+    }));
 
-export const unmarshalPercentNullValidityCheckSchema = z
-  .object({
-    column_names: z.array(z.string()).optional(),
-    upper_bound: z.number().optional(),
-  })
-  .transform(d => ({
-    columnNames: d.column_names,
-    upperBound: d.upper_bound,
-  }));
+export const unmarshalPercentNullValidityCheckSchema: z.ZodType<PercentNullValidityCheck> =
+  z
+    .object({
+      column_names: z.array(z.string()).optional(),
+      upper_bound: z.number().optional(),
+    })
+    .transform(d => ({
+      columnNames: d.column_names,
+      upperBound: d.upper_bound,
+    }));
 
-export const unmarshalQualityMonitorSchema = z
+export const unmarshalQualityMonitorSchema: z.ZodType<QualityMonitor> = z
   .object({
     object_type: z.string().optional(),
     object_id: z.string().optional(),
@@ -293,19 +303,20 @@ export const unmarshalQualityMonitorSchema = z
     validityCheckConfigurations: d.validity_check_configurations,
   }));
 
-export const unmarshalRangeValidityCheckSchema = z
-  .object({
-    column_names: z.array(z.string()).optional(),
-    lower_bound: z.number().optional(),
-    upper_bound: z.number().optional(),
-  })
-  .transform(d => ({
-    columnNames: d.column_names,
-    lowerBound: d.lower_bound,
-    upperBound: d.upper_bound,
-  }));
+export const unmarshalRangeValidityCheckSchema: z.ZodType<RangeValidityCheck> =
+  z
+    .object({
+      column_names: z.array(z.string()).optional(),
+      lower_bound: z.number().optional(),
+      upper_bound: z.number().optional(),
+    })
+    .transform(d => ({
+      columnNames: d.column_names,
+      lowerBound: d.lower_bound,
+      upperBound: d.upper_bound,
+    }));
 
-export const unmarshalThresholdSchema = z
+export const unmarshalThresholdSchema: z.ZodType<Threshold> = z
   .object({
     bound_value: z.number().optional(),
     threshold_type: z.enum(ThresholdType).optional(),
@@ -315,45 +326,48 @@ export const unmarshalThresholdSchema = z
     thresholdType: d.threshold_type,
   }));
 
-export const unmarshalUniquenessValidityCheckSchema = z
-  .object({
-    column_names: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    columnNames: d.column_names,
-  }));
+export const unmarshalUniquenessValidityCheckSchema: z.ZodType<UniquenessValidityCheck> =
+  z
+    .object({
+      column_names: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      columnNames: d.column_names,
+    }));
 
-export const unmarshalUpdateQualityMonitorRequestSchema = z
-  .object({
-    object_type: z.string().optional(),
-    object_id: z.string().optional(),
-    quality_monitor: z.lazy(() => unmarshalQualityMonitorSchema).optional(),
-  })
-  .transform(d => ({
-    objectType: d.object_type,
-    objectId: d.object_id,
-    qualityMonitor: d.quality_monitor,
-  }));
+export const unmarshalUpdateQualityMonitorRequestSchema: z.ZodType<UpdateQualityMonitorRequest> =
+  z
+    .object({
+      object_type: z.string().optional(),
+      object_id: z.string().optional(),
+      quality_monitor: z.lazy(() => unmarshalQualityMonitorSchema).optional(),
+    })
+    .transform(d => ({
+      objectType: d.object_type,
+      objectId: d.object_id,
+      qualityMonitor: d.quality_monitor,
+    }));
 
-export const unmarshalValidityCheckConfigurationSchema = z
-  .object({
-    name: z.string().optional(),
-    percent_null_validity_check: z
-      .lazy(() => unmarshalPercentNullValidityCheckSchema)
-      .optional(),
-    range_validity_check: z
-      .lazy(() => unmarshalRangeValidityCheckSchema)
-      .optional(),
-    uniqueness_validity_check: z
-      .lazy(() => unmarshalUniquenessValidityCheckSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    percentNullValidityCheck: d.percent_null_validity_check,
-    rangeValidityCheck: d.range_validity_check,
-    uniquenessValidityCheck: d.uniqueness_validity_check,
-  }));
+export const unmarshalValidityCheckConfigurationSchema: z.ZodType<ValidityCheckConfiguration> =
+  z
+    .object({
+      name: z.string().optional(),
+      percent_null_validity_check: z
+        .lazy(() => unmarshalPercentNullValidityCheckSchema)
+        .optional(),
+      range_validity_check: z
+        .lazy(() => unmarshalRangeValidityCheckSchema)
+        .optional(),
+      uniqueness_validity_check: z
+        .lazy(() => unmarshalUniquenessValidityCheckSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+      percentNullValidityCheck: d.percent_null_validity_check,
+      rangeValidityCheck: d.range_validity_check,
+      uniquenessValidityCheck: d.uniqueness_validity_check,
+    }));
 
 export const marshalAnomalyDetectionConfigSchema = z
   .object({

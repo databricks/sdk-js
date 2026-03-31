@@ -1,4 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
+
 import {z} from 'zod';
 
 /** Request message for CreateFeatureTag. */
@@ -95,31 +96,33 @@ export interface UpdateFeatureTagRequest {
   updateMask?: string | undefined;
 }
 
-export const unmarshalCreateFeatureTagRequestSchema = z
-  .object({
-    table_name: z.string().optional(),
-    feature_name: z.string().optional(),
-    feature_tag: z.lazy(() => unmarshalFeatureTagSchema).optional(),
-  })
-  .transform(d => ({
-    tableName: d.table_name,
-    featureName: d.feature_name,
-    featureTag: d.feature_tag,
-  }));
+export const unmarshalCreateFeatureTagRequestSchema: z.ZodType<CreateFeatureTagRequest> =
+  z
+    .object({
+      table_name: z.string().optional(),
+      feature_name: z.string().optional(),
+      feature_tag: z.lazy(() => unmarshalFeatureTagSchema).optional(),
+    })
+    .transform(d => ({
+      tableName: d.table_name,
+      featureName: d.feature_name,
+      featureTag: d.feature_tag,
+    }));
 
-export const unmarshalDeleteFeatureTagRequestSchema = z
-  .object({
-    table_name: z.string().optional(),
-    feature_name: z.string().optional(),
-    key: z.string().optional(),
-  })
-  .transform(d => ({
-    tableName: d.table_name,
-    featureName: d.feature_name,
-    key: d.key,
-  }));
+export const unmarshalDeleteFeatureTagRequestSchema: z.ZodType<DeleteFeatureTagRequest> =
+  z
+    .object({
+      table_name: z.string().optional(),
+      feature_name: z.string().optional(),
+      key: z.string().optional(),
+    })
+    .transform(d => ({
+      tableName: d.table_name,
+      featureName: d.feature_name,
+      key: d.key,
+    }));
 
-export const unmarshalFeatureLineageSchema = z
+export const unmarshalFeatureLineageSchema: z.ZodType<FeatureLineage> = z
   .object({
     models: z
       .array(z.lazy(() => unmarshalFeatureLineage_ModelSchema))
@@ -138,37 +141,40 @@ export const unmarshalFeatureLineageSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalFeatureLineage_FeatureSpecSchema = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
+export const unmarshalFeatureLineage_FeatureSpecSchema: z.ZodType<FeatureLineage_FeatureSpec> =
+  z
+    .object({
+      name: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalFeatureLineage_ModelSchema = z
-  .object({
-    name: z.string().optional(),
-    version: z.number().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    version: d.version,
-  }));
+export const unmarshalFeatureLineage_ModelSchema: z.ZodType<FeatureLineage_Model> =
+  z
+    .object({
+      name: z.string().optional(),
+      version: z.number().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+      version: d.version,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalFeatureLineage_OnlineFeatureSchema = z
-  .object({
-    feature_name: z.string().optional(),
-    table_name: z.string().optional(),
-  })
-  .transform(d => ({
-    featureName: d.feature_name,
-    tableName: d.table_name,
-  }));
+export const unmarshalFeatureLineage_OnlineFeatureSchema: z.ZodType<FeatureLineage_OnlineFeature> =
+  z
+    .object({
+      feature_name: z.string().optional(),
+      table_name: z.string().optional(),
+    })
+    .transform(d => ({
+      featureName: d.feature_name,
+      tableName: d.table_name,
+    }));
 
-export const unmarshalFeatureTagSchema = z
+export const unmarshalFeatureTagSchema: z.ZodType<FeatureTag> = z
   .object({
     key: z.string().optional(),
     value: z.string().optional(),
@@ -178,65 +184,70 @@ export const unmarshalFeatureTagSchema = z
     value: d.value,
   }));
 
-export const unmarshalGetFeatureLineageRequestSchema = z
-  .object({
-    feature_name: z.string().optional(),
-    table_name: z.string().optional(),
-  })
-  .transform(d => ({
-    featureName: d.feature_name,
-    tableName: d.table_name,
-  }));
+export const unmarshalGetFeatureLineageRequestSchema: z.ZodType<GetFeatureLineageRequest> =
+  z
+    .object({
+      feature_name: z.string().optional(),
+      table_name: z.string().optional(),
+    })
+    .transform(d => ({
+      featureName: d.feature_name,
+      tableName: d.table_name,
+    }));
 
-export const unmarshalGetFeatureTagRequestSchema = z
-  .object({
-    table_name: z.string().optional(),
-    feature_name: z.string().optional(),
-    key: z.string().optional(),
-  })
-  .transform(d => ({
-    tableName: d.table_name,
-    featureName: d.feature_name,
-    key: d.key,
-  }));
+export const unmarshalGetFeatureTagRequestSchema: z.ZodType<GetFeatureTagRequest> =
+  z
+    .object({
+      table_name: z.string().optional(),
+      feature_name: z.string().optional(),
+      key: z.string().optional(),
+    })
+    .transform(d => ({
+      tableName: d.table_name,
+      featureName: d.feature_name,
+      key: d.key,
+    }));
 
-export const unmarshalListFeatureTagsRequestSchema = z
-  .object({
-    table_name: z.string().optional(),
-    feature_name: z.string().optional(),
-    page_token: z.string().optional(),
-    page_size: z.number().optional(),
-  })
-  .transform(d => ({
-    tableName: d.table_name,
-    featureName: d.feature_name,
-    pageToken: d.page_token,
-    pageSize: d.page_size,
-  }));
+export const unmarshalListFeatureTagsRequestSchema: z.ZodType<ListFeatureTagsRequest> =
+  z
+    .object({
+      table_name: z.string().optional(),
+      feature_name: z.string().optional(),
+      page_token: z.string().optional(),
+      page_size: z.number().optional(),
+    })
+    .transform(d => ({
+      tableName: d.table_name,
+      featureName: d.feature_name,
+      pageToken: d.page_token,
+      pageSize: d.page_size,
+    }));
 
-export const unmarshalListFeatureTagsResponseSchema = z
-  .object({
-    feature_tags: z.array(z.lazy(() => unmarshalFeatureTagSchema)).optional(),
-    next_page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    featureTags: d.feature_tags,
-    nextPageToken: d.next_page_token,
-  }));
+export const unmarshalListFeatureTagsResponseSchema: z.ZodType<ListFeatureTagsResponse> =
+  z
+    .object({
+      feature_tags: z.array(z.lazy(() => unmarshalFeatureTagSchema)).optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      featureTags: d.feature_tags,
+      nextPageToken: d.next_page_token,
+    }));
 
-export const unmarshalUpdateFeatureTagRequestSchema = z
-  .object({
-    table_name: z.string().optional(),
-    feature_name: z.string().optional(),
-    feature_tag: z.lazy(() => unmarshalFeatureTagSchema).optional(),
-    update_mask: z.string().optional(),
-  })
-  .transform(d => ({
-    tableName: d.table_name,
-    featureName: d.feature_name,
-    featureTag: d.feature_tag,
-    updateMask: d.update_mask,
-  }));
+export const unmarshalUpdateFeatureTagRequestSchema: z.ZodType<UpdateFeatureTagRequest> =
+  z
+    .object({
+      table_name: z.string().optional(),
+      feature_name: z.string().optional(),
+      feature_tag: z.lazy(() => unmarshalFeatureTagSchema).optional(),
+      update_mask: z.string().optional(),
+    })
+    .transform(d => ({
+      tableName: d.table_name,
+      featureName: d.feature_name,
+      featureTag: d.feature_tag,
+      updateMask: d.update_mask,
+    }));
 
 export const marshalCreateFeatureTagRequestSchema = z
   .object({

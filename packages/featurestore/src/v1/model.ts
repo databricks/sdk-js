@@ -124,59 +124,67 @@ export interface UpdateOnlineStoreRequest {
   updateMask?: string | undefined;
 }
 
-export const unmarshalCreateOnlineStoreRequestSchema = z
-  .object({
-    online_store: z.lazy(() => unmarshalOnlineStoreSchema).optional(),
-  })
-  .transform(d => ({
-    onlineStore: d.online_store,
-  }));
+export const unmarshalCreateOnlineStoreRequestSchema: z.ZodType<CreateOnlineStoreRequest> =
+  z
+    .object({
+      online_store: z.lazy(() => unmarshalOnlineStoreSchema).optional(),
+    })
+    .transform(d => ({
+      onlineStore: d.online_store,
+    }));
 
-export const unmarshalDeleteOnlineStoreRequestSchema = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
+export const unmarshalDeleteOnlineStoreRequestSchema: z.ZodType<DeleteOnlineStoreRequest> =
+  z
+    .object({
+      name: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+    }));
 
-export const unmarshalDeleteOnlineTableRequestSchema = z
-  .object({
-    online_table_name: z.string().optional(),
-  })
-  .transform(d => ({
-    onlineTableName: d.online_table_name,
-  }));
+export const unmarshalDeleteOnlineTableRequestSchema: z.ZodType<DeleteOnlineTableRequest> =
+  z
+    .object({
+      online_table_name: z.string().optional(),
+    })
+    .transform(d => ({
+      onlineTableName: d.online_table_name,
+    }));
 
-export const unmarshalGetOnlineStoreRequestSchema = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
+export const unmarshalGetOnlineStoreRequestSchema: z.ZodType<GetOnlineStoreRequest> =
+  z
+    .object({
+      name: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+    }));
 
-export const unmarshalListOnlineStoresRequestSchema = z
-  .object({
-    page_token: z.string().optional(),
-    page_size: z.number().optional(),
-  })
-  .transform(d => ({
-    pageToken: d.page_token,
-    pageSize: d.page_size,
-  }));
+export const unmarshalListOnlineStoresRequestSchema: z.ZodType<ListOnlineStoresRequest> =
+  z
+    .object({
+      page_token: z.string().optional(),
+      page_size: z.number().optional(),
+    })
+    .transform(d => ({
+      pageToken: d.page_token,
+      pageSize: d.page_size,
+    }));
 
-export const unmarshalListOnlineStoresResponseSchema = z
-  .object({
-    online_stores: z.array(z.lazy(() => unmarshalOnlineStoreSchema)).optional(),
-    next_page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    onlineStores: d.online_stores,
-    nextPageToken: d.next_page_token,
-  }));
+export const unmarshalListOnlineStoresResponseSchema: z.ZodType<ListOnlineStoresResponse> =
+  z
+    .object({
+      online_stores: z
+        .array(z.lazy(() => unmarshalOnlineStoreSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      onlineStores: d.online_stores,
+      nextPageToken: d.next_page_token,
+    }));
 
-export const unmarshalOnlineStoreSchema = z
+export const unmarshalOnlineStoreSchema: z.ZodType<OnlineStore> = z
   .object({
     name: z.string().optional(),
     creator: z.string().optional(),
@@ -199,7 +207,7 @@ export const unmarshalOnlineStoreSchema = z
     usagePolicyId: d.usage_policy_id,
   }));
 
-export const unmarshalPublishSpecSchema = z
+export const unmarshalPublishSpecSchema: z.ZodType<PublishSpec> = z
   .object({
     online_store: z.string().optional(),
     online_table_name: z.string().optional(),
@@ -211,35 +219,38 @@ export const unmarshalPublishSpecSchema = z
     publishMode: d.publish_mode,
   }));
 
-export const unmarshalPublishTableRequestSchema = z
-  .object({
-    source_table_name: z.string().optional(),
-    publish_spec: z.lazy(() => unmarshalPublishSpecSchema).optional(),
-  })
-  .transform(d => ({
-    sourceTableName: d.source_table_name,
-    publishSpec: d.publish_spec,
-  }));
+export const unmarshalPublishTableRequestSchema: z.ZodType<PublishTableRequest> =
+  z
+    .object({
+      source_table_name: z.string().optional(),
+      publish_spec: z.lazy(() => unmarshalPublishSpecSchema).optional(),
+    })
+    .transform(d => ({
+      sourceTableName: d.source_table_name,
+      publishSpec: d.publish_spec,
+    }));
 
-export const unmarshalPublishTableResponseSchema = z
-  .object({
-    online_table_name: z.string().optional(),
-    pipeline_id: z.string().optional(),
-  })
-  .transform(d => ({
-    onlineTableName: d.online_table_name,
-    pipelineId: d.pipeline_id,
-  }));
+export const unmarshalPublishTableResponseSchema: z.ZodType<PublishTableResponse> =
+  z
+    .object({
+      online_table_name: z.string().optional(),
+      pipeline_id: z.string().optional(),
+    })
+    .transform(d => ({
+      onlineTableName: d.online_table_name,
+      pipelineId: d.pipeline_id,
+    }));
 
-export const unmarshalUpdateOnlineStoreRequestSchema = z
-  .object({
-    online_store: z.lazy(() => unmarshalOnlineStoreSchema).optional(),
-    update_mask: z.string().optional(),
-  })
-  .transform(d => ({
-    onlineStore: d.online_store,
-    updateMask: d.update_mask,
-  }));
+export const unmarshalUpdateOnlineStoreRequestSchema: z.ZodType<UpdateOnlineStoreRequest> =
+  z
+    .object({
+      online_store: z.lazy(() => unmarshalOnlineStoreSchema).optional(),
+      update_mask: z.string().optional(),
+    })
+    .transform(d => ({
+      onlineStore: d.online_store,
+      updateMask: d.update_mask,
+    }));
 
 export const marshalCreateOnlineStoreRequestSchema = z
   .object({

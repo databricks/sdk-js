@@ -1,0 +1,880 @@
+// Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
+
+import {z} from 'zod';
+
+export enum ChannelName {
+  CHANNEL_NAME_UNSPECIFIED = 'CHANNEL_NAME_UNSPECIFIED',
+  CHANNEL_NAME_PREVIEW = 'CHANNEL_NAME_PREVIEW',
+  CHANNEL_NAME_CURRENT = 'CHANNEL_NAME_CURRENT',
+  CHANNEL_NAME_PREVIOUS = 'CHANNEL_NAME_PREVIOUS',
+  CHANNEL_NAME_CUSTOM = 'CHANNEL_NAME_CUSTOM',
+}
+
+/** Possible Reasons for which we have not saved plans in the database */
+export enum PlansState {
+  /** Execution time of the query was smaller than the min required to save plans */
+  IGNORED_SMALL_DURATION = 'IGNORED_SMALL_DURATION',
+  /** Size of plans is larger than the limit defined in config */
+  IGNORED_LARGE_PLANS_SIZE = 'IGNORED_LARGE_PLANS_SIZE',
+  /** If plans exist and are stored in the DB */
+  EXISTS = 'EXISTS',
+  /** Catchall for unknown states in graphql, to prevent it from crashing when it recieved an unknown enum type that is defined here but not in the graphql schema of the object */
+  UNKNOWN = 'UNKNOWN',
+  /** When the query has no plans by default */
+  EMPTY = 'EMPTY',
+  /** When plans are filtered out in history backend because it is isIgnoredSparkPlanType, isIgnoredSparkPlanName or isDeltaLogScan */
+  IGNORED_SPARK_PLAN_TYPE = 'IGNORED_SPARK_PLAN_TYPE',
+}
+
+export enum QueryStatementType {
+  OTHER = 'OTHER',
+  ALTER = 'ALTER',
+  ANALYZE = 'ANALYZE',
+  COPY = 'COPY',
+  CREATE = 'CREATE',
+  DELETE = 'DELETE',
+  DESCRIBE = 'DESCRIBE',
+  DROP = 'DROP',
+  EXPLAIN = 'EXPLAIN',
+  GRANT = 'GRANT',
+  INSERT = 'INSERT',
+  MERGE = 'MERGE',
+  OPTIMIZE = 'OPTIMIZE',
+  REFRESH = 'REFRESH',
+  REPLACE = 'REPLACE',
+  REVOKE = 'REVOKE',
+  SELECT = 'SELECT',
+  SET = 'SET',
+  SHOW = 'SHOW',
+  TRUNCATE = 'TRUNCATE',
+  UPDATE = 'UPDATE',
+  USE = 'USE',
+  /** SQL Script */
+  CALL = 'CALL',
+}
+
+/**
+ * Statuses which are also used by OperationStatus in runtime.
+ * When adding a new QueryStatus, make sure to update com.databricks.sqlgateway.history.QueryStatusOrdering
+ */
+export enum QueryStatus {
+  /** query has been received and queued */
+  QUEUED = 'QUEUED',
+  /**
+   * query has been received and started by the driver
+   * DEPRECATED: to be removed once runtime side change is picked up.
+   */
+  STARTED = 'STARTED',
+  /**
+   * query compilation has been started
+   * This isn't currently used. We will soon use this.
+   */
+  COMPILING = 'COMPILING',
+  /**
+   * query has been compiled
+   * DEPRECATED: to be removed once runtime side change is picked up.
+   */
+  COMPILED = 'COMPILED',
+  /**
+   * currently execution has been started (spark jobs for this query has been started running)
+   * detail ui is available from this state
+   */
+  RUNNING = 'RUNNING',
+  /** query has been cancelled by the user */
+  CANCELED = 'CANCELED',
+  /** query has failed */
+  FAILED = 'FAILED',
+  /** query execution has been completed */
+  FINISHED = 'FINISHED',
+}
+
+/** Details about a Channel. */
+export interface ChannelInfo {
+  /** Name of the channel */
+  name?: ChannelName | undefined;
+  /** DB SQL Version the Channel is mapped to. */
+  dbsqlVersion?: string | undefined;
+}
+
+export interface ExternalQuerySource {
+  /** The canonical identifier for this Lakeview dashboard */
+  dashboardId?: string | undefined;
+  /** The canonical identifier for this legacy dashboard */
+  legacyDashboardId?: string | undefined;
+  /** The canonical identifier for this SQL alert */
+  alertId?: string | undefined;
+  /** The canonical identifier for this notebook */
+  notebookId?: string | undefined;
+  /** The canonical identifier for this SQL query */
+  sqlQueryId?: string | undefined;
+  jobInfo?: ExternalQuerySource_JobInfo | undefined;
+  /** The canonical identifier for this Genie space */
+  genieSpaceId?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ExternalQuerySource_JobInfo {
+  /** The canonical identifier for this job. */
+  jobId?: string | undefined;
+  /** The canonical identifier of the run. This ID is unique across all runs of all jobs. */
+  jobRunId?: string | undefined;
+  /** The canonical identifier of the task run. */
+  jobTaskRunId?: string | undefined;
+}
+
+/**
+ * Fetches a list of queries conforming to the provided set of query filters.
+ *
+ * If the the number of queries to return takes > 10 seconds, the request will timeout.
+ * In that case, please reduce the time range to ensure ListQueries conforms to the 10 second max query time limit.
+ */
+export interface ListQueries {
+  /**
+   * An optional filter object to limit query history results. Accepts parameters such as user IDs, endpoint IDs, and statuses to narrow the returned data.
+   * In a URL, the parameters of this filter are specified with dot notation. For example: `filter_by.statement_ids`.
+   */
+  filterBy?: QueryFilter | undefined;
+  /** Limit the number of results returned in one page. Must be less than 1000 and the default is 100. */
+  maxResults?: number | undefined;
+  /**
+   * A token that can be used to get the next page of results. The token can contains characters that need to be encoded before using it in a URL.
+   * For example, the character '+' needs to be replaced by %2B. This field is optional.
+   */
+  pageToken?: string | undefined;
+  /**
+   * Whether to include the query metrics with each query.
+   * Only use this for a small subset of queries (max_results).
+   * Defaults to false.
+   */
+  includeMetrics?: boolean | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ListQueries_Response {
+  /** A token that can be used to get the next page of results. */
+  nextPageToken?: string | undefined;
+  /** Whether there is another page of results. */
+  hasNextPage?: boolean | undefined;
+  res?: QueryInfo[] | undefined;
+}
+
+export interface QueryFilter {
+  /** A range filter for query submitted time. The time range must be less than or equal to 30 days. */
+  queryStartTimeRange?: TimeRange | undefined;
+  /** A list of user IDs who ran the queries. */
+  userIds?: number[] | undefined;
+  /**
+   * A list of statuses (QUEUED, RUNNING, CANCELED, FAILED, FINISHED) to match query results. Corresponds to
+   * the `status` field in the response.
+   * Filtering for multiple statuses is not recommended. Instead, opt to filter by a single status
+   * multiple times and then combine the results.
+   */
+  statuses?: QueryStatus[] | undefined;
+  /** A list of warehouse IDs. */
+  warehouseIds?: string[] | undefined;
+  /** A list of statement IDs. */
+  statementIds?: string[] | undefined;
+}
+
+export interface QueryInfo {
+  /** The query ID. */
+  queryId?: string | undefined;
+  /**
+   * Query status with one the following values:
+   *
+   * - `QUEUED`: Query has been received and queued.
+   * - `RUNNING`: Query has started.
+   * - `CANCELED`: Query has been cancelled by the user.
+   * - `FAILED`: Query has failed.
+   * - `FINISHED`: Query has completed.
+   */
+  status?: QueryStatus | undefined;
+  /** The text of the query. */
+  queryText?: string | undefined;
+  /** The time the query started. */
+  queryStartTimeMs?: number | undefined;
+  /** The time execution of the query ended. */
+  executionEndTimeMs?: number | undefined;
+  /** The time the query ended. */
+  queryEndTimeMs?: number | undefined;
+  /** The ID of the user who ran the query. */
+  userId?: number | undefined;
+  /** The email address or username of the user who ran the query. */
+  userName?: string | undefined;
+  /** URL to the Spark UI query plan. */
+  sparkUiUrl?: string | undefined;
+  /** Alias for `warehouse_id`. */
+  endpointId?: string | undefined;
+  /** The number of results returned by the query. */
+  rowsProduced?: number | undefined;
+  /** Message describing why the query could not complete. */
+  errorMessage?: string | undefined;
+  /** A key that can be used to look up query details. */
+  lookupKey?: string | undefined;
+  /** Metrics about query execution. */
+  metrics?: QueryMetrics | undefined;
+  /** The ID of the user whose credentials were used to run the query. */
+  executedAsUserId?: number | undefined;
+  /** The email address or username of the user whose credentials were used to run the query. */
+  executedAsUserName?: string | undefined;
+  /**
+   * The spark session UUID that query ran on.
+   * This is either the Spark Connect, DBSQL, or SDP session ID.
+   */
+  sessionId?: string | undefined;
+  /** Whether more updates for the query are expected. */
+  isFinal?: boolean | undefined;
+  /** SQL Warehouse channel information at the time of query execution */
+  channelUsed?: ChannelInfo | undefined;
+  /** Whether plans exist for the execution, or the reason why they are missing */
+  plansState?: PlansState | undefined;
+  /** Type of statement for this query */
+  statementType?: QueryStatementType | undefined;
+  /** Warehouse ID. */
+  warehouseId?: string | undefined;
+  /**
+   * Total time of the statement execution. This value does not include the time taken to retrieve the results, which
+   * can result in a discrepancy between this value and the start-to-finish wall-clock time.
+   */
+  duration?: number | undefined;
+  /**
+   * Client application that ran the statement. For example: Databricks SQL Editor, Tableau, and Power BI.
+   * This field is derived from information provided by client applications. While values are expected to
+   * remain static over time, this cannot be guaranteed.
+   */
+  clientApplication?: string | undefined;
+  /**
+   * A struct that contains key-value pairs representing <Databricks> entities that were involved in the execution
+   * of this statement, such as jobs, notebooks, or dashboards. This field only records <Databricks> entities.
+   */
+  querySource?: ExternalQuerySource | undefined;
+  /** The ID of the cached query if this result retrieved from cache */
+  cacheQueryId?: string | undefined;
+  /** A query execution can be optionally annotated with query tags */
+  queryTags?: QueryTag[] | undefined;
+}
+
+/**
+ * A query metric that encapsulates a set of measurements for a single query.
+ * Metrics come from the driver and are stored in the history service database.
+ */
+export interface QueryMetrics {
+  /** Total execution time of the query from the client’s point of view, in milliseconds. */
+  totalTimeMs?: number | undefined;
+  /** Total size of data read by the query, in bytes. */
+  readBytes?: number | undefined;
+  /** Total number of rows returned by the query. */
+  rowsProducedCount?: number | undefined;
+  /** Time spent loading metadata and optimizing the query, in milliseconds. */
+  compilationTimeMs?: number | undefined;
+  /** Time spent executing the query, in milliseconds. */
+  executionTimeMs?: number | undefined;
+  /** Size of persistent data read from cloud object storage on your cloud tenant, in bytes. */
+  readRemoteBytes?: number | undefined;
+  /** Size pf persistent data written to cloud object storage in your cloud tenant, in bytes. */
+  writeRemoteBytes?: number | undefined;
+  /** Size of persistent data read from the cache, in bytes. */
+  readCacheBytes?: number | undefined;
+  /** Size of data temporarily written to disk while executing the query, in bytes. */
+  spillToDiskBytes?: number | undefined;
+  /** Sum of execution time for all of the query’s tasks, in milliseconds. */
+  taskTotalTimeMs?: number | undefined;
+  /** Number of files read after pruning */
+  readFilesCount?: number | undefined;
+  /** Number of partitions read after pruning. */
+  readPartitionsCount?: number | undefined;
+  /** Total execution time for all individual Photon query engine tasks in the query, in milliseconds. */
+  photonTotalTimeMs?: number | undefined;
+  /** Total number of rows read by the query. */
+  rowsReadCount?: number | undefined;
+  /** Time spent fetching the query results after the execution finished, in milliseconds. */
+  resultFetchTimeMs?: number | undefined;
+  /** Total amount of data sent over the network between executor nodes during shuffle, in bytes. */
+  networkSentBytes?: number | undefined;
+  /** `true` if the query result was fetched from cache, `false` otherwise. */
+  resultFromCache?: boolean | undefined;
+  /** Total number of file bytes in all tables not read due to pruning */
+  prunedBytes?: number | undefined;
+  /** Total number of files from all tables not read due to pruning */
+  prunedFilesCount?: number | undefined;
+  /**
+   * Timestamp of when the query was enqueued waiting for a cluster to be provisioned for the warehouse.
+   * This field is optional and will not appear if the query skipped the provisioning queue.
+   */
+  provisioningQueueStartTimestamp?: number | undefined;
+  /**
+   * Timestamp of when the query was enqueued waiting while the warehouse was at max load.
+   * This field is optional and will not appear if the query skipped the overloading queue.
+   */
+  overloadingQueueStartTimestamp?: number | undefined;
+  /** Timestamp of when the underlying compute started compilation of the query. */
+  queryCompilationStartTimestamp?: number | undefined;
+  /**
+   * sum of task times completed in a range of wall clock time, approximated to a configurable number of points
+   * aggregated over all stages and jobs in the query (based on task_total_time_ms)
+   */
+  taskTimeOverTimeRange?: TaskTimeOverRange | undefined;
+  /**
+   * remaining work to be done across all stages in the query, calculated by autoscaler StatementAnalysis.scala, in milliseconds
+   * deprecated: using projected_remaining_task_total_time_ms instead
+   */
+  workToBeDone?: number | undefined;
+  /**
+   * number of remaining tasks to complete, calculated by autoscaler StatementAnalysis.scala
+   * deprecated: use remaining_task_count instead
+   */
+  runnableTasks?: number | undefined;
+  /** projected remaining work to be done aggregated across all stages in the query, in milliseconds */
+  projectedRemainingTaskTotalTimeMs?: number | undefined;
+  /**
+   * number of remaining tasks to complete
+   * this is based on the current status and could be bigger or smaller in the future based on future updates
+   */
+  remainingTaskCount?: number | undefined;
+  /** projected lower bound on remaining total task time based on projected_remaining_task_total_time_ms / maximum concurrency */
+  projectedRemainingWallclockTimeMs?: number | undefined;
+  /** Total number of file bytes in all tables read */
+  readFilesBytes?: number | undefined;
+}
+
+/**
+ * * A query execution can be annotated with an optional key-value pair to
+ * allow users to attribute the executions by key and optional value to filter by.
+ * QueryTag is the user-facing representation.
+ */
+export interface QueryTag {
+  key?: string | undefined;
+  value?: string | undefined;
+}
+
+export interface TaskTimeOverRange {
+  entries?: TaskTimeOverRangeEntry[] | undefined;
+  /**
+   * interval length for all entries (difference in start time and end time of an entry range)
+   * the same for all entries
+   * start time of first interval is query_start_time_ms
+   */
+  interval?: number | undefined;
+}
+
+export interface TaskTimeOverRangeEntry {
+  /** total task completion time in this time range, aggregated over all stages and jobs in the query */
+  taskCompletedTimeMs?: number | undefined;
+}
+
+export interface TimeRange {
+  /** The start time in milliseconds. */
+  startTimeMs?: number | undefined;
+  /** The end time in milliseconds. */
+  endTimeMs?: number | undefined;
+}
+
+export const unmarshalChannelInfoSchema: z.ZodType<ChannelInfo> = z
+  .object({
+    name: z.enum(ChannelName).optional(),
+    dbsql_version: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    dbsqlVersion: d.dbsql_version,
+  }));
+
+export const unmarshalExternalQuerySourceSchema: z.ZodType<ExternalQuerySource> =
+  z
+    .object({
+      dashboard_id: z.string().optional(),
+      legacy_dashboard_id: z.string().optional(),
+      alert_id: z.string().optional(),
+      notebook_id: z.string().optional(),
+      sql_query_id: z.string().optional(),
+      job_info: z
+        .lazy(() => unmarshalExternalQuerySource_JobInfoSchema)
+        .optional(),
+      genie_space_id: z.string().optional(),
+    })
+    .transform(d => ({
+      dashboardId: d.dashboard_id,
+      legacyDashboardId: d.legacy_dashboard_id,
+      alertId: d.alert_id,
+      notebookId: d.notebook_id,
+      sqlQueryId: d.sql_query_id,
+      jobInfo: d.job_info,
+      genieSpaceId: d.genie_space_id,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalExternalQuerySource_JobInfoSchema: z.ZodType<ExternalQuerySource_JobInfo> =
+  z
+    .object({
+      job_id: z.string().optional(),
+      job_run_id: z.string().optional(),
+      job_task_run_id: z.string().optional(),
+    })
+    .transform(d => ({
+      jobId: d.job_id,
+      jobRunId: d.job_run_id,
+      jobTaskRunId: d.job_task_run_id,
+    }));
+
+export const unmarshalListQueriesSchema: z.ZodType<ListQueries> = z
+  .object({
+    filter_by: z.lazy(() => unmarshalQueryFilterSchema).optional(),
+    max_results: z.number().optional(),
+    page_token: z.string().optional(),
+    include_metrics: z.boolean().optional(),
+  })
+  .transform(d => ({
+    filterBy: d.filter_by,
+    maxResults: d.max_results,
+    pageToken: d.page_token,
+    includeMetrics: d.include_metrics,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalListQueries_ResponseSchema: z.ZodType<ListQueries_Response> =
+  z
+    .object({
+      next_page_token: z.string().optional(),
+      has_next_page: z.boolean().optional(),
+      res: z.array(z.lazy(() => unmarshalQueryInfoSchema)).optional(),
+    })
+    .transform(d => ({
+      nextPageToken: d.next_page_token,
+      hasNextPage: d.has_next_page,
+      res: d.res,
+    }));
+
+export const unmarshalQueryFilterSchema: z.ZodType<QueryFilter> = z
+  .object({
+    query_start_time_range: z.lazy(() => unmarshalTimeRangeSchema).optional(),
+    user_ids: z.array(z.number()).optional(),
+    statuses: z.array(z.enum(QueryStatus)).optional(),
+    warehouse_ids: z.array(z.string()).optional(),
+    statement_ids: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    queryStartTimeRange: d.query_start_time_range,
+    userIds: d.user_ids,
+    statuses: d.statuses,
+    warehouseIds: d.warehouse_ids,
+    statementIds: d.statement_ids,
+  }));
+
+export const unmarshalQueryInfoSchema: z.ZodType<QueryInfo> = z
+  .object({
+    query_id: z.string().optional(),
+    status: z.enum(QueryStatus).optional(),
+    query_text: z.string().optional(),
+    query_start_time_ms: z.number().optional(),
+    execution_end_time_ms: z.number().optional(),
+    query_end_time_ms: z.number().optional(),
+    user_id: z.number().optional(),
+    user_name: z.string().optional(),
+    spark_ui_url: z.string().optional(),
+    endpoint_id: z.string().optional(),
+    rows_produced: z.number().optional(),
+    error_message: z.string().optional(),
+    lookup_key: z.string().optional(),
+    metrics: z.lazy(() => unmarshalQueryMetricsSchema).optional(),
+    executed_as_user_id: z.number().optional(),
+    executed_as_user_name: z.string().optional(),
+    session_id: z.string().optional(),
+    is_final: z.boolean().optional(),
+    channel_used: z.lazy(() => unmarshalChannelInfoSchema).optional(),
+    plans_state: z.enum(PlansState).optional(),
+    statement_type: z.enum(QueryStatementType).optional(),
+    warehouse_id: z.string().optional(),
+    duration: z.number().optional(),
+    client_application: z.string().optional(),
+    query_source: z.lazy(() => unmarshalExternalQuerySourceSchema).optional(),
+    cache_query_id: z.string().optional(),
+    query_tags: z.array(z.lazy(() => unmarshalQueryTagSchema)).optional(),
+  })
+  .transform(d => ({
+    queryId: d.query_id,
+    status: d.status,
+    queryText: d.query_text,
+    queryStartTimeMs: d.query_start_time_ms,
+    executionEndTimeMs: d.execution_end_time_ms,
+    queryEndTimeMs: d.query_end_time_ms,
+    userId: d.user_id,
+    userName: d.user_name,
+    sparkUiUrl: d.spark_ui_url,
+    endpointId: d.endpoint_id,
+    rowsProduced: d.rows_produced,
+    errorMessage: d.error_message,
+    lookupKey: d.lookup_key,
+    metrics: d.metrics,
+    executedAsUserId: d.executed_as_user_id,
+    executedAsUserName: d.executed_as_user_name,
+    sessionId: d.session_id,
+    isFinal: d.is_final,
+    channelUsed: d.channel_used,
+    plansState: d.plans_state,
+    statementType: d.statement_type,
+    warehouseId: d.warehouse_id,
+    duration: d.duration,
+    clientApplication: d.client_application,
+    querySource: d.query_source,
+    cacheQueryId: d.cache_query_id,
+    queryTags: d.query_tags,
+  }));
+
+export const unmarshalQueryMetricsSchema: z.ZodType<QueryMetrics> = z
+  .object({
+    total_time_ms: z.number().optional(),
+    read_bytes: z.number().optional(),
+    rows_produced_count: z.number().optional(),
+    compilation_time_ms: z.number().optional(),
+    execution_time_ms: z.number().optional(),
+    read_remote_bytes: z.number().optional(),
+    write_remote_bytes: z.number().optional(),
+    read_cache_bytes: z.number().optional(),
+    spill_to_disk_bytes: z.number().optional(),
+    task_total_time_ms: z.number().optional(),
+    read_files_count: z.number().optional(),
+    read_partitions_count: z.number().optional(),
+    photon_total_time_ms: z.number().optional(),
+    rows_read_count: z.number().optional(),
+    result_fetch_time_ms: z.number().optional(),
+    network_sent_bytes: z.number().optional(),
+    result_from_cache: z.boolean().optional(),
+    pruned_bytes: z.number().optional(),
+    pruned_files_count: z.number().optional(),
+    provisioning_queue_start_timestamp: z.number().optional(),
+    overloading_queue_start_timestamp: z.number().optional(),
+    query_compilation_start_timestamp: z.number().optional(),
+    task_time_over_time_range: z
+      .lazy(() => unmarshalTaskTimeOverRangeSchema)
+      .optional(),
+    work_to_be_done: z.number().optional(),
+    runnable_tasks: z.number().optional(),
+    projected_remaining_task_total_time_ms: z.number().optional(),
+    remaining_task_count: z.number().optional(),
+    projected_remaining_wallclock_time_ms: z.number().optional(),
+    read_files_bytes: z.number().optional(),
+  })
+  .transform(d => ({
+    totalTimeMs: d.total_time_ms,
+    readBytes: d.read_bytes,
+    rowsProducedCount: d.rows_produced_count,
+    compilationTimeMs: d.compilation_time_ms,
+    executionTimeMs: d.execution_time_ms,
+    readRemoteBytes: d.read_remote_bytes,
+    writeRemoteBytes: d.write_remote_bytes,
+    readCacheBytes: d.read_cache_bytes,
+    spillToDiskBytes: d.spill_to_disk_bytes,
+    taskTotalTimeMs: d.task_total_time_ms,
+    readFilesCount: d.read_files_count,
+    readPartitionsCount: d.read_partitions_count,
+    photonTotalTimeMs: d.photon_total_time_ms,
+    rowsReadCount: d.rows_read_count,
+    resultFetchTimeMs: d.result_fetch_time_ms,
+    networkSentBytes: d.network_sent_bytes,
+    resultFromCache: d.result_from_cache,
+    prunedBytes: d.pruned_bytes,
+    prunedFilesCount: d.pruned_files_count,
+    provisioningQueueStartTimestamp: d.provisioning_queue_start_timestamp,
+    overloadingQueueStartTimestamp: d.overloading_queue_start_timestamp,
+    queryCompilationStartTimestamp: d.query_compilation_start_timestamp,
+    taskTimeOverTimeRange: d.task_time_over_time_range,
+    workToBeDone: d.work_to_be_done,
+    runnableTasks: d.runnable_tasks,
+    projectedRemainingTaskTotalTimeMs: d.projected_remaining_task_total_time_ms,
+    remainingTaskCount: d.remaining_task_count,
+    projectedRemainingWallclockTimeMs: d.projected_remaining_wallclock_time_ms,
+    readFilesBytes: d.read_files_bytes,
+  }));
+
+export const unmarshalQueryTagSchema: z.ZodType<QueryTag> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
+export const unmarshalTaskTimeOverRangeSchema: z.ZodType<TaskTimeOverRange> = z
+  .object({
+    entries: z
+      .array(z.lazy(() => unmarshalTaskTimeOverRangeEntrySchema))
+      .optional(),
+    interval: z.number().optional(),
+  })
+  .transform(d => ({
+    entries: d.entries,
+    interval: d.interval,
+  }));
+
+export const unmarshalTaskTimeOverRangeEntrySchema: z.ZodType<TaskTimeOverRangeEntry> =
+  z
+    .object({
+      task_completed_time_ms: z.number().optional(),
+    })
+    .transform(d => ({
+      taskCompletedTimeMs: d.task_completed_time_ms,
+    }));
+
+export const unmarshalTimeRangeSchema: z.ZodType<TimeRange> = z
+  .object({
+    start_time_ms: z.number().optional(),
+    end_time_ms: z.number().optional(),
+  })
+  .transform(d => ({
+    startTimeMs: d.start_time_ms,
+    endTimeMs: d.end_time_ms,
+  }));
+
+export const marshalChannelInfoSchema = z
+  .object({
+    name: z.enum(ChannelName).optional(),
+    dbsqlVersion: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    dbsql_version: d.dbsqlVersion,
+  }));
+
+export const marshalExternalQuerySourceSchema = z
+  .object({
+    dashboardId: z.string().optional(),
+    legacyDashboardId: z.string().optional(),
+    alertId: z.string().optional(),
+    notebookId: z.string().optional(),
+    sqlQueryId: z.string().optional(),
+    jobInfo: z.lazy(() => marshalExternalQuerySource_JobInfoSchema).optional(),
+    genieSpaceId: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboard_id: d.dashboardId,
+    legacy_dashboard_id: d.legacyDashboardId,
+    alert_id: d.alertId,
+    notebook_id: d.notebookId,
+    sql_query_id: d.sqlQueryId,
+    job_info: d.jobInfo,
+    genie_space_id: d.genieSpaceId,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalExternalQuerySource_JobInfoSchema = z
+  .object({
+    jobId: z.string().optional(),
+    jobRunId: z.string().optional(),
+    jobTaskRunId: z.string().optional(),
+  })
+  .transform(d => ({
+    job_id: d.jobId,
+    job_run_id: d.jobRunId,
+    job_task_run_id: d.jobTaskRunId,
+  }));
+
+export const marshalListQueriesSchema = z
+  .object({
+    filterBy: z.lazy(() => marshalQueryFilterSchema).optional(),
+    maxResults: z.number().optional(),
+    pageToken: z.string().optional(),
+    includeMetrics: z.boolean().optional(),
+  })
+  .transform(d => ({
+    filter_by: d.filterBy,
+    max_results: d.maxResults,
+    page_token: d.pageToken,
+    include_metrics: d.includeMetrics,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalListQueries_ResponseSchema = z
+  .object({
+    nextPageToken: z.string().optional(),
+    hasNextPage: z.boolean().optional(),
+    res: z.array(z.lazy(() => marshalQueryInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    next_page_token: d.nextPageToken,
+    has_next_page: d.hasNextPage,
+    res: d.res,
+  }));
+
+export const marshalQueryFilterSchema = z
+  .object({
+    queryStartTimeRange: z.lazy(() => marshalTimeRangeSchema).optional(),
+    userIds: z.array(z.number()).optional(),
+    statuses: z.array(z.enum(QueryStatus)).optional(),
+    warehouseIds: z.array(z.string()).optional(),
+    statementIds: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    query_start_time_range: d.queryStartTimeRange,
+    user_ids: d.userIds,
+    statuses: d.statuses,
+    warehouse_ids: d.warehouseIds,
+    statement_ids: d.statementIds,
+  }));
+
+export const marshalQueryInfoSchema = z
+  .object({
+    queryId: z.string().optional(),
+    status: z.enum(QueryStatus).optional(),
+    queryText: z.string().optional(),
+    queryStartTimeMs: z.number().optional(),
+    executionEndTimeMs: z.number().optional(),
+    queryEndTimeMs: z.number().optional(),
+    userId: z.number().optional(),
+    userName: z.string().optional(),
+    sparkUiUrl: z.string().optional(),
+    endpointId: z.string().optional(),
+    rowsProduced: z.number().optional(),
+    errorMessage: z.string().optional(),
+    lookupKey: z.string().optional(),
+    metrics: z.lazy(() => marshalQueryMetricsSchema).optional(),
+    executedAsUserId: z.number().optional(),
+    executedAsUserName: z.string().optional(),
+    sessionId: z.string().optional(),
+    isFinal: z.boolean().optional(),
+    channelUsed: z.lazy(() => marshalChannelInfoSchema).optional(),
+    plansState: z.enum(PlansState).optional(),
+    statementType: z.enum(QueryStatementType).optional(),
+    warehouseId: z.string().optional(),
+    duration: z.number().optional(),
+    clientApplication: z.string().optional(),
+    querySource: z.lazy(() => marshalExternalQuerySourceSchema).optional(),
+    cacheQueryId: z.string().optional(),
+    queryTags: z.array(z.lazy(() => marshalQueryTagSchema)).optional(),
+  })
+  .transform(d => ({
+    query_id: d.queryId,
+    status: d.status,
+    query_text: d.queryText,
+    query_start_time_ms: d.queryStartTimeMs,
+    execution_end_time_ms: d.executionEndTimeMs,
+    query_end_time_ms: d.queryEndTimeMs,
+    user_id: d.userId,
+    user_name: d.userName,
+    spark_ui_url: d.sparkUiUrl,
+    endpoint_id: d.endpointId,
+    rows_produced: d.rowsProduced,
+    error_message: d.errorMessage,
+    lookup_key: d.lookupKey,
+    metrics: d.metrics,
+    executed_as_user_id: d.executedAsUserId,
+    executed_as_user_name: d.executedAsUserName,
+    session_id: d.sessionId,
+    is_final: d.isFinal,
+    channel_used: d.channelUsed,
+    plans_state: d.plansState,
+    statement_type: d.statementType,
+    warehouse_id: d.warehouseId,
+    duration: d.duration,
+    client_application: d.clientApplication,
+    query_source: d.querySource,
+    cache_query_id: d.cacheQueryId,
+    query_tags: d.queryTags,
+  }));
+
+export const marshalQueryMetricsSchema = z
+  .object({
+    totalTimeMs: z.number().optional(),
+    readBytes: z.number().optional(),
+    rowsProducedCount: z.number().optional(),
+    compilationTimeMs: z.number().optional(),
+    executionTimeMs: z.number().optional(),
+    readRemoteBytes: z.number().optional(),
+    writeRemoteBytes: z.number().optional(),
+    readCacheBytes: z.number().optional(),
+    spillToDiskBytes: z.number().optional(),
+    taskTotalTimeMs: z.number().optional(),
+    readFilesCount: z.number().optional(),
+    readPartitionsCount: z.number().optional(),
+    photonTotalTimeMs: z.number().optional(),
+    rowsReadCount: z.number().optional(),
+    resultFetchTimeMs: z.number().optional(),
+    networkSentBytes: z.number().optional(),
+    resultFromCache: z.boolean().optional(),
+    prunedBytes: z.number().optional(),
+    prunedFilesCount: z.number().optional(),
+    provisioningQueueStartTimestamp: z.number().optional(),
+    overloadingQueueStartTimestamp: z.number().optional(),
+    queryCompilationStartTimestamp: z.number().optional(),
+    taskTimeOverTimeRange: z
+      .lazy(() => marshalTaskTimeOverRangeSchema)
+      .optional(),
+    workToBeDone: z.number().optional(),
+    runnableTasks: z.number().optional(),
+    projectedRemainingTaskTotalTimeMs: z.number().optional(),
+    remainingTaskCount: z.number().optional(),
+    projectedRemainingWallclockTimeMs: z.number().optional(),
+    readFilesBytes: z.number().optional(),
+  })
+  .transform(d => ({
+    total_time_ms: d.totalTimeMs,
+    read_bytes: d.readBytes,
+    rows_produced_count: d.rowsProducedCount,
+    compilation_time_ms: d.compilationTimeMs,
+    execution_time_ms: d.executionTimeMs,
+    read_remote_bytes: d.readRemoteBytes,
+    write_remote_bytes: d.writeRemoteBytes,
+    read_cache_bytes: d.readCacheBytes,
+    spill_to_disk_bytes: d.spillToDiskBytes,
+    task_total_time_ms: d.taskTotalTimeMs,
+    read_files_count: d.readFilesCount,
+    read_partitions_count: d.readPartitionsCount,
+    photon_total_time_ms: d.photonTotalTimeMs,
+    rows_read_count: d.rowsReadCount,
+    result_fetch_time_ms: d.resultFetchTimeMs,
+    network_sent_bytes: d.networkSentBytes,
+    result_from_cache: d.resultFromCache,
+    pruned_bytes: d.prunedBytes,
+    pruned_files_count: d.prunedFilesCount,
+    provisioning_queue_start_timestamp: d.provisioningQueueStartTimestamp,
+    overloading_queue_start_timestamp: d.overloadingQueueStartTimestamp,
+    query_compilation_start_timestamp: d.queryCompilationStartTimestamp,
+    task_time_over_time_range: d.taskTimeOverTimeRange,
+    work_to_be_done: d.workToBeDone,
+    runnable_tasks: d.runnableTasks,
+    projected_remaining_task_total_time_ms: d.projectedRemainingTaskTotalTimeMs,
+    remaining_task_count: d.remainingTaskCount,
+    projected_remaining_wallclock_time_ms: d.projectedRemainingWallclockTimeMs,
+    read_files_bytes: d.readFilesBytes,
+  }));
+
+export const marshalQueryTagSchema = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
+
+export const marshalTaskTimeOverRangeSchema = z
+  .object({
+    entries: z
+      .array(z.lazy(() => marshalTaskTimeOverRangeEntrySchema))
+      .optional(),
+    interval: z.number().optional(),
+  })
+  .transform(d => ({
+    entries: d.entries,
+    interval: d.interval,
+  }));
+
+export const marshalTaskTimeOverRangeEntrySchema = z
+  .object({
+    taskCompletedTimeMs: z.number().optional(),
+  })
+  .transform(d => ({
+    task_completed_time_ms: d.taskCompletedTimeMs,
+  }));
+
+export const marshalTimeRangeSchema = z
+  .object({
+    startTimeMs: z.number().optional(),
+    endTimeMs: z.number().optional(),
+  })
+  .transform(d => ({
+    start_time_ms: d.startTimeMs,
+    end_time_ms: d.endTimeMs,
+  }));
