@@ -13,9 +13,14 @@ env:
   CONFTEST_VERSION: "0.67.0"
   CONFTEST_SHA256: "a98cfd236f3cadee16d860fbe31cc6edcb0da3efc317f661c7ccd097164b1fdf"
 
+permissions:
+  contents: read
+
 jobs:
   conftest:
-    runs-on: linux-ubuntu-latest
+    runs-on:
+      group: databricks-protected-runner-group
+      labels: linux-ubuntu-latest-hardened
 
     steps:
       - name: Checkout

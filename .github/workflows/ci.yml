@@ -7,6 +7,10 @@ on:
     branches: [main]
   merge_group:
 
+permissions:
+  id-token: write # Required for JFrog OIDC token exchange.
+  contents: read # Required for actions/checkout.
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -14,9 +18,14 @@ concurrency:
 jobs:
   lint:
     name: Lint
-    runs-on: linux-ubuntu-latest
+    runs-on:
+      group: databricks-protected-runner-group
+      labels: linux-ubuntu-latest-hardened
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup JFrog NPM registry
+        uses: ./.github/actions/setup-jfrog-npm
 
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -38,9 +47,14 @@ jobs:
 
   typecheck:
     name: Type Check
-    runs-on: linux-ubuntu-latest
+    runs-on:
+      group: databricks-protected-runner-group
+      labels: linux-ubuntu-latest-hardened
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup JFrog NPM registry
+        uses: ./.github/actions/setup-jfrog-npm
 
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -59,13 +73,18 @@ jobs:
 
   test:
     name: Test (Node.js ${{ matrix.node-version }})
-    runs-on: linux-ubuntu-latest
+    runs-on:
+      group: databricks-protected-runner-group
+      labels: linux-ubuntu-latest-hardened
     strategy:
       fail-fast: false
       matrix:
         node-version: ['22', '24']
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup JFrog NPM registry
+        uses: ./.github/actions/setup-jfrog-npm
 
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -81,13 +100,18 @@ jobs:
 
   test-browser:
     name: Test (Browser, Node.js ${{ matrix.node-version }})
-    runs-on: linux-ubuntu-latest
+    runs-on:
+      group: databricks-protected-runner-group
+      labels: linux-ubuntu-latest-hardened
     strategy:
       fail-fast: false
       matrix:
         node-version: ['22', '24']
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup JFrog NPM registry
+        uses: ./.github/actions/setup-jfrog-npm
 
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -106,13 +130,18 @@ jobs:
 
   build:
     name: Build (Node.js ${{ matrix.node-version }})
-    runs-on: linux-ubuntu-latest
+    runs-on:
+      group: databricks-protected-runner-group
+      labels: linux-ubuntu-latest-hardened
     strategy:
       fail-fast: false
       matrix:
         node-version: ['22', '24']
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup JFrog NPM registry
+        uses: ./.github/actions/setup-jfrog-npm
 
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -133,7 +162,9 @@ jobs:
     name: CI Gate
     if: always()
     needs: [lint, typecheck, test, test-browser, build]
-    runs-on: linux-ubuntu-latest
+    runs-on:
+      group: databricks-protected-runner-group
+      labels: linux-ubuntu-latest-hardened
     steps:
       - name: Check results
         run: |
