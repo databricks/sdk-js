@@ -1,0 +1,3 @@
+[workspace]
+host = https://workspace.cloud.databricks.com
+token = workspace-token

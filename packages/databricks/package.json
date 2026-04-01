@@ -33,6 +33,14 @@
     "./transport": {
       "types": "./dist/transport/index.d.ts",
       "import": "./dist/transport/index.js"
+    },
+    "./profiles": {
+      "types": "./dist/profiles/index.d.ts",
+      "import": "./dist/profiles/index.js"
+    },
+    "./profiles/browser": {
+      "types": "./dist/profiles/index.browser.d.ts",
+      "import": "./dist/profiles/index.browser.js"
     }
   },
   "files": [
