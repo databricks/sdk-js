@@ -20,7 +20,7 @@ jobs:
   conftest:
     runs-on:
       group: databricks-protected-runner-group
-      labels: linux-ubuntu-latest-hardened
+      labels: linux-ubuntu-latest
 
     steps:
       - name: Checkout

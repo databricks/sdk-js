@@ -20,7 +20,7 @@ jobs:
     name: Lint
     runs-on:
       group: databricks-protected-runner-group
-      labels: linux-ubuntu-latest-hardened
+      labels: linux-ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -49,7 +49,7 @@ jobs:
     name: Type Check
     runs-on:
       group: databricks-protected-runner-group
-      labels: linux-ubuntu-latest-hardened
+      labels: linux-ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -75,7 +75,7 @@ jobs:
     name: Test (Node.js ${{ matrix.node-version }})
     runs-on:
       group: databricks-protected-runner-group
-      labels: linux-ubuntu-latest-hardened
+      labels: linux-ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -102,7 +102,7 @@ jobs:
     name: Test (Browser, Node.js ${{ matrix.node-version }})
     runs-on:
       group: databricks-protected-runner-group
-      labels: linux-ubuntu-latest-hardened
+      labels: linux-ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -132,7 +132,7 @@ jobs:
     name: Build (Node.js ${{ matrix.node-version }})
     runs-on:
       group: databricks-protected-runner-group
-      labels: linux-ubuntu-latest-hardened
+      labels: linux-ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -164,7 +164,7 @@ jobs:
     needs: [lint, typecheck, test, test-browser, build]
     runs-on:
       group: databricks-protected-runner-group
-      labels: linux-ubuntu-latest-hardened
+      labels: linux-ubuntu-latest
     steps:
       - name: Check results
         run: |
