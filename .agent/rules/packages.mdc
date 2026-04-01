@@ -28,8 +28,23 @@ packages/<name>/
 │   └── tsconfig.json         # REQUIRED — see below
 ├── package.json
 ├── tsconfig.json
+├── vitest.config.mjs          # REQUIRED for test-bearing packages — see below
 └── vitest.config.browser.ts
 ```
+
+### vitest.config.mjs (test-bearing packages)
+
+Packages that have tests **must** have a `vitest.config.mjs` that loads the
+shared `failOnViteWarnings` plugin from `../../vitest.shared.mjs`. This plugin
+converts any Vite warning into a test failure, preventing warnings from
+silently accumulating.
+
+The file uses the `.mjs` extension — not `.ts` — because Vite uses esbuild to
+bundle config files, and esbuild applies the nearest `tsconfig.json` to `.ts`
+files. If the tsconfig target is not recognized by the bundled esbuild version,
+this produces spurious warnings during config loading that cannot be suppressed
+through Vite config options (since the config has not loaded yet). Using `.mjs`
+avoids tsconfig application entirely.
 
 ### tests/tsconfig.json (critical)
 

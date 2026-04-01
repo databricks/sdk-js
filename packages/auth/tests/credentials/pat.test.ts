@@ -21,7 +21,7 @@ describe('newPatCredentials', () => {
     async ({token, expected}) => {
       const credentials = newPatCredentials(token);
       const headers = await credentials.authHeaders();
-      expect(headers).toEqual<Header[]>(expected);
+      expect(headers).toEqual(expected);
     }
   );
 
