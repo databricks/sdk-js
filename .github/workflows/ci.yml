@@ -7,6 +7,10 @@ on:
     branches: [main]
   merge_group:
 
+permissions:
+  id-token: write # Required for JFrog OIDC token exchange.
+  contents: read # Required for actions/checkout.
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -14,9 +18,18 @@ concurrency:
 jobs:
   lint:
     name: Lint
-    runs-on: linux-ubuntu-latest
+    runs-on:
+      group: databricks-protected-runner-group
+      labels: linux-ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup JFrog CLI
+        uses: jfrog/setup-jfrog-cli@279b1f629f43dd5bc658d8361ac4802a7ef8d2d5 # v4.9.1
+        env:
+          JF_URL: https://databricks.jfrog.io
+        with:
+          oidc-provider-name: github-actions
 
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -24,8 +37,11 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
+      - name: Configure npm for JFrog
+        run: jf npmc --repo-resolve=db-npm
+
       - name: Install dependencies
-        run: npm ci
+        run: jf npm ci
 
       - name: Build packages
         run: npm run build
@@ -38,9 +54,18 @@ jobs:
 
   typecheck:
     name: Type Check
-    runs-on: linux-ubuntu-latest
+    runs-on:
+      group: databricks-protected-runner-group
+      labels: linux-ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup JFrog CLI
+        uses: jfrog/setup-jfrog-cli@279b1f629f43dd5bc658d8361ac4802a7ef8d2d5 # v4.9.1
+        env:
+          JF_URL: https://databricks.jfrog.io
+        with:
+          oidc-provider-name: github-actions
 
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -48,8 +73,11 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
+      - name: Configure npm for JFrog
+        run: jf npmc --repo-resolve=db-npm
+
       - name: Install dependencies
-        run: npm ci
+        run: jf npm ci
 
       - name: Build packages
         run: npm run build
@@ -59,7 +87,9 @@ jobs:
 
   test:
     name: Test (Node.js ${{ matrix.node-version }})
-    runs-on: linux-ubuntu-latest
+    runs-on:
+      group: databricks-protected-runner-group
+      labels: linux-ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -67,21 +97,33 @@ jobs:
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
+      - name: Setup JFrog CLI
+        uses: jfrog/setup-jfrog-cli@279b1f629f43dd5bc658d8361ac4802a7ef8d2d5 # v4.9.1
+        env:
+          JF_URL: https://databricks.jfrog.io
+        with:
+          oidc-provider-name: github-actions
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
+      - name: Configure npm for JFrog
+        run: jf npmc --repo-resolve=db-npm
+
       - name: Install dependencies
-        run: npm ci
+        run: jf npm ci
 
       - name: Run tests
         run: npm test
 
   test-browser:
     name: Test (Browser, Node.js ${{ matrix.node-version }})
-    runs-on: linux-ubuntu-latest
+    runs-on:
+      group: databricks-protected-runner-group
+      labels: linux-ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -89,14 +131,24 @@ jobs:
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
+      - name: Setup JFrog CLI
+        uses: jfrog/setup-jfrog-cli@279b1f629f43dd5bc658d8361ac4802a7ef8d2d5 # v4.9.1
+        env:
+          JF_URL: https://databricks.jfrog.io
+        with:
+          oidc-provider-name: github-actions
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
+      - name: Configure npm for JFrog
+        run: jf npmc --repo-resolve=db-npm
+
       - name: Install dependencies
-        run: npm ci
+        run: jf npm ci
 
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
@@ -106,7 +158,9 @@ jobs:
 
   build:
     name: Build (Node.js ${{ matrix.node-version }})
-    runs-on: linux-ubuntu-latest
+    runs-on:
+      group: databricks-protected-runner-group
+      labels: linux-ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -114,14 +168,24 @@ jobs:
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
+      - name: Setup JFrog CLI
+        uses: jfrog/setup-jfrog-cli@279b1f629f43dd5bc658d8361ac4802a7ef8d2d5 # v4.9.1
+        env:
+          JF_URL: https://databricks.jfrog.io
+        with:
+          oidc-provider-name: github-actions
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
+      - name: Configure npm for JFrog
+        run: jf npmc --repo-resolve=db-npm
+
       - name: Install dependencies
-        run: npm ci
+        run: jf npm ci
 
       - name: Build
         run: npm run build
@@ -133,7 +197,9 @@ jobs:
     name: CI Gate
     if: always()
     needs: [lint, typecheck, test, test-browser, build]
-    runs-on: linux-ubuntu-latest
+    runs-on:
+      group: databricks-protected-runner-group
+      labels: linux-ubuntu-latest
     steps:
       - name: Check results
         run: |
