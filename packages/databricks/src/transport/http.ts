@@ -14,7 +14,7 @@ export interface HttpRequest {
   headers: Headers;
 
   /** The request body. */
-  body?: string | ArrayBuffer | Uint8Array | null;
+  body?: string | ArrayBuffer | Uint8Array | ReadableStream<Uint8Array> | null;
 
   /** An optional signal to abort the request. */
   signal?: AbortSignal;
@@ -46,12 +46,22 @@ export interface HttpClient {
 export function newFetchHttpClient(): HttpClient {
   return {
     async send(request: HttpRequest): Promise<HttpResponse> {
-      const response = await fetch(request.url, {
+      const init: RequestInit = {
         method: request.method,
         headers: request.headers,
-        ...(request.body !== undefined && {body: request.body}),
-        ...(request.signal !== undefined && {signal: request.signal}),
-      });
+      };
+      if (request.body !== undefined) {
+        init.body = request.body;
+        // The Fetch spec requires duplex: 'half' for streaming request bodies.
+        // See https://fetch.spec.whatwg.org/#dom-requestinit-duplex.
+        if (request.body instanceof ReadableStream) {
+          init.duplex = 'half';
+        }
+      }
+      if (request.signal !== undefined) {
+        init.signal = request.signal;
+      }
+      const response = await fetch(request.url, init);
       return {
         statusCode: response.status,
         headers: response.headers,
