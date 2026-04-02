@@ -1685,12 +1685,6 @@ export interface ListProjectsRequest {
   pageToken?: string | undefined;
   /** Upper bound for items returned. Cannot be negative. The maximum value is 100. */
   pageSize?: number | undefined;
-  /**
-   * Whether to include soft-deleted projects in the response.
-   * When true, soft-deleted projects are included alongside active projects.
-   * Hard-deleted and already-purged projects are never returned.
-   */
-  showDeleted?: boolean | undefined;
 }
 
 export interface ListProjectsResponse {
@@ -1786,16 +1780,6 @@ export interface Project {
    * spec.default_endpoint_settings to configure default settings for endpoints created after project creation.
    */
   initialEndpointSpec?: InitialEndpointSpec | undefined;
-  /**
-   * A timestamp indicating when the project was soft-deleted.
-   * Empty if the project is not deleted, otherwise set to a timestamp in the past.
-   */
-  deleteTime?: Temporal.Instant | undefined;
-  /**
-   * A timestamp indicating when the project is scheduled for permanent deletion.
-   * Empty if the project is not deleted, otherwise set to a timestamp in the future.
-   */
-  purgeTime?: Temporal.Instant | undefined;
 }
 
 export interface ProjectCustomTag {
@@ -3219,12 +3203,10 @@ export const unmarshalListProjectsRequestSchema: z.ZodType<ListProjectsRequest> 
     .object({
       page_token: z.string().optional(),
       page_size: z.number().optional(),
-      show_deleted: z.boolean().optional(),
     })
     .transform(d => ({
       pageToken: d.page_token,
       pageSize: d.page_size,
-      showDeleted: d.show_deleted,
     }));
 
 export const unmarshalListProjectsResponseSchema: z.ZodType<ListProjectsResponse> =
@@ -3307,14 +3289,6 @@ export const unmarshalProjectSchema: z.ZodType<Project> = z
     initial_endpoint_spec: z
       .lazy(() => unmarshalInitialEndpointSpecSchema)
       .optional(),
-    delete_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    purge_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3324,8 +3298,6 @@ export const unmarshalProjectSchema: z.ZodType<Project> = z
     spec: d.spec,
     status: d.status,
     initialEndpointSpec: d.initial_endpoint_spec,
-    deleteTime: d.delete_time,
-    purgeTime: d.purge_time,
   }));
 
 export const unmarshalProjectCustomTagSchema: z.ZodType<ProjectCustomTag> = z
@@ -3746,7 +3718,7 @@ export const unmarshalUpdateRoleRequestSchema: z.ZodType<UpdateRoleRequest> = z
     updateMask: d.update_mask,
   }));
 
-export const marshalBranchSchema: z.ZodType = z
+export const marshalBranchSchema = z
   .object({
     name: z.string().optional(),
     uid: z.string().optional(),
@@ -3772,9 +3744,9 @@ export const marshalBranchSchema: z.ZodType = z
     status: d.status,
   }));
 
-export const marshalBranchOperationMetadataSchema: z.ZodType = z.object({});
+export const marshalBranchOperationMetadataSchema = z.object({});
 
-export const marshalBranchSpecSchema: z.ZodType = z
+export const marshalBranchSpecSchema = z
   .object({
     sourceBranch: z.string().optional(),
     sourceBranchLsn: z.string().optional(),
@@ -3803,7 +3775,7 @@ export const marshalBranchSpecSchema: z.ZodType = z
     no_expiry: d.noExpiry,
   }));
 
-export const marshalBranchStatusSchema: z.ZodType = z
+export const marshalBranchStatusSchema = z
   .object({
     sourceBranch: z.string().optional(),
     sourceBranchLsn: z.string().optional(),
@@ -3840,7 +3812,7 @@ export const marshalBranchStatusSchema: z.ZodType = z
     branch_id: d.branchId,
   }));
 
-export const marshalCatalogSchema: z.ZodType = z
+export const marshalCatalogSchema = z
   .object({
     name: z.string().optional(),
     uid: z.string().optional(),
@@ -3865,7 +3837,7 @@ export const marshalCatalogSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCatalog_CatalogSpecSchema: z.ZodType = z
+export const marshalCatalog_CatalogSpecSchema = z
   .object({
     postgresDatabase: z.string().optional(),
     createDatabaseIfMissing: z.boolean().optional(),
@@ -3878,7 +3850,7 @@ export const marshalCatalog_CatalogSpecSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCatalog_CatalogStatusSchema: z.ZodType = z
+export const marshalCatalog_CatalogStatusSchema = z
   .object({
     postgresDatabase: z.string().optional(),
     project: z.string().optional(),
@@ -3892,9 +3864,9 @@ export const marshalCatalog_CatalogStatusSchema: z.ZodType = z
     catalog_id: d.catalogId,
   }));
 
-export const marshalCatalogOperationMetadataSchema: z.ZodType = z.object({});
+export const marshalCatalogOperationMetadataSchema = z.object({});
 
-export const marshalComputeInstanceSchema: z.ZodType = z
+export const marshalComputeInstanceSchema = z
   .object({
     name: z.string().optional(),
     computeInstanceId: z.string().optional(),
@@ -3922,7 +3894,7 @@ export const marshalComputeInstanceSchema: z.ZodType = z
     suspend_time: d.suspendTime,
   }));
 
-export const marshalCreateBranchRequestSchema: z.ZodType = z
+export const marshalCreateBranchRequestSchema = z
   .object({
     parent: z.string().optional(),
     branchId: z.string().optional(),
@@ -3934,7 +3906,7 @@ export const marshalCreateBranchRequestSchema: z.ZodType = z
     branch: d.branch,
   }));
 
-export const marshalCreateCatalogRequestSchema: z.ZodType = z
+export const marshalCreateCatalogRequestSchema = z
   .object({
     catalogId: z.string().optional(),
     catalog: z.lazy(() => marshalCatalogSchema).optional(),
@@ -3944,7 +3916,7 @@ export const marshalCreateCatalogRequestSchema: z.ZodType = z
     catalog: d.catalog,
   }));
 
-export const marshalCreateDatabaseRequestSchema: z.ZodType = z
+export const marshalCreateDatabaseRequestSchema = z
   .object({
     parent: z.string().optional(),
     databaseId: z.string().optional(),
@@ -3956,7 +3928,7 @@ export const marshalCreateDatabaseRequestSchema: z.ZodType = z
     database: d.database,
   }));
 
-export const marshalCreateEndpointRequestSchema: z.ZodType = z
+export const marshalCreateEndpointRequestSchema = z
   .object({
     parent: z.string().optional(),
     endpointId: z.string().optional(),
@@ -3968,7 +3940,7 @@ export const marshalCreateEndpointRequestSchema: z.ZodType = z
     endpoint: d.endpoint,
   }));
 
-export const marshalCreateProjectRequestSchema: z.ZodType = z
+export const marshalCreateProjectRequestSchema = z
   .object({
     projectId: z.string().optional(),
     project: z.lazy(() => marshalProjectSchema).optional(),
@@ -3978,7 +3950,7 @@ export const marshalCreateProjectRequestSchema: z.ZodType = z
     project: d.project,
   }));
 
-export const marshalCreateRoleRequestSchema: z.ZodType = z
+export const marshalCreateRoleRequestSchema = z
   .object({
     parent: z.string().optional(),
     roleId: z.string().optional(),
@@ -3990,7 +3962,7 @@ export const marshalCreateRoleRequestSchema: z.ZodType = z
     role: d.role,
   }));
 
-export const marshalCreateSyncedTableRequestSchema: z.ZodType = z
+export const marshalCreateSyncedTableRequestSchema = z
   .object({
     syncedTableId: z.string().optional(),
     syncedTable: z.lazy(() => marshalSyncedTableSchema).optional(),
@@ -4000,7 +3972,7 @@ export const marshalCreateSyncedTableRequestSchema: z.ZodType = z
     synced_table: d.syncedTable,
   }));
 
-export const marshalCreateTableRequestSchema: z.ZodType = z
+export const marshalCreateTableRequestSchema = z
   .object({
     table: z.lazy(() => marshalTableSchema).optional(),
   })
@@ -4008,7 +3980,7 @@ export const marshalCreateTableRequestSchema: z.ZodType = z
     table: d.table,
   }));
 
-export const marshalDatabaseSchema: z.ZodType = z
+export const marshalDatabaseSchema = z
   .object({
     name: z.string().optional(),
     parent: z.string().optional(),
@@ -4033,7 +4005,7 @@ export const marshalDatabaseSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDatabase_DatabaseSpecSchema: z.ZodType = z
+export const marshalDatabase_DatabaseSpecSchema = z
   .object({
     role: z.string().optional(),
     postgresDatabase: z.string().optional(),
@@ -4044,7 +4016,7 @@ export const marshalDatabase_DatabaseSpecSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDatabase_DatabaseStatusSchema: z.ZodType = z
+export const marshalDatabase_DatabaseStatusSchema = z
   .object({
     role: z.string().optional(),
     postgresDatabase: z.string().optional(),
@@ -4056,7 +4028,7 @@ export const marshalDatabase_DatabaseStatusSchema: z.ZodType = z
     database_id: d.databaseId,
   }));
 
-export const marshalDatabaseCredentialSchema: z.ZodType = z
+export const marshalDatabaseCredentialSchema = z
   .object({
     token: z.string().optional(),
     expireTime: z
@@ -4069,24 +4041,23 @@ export const marshalDatabaseCredentialSchema: z.ZodType = z
     expire_time: d.expireTime,
   }));
 
-export const marshalDatabaseOperationMetadataSchema: z.ZodType = z.object({});
+export const marshalDatabaseOperationMetadataSchema = z.object({});
 
-export const marshalDatabricksServiceExceptionWithDetailsProtoSchema: z.ZodType =
-  z
-    .object({
-      errorCode: z.enum(ErrorCode).optional(),
-      message: z.string().optional(),
-      stackTrace: z.string().optional(),
-      details: z.array(z.record(z.string(), z.unknown())).optional(),
-    })
-    .transform(d => ({
-      error_code: d.errorCode,
-      message: d.message,
-      stack_trace: d.stackTrace,
-      details: d.details,
-    }));
+export const marshalDatabricksServiceExceptionWithDetailsProtoSchema = z
+  .object({
+    errorCode: z.enum(ErrorCode).optional(),
+    message: z.string().optional(),
+    stackTrace: z.string().optional(),
+    details: z.array(z.record(z.string(), z.unknown())).optional(),
+  })
+  .transform(d => ({
+    error_code: d.errorCode,
+    message: d.message,
+    stack_trace: d.stackTrace,
+    details: d.details,
+  }));
 
-export const marshalDeleteBranchRequestSchema: z.ZodType = z
+export const marshalDeleteBranchRequestSchema = z
   .object({
     name: z.string().optional(),
     purge: z.boolean().optional(),
@@ -4096,7 +4067,7 @@ export const marshalDeleteBranchRequestSchema: z.ZodType = z
     purge: d.purge,
   }));
 
-export const marshalDeleteCatalogRequestSchema: z.ZodType = z
+export const marshalDeleteCatalogRequestSchema = z
   .object({
     name: z.string().optional(),
   })
@@ -4104,7 +4075,7 @@ export const marshalDeleteCatalogRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalDeleteDatabaseRequestSchema: z.ZodType = z
+export const marshalDeleteDatabaseRequestSchema = z
   .object({
     name: z.string().optional(),
   })
@@ -4112,7 +4083,7 @@ export const marshalDeleteDatabaseRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalDeleteEndpointRequestSchema: z.ZodType = z
+export const marshalDeleteEndpointRequestSchema = z
   .object({
     name: z.string().optional(),
   })
@@ -4120,7 +4091,7 @@ export const marshalDeleteEndpointRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalDeleteProjectRequestSchema: z.ZodType = z
+export const marshalDeleteProjectRequestSchema = z
   .object({
     name: z.string().optional(),
   })
@@ -4128,7 +4099,7 @@ export const marshalDeleteProjectRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalDeleteRoleRequestSchema: z.ZodType = z
+export const marshalDeleteRoleRequestSchema = z
   .object({
     name: z.string().optional(),
     reassignOwnedTo: z.string().optional(),
@@ -4138,7 +4109,7 @@ export const marshalDeleteRoleRequestSchema: z.ZodType = z
     reassign_owned_to: d.reassignOwnedTo,
   }));
 
-export const marshalDeleteSyncedTableRequestSchema: z.ZodType = z
+export const marshalDeleteSyncedTableRequestSchema = z
   .object({
     name: z.string().optional(),
   })
@@ -4146,7 +4117,7 @@ export const marshalDeleteSyncedTableRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalDeleteTableRequestSchema: z.ZodType = z
+export const marshalDeleteTableRequestSchema = z
   .object({
     name: z.string().optional(),
   })
@@ -4154,7 +4125,7 @@ export const marshalDeleteTableRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalDeltaTableSyncInfoSchema: z.ZodType = z
+export const marshalDeltaTableSyncInfoSchema = z
   .object({
     deltaCommitVersion: z.number().optional(),
     deltaCommitTime: z
@@ -4167,7 +4138,7 @@ export const marshalDeltaTableSyncInfoSchema: z.ZodType = z
     delta_commit_time: d.deltaCommitTime,
   }));
 
-export const marshalDisableForwardEtlRequestSchema: z.ZodType = z
+export const marshalDisableForwardEtlRequestSchema = z
   .object({
     parent: z.string().optional(),
     tenantId: z.string().optional(),
@@ -4183,7 +4154,7 @@ export const marshalDisableForwardEtlRequestSchema: z.ZodType = z
     pg_schema_oid: d.pgSchemaOid,
   }));
 
-export const marshalDisableForwardEtlResponseSchema: z.ZodType = z
+export const marshalDisableForwardEtlResponseSchema = z
   .object({
     disabled: z.boolean().optional(),
   })
@@ -4191,7 +4162,7 @@ export const marshalDisableForwardEtlResponseSchema: z.ZodType = z
     disabled: d.disabled,
   }));
 
-export const marshalEndpointSchema: z.ZodType = z
+export const marshalEndpointSchema = z
   .object({
     name: z.string().optional(),
     uid: z.string().optional(),
@@ -4217,7 +4188,7 @@ export const marshalEndpointSchema: z.ZodType = z
     status: d.status,
   }));
 
-export const marshalEndpointGroupSpecSchema: z.ZodType = z
+export const marshalEndpointGroupSpecSchema = z
   .object({
     min: z.number().optional(),
     max: z.number().optional(),
@@ -4229,7 +4200,7 @@ export const marshalEndpointGroupSpecSchema: z.ZodType = z
     enable_readable_secondaries: d.enableReadableSecondaries,
   }));
 
-export const marshalEndpointGroupStatusSchema: z.ZodType = z
+export const marshalEndpointGroupStatusSchema = z
   .object({
     min: z.number().optional(),
     max: z.number().optional(),
@@ -4241,7 +4212,7 @@ export const marshalEndpointGroupStatusSchema: z.ZodType = z
     enable_readable_secondaries: d.enableReadableSecondaries,
   }));
 
-export const marshalEndpointHostsSchema: z.ZodType = z
+export const marshalEndpointHostsSchema = z
   .object({
     host: z.string().optional(),
     readOnlyHost: z.string().optional(),
@@ -4255,9 +4226,9 @@ export const marshalEndpointHostsSchema: z.ZodType = z
     read_only_pooled_host: d.readOnlyPooledHost,
   }));
 
-export const marshalEndpointOperationMetadataSchema: z.ZodType = z.object({});
+export const marshalEndpointOperationMetadataSchema = z.object({});
 
-export const marshalEndpointSettingsSchema: z.ZodType = z
+export const marshalEndpointSettingsSchema = z
   .object({
     pgSettings: z.record(z.string(), z.string()).optional(),
   })
@@ -4266,7 +4237,7 @@ export const marshalEndpointSettingsSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEndpointSettings_PgSettingsEntrySchema: z.ZodType = z
+export const marshalEndpointSettings_PgSettingsEntrySchema = z
   .object({
     key: z.string().optional(),
     value: z.string().optional(),
@@ -4276,7 +4247,7 @@ export const marshalEndpointSettings_PgSettingsEntrySchema: z.ZodType = z
     value: d.value,
   }));
 
-export const marshalEndpointSpecSchema: z.ZodType = z
+export const marshalEndpointSpecSchema = z
   .object({
     endpointType: z.enum(EndpointType).optional(),
     autoscalingLimitMinCu: z.number().optional(),
@@ -4301,7 +4272,7 @@ export const marshalEndpointSpecSchema: z.ZodType = z
     group: d.group,
   }));
 
-export const marshalEndpointStatusSchema: z.ZodType = z
+export const marshalEndpointStatusSchema = z
   .object({
     endpointType: z.enum(EndpointType).optional(),
     hosts: z.lazy(() => marshalEndpointHostsSchema).optional(),
@@ -4337,7 +4308,7 @@ export const marshalEndpointStatusSchema: z.ZodType = z
     endpoint_id: d.endpointId,
   }));
 
-export const marshalForwardEtlConfigSchema: z.ZodType = z
+export const marshalForwardEtlConfigSchema = z
   .object({
     workspaceId: z.number().optional(),
     tenantId: z.string().optional(),
@@ -4363,7 +4334,7 @@ export const marshalForwardEtlConfigSchema: z.ZodType = z
     update_time_millis: d.updateTimeMillis,
   }));
 
-export const marshalForwardEtlDatabaseSchema: z.ZodType = z
+export const marshalForwardEtlDatabaseSchema = z
   .object({
     name: z.string().optional(),
     oid: z.number().optional(),
@@ -4373,7 +4344,7 @@ export const marshalForwardEtlDatabaseSchema: z.ZodType = z
     oid: d.oid,
   }));
 
-export const marshalForwardEtlMetadataSchema: z.ZodType = z
+export const marshalForwardEtlMetadataSchema = z
   .object({
     databases: z
       .array(z.lazy(() => marshalForwardEtlDatabaseSchema))
@@ -4385,7 +4356,7 @@ export const marshalForwardEtlMetadataSchema: z.ZodType = z
     schemas: d.schemas,
   }));
 
-export const marshalForwardEtlSchemaSchema: z.ZodType = z
+export const marshalForwardEtlSchemaSchema = z
   .object({
     name: z.string().optional(),
     oid: z.number().optional(),
@@ -4395,7 +4366,7 @@ export const marshalForwardEtlSchemaSchema: z.ZodType = z
     oid: d.oid,
   }));
 
-export const marshalForwardEtlStatusSchema: z.ZodType = z
+export const marshalForwardEtlStatusSchema = z
   .object({
     configurations: z
       .array(z.lazy(() => marshalForwardEtlConfigSchema))
@@ -4409,7 +4380,7 @@ export const marshalForwardEtlStatusSchema: z.ZodType = z
     table_mappings: d.tableMappings,
   }));
 
-export const marshalForwardEtlTableMappingSchema: z.ZodType = z
+export const marshalForwardEtlTableMappingSchema = z
   .object({
     pgTableOid: z.number().optional(),
     ucTableId: z.string().optional(),
@@ -4427,7 +4398,7 @@ export const marshalForwardEtlTableMappingSchema: z.ZodType = z
     enabled: d.enabled,
   }));
 
-export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
+export const marshalGenerateDatabaseCredentialRequestSchema = z
   .object({
     claims: z.array(z.lazy(() => marshalRequestedClaimsSchema)).optional(),
     endpoint: z.string().optional(),
@@ -4449,7 +4420,7 @@ export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
     expire_time: d.expireTime,
   }));
 
-export const marshalGetBranchRequestSchema: z.ZodType = z
+export const marshalGetBranchRequestSchema = z
   .object({
     name: z.string().optional(),
   })
@@ -4457,7 +4428,7 @@ export const marshalGetBranchRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalGetCatalogRequestSchema: z.ZodType = z
+export const marshalGetCatalogRequestSchema = z
   .object({
     name: z.string().optional(),
   })
@@ -4465,7 +4436,7 @@ export const marshalGetCatalogRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalGetComputeInstanceRequestSchema: z.ZodType = z
+export const marshalGetComputeInstanceRequestSchema = z
   .object({
     name: z.string().optional(),
   })
@@ -4473,7 +4444,7 @@ export const marshalGetComputeInstanceRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalGetDatabaseRequestSchema: z.ZodType = z
+export const marshalGetDatabaseRequestSchema = z
   .object({
     name: z.string().optional(),
   })
@@ -4481,7 +4452,7 @@ export const marshalGetDatabaseRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalGetEndpointRequestSchema: z.ZodType = z
+export const marshalGetEndpointRequestSchema = z
   .object({
     name: z.string().optional(),
   })
@@ -4489,7 +4460,7 @@ export const marshalGetEndpointRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalGetForwardEtlMetadataRequestSchema: z.ZodType = z
+export const marshalGetForwardEtlMetadataRequestSchema = z
   .object({
     parent: z.string().optional(),
     tenantId: z.string().optional(),
@@ -4501,7 +4472,7 @@ export const marshalGetForwardEtlMetadataRequestSchema: z.ZodType = z
     timeline_id: d.timelineId,
   }));
 
-export const marshalGetForwardEtlStatusRequestSchema: z.ZodType = z
+export const marshalGetForwardEtlStatusRequestSchema = z
   .object({
     parent: z.string().optional(),
     tenantId: z.string().optional(),
@@ -4513,7 +4484,7 @@ export const marshalGetForwardEtlStatusRequestSchema: z.ZodType = z
     timeline_id: d.timelineId,
   }));
 
-export const marshalGetOperationRequestSchema: z.ZodType = z
+export const marshalGetOperationRequestSchema = z
   .object({
     name: z.string().optional(),
   })
@@ -4521,7 +4492,7 @@ export const marshalGetOperationRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalGetProjectRequestSchema: z.ZodType = z
+export const marshalGetProjectRequestSchema = z
   .object({
     name: z.string().optional(),
   })
@@ -4529,7 +4500,7 @@ export const marshalGetProjectRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalGetRoleRequestSchema: z.ZodType = z
+export const marshalGetRoleRequestSchema = z
   .object({
     name: z.string().optional(),
   })
@@ -4537,7 +4508,7 @@ export const marshalGetRoleRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalGetSyncedTableRequestSchema: z.ZodType = z
+export const marshalGetSyncedTableRequestSchema = z
   .object({
     name: z.string().optional(),
   })
@@ -4545,7 +4516,7 @@ export const marshalGetSyncedTableRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalGetTableRequestSchema: z.ZodType = z
+export const marshalGetTableRequestSchema = z
   .object({
     name: z.string().optional(),
   })
@@ -4553,7 +4524,7 @@ export const marshalGetTableRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalInitialEndpointSpecSchema: z.ZodType = z
+export const marshalInitialEndpointSpecSchema = z
   .object({
     group: z.lazy(() => marshalEndpointGroupSpecSchema).optional(),
   })
@@ -4561,7 +4532,7 @@ export const marshalInitialEndpointSpecSchema: z.ZodType = z
     group: d.group,
   }));
 
-export const marshalListBranchesRequestSchema: z.ZodType = z
+export const marshalListBranchesRequestSchema = z
   .object({
     parent: z.string().optional(),
     pageToken: z.string().optional(),
@@ -4573,7 +4544,7 @@ export const marshalListBranchesRequestSchema: z.ZodType = z
     page_size: d.pageSize,
   }));
 
-export const marshalListBranchesResponseSchema: z.ZodType = z
+export const marshalListBranchesResponseSchema = z
   .object({
     branches: z.array(z.lazy(() => marshalBranchSchema)).optional(),
     nextPageToken: z.string().optional(),
@@ -4583,7 +4554,7 @@ export const marshalListBranchesResponseSchema: z.ZodType = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalListComputeInstancesRequestSchema: z.ZodType = z
+export const marshalListComputeInstancesRequestSchema = z
   .object({
     parent: z.string().optional(),
     pageSize: z.number().optional(),
@@ -4595,7 +4566,7 @@ export const marshalListComputeInstancesRequestSchema: z.ZodType = z
     page_token: d.pageToken,
   }));
 
-export const marshalListComputeInstancesResponseSchema: z.ZodType = z
+export const marshalListComputeInstancesResponseSchema = z
   .object({
     computeInstances: z
       .array(z.lazy(() => marshalComputeInstanceSchema))
@@ -4607,7 +4578,7 @@ export const marshalListComputeInstancesResponseSchema: z.ZodType = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalListDatabasesRequestSchema: z.ZodType = z
+export const marshalListDatabasesRequestSchema = z
   .object({
     parent: z.string().optional(),
     pageToken: z.string().optional(),
@@ -4619,7 +4590,7 @@ export const marshalListDatabasesRequestSchema: z.ZodType = z
     page_size: d.pageSize,
   }));
 
-export const marshalListDatabasesResponseSchema: z.ZodType = z
+export const marshalListDatabasesResponseSchema = z
   .object({
     databases: z.array(z.lazy(() => marshalDatabaseSchema)).optional(),
     nextPageToken: z.string().optional(),
@@ -4629,7 +4600,7 @@ export const marshalListDatabasesResponseSchema: z.ZodType = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalListEndpointsRequestSchema: z.ZodType = z
+export const marshalListEndpointsRequestSchema = z
   .object({
     parent: z.string().optional(),
     pageToken: z.string().optional(),
@@ -4641,7 +4612,7 @@ export const marshalListEndpointsRequestSchema: z.ZodType = z
     page_size: d.pageSize,
   }));
 
-export const marshalListEndpointsResponseSchema: z.ZodType = z
+export const marshalListEndpointsResponseSchema = z
   .object({
     endpoints: z.array(z.lazy(() => marshalEndpointSchema)).optional(),
     nextPageToken: z.string().optional(),
@@ -4651,19 +4622,17 @@ export const marshalListEndpointsResponseSchema: z.ZodType = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalListProjectsRequestSchema: z.ZodType = z
+export const marshalListProjectsRequestSchema = z
   .object({
     pageToken: z.string().optional(),
     pageSize: z.number().optional(),
-    showDeleted: z.boolean().optional(),
   })
   .transform(d => ({
     page_token: d.pageToken,
     page_size: d.pageSize,
-    show_deleted: d.showDeleted,
   }));
 
-export const marshalListProjectsResponseSchema: z.ZodType = z
+export const marshalListProjectsResponseSchema = z
   .object({
     projects: z.array(z.lazy(() => marshalProjectSchema)).optional(),
     nextPageToken: z.string().optional(),
@@ -4673,7 +4642,7 @@ export const marshalListProjectsResponseSchema: z.ZodType = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalListRolesRequestSchema: z.ZodType = z
+export const marshalListRolesRequestSchema = z
   .object({
     parent: z.string().optional(),
     pageToken: z.string().optional(),
@@ -4685,7 +4654,7 @@ export const marshalListRolesRequestSchema: z.ZodType = z
     page_size: d.pageSize,
   }));
 
-export const marshalListRolesResponseSchema: z.ZodType = z
+export const marshalListRolesResponseSchema = z
   .object({
     roles: z.array(z.lazy(() => marshalRoleSchema)).optional(),
     nextPageToken: z.string().optional(),
@@ -4695,7 +4664,7 @@ export const marshalListRolesResponseSchema: z.ZodType = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalNewPipelineSpecSchema: z.ZodType = z
+export const marshalNewPipelineSpecSchema = z
   .object({
     storageCatalog: z.string().optional(),
     storageSchema: z.string().optional(),
@@ -4707,7 +4676,7 @@ export const marshalNewPipelineSpecSchema: z.ZodType = z
     budget_policy_id: d.budgetPolicyId,
   }));
 
-export const marshalOperationSchema: z.ZodType = z
+export const marshalOperationSchema = z
   .object({
     name: z.string().optional(),
     metadata: z.record(z.string(), z.unknown()).optional(),
@@ -4725,7 +4694,7 @@ export const marshalOperationSchema: z.ZodType = z
     response: d.response,
   }));
 
-export const marshalProjectSchema: z.ZodType = z
+export const marshalProjectSchema = z
   .object({
     name: z.string().optional(),
     uid: z.string().optional(),
@@ -4742,14 +4711,6 @@ export const marshalProjectSchema: z.ZodType = z
     initialEndpointSpec: z
       .lazy(() => marshalInitialEndpointSpecSchema)
       .optional(),
-    deleteTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    purgeTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -4759,11 +4720,9 @@ export const marshalProjectSchema: z.ZodType = z
     spec: d.spec,
     status: d.status,
     initial_endpoint_spec: d.initialEndpointSpec,
-    delete_time: d.deleteTime,
-    purge_time: d.purgeTime,
   }));
 
-export const marshalProjectCustomTagSchema: z.ZodType = z
+export const marshalProjectCustomTagSchema = z
   .object({
     key: z.string().optional(),
     value: z.string().optional(),
@@ -4773,7 +4732,7 @@ export const marshalProjectCustomTagSchema: z.ZodType = z
     value: d.value,
   }));
 
-export const marshalProjectDefaultEndpointSettingsSchema: z.ZodType = z
+export const marshalProjectDefaultEndpointSettingsSchema = z
   .object({
     autoscalingLimitMinCu: z.number().optional(),
     autoscalingLimitMaxCu: z.number().optional(),
@@ -4793,20 +4752,19 @@ export const marshalProjectDefaultEndpointSettingsSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalProjectDefaultEndpointSettings_PgSettingsEntrySchema: z.ZodType =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const marshalProjectDefaultEndpointSettings_PgSettingsEntrySchema = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
-export const marshalProjectOperationMetadataSchema: z.ZodType = z.object({});
+export const marshalProjectOperationMetadataSchema = z.object({});
 
-export const marshalProjectSpecSchema: z.ZodType = z
+export const marshalProjectSpecSchema = z
   .object({
     displayName: z.string().optional(),
     pgVersion: z.number().optional(),
@@ -4835,7 +4793,7 @@ export const marshalProjectSpecSchema: z.ZodType = z
     default_branch: d.defaultBranch,
   }));
 
-export const marshalProjectStatusSchema: z.ZodType = z
+export const marshalProjectStatusSchema = z
   .object({
     displayName: z.string().optional(),
     pgVersion: z.number().optional(),
@@ -4875,9 +4833,9 @@ export const marshalProjectStatusSchema: z.ZodType = z
     project_id: d.projectId,
   }));
 
-export const marshalProvisioningInfoSchema: z.ZodType = z.object({});
+export const marshalProvisioningInfoSchema = z.object({});
 
-export const marshalRequestedClaimsSchema: z.ZodType = z
+export const marshalRequestedClaimsSchema = z
   .object({
     permissionSet: z.enum(RequestedClaims_PermissionSet).optional(),
     resources: z.array(z.lazy(() => marshalRequestedResourceSchema)).optional(),
@@ -4887,7 +4845,7 @@ export const marshalRequestedClaimsSchema: z.ZodType = z
     resources: d.resources,
   }));
 
-export const marshalRequestedResourceSchema: z.ZodType = z
+export const marshalRequestedResourceSchema = z
   .object({
     unspecifiedResourceName: z.string().optional(),
     tableName: z.string().optional(),
@@ -4897,7 +4855,7 @@ export const marshalRequestedResourceSchema: z.ZodType = z
     table_name: d.tableName,
   }));
 
-export const marshalRoleSchema: z.ZodType = z
+export const marshalRoleSchema = z
   .object({
     name: z.string().optional(),
     parent: z.string().optional(),
@@ -4922,7 +4880,7 @@ export const marshalRoleSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalRole_AttributesSchema: z.ZodType = z
+export const marshalRole_AttributesSchema = z
   .object({
     createdb: z.boolean().optional(),
     createrole: z.boolean().optional(),
@@ -4935,7 +4893,7 @@ export const marshalRole_AttributesSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalRole_RoleSpecSchema: z.ZodType = z
+export const marshalRole_RoleSpecSchema = z
   .object({
     membershipRoles: z.array(z.enum(Role_MembershipRole)).optional(),
     identityType: z.enum(Role_IdentityType).optional(),
@@ -4952,7 +4910,7 @@ export const marshalRole_RoleSpecSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalRole_RoleStatusSchema: z.ZodType = z
+export const marshalRole_RoleStatusSchema = z
   .object({
     membershipRoles: z.array(z.enum(Role_MembershipRole)).optional(),
     identityType: z.enum(Role_IdentityType).optional(),
@@ -4970,9 +4928,9 @@ export const marshalRole_RoleStatusSchema: z.ZodType = z
     role_id: d.roleId,
   }));
 
-export const marshalRoleOperationMetadataSchema: z.ZodType = z.object({});
+export const marshalRoleOperationMetadataSchema = z.object({});
 
-export const marshalSyncedTableSchema: z.ZodType = z
+export const marshalSyncedTableSchema = z
   .object({
     name: z.string().optional(),
     uid: z.string().optional(),
@@ -4992,7 +4950,7 @@ export const marshalSyncedTableSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSyncedTable_SyncedTableSpecSchema: z.ZodType = z
+export const marshalSyncedTable_SyncedTableSpecSchema = z
   .object({
     postgresDatabase: z.string().optional(),
     branch: z.string().optional(),
@@ -5021,7 +4979,7 @@ export const marshalSyncedTable_SyncedTableSpecSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSyncedTable_SyncedTableStatusSchema: z.ZodType = z
+export const marshalSyncedTable_SyncedTableStatusSchema = z
   .object({
     message: z.string().optional(),
     detailedState: z.enum(SyncedTableState).optional(),
@@ -5052,11 +5010,9 @@ export const marshalSyncedTable_SyncedTableStatusSchema: z.ZodType = z
     project: d.project,
   }));
 
-export const marshalSyncedTableOperationMetadataSchema: z.ZodType = z.object(
-  {}
-);
+export const marshalSyncedTableOperationMetadataSchema = z.object({});
 
-export const marshalSyncedTablePipelineProgressSchema: z.ZodType = z
+export const marshalSyncedTablePipelineProgressSchema = z
   .object({
     latestVersionCurrentlyProcessing: z.number().optional(),
     syncedRowCount: z.number().optional(),
@@ -5072,7 +5028,7 @@ export const marshalSyncedTablePipelineProgressSchema: z.ZodType = z
     estimated_completion_time_seconds: d.estimatedCompletionTimeSeconds,
   }));
 
-export const marshalSyncedTablePositionSchema: z.ZodType = z
+export const marshalSyncedTablePositionSchema = z
   .object({
     syncStartTime: z
       .any()
@@ -5092,7 +5048,7 @@ export const marshalSyncedTablePositionSchema: z.ZodType = z
     delta_table_sync_info: d.deltaTableSyncInfo,
   }));
 
-export const marshalTableSchema: z.ZodType = z
+export const marshalTableSchema = z
   .object({
     name: z.string().optional(),
     database: z.string().optional(),
@@ -5108,7 +5064,7 @@ export const marshalTableSchema: z.ZodType = z
     table_serving_url: d.tableServingUrl,
   }));
 
-export const marshalUpdateBranchRequestSchema: z.ZodType = z
+export const marshalUpdateBranchRequestSchema = z
   .object({
     branch: z.lazy(() => marshalBranchSchema).optional(),
     updateMask: z.string().optional(),
@@ -5118,7 +5074,7 @@ export const marshalUpdateBranchRequestSchema: z.ZodType = z
     update_mask: d.updateMask,
   }));
 
-export const marshalUpdateDatabaseRequestSchema: z.ZodType = z
+export const marshalUpdateDatabaseRequestSchema = z
   .object({
     database: z.lazy(() => marshalDatabaseSchema).optional(),
     updateMask: z.string().optional(),
@@ -5128,7 +5084,7 @@ export const marshalUpdateDatabaseRequestSchema: z.ZodType = z
     update_mask: d.updateMask,
   }));
 
-export const marshalUpdateEndpointRequestSchema: z.ZodType = z
+export const marshalUpdateEndpointRequestSchema = z
   .object({
     endpoint: z.lazy(() => marshalEndpointSchema).optional(),
     updateMask: z.string().optional(),
@@ -5138,7 +5094,7 @@ export const marshalUpdateEndpointRequestSchema: z.ZodType = z
     update_mask: d.updateMask,
   }));
 
-export const marshalUpdateProjectRequestSchema: z.ZodType = z
+export const marshalUpdateProjectRequestSchema = z
   .object({
     project: z.lazy(() => marshalProjectSchema).optional(),
     updateMask: z.string().optional(),
@@ -5148,7 +5104,7 @@ export const marshalUpdateProjectRequestSchema: z.ZodType = z
     update_mask: d.updateMask,
   }));
 
-export const marshalUpdateRoleRequestSchema: z.ZodType = z
+export const marshalUpdateRoleRequestSchema = z
   .object({
     role: z.lazy(() => marshalRoleSchema).optional(),
     updateMask: z.string().optional(),

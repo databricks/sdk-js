@@ -503,7 +503,7 @@ export const unmarshalUpdatePublishedOAuthAppIntegrationSchema: z.ZodType<Update
 export const unmarshalUpdatePublishedOAuthAppIntegration_ResponseSchema: z.ZodType<UpdatePublishedOAuthAppIntegration_Response> =
   z.object({});
 
-export const marshalCreateCustomOAuthAppIntegrationSchema: z.ZodType = z
+export const marshalCreateCustomOAuthAppIntegrationSchema = z
   .object({
     accountId: z.string().optional(),
     redirectUrls: z.array(z.string()).optional(),
@@ -523,7 +523,7 @@ export const marshalCreateCustomOAuthAppIntegrationSchema: z.ZodType = z
     user_authorized_scopes: d.userAuthorizedScopes,
   }));
 
-export const marshalCreatePublishedOAuthAppIntegrationSchema: z.ZodType = z
+export const marshalCreatePublishedOAuthAppIntegrationSchema = z
   .object({
     accountId: z.string().optional(),
     appId: z.string().optional(),
@@ -536,16 +536,15 @@ export const marshalCreatePublishedOAuthAppIntegrationSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCreatePublishedOAuthAppIntegration_ResponseSchema: z.ZodType =
-  z
-    .object({
-      integrationId: z.string().optional(),
-    })
-    .transform(d => ({
-      integration_id: d.integrationId,
-    }));
+export const marshalCreatePublishedOAuthAppIntegration_ResponseSchema = z
+  .object({
+    integrationId: z.string().optional(),
+  })
+  .transform(d => ({
+    integration_id: d.integrationId,
+  }));
 
-export const marshalCustomOAuthAppIntegrationSchema: z.ZodType = z
+export const marshalCustomOAuthAppIntegrationSchema = z
   .object({
     integrationId: z.string().optional(),
     clientId: z.string().optional(),
@@ -575,7 +574,7 @@ export const marshalCustomOAuthAppIntegrationSchema: z.ZodType = z
     principal_id: d.principalId,
   }));
 
-export const marshalCustomOAuthAppIntegrationSecretSchema: z.ZodType = z
+export const marshalCustomOAuthAppIntegrationSecretSchema = z
   .object({
     integrationId: z.string().optional(),
     clientId: z.string().optional(),
@@ -594,7 +593,7 @@ export const marshalCustomOAuthAppIntegrationSecretSchema: z.ZodType = z
     client_secret_expire_time: d.clientSecretExpireTime,
   }));
 
-export const marshalDeleteCustomOAuthAppIntegrationSchema: z.ZodType = z
+export const marshalDeleteCustomOAuthAppIntegrationSchema = z
   .object({
     accountId: z.string().optional(),
     integrationId: z.string().optional(),
@@ -605,10 +604,11 @@ export const marshalDeleteCustomOAuthAppIntegrationSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeleteCustomOAuthAppIntegration_ResponseSchema: z.ZodType =
-  z.object({});
+export const marshalDeleteCustomOAuthAppIntegration_ResponseSchema = z.object(
+  {}
+);
 
-export const marshalDeletePublishedOAuthAppIntegrationSchema: z.ZodType = z
+export const marshalDeletePublishedOAuthAppIntegrationSchema = z
   .object({
     accountId: z.string().optional(),
     integrationId: z.string().optional(),
@@ -619,10 +619,10 @@ export const marshalDeletePublishedOAuthAppIntegrationSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeletePublishedOAuthAppIntegration_ResponseSchema: z.ZodType =
+export const marshalDeletePublishedOAuthAppIntegration_ResponseSchema =
   z.object({});
 
-export const marshalGetCustomOAuthAppIntegrationSchema: z.ZodType = z
+export const marshalGetCustomOAuthAppIntegrationSchema = z
   .object({
     accountId: z.string().optional(),
     integrationId: z.string().optional(),
@@ -632,7 +632,7 @@ export const marshalGetCustomOAuthAppIntegrationSchema: z.ZodType = z
     integration_id: d.integrationId,
   }));
 
-export const marshalGetPublishedOAuthAppIntegrationSchema: z.ZodType = z
+export const marshalGetPublishedOAuthAppIntegrationSchema = z
   .object({
     accountId: z.string().optional(),
     integrationId: z.string().optional(),
@@ -642,7 +642,7 @@ export const marshalGetPublishedOAuthAppIntegrationSchema: z.ZodType = z
     integration_id: d.integrationId,
   }));
 
-export const marshalListCustomOAuthAppIntegrationsSchema: z.ZodType = z
+export const marshalListCustomOAuthAppIntegrationsSchema = z
   .object({
     accountId: z.string().optional(),
     pageToken: z.string().optional(),
@@ -657,7 +657,7 @@ export const marshalListCustomOAuthAppIntegrationsSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalListCustomOAuthAppIntegrations_ResponseSchema: z.ZodType = z
+export const marshalListCustomOAuthAppIntegrations_ResponseSchema = z
   .object({
     apps: z
       .array(z.lazy(() => marshalCustomOAuthAppIntegrationSchema))
@@ -669,7 +669,7 @@ export const marshalListCustomOAuthAppIntegrations_ResponseSchema: z.ZodType = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalListPublishedOAuthAppIntegrationsSchema: z.ZodType = z
+export const marshalListPublishedOAuthAppIntegrationsSchema = z
   .object({
     accountId: z.string().optional(),
     pageToken: z.string().optional(),
@@ -682,20 +682,19 @@ export const marshalListPublishedOAuthAppIntegrationsSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalListPublishedOAuthAppIntegrations_ResponseSchema: z.ZodType =
-  z
-    .object({
-      apps: z
-        .array(z.lazy(() => marshalPublishedOAuthAppIntegrationSchema))
-        .optional(),
-      nextPageToken: z.string().optional(),
-    })
-    .transform(d => ({
-      apps: d.apps,
-      next_page_token: d.nextPageToken,
-    }));
+export const marshalListPublishedOAuthAppIntegrations_ResponseSchema = z
+  .object({
+    apps: z
+      .array(z.lazy(() => marshalPublishedOAuthAppIntegrationSchema))
+      .optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    apps: d.apps,
+    next_page_token: d.nextPageToken,
+  }));
 
-export const marshalPublishedOAuthAppIntegrationSchema: z.ZodType = z
+export const marshalPublishedOAuthAppIntegrationSchema = z
   .object({
     appId: z.string().optional(),
     integrationId: z.string().optional(),
@@ -713,7 +712,7 @@ export const marshalPublishedOAuthAppIntegrationSchema: z.ZodType = z
     create_time: d.createTime,
   }));
 
-export const marshalTokenAccessPolicySchema: z.ZodType = z
+export const marshalTokenAccessPolicySchema = z
   .object({
     accessTokenTtlInMinutes: z.number().optional(),
     refreshTokenTtlInMinutes: z.number().optional(),
@@ -727,7 +726,7 @@ export const marshalTokenAccessPolicySchema: z.ZodType = z
     absolute_session_lifetime_in_minutes: d.absoluteSessionLifetimeInMinutes,
   }));
 
-export const marshalUpdateCustomOAuthAppIntegrationSchema: z.ZodType = z
+export const marshalUpdateCustomOAuthAppIntegrationSchema = z
   .object({
     accountId: z.string().optional(),
     integrationId: z.string().optional(),
@@ -746,10 +745,11 @@ export const marshalUpdateCustomOAuthAppIntegrationSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalUpdateCustomOAuthAppIntegration_ResponseSchema: z.ZodType =
-  z.object({});
+export const marshalUpdateCustomOAuthAppIntegration_ResponseSchema = z.object(
+  {}
+);
 
-export const marshalUpdatePublishedOAuthAppIntegrationSchema: z.ZodType = z
+export const marshalUpdatePublishedOAuthAppIntegrationSchema = z
   .object({
     accountId: z.string().optional(),
     integrationId: z.string().optional(),
@@ -762,5 +762,5 @@ export const marshalUpdatePublishedOAuthAppIntegrationSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalUpdatePublishedOAuthAppIntegration_ResponseSchema: z.ZodType =
+export const marshalUpdatePublishedOAuthAppIntegration_ResponseSchema =
   z.object({});
