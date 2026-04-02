@@ -116,6 +116,9 @@ jobs:
       - name: Install dependencies
         run: jf npm ci
 
+      - name: Build packages
+        run: npm run build
+
       - name: Run tests
         run: npm test
 
@@ -149,6 +152,9 @@ jobs:
 
       - name: Install dependencies
         run: jf npm ci
+
+      - name: Build packages
+        run: npm run build
 
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps

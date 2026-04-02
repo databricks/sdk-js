@@ -34,9 +34,7 @@ export async function readAll(
  * individually percent-encoded while preserving the "/" separators.
  */
 export function encodeFilePath(filePath: string): string {
-  // Strip leading slash to avoid an empty first segment.
-  const stripped = filePath.startsWith('/') ? filePath.slice(1) : filePath;
-  return stripped
+  return filePath
     .split('/')
     .map(segment => encodeURIComponent(segment))
     .join('/');

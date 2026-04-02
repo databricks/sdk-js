@@ -40,7 +40,7 @@ export class Client {
     req: UploadRequest
   ): Promise<void> {
     const encodedPath = encodeFilePath(req.filePath);
-    const url = new URL(`${this.host}/api/2.0/fs/files/${encodedPath}`);
+    const url = new URL(`${this.host}/api/2.0/fs/files${encodedPath}`);
     if (req.overwrite === true) {
       url.searchParams.set('overwrite', 'true');
     }
