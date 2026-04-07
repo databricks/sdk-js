@@ -1307,6 +1307,9 @@ export class Client {
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
     }
+    if (req.showDeleted !== undefined) {
+      params.append('show_deleted', String(req.showDeleted));
+    }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListProjectsResponse | undefined;

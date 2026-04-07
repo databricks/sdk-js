@@ -3,6 +3,7 @@
 export {LaunchStage} from './model';
 
 export type {
+  FieldMetadata,
   LongRunningOperation,
   LongRunningOperation_OperationInfo,
   LongRunningOperation_OperationMethods,
