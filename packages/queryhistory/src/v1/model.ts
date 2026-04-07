@@ -627,7 +627,7 @@ export const unmarshalTimeRangeSchema: z.ZodType<TimeRange> = z
     endTimeMs: d.end_time_ms,
   }));
 
-export const marshalChannelInfoSchema = z
+export const marshalChannelInfoSchema: z.ZodType = z
   .object({
     name: z.enum(ChannelName).optional(),
     dbsqlVersion: z.string().optional(),
@@ -637,7 +637,7 @@ export const marshalChannelInfoSchema = z
     dbsql_version: d.dbsqlVersion,
   }));
 
-export const marshalExternalQuerySourceSchema = z
+export const marshalExternalQuerySourceSchema: z.ZodType = z
   .object({
     dashboardId: z.string().optional(),
     legacyDashboardId: z.string().optional(),
@@ -658,7 +658,7 @@ export const marshalExternalQuerySourceSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalExternalQuerySource_JobInfoSchema = z
+export const marshalExternalQuerySource_JobInfoSchema: z.ZodType = z
   .object({
     jobId: z.string().optional(),
     jobRunId: z.string().optional(),
@@ -670,7 +670,7 @@ export const marshalExternalQuerySource_JobInfoSchema = z
     job_task_run_id: d.jobTaskRunId,
   }));
 
-export const marshalListQueriesSchema = z
+export const marshalListQueriesSchema: z.ZodType = z
   .object({
     filterBy: z.lazy(() => marshalQueryFilterSchema).optional(),
     maxResults: z.number().optional(),
@@ -685,7 +685,7 @@ export const marshalListQueriesSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalListQueries_ResponseSchema = z
+export const marshalListQueries_ResponseSchema: z.ZodType = z
   .object({
     nextPageToken: z.string().optional(),
     hasNextPage: z.boolean().optional(),
@@ -697,7 +697,7 @@ export const marshalListQueries_ResponseSchema = z
     res: d.res,
   }));
 
-export const marshalQueryFilterSchema = z
+export const marshalQueryFilterSchema: z.ZodType = z
   .object({
     queryStartTimeRange: z.lazy(() => marshalTimeRangeSchema).optional(),
     userIds: z.array(z.number()).optional(),
@@ -713,7 +713,7 @@ export const marshalQueryFilterSchema = z
     statement_ids: d.statementIds,
   }));
 
-export const marshalQueryInfoSchema = z
+export const marshalQueryInfoSchema: z.ZodType = z
   .object({
     queryId: z.string().optional(),
     status: z.enum(QueryStatus).optional(),
@@ -773,7 +773,7 @@ export const marshalQueryInfoSchema = z
     query_tags: d.queryTags,
   }));
 
-export const marshalQueryMetricsSchema = z
+export const marshalQueryMetricsSchema: z.ZodType = z
   .object({
     totalTimeMs: z.number().optional(),
     readBytes: z.number().optional(),
@@ -839,7 +839,7 @@ export const marshalQueryMetricsSchema = z
     read_files_bytes: d.readFilesBytes,
   }));
 
-export const marshalQueryTagSchema = z
+export const marshalQueryTagSchema: z.ZodType = z
   .object({
     key: z.string().optional(),
     value: z.string().optional(),
@@ -849,7 +849,7 @@ export const marshalQueryTagSchema = z
     value: d.value,
   }));
 
-export const marshalTaskTimeOverRangeSchema = z
+export const marshalTaskTimeOverRangeSchema: z.ZodType = z
   .object({
     entries: z
       .array(z.lazy(() => marshalTaskTimeOverRangeEntrySchema))
@@ -861,7 +861,7 @@ export const marshalTaskTimeOverRangeSchema = z
     interval: d.interval,
   }));
 
-export const marshalTaskTimeOverRangeEntrySchema = z
+export const marshalTaskTimeOverRangeEntrySchema: z.ZodType = z
   .object({
     taskCompletedTimeMs: z.number().optional(),
   })
@@ -869,7 +869,7 @@ export const marshalTaskTimeOverRangeEntrySchema = z
     task_completed_time_ms: d.taskCompletedTimeMs,
   }));
 
-export const marshalTimeRangeSchema = z
+export const marshalTimeRangeSchema: z.ZodType = z
   .object({
     startTimeMs: z.number().optional(),
     endTimeMs: z.number().optional(),

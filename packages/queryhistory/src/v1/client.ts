@@ -7,9 +7,17 @@ import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-databricks/transport';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {buildHttpRequest, executeHttpCall, parseResponse} from './utils';
+import {
+  buildHttpRequest,
+  executeHttpCall,
+  parseResponse,
+  flattenQueryParams,
+} from './utils';
 import type {ListQueries, ListQueries_Response} from './model';
-import {unmarshalListQueries_ResponseSchema} from './model';
+import {
+  marshalQueryFilterSchema,
+  unmarshalListQueries_ResponseSchema,
+} from './model';
 
 export class Client {
   private readonly host: string;
@@ -40,7 +48,11 @@ export class Client {
     const url = `${this.host}/api/2.0/sql/history/queries`;
     const params = new URLSearchParams();
     if (req.filterBy !== undefined) {
-      params.append('filter_by', String(req.filterBy));
+      flattenQueryParams(
+        'filter_by',
+        marshalQueryFilterSchema.parse(req.filterBy),
+        params
+      );
     }
     if (req.maxResults !== undefined) {
       params.append('max_results', String(req.maxResults));

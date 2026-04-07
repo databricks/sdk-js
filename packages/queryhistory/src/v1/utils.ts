@@ -99,3 +99,24 @@ export function parseResponse<T>(body: Uint8Array, schema: z.ZodType<T>): T {
 export function marshalRequest(data: unknown, schema: z.ZodType): string {
   return JSON.stringify(schema.parse(data));
 }
+
+export function flattenQueryParams(
+  prefix: string,
+  value: unknown,
+  params: URLSearchParams
+): void {
+  if (value === null || value === undefined) {
+    return;
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      params.append(prefix, String(item));
+    }
+  } else if (typeof value === 'object') {
+    for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
+      flattenQueryParams(`${prefix}.${key}`, val, params);
+    }
+  } else {
+    params.append(prefix, String(value));
+  }
+}
