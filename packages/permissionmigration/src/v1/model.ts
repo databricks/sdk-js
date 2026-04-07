@@ -1,4 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
+
 import {z} from 'zod';
 
 export interface MigratePermissionsRequest {
@@ -17,29 +18,31 @@ export interface MigratePermissionsResponse {
   permissionsMigrated?: number | undefined;
 }
 
-export const unmarshalMigratePermissionsRequestSchema = z
-  .object({
-    workspace_id: z.number().optional(),
-    from_workspace_group_name: z.string().optional(),
-    to_account_group_name: z.string().optional(),
-    size: z.number().optional(),
-  })
-  .transform(d => ({
-    workspaceId: d.workspace_id,
-    fromWorkspaceGroupName: d.from_workspace_group_name,
-    toAccountGroupName: d.to_account_group_name,
-    size: d.size,
-  }));
+export const unmarshalMigratePermissionsRequestSchema: z.ZodType<MigratePermissionsRequest> =
+  z
+    .object({
+      workspace_id: z.number().optional(),
+      from_workspace_group_name: z.string().optional(),
+      to_account_group_name: z.string().optional(),
+      size: z.number().optional(),
+    })
+    .transform(d => ({
+      workspaceId: d.workspace_id,
+      fromWorkspaceGroupName: d.from_workspace_group_name,
+      toAccountGroupName: d.to_account_group_name,
+      size: d.size,
+    }));
 
-export const unmarshalMigratePermissionsResponseSchema = z
-  .object({
-    permissions_migrated: z.number().optional(),
-  })
-  .transform(d => ({
-    permissionsMigrated: d.permissions_migrated,
-  }));
+export const unmarshalMigratePermissionsResponseSchema: z.ZodType<MigratePermissionsResponse> =
+  z
+    .object({
+      permissions_migrated: z.number().optional(),
+    })
+    .transform(d => ({
+      permissionsMigrated: d.permissions_migrated,
+    }));
 
-export const marshalMigratePermissionsRequestSchema = z
+export const marshalMigratePermissionsRequestSchema: z.ZodType = z
   .object({
     workspaceId: z.number().optional(),
     fromWorkspaceGroupName: z.string().optional(),
@@ -53,7 +56,7 @@ export const marshalMigratePermissionsRequestSchema = z
     size: d.size,
   }));
 
-export const marshalMigratePermissionsResponseSchema = z
+export const marshalMigratePermissionsResponseSchema: z.ZodType = z
   .object({
     permissionsMigrated: z.number().optional(),
   })

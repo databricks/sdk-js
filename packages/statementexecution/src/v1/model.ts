@@ -1,4 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
+
 import {z} from 'zod';
 
 /** The name of the base data type. This doesn't include details for complex types such as STRUCT, MAP or ARRAY. */
@@ -502,19 +503,26 @@ export interface StatementStatus {
    */
   state?: StatementStatus_State | undefined;
   error?: ServiceError | undefined;
+  /**
+   * SQLSTATE error code returned when the statement execution fails.
+   * Only populated when the statement status is `FAILED`.
+   */
+  sqlState?: string | undefined;
 }
 
-export const unmarshalCancelStatementRequestSchema = z
-  .object({
-    statement_id: z.string().optional(),
-  })
-  .transform(d => ({
-    statementId: d.statement_id,
-  }));
+export const unmarshalCancelStatementRequestSchema: z.ZodType<CancelStatementRequest> =
+  z
+    .object({
+      statement_id: z.string().optional(),
+    })
+    .transform(d => ({
+      statementId: d.statement_id,
+    }));
 
-export const unmarshalCancelStatementResponseSchema = z.object({});
+export const unmarshalCancelStatementResponseSchema: z.ZodType<CancelStatementResponse> =
+  z.object({});
 
-export const unmarshalChunkInfoSchema = z
+export const unmarshalChunkInfoSchema: z.ZodType<ChunkInfo> = z
   .object({
     chunk_index: z.number().optional(),
     row_offset: z.number().optional(),
@@ -532,7 +540,7 @@ export const unmarshalChunkInfoSchema = z
     nextChunkInternalLink: d.next_chunk_internal_link,
   }));
 
-export const unmarshalColumnInfoSchema = z
+export const unmarshalColumnInfoSchema: z.ZodType<ColumnInfo> = z
   .object({
     name: z.string().optional(),
     type_text: z.string().optional(),
@@ -552,39 +560,40 @@ export const unmarshalColumnInfoSchema = z
     typeIntervalType: d.type_interval_type,
   }));
 
-export const unmarshalExecuteStatementRequestSchema = z
-  .object({
-    statement: z.string().optional(),
-    warehouse_id: z.string().optional(),
-    catalog: z.string().optional(),
-    schema: z.string().optional(),
-    row_limit: z.number().optional(),
-    byte_limit: z.number().optional(),
-    format: z.enum(Format).optional(),
-    disposition: z.enum(Disposition).optional(),
-    wait_timeout: z.string().optional(),
-    on_wait_timeout: z.enum(TimeoutAction).optional(),
-    parameters: z
-      .array(z.lazy(() => unmarshalStatementParameterSchema))
-      .optional(),
-    query_tags: z.array(z.lazy(() => unmarshalQueryTagSchema)).optional(),
-  })
-  .transform(d => ({
-    statement: d.statement,
-    warehouseId: d.warehouse_id,
-    catalog: d.catalog,
-    schema: d.schema,
-    rowLimit: d.row_limit,
-    byteLimit: d.byte_limit,
-    format: d.format,
-    disposition: d.disposition,
-    waitTimeout: d.wait_timeout,
-    onWaitTimeout: d.on_wait_timeout,
-    parameters: d.parameters,
-    queryTags: d.query_tags,
-  }));
+export const unmarshalExecuteStatementRequestSchema: z.ZodType<ExecuteStatementRequest> =
+  z
+    .object({
+      statement: z.string().optional(),
+      warehouse_id: z.string().optional(),
+      catalog: z.string().optional(),
+      schema: z.string().optional(),
+      row_limit: z.number().optional(),
+      byte_limit: z.number().optional(),
+      format: z.enum(Format).optional(),
+      disposition: z.enum(Disposition).optional(),
+      wait_timeout: z.string().optional(),
+      on_wait_timeout: z.enum(TimeoutAction).optional(),
+      parameters: z
+        .array(z.lazy(() => unmarshalStatementParameterSchema))
+        .optional(),
+      query_tags: z.array(z.lazy(() => unmarshalQueryTagSchema)).optional(),
+    })
+    .transform(d => ({
+      statement: d.statement,
+      warehouseId: d.warehouse_id,
+      catalog: d.catalog,
+      schema: d.schema,
+      rowLimit: d.row_limit,
+      byteLimit: d.byte_limit,
+      format: d.format,
+      disposition: d.disposition,
+      waitTimeout: d.wait_timeout,
+      onWaitTimeout: d.on_wait_timeout,
+      parameters: d.parameters,
+      queryTags: d.query_tags,
+    }));
 
-export const unmarshalExternalLinkSchema = z
+export const unmarshalExternalLinkSchema: z.ZodType<ExternalLink> = z
   .object({
     external_link: z.string().optional(),
     expiration: z.string().optional(),
@@ -609,7 +618,38 @@ export const unmarshalExternalLinkSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalExternalLink_HttpHeadersEntrySchema = z
+export const unmarshalExternalLink_HttpHeadersEntrySchema: z.ZodType<ExternalLink_HttpHeadersEntry> =
+  z
+    .object({
+      key: z.string().optional(),
+      value: z.string().optional(),
+    })
+    .transform(d => ({
+      key: d.key,
+      value: d.value,
+    }));
+
+export const unmarshalGetResultDataRequestSchema: z.ZodType<GetResultDataRequest> =
+  z
+    .object({
+      statement_id: z.string().optional(),
+      chunk_index: z.number().optional(),
+    })
+    .transform(d => ({
+      statementId: d.statement_id,
+      chunkIndex: d.chunk_index,
+    }));
+
+export const unmarshalGetStatementResultRequestSchema: z.ZodType<GetStatementResultRequest> =
+  z
+    .object({
+      statement_id: z.string().optional(),
+    })
+    .transform(d => ({
+      statementId: d.statement_id,
+    }));
+
+export const unmarshalQueryTagSchema: z.ZodType<QueryTag> = z
   .object({
     key: z.string().optional(),
     value: z.string().optional(),
@@ -619,35 +659,7 @@ export const unmarshalExternalLink_HttpHeadersEntrySchema = z
     value: d.value,
   }));
 
-export const unmarshalGetResultDataRequestSchema = z
-  .object({
-    statement_id: z.string().optional(),
-    chunk_index: z.number().optional(),
-  })
-  .transform(d => ({
-    statementId: d.statement_id,
-    chunkIndex: d.chunk_index,
-  }));
-
-export const unmarshalGetStatementResultRequestSchema = z
-  .object({
-    statement_id: z.string().optional(),
-  })
-  .transform(d => ({
-    statementId: d.statement_id,
-  }));
-
-export const unmarshalQueryTagSchema = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-export const unmarshalResultDataSchema = z
+export const unmarshalResultDataSchema: z.ZodType<ResultData> = z
   .object({
     external_links: z
       .array(z.lazy(() => unmarshalExternalLinkSchema))
@@ -671,7 +683,7 @@ export const unmarshalResultDataSchema = z
     nextChunkInternalLink: d.next_chunk_internal_link,
   }));
 
-export const unmarshalResultManifestSchema = z
+export const unmarshalResultManifestSchema: z.ZodType<ResultManifest> = z
   .object({
     format: z.enum(Format).optional(),
     schema: z.lazy(() => unmarshalSchemaSchema).optional(),
@@ -691,7 +703,7 @@ export const unmarshalResultManifestSchema = z
     truncated: d.truncated,
   }));
 
-export const unmarshalSchemaSchema = z
+export const unmarshalSchemaSchema: z.ZodType<Schema> = z
   .object({
     column_count: z.number().optional(),
     columns: z.array(z.lazy(() => unmarshalColumnInfoSchema)).optional(),
@@ -701,7 +713,7 @@ export const unmarshalSchemaSchema = z
     columns: d.columns,
   }));
 
-export const unmarshalServiceErrorSchema = z
+export const unmarshalServiceErrorSchema: z.ZodType<ServiceError> = z
   .object({
     error_code: z.enum(ServiceErrorCode).optional(),
     message: z.string().optional(),
@@ -711,19 +723,20 @@ export const unmarshalServiceErrorSchema = z
     message: d.message,
   }));
 
-export const unmarshalStatementParameterSchema = z
-  .object({
-    name: z.string().optional(),
-    value: z.string().optional(),
-    type: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    value: d.value,
-    type: d.type,
-  }));
+export const unmarshalStatementParameterSchema: z.ZodType<StatementParameter> =
+  z
+    .object({
+      name: z.string().optional(),
+      value: z.string().optional(),
+      type: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+      value: d.value,
+      type: d.type,
+    }));
 
-export const unmarshalStatementResponseSchema = z
+export const unmarshalStatementResponseSchema: z.ZodType<StatementResponse> = z
   .object({
     statement_id: z.string().optional(),
     status: z.lazy(() => unmarshalStatementStatusSchema).optional(),
@@ -737,17 +750,19 @@ export const unmarshalStatementResponseSchema = z
     result: d.result,
   }));
 
-export const unmarshalStatementStatusSchema = z
+export const unmarshalStatementStatusSchema: z.ZodType<StatementStatus> = z
   .object({
     state: z.enum(StatementStatus_State).optional(),
     error: z.lazy(() => unmarshalServiceErrorSchema).optional(),
+    sql_state: z.string().optional(),
   })
   .transform(d => ({
     state: d.state,
     error: d.error,
+    sqlState: d.sql_state,
   }));
 
-export const marshalCancelStatementRequestSchema = z
+export const marshalCancelStatementRequestSchema: z.ZodType = z
   .object({
     statementId: z.string().optional(),
   })
@@ -755,9 +770,9 @@ export const marshalCancelStatementRequestSchema = z
     statement_id: d.statementId,
   }));
 
-export const marshalCancelStatementResponseSchema = z.object({});
+export const marshalCancelStatementResponseSchema: z.ZodType = z.object({});
 
-export const marshalChunkInfoSchema = z
+export const marshalChunkInfoSchema: z.ZodType = z
   .object({
     chunkIndex: z.number().optional(),
     rowOffset: z.number().optional(),
@@ -775,7 +790,7 @@ export const marshalChunkInfoSchema = z
     next_chunk_internal_link: d.nextChunkInternalLink,
   }));
 
-export const marshalColumnInfoSchema = z
+export const marshalColumnInfoSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     typeText: z.string().optional(),
@@ -795,7 +810,7 @@ export const marshalColumnInfoSchema = z
     type_interval_type: d.typeIntervalType,
   }));
 
-export const marshalExecuteStatementRequestSchema = z
+export const marshalExecuteStatementRequestSchema: z.ZodType = z
   .object({
     statement: z.string().optional(),
     warehouseId: z.string().optional(),
@@ -827,7 +842,7 @@ export const marshalExecuteStatementRequestSchema = z
     query_tags: d.queryTags,
   }));
 
-export const marshalExternalLinkSchema = z
+export const marshalExternalLinkSchema: z.ZodType = z
   .object({
     externalLink: z.string().optional(),
     expiration: z.string().optional(),
@@ -852,7 +867,7 @@ export const marshalExternalLinkSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalExternalLink_HttpHeadersEntrySchema = z
+export const marshalExternalLink_HttpHeadersEntrySchema: z.ZodType = z
   .object({
     key: z.string().optional(),
     value: z.string().optional(),
@@ -862,7 +877,7 @@ export const marshalExternalLink_HttpHeadersEntrySchema = z
     value: d.value,
   }));
 
-export const marshalGetResultDataRequestSchema = z
+export const marshalGetResultDataRequestSchema: z.ZodType = z
   .object({
     statementId: z.string().optional(),
     chunkIndex: z.number().optional(),
@@ -872,7 +887,7 @@ export const marshalGetResultDataRequestSchema = z
     chunk_index: d.chunkIndex,
   }));
 
-export const marshalGetStatementResultRequestSchema = z
+export const marshalGetStatementResultRequestSchema: z.ZodType = z
   .object({
     statementId: z.string().optional(),
   })
@@ -880,7 +895,7 @@ export const marshalGetStatementResultRequestSchema = z
     statement_id: d.statementId,
   }));
 
-export const marshalQueryTagSchema = z
+export const marshalQueryTagSchema: z.ZodType = z
   .object({
     key: z.string().optional(),
     value: z.string().optional(),
@@ -890,7 +905,7 @@ export const marshalQueryTagSchema = z
     value: d.value,
   }));
 
-export const marshalResultDataSchema = z
+export const marshalResultDataSchema: z.ZodType = z
   .object({
     externalLinks: z.array(z.lazy(() => marshalExternalLinkSchema)).optional(),
     dataArray: z.array(z.array(z.unknown())).optional(),
@@ -912,7 +927,7 @@ export const marshalResultDataSchema = z
     next_chunk_internal_link: d.nextChunkInternalLink,
   }));
 
-export const marshalResultManifestSchema = z
+export const marshalResultManifestSchema: z.ZodType = z
   .object({
     format: z.enum(Format).optional(),
     schema: z.lazy(() => marshalSchemaSchema).optional(),
@@ -932,7 +947,7 @@ export const marshalResultManifestSchema = z
     truncated: d.truncated,
   }));
 
-export const marshalSchemaSchema = z
+export const marshalSchemaSchema: z.ZodType = z
   .object({
     columnCount: z.number().optional(),
     columns: z.array(z.lazy(() => marshalColumnInfoSchema)).optional(),
@@ -942,7 +957,7 @@ export const marshalSchemaSchema = z
     columns: d.columns,
   }));
 
-export const marshalServiceErrorSchema = z
+export const marshalServiceErrorSchema: z.ZodType = z
   .object({
     errorCode: z.enum(ServiceErrorCode).optional(),
     message: z.string().optional(),
@@ -952,7 +967,7 @@ export const marshalServiceErrorSchema = z
     message: d.message,
   }));
 
-export const marshalStatementParameterSchema = z
+export const marshalStatementParameterSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     value: z.string().optional(),
@@ -964,7 +979,7 @@ export const marshalStatementParameterSchema = z
     type: d.type,
   }));
 
-export const marshalStatementResponseSchema = z
+export const marshalStatementResponseSchema: z.ZodType = z
   .object({
     statementId: z.string().optional(),
     status: z.lazy(() => marshalStatementStatusSchema).optional(),
@@ -978,12 +993,14 @@ export const marshalStatementResponseSchema = z
     result: d.result,
   }));
 
-export const marshalStatementStatusSchema = z
+export const marshalStatementStatusSchema: z.ZodType = z
   .object({
     state: z.enum(StatementStatus_State).optional(),
     error: z.lazy(() => marshalServiceErrorSchema).optional(),
+    sqlState: z.string().optional(),
   })
   .transform(d => ({
     state: d.state,
     error: d.error,
+    sql_state: d.sqlState,
   }));

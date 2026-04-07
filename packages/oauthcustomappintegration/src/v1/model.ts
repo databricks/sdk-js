@@ -215,224 +215,237 @@ export interface UpdatePublishedOAuthAppIntegration {
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
 export interface UpdatePublishedOAuthAppIntegration_Response {}
 
-export const unmarshalCreateCustomOAuthAppIntegrationSchema = z
-  .object({
-    account_id: z.string().optional(),
-    redirect_urls: z.array(z.string()).optional(),
-    name: z.string().optional(),
-    confidential: z.boolean().optional(),
-    token_access_policy: z
-      .lazy(() => unmarshalTokenAccessPolicySchema)
-      .optional(),
-    scopes: z.array(z.string()).optional(),
-    user_authorized_scopes: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    redirectUrls: d.redirect_urls,
-    name: d.name,
-    confidential: d.confidential,
-    tokenAccessPolicy: d.token_access_policy,
-    scopes: d.scopes,
-    userAuthorizedScopes: d.user_authorized_scopes,
-  }));
+export const unmarshalCreateCustomOAuthAppIntegrationSchema: z.ZodType<CreateCustomOAuthAppIntegration> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      redirect_urls: z.array(z.string()).optional(),
+      name: z.string().optional(),
+      confidential: z.boolean().optional(),
+      token_access_policy: z
+        .lazy(() => unmarshalTokenAccessPolicySchema)
+        .optional(),
+      scopes: z.array(z.string()).optional(),
+      user_authorized_scopes: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      redirectUrls: d.redirect_urls,
+      name: d.name,
+      confidential: d.confidential,
+      tokenAccessPolicy: d.token_access_policy,
+      scopes: d.scopes,
+      userAuthorizedScopes: d.user_authorized_scopes,
+    }));
 
-export const unmarshalCreatePublishedOAuthAppIntegrationSchema = z
-  .object({
-    account_id: z.string().optional(),
-    app_id: z.string().optional(),
-    token_access_policy: z
-      .lazy(() => unmarshalTokenAccessPolicySchema)
-      .optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    appId: d.app_id,
-    tokenAccessPolicy: d.token_access_policy,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreatePublishedOAuthAppIntegration_ResponseSchema = z
-  .object({
-    integration_id: z.string().optional(),
-  })
-  .transform(d => ({
-    integrationId: d.integration_id,
-  }));
-
-export const unmarshalCustomOAuthAppIntegrationSchema = z
-  .object({
-    integration_id: z.string().optional(),
-    client_id: z.string().optional(),
-    redirect_urls: z.array(z.string()).optional(),
-    name: z.string().optional(),
-    confidential: z.boolean().optional(),
-    token_access_policy: z
-      .lazy(() => unmarshalTokenAccessPolicySchema)
-      .optional(),
-    scopes: z.array(z.string()).optional(),
-    created_by: z.number().optional(),
-    create_time: z.string().optional(),
-    creator_username: z.string().optional(),
-    user_authorized_scopes: z.array(z.string()).optional(),
-    principal_id: z.number().optional(),
-  })
-  .transform(d => ({
-    integrationId: d.integration_id,
-    clientId: d.client_id,
-    redirectUrls: d.redirect_urls,
-    name: d.name,
-    confidential: d.confidential,
-    tokenAccessPolicy: d.token_access_policy,
-    scopes: d.scopes,
-    createdBy: d.created_by,
-    createTime: d.create_time,
-    creatorUsername: d.creator_username,
-    userAuthorizedScopes: d.user_authorized_scopes,
-    principalId: d.principal_id,
-  }));
-
-export const unmarshalCustomOAuthAppIntegrationSecretSchema = z
-  .object({
-    integration_id: z.string().optional(),
-    client_id: z.string().optional(),
-    client_secret: z.string().optional(),
-    principal_id: z.number().optional(),
-    client_secret_expire_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-  })
-  .transform(d => ({
-    integrationId: d.integration_id,
-    clientId: d.client_id,
-    clientSecret: d.client_secret,
-    principalId: d.principal_id,
-    clientSecretExpireTime: d.client_secret_expire_time,
-  }));
-
-export const unmarshalDeleteCustomOAuthAppIntegrationSchema = z
-  .object({
-    account_id: z.string().optional(),
-    integration_id: z.string().optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    integrationId: d.integration_id,
-  }));
+export const unmarshalCreatePublishedOAuthAppIntegrationSchema: z.ZodType<CreatePublishedOAuthAppIntegration> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      app_id: z.string().optional(),
+      token_access_policy: z
+        .lazy(() => unmarshalTokenAccessPolicySchema)
+        .optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      appId: d.app_id,
+      tokenAccessPolicy: d.token_access_policy,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteCustomOAuthAppIntegration_ResponseSchema = z.object(
-  {}
-);
+export const unmarshalCreatePublishedOAuthAppIntegration_ResponseSchema: z.ZodType<CreatePublishedOAuthAppIntegration_Response> =
+  z
+    .object({
+      integration_id: z.string().optional(),
+    })
+    .transform(d => ({
+      integrationId: d.integration_id,
+    }));
 
-export const unmarshalDeletePublishedOAuthAppIntegrationSchema = z
-  .object({
-    account_id: z.string().optional(),
-    integration_id: z.string().optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    integrationId: d.integration_id,
-  }));
+export const unmarshalCustomOAuthAppIntegrationSchema: z.ZodType<CustomOAuthAppIntegration> =
+  z
+    .object({
+      integration_id: z.string().optional(),
+      client_id: z.string().optional(),
+      redirect_urls: z.array(z.string()).optional(),
+      name: z.string().optional(),
+      confidential: z.boolean().optional(),
+      token_access_policy: z
+        .lazy(() => unmarshalTokenAccessPolicySchema)
+        .optional(),
+      scopes: z.array(z.string()).optional(),
+      created_by: z.number().optional(),
+      create_time: z.string().optional(),
+      creator_username: z.string().optional(),
+      user_authorized_scopes: z.array(z.string()).optional(),
+      principal_id: z.number().optional(),
+    })
+    .transform(d => ({
+      integrationId: d.integration_id,
+      clientId: d.client_id,
+      redirectUrls: d.redirect_urls,
+      name: d.name,
+      confidential: d.confidential,
+      tokenAccessPolicy: d.token_access_policy,
+      scopes: d.scopes,
+      createdBy: d.created_by,
+      createTime: d.create_time,
+      creatorUsername: d.creator_username,
+      userAuthorizedScopes: d.user_authorized_scopes,
+      principalId: d.principal_id,
+    }));
+
+export const unmarshalCustomOAuthAppIntegrationSecretSchema: z.ZodType<CustomOAuthAppIntegrationSecret> =
+  z
+    .object({
+      integration_id: z.string().optional(),
+      client_id: z.string().optional(),
+      client_secret: z.string().optional(),
+      principal_id: z.number().optional(),
+      client_secret_expire_time: z
+        .string()
+        .transform(s => Temporal.Instant.from(s))
+        .optional(),
+    })
+    .transform(d => ({
+      integrationId: d.integration_id,
+      clientId: d.client_id,
+      clientSecret: d.client_secret,
+      principalId: d.principal_id,
+      clientSecretExpireTime: d.client_secret_expire_time,
+    }));
+
+export const unmarshalDeleteCustomOAuthAppIntegrationSchema: z.ZodType<DeleteCustomOAuthAppIntegration> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      integration_id: z.string().optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      integrationId: d.integration_id,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeletePublishedOAuthAppIntegration_ResponseSchema =
+export const unmarshalDeleteCustomOAuthAppIntegration_ResponseSchema: z.ZodType<DeleteCustomOAuthAppIntegration_Response> =
   z.object({});
 
-export const unmarshalGetCustomOAuthAppIntegrationSchema = z
-  .object({
-    account_id: z.string().optional(),
-    integration_id: z.string().optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    integrationId: d.integration_id,
-  }));
-
-export const unmarshalGetPublishedOAuthAppIntegrationSchema = z
-  .object({
-    account_id: z.string().optional(),
-    integration_id: z.string().optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    integrationId: d.integration_id,
-  }));
-
-export const unmarshalListCustomOAuthAppIntegrationsSchema = z
-  .object({
-    account_id: z.string().optional(),
-    page_token: z.string().optional(),
-    page_size: z.number().optional(),
-    include_creator_username: z.boolean().optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    pageToken: d.page_token,
-    pageSize: d.page_size,
-    includeCreatorUsername: d.include_creator_username,
-  }));
+export const unmarshalDeletePublishedOAuthAppIntegrationSchema: z.ZodType<DeletePublishedOAuthAppIntegration> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      integration_id: z.string().optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      integrationId: d.integration_id,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListCustomOAuthAppIntegrations_ResponseSchema = z
-  .object({
-    apps: z
-      .array(z.lazy(() => unmarshalCustomOAuthAppIntegrationSchema))
-      .optional(),
-    next_page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    apps: d.apps,
-    nextPageToken: d.next_page_token,
-  }));
+export const unmarshalDeletePublishedOAuthAppIntegration_ResponseSchema: z.ZodType<DeletePublishedOAuthAppIntegration_Response> =
+  z.object({});
 
-export const unmarshalListPublishedOAuthAppIntegrationsSchema = z
-  .object({
-    account_id: z.string().optional(),
-    page_token: z.string().optional(),
-    page_size: z.number().optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    pageToken: d.page_token,
-    pageSize: d.page_size,
-  }));
+export const unmarshalGetCustomOAuthAppIntegrationSchema: z.ZodType<GetCustomOAuthAppIntegration> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      integration_id: z.string().optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      integrationId: d.integration_id,
+    }));
+
+export const unmarshalGetPublishedOAuthAppIntegrationSchema: z.ZodType<GetPublishedOAuthAppIntegration> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      integration_id: z.string().optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      integrationId: d.integration_id,
+    }));
+
+export const unmarshalListCustomOAuthAppIntegrationsSchema: z.ZodType<ListCustomOAuthAppIntegrations> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      page_token: z.string().optional(),
+      page_size: z.number().optional(),
+      include_creator_username: z.boolean().optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      pageToken: d.page_token,
+      pageSize: d.page_size,
+      includeCreatorUsername: d.include_creator_username,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListPublishedOAuthAppIntegrations_ResponseSchema = z
-  .object({
-    apps: z
-      .array(z.lazy(() => unmarshalPublishedOAuthAppIntegrationSchema))
-      .optional(),
-    next_page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    apps: d.apps,
-    nextPageToken: d.next_page_token,
-  }));
+export const unmarshalListCustomOAuthAppIntegrations_ResponseSchema: z.ZodType<ListCustomOAuthAppIntegrations_Response> =
+  z
+    .object({
+      apps: z
+        .array(z.lazy(() => unmarshalCustomOAuthAppIntegrationSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      apps: d.apps,
+      nextPageToken: d.next_page_token,
+    }));
 
-export const unmarshalPublishedOAuthAppIntegrationSchema = z
-  .object({
-    app_id: z.string().optional(),
-    integration_id: z.string().optional(),
-    name: z.string().optional(),
-    token_access_policy: z
-      .lazy(() => unmarshalTokenAccessPolicySchema)
-      .optional(),
-    created_by: z.number().optional(),
-    create_time: z.string().optional(),
-  })
-  .transform(d => ({
-    appId: d.app_id,
-    integrationId: d.integration_id,
-    name: d.name,
-    tokenAccessPolicy: d.token_access_policy,
-    createdBy: d.created_by,
-    createTime: d.create_time,
-  }));
+export const unmarshalListPublishedOAuthAppIntegrationsSchema: z.ZodType<ListPublishedOAuthAppIntegrations> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      page_token: z.string().optional(),
+      page_size: z.number().optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      pageToken: d.page_token,
+      pageSize: d.page_size,
+    }));
 
-export const unmarshalTokenAccessPolicySchema = z
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalListPublishedOAuthAppIntegrations_ResponseSchema: z.ZodType<ListPublishedOAuthAppIntegrations_Response> =
+  z
+    .object({
+      apps: z
+        .array(z.lazy(() => unmarshalPublishedOAuthAppIntegrationSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      apps: d.apps,
+      nextPageToken: d.next_page_token,
+    }));
+
+export const unmarshalPublishedOAuthAppIntegrationSchema: z.ZodType<PublishedOAuthAppIntegration> =
+  z
+    .object({
+      app_id: z.string().optional(),
+      integration_id: z.string().optional(),
+      name: z.string().optional(),
+      token_access_policy: z
+        .lazy(() => unmarshalTokenAccessPolicySchema)
+        .optional(),
+      created_by: z.number().optional(),
+      create_time: z.string().optional(),
+    })
+    .transform(d => ({
+      appId: d.app_id,
+      integrationId: d.integration_id,
+      name: d.name,
+      tokenAccessPolicy: d.token_access_policy,
+      createdBy: d.created_by,
+      createTime: d.create_time,
+    }));
+
+export const unmarshalTokenAccessPolicySchema: z.ZodType<TokenAccessPolicy> = z
   .object({
     access_token_ttl_in_minutes: z.number().optional(),
     refresh_token_ttl_in_minutes: z.number().optional(),
@@ -446,50 +459,51 @@ export const unmarshalTokenAccessPolicySchema = z
     absoluteSessionLifetimeInMinutes: d.absolute_session_lifetime_in_minutes,
   }));
 
-export const unmarshalUpdateCustomOAuthAppIntegrationSchema = z
-  .object({
-    account_id: z.string().optional(),
-    integration_id: z.string().optional(),
-    redirect_urls: z.array(z.string()).optional(),
-    token_access_policy: z
-      .lazy(() => unmarshalTokenAccessPolicySchema)
-      .optional(),
-    scopes: z.array(z.string()).optional(),
-    user_authorized_scopes: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    integrationId: d.integration_id,
-    redirectUrls: d.redirect_urls,
-    tokenAccessPolicy: d.token_access_policy,
-    scopes: d.scopes,
-    userAuthorizedScopes: d.user_authorized_scopes,
-  }));
+export const unmarshalUpdateCustomOAuthAppIntegrationSchema: z.ZodType<UpdateCustomOAuthAppIntegration> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      integration_id: z.string().optional(),
+      redirect_urls: z.array(z.string()).optional(),
+      token_access_policy: z
+        .lazy(() => unmarshalTokenAccessPolicySchema)
+        .optional(),
+      scopes: z.array(z.string()).optional(),
+      user_authorized_scopes: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      integrationId: d.integration_id,
+      redirectUrls: d.redirect_urls,
+      tokenAccessPolicy: d.token_access_policy,
+      scopes: d.scopes,
+      userAuthorizedScopes: d.user_authorized_scopes,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateCustomOAuthAppIntegration_ResponseSchema = z.object(
-  {}
-);
-
-export const unmarshalUpdatePublishedOAuthAppIntegrationSchema = z
-  .object({
-    account_id: z.string().optional(),
-    integration_id: z.string().optional(),
-    token_access_policy: z
-      .lazy(() => unmarshalTokenAccessPolicySchema)
-      .optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    integrationId: d.integration_id,
-    tokenAccessPolicy: d.token_access_policy,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdatePublishedOAuthAppIntegration_ResponseSchema =
+export const unmarshalUpdateCustomOAuthAppIntegration_ResponseSchema: z.ZodType<UpdateCustomOAuthAppIntegration_Response> =
   z.object({});
 
-export const marshalCreateCustomOAuthAppIntegrationSchema = z
+export const unmarshalUpdatePublishedOAuthAppIntegrationSchema: z.ZodType<UpdatePublishedOAuthAppIntegration> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      integration_id: z.string().optional(),
+      token_access_policy: z
+        .lazy(() => unmarshalTokenAccessPolicySchema)
+        .optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      integrationId: d.integration_id,
+      tokenAccessPolicy: d.token_access_policy,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalUpdatePublishedOAuthAppIntegration_ResponseSchema: z.ZodType<UpdatePublishedOAuthAppIntegration_Response> =
+  z.object({});
+
+export const marshalCreateCustomOAuthAppIntegrationSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     redirectUrls: z.array(z.string()).optional(),
@@ -509,7 +523,7 @@ export const marshalCreateCustomOAuthAppIntegrationSchema = z
     user_authorized_scopes: d.userAuthorizedScopes,
   }));
 
-export const marshalCreatePublishedOAuthAppIntegrationSchema = z
+export const marshalCreatePublishedOAuthAppIntegrationSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     appId: z.string().optional(),
@@ -522,15 +536,16 @@ export const marshalCreatePublishedOAuthAppIntegrationSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCreatePublishedOAuthAppIntegration_ResponseSchema = z
-  .object({
-    integrationId: z.string().optional(),
-  })
-  .transform(d => ({
-    integration_id: d.integrationId,
-  }));
+export const marshalCreatePublishedOAuthAppIntegration_ResponseSchema: z.ZodType =
+  z
+    .object({
+      integrationId: z.string().optional(),
+    })
+    .transform(d => ({
+      integration_id: d.integrationId,
+    }));
 
-export const marshalCustomOAuthAppIntegrationSchema = z
+export const marshalCustomOAuthAppIntegrationSchema: z.ZodType = z
   .object({
     integrationId: z.string().optional(),
     clientId: z.string().optional(),
@@ -560,7 +575,7 @@ export const marshalCustomOAuthAppIntegrationSchema = z
     principal_id: d.principalId,
   }));
 
-export const marshalCustomOAuthAppIntegrationSecretSchema = z
+export const marshalCustomOAuthAppIntegrationSecretSchema: z.ZodType = z
   .object({
     integrationId: z.string().optional(),
     clientId: z.string().optional(),
@@ -579,7 +594,7 @@ export const marshalCustomOAuthAppIntegrationSecretSchema = z
     client_secret_expire_time: d.clientSecretExpireTime,
   }));
 
-export const marshalDeleteCustomOAuthAppIntegrationSchema = z
+export const marshalDeleteCustomOAuthAppIntegrationSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     integrationId: z.string().optional(),
@@ -590,25 +605,10 @@ export const marshalDeleteCustomOAuthAppIntegrationSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeleteCustomOAuthAppIntegration_ResponseSchema = z.object(
-  {}
-);
-
-export const marshalDeletePublishedOAuthAppIntegrationSchema = z
-  .object({
-    accountId: z.string().optional(),
-    integrationId: z.string().optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    integration_id: d.integrationId,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeletePublishedOAuthAppIntegration_ResponseSchema =
+export const marshalDeleteCustomOAuthAppIntegration_ResponseSchema: z.ZodType =
   z.object({});
 
-export const marshalGetCustomOAuthAppIntegrationSchema = z
+export const marshalDeletePublishedOAuthAppIntegrationSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     integrationId: z.string().optional(),
@@ -618,7 +618,11 @@ export const marshalGetCustomOAuthAppIntegrationSchema = z
     integration_id: d.integrationId,
   }));
 
-export const marshalGetPublishedOAuthAppIntegrationSchema = z
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalDeletePublishedOAuthAppIntegration_ResponseSchema: z.ZodType =
+  z.object({});
+
+export const marshalGetCustomOAuthAppIntegrationSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     integrationId: z.string().optional(),
@@ -628,7 +632,17 @@ export const marshalGetPublishedOAuthAppIntegrationSchema = z
     integration_id: d.integrationId,
   }));
 
-export const marshalListCustomOAuthAppIntegrationsSchema = z
+export const marshalGetPublishedOAuthAppIntegrationSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    integrationId: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    integration_id: d.integrationId,
+  }));
+
+export const marshalListCustomOAuthAppIntegrationsSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     pageToken: z.string().optional(),
@@ -643,7 +657,7 @@ export const marshalListCustomOAuthAppIntegrationsSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalListCustomOAuthAppIntegrations_ResponseSchema = z
+export const marshalListCustomOAuthAppIntegrations_ResponseSchema: z.ZodType = z
   .object({
     apps: z
       .array(z.lazy(() => marshalCustomOAuthAppIntegrationSchema))
@@ -655,7 +669,7 @@ export const marshalListCustomOAuthAppIntegrations_ResponseSchema = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalListPublishedOAuthAppIntegrationsSchema = z
+export const marshalListPublishedOAuthAppIntegrationsSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     pageToken: z.string().optional(),
@@ -668,19 +682,20 @@ export const marshalListPublishedOAuthAppIntegrationsSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalListPublishedOAuthAppIntegrations_ResponseSchema = z
-  .object({
-    apps: z
-      .array(z.lazy(() => marshalPublishedOAuthAppIntegrationSchema))
-      .optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    apps: d.apps,
-    next_page_token: d.nextPageToken,
-  }));
+export const marshalListPublishedOAuthAppIntegrations_ResponseSchema: z.ZodType =
+  z
+    .object({
+      apps: z
+        .array(z.lazy(() => marshalPublishedOAuthAppIntegrationSchema))
+        .optional(),
+      nextPageToken: z.string().optional(),
+    })
+    .transform(d => ({
+      apps: d.apps,
+      next_page_token: d.nextPageToken,
+    }));
 
-export const marshalPublishedOAuthAppIntegrationSchema = z
+export const marshalPublishedOAuthAppIntegrationSchema: z.ZodType = z
   .object({
     appId: z.string().optional(),
     integrationId: z.string().optional(),
@@ -698,7 +713,7 @@ export const marshalPublishedOAuthAppIntegrationSchema = z
     create_time: d.createTime,
   }));
 
-export const marshalTokenAccessPolicySchema = z
+export const marshalTokenAccessPolicySchema: z.ZodType = z
   .object({
     accessTokenTtlInMinutes: z.number().optional(),
     refreshTokenTtlInMinutes: z.number().optional(),
@@ -712,7 +727,7 @@ export const marshalTokenAccessPolicySchema = z
     absolute_session_lifetime_in_minutes: d.absoluteSessionLifetimeInMinutes,
   }));
 
-export const marshalUpdateCustomOAuthAppIntegrationSchema = z
+export const marshalUpdateCustomOAuthAppIntegrationSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     integrationId: z.string().optional(),
@@ -731,11 +746,10 @@ export const marshalUpdateCustomOAuthAppIntegrationSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalUpdateCustomOAuthAppIntegration_ResponseSchema = z.object(
-  {}
-);
+export const marshalUpdateCustomOAuthAppIntegration_ResponseSchema: z.ZodType =
+  z.object({});
 
-export const marshalUpdatePublishedOAuthAppIntegrationSchema = z
+export const marshalUpdatePublishedOAuthAppIntegrationSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     integrationId: z.string().optional(),
@@ -748,5 +762,5 @@ export const marshalUpdatePublishedOAuthAppIntegrationSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalUpdatePublishedOAuthAppIntegration_ResponseSchema =
+export const marshalUpdatePublishedOAuthAppIntegration_ResponseSchema: z.ZodType =
   z.object({});

@@ -1,4 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
+
 import {z} from 'zod';
 
 /**
@@ -460,7 +461,7 @@ export interface UpdateMonitor {
   monitorVersion?: number | undefined;
 }
 
-export const unmarshalCancelRefreshSchema = z
+export const unmarshalCancelRefreshSchema: z.ZodType<CancelRefresh> = z
   .object({
     full_table_name_arg: z.string().optional(),
     refresh_id: z.number().optional(),
@@ -471,9 +472,10 @@ export const unmarshalCancelRefreshSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCancelRefresh_ResponseSchema = z.object({});
+export const unmarshalCancelRefresh_ResponseSchema: z.ZodType<CancelRefresh_Response> =
+  z.object({});
 
-export const unmarshalCreateMonitorSchema = z
+export const unmarshalCreateMonitorSchema: z.ZodType<CreateMonitor> = z
   .object({
     full_table_name_arg: z.string().optional(),
     skip_builtin_dashboard: z.boolean().optional(),
@@ -529,7 +531,7 @@ export const unmarshalCreateMonitorSchema = z
     monitorVersion: d.monitor_version,
   }));
 
-export const unmarshalCustomMetricSchema = z
+export const unmarshalCustomMetricSchema: z.ZodType<CustomMetric> = z
   .object({
     name: z.string().optional(),
     definition: z.string().optional(),
@@ -545,15 +547,16 @@ export const unmarshalCustomMetricSchema = z
     type: d.type,
   }));
 
-export const unmarshalDataClassificationConfigSchema = z
-  .object({
-    enabled: z.boolean().optional(),
-  })
-  .transform(d => ({
-    enabled: d.enabled,
-  }));
+export const unmarshalDataClassificationConfigSchema: z.ZodType<DataClassificationConfig> =
+  z
+    .object({
+      enabled: z.boolean().optional(),
+    })
+    .transform(d => ({
+      enabled: d.enabled,
+    }));
 
-export const unmarshalDataMonitorInfoSchema = z
+export const unmarshalDataMonitorInfoSchema: z.ZodType<DataMonitorInfo> = z
   .object({
     output_schema_name: z.string().optional(),
     assets_dir: z.string().optional(),
@@ -603,7 +606,7 @@ export const unmarshalDataMonitorInfoSchema = z
     monitorVersion: d.monitor_version,
   }));
 
-export const unmarshalDeleteMonitorSchema = z
+export const unmarshalDeleteMonitorSchema: z.ZodType<DeleteMonitor> = z
   .object({
     full_table_name_arg: z.string().optional(),
   })
@@ -612,9 +615,10 @@ export const unmarshalDeleteMonitorSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteMonitor_ResponseSchema = z.object({});
+export const unmarshalDeleteMonitor_ResponseSchema: z.ZodType<DeleteMonitor_Response> =
+  z.object({});
 
-export const unmarshalDestinationSchema = z
+export const unmarshalDestinationSchema: z.ZodType<Destination> = z
   .object({
     email_addresses: z.array(z.string()).optional(),
   })
@@ -622,7 +626,7 @@ export const unmarshalDestinationSchema = z
     emailAddresses: d.email_addresses,
   }));
 
-export const unmarshalGetMonitorSchema = z
+export const unmarshalGetMonitorSchema: z.ZodType<GetMonitor> = z
   .object({
     full_table_name_arg: z.string().optional(),
   })
@@ -630,7 +634,7 @@ export const unmarshalGetMonitorSchema = z
     fullTableNameArg: d.full_table_name_arg,
   }));
 
-export const unmarshalGetRefreshSchema = z
+export const unmarshalGetRefreshSchema: z.ZodType<GetRefresh> = z
   .object({
     full_table_name_arg: z.string().optional(),
     refresh_id: z.number().optional(),
@@ -640,27 +644,28 @@ export const unmarshalGetRefreshSchema = z
     refreshId: d.refresh_id,
   }));
 
-export const unmarshalInferenceLogAnalysisConfigSchema = z
-  .object({
-    problem_type: z.enum(ProblemType).optional(),
-    timestamp_col: z.string().optional(),
-    granularities: z.array(z.string()).optional(),
-    prediction_col: z.string().optional(),
-    label_col: z.string().optional(),
-    model_id_col: z.string().optional(),
-    prediction_proba_col: z.string().optional(),
-  })
-  .transform(d => ({
-    problemType: d.problem_type,
-    timestampCol: d.timestamp_col,
-    granularities: d.granularities,
-    predictionCol: d.prediction_col,
-    labelCol: d.label_col,
-    modelIdCol: d.model_id_col,
-    predictionProbaCol: d.prediction_proba_col,
-  }));
+export const unmarshalInferenceLogAnalysisConfigSchema: z.ZodType<InferenceLogAnalysisConfig> =
+  z
+    .object({
+      problem_type: z.enum(ProblemType).optional(),
+      timestamp_col: z.string().optional(),
+      granularities: z.array(z.string()).optional(),
+      prediction_col: z.string().optional(),
+      label_col: z.string().optional(),
+      model_id_col: z.string().optional(),
+      prediction_proba_col: z.string().optional(),
+    })
+    .transform(d => ({
+      problemType: d.problem_type,
+      timestampCol: d.timestamp_col,
+      granularities: d.granularities,
+      predictionCol: d.prediction_col,
+      labelCol: d.label_col,
+      modelIdCol: d.model_id_col,
+      predictionProbaCol: d.prediction_proba_col,
+    }));
 
-export const unmarshalListRefreshesSchema = z
+export const unmarshalListRefreshesSchema: z.ZodType<ListRefreshes> = z
   .object({
     full_table_name_arg: z.string().optional(),
   })
@@ -669,27 +674,29 @@ export const unmarshalListRefreshesSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListRefreshes_ResponseSchema = z
-  .object({
-    refreshes: z.array(z.lazy(() => unmarshalRefreshInfoSchema)).optional(),
-  })
-  .transform(d => ({
-    refreshes: d.refreshes,
-  }));
+export const unmarshalListRefreshes_ResponseSchema: z.ZodType<ListRefreshes_Response> =
+  z
+    .object({
+      refreshes: z.array(z.lazy(() => unmarshalRefreshInfoSchema)).optional(),
+    })
+    .transform(d => ({
+      refreshes: d.refreshes,
+    }));
 
-export const unmarshalMonitorCronScheduleSchema = z
-  .object({
-    quartz_cron_expression: z.string().optional(),
-    timezone_id: z.string().optional(),
-    pause_status: z.enum(SchedulePauseStatus).optional(),
-  })
-  .transform(d => ({
-    quartzCronExpression: d.quartz_cron_expression,
-    timezoneId: d.timezone_id,
-    pauseStatus: d.pause_status,
-  }));
+export const unmarshalMonitorCronScheduleSchema: z.ZodType<MonitorCronSchedule> =
+  z
+    .object({
+      quartz_cron_expression: z.string().optional(),
+      timezone_id: z.string().optional(),
+      pause_status: z.enum(SchedulePauseStatus).optional(),
+    })
+    .transform(d => ({
+      quartzCronExpression: d.quartz_cron_expression,
+      timezoneId: d.timezone_id,
+      pauseStatus: d.pause_status,
+    }));
 
-export const unmarshalNotificationsSchema = z
+export const unmarshalNotificationsSchema: z.ZodType<Notifications> = z
   .object({
     on_failure: z.lazy(() => unmarshalDestinationSchema).optional(),
     on_new_classification_tag_detected: z
@@ -701,7 +708,7 @@ export const unmarshalNotificationsSchema = z
     onNewClassificationTagDetected: d.on_new_classification_tag_detected,
   }));
 
-export const unmarshalRefreshInfoSchema = z
+export const unmarshalRefreshInfoSchema: z.ZodType<RefreshInfo> = z
   .object({
     refresh_id: z.number().optional(),
     state: z.enum(RefreshState).optional(),
@@ -719,28 +726,30 @@ export const unmarshalRefreshInfoSchema = z
     trigger: d.trigger,
   }));
 
-export const unmarshalRegenerateDashboardSchema = z
-  .object({
-    full_table_name_arg: z.string().optional(),
-    warehouse_id: z.string().optional(),
-  })
-  .transform(d => ({
-    fullTableNameArg: d.full_table_name_arg,
-    warehouseId: d.warehouse_id,
-  }));
+export const unmarshalRegenerateDashboardSchema: z.ZodType<RegenerateDashboard> =
+  z
+    .object({
+      full_table_name_arg: z.string().optional(),
+      warehouse_id: z.string().optional(),
+    })
+    .transform(d => ({
+      fullTableNameArg: d.full_table_name_arg,
+      warehouseId: d.warehouse_id,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRegenerateDashboard_ResponseSchema = z
-  .object({
-    dashboard_id: z.string().optional(),
-    parent_folder: z.string().optional(),
-  })
-  .transform(d => ({
-    dashboardId: d.dashboard_id,
-    parentFolder: d.parent_folder,
-  }));
+export const unmarshalRegenerateDashboard_ResponseSchema: z.ZodType<RegenerateDashboard_Response> =
+  z
+    .object({
+      dashboard_id: z.string().optional(),
+      parent_folder: z.string().optional(),
+    })
+    .transform(d => ({
+      dashboardId: d.dashboard_id,
+      parentFolder: d.parent_folder,
+    }));
 
-export const unmarshalRunRefreshSchema = z
+export const unmarshalRunRefreshSchema: z.ZodType<RunRefresh> = z
   .object({
     full_table_name_arg: z.string().optional(),
   })
@@ -748,19 +757,21 @@ export const unmarshalRunRefreshSchema = z
     fullTableNameArg: d.full_table_name_arg,
   }));
 
-export const unmarshalSnapshotAnalysisConfigSchema = z.object({});
+export const unmarshalSnapshotAnalysisConfigSchema: z.ZodType<SnapshotAnalysisConfig> =
+  z.object({});
 
-export const unmarshalTimeSeriesAnalysisConfigSchema = z
-  .object({
-    timestamp_col: z.string().optional(),
-    granularities: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    timestampCol: d.timestamp_col,
-    granularities: d.granularities,
-  }));
+export const unmarshalTimeSeriesAnalysisConfigSchema: z.ZodType<TimeSeriesAnalysisConfig> =
+  z
+    .object({
+      timestamp_col: z.string().optional(),
+      granularities: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      timestampCol: d.timestamp_col,
+      granularities: d.granularities,
+    }));
 
-export const unmarshalUpdateMonitorSchema = z
+export const unmarshalUpdateMonitorSchema: z.ZodType<UpdateMonitor> = z
   .object({
     full_table_name_arg: z.string().optional(),
     output_schema_name: z.string().optional(),
@@ -812,7 +823,7 @@ export const unmarshalUpdateMonitorSchema = z
     monitorVersion: d.monitor_version,
   }));
 
-export const marshalCancelRefreshSchema = z
+export const marshalCancelRefreshSchema: z.ZodType = z
   .object({
     fullTableNameArg: z.string().optional(),
     refreshId: z.number().optional(),
@@ -823,9 +834,9 @@ export const marshalCancelRefreshSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCancelRefresh_ResponseSchema = z.object({});
+export const marshalCancelRefresh_ResponseSchema: z.ZodType = z.object({});
 
-export const marshalCreateMonitorSchema = z
+export const marshalCreateMonitorSchema: z.ZodType = z
   .object({
     fullTableNameArg: z.string().optional(),
     skipBuiltinDashboard: z.boolean().optional(),
@@ -877,7 +888,7 @@ export const marshalCreateMonitorSchema = z
     monitor_version: d.monitorVersion,
   }));
 
-export const marshalCustomMetricSchema = z
+export const marshalCustomMetricSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     definition: z.string().optional(),
@@ -893,7 +904,7 @@ export const marshalCustomMetricSchema = z
     type: d.type,
   }));
 
-export const marshalDataClassificationConfigSchema = z
+export const marshalDataClassificationConfigSchema: z.ZodType = z
   .object({
     enabled: z.boolean().optional(),
   })
@@ -901,7 +912,7 @@ export const marshalDataClassificationConfigSchema = z
     enabled: d.enabled,
   }));
 
-export const marshalDataMonitorInfoSchema = z
+export const marshalDataMonitorInfoSchema: z.ZodType = z
   .object({
     outputSchemaName: z.string().optional(),
     assetsDir: z.string().optional(),
@@ -947,7 +958,7 @@ export const marshalDataMonitorInfoSchema = z
     monitor_version: d.monitorVersion,
   }));
 
-export const marshalDeleteMonitorSchema = z
+export const marshalDeleteMonitorSchema: z.ZodType = z
   .object({
     fullTableNameArg: z.string().optional(),
   })
@@ -956,9 +967,9 @@ export const marshalDeleteMonitorSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeleteMonitor_ResponseSchema = z.object({});
+export const marshalDeleteMonitor_ResponseSchema: z.ZodType = z.object({});
 
-export const marshalDestinationSchema = z
+export const marshalDestinationSchema: z.ZodType = z
   .object({
     emailAddresses: z.array(z.string()).optional(),
   })
@@ -966,7 +977,7 @@ export const marshalDestinationSchema = z
     email_addresses: d.emailAddresses,
   }));
 
-export const marshalGetMonitorSchema = z
+export const marshalGetMonitorSchema: z.ZodType = z
   .object({
     fullTableNameArg: z.string().optional(),
   })
@@ -974,7 +985,7 @@ export const marshalGetMonitorSchema = z
     full_table_name_arg: d.fullTableNameArg,
   }));
 
-export const marshalGetRefreshSchema = z
+export const marshalGetRefreshSchema: z.ZodType = z
   .object({
     fullTableNameArg: z.string().optional(),
     refreshId: z.number().optional(),
@@ -984,7 +995,7 @@ export const marshalGetRefreshSchema = z
     refresh_id: d.refreshId,
   }));
 
-export const marshalInferenceLogAnalysisConfigSchema = z
+export const marshalInferenceLogAnalysisConfigSchema: z.ZodType = z
   .object({
     problemType: z.enum(ProblemType).optional(),
     timestampCol: z.string().optional(),
@@ -1004,7 +1015,7 @@ export const marshalInferenceLogAnalysisConfigSchema = z
     prediction_proba_col: d.predictionProbaCol,
   }));
 
-export const marshalListRefreshesSchema = z
+export const marshalListRefreshesSchema: z.ZodType = z
   .object({
     fullTableNameArg: z.string().optional(),
   })
@@ -1013,7 +1024,7 @@ export const marshalListRefreshesSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalListRefreshes_ResponseSchema = z
+export const marshalListRefreshes_ResponseSchema: z.ZodType = z
   .object({
     refreshes: z.array(z.lazy(() => marshalRefreshInfoSchema)).optional(),
   })
@@ -1021,7 +1032,7 @@ export const marshalListRefreshes_ResponseSchema = z
     refreshes: d.refreshes,
   }));
 
-export const marshalMonitorCronScheduleSchema = z
+export const marshalMonitorCronScheduleSchema: z.ZodType = z
   .object({
     quartzCronExpression: z.string().optional(),
     timezoneId: z.string().optional(),
@@ -1033,7 +1044,7 @@ export const marshalMonitorCronScheduleSchema = z
     pause_status: d.pauseStatus,
   }));
 
-export const marshalNotificationsSchema = z
+export const marshalNotificationsSchema: z.ZodType = z
   .object({
     onFailure: z.lazy(() => marshalDestinationSchema).optional(),
     onNewClassificationTagDetected: z
@@ -1045,7 +1056,7 @@ export const marshalNotificationsSchema = z
     on_new_classification_tag_detected: d.onNewClassificationTagDetected,
   }));
 
-export const marshalRefreshInfoSchema = z
+export const marshalRefreshInfoSchema: z.ZodType = z
   .object({
     refreshId: z.number().optional(),
     state: z.enum(RefreshState).optional(),
@@ -1063,7 +1074,7 @@ export const marshalRefreshInfoSchema = z
     trigger: d.trigger,
   }));
 
-export const marshalRegenerateDashboardSchema = z
+export const marshalRegenerateDashboardSchema: z.ZodType = z
   .object({
     fullTableNameArg: z.string().optional(),
     warehouseId: z.string().optional(),
@@ -1074,7 +1085,7 @@ export const marshalRegenerateDashboardSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalRegenerateDashboard_ResponseSchema = z
+export const marshalRegenerateDashboard_ResponseSchema: z.ZodType = z
   .object({
     dashboardId: z.string().optional(),
     parentFolder: z.string().optional(),
@@ -1084,7 +1095,7 @@ export const marshalRegenerateDashboard_ResponseSchema = z
     parent_folder: d.parentFolder,
   }));
 
-export const marshalRunRefreshSchema = z
+export const marshalRunRefreshSchema: z.ZodType = z
   .object({
     fullTableNameArg: z.string().optional(),
   })
@@ -1092,9 +1103,9 @@ export const marshalRunRefreshSchema = z
     full_table_name_arg: d.fullTableNameArg,
   }));
 
-export const marshalSnapshotAnalysisConfigSchema = z.object({});
+export const marshalSnapshotAnalysisConfigSchema: z.ZodType = z.object({});
 
-export const marshalTimeSeriesAnalysisConfigSchema = z
+export const marshalTimeSeriesAnalysisConfigSchema: z.ZodType = z
   .object({
     timestampCol: z.string().optional(),
     granularities: z.array(z.string()).optional(),
@@ -1104,7 +1115,7 @@ export const marshalTimeSeriesAnalysisConfigSchema = z
     granularities: d.granularities,
   }));
 
-export const marshalUpdateMonitorSchema = z
+export const marshalUpdateMonitorSchema: z.ZodType = z
   .object({
     fullTableNameArg: z.string().optional(),
     outputSchemaName: z.string().optional(),

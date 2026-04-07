@@ -1,4 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
+
 import {z} from 'zod';
 
 /** The granularity for aggregating data into time windows based on their timestamp. */
@@ -542,61 +543,66 @@ export interface ValidityCheckConfiguration {
   uniquenessValidityCheck?: UniquenessValidityCheck | undefined;
 }
 
-export const unmarshalAnomalyDetectionConfigSchema = z
-  .object({
-    anomaly_detection_workflow_id: z.number().optional(),
-    publish_health_indicator: z.boolean().optional(),
-    job_type: z.enum(AnomalyDetectionJobType).optional(),
-    excluded_table_full_names: z.array(z.string()).optional(),
-    validity_check_configurations: z
-      .array(z.lazy(() => unmarshalValidityCheckConfigurationSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    anomalyDetectionWorkflowId: d.anomaly_detection_workflow_id,
-    publishHealthIndicator: d.publish_health_indicator,
-    jobType: d.job_type,
-    excludedTableFullNames: d.excluded_table_full_names,
-    validityCheckConfigurations: d.validity_check_configurations,
-  }));
+export const unmarshalAnomalyDetectionConfigSchema: z.ZodType<AnomalyDetectionConfig> =
+  z
+    .object({
+      anomaly_detection_workflow_id: z.number().optional(),
+      publish_health_indicator: z.boolean().optional(),
+      job_type: z.enum(AnomalyDetectionJobType).optional(),
+      excluded_table_full_names: z.array(z.string()).optional(),
+      validity_check_configurations: z
+        .array(z.lazy(() => unmarshalValidityCheckConfigurationSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      anomalyDetectionWorkflowId: d.anomaly_detection_workflow_id,
+      publishHealthIndicator: d.publish_health_indicator,
+      jobType: d.job_type,
+      excludedTableFullNames: d.excluded_table_full_names,
+      validityCheckConfigurations: d.validity_check_configurations,
+    }));
 
-export const unmarshalCancelRefreshRequestSchema = z
-  .object({
-    object_type: z.string().optional(),
-    object_id: z.string().optional(),
-    refresh_id: z.number().optional(),
-  })
-  .transform(d => ({
-    objectType: d.object_type,
-    objectId: d.object_id,
-    refreshId: d.refresh_id,
-  }));
+export const unmarshalCancelRefreshRequestSchema: z.ZodType<CancelRefreshRequest> =
+  z
+    .object({
+      object_type: z.string().optional(),
+      object_id: z.string().optional(),
+      refresh_id: z.number().optional(),
+    })
+    .transform(d => ({
+      objectType: d.object_type,
+      objectId: d.object_id,
+      refreshId: d.refresh_id,
+    }));
 
-export const unmarshalCancelRefreshResponseSchema = z
-  .object({
-    refresh: z.lazy(() => unmarshalRefreshSchema).optional(),
-  })
-  .transform(d => ({
-    refresh: d.refresh,
-  }));
+export const unmarshalCancelRefreshResponseSchema: z.ZodType<CancelRefreshResponse> =
+  z
+    .object({
+      refresh: z.lazy(() => unmarshalRefreshSchema).optional(),
+    })
+    .transform(d => ({
+      refresh: d.refresh,
+    }));
 
-export const unmarshalCreateMonitorRequestSchema = z
-  .object({
-    monitor: z.lazy(() => unmarshalMonitorSchema).optional(),
-  })
-  .transform(d => ({
-    monitor: d.monitor,
-  }));
+export const unmarshalCreateMonitorRequestSchema: z.ZodType<CreateMonitorRequest> =
+  z
+    .object({
+      monitor: z.lazy(() => unmarshalMonitorSchema).optional(),
+    })
+    .transform(d => ({
+      monitor: d.monitor,
+    }));
 
-export const unmarshalCreateRefreshRequestSchema = z
-  .object({
-    refresh: z.lazy(() => unmarshalRefreshSchema).optional(),
-  })
-  .transform(d => ({
-    refresh: d.refresh,
-  }));
+export const unmarshalCreateRefreshRequestSchema: z.ZodType<CreateRefreshRequest> =
+  z
+    .object({
+      refresh: z.lazy(() => unmarshalRefreshSchema).optional(),
+    })
+    .transform(d => ({
+      refresh: d.refresh,
+    }));
 
-export const unmarshalCronScheduleSchema = z
+export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
   .object({
     quartz_cron_expression: z.string().optional(),
     timezone_id: z.string().optional(),
@@ -608,73 +614,99 @@ export const unmarshalCronScheduleSchema = z
     pauseStatus: d.pause_status,
   }));
 
-export const unmarshalDataProfilingConfigSchema = z
-  .object({
-    output_schema_id: z.string().optional(),
-    assets_dir: z.string().optional(),
-    inference_log: z.lazy(() => unmarshalInferenceLogConfigSchema).optional(),
-    time_series: z.lazy(() => unmarshalTimeSeriesConfigSchema).optional(),
-    snapshot: z.lazy(() => unmarshalSnapshotConfigSchema).optional(),
-    slicing_exprs: z.array(z.string()).optional(),
-    custom_metrics: z
-      .array(z.lazy(() => unmarshalDataProfilingCustomMetricSchema))
-      .optional(),
-    baseline_table_name: z.string().optional(),
-    schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
-    notification_settings: z
-      .lazy(() => unmarshalNotificationSettingsSchema)
-      .optional(),
-    skip_builtin_dashboard: z.boolean().optional(),
-    warehouse_id: z.string().optional(),
-    monitored_table_name: z.string().optional(),
-    status: z.enum(DataProfilingStatus).optional(),
-    latest_monitor_failure_message: z.string().optional(),
-    profile_metrics_table_name: z.string().optional(),
-    drift_metrics_table_name: z.string().optional(),
-    dashboard_id: z.string().optional(),
-    monitor_version: z.number().optional(),
-    effective_warehouse_id: z.string().optional(),
-  })
-  .transform(d => ({
-    outputSchemaId: d.output_schema_id,
-    assetsDir: d.assets_dir,
-    inferenceLog: d.inference_log,
-    timeSeries: d.time_series,
-    snapshot: d.snapshot,
-    slicingExprs: d.slicing_exprs,
-    customMetrics: d.custom_metrics,
-    baselineTableName: d.baseline_table_name,
-    schedule: d.schedule,
-    notificationSettings: d.notification_settings,
-    skipBuiltinDashboard: d.skip_builtin_dashboard,
-    warehouseId: d.warehouse_id,
-    monitoredTableName: d.monitored_table_name,
-    status: d.status,
-    latestMonitorFailureMessage: d.latest_monitor_failure_message,
-    profileMetricsTableName: d.profile_metrics_table_name,
-    driftMetricsTableName: d.drift_metrics_table_name,
-    dashboardId: d.dashboard_id,
-    monitorVersion: d.monitor_version,
-    effectiveWarehouseId: d.effective_warehouse_id,
-  }));
+export const unmarshalDataProfilingConfigSchema: z.ZodType<DataProfilingConfig> =
+  z
+    .object({
+      output_schema_id: z.string().optional(),
+      assets_dir: z.string().optional(),
+      inference_log: z.lazy(() => unmarshalInferenceLogConfigSchema).optional(),
+      time_series: z.lazy(() => unmarshalTimeSeriesConfigSchema).optional(),
+      snapshot: z.lazy(() => unmarshalSnapshotConfigSchema).optional(),
+      slicing_exprs: z.array(z.string()).optional(),
+      custom_metrics: z
+        .array(z.lazy(() => unmarshalDataProfilingCustomMetricSchema))
+        .optional(),
+      baseline_table_name: z.string().optional(),
+      schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
+      notification_settings: z
+        .lazy(() => unmarshalNotificationSettingsSchema)
+        .optional(),
+      skip_builtin_dashboard: z.boolean().optional(),
+      warehouse_id: z.string().optional(),
+      monitored_table_name: z.string().optional(),
+      status: z.enum(DataProfilingStatus).optional(),
+      latest_monitor_failure_message: z.string().optional(),
+      profile_metrics_table_name: z.string().optional(),
+      drift_metrics_table_name: z.string().optional(),
+      dashboard_id: z.string().optional(),
+      monitor_version: z.number().optional(),
+      effective_warehouse_id: z.string().optional(),
+    })
+    .transform(d => ({
+      outputSchemaId: d.output_schema_id,
+      assetsDir: d.assets_dir,
+      inferenceLog: d.inference_log,
+      timeSeries: d.time_series,
+      snapshot: d.snapshot,
+      slicingExprs: d.slicing_exprs,
+      customMetrics: d.custom_metrics,
+      baselineTableName: d.baseline_table_name,
+      schedule: d.schedule,
+      notificationSettings: d.notification_settings,
+      skipBuiltinDashboard: d.skip_builtin_dashboard,
+      warehouseId: d.warehouse_id,
+      monitoredTableName: d.monitored_table_name,
+      status: d.status,
+      latestMonitorFailureMessage: d.latest_monitor_failure_message,
+      profileMetricsTableName: d.profile_metrics_table_name,
+      driftMetricsTableName: d.drift_metrics_table_name,
+      dashboardId: d.dashboard_id,
+      monitorVersion: d.monitor_version,
+      effectiveWarehouseId: d.effective_warehouse_id,
+    }));
 
-export const unmarshalDataProfilingCustomMetricSchema = z
-  .object({
-    name: z.string().optional(),
-    definition: z.string().optional(),
-    input_columns: z.array(z.string()).optional(),
-    output_data_type: z.string().optional(),
-    type: z.enum(DataProfilingCustomMetricType).optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    definition: d.definition,
-    inputColumns: d.input_columns,
-    outputDataType: d.output_data_type,
-    type: d.type,
-  }));
+export const unmarshalDataProfilingCustomMetricSchema: z.ZodType<DataProfilingCustomMetric> =
+  z
+    .object({
+      name: z.string().optional(),
+      definition: z.string().optional(),
+      input_columns: z.array(z.string()).optional(),
+      output_data_type: z.string().optional(),
+      type: z.enum(DataProfilingCustomMetricType).optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+      definition: d.definition,
+      inputColumns: d.input_columns,
+      outputDataType: d.output_data_type,
+      type: d.type,
+    }));
 
-export const unmarshalDeleteMonitorRequestSchema = z
+export const unmarshalDeleteMonitorRequestSchema: z.ZodType<DeleteMonitorRequest> =
+  z
+    .object({
+      object_type: z.string().optional(),
+      object_id: z.string().optional(),
+    })
+    .transform(d => ({
+      objectType: d.object_type,
+      objectId: d.object_id,
+    }));
+
+export const unmarshalDeleteRefreshRequestSchema: z.ZodType<DeleteRefreshRequest> =
+  z
+    .object({
+      object_type: z.string().optional(),
+      object_id: z.string().optional(),
+      refresh_id: z.number().optional(),
+    })
+    .transform(d => ({
+      objectType: d.object_type,
+      objectId: d.object_id,
+      refreshId: d.refresh_id,
+    }));
+
+export const unmarshalGetMonitorRequestSchema: z.ZodType<GetMonitorRequest> = z
   .object({
     object_type: z.string().optional(),
     object_id: z.string().optional(),
@@ -684,7 +716,7 @@ export const unmarshalDeleteMonitorRequestSchema = z
     objectId: d.object_id,
   }));
 
-export const unmarshalDeleteRefreshRequestSchema = z
+export const unmarshalGetRefreshRequestSchema: z.ZodType<GetRefreshRequest> = z
   .object({
     object_type: z.string().optional(),
     object_id: z.string().optional(),
@@ -696,93 +728,76 @@ export const unmarshalDeleteRefreshRequestSchema = z
     refreshId: d.refresh_id,
   }));
 
-export const unmarshalGetMonitorRequestSchema = z
-  .object({
-    object_type: z.string().optional(),
-    object_id: z.string().optional(),
-  })
-  .transform(d => ({
-    objectType: d.object_type,
-    objectId: d.object_id,
-  }));
+export const unmarshalInferenceLogConfigSchema: z.ZodType<InferenceLogConfig> =
+  z
+    .object({
+      problem_type: z.enum(InferenceProblemType).optional(),
+      timestamp_column: z.string().optional(),
+      granularities: z.array(z.enum(AggregationGranularity)).optional(),
+      prediction_column: z.string().optional(),
+      label_column: z.string().optional(),
+      model_id_column: z.string().optional(),
+      prediction_probability_column: z.string().optional(),
+    })
+    .transform(d => ({
+      problemType: d.problem_type,
+      timestampColumn: d.timestamp_column,
+      granularities: d.granularities,
+      predictionColumn: d.prediction_column,
+      labelColumn: d.label_column,
+      modelIdColumn: d.model_id_column,
+      predictionProbabilityColumn: d.prediction_probability_column,
+    }));
 
-export const unmarshalGetRefreshRequestSchema = z
-  .object({
-    object_type: z.string().optional(),
-    object_id: z.string().optional(),
-    refresh_id: z.number().optional(),
-  })
-  .transform(d => ({
-    objectType: d.object_type,
-    objectId: d.object_id,
-    refreshId: d.refresh_id,
-  }));
+export const unmarshalListMonitorRequestSchema: z.ZodType<ListMonitorRequest> =
+  z
+    .object({
+      page_token: z.string().optional(),
+      page_size: z.number().optional(),
+    })
+    .transform(d => ({
+      pageToken: d.page_token,
+      pageSize: d.page_size,
+    }));
 
-export const unmarshalInferenceLogConfigSchema = z
-  .object({
-    problem_type: z.enum(InferenceProblemType).optional(),
-    timestamp_column: z.string().optional(),
-    granularities: z.array(z.enum(AggregationGranularity)).optional(),
-    prediction_column: z.string().optional(),
-    label_column: z.string().optional(),
-    model_id_column: z.string().optional(),
-    prediction_probability_column: z.string().optional(),
-  })
-  .transform(d => ({
-    problemType: d.problem_type,
-    timestampColumn: d.timestamp_column,
-    granularities: d.granularities,
-    predictionColumn: d.prediction_column,
-    labelColumn: d.label_column,
-    modelIdColumn: d.model_id_column,
-    predictionProbabilityColumn: d.prediction_probability_column,
-  }));
+export const unmarshalListMonitorResponseSchema: z.ZodType<ListMonitorResponse> =
+  z
+    .object({
+      monitors: z.array(z.lazy(() => unmarshalMonitorSchema)).optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      monitors: d.monitors,
+      nextPageToken: d.next_page_token,
+    }));
 
-export const unmarshalListMonitorRequestSchema = z
-  .object({
-    page_token: z.string().optional(),
-    page_size: z.number().optional(),
-  })
-  .transform(d => ({
-    pageToken: d.page_token,
-    pageSize: d.page_size,
-  }));
+export const unmarshalListRefreshRequestSchema: z.ZodType<ListRefreshRequest> =
+  z
+    .object({
+      object_type: z.string().optional(),
+      object_id: z.string().optional(),
+      page_token: z.string().optional(),
+      page_size: z.number().optional(),
+    })
+    .transform(d => ({
+      objectType: d.object_type,
+      objectId: d.object_id,
+      pageToken: d.page_token,
+      pageSize: d.page_size,
+    }));
 
-export const unmarshalListMonitorResponseSchema = z
-  .object({
-    monitors: z.array(z.lazy(() => unmarshalMonitorSchema)).optional(),
-    next_page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    monitors: d.monitors,
-    nextPageToken: d.next_page_token,
-  }));
+export const unmarshalListRefreshResponseSchema: z.ZodType<ListRefreshResponse> =
+  z
+    .object({
+      refreshes: z.array(z.lazy(() => unmarshalRefreshSchema)).optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      refreshes: d.refreshes,
+      nextPageToken: d.next_page_token,
+    }));
 
-export const unmarshalListRefreshRequestSchema = z
-  .object({
-    object_type: z.string().optional(),
-    object_id: z.string().optional(),
-    page_token: z.string().optional(),
-    page_size: z.number().optional(),
-  })
-  .transform(d => ({
-    objectType: d.object_type,
-    objectId: d.object_id,
-    pageToken: d.page_token,
-    pageSize: d.page_size,
-  }));
-
-export const unmarshalListRefreshResponseSchema = z
-  .object({
-    refreshes: z.array(z.lazy(() => unmarshalRefreshSchema)).optional(),
-    next_page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    refreshes: d.refreshes,
-    nextPageToken: d.next_page_token,
-  }));
-
-export const unmarshalMonitorSchema = z
+export const unmarshalMonitorSchema: z.ZodType<Monitor> = z
   .object({
     object_type: z.string().optional(),
     object_id: z.string().optional(),
@@ -800,45 +815,51 @@ export const unmarshalMonitorSchema = z
     dataProfilingConfig: d.data_profiling_config,
   }));
 
-export const unmarshalNotificationDestinationSchema = z
-  .object({
-    email_addresses: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    emailAddresses: d.email_addresses,
-  }));
+export const unmarshalNotificationDestinationSchema: z.ZodType<NotificationDestination> =
+  z
+    .object({
+      email_addresses: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      emailAddresses: d.email_addresses,
+    }));
 
-export const unmarshalNotificationSettingsSchema = z
-  .object({
-    on_failure: z.lazy(() => unmarshalNotificationDestinationSchema).optional(),
-  })
-  .transform(d => ({
-    onFailure: d.on_failure,
-  }));
+export const unmarshalNotificationSettingsSchema: z.ZodType<NotificationSettings> =
+  z
+    .object({
+      on_failure: z
+        .lazy(() => unmarshalNotificationDestinationSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      onFailure: d.on_failure,
+    }));
 
-export const unmarshalPercentNullValidityCheckSchema = z
-  .object({
-    column_names: z.array(z.string()).optional(),
-    upper_bound: z.number().optional(),
-  })
-  .transform(d => ({
-    columnNames: d.column_names,
-    upperBound: d.upper_bound,
-  }));
+export const unmarshalPercentNullValidityCheckSchema: z.ZodType<PercentNullValidityCheck> =
+  z
+    .object({
+      column_names: z.array(z.string()).optional(),
+      upper_bound: z.number().optional(),
+    })
+    .transform(d => ({
+      columnNames: d.column_names,
+      upperBound: d.upper_bound,
+    }));
 
-export const unmarshalRangeValidityCheckSchema = z
-  .object({
-    column_names: z.array(z.string()).optional(),
-    lower_bound: z.number().optional(),
-    upper_bound: z.number().optional(),
-  })
-  .transform(d => ({
-    columnNames: d.column_names,
-    lowerBound: d.lower_bound,
-    upperBound: d.upper_bound,
-  }));
+export const unmarshalRangeValidityCheckSchema: z.ZodType<RangeValidityCheck> =
+  z
+    .object({
+      column_names: z.array(z.string()).optional(),
+      lower_bound: z.number().optional(),
+      upper_bound: z.number().optional(),
+    })
+    .transform(d => ({
+      columnNames: d.column_names,
+      lowerBound: d.lower_bound,
+      upperBound: d.upper_bound,
+    }));
 
-export const unmarshalRefreshSchema = z
+export const unmarshalRefreshSchema: z.ZodType<Refresh> = z
   .object({
     object_type: z.string().optional(),
     object_id: z.string().optional(),
@@ -860,9 +881,10 @@ export const unmarshalRefreshSchema = z
     trigger: d.trigger,
   }));
 
-export const unmarshalSnapshotConfigSchema = z.object({});
+export const unmarshalSnapshotConfigSchema: z.ZodType<SnapshotConfig> =
+  z.object({});
 
-export const unmarshalTimeSeriesConfigSchema = z
+export const unmarshalTimeSeriesConfigSchema: z.ZodType<TimeSeriesConfig> = z
   .object({
     timestamp_column: z.string().optional(),
     granularities: z.array(z.enum(AggregationGranularity)).optional(),
@@ -872,65 +894,69 @@ export const unmarshalTimeSeriesConfigSchema = z
     granularities: d.granularities,
   }));
 
-export const unmarshalUniquenessValidityCheckSchema = z
-  .object({
-    column_names: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    columnNames: d.column_names,
-  }));
+export const unmarshalUniquenessValidityCheckSchema: z.ZodType<UniquenessValidityCheck> =
+  z
+    .object({
+      column_names: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      columnNames: d.column_names,
+    }));
 
-export const unmarshalUpdateMonitorRequestSchema = z
-  .object({
-    object_type: z.string().optional(),
-    object_id: z.string().optional(),
-    monitor: z.lazy(() => unmarshalMonitorSchema).optional(),
-    update_mask: z.string().optional(),
-  })
-  .transform(d => ({
-    objectType: d.object_type,
-    objectId: d.object_id,
-    monitor: d.monitor,
-    updateMask: d.update_mask,
-  }));
+export const unmarshalUpdateMonitorRequestSchema: z.ZodType<UpdateMonitorRequest> =
+  z
+    .object({
+      object_type: z.string().optional(),
+      object_id: z.string().optional(),
+      monitor: z.lazy(() => unmarshalMonitorSchema).optional(),
+      update_mask: z.string().optional(),
+    })
+    .transform(d => ({
+      objectType: d.object_type,
+      objectId: d.object_id,
+      monitor: d.monitor,
+      updateMask: d.update_mask,
+    }));
 
-export const unmarshalUpdateRefreshRequestSchema = z
-  .object({
-    object_type: z.string().optional(),
-    object_id: z.string().optional(),
-    refresh_id: z.number().optional(),
-    refresh: z.lazy(() => unmarshalRefreshSchema).optional(),
-    update_mask: z.string().optional(),
-  })
-  .transform(d => ({
-    objectType: d.object_type,
-    objectId: d.object_id,
-    refreshId: d.refresh_id,
-    refresh: d.refresh,
-    updateMask: d.update_mask,
-  }));
+export const unmarshalUpdateRefreshRequestSchema: z.ZodType<UpdateRefreshRequest> =
+  z
+    .object({
+      object_type: z.string().optional(),
+      object_id: z.string().optional(),
+      refresh_id: z.number().optional(),
+      refresh: z.lazy(() => unmarshalRefreshSchema).optional(),
+      update_mask: z.string().optional(),
+    })
+    .transform(d => ({
+      objectType: d.object_type,
+      objectId: d.object_id,
+      refreshId: d.refresh_id,
+      refresh: d.refresh,
+      updateMask: d.update_mask,
+    }));
 
-export const unmarshalValidityCheckConfigurationSchema = z
-  .object({
-    name: z.string().optional(),
-    percent_null_validity_check: z
-      .lazy(() => unmarshalPercentNullValidityCheckSchema)
-      .optional(),
-    range_validity_check: z
-      .lazy(() => unmarshalRangeValidityCheckSchema)
-      .optional(),
-    uniqueness_validity_check: z
-      .lazy(() => unmarshalUniquenessValidityCheckSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    percentNullValidityCheck: d.percent_null_validity_check,
-    rangeValidityCheck: d.range_validity_check,
-    uniquenessValidityCheck: d.uniqueness_validity_check,
-  }));
+export const unmarshalValidityCheckConfigurationSchema: z.ZodType<ValidityCheckConfiguration> =
+  z
+    .object({
+      name: z.string().optional(),
+      percent_null_validity_check: z
+        .lazy(() => unmarshalPercentNullValidityCheckSchema)
+        .optional(),
+      range_validity_check: z
+        .lazy(() => unmarshalRangeValidityCheckSchema)
+        .optional(),
+      uniqueness_validity_check: z
+        .lazy(() => unmarshalUniquenessValidityCheckSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+      percentNullValidityCheck: d.percent_null_validity_check,
+      rangeValidityCheck: d.range_validity_check,
+      uniquenessValidityCheck: d.uniqueness_validity_check,
+    }));
 
-export const marshalAnomalyDetectionConfigSchema = z
+export const marshalAnomalyDetectionConfigSchema: z.ZodType = z
   .object({
     anomalyDetectionWorkflowId: z.number().optional(),
     publishHealthIndicator: z.boolean().optional(),
@@ -948,7 +974,7 @@ export const marshalAnomalyDetectionConfigSchema = z
     validity_check_configurations: d.validityCheckConfigurations,
   }));
 
-export const marshalCancelRefreshRequestSchema = z
+export const marshalCancelRefreshRequestSchema: z.ZodType = z
   .object({
     objectType: z.string().optional(),
     objectId: z.string().optional(),
@@ -960,7 +986,7 @@ export const marshalCancelRefreshRequestSchema = z
     refresh_id: d.refreshId,
   }));
 
-export const marshalCancelRefreshResponseSchema = z
+export const marshalCancelRefreshResponseSchema: z.ZodType = z
   .object({
     refresh: z.lazy(() => marshalRefreshSchema).optional(),
   })
@@ -968,7 +994,7 @@ export const marshalCancelRefreshResponseSchema = z
     refresh: d.refresh,
   }));
 
-export const marshalCreateMonitorRequestSchema = z
+export const marshalCreateMonitorRequestSchema: z.ZodType = z
   .object({
     monitor: z.lazy(() => marshalMonitorSchema).optional(),
   })
@@ -976,7 +1002,7 @@ export const marshalCreateMonitorRequestSchema = z
     monitor: d.monitor,
   }));
 
-export const marshalCreateRefreshRequestSchema = z
+export const marshalCreateRefreshRequestSchema: z.ZodType = z
   .object({
     refresh: z.lazy(() => marshalRefreshSchema).optional(),
   })
@@ -984,7 +1010,7 @@ export const marshalCreateRefreshRequestSchema = z
     refresh: d.refresh,
   }));
 
-export const marshalCronScheduleSchema = z
+export const marshalCronScheduleSchema: z.ZodType = z
   .object({
     quartzCronExpression: z.string().optional(),
     timezoneId: z.string().optional(),
@@ -996,7 +1022,7 @@ export const marshalCronScheduleSchema = z
     pause_status: d.pauseStatus,
   }));
 
-export const marshalDataProfilingConfigSchema = z
+export const marshalDataProfilingConfigSchema: z.ZodType = z
   .object({
     outputSchemaId: z.string().optional(),
     assetsDir: z.string().optional(),
@@ -1046,7 +1072,7 @@ export const marshalDataProfilingConfigSchema = z
     effective_warehouse_id: d.effectiveWarehouseId,
   }));
 
-export const marshalDataProfilingCustomMetricSchema = z
+export const marshalDataProfilingCustomMetricSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     definition: z.string().optional(),
@@ -1062,7 +1088,7 @@ export const marshalDataProfilingCustomMetricSchema = z
     type: d.type,
   }));
 
-export const marshalDeleteMonitorRequestSchema = z
+export const marshalDeleteMonitorRequestSchema: z.ZodType = z
   .object({
     objectType: z.string().optional(),
     objectId: z.string().optional(),
@@ -1072,29 +1098,7 @@ export const marshalDeleteMonitorRequestSchema = z
     object_id: d.objectId,
   }));
 
-export const marshalDeleteRefreshRequestSchema = z
-  .object({
-    objectType: z.string().optional(),
-    objectId: z.string().optional(),
-    refreshId: z.number().optional(),
-  })
-  .transform(d => ({
-    object_type: d.objectType,
-    object_id: d.objectId,
-    refresh_id: d.refreshId,
-  }));
-
-export const marshalGetMonitorRequestSchema = z
-  .object({
-    objectType: z.string().optional(),
-    objectId: z.string().optional(),
-  })
-  .transform(d => ({
-    object_type: d.objectType,
-    object_id: d.objectId,
-  }));
-
-export const marshalGetRefreshRequestSchema = z
+export const marshalDeleteRefreshRequestSchema: z.ZodType = z
   .object({
     objectType: z.string().optional(),
     objectId: z.string().optional(),
@@ -1106,7 +1110,29 @@ export const marshalGetRefreshRequestSchema = z
     refresh_id: d.refreshId,
   }));
 
-export const marshalInferenceLogConfigSchema = z
+export const marshalGetMonitorRequestSchema: z.ZodType = z
+  .object({
+    objectType: z.string().optional(),
+    objectId: z.string().optional(),
+  })
+  .transform(d => ({
+    object_type: d.objectType,
+    object_id: d.objectId,
+  }));
+
+export const marshalGetRefreshRequestSchema: z.ZodType = z
+  .object({
+    objectType: z.string().optional(),
+    objectId: z.string().optional(),
+    refreshId: z.number().optional(),
+  })
+  .transform(d => ({
+    object_type: d.objectType,
+    object_id: d.objectId,
+    refresh_id: d.refreshId,
+  }));
+
+export const marshalInferenceLogConfigSchema: z.ZodType = z
   .object({
     problemType: z.enum(InferenceProblemType).optional(),
     timestampColumn: z.string().optional(),
@@ -1126,7 +1152,7 @@ export const marshalInferenceLogConfigSchema = z
     prediction_probability_column: d.predictionProbabilityColumn,
   }));
 
-export const marshalListMonitorRequestSchema = z
+export const marshalListMonitorRequestSchema: z.ZodType = z
   .object({
     pageToken: z.string().optional(),
     pageSize: z.number().optional(),
@@ -1136,7 +1162,7 @@ export const marshalListMonitorRequestSchema = z
     page_size: d.pageSize,
   }));
 
-export const marshalListMonitorResponseSchema = z
+export const marshalListMonitorResponseSchema: z.ZodType = z
   .object({
     monitors: z.array(z.lazy(() => marshalMonitorSchema)).optional(),
     nextPageToken: z.string().optional(),
@@ -1146,7 +1172,7 @@ export const marshalListMonitorResponseSchema = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalListRefreshRequestSchema = z
+export const marshalListRefreshRequestSchema: z.ZodType = z
   .object({
     objectType: z.string().optional(),
     objectId: z.string().optional(),
@@ -1160,7 +1186,7 @@ export const marshalListRefreshRequestSchema = z
     page_size: d.pageSize,
   }));
 
-export const marshalListRefreshResponseSchema = z
+export const marshalListRefreshResponseSchema: z.ZodType = z
   .object({
     refreshes: z.array(z.lazy(() => marshalRefreshSchema)).optional(),
     nextPageToken: z.string().optional(),
@@ -1170,7 +1196,7 @@ export const marshalListRefreshResponseSchema = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalMonitorSchema = z
+export const marshalMonitorSchema: z.ZodType = z
   .object({
     objectType: z.string().optional(),
     objectId: z.string().optional(),
@@ -1188,7 +1214,7 @@ export const marshalMonitorSchema = z
     data_profiling_config: d.dataProfilingConfig,
   }));
 
-export const marshalNotificationDestinationSchema = z
+export const marshalNotificationDestinationSchema: z.ZodType = z
   .object({
     emailAddresses: z.array(z.string()).optional(),
   })
@@ -1196,7 +1222,7 @@ export const marshalNotificationDestinationSchema = z
     email_addresses: d.emailAddresses,
   }));
 
-export const marshalNotificationSettingsSchema = z
+export const marshalNotificationSettingsSchema: z.ZodType = z
   .object({
     onFailure: z.lazy(() => marshalNotificationDestinationSchema).optional(),
   })
@@ -1204,7 +1230,7 @@ export const marshalNotificationSettingsSchema = z
     on_failure: d.onFailure,
   }));
 
-export const marshalPercentNullValidityCheckSchema = z
+export const marshalPercentNullValidityCheckSchema: z.ZodType = z
   .object({
     columnNames: z.array(z.string()).optional(),
     upperBound: z.number().optional(),
@@ -1214,7 +1240,7 @@ export const marshalPercentNullValidityCheckSchema = z
     upper_bound: d.upperBound,
   }));
 
-export const marshalRangeValidityCheckSchema = z
+export const marshalRangeValidityCheckSchema: z.ZodType = z
   .object({
     columnNames: z.array(z.string()).optional(),
     lowerBound: z.number().optional(),
@@ -1226,7 +1252,7 @@ export const marshalRangeValidityCheckSchema = z
     upper_bound: d.upperBound,
   }));
 
-export const marshalRefreshSchema = z
+export const marshalRefreshSchema: z.ZodType = z
   .object({
     objectType: z.string().optional(),
     objectId: z.string().optional(),
@@ -1248,9 +1274,9 @@ export const marshalRefreshSchema = z
     trigger: d.trigger,
   }));
 
-export const marshalSnapshotConfigSchema = z.object({});
+export const marshalSnapshotConfigSchema: z.ZodType = z.object({});
 
-export const marshalTimeSeriesConfigSchema = z
+export const marshalTimeSeriesConfigSchema: z.ZodType = z
   .object({
     timestampColumn: z.string().optional(),
     granularities: z.array(z.enum(AggregationGranularity)).optional(),
@@ -1260,7 +1286,7 @@ export const marshalTimeSeriesConfigSchema = z
     granularities: d.granularities,
   }));
 
-export const marshalUniquenessValidityCheckSchema = z
+export const marshalUniquenessValidityCheckSchema: z.ZodType = z
   .object({
     columnNames: z.array(z.string()).optional(),
   })
@@ -1268,7 +1294,7 @@ export const marshalUniquenessValidityCheckSchema = z
     column_names: d.columnNames,
   }));
 
-export const marshalUpdateMonitorRequestSchema = z
+export const marshalUpdateMonitorRequestSchema: z.ZodType = z
   .object({
     objectType: z.string().optional(),
     objectId: z.string().optional(),
@@ -1282,7 +1308,7 @@ export const marshalUpdateMonitorRequestSchema = z
     update_mask: d.updateMask,
   }));
 
-export const marshalUpdateRefreshRequestSchema = z
+export const marshalUpdateRefreshRequestSchema: z.ZodType = z
   .object({
     objectType: z.string().optional(),
     objectId: z.string().optional(),
@@ -1298,7 +1324,7 @@ export const marshalUpdateRefreshRequestSchema = z
     update_mask: d.updateMask,
   }));
 
-export const marshalValidityCheckConfigurationSchema = z
+export const marshalValidityCheckConfigurationSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     percentNullValidityCheck: z
