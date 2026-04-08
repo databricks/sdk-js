@@ -147,17 +147,47 @@ export interface ResolveOptions {
  */
 export const SETTINGS_SECTION = '__settings__';
 
+// ---------------------------------------------------------------------------
+// Declarative property mapping
+// ---------------------------------------------------------------------------
+
 /** Maps a {@link Profile} field to its environment variable and INI key. */
-export interface Property {
+export interface PropertyDef {
+  readonly field: keyof Profile;
   readonly envVar: string;
   readonly iniKey: string;
-  set(profile: Profile, value: string): void;
-  get(profile: Profile): string;
+  /** Converts an INI/env string value to the profile field value. */
+  readonly parse: (raw: string) => unknown;
+  /** Converts a profile field value back to a string for writing. */
+  readonly serialize: (value: unknown) => string | undefined;
 }
 
+/** Converter pair shared by all plain string properties. */
+type PropertyConverters = Pick<PropertyDef, 'parse' | 'serialize'>;
+
+const STRING_PROPERTY: PropertyConverters = {
+  parse: (raw: string): unknown => raw,
+  serialize: (value: unknown): string | undefined => {
+    if (typeof value !== 'string' || value === '') {
+      return undefined;
+    }
+    return value;
+  },
+};
+
+const SECRET_PROPERTY: PropertyConverters = {
+  parse: (raw: string): unknown => new Secret(raw),
+  serialize: (value: unknown): string | undefined => {
+    if (!(value instanceof Secret)) {
+      return undefined;
+    }
+    return value.value === '' ? undefined : value.value;
+  },
+};
+
 /**
- * Parses a boolean string value using the same rules as Go's
- * strconv.ParseBool.
+ * Parses common boolean string representations (true/false, 1/0, t/f and
+ * their case variants).
  */
 function parseBool(value: string): boolean {
   switch (value) {
@@ -180,307 +210,222 @@ function parseBool(value: string): boolean {
   }
 }
 
-/** Property mapping table for all known profile fields. */
-export const PROPERTIES: readonly Property[] = [
+const BOOLEAN_PROPERTY: PropertyConverters = {
+  parse: (raw: string): unknown => parseBool(raw),
+  serialize: (value: unknown): string | undefined => {
+    if (typeof value !== 'boolean') {
+      return undefined;
+    }
+    return String(value);
+  },
+};
+
+/** Sets a profile field from a raw INI/env string value. */
+export function setProfileField(
+  profile: Profile,
+  def: PropertyDef,
+  rawValue: string
+): void {
+  Object.assign(profile, {[def.field]: def.parse(rawValue)});
+}
+
+/**
+ * Reads a profile field and returns its string representation, or
+ * undefined if the field is absent or empty.
+ */
+export function getProfileField(
+  profile: Profile,
+  def: PropertyDef
+): string | undefined {
+  return def.serialize(profile[def.field]);
+}
+
+/**
+ * Declarative property mapping table for all known profile fields.
+ *
+ * Three entries have intentional mismatches between envVar and iniKey for
+ * backward compatibility with existing config files:
+ * - DATABRICKS_OIDC_TOKEN_FILEPATH / databricks_id_token_filepath
+ * - DATABRICKS_TOKEN_AUDIENCE / audience
+ * - DATABRICKS_AZURE_RESOURCE_ID / azure_workspace_resource_id
+ */
+// eslint-disable-next-line @typescript-eslint/no-deprecated -- The table includes azureLoginAppId for backward compatibility.
+export const PROPERTY_DEFS: readonly PropertyDef[] = [
   {
+    field: 'host',
     envVar: 'DATABRICKS_HOST',
     iniKey: 'host',
-    set(p: Profile, v: string): void {
-      p.host = v;
-    },
-    get(p: Profile): string {
-      return p.host ?? '';
-    },
+    ...STRING_PROPERTY,
   },
   {
+    field: 'workspaceId',
     envVar: 'DATABRICKS_WORKSPACE_ID',
     iniKey: 'workspace_id',
-    set(p: Profile, v: string): void {
-      p.workspaceId = v;
-    },
-    get(p: Profile): string {
-      return p.workspaceId ?? '';
-    },
+    ...STRING_PROPERTY,
   },
   {
+    field: 'accountId',
     envVar: 'DATABRICKS_ACCOUNT_ID',
     iniKey: 'account_id',
-    set(p: Profile, v: string): void {
-      p.accountId = v;
-    },
-    get(p: Profile): string {
-      return p.accountId ?? '';
-    },
+    ...STRING_PROPERTY,
   },
   {
+    field: 'token',
     envVar: 'DATABRICKS_TOKEN',
     iniKey: 'token',
-    set(p: Profile, v: string): void {
-      p.token = new Secret(v);
-    },
-    get(p: Profile): string {
-      return p.token?.value ?? '';
-    },
+    ...SECRET_PROPERTY,
   },
   {
+    field: 'username',
     envVar: 'DATABRICKS_USERNAME',
     iniKey: 'username',
-    set(p: Profile, v: string): void {
-      p.username = v;
-    },
-    get(p: Profile): string {
-      return p.username ?? '';
-    },
+    ...STRING_PROPERTY,
   },
   {
+    field: 'password',
     envVar: 'DATABRICKS_PASSWORD',
     iniKey: 'password',
-    set(p: Profile, v: string): void {
-      p.password = new Secret(v);
-    },
-    get(p: Profile): string {
-      return p.password?.value ?? '';
-    },
+    ...SECRET_PROPERTY,
   },
   {
+    field: 'authType',
     envVar: 'DATABRICKS_AUTH_TYPE',
     iniKey: 'auth_type',
-    set(p: Profile, v: string): void {
-      p.authType = v;
-    },
-    get(p: Profile): string {
-      return p.authType ?? '';
-    },
+    ...STRING_PROPERTY,
   },
   {
+    field: 'clientId',
     envVar: 'DATABRICKS_CLIENT_ID',
     iniKey: 'client_id',
-    set(p: Profile, v: string): void {
-      p.clientId = v;
-    },
-    get(p: Profile): string {
-      return p.clientId ?? '';
-    },
+    ...STRING_PROPERTY,
   },
   {
+    field: 'clientSecret',
     envVar: 'DATABRICKS_CLIENT_SECRET',
     iniKey: 'client_secret',
-    set(p: Profile, v: string): void {
-      p.clientSecret = new Secret(v);
-    },
-    get(p: Profile): string {
-      return p.clientSecret?.value ?? '';
-    },
+    ...SECRET_PROPERTY,
   },
   {
+    field: 'databricksCliPath',
     envVar: 'DATABRICKS_CLI_PATH',
     iniKey: 'databricks_cli_path',
-    set(p: Profile, v: string): void {
-      p.databricksCliPath = v;
-    },
-    get(p: Profile): string {
-      return p.databricksCliPath ?? '';
-    },
+    ...STRING_PROPERTY,
   },
   {
+    field: 'metadataServiceUrl',
     envVar: 'DATABRICKS_METADATA_SERVICE_URL',
     iniKey: 'metadata_service_url',
-    set(p: Profile, v: string): void {
-      p.metadataServiceUrl = new Secret(v);
-    },
-    get(p: Profile): string {
-      return p.metadataServiceUrl?.value ?? '';
-    },
+    ...SECRET_PROPERTY,
   },
   {
+    field: 'actionsIdTokenRequestUrl',
     envVar: 'ACTIONS_ID_TOKEN_REQUEST_URL',
     iniKey: 'actions_id_token_request_url',
-    set(p: Profile, v: string): void {
-      p.actionsIdTokenRequestUrl = v;
-    },
-    get(p: Profile): string {
-      return p.actionsIdTokenRequestUrl ?? '';
-    },
+    ...STRING_PROPERTY,
   },
   {
+    field: 'actionsIdTokenRequestToken',
     envVar: 'ACTIONS_ID_TOKEN_REQUEST_TOKEN',
     iniKey: 'actions_id_token_request_token',
-    set(p: Profile, v: string): void {
-      p.actionsIdTokenRequestToken = new Secret(v);
-    },
-    get(p: Profile): string {
-      return p.actionsIdTokenRequestToken?.value ?? '';
-    },
+    ...SECRET_PROPERTY,
   },
   {
+    field: 'oidcTokenEnv',
     envVar: 'DATABRICKS_OIDC_TOKEN_ENV',
     iniKey: 'oidc_token_env',
-    set(p: Profile, v: string): void {
-      p.oidcTokenEnv = v;
-    },
-    get(p: Profile): string {
-      return p.oidcTokenEnv ?? '';
-    },
+    ...STRING_PROPERTY,
   },
+  // Intentional mismatch between envVar and iniKey for backward compatibility.
   {
-    // Intentional mismatch between envVar and iniKey for backward
-    // compatibility.
+    field: 'oidcTokenFilePath',
     envVar: 'DATABRICKS_OIDC_TOKEN_FILEPATH',
     iniKey: 'databricks_id_token_filepath',
-    set(p: Profile, v: string): void {
-      p.oidcTokenFilePath = v;
-    },
-    get(p: Profile): string {
-      return p.oidcTokenFilePath ?? '';
-    },
+    ...STRING_PROPERTY,
   },
+  // Intentional mismatch between envVar and iniKey for backward compatibility.
   {
-    // Intentional mismatch between envVar and iniKey for backward
-    // compatibility.
+    field: 'tokenAudience',
     envVar: 'DATABRICKS_TOKEN_AUDIENCE',
     iniKey: 'audience',
-    set(p: Profile, v: string): void {
-      p.tokenAudience = v;
-    },
-    get(p: Profile): string {
-      return p.tokenAudience ?? '';
-    },
+    ...STRING_PROPERTY,
   },
   {
+    field: 'discoveryUrl',
     envVar: 'DATABRICKS_DISCOVERY_URL',
     iniKey: 'discovery_url',
-    set(p: Profile, v: string): void {
-      p.discoveryUrl = v;
-    },
-    get(p: Profile): string {
-      return p.discoveryUrl ?? '';
-    },
+    ...STRING_PROPERTY,
   },
   {
+    field: 'azureClientId',
     envVar: 'ARM_CLIENT_ID',
     iniKey: 'azure_client_id',
-    set(p: Profile, v: string): void {
-      p.azureClientId = v;
-    },
-    get(p: Profile): string {
-      return p.azureClientId ?? '';
-    },
+    ...STRING_PROPERTY,
   },
   {
+    field: 'azureClientSecret',
     envVar: 'ARM_CLIENT_SECRET',
     iniKey: 'azure_client_secret',
-    set(p: Profile, v: string): void {
-      p.azureClientSecret = new Secret(v);
-    },
-    get(p: Profile): string {
-      return p.azureClientSecret?.value ?? '';
-    },
+    ...SECRET_PROPERTY,
   },
   {
+    field: 'azureTenantId',
     envVar: 'ARM_TENANT_ID',
     iniKey: 'azure_tenant_id',
-    set(p: Profile, v: string): void {
-      p.azureTenantId = v;
-    },
-    get(p: Profile): string {
-      return p.azureTenantId ?? '';
-    },
+    ...STRING_PROPERTY,
   },
+  // Intentional mismatch between envVar and iniKey for backward compatibility.
   {
-    // Intentional mismatch between envVar and iniKey for backward
-    // compatibility.
+    field: 'azureResourceId',
     envVar: 'DATABRICKS_AZURE_RESOURCE_ID',
     iniKey: 'azure_workspace_resource_id',
-    set(p: Profile, v: string): void {
-      p.azureResourceId = v;
-    },
-    get(p: Profile): string {
-      return p.azureResourceId ?? '';
-    },
+    ...STRING_PROPERTY,
   },
   {
+    field: 'azureEnvironment',
     envVar: 'ARM_ENVIRONMENT',
     iniKey: 'azure_environment',
-    set(p: Profile, v: string): void {
-      p.azureEnvironment = v;
-    },
-    get(p: Profile): string {
-      return p.azureEnvironment ?? '';
-    },
+    ...STRING_PROPERTY,
   },
   {
+    field: 'azureLoginAppId',
     envVar: 'DATABRICKS_AZURE_LOGIN_APP_ID',
     iniKey: 'azure_login_app_id',
-    set(p: Profile, v: string): void {
-      // eslint-disable-next-line @typescript-eslint/no-deprecated -- Required for backward compatibility.
-      p.azureLoginAppId = v;
-    },
-    get(p: Profile): string {
-      // eslint-disable-next-line @typescript-eslint/no-deprecated -- Required for backward compatibility.
-      return p.azureLoginAppId ?? '';
-    },
+    ...STRING_PROPERTY,
   },
   {
+    field: 'azureUseMsi',
     envVar: 'ARM_USE_MSI',
     iniKey: 'azure_use_msi',
-    set(p: Profile, v: string): void {
-      p.azureUseMsi = parseBool(v);
-    },
-    get(p: Profile): string {
-      if (p.azureUseMsi === undefined) {
-        return '';
-      }
-      return String(p.azureUseMsi);
-    },
+    ...BOOLEAN_PROPERTY,
   },
   {
+    field: 'googleCredentials',
     envVar: 'GOOGLE_CREDENTIALS',
     iniKey: 'google_credentials',
-    set(p: Profile, v: string): void {
-      p.googleCredentials = new Secret(v);
-    },
-    get(p: Profile): string {
-      return p.googleCredentials?.value ?? '';
-    },
+    ...SECRET_PROPERTY,
   },
   {
+    field: 'googleServiceAccount',
     envVar: 'DATABRICKS_GOOGLE_SERVICE_ACCOUNT',
     iniKey: 'google_service_account',
-    set(p: Profile, v: string): void {
-      p.googleServiceAccount = v;
-    },
-    get(p: Profile): string {
-      return p.googleServiceAccount ?? '';
-    },
+    ...STRING_PROPERTY,
   },
   {
+    field: 'clusterId',
     envVar: 'DATABRICKS_CLUSTER_ID',
     iniKey: 'cluster_id',
-    set(p: Profile, v: string): void {
-      p.clusterId = v;
-    },
-    get(p: Profile): string {
-      return p.clusterId ?? '';
-    },
+    ...STRING_PROPERTY,
   },
   {
+    field: 'warehouseId',
     envVar: 'DATABRICKS_WAREHOUSE_ID',
     iniKey: 'warehouse_id',
-    set(p: Profile, v: string): void {
-      p.warehouseId = v;
-    },
-    get(p: Profile): string {
-      return p.warehouseId ?? '';
-    },
+    ...STRING_PROPERTY,
   },
   {
+    field: 'serverlessComputeId',
     envVar: 'DATABRICKS_SERVERLESS_COMPUTE_ID',
     iniKey: 'serverless_compute_id',
-    set(p: Profile, v: string): void {
-      p.serverlessComputeId = v;
-    },
-    get(p: Profile): string {
-      return p.serverlessComputeId ?? '';
-    },
+    ...STRING_PROPERTY,
   },
 ];

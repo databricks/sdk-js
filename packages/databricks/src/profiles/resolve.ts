@@ -4,20 +4,15 @@
  * @module
  */
 
-import * as fs from 'node:fs';
+import {constants} from 'node:fs';
+import {access, chmod, open, readFile, writeFile} from 'node:fs/promises';
 import {homedir} from 'node:os';
 import {join} from 'node:path';
 
-import {
-  ConfigFileNotFoundError,
-  EmptyPathError,
-  EmptyProfileError,
-  InvalidProfileNameError,
-  ProfileNotFoundError,
-} from './errors';
+import {ProfileError} from './errors';
 import {formatIni, parseIni} from './ini';
 import type {Profile, ResolveOptions} from './profile';
-import {PROPERTIES, SETTINGS_SECTION} from './profile';
+import {PROPERTY_DEFS, SETTINGS_SECTION, setProfileField} from './profile';
 
 /**
  * Reports whether a section is an empty DEFAULT section that should be
@@ -42,15 +37,25 @@ function defaultConfigFilePath(): string {
   }
 }
 
+/** Returns true if the file at the given path exists. */
+async function fileExists(path: string): Promise<boolean> {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
- * Populates a profile from a databrickscfg file. If filePath is undefined,
- * checks DATABRICKS_CONFIG_FILE, falling back to ~/.databrickscfg.
+ * Loads a profile from a databrickscfg file. If filePath is undefined,
+ * reads DATABRICKS_CONFIG_FILE from the environment, falling back to
+ * ~/.databrickscfg.
  */
-function loadFile(
-  profile: Profile,
+async function loadFile(
   filePath: string | undefined,
   profileName: string | undefined
-): void {
+): Promise<Profile> {
   // Determine file path.
   let explicitFile = filePath !== undefined;
   let path: string;
@@ -68,14 +73,17 @@ function loadFile(
   }
 
   // A missing default file is silently skipped.
-  if (!fs.existsSync(path)) {
+  if (!(await fileExists(path))) {
     if (explicitFile) {
-      throw new ConfigFileNotFoundError(path);
+      throw new ProfileError(
+        'CONFIG_FILE_NOT_FOUND',
+        `config file not found: ${path}`
+      );
     }
-    return;
+    return {};
   }
 
-  const content = fs.readFileSync(path, 'utf8');
+  const content = await readFile(path, 'utf8');
   const data = parseIni(content);
 
   // Profile name resolution chain:
@@ -103,7 +111,10 @@ function loadFile(
   }
 
   if (resolved === SETTINGS_SECTION) {
-    throw new InvalidProfileNameError(resolved);
+    throw new ProfileError(
+      'INVALID_PROFILE_NAME',
+      `invalid profile name: "${resolved}" is a reserved section`
+    );
   }
 
   const explicitProfile = resolved !== undefined;
@@ -112,42 +123,50 @@ function loadFile(
   const section = data.get(resolved);
   if (section === undefined || isPhantomDefault(resolved, section)) {
     if (explicitProfile) {
-      throw new ProfileNotFoundError(resolved, path);
+      throw new ProfileError(
+        'PROFILE_NOT_FOUND',
+        `profile not found: "${resolved}" in ${path}`
+      );
     }
-    return;
+    return {};
   }
 
-  profile.name = resolved;
+  // Build profile from section values.
+  const profile: Profile = {name: resolved};
 
   const knownKeys = new Set<string>();
-  for (const prop of PROPERTIES) {
-    knownKeys.add(prop.iniKey);
-    const value = section.get(prop.iniKey);
+  for (const def of PROPERTY_DEFS) {
+    knownKeys.add(def.iniKey);
+    const value = section.get(def.iniKey);
     if (value !== undefined) {
-      prop.set(profile, value);
+      setProfileField(profile, def, value);
     }
   }
 
-  // Populate extra keys that are not in the property mapping.
+  // Collect extra keys that are not in the property mapping.
   for (const [key, value] of section) {
     if (!knownKeys.has(key)) {
       profile.extra ??= {};
       profile.extra[key] = value;
     }
   }
+
+  return profile;
 }
 
 /**
- * Populates a profile from environment variables. Empty environment variables
- * are treated as unset and do not override existing values.
+ * Builds a profile from environment variables. Empty environment variables
+ * are treated as unset. Returns only the fields that were found.
  */
-function loadEnv(profile: Profile): void {
-  for (const prop of PROPERTIES) {
-    const value = process.env[prop.envVar] ?? '';
+function loadEnv(): Profile {
+  const profile: Profile = {};
+  for (const def of PROPERTY_DEFS) {
+    const value = process.env[def.envVar] ?? '';
     if (value !== '') {
-      prop.set(profile, value);
+      setProfileField(profile, def, value);
     }
   }
+  return profile;
 }
 
 /**
@@ -160,25 +179,25 @@ function loadEnv(profile: Profile): void {
  * @example
  * ```typescript
  * // Use defaults: default profile + env overlay.
- * const p = resolve();
+ * const p = await resolve();
  *
  * // Specific file and profile, no env overlay.
- * const p = resolve({
+ * const p = await resolve({
  *   filePath: '/path/to/databrickscfg',
  *   profile: 'staging',
  *   withEnv: false,
  * });
  *
  * // Only env vars, no config file.
- * const p = resolve({withFile: false});
+ * const p = await resolve({withFile: false});
  * ```
  */
-export function resolve(options?: ResolveOptions): Profile {
+export async function resolve(options?: ResolveOptions): Promise<Profile> {
   if (options?.filePath === '') {
-    throw new EmptyPathError();
+    throw new ProfileError('EMPTY_PATH', 'empty path');
   }
   if (options?.profile === '') {
-    throw new EmptyProfileError();
+    throw new ProfileError('EMPTY_PROFILE', 'empty profile');
   }
 
   // Setting filePath or profile implies withFile: true.
@@ -188,32 +207,34 @@ export function resolve(options?: ResolveOptions): Profile {
     (options?.withFile ?? true);
   const shouldReadEnv = options?.withEnv ?? true;
 
-  const result: Profile = {};
+  const fileProfile = shouldReadFile
+    ? await loadFile(options?.filePath, options?.profile)
+    : {};
+  const envProfile = shouldReadEnv ? loadEnv() : {};
 
-  if (shouldReadFile) {
-    loadFile(result, options?.filePath, options?.profile);
-  }
-  if (shouldReadEnv) {
-    loadEnv(result);
-  }
-
-  return result;
+  return {...fileProfile, ...envProfile};
 }
 
 /**
  * Returns the names of all profiles (INI sections) in the given config
  * file. The DEFAULT section is included if it has any keys.
  */
-export function listProfiles(path: string): string[] {
+export async function listProfiles(path: string): Promise<string[]> {
   if (path === '') {
-    throw new ConfigFileNotFoundError('empty path');
+    throw new ProfileError(
+      'CONFIG_FILE_NOT_FOUND',
+      'config file not found: empty path'
+    );
   }
 
-  if (!fs.existsSync(path)) {
-    throw new ConfigFileNotFoundError(path);
+  if (!(await fileExists(path))) {
+    throw new ProfileError(
+      'CONFIG_FILE_NOT_FOUND',
+      `config file not found: ${path}`
+    );
   }
 
-  const content = fs.readFileSync(path, 'utf8');
+  const content = await readFile(path, 'utf8');
   const data = parseIni(content);
 
   const names: string[] = [];
@@ -253,28 +274,35 @@ export function defaultConfigFile(): string {
  * resolve/saveToFile round-trip never loses unknown keys. Fields that are
  * undefined or empty are omitted from the output.
  */
-export function saveToFile(profile: Profile, path: string): void {
+export async function saveToFile(
+  profile: Profile,
+  path: string
+): Promise<void> {
   if (path === '') {
-    throw new EmptyPathError();
+    throw new ProfileError('EMPTY_PATH', 'empty path');
   }
-  if (profile.name === undefined || profile.name === '') {
-    throw new EmptyProfileError();
+  const name = profile.name;
+  if (name === undefined || name === '') {
+    throw new ProfileError('EMPTY_PROFILE', 'empty profile');
   }
-  if (profile.name === SETTINGS_SECTION) {
-    throw new InvalidProfileNameError(profile.name);
+  if (name === SETTINGS_SECTION) {
+    throw new ProfileError(
+      'INVALID_PROFILE_NAME',
+      `invalid profile name: "${name}" is a reserved section`
+    );
   }
 
   // Ensure the file exists with restrictive permissions before writing
   // secrets into it. O_CREAT|O_EXCL is atomic: it creates the file only if
   // it does not already exist, avoiding a stat/write TOCTOU race.
   try {
-    const fd = fs.openSync(
+    const handle = await open(
       path,
       // eslint-disable-next-line no-bitwise
-      fs.constants.O_CREAT | fs.constants.O_EXCL | fs.constants.O_WRONLY,
+      constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY,
       0o600
     );
-    fs.closeSync(fd);
+    await handle.close();
   } catch (err: unknown) {
     // EEXIST is expected: the file already exists.
     if (
@@ -291,20 +319,20 @@ export function saveToFile(profile: Profile, path: string): void {
   }
 
   // Load the existing file.
-  const content = fs.readFileSync(path, 'utf8');
+  const content = await readFile(path, 'utf8');
   const data = parseIni(content);
 
   // Delete the section first to ensure a clean replacement.
-  data.delete(profile.name);
+  data.delete(name);
   const section = new Map<string, string>();
 
   // Write known properties.
   const knownKeys = new Set<string>();
-  for (const prop of PROPERTIES) {
-    knownKeys.add(prop.iniKey);
-    const value = prop.get(profile);
-    if (value !== '') {
-      section.set(prop.iniKey, value);
+  for (const def of PROPERTY_DEFS) {
+    knownKeys.add(def.iniKey);
+    const value = def.serialize(profile[def.field]);
+    if (value !== undefined) {
+      section.set(def.iniKey, value);
     }
   }
 
@@ -318,9 +346,9 @@ export function saveToFile(profile: Profile, path: string): void {
     }
   }
 
-  data.set(profile.name, section);
+  data.set(name, section);
 
   // Re-apply restrictive permissions after writing.
-  fs.writeFileSync(path, formatIni(data), 'utf8');
-  fs.chmodSync(path, 0o600);
+  await writeFile(path, formatIni(data), 'utf8');
+  await chmod(path, 0o600);
 }

@@ -13,15 +13,14 @@ const OBFUSCATED = '********';
  * Use {@link Secret.value} for intentional access to the underlying value.
  */
 export class Secret {
-  readonly #value: string;
-
-  constructor(value: string) {
-    this.#value = value;
-  }
+  /**
+   * @param rawValue - The underlying secret string.
+   */
+  constructor(private readonly rawValue: string) {}
 
   /** Returns the underlying secret value. */
   get value(): string {
-    return this.#value;
+    return this.rawValue;
   }
 
   /** Returns the obfuscated placeholder instead of the secret. */

@@ -4,42 +4,26 @@
  * @module
  */
 
-/** Thrown when an explicitly requested config file does not exist. */
-export class ConfigFileNotFoundError extends Error {
-  constructor(path: string) {
-    super(`config file not found: ${path}`);
-    this.name = 'ConfigFileNotFoundError';
-  }
-}
+/** Discriminant codes for {@link ProfileError}. */
+export type ProfileErrorCode =
+  | 'CONFIG_FILE_NOT_FOUND'
+  | 'PROFILE_NOT_FOUND'
+  | 'EMPTY_PATH'
+  | 'EMPTY_PROFILE'
+  | 'INVALID_PROFILE_NAME';
 
-/** Thrown when the requested profile does not exist in the config file. */
-export class ProfileNotFoundError extends Error {
-  constructor(profile: string, path: string) {
-    super(`profile not found: "${profile}" in ${path}`);
-    this.name = 'ProfileNotFoundError';
-  }
-}
+/**
+ * Error thrown by profile operations.
+ *
+ * Use the {@link ProfileError.code} field to distinguish between error causes
+ * without needing separate catch clauses for each.
+ */
+export class ProfileError extends Error {
+  readonly code: ProfileErrorCode;
 
-/** Thrown when an empty path is provided where a path is required. */
-export class EmptyPathError extends Error {
-  constructor() {
-    super('empty path');
-    this.name = 'EmptyPathError';
-  }
-}
-
-/** Thrown when an empty profile name is provided where a name is required. */
-export class EmptyProfileError extends Error {
-  constructor() {
-    super('empty profile');
-    this.name = 'EmptyProfileError';
-  }
-}
-
-/** Thrown when a profile name is reserved or otherwise not usable. */
-export class InvalidProfileNameError extends Error {
-  constructor(name: string) {
-    super(`invalid profile name: "${name}" is a reserved section`);
-    this.name = 'InvalidProfileNameError';
+  constructor(code: ProfileErrorCode, message: string) {
+    super(message);
+    this.name = 'ProfileError';
+    this.code = code;
   }
 }

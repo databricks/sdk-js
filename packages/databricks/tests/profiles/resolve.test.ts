@@ -1,22 +1,16 @@
 import {mkdtempSync, readFileSync, statSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {join} from 'node:path';
+import {dirname, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {dirname} from 'node:path';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {
-  ConfigFileNotFoundError,
-  EmptyPathError,
-  EmptyProfileError,
-  InvalidProfileNameError,
-  ProfileNotFoundError,
   Secret,
   defaultConfigFile,
   listProfiles,
   resolve,
   saveToFile,
 } from '../../src/profiles';
-import type {Profile} from '../../src/profiles';
+import type {Profile, ProfileErrorCode} from '../../src/profiles';
 
 const TEST_DIR = dirname(fileURLToPath(import.meta.url));
 const TESTDATA = join(TEST_DIR, 'testdata');
@@ -87,7 +81,7 @@ describe('resolve', () => {
     options?: Parameters<typeof resolve>[0];
     env?: Record<string, string>;
     want: Profile;
-    wantErr?: new (...args: never[]) => Error;
+    wantErr?: ProfileErrorCode;
   }[] = [
     {
       name: 'file and profile',
@@ -119,14 +113,14 @@ describe('resolve', () => {
         withEnv: false,
       },
       want: {},
-      wantErr: ConfigFileNotFoundError,
+      wantErr: 'CONFIG_FILE_NOT_FOUND',
     },
     {
       name: 'missing env config file',
       env: {DATABRICKS_CONFIG_FILE: join(TESTDATA, 'nonexistent')},
       options: {withEnv: false},
       want: {},
-      wantErr: ConfigFileNotFoundError,
+      wantErr: 'CONFIG_FILE_NOT_FOUND',
     },
     {
       name: 'missing default file is silently skipped',
@@ -137,7 +131,7 @@ describe('resolve', () => {
       name: 'missing explicit profile',
       options: {filePath: CFG, profile: 'nonexistent', withEnv: false},
       want: {},
-      wantErr: ProfileNotFoundError,
+      wantErr: 'PROFILE_NOT_FOUND',
     },
     {
       name: 'missing default section',
@@ -284,13 +278,13 @@ describe('resolve', () => {
       name: 'empty filePath is an error',
       options: {filePath: ''},
       want: {},
-      wantErr: EmptyPathError,
+      wantErr: 'EMPTY_PATH',
     },
     {
       name: 'empty profile is an error',
       options: {profile: ''},
       want: {},
-      wantErr: EmptyProfileError,
+      wantErr: 'EMPTY_PROFILE',
     },
     {
       name: 'settings default_profile resolves',
@@ -333,13 +327,13 @@ describe('resolve', () => {
       name: 'settings self-reference is rejected',
       options: {filePath: CFG_SETTINGS_SELF_REF, withEnv: false},
       want: {},
-      wantErr: InvalidProfileNameError,
+      wantErr: 'INVALID_PROFILE_NAME',
     },
     {
       name: 'settings nonexistent profile is rejected',
       options: {filePath: CFG_SETTINGS_NONEXISTENT, withEnv: false},
       want: {},
-      wantErr: ProfileNotFoundError,
+      wantErr: 'PROFILE_NOT_FOUND',
     },
     {
       name: 'explicit __settings__ profile is rejected',
@@ -349,21 +343,23 @@ describe('resolve', () => {
         withEnv: false,
       },
       want: {},
-      wantErr: InvalidProfileNameError,
+      wantErr: 'INVALID_PROFILE_NAME',
     },
   ];
 
-  it.each(resolveCases)('$name', ({options, env, want, wantErr}) => {
+  it.each(resolveCases)('$name', async ({options, env, want, wantErr}) => {
     if (env) {
       for (const [key, value] of Object.entries(env)) {
         vi.stubEnv(key, value);
       }
     }
 
-    if (wantErr) {
-      expect(() => resolve(options)).toThrow(wantErr);
+    if (wantErr !== undefined) {
+      await expect(resolve(options)).rejects.toMatchObject({
+        code: wantErr,
+      });
     } else {
-      const got = resolve(options);
+      const got = await resolve(options);
       expectProfileEqual(got, want);
     }
   });
@@ -374,7 +370,7 @@ describe('listProfiles', () => {
     name: string;
     path: string;
     want?: string[];
-    wantErr?: new (...args: never[]) => Error;
+    wantErr?: ProfileErrorCode;
   }[] = [
     {
       name: 'all profiles',
@@ -401,20 +397,23 @@ describe('listProfiles', () => {
     {
       name: 'missing file',
       path: join(TESTDATA, 'nonexistent'),
-      wantErr: ConfigFileNotFoundError,
+      wantErr: 'CONFIG_FILE_NOT_FOUND',
     },
     {
       name: 'empty path',
       path: '',
-      wantErr: ConfigFileNotFoundError,
+      wantErr: 'CONFIG_FILE_NOT_FOUND',
     },
   ];
 
-  it.each(cases)('$name', ({path, want, wantErr}) => {
-    if (wantErr) {
-      expect(() => listProfiles(path)).toThrow(wantErr);
+  it.each(cases)('$name', async ({path, want, wantErr}) => {
+    if (wantErr !== undefined) {
+      await expect(listProfiles(path)).rejects.toMatchObject({
+        code: wantErr,
+      });
     } else {
-      expect(listProfiles(path)).toEqual(want);
+      const result = await listProfiles(path);
+      expect(result).toEqual(want);
     }
   });
 });
@@ -452,7 +451,7 @@ describe('saveToFile', () => {
     existing?: string;
     profile: Profile;
     want?: string;
-    wantErr?: new (...args: never[]) => Error;
+    wantErr?: ProfileErrorCode;
   }[] = [
     {
       desc: 'known fields are written to the ini file',
@@ -552,62 +551,62 @@ describe('saveToFile', () => {
     {
       desc: 'empty name returns an error',
       profile: {host: 'https://test.cloud.databricks.com'},
-      wantErr: EmptyProfileError,
+      wantErr: 'EMPTY_PROFILE',
     },
   ];
 
-  it.each(saveCases)('$desc', ({existing, profile, want, wantErr}) => {
+  it.each(saveCases)('$desc', async ({existing, profile, want, wantErr}) => {
     const path = join(tempDir, 'databrickscfg');
     if (existing !== undefined) {
       writeFileSync(path, existing, {mode: 0o600});
     }
 
-    if (wantErr) {
-      expect(() => {
-        saveToFile(profile, path);
-      }).toThrow(wantErr);
+    if (wantErr !== undefined) {
+      await expect(saveToFile(profile, path)).rejects.toMatchObject({
+        code: wantErr,
+      });
     } else {
-      saveToFile(profile, path);
+      await saveToFile(profile, path);
       const got = readFileSync(path, 'utf8');
       expect(got).toBe(want);
     }
   });
 
-  it('should create file with 0600 permissions', () => {
+  it('should create file with 0600 permissions', async () => {
     const path = join(tempDir, 'new-databrickscfg');
     const profile: Profile = {name: 'test', token: new Secret('secret')};
 
-    saveToFile(profile, path);
+    await saveToFile(profile, path);
 
     const info = statSync(path);
     // eslint-disable-next-line no-bitwise
     expect(info.mode & 0o777).toBe(0o600);
   });
 
-  it('should throw EmptyPathError for empty path', () => {
+  it('should throw ProfileError for empty path', async () => {
     const profile: Profile = {
       name: 'my-profile',
       host: 'https://test.cloud.databricks.com',
     };
 
-    expect(() => {
-      saveToFile(profile, '');
-    }).toThrow(EmptyPathError);
+    await expect(saveToFile(profile, '')).rejects.toMatchObject({
+      code: 'EMPTY_PATH',
+    });
   });
 
-  it('should round-trip through resolve and saveToFile', () => {
+  it('should round-trip through resolve and saveToFile', async () => {
     resetEnv();
 
-    const original = resolve({
+    const original = await resolve({
       filePath: CFG,
       profile: 'workspace',
       withEnv: false,
     });
 
     const path = join(tempDir, 'round-trip-cfg');
-    saveToFile(original, path);
+    await saveToFile(original, path);
 
-    const reloaded = resolve({
+    const reloaded = await resolve({
       filePath: path,
       profile: 'workspace',
       withEnv: false,
@@ -618,15 +617,15 @@ describe('saveToFile', () => {
     vi.unstubAllEnvs();
   });
 
-  it('should reject __settings__ as profile name', () => {
+  it('should reject __settings__ as profile name', async () => {
     const profile: Profile = {
       name: '__settings__',
       host: 'https://test.cloud.databricks.com',
     };
 
-    expect(() => {
-      saveToFile(profile, join(tempDir, 'databrickscfg'));
-    }).toThrow(InvalidProfileNameError);
+    await expect(
+      saveToFile(profile, join(tempDir, 'databrickscfg'))
+    ).rejects.toMatchObject({code: 'INVALID_PROFILE_NAME'});
   });
 });
 
@@ -635,7 +634,6 @@ describe('saveToFile', () => {
  * their underlying value rather than by reference identity.
  */
 function expectProfileEqual(got: Profile, want: Profile): void {
-  // Compare Secret fields by value.
   const normalize = (p: Profile): Record<string, unknown> => {
     const result: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(p)) {
