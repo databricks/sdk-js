@@ -10,6 +10,7 @@ import {homedir} from 'node:os';
 import {join} from 'node:path';
 
 import {ProfileError} from './errors';
+import type {IniData} from './ini';
 import {formatIni, parseIni} from './ini';
 import type {Profile, ResolveOptions} from './profile';
 import {PROPERTY_DEFS, SETTINGS_SECTION, setProfileField} from './profile';
@@ -84,7 +85,14 @@ async function loadFile(
   }
 
   const content = await readFile(path, 'utf8');
-  const data = parseIni(content);
+  let data: IniData;
+  try {
+    data = parseIni(content);
+  } catch (err: unknown) {
+    throw new Error(
+      `loading config file "${path}": ${err instanceof Error ? err.message : String(err)}`
+    );
+  }
 
   // Profile name resolution chain:
   // 1. Explicit profile name (from option).
@@ -245,7 +253,14 @@ export async function listProfiles(path: string): Promise<string[]> {
   }
 
   const content = await readFile(path, 'utf8');
-  const data = parseIni(content);
+  let data: IniData;
+  try {
+    data = parseIni(content);
+  } catch (err: unknown) {
+    throw new Error(
+      `loading config file "${path}": ${err instanceof Error ? err.message : String(err)}`
+    );
+  }
 
   const names: string[] = [];
   for (const [name, keys] of data) {
@@ -330,7 +345,14 @@ export async function saveToFile(
 
   // Load the existing file.
   const content = await readFile(path, 'utf8');
-  const data = parseIni(content);
+  let data: IniData;
+  try {
+    data = parseIni(content);
+  } catch (err: unknown) {
+    throw new Error(
+      `loading config file "${path}": ${err instanceof Error ? err.message : String(err)}`
+    );
+  }
 
   // Delete the section first to ensure a clean replacement.
   data.delete(name);

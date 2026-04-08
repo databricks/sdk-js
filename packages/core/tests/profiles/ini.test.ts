@@ -118,13 +118,54 @@ describe('parseIni', () => {
     expect(result.get('test')?.get('host')).toBe('value');
   });
 
-  it('should skip lines without = separator', () => {
+  it('should throw on lines without a key-value delimiter', () => {
     const input = ['[test]', 'invalid line', 'host = value'].join('\n');
+
+    expect(() => parseIni(input)).toThrow(
+      'key-value delimiter not found: invalid line'
+    );
+  });
+
+  it('should support colon as key-value delimiter', () => {
+    const input = ['[test]', 'host : https://example.com'].join('\n');
 
     const result = parseIni(input);
 
-    expect(result.get('test')?.size).toBe(1);
+    expect(result.get('test')?.get('host')).toBe('https://example.com');
+  });
+
+  it('should strip matching quotes from values', () => {
+    const input = [
+      '[test]',
+      'host = "https://example.com"',
+      "token = 'my-token'",
+    ].join('\n');
+
+    const result = parseIni(input);
+
+    expect(result.get('test')?.get('host')).toBe('https://example.com');
+    expect(result.get('test')?.get('token')).toBe('my-token');
+  });
+
+  it('should join backslash-continued lines', () => {
+    const input = ['[test]', 'desc = line1\\', 'line2', 'host = value'].join(
+      '\n'
+    );
+
+    const result = parseIni(input);
+
+    expect(result.get('test')?.size).toBe(2);
+    expect(result.get('test')?.get('desc')).toBe('line1line2');
     expect(result.get('test')?.get('host')).toBe('value');
+  });
+
+  it('should preserve spaces in section names', () => {
+    const input = ['[ my profile ]', 'host = value'].join('\n');
+
+    const result = parseIni(input);
+
+    expect(result.has(' my profile ')).toBe(true);
+    expect(result.get(' my profile ')?.get('host')).toBe('value');
   });
 });
 
