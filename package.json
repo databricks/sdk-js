@@ -8,7 +8,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w packages/auth -w packages/databricks && npm run build --workspaces",
+    "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
     "test:browser": "npm run test:browser --workspaces",
     "lint": "npm run lint --workspaces",

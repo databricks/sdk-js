@@ -16,7 +16,7 @@
     "src"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -b",
     "lint": "eslint src tests --ext .ts",
     "lint:fix": "eslint src tests --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
@@ -24,7 +24,7 @@
     "test": "vitest run",
     "test:browser": "vitest run --config vitest.config.browser.ts",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist tsconfig.tsbuildinfo"
   },
   "author": "Databricks",
   "license": "Apache-2.0",
