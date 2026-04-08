@@ -85,7 +85,7 @@ describe('resolve', () => {
   }[] = [
     {
       name: 'file and profile',
-      options: {filePath: CFG, profile: 'workspace', withEnv: false},
+      options: {filePath: CFG, profile: 'workspace'},
       want: {
         name: 'workspace',
         host: 'https://workspace.cloud.databricks.com',
@@ -99,7 +99,7 @@ describe('resolve', () => {
     },
     {
       name: 'default section',
-      options: {filePath: CFG, withEnv: false},
+      options: {filePath: CFG},
       want: {
         name: 'DEFAULT',
         host: 'https://default.cloud.databricks.com',
@@ -110,7 +110,6 @@ describe('resolve', () => {
       name: 'missing explicit file',
       options: {
         filePath: join(TESTDATA, 'nonexistent'),
-        withEnv: false,
       },
       want: {},
       wantErr: 'CONFIG_FILE_NOT_FOUND',
@@ -118,7 +117,6 @@ describe('resolve', () => {
     {
       name: 'missing env config file',
       env: {DATABRICKS_CONFIG_FILE: join(TESTDATA, 'nonexistent')},
-      options: {withEnv: false},
       want: {},
       wantErr: 'CONFIG_FILE_NOT_FOUND',
     },
@@ -129,18 +127,18 @@ describe('resolve', () => {
     },
     {
       name: 'missing explicit profile',
-      options: {filePath: CFG, profile: 'nonexistent', withEnv: false},
+      options: {filePath: CFG, profile: 'nonexistent'},
       want: {},
       wantErr: 'PROFILE_NOT_FOUND',
     },
     {
       name: 'missing default section',
-      options: {filePath: CFG_NO_DEFAULT, withEnv: false},
+      options: {filePath: CFG_NO_DEFAULT},
       want: {},
     },
     {
       name: 'hash in values',
-      options: {filePath: CFG, profile: 'hash-in-value', withEnv: false},
+      options: {filePath: CFG, profile: 'hash-in-value'},
       want: {
         name: 'hash-in-value',
         host: 'https://hash.cloud.databricks.com',
@@ -150,7 +148,7 @@ describe('resolve', () => {
     },
     {
       name: 'azure',
-      options: {filePath: CFG, profile: 'azure', withEnv: false},
+      options: {filePath: CFG, profile: 'azure'},
       want: {
         name: 'azure',
         host: 'https://adb-123.azuredatabricks.net',
@@ -163,12 +161,12 @@ describe('resolve', () => {
     },
     {
       name: 'empty section',
-      options: {filePath: CFG, profile: 'empty', withEnv: false},
+      options: {filePath: CFG, profile: 'empty'},
       want: {name: 'empty'},
     },
     {
       name: 'env only',
-      options: {withFile: false},
+      options: {withEnv: true},
       env: {
         DATABRICKS_HOST: 'https://env.cloud.databricks.com',
         DATABRICKS_TOKEN: 'env-token',
@@ -182,7 +180,7 @@ describe('resolve', () => {
     },
     {
       name: 'file only without env overlay',
-      options: {filePath: CFG, withEnv: false},
+      options: {filePath: CFG},
       env: {
         DATABRICKS_HOST: 'https://should-be-ignored.cloud.databricks.com',
       },
@@ -194,7 +192,7 @@ describe('resolve', () => {
     },
     {
       name: 'env overrides file',
-      options: {filePath: CFG, profile: 'workspace'},
+      options: {filePath: CFG, profile: 'workspace', withEnv: true},
       env: {
         DATABRICKS_HOST: 'https://env-override.cloud.databricks.com',
         DATABRICKS_TOKEN: 'env-override-token',
@@ -247,7 +245,7 @@ describe('resolve', () => {
     },
     {
       name: 'env ignored without withEnv',
-      options: {filePath: CFG, profile: 'workspace', withEnv: false},
+      options: {filePath: CFG, profile: 'workspace'},
       env: {
         DATABRICKS_HOST: 'https://should-be-ignored.cloud.databricks.com',
       },
@@ -264,7 +262,7 @@ describe('resolve', () => {
     },
     {
       name: 'extra keys',
-      options: {filePath: CFG, profile: 'extra-keys', withEnv: false},
+      options: {filePath: CFG, profile: 'extra-keys'},
       want: {
         name: 'extra-keys',
         host: 'https://extra.cloud.databricks.com',
@@ -288,7 +286,7 @@ describe('resolve', () => {
     },
     {
       name: 'settings default_profile resolves',
-      options: {filePath: CFG_SETTINGS, withEnv: false},
+      options: {filePath: CFG_SETTINGS},
       want: {
         name: 'my-workspace',
         host: 'https://my-workspace.cloud.databricks.com',
@@ -297,7 +295,7 @@ describe('resolve', () => {
     },
     {
       name: 'settings empty default_profile falls back to DEFAULT',
-      options: {filePath: CFG_SETTINGS_EMPTY, withEnv: false},
+      options: {filePath: CFG_SETTINGS_EMPTY},
       want: {
         name: 'DEFAULT',
         host: 'https://default.cloud.databricks.com',
@@ -306,7 +304,7 @@ describe('resolve', () => {
     },
     {
       name: 'explicit profile overrides settings default_profile',
-      options: {filePath: CFG_SETTINGS, profile: 'DEFAULT', withEnv: false},
+      options: {filePath: CFG_SETTINGS, profile: 'DEFAULT'},
       want: {
         name: 'DEFAULT',
         host: 'https://default.cloud.databricks.com',
@@ -315,7 +313,7 @@ describe('resolve', () => {
     },
     {
       name: 'env profile overrides settings default_profile',
-      options: {filePath: CFG_SETTINGS, withEnv: false},
+      options: {filePath: CFG_SETTINGS},
       env: {DATABRICKS_CONFIG_PROFILE: 'DEFAULT'},
       want: {
         name: 'DEFAULT',
@@ -325,13 +323,13 @@ describe('resolve', () => {
     },
     {
       name: 'settings self-reference is rejected',
-      options: {filePath: CFG_SETTINGS_SELF_REF, withEnv: false},
+      options: {filePath: CFG_SETTINGS_SELF_REF},
       want: {},
       wantErr: 'INVALID_PROFILE_NAME',
     },
     {
       name: 'settings nonexistent profile is rejected',
-      options: {filePath: CFG_SETTINGS_NONEXISTENT, withEnv: false},
+      options: {filePath: CFG_SETTINGS_NONEXISTENT},
       want: {},
       wantErr: 'PROFILE_NOT_FOUND',
     },
@@ -340,7 +338,6 @@ describe('resolve', () => {
       options: {
         filePath: CFG_SETTINGS,
         profile: '__settings__',
-        withEnv: false,
       },
       want: {},
       wantErr: 'INVALID_PROFILE_NAME',
@@ -600,7 +597,6 @@ describe('saveToFile', () => {
     const original = await resolve({
       filePath: CFG,
       profile: 'workspace',
-      withEnv: false,
     });
 
     const path = join(tempDir, 'round-trip-cfg');
@@ -609,7 +605,6 @@ describe('saveToFile', () => {
     const reloaded = await resolve({
       filePath: path,
       profile: 'workspace',
-      withEnv: false,
     });
 
     expectProfileEqual(reloaded, original);
@@ -628,6 +623,156 @@ describe('saveToFile', () => {
     ).rejects.toMatchObject({code: 'INVALID_PROFILE_NAME'});
   });
 });
+
+/**
+ * Verifies that every property in the mapping table round-trips correctly
+ * through INI file loading and env var loading. This catches copy-paste bugs
+ * in the property definitions.
+ */
+describe('allProperties round-trip', () => {
+  beforeEach(() => {
+    resetEnv();
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('should round-trip all properties through INI file', async () => {
+    // Build an INI file with every known key set to a unique value.
+    const lines = ['[all-fields]'];
+    for (let i = 0; i < PROFILE_ENV_VARS.length; i++) {
+      // The azure_use_msi field requires a valid boolean value.
+      const val = INI_KEYS[i] === 'azure_use_msi' ? 'true' : 'f'.repeat(i + 1);
+      lines.push(`${INI_KEYS[i]} = ${val}`);
+    }
+    const dir = mkdtempSync(join(tmpdir(), 'profiles-allprops-'));
+    const cfgPath = join(dir, 'databrickscfg');
+    writeFileSync(cfgPath, lines.join('\n') + '\n', {mode: 0o600});
+
+    const profile = await resolve({
+      filePath: cfgPath,
+      profile: 'all-fields',
+    });
+
+    for (let i = 0; i < INI_KEYS.length; i++) {
+      const want = INI_KEYS[i] === 'azure_use_msi' ? 'true' : 'f'.repeat(i + 1);
+      const field = PROFILE_FIELDS[i];
+      const raw = profile[field];
+      const got =
+        raw instanceof Secret
+          ? raw.value
+          : typeof raw === 'boolean'
+            ? String(raw)
+            : typeof raw === 'string'
+              ? raw
+              : '';
+      expect(got, `file: field=${field} iniKey=${INI_KEYS[i]}`).toBe(want);
+    }
+  });
+
+  it('should round-trip all properties through env vars', async () => {
+    for (let i = 0; i < PROFILE_ENV_VARS.length; i++) {
+      // The ARM_USE_MSI env var requires a valid boolean value.
+      const val =
+        PROFILE_ENV_VARS[i] === 'ARM_USE_MSI' ? 'true' : 'e'.repeat(i + 1);
+      vi.stubEnv(PROFILE_ENV_VARS[i], val);
+    }
+    // Use an empty config file so only env values are used.
+    const dir = mkdtempSync(join(tmpdir(), 'profiles-allprops-'));
+    const cfgPath = join(dir, 'databrickscfg');
+    writeFileSync(cfgPath, '[DEFAULT]\n', {mode: 0o600});
+
+    const profile = await resolve({filePath: cfgPath, withEnv: true});
+
+    for (let i = 0; i < PROFILE_ENV_VARS.length; i++) {
+      const want =
+        PROFILE_ENV_VARS[i] === 'ARM_USE_MSI' ? 'true' : 'e'.repeat(i + 1);
+      const field = PROFILE_FIELDS[i];
+      const raw = profile[field];
+      const got =
+        raw instanceof Secret
+          ? raw.value
+          : typeof raw === 'boolean'
+            ? String(raw)
+            : typeof raw === 'string'
+              ? raw
+              : '';
+      expect(got, `env: field=${field} envVar=${PROFILE_ENV_VARS[i]}`).toBe(
+        want
+      );
+    }
+  });
+});
+
+/**
+ * INI key names for all 29 properties, in the same order as PROFILE_ENV_VARS
+ * and PROFILE_FIELDS.
+ */
+const INI_KEYS = [
+  'host',
+  'workspace_id',
+  'account_id',
+  'token',
+  'username',
+  'password',
+  'auth_type',
+  'client_id',
+  'client_secret',
+  'databricks_cli_path',
+  'metadata_service_url',
+  'actions_id_token_request_url',
+  'actions_id_token_request_token',
+  'oidc_token_env',
+  'databricks_id_token_filepath',
+  'audience',
+  'discovery_url',
+  'azure_client_id',
+  'azure_client_secret',
+  'azure_tenant_id',
+  'azure_workspace_resource_id',
+  'azure_environment',
+  'azure_login_app_id',
+  'azure_use_msi',
+  'google_credentials',
+  'google_service_account',
+  'cluster_id',
+  'warehouse_id',
+  'serverless_compute_id',
+];
+
+/** Profile field names corresponding to each property, same order. */
+const PROFILE_FIELDS: (keyof Profile)[] = [
+  'host',
+  'workspaceId',
+  'accountId',
+  'token',
+  'username',
+  'password',
+  'authType',
+  'clientId',
+  'clientSecret',
+  'databricksCliPath',
+  'metadataServiceUrl',
+  'actionsIdTokenRequestUrl',
+  'actionsIdTokenRequestToken',
+  'oidcTokenEnv',
+  'oidcTokenFilePath',
+  'tokenAudience',
+  'discoveryUrl',
+  'azureClientId',
+  'azureClientSecret',
+  'azureTenantId',
+  'azureResourceId',
+  'azureEnvironment',
+  'azureLoginAppId',
+  'azureUseMsi',
+  'googleCredentials',
+  'googleServiceAccount',
+  'clusterId',
+  'warehouseId',
+  'serverlessComputeId',
+];
 
 /**
  * Asserts that two profiles are deeply equal, comparing Secret values by

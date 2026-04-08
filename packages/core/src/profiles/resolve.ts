@@ -185,11 +185,17 @@ function loadEnv(): Profile {
  * const p = await resolve({
  *   filePath: '/path/to/databrickscfg',
  *   profile: 'staging',
- *   withEnv: false,
+ * });
+ *
+ * // Specific file with env overlay.
+ * const p = await resolve({
+ *   filePath: '/path/to/databrickscfg',
+ *   profile: 'staging',
+ *   withEnv: true,
  * });
  *
  * // Only env vars, no config file.
- * const p = await resolve({withFile: false});
+ * const p = await resolve({withEnv: true});
  * ```
  */
 export async function resolve(options?: ResolveOptions): Promise<Profile> {
@@ -200,12 +206,16 @@ export async function resolve(options?: ResolveOptions): Promise<Profile> {
     throw new ProfileError('EMPTY_PROFILE', 'empty profile');
   }
 
-  // Setting filePath or profile implies withFile: true.
+  // When no options are provided, apply the defaults: read the default
+  // config file and overlay environment variables. When ANY explicit
+  // option is provided, only the requested behaviors are enabled —
+  // matching the Go SDK where explicit options replace all defaults.
   const shouldReadFile =
-    options?.filePath !== undefined ||
-    options?.profile !== undefined ||
-    (options?.withFile ?? true);
-  const shouldReadEnv = options?.withEnv ?? true;
+    options === undefined ||
+    options.filePath !== undefined ||
+    options.profile !== undefined ||
+    (options.withFile ?? false);
+  const shouldReadEnv = options === undefined || (options.withEnv ?? false);
 
   const fileProfile = shouldReadFile
     ? await loadFile(options?.filePath, options?.profile)
