@@ -93,7 +93,7 @@ npm run clean
 1. **Read the rules.** Start with `.agent/rules/typescript.mdc`.
 2. **Understand existing code.** Read neighbouring files before editing.
 3. **Run checks.** After every change run
-   `npm run format && npm run lint && npm run typecheck`.
+   `npm run format && npm run lint && npm run typecheck && npm run test && npm run test:browser`.
 4. **Run tests.** Confirm nothing is broken with `npm test`.
 5. **Comments are sentences.** Every comment must be a proper sentence ending
    with a period.
