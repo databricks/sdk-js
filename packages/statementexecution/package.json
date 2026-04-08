@@ -14,13 +14,13 @@
     "src"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -b",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "test": "echo 'no tests'",
     "test:browser": "echo 'no tests'"
   },
