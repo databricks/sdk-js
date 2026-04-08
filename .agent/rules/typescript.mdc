@@ -135,6 +135,47 @@ Never use the `Object` constructor. Use object literals.
 Never use unfiltered `for (... in ...)` on objects. Use `Object.keys()`,
 `Object.values()`, or `Object.entries()` instead.
 
+### 3.4 Destructuring
+
+Use destructuring for arrays and objects when accessing multiple properties.
+Prefer object destructuring over array destructuring for return values, as it
+allows naming elements and adding new fields without breaking callers.
+
+- Keep destructured parameters shallow: one level of unquoted shorthand
+  properties. Do not nest destructuring in function signatures.
+- Place defaults on the left side of destructured parameters. Default the
+  entire parameter to `{}` when optional.
+
+```typescript
+// Good — defaults on left, parameter defaults to {}.
+function configure({host = 'localhost', port = 443}: Options = {}): void { ... }
+
+// Bad — defaults in the fallback value.
+function configure({host, port}: Options = {host: 'localhost', port: 443}): void { ... }
+```
+
+When ignoring array elements, use elision (extra commas) rather than a
+standalone `_` identifier.
+
+```typescript
+const [, second, , fourth] = values;
+```
+
+### 3.5 Spread Syntax
+
+When using spread syntax, the value being spread must match what is being
+created: only spread iterables into arrays and objects into objects. Never
+spread a conditionally falsy value — it may be `undefined` or `false`.
+
+```typescript
+// Bad — might spread undefined.
+const bar = {num: 5, ...(shouldUseFoo && foo)};
+
+// Good — resolve the conditional first.
+const foo = shouldUseFoo ? {num: 7} : {};
+const bar = {num: 5, ...foo};
+```
+
 ---
 
 ## 4. Naming
@@ -330,6 +371,222 @@ const config: AuthConfig = {
 };
 ```
 
+### 5.9 Discriminated Unions
+
+When a type has variants with different shapes, use a discriminated union with
+a common literal property instead of a single interface with optional fields.
+This enables exhaustive checking and precise type narrowing.
+
+```typescript
+// Good — discriminated union.
+interface HttpError {
+  kind: 'http';
+  statusCode: number;
+  body: string;
+}
+
+interface TimeoutError {
+  kind: 'timeout';
+  durationMs: number;
+}
+
+type ApiError = HttpError | TimeoutError;
+
+function handle(err: ApiError): void {
+  switch (err.kind) {
+    case 'http':
+      log(err.statusCode); // Narrowed to HttpError.
+      break;
+    case 'timeout':
+      log(err.durationMs); // Narrowed to TimeoutError.
+      break;
+    default: {
+      const _exhaustive: never = err; // Compile error if a variant is missed.
+      throw new Error(`Unhandled error kind: ${String(_exhaustive)}`);
+    }
+  }
+}
+
+// Bad — optional fields hide which combinations are valid.
+interface ApiError {
+  kind: string;
+  statusCode?: number;
+  body?: string;
+  durationMs?: number;
+}
+```
+
+### 5.10 The `satisfies` Operator
+
+Use `satisfies` when you need to validate that a value conforms to a type while
+preserving its literal or narrower inferred type. Use a type annotation (`: T`)
+when you intentionally want to widen to the declared type.
+
+```typescript
+// Good — validates structure, preserves literal types.
+const ENDPOINTS = {
+  jobs: '/api/2.1/jobs',
+  clusters: '/api/2.0/clusters',
+} satisfies Record<string, string>;
+// typeof ENDPOINTS.jobs is '/api/2.1/jobs', not string.
+
+// Type annotation — widens to Record<string, string>.
+const endpoints: Record<string, string> = {
+  jobs: '/api/2.1/jobs',
+  clusters: '/api/2.0/clusters',
+};
+// typeof endpoints.jobs is string.
+```
+
+### 5.11 `as const` Assertions
+
+Use `as const` to produce readonly, literal types from object and array
+literals. This avoids the need for explicit enum declarations when the values
+are plain strings or numbers.
+
+```typescript
+// Good — literal types, readonly.
+const AUTH_METHODS = ['pat', 'oauth', 'azure-cli'] as const;
+type AuthMethod = (typeof AUTH_METHODS)[number]; // 'pat' | 'oauth' | 'azure-cli'
+
+// Good — combined with satisfies for validated literal config.
+const DEFAULTS = {
+  host: 'https://accounts.cloud.databricks.com',
+  timeoutMs: 30_000,
+} as const satisfies Readonly<Partial<Config>>;
+```
+
+### 5.12 Type Narrowing and Type Guards
+
+Narrow types with `typeof`, `instanceof`, the `in` operator, and equality
+checks before accessing type-specific properties. When a narrowing pattern is
+reused, extract it into a user-defined type guard.
+
+```typescript
+// Good — user-defined type guard.
+function isHttpError(err: ApiError): err is HttpError {
+  return err.kind === 'http';
+}
+
+// Good — assertion function for catch clauses.
+function assertIsError(value: unknown): asserts value is Error {
+  if (!(value instanceof Error)) {
+    throw new TypeError('Expected an Error instance.');
+  }
+}
+```
+
+### 5.13 Exhaustive Checking with `never`
+
+Use a `never` assignment in `default` or `else` branches to get a compile-time
+error when new variants are added to a union but a handler is not updated.
+
+```typescript
+function label(level: LogLevel): string {
+  switch (level) {
+    case 'debug': return 'DEBUG';
+    case 'info':  return 'INFO';
+    case 'warn':  return 'WARN';
+    case 'error': return 'ERROR';
+    default: {
+      const _exhaustive: never = level;
+      throw new Error(`Unhandled level: ${String(_exhaustive)}`);
+    }
+  }
+}
+```
+
+### 5.14 Immutability
+
+Prefer immutable types for function parameters and return values to signal
+that the function does not mutate the data.
+
+- Use `readonly` on array and tuple parameters: `readonly string[]`.
+- Use `ReadonlyMap<K, V>` and `ReadonlySet<T>` when mutation is not needed.
+- Use `Readonly<T>` for object parameters that must not be modified.
+
+```typescript
+// Good — signals this function does not mutate the input.
+function findHost(configs: readonly Config[]): string | undefined {
+  return configs.find(c => c.host !== undefined)?.host;
+}
+
+// Good — immutable map parameter.
+function lookupToken(
+  cache: ReadonlyMap<string, Token>,
+  key: string,
+): Token | undefined {
+  return cache.get(key);
+}
+```
+
+### 5.15 Mapped and Conditional Types
+
+Use the simplest type construct that expresses the intent. A small amount of
+repetition is cheaper than a complex type expression that readers must mentally
+evaluate.
+
+- Prefer explicit interface declarations over `Pick`, `Omit`, and mapped types
+  when the resulting type is small or the derivation is non-obvious.
+- Use `Partial<T>` for update/patch payloads and `Required<T>` when all fields
+  must be present.
+- Avoid deeply nested conditional types. If a type expression requires more
+  than one level of `infer`, extract helper types with descriptive names.
+
+```typescript
+// Good — explicit and readable.
+interface CreateJobRequest {
+  name: string;
+  clusterId: string;
+}
+
+// Acceptable — derivation is obvious and useful.
+type UpdateJobRequest = Partial<CreateJobRequest>;
+
+// Bad — hard to read, fragile under refactoring.
+type JobName = Pick<Omit<CreateJobRequest, 'clusterId'>, 'name'>['name'];
+```
+
+### 5.16 Tuple Types
+
+Prefer tuple types over generic Pair or Triple interfaces. When the positional
+meaning is not self-evident, use an inline object type instead.
+
+```typescript
+// Good — tuple with clear positional meaning.
+function splitHostPort(address: string): [string, number] { ... }
+const [host, port] = splitHostPort('localhost:443');
+
+// Better — named fields when meaning is ambiguous.
+function parseEndpoint(address: string): {host: string; port: number} { ... }
+```
+
+### 5.17 Index Signatures
+
+Prefer `Map<K, V>` over index signatures (`{[key: string]: V}`) for
+dictionary-like data. When an index signature is necessary, use a meaningful
+label for the key.
+
+```typescript
+// Good.
+const users = new Map<string, UserInfo>();
+
+// Acceptable — meaningful key label.
+const headers: {[headerName: string]: string} = {};
+
+// Bad — opaque key name.
+const headers: {[key: string]: string} = {};
+```
+
+### 5.18 The `{}` Type
+
+Do not use `{}` as a type. It means "any non-nullish value" which is almost
+never the intended constraint.
+
+- Use `unknown` for truly opaque values.
+- Use `Record<string, T>` for dictionary-like objects.
+- Use `object` to exclude primitives.
+
 ---
 
 ## 6. Functions
@@ -384,6 +641,83 @@ items.forEach(item => {
 
 Only use `this` inside class constructors, class methods, or arrow functions
 that close over a class scope. Prefer arrow functions over `.bind()`.
+
+### 6.5 Options Objects
+
+When a function takes more than two parameters, or has multiple optional
+parameters, use a single options object instead of positional arguments. This
+makes call sites self-documenting and allows adding parameters without breaking
+callers.
+
+```typescript
+// Good — options object for many/optional parameters.
+interface RetryOptions {
+  maxAttempts?: number;
+  backoffMs?: number;
+  signal?: AbortSignal;
+}
+
+function retry<T>(
+  fn: () => Promise<T>,
+  options?: RetryOptions,
+): Promise<T> { ... }
+
+// Bad — positional optionals are ambiguous at call sites.
+function retry<T>(
+  fn: () => Promise<T>,
+  maxAttempts?: number,
+  backoffMs?: number,
+): Promise<T> { ... }
+```
+
+### 6.6 Overloads vs Union Parameters
+
+Prefer union parameter types over function overloads. Use overloads only when
+different input types must produce different, non-overlapping return types.
+
+```typescript
+// Good — union parameter.
+function parse(input: string | Buffer): Token { ... }
+
+// Justified overload — different input produces different output.
+function fetch(id: string): Promise<Job>;
+function fetch(ids: string[]): Promise<Job[]>;
+function fetch(input: string | string[]): Promise<Job | Job[]> { ... }
+
+// Bad — overloads where a union suffices.
+function parse(input: string): Token;
+function parse(input: Buffer): Token;
+function parse(input: string | Buffer): Token { ... }
+```
+
+### 6.7 Return-Type-Only Generics
+
+Avoid creating functions where a type parameter appears only in the return
+type. The caller is forced to specify the generic manually, and an incorrect
+annotation silently produces a wrong type with no runtime check.
+
+```typescript
+// Bad — generic only in return type.
+function getConfig<T>(): T { ... }
+const cfg = getConfig<DatabaseConfig>(); // No runtime validation.
+
+// Good — generic flows from input to output.
+function getConfig<T>(schema: Schema<T>): T { ... }
+```
+
+### 6.8 Prefer Inline Arrow Callbacks
+
+When passing a function to a higher-order function, prefer an inline arrow
+over passing a named function reference. Named references are sensitive to
+extra parameters that the caller may pass.
+
+```typescript
+// Bad — parseInt receives (string, index, array) from map.
+const numbers = ['11', '5', '10'].map(parseInt); // [11, NaN, 2]
+
+// Good — explicit arrow controls the arguments.
+const numbers = ['11', '5', '10'].map(n => parseInt(n, 10)); // [11, 5, 10]
+```
 
 ---
 
@@ -449,6 +783,58 @@ Default to the smallest public API surface. Only export from `index.ts` what
 consumers need. Internal types (options interfaces, schemas, helper functions)
 must not be re-exported.
 
+### 7.8 Field Initializers
+
+Initialize fields where they are declared rather than in the constructor. This
+reduces boilerplate and may let you drop the constructor entirely.
+
+```typescript
+// Good — initialized at declaration.
+class TokenCache {
+  private readonly entries = new Map<string, Token>();
+  private lastRefresh = 0;
+}
+
+// Bad — initialization deferred to constructor.
+class TokenCache {
+  private readonly entries: Map<string, Token>;
+  private lastRefresh: number;
+
+  constructor() {
+    this.entries = new Map();
+    this.lastRefresh = 0;
+  }
+}
+```
+
+### 7.9 Arrow Function Properties
+
+Do not use arrow functions as class properties. They create a new closure per
+instance and obscure the fact that `this` is already bound, making the class
+harder to reason about.
+
+```typescript
+// Bad — arrow property.
+class Handler {
+  private onClick = () => {
+    this.handle();
+  };
+}
+
+// Good — regular method with arrow at call site.
+class Handler {
+  private onClick(): void {
+    this.handle();
+  }
+
+  register(el: Element): void {
+    el.addEventListener('click', () => {
+      this.onClick();
+    });
+  }
+}
+```
+
 ---
 
 ## 8. Control Flow
@@ -510,6 +896,20 @@ if (items.length > 0) { ... }
 if (items.length) { ... }
 ```
 
+### 8.6 Assignment in Control Statements
+
+Do not assign variables inside `if`, `while`, or other control-flow
+conditions. Assignment is easily mistaken for an equality check.
+
+```typescript
+// Bad.
+if (x = computeValue()) { ... }
+
+// Good.
+const x = computeValue();
+if (x !== undefined) { ... }
+```
+
 ---
 
 ## 9. Error Handling
@@ -563,6 +963,50 @@ try {
 }
 ```
 
+### 9.5 Focused Try Blocks
+
+Keep `try` blocks as small as possible. Only wrap the statement that may throw.
+Process the result outside the `try` block to avoid accidentally swallowing
+errors from unrelated code.
+
+```typescript
+// Good — only the throwing call is inside try.
+let result: Response;
+try {
+  result = await client.send(request);
+} catch (e: unknown) {
+  throw new ApiError('Request failed.', {cause: e});
+}
+processResponse(result);
+
+// Bad — processResponse errors are silently caught.
+try {
+  const result = await client.send(request);
+  processResponse(result);
+} catch (e: unknown) {
+  throw new ApiError('Request failed.', {cause: e});
+}
+```
+
+### 9.6 Result Types
+
+For operations where failure is an expected, recoverable outcome (not an
+exceptional condition), consider returning a discriminated union result type
+instead of throwing. Reserve exceptions for truly unexpected failures.
+
+```typescript
+type ParseResult =
+  | {ok: true; value: Token}
+  | {ok: false; error: string};
+
+function parseToken(raw: string): ParseResult {
+  if (!raw.startsWith('dapi')) {
+    return {ok: false, error: 'Token must start with "dapi".'};
+  }
+  return {ok: true, value: {accessToken: raw, tokenType: 'Bearer'}};
+}
+```
+
 ---
 
 ## 10. Comments and Documentation
@@ -613,6 +1057,36 @@ Do not add comments that merely restate the code.
 const count = 0;
 ```
 
+### 10.6 Parameter Name Comments
+
+When a call site passes literal values whose meaning is not obvious from the
+function name, use `/* paramName= */` comments. Before adding these, consider
+whether the function should accept an options object instead.
+
+```typescript
+// Acceptable — clarifies ambiguous literals.
+scheduleRetry(request, /* maxAttempts= */ 3, /* shouldLog= */ true);
+
+// Better — options object eliminates the need for comments.
+scheduleRetry(request, {maxAttempts: 3, shouldLog: true});
+```
+
+### 10.7 JSDoc Type Annotations Are Redundant
+
+Do not duplicate type information in JSDoc that TypeScript already expresses.
+Omit `@param` types, `@returns` types, `@implements`, `@enum`, `@private`, and
+`@override` when the corresponding TypeScript syntax is present.
+
+```typescript
+// Good — description only, no redundant type.
+/** @param force - Refresh even if the token is not yet expired. */
+function refreshToken(force?: boolean): Promise<Token> { ... }
+
+// Bad — duplicates the TypeScript type.
+/** @param {boolean} force - Refresh even if the token is not yet expired. */
+function refreshToken(force?: boolean): Promise<Token> { ... }
+```
+
 ---
 
 ## 11. Formatting
@@ -658,6 +1132,11 @@ The following are banned in this codebase:
 | ES private fields (`#`)     | Use TypeScript `private` modifier.                    |
 | `for...in` on arrays        | Use `for...of` or array methods.                      |
 | Non-null assertion (`!`)    | Use explicit checks. Enforced by ESLint.              |
+| `namespace` keyword         | Use modules and separate files for namespacing.       |
+| `{}` as a type              | Use `unknown`, `object`, or `Record<string, T>`.      |
+| Standalone `_` identifier   | Use `_unused` prefix or elision in destructuring.     |
+| Prototype manipulation      | Use `class` syntax. Never modify builtin prototypes.  |
+| Unary `+` for coercion      | Use `Number()` to parse numeric values.               |
 
 ---
 
@@ -714,6 +1193,8 @@ effects in `afterEach` or `afterAll` blocks.
 - File extensions are not required in import paths (bundler module resolution).
 - Circular imports are forbidden. If the linter or bundler reports a cycle,
   refactor to break it.
+- Never use the `namespace` keyword. Use modules and separate files for
+  semantic namespacing.
 
 ---
 
@@ -758,3 +1239,136 @@ This SDK targets both Node.js (>= 22) and browsers.
 - Use feature detection or separate entry points, never user-agent sniffing.
 - Refer to existing patterns in `packages/auth/src/index.ts` (Node.js) vs
   `packages/auth/src/browser.ts` (browser) for guidance.
+
+---
+
+## 17. Async Patterns
+
+### 17.1 `Promise.all` vs `Promise.allSettled`
+
+Use `Promise.all` when all tasks must succeed (fail-fast on first rejection).
+Use `Promise.allSettled` when tasks are independent and you need to inspect
+each outcome separately.
+
+```typescript
+// Good — fail-fast: if any request fails, abort immediately.
+const [jobs, clusters] = await Promise.all([
+  client.listJobs(),
+  client.listClusters(),
+]);
+
+// Good — independent tasks, collect all results.
+const results = await Promise.allSettled([
+  client.deleteJob(jobId1),
+  client.deleteJob(jobId2),
+]);
+for (const r of results) {
+  if (r.status === 'rejected') {
+    log(r.reason);
+  }
+}
+```
+
+### 17.2 Cancellation with `AbortSignal`
+
+Accept an `AbortSignal` parameter — not an `AbortController` — for
+cancellation. This lets callers compose signals from multiple sources.
+
+```typescript
+// Good — accept signal, not controller.
+async function poll(url: string, signal?: AbortSignal): Promise<Response> {
+  const response = await fetch(url, {signal});
+  return response;
+}
+
+// Good — combine signals with AbortSignal.any().
+const timeout = AbortSignal.timeout(30_000);
+const result = await poll(url, AbortSignal.any([timeout, userSignal]));
+```
+
+### 17.3 Async Generators for Pagination
+
+Use `async function*` generators for paginated API responses. This lets
+callers consume pages lazily with `for await...of`.
+
+```typescript
+async function* listJobs(
+  client: ApiClient,
+  options?: ListOptions,
+): AsyncGenerator<Job> {
+  let pageToken: string | undefined;
+  do {
+    const page = await client.get('/jobs', {...options, pageToken});
+    for (const job of page.jobs) {
+      yield job;
+    }
+    pageToken = page.nextPageToken;
+  } while (pageToken !== undefined);
+}
+
+// Consumer.
+for await (const job of listJobs(client)) {
+  process(job);
+}
+```
+
+### 17.4 Void Returns from Async Functions
+
+When an async function is called for its side effect and the caller does not
+await it, annotate the return type as `Promise<void>` and handle errors
+explicitly. Do not let floating promises silently swallow rejections.
+
+```typescript
+// Good — fire-and-forget with explicit error handling.
+function scheduleRefresh(): void {
+  refreshToken().catch((e: unknown) => {
+    log('Refresh failed.', e);
+  });
+}
+```
+
+---
+
+## 18. Type Coercion
+
+### 18.1 String and Boolean Coercion
+
+Use `String()` and `Boolean()` (without `new`) or template literals for type
+coercion. Never use `new String()`, `new Boolean()`, or `new Number()`.
+
+Do not use `!!` in conditional clauses that already have implicit boolean
+coercion. Enum values must not be coerced to booleans — compare explicitly.
+
+```typescript
+// Good.
+const label = String(statusCode);
+const isActive = Boolean(user.lastLogin);
+
+// Bad — double-bang in a condition that already coerces.
+if (!!user.lastLogin) { ... }
+
+// Good — explicit enum comparison.
+if (level !== LogLevel.NONE) { ... }
+
+// Bad — enum coerced to boolean (NONE is 0, so falsy).
+if (level) { ... }
+```
+
+### 18.2 Number Coercion
+
+Use `Number()` to parse numeric values and check the return for `NaN`. Do not
+use unary `+` or `parseInt`/`parseFloat` for base-10 strings.
+
+```typescript
+// Good.
+const port = Number(raw);
+if (!Number.isFinite(port)) {
+  throw new Error('Invalid port number.');
+}
+
+// Bad — unary plus is easy to miss.
+const port = +raw;
+
+// Bad — parseInt for a plain base-10 string.
+const port = parseInt(raw, 10);
+```
