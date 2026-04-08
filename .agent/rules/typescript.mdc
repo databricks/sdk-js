@@ -135,6 +135,40 @@ Never use the `Object` constructor. Use object literals.
 Never use unfiltered `for (... in ...)` on objects. Use `Object.keys()`,
 `Object.values()`, or `Object.entries()` instead.
 
+### 3.4 Immutable Object Construction
+
+Build objects in a single expression. Do not declare a `const` object and then
+mutate properties on it — use conditional spread instead. This is especially
+important because the project enables `exactOptionalPropertyTypes`, which
+means assigning `undefined` to an optional property is a type error.
+
+```typescript
+// Good — built in one expression.
+const req: HttpRequest = {
+  url,
+  method: 'PUT',
+  headers,
+  ...(signal !== undefined && {signal}),
+};
+
+// Bad — mutation after construction.
+const req: HttpRequest = {url, method: 'PUT', headers};
+if (signal !== undefined) {
+  req.signal = signal; // Type error with exactOptionalPropertyTypes.
+}
+```
+
+### 3.5 Prefer Standard Web APIs
+
+Use built-in Web APIs (available in Node.js >= 18 and modern browsers) instead
+of manual reimplementations. Common examples:
+
+| Task | Use | Not |
+| --- | --- | --- |
+| Buffer a `ReadableStream` | `new Response(stream).arrayBuffer()` | Manual `getReader()` chunk loop |
+| Encode a URI component | `encodeURIComponent()` | Hand-rolled percent-encoding |
+| Parse/construct URLs | `new URL()`, `URLSearchParams` | String concatenation |
+
 ---
 
 ## 4. Naming
