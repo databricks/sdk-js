@@ -59,6 +59,12 @@ When multiple test cases share the same business logic and only differ in
 input/output data, use table-driven tests with `it.each`. Do not write
 separate `it` blocks for each case.
 
+**Self-check before writing separate `it` blocks:** If you are about to write
+a second `it` block with the same assertion pattern as an existing one, stop
+and convert both into a table. This applies even when there are only two cases
+— table-driven tests make it trivial to add a third case later and signal to
+reviewers that the cases are variations of the same behavior.
+
 ```typescript
 // Good — table-driven.
 const testCases: {name: string; input: string; want: number}[] = [
