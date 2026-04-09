@@ -71,6 +71,9 @@ export function parseIni(content: string): IniData {
     }
 
     const key = line.slice(0, delimIdx).trim();
+    if (key === '') {
+      throw new Error(`empty key name: ${line}`);
+    }
     let value = line.slice(delimIdx + 1).trim();
 
     // Strip inline comments matching go-ini's SpaceBeforeInlineComment

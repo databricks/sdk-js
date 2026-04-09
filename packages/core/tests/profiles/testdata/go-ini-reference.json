@@ -802,5 +802,294 @@
     "name": "empty section name",
     "input": "[]\nkey = val",
     "error": "empty section name"
+  },
+  {
+    "name": "space-hash-space at end",
+    "input": "[test]\nkey = value # ",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "key",
+            "value": "value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "value is just hash",
+    "input": "[test]\nkey = #",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "key",
+            "value": "#"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "section with trailing text after bracket",
+    "input": "[section] extra",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "section",
+        "keys": null
+      }
+    ]
+  },
+  {
+    "name": "section with hash comment after bracket",
+    "input": "[section]#comment",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "section",
+        "keys": null
+      }
+    ]
+  },
+  {
+    "name": "nested brackets",
+    "input": "[[nested]]\nkey = val",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "[nested]",
+        "keys": [
+          {
+            "key": "key",
+            "value": "val"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "section name with hash",
+    "input": "[my#section]\nkey = val",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "my#section",
+        "keys": [
+          {
+            "key": "key",
+            "value": "val"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "empty key with equals",
+    "input": "[test]\n= value",
+    "error": "empty key name: = value"
+  },
+  {
+    "name": "empty key with colon",
+    "input": "[test]\n: value",
+    "error": "empty key name: : value"
+  },
+  {
+    "name": "key with internal spaces",
+    "input": "[test]\nmy key = value",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "my key",
+            "value": "value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "value starting with equals",
+    "input": "[test]\nkey = =value",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "key",
+            "value": "=value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "value starting with colon",
+    "input": "[test]\nkey = :value",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "key",
+            "value": ":value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "key with hash in it",
+    "input": "[test]\nmy#key = value",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "my#key",
+            "value": "value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "key with semicolon in it",
+    "input": "[test]\nmy;key = value",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "my;key",
+            "value": "value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "tab in key",
+    "input": "[test]\n\tkey\t=\tvalue",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "key",
+            "value": "value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "only whitespace lines",
+    "input": "[test]\n   \n\t\nkey = val",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "key",
+            "value": "val"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "mixed crlf and lf",
+    "input": "[test]\r\nhost = a\ntoken = b",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "host",
+            "value": "a"
+          },
+          {
+            "key": "token",
+            "value": "b"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "value with backslash",
+    "input": "[test]\npath = C:\\Users\\test\\.databrickscfg",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "path",
+            "value": "C:\\Users\\test\\.databrickscfg"
+          }
+        ]
+      }
+    ]
   }
 ]
