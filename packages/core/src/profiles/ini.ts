@@ -42,11 +42,16 @@ export function parseIni(content: string): IniData {
     // Section header: text between '[' and the last ']'.
     if (line.startsWith('[')) {
       const closeIdx = line.lastIndexOf(']');
-      if (closeIdx > 0) {
-        currentSection = line.slice(1, closeIdx);
-        if (!result.has(currentSection)) {
-          result.set(currentSection, new Map());
-        }
+      if (closeIdx === -1) {
+        throw new Error(`unclosed section: ${line}`);
+      }
+      const name = line.slice(1, closeIdx);
+      if (name === '') {
+        throw new Error('empty section name');
+      }
+      currentSection = name;
+      if (!result.has(currentSection)) {
+        result.set(currentSection, new Map());
       }
       continue;
     }
