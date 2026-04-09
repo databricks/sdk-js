@@ -9,6 +9,14 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./profiles": {
+      "types": "./dist/profiles/index.d.ts",
+      "import": "./dist/profiles/index.js"
+    },
+    "./profiles/browser": {
+      "types": "./dist/profiles/index.browser.d.ts",
+      "import": "./dist/profiles/index.browser.js"
     }
   },
   "files": [
