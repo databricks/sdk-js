@@ -1,13 +1,8 @@
-import {readFileSync} from 'node:fs';
-import {dirname, join} from 'node:path';
-import {fileURLToPath} from 'node:url';
 import {describe, it, expect} from 'vitest';
 // The INI module is internal and not exported from the barrel. We import
 // directly because these tests verify the parser/writer in isolation.
 import {parseIni, formatIni} from '../../src/profiles/ini';
-
-const TEST_DIR = dirname(fileURLToPath(import.meta.url));
-const TESTDATA = join(TEST_DIR, 'testdata');
+import goIniReference from './testdata/go-ini-reference.json';
 
 /**
  * Cross-validation against gopkg.in/ini.v1 v1.67.1.
@@ -29,9 +24,7 @@ interface GoTestCase {
 }
 
 describe('parseIni (cross-validated against go-ini)', () => {
-  const reference: GoTestCase[] = JSON.parse(
-    readFileSync(join(TESTDATA, 'go-ini-reference.json'), 'utf8')
-  ) as GoTestCase[];
+  const reference = goIniReference as GoTestCase[];
 
   const successCases = reference.filter(
     tc => tc.error === undefined || tc.error === ''
