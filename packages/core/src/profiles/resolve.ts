@@ -173,11 +173,10 @@ function loadEnv(): Profile {
  * variables.
  *
  * With no options, the defaults are used: read the default config file and
- * overlay environment variables (equivalent to Go's
- * `Resolve(WithDefaultProfile(), WithEnv())`).
+ * overlay environment variables.
  *
  * When any explicit option is provided, only the requested behaviors are
- * enabled — matching Go where explicit options replace all defaults.
+ * enabled.
  */
 export async function resolve(options?: ResolveOptions): Promise<Profile> {
   if (options?.filePath === '') {

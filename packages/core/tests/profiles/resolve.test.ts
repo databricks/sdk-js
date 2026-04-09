@@ -5,6 +5,7 @@ import {fileURLToPath} from 'node:url';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {Secret, defaultConfigFile, resolve} from '../../src/profiles';
 import type {Profile, ProfileErrorCode} from '../../src/profiles';
+import {PROPERTY_DEFS} from '../../src/profiles/profile';
 
 const TEST_DIR = dirname(fileURLToPath(import.meta.url));
 const TESTDATA = join(TEST_DIR, 'testdata');
@@ -18,45 +19,12 @@ const CFG_SETTINGS_NONEXISTENT = join(
 );
 const CFG_SETTINGS_SELF_REF = join(TESTDATA, 'databrickscfg_settings_self_ref');
 
-/** Environment variables that affect profile resolution. */
-const PROFILE_ENV_VARS = [
-  'DATABRICKS_HOST',
-  'DATABRICKS_WORKSPACE_ID',
-  'DATABRICKS_ACCOUNT_ID',
-  'DATABRICKS_TOKEN',
-  'DATABRICKS_USERNAME',
-  'DATABRICKS_PASSWORD',
-  'DATABRICKS_AUTH_TYPE',
-  'DATABRICKS_CLIENT_ID',
-  'DATABRICKS_CLIENT_SECRET',
-  'DATABRICKS_CLI_PATH',
-  'DATABRICKS_METADATA_SERVICE_URL',
-  'ACTIONS_ID_TOKEN_REQUEST_URL',
-  'ACTIONS_ID_TOKEN_REQUEST_TOKEN',
-  'DATABRICKS_OIDC_TOKEN_ENV',
-  'DATABRICKS_OIDC_TOKEN_FILEPATH',
-  'DATABRICKS_TOKEN_AUDIENCE',
-  'DATABRICKS_DISCOVERY_URL',
-  'ARM_CLIENT_ID',
-  'ARM_CLIENT_SECRET',
-  'ARM_TENANT_ID',
-  'DATABRICKS_AZURE_RESOURCE_ID',
-  'ARM_ENVIRONMENT',
-  'DATABRICKS_AZURE_LOGIN_APP_ID',
-  'ARM_USE_MSI',
-  'GOOGLE_CREDENTIALS',
-  'DATABRICKS_GOOGLE_SERVICE_ACCOUNT',
-  'DATABRICKS_CLUSTER_ID',
-  'DATABRICKS_WAREHOUSE_ID',
-  'DATABRICKS_SERVERLESS_COMPUTE_ID',
-];
-
 /** Clears all environment variables that could affect profile resolution. */
 function resetEnv(): void {
   vi.stubEnv('HOME', mkdtempSync(join(tmpdir(), 'profiles-test-')));
   vi.stubEnv('DATABRICKS_CONFIG_FILE', '');
   vi.stubEnv('DATABRICKS_CONFIG_PROFILE', '');
-  for (const name of PROFILE_ENV_VARS) {
+  for (const {envVar: name} of PROPERTY_DEFS) {
     vi.stubEnv(name, '');
   }
 }
