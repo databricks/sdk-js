@@ -1,4 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
+
 import {z} from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -348,25 +349,27 @@ export interface UserPreference {
   effectiveStringVal?: StringMessage | undefined;
 }
 
-export const unmarshalAibiDashboardEmbeddingAccessPolicySchema = z
-  .object({
-    access_policy_type: z
-      .enum(AibiDashboardEmbeddingAccessPolicy_AccessPolicyType)
-      .optional(),
-  })
-  .transform(d => ({
-    accessPolicyType: d.access_policy_type,
-  }));
+export const unmarshalAibiDashboardEmbeddingAccessPolicySchema: z.ZodType<AibiDashboardEmbeddingAccessPolicy> =
+  z
+    .object({
+      access_policy_type: z
+        .enum(AibiDashboardEmbeddingAccessPolicy_AccessPolicyType)
+        .optional(),
+    })
+    .transform(d => ({
+      accessPolicyType: d.access_policy_type,
+    }));
 
-export const unmarshalAibiDashboardEmbeddingApprovedDomainsSchema = z
-  .object({
-    approved_domains: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    approvedDomains: d.approved_domains,
-  }));
+export const unmarshalAibiDashboardEmbeddingApprovedDomainsSchema: z.ZodType<AibiDashboardEmbeddingApprovedDomains> =
+  z
+    .object({
+      approved_domains: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      approvedDomains: d.approved_domains,
+    }));
 
-export const unmarshalBooleanMessageSchema = z
+export const unmarshalBooleanMessageSchema: z.ZodType<BooleanMessage> = z
   .object({
     value: z.boolean().optional(),
   })
@@ -374,55 +377,58 @@ export const unmarshalBooleanMessageSchema = z
     value: d.value,
   }));
 
-export const unmarshalClusterAutoRestartMessageSchema = z
-  .object({
-    enabled: z.boolean().optional(),
-    can_toggle: z.boolean().optional(),
-    maintenance_window: z
-      .lazy(() => unmarshalClusterAutoRestartMessage_MaintenanceWindowSchema)
-      .optional(),
-    enablement_details: z
-      .lazy(() => unmarshalClusterAutoRestartMessage_EnablementDetailsSchema)
-      .optional(),
-    restart_even_if_no_updates_available: z.boolean().optional(),
-  })
-  .transform(d => ({
-    enabled: d.enabled,
-    canToggle: d.can_toggle,
-    maintenanceWindow: d.maintenance_window,
-    enablementDetails: d.enablement_details,
-    restartEvenIfNoUpdatesAvailable: d.restart_even_if_no_updates_available,
-  }));
+export const unmarshalClusterAutoRestartMessageSchema: z.ZodType<ClusterAutoRestartMessage> =
+  z
+    .object({
+      enabled: z.boolean().optional(),
+      can_toggle: z.boolean().optional(),
+      maintenance_window: z
+        .lazy(() => unmarshalClusterAutoRestartMessage_MaintenanceWindowSchema)
+        .optional(),
+      enablement_details: z
+        .lazy(() => unmarshalClusterAutoRestartMessage_EnablementDetailsSchema)
+        .optional(),
+      restart_even_if_no_updates_available: z.boolean().optional(),
+    })
+    .transform(d => ({
+      enabled: d.enabled,
+      canToggle: d.can_toggle,
+      maintenanceWindow: d.maintenance_window,
+      enablementDetails: d.enablement_details,
+      restartEvenIfNoUpdatesAvailable: d.restart_even_if_no_updates_available,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalClusterAutoRestartMessage_EnablementDetailsSchema = z
-  .object({
-    unavailable_for_non_enterprise_tier: z.boolean().optional(),
-    unavailable_for_disabled_entitlement: z.boolean().optional(),
-    forced_for_compliance_mode: z.boolean().optional(),
-  })
-  .transform(d => ({
-    unavailableForNonEnterpriseTier: d.unavailable_for_non_enterprise_tier,
-    unavailableForDisabledEntitlement: d.unavailable_for_disabled_entitlement,
-    forcedForComplianceMode: d.forced_for_compliance_mode,
-  }));
+export const unmarshalClusterAutoRestartMessage_EnablementDetailsSchema: z.ZodType<ClusterAutoRestartMessage_EnablementDetails> =
+  z
+    .object({
+      unavailable_for_non_enterprise_tier: z.boolean().optional(),
+      unavailable_for_disabled_entitlement: z.boolean().optional(),
+      forced_for_compliance_mode: z.boolean().optional(),
+    })
+    .transform(d => ({
+      unavailableForNonEnterpriseTier: d.unavailable_for_non_enterprise_tier,
+      unavailableForDisabledEntitlement: d.unavailable_for_disabled_entitlement,
+      forcedForComplianceMode: d.forced_for_compliance_mode,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalClusterAutoRestartMessage_MaintenanceWindowSchema = z
-  .object({
-    week_day_based_schedule: z
-      .lazy(
-        () =>
-          unmarshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema
-      )
-      .optional(),
-  })
-  .transform(d => ({
-    weekDayBasedSchedule: d.week_day_based_schedule,
-  }));
+export const unmarshalClusterAutoRestartMessage_MaintenanceWindowSchema: z.ZodType<ClusterAutoRestartMessage_MaintenanceWindow> =
+  z
+    .object({
+      week_day_based_schedule: z
+        .lazy(
+          () =>
+            unmarshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema
+        )
+        .optional(),
+    })
+    .transform(d => ({
+      weekDayBasedSchedule: d.week_day_based_schedule,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema =
+export const unmarshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema: z.ZodType<ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedule> =
   z
     .object({
       frequency: z
@@ -445,7 +451,7 @@ export const unmarshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSc
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeSchema =
+export const unmarshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeSchema: z.ZodType<ClusterAutoRestartMessage_MaintenanceWindow_WindowStartTime> =
   z
     .object({
       hours: z.number().optional(),
@@ -456,37 +462,40 @@ export const unmarshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTim
       minutes: d.minutes,
     }));
 
-export const unmarshalGetPublicAccountSettingRequestSchema = z
-  .object({
-    account_id: z.string().optional(),
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    name: d.name,
-  }));
+export const unmarshalGetPublicAccountSettingRequestSchema: z.ZodType<GetPublicAccountSettingRequest> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      name: z.string().optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      name: d.name,
+    }));
 
-export const unmarshalGetPublicAccountUserPreferenceRequestSchema = z
-  .object({
-    account_id: z.string().optional(),
-    user_id: z.string().optional(),
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    userId: d.user_id,
-    name: d.name,
-  }));
+export const unmarshalGetPublicAccountUserPreferenceRequestSchema: z.ZodType<GetPublicAccountUserPreferenceRequest> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      user_id: z.string().optional(),
+      name: z.string().optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      userId: d.user_id,
+      name: d.name,
+    }));
 
-export const unmarshalGetPublicWorkspaceSettingRequestSchema = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
+export const unmarshalGetPublicWorkspaceSettingRequestSchema: z.ZodType<GetPublicWorkspaceSettingRequest> =
+  z
+    .object({
+      name: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+    }));
 
-export const unmarshalIntegerMessageSchema = z
+export const unmarshalIntegerMessageSchema: z.ZodType<IntegerMessage> = z
   .object({
     value: z.number().optional(),
   })
@@ -494,133 +503,146 @@ export const unmarshalIntegerMessageSchema = z
     value: d.value,
   }));
 
-export const unmarshalListAccountSettingsMetadataRequestSchema = z
-  .object({
-    account_id: z.string().optional(),
-    page_size: z.number().optional(),
-    page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    pageSize: d.page_size,
-    pageToken: d.page_token,
-  }));
+export const unmarshalListAccountSettingsMetadataRequestSchema: z.ZodType<ListAccountSettingsMetadataRequest> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      page_size: z.number().optional(),
+      page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      pageSize: d.page_size,
+      pageToken: d.page_token,
+    }));
 
-export const unmarshalListAccountSettingsMetadataResponseSchema = z
-  .object({
-    settings_metadata: z
-      .array(z.lazy(() => unmarshalSettingsMetadataSchema))
-      .optional(),
-    next_page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    settingsMetadata: d.settings_metadata,
-    nextPageToken: d.next_page_token,
-  }));
+export const unmarshalListAccountSettingsMetadataResponseSchema: z.ZodType<ListAccountSettingsMetadataResponse> =
+  z
+    .object({
+      settings_metadata: z
+        .array(z.lazy(() => unmarshalSettingsMetadataSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      settingsMetadata: d.settings_metadata,
+      nextPageToken: d.next_page_token,
+    }));
 
-export const unmarshalListAccountUserPreferencesMetadataRequestSchema = z
-  .object({
-    account_id: z.string().optional(),
-    user_id: z.string().optional(),
-    page_size: z.number().optional(),
-    page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    userId: d.user_id,
-    pageSize: d.page_size,
-    pageToken: d.page_token,
-  }));
+export const unmarshalListAccountUserPreferencesMetadataRequestSchema: z.ZodType<ListAccountUserPreferencesMetadataRequest> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      user_id: z.string().optional(),
+      page_size: z.number().optional(),
+      page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      userId: d.user_id,
+      pageSize: d.page_size,
+      pageToken: d.page_token,
+    }));
 
-export const unmarshalListAccountUserPreferencesMetadataResponseSchema = z
-  .object({
-    settings_metadata: z
-      .array(z.lazy(() => unmarshalSettingsMetadataSchema))
-      .optional(),
-    next_page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    settingsMetadata: d.settings_metadata,
-    nextPageToken: d.next_page_token,
-  }));
+export const unmarshalListAccountUserPreferencesMetadataResponseSchema: z.ZodType<ListAccountUserPreferencesMetadataResponse> =
+  z
+    .object({
+      settings_metadata: z
+        .array(z.lazy(() => unmarshalSettingsMetadataSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      settingsMetadata: d.settings_metadata,
+      nextPageToken: d.next_page_token,
+    }));
 
-export const unmarshalListWorkspaceSettingsMetadataRequestSchema = z
-  .object({
-    page_size: z.number().optional(),
-    page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    pageSize: d.page_size,
-    pageToken: d.page_token,
-  }));
+export const unmarshalListWorkspaceSettingsMetadataRequestSchema: z.ZodType<ListWorkspaceSettingsMetadataRequest> =
+  z
+    .object({
+      page_size: z.number().optional(),
+      page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      pageSize: d.page_size,
+      pageToken: d.page_token,
+    }));
 
-export const unmarshalListWorkspaceSettingsMetadataResponseSchema = z
-  .object({
-    settings_metadata: z
-      .array(z.lazy(() => unmarshalSettingsMetadataSchema))
-      .optional(),
-    next_page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    settingsMetadata: d.settings_metadata,
-    nextPageToken: d.next_page_token,
-  }));
+export const unmarshalListWorkspaceSettingsMetadataResponseSchema: z.ZodType<ListWorkspaceSettingsMetadataResponse> =
+  z
+    .object({
+      settings_metadata: z
+        .array(z.lazy(() => unmarshalSettingsMetadataSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      settingsMetadata: d.settings_metadata,
+      nextPageToken: d.next_page_token,
+    }));
 
-export const unmarshalPatchPublicAccountSettingRequestSchema = z
-  .object({
-    account_id: z.string().optional(),
-    name: z.string().optional(),
-    setting: z.lazy(() => unmarshalSettingSchema).optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    name: d.name,
-    setting: d.setting,
-  }));
+export const unmarshalPatchPublicAccountSettingRequestSchema: z.ZodType<PatchPublicAccountSettingRequest> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      name: z.string().optional(),
+      setting: z.lazy(() => unmarshalSettingSchema).optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      name: d.name,
+      setting: d.setting,
+    }));
 
-export const unmarshalPatchPublicAccountUserPreferenceRequestSchema = z
-  .object({
-    account_id: z.string().optional(),
-    user_id: z.string().optional(),
-    name: z.string().optional(),
-    setting: z.lazy(() => unmarshalUserPreferenceSchema).optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    userId: d.user_id,
-    name: d.name,
-    setting: d.setting,
-  }));
+export const unmarshalPatchPublicAccountUserPreferenceRequestSchema: z.ZodType<PatchPublicAccountUserPreferenceRequest> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      user_id: z.string().optional(),
+      name: z.string().optional(),
+      setting: z.lazy(() => unmarshalUserPreferenceSchema).optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      userId: d.user_id,
+      name: d.name,
+      setting: d.setting,
+    }));
 
-export const unmarshalPatchPublicWorkspaceSettingRequestSchema = z
-  .object({
-    name: z.string().optional(),
-    setting: z.lazy(() => unmarshalSettingSchema).optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    setting: d.setting,
-  }));
+export const unmarshalPatchPublicWorkspaceSettingRequestSchema: z.ZodType<PatchPublicWorkspaceSettingRequest> =
+  z
+    .object({
+      name: z.string().optional(),
+      setting: z.lazy(() => unmarshalSettingSchema).optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+      setting: d.setting,
+    }));
 
-export const unmarshalPersonalComputeMessageSchema = z
-  .object({
-    value: z.enum(PersonalComputeMessage_PersonalComputeMessageEnum).optional(),
-  })
-  .transform(d => ({
-    value: d.value,
-  }));
+export const unmarshalPersonalComputeMessageSchema: z.ZodType<PersonalComputeMessage> =
+  z
+    .object({
+      value: z
+        .enum(PersonalComputeMessage_PersonalComputeMessageEnum)
+        .optional(),
+    })
+    .transform(d => ({
+      value: d.value,
+    }));
 
-export const unmarshalRestrictWorkspaceAdminsMessageSchema = z
-  .object({
-    status: z.enum(RestrictWorkspaceAdminsMessage_Status).optional(),
-    disable_gov_tag_creation: z.boolean().optional(),
-  })
-  .transform(d => ({
-    status: d.status,
-    disableGovTagCreation: d.disable_gov_tag_creation,
-  }));
+export const unmarshalRestrictWorkspaceAdminsMessageSchema: z.ZodType<RestrictWorkspaceAdminsMessage> =
+  z
+    .object({
+      status: z.enum(RestrictWorkspaceAdminsMessage_Status).optional(),
+      disable_gov_tag_creation: z.boolean().optional(),
+    })
+    .transform(d => ({
+      status: d.status,
+      disableGovTagCreation: d.disable_gov_tag_creation,
+    }));
 
-export const unmarshalSettingSchema = z
+export const unmarshalSettingSchema: z.ZodType<Setting> = z
   .object({
     name: z.string().optional(),
     boolean_val: z.lazy(() => unmarshalBooleanMessageSchema).optional(),
@@ -689,7 +711,7 @@ export const unmarshalSettingSchema = z
     effectivePersonalCompute: d.effective_personal_compute,
   }));
 
-export const unmarshalSettingsMetadataSchema = z
+export const unmarshalSettingsMetadataSchema: z.ZodType<SettingsMetadata> = z
   .object({
     name: z.string().optional(),
     description: z.string().optional(),
@@ -703,7 +725,7 @@ export const unmarshalSettingsMetadataSchema = z
     docsLink: d.docs_link,
   }));
 
-export const unmarshalStringMessageSchema = z
+export const unmarshalStringMessageSchema: z.ZodType<StringMessage> = z
   .object({
     value: z.string().optional(),
   })
@@ -711,7 +733,7 @@ export const unmarshalStringMessageSchema = z
     value: d.value,
   }));
 
-export const unmarshalUserPreferenceSchema = z
+export const unmarshalUserPreferenceSchema: z.ZodType<UserPreference> = z
   .object({
     name: z.string().optional(),
     user_id: z.string().optional(),
@@ -731,7 +753,7 @@ export const unmarshalUserPreferenceSchema = z
     effectiveStringVal: d.effective_string_val,
   }));
 
-export const marshalAibiDashboardEmbeddingAccessPolicySchema = z
+export const marshalAibiDashboardEmbeddingAccessPolicySchema: z.ZodType = z
   .object({
     accessPolicyType: z
       .enum(AibiDashboardEmbeddingAccessPolicy_AccessPolicyType)
@@ -741,7 +763,7 @@ export const marshalAibiDashboardEmbeddingAccessPolicySchema = z
     access_policy_type: d.accessPolicyType,
   }));
 
-export const marshalAibiDashboardEmbeddingApprovedDomainsSchema = z
+export const marshalAibiDashboardEmbeddingApprovedDomainsSchema: z.ZodType = z
   .object({
     approvedDomains: z.array(z.string()).optional(),
   })
@@ -749,7 +771,7 @@ export const marshalAibiDashboardEmbeddingApprovedDomainsSchema = z
     approved_domains: d.approvedDomains,
   }));
 
-export const marshalBooleanMessageSchema = z
+export const marshalBooleanMessageSchema: z.ZodType = z
   .object({
     value: z.boolean().optional(),
   })
@@ -757,7 +779,7 @@ export const marshalBooleanMessageSchema = z
     value: d.value,
   }));
 
-export const marshalClusterAutoRestartMessageSchema = z
+export const marshalClusterAutoRestartMessageSchema: z.ZodType = z
   .object({
     enabled: z.boolean().optional(),
     canToggle: z.boolean().optional(),
@@ -778,34 +800,36 @@ export const marshalClusterAutoRestartMessageSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalClusterAutoRestartMessage_EnablementDetailsSchema = z
-  .object({
-    unavailableForNonEnterpriseTier: z.boolean().optional(),
-    unavailableForDisabledEntitlement: z.boolean().optional(),
-    forcedForComplianceMode: z.boolean().optional(),
-  })
-  .transform(d => ({
-    unavailable_for_non_enterprise_tier: d.unavailableForNonEnterpriseTier,
-    unavailable_for_disabled_entitlement: d.unavailableForDisabledEntitlement,
-    forced_for_compliance_mode: d.forcedForComplianceMode,
-  }));
+export const marshalClusterAutoRestartMessage_EnablementDetailsSchema: z.ZodType =
+  z
+    .object({
+      unavailableForNonEnterpriseTier: z.boolean().optional(),
+      unavailableForDisabledEntitlement: z.boolean().optional(),
+      forcedForComplianceMode: z.boolean().optional(),
+    })
+    .transform(d => ({
+      unavailable_for_non_enterprise_tier: d.unavailableForNonEnterpriseTier,
+      unavailable_for_disabled_entitlement: d.unavailableForDisabledEntitlement,
+      forced_for_compliance_mode: d.forcedForComplianceMode,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalClusterAutoRestartMessage_MaintenanceWindowSchema = z
-  .object({
-    weekDayBasedSchedule: z
-      .lazy(
-        () =>
-          marshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema
-      )
-      .optional(),
-  })
-  .transform(d => ({
-    week_day_based_schedule: d.weekDayBasedSchedule,
-  }));
+export const marshalClusterAutoRestartMessage_MaintenanceWindowSchema: z.ZodType =
+  z
+    .object({
+      weekDayBasedSchedule: z
+        .lazy(
+          () =>
+            marshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema
+        )
+        .optional(),
+    })
+    .transform(d => ({
+      week_day_based_schedule: d.weekDayBasedSchedule,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema =
+export const marshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema: z.ZodType =
   z
     .object({
       frequency: z
@@ -828,7 +852,7 @@ export const marshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSche
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeSchema =
+export const marshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeSchema: z.ZodType =
   z
     .object({
       hours: z.number().optional(),
@@ -839,7 +863,7 @@ export const marshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeS
       minutes: d.minutes,
     }));
 
-export const marshalGetPublicAccountSettingRequestSchema = z
+export const marshalGetPublicAccountSettingRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     name: z.string().optional(),
@@ -849,7 +873,7 @@ export const marshalGetPublicAccountSettingRequestSchema = z
     name: d.name,
   }));
 
-export const marshalGetPublicAccountUserPreferenceRequestSchema = z
+export const marshalGetPublicAccountUserPreferenceRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     userId: z.string().optional(),
@@ -861,7 +885,7 @@ export const marshalGetPublicAccountUserPreferenceRequestSchema = z
     name: d.name,
   }));
 
-export const marshalGetPublicWorkspaceSettingRequestSchema = z
+export const marshalGetPublicWorkspaceSettingRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
@@ -869,7 +893,7 @@ export const marshalGetPublicWorkspaceSettingRequestSchema = z
     name: d.name,
   }));
 
-export const marshalIntegerMessageSchema = z
+export const marshalIntegerMessageSchema: z.ZodType = z
   .object({
     value: z.number().optional(),
   })
@@ -877,7 +901,7 @@ export const marshalIntegerMessageSchema = z
     value: d.value,
   }));
 
-export const marshalListAccountSettingsMetadataRequestSchema = z
+export const marshalListAccountSettingsMetadataRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     pageSize: z.number().optional(),
@@ -889,7 +913,7 @@ export const marshalListAccountSettingsMetadataRequestSchema = z
     page_token: d.pageToken,
   }));
 
-export const marshalListAccountSettingsMetadataResponseSchema = z
+export const marshalListAccountSettingsMetadataResponseSchema: z.ZodType = z
   .object({
     settingsMetadata: z
       .array(z.lazy(() => marshalSettingsMetadataSchema))
@@ -901,21 +925,45 @@ export const marshalListAccountSettingsMetadataResponseSchema = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalListAccountUserPreferencesMetadataRequestSchema = z
+export const marshalListAccountUserPreferencesMetadataRequestSchema: z.ZodType =
+  z
+    .object({
+      accountId: z.string().optional(),
+      userId: z.string().optional(),
+      pageSize: z.number().optional(),
+      pageToken: z.string().optional(),
+    })
+    .transform(d => ({
+      account_id: d.accountId,
+      user_id: d.userId,
+      page_size: d.pageSize,
+      page_token: d.pageToken,
+    }));
+
+export const marshalListAccountUserPreferencesMetadataResponseSchema: z.ZodType =
+  z
+    .object({
+      settingsMetadata: z
+        .array(z.lazy(() => marshalSettingsMetadataSchema))
+        .optional(),
+      nextPageToken: z.string().optional(),
+    })
+    .transform(d => ({
+      settings_metadata: d.settingsMetadata,
+      next_page_token: d.nextPageToken,
+    }));
+
+export const marshalListWorkspaceSettingsMetadataRequestSchema: z.ZodType = z
   .object({
-    accountId: z.string().optional(),
-    userId: z.string().optional(),
     pageSize: z.number().optional(),
     pageToken: z.string().optional(),
   })
   .transform(d => ({
-    account_id: d.accountId,
-    user_id: d.userId,
     page_size: d.pageSize,
     page_token: d.pageToken,
   }));
 
-export const marshalListAccountUserPreferencesMetadataResponseSchema = z
+export const marshalListWorkspaceSettingsMetadataResponseSchema: z.ZodType = z
   .object({
     settingsMetadata: z
       .array(z.lazy(() => marshalSettingsMetadataSchema))
@@ -927,29 +975,7 @@ export const marshalListAccountUserPreferencesMetadataResponseSchema = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalListWorkspaceSettingsMetadataRequestSchema = z
-  .object({
-    pageSize: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    page_size: d.pageSize,
-    page_token: d.pageToken,
-  }));
-
-export const marshalListWorkspaceSettingsMetadataResponseSchema = z
-  .object({
-    settingsMetadata: z
-      .array(z.lazy(() => marshalSettingsMetadataSchema))
-      .optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    settings_metadata: d.settingsMetadata,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalPatchPublicAccountSettingRequestSchema = z
+export const marshalPatchPublicAccountSettingRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     name: z.string().optional(),
@@ -961,7 +987,7 @@ export const marshalPatchPublicAccountSettingRequestSchema = z
     setting: d.setting,
   }));
 
-export const marshalPatchPublicAccountUserPreferenceRequestSchema = z
+export const marshalPatchPublicAccountUserPreferenceRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     userId: z.string().optional(),
@@ -975,7 +1001,7 @@ export const marshalPatchPublicAccountUserPreferenceRequestSchema = z
     setting: d.setting,
   }));
 
-export const marshalPatchPublicWorkspaceSettingRequestSchema = z
+export const marshalPatchPublicWorkspaceSettingRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     setting: z.lazy(() => marshalSettingSchema).optional(),
@@ -985,7 +1011,7 @@ export const marshalPatchPublicWorkspaceSettingRequestSchema = z
     setting: d.setting,
   }));
 
-export const marshalPersonalComputeMessageSchema = z
+export const marshalPersonalComputeMessageSchema: z.ZodType = z
   .object({
     value: z.enum(PersonalComputeMessage_PersonalComputeMessageEnum).optional(),
   })
@@ -993,7 +1019,7 @@ export const marshalPersonalComputeMessageSchema = z
     value: d.value,
   }));
 
-export const marshalRestrictWorkspaceAdminsMessageSchema = z
+export const marshalRestrictWorkspaceAdminsMessageSchema: z.ZodType = z
   .object({
     status: z.enum(RestrictWorkspaceAdminsMessage_Status).optional(),
     disableGovTagCreation: z.boolean().optional(),
@@ -1003,7 +1029,7 @@ export const marshalRestrictWorkspaceAdminsMessageSchema = z
     disable_gov_tag_creation: d.disableGovTagCreation,
   }));
 
-export const marshalSettingSchema = z
+export const marshalSettingSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     booleanVal: z.lazy(() => marshalBooleanMessageSchema).optional(),
@@ -1068,7 +1094,7 @@ export const marshalSettingSchema = z
     effective_personal_compute: d.effectivePersonalCompute,
   }));
 
-export const marshalSettingsMetadataSchema = z
+export const marshalSettingsMetadataSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     description: z.string().optional(),
@@ -1082,7 +1108,7 @@ export const marshalSettingsMetadataSchema = z
     docs_link: d.docsLink,
   }));
 
-export const marshalStringMessageSchema = z
+export const marshalStringMessageSchema: z.ZodType = z
   .object({
     value: z.string().optional(),
   })
@@ -1090,7 +1116,7 @@ export const marshalStringMessageSchema = z
     value: d.value,
   }));
 
-export const marshalUserPreferenceSchema = z
+export const marshalUserPreferenceSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     userId: z.string().optional(),
