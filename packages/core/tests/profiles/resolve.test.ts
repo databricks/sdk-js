@@ -3,7 +3,12 @@ import {tmpdir} from 'node:os';
 import {dirname, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {Secret, defaultConfigFile, resolve} from '../../src/profiles';
+import {
+  Secret,
+  defaultConfigFile,
+  listProfiles,
+  resolve,
+} from '../../src/profiles';
 import type {Profile, ProfileErrorCode} from '../../src/profiles';
 import {PROPERTY_DEFS} from '../../src/profiles/profile';
 
@@ -317,6 +322,59 @@ describe('resolve', () => {
     } else {
       const got = await resolve(options);
       expectProfileEqual(got, want);
+    }
+  });
+});
+
+describe('listProfiles', () => {
+  const cases: {
+    name: string;
+    path: string;
+    want?: string[];
+    wantErr?: ProfileErrorCode;
+  }[] = [
+    {
+      name: 'all profiles',
+      path: CFG,
+      want: [
+        'DEFAULT',
+        'workspace',
+        'azure',
+        'hash-in-value',
+        'extra-keys',
+        'empty',
+      ],
+    },
+    {
+      name: 'no default',
+      path: CFG_NO_DEFAULT,
+      want: ['workspace'],
+    },
+    {
+      name: 'settings section excluded',
+      path: CFG_SETTINGS,
+      want: ['DEFAULT', 'my-workspace'],
+    },
+    {
+      name: 'missing file',
+      path: join(TESTDATA, 'nonexistent'),
+      wantErr: 'CONFIG_FILE_NOT_FOUND',
+    },
+    {
+      name: 'empty path',
+      path: '',
+      wantErr: 'CONFIG_FILE_NOT_FOUND',
+    },
+  ];
+
+  it.each(cases)('$name', async ({path, want, wantErr}) => {
+    if (wantErr !== undefined) {
+      await expect(listProfiles(path)).rejects.toMatchObject({
+        code: wantErr,
+      });
+    } else {
+      const result = await listProfiles(path);
+      expect(result).toEqual(want);
     }
   });
 });

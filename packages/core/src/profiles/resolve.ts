@@ -213,3 +213,39 @@ export function defaultConfigFile(): string {
   }
   return defaultConfigFilePath();
 }
+
+/**
+ * Returns the names of all profiles (INI sections) in the given config
+ * file. The DEFAULT section is included only if it has keys.
+ */
+export async function listProfiles(path: string): Promise<string[]> {
+  if (path === '') {
+    throw new ProfileError(
+      'CONFIG_FILE_NOT_FOUND',
+      'config file not found: empty path'
+    );
+  }
+
+  if (!(await fileExists(path))) {
+    throw new ProfileError(
+      'CONFIG_FILE_NOT_FOUND',
+      `config file not found: ${path}`
+    );
+  }
+
+  const content = await readFile(path, 'utf8');
+  const data = parseIni(content);
+
+  const names: string[] = [];
+  for (const [name, keys] of data) {
+    if (name === SETTINGS_SECTION) {
+      continue;
+    }
+    if (isPhantomDefault(name, keys)) {
+      continue;
+    }
+    names.push(name);
+  }
+
+  return names;
+}
