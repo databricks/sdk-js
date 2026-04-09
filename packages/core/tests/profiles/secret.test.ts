@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {Secret} from '../../src/profiles';
+import {Secret} from '../../src/profiles/secret';
 
 describe('Secret', () => {
   const obfuscationCases: {

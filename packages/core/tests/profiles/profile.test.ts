@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {Secret} from '../../src/profiles';
+import {Secret} from '../../src/profiles/secret';
 // These are internal helpers not exported from the barrel, so we import
 // directly from the module.
 import type {Profile, PropertyDef} from '../../src/profiles/profile';
