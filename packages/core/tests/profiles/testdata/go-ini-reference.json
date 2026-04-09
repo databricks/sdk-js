@@ -1,0 +1,1095 @@
+[
+  {
+    "name": "basic sections",
+    "input": "[DEFAULT]\nhost = https://default.com\ntoken = tok\n\n[workspace]\nhost = https://ws.com",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": [
+          {
+            "key": "host",
+            "value": "https://default.com"
+          },
+          {
+            "key": "token",
+            "value": "tok"
+          }
+        ]
+      },
+      {
+        "name": "workspace",
+        "keys": [
+          {
+            "key": "host",
+            "value": "https://ws.com"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "implicit DEFAULT",
+    "input": "host = https://implicit.com\ntoken = tok",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": [
+          {
+            "key": "host",
+            "value": "https://implicit.com"
+          },
+          {
+            "key": "token",
+            "value": "tok"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "empty input",
+    "input": "",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      }
+    ]
+  },
+  {
+    "name": "empty section",
+    "input": "[empty]",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "empty",
+        "keys": null
+      }
+    ]
+  },
+  {
+    "name": "windows line endings",
+    "input": "[test]\r\nhost = value\r\n",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "host",
+            "value": "value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "equals delimiter",
+    "input": "[test]\nhost = value",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "host",
+            "value": "value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "colon delimiter",
+    "input": "[test]\nhost: value",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "host",
+            "value": "value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "colon before equals",
+    "input": "[test]\nkey: val=ue",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "key",
+            "value": "val=ue"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "equals in value",
+    "input": "[test]\nurl = https://x.com?a=1&b=2",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "url",
+            "value": "https://x.com?a=1&b=2"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "colon in value after equals",
+    "input": "[test]\nhost = https://x.com:8080",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "host",
+            "value": "https://x.com:8080"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "space-hash strips",
+    "input": "[test]\ntoken = abc #comment",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "token",
+            "value": "abc"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "hash no space preserved",
+    "input": "[test]\ntoken = abc#def#ghi",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "token",
+            "value": "abc#def#ghi"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "space-semicolon strips",
+    "input": "[test]\nhost = value ;comment",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "host",
+            "value": "value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "semicolon no space preserved",
+    "input": "[test]\nhost = abc;def",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "host",
+            "value": "abc;def"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "space-hash precedence over space-semicolon",
+    "input": "[test]\nvalue = a ;b #c",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "value",
+            "value": "a ;b"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "space-semicolon when no space-hash",
+    "input": "[test]\nval = hello ;world",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "val",
+            "value": "hello"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "space-hash before space-semicolon",
+    "input": "[test]\nval = a #b ;c",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "val",
+            "value": "a"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "first space-hash wins",
+    "input": "[test]\nval = x #y #z",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "val",
+            "value": "x"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "hash at start of value not comment",
+    "input": "[test]\nkey = #not-a-comment",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "key",
+            "value": "#not-a-comment"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "space-hash after trim not comment",
+    "input": "[test]\nkey =  #still-value",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "key",
+            "value": "#still-value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "comment strips trailing spaces",
+    "input": "[test]\ntoken = abc   #comment",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "token",
+            "value": "abc"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "hash full-line comment",
+    "input": "[test]\n# comment\nhost = value",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "host",
+            "value": "value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "semicolon full-line comment",
+    "input": "[test]\n; comment\nhost = value",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "host",
+            "value": "value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "indented full-line comment",
+    "input": "[test]\n  # indented comment\nhost = value",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "host",
+            "value": "value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "key and value trimmed",
+    "input": "[test]\n  host  =  https://example.com  ",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "host",
+            "value": "https://example.com"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "blank lines skipped",
+    "input": "[test]\n\nhost = a\n\ntoken = b",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "host",
+            "value": "a"
+          },
+          {
+            "key": "token",
+            "value": "b"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "empty value after equals",
+    "input": "[test]\nkey =",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "key",
+            "value": ""
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "empty value with trailing space",
+    "input": "[test]\nkey = ",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "key",
+            "value": ""
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "value is only spaces",
+    "input": "[test]\nkey =   ",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "key",
+            "value": ""
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "section name uses last bracket",
+    "input": "[foo]bar]\nkey = val",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "foo]bar",
+        "keys": [
+          {
+            "key": "key",
+            "value": "val"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "section name not trimmed",
+    "input": "[ spaces ]\nkey = val",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": " spaces ",
+        "keys": [
+          {
+            "key": "key",
+            "value": "val"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "duplicate sections merged",
+    "input": "[test]\nhost = a\n\n[test]\ntoken = b",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "host",
+            "value": "a"
+          },
+          {
+            "key": "token",
+            "value": "b"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "duplicate keys last wins",
+    "input": "[test]\nhost = first\nhost = second",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "host",
+            "value": "second"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "DEFAULT always present",
+    "input": "[workspace]\nhost = val",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "workspace",
+        "keys": [
+          {
+            "key": "host",
+            "value": "val"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "line without delimiter",
+    "input": "[test]\ninvalid line\nhost = value",
+    "error": "key-value delimiter not found: invalid line\n"
+  },
+  {
+    "name": "realistic config",
+    "input": "[DEFAULT]\nhost = https://default.cloud.databricks.com\ntoken = default-token\n\n[workspace]\nhost = https://workspace.cloud.databricks.com\ntoken = workspace-token\naccount_id = acc-123\nclient_id = client-abc\nclient_secret = secret-xyz\ncluster_id = 0123-456789-abcdef\nwarehouse_id = abc123def456\n\n[azure]\nhost = https://adb-123.azuredatabricks.net\nazure_client_id = az-client-id\nazure_client_secret = az-client-secret\nazure_tenant_id = az-tenant-id\nazure_workspace_resource_id = /subscriptions/sub-id/resourceGroups/rg/providers/Microsoft.Databricks/workspaces/ws\n\n[hash-in-value]\nhost = https://hash.cloud.databricks.com\ntoken = abc#def#ghi\nclient_secret = secret#with#hashes",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": [
+          {
+            "key": "host",
+            "value": "https://default.cloud.databricks.com"
+          },
+          {
+            "key": "token",
+            "value": "default-token"
+          }
+        ]
+      },
+      {
+        "name": "workspace",
+        "keys": [
+          {
+            "key": "host",
+            "value": "https://workspace.cloud.databricks.com"
+          },
+          {
+            "key": "token",
+            "value": "workspace-token"
+          },
+          {
+            "key": "account_id",
+            "value": "acc-123"
+          },
+          {
+            "key": "client_id",
+            "value": "client-abc"
+          },
+          {
+            "key": "client_secret",
+            "value": "secret-xyz"
+          },
+          {
+            "key": "cluster_id",
+            "value": "0123-456789-abcdef"
+          },
+          {
+            "key": "warehouse_id",
+            "value": "abc123def456"
+          }
+        ]
+      },
+      {
+        "name": "azure",
+        "keys": [
+          {
+            "key": "host",
+            "value": "https://adb-123.azuredatabricks.net"
+          },
+          {
+            "key": "azure_client_id",
+            "value": "az-client-id"
+          },
+          {
+            "key": "azure_client_secret",
+            "value": "az-client-secret"
+          },
+          {
+            "key": "azure_tenant_id",
+            "value": "az-tenant-id"
+          },
+          {
+            "key": "azure_workspace_resource_id",
+            "value": "/subscriptions/sub-id/resourceGroups/rg/providers/Microsoft.Databricks/workspaces/ws"
+          }
+        ]
+      },
+      {
+        "name": "hash-in-value",
+        "keys": [
+          {
+            "key": "host",
+            "value": "https://hash.cloud.databricks.com"
+          },
+          {
+            "key": "token",
+            "value": "abc#def#ghi"
+          },
+          {
+            "key": "client_secret",
+            "value": "secret#with#hashes"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "settings section",
+    "input": "[__settings__]\ndefault_profile = my-workspace\n\n[DEFAULT]\nhost = https://default.com\ntoken = default-token\n\n[my-workspace]\nhost = https://my-workspace.com\ntoken = my-workspace-token",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": [
+          {
+            "key": "host",
+            "value": "https://default.com"
+          },
+          {
+            "key": "token",
+            "value": "default-token"
+          }
+        ]
+      },
+      {
+        "name": "__settings__",
+        "keys": [
+          {
+            "key": "default_profile",
+            "value": "my-workspace"
+          }
+        ]
+      },
+      {
+        "name": "my-workspace",
+        "keys": [
+          {
+            "key": "host",
+            "value": "https://my-workspace.com"
+          },
+          {
+            "key": "token",
+            "value": "my-workspace-token"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "unclosed section",
+    "input": "[no-close\nkey = val",
+    "error": "unclosed section"
+  },
+  {
+    "name": "just opening bracket",
+    "input": "[\nkey = val",
+    "error": "unclosed section"
+  },
+  {
+    "name": "empty section name",
+    "input": "[]\nkey = val",
+    "error": "empty section name"
+  },
+  {
+    "name": "space-hash-space at end",
+    "input": "[test]\nkey = value # ",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "key",
+            "value": "value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "value is just hash",
+    "input": "[test]\nkey = #",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "key",
+            "value": "#"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "section with trailing text after bracket",
+    "input": "[section] extra",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "section",
+        "keys": null
+      }
+    ]
+  },
+  {
+    "name": "section with hash comment after bracket",
+    "input": "[section]#comment",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "section",
+        "keys": null
+      }
+    ]
+  },
+  {
+    "name": "nested brackets",
+    "input": "[[nested]]\nkey = val",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "[nested]",
+        "keys": [
+          {
+            "key": "key",
+            "value": "val"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "section name with hash",
+    "input": "[my#section]\nkey = val",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "my#section",
+        "keys": [
+          {
+            "key": "key",
+            "value": "val"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "empty key with equals",
+    "input": "[test]\n= value",
+    "error": "empty key name: = value"
+  },
+  {
+    "name": "empty key with colon",
+    "input": "[test]\n: value",
+    "error": "empty key name: : value"
+  },
+  {
+    "name": "key with internal spaces",
+    "input": "[test]\nmy key = value",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "my key",
+            "value": "value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "value starting with equals",
+    "input": "[test]\nkey = =value",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "key",
+            "value": "=value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "value starting with colon",
+    "input": "[test]\nkey = :value",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "key",
+            "value": ":value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "key with hash in it",
+    "input": "[test]\nmy#key = value",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "my#key",
+            "value": "value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "key with semicolon in it",
+    "input": "[test]\nmy;key = value",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "my;key",
+            "value": "value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "tab in key",
+    "input": "[test]\n\tkey\t=\tvalue",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "key",
+            "value": "value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "only whitespace lines",
+    "input": "[test]\n   \n\t\nkey = val",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "key",
+            "value": "val"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "mixed crlf and lf",
+    "input": "[test]\r\nhost = a\ntoken = b",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "host",
+            "value": "a"
+          },
+          {
+            "key": "token",
+            "value": "b"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "value with backslash",
+    "input": "[test]\npath = C:\\Users\\test\\.databrickscfg",
+    "sections": [
+      {
+        "name": "DEFAULT",
+        "keys": null
+      },
+      {
+        "name": "test",
+        "keys": [
+          {
+            "key": "path",
+            "value": "C:\\Users\\test\\.databrickscfg"
+          }
+        ]
+      }
+    ]
+  }
+]
