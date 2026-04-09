@@ -15,8 +15,7 @@ export type ProfileErrorCode =
 /**
  * Error thrown by profile operations.
  *
- * Use the {@link ProfileError.code} field to distinguish between error causes
- * without needing separate catch clauses for each.
+ * Use the {@link ProfileError.code} field to distinguish between error causes.
  */
 export class ProfileError extends Error {
   readonly code: ProfileErrorCode;
