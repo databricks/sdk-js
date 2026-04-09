@@ -13,7 +13,7 @@ import {ProfileError} from './errors';
 import type {IniData} from './ini';
 import {formatIni, parseIni} from './ini';
 import type {Profile, ResolveOptions} from './profile';
-import {PROPERTY_DEFS, SETTINGS_SECTION, setProfileField} from './profile';
+import {PROPERTY_DEFS, SETTINGS_SECTION} from './profile';
 
 /**
  * Reports whether a section is an empty DEFAULT section that should be
@@ -147,7 +147,7 @@ async function loadFile(
     knownKeys.add(def.iniKey);
     const value = section.get(def.iniKey);
     if (value !== undefined) {
-      setProfileField(profile, def, value);
+      def.set(profile, value);
     }
   }
 
@@ -171,7 +171,7 @@ function loadEnv(): Profile {
   for (const def of PROPERTY_DEFS) {
     const value = process.env[def.envVar] ?? '';
     if (value !== '') {
-      setProfileField(profile, def, value);
+      def.set(profile, value);
     }
   }
   return profile;
@@ -362,8 +362,8 @@ export async function saveToFile(
   const knownKeys = new Set<string>();
   for (const def of PROPERTY_DEFS) {
     knownKeys.add(def.iniKey);
-    const value = def.serialize(profile[def.field]);
-    if (value !== undefined) {
+    const value = def.get(profile);
+    if (value !== '') {
       section.set(def.iniKey, value);
     }
   }
