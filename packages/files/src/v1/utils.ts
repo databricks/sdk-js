@@ -2,10 +2,12 @@
  * Internal utilities for the Files service client.
  */
 
+import {APIError} from '@databricks/sdk-databricks/apierror';
 import type {Logger} from '@databricks/sdk-databricks/logger';
 import type {
   HttpClient,
   HttpRequest,
+  HttpResponse,
 } from '@databricks/sdk-databricks/transport';
 
 export interface HttpCallOptions {
@@ -24,21 +26,53 @@ export async function readAll(
   if (body === null) {
     return new Uint8Array(0);
   }
-  const reader = body.getReader();
-  const chunks: Uint8Array[] = [];
-  for (;;) {
-    const {done, value} = await reader.read();
-    if (done) {
-      break;
+  return new Uint8Array(await new Response(body).arrayBuffer());
+}
+
+/**
+ * Encodes a file path for use in the Files API URL. Each path segment is
+ * individually percent-encoded while preserving the "/" separators.
+ */
+export function encodeFilePath(filePath: string): string {
+  return filePath
+    .split('/')
+    .map(segment => encodeURIComponent(segment))
+    .join('/');
+}
+
+/**
+ * Sends an HTTP request and checks for API errors. On non-2xx responses the
+ * body is buffered and parsed into an APIError. On 2xx the raw HttpResponse
+ * is returned with the body stream untouched.
+ */
+export async function sendAndCheckError(
+  opts: HttpCallOptions
+): Promise<HttpResponse> {
+  opts.logger.debug('HTTP request', {
+    method: opts.request.method,
+    url: opts.request.url,
+  });
+
+  let resp: HttpResponse;
+  try {
+    resp = await opts.httpClient.send(opts.request);
+  } catch (e: unknown) {
+    opts.logger.debug('HTTP request failed');
+    throw e;
+  }
+
+  opts.logger.debug('HTTP response', {statusCode: resp.statusCode});
+
+  // On error responses, buffer the body and throw an APIError.
+  if (resp.statusCode < 200 || resp.statusCode >= 300) {
+    const body = await readAll(resp.body);
+    const apiErr = APIError.fromHttpError(resp.statusCode, resp.headers, body);
+    if (apiErr !== undefined) {
+      throw apiErr;
     }
-    chunks.push(value);
+    // Fallback if fromHttpError returns undefined for an unknown status.
+    throw new Error(`unexpected HTTP status ${String(resp.statusCode)}`);
   }
-  const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
-  const result = new Uint8Array(totalLength);
-  let offset = 0;
-  for (const chunk of chunks) {
-    result.set(chunk, offset);
-    offset += chunk.length;
-  }
-  return result;
+
+  return resp;
 }
