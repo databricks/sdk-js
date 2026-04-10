@@ -58,6 +58,9 @@ function normalize<P extends string>(paths: P[]): P[] {
  * Provides compile-time path validation via {@link FieldPaths}. Paths are
  * always normalized: duplicates and paths subsumed by a parent are removed.
  *
+ * Paths use camelCase matching the TypeScript interface fields. The
+ * serialization layer converts to snake_case for the wire format.
+ *
  * @example
  * ```ts
  * const mask = FieldMask.of<FieldPaths<Cluster>>(

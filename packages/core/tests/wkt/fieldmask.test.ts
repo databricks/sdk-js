@@ -1,6 +1,6 @@
 import {describe, it, expect} from 'vitest';
-import {FieldMask} from '../src';
-import type {FieldPaths} from '../src';
+import {FieldMask} from '../../src/wkt';
+import type {FieldPaths} from '../../src/wkt';
 
 // Simulates a class instance with methods (e.g. Temporal.Instant).
 interface ClassLike {
