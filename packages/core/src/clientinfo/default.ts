@@ -1,9 +1,6 @@
 import {ClientInfo, sanitize} from './clientinfo';
 import {MODULE_NAME, VERSION, getBase} from './base';
 
-// Abstracts environment variable access for testing.
-export type LookupEnv = (key: string) => string | undefined;
-
 interface AgentDef {
   readonly envVar: string;
   readonly product: string;
@@ -78,11 +75,11 @@ const CICD_PROVIDERS: readonly CicdDef[] = [
  *
  * TODO: support reporting multiple concurrent agents.
  */
-export function detectAgent(lookupEnv: LookupEnv): string {
+function detectAgent(): string {
   let detected = '';
   let count = 0;
   for (const a of KNOWN_AGENTS) {
-    if (lookupEnv(a.envVar) !== undefined) {
+    if (process.env[a.envVar] !== undefined) {
       detected = a.product;
       count++;
       if (count > 1) {
@@ -93,10 +90,10 @@ export function detectAgent(lookupEnv: LookupEnv): string {
   return count === 1 ? detected : '';
 }
 
-export function detectCicd(lookupEnv: LookupEnv): string {
+function detectCicd(): string {
   for (const p of CICD_PROVIDERS) {
     const allMatch = p.envVars.every(ev => {
-      const v = lookupEnv(ev.name);
+      const v = process.env[ev.name];
       return (
         v !== undefined && (ev.expectedValue === '' || v === ev.expectedValue)
       );
@@ -129,10 +126,6 @@ export const CACHED_NODE_VERSION = normalizeNodeVersion(process.version);
  * automatically detected environment properties.
  */
 export function createDefault(): ClientInfo {
-  return defaultWithEnv(key => process.env[key]);
-}
-
-export function defaultWithEnv(lookupEnv: LookupEnv): ClientInfo {
   const segments: {key: string; value: string}[] = [
     {key: MODULE_NAME, value: VERSION},
     {key: 'node', value: CACHED_NODE_VERSION},
@@ -144,9 +137,9 @@ export function defaultWithEnv(lookupEnv: LookupEnv): ClientInfo {
   // by tools built on top of this SDK (e.g. Terraform provider, Pulumi)
   // to identify themselves as the upstream product. Both must be present
   // for the upstream segment to be included.
-  const upstream = lookupEnv('DATABRICKS_SDK_UPSTREAM');
+  const upstream = process.env.DATABRICKS_SDK_UPSTREAM;
   if (upstream !== undefined) {
-    const upstreamVersion = lookupEnv('DATABRICKS_SDK_UPSTREAM_VERSION');
+    const upstreamVersion = process.env.DATABRICKS_SDK_UPSTREAM_VERSION;
     if (upstreamVersion !== undefined) {
       segments.push(
         {key: 'upstream', value: sanitize(upstream)},
@@ -155,17 +148,17 @@ export function defaultWithEnv(lookupEnv: LookupEnv): ClientInfo {
     }
   }
 
-  const cicd = detectCicd(lookupEnv);
+  const cicd = detectCicd();
   if (cicd !== '') {
     segments.push({key: 'cicd', value: cicd});
   }
 
-  const runtime = lookupEnv('DATABRICKS_RUNTIME_VERSION');
+  const runtime = process.env.DATABRICKS_RUNTIME_VERSION;
   if (runtime !== undefined && runtime !== '') {
     segments.push({key: 'runtime', value: sanitize(runtime)});
   }
 
-  const agent = detectAgent(lookupEnv);
+  const agent = detectAgent();
   if (agent !== '') {
     segments.push({key: 'agent', value: agent});
   }

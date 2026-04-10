@@ -1,4 +1,4 @@
-import {describe, it, expect, beforeEach} from 'vitest';
+import {describe, it, expect, beforeEach, afterEach} from 'vitest';
 import {
   ClientInfoError,
   addToDefault,
@@ -13,54 +13,22 @@ import {
   resetBase,
   baseToString,
 } from '../../src/clientinfo/base';
-import type {LookupEnv} from '../../src/clientinfo/default';
 import {
   CACHED_NODE_VERSION,
-  defaultWithEnv,
   normalizeNodeVersion,
 } from '../../src/clientinfo/default';
 
-// Returns a LookupEnv backed by a map. Keys not in the map are
-// treated as unset.
-function mockEnv(env: Record<string, string>): LookupEnv {
-  return (key: string): string | undefined => env[key];
-}
-
 describe('createDefault', () => {
+  let savedEnv: NodeJS.ProcessEnv;
+
   beforeEach(() => {
     resetBase();
+    savedEnv = process.env;
+    process.env = {...savedEnv};
   });
 
-  it('reads from process.env', () => {
-    const key1 = 'DATABRICKS_SDK_UPSTREAM';
-    const key2 = 'DATABRICKS_SDK_UPSTREAM_VERSION';
-    const orig1 = process.env[key1];
-    const orig2 = process.env[key2];
-    process.env[key1] = 'test-foo';
-    process.env[key2] = '42.13.37';
-    try {
-      const got = createDefault().toString();
-      expect(got).toContain('upstream/test-foo upstream-version/42.13.37');
-    } finally {
-      if (orig1 === undefined) {
-        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-        delete process.env[key1];
-      } else {
-        process.env[key1] = orig1;
-      }
-      if (orig2 === undefined) {
-        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-        delete process.env[key2];
-      } else {
-        process.env[key2] = orig2;
-      }
-    }
-  });
-});
-
-describe('defaultWithEnv', () => {
-  beforeEach(() => {
-    resetBase();
+  afterEach(() => {
+    process.env = savedEnv;
   });
 
   const prefix = `${MODULE_NAME}/${VERSION} node/${CACHED_NODE_VERSION} os/${process.platform}`;
@@ -147,7 +115,8 @@ describe('defaultWithEnv', () => {
   ];
 
   it.each(testCases)('$name', ({env, want}) => {
-    expect(defaultWithEnv(mockEnv(env)).toString()).toBe(want);
+    process.env = env;
+    expect(createDefault().toString()).toBe(want);
   });
 });
 
