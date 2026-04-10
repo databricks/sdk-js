@@ -9,6 +9,9 @@ export default defineConfig({
       headless: true,
     },
     include: ['tests/**/*.test.ts'],
-    exclude: ['tests/profiles/resolve.test.ts'],
+    exclude: [
+      'tests/profiles/resolve.test.ts',
+      'tests/clientinfo/default.test.ts',
+    ],
   },
 });
