@@ -11,5 +11,5 @@
 export {ProfileError} from './errors';
 export type {ProfileErrorCode} from './errors';
 export type {Profile, ResolveOptions} from './profile';
-export {defaultConfigFile, resolve} from './resolve';
+export {defaultConfigFile, listProfiles, resolve} from './resolve';
 export {Secret} from './secret';
