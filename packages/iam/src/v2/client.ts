@@ -1964,7 +1964,12 @@ export class Client {
     return resp;
   }
 
-  /** Deletes a workspace assignment detail for a principal. */
+  /**
+   * Deletes a workspace assignment detail for a principal, revoking all associated entitlements.
+   * Entitlement revocations are applied individually and non-atomically — if a failure occurs
+   * partway through, the principal remains assigned with a subset of its original entitlements,
+   * and the operation is safe to retry.
+   */
   async deleteWorkspaceAssignmentDetail(
     signal: AbortSignal | undefined,
     req: DeleteWorkspaceAssignmentDetailRequest,
@@ -1988,7 +1993,12 @@ export class Client {
     await execute(signal, call, options);
   }
 
-  /** Deletes a workspace assignment detail for a principal (workspace-level proxy). */
+  /**
+   * Deletes a workspace assignment detail for a principal (workspace-level proxy), revoking all
+   * associated entitlements. Entitlement revocations are applied individually and non-atomically
+   * — if a failure occurs partway through, the principal remains assigned with a subset of its
+   * original entitlements, and the operation is safe to retry.
+   */
   async deleteWorkspaceAssignmentDetailProxy(
     signal: AbortSignal | undefined,
     req: DeleteWorkspaceAssignmentDetailProxyRequest,

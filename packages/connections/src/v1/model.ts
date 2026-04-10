@@ -2,7 +2,7 @@
 
 import {z} from 'zod';
 
-/** Next Id: 74 */
+/** Next Id: 75 */
 export enum ConnectionType {
   UNKNOWN_CONNECTION_TYPE = 'UNKNOWN_CONNECTION_TYPE',
   MYSQL = 'MYSQL',
@@ -28,7 +28,7 @@ export enum ConnectionType {
   BIGLAKE = 'BIGLAKE',
 }
 
-/** Next Id: 17 */
+/** Next Id: 18 */
 export enum CredentialType {
   UNKNOWN_CREDENTIAL_TYPE = 'UNKNOWN_CREDENTIAL_TYPE',
   USERNAME_PASSWORD = 'USERNAME_PASSWORD',
@@ -47,6 +47,7 @@ export enum CredentialType {
   SSWS_TOKEN = 'SSWS_TOKEN',
   EDGEGRID_AKAMAI = 'EDGEGRID_AKAMAI',
   OAUTH_GOOGLE_SERVICE_ACCOUNT = 'OAUTH_GOOGLE_SERVICE_ACCOUNT',
+  OAUTH_DCR = 'OAUTH_DCR',
 }
 
 /** The type of Unity Catalog securable. */

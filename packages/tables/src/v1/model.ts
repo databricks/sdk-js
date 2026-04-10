@@ -75,7 +75,7 @@ export enum DataSourceFormat {
   ICEBERG = 'ICEBERG',
 }
 
-/** Latest kind: CONNECTION_SMARTSHEET_OAUTH_U2M = 307; Next id: 308 */
+/** Latest kind: CONNECTION_API_SOURCE = 310; Next id: 311 */
 export enum SecurableKind {
   TABLE_STANDARD = 'TABLE_STANDARD',
   TABLE_EXTERNAL = 'TABLE_EXTERNAL',
@@ -92,6 +92,12 @@ export enum SecurableKind {
   TABLE_FOREIGN_DELTASHARING = 'TABLE_FOREIGN_DELTASHARING',
   TABLE_DELTA_ICEBERG_DELTASHARING = 'TABLE_DELTA_ICEBERG_DELTASHARING',
   TABLE_DELTASHARING_OPEN_DIR_BASED = 'TABLE_DELTASHARING_OPEN_DIR_BASED',
+  /**
+   * This is the delta sharing version of foreign delta tables.
+   * Unlike TABLE_FOREIGN_DELTASHARING which represents a generic foreign table,
+   * this specifically represents a foreign delta table shared via Delta Sharing.
+   */
+  TABLE_FOREIGN_DELTA_DELTASHARING = 'TABLE_FOREIGN_DELTA_DELTASHARING',
   /** TABLE_FEATURE_STORE and TABLE_FEATURE_STORE_EXTERNAL are deprecated. */
   TABLE_FEATURE_STORE = 'TABLE_FEATURE_STORE',
   TABLE_FEATURE_STORE_EXTERNAL = 'TABLE_FEATURE_STORE_EXTERNAL',

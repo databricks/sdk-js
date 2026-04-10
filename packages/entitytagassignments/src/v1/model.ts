@@ -22,7 +22,7 @@ export interface DeleteEntityTagAssignmentRequest {
   entityName?: string | undefined;
   /** Required. The key of the tag to delete */
   tagKey?: string | undefined;
-  /** The type of the entity to which the tag is assigned. Allowed values are: catalogs, schemas, tables, columns, volumes, externallocations, credentials, connections. */
+  /** The type of the entity to which the tag is assigned. */
   entityType?: string | undefined;
 }
 
@@ -34,7 +34,7 @@ export interface EntityTagAssignment {
   tagKey?: string | undefined;
   /** The value of the tag */
   tagValue?: string | undefined;
-  /** The type of the entity to which the tag is assigned. Allowed values are: catalogs, schemas, tables, columns, volumes, externallocations, credentials, connections. */
+  /** The type of the entity to which the tag is assigned. */
   entityType?: string | undefined;
   /** The timestamp when the tag assignment was last updated */
   updateTime?: Temporal.Instant | undefined;
@@ -52,7 +52,7 @@ export interface GetEntityTagAssignmentRequest {
   entityName?: string | undefined;
   /** Required. The key of the tag */
   tagKey?: string | undefined;
-  /** The type of the entity to which the tag is assigned. Allowed values are: catalogs, schemas, tables, columns, volumes, externallocations, credentials, connections. */
+  /** The type of the entity to which the tag is assigned. */
   entityType?: string | undefined;
   /** Boolean which indicates whether this tag is inherited. */
   includeInherited?: boolean | undefined;
@@ -66,7 +66,7 @@ export interface ListEntityTagAssignmentsRequest {
   maxResults?: number | undefined;
   /** Optional. Pagination token to retrieve the next page of results */
   pageToken?: string | undefined;
-  /** The type of the entity to which the tag is assigned. Allowed values are: catalogs, schemas, tables, columns, volumes, externallocations, credentials, connections. */
+  /** The type of the entity to which the tag is assigned. */
   entityType?: string | undefined;
   /** Boolean which indicates whether this tag is inherited. */
   includeInherited?: boolean | undefined;

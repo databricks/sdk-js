@@ -3,6 +3,25 @@
 import {Temporal} from '@js-temporal/polyfill';
 import {z} from 'zod';
 
+/**
+ * Scalar data types for request-time field definitions.
+ * Only flat (non-nested) types are supported.
+ */
+export enum ScalarDataType {
+  SCALAR_DATA_TYPE_UNSPECIFIED = 'SCALAR_DATA_TYPE_UNSPECIFIED',
+  INTEGER = 'INTEGER',
+  FLOAT = 'FLOAT',
+  BOOLEAN = 'BOOLEAN',
+  STRING = 'STRING',
+  DOUBLE = 'DOUBLE',
+  LONG = 'LONG',
+  TIMESTAMP = 'TIMESTAMP',
+  DATE = 'DATE',
+  SHORT = 'SHORT',
+  BINARY = 'BINARY',
+  DECIMAL = 'DECIMAL',
+}
+
 /** Deprecated: Use the function-specific messages in AggregationFunction.function_type oneof instead. Kept for backwards compatibility. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum Function_FunctionType {
@@ -151,9 +170,14 @@ export interface CreateMaterializedFeatureRequest {
   materializedFeature?: MaterializedFeature | undefined;
 }
 
+/** Specifies the data source backing a feature. Exactly one source type must be set. */
 export interface DataSource {
+  /** A Delta table data source. */
   deltaTableSource?: DeltaTableSource | undefined;
+  /** A Kafka stream data source. */
   kafkaSource?: KafkaSource | undefined;
+  /** A request-time data source. */
+  requestSource?: RequestSource | undefined;
 }
 
 export interface DeleteFeatureRequest {
@@ -250,10 +274,30 @@ export interface Feature {
   timeseriesColumn?: TimeseriesColumn | undefined;
 }
 
+/**
+ * A single field definition within a FlatSchema, specifying the field name and its scalar data type.
+ * Does not support nested or complex types (arrays, maps, structs).
+ */
+export interface FieldDefinition {
+  /** The name of the field. */
+  name?: string | undefined;
+  /** The scalar data type of the field. */
+  dataType?: ScalarDataType | undefined;
+}
+
 /** Returns the first value. */
 export interface FirstFunction {
   /** The input column from which the first value is returned. */
   input?: string | undefined;
+}
+
+/**
+ * A flat (non-nested) schema for request-time fields, defined as an ordered list of field definitions.
+ * This schema only supports scalar types.
+ */
+export interface FlatSchema {
+  /** The list of fields in this schema. */
+  fields?: FieldDefinition[] | undefined;
 }
 
 export interface Function {
@@ -479,6 +523,12 @@ export interface OnlineStoreConfig {
   tableNamePrefix?: string | undefined;
   /** The name of the target online store. */
   onlineStoreName?: string | undefined;
+}
+
+/** A request-time data source whose value is provided at inference time: offline batch scoring or online serving endpoint */
+export interface RequestSource {
+  /** A flat schema with scalar-typed fields only. */
+  flatSchema?: FlatSchema | undefined;
 }
 
 export interface SchemaConfig {
@@ -778,10 +828,12 @@ export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
       .lazy(() => unmarshalDeltaTableSourceSchema)
       .optional(),
     kafka_source: z.lazy(() => unmarshalKafkaSourceSchema).optional(),
+    request_source: z.lazy(() => unmarshalRequestSourceSchema).optional(),
   })
   .transform(d => ({
     deltaTableSource: d.delta_table_source,
     kafkaSource: d.kafka_source,
+    requestSource: d.request_source,
   }));
 
 export const unmarshalDeleteFeatureRequestSchema: z.ZodType<DeleteFeatureRequest> =
@@ -863,12 +915,30 @@ export const unmarshalFeatureSchema: z.ZodType<Feature> = z
     timeseriesColumn: d.timeseries_column,
   }));
 
+export const unmarshalFieldDefinitionSchema: z.ZodType<FieldDefinition> = z
+  .object({
+    name: z.string().optional(),
+    data_type: z.enum(ScalarDataType).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    dataType: d.data_type,
+  }));
+
 export const unmarshalFirstFunctionSchema: z.ZodType<FirstFunction> = z
   .object({
     input: z.string().optional(),
   })
   .transform(d => ({
     input: d.input,
+  }));
+
+export const unmarshalFlatSchemaSchema: z.ZodType<FlatSchema> = z
+  .object({
+    fields: z.array(z.lazy(() => unmarshalFieldDefinitionSchema)).optional(),
+  })
+  .transform(d => ({
+    fields: d.fields,
   }));
 
 export const unmarshalFunctionSchema: z.ZodType<Function> = z
@@ -1152,6 +1222,14 @@ export const unmarshalOnlineStoreConfigSchema: z.ZodType<OnlineStoreConfig> = z
     schemaName: d.schema_name,
     tableNamePrefix: d.table_name_prefix,
     onlineStoreName: d.online_store_name,
+  }));
+
+export const unmarshalRequestSourceSchema: z.ZodType<RequestSource> = z
+  .object({
+    flat_schema: z.lazy(() => unmarshalFlatSchemaSchema).optional(),
+  })
+  .transform(d => ({
+    flatSchema: d.flat_schema,
   }));
 
 export const unmarshalSchemaConfigSchema: z.ZodType<SchemaConfig> = z
@@ -1471,10 +1549,12 @@ export const marshalDataSourceSchema: z.ZodType = z
   .object({
     deltaTableSource: z.lazy(() => marshalDeltaTableSourceSchema).optional(),
     kafkaSource: z.lazy(() => marshalKafkaSourceSchema).optional(),
+    requestSource: z.lazy(() => marshalRequestSourceSchema).optional(),
   })
   .transform(d => ({
     delta_table_source: d.deltaTableSource,
     kafka_source: d.kafkaSource,
+    request_source: d.requestSource,
   }));
 
 export const marshalDeleteFeatureRequestSchema: z.ZodType = z
@@ -1553,12 +1633,30 @@ export const marshalFeatureSchema: z.ZodType = z
     timeseries_column: d.timeseriesColumn,
   }));
 
+export const marshalFieldDefinitionSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    dataType: z.enum(ScalarDataType).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    data_type: d.dataType,
+  }));
+
 export const marshalFirstFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
   .transform(d => ({
     input: d.input,
+  }));
+
+export const marshalFlatSchemaSchema: z.ZodType = z
+  .object({
+    fields: z.array(z.lazy(() => marshalFieldDefinitionSchema)).optional(),
+  })
+  .transform(d => ({
+    fields: d.fields,
   }));
 
 export const marshalFunctionSchema: z.ZodType = z
@@ -1826,6 +1924,14 @@ export const marshalOnlineStoreConfigSchema: z.ZodType = z
     schema_name: d.schemaName,
     table_name_prefix: d.tableNamePrefix,
     online_store_name: d.onlineStoreName,
+  }));
+
+export const marshalRequestSourceSchema: z.ZodType = z
+  .object({
+    flatSchema: z.lazy(() => marshalFlatSchemaSchema).optional(),
+  })
+  .transform(d => ({
+    flat_schema: d.flatSchema,
   }));
 
 export const marshalSchemaConfigSchema: z.ZodType = z
