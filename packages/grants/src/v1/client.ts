@@ -159,17 +159,17 @@ export class Client {
     if (req.principal !== undefined) {
       params.append('principal', req.principal);
     }
-    if (req.pageSize !== undefined) {
-      params.append('page_size', String(req.pageSize));
-    }
-    if (req.pageToken !== undefined) {
-      params.append('page_token', req.pageToken);
-    }
     if (req.includeDeletedPrincipals !== undefined) {
       params.append(
         'include_deleted_principals',
         String(req.includeDeletedPrincipals)
       );
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;

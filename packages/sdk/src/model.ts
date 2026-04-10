@@ -74,11 +74,6 @@ export enum LaunchStage {
  */
 export interface FieldMetadata {
   /**
-   * When true, the field value is populated from an HTTP response header
-   * whose name matches the field's json_name.
-   */
-  isHeader?: boolean | undefined;
-  /**
    * When true, the field value may contain path separators (e.g., "/a/b/c")
    * and should be treated as a multi-segment path parameter rather than a
    * single path segment.
@@ -190,6 +185,29 @@ export interface LongRunningOperation_OperationMethods {
    * Example: "CancelOperation"
    */
   cancel?: string | undefined;
+}
+
+/**
+ * SDK generation hints for an RPC method.
+ *
+ * These annotations guide SDK code generators in producing correct
+ * client code. They do not affect wire format or server behavior.
+ */
+export interface MethodMetadata {
+  /**
+   * Fields in the response message that are populated from HTTP response
+   * headers rather than the JSON response body. Each entry is the proto
+   * field name in the response message; the field's json_name gives the
+   * corresponding HTTP header name.
+   */
+  responseHeaders?: string[] | undefined;
+  /**
+   * Fields in the request message that are sent as HTTP request headers
+   * rather than in the request body or query string. Each entry is the
+   * proto field name in the request message; the field's json_name gives
+   * the corresponding HTTP header name.
+   */
+  requestHeaders?: string[] | undefined;
 }
 
 /**
@@ -394,11 +412,9 @@ export interface WaitForState_StateInfo {
 
 export const unmarshalFieldMetadataSchema: z.ZodType<FieldMetadata> = z
   .object({
-    is_header: z.boolean().optional(),
     is_multi_segment: z.boolean().optional(),
   })
   .transform(d => ({
-    isHeader: d.is_header,
     isMultiSegment: d.is_multi_segment,
   }));
 
@@ -446,6 +462,16 @@ export const unmarshalLongRunningOperation_OperationMethodsSchema: z.ZodType<Lon
       delete: d.delete,
       cancel: d.cancel,
     }));
+
+export const unmarshalMethodMetadataSchema: z.ZodType<MethodMetadata> = z
+  .object({
+    response_headers: z.array(z.string()).optional(),
+    request_headers: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    responseHeaders: d.response_headers,
+    requestHeaders: d.request_headers,
+  }));
 
 export const unmarshalPaginationSchema: z.ZodType<Pagination> = z
   .object({
@@ -547,11 +573,9 @@ export const unmarshalWaitForState_StateInfoSchema: z.ZodType<WaitForState_State
 
 export const marshalFieldMetadataSchema: z.ZodType = z
   .object({
-    isHeader: z.boolean().optional(),
     isMultiSegment: z.boolean().optional(),
   })
   .transform(d => ({
-    is_header: d.isHeader,
     is_multi_segment: d.isMultiSegment,
   }));
 
@@ -595,6 +619,16 @@ export const marshalLongRunningOperation_OperationMethodsSchema: z.ZodType = z
     wait: d.wait,
     delete: d.delete,
     cancel: d.cancel,
+  }));
+
+export const marshalMethodMetadataSchema: z.ZodType = z
+  .object({
+    responseHeaders: z.array(z.string()).optional(),
+    requestHeaders: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    response_headers: d.responseHeaders,
+    request_headers: d.requestHeaders,
   }));
 
 export const marshalPaginationSchema: z.ZodType = z

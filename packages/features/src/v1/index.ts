@@ -3,6 +3,7 @@
 export {Client} from './client';
 
 export {
+  ScalarDataType,
   Function_FunctionType,
   MaterializedFeature_PipelineScheduleState,
 } from './model';
@@ -30,7 +31,9 @@ export type {
   DeltaTableSource,
   EntityColumn,
   Feature,
+  FieldDefinition,
   FirstFunction,
+  FlatSchema,
   Function,
   Function_ExtraParameter,
   GetFeatureRequest,
@@ -53,6 +56,7 @@ export type {
   MinFunction,
   OfflineStoreConfig,
   OnlineStoreConfig,
+  RequestSource,
   SchemaConfig,
   SlidingWindow,
   StddevPopFunction,

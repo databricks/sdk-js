@@ -7,6 +7,7 @@ export type {
   LongRunningOperation,
   LongRunningOperation_OperationInfo,
   LongRunningOperation_OperationMethods,
+  MethodMetadata,
   Pagination,
   Pagination_OffsetInfo,
   Pagination_PageTokenInfo,

@@ -105,6 +105,8 @@ export interface ListEffectivePrivilegeAssignmentsRequest {
   fullName?: string | undefined;
   /** If provided, only the effective permissions for the specified principal (user or group) are returned. */
   principal?: string | undefined;
+  /** Optional. If true, also return privilege assignments whose principals have been deleted. */
+  includeDeletedPrincipals?: boolean | undefined;
   /**
    * Specifies the maximum number of effective privilege assignments to return per page.
    * If not set or set to 0, a server-configured default is used.
@@ -112,8 +114,6 @@ export interface ListEffectivePrivilegeAssignmentsRequest {
   pageSize?: number | undefined;
   /** Opaque pagination token to go to next page based on previous query. */
   pageToken?: string | undefined;
-  /** Optional. If true, also return privilege assignments whose principals have been deleted. */
-  includeDeletedPrincipals?: boolean | undefined;
 }
 
 export interface ListEffectivePrivilegeAssignmentsResponse {
@@ -304,17 +304,17 @@ export const unmarshalListEffectivePrivilegeAssignmentsRequestSchema: z.ZodType<
       securable_type: z.string().optional(),
       full_name: z.string().optional(),
       principal: z.string().optional(),
+      include_deleted_principals: z.boolean().optional(),
       page_size: z.number().optional(),
       page_token: z.string().optional(),
-      include_deleted_principals: z.boolean().optional(),
     })
     .transform(d => ({
       securableType: d.securable_type,
       fullName: d.full_name,
       principal: d.principal,
+      includeDeletedPrincipals: d.include_deleted_principals,
       pageSize: d.page_size,
       pageToken: d.page_token,
-      includeDeletedPrincipals: d.include_deleted_principals,
     }));
 
 export const unmarshalListEffectivePrivilegeAssignmentsResponseSchema: z.ZodType<ListEffectivePrivilegeAssignmentsResponse> =
@@ -503,17 +503,17 @@ export const marshalListEffectivePrivilegeAssignmentsRequestSchema: z.ZodType =
       securableType: z.string().optional(),
       fullName: z.string().optional(),
       principal: z.string().optional(),
+      includeDeletedPrincipals: z.boolean().optional(),
       pageSize: z.number().optional(),
       pageToken: z.string().optional(),
-      includeDeletedPrincipals: z.boolean().optional(),
     })
     .transform(d => ({
       securable_type: d.securableType,
       full_name: d.fullName,
       principal: d.principal,
+      include_deleted_principals: d.includeDeletedPrincipals,
       page_size: d.pageSize,
       page_token: d.pageToken,
-      include_deleted_principals: d.includeDeletedPrincipals,
     }));
 
 export const marshalListEffectivePrivilegeAssignmentsResponseSchema: z.ZodType =
