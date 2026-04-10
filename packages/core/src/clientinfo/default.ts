@@ -1,5 +1,5 @@
 import {ClientInfo, sanitize} from './clientinfo';
-import {MODULE_NAME, VERSION, getBaseSegments} from './base';
+import {MODULE_NAME, VERSION, getBase} from './base';
 
 // Abstracts environment variable access for testing.
 export type LookupEnv = (key: string) => string | undefined;
@@ -137,7 +137,7 @@ export function defaultWithEnv(lookupEnv: LookupEnv): ClientInfo {
     {key: MODULE_NAME, value: VERSION},
     {key: 'node', value: CACHED_NODE_VERSION},
     {key: 'os', value: process.platform},
-    ...getBaseSegments(),
+    ...getBase().segments,
   ];
 
   // DATABRICKS_SDK_UPSTREAM and DATABRICKS_SDK_UPSTREAM_VERSION are set

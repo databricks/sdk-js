@@ -5,14 +5,14 @@
  * @module
  */
 
-import {ClientInfoError, isSemVer, isValidSegment} from './clientinfo';
+import {ClientInfo, ClientInfoError, isSemVer} from './clientinfo';
 
 export const MODULE_NAME = 'sdk-js-core';
 export const VERSION = '0.1.0';
 
 // Holds segments added via addToDefault, setProduct, and setPartner.
 // createDefault returns a copy of this with env detection appended.
-let baseKeyvals: string[] = [];
+let base = new ClientInfo();
 
 /**
  * Sets the product name and version globally. The version must be a
@@ -52,43 +52,21 @@ export function setPartner(partner: string): void {
  * use.
  */
 export function addToDefault(key: string, value: string): void {
-  if (!isValidSegment(key)) {
-    throw new ClientInfoError('INVALID_KEY', `Invalid key: ${key}.`);
-  }
-  if (!isValidSegment(value)) {
-    throw new ClientInfoError(
-      'INVALID_VALUE',
-      `Invalid value for "${key}": ${value}.`
-    );
-  }
-  for (let i = 0; i < baseKeyvals.length; i += 2) {
-    if (baseKeyvals[i] === key && baseKeyvals[i + 1] === value) {
-      return;
-    }
-  }
-  baseKeyvals.push(key, value);
+  base = base.with(key, value);
 }
 
-// Returns the base segments as key/value objects for use in
-// createDefault implementations.
-export function getBaseSegments(): {key: string; value: string}[] {
-  const segments: {key: string; value: string}[] = [];
-  for (let i = 0; i < baseKeyvals.length; i += 2) {
-    segments.push({key: baseKeyvals[i], value: baseKeyvals[i + 1]});
-  }
-  return segments;
+// Returns the base ClientInfo for use in createDefault.
+export function getBase(): ClientInfo {
+  return base;
 }
 
 // Resets the base segments. Exported for testing only.
 export function resetBase(): void {
-  baseKeyvals = [];
+  base = new ClientInfo();
 }
 
-// Returns the base segments as a formatted string. Exported for testing only.
+// Returns the base segments as a formatted string. Exported for
+// testing only.
 export function baseToString(): string {
-  const parts: string[] = [];
-  for (let i = 0; i < baseKeyvals.length; i += 2) {
-    parts.push(`${baseKeyvals[i]}/${baseKeyvals[i + 1]}`);
-  }
-  return parts.join(' ');
+  return base.toString();
 }

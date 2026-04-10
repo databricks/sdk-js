@@ -63,7 +63,7 @@ export function sanitize(s: string): string {
  * {@link ClientInfo.with} to derive new values with additional segments.
  */
 export class ClientInfo {
-  private readonly segments: readonly Segment[];
+  readonly segments: readonly Segment[];
 
   constructor(
     segments: readonly {readonly key: string; readonly value: string}[] = []
