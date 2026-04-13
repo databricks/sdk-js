@@ -67,6 +67,28 @@ export enum LaunchStage {
 }
 
 /**
+ * SDK generation hints for a proto field.
+ *
+ * These annotations guide SDK code generators in producing correct
+ * client code. They do not affect wire format or server behavior.
+ */
+export interface FieldMetadata {
+  /**
+   * When true, the field value may contain path separators (e.g., "/a/b/c")
+   * and should be treated as a multi-segment path parameter rather than a
+   * single path segment.
+   */
+  isMultiSegment?: boolean | undefined;
+  /**
+   * When true, the field carries a raw byte stream (e.g., file contents)
+   * rather than a small binary blob. SDK generators use this to send/receive
+   * the data as a streaming body (application/octet-stream) instead of
+   * base64-encoding it into JSON.
+   */
+  isStream?: boolean | undefined;
+}
+
+/**
  * Long-Running Operation (LRO) configuration for API methods.
  *
  * This annotation is used to mark methods that return a long-running operation
@@ -170,6 +192,29 @@ export interface LongRunningOperation_OperationMethods {
    * Example: "CancelOperation"
    */
   cancel?: string | undefined;
+}
+
+/**
+ * SDK generation hints for an RPC method.
+ *
+ * These annotations guide SDK code generators in producing correct
+ * client code. They do not affect wire format or server behavior.
+ */
+export interface MethodMetadata {
+  /**
+   * Fields in the response message that are populated from HTTP response
+   * headers rather than the JSON response body. Each entry is the proto
+   * field name in the response message; the field's json_name gives the
+   * corresponding HTTP header name.
+   */
+  responseHeaders?: string[] | undefined;
+  /**
+   * Fields in the request message that are sent as HTTP request headers
+   * rather than in the request body or query string. Each entry is the
+   * proto field name in the request message; the field's json_name gives
+   * the corresponding HTTP header name.
+   */
+  requestHeaders?: string[] | undefined;
 }
 
 /**
@@ -372,6 +417,16 @@ export interface WaitForState_StateInfo {
   messagePath?: string[] | undefined;
 }
 
+export const unmarshalFieldMetadataSchema: z.ZodType<FieldMetadata> = z
+  .object({
+    is_multi_segment: z.boolean().optional(),
+    is_stream: z.boolean().optional(),
+  })
+  .transform(d => ({
+    isMultiSegment: d.is_multi_segment,
+    isStream: d.is_stream,
+  }));
+
 export const unmarshalLongRunningOperationSchema: z.ZodType<LongRunningOperation> =
   z
     .object({
@@ -416,6 +471,16 @@ export const unmarshalLongRunningOperation_OperationMethodsSchema: z.ZodType<Lon
       delete: d.delete,
       cancel: d.cancel,
     }));
+
+export const unmarshalMethodMetadataSchema: z.ZodType<MethodMetadata> = z
+  .object({
+    response_headers: z.array(z.string()).optional(),
+    request_headers: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    responseHeaders: d.response_headers,
+    requestHeaders: d.request_headers,
+  }));
 
 export const unmarshalPaginationSchema: z.ZodType<Pagination> = z
   .object({
@@ -515,7 +580,17 @@ export const unmarshalWaitForState_StateInfoSchema: z.ZodType<WaitForState_State
       messagePath: d.message_path,
     }));
 
-export const marshalLongRunningOperationSchema = z
+export const marshalFieldMetadataSchema: z.ZodType = z
+  .object({
+    isMultiSegment: z.boolean().optional(),
+    isStream: z.boolean().optional(),
+  })
+  .transform(d => ({
+    is_multi_segment: d.isMultiSegment,
+    is_stream: d.isStream,
+  }));
+
+export const marshalLongRunningOperationSchema: z.ZodType = z
   .object({
     operationInfo: z
       .lazy(() => marshalLongRunningOperation_OperationInfoSchema)
@@ -530,7 +605,7 @@ export const marshalLongRunningOperationSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalLongRunningOperation_OperationInfoSchema = z
+export const marshalLongRunningOperation_OperationInfoSchema: z.ZodType = z
   .object({
     responseType: z.string().optional(),
     metadataType: z.string().optional(),
@@ -541,7 +616,7 @@ export const marshalLongRunningOperation_OperationInfoSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalLongRunningOperation_OperationMethodsSchema = z
+export const marshalLongRunningOperation_OperationMethodsSchema: z.ZodType = z
   .object({
     get: z.string().optional(),
     list: z.string().optional(),
@@ -557,7 +632,17 @@ export const marshalLongRunningOperation_OperationMethodsSchema = z
     cancel: d.cancel,
   }));
 
-export const marshalPaginationSchema = z
+export const marshalMethodMetadataSchema: z.ZodType = z
+  .object({
+    responseHeaders: z.array(z.string()).optional(),
+    requestHeaders: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    response_headers: d.responseHeaders,
+    request_headers: d.requestHeaders,
+  }));
+
+export const marshalPaginationSchema: z.ZodType = z
   .object({
     offsetInfo: z.lazy(() => marshalPagination_OffsetInfoSchema).optional(),
     tokenInfo: z.lazy(() => marshalPagination_PageTokenInfoSchema).optional(),
@@ -570,7 +655,7 @@ export const marshalPaginationSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalPagination_OffsetInfoSchema = z
+export const marshalPagination_OffsetInfoSchema: z.ZodType = z
   .object({
     offset: z.string().optional(),
     maxResults: z.string().optional(),
@@ -583,7 +668,7 @@ export const marshalPagination_OffsetInfoSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalPagination_PageTokenInfoSchema = z
+export const marshalPagination_PageTokenInfoSchema: z.ZodType = z
   .object({
     request: z.string().optional(),
     response: z.string().optional(),
@@ -597,7 +682,7 @@ export const marshalPagination_PageTokenInfoSchema = z
     default_max_results: d.defaultMaxResults,
   }));
 
-export const marshalWaitForStateSchema = z
+export const marshalWaitForStateSchema: z.ZodType = z
   .object({
     methodToPoll: z.string().optional(),
     binding: z.lazy(() => marshalWaitForState_BindingSchema).optional(),
@@ -610,7 +695,7 @@ export const marshalWaitForStateSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalWaitForState_BindingSchema = z
+export const marshalWaitForState_BindingSchema: z.ZodType = z
   .object({
     pairs: z
       .array(z.lazy(() => marshalWaitForState_Binding_BindingPairSchema))
@@ -621,7 +706,7 @@ export const marshalWaitForState_BindingSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalWaitForState_Binding_BindingPairSchema = z
+export const marshalWaitForState_Binding_BindingPairSchema: z.ZodType = z
   .object({
     pollMethodField: z.string().optional(),
     requestField: z.string().optional(),
@@ -634,7 +719,7 @@ export const marshalWaitForState_Binding_BindingPairSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalWaitForState_StateInfoSchema = z
+export const marshalWaitForState_StateInfoSchema: z.ZodType = z
   .object({
     statePath: z.array(z.string()).optional(),
     successStates: z.array(z.string()).optional(),

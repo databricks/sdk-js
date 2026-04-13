@@ -3,6 +3,25 @@
 import {Temporal} from '@js-temporal/polyfill';
 import {z} from 'zod';
 
+/**
+ * Scalar data types for request-time field definitions.
+ * Only flat (non-nested) types are supported.
+ */
+export enum ScalarDataType {
+  SCALAR_DATA_TYPE_UNSPECIFIED = 'SCALAR_DATA_TYPE_UNSPECIFIED',
+  INTEGER = 'INTEGER',
+  FLOAT = 'FLOAT',
+  BOOLEAN = 'BOOLEAN',
+  STRING = 'STRING',
+  DOUBLE = 'DOUBLE',
+  LONG = 'LONG',
+  TIMESTAMP = 'TIMESTAMP',
+  DATE = 'DATE',
+  SHORT = 'SHORT',
+  BINARY = 'BINARY',
+  DECIMAL = 'DECIMAL',
+}
+
 /** Deprecated: Use the function-specific messages in AggregationFunction.function_type oneof instead. Kept for backwards compatibility. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum Function_FunctionType {
@@ -151,9 +170,14 @@ export interface CreateMaterializedFeatureRequest {
   materializedFeature?: MaterializedFeature | undefined;
 }
 
+/** Specifies the data source backing a feature. Exactly one source type must be set. */
 export interface DataSource {
+  /** A Delta table data source. */
   deltaTableSource?: DeltaTableSource | undefined;
+  /** A Kafka stream data source. */
   kafkaSource?: KafkaSource | undefined;
+  /** A request-time data source. */
+  requestSource?: RequestSource | undefined;
 }
 
 export interface DeleteFeatureRequest {
@@ -250,10 +274,30 @@ export interface Feature {
   timeseriesColumn?: TimeseriesColumn | undefined;
 }
 
+/**
+ * A single field definition within a FlatSchema, specifying the field name and its scalar data type.
+ * Does not support nested or complex types (arrays, maps, structs).
+ */
+export interface FieldDefinition {
+  /** The name of the field. */
+  name?: string | undefined;
+  /** The scalar data type of the field. */
+  dataType?: ScalarDataType | undefined;
+}
+
 /** Returns the first value. */
 export interface FirstFunction {
   /** The input column from which the first value is returned. */
   input?: string | undefined;
+}
+
+/**
+ * A flat (non-nested) schema for request-time fields, defined as an ordered list of field definitions.
+ * This schema only supports scalar types.
+ */
+export interface FlatSchema {
+  /** The list of fields in this schema. */
+  fields?: FieldDefinition[] | undefined;
 }
 
 export interface Function {
@@ -433,6 +477,8 @@ export interface MaterializedFeature {
   lastMaterializationTime?: Temporal.Instant | undefined;
   /** The quartz cron expression that defines the schedule of the materialization pipeline. The schedule is evaluated in the UTC timezone. */
   cronSchedule?: string | undefined;
+  /** True if this is an online materialized feature. False if it is an offline materialized feature. */
+  isOnline?: boolean | undefined;
 }
 
 /** Computes the maximum value. */
@@ -479,6 +525,12 @@ export interface OnlineStoreConfig {
   tableNamePrefix?: string | undefined;
   /** The name of the target online store. */
   onlineStoreName?: string | undefined;
+}
+
+/** A request-time data source whose value is provided at inference time: offline batch scoring or online serving endpoint */
+export interface RequestSource {
+  /** A flat schema with scalar-typed fields only. */
+  flatSchema?: FlatSchema | undefined;
 }
 
 export interface SchemaConfig {
@@ -778,10 +830,12 @@ export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
       .lazy(() => unmarshalDeltaTableSourceSchema)
       .optional(),
     kafka_source: z.lazy(() => unmarshalKafkaSourceSchema).optional(),
+    request_source: z.lazy(() => unmarshalRequestSourceSchema).optional(),
   })
   .transform(d => ({
     deltaTableSource: d.delta_table_source,
     kafkaSource: d.kafka_source,
+    requestSource: d.request_source,
   }));
 
 export const unmarshalDeleteFeatureRequestSchema: z.ZodType<DeleteFeatureRequest> =
@@ -863,12 +917,30 @@ export const unmarshalFeatureSchema: z.ZodType<Feature> = z
     timeseriesColumn: d.timeseries_column,
   }));
 
+export const unmarshalFieldDefinitionSchema: z.ZodType<FieldDefinition> = z
+  .object({
+    name: z.string().optional(),
+    data_type: z.enum(ScalarDataType).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    dataType: d.data_type,
+  }));
+
 export const unmarshalFirstFunctionSchema: z.ZodType<FirstFunction> = z
   .object({
     input: z.string().optional(),
   })
   .transform(d => ({
     input: d.input,
+  }));
+
+export const unmarshalFlatSchemaSchema: z.ZodType<FlatSchema> = z
+  .object({
+    fields: z.array(z.lazy(() => unmarshalFieldDefinitionSchema)).optional(),
+  })
+  .transform(d => ({
+    fields: d.fields,
   }));
 
 export const unmarshalFunctionSchema: z.ZodType<Function> = z
@@ -1099,6 +1171,7 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
         .transform(s => Temporal.Instant.from(s))
         .optional(),
       cron_schedule: z.string().optional(),
+      is_online: z.boolean().optional(),
     })
     .transform(d => ({
       materializedFeatureId: d.materialized_feature_id,
@@ -1109,6 +1182,7 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
       pipelineScheduleState: d.pipeline_schedule_state,
       lastMaterializationTime: d.last_materialization_time,
       cronSchedule: d.cron_schedule,
+      isOnline: d.is_online,
     }));
 
 export const unmarshalMaxFunctionSchema: z.ZodType<MaxFunction> = z
@@ -1152,6 +1226,14 @@ export const unmarshalOnlineStoreConfigSchema: z.ZodType<OnlineStoreConfig> = z
     schemaName: d.schema_name,
     tableNamePrefix: d.table_name_prefix,
     onlineStoreName: d.online_store_name,
+  }));
+
+export const unmarshalRequestSourceSchema: z.ZodType<RequestSource> = z
+  .object({
+    flat_schema: z.lazy(() => unmarshalFlatSchemaSchema).optional(),
+  })
+  .transform(d => ({
+    flatSchema: d.flat_schema,
   }));
 
 export const unmarshalSchemaConfigSchema: z.ZodType<SchemaConfig> = z
@@ -1297,7 +1379,7 @@ export const unmarshalVarSampFunctionSchema: z.ZodType<VarSampFunction> = z
     input: d.input,
   }));
 
-export const marshalAggregationFunctionSchema = z
+export const marshalAggregationFunctionSchema: z.ZodType = z
   .object({
     avg: z.lazy(() => marshalAvgFunctionSchema).optional(),
     countFunction: z.lazy(() => marshalCountFunctionSchema).optional(),
@@ -1335,7 +1417,7 @@ export const marshalAggregationFunctionSchema = z
     time_window: d.timeWindow,
   }));
 
-export const marshalApproxCountDistinctFunctionSchema = z
+export const marshalApproxCountDistinctFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
     relativeSd: z.number().optional(),
@@ -1345,7 +1427,7 @@ export const marshalApproxCountDistinctFunctionSchema = z
     relative_sd: d.relativeSd,
   }));
 
-export const marshalApproxPercentileFunctionSchema = z
+export const marshalApproxPercentileFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
     percentile: z.number().optional(),
@@ -1357,7 +1439,7 @@ export const marshalApproxPercentileFunctionSchema = z
     accuracy: d.accuracy,
   }));
 
-export const marshalAuthConfigSchema = z
+export const marshalAuthConfigSchema: z.ZodType = z
   .object({
     ucServiceCredentialName: z.string().optional(),
   })
@@ -1365,7 +1447,7 @@ export const marshalAuthConfigSchema = z
     uc_service_credential_name: d.ucServiceCredentialName,
   }));
 
-export const marshalAvgFunctionSchema = z
+export const marshalAvgFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
@@ -1373,7 +1455,7 @@ export const marshalAvgFunctionSchema = z
     input: d.input,
   }));
 
-export const marshalBackfillSourceSchema = z
+export const marshalBackfillSourceSchema: z.ZodType = z
   .object({
     deltaTableSource: z.lazy(() => marshalDeltaTableSourceSchema).optional(),
   })
@@ -1381,7 +1463,7 @@ export const marshalBackfillSourceSchema = z
     delta_table_source: d.deltaTableSource,
   }));
 
-export const marshalBatchCreateMaterializedFeaturesRequestSchema = z
+export const marshalBatchCreateMaterializedFeaturesRequestSchema: z.ZodType = z
   .object({
     requests: z
       .array(z.lazy(() => marshalCreateMaterializedFeatureRequestSchema))
@@ -1391,7 +1473,7 @@ export const marshalBatchCreateMaterializedFeaturesRequestSchema = z
     requests: d.requests,
   }));
 
-export const marshalBatchCreateMaterializedFeaturesResponseSchema = z
+export const marshalBatchCreateMaterializedFeaturesResponseSchema: z.ZodType = z
   .object({
     materializedFeatures: z
       .array(z.lazy(() => marshalMaterializedFeatureSchema))
@@ -1401,7 +1483,7 @@ export const marshalBatchCreateMaterializedFeaturesResponseSchema = z
     materialized_features: d.materializedFeatures,
   }));
 
-export const marshalColumnIdentifierSchema = z
+export const marshalColumnIdentifierSchema: z.ZodType = z
   .object({
     variantExprPath: z.string().optional(),
   })
@@ -1409,7 +1491,7 @@ export const marshalColumnIdentifierSchema = z
     variant_expr_path: d.variantExprPath,
   }));
 
-export const marshalColumnSelectionSchema = z
+export const marshalColumnSelectionSchema: z.ZodType = z
   .object({
     column: z.string().optional(),
   })
@@ -1417,7 +1499,7 @@ export const marshalColumnSelectionSchema = z
     column: d.column,
   }));
 
-export const marshalContinuousWindowSchema = z
+export const marshalContinuousWindowSchema: z.ZodType = z
   .object({
     windowDuration: z
       .any()
@@ -1433,7 +1515,7 @@ export const marshalContinuousWindowSchema = z
     offset: d.offset,
   }));
 
-export const marshalCountFunctionSchema = z
+export const marshalCountFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
@@ -1441,7 +1523,7 @@ export const marshalCountFunctionSchema = z
     input: d.input,
   }));
 
-export const marshalCreateFeatureRequestSchema = z
+export const marshalCreateFeatureRequestSchema: z.ZodType = z
   .object({
     feature: z.lazy(() => marshalFeatureSchema).optional(),
   })
@@ -1449,7 +1531,7 @@ export const marshalCreateFeatureRequestSchema = z
     feature: d.feature,
   }));
 
-export const marshalCreateKafkaConfigRequestSchema = z
+export const marshalCreateKafkaConfigRequestSchema: z.ZodType = z
   .object({
     kafkaConfig: z.lazy(() => marshalKafkaConfigSchema).optional(),
   })
@@ -1457,7 +1539,7 @@ export const marshalCreateKafkaConfigRequestSchema = z
     kafka_config: d.kafkaConfig,
   }));
 
-export const marshalCreateMaterializedFeatureRequestSchema = z
+export const marshalCreateMaterializedFeatureRequestSchema: z.ZodType = z
   .object({
     materializedFeature: z
       .lazy(() => marshalMaterializedFeatureSchema)
@@ -1467,17 +1549,19 @@ export const marshalCreateMaterializedFeatureRequestSchema = z
     materialized_feature: d.materializedFeature,
   }));
 
-export const marshalDataSourceSchema = z
+export const marshalDataSourceSchema: z.ZodType = z
   .object({
     deltaTableSource: z.lazy(() => marshalDeltaTableSourceSchema).optional(),
     kafkaSource: z.lazy(() => marshalKafkaSourceSchema).optional(),
+    requestSource: z.lazy(() => marshalRequestSourceSchema).optional(),
   })
   .transform(d => ({
     delta_table_source: d.deltaTableSource,
     kafka_source: d.kafkaSource,
+    request_source: d.requestSource,
   }));
 
-export const marshalDeleteFeatureRequestSchema = z
+export const marshalDeleteFeatureRequestSchema: z.ZodType = z
   .object({
     fullName: z.string().optional(),
   })
@@ -1485,7 +1569,7 @@ export const marshalDeleteFeatureRequestSchema = z
     full_name: d.fullName,
   }));
 
-export const marshalDeleteKafkaConfigRequestSchema = z
+export const marshalDeleteKafkaConfigRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
@@ -1493,7 +1577,7 @@ export const marshalDeleteKafkaConfigRequestSchema = z
     name: d.name,
   }));
 
-export const marshalDeleteMaterializedFeatureRequestSchema = z
+export const marshalDeleteMaterializedFeatureRequestSchema: z.ZodType = z
   .object({
     materializedFeatureId: z.string().optional(),
   })
@@ -1501,7 +1585,7 @@ export const marshalDeleteMaterializedFeatureRequestSchema = z
     materialized_feature_id: d.materializedFeatureId,
   }));
 
-export const marshalDeltaTableSourceSchema = z
+export const marshalDeltaTableSourceSchema: z.ZodType = z
   .object({
     fullName: z.string().optional(),
     entityColumns: z.array(z.string()).optional(),
@@ -1519,7 +1603,7 @@ export const marshalDeltaTableSourceSchema = z
     dataframe_schema: d.dataframeSchema,
   }));
 
-export const marshalEntityColumnSchema = z
+export const marshalEntityColumnSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
@@ -1527,7 +1611,7 @@ export const marshalEntityColumnSchema = z
     name: d.name,
   }));
 
-export const marshalFeatureSchema = z
+export const marshalFeatureSchema: z.ZodType = z
   .object({
     fullName: z.string().optional(),
     source: z.lazy(() => marshalDataSourceSchema).optional(),
@@ -1553,7 +1637,17 @@ export const marshalFeatureSchema = z
     timeseries_column: d.timeseriesColumn,
   }));
 
-export const marshalFirstFunctionSchema = z
+export const marshalFieldDefinitionSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    dataType: z.enum(ScalarDataType).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    data_type: d.dataType,
+  }));
+
+export const marshalFirstFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
@@ -1561,7 +1655,15 @@ export const marshalFirstFunctionSchema = z
     input: d.input,
   }));
 
-export const marshalFunctionSchema = z
+export const marshalFlatSchemaSchema: z.ZodType = z
+  .object({
+    fields: z.array(z.lazy(() => marshalFieldDefinitionSchema)).optional(),
+  })
+  .transform(d => ({
+    fields: d.fields,
+  }));
+
+export const marshalFunctionSchema: z.ZodType = z
   .object({
     functionType: z.enum(Function_FunctionType).optional(),
     extraParameters: z
@@ -1580,7 +1682,7 @@ export const marshalFunctionSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalFunction_ExtraParameterSchema = z
+export const marshalFunction_ExtraParameterSchema: z.ZodType = z
   .object({
     key: z.string().optional(),
     value: z.string().optional(),
@@ -1590,7 +1692,7 @@ export const marshalFunction_ExtraParameterSchema = z
     value: d.value,
   }));
 
-export const marshalGetFeatureRequestSchema = z
+export const marshalGetFeatureRequestSchema: z.ZodType = z
   .object({
     fullName: z.string().optional(),
   })
@@ -1598,7 +1700,7 @@ export const marshalGetFeatureRequestSchema = z
     full_name: d.fullName,
   }));
 
-export const marshalGetKafkaConfigRequestSchema = z
+export const marshalGetKafkaConfigRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
@@ -1606,7 +1708,7 @@ export const marshalGetKafkaConfigRequestSchema = z
     name: d.name,
   }));
 
-export const marshalGetMaterializedFeatureRequestSchema = z
+export const marshalGetMaterializedFeatureRequestSchema: z.ZodType = z
   .object({
     materializedFeatureId: z.string().optional(),
   })
@@ -1614,7 +1716,7 @@ export const marshalGetMaterializedFeatureRequestSchema = z
     materialized_feature_id: d.materializedFeatureId,
   }));
 
-export const marshalJobContextSchema = z
+export const marshalJobContextSchema: z.ZodType = z
   .object({
     jobId: z.number().optional(),
     jobRunId: z.number().optional(),
@@ -1624,7 +1726,7 @@ export const marshalJobContextSchema = z
     job_run_id: d.jobRunId,
   }));
 
-export const marshalKafkaConfigSchema = z
+export const marshalKafkaConfigSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     bootstrapServers: z.string().optional(),
@@ -1647,7 +1749,7 @@ export const marshalKafkaConfigSchema = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalKafkaConfig_ExtraOptionsEntrySchema = z
+export const marshalKafkaConfig_ExtraOptionsEntrySchema: z.ZodType = z
   .object({
     key: z.string().optional(),
     value: z.string().optional(),
@@ -1657,7 +1759,7 @@ export const marshalKafkaConfig_ExtraOptionsEntrySchema = z
     value: d.value,
   }));
 
-export const marshalKafkaSourceSchema = z
+export const marshalKafkaSourceSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     entityColumnIdentifiers: z
@@ -1675,7 +1777,7 @@ export const marshalKafkaSourceSchema = z
     filter_condition: d.filterCondition,
   }));
 
-export const marshalLastFunctionSchema = z
+export const marshalLastFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
@@ -1683,7 +1785,7 @@ export const marshalLastFunctionSchema = z
     input: d.input,
   }));
 
-export const marshalLineageContextSchema = z
+export const marshalLineageContextSchema: z.ZodType = z
   .object({
     notebookId: z.number().optional(),
     jobContext: z.lazy(() => marshalJobContextSchema).optional(),
@@ -1693,7 +1795,7 @@ export const marshalLineageContextSchema = z
     job_context: d.jobContext,
   }));
 
-export const marshalListFeaturesRequestSchema = z
+export const marshalListFeaturesRequestSchema: z.ZodType = z
   .object({
     pageToken: z.string().optional(),
     pageSize: z.number().optional(),
@@ -1703,7 +1805,7 @@ export const marshalListFeaturesRequestSchema = z
     page_size: d.pageSize,
   }));
 
-export const marshalListFeaturesResponseSchema = z
+export const marshalListFeaturesResponseSchema: z.ZodType = z
   .object({
     features: z.array(z.lazy(() => marshalFeatureSchema)).optional(),
     nextPageToken: z.string().optional(),
@@ -1713,7 +1815,7 @@ export const marshalListFeaturesResponseSchema = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalListKafkaConfigsRequestSchema = z
+export const marshalListKafkaConfigsRequestSchema: z.ZodType = z
   .object({
     pageToken: z.string().optional(),
     pageSize: z.number().optional(),
@@ -1723,7 +1825,7 @@ export const marshalListKafkaConfigsRequestSchema = z
     page_size: d.pageSize,
   }));
 
-export const marshalListKafkaConfigsResponseSchema = z
+export const marshalListKafkaConfigsResponseSchema: z.ZodType = z
   .object({
     kafkaConfigs: z.array(z.lazy(() => marshalKafkaConfigSchema)).optional(),
     nextPageToken: z.string().optional(),
@@ -1733,7 +1835,7 @@ export const marshalListKafkaConfigsResponseSchema = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalListMaterializedFeaturesRequestSchema = z
+export const marshalListMaterializedFeaturesRequestSchema: z.ZodType = z
   .object({
     featureName: z.string().optional(),
     pageToken: z.string().optional(),
@@ -1745,7 +1847,7 @@ export const marshalListMaterializedFeaturesRequestSchema = z
     page_size: d.pageSize,
   }));
 
-export const marshalListMaterializedFeaturesResponseSchema = z
+export const marshalListMaterializedFeaturesResponseSchema: z.ZodType = z
   .object({
     materializedFeatures: z
       .array(z.lazy(() => marshalMaterializedFeatureSchema))
@@ -1757,7 +1859,7 @@ export const marshalListMaterializedFeaturesResponseSchema = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalMaterializedFeatureSchema = z
+export const marshalMaterializedFeatureSchema: z.ZodType = z
   .object({
     materializedFeatureId: z.string().optional(),
     featureName: z.string().optional(),
@@ -1774,6 +1876,7 @@ export const marshalMaterializedFeatureSchema = z
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
     cronSchedule: z.string().optional(),
+    isOnline: z.boolean().optional(),
   })
   .transform(d => ({
     materialized_feature_id: d.materializedFeatureId,
@@ -1784,9 +1887,10 @@ export const marshalMaterializedFeatureSchema = z
     pipeline_schedule_state: d.pipelineScheduleState,
     last_materialization_time: d.lastMaterializationTime,
     cron_schedule: d.cronSchedule,
+    is_online: d.isOnline,
   }));
 
-export const marshalMaxFunctionSchema = z
+export const marshalMaxFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
@@ -1794,7 +1898,7 @@ export const marshalMaxFunctionSchema = z
     input: d.input,
   }));
 
-export const marshalMinFunctionSchema = z
+export const marshalMinFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
@@ -1802,7 +1906,7 @@ export const marshalMinFunctionSchema = z
     input: d.input,
   }));
 
-export const marshalOfflineStoreConfigSchema = z
+export const marshalOfflineStoreConfigSchema: z.ZodType = z
   .object({
     catalogName: z.string().optional(),
     schemaName: z.string().optional(),
@@ -1814,7 +1918,7 @@ export const marshalOfflineStoreConfigSchema = z
     table_name_prefix: d.tableNamePrefix,
   }));
 
-export const marshalOnlineStoreConfigSchema = z
+export const marshalOnlineStoreConfigSchema: z.ZodType = z
   .object({
     catalogName: z.string().optional(),
     schemaName: z.string().optional(),
@@ -1828,7 +1932,15 @@ export const marshalOnlineStoreConfigSchema = z
     online_store_name: d.onlineStoreName,
   }));
 
-export const marshalSchemaConfigSchema = z
+export const marshalRequestSourceSchema: z.ZodType = z
+  .object({
+    flatSchema: z.lazy(() => marshalFlatSchemaSchema).optional(),
+  })
+  .transform(d => ({
+    flat_schema: d.flatSchema,
+  }));
+
+export const marshalSchemaConfigSchema: z.ZodType = z
   .object({
     jsonSchema: z.string().optional(),
   })
@@ -1836,7 +1948,7 @@ export const marshalSchemaConfigSchema = z
     json_schema: d.jsonSchema,
   }));
 
-export const marshalSlidingWindowSchema = z
+export const marshalSlidingWindowSchema: z.ZodType = z
   .object({
     windowDuration: z
       .any()
@@ -1852,7 +1964,7 @@ export const marshalSlidingWindowSchema = z
     slide_duration: d.slideDuration,
   }));
 
-export const marshalStddevPopFunctionSchema = z
+export const marshalStddevPopFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
@@ -1860,7 +1972,7 @@ export const marshalStddevPopFunctionSchema = z
     input: d.input,
   }));
 
-export const marshalStddevSampFunctionSchema = z
+export const marshalStddevSampFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
@@ -1868,7 +1980,7 @@ export const marshalStddevSampFunctionSchema = z
     input: d.input,
   }));
 
-export const marshalSubscriptionModeSchema = z
+export const marshalSubscriptionModeSchema: z.ZodType = z
   .object({
     assign: z.string().optional(),
     subscribe: z.string().optional(),
@@ -1880,7 +1992,7 @@ export const marshalSubscriptionModeSchema = z
     subscribe_pattern: d.subscribePattern,
   }));
 
-export const marshalSumFunctionSchema = z
+export const marshalSumFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
@@ -1888,7 +2000,7 @@ export const marshalSumFunctionSchema = z
     input: d.input,
   }));
 
-export const marshalTimeWindowSchema = z
+export const marshalTimeWindowSchema: z.ZodType = z
   .object({
     continuous: z.lazy(() => marshalContinuousWindowSchema).optional(),
     tumbling: z.lazy(() => marshalTumblingWindowSchema).optional(),
@@ -1900,7 +2012,7 @@ export const marshalTimeWindowSchema = z
     sliding: d.sliding,
   }));
 
-export const marshalTimeseriesColumnSchema = z
+export const marshalTimeseriesColumnSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
@@ -1908,7 +2020,7 @@ export const marshalTimeseriesColumnSchema = z
     name: d.name,
   }));
 
-export const marshalTumblingWindowSchema = z
+export const marshalTumblingWindowSchema: z.ZodType = z
   .object({
     windowDuration: z
       .any()
@@ -1919,7 +2031,7 @@ export const marshalTumblingWindowSchema = z
     window_duration: d.windowDuration,
   }));
 
-export const marshalUpdateFeatureRequestSchema = z
+export const marshalUpdateFeatureRequestSchema: z.ZodType = z
   .object({
     feature: z.lazy(() => marshalFeatureSchema).optional(),
     updateMask: z.string().optional(),
@@ -1929,7 +2041,7 @@ export const marshalUpdateFeatureRequestSchema = z
     update_mask: d.updateMask,
   }));
 
-export const marshalUpdateKafkaConfigRequestSchema = z
+export const marshalUpdateKafkaConfigRequestSchema: z.ZodType = z
   .object({
     kafkaConfig: z.lazy(() => marshalKafkaConfigSchema).optional(),
     updateMask: z.string().optional(),
@@ -1939,7 +2051,7 @@ export const marshalUpdateKafkaConfigRequestSchema = z
     update_mask: d.updateMask,
   }));
 
-export const marshalUpdateMaterializedFeatureRequestSchema = z
+export const marshalUpdateMaterializedFeatureRequestSchema: z.ZodType = z
   .object({
     materializedFeature: z
       .lazy(() => marshalMaterializedFeatureSchema)
@@ -1951,7 +2063,7 @@ export const marshalUpdateMaterializedFeatureRequestSchema = z
     update_mask: d.updateMask,
   }));
 
-export const marshalVarPopFunctionSchema = z
+export const marshalVarPopFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
@@ -1959,7 +2071,7 @@ export const marshalVarPopFunctionSchema = z
     input: d.input,
   }));
 
-export const marshalVarSampFunctionSchema = z
+export const marshalVarSampFunctionSchema: z.ZodType = z
   .object({
     input: z.string().optional(),
   })
