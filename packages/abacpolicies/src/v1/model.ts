@@ -54,6 +54,14 @@ export interface ColumnMaskOptions {
   using?: FunctionArgument[] | undefined;
 }
 
+/** Extracts the value of a column-level tag: get_column_tag_value(col, "tagKey"). */
+export interface ColumnTagValueExtraction {
+  /** The alias from MATCH COLUMNS that identifies the column. */
+  columnAlias?: string | undefined;
+  /** 1024 matches the max_length on FunctionArgument.constant above. */
+  tagKey?: string | undefined;
+}
+
 export interface CreatePolicy {
   /** Required. The policy to create. */
   policyInfo?: PolicyInfo | undefined;
@@ -86,6 +94,8 @@ export interface FunctionArgument {
   alias?: string | undefined;
   /** A constant literal. */
   constant?: string | undefined;
+  /** A metadata extraction expression resolved at query time. */
+  metadataExtraction?: MetadataExtractionExpression | undefined;
 }
 
 export interface GetPolicy {
@@ -143,6 +153,14 @@ export interface MatchColumn {
   condition?: string | undefined;
   /** Optional alias of the matched column. */
   alias?: string | undefined;
+}
+
+/** An expression that extracts metadata at query time. */
+export interface MetadataExtractionExpression {
+  /** Extracts the value of a securable-level tag. */
+  tagValue?: TagValueExtraction | undefined;
+  /** Extracts the value of a column-level tag. */
+  columnTagValue?: ColumnTagValueExtraction | undefined;
 }
 
 export interface PolicyInfo {
@@ -247,6 +265,12 @@ export interface RowFilterOptions {
   using?: FunctionArgument[] | undefined;
 }
 
+/** Extracts the value of a securable-level tag: get_tag_value("tagKey"). */
+export interface TagValueExtraction {
+  /** 1024 matches the max_length on FunctionArgument.constant above. */
+  tagKey?: string | undefined;
+}
+
 export interface UpdatePolicy {
   /** Required. The type of the securable to update the policy for. */
   onSecurableType?: string | undefined;
@@ -282,6 +306,17 @@ export const unmarshalColumnMaskOptionsSchema: z.ZodType<ColumnMaskOptions> = z
     onColumn: d.on_column,
     using: d.using,
   }));
+
+export const unmarshalColumnTagValueExtractionSchema: z.ZodType<ColumnTagValueExtraction> =
+  z
+    .object({
+      column_alias: z.string().optional(),
+      tag_key: z.string().optional(),
+    })
+    .transform(d => ({
+      columnAlias: d.column_alias,
+      tagKey: d.tag_key,
+    }));
 
 export const unmarshalCreatePolicySchema: z.ZodType<CreatePolicy> = z
   .object({
@@ -319,10 +354,14 @@ export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
   .object({
     alias: z.string().optional(),
     constant: z.string().optional(),
+    metadata_extraction: z
+      .lazy(() => unmarshalMetadataExtractionExpressionSchema)
+      .optional(),
   })
   .transform(d => ({
     alias: d.alias,
     constant: d.constant,
+    metadataExtraction: d.metadata_extraction,
   }));
 
 export const unmarshalGetPolicySchema: z.ZodType<GetPolicy> = z
@@ -383,6 +422,19 @@ export const unmarshalMatchColumnSchema: z.ZodType<MatchColumn> = z
     alias: d.alias,
   }));
 
+export const unmarshalMetadataExtractionExpressionSchema: z.ZodType<MetadataExtractionExpression> =
+  z
+    .object({
+      tag_value: z.lazy(() => unmarshalTagValueExtractionSchema).optional(),
+      column_tag_value: z
+        .lazy(() => unmarshalColumnTagValueExtractionSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      tagValue: d.tag_value,
+      columnTagValue: d.column_tag_value,
+    }));
+
 export const unmarshalPolicyInfoSchema: z.ZodType<PolicyInfo> = z
   .object({
     id: z.string().optional(),
@@ -439,6 +491,15 @@ export const unmarshalRowFilterOptionsSchema: z.ZodType<RowFilterOptions> = z
     using: d.using,
   }));
 
+export const unmarshalTagValueExtractionSchema: z.ZodType<TagValueExtraction> =
+  z
+    .object({
+      tag_key: z.string().optional(),
+    })
+    .transform(d => ({
+      tagKey: d.tag_key,
+    }));
+
 export const unmarshalUpdatePolicySchema: z.ZodType<UpdatePolicy> = z
   .object({
     on_securable_type: z.string().optional(),
@@ -465,6 +526,16 @@ export const marshalColumnMaskOptionsSchema: z.ZodType = z
     function_name: d.functionName,
     on_column: d.onColumn,
     using: d.using,
+  }));
+
+export const marshalColumnTagValueExtractionSchema: z.ZodType = z
+  .object({
+    columnAlias: z.string().optional(),
+    tagKey: z.string().optional(),
+  })
+  .transform(d => ({
+    column_alias: d.columnAlias,
+    tag_key: d.tagKey,
   }));
 
 export const marshalCreatePolicySchema: z.ZodType = z
@@ -502,10 +573,14 @@ export const marshalFunctionArgumentSchema: z.ZodType = z
   .object({
     alias: z.string().optional(),
     constant: z.string().optional(),
+    metadataExtraction: z
+      .lazy(() => marshalMetadataExtractionExpressionSchema)
+      .optional(),
   })
   .transform(d => ({
     alias: d.alias,
     constant: d.constant,
+    metadata_extraction: d.metadataExtraction,
   }));
 
 export const marshalGetPolicySchema: z.ZodType = z
@@ -565,6 +640,18 @@ export const marshalMatchColumnSchema: z.ZodType = z
     alias: d.alias,
   }));
 
+export const marshalMetadataExtractionExpressionSchema: z.ZodType = z
+  .object({
+    tagValue: z.lazy(() => marshalTagValueExtractionSchema).optional(),
+    columnTagValue: z
+      .lazy(() => marshalColumnTagValueExtractionSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    tag_value: d.tagValue,
+    column_tag_value: d.columnTagValue,
+  }));
+
 export const marshalPolicyInfoSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
@@ -619,6 +706,14 @@ export const marshalRowFilterOptionsSchema: z.ZodType = z
   .transform(d => ({
     function_name: d.functionName,
     using: d.using,
+  }));
+
+export const marshalTagValueExtractionSchema: z.ZodType = z
+  .object({
+    tagKey: z.string().optional(),
+  })
+  .transform(d => ({
+    tag_key: d.tagKey,
   }));
 
 export const marshalUpdatePolicySchema: z.ZodType = z

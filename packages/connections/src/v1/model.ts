@@ -146,19 +146,6 @@ export interface ConnectionInfo_SecretsEntry {
   value?: string | undefined;
 }
 
-export interface ConnectionUserCredential {
-  /** Username for which the credential is created. For databricks users we would use UserId as the user_identity. */
-  userIdentity?: string | undefined;
-  /**
-   * OAuth credentials specific key value pairs
-   * (including authorization code, pkce code identier, pkce code challenge etc).
-   * Only selective key value pairs will be returned on Get/List APIs
-   * to avoid leaking credentials.
-   */
-  optionsKvpairs?: OptionsKvPairs | undefined;
-  provisioningInfo?: ProvisioningInfo | undefined;
-}
-
 export interface CreateConnection {
   /** Name of the connection. */
   name?: string | undefined;
@@ -221,17 +208,6 @@ export interface CreateConnection_SecretsEntry {
   value?: string | undefined;
 }
 
-export interface CreateUserMappedCredential {
-  /** Name of the connection. */
-  nameArg?: string | undefined;
-  connectionUserCredential?: ConnectionUserCredential | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateUserMappedCredential_Response {
-  connectionUserCredential?: ConnectionUserCredential | undefined;
-}
-
 export interface DeleteConnection {
   /** The name of the connection to be deleted. */
   nameArg?: string | undefined;
@@ -239,19 +215,6 @@ export interface DeleteConnection {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
 export interface DeleteConnection_Response {}
-
-export interface DeleteUserMappedCredential {
-  /** The name of the connection for which we want to delete the credentials for. */
-  nameArg?: string | undefined;
-  /**
-   * The user identity for which we want to delete the credentials for a given connection.
-   * For databricks users we would use UserId as the user_identity.
-   */
-  userIdentityArg?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteUserMappedCredential_Response {}
 
 export interface EnvironmentSettings {
   javaDependencies?: string[] | undefined;
@@ -261,21 +224,6 @@ export interface EnvironmentSettings {
 export interface GetConnection {
   /** Name of the connection. */
   nameArg?: string | undefined;
-}
-
-export interface GetUserMappedCredential {
-  /** The name of the connection for which we want to delete the credentials for. */
-  nameArg?: string | undefined;
-  /**
-   * The user identity for which we want to get the credentials for a given connection.
-   * For databricks users we would use UserId as the user_identity.
-   */
-  userIdentityArg?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetUserMappedCredential_Response {
-  connectionUserCredential?: ConnectionUserCredential | undefined;
 }
 
 export interface ListConnections {
@@ -300,45 +248,6 @@ export interface ListConnections_Response {
    * __page_token__ should be set to this value for the next request (for the next page of results).
    */
   nextPageToken?: string | undefined;
-}
-
-export interface ListUserMappedCredentials {
-  /** The name of the connection for which we want to get the credentials for.. */
-  nameArg?: string | undefined;
-  /** The user identity for which we want to get the credentials for a given connection. */
-  userIdentity?: string | undefined;
-  /**
-   * Maximum number of connections to return.
-   * - If not set, all connections are returned (not recommended).
-   * - when set to a value greater than 0, the page length is the minimum of this value and a server configured value;
-   * - when set to 0, the page length is set to a server configured value (recommended);
-   * - when set to a value less than 0, an invalid parameter error is returned;
-   */
-  maxResults?: number | undefined;
-  /** Opaque pagination token to go to next page based on previous query. */
-  pageToken?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListUserMappedCredentials_Response {
-  /** An array of connection information objects. */
-  connectionUserCredential?: ConnectionUserCredential[] | undefined;
-  /**
-   * Opaque token to retrieve the next page of results. Absent if there are no more pages.
-   * __page_token__ should be set to this value for the next request (for the next page of results).
-   */
-  nextPageToken?: string | undefined;
-}
-
-export interface OptionsKvPairs {
-  /** A map of key-value properties attached to the securable. */
-  options?: Record<string, string> | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface OptionsKvPairs_OptionsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 /** Status of an asynchronously provisioned resource. */
@@ -411,17 +320,6 @@ export interface UpdateConnection_PropertiesEntry {
 export interface UpdateConnection_SecretsEntry {
   key?: string | undefined;
   value?: string | undefined;
-}
-
-export interface UpdateUserMappedCredential {
-  /** Name of the connection. */
-  nameArg?: string | undefined;
-  connectionUserCredential?: ConnectionUserCredential | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateUserMappedCredential_Response {
-  connectionUserCredential?: ConnectionUserCredential | undefined;
 }
 
 export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
@@ -508,21 +406,6 @@ export const unmarshalConnectionInfo_SecretsEntrySchema: z.ZodType<ConnectionInf
       value: d.value,
     }));
 
-export const unmarshalConnectionUserCredentialSchema: z.ZodType<ConnectionUserCredential> =
-  z
-    .object({
-      user_identity: z.string().optional(),
-      options_kvpairs: z.lazy(() => unmarshalOptionsKvPairsSchema).optional(),
-      provisioning_info: z
-        .lazy(() => unmarshalProvisioningInfoSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      userIdentity: d.user_identity,
-      optionsKvpairs: d.options_kvpairs,
-      provisioningInfo: d.provisioning_info,
-    }));
-
 export const unmarshalCreateConnectionSchema: z.ZodType<CreateConnection> = z
   .object({
     name: z.string().optional(),
@@ -607,31 +490,6 @@ export const unmarshalCreateConnection_SecretsEntrySchema: z.ZodType<CreateConne
       value: d.value,
     }));
 
-export const unmarshalCreateUserMappedCredentialSchema: z.ZodType<CreateUserMappedCredential> =
-  z
-    .object({
-      name_arg: z.string().optional(),
-      connection_user_credential: z
-        .lazy(() => unmarshalConnectionUserCredentialSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      nameArg: d.name_arg,
-      connectionUserCredential: d.connection_user_credential,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateUserMappedCredential_ResponseSchema: z.ZodType<CreateUserMappedCredential_Response> =
-  z
-    .object({
-      connection_user_credential: z
-        .lazy(() => unmarshalConnectionUserCredentialSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      connectionUserCredential: d.connection_user_credential,
-    }));
-
 export const unmarshalDeleteConnectionSchema: z.ZodType<DeleteConnection> = z
   .object({
     name_arg: z.string().optional(),
@@ -642,21 +500,6 @@ export const unmarshalDeleteConnectionSchema: z.ZodType<DeleteConnection> = z
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteConnection_ResponseSchema: z.ZodType<DeleteConnection_Response> =
-  z.object({});
-
-export const unmarshalDeleteUserMappedCredentialSchema: z.ZodType<DeleteUserMappedCredential> =
-  z
-    .object({
-      name_arg: z.string().optional(),
-      user_identity_arg: z.string().optional(),
-    })
-    .transform(d => ({
-      nameArg: d.name_arg,
-      userIdentityArg: d.user_identity_arg,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteUserMappedCredential_ResponseSchema: z.ZodType<DeleteUserMappedCredential_Response> =
   z.object({});
 
 export const unmarshalEnvironmentSettingsSchema: z.ZodType<EnvironmentSettings> =
@@ -677,29 +520,6 @@ export const unmarshalGetConnectionSchema: z.ZodType<GetConnection> = z
   .transform(d => ({
     nameArg: d.name_arg,
   }));
-
-export const unmarshalGetUserMappedCredentialSchema: z.ZodType<GetUserMappedCredential> =
-  z
-    .object({
-      name_arg: z.string().optional(),
-      user_identity_arg: z.string().optional(),
-    })
-    .transform(d => ({
-      nameArg: d.name_arg,
-      userIdentityArg: d.user_identity_arg,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetUserMappedCredential_ResponseSchema: z.ZodType<GetUserMappedCredential_Response> =
-  z
-    .object({
-      connection_user_credential: z
-        .lazy(() => unmarshalConnectionUserCredentialSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      connectionUserCredential: d.connection_user_credential,
-    }));
 
 export const unmarshalListConnectionsSchema: z.ZodType<ListConnections> = z
   .object({
@@ -723,55 +543,6 @@ export const unmarshalListConnections_ResponseSchema: z.ZodType<ListConnections_
     .transform(d => ({
       connections: d.connections,
       nextPageToken: d.next_page_token,
-    }));
-
-export const unmarshalListUserMappedCredentialsSchema: z.ZodType<ListUserMappedCredentials> =
-  z
-    .object({
-      name_arg: z.string().optional(),
-      user_identity: z.string().optional(),
-      max_results: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      nameArg: d.name_arg,
-      userIdentity: d.user_identity,
-      maxResults: d.max_results,
-      pageToken: d.page_token,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListUserMappedCredentials_ResponseSchema: z.ZodType<ListUserMappedCredentials_Response> =
-  z
-    .object({
-      connection_user_credential: z
-        .array(z.lazy(() => unmarshalConnectionUserCredentialSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      connectionUserCredential: d.connection_user_credential,
-      nextPageToken: d.next_page_token,
-    }));
-
-export const unmarshalOptionsKvPairsSchema: z.ZodType<OptionsKvPairs> = z
-  .object({
-    options: z.record(z.string(), z.string()).optional(),
-  })
-  .transform(d => ({
-    options: d.options,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalOptionsKvPairs_OptionsEntrySchema: z.ZodType<OptionsKvPairs_OptionsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
     }));
 
 export const unmarshalProvisioningInfoSchema: z.ZodType<ProvisioningInfo> = z
@@ -870,31 +641,6 @@ export const unmarshalUpdateConnection_SecretsEntrySchema: z.ZodType<UpdateConne
       value: d.value,
     }));
 
-export const unmarshalUpdateUserMappedCredentialSchema: z.ZodType<UpdateUserMappedCredential> =
-  z
-    .object({
-      name_arg: z.string().optional(),
-      connection_user_credential: z
-        .lazy(() => unmarshalConnectionUserCredentialSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      nameArg: d.name_arg,
-      connectionUserCredential: d.connection_user_credential,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateUserMappedCredential_ResponseSchema: z.ZodType<UpdateUserMappedCredential_Response> =
-  z
-    .object({
-      connection_user_credential: z
-        .lazy(() => unmarshalConnectionUserCredentialSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      connectionUserCredential: d.connection_user_credential,
-    }));
-
 export const marshalConnectionInfoSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -974,18 +720,6 @@ export const marshalConnectionInfo_SecretsEntrySchema: z.ZodType = z
   .transform(d => ({
     key: d.key,
     value: d.value,
-  }));
-
-export const marshalConnectionUserCredentialSchema: z.ZodType = z
-  .object({
-    userIdentity: z.string().optional(),
-    optionsKvpairs: z.lazy(() => marshalOptionsKvPairsSchema).optional(),
-    provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
-  })
-  .transform(d => ({
-    user_identity: d.userIdentity,
-    options_kvpairs: d.optionsKvpairs,
-    provisioning_info: d.provisioningInfo,
   }));
 
 export const marshalCreateConnectionSchema: z.ZodType = z
@@ -1069,29 +803,6 @@ export const marshalCreateConnection_SecretsEntrySchema: z.ZodType = z
     value: d.value,
   }));
 
-export const marshalCreateUserMappedCredentialSchema: z.ZodType = z
-  .object({
-    nameArg: z.string().optional(),
-    connectionUserCredential: z
-      .lazy(() => marshalConnectionUserCredentialSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    name_arg: d.nameArg,
-    connection_user_credential: d.connectionUserCredential,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCreateUserMappedCredential_ResponseSchema: z.ZodType = z
-  .object({
-    connectionUserCredential: z
-      .lazy(() => marshalConnectionUserCredentialSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    connection_user_credential: d.connectionUserCredential,
-  }));
-
 export const marshalDeleteConnectionSchema: z.ZodType = z
   .object({
     nameArg: z.string().optional(),
@@ -1102,20 +813,6 @@ export const marshalDeleteConnectionSchema: z.ZodType = z
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteConnection_ResponseSchema: z.ZodType = z.object({});
-
-export const marshalDeleteUserMappedCredentialSchema: z.ZodType = z
-  .object({
-    nameArg: z.string().optional(),
-    userIdentityArg: z.string().optional(),
-  })
-  .transform(d => ({
-    name_arg: d.nameArg,
-    user_identity_arg: d.userIdentityArg,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeleteUserMappedCredential_ResponseSchema: z.ZodType =
-  z.object({});
 
 export const marshalEnvironmentSettingsSchema: z.ZodType = z
   .object({
@@ -1133,27 +830,6 @@ export const marshalGetConnectionSchema: z.ZodType = z
   })
   .transform(d => ({
     name_arg: d.nameArg,
-  }));
-
-export const marshalGetUserMappedCredentialSchema: z.ZodType = z
-  .object({
-    nameArg: z.string().optional(),
-    userIdentityArg: z.string().optional(),
-  })
-  .transform(d => ({
-    name_arg: d.nameArg,
-    user_identity_arg: d.userIdentityArg,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalGetUserMappedCredential_ResponseSchema: z.ZodType = z
-  .object({
-    connectionUserCredential: z
-      .lazy(() => marshalConnectionUserCredentialSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    connection_user_credential: d.connectionUserCredential,
   }));
 
 export const marshalListConnectionsSchema: z.ZodType = z
@@ -1175,52 +851,6 @@ export const marshalListConnections_ResponseSchema: z.ZodType = z
   .transform(d => ({
     connections: d.connections,
     next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListUserMappedCredentialsSchema: z.ZodType = z
-  .object({
-    nameArg: z.string().optional(),
-    userIdentity: z.string().optional(),
-    maxResults: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    name_arg: d.nameArg,
-    user_identity: d.userIdentity,
-    max_results: d.maxResults,
-    page_token: d.pageToken,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalListUserMappedCredentials_ResponseSchema: z.ZodType = z
-  .object({
-    connectionUserCredential: z
-      .array(z.lazy(() => marshalConnectionUserCredentialSchema))
-      .optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    connection_user_credential: d.connectionUserCredential,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalOptionsKvPairsSchema: z.ZodType = z
-  .object({
-    options: z.record(z.string(), z.string()).optional(),
-  })
-  .transform(d => ({
-    options: d.options,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalOptionsKvPairs_OptionsEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
   }));
 
 export const marshalProvisioningInfoSchema: z.ZodType = z
@@ -1314,27 +944,4 @@ export const marshalUpdateConnection_SecretsEntrySchema: z.ZodType = z
   .transform(d => ({
     key: d.key,
     value: d.value,
-  }));
-
-export const marshalUpdateUserMappedCredentialSchema: z.ZodType = z
-  .object({
-    nameArg: z.string().optional(),
-    connectionUserCredential: z
-      .lazy(() => marshalConnectionUserCredentialSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    name_arg: d.nameArg,
-    connection_user_credential: d.connectionUserCredential,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalUpdateUserMappedCredential_ResponseSchema: z.ZodType = z
-  .object({
-    connectionUserCredential: z
-      .lazy(() => marshalConnectionUserCredentialSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    connection_user_credential: d.connectionUserCredential,
   }));
