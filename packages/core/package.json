@@ -17,6 +17,10 @@
     "./profiles/browser": {
       "types": "./dist/profiles/index.browser.d.ts",
       "import": "./dist/profiles/index.browser.js"
+    },
+    "./wkt": {
+      "types": "./dist/wkt/index.d.ts",
+      "import": "./dist/wkt/index.js"
     }
   },
   "files": [
