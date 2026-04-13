@@ -1,2 +1,2 @@
-export {FieldMask} from './fieldmask.js';
-export type {FieldPaths} from './fieldmask.js';
+export {FieldMask} from './fieldmask';
+export type {FieldPaths} from './fieldmask';
