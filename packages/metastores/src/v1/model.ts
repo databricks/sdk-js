@@ -150,36 +150,6 @@ export interface GetMetastoreSummary_Response {
   externalAccessEnabled?: boolean | undefined;
 }
 
-export interface ListGlobalMetastoresRequest {
-  /**
-   * Maximum number of metastores to return.
-   * - when set to a value greater than 0, the page length is the minimum of this value and a server configured value;
-   * - when set to 0, the page length is set to a server configured value (recommended);
-   * - when set to a value less than 0, an invalid parameter error is returned;
-   * - If not set, all the metastores are returned (not recommended).
-   * - Note: The number of returned metastores might be less than the specified page_size, even zero.
-   * The only definitive indication that no further metastores can be fetched is when the next_page_token is unset from the response.
-   */
-  pageSize?: number | undefined;
-  /** Opaque pagination token to go to next page based on previous query. */
-  pageToken?: string | undefined;
-  /**
-   * When true, only returns metastores from the local shard (used by the global
-   * pagination path to query individual remote shards).
-   */
-  shardLocalOnly?: boolean | undefined;
-}
-
-export interface ListGlobalMetastoresResponse {
-  /** An array of metastore information objects. */
-  metastores?: MetastoreInfo[] | undefined;
-  /**
-   * Opaque token to retrieve the next page of results. Absent if there are no more pages.
-   * __page_token__ should be set to this value for the next request (for the next page of results).
-   */
-  nextPageToken?: string | undefined;
-}
-
 export interface ListMetastores {
   /**
    * Maximum number of metastores to return.
@@ -473,32 +443,6 @@ export const unmarshalGetMetastoreSummary_ResponseSchema: z.ZodType<GetMetastore
       updatedAt: d.updated_at,
       updatedBy: d.updated_by,
       externalAccessEnabled: d.external_access_enabled,
-    }));
-
-export const unmarshalListGlobalMetastoresRequestSchema: z.ZodType<ListGlobalMetastoresRequest> =
-  z
-    .object({
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-      shard_local_only: z.boolean().optional(),
-    })
-    .transform(d => ({
-      pageSize: d.page_size,
-      pageToken: d.page_token,
-      shardLocalOnly: d.shard_local_only,
-    }));
-
-export const unmarshalListGlobalMetastoresResponseSchema: z.ZodType<ListGlobalMetastoresResponse> =
-  z
-    .object({
-      metastores: z
-        .array(z.lazy(() => unmarshalMetastoreInfoSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      metastores: d.metastores,
-      nextPageToken: d.next_page_token,
     }));
 
 export const unmarshalListMetastoresSchema: z.ZodType<ListMetastores> = z
@@ -797,28 +741,6 @@ export const marshalGetMetastoreSummary_ResponseSchema: z.ZodType = z
     updated_at: d.updatedAt,
     updated_by: d.updatedBy,
     external_access_enabled: d.externalAccessEnabled,
-  }));
-
-export const marshalListGlobalMetastoresRequestSchema: z.ZodType = z
-  .object({
-    pageSize: z.number().optional(),
-    pageToken: z.string().optional(),
-    shardLocalOnly: z.boolean().optional(),
-  })
-  .transform(d => ({
-    page_size: d.pageSize,
-    page_token: d.pageToken,
-    shard_local_only: d.shardLocalOnly,
-  }));
-
-export const marshalListGlobalMetastoresResponseSchema: z.ZodType = z
-  .object({
-    metastores: z.array(z.lazy(() => marshalMetastoreInfoSchema)).optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    metastores: d.metastores,
-    next_page_token: d.nextPageToken,
   }));
 
 export const marshalListMetastoresSchema: z.ZodType = z

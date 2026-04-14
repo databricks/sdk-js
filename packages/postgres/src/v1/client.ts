@@ -78,6 +78,7 @@ import type {
   SyncedTable,
   SyncedTableOperationMetadata,
   Table,
+  UndeleteBranchRequest,
   UpdateBranchRequest,
   UpdateDatabaseRequest,
   UpdateEndpointRequest,
@@ -94,6 +95,7 @@ import {
   marshalRoleSchema,
   marshalSyncedTableSchema,
   marshalTableSchema,
+  marshalUndeleteBranchRequestSchema,
   unmarshalBranchOperationMetadataSchema,
   unmarshalBranchSchema,
   unmarshalCatalogOperationMetadataSchema,
@@ -456,6 +458,9 @@ export class Client {
     const params = new URLSearchParams();
     if (req.purge !== undefined) {
       params.append('purge', String(req.purge));
+    }
+    if (req.allowMissing !== undefined) {
+      params.append('allow_missing', String(req.allowMissing));
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -1097,6 +1102,9 @@ export class Client {
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
     }
+    if (req.showDeleted !== undefined) {
+      params.append('show_deleted', String(req.showDeleted));
+    }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListBranchesResponse | undefined;
@@ -1396,6 +1404,40 @@ export class Client {
       }
       pageReq.pageToken = resp.nextPageToken;
     }
+  }
+
+  /** Undeletes the specified database branch. */
+  async undeleteBranch(
+    signal: AbortSignal | undefined,
+    req: UndeleteBranchRequest,
+    options?: Options
+  ): Promise<Operation> {
+    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}/undelete`;
+    const body = marshalRequest(req, marshalUndeleteBranchRequestSchema);
+    let resp: Operation | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async undeleteBranchOperation(
+    signal: AbortSignal | undefined,
+    req: UndeleteBranchRequest,
+    options?: Options
+  ): Promise<UndeleteBranchOperation> {
+    const op = await this.undeleteBranch(signal, req, options);
+    return new UndeleteBranchOperation(this, op);
   }
 
   /** Updates the specified database branch. You can set this branch as the project's default branch, or protect/unprotect it. */
@@ -2852,6 +2894,95 @@ export class DeleteSyncedTableOperation {
     return Promise.resolve(
       z
         .lazy(() => unmarshalSyncedTableOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<void> {
+    const errStillRunning = new Error('operation still in progress');
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
+  }
+}
+
+export class UndeleteBranchOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<BranchOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalBranchOperationMetadataSchema)
         .parse(this.operation.metadata)
     );
   }

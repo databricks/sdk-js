@@ -75,7 +75,7 @@ export enum DataSourceFormat {
   ICEBERG = 'ICEBERG',
 }
 
-/** Latest kind: CONNECTION_API_SOURCE = 310; Next id: 311 */
+/** Latest kind: CONNECTION_VEEVA_VAULT_OAUTH_M2M = 311; Next id: 312 */
 export enum SecurableKind {
   TABLE_STANDARD = 'TABLE_STANDARD',
   TABLE_EXTERNAL = 'TABLE_EXTERNAL',

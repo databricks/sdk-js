@@ -25,8 +25,6 @@ import type {
   GetMetastore,
   GetMetastoreSummary,
   GetMetastoreSummary_Response,
-  ListGlobalMetastoresRequest,
-  ListGlobalMetastoresResponse,
   ListMetastores,
   ListMetastores_Response,
   MetastoreAssignment,
@@ -44,7 +42,6 @@ import {
   unmarshalDeleteMetastoreAssignment_ResponseSchema,
   unmarshalDeleteMetastore_ResponseSchema,
   unmarshalGetMetastoreSummary_ResponseSchema,
-  unmarshalListGlobalMetastoresResponseSchema,
   unmarshalListMetastores_ResponseSchema,
   unmarshalMetastoreAssignmentSchema,
   unmarshalMetastoreInfoSchema,
@@ -266,63 +263,6 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
-  }
-
-  /** Lists metastores across all shards in the account, federating one shard at a time. */
-  async listGlobalMetastores(
-    signal: AbortSignal | undefined,
-    req: ListGlobalMetastoresRequest,
-    options?: Options
-  ): Promise<ListGlobalMetastoresResponse> {
-    const url = `${this.host}/api/2.1/unity-catalog/metastores:globalList`;
-    const params = new URLSearchParams();
-    if (req.pageSize !== undefined) {
-      params.append('page_size', String(req.pageSize));
-    }
-    if (req.pageToken !== undefined) {
-      params.append('page_token', req.pageToken);
-    }
-    if (req.shardLocalOnly !== undefined) {
-      params.append('shard_local_only', String(req.shardLocalOnly));
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListGlobalMetastoresResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListGlobalMetastoresResponseSchema
-      );
-    };
-    await execute(signal, call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  async *listGlobalMetastoresIter(
-    signal: AbortSignal | undefined,
-    req: ListGlobalMetastoresRequest,
-    options?: Options
-  ): AsyncGenerator<MetastoreInfo> {
-    const pageReq: ListGlobalMetastoresRequest = {...req};
-    for (;;) {
-      const resp = await this.listGlobalMetastores(signal, pageReq, options);
-      for (const item of resp.metastores ?? []) {
-        yield item;
-      }
-      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
-        return;
-      }
-      pageReq.pageToken = resp.nextPageToken;
-    }
   }
 
   /**

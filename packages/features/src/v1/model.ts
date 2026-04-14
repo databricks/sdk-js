@@ -477,6 +477,8 @@ export interface MaterializedFeature {
   lastMaterializationTime?: Temporal.Instant | undefined;
   /** The quartz cron expression that defines the schedule of the materialization pipeline. The schedule is evaluated in the UTC timezone. */
   cronSchedule?: string | undefined;
+  /** True if this is an online materialized feature. False if it is an offline materialized feature. */
+  isOnline?: boolean | undefined;
 }
 
 /** Computes the maximum value. */
@@ -1169,6 +1171,7 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
         .transform(s => Temporal.Instant.from(s))
         .optional(),
       cron_schedule: z.string().optional(),
+      is_online: z.boolean().optional(),
     })
     .transform(d => ({
       materializedFeatureId: d.materialized_feature_id,
@@ -1179,6 +1182,7 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
       pipelineScheduleState: d.pipeline_schedule_state,
       lastMaterializationTime: d.last_materialization_time,
       cronSchedule: d.cron_schedule,
+      isOnline: d.is_online,
     }));
 
 export const unmarshalMaxFunctionSchema: z.ZodType<MaxFunction> = z
@@ -1872,6 +1876,7 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
     cronSchedule: z.string().optional(),
+    isOnline: z.boolean().optional(),
   })
   .transform(d => ({
     materialized_feature_id: d.materializedFeatureId,
@@ -1882,6 +1887,7 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
     pipeline_schedule_state: d.pipelineScheduleState,
     last_materialization_time: d.lastMaterializationTime,
     cron_schedule: d.cronSchedule,
+    is_online: d.isOnline,
   }));
 
 export const marshalMaxFunctionSchema: z.ZodType = z
