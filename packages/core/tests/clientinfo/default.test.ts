@@ -69,9 +69,9 @@ describe('createDefault', () => {
       want: `${prefix} agent/claude-code`,
     },
     {
-      name: 'multiple agents omitted',
+      name: 'multiple agents all reported',
       env: {CLAUDECODE: '1', CURSOR_AGENT: '1'},
-      want: prefix,
+      want: `${prefix} agent/claude-code agent/cursor`,
     },
     {
       name: 'databricks runtime',

@@ -9,7 +9,6 @@
  */
 
 export type ClientInfoErrorCode =
-  | 'ODD_KEYVALS'
   | 'INVALID_KEY'
   | 'INVALID_VALUE'
   | 'INVALID_VERSION';
@@ -63,9 +62,11 @@ export function sanitize(s: string): string {
  * {@link ClientInfo.with} to derive new values with additional segments.
  */
 export class ClientInfo {
+  static readonly EMPTY = new ClientInfo();
+
   readonly segments: readonly Segment[];
 
-  constructor(
+  private constructor(
     segments: readonly {readonly key: string; readonly value: string}[] = []
   ) {
     this.segments = [...segments];
@@ -73,8 +74,7 @@ export class ClientInfo {
 
   /**
    * Returns a new {@link ClientInfo} with the given key/value pairs
-   * appended. The original is not modified. An odd number of arguments
-   * throws an error.
+   * appended. The original is not modified.
    *
    * Keys and values must contain only alphanumeric characters plus the
    * characters: underscore ('_'), dot ('.'), plus ('+'), or hyphen ('-').
@@ -82,22 +82,14 @@ export class ClientInfo {
    * Exact key+value duplicates are silently ignored. On error, an
    * exception is thrown (all-or-nothing).
    */
-  with(...keyvals: string[]): ClientInfo {
-    if (keyvals.length % 2 !== 0) {
-      throw new ClientInfoError(
-        'ODD_KEYVALS',
-        `Odd number of key/value arguments: got ${String(keyvals.length)}.`
-      );
-    }
-    if (keyvals.length === 0) {
+  with(...pairs: {readonly key: string; readonly value: string}[]): ClientInfo {
+    if (pairs.length === 0) {
       return this;
     }
 
     const newSegments: Segment[] = [...this.segments];
 
-    for (let i = 0; i < keyvals.length; i += 2) {
-      const key = keyvals[i];
-      const value = keyvals[i + 1];
+    for (const {key, value} of pairs) {
       if (!isValidSegment(key)) {
         throw new ClientInfoError('INVALID_KEY', `Invalid key: ${key}.`);
       }

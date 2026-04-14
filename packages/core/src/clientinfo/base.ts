@@ -12,7 +12,7 @@ export const VERSION = '0.1.0';
 
 // Holds segments added via addToDefault, setProduct, and setPartner.
 // createDefault returns a copy of this with env detection appended.
-let base = new ClientInfo();
+let base = ClientInfo.EMPTY;
 
 /**
  * Sets the product name and version globally. The version must be a
@@ -52,7 +52,7 @@ export function setPartner(partner: string): void {
  * use.
  */
 export function addToDefault(key: string, value: string): void {
-  base = base.with(key, value);
+  base = base.with({key, value});
 }
 
 // Returns the base ClientInfo for use in createDefault.
@@ -62,7 +62,7 @@ export function getBase(): ClientInfo {
 
 // Resets the base segments. Exported for testing only.
 export function resetBase(): void {
-  base = new ClientInfo();
+  base = ClientInfo.EMPTY;
 }
 
 // Returns the base segments as a formatted string. Exported for

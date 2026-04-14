@@ -67,27 +67,15 @@ const CICD_PROVIDERS: readonly CicdDef[] = [
   {name: 'tf-cloud', envVars: [{name: 'TFC_RUN_ID', expectedValue: ''}]},
 ];
 
-/**
- * Returns the name of a single detected AI coding agent, or empty if
- * zero or more than one agent is detected. When multiple agents are
- * present (e.g. Claude from within Cursor), we cannot reliably
- * determine which one initiated the request, so we omit the segment.
- *
- * TODO: support reporting multiple concurrent agents.
- */
-function detectAgent(): string {
-  let detected = '';
-  let count = 0;
+// Returns all detected AI coding agents.
+function detectAgents(): string[] {
+  const detected: string[] = [];
   for (const a of KNOWN_AGENTS) {
     if (process.env[a.envVar] !== undefined) {
-      detected = a.product;
-      count++;
-      if (count > 1) {
-        break;
-      }
+      detected.push(a.product);
     }
   }
-  return count === 1 ? detected : '';
+  return detected;
 }
 
 function detectCicd(): string {
@@ -126,7 +114,7 @@ export const CACHED_NODE_VERSION = normalizeNodeVersion(process.version);
  * automatically detected environment properties.
  */
 export function createDefault(): ClientInfo {
-  const segments: {key: string; value: string}[] = [
+  const pairs: {key: string; value: string}[] = [
     {key: MODULE_NAME, value: VERSION},
     {key: 'node', value: CACHED_NODE_VERSION},
     {key: 'os', value: process.platform},
@@ -141,7 +129,7 @@ export function createDefault(): ClientInfo {
   if (upstream !== undefined) {
     const upstreamVersion = process.env.DATABRICKS_SDK_UPSTREAM_VERSION;
     if (upstreamVersion !== undefined) {
-      segments.push(
+      pairs.push(
         {key: 'upstream', value: sanitize(upstream)},
         {key: 'upstream-version', value: sanitize(upstreamVersion)}
       );
@@ -150,18 +138,17 @@ export function createDefault(): ClientInfo {
 
   const cicd = detectCicd();
   if (cicd !== '') {
-    segments.push({key: 'cicd', value: cicd});
+    pairs.push({key: 'cicd', value: cicd});
   }
 
   const runtime = process.env.DATABRICKS_RUNTIME_VERSION;
   if (runtime !== undefined && runtime !== '') {
-    segments.push({key: 'runtime', value: sanitize(runtime)});
+    pairs.push({key: 'runtime', value: sanitize(runtime)});
   }
 
-  const agent = detectAgent();
-  if (agent !== '') {
-    segments.push({key: 'agent', value: agent});
+  for (const agent of detectAgents()) {
+    pairs.push({key: 'agent', value: agent});
   }
 
-  return new ClientInfo(segments);
+  return ClientInfo.EMPTY.with(...pairs);
 }

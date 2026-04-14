@@ -16,119 +16,125 @@ describe('ClientInfo', () => {
     const testCases: {
       name: string;
       base: ClientInfo;
-      kvs: string[];
+      pairs: {key: string; value: string}[];
       wantString: string;
       wantErrorCode?: ClientInfoErrorCode;
     }[] = [
       {
         name: 'empty base empty args',
-        base: new ClientInfo(),
-        kvs: [],
+        base: ClientInfo.EMPTY,
+        pairs: [],
         wantString: '',
       },
       {
         name: 'single pair on empty base',
-        base: new ClientInfo(),
-        kvs: ['auth', 'pat'],
+        base: ClientInfo.EMPTY,
+        pairs: [{key: 'auth', value: 'pat'}],
         wantString: 'auth/pat',
       },
       {
         name: 'multiple pairs on empty base',
-        base: new ClientInfo(),
-        kvs: ['dataquality', '0.0.1', 'auth', 'pat'],
+        base: ClientInfo.EMPTY,
+        pairs: [
+          {key: 'dataquality', value: '0.0.1'},
+          {key: 'auth', value: 'pat'},
+        ],
         wantString: 'dataquality/0.0.1 auth/pat',
       },
       {
         name: 'appends to existing segments',
-        base: new ClientInfo([{key: 'sdk', value: '1.0.0'}]),
-        kvs: ['auth', 'pat'],
+        base: ClientInfo.EMPTY.with({key: 'sdk', value: '1.0.0'}),
+        pairs: [{key: 'auth', value: 'pat'}],
         wantString: 'sdk/1.0.0 auth/pat',
       },
       {
         name: 'no args returns same value',
-        base: new ClientInfo([{key: 'sdk', value: '1.0.0'}]),
-        kvs: [],
+        base: ClientInfo.EMPTY.with({key: 'sdk', value: '1.0.0'}),
+        pairs: [],
         wantString: 'sdk/1.0.0',
       },
       {
         name: 'preserves insertion order',
-        base: new ClientInfo(),
-        kvs: ['zzz', '3', 'aaa', '1', 'mmm', '2'],
+        base: ClientInfo.EMPTY,
+        pairs: [
+          {key: 'zzz', value: '3'},
+          {key: 'aaa', value: '1'},
+          {key: 'mmm', value: '2'},
+        ],
         wantString: 'zzz/3 aaa/1 mmm/2',
       },
       {
         name: 'exact duplicate silently ignored',
-        base: new ClientInfo([{key: 'key', value: 'value'}]),
-        kvs: ['key', 'value'],
+        base: ClientInfo.EMPTY.with({key: 'key', value: 'value'}),
+        pairs: [{key: 'key', value: 'value'}],
         wantString: 'key/value',
       },
       {
         name: 'duplicate within batch silently ignored',
-        base: new ClientInfo(),
-        kvs: ['key', 'value', 'key', 'value'],
+        base: ClientInfo.EMPTY,
+        pairs: [
+          {key: 'key', value: 'value'},
+          {key: 'key', value: 'value'},
+        ],
         wantString: 'key/value',
       },
       {
         name: 'same key different value allowed',
-        base: new ClientInfo([{key: 'partner', value: 'acme'}]),
-        kvs: ['partner', 'contoso'],
+        base: ClientInfo.EMPTY.with({key: 'partner', value: 'acme'}),
+        pairs: [{key: 'partner', value: 'contoso'}],
         wantString: 'partner/acme partner/contoso',
       },
       {
-        name: 'odd number of arguments',
-        base: new ClientInfo(),
-        kvs: ['key'],
-        wantString: '',
-        wantErrorCode: 'ODD_KEYVALS',
-      },
-      {
         name: 'invalid key with space',
-        base: new ClientInfo(),
-        kvs: ['bad key', 'value'],
+        base: ClientInfo.EMPTY,
+        pairs: [{key: 'bad key', value: 'value'}],
         wantString: '',
         wantErrorCode: 'INVALID_KEY',
       },
       {
         name: 'invalid key with slash',
-        base: new ClientInfo(),
-        kvs: ['bad/key', 'value'],
+        base: ClientInfo.EMPTY,
+        pairs: [{key: 'bad/key', value: 'value'}],
         wantString: '',
         wantErrorCode: 'INVALID_KEY',
       },
       {
         name: 'invalid value with space',
-        base: new ClientInfo(),
-        kvs: ['key', 'bad value'],
+        base: ClientInfo.EMPTY,
+        pairs: [{key: 'key', value: 'bad value'}],
         wantString: '',
         wantErrorCode: 'INVALID_VALUE',
       },
       {
         name: 'invalid value with special chars',
-        base: new ClientInfo(),
-        kvs: ['key', 'bad!value'],
+        base: ClientInfo.EMPTY,
+        pairs: [{key: 'key', value: 'bad!value'}],
         wantString: '',
         wantErrorCode: 'INVALID_VALUE',
       },
       {
         name: 'error on first invalid pair returns zero value',
-        base: new ClientInfo([{key: 'existing', value: 'value'}]),
-        kvs: ['bad key', 'value'],
+        base: ClientInfo.EMPTY.with({key: 'existing', value: 'value'}),
+        pairs: [{key: 'bad key', value: 'value'}],
         wantString: '',
         wantErrorCode: 'INVALID_KEY',
       },
       {
         name: 'error on second pair leaves base unchanged',
-        base: new ClientInfo(),
-        kvs: ['good', 'value', 'bad key', 'value'],
+        base: ClientInfo.EMPTY,
+        pairs: [
+          {key: 'good', value: 'value'},
+          {key: 'bad key', value: 'value'},
+        ],
         wantString: '',
         wantErrorCode: 'INVALID_KEY',
       },
     ];
 
-    it.each(testCases)('$name', ({base, kvs, wantString, wantErrorCode}) => {
+    it.each(testCases)('$name', ({base, pairs, wantString, wantErrorCode}) => {
       if (wantErrorCode !== undefined) {
         try {
-          base.with(...kvs);
+          base.with(...pairs);
           expect.fail('Expected ClientInfoError to be thrown.');
         } catch (e: unknown) {
           if (e instanceof ClientInfoError) {
@@ -138,15 +144,15 @@ describe('ClientInfo', () => {
           }
         }
       } else {
-        expect(base.with(...kvs).toString()).toBe(wantString);
+        expect(base.with(...pairs).toString()).toBe(wantString);
       }
     });
   });
 
   it('does not mutate the original', () => {
-    const base = new ClientInfo().with('foo', 'bar');
+    const base = ClientInfo.EMPTY.with({key: 'foo', value: 'bar'});
     const want = base.toString();
-    base.with('extra', 'value');
+    base.with({key: 'extra', value: 'value'});
     expect(base.toString()).toBe(want);
   });
 });
