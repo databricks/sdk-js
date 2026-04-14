@@ -709,6 +709,94 @@ export interface ListWorkspaceAssignmentDetailsResponse {
 }
 
 /**
+ * Request message for matching a group against the IDP.
+ * This will perform a sync by group_id before performing analysis to update local data which is safe to fix.
+ */
+export interface MatchGroupWithIdpRequest {
+  /** The account ID for which the group is being matched. */
+  accountId?: string | undefined;
+  /** Internal ID of the group in <Databricks>. */
+  groupId?: number | undefined;
+}
+
+/** Response message for matching a group against the IDP. */
+export interface MatchGroupWithIdpResponse {
+  /** The local Databricks group being matched against the IDP. */
+  databricksGroup?: Group | undefined;
+  /** IDP groups matching this group by group name. */
+  idpMatchesByGroupName?: Group[] | undefined;
+  /**
+   * IDP group matching this group by the stored external_id.
+   * Absent if no match was found.
+   */
+  idpMatchByExternalId?: Group | undefined;
+  /**
+   * Members that exist only in Databricks and have no external_id.
+   * Empty if external_id is undefined or does not exist in the IDP.
+   */
+  localMembersNotInIdp?: DirectGroupMember[] | undefined;
+  /**
+   * Members that have an external_id but are not members in the IDP.
+   * Empty if external_id is undefined or does not exist in the IDP.
+   */
+  externalMembersNotInIdp?: DirectGroupMember[] | undefined;
+}
+
+/**
+ * Request message for matching a service principal against the IDP.
+ * This will perform a sync by service_principal_id before performing analysis to update local data which is safe to fix.
+ */
+export interface MatchServicePrincipalWithIdpRequest {
+  /** The account ID for which the service principal is being matched. */
+  accountId?: string | undefined;
+  /** Internal ID of the service principal in <Databricks>. */
+  servicePrincipalId?: number | undefined;
+}
+
+/** Response message for matching a service principal against the IDP. */
+export interface MatchServicePrincipalWithIdpResponse {
+  /** The local Databricks service principal being matched against the IDP. */
+  databricksServicePrincipal?: ServicePrincipal | undefined;
+  /**
+   * IDP service principal matching this service principal by application ID.
+   * Absent if no match was found.
+   */
+  idpMatchByAppId?: ServicePrincipal | undefined;
+  /**
+   * IDP service principal matching this service principal by the stored external_id.
+   * Absent if no match was found.
+   */
+  idpMatchByExternalId?: ServicePrincipal | undefined;
+}
+
+/**
+ * Request message for matching a user against the IDP.
+ * This will perform a sync by user_id before performing analysis to update local data which is safe to fix.
+ */
+export interface MatchUserWithIdpRequest {
+  /** The account ID for which the user is being matched. */
+  accountId?: string | undefined;
+  /** Internal ID of the user in <Databricks>. */
+  userId?: number | undefined;
+}
+
+/** Response message for matching a user against the IDP. */
+export interface MatchUserWithIdpResponse {
+  /** The local Databricks user being matched against the IDP. */
+  databricksUser?: User | undefined;
+  /**
+   * IDP user matching this user by username.
+   * Absent if no match was found.
+   */
+  idpMatchByUsername?: User | undefined;
+  /**
+   * IDP user matching this user by the stored external_id.
+   * Absent if no match was found.
+   */
+  idpMatchByExternalId?: User | undefined;
+}
+
+/**
  * Request message for resolving a group with the given external ID from the customer's IdP into <Databricks>.
  * Will resolve metadata such as the group's groupname, and inherited parent groups.
  */
@@ -1702,6 +1790,94 @@ export const unmarshalListWorkspaceAssignmentDetailsResponseSchema: z.ZodType<Li
       nextPageToken: d.next_page_token,
     }));
 
+export const unmarshalMatchGroupWithIdpRequestSchema: z.ZodType<MatchGroupWithIdpRequest> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      group_id: z.number().optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      groupId: d.group_id,
+    }));
+
+export const unmarshalMatchGroupWithIdpResponseSchema: z.ZodType<MatchGroupWithIdpResponse> =
+  z
+    .object({
+      databricks_group: z.lazy(() => unmarshalGroupSchema).optional(),
+      idp_matches_by_group_name: z
+        .array(z.lazy(() => unmarshalGroupSchema))
+        .optional(),
+      idp_match_by_external_id: z.lazy(() => unmarshalGroupSchema).optional(),
+      local_members_not_in_idp: z
+        .array(z.lazy(() => unmarshalDirectGroupMemberSchema))
+        .optional(),
+      external_members_not_in_idp: z
+        .array(z.lazy(() => unmarshalDirectGroupMemberSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      databricksGroup: d.databricks_group,
+      idpMatchesByGroupName: d.idp_matches_by_group_name,
+      idpMatchByExternalId: d.idp_match_by_external_id,
+      localMembersNotInIdp: d.local_members_not_in_idp,
+      externalMembersNotInIdp: d.external_members_not_in_idp,
+    }));
+
+export const unmarshalMatchServicePrincipalWithIdpRequestSchema: z.ZodType<MatchServicePrincipalWithIdpRequest> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      service_principal_id: z.number().optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      servicePrincipalId: d.service_principal_id,
+    }));
+
+export const unmarshalMatchServicePrincipalWithIdpResponseSchema: z.ZodType<MatchServicePrincipalWithIdpResponse> =
+  z
+    .object({
+      databricks_service_principal: z
+        .lazy(() => unmarshalServicePrincipalSchema)
+        .optional(),
+      idp_match_by_app_id: z
+        .lazy(() => unmarshalServicePrincipalSchema)
+        .optional(),
+      idp_match_by_external_id: z
+        .lazy(() => unmarshalServicePrincipalSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      databricksServicePrincipal: d.databricks_service_principal,
+      idpMatchByAppId: d.idp_match_by_app_id,
+      idpMatchByExternalId: d.idp_match_by_external_id,
+    }));
+
+export const unmarshalMatchUserWithIdpRequestSchema: z.ZodType<MatchUserWithIdpRequest> =
+  z
+    .object({
+      account_id: z.string().optional(),
+      user_id: z.number().optional(),
+    })
+    .transform(d => ({
+      accountId: d.account_id,
+      userId: d.user_id,
+    }));
+
+export const unmarshalMatchUserWithIdpResponseSchema: z.ZodType<MatchUserWithIdpResponse> =
+  z
+    .object({
+      databricks_user: z.lazy(() => unmarshalUserSchema).optional(),
+      idp_match_by_username: z.lazy(() => unmarshalUserSchema).optional(),
+      idp_match_by_external_id: z.lazy(() => unmarshalUserSchema).optional(),
+    })
+    .transform(d => ({
+      databricksUser: d.databricks_user,
+      idpMatchByUsername: d.idp_match_by_username,
+      idpMatchByExternalId: d.idp_match_by_external_id,
+    }));
+
 export const unmarshalResolveGroupProxyRequestSchema: z.ZodType<ResolveGroupProxyRequest> =
   z
     .object({
@@ -2692,6 +2868,84 @@ export const marshalListWorkspaceAssignmentDetailsResponseSchema: z.ZodType = z
   .transform(d => ({
     workspace_assignment_details: d.workspaceAssignmentDetails,
     next_page_token: d.nextPageToken,
+  }));
+
+export const marshalMatchGroupWithIdpRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    groupId: z.number().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    group_id: d.groupId,
+  }));
+
+export const marshalMatchGroupWithIdpResponseSchema: z.ZodType = z
+  .object({
+    databricksGroup: z.lazy(() => marshalGroupSchema).optional(),
+    idpMatchesByGroupName: z.array(z.lazy(() => marshalGroupSchema)).optional(),
+    idpMatchByExternalId: z.lazy(() => marshalGroupSchema).optional(),
+    localMembersNotInIdp: z
+      .array(z.lazy(() => marshalDirectGroupMemberSchema))
+      .optional(),
+    externalMembersNotInIdp: z
+      .array(z.lazy(() => marshalDirectGroupMemberSchema))
+      .optional(),
+  })
+  .transform(d => ({
+    databricks_group: d.databricksGroup,
+    idp_matches_by_group_name: d.idpMatchesByGroupName,
+    idp_match_by_external_id: d.idpMatchByExternalId,
+    local_members_not_in_idp: d.localMembersNotInIdp,
+    external_members_not_in_idp: d.externalMembersNotInIdp,
+  }));
+
+export const marshalMatchServicePrincipalWithIdpRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    servicePrincipalId: z.number().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    service_principal_id: d.servicePrincipalId,
+  }));
+
+export const marshalMatchServicePrincipalWithIdpResponseSchema: z.ZodType = z
+  .object({
+    databricksServicePrincipal: z
+      .lazy(() => marshalServicePrincipalSchema)
+      .optional(),
+    idpMatchByAppId: z.lazy(() => marshalServicePrincipalSchema).optional(),
+    idpMatchByExternalId: z
+      .lazy(() => marshalServicePrincipalSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    databricks_service_principal: d.databricksServicePrincipal,
+    idp_match_by_app_id: d.idpMatchByAppId,
+    idp_match_by_external_id: d.idpMatchByExternalId,
+  }));
+
+export const marshalMatchUserWithIdpRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    userId: z.number().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    user_id: d.userId,
+  }));
+
+export const marshalMatchUserWithIdpResponseSchema: z.ZodType = z
+  .object({
+    databricksUser: z.lazy(() => marshalUserSchema).optional(),
+    idpMatchByUsername: z.lazy(() => marshalUserSchema).optional(),
+    idpMatchByExternalId: z.lazy(() => marshalUserSchema).optional(),
+  })
+  .transform(d => ({
+    databricks_user: d.databricksUser,
+    idp_match_by_username: d.idpMatchByUsername,
+    idp_match_by_external_id: d.idpMatchByExternalId,
   }));
 
 export const marshalResolveGroupProxyRequestSchema: z.ZodType = z

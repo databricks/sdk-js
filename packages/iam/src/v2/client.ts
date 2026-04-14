@@ -75,6 +75,12 @@ import type {
   ListWorkspaceAssignmentDetailsProxyRequest,
   ListWorkspaceAssignmentDetailsRequest,
   ListWorkspaceAssignmentDetailsResponse,
+  MatchGroupWithIdpRequest,
+  MatchGroupWithIdpResponse,
+  MatchServicePrincipalWithIdpRequest,
+  MatchServicePrincipalWithIdpResponse,
+  MatchUserWithIdpRequest,
+  MatchUserWithIdpResponse,
   ResolveGroupProxyRequest,
   ResolveGroupRequest,
   ResolveGroupResponse,
@@ -101,6 +107,9 @@ import {
   marshalAccountAccessIdentityRuleSchema,
   marshalDirectGroupMemberSchema,
   marshalGroupSchema,
+  marshalMatchGroupWithIdpRequestSchema,
+  marshalMatchServicePrincipalWithIdpRequestSchema,
+  marshalMatchUserWithIdpRequestSchema,
   marshalResolveGroupProxyRequestSchema,
   marshalResolveGroupRequestSchema,
   marshalResolveServicePrincipalProxyRequestSchema,
@@ -121,6 +130,9 @@ import {
   unmarshalListUsersResponseSchema,
   unmarshalListWorkspaceAccessDetailsResponseSchema,
   unmarshalListWorkspaceAssignmentDetailsResponseSchema,
+  unmarshalMatchGroupWithIdpResponseSchema,
+  unmarshalMatchServicePrincipalWithIdpResponseSchema,
+  unmarshalMatchUserWithIdpResponseSchema,
   unmarshalResolveGroupResponseSchema,
   unmarshalResolveServicePrincipalResponseSchema,
   unmarshalResolveUserResponseSchema,
@@ -801,6 +813,31 @@ export class Client {
     return resp;
   }
 
+  /** Matches a group against the IDP. */
+  async matchGroupWithIdp(
+    signal: AbortSignal | undefined,
+    req: MatchGroupWithIdpRequest,
+    options?: Options
+  ): Promise<MatchGroupWithIdpResponse> {
+    const url = `${this.host}/api/2.0/identity/accounts//groups/${String(req.groupId ?? '')}/matchWithIdp`;
+    const body = marshalRequest(req, marshalMatchGroupWithIdpRequestSchema);
+    let resp: MatchGroupWithIdpResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalMatchGroupWithIdpResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
   /**
    * Resolves a group with the given external ID from the customer's IdP. If the group does not exist, it will be created in the account.
    * If the customer is not onboarded onto Automatic Identity Management (AIM), this will return an error.
@@ -1152,6 +1189,37 @@ export class Client {
       resp = parseResponse(
         respBody,
         unmarshalListServicePrincipalsResponseSchema
+      );
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Matches a service principal against the IDP. */
+  async matchServicePrincipalWithIdp(
+    signal: AbortSignal | undefined,
+    req: MatchServicePrincipalWithIdpRequest,
+    options?: Options
+  ): Promise<MatchServicePrincipalWithIdpResponse> {
+    const url = `${this.host}/api/2.0/identity/accounts//servicePrincipals/${String(req.servicePrincipalId ?? '')}/matchWithIdp`;
+    const body = marshalRequest(
+      req,
+      marshalMatchServicePrincipalWithIdpRequestSchema
+    );
+    let resp: MatchServicePrincipalWithIdpResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalMatchServicePrincipalWithIdpResponseSchema
       );
     };
     await execute(signal, call, options);
@@ -1519,6 +1587,31 @@ export class Client {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListUsersResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Matches a user against the IDP. */
+  async matchUserWithIdp(
+    signal: AbortSignal | undefined,
+    req: MatchUserWithIdpRequest,
+    options?: Options
+  ): Promise<MatchUserWithIdpResponse> {
+    const url = `${this.host}/api/2.0/identity/accounts//users/${String(req.userId ?? '')}/matchWithIdp`;
+    const body = marshalRequest(req, marshalMatchUserWithIdpRequestSchema);
+    let resp: MatchUserWithIdpResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalMatchUserWithIdpResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {

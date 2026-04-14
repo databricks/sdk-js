@@ -17,6 +17,8 @@ export type {
   GetMetastore,
   GetMetastoreSummary,
   GetMetastoreSummary_Response,
+  ListGlobalMetastoresRequest,
+  ListGlobalMetastoresResponse,
   ListMetastores,
   ListMetastores_Response,
   MetastoreAssignment,
