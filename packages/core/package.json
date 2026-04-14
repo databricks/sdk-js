@@ -21,6 +21,14 @@
     "./wkt": {
       "types": "./dist/wkt/index.d.ts",
       "import": "./dist/wkt/index.js"
+    },
+    "./clientinfo": {
+      "types": "./dist/clientinfo/index.d.ts",
+      "import": "./dist/clientinfo/index.js"
+    },
+    "./clientinfo/browser": {
+      "types": "./dist/clientinfo/index.browser.d.ts",
+      "import": "./dist/clientinfo/index.browser.js"
     }
   },
   "files": [
