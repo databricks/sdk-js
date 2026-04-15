@@ -140,6 +140,18 @@ export class Client {
     return resp;
   }
 
+  async createWarehouseWaiter(
+    signal: AbortSignal | undefined,
+    req: CreateWarehouse,
+    options?: Options
+  ): Promise<CreateWarehouseWaiter> {
+    const resp = await this.createWarehouse(signal, req, options);
+    if (resp.id === undefined) {
+      throw new Error('response field id required for polling is missing');
+    }
+    return new CreateWarehouseWaiter(this, resp, resp.id);
+  }
+
   /**
    * Deletes the default warehouse override for a user.
    * Users can delete their own override. Admins can delete overrides for any user.
@@ -215,6 +227,18 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async editWarehouseWaiter(
+    signal: AbortSignal | undefined,
+    req: EditWarehouseRequest,
+    options?: Options
+  ): Promise<EditWarehouseWaiter> {
+    const resp = await this.editWarehouse(signal, req, options);
+    if (req.id === undefined) {
+      throw new Error('request field id required for polling is missing');
+    }
+    return new EditWarehouseWaiter(this, resp, req.id);
   }
 
   /**
@@ -470,6 +494,18 @@ export class Client {
     return resp;
   }
 
+  async startWarehouseWaiter(
+    signal: AbortSignal | undefined,
+    req: StartRequest,
+    options?: Options
+  ): Promise<StartWarehouseWaiter> {
+    const resp = await this.startWarehouse(signal, req, options);
+    if (req.id === undefined) {
+      throw new Error('request field id required for polling is missing');
+    }
+    return new StartWarehouseWaiter(this, resp, req.id);
+  }
+
   /** Stops a SQL warehouse. */
   async stopWarehouse(
     signal: AbortSignal | undefined,
@@ -493,6 +529,18 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async stopWarehouseWaiter(
+    signal: AbortSignal | undefined,
+    req: StopRequest,
+    options?: Options
+  ): Promise<StopWarehouseWaiter> {
+    const resp = await this.stopWarehouse(signal, req, options);
+    if (req.id === undefined) {
+      throw new Error('request field id required for polling is missing');
+    }
+    return new StopWarehouseWaiter(this, resp, req.id);
   }
 
   /**
@@ -534,4 +582,44 @@ export class Client {
     }
     return resp;
   }
+}
+
+export class CreateWarehouseWaiter {
+  constructor(
+    // @ts-expect-error TS6138 -- Used by wait and done methods (not yet generated).
+    private readonly client: Client,
+    // @ts-expect-error TS6138 -- Retained for debugging and logging visibility.
+    private readonly rawResponse: CreateWarehouse_Response,
+    readonly id: string
+  ) {}
+}
+
+export class EditWarehouseWaiter {
+  constructor(
+    // @ts-expect-error TS6138 -- Used by wait and done methods (not yet generated).
+    private readonly client: Client,
+    // @ts-expect-error TS6138 -- Retained for debugging and logging visibility.
+    private readonly rawResponse: EditWarehouseRequest_Response,
+    readonly id: string
+  ) {}
+}
+
+export class StartWarehouseWaiter {
+  constructor(
+    // @ts-expect-error TS6138 -- Used by wait and done methods (not yet generated).
+    private readonly client: Client,
+    // @ts-expect-error TS6138 -- Retained for debugging and logging visibility.
+    private readonly rawResponse: StartRequest_Response,
+    readonly id: string
+  ) {}
+}
+
+export class StopWarehouseWaiter {
+  constructor(
+    // @ts-expect-error TS6138 -- Used by wait and done methods (not yet generated).
+    private readonly client: Client,
+    // @ts-expect-error TS6138 -- Retained for debugging and logging visibility.
+    private readonly rawResponse: StopRequest_Response,
+    readonly id: string
+  ) {}
 }
