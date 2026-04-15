@@ -149,7 +149,7 @@ export class Client {
     if (resp.id === undefined) {
       throw new Error('response field id required for polling is missing');
     }
-    return new CreateWarehouseWaiter(this, resp, resp.id);
+    return new CreateWarehouseWaiter(this, resp.id);
   }
 
   /**
@@ -234,11 +234,11 @@ export class Client {
     req: EditWarehouseRequest,
     options?: Options
   ): Promise<EditWarehouseWaiter> {
-    const resp = await this.editWarehouse(signal, req, options);
+    await this.editWarehouse(signal, req, options);
     if (req.id === undefined) {
       throw new Error('request field id required for polling is missing');
     }
-    return new EditWarehouseWaiter(this, resp, req.id);
+    return new EditWarehouseWaiter(this, req.id);
   }
 
   /**
@@ -499,11 +499,11 @@ export class Client {
     req: StartRequest,
     options?: Options
   ): Promise<StartWarehouseWaiter> {
-    const resp = await this.startWarehouse(signal, req, options);
+    await this.startWarehouse(signal, req, options);
     if (req.id === undefined) {
       throw new Error('request field id required for polling is missing');
     }
-    return new StartWarehouseWaiter(this, resp, req.id);
+    return new StartWarehouseWaiter(this, req.id);
   }
 
   /** Stops a SQL warehouse. */
@@ -536,11 +536,11 @@ export class Client {
     req: StopRequest,
     options?: Options
   ): Promise<StopWarehouseWaiter> {
-    const resp = await this.stopWarehouse(signal, req, options);
+    await this.stopWarehouse(signal, req, options);
     if (req.id === undefined) {
       throw new Error('request field id required for polling is missing');
     }
-    return new StopWarehouseWaiter(this, resp, req.id);
+    return new StopWarehouseWaiter(this, req.id);
   }
 
   /**
@@ -588,8 +588,6 @@ export class CreateWarehouseWaiter {
   constructor(
     // @ts-expect-error TS6138 -- Used by wait and done methods (not yet generated).
     private readonly client: Client,
-    // @ts-expect-error TS6138 -- Retained for debugging and logging visibility.
-    private readonly rawResponse: CreateWarehouse_Response,
     readonly id: string
   ) {}
 }
@@ -598,8 +596,6 @@ export class EditWarehouseWaiter {
   constructor(
     // @ts-expect-error TS6138 -- Used by wait and done methods (not yet generated).
     private readonly client: Client,
-    // @ts-expect-error TS6138 -- Retained for debugging and logging visibility.
-    private readonly rawResponse: EditWarehouseRequest_Response,
     readonly id: string
   ) {}
 }
@@ -608,8 +604,6 @@ export class StartWarehouseWaiter {
   constructor(
     // @ts-expect-error TS6138 -- Used by wait and done methods (not yet generated).
     private readonly client: Client,
-    // @ts-expect-error TS6138 -- Retained for debugging and logging visibility.
-    private readonly rawResponse: StartRequest_Response,
     readonly id: string
   ) {}
 }
@@ -618,8 +612,6 @@ export class StopWarehouseWaiter {
   constructor(
     // @ts-expect-error TS6138 -- Used by wait and done methods (not yet generated).
     private readonly client: Client,
-    // @ts-expect-error TS6138 -- Retained for debugging and logging visibility.
-    private readonly rawResponse: StopRequest_Response,
     readonly id: string
   ) {}
 }

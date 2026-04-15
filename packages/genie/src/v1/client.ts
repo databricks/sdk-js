@@ -183,7 +183,6 @@ export class Client {
     }
     return new GenieCreateConversationMessageWaiter(
       this,
-      resp,
       resp.messageId,
       req.conversationId,
       req.spaceId
@@ -965,7 +964,6 @@ export class Client {
     }
     return new GenieStartConversationWaiter(
       this,
-      resp,
       resp.messageId,
       resp.conversationId,
       req.spaceId
@@ -1020,8 +1018,6 @@ export class GenieCreateConversationMessageWaiter {
   constructor(
     // @ts-expect-error TS6138 -- Used by wait and done methods (not yet generated).
     private readonly client: Client,
-    // @ts-expect-error TS6138 -- Retained for debugging and logging visibility.
-    private readonly rawResponse: GenieMessage,
     readonly messageId: string,
     readonly conversationId: string,
     readonly spaceId: string
@@ -1032,8 +1028,6 @@ export class GenieStartConversationWaiter {
   constructor(
     // @ts-expect-error TS6138 -- Used by wait and done methods (not yet generated).
     private readonly client: Client,
-    // @ts-expect-error TS6138 -- Retained for debugging and logging visibility.
-    private readonly rawResponse: GenieStartConversationResponse,
     readonly messageId: string,
     readonly conversationId: string,
     readonly spaceId: string
