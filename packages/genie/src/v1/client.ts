@@ -1,7 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import type {Call, Options} from '@databricks/sdk-databricks/api';
-import {execute} from '@databricks/sdk-databricks/api';
+import {execute, retryOn} from '@databricks/sdk-databricks/api';
 import type {Logger} from '@databricks/sdk-databricks/logger';
 import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
@@ -60,6 +60,7 @@ import type {
   GenieUpdateSpaceRequest,
 } from './model';
 import {
+  MessageStatus_MessageStatus,
   marshalGenieCreateConversationMessageRequestSchema,
   marshalGenieCreateEvalRunRequestSchema,
   marshalGenieCreateMessageCommentRequestSchema,
@@ -1016,20 +1017,184 @@ export class Client {
 
 export class GenieCreateConversationMessageWaiter {
   constructor(
-    // @ts-expect-error TS6138 -- Used by wait and done methods (not yet generated).
     private readonly client: Client,
     readonly messageId: string,
     readonly conversationId: string,
     readonly spaceId: string
   ) {}
+
+  /**
+   * Polls until the operation reaches a terminal state.
+   *
+   * Throws if a failure state is reached.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<GenieMessage> {
+    const errStillRunning = new Error('waiting for completion');
+    let result: GenieMessage | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const pollResp = await this.client.genieGetConversationMessage(
+        callSignal,
+        {
+          messageId: this.messageId,
+          conversationId: this.conversationId,
+          spaceId: this.spaceId,
+        },
+        options
+      );
+
+      const status = pollResp.status;
+      if (status === undefined) {
+        throw new Error('response missing required status field');
+      }
+
+      switch (status) {
+        case MessageStatus_MessageStatus.COMPLETED:
+          result = pollResp;
+          return;
+        case MessageStatus_MessageStatus.FAILED: {
+          const msg = '(no message)';
+          throw new Error(`terminal state ${status}: ${msg}`);
+        }
+        default:
+          throw errStillRunning;
+      }
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('waiting for completion');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has reached a terminal state. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const pollResp = await this.client.genieGetConversationMessage(
+      signal,
+      {
+        messageId: this.messageId,
+        conversationId: this.conversationId,
+        spaceId: this.spaceId,
+      },
+      options
+    );
+
+    const status = pollResp.status;
+    if (status === undefined) {
+      throw new Error('response missing required status field');
+    }
+
+    switch (status) {
+      case MessageStatus_MessageStatus.COMPLETED:
+      case MessageStatus_MessageStatus.FAILED:
+        return true;
+      default:
+        return false;
+    }
+  }
 }
 
 export class GenieStartConversationWaiter {
   constructor(
-    // @ts-expect-error TS6138 -- Used by wait and done methods (not yet generated).
     private readonly client: Client,
     readonly messageId: string,
     readonly conversationId: string,
     readonly spaceId: string
   ) {}
+
+  /**
+   * Polls until the operation reaches a terminal state.
+   *
+   * Throws if a failure state is reached.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<GenieMessage> {
+    const errStillRunning = new Error('waiting for completion');
+    let result: GenieMessage | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const pollResp = await this.client.genieGetConversationMessage(
+        callSignal,
+        {
+          messageId: this.messageId,
+          conversationId: this.conversationId,
+          spaceId: this.spaceId,
+        },
+        options
+      );
+
+      const status = pollResp.status;
+      if (status === undefined) {
+        throw new Error('response missing required status field');
+      }
+
+      switch (status) {
+        case MessageStatus_MessageStatus.COMPLETED:
+          result = pollResp;
+          return;
+        case MessageStatus_MessageStatus.FAILED: {
+          const msg = '(no message)';
+          throw new Error(`terminal state ${status}: ${msg}`);
+        }
+        default:
+          throw errStillRunning;
+      }
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('waiting for completion');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has reached a terminal state. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const pollResp = await this.client.genieGetConversationMessage(
+      signal,
+      {
+        messageId: this.messageId,
+        conversationId: this.conversationId,
+        spaceId: this.spaceId,
+      },
+      options
+    );
+
+    const status = pollResp.status;
+    if (status === undefined) {
+      throw new Error('response missing required status field');
+    }
+
+    switch (status) {
+      case MessageStatus_MessageStatus.COMPLETED:
+      case MessageStatus_MessageStatus.FAILED:
+        return true;
+      default:
+        return false;
+    }
+  }
 }
