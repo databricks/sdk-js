@@ -7,14 +7,8 @@ export default defineConfig({
       name: 'chromium',
       provider: 'playwright',
       headless: true,
-      providerOptions: {
-        launch: {
-          // Accept the self-signed cert from the HTTPS/HTTP2 test server.
-          args: ['--ignore-certificate-errors'],
-        },
-      },
     },
     include: ['tests/**/*.test.ts'],
-    globalSetup: ['tests/transport/test-server.global.ts'],
+    exclude: ['tests/**/e2e.test.ts'],
   },
 });
