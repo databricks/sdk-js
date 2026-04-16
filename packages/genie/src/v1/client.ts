@@ -158,6 +158,37 @@ export class Client {
     return resp;
   }
 
+  async genieCreateConversationMessageWaiter(
+    signal: AbortSignal | undefined,
+    req: GenieCreateConversationMessageRequest,
+    options?: Options
+  ): Promise<GenieCreateConversationMessageWaiter> {
+    const resp = await this.genieCreateConversationMessage(
+      signal,
+      req,
+      options
+    );
+    if (resp.messageId === undefined) {
+      throw new Error(
+        'response field messageId required for polling is missing'
+      );
+    }
+    if (req.conversationId === undefined) {
+      throw new Error(
+        'request field conversationId required for polling is missing'
+      );
+    }
+    if (req.spaceId === undefined) {
+      throw new Error('request field spaceId required for polling is missing');
+    }
+    return new GenieCreateConversationMessageWaiter(
+      this,
+      resp.messageId,
+      req.conversationId,
+      req.spaceId
+    );
+  }
+
   /** Create and run evaluations for multiple benchmark questions in a Genie space. */
   async genieCreateEvalRun(
     signal: AbortSignal | undefined,
@@ -912,6 +943,33 @@ export class Client {
     return resp;
   }
 
+  async genieStartConversationWaiter(
+    signal: AbortSignal | undefined,
+    req: GenieStartConversationMessageRequest,
+    options?: Options
+  ): Promise<GenieStartConversationWaiter> {
+    const resp = await this.genieStartConversation(signal, req, options);
+    if (resp.messageId === undefined) {
+      throw new Error(
+        'response field messageId required for polling is missing'
+      );
+    }
+    if (resp.conversationId === undefined) {
+      throw new Error(
+        'response field conversationId required for polling is missing'
+      );
+    }
+    if (req.spaceId === undefined) {
+      throw new Error('request field spaceId required for polling is missing');
+    }
+    return new GenieStartConversationWaiter(
+      this,
+      resp.messageId,
+      resp.conversationId,
+      req.spaceId
+    );
+  }
+
   /** Move a Genie Space to the trash. */
   async genieTrashSpace(
     signal: AbortSignal | undefined,
@@ -954,4 +1012,24 @@ export class Client {
     }
     return resp;
   }
+}
+
+export class GenieCreateConversationMessageWaiter {
+  constructor(
+    // @ts-expect-error TS6138 -- Used by wait and done methods (not yet generated).
+    private readonly client: Client,
+    readonly messageId: string,
+    readonly conversationId: string,
+    readonly spaceId: string
+  ) {}
+}
+
+export class GenieStartConversationWaiter {
+  constructor(
+    // @ts-expect-error TS6138 -- Used by wait and done methods (not yet generated).
+    private readonly client: Client,
+    readonly messageId: string,
+    readonly conversationId: string,
+    readonly spaceId: string
+  ) {}
 }

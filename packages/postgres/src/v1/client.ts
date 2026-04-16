@@ -596,9 +596,15 @@ export class Client {
     options?: Options
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.purge !== undefined) {
+      params.append('purge', String(req.purge));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
+      const httpReq = buildHttpRequest('DELETE', fullUrl, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,

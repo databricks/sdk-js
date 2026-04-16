@@ -1170,6 +1170,11 @@ export interface DeleteProjectRequest {
    * Format: projects/{project_id}
    */
   name?: string | undefined;
+  /**
+   * If true, permanently deletes the project (hard delete).
+   * If false or unset, performs a soft delete.
+   */
+  purge?: boolean | undefined;
 }
 
 export interface DeleteRoleRequest {
@@ -2699,9 +2704,11 @@ export const unmarshalDeleteProjectRequestSchema: z.ZodType<DeleteProjectRequest
   z
     .object({
       name: z.string().optional(),
+      purge: z.boolean().optional(),
     })
     .transform(d => ({
       name: d.name,
+      purge: d.purge,
     }));
 
 export const unmarshalDeleteRoleRequestSchema: z.ZodType<DeleteRoleRequest> = z
@@ -4189,9 +4196,11 @@ export const marshalDeleteEndpointRequestSchema: z.ZodType = z
 export const marshalDeleteProjectRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
+    purge: z.boolean().optional(),
   })
   .transform(d => ({
     name: d.name,
+    purge: d.purge,
   }));
 
 export const marshalDeleteRoleRequestSchema: z.ZodType = z

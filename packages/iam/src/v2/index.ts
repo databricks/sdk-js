@@ -11,6 +11,7 @@ export {
   WorkspaceAccessDetailView,
   WorkspacePermission,
   WorkspaceAccessDetail_AccessType,
+  WorkspaceIdentityDetail_AssignmentType,
 } from './model';
 
 export type {
@@ -51,6 +52,7 @@ export type {
   GetWorkspaceAccessDetailRequest,
   GetWorkspaceAssignmentDetailProxyRequest,
   GetWorkspaceAssignmentDetailRequest,
+  GetWorkspaceIdentityDetailRequest,
   Group,
   ListAccountAccessIdentityRulesRequest,
   ListAccountAccessIdentityRulesResponse,
@@ -94,8 +96,10 @@ export type {
   UpdateUserRequest,
   UpdateWorkspaceAssignmentDetailProxyRequest,
   UpdateWorkspaceAssignmentDetailRequest,
+  UpdateWorkspaceIdentityDetailRequest,
   User,
   User_Name,
   WorkspaceAccessDetail,
   WorkspaceAssignmentDetail,
+  WorkspaceIdentityDetail,
 } from './model';
