@@ -7,12 +7,7 @@ import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-databricks/transport';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {
-  buildHttpRequest,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import type {
   CreateTagAssignmentRequest,
   DeleteTagAssignmentRequest,
@@ -43,21 +38,13 @@ export class Client {
   }
 
   /** Create a tag assignment */
-  async createTagAssignment(
-    signal: AbortSignal | undefined,
-    req: CreateTagAssignmentRequest,
-    options?: Options
-  ): Promise<TagAssignment> {
+  async createTagAssignment(signal: AbortSignal | undefined, req: CreateTagAssignmentRequest, options?: Options): Promise<TagAssignment> {
     const url = `${this.host}/api/2.0/entity-tag-assignments`;
     const body = marshalRequest(req.tagAssignment, marshalTagAssignmentSchema);
     let resp: TagAssignment | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalTagAssignmentSchema);
     };
     await execute(signal, call, options);
@@ -68,38 +55,22 @@ export class Client {
   }
 
   /** Delete a tag assignment */
-  async deleteTagAssignment(
-    signal: AbortSignal | undefined,
-    req: DeleteTagAssignmentRequest,
-    options?: Options
-  ): Promise<void> {
+  async deleteTagAssignment(signal: AbortSignal | undefined, req: DeleteTagAssignmentRequest, options?: Options): Promise<void> {
     const url = `${this.host}/api/2.0/entity-tag-assignments/${req.entityType ?? ''}/${req.entityId ?? ''}/tags/${req.tagKey ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('DELETE', url, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await execute(signal, call, options);
   }
 
   /** Get a tag assignment */
-  async getTagAssignment(
-    signal: AbortSignal | undefined,
-    req: GetTagAssignmentRequest,
-    options?: Options
-  ): Promise<TagAssignment> {
+  async getTagAssignment(signal: AbortSignal | undefined, req: GetTagAssignmentRequest, options?: Options): Promise<TagAssignment> {
     const url = `${this.host}/api/2.0/entity-tag-assignments/${req.entityType ?? ''}/${req.entityId ?? ''}/tags/${req.tagKey ?? ''}`;
     let resp: TagAssignment | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalTagAssignmentSchema);
     };
     await execute(signal, call, options);
@@ -110,11 +81,7 @@ export class Client {
   }
 
   /** List the tag assignments for an entity */
-  async listTagAssignments(
-    signal: AbortSignal | undefined,
-    req: ListTagAssignmentsRequest,
-    options?: Options
-  ): Promise<ListTagAssignmentsResponse> {
+  async listTagAssignments(signal: AbortSignal | undefined, req: ListTagAssignmentsRequest, options?: Options): Promise<ListTagAssignmentsResponse> {
     const url = `${this.host}/api/2.0/entity-tag-assignments/${req.entityType ?? ''}/${req.entityId ?? ''}/tags`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -128,11 +95,7 @@ export class Client {
     let resp: ListTagAssignmentsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListTagAssignmentsResponseSchema);
     };
     await execute(signal, call, options);
@@ -142,11 +105,8 @@ export class Client {
     return resp;
   }
 
-  async *listTagAssignmentsIter(
-    signal: AbortSignal | undefined,
-    req: ListTagAssignmentsRequest,
-    options?: Options
-  ): AsyncGenerator<TagAssignment> {
+
+  async *listTagAssignmentsIter(signal: AbortSignal | undefined, req: ListTagAssignmentsRequest, options?: Options): AsyncGenerator<TagAssignment> {
     const pageReq: ListTagAssignmentsRequest = {...req};
     for (;;) {
       const resp = await this.listTagAssignments(signal, pageReq, options);
@@ -160,16 +120,13 @@ export class Client {
     }
   }
 
+
   /** Update a tag assignment */
-  async updateTagAssignment(
-    signal: AbortSignal | undefined,
-    req: UpdateTagAssignmentRequest,
-    options?: Options
-  ): Promise<TagAssignment> {
+  async updateTagAssignment(signal: AbortSignal | undefined, req: UpdateTagAssignmentRequest, options?: Options): Promise<TagAssignment> {
     const url = `${this.host}/api/2.0/entity-tag-assignments/${req.tagAssignment?.entityType ?? ''}/${req.tagAssignment?.entityId ?? ''}/tags/${req.tagAssignment?.tagKey ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
-      params.append('update_mask', req.updateMask);
+      params.append('update_mask', req.updateMask.paths.join(','));
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -177,11 +134,7 @@ export class Client {
     let resp: TagAssignment | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalTagAssignmentSchema);
     };
     await execute(signal, call, options);

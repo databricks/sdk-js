@@ -7,12 +7,7 @@ import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-databricks/transport';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {
-  buildHttpRequest,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import type {
   Alert,
   CreateAlertRequest,
@@ -45,21 +40,13 @@ export class Client {
   }
 
   /** Create Alert */
-  async createAlert(
-    signal: AbortSignal | undefined,
-    req: CreateAlertRequest,
-    options?: Options
-  ): Promise<Alert> {
+  async createAlert(signal: AbortSignal | undefined, req: CreateAlertRequest, options?: Options): Promise<Alert> {
     const url = `${this.host}/api/2.0/alerts`;
     const body = marshalRequest(req.alert, marshalAlertSchema);
     let resp: Alert | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalAlertSchema);
     };
     await execute(signal, call, options);
@@ -70,20 +57,12 @@ export class Client {
   }
 
   /** Gets an alert. */
-  async getAlert(
-    signal: AbortSignal | undefined,
-    req: GetAlertRequest,
-    options?: Options
-  ): Promise<Alert> {
+  async getAlert(signal: AbortSignal | undefined, req: GetAlertRequest, options?: Options): Promise<Alert> {
     const url = `${this.host}/api/2.0/alerts/${req.id ?? ''}`;
     let resp: Alert | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalAlertSchema);
     };
     await execute(signal, call, options);
@@ -94,11 +73,7 @@ export class Client {
   }
 
   /** Gets a list of alerts accessible to the user, ordered by creation time. */
-  async listAlerts(
-    signal: AbortSignal | undefined,
-    req: ListAlertsRequest,
-    options?: Options
-  ): Promise<ListAlertsResponse> {
+  async listAlerts(signal: AbortSignal | undefined, req: ListAlertsRequest, options?: Options): Promise<ListAlertsResponse> {
     const url = `${this.host}/api/2.0/alerts`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -112,11 +87,7 @@ export class Client {
     let resp: ListAlertsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListAlertsResponseSchema);
     };
     await execute(signal, call, options);
@@ -126,11 +97,8 @@ export class Client {
     return resp;
   }
 
-  async *listAlertsIter(
-    signal: AbortSignal | undefined,
-    req: ListAlertsRequest,
-    options?: Options
-  ): AsyncGenerator<Alert> {
+
+  async *listAlertsIter(signal: AbortSignal | undefined, req: ListAlertsRequest, options?: Options): AsyncGenerator<Alert> {
     const pageReq: ListAlertsRequest = {...req};
     for (;;) {
       const resp = await this.listAlerts(signal, pageReq, options);
@@ -144,12 +112,9 @@ export class Client {
     }
   }
 
+
   /** Moves an alert to the trash. Trashed alerts immediately disappear from list views, and can no longer trigger. You can restore a trashed alert through the UI. A trashed alert is permanently deleted after 30 days. */
-  async trashAlert(
-    signal: AbortSignal | undefined,
-    req: TrashAlertRequest,
-    options?: Options
-  ): Promise<Empty> {
+  async trashAlert(signal: AbortSignal | undefined, req: TrashAlertRequest, options?: Options): Promise<Empty> {
     const url = `${this.host}/api/2.0/alerts/${req.id ?? ''}`;
     const params = new URLSearchParams();
     if (req.purge !== undefined) {
@@ -160,11 +125,7 @@ export class Client {
     let resp: Empty | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('DELETE', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalEmptySchema);
     };
     await execute(signal, call, options);
@@ -175,15 +136,11 @@ export class Client {
   }
 
   /** Update alert */
-  async updateAlert(
-    signal: AbortSignal | undefined,
-    req: UpdateAlertRequest,
-    options?: Options
-  ): Promise<Alert> {
+  async updateAlert(signal: AbortSignal | undefined, req: UpdateAlertRequest, options?: Options): Promise<Alert> {
     const url = `${this.host}/api/2.0/alerts/${req.alert?.id ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
-      params.append('update_mask', req.updateMask);
+      params.append('update_mask', req.updateMask.paths.join(','));
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -191,11 +148,7 @@ export class Client {
     let resp: Alert | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalAlertSchema);
     };
     await execute(signal, call, options);

@@ -1,6 +1,8 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+
 import {Temporal} from '@js-temporal/polyfill';
+import {FieldMask, type FieldPaths} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum DatePrecision {
@@ -276,7 +278,7 @@ export interface TrashQueryRequest {
 
 export interface UpdateQueryRequest {
   query?: UpdateQueryRequestQuery | undefined;
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<FieldPaths<UpdateQueryRequestQuery>> | undefined;
   id?: string | undefined;
   /** If true, automatically resolve alert display name conflicts. Otherwise, fail the request if the alert's display name conflicts with an existing alert's display name. */
   autoResolveDisplayName?: boolean | undefined;
@@ -337,65 +339,55 @@ export interface Visualization {
   queryId?: string | undefined;
 }
 
-export const unmarshalCreateQueryRequestSchema: z.ZodType<CreateQueryRequest> =
-  z
-    .object({
-      query: z.lazy(() => unmarshalCreateQueryRequestQuerySchema).optional(),
-      auto_resolve_display_name: z.boolean().optional(),
-    })
-    .transform(d => ({
-      query: d.query,
-      autoResolveDisplayName: d.auto_resolve_display_name,
-    }));
+export const unmarshalCreateQueryRequestSchema: z.ZodType<CreateQueryRequest> = z
+  .object({
+    query: z.lazy(() => unmarshalCreateQueryRequestQuerySchema).optional(),
+    auto_resolve_display_name: z.boolean().optional(),
+  })
+  .transform(d => ({
+    query: d.query,
+    autoResolveDisplayName: d.auto_resolve_display_name,
+  }));
 
-export const unmarshalCreateQueryRequestQuerySchema: z.ZodType<CreateQueryRequestQuery> =
-  z
-    .object({
-      id: z.string().optional(),
-      display_name: z.string().optional(),
-      description: z.string().optional(),
-      owner_user_name: z.string().optional(),
-      warehouse_id: z.string().optional(),
-      query_text: z.string().optional(),
-      run_as_mode: z.enum(RunAsMode).optional(),
-      lifecycle_state: z.enum(LifecycleState).optional(),
-      last_modifier_user_name: z.string().optional(),
-      parent_path: z.string().optional(),
-      tags: z.array(z.string()).optional(),
-      create_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      update_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      parameters: z
-        .array(z.lazy(() => unmarshalQueryParameterSchema))
-        .optional(),
-      apply_auto_limit: z.boolean().optional(),
-      catalog: z.string().optional(),
-      schema: z.string().optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      displayName: d.display_name,
-      description: d.description,
-      ownerUserName: d.owner_user_name,
-      warehouseId: d.warehouse_id,
-      queryText: d.query_text,
-      runAsMode: d.run_as_mode,
-      lifecycleState: d.lifecycle_state,
-      lastModifierUserName: d.last_modifier_user_name,
-      parentPath: d.parent_path,
-      tags: d.tags,
-      createTime: d.create_time,
-      updateTime: d.update_time,
-      parameters: d.parameters,
-      applyAutoLimit: d.apply_auto_limit,
-      catalog: d.catalog,
-      schema: d.schema,
-    }));
+export const unmarshalCreateQueryRequestQuerySchema: z.ZodType<CreateQueryRequestQuery> = z
+  .object({
+    id: z.string().optional(),
+    display_name: z.string().optional(),
+    description: z.string().optional(),
+    owner_user_name: z.string().optional(),
+    warehouse_id: z.string().optional(),
+    query_text: z.string().optional(),
+    run_as_mode: z.enum(RunAsMode).optional(),
+    lifecycle_state: z.enum(LifecycleState).optional(),
+    last_modifier_user_name: z.string().optional(),
+    parent_path: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    parameters: z.array(z.lazy(() => unmarshalQueryParameterSchema)).optional(),
+    apply_auto_limit: z.boolean().optional(),
+    catalog: z.string().optional(),
+    schema: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    displayName: d.display_name,
+    description: d.description,
+    ownerUserName: d.owner_user_name,
+    warehouseId: d.warehouse_id,
+    queryText: d.query_text,
+    runAsMode: d.run_as_mode,
+    lifecycleState: d.lifecycle_state,
+    lastModifierUserName: d.last_modifier_user_name,
+    parentPath: d.parent_path,
+    tags: d.tags,
+    createTime: d.create_time,
+    updateTime: d.update_time,
+    parameters: d.parameters,
+    applyAutoLimit: d.apply_auto_limit,
+    catalog: d.catalog,
+    schema: d.schema,
+  }));
 
 export const unmarshalDateRangeSchema: z.ZodType<DateRange> = z
   .object({
@@ -409,9 +401,7 @@ export const unmarshalDateRangeSchema: z.ZodType<DateRange> = z
 
 export const unmarshalDateRangeValueSchema: z.ZodType<DateRangeValue> = z
   .object({
-    dynamic_date_range_value: z
-      .enum(DateRangeValue_DynamicDateRange)
-      .optional(),
+    dynamic_date_range_value: z.enum(DateRangeValue_DynamicDateRange).optional(),
     date_range_value: z.lazy(() => unmarshalDateRangeSchema).optional(),
     precision: z.enum(DatePrecision).optional(),
     start_day_of_week: z.number().optional(),
@@ -435,15 +425,15 @@ export const unmarshalDateValueSchema: z.ZodType<DateValue> = z
     precision: d.precision,
   }));
 
-export const unmarshalEmptySchema: z.ZodType<Empty> = z.object({});
+export const unmarshalEmptySchema: z.ZodType<Empty> = z
+  .object({
+  });
 
 export const unmarshalEnumValueSchema: z.ZodType<EnumValue> = z
   .object({
     values: z.array(z.string()).optional(),
     enum_options: z.string().optional(),
-    multi_values_options: z
-      .lazy(() => unmarshalMultiValuesOptionsSchema)
-      .optional(),
+    multi_values_options: z.lazy(() => unmarshalMultiValuesOptionsSchema).optional(),
   })
   .transform(d => ({
     values: d.values,
@@ -459,115 +449,99 @@ export const unmarshalGetQueryRequestSchema: z.ZodType<GetQueryRequest> = z
     id: d.id,
   }));
 
-export const unmarshalListQueriesRequestSchema: z.ZodType<ListQueriesRequest> =
-  z
-    .object({
-      page_token: z.string().optional(),
-      page_size: z.number().optional(),
-    })
-    .transform(d => ({
-      pageToken: d.page_token,
-      pageSize: d.page_size,
-    }));
+export const unmarshalListQueriesRequestSchema: z.ZodType<ListQueriesRequest> = z
+  .object({
+    page_token: z.string().optional(),
+    page_size: z.number().optional(),
+  })
+  .transform(d => ({
+    pageToken: d.page_token,
+    pageSize: d.page_size,
+  }));
 
-export const unmarshalListQueriesResponseSchema: z.ZodType<ListQueriesResponse> =
-  z
-    .object({
-      results: z
-        .array(z.lazy(() => unmarshalListQueryObjectsResponseQuerySchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      results: d.results,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListQueriesResponseSchema: z.ZodType<ListQueriesResponse> = z
+  .object({
+    results: z.array(z.lazy(() => unmarshalListQueryObjectsResponseQuerySchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    results: d.results,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListQueryObjectsResponseQuerySchema: z.ZodType<ListQueryObjectsResponseQuery> =
-  z
-    .object({
-      id: z.string().optional(),
-      display_name: z.string().optional(),
-      description: z.string().optional(),
-      owner_user_name: z.string().optional(),
-      warehouse_id: z.string().optional(),
-      query_text: z.string().optional(),
-      run_as_mode: z.enum(RunAsMode).optional(),
-      lifecycle_state: z.enum(LifecycleState).optional(),
-      last_modifier_user_name: z.string().optional(),
-      parent_path: z.string().optional(),
-      tags: z.array(z.string()).optional(),
-      create_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      update_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      parameters: z
-        .array(z.lazy(() => unmarshalQueryParameterSchema))
-        .optional(),
-      apply_auto_limit: z.boolean().optional(),
-      catalog: z.string().optional(),
-      schema: z.string().optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      displayName: d.display_name,
-      description: d.description,
-      ownerUserName: d.owner_user_name,
-      warehouseId: d.warehouse_id,
-      queryText: d.query_text,
-      runAsMode: d.run_as_mode,
-      lifecycleState: d.lifecycle_state,
-      lastModifierUserName: d.last_modifier_user_name,
-      parentPath: d.parent_path,
-      tags: d.tags,
-      createTime: d.create_time,
-      updateTime: d.update_time,
-      parameters: d.parameters,
-      applyAutoLimit: d.apply_auto_limit,
-      catalog: d.catalog,
-      schema: d.schema,
-    }));
+export const unmarshalListQueryObjectsResponseQuerySchema: z.ZodType<ListQueryObjectsResponseQuery> = z
+  .object({
+    id: z.string().optional(),
+    display_name: z.string().optional(),
+    description: z.string().optional(),
+    owner_user_name: z.string().optional(),
+    warehouse_id: z.string().optional(),
+    query_text: z.string().optional(),
+    run_as_mode: z.enum(RunAsMode).optional(),
+    lifecycle_state: z.enum(LifecycleState).optional(),
+    last_modifier_user_name: z.string().optional(),
+    parent_path: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    parameters: z.array(z.lazy(() => unmarshalQueryParameterSchema)).optional(),
+    apply_auto_limit: z.boolean().optional(),
+    catalog: z.string().optional(),
+    schema: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    displayName: d.display_name,
+    description: d.description,
+    ownerUserName: d.owner_user_name,
+    warehouseId: d.warehouse_id,
+    queryText: d.query_text,
+    runAsMode: d.run_as_mode,
+    lifecycleState: d.lifecycle_state,
+    lastModifierUserName: d.last_modifier_user_name,
+    parentPath: d.parent_path,
+    tags: d.tags,
+    createTime: d.create_time,
+    updateTime: d.update_time,
+    parameters: d.parameters,
+    applyAutoLimit: d.apply_auto_limit,
+    catalog: d.catalog,
+    schema: d.schema,
+  }));
 
-export const unmarshalListVisualizationsForQueryRequestSchema: z.ZodType<ListVisualizationsForQueryRequest> =
-  z
-    .object({
-      id: z.string().optional(),
-      page_token: z.string().optional(),
-      page_size: z.number().optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      pageToken: d.page_token,
-      pageSize: d.page_size,
-    }));
+export const unmarshalListVisualizationsForQueryRequestSchema: z.ZodType<ListVisualizationsForQueryRequest> = z
+  .object({
+    id: z.string().optional(),
+    page_token: z.string().optional(),
+    page_size: z.number().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    pageToken: d.page_token,
+    pageSize: d.page_size,
+  }));
 
-export const unmarshalListVisualizationsForQueryResponseSchema: z.ZodType<ListVisualizationsForQueryResponse> =
-  z
-    .object({
-      results: z.array(z.lazy(() => unmarshalVisualizationSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      results: d.results,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListVisualizationsForQueryResponseSchema: z.ZodType<ListVisualizationsForQueryResponse> = z
+  .object({
+    results: z.array(z.lazy(() => unmarshalVisualizationSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    results: d.results,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalMultiValuesOptionsSchema: z.ZodType<MultiValuesOptions> =
-  z
-    .object({
-      prefix: z.string().optional(),
-      separator: z.string().optional(),
-      suffix: z.string().optional(),
-    })
-    .transform(d => ({
-      prefix: d.prefix,
-      separator: d.separator,
-      suffix: d.suffix,
-    }));
+export const unmarshalMultiValuesOptionsSchema: z.ZodType<MultiValuesOptions> = z
+  .object({
+    prefix: z.string().optional(),
+    separator: z.string().optional(),
+    suffix: z.string().optional(),
+  })
+  .transform(d => ({
+    prefix: d.prefix,
+    separator: d.separator,
+    suffix: d.suffix,
+  }));
 
 export const unmarshalNumericValueSchema: z.ZodType<NumericValue> = z
   .object({
@@ -590,14 +564,8 @@ export const unmarshalQuerySchema: z.ZodType<Query> = z
     last_modifier_user_name: z.string().optional(),
     parent_path: z.string().optional(),
     tags: z.array(z.string()).optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     parameters: z.array(z.lazy(() => unmarshalQueryParameterSchema)).optional(),
     apply_auto_limit: z.boolean().optional(),
     catalog: z.string().optional(),
@@ -627,9 +595,7 @@ export const unmarshalQueryBackedValueSchema: z.ZodType<QueryBackedValue> = z
   .object({
     values: z.array(z.string()).optional(),
     query_id: z.string().optional(),
-    multi_values_options: z
-      .lazy(() => unmarshalMultiValuesOptionsSchema)
-      .optional(),
+    multi_values_options: z.lazy(() => unmarshalMultiValuesOptionsSchema).optional(),
   })
   .transform(d => ({
     values: d.values,
@@ -646,9 +612,7 @@ export const unmarshalQueryParameterSchema: z.ZodType<QueryParameter> = z
     enum_value: z.lazy(() => unmarshalEnumValueSchema).optional(),
     date_value: z.lazy(() => unmarshalDateValueSchema).optional(),
     date_range_value: z.lazy(() => unmarshalDateRangeValueSchema).optional(),
-    query_backed_value: z
-      .lazy(() => unmarshalQueryBackedValueSchema)
-      .optional(),
+    query_backed_value: z.lazy(() => unmarshalQueryBackedValueSchema).optional(),
   })
   .transform(d => ({
     title: d.title,
@@ -677,83 +641,67 @@ export const unmarshalTrashQueryRequestSchema: z.ZodType<TrashQueryRequest> = z
     id: d.id,
   }));
 
-export const unmarshalUpdateQueryRequestSchema: z.ZodType<UpdateQueryRequest> =
-  z
-    .object({
-      query: z.lazy(() => unmarshalUpdateQueryRequestQuerySchema).optional(),
-      update_mask: z.string().optional(),
-      id: z.string().optional(),
-      auto_resolve_display_name: z.boolean().optional(),
-    })
-    .transform(d => ({
-      query: d.query,
-      updateMask: d.update_mask,
-      id: d.id,
-      autoResolveDisplayName: d.auto_resolve_display_name,
-    }));
+export const unmarshalUpdateQueryRequestSchema: z.ZodType<UpdateQueryRequest> = z
+  .object({
+    query: z.lazy(() => unmarshalUpdateQueryRequestQuerySchema).optional(),
+    update_mask: z.string().transform(s => FieldMask.of(...(s === '' ? [] : s.split(','))) as FieldMask<FieldPaths<UpdateQueryRequestQuery>>).optional(),
+    id: z.string().optional(),
+    auto_resolve_display_name: z.boolean().optional(),
+  })
+  .transform(d => ({
+    query: d.query,
+    updateMask: d.update_mask,
+    id: d.id,
+    autoResolveDisplayName: d.auto_resolve_display_name,
+  }));
 
-export const unmarshalUpdateQueryRequestQuerySchema: z.ZodType<UpdateQueryRequestQuery> =
-  z
-    .object({
-      id: z.string().optional(),
-      display_name: z.string().optional(),
-      description: z.string().optional(),
-      owner_user_name: z.string().optional(),
-      warehouse_id: z.string().optional(),
-      query_text: z.string().optional(),
-      run_as_mode: z.enum(RunAsMode).optional(),
-      lifecycle_state: z.enum(LifecycleState).optional(),
-      last_modifier_user_name: z.string().optional(),
-      parent_path: z.string().optional(),
-      tags: z.array(z.string()).optional(),
-      create_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      update_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      parameters: z
-        .array(z.lazy(() => unmarshalQueryParameterSchema))
-        .optional(),
-      apply_auto_limit: z.boolean().optional(),
-      catalog: z.string().optional(),
-      schema: z.string().optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      displayName: d.display_name,
-      description: d.description,
-      ownerUserName: d.owner_user_name,
-      warehouseId: d.warehouse_id,
-      queryText: d.query_text,
-      runAsMode: d.run_as_mode,
-      lifecycleState: d.lifecycle_state,
-      lastModifierUserName: d.last_modifier_user_name,
-      parentPath: d.parent_path,
-      tags: d.tags,
-      createTime: d.create_time,
-      updateTime: d.update_time,
-      parameters: d.parameters,
-      applyAutoLimit: d.apply_auto_limit,
-      catalog: d.catalog,
-      schema: d.schema,
-    }));
+export const unmarshalUpdateQueryRequestQuerySchema: z.ZodType<UpdateQueryRequestQuery> = z
+  .object({
+    id: z.string().optional(),
+    display_name: z.string().optional(),
+    description: z.string().optional(),
+    owner_user_name: z.string().optional(),
+    warehouse_id: z.string().optional(),
+    query_text: z.string().optional(),
+    run_as_mode: z.enum(RunAsMode).optional(),
+    lifecycle_state: z.enum(LifecycleState).optional(),
+    last_modifier_user_name: z.string().optional(),
+    parent_path: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    parameters: z.array(z.lazy(() => unmarshalQueryParameterSchema)).optional(),
+    apply_auto_limit: z.boolean().optional(),
+    catalog: z.string().optional(),
+    schema: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    displayName: d.display_name,
+    description: d.description,
+    ownerUserName: d.owner_user_name,
+    warehouseId: d.warehouse_id,
+    queryText: d.query_text,
+    runAsMode: d.run_as_mode,
+    lifecycleState: d.lifecycle_state,
+    lastModifierUserName: d.last_modifier_user_name,
+    parentPath: d.parent_path,
+    tags: d.tags,
+    createTime: d.create_time,
+    updateTime: d.update_time,
+    parameters: d.parameters,
+    applyAutoLimit: d.apply_auto_limit,
+    catalog: d.catalog,
+    schema: d.schema,
+  }));
 
 export const unmarshalVisualizationSchema: z.ZodType<Visualization> = z
   .object({
     id: z.string().optional(),
     display_name: z.string().optional(),
     type: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     serialized_query_plan: z.string().optional(),
     serialized_options: z.string().optional(),
     query_id: z.string().optional(),
@@ -792,14 +740,8 @@ export const marshalCreateQueryRequestQuerySchema: z.ZodType = z
     lastModifierUserName: z.string().optional(),
     parentPath: z.string().optional(),
     tags: z.array(z.string()).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     parameters: z.array(z.lazy(() => marshalQueryParameterSchema)).optional(),
     applyAutoLimit: z.boolean().optional(),
     catalog: z.string().optional(),
@@ -861,15 +803,15 @@ export const marshalDateValueSchema: z.ZodType = z
     precision: d.precision,
   }));
 
-export const marshalEmptySchema: z.ZodType = z.object({});
+export const marshalEmptySchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalEnumValueSchema: z.ZodType = z
   .object({
     values: z.array(z.string()).optional(),
     enumOptions: z.string().optional(),
-    multiValuesOptions: z
-      .lazy(() => marshalMultiValuesOptionsSchema)
-      .optional(),
+    multiValuesOptions: z.lazy(() => marshalMultiValuesOptionsSchema).optional(),
   })
   .transform(d => ({
     values: d.values,
@@ -897,9 +839,7 @@ export const marshalListQueriesRequestSchema: z.ZodType = z
 
 export const marshalListQueriesResponseSchema: z.ZodType = z
   .object({
-    results: z
-      .array(z.lazy(() => marshalListQueryObjectsResponseQuerySchema))
-      .optional(),
+    results: z.array(z.lazy(() => marshalListQueryObjectsResponseQuerySchema)).optional(),
     nextPageToken: z.string().optional(),
   })
   .transform(d => ({
@@ -920,14 +860,8 @@ export const marshalListQueryObjectsResponseQuerySchema: z.ZodType = z
     lastModifierUserName: z.string().optional(),
     parentPath: z.string().optional(),
     tags: z.array(z.string()).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     parameters: z.array(z.lazy(() => marshalQueryParameterSchema)).optional(),
     applyAutoLimit: z.boolean().optional(),
     catalog: z.string().optional(),
@@ -1008,14 +942,8 @@ export const marshalQuerySchema: z.ZodType = z
     lastModifierUserName: z.string().optional(),
     parentPath: z.string().optional(),
     tags: z.array(z.string()).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     parameters: z.array(z.lazy(() => marshalQueryParameterSchema)).optional(),
     applyAutoLimit: z.boolean().optional(),
     catalog: z.string().optional(),
@@ -1045,9 +973,7 @@ export const marshalQueryBackedValueSchema: z.ZodType = z
   .object({
     values: z.array(z.string()).optional(),
     queryId: z.string().optional(),
-    multiValuesOptions: z
-      .lazy(() => marshalMultiValuesOptionsSchema)
-      .optional(),
+    multiValuesOptions: z.lazy(() => marshalMultiValuesOptionsSchema).optional(),
   })
   .transform(d => ({
     values: d.values,
@@ -1096,7 +1022,7 @@ export const marshalTrashQueryRequestSchema: z.ZodType = z
 export const marshalUpdateQueryRequestSchema: z.ZodType = z
   .object({
     query: z.lazy(() => marshalUpdateQueryRequestQuerySchema).optional(),
-    updateMask: z.string().optional(),
+    updateMask: z.any().transform((d: FieldMask<FieldPaths<UpdateQueryRequestQuery>>) => d.paths.join(',')).optional(),
     id: z.string().optional(),
     autoResolveDisplayName: z.boolean().optional(),
   })
@@ -1120,14 +1046,8 @@ export const marshalUpdateQueryRequestQuerySchema: z.ZodType = z
     lastModifierUserName: z.string().optional(),
     parentPath: z.string().optional(),
     tags: z.array(z.string()).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     parameters: z.array(z.lazy(() => marshalQueryParameterSchema)).optional(),
     applyAutoLimit: z.boolean().optional(),
     catalog: z.string().optional(),
@@ -1158,14 +1078,8 @@ export const marshalVisualizationSchema: z.ZodType = z
     id: z.string().optional(),
     displayName: z.string().optional(),
     type: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     serializedQueryPlan: z.string().optional(),
     serializedOptions: z.string().optional(),
     queryId: z.string().optional(),

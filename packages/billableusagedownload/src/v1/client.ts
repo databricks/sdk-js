@@ -8,8 +8,13 @@ import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-databricks/transport';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {buildHttpRequest, executeHttpCall, parseResponse} from './utils';
-import type {DownloadRequest, DownloadResponse} from './model';
-import {unmarshalDownloadResponseSchema} from './model';
+import type {
+  DownloadRequest,
+  DownloadResponse,
+} from './model';
+import {
+  unmarshalDownloadResponseSchema,
+} from './model';
 
 export class Client {
   private readonly host: string;
@@ -28,22 +33,18 @@ export class Client {
   /**
    * Returns billable usage logs in CSV format for the specified account and date range.
    * For the data schema, see:
-   *
+   * 
    * - AWS: [CSV file schema](https://docs.databricks.com/administration-guide/account-settings/usage-analysis.html#schema).
    * - GCP: [CSV file schema](https://docs.gcp.databricks.com/administration-guide/account-settings/usage-analysis.html#csv-file-schema).
-   *
+   * 
    * Note that this method might take multiple minutes to complete.
-   *
+   * 
    * **Warning**: Depending on the queried date range, the number of workspaces
    * in the account, the size of the response and the internet speed of the caller,
    * this API may hit a timeout after a few minutes. If you experience this, try to mitigate
    * by calling the API with narrower date ranges.
    */
-  async download(
-    signal: AbortSignal | undefined,
-    req: DownloadRequest,
-    options?: Options
-  ): Promise<DownloadResponse> {
+  async download(signal: AbortSignal | undefined, req: DownloadRequest, options?: Options): Promise<DownloadResponse> {
     const url = `${this.host}/api/2.0/accounts/{account_id}/usage/download`;
     const params = new URLSearchParams();
     if (req.accountId !== undefined) {
@@ -63,11 +64,7 @@ export class Client {
     let resp: DownloadResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDownloadResponseSchema);
     };
     await execute(signal, call, options);

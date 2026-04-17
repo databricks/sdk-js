@@ -1,5 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask, type FieldPaths} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export interface CreateTagAssignmentRequest {
@@ -54,71 +55,64 @@ export interface TagAssignment {
 
 export interface UpdateTagAssignmentRequest {
   tagAssignment?: TagAssignment | undefined;
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<FieldPaths<TagAssignment>> | undefined;
 }
 
-export const unmarshalCreateTagAssignmentRequestSchema: z.ZodType<CreateTagAssignmentRequest> =
-  z
-    .object({
-      tag_assignment: z.lazy(() => unmarshalTagAssignmentSchema).optional(),
-    })
-    .transform(d => ({
-      tagAssignment: d.tag_assignment,
-    }));
+export const unmarshalCreateTagAssignmentRequestSchema: z.ZodType<CreateTagAssignmentRequest> = z
+  .object({
+    tag_assignment: z.lazy(() => unmarshalTagAssignmentSchema).optional(),
+  })
+  .transform(d => ({
+    tagAssignment: d.tag_assignment,
+  }));
 
-export const unmarshalDeleteTagAssignmentRequestSchema: z.ZodType<DeleteTagAssignmentRequest> =
-  z
-    .object({
-      entity_type: z.string().optional(),
-      entity_id: z.string().optional(),
-      tag_key: z.string().optional(),
-    })
-    .transform(d => ({
-      entityType: d.entity_type,
-      entityId: d.entity_id,
-      tagKey: d.tag_key,
-    }));
+export const unmarshalDeleteTagAssignmentRequestSchema: z.ZodType<DeleteTagAssignmentRequest> = z
+  .object({
+    entity_type: z.string().optional(),
+    entity_id: z.string().optional(),
+    tag_key: z.string().optional(),
+  })
+  .transform(d => ({
+    entityType: d.entity_type,
+    entityId: d.entity_id,
+    tagKey: d.tag_key,
+  }));
 
-export const unmarshalGetTagAssignmentRequestSchema: z.ZodType<GetTagAssignmentRequest> =
-  z
-    .object({
-      entity_type: z.string().optional(),
-      entity_id: z.string().optional(),
-      tag_key: z.string().optional(),
-    })
-    .transform(d => ({
-      entityType: d.entity_type,
-      entityId: d.entity_id,
-      tagKey: d.tag_key,
-    }));
+export const unmarshalGetTagAssignmentRequestSchema: z.ZodType<GetTagAssignmentRequest> = z
+  .object({
+    entity_type: z.string().optional(),
+    entity_id: z.string().optional(),
+    tag_key: z.string().optional(),
+  })
+  .transform(d => ({
+    entityType: d.entity_type,
+    entityId: d.entity_id,
+    tagKey: d.tag_key,
+  }));
 
-export const unmarshalListTagAssignmentsRequestSchema: z.ZodType<ListTagAssignmentsRequest> =
-  z
-    .object({
-      entity_type: z.string().optional(),
-      entity_id: z.string().optional(),
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      entityType: d.entity_type,
-      entityId: d.entity_id,
-      pageSize: d.page_size,
-      pageToken: d.page_token,
-    }));
+export const unmarshalListTagAssignmentsRequestSchema: z.ZodType<ListTagAssignmentsRequest> = z
+  .object({
+    entity_type: z.string().optional(),
+    entity_id: z.string().optional(),
+    page_size: z.number().optional(),
+    page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    entityType: d.entity_type,
+    entityId: d.entity_id,
+    pageSize: d.page_size,
+    pageToken: d.page_token,
+  }));
 
-export const unmarshalListTagAssignmentsResponseSchema: z.ZodType<ListTagAssignmentsResponse> =
-  z
-    .object({
-      tag_assignments: z
-        .array(z.lazy(() => unmarshalTagAssignmentSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      tagAssignments: d.tag_assignments,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListTagAssignmentsResponseSchema: z.ZodType<ListTagAssignmentsResponse> = z
+  .object({
+    tag_assignments: z.array(z.lazy(() => unmarshalTagAssignmentSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    tagAssignments: d.tag_assignments,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalTagAssignmentSchema: z.ZodType<TagAssignment> = z
   .object({
@@ -134,16 +128,15 @@ export const unmarshalTagAssignmentSchema: z.ZodType<TagAssignment> = z
     tagValue: d.tag_value,
   }));
 
-export const unmarshalUpdateTagAssignmentRequestSchema: z.ZodType<UpdateTagAssignmentRequest> =
-  z
-    .object({
-      tag_assignment: z.lazy(() => unmarshalTagAssignmentSchema).optional(),
-      update_mask: z.string().optional(),
-    })
-    .transform(d => ({
-      tagAssignment: d.tag_assignment,
-      updateMask: d.update_mask,
-    }));
+export const unmarshalUpdateTagAssignmentRequestSchema: z.ZodType<UpdateTagAssignmentRequest> = z
+  .object({
+    tag_assignment: z.lazy(() => unmarshalTagAssignmentSchema).optional(),
+    update_mask: z.string().transform(s => FieldMask.of(...(s === '' ? [] : s.split(','))) as FieldMask<FieldPaths<TagAssignment>>).optional(),
+  })
+  .transform(d => ({
+    tagAssignment: d.tag_assignment,
+    updateMask: d.update_mask,
+  }));
 
 export const marshalCreateTagAssignmentRequestSchema: z.ZodType = z
   .object({
@@ -193,9 +186,7 @@ export const marshalListTagAssignmentsRequestSchema: z.ZodType = z
 
 export const marshalListTagAssignmentsResponseSchema: z.ZodType = z
   .object({
-    tagAssignments: z
-      .array(z.lazy(() => marshalTagAssignmentSchema))
-      .optional(),
+    tagAssignments: z.array(z.lazy(() => marshalTagAssignmentSchema)).optional(),
     nextPageToken: z.string().optional(),
   })
   .transform(d => ({
@@ -220,7 +211,7 @@ export const marshalTagAssignmentSchema: z.ZodType = z
 export const marshalUpdateTagAssignmentRequestSchema: z.ZodType = z
   .object({
     tagAssignment: z.lazy(() => marshalTagAssignmentSchema).optional(),
-    updateMask: z.string().optional(),
+    updateMask: z.any().transform((d: FieldMask<FieldPaths<TagAssignment>>) => d.paths.join(',')).optional(),
   })
   .transform(d => ({
     tag_assignment: d.tagAssignment,

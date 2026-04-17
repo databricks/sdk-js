@@ -2,7 +2,7 @@
 
 import {z} from 'zod';
 
-/** Next Id: 75 */
+/** Next Id: 76 */
 export enum ConnectionType {
   UNKNOWN_CONNECTION_TYPE = 'UNKNOWN_CONNECTION_TYPE',
   MYSQL = 'MYSQL',
@@ -26,6 +26,7 @@ export enum ConnectionType {
   HTTP = 'HTTP',
   POWER_BI = 'POWER_BI',
   BIGLAKE = 'BIGLAKE',
+  GOOGLE_CLOUD_LAKEHOUSE = 'GOOGLE_CLOUD_LAKEHOUSE',
 }
 
 /** Next Id: 18 */
@@ -147,6 +148,11 @@ export interface ConnectionInfo_SecretsEntry {
 }
 
 export interface CreateConnection {
+  /**
+   * Parent schema for schema-level connections, in format "schemas/{catalog}.{schema}".
+   * Absent for metastore-level (L1) connections.
+   */
+  parent?: string | undefined;
   /** Name of the connection. */
   name?: string | undefined;
   /** The type of connection. */
@@ -237,6 +243,8 @@ export interface ListConnections {
   maxResults?: number | undefined;
   /** Opaque pagination token to go to next page based on previous query. */
   pageToken?: string | undefined;
+  /** Optional. Parent schema filter for listing schema-level connections, in format "schemas/{catalog}.{schema}". */
+  parent?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -329,9 +337,7 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
     owner: z.string().optional(),
     read_only: z.boolean().optional(),
     comment: z.string().optional(),
-    environment_settings: z
-      .lazy(() => unmarshalEnvironmentSettingsSchema)
-      .optional(),
+    environment_settings: z.lazy(() => unmarshalEnvironmentSettingsSchema).optional(),
     full_name: z.string().optional(),
     url: z.string().optional(),
     credential_type: z.enum(CredentialType).optional(),
@@ -371,51 +377,47 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalConnectionInfo_OptionsEntrySchema: z.ZodType<ConnectionInfo_OptionsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalConnectionInfo_OptionsEntrySchema: z.ZodType<ConnectionInfo_OptionsEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalConnectionInfo_PropertiesEntrySchema: z.ZodType<ConnectionInfo_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalConnectionInfo_PropertiesEntrySchema: z.ZodType<ConnectionInfo_PropertiesEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalConnectionInfo_SecretsEntrySchema: z.ZodType<ConnectionInfo_SecretsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalConnectionInfo_SecretsEntrySchema: z.ZodType<ConnectionInfo_SecretsEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 export const unmarshalCreateConnectionSchema: z.ZodType<CreateConnection> = z
   .object({
+    parent: z.string().optional(),
     name: z.string().optional(),
     connection_type: z.enum(ConnectionType).optional(),
     owner: z.string().optional(),
     read_only: z.boolean().optional(),
     comment: z.string().optional(),
-    environment_settings: z
-      .lazy(() => unmarshalEnvironmentSettingsSchema)
-      .optional(),
+    environment_settings: z.lazy(() => unmarshalEnvironmentSettingsSchema).optional(),
     full_name: z.string().optional(),
     url: z.string().optional(),
     credential_type: z.enum(CredentialType).optional(),
@@ -432,6 +434,7 @@ export const unmarshalCreateConnectionSchema: z.ZodType<CreateConnection> = z
     properties: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
+    parent: d.parent,
     name: d.name,
     connectionType: d.connection_type,
     owner: d.owner,
@@ -455,40 +458,37 @@ export const unmarshalCreateConnectionSchema: z.ZodType<CreateConnection> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateConnection_OptionsEntrySchema: z.ZodType<CreateConnection_OptionsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalCreateConnection_OptionsEntrySchema: z.ZodType<CreateConnection_OptionsEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateConnection_PropertiesEntrySchema: z.ZodType<CreateConnection_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalCreateConnection_PropertiesEntrySchema: z.ZodType<CreateConnection_PropertiesEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateConnection_SecretsEntrySchema: z.ZodType<CreateConnection_SecretsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalCreateConnection_SecretsEntrySchema: z.ZodType<CreateConnection_SecretsEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 export const unmarshalDeleteConnectionSchema: z.ZodType<DeleteConnection> = z
   .object({
@@ -499,19 +499,19 @@ export const unmarshalDeleteConnectionSchema: z.ZodType<DeleteConnection> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteConnection_ResponseSchema: z.ZodType<DeleteConnection_Response> =
-  z.object({});
+export const unmarshalDeleteConnection_ResponseSchema: z.ZodType<DeleteConnection_Response> = z
+  .object({
+  });
 
-export const unmarshalEnvironmentSettingsSchema: z.ZodType<EnvironmentSettings> =
-  z
-    .object({
-      java_dependencies: z.array(z.string()).optional(),
-      environment_version: z.string().optional(),
-    })
-    .transform(d => ({
-      javaDependencies: d.java_dependencies,
-      environmentVersion: d.environment_version,
-    }));
+export const unmarshalEnvironmentSettingsSchema: z.ZodType<EnvironmentSettings> = z
+  .object({
+    java_dependencies: z.array(z.string()).optional(),
+    environment_version: z.string().optional(),
+  })
+  .transform(d => ({
+    javaDependencies: d.java_dependencies,
+    environmentVersion: d.environment_version,
+  }));
 
 export const unmarshalGetConnectionSchema: z.ZodType<GetConnection> = z
   .object({
@@ -525,25 +525,24 @@ export const unmarshalListConnectionsSchema: z.ZodType<ListConnections> = z
   .object({
     max_results: z.number().optional(),
     page_token: z.string().optional(),
+    parent: z.string().optional(),
   })
   .transform(d => ({
     maxResults: d.max_results,
     pageToken: d.page_token,
+    parent: d.parent,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListConnections_ResponseSchema: z.ZodType<ListConnections_Response> =
-  z
-    .object({
-      connections: z
-        .array(z.lazy(() => unmarshalConnectionInfoSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      connections: d.connections,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListConnections_ResponseSchema: z.ZodType<ListConnections_Response> = z
+  .object({
+    connections: z.array(z.lazy(() => unmarshalConnectionInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    connections: d.connections,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalProvisioningInfoSchema: z.ZodType<ProvisioningInfo> = z
   .object({
@@ -562,9 +561,7 @@ export const unmarshalUpdateConnectionSchema: z.ZodType<UpdateConnection> = z
     owner: z.string().optional(),
     read_only: z.boolean().optional(),
     comment: z.string().optional(),
-    environment_settings: z
-      .lazy(() => unmarshalEnvironmentSettingsSchema)
-      .optional(),
+    environment_settings: z.lazy(() => unmarshalEnvironmentSettingsSchema).optional(),
     full_name: z.string().optional(),
     url: z.string().optional(),
     credential_type: z.enum(CredentialType).optional(),
@@ -606,40 +603,37 @@ export const unmarshalUpdateConnectionSchema: z.ZodType<UpdateConnection> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateConnection_OptionsEntrySchema: z.ZodType<UpdateConnection_OptionsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalUpdateConnection_OptionsEntrySchema: z.ZodType<UpdateConnection_OptionsEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateConnection_PropertiesEntrySchema: z.ZodType<UpdateConnection_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalUpdateConnection_PropertiesEntrySchema: z.ZodType<UpdateConnection_PropertiesEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateConnection_SecretsEntrySchema: z.ZodType<UpdateConnection_SecretsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalUpdateConnection_SecretsEntrySchema: z.ZodType<UpdateConnection_SecretsEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 export const marshalConnectionInfoSchema: z.ZodType = z
   .object({
@@ -648,9 +642,7 @@ export const marshalConnectionInfoSchema: z.ZodType = z
     owner: z.string().optional(),
     readOnly: z.boolean().optional(),
     comment: z.string().optional(),
-    environmentSettings: z
-      .lazy(() => marshalEnvironmentSettingsSchema)
-      .optional(),
+    environmentSettings: z.lazy(() => marshalEnvironmentSettingsSchema).optional(),
     fullName: z.string().optional(),
     url: z.string().optional(),
     credentialType: z.enum(CredentialType).optional(),
@@ -724,14 +716,13 @@ export const marshalConnectionInfo_SecretsEntrySchema: z.ZodType = z
 
 export const marshalCreateConnectionSchema: z.ZodType = z
   .object({
+    parent: z.string().optional(),
     name: z.string().optional(),
     connectionType: z.enum(ConnectionType).optional(),
     owner: z.string().optional(),
     readOnly: z.boolean().optional(),
     comment: z.string().optional(),
-    environmentSettings: z
-      .lazy(() => marshalEnvironmentSettingsSchema)
-      .optional(),
+    environmentSettings: z.lazy(() => marshalEnvironmentSettingsSchema).optional(),
     fullName: z.string().optional(),
     url: z.string().optional(),
     credentialType: z.enum(CredentialType).optional(),
@@ -748,6 +739,7 @@ export const marshalCreateConnectionSchema: z.ZodType = z
     properties: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
+    parent: d.parent,
     name: d.name,
     connection_type: d.connectionType,
     owner: d.owner,
@@ -812,7 +804,9 @@ export const marshalDeleteConnectionSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeleteConnection_ResponseSchema: z.ZodType = z.object({});
+export const marshalDeleteConnection_ResponseSchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalEnvironmentSettingsSchema: z.ZodType = z
   .object({
@@ -836,10 +830,12 @@ export const marshalListConnectionsSchema: z.ZodType = z
   .object({
     maxResults: z.number().optional(),
     pageToken: z.string().optional(),
+    parent: z.string().optional(),
   })
   .transform(d => ({
     max_results: d.maxResults,
     page_token: d.pageToken,
+    parent: d.parent,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -870,9 +866,7 @@ export const marshalUpdateConnectionSchema: z.ZodType = z
     owner: z.string().optional(),
     readOnly: z.boolean().optional(),
     comment: z.string().optional(),
-    environmentSettings: z
-      .lazy(() => marshalEnvironmentSettingsSchema)
-      .optional(),
+    environmentSettings: z.lazy(() => marshalEnvironmentSettingsSchema).optional(),
     fullName: z.string().optional(),
     url: z.string().optional(),
     credentialType: z.enum(CredentialType).optional(),

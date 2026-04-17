@@ -7,12 +7,7 @@ import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-databricks/transport';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {
-  buildHttpRequest,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import type {
   CancelRefreshRequest,
   CancelRefreshResponse,
@@ -59,27 +54,19 @@ export class Client {
   /**
    * Cancels a data quality monitor refresh. Currently only supported for the `table` `object_type`.
    * The call must be made in the same workspace as where the monitor was created.
-   *
+   * 
    * The caller must have either of the following sets of permissions:
    * 1. **MANAGE** and **USE_CATALOG** on the table's parent catalog.
    * 2. **USE_CATALOG** on the table's parent catalog, and **MANAGE** and **USE_SCHEMA** on the table's parent schema.
    * 3. **USE_CATALOG** on the table's parent catalog, **USE_SCHEMA** on the table's parent schema, and **MANAGE** on the table.
    */
-  async cancelRefresh(
-    signal: AbortSignal | undefined,
-    req: CancelRefreshRequest,
-    options?: Options
-  ): Promise<CancelRefreshResponse> {
+  async cancelRefresh(signal: AbortSignal | undefined, req: CancelRefreshRequest, options?: Options): Promise<CancelRefreshResponse> {
     const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes/${String(req.refreshId ?? '')}/cancel`;
     const body = marshalRequest(req, marshalCancelRefreshRequestSchema);
     let resp: CancelRefreshResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCancelRefreshResponseSchema);
     };
     await execute(signal, call, options);
@@ -91,33 +78,25 @@ export class Client {
 
   /**
    * Create a data quality monitor on a Unity Catalog object. The caller must provide either `anomaly_detection_config` for a schema monitor or `data_profiling_config` for a table monitor.
-   *
+   * 
    * For the `table` `object_type`, the caller must have either of the following sets of permissions:
    * 1. **MANAGE** and **USE_CATALOG** on the table's parent catalog, **USE_SCHEMA** on the table's parent schema, and **SELECT** on the table
    * 2. **USE_CATALOG** on the table's parent catalog, **MANAGE** and **USE_SCHEMA** on the table's parent schema, and **SELECT** on the table.
    * 3. **USE_CATALOG** on the table's parent catalog, **USE_SCHEMA** on the table's parent schema, and **MANAGE** and **SELECT** on the table.
-   *
+   * 
    * Workspace assets, such as the dashboard, will be created in the workspace where this call was made.
-   *
+   * 
    * For the `schema` `object_type`, the caller must have either of the following sets of permissions:
    * 1. **MANAGE** and **USE_CATALOG** on the schema's parent catalog.
    * 2. **USE_CATALOG** on the schema's parent catalog, and **MANAGE** and **USE_SCHEMA** on the schema.
    */
-  async createMonitor(
-    signal: AbortSignal | undefined,
-    req: CreateMonitorRequest,
-    options?: Options
-  ): Promise<Monitor> {
+  async createMonitor(signal: AbortSignal | undefined, req: CreateMonitorRequest, options?: Options): Promise<Monitor> {
     const url = `${this.host}/api/data-quality/v1/monitors`;
     const body = marshalRequest(req.monitor, marshalMonitorSchema);
     let resp: Monitor | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalMonitorSchema);
     };
     await execute(signal, call, options);
@@ -130,27 +109,19 @@ export class Client {
   /**
    * Creates a refresh. Currently only supported for the `table` `object_type`.
    * The call must be made in the same workspace as where the monitor was created.
-   *
+   * 
    * The caller must have either of the following sets of permissions:
    * 1. **MANAGE** and **USE_CATALOG** on the table's parent catalog.
    * 2. **USE_CATALOG** on the table's parent catalog, and **MANAGE** and **USE_SCHEMA** on the table's parent schema.
    * 3. **USE_CATALOG** on the table's parent catalog, **USE_SCHEMA** on the table's parent schema, and **MANAGE** on the table.
    */
-  async createRefresh(
-    signal: AbortSignal | undefined,
-    req: CreateRefreshRequest,
-    options?: Options
-  ): Promise<Refresh> {
+  async createRefresh(signal: AbortSignal | undefined, req: CreateRefreshRequest, options?: Options): Promise<Refresh> {
     const url = `${this.host}/api/data-quality/v1/monitors/${req.refresh?.objectType ?? ''}/${req.refresh?.objectId ?? ''}/refreshes`;
     const body = marshalRequest(req.refresh, marshalRefreshSchema);
     let resp: Refresh | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalRefreshSchema);
     };
     await execute(signal, call, options);
@@ -162,84 +133,60 @@ export class Client {
 
   /**
    * Delete a data quality monitor on Unity Catalog object.
-   *
+   * 
    * For the `table` `object_type`, the caller must have either of the following sets of permissions:
    * **MANAGE** and **USE_CATALOG** on the table's parent catalog.
    * **USE_CATALOG** on the table's parent catalog, and **MANAGE** and **USE_SCHEMA** on the table's parent schema.
    * **USE_CATALOG** on the table's parent catalog, **USE_SCHEMA** on the table's parent schema, and **MANAGE** on the table.
-   *
+   * 
    * Note that the metric tables and dashboard will not be deleted as part of this call; those
    * assets must be manually cleaned up (if desired).
-   *
+   * 
    * For the `schema` `object_type`, the caller must have either of the following sets of permissions:
    * 1. **MANAGE** and **USE_CATALOG** on the schema's parent catalog.
    * 2. **USE_CATALOG** on the schema's parent catalog, and **MANAGE** and **USE_SCHEMA** on the schema.
    */
-  async deleteMonitor(
-    signal: AbortSignal | undefined,
-    req: DeleteMonitorRequest,
-    options?: Options
-  ): Promise<void> {
+  async deleteMonitor(signal: AbortSignal | undefined, req: DeleteMonitorRequest, options?: Options): Promise<void> {
     const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('DELETE', url, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await execute(signal, call, options);
   }
 
   /** (Unimplemented) Delete a refresh */
-  async deleteRefresh(
-    signal: AbortSignal | undefined,
-    req: DeleteRefreshRequest,
-    options?: Options
-  ): Promise<void> {
+  async deleteRefresh(signal: AbortSignal | undefined, req: DeleteRefreshRequest, options?: Options): Promise<void> {
     const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes/${String(req.refreshId ?? '')}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('DELETE', url, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await execute(signal, call, options);
   }
 
   /**
    * Read a data quality monitor on a Unity Catalog object.
-   *
+   * 
    * For the `table` `object_type`, the caller must have either of the following sets of permissions:
    * 1. **MANAGE** and **USE_CATALOG** on the table's parent catalog.
    * 2. **USE_CATALOG** on the table's parent catalog, and **MANAGE** and **USE_SCHEMA** on the table's parent schema.
    * 3. **USE_CATALOG** on the table's parent catalog, **USE_SCHEMA** on the table's parent schema, and **SELECT** on the table.
-   *
+   * 
    * For the `schema` `object_type`, the caller must have either of the following sets of permissions:
    * 1. **MANAGE** and **USE_CATALOG** on the schema's parent catalog.
    * 2. **USE_CATALOG** on the schema's parent catalog, and **USE_SCHEMA** on the schema.
-   *
+   * 
    * The returned information includes configuration values on the entity and parent entity as well as information on
    * assets created by the monitor. Some information (e.g. dashboard) may be filtered out
    * if the caller is in a different workspace than where the monitor was created.
    */
-  async getMonitor(
-    signal: AbortSignal | undefined,
-    req: GetMonitorRequest,
-    options?: Options
-  ): Promise<Monitor> {
+  async getMonitor(signal: AbortSignal | undefined, req: GetMonitorRequest, options?: Options): Promise<Monitor> {
     const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
     let resp: Monitor | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalMonitorSchema);
     };
     await execute(signal, call, options);
@@ -251,30 +198,22 @@ export class Client {
 
   /**
    * Get data quality monitor refresh. The call must be made in the same workspace as where the monitor was created.
-   *
+   * 
    * For the `table` `object_type`, the caller must have either of the following sets of permissions:
    * 1. **MANAGE** and **USE_CATALOG** on the table's parent catalog.
    * 2. **USE_CATALOG** on the table's parent catalog, and **MANAGE** and **USE_SCHEMA** on the table's parent schema.
    * 3. **USE_CATALOG** on the table's parent catalog, **USE_SCHEMA** on the table's parent schema, and **SELECT** on the table.
-   *
+   * 
    * For the `schema` `object_type`, the caller must have either of the following sets of permissions:
    * 1. **MANAGE** and **USE_CATALOG** on the schema's parent catalog.
    * 2. **USE_CATALOG** on the schema's parent catalog, and **USE_SCHEMA** on the schema.
    */
-  async getRefresh(
-    signal: AbortSignal | undefined,
-    req: GetRefreshRequest,
-    options?: Options
-  ): Promise<Refresh> {
+  async getRefresh(signal: AbortSignal | undefined, req: GetRefreshRequest, options?: Options): Promise<Refresh> {
     const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes/${String(req.refreshId ?? '')}`;
     let resp: Refresh | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalRefreshSchema);
     };
     await execute(signal, call, options);
@@ -285,11 +224,7 @@ export class Client {
   }
 
   /** (Unimplemented) List data quality monitors. */
-  async listMonitor(
-    signal: AbortSignal | undefined,
-    req: ListMonitorRequest,
-    options?: Options
-  ): Promise<ListMonitorResponse> {
+  async listMonitor(signal: AbortSignal | undefined, req: ListMonitorRequest, options?: Options): Promise<ListMonitorResponse> {
     const url = `${this.host}/api/data-quality/v1/monitors`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -303,11 +238,7 @@ export class Client {
     let resp: ListMonitorResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListMonitorResponseSchema);
     };
     await execute(signal, call, options);
@@ -317,11 +248,8 @@ export class Client {
     return resp;
   }
 
-  async *listMonitorIter(
-    signal: AbortSignal | undefined,
-    req: ListMonitorRequest,
-    options?: Options
-  ): AsyncGenerator<Monitor> {
+
+  async *listMonitorIter(signal: AbortSignal | undefined, req: ListMonitorRequest, options?: Options): AsyncGenerator<Monitor> {
     const pageReq: ListMonitorRequest = {...req};
     for (;;) {
       const resp = await this.listMonitor(signal, pageReq, options);
@@ -335,23 +263,20 @@ export class Client {
     }
   }
 
+
   /**
    * List data quality monitor refreshes. The call must be made in the same workspace as where the monitor was created.
-   *
+   * 
    * For the `table` `object_type`, the caller must have either of the following sets of permissions:
    * 1. **MANAGE** and **USE_CATALOG** on the table's parent catalog.
    * 2. **USE_CATALOG** on the table's parent catalog, and **MANAGE** and **USE_SCHEMA** on the table's parent schema.
    * 3. **USE_CATALOG** on the table's parent catalog, **USE_SCHEMA** on the table's parent schema, and **SELECT** on the table.
-   *
+   * 
    * For the `schema` `object_type`, the caller must have either of the following sets of permissions:
    * 1. **MANAGE** and **USE_CATALOG** on the schema's parent catalog.
    * 2. **USE_CATALOG** on the schema's parent catalog, and **USE_SCHEMA** on the schema.
    */
-  async listRefresh(
-    signal: AbortSignal | undefined,
-    req: ListRefreshRequest,
-    options?: Options
-  ): Promise<ListRefreshResponse> {
+  async listRefresh(signal: AbortSignal | undefined, req: ListRefreshRequest, options?: Options): Promise<ListRefreshResponse> {
     const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -365,11 +290,7 @@ export class Client {
     let resp: ListRefreshResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListRefreshResponseSchema);
     };
     await execute(signal, call, options);
@@ -379,11 +300,8 @@ export class Client {
     return resp;
   }
 
-  async *listRefreshIter(
-    signal: AbortSignal | undefined,
-    req: ListRefreshRequest,
-    options?: Options
-  ): AsyncGenerator<Refresh> {
+
+  async *listRefreshIter(signal: AbortSignal | undefined, req: ListRefreshRequest, options?: Options): AsyncGenerator<Refresh> {
     const pageReq: ListRefreshRequest = {...req};
     for (;;) {
       const resp = await this.listRefresh(signal, pageReq, options);
@@ -397,27 +315,24 @@ export class Client {
     }
   }
 
+
   /**
    * Update a data quality monitor on Unity Catalog object.
-   *
+   * 
    * For the `table` `object_type`, the caller must have either of the following sets of permissions:
    * 1. **MANAGE** and **USE_CATALOG** on the table's parent catalog.
    * 2. **USE_CATALOG** on the table's parent catalog, and **MANAGE** and **USE_SCHEMA** on the table's parent schema.
    * 3. **USE_CATALOG** on the table's parent catalog, **USE_SCHEMA** on the table's parent schema, and **MANAGE** on the table.
-   *
+   * 
    * For the `schema` `object_type`, the caller must have either of the following sets of permissions:
    * 1. **MANAGE** and **USE_CATALOG** on the schema's parent catalog.
    * 2. **USE_CATALOG** on the schema's parent catalog, and **MANAGE** and **USE_SCHEMA** on the schema.
    */
-  async updateMonitor(
-    signal: AbortSignal | undefined,
-    req: UpdateMonitorRequest,
-    options?: Options
-  ): Promise<Monitor> {
+  async updateMonitor(signal: AbortSignal | undefined, req: UpdateMonitorRequest, options?: Options): Promise<Monitor> {
     const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
-      params.append('update_mask', req.updateMask);
+      params.append('update_mask', req.updateMask.paths.join(','));
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -425,11 +340,7 @@ export class Client {
     let resp: Monitor | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalMonitorSchema);
     };
     await execute(signal, call, options);
@@ -440,15 +351,11 @@ export class Client {
   }
 
   /** (Unimplemented) Update a refresh */
-  async updateRefresh(
-    signal: AbortSignal | undefined,
-    req: UpdateRefreshRequest,
-    options?: Options
-  ): Promise<Refresh> {
+  async updateRefresh(signal: AbortSignal | undefined, req: UpdateRefreshRequest, options?: Options): Promise<Refresh> {
     const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes/${String(req.refreshId ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
-      params.append('update_mask', req.updateMask);
+      params.append('update_mask', req.updateMask.paths.join(','));
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -456,11 +363,7 @@ export class Client {
     let resp: Refresh | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalRefreshSchema);
     };
     await execute(signal, call, options);

@@ -7,12 +7,7 @@ import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-databricks/transport';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {
-  buildHttpRequest,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import type {
   GetAssignableRolesForResourceRequest,
   GetAssignableRolesForResourceResponse,
@@ -44,11 +39,7 @@ export class Client {
    * Gets all the roles that can be granted on an account level resource. A role is grantable if the rule set on the
    * resource can contain an access rule of the role.
    */
-  async getAssignableRolesForResource(
-    signal: AbortSignal | undefined,
-    req: GetAssignableRolesForResourceRequest,
-    options?: Options
-  ): Promise<GetAssignableRolesForResourceResponse> {
+  async getAssignableRolesForResource(signal: AbortSignal | undefined, req: GetAssignableRolesForResourceRequest, options?: Options): Promise<GetAssignableRolesForResourceResponse> {
     const url = `${this.host}/api/2.0/preview/accounts/{account_id}/access-control/assignable-roles`;
     const params = new URLSearchParams();
     if (req.accountId !== undefined) {
@@ -62,15 +53,8 @@ export class Client {
     let resp: GetAssignableRolesForResourceResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetAssignableRolesForResourceResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetAssignableRolesForResourceResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -83,11 +67,7 @@ export class Client {
    * Get a rule set by its name. A rule set is always attached to a resource and contains a list of access rules on the
    * said resource. Currently only a default rule set for each resource is supported.
    */
-  async getRuleSet(
-    signal: AbortSignal | undefined,
-    req: GetRuleSetRequest,
-    options?: Options
-  ): Promise<RuleSet> {
+  async getRuleSet(signal: AbortSignal | undefined, req: GetRuleSetRequest, options?: Options): Promise<RuleSet> {
     const url = `${this.host}/api/2.0/preview/accounts/{account_id}/access-control/rule-sets`;
     const params = new URLSearchParams();
     if (req.accountId !== undefined) {
@@ -104,11 +84,7 @@ export class Client {
     let resp: RuleSet | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalRuleSetSchema);
     };
     await execute(signal, call, options);
@@ -122,21 +98,13 @@ export class Client {
    * Replace the rules of a rule set. First, use get to read the current version of the rule set before modifying it.
    * This pattern helps prevent conflicts between concurrent updates.
    */
-  async updateRuleSet(
-    signal: AbortSignal | undefined,
-    req: UpdateRuleSetRequest,
-    options?: Options
-  ): Promise<RuleSet> {
+  async updateRuleSet(signal: AbortSignal | undefined, req: UpdateRuleSetRequest, options?: Options): Promise<RuleSet> {
     const url = `${this.host}/api/2.0/preview/accounts/{account_id}/access-control/rule-sets`;
     const body = marshalRequest(req, marshalUpdateRuleSetRequestSchema);
     let resp: RuleSet | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('PUT', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalRuleSetSchema);
     };
     await execute(signal, call, options);

@@ -7,12 +7,7 @@ import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-databricks/transport';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {
-  buildHttpRequest,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import type {
   ArtifactAllowlistInfo,
   GetArtifactAllowlist,
@@ -42,20 +37,12 @@ export class Client {
    * The caller must be a metastore admin or have the **MANAGE ALLOWLIST** privilege
    * on the metastore.
    */
-  async getArtifactAllowlist(
-    signal: AbortSignal | undefined,
-    req: GetArtifactAllowlist,
-    options?: Options
-  ): Promise<ArtifactAllowlistInfo> {
+  async getArtifactAllowlist(signal: AbortSignal | undefined, req: GetArtifactAllowlist, options?: Options): Promise<ArtifactAllowlistInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/artifact-allowlists/${req.artifactType ?? ''}`;
     let resp: ArtifactAllowlistInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalArtifactAllowlistInfoSchema);
     };
     await execute(signal, call, options);
@@ -71,21 +58,13 @@ export class Client {
    * The caller must be a metastore admin or have the **MANAGE ALLOWLIST** privilege
    * on the metastore.
    */
-  async setArtifactAllowlist(
-    signal: AbortSignal | undefined,
-    req: SetArtifactAllowlist,
-    options?: Options
-  ): Promise<ArtifactAllowlistInfo> {
+  async setArtifactAllowlist(signal: AbortSignal | undefined, req: SetArtifactAllowlist, options?: Options): Promise<ArtifactAllowlistInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/artifact-allowlists/${req.artifactType ?? ''}`;
     const body = marshalRequest(req, marshalSetArtifactAllowlistSchema);
     let resp: ArtifactAllowlistInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('PUT', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalArtifactAllowlistInfoSchema);
     };
     await execute(signal, call, options);

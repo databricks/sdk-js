@@ -7,12 +7,7 @@ import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-databricks/transport';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {
-  buildHttpRequest,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import type {
   CreateQualityMonitorRequest,
   DeleteQualityMonitorRequest,
@@ -46,24 +41,13 @@ export class Client {
    * Deprecated: Use Data Quality Monitoring API instead (/api/data-quality/v1/monitors).
    * Create a quality monitor on UC object.
    */
-  async createQualityMonitor(
-    signal: AbortSignal | undefined,
-    req: CreateQualityMonitorRequest,
-    options?: Options
-  ): Promise<QualityMonitor> {
+  async createQualityMonitor(signal: AbortSignal | undefined, req: CreateQualityMonitorRequest, options?: Options): Promise<QualityMonitor> {
     const url = `${this.host}/api/2.0/quality-monitors`;
-    const body = marshalRequest(
-      req.qualityMonitor,
-      marshalQualityMonitorSchema
-    );
+    const body = marshalRequest(req.qualityMonitor, marshalQualityMonitorSchema);
     let resp: QualityMonitor | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalQualityMonitorSchema);
     };
     await execute(signal, call, options);
@@ -77,19 +61,11 @@ export class Client {
    * Deprecated: Use Data Quality Monitoring API instead (/api/data-quality/v1/monitors).
    * Delete a quality monitor on UC object.
    */
-  async deleteQualityMonitor(
-    signal: AbortSignal | undefined,
-    req: DeleteQualityMonitorRequest,
-    options?: Options
-  ): Promise<void> {
+  async deleteQualityMonitor(signal: AbortSignal | undefined, req: DeleteQualityMonitorRequest, options?: Options): Promise<void> {
     const url = `${this.host}/api/2.0/quality-monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('DELETE', url, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await execute(signal, call, options);
   }
@@ -98,20 +74,12 @@ export class Client {
    * Deprecated: Use Data Quality Monitoring API instead (/api/data-quality/v1/monitors).
    * Read a quality monitor on UC object.
    */
-  async getQualityMonitor(
-    signal: AbortSignal | undefined,
-    req: GetQualityMonitorRequest,
-    options?: Options
-  ): Promise<QualityMonitor> {
+  async getQualityMonitor(signal: AbortSignal | undefined, req: GetQualityMonitorRequest, options?: Options): Promise<QualityMonitor> {
     const url = `${this.host}/api/2.0/quality-monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
     let resp: QualityMonitor | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalQualityMonitorSchema);
     };
     await execute(signal, call, options);
@@ -125,11 +93,7 @@ export class Client {
    * Deprecated: Use Data Quality Monitoring API instead (/api/data-quality/v1/monitors).
    * (Unimplemented) List quality monitors.
    */
-  async listQualityMonitor(
-    signal: AbortSignal | undefined,
-    req: ListQualityMonitorRequest,
-    options?: Options
-  ): Promise<ListQualityMonitorResponse> {
+  async listQualityMonitor(signal: AbortSignal | undefined, req: ListQualityMonitorRequest, options?: Options): Promise<ListQualityMonitorResponse> {
     const url = `${this.host}/api/2.0/quality-monitors`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -143,11 +107,7 @@ export class Client {
     let resp: ListQualityMonitorResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListQualityMonitorResponseSchema);
     };
     await execute(signal, call, options);
@@ -157,11 +117,8 @@ export class Client {
     return resp;
   }
 
-  async *listQualityMonitorIter(
-    signal: AbortSignal | undefined,
-    req: ListQualityMonitorRequest,
-    options?: Options
-  ): AsyncGenerator<QualityMonitor> {
+
+  async *listQualityMonitorIter(signal: AbortSignal | undefined, req: ListQualityMonitorRequest, options?: Options): AsyncGenerator<QualityMonitor> {
     const pageReq: ListQualityMonitorRequest = {...req};
     for (;;) {
       const resp = await this.listQualityMonitor(signal, pageReq, options);
@@ -175,28 +132,18 @@ export class Client {
     }
   }
 
+
   /**
    * Deprecated: Use Data Quality Monitoring API instead (/api/data-quality/v1/monitors).
    * (Unimplemented) Update a quality monitor on UC object.
    */
-  async updateQualityMonitor(
-    signal: AbortSignal | undefined,
-    req: UpdateQualityMonitorRequest,
-    options?: Options
-  ): Promise<QualityMonitor> {
+  async updateQualityMonitor(signal: AbortSignal | undefined, req: UpdateQualityMonitorRequest, options?: Options): Promise<QualityMonitor> {
     const url = `${this.host}/api/2.0/quality-monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
-    const body = marshalRequest(
-      req.qualityMonitor,
-      marshalQualityMonitorSchema
-    );
+    const body = marshalRequest(req.qualityMonitor, marshalQualityMonitorSchema);
     let resp: QualityMonitor | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('PUT', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalQualityMonitorSchema);
     };
     await execute(signal, call, options);

@@ -7,12 +7,7 @@ import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-databricks/transport';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {
-  buildHttpRequest,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import type {
   CreateFeatureTagRequest,
   DeleteFeatureTagRequest,
@@ -46,21 +41,13 @@ export class Client {
   }
 
   /** Creates a FeatureTag. */
-  async createFeatureTag(
-    signal: AbortSignal | undefined,
-    req: CreateFeatureTagRequest,
-    options?: Options
-  ): Promise<FeatureTag> {
+  async createFeatureTag(signal: AbortSignal | undefined, req: CreateFeatureTagRequest, options?: Options): Promise<FeatureTag> {
     const url = `${this.host}/api/2.0/feature-store/feature-tables/${req.tableName ?? ''}/features/${req.featureName ?? ''}/tags`;
     const body = marshalRequest(req.featureTag, marshalFeatureTagSchema);
     let resp: FeatureTag | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalFeatureTagSchema);
     };
     await execute(signal, call, options);
@@ -71,38 +58,22 @@ export class Client {
   }
 
   /** Deletes a FeatureTag. */
-  async deleteFeatureTag(
-    signal: AbortSignal | undefined,
-    req: DeleteFeatureTagRequest,
-    options?: Options
-  ): Promise<void> {
+  async deleteFeatureTag(signal: AbortSignal | undefined, req: DeleteFeatureTagRequest, options?: Options): Promise<void> {
     const url = `${this.host}/api/2.0/feature-store/feature-tables/${req.tableName ?? ''}/features/${req.featureName ?? ''}/tags/${req.key ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('DELETE', url, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await execute(signal, call, options);
   }
 
   /** Get Feature Lineage. */
-  async getFeatureLineage(
-    signal: AbortSignal | undefined,
-    req: GetFeatureLineageRequest,
-    options?: Options
-  ): Promise<FeatureLineage> {
+  async getFeatureLineage(signal: AbortSignal | undefined, req: GetFeatureLineageRequest, options?: Options): Promise<FeatureLineage> {
     const url = `${this.host}/api/2.0/feature-store/feature-tables/${req.tableName ?? ''}/features/${req.featureName ?? ''}/lineage`;
     let resp: FeatureLineage | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalFeatureLineageSchema);
     };
     await execute(signal, call, options);
@@ -113,20 +84,12 @@ export class Client {
   }
 
   /** Gets a FeatureTag. */
-  async getFeatureTag(
-    signal: AbortSignal | undefined,
-    req: GetFeatureTagRequest,
-    options?: Options
-  ): Promise<FeatureTag> {
+  async getFeatureTag(signal: AbortSignal | undefined, req: GetFeatureTagRequest, options?: Options): Promise<FeatureTag> {
     const url = `${this.host}/api/2.0/feature-store/feature-tables/${req.tableName ?? ''}/features/${req.featureName ?? ''}/tags/${req.key ?? ''}`;
     let resp: FeatureTag | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalFeatureTagSchema);
     };
     await execute(signal, call, options);
@@ -137,11 +100,7 @@ export class Client {
   }
 
   /** Lists FeatureTags. */
-  async listFeatureTags(
-    signal: AbortSignal | undefined,
-    req: ListFeatureTagsRequest,
-    options?: Options
-  ): Promise<ListFeatureTagsResponse> {
+  async listFeatureTags(signal: AbortSignal | undefined, req: ListFeatureTagsRequest, options?: Options): Promise<ListFeatureTagsResponse> {
     const url = `${this.host}/api/2.0/feature-store/feature-tables/${req.tableName ?? ''}/features/${req.featureName ?? ''}/tags`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -155,11 +114,7 @@ export class Client {
     let resp: ListFeatureTagsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListFeatureTagsResponseSchema);
     };
     await execute(signal, call, options);
@@ -169,11 +124,8 @@ export class Client {
     return resp;
   }
 
-  async *listFeatureTagsIter(
-    signal: AbortSignal | undefined,
-    req: ListFeatureTagsRequest,
-    options?: Options
-  ): AsyncGenerator<FeatureTag> {
+
+  async *listFeatureTagsIter(signal: AbortSignal | undefined, req: ListFeatureTagsRequest, options?: Options): AsyncGenerator<FeatureTag> {
     const pageReq: ListFeatureTagsRequest = {...req};
     for (;;) {
       const resp = await this.listFeatureTags(signal, pageReq, options);
@@ -187,16 +139,13 @@ export class Client {
     }
   }
 
+
   /** Updates a FeatureTag. */
-  async updateFeatureTag(
-    signal: AbortSignal | undefined,
-    req: UpdateFeatureTagRequest,
-    options?: Options
-  ): Promise<FeatureTag> {
+  async updateFeatureTag(signal: AbortSignal | undefined, req: UpdateFeatureTagRequest, options?: Options): Promise<FeatureTag> {
     const url = `${this.host}/api/2.0/feature-store/feature-tables/${req.tableName ?? ''}/features/${req.featureName ?? ''}/tags/${req.featureTag?.key ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
-      params.append('update_mask', req.updateMask);
+      params.append('update_mask', req.updateMask.paths.join(','));
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -204,11 +153,7 @@ export class Client {
     let resp: FeatureTag | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalFeatureTagSchema);
     };
     await execute(signal, call, options);

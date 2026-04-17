@@ -1,5 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask, type FieldPaths} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum DestinationType {
@@ -74,7 +75,7 @@ export interface BatchCreateAccessRequestsRequest {
   /**
    * A list of individual access requests, where each request corresponds to
    * a set of permissions being requested on a list of securables for a specified principal.
-   *
+   * 
    * At most 30 requests per API call.
    */
   requests?: CreateAccessRequest[] | undefined;
@@ -89,20 +90,20 @@ export interface CreateAccessRequest {
   /**
    * Optional. The principal this request is for.
    * Empty `behalf_of` defaults to the requester's identity.
-   *
+   * 
    * Principals must be unique across the API call.
    */
   behalfOf?: Principal | undefined;
   /**
    * Optional. Comment associated with the request.
-   *
+   * 
    * At most 200 characters, can only contain lowercase/uppercase
    * letters (a-z, A-Z), numbers (0-9), punctuation, and spaces.
    */
   comment?: string | undefined;
   /**
    * List of securables and their corresponding requested UC privileges.
-   *
+   * 
    * At most 30 securables can be requested for a principal per batched call.
    * Each securable can only be requested once per principal.
    */
@@ -181,105 +182,86 @@ export interface UpdateAccessRequestDestinationsRequest {
    * For each destination, a **destination_id** and **destination_type** must be defined.
    */
   accessRequestDestinations?: AccessRequestDestinations | undefined;
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<FieldPaths<AccessRequestDestinations>> | undefined;
 }
 
-export const unmarshalAccessRequestDestinationsSchema: z.ZodType<AccessRequestDestinations> =
-  z
-    .object({
-      destinations: z
-        .array(z.lazy(() => unmarshalNotificationDestinationSchema))
-        .optional(),
-      securable: z.lazy(() => unmarshalSecurableSchema).optional(),
-      are_any_destinations_hidden: z.boolean().optional(),
-      destination_source_securable: z
-        .lazy(() => unmarshalSecurableSchema)
-        .optional(),
-      securable_type: z.string().optional(),
-      full_name: z.string().optional(),
-    })
-    .transform(d => ({
-      destinations: d.destinations,
-      securable: d.securable,
-      areAnyDestinationsHidden: d.are_any_destinations_hidden,
-      destinationSourceSecurable: d.destination_source_securable,
-      securableType: d.securable_type,
-      fullName: d.full_name,
-    }));
+export const unmarshalAccessRequestDestinationsSchema: z.ZodType<AccessRequestDestinations> = z
+  .object({
+    destinations: z.array(z.lazy(() => unmarshalNotificationDestinationSchema)).optional(),
+    securable: z.lazy(() => unmarshalSecurableSchema).optional(),
+    are_any_destinations_hidden: z.boolean().optional(),
+    destination_source_securable: z.lazy(() => unmarshalSecurableSchema).optional(),
+    securable_type: z.string().optional(),
+    full_name: z.string().optional(),
+  })
+  .transform(d => ({
+    destinations: d.destinations,
+    securable: d.securable,
+    areAnyDestinationsHidden: d.are_any_destinations_hidden,
+    destinationSourceSecurable: d.destination_source_securable,
+    securableType: d.securable_type,
+    fullName: d.full_name,
+  }));
 
-export const unmarshalBatchCreateAccessRequestsRequestSchema: z.ZodType<BatchCreateAccessRequestsRequest> =
-  z
-    .object({
-      requests: z
-        .array(z.lazy(() => unmarshalCreateAccessRequestSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      requests: d.requests,
-    }));
+export const unmarshalBatchCreateAccessRequestsRequestSchema: z.ZodType<BatchCreateAccessRequestsRequest> = z
+  .object({
+    requests: z.array(z.lazy(() => unmarshalCreateAccessRequestSchema)).optional(),
+  })
+  .transform(d => ({
+    requests: d.requests,
+  }));
 
-export const unmarshalBatchCreateAccessRequestsResponseSchema: z.ZodType<BatchCreateAccessRequestsResponse> =
-  z
-    .object({
-      responses: z
-        .array(z.lazy(() => unmarshalCreateAccessRequestResponseSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      responses: d.responses,
-    }));
+export const unmarshalBatchCreateAccessRequestsResponseSchema: z.ZodType<BatchCreateAccessRequestsResponse> = z
+  .object({
+    responses: z.array(z.lazy(() => unmarshalCreateAccessRequestResponseSchema)).optional(),
+  })
+  .transform(d => ({
+    responses: d.responses,
+  }));
 
-export const unmarshalCreateAccessRequestSchema: z.ZodType<CreateAccessRequest> =
-  z
-    .object({
-      behalf_of: z.lazy(() => unmarshalPrincipalSchema).optional(),
-      comment: z.string().optional(),
-      securable_permissions: z
-        .array(z.lazy(() => unmarshalSecurablePermissionsSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      behalfOf: d.behalf_of,
-      comment: d.comment,
-      securablePermissions: d.securable_permissions,
-    }));
+export const unmarshalCreateAccessRequestSchema: z.ZodType<CreateAccessRequest> = z
+  .object({
+    behalf_of: z.lazy(() => unmarshalPrincipalSchema).optional(),
+    comment: z.string().optional(),
+    securable_permissions: z.array(z.lazy(() => unmarshalSecurablePermissionsSchema)).optional(),
+  })
+  .transform(d => ({
+    behalfOf: d.behalf_of,
+    comment: d.comment,
+    securablePermissions: d.securable_permissions,
+  }));
 
-export const unmarshalCreateAccessRequestResponseSchema: z.ZodType<CreateAccessRequestResponse> =
-  z
-    .object({
-      behalf_of: z.lazy(() => unmarshalPrincipalSchema).optional(),
-      request_destinations: z
-        .array(z.lazy(() => unmarshalAccessRequestDestinationsSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      behalfOf: d.behalf_of,
-      requestDestinations: d.request_destinations,
-    }));
+export const unmarshalCreateAccessRequestResponseSchema: z.ZodType<CreateAccessRequestResponse> = z
+  .object({
+    behalf_of: z.lazy(() => unmarshalPrincipalSchema).optional(),
+    request_destinations: z.array(z.lazy(() => unmarshalAccessRequestDestinationsSchema)).optional(),
+  })
+  .transform(d => ({
+    behalfOf: d.behalf_of,
+    requestDestinations: d.request_destinations,
+  }));
 
-export const unmarshalGetAccessRequestDestinationsRequestSchema: z.ZodType<GetAccessRequestDestinationsRequest> =
-  z
-    .object({
-      securable_type: z.string().optional(),
-      full_name: z.string().optional(),
-    })
-    .transform(d => ({
-      securableType: d.securable_type,
-      fullName: d.full_name,
-    }));
+export const unmarshalGetAccessRequestDestinationsRequestSchema: z.ZodType<GetAccessRequestDestinationsRequest> = z
+  .object({
+    securable_type: z.string().optional(),
+    full_name: z.string().optional(),
+  })
+  .transform(d => ({
+    securableType: d.securable_type,
+    fullName: d.full_name,
+  }));
 
-export const unmarshalNotificationDestinationSchema: z.ZodType<NotificationDestination> =
-  z
-    .object({
-      destination_id: z.string().optional(),
-      destination_type: z.enum(DestinationType).optional(),
-      special_destination: z.enum(SpecialDestination).optional(),
-    })
-    .transform(d => ({
-      destinationId: d.destination_id,
-      destinationType: d.destination_type,
-      specialDestination: d.special_destination,
-    }));
+export const unmarshalNotificationDestinationSchema: z.ZodType<NotificationDestination> = z
+  .object({
+    destination_id: z.string().optional(),
+    destination_type: z.enum(DestinationType).optional(),
+    special_destination: z.enum(SpecialDestination).optional(),
+  })
+  .transform(d => ({
+    destinationId: d.destination_id,
+    destinationType: d.destination_type,
+    specialDestination: d.special_destination,
+  }));
 
 export const unmarshalPrincipalSchema: z.ZodType<Principal> = z
   .object({
@@ -303,35 +285,29 @@ export const unmarshalSecurableSchema: z.ZodType<Securable> = z
     providerShare: d.provider_share,
   }));
 
-export const unmarshalSecurablePermissionsSchema: z.ZodType<SecurablePermissions> =
-  z
-    .object({
-      securable: z.lazy(() => unmarshalSecurableSchema).optional(),
-      permissions: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      securable: d.securable,
-      permissions: d.permissions,
-    }));
+export const unmarshalSecurablePermissionsSchema: z.ZodType<SecurablePermissions> = z
+  .object({
+    securable: z.lazy(() => unmarshalSecurableSchema).optional(),
+    permissions: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    securable: d.securable,
+    permissions: d.permissions,
+  }));
 
-export const unmarshalUpdateAccessRequestDestinationsRequestSchema: z.ZodType<UpdateAccessRequestDestinationsRequest> =
-  z
-    .object({
-      access_request_destinations: z
-        .lazy(() => unmarshalAccessRequestDestinationsSchema)
-        .optional(),
-      update_mask: z.string().optional(),
-    })
-    .transform(d => ({
-      accessRequestDestinations: d.access_request_destinations,
-      updateMask: d.update_mask,
-    }));
+export const unmarshalUpdateAccessRequestDestinationsRequestSchema: z.ZodType<UpdateAccessRequestDestinationsRequest> = z
+  .object({
+    access_request_destinations: z.lazy(() => unmarshalAccessRequestDestinationsSchema).optional(),
+    update_mask: z.string().transform(s => FieldMask.of(...(s === '' ? [] : s.split(','))) as FieldMask<FieldPaths<AccessRequestDestinations>>).optional(),
+  })
+  .transform(d => ({
+    accessRequestDestinations: d.access_request_destinations,
+    updateMask: d.update_mask,
+  }));
 
 export const marshalAccessRequestDestinationsSchema: z.ZodType = z
   .object({
-    destinations: z
-      .array(z.lazy(() => marshalNotificationDestinationSchema))
-      .optional(),
+    destinations: z.array(z.lazy(() => marshalNotificationDestinationSchema)).optional(),
     securable: z.lazy(() => marshalSecurableSchema).optional(),
     areAnyDestinationsHidden: z.boolean().optional(),
     destinationSourceSecurable: z.lazy(() => marshalSecurableSchema).optional(),
@@ -349,9 +325,7 @@ export const marshalAccessRequestDestinationsSchema: z.ZodType = z
 
 export const marshalBatchCreateAccessRequestsRequestSchema: z.ZodType = z
   .object({
-    requests: z
-      .array(z.lazy(() => marshalCreateAccessRequestSchema))
-      .optional(),
+    requests: z.array(z.lazy(() => marshalCreateAccessRequestSchema)).optional(),
   })
   .transform(d => ({
     requests: d.requests,
@@ -359,9 +333,7 @@ export const marshalBatchCreateAccessRequestsRequestSchema: z.ZodType = z
 
 export const marshalBatchCreateAccessRequestsResponseSchema: z.ZodType = z
   .object({
-    responses: z
-      .array(z.lazy(() => marshalCreateAccessRequestResponseSchema))
-      .optional(),
+    responses: z.array(z.lazy(() => marshalCreateAccessRequestResponseSchema)).optional(),
   })
   .transform(d => ({
     responses: d.responses,
@@ -371,9 +343,7 @@ export const marshalCreateAccessRequestSchema: z.ZodType = z
   .object({
     behalfOf: z.lazy(() => marshalPrincipalSchema).optional(),
     comment: z.string().optional(),
-    securablePermissions: z
-      .array(z.lazy(() => marshalSecurablePermissionsSchema))
-      .optional(),
+    securablePermissions: z.array(z.lazy(() => marshalSecurablePermissionsSchema)).optional(),
   })
   .transform(d => ({
     behalf_of: d.behalfOf,
@@ -384,9 +354,7 @@ export const marshalCreateAccessRequestSchema: z.ZodType = z
 export const marshalCreateAccessRequestResponseSchema: z.ZodType = z
   .object({
     behalfOf: z.lazy(() => marshalPrincipalSchema).optional(),
-    requestDestinations: z
-      .array(z.lazy(() => marshalAccessRequestDestinationsSchema))
-      .optional(),
+    requestDestinations: z.array(z.lazy(() => marshalAccessRequestDestinationsSchema)).optional(),
   })
   .transform(d => ({
     behalf_of: d.behalfOf,
@@ -449,10 +417,8 @@ export const marshalSecurablePermissionsSchema: z.ZodType = z
 
 export const marshalUpdateAccessRequestDestinationsRequestSchema: z.ZodType = z
   .object({
-    accessRequestDestinations: z
-      .lazy(() => marshalAccessRequestDestinationsSchema)
-      .optional(),
-    updateMask: z.string().optional(),
+    accessRequestDestinations: z.lazy(() => marshalAccessRequestDestinationsSchema).optional(),
+    updateMask: z.any().transform((d: FieldMask<FieldPaths<AccessRequestDestinations>>) => d.paths.join(',')).optional(),
   })
   .transform(d => ({
     access_request_destinations: d.accessRequestDestinations,

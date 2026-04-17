@@ -92,118 +92,101 @@ export interface WorkspaceBindingInfo {
   bindingType?: BindingType | undefined;
 }
 
-export const unmarshalGetCatalogWorkspaceBindingsSchema: z.ZodType<GetCatalogWorkspaceBindings> =
-  z
-    .object({
-      catalog_name: z.string().optional(),
-    })
-    .transform(d => ({
-      catalogName: d.catalog_name,
-    }));
+export const unmarshalGetCatalogWorkspaceBindingsSchema: z.ZodType<GetCatalogWorkspaceBindings> = z
+  .object({
+    catalog_name: z.string().optional(),
+  })
+  .transform(d => ({
+    catalogName: d.catalog_name,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetCatalogWorkspaceBindings_ResponseSchema: z.ZodType<GetCatalogWorkspaceBindings_Response> =
-  z
-    .object({
-      workspaces: z.array(z.number()).optional(),
-    })
-    .transform(d => ({
-      workspaces: d.workspaces,
-    }));
+export const unmarshalGetCatalogWorkspaceBindings_ResponseSchema: z.ZodType<GetCatalogWorkspaceBindings_Response> = z
+  .object({
+    workspaces: z.array(z.number()).optional(),
+  })
+  .transform(d => ({
+    workspaces: d.workspaces,
+  }));
 
-export const unmarshalGetWorkspaceBindingsSchema: z.ZodType<GetWorkspaceBindings> =
-  z
-    .object({
-      securable_type: z.string().optional(),
-      securable_full_name: z.string().optional(),
-      max_results: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      securableType: d.securable_type,
-      securableFullName: d.securable_full_name,
-      maxResults: d.max_results,
-      pageToken: d.page_token,
-    }));
+export const unmarshalGetWorkspaceBindingsSchema: z.ZodType<GetWorkspaceBindings> = z
+  .object({
+    securable_type: z.string().optional(),
+    securable_full_name: z.string().optional(),
+    max_results: z.number().optional(),
+    page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    securableType: d.securable_type,
+    securableFullName: d.securable_full_name,
+    maxResults: d.max_results,
+    pageToken: d.page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetWorkspaceBindings_ResponseSchema: z.ZodType<GetWorkspaceBindings_Response> =
-  z
-    .object({
-      bindings: z
-        .array(z.lazy(() => unmarshalWorkspaceBindingInfoSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      bindings: d.bindings,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalGetWorkspaceBindings_ResponseSchema: z.ZodType<GetWorkspaceBindings_Response> = z
+  .object({
+    bindings: z.array(z.lazy(() => unmarshalWorkspaceBindingInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    bindings: d.bindings,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalUpdateCatalogWorkspaceBindingsSchema: z.ZodType<UpdateCatalogWorkspaceBindings> =
-  z
-    .object({
-      catalog_name: z.string().optional(),
-      assign_workspaces: z.array(z.number()).optional(),
-      unassign_workspaces: z.array(z.number()).optional(),
-    })
-    .transform(d => ({
-      catalogName: d.catalog_name,
-      assignWorkspaces: d.assign_workspaces,
-      unassignWorkspaces: d.unassign_workspaces,
-    }));
+export const unmarshalUpdateCatalogWorkspaceBindingsSchema: z.ZodType<UpdateCatalogWorkspaceBindings> = z
+  .object({
+    catalog_name: z.string().optional(),
+    assign_workspaces: z.array(z.number()).optional(),
+    unassign_workspaces: z.array(z.number()).optional(),
+  })
+  .transform(d => ({
+    catalogName: d.catalog_name,
+    assignWorkspaces: d.assign_workspaces,
+    unassignWorkspaces: d.unassign_workspaces,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateCatalogWorkspaceBindings_ResponseSchema: z.ZodType<UpdateCatalogWorkspaceBindings_Response> =
-  z
-    .object({
-      workspaces: z.array(z.number()).optional(),
-    })
-    .transform(d => ({
-      workspaces: d.workspaces,
-    }));
+export const unmarshalUpdateCatalogWorkspaceBindings_ResponseSchema: z.ZodType<UpdateCatalogWorkspaceBindings_Response> = z
+  .object({
+    workspaces: z.array(z.number()).optional(),
+  })
+  .transform(d => ({
+    workspaces: d.workspaces,
+  }));
 
-export const unmarshalUpdateWorkspaceBindingsSchema: z.ZodType<UpdateWorkspaceBindings> =
-  z
-    .object({
-      securable_type: z.string().optional(),
-      securable_full_name: z.string().optional(),
-      add: z
-        .array(z.lazy(() => unmarshalWorkspaceBindingInfoSchema))
-        .optional(),
-      remove: z
-        .array(z.lazy(() => unmarshalWorkspaceBindingInfoSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      securableType: d.securable_type,
-      securableFullName: d.securable_full_name,
-      add: d.add,
-      remove: d.remove,
-    }));
+export const unmarshalUpdateWorkspaceBindingsSchema: z.ZodType<UpdateWorkspaceBindings> = z
+  .object({
+    securable_type: z.string().optional(),
+    securable_full_name: z.string().optional(),
+    add: z.array(z.lazy(() => unmarshalWorkspaceBindingInfoSchema)).optional(),
+    remove: z.array(z.lazy(() => unmarshalWorkspaceBindingInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    securableType: d.securable_type,
+    securableFullName: d.securable_full_name,
+    add: d.add,
+    remove: d.remove,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateWorkspaceBindings_ResponseSchema: z.ZodType<UpdateWorkspaceBindings_Response> =
-  z
-    .object({
-      bindings: z
-        .array(z.lazy(() => unmarshalWorkspaceBindingInfoSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      bindings: d.bindings,
-    }));
+export const unmarshalUpdateWorkspaceBindings_ResponseSchema: z.ZodType<UpdateWorkspaceBindings_Response> = z
+  .object({
+    bindings: z.array(z.lazy(() => unmarshalWorkspaceBindingInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    bindings: d.bindings,
+  }));
 
-export const unmarshalWorkspaceBindingInfoSchema: z.ZodType<WorkspaceBindingInfo> =
-  z
-    .object({
-      workspace_id: z.number().optional(),
-      binding_type: z.enum(BindingType).optional(),
-    })
-    .transform(d => ({
-      workspaceId: d.workspace_id,
-      bindingType: d.binding_type,
-    }));
+export const unmarshalWorkspaceBindingInfoSchema: z.ZodType<WorkspaceBindingInfo> = z
+  .object({
+    workspace_id: z.number().optional(),
+    binding_type: z.enum(BindingType).optional(),
+  })
+  .transform(d => ({
+    workspaceId: d.workspace_id,
+    bindingType: d.binding_type,
+  }));
 
 export const marshalGetCatalogWorkspaceBindingsSchema: z.ZodType = z
   .object({
@@ -239,9 +222,7 @@ export const marshalGetWorkspaceBindingsSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalGetWorkspaceBindings_ResponseSchema: z.ZodType = z
   .object({
-    bindings: z
-      .array(z.lazy(() => marshalWorkspaceBindingInfoSchema))
-      .optional(),
+    bindings: z.array(z.lazy(() => marshalWorkspaceBindingInfoSchema)).optional(),
     nextPageToken: z.string().optional(),
   })
   .transform(d => ({
@@ -287,9 +268,7 @@ export const marshalUpdateWorkspaceBindingsSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalUpdateWorkspaceBindings_ResponseSchema: z.ZodType = z
   .object({
-    bindings: z
-      .array(z.lazy(() => marshalWorkspaceBindingInfoSchema))
-      .optional(),
+    bindings: z.array(z.lazy(() => marshalWorkspaceBindingInfoSchema)).optional(),
   })
   .transform(d => ({
     bindings: d.bindings,

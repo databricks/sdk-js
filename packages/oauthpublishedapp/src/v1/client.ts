@@ -13,7 +13,9 @@ import type {
   ListPublishedOAuthApps_Response,
   PublishedOAuthApp,
 } from './model';
-import {unmarshalListPublishedOAuthApps_ResponseSchema} from './model';
+import {
+  unmarshalListPublishedOAuthApps_ResponseSchema,
+} from './model';
 
 export class Client {
   private readonly host: string;
@@ -30,11 +32,7 @@ export class Client {
   }
 
   /** Get all the available published OAuth apps in <Databricks>. */
-  async listPublishedOAuthApps(
-    signal: AbortSignal | undefined,
-    req: ListPublishedOAuthApps,
-    options?: Options
-  ): Promise<ListPublishedOAuthApps_Response> {
+  async listPublishedOAuthApps(signal: AbortSignal | undefined, req: ListPublishedOAuthApps, options?: Options): Promise<ListPublishedOAuthApps_Response> {
     const url = `${this.host}/api/2.0/accounts/{account_id}/oauth2/published-apps`;
     const params = new URLSearchParams();
     if (req.accountId !== undefined) {
@@ -51,15 +49,8 @@ export class Client {
     let resp: ListPublishedOAuthApps_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListPublishedOAuthApps_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListPublishedOAuthApps_ResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -68,11 +59,8 @@ export class Client {
     return resp;
   }
 
-  async *listPublishedOAuthAppsIter(
-    signal: AbortSignal | undefined,
-    req: ListPublishedOAuthApps,
-    options?: Options
-  ): AsyncGenerator<PublishedOAuthApp> {
+
+  async *listPublishedOAuthAppsIter(signal: AbortSignal | undefined, req: ListPublishedOAuthApps, options?: Options): AsyncGenerator<PublishedOAuthApp> {
     const pageReq: ListPublishedOAuthApps = {...req};
     for (;;) {
       const resp = await this.listPublishedOAuthApps(signal, pageReq, options);
@@ -85,4 +73,5 @@ export class Client {
       pageReq.pageToken = resp.nextPageToken;
     }
   }
+
 }

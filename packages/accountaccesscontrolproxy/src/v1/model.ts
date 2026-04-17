@@ -7,7 +7,7 @@ export interface GetAssignableRolesForResourceRequest {
   accountId?: string | undefined;
   /**
    * The resource name for which assignable roles will be listed.
-   *
+   * 
    * Examples | Summary
    * :--- | :---
    * `resource=accounts/<ACCOUNT_ID>` | A resource name for the account.
@@ -27,7 +27,7 @@ export interface GetRuleSetRequest {
   accountId?: string | undefined;
   /**
    * The ruleset name associated with the request.
-   *
+   * 
    * Examples | Summary
    * :--- | :---
    * `name=accounts/<ACCOUNT_ID>/ruleSets/default` | A name for a rule set on the account.
@@ -42,7 +42,7 @@ export interface GetRuleSetRequest {
    * strongly suggested that systems make use of the etag in the read -> modify -> write pattern to perform rule set
    * updates in order to avoid race conditions that is get an etag from a GET rule set request, and pass it with the
    * PUT update request to identify the rule set version you are updating.
-   *
+   * 
    * Examples | Summary
    * :--- | :---
    * `etag=` | An empty etag can only be used in GET to indicate no freshness requirements.
@@ -110,25 +110,23 @@ export interface UpdateRuleSetRequest {
   ruleSet?: RuleSetUpdateRequest | undefined;
 }
 
-export const unmarshalGetAssignableRolesForResourceRequestSchema: z.ZodType<GetAssignableRolesForResourceRequest> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      resource: z.string().optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      resource: d.resource,
-    }));
+export const unmarshalGetAssignableRolesForResourceRequestSchema: z.ZodType<GetAssignableRolesForResourceRequest> = z
+  .object({
+    account_id: z.string().optional(),
+    resource: z.string().optional(),
+  })
+  .transform(d => ({
+    accountId: d.account_id,
+    resource: d.resource,
+  }));
 
-export const unmarshalGetAssignableRolesForResourceResponseSchema: z.ZodType<GetAssignableRolesForResourceResponse> =
-  z
-    .object({
-      roles: z.array(z.lazy(() => unmarshalRoleSchema)).optional(),
-    })
-    .transform(d => ({
-      roles: d.roles,
-    }));
+export const unmarshalGetAssignableRolesForResourceResponseSchema: z.ZodType<GetAssignableRolesForResourceResponse> = z
+  .object({
+    roles: z.array(z.lazy(() => unmarshalRoleSchema)).optional(),
+  })
+  .transform(d => ({
+    roles: d.roles,
+  }));
 
 export const unmarshalGetRuleSetRequestSchema: z.ZodType<GetRuleSetRequest> = z
   .object({
@@ -172,31 +170,29 @@ export const unmarshalRuleSetSchema: z.ZodType<RuleSet> = z
     grantRules: d.grant_rules,
   }));
 
-export const unmarshalRuleSetUpdateRequestSchema: z.ZodType<RuleSetUpdateRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-      etag: z.string().optional(),
-      grant_rules: z.array(z.lazy(() => unmarshalGrantRuleSchema)).optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      etag: d.etag,
-      grantRules: d.grant_rules,
-    }));
+export const unmarshalRuleSetUpdateRequestSchema: z.ZodType<RuleSetUpdateRequest> = z
+  .object({
+    name: z.string().optional(),
+    etag: z.string().optional(),
+    grant_rules: z.array(z.lazy(() => unmarshalGrantRuleSchema)).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    etag: d.etag,
+    grantRules: d.grant_rules,
+  }));
 
-export const unmarshalUpdateRuleSetRequestSchema: z.ZodType<UpdateRuleSetRequest> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      name: z.string().optional(),
-      rule_set: z.lazy(() => unmarshalRuleSetUpdateRequestSchema).optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      name: d.name,
-      ruleSet: d.rule_set,
-    }));
+export const unmarshalUpdateRuleSetRequestSchema: z.ZodType<UpdateRuleSetRequest> = z
+  .object({
+    account_id: z.string().optional(),
+    name: z.string().optional(),
+    rule_set: z.lazy(() => unmarshalRuleSetUpdateRequestSchema).optional(),
+  })
+  .transform(d => ({
+    accountId: d.account_id,
+    name: d.name,
+    ruleSet: d.rule_set,
+  }));
 
 export const marshalGetAssignableRolesForResourceRequestSchema: z.ZodType = z
   .object({

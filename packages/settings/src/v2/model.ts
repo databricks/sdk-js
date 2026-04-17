@@ -62,9 +62,7 @@ export enum RestrictWorkspaceAdminsMessage_Status {
 }
 
 export interface AibiDashboardEmbeddingAccessPolicy {
-  accessPolicyType?:
-    | AibiDashboardEmbeddingAccessPolicy_AccessPolicyType
-    | undefined;
+  accessPolicyType?: AibiDashboardEmbeddingAccessPolicy_AccessPolicyType | undefined;
 }
 
 export interface AibiDashboardEmbeddingApprovedDomains {
@@ -103,20 +101,14 @@ export interface ClusterAutoRestartMessage_EnablementDetails {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ClusterAutoRestartMessage_MaintenanceWindow {
-  weekDayBasedSchedule?:
-    | ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedule
-    | undefined;
+  weekDayBasedSchedule?: ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedule | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedule {
-  frequency?:
-    | ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency
-    | undefined;
+  frequency?: ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency | undefined;
   dayOfWeek?: ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek | undefined;
-  windowStartTime?:
-    | ClusterAutoRestartMessage_MaintenanceWindow_WindowStartTime
-    | undefined;
+  windowStartTime?: ClusterAutoRestartMessage_MaintenanceWindow_WindowStartTime | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -160,7 +152,7 @@ export interface ListAccountSettingsMetadataRequest {
   /**
    * A page token, received from a previous `ListAccountSettingsMetadataRequest` call.
    * Provide this to retrieve the subsequent page.
-   *
+   * 
    * When paginating, all other parameters provided to `ListAccountSettingsMetadataRequest` must match
    * the call that provided the page token.
    */
@@ -191,7 +183,7 @@ export interface ListAccountUserPreferencesMetadataRequest {
   /**
    * A page token, received from a previous `ListAccountUserPreferencesMetadataRequest` call.
    * Provide this to retrieve the subsequent page.
-   *
+   * 
    * When paginating, all other parameters provided to `ListAccountUserPreferencesMetadataRequest` must match
    * the call that provided the page token.
    */
@@ -218,7 +210,7 @@ export interface ListWorkspaceSettingsMetadataRequest {
   /**
    * A page token, received from a previous `ListWorkspaceSettingsMetadataRequest` call.
    * Provide this to retrieve the subsequent page.
-   *
+   * 
    * When paginating, all other parameters provided to `ListWorkspaceSettingsMetadataRequest` must match
    * the call that provided the page token.
    */
@@ -282,13 +274,9 @@ export interface Setting {
   /** Setting value for automatic_cluster_update_workspace setting. This is the setting value set by consumers, check effective_automatic_cluster_update_workspace for final setting value. */
   automaticClusterUpdateWorkspace?: ClusterAutoRestartMessage | undefined;
   /** Setting value for aibi_dashboard_embedding_approved_domains setting. This is the setting value set by consumers, check effective_aibi_dashboard_embedding_approved_domains for final setting value. */
-  aibiDashboardEmbeddingApprovedDomains?:
-    | AibiDashboardEmbeddingApprovedDomains
-    | undefined;
+  aibiDashboardEmbeddingApprovedDomains?: AibiDashboardEmbeddingApprovedDomains | undefined;
   /** Setting value for aibi_dashboard_embedding_access_policy setting. This is the setting value set by consumers, check effective_aibi_dashboard_embedding_access_policy for final setting value. */
-  aibiDashboardEmbeddingAccessPolicy?:
-    | AibiDashboardEmbeddingAccessPolicy
-    | undefined;
+  aibiDashboardEmbeddingAccessPolicy?: AibiDashboardEmbeddingAccessPolicy | undefined;
   /** Setting value for restrict_workspace_admins setting. This is the setting value set by consumers, check effective_restrict_workspace_admins for final setting value. */
   restrictWorkspaceAdmins?: RestrictWorkspaceAdminsMessage | undefined;
   /** Setting value for personal_compute setting. This is the setting value set by consumers, check effective_personal_compute for final setting value. */
@@ -300,17 +288,11 @@ export interface Setting {
   /** Effective setting value for integer type setting. This is the final effective value of setting. To set a value use integer_val. */
   effectiveIntegerVal?: IntegerMessage | undefined;
   /** Effective setting value for automatic_cluster_update_workspace setting. This is the final effective value of setting. To set a value use automatic_cluster_update_workspace. */
-  effectiveAutomaticClusterUpdateWorkspace?:
-    | ClusterAutoRestartMessage
-    | undefined;
+  effectiveAutomaticClusterUpdateWorkspace?: ClusterAutoRestartMessage | undefined;
   /** Effective setting value for aibi_dashboard_embedding_approved_domains setting. This is the final effective value of setting. To set a value use aibi_dashboard_embedding_approved_domains. */
-  effectiveAibiDashboardEmbeddingApprovedDomains?:
-    | AibiDashboardEmbeddingApprovedDomains
-    | undefined;
+  effectiveAibiDashboardEmbeddingApprovedDomains?: AibiDashboardEmbeddingApprovedDomains | undefined;
   /** Effective setting value for aibi_dashboard_embedding_access_policy setting. This is the final effective value of setting. To set a value use aibi_dashboard_embedding_access_policy. */
-  effectiveAibiDashboardEmbeddingAccessPolicy?:
-    | AibiDashboardEmbeddingAccessPolicy
-    | undefined;
+  effectiveAibiDashboardEmbeddingAccessPolicy?: AibiDashboardEmbeddingAccessPolicy | undefined;
   /** Effective setting value for restrict_workspace_admins setting. This is the final effective value of setting. To set a value use restrict_workspace_admins. */
   effectiveRestrictWorkspaceAdmins?: RestrictWorkspaceAdminsMessage | undefined;
   /** Effective setting value for personal_compute setting. This is the final effective value of setting. To set a value use personal_compute. */
@@ -349,25 +331,21 @@ export interface UserPreference {
   effectiveStringVal?: StringMessage | undefined;
 }
 
-export const unmarshalAibiDashboardEmbeddingAccessPolicySchema: z.ZodType<AibiDashboardEmbeddingAccessPolicy> =
-  z
-    .object({
-      access_policy_type: z
-        .enum(AibiDashboardEmbeddingAccessPolicy_AccessPolicyType)
-        .optional(),
-    })
-    .transform(d => ({
-      accessPolicyType: d.access_policy_type,
-    }));
+export const unmarshalAibiDashboardEmbeddingAccessPolicySchema: z.ZodType<AibiDashboardEmbeddingAccessPolicy> = z
+  .object({
+    access_policy_type: z.enum(AibiDashboardEmbeddingAccessPolicy_AccessPolicyType).optional(),
+  })
+  .transform(d => ({
+    accessPolicyType: d.access_policy_type,
+  }));
 
-export const unmarshalAibiDashboardEmbeddingApprovedDomainsSchema: z.ZodType<AibiDashboardEmbeddingApprovedDomains> =
-  z
-    .object({
-      approved_domains: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      approvedDomains: d.approved_domains,
-    }));
+export const unmarshalAibiDashboardEmbeddingApprovedDomainsSchema: z.ZodType<AibiDashboardEmbeddingApprovedDomains> = z
+  .object({
+    approved_domains: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    approvedDomains: d.approved_domains,
+  }));
 
 export const unmarshalBooleanMessageSchema: z.ZodType<BooleanMessage> = z
   .object({
@@ -377,123 +355,97 @@ export const unmarshalBooleanMessageSchema: z.ZodType<BooleanMessage> = z
     value: d.value,
   }));
 
-export const unmarshalClusterAutoRestartMessageSchema: z.ZodType<ClusterAutoRestartMessage> =
-  z
-    .object({
-      enabled: z.boolean().optional(),
-      can_toggle: z.boolean().optional(),
-      maintenance_window: z
-        .lazy(() => unmarshalClusterAutoRestartMessage_MaintenanceWindowSchema)
-        .optional(),
-      enablement_details: z
-        .lazy(() => unmarshalClusterAutoRestartMessage_EnablementDetailsSchema)
-        .optional(),
-      restart_even_if_no_updates_available: z.boolean().optional(),
-    })
-    .transform(d => ({
-      enabled: d.enabled,
-      canToggle: d.can_toggle,
-      maintenanceWindow: d.maintenance_window,
-      enablementDetails: d.enablement_details,
-      restartEvenIfNoUpdatesAvailable: d.restart_even_if_no_updates_available,
-    }));
+export const unmarshalClusterAutoRestartMessageSchema: z.ZodType<ClusterAutoRestartMessage> = z
+  .object({
+    enabled: z.boolean().optional(),
+    can_toggle: z.boolean().optional(),
+    maintenance_window: z.lazy(() => unmarshalClusterAutoRestartMessage_MaintenanceWindowSchema).optional(),
+    enablement_details: z.lazy(() => unmarshalClusterAutoRestartMessage_EnablementDetailsSchema).optional(),
+    restart_even_if_no_updates_available: z.boolean().optional(),
+  })
+  .transform(d => ({
+    enabled: d.enabled,
+    canToggle: d.can_toggle,
+    maintenanceWindow: d.maintenance_window,
+    enablementDetails: d.enablement_details,
+    restartEvenIfNoUpdatesAvailable: d.restart_even_if_no_updates_available,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalClusterAutoRestartMessage_EnablementDetailsSchema: z.ZodType<ClusterAutoRestartMessage_EnablementDetails> =
-  z
-    .object({
-      unavailable_for_non_enterprise_tier: z.boolean().optional(),
-      unavailable_for_disabled_entitlement: z.boolean().optional(),
-      forced_for_compliance_mode: z.boolean().optional(),
-    })
-    .transform(d => ({
-      unavailableForNonEnterpriseTier: d.unavailable_for_non_enterprise_tier,
-      unavailableForDisabledEntitlement: d.unavailable_for_disabled_entitlement,
-      forcedForComplianceMode: d.forced_for_compliance_mode,
-    }));
+export const unmarshalClusterAutoRestartMessage_EnablementDetailsSchema: z.ZodType<ClusterAutoRestartMessage_EnablementDetails> = z
+  .object({
+    unavailable_for_non_enterprise_tier: z.boolean().optional(),
+    unavailable_for_disabled_entitlement: z.boolean().optional(),
+    forced_for_compliance_mode: z.boolean().optional(),
+  })
+  .transform(d => ({
+    unavailableForNonEnterpriseTier: d.unavailable_for_non_enterprise_tier,
+    unavailableForDisabledEntitlement: d.unavailable_for_disabled_entitlement,
+    forcedForComplianceMode: d.forced_for_compliance_mode,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalClusterAutoRestartMessage_MaintenanceWindowSchema: z.ZodType<ClusterAutoRestartMessage_MaintenanceWindow> =
-  z
-    .object({
-      week_day_based_schedule: z
-        .lazy(
-          () =>
-            unmarshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      weekDayBasedSchedule: d.week_day_based_schedule,
-    }));
+export const unmarshalClusterAutoRestartMessage_MaintenanceWindowSchema: z.ZodType<ClusterAutoRestartMessage_MaintenanceWindow> = z
+  .object({
+    week_day_based_schedule: z.lazy(() => unmarshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema).optional(),
+  })
+  .transform(d => ({
+    weekDayBasedSchedule: d.week_day_based_schedule,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema: z.ZodType<ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedule> =
-  z
-    .object({
-      frequency: z
-        .enum(ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency)
-        .optional(),
-      day_of_week: z
-        .enum(ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek)
-        .optional(),
-      window_start_time: z
-        .lazy(
-          () =>
-            unmarshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeSchema
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      frequency: d.frequency,
-      dayOfWeek: d.day_of_week,
-      windowStartTime: d.window_start_time,
-    }));
+export const unmarshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema: z.ZodType<ClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedSchedule> = z
+  .object({
+    frequency: z.enum(ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency).optional(),
+    day_of_week: z.enum(ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek).optional(),
+    window_start_time: z.lazy(() => unmarshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeSchema).optional(),
+  })
+  .transform(d => ({
+    frequency: d.frequency,
+    dayOfWeek: d.day_of_week,
+    windowStartTime: d.window_start_time,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeSchema: z.ZodType<ClusterAutoRestartMessage_MaintenanceWindow_WindowStartTime> =
-  z
-    .object({
-      hours: z.number().optional(),
-      minutes: z.number().optional(),
-    })
-    .transform(d => ({
-      hours: d.hours,
-      minutes: d.minutes,
-    }));
+export const unmarshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeSchema: z.ZodType<ClusterAutoRestartMessage_MaintenanceWindow_WindowStartTime> = z
+  .object({
+    hours: z.number().optional(),
+    minutes: z.number().optional(),
+  })
+  .transform(d => ({
+    hours: d.hours,
+    minutes: d.minutes,
+  }));
 
-export const unmarshalGetPublicAccountSettingRequestSchema: z.ZodType<GetPublicAccountSettingRequest> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      name: d.name,
-    }));
+export const unmarshalGetPublicAccountSettingRequestSchema: z.ZodType<GetPublicAccountSettingRequest> = z
+  .object({
+    account_id: z.string().optional(),
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    accountId: d.account_id,
+    name: d.name,
+  }));
 
-export const unmarshalGetPublicAccountUserPreferenceRequestSchema: z.ZodType<GetPublicAccountUserPreferenceRequest> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      user_id: z.string().optional(),
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      userId: d.user_id,
-      name: d.name,
-    }));
+export const unmarshalGetPublicAccountUserPreferenceRequestSchema: z.ZodType<GetPublicAccountUserPreferenceRequest> = z
+  .object({
+    account_id: z.string().optional(),
+    user_id: z.string().optional(),
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    accountId: d.account_id,
+    userId: d.user_id,
+    name: d.name,
+  }));
 
-export const unmarshalGetPublicWorkspaceSettingRequestSchema: z.ZodType<GetPublicWorkspaceSettingRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
+export const unmarshalGetPublicWorkspaceSettingRequestSchema: z.ZodType<GetPublicWorkspaceSettingRequest> = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
 
 export const unmarshalIntegerMessageSchema: z.ZodType<IntegerMessage> = z
   .object({
@@ -503,144 +455,125 @@ export const unmarshalIntegerMessageSchema: z.ZodType<IntegerMessage> = z
     value: d.value,
   }));
 
-export const unmarshalListAccountSettingsMetadataRequestSchema: z.ZodType<ListAccountSettingsMetadataRequest> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      pageSize: d.page_size,
-      pageToken: d.page_token,
-    }));
+export const unmarshalListAccountSettingsMetadataRequestSchema: z.ZodType<ListAccountSettingsMetadataRequest> = z
+  .object({
+    account_id: z.string().optional(),
+    page_size: z.number().optional(),
+    page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    accountId: d.account_id,
+    pageSize: d.page_size,
+    pageToken: d.page_token,
+  }));
 
-export const unmarshalListAccountSettingsMetadataResponseSchema: z.ZodType<ListAccountSettingsMetadataResponse> =
-  z
-    .object({
-      settings_metadata: z
-        .array(z.lazy(() => unmarshalSettingsMetadataSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      settingsMetadata: d.settings_metadata,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListAccountSettingsMetadataResponseSchema: z.ZodType<ListAccountSettingsMetadataResponse> = z
+  .object({
+    settings_metadata: z.array(z.lazy(() => unmarshalSettingsMetadataSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    settingsMetadata: d.settings_metadata,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListAccountUserPreferencesMetadataRequestSchema: z.ZodType<ListAccountUserPreferencesMetadataRequest> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      user_id: z.string().optional(),
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      userId: d.user_id,
-      pageSize: d.page_size,
-      pageToken: d.page_token,
-    }));
+export const unmarshalListAccountUserPreferencesMetadataRequestSchema: z.ZodType<ListAccountUserPreferencesMetadataRequest> = z
+  .object({
+    account_id: z.string().optional(),
+    user_id: z.string().optional(),
+    page_size: z.number().optional(),
+    page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    accountId: d.account_id,
+    userId: d.user_id,
+    pageSize: d.page_size,
+    pageToken: d.page_token,
+  }));
 
-export const unmarshalListAccountUserPreferencesMetadataResponseSchema: z.ZodType<ListAccountUserPreferencesMetadataResponse> =
-  z
-    .object({
-      settings_metadata: z
-        .array(z.lazy(() => unmarshalSettingsMetadataSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      settingsMetadata: d.settings_metadata,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListAccountUserPreferencesMetadataResponseSchema: z.ZodType<ListAccountUserPreferencesMetadataResponse> = z
+  .object({
+    settings_metadata: z.array(z.lazy(() => unmarshalSettingsMetadataSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    settingsMetadata: d.settings_metadata,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListWorkspaceSettingsMetadataRequestSchema: z.ZodType<ListWorkspaceSettingsMetadataRequest> =
-  z
-    .object({
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      pageSize: d.page_size,
-      pageToken: d.page_token,
-    }));
+export const unmarshalListWorkspaceSettingsMetadataRequestSchema: z.ZodType<ListWorkspaceSettingsMetadataRequest> = z
+  .object({
+    page_size: z.number().optional(),
+    page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    pageSize: d.page_size,
+    pageToken: d.page_token,
+  }));
 
-export const unmarshalListWorkspaceSettingsMetadataResponseSchema: z.ZodType<ListWorkspaceSettingsMetadataResponse> =
-  z
-    .object({
-      settings_metadata: z
-        .array(z.lazy(() => unmarshalSettingsMetadataSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      settingsMetadata: d.settings_metadata,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListWorkspaceSettingsMetadataResponseSchema: z.ZodType<ListWorkspaceSettingsMetadataResponse> = z
+  .object({
+    settings_metadata: z.array(z.lazy(() => unmarshalSettingsMetadataSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    settingsMetadata: d.settings_metadata,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalPatchPublicAccountSettingRequestSchema: z.ZodType<PatchPublicAccountSettingRequest> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      name: z.string().optional(),
-      setting: z.lazy(() => unmarshalSettingSchema).optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      name: d.name,
-      setting: d.setting,
-    }));
+export const unmarshalPatchPublicAccountSettingRequestSchema: z.ZodType<PatchPublicAccountSettingRequest> = z
+  .object({
+    account_id: z.string().optional(),
+    name: z.string().optional(),
+    setting: z.lazy(() => unmarshalSettingSchema).optional(),
+  })
+  .transform(d => ({
+    accountId: d.account_id,
+    name: d.name,
+    setting: d.setting,
+  }));
 
-export const unmarshalPatchPublicAccountUserPreferenceRequestSchema: z.ZodType<PatchPublicAccountUserPreferenceRequest> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      user_id: z.string().optional(),
-      name: z.string().optional(),
-      setting: z.lazy(() => unmarshalUserPreferenceSchema).optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      userId: d.user_id,
-      name: d.name,
-      setting: d.setting,
-    }));
+export const unmarshalPatchPublicAccountUserPreferenceRequestSchema: z.ZodType<PatchPublicAccountUserPreferenceRequest> = z
+  .object({
+    account_id: z.string().optional(),
+    user_id: z.string().optional(),
+    name: z.string().optional(),
+    setting: z.lazy(() => unmarshalUserPreferenceSchema).optional(),
+  })
+  .transform(d => ({
+    accountId: d.account_id,
+    userId: d.user_id,
+    name: d.name,
+    setting: d.setting,
+  }));
 
-export const unmarshalPatchPublicWorkspaceSettingRequestSchema: z.ZodType<PatchPublicWorkspaceSettingRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-      setting: z.lazy(() => unmarshalSettingSchema).optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      setting: d.setting,
-    }));
+export const unmarshalPatchPublicWorkspaceSettingRequestSchema: z.ZodType<PatchPublicWorkspaceSettingRequest> = z
+  .object({
+    name: z.string().optional(),
+    setting: z.lazy(() => unmarshalSettingSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    setting: d.setting,
+  }));
 
-export const unmarshalPersonalComputeMessageSchema: z.ZodType<PersonalComputeMessage> =
-  z
-    .object({
-      value: z
-        .enum(PersonalComputeMessage_PersonalComputeMessageEnum)
-        .optional(),
-    })
-    .transform(d => ({
-      value: d.value,
-    }));
+export const unmarshalPersonalComputeMessageSchema: z.ZodType<PersonalComputeMessage> = z
+  .object({
+    value: z.enum(PersonalComputeMessage_PersonalComputeMessageEnum).optional(),
+  })
+  .transform(d => ({
+    value: d.value,
+  }));
 
-export const unmarshalRestrictWorkspaceAdminsMessageSchema: z.ZodType<RestrictWorkspaceAdminsMessage> =
-  z
-    .object({
-      status: z.enum(RestrictWorkspaceAdminsMessage_Status).optional(),
-      disable_gov_tag_creation: z.boolean().optional(),
-    })
-    .transform(d => ({
-      status: d.status,
-      disableGovTagCreation: d.disable_gov_tag_creation,
-    }));
+export const unmarshalRestrictWorkspaceAdminsMessageSchema: z.ZodType<RestrictWorkspaceAdminsMessage> = z
+  .object({
+    status: z.enum(RestrictWorkspaceAdminsMessage_Status).optional(),
+    disable_gov_tag_creation: z.boolean().optional(),
+  })
+  .transform(d => ({
+    status: d.status,
+    disableGovTagCreation: d.disable_gov_tag_creation,
+  }));
 
 export const unmarshalSettingSchema: z.ZodType<Setting> = z
   .object({
@@ -648,43 +581,19 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
     boolean_val: z.lazy(() => unmarshalBooleanMessageSchema).optional(),
     string_val: z.lazy(() => unmarshalStringMessageSchema).optional(),
     integer_val: z.lazy(() => unmarshalIntegerMessageSchema).optional(),
-    automatic_cluster_update_workspace: z
-      .lazy(() => unmarshalClusterAutoRestartMessageSchema)
-      .optional(),
-    aibi_dashboard_embedding_approved_domains: z
-      .lazy(() => unmarshalAibiDashboardEmbeddingApprovedDomainsSchema)
-      .optional(),
-    aibi_dashboard_embedding_access_policy: z
-      .lazy(() => unmarshalAibiDashboardEmbeddingAccessPolicySchema)
-      .optional(),
-    restrict_workspace_admins: z
-      .lazy(() => unmarshalRestrictWorkspaceAdminsMessageSchema)
-      .optional(),
-    personal_compute: z
-      .lazy(() => unmarshalPersonalComputeMessageSchema)
-      .optional(),
-    effective_boolean_val: z
-      .lazy(() => unmarshalBooleanMessageSchema)
-      .optional(),
+    automatic_cluster_update_workspace: z.lazy(() => unmarshalClusterAutoRestartMessageSchema).optional(),
+    aibi_dashboard_embedding_approved_domains: z.lazy(() => unmarshalAibiDashboardEmbeddingApprovedDomainsSchema).optional(),
+    aibi_dashboard_embedding_access_policy: z.lazy(() => unmarshalAibiDashboardEmbeddingAccessPolicySchema).optional(),
+    restrict_workspace_admins: z.lazy(() => unmarshalRestrictWorkspaceAdminsMessageSchema).optional(),
+    personal_compute: z.lazy(() => unmarshalPersonalComputeMessageSchema).optional(),
+    effective_boolean_val: z.lazy(() => unmarshalBooleanMessageSchema).optional(),
     effective_string_val: z.lazy(() => unmarshalStringMessageSchema).optional(),
-    effective_integer_val: z
-      .lazy(() => unmarshalIntegerMessageSchema)
-      .optional(),
-    effective_automatic_cluster_update_workspace: z
-      .lazy(() => unmarshalClusterAutoRestartMessageSchema)
-      .optional(),
-    effective_aibi_dashboard_embedding_approved_domains: z
-      .lazy(() => unmarshalAibiDashboardEmbeddingApprovedDomainsSchema)
-      .optional(),
-    effective_aibi_dashboard_embedding_access_policy: z
-      .lazy(() => unmarshalAibiDashboardEmbeddingAccessPolicySchema)
-      .optional(),
-    effective_restrict_workspace_admins: z
-      .lazy(() => unmarshalRestrictWorkspaceAdminsMessageSchema)
-      .optional(),
-    effective_personal_compute: z
-      .lazy(() => unmarshalPersonalComputeMessageSchema)
-      .optional(),
+    effective_integer_val: z.lazy(() => unmarshalIntegerMessageSchema).optional(),
+    effective_automatic_cluster_update_workspace: z.lazy(() => unmarshalClusterAutoRestartMessageSchema).optional(),
+    effective_aibi_dashboard_embedding_approved_domains: z.lazy(() => unmarshalAibiDashboardEmbeddingApprovedDomainsSchema).optional(),
+    effective_aibi_dashboard_embedding_access_policy: z.lazy(() => unmarshalAibiDashboardEmbeddingAccessPolicySchema).optional(),
+    effective_restrict_workspace_admins: z.lazy(() => unmarshalRestrictWorkspaceAdminsMessageSchema).optional(),
+    effective_personal_compute: z.lazy(() => unmarshalPersonalComputeMessageSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -692,21 +601,16 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
     stringVal: d.string_val,
     integerVal: d.integer_val,
     automaticClusterUpdateWorkspace: d.automatic_cluster_update_workspace,
-    aibiDashboardEmbeddingApprovedDomains:
-      d.aibi_dashboard_embedding_approved_domains,
-    aibiDashboardEmbeddingAccessPolicy:
-      d.aibi_dashboard_embedding_access_policy,
+    aibiDashboardEmbeddingApprovedDomains: d.aibi_dashboard_embedding_approved_domains,
+    aibiDashboardEmbeddingAccessPolicy: d.aibi_dashboard_embedding_access_policy,
     restrictWorkspaceAdmins: d.restrict_workspace_admins,
     personalCompute: d.personal_compute,
     effectiveBooleanVal: d.effective_boolean_val,
     effectiveStringVal: d.effective_string_val,
     effectiveIntegerVal: d.effective_integer_val,
-    effectiveAutomaticClusterUpdateWorkspace:
-      d.effective_automatic_cluster_update_workspace,
-    effectiveAibiDashboardEmbeddingApprovedDomains:
-      d.effective_aibi_dashboard_embedding_approved_domains,
-    effectiveAibiDashboardEmbeddingAccessPolicy:
-      d.effective_aibi_dashboard_embedding_access_policy,
+    effectiveAutomaticClusterUpdateWorkspace: d.effective_automatic_cluster_update_workspace,
+    effectiveAibiDashboardEmbeddingApprovedDomains: d.effective_aibi_dashboard_embedding_approved_domains,
+    effectiveAibiDashboardEmbeddingAccessPolicy: d.effective_aibi_dashboard_embedding_access_policy,
     effectiveRestrictWorkspaceAdmins: d.effective_restrict_workspace_admins,
     effectivePersonalCompute: d.effective_personal_compute,
   }));
@@ -739,9 +643,7 @@ export const unmarshalUserPreferenceSchema: z.ZodType<UserPreference> = z
     user_id: z.string().optional(),
     boolean_val: z.lazy(() => unmarshalBooleanMessageSchema).optional(),
     string_val: z.lazy(() => unmarshalStringMessageSchema).optional(),
-    effective_boolean_val: z
-      .lazy(() => unmarshalBooleanMessageSchema)
-      .optional(),
+    effective_boolean_val: z.lazy(() => unmarshalBooleanMessageSchema).optional(),
     effective_string_val: z.lazy(() => unmarshalStringMessageSchema).optional(),
   })
   .transform(d => ({
@@ -755,9 +657,7 @@ export const unmarshalUserPreferenceSchema: z.ZodType<UserPreference> = z
 
 export const marshalAibiDashboardEmbeddingAccessPolicySchema: z.ZodType = z
   .object({
-    accessPolicyType: z
-      .enum(AibiDashboardEmbeddingAccessPolicy_AccessPolicyType)
-      .optional(),
+    accessPolicyType: z.enum(AibiDashboardEmbeddingAccessPolicy_AccessPolicyType).optional(),
   })
   .transform(d => ({
     access_policy_type: d.accessPolicyType,
@@ -783,12 +683,8 @@ export const marshalClusterAutoRestartMessageSchema: z.ZodType = z
   .object({
     enabled: z.boolean().optional(),
     canToggle: z.boolean().optional(),
-    maintenanceWindow: z
-      .lazy(() => marshalClusterAutoRestartMessage_MaintenanceWindowSchema)
-      .optional(),
-    enablementDetails: z
-      .lazy(() => marshalClusterAutoRestartMessage_EnablementDetailsSchema)
-      .optional(),
+    maintenanceWindow: z.lazy(() => marshalClusterAutoRestartMessage_MaintenanceWindowSchema).optional(),
+    enablementDetails: z.lazy(() => marshalClusterAutoRestartMessage_EnablementDetailsSchema).optional(),
     restartEvenIfNoUpdatesAvailable: z.boolean().optional(),
   })
   .transform(d => ({
@@ -800,68 +696,50 @@ export const marshalClusterAutoRestartMessageSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalClusterAutoRestartMessage_EnablementDetailsSchema: z.ZodType =
-  z
-    .object({
-      unavailableForNonEnterpriseTier: z.boolean().optional(),
-      unavailableForDisabledEntitlement: z.boolean().optional(),
-      forcedForComplianceMode: z.boolean().optional(),
-    })
-    .transform(d => ({
-      unavailable_for_non_enterprise_tier: d.unavailableForNonEnterpriseTier,
-      unavailable_for_disabled_entitlement: d.unavailableForDisabledEntitlement,
-      forced_for_compliance_mode: d.forcedForComplianceMode,
-    }));
+export const marshalClusterAutoRestartMessage_EnablementDetailsSchema: z.ZodType = z
+  .object({
+    unavailableForNonEnterpriseTier: z.boolean().optional(),
+    unavailableForDisabledEntitlement: z.boolean().optional(),
+    forcedForComplianceMode: z.boolean().optional(),
+  })
+  .transform(d => ({
+    unavailable_for_non_enterprise_tier: d.unavailableForNonEnterpriseTier,
+    unavailable_for_disabled_entitlement: d.unavailableForDisabledEntitlement,
+    forced_for_compliance_mode: d.forcedForComplianceMode,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalClusterAutoRestartMessage_MaintenanceWindowSchema: z.ZodType =
-  z
-    .object({
-      weekDayBasedSchedule: z
-        .lazy(
-          () =>
-            marshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      week_day_based_schedule: d.weekDayBasedSchedule,
-    }));
+export const marshalClusterAutoRestartMessage_MaintenanceWindowSchema: z.ZodType = z
+  .object({
+    weekDayBasedSchedule: z.lazy(() => marshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema).optional(),
+  })
+  .transform(d => ({
+    week_day_based_schedule: d.weekDayBasedSchedule,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema: z.ZodType =
-  z
-    .object({
-      frequency: z
-        .enum(ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency)
-        .optional(),
-      dayOfWeek: z
-        .enum(ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek)
-        .optional(),
-      windowStartTime: z
-        .lazy(
-          () =>
-            marshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeSchema
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      frequency: d.frequency,
-      day_of_week: d.dayOfWeek,
-      window_start_time: d.windowStartTime,
-    }));
+export const marshalClusterAutoRestartMessage_MaintenanceWindow_WeekDayBasedScheduleSchema: z.ZodType = z
+  .object({
+    frequency: z.enum(ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency).optional(),
+    dayOfWeek: z.enum(ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek).optional(),
+    windowStartTime: z.lazy(() => marshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeSchema).optional(),
+  })
+  .transform(d => ({
+    frequency: d.frequency,
+    day_of_week: d.dayOfWeek,
+    window_start_time: d.windowStartTime,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeSchema: z.ZodType =
-  z
-    .object({
-      hours: z.number().optional(),
-      minutes: z.number().optional(),
-    })
-    .transform(d => ({
-      hours: d.hours,
-      minutes: d.minutes,
-    }));
+export const marshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeSchema: z.ZodType = z
+  .object({
+    hours: z.number().optional(),
+    minutes: z.number().optional(),
+  })
+  .transform(d => ({
+    hours: d.hours,
+    minutes: d.minutes,
+  }));
 
 export const marshalGetPublicAccountSettingRequestSchema: z.ZodType = z
   .object({
@@ -915,9 +793,7 @@ export const marshalListAccountSettingsMetadataRequestSchema: z.ZodType = z
 
 export const marshalListAccountSettingsMetadataResponseSchema: z.ZodType = z
   .object({
-    settingsMetadata: z
-      .array(z.lazy(() => marshalSettingsMetadataSchema))
-      .optional(),
+    settingsMetadata: z.array(z.lazy(() => marshalSettingsMetadataSchema)).optional(),
     nextPageToken: z.string().optional(),
   })
   .transform(d => ({
@@ -925,33 +801,29 @@ export const marshalListAccountSettingsMetadataResponseSchema: z.ZodType = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalListAccountUserPreferencesMetadataRequestSchema: z.ZodType =
-  z
-    .object({
-      accountId: z.string().optional(),
-      userId: z.string().optional(),
-      pageSize: z.number().optional(),
-      pageToken: z.string().optional(),
-    })
-    .transform(d => ({
-      account_id: d.accountId,
-      user_id: d.userId,
-      page_size: d.pageSize,
-      page_token: d.pageToken,
-    }));
+export const marshalListAccountUserPreferencesMetadataRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    userId: z.string().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    user_id: d.userId,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
 
-export const marshalListAccountUserPreferencesMetadataResponseSchema: z.ZodType =
-  z
-    .object({
-      settingsMetadata: z
-        .array(z.lazy(() => marshalSettingsMetadataSchema))
-        .optional(),
-      nextPageToken: z.string().optional(),
-    })
-    .transform(d => ({
-      settings_metadata: d.settingsMetadata,
-      next_page_token: d.nextPageToken,
-    }));
+export const marshalListAccountUserPreferencesMetadataResponseSchema: z.ZodType = z
+  .object({
+    settingsMetadata: z.array(z.lazy(() => marshalSettingsMetadataSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    settings_metadata: d.settingsMetadata,
+    next_page_token: d.nextPageToken,
+  }));
 
 export const marshalListWorkspaceSettingsMetadataRequestSchema: z.ZodType = z
   .object({
@@ -965,9 +837,7 @@ export const marshalListWorkspaceSettingsMetadataRequestSchema: z.ZodType = z
 
 export const marshalListWorkspaceSettingsMetadataResponseSchema: z.ZodType = z
   .object({
-    settingsMetadata: z
-      .array(z.lazy(() => marshalSettingsMetadataSchema))
-      .optional(),
+    settingsMetadata: z.array(z.lazy(() => marshalSettingsMetadataSchema)).optional(),
     nextPageToken: z.string().optional(),
   })
   .transform(d => ({
@@ -1035,39 +905,19 @@ export const marshalSettingSchema: z.ZodType = z
     booleanVal: z.lazy(() => marshalBooleanMessageSchema).optional(),
     stringVal: z.lazy(() => marshalStringMessageSchema).optional(),
     integerVal: z.lazy(() => marshalIntegerMessageSchema).optional(),
-    automaticClusterUpdateWorkspace: z
-      .lazy(() => marshalClusterAutoRestartMessageSchema)
-      .optional(),
-    aibiDashboardEmbeddingApprovedDomains: z
-      .lazy(() => marshalAibiDashboardEmbeddingApprovedDomainsSchema)
-      .optional(),
-    aibiDashboardEmbeddingAccessPolicy: z
-      .lazy(() => marshalAibiDashboardEmbeddingAccessPolicySchema)
-      .optional(),
-    restrictWorkspaceAdmins: z
-      .lazy(() => marshalRestrictWorkspaceAdminsMessageSchema)
-      .optional(),
-    personalCompute: z
-      .lazy(() => marshalPersonalComputeMessageSchema)
-      .optional(),
+    automaticClusterUpdateWorkspace: z.lazy(() => marshalClusterAutoRestartMessageSchema).optional(),
+    aibiDashboardEmbeddingApprovedDomains: z.lazy(() => marshalAibiDashboardEmbeddingApprovedDomainsSchema).optional(),
+    aibiDashboardEmbeddingAccessPolicy: z.lazy(() => marshalAibiDashboardEmbeddingAccessPolicySchema).optional(),
+    restrictWorkspaceAdmins: z.lazy(() => marshalRestrictWorkspaceAdminsMessageSchema).optional(),
+    personalCompute: z.lazy(() => marshalPersonalComputeMessageSchema).optional(),
     effectiveBooleanVal: z.lazy(() => marshalBooleanMessageSchema).optional(),
     effectiveStringVal: z.lazy(() => marshalStringMessageSchema).optional(),
     effectiveIntegerVal: z.lazy(() => marshalIntegerMessageSchema).optional(),
-    effectiveAutomaticClusterUpdateWorkspace: z
-      .lazy(() => marshalClusterAutoRestartMessageSchema)
-      .optional(),
-    effectiveAibiDashboardEmbeddingApprovedDomains: z
-      .lazy(() => marshalAibiDashboardEmbeddingApprovedDomainsSchema)
-      .optional(),
-    effectiveAibiDashboardEmbeddingAccessPolicy: z
-      .lazy(() => marshalAibiDashboardEmbeddingAccessPolicySchema)
-      .optional(),
-    effectiveRestrictWorkspaceAdmins: z
-      .lazy(() => marshalRestrictWorkspaceAdminsMessageSchema)
-      .optional(),
-    effectivePersonalCompute: z
-      .lazy(() => marshalPersonalComputeMessageSchema)
-      .optional(),
+    effectiveAutomaticClusterUpdateWorkspace: z.lazy(() => marshalClusterAutoRestartMessageSchema).optional(),
+    effectiveAibiDashboardEmbeddingApprovedDomains: z.lazy(() => marshalAibiDashboardEmbeddingApprovedDomainsSchema).optional(),
+    effectiveAibiDashboardEmbeddingAccessPolicy: z.lazy(() => marshalAibiDashboardEmbeddingAccessPolicySchema).optional(),
+    effectiveRestrictWorkspaceAdmins: z.lazy(() => marshalRestrictWorkspaceAdminsMessageSchema).optional(),
+    effectivePersonalCompute: z.lazy(() => marshalPersonalComputeMessageSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1075,21 +925,16 @@ export const marshalSettingSchema: z.ZodType = z
     string_val: d.stringVal,
     integer_val: d.integerVal,
     automatic_cluster_update_workspace: d.automaticClusterUpdateWorkspace,
-    aibi_dashboard_embedding_approved_domains:
-      d.aibiDashboardEmbeddingApprovedDomains,
-    aibi_dashboard_embedding_access_policy:
-      d.aibiDashboardEmbeddingAccessPolicy,
+    aibi_dashboard_embedding_approved_domains: d.aibiDashboardEmbeddingApprovedDomains,
+    aibi_dashboard_embedding_access_policy: d.aibiDashboardEmbeddingAccessPolicy,
     restrict_workspace_admins: d.restrictWorkspaceAdmins,
     personal_compute: d.personalCompute,
     effective_boolean_val: d.effectiveBooleanVal,
     effective_string_val: d.effectiveStringVal,
     effective_integer_val: d.effectiveIntegerVal,
-    effective_automatic_cluster_update_workspace:
-      d.effectiveAutomaticClusterUpdateWorkspace,
-    effective_aibi_dashboard_embedding_approved_domains:
-      d.effectiveAibiDashboardEmbeddingApprovedDomains,
-    effective_aibi_dashboard_embedding_access_policy:
-      d.effectiveAibiDashboardEmbeddingAccessPolicy,
+    effective_automatic_cluster_update_workspace: d.effectiveAutomaticClusterUpdateWorkspace,
+    effective_aibi_dashboard_embedding_approved_domains: d.effectiveAibiDashboardEmbeddingApprovedDomains,
+    effective_aibi_dashboard_embedding_access_policy: d.effectiveAibiDashboardEmbeddingAccessPolicy,
     effective_restrict_workspace_admins: d.effectiveRestrictWorkspaceAdmins,
     effective_personal_compute: d.effectivePersonalCompute,
   }));

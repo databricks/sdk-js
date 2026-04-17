@@ -7,12 +7,7 @@ import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-databricks/transport';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {
-  buildHttpRequest,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import type {
   CreateNotificationDestinationRequest,
   DeleteNotificationDestinationRequest,
@@ -47,24 +42,13 @@ export class Client {
   }
 
   /** Creates a notification destination. Requires workspace admin permissions. */
-  async createNotificationDestination(
-    signal: AbortSignal | undefined,
-    req: CreateNotificationDestinationRequest,
-    options?: Options
-  ): Promise<NotificationDestination> {
+  async createNotificationDestination(signal: AbortSignal | undefined, req: CreateNotificationDestinationRequest, options?: Options): Promise<NotificationDestination> {
     const url = `${this.host}/api/2.0/notification-destinations`;
-    const body = marshalRequest(
-      req,
-      marshalCreateNotificationDestinationRequestSchema
-    );
+    const body = marshalRequest(req, marshalCreateNotificationDestinationRequestSchema);
     let resp: NotificationDestination | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalNotificationDestinationSchema);
     };
     await execute(signal, call, options);
@@ -75,20 +59,12 @@ export class Client {
   }
 
   /** Deletes a notification destination. Requires workspace admin permissions. */
-  async deleteNotificationDestination(
-    signal: AbortSignal | undefined,
-    req: DeleteNotificationDestinationRequest,
-    options?: Options
-  ): Promise<Empty> {
+  async deleteNotificationDestination(signal: AbortSignal | undefined, req: DeleteNotificationDestinationRequest, options?: Options): Promise<Empty> {
     const url = `${this.host}/api/2.0/notification-destinations/${req.id ?? ''}`;
     let resp: Empty | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('DELETE', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalEmptySchema);
     };
     await execute(signal, call, options);
@@ -99,20 +75,12 @@ export class Client {
   }
 
   /** Gets a notification destination. */
-  async getNotificationDestination(
-    signal: AbortSignal | undefined,
-    req: GetNotificationDestinationRequest,
-    options?: Options
-  ): Promise<NotificationDestination> {
+  async getNotificationDestination(signal: AbortSignal | undefined, req: GetNotificationDestinationRequest, options?: Options): Promise<NotificationDestination> {
     const url = `${this.host}/api/2.0/notification-destinations/${req.id ?? ''}`;
     let resp: NotificationDestination | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalNotificationDestinationSchema);
     };
     await execute(signal, call, options);
@@ -123,11 +91,7 @@ export class Client {
   }
 
   /** Lists notification destinations. */
-  async listNotificationDestinations(
-    signal: AbortSignal | undefined,
-    req: ListNotificationDestinationsRequest,
-    options?: Options
-  ): Promise<ListNotificationDestinationsResponse> {
+  async listNotificationDestinations(signal: AbortSignal | undefined, req: ListNotificationDestinationsRequest, options?: Options): Promise<ListNotificationDestinationsResponse> {
     const url = `${this.host}/api/2.0/notification-destinations`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -141,15 +105,8 @@ export class Client {
     let resp: ListNotificationDestinationsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListNotificationDestinationsResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListNotificationDestinationsResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -158,18 +115,11 @@ export class Client {
     return resp;
   }
 
-  async *listNotificationDestinationsIter(
-    signal: AbortSignal | undefined,
-    req: ListNotificationDestinationsRequest,
-    options?: Options
-  ): AsyncGenerator<ListNotificationDestinationsResult> {
+
+  async *listNotificationDestinationsIter(signal: AbortSignal | undefined, req: ListNotificationDestinationsRequest, options?: Options): AsyncGenerator<ListNotificationDestinationsResult> {
     const pageReq: ListNotificationDestinationsRequest = {...req};
     for (;;) {
-      const resp = await this.listNotificationDestinations(
-        signal,
-        pageReq,
-        options
-      );
+      const resp = await this.listNotificationDestinations(signal, pageReq, options);
       for (const item of resp.results ?? []) {
         yield item;
       }
@@ -180,25 +130,15 @@ export class Client {
     }
   }
 
+
   /** Updates a notification destination. Requires workspace admin permissions. At least one field is required in the request body. */
-  async updateNotificationDestination(
-    signal: AbortSignal | undefined,
-    req: UpdateNotificationDestinationRequest,
-    options?: Options
-  ): Promise<NotificationDestination> {
+  async updateNotificationDestination(signal: AbortSignal | undefined, req: UpdateNotificationDestinationRequest, options?: Options): Promise<NotificationDestination> {
     const url = `${this.host}/api/2.0/notification-destinations/${req.id ?? ''}`;
-    const body = marshalRequest(
-      req,
-      marshalUpdateNotificationDestinationRequestSchema
-    );
+    const body = marshalRequest(req, marshalUpdateNotificationDestinationRequestSchema);
     let resp: NotificationDestination | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('PATCH', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalNotificationDestinationSchema);
     };
     await execute(signal, call, options);

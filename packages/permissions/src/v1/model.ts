@@ -106,73 +106,64 @@ export interface UpdateObjectPermissions {
   accessControlList?: AccessControlRequest[] | undefined;
 }
 
-export const unmarshalAccessControlRequestSchema: z.ZodType<AccessControlRequest> =
-  z
-    .object({
-      user_name: z.string().optional(),
-      group_name: z.string().optional(),
-      service_principal_name: z.string().optional(),
-      permission_level: z.enum(PermissionLevel).optional(),
-    })
-    .transform(d => ({
-      userName: d.user_name,
-      groupName: d.group_name,
-      servicePrincipalName: d.service_principal_name,
-      permissionLevel: d.permission_level,
-    }));
+export const unmarshalAccessControlRequestSchema: z.ZodType<AccessControlRequest> = z
+  .object({
+    user_name: z.string().optional(),
+    group_name: z.string().optional(),
+    service_principal_name: z.string().optional(),
+    permission_level: z.enum(PermissionLevel).optional(),
+  })
+  .transform(d => ({
+    userName: d.user_name,
+    groupName: d.group_name,
+    servicePrincipalName: d.service_principal_name,
+    permissionLevel: d.permission_level,
+  }));
 
-export const unmarshalAccessControlResponseSchema: z.ZodType<AccessControlResponse> =
-  z
-    .object({
-      user_name: z.string().optional(),
-      group_name: z.string().optional(),
-      service_principal_name: z.string().optional(),
-      display_name: z.string().optional(),
-      all_permissions: z
-        .array(z.lazy(() => unmarshalPermissionSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      userName: d.user_name,
-      groupName: d.group_name,
-      servicePrincipalName: d.service_principal_name,
-      displayName: d.display_name,
-      allPermissions: d.all_permissions,
-    }));
+export const unmarshalAccessControlResponseSchema: z.ZodType<AccessControlResponse> = z
+  .object({
+    user_name: z.string().optional(),
+    group_name: z.string().optional(),
+    service_principal_name: z.string().optional(),
+    display_name: z.string().optional(),
+    all_permissions: z.array(z.lazy(() => unmarshalPermissionSchema)).optional(),
+  })
+  .transform(d => ({
+    userName: d.user_name,
+    groupName: d.group_name,
+    servicePrincipalName: d.service_principal_name,
+    displayName: d.display_name,
+    allPermissions: d.all_permissions,
+  }));
 
-export const unmarshalGetObjectPermissionsSchema: z.ZodType<GetObjectPermissions> =
-  z
-    .object({
-      request_object_type: z.string().optional(),
-      request_object_id: z.string().optional(),
-    })
-    .transform(d => ({
-      requestObjectType: d.request_object_type,
-      requestObjectId: d.request_object_id,
-    }));
+export const unmarshalGetObjectPermissionsSchema: z.ZodType<GetObjectPermissions> = z
+  .object({
+    request_object_type: z.string().optional(),
+    request_object_id: z.string().optional(),
+  })
+  .transform(d => ({
+    requestObjectType: d.request_object_type,
+    requestObjectId: d.request_object_id,
+  }));
 
-export const unmarshalGetPermissionLevelsSchema: z.ZodType<GetPermissionLevels> =
-  z
-    .object({
-      request_object_type: z.string().optional(),
-      request_object_id: z.string().optional(),
-    })
-    .transform(d => ({
-      requestObjectType: d.request_object_type,
-      requestObjectId: d.request_object_id,
-    }));
+export const unmarshalGetPermissionLevelsSchema: z.ZodType<GetPermissionLevels> = z
+  .object({
+    request_object_type: z.string().optional(),
+    request_object_id: z.string().optional(),
+  })
+  .transform(d => ({
+    requestObjectType: d.request_object_type,
+    requestObjectId: d.request_object_id,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetPermissionLevels_ResponseSchema: z.ZodType<GetPermissionLevels_Response> =
-  z
-    .object({
-      permission_levels: z
-        .array(z.lazy(() => unmarshalPermissionsDescriptionSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      permissionLevels: d.permission_levels,
-    }));
+export const unmarshalGetPermissionLevels_ResponseSchema: z.ZodType<GetPermissionLevels_Response> = z
+  .object({
+    permission_levels: z.array(z.lazy(() => unmarshalPermissionsDescriptionSchema)).optional(),
+  })
+  .transform(d => ({
+    permissionLevels: d.permission_levels,
+  }));
 
 export const unmarshalPermissionSchema: z.ZodType<Permission> = z
   .object({
@@ -186,61 +177,51 @@ export const unmarshalPermissionSchema: z.ZodType<Permission> = z
     inheritedFromObject: d.inherited_from_object,
   }));
 
-export const unmarshalPermissionsDescriptionSchema: z.ZodType<PermissionsDescription> =
-  z
-    .object({
-      permission_level: z.enum(PermissionLevel).optional(),
-      description: z.string().optional(),
-    })
-    .transform(d => ({
-      permissionLevel: d.permission_level,
-      description: d.description,
-    }));
+export const unmarshalPermissionsDescriptionSchema: z.ZodType<PermissionsDescription> = z
+  .object({
+    permission_level: z.enum(PermissionLevel).optional(),
+    description: z.string().optional(),
+  })
+  .transform(d => ({
+    permissionLevel: d.permission_level,
+    description: d.description,
+  }));
 
-export const unmarshalPermissionsResponseSchema: z.ZodType<PermissionsResponse> =
-  z
-    .object({
-      object_id: z.string().optional(),
-      object_type: z.string().optional(),
-      access_control_list: z
-        .array(z.lazy(() => unmarshalAccessControlResponseSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      objectId: d.object_id,
-      objectType: d.object_type,
-      accessControlList: d.access_control_list,
-    }));
+export const unmarshalPermissionsResponseSchema: z.ZodType<PermissionsResponse> = z
+  .object({
+    object_id: z.string().optional(),
+    object_type: z.string().optional(),
+    access_control_list: z.array(z.lazy(() => unmarshalAccessControlResponseSchema)).optional(),
+  })
+  .transform(d => ({
+    objectId: d.object_id,
+    objectType: d.object_type,
+    accessControlList: d.access_control_list,
+  }));
 
-export const unmarshalSetObjectPermissionsSchema: z.ZodType<SetObjectPermissions> =
-  z
-    .object({
-      request_object_type: z.string().optional(),
-      request_object_id: z.string().optional(),
-      access_control_list: z
-        .array(z.lazy(() => unmarshalAccessControlRequestSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      requestObjectType: d.request_object_type,
-      requestObjectId: d.request_object_id,
-      accessControlList: d.access_control_list,
-    }));
+export const unmarshalSetObjectPermissionsSchema: z.ZodType<SetObjectPermissions> = z
+  .object({
+    request_object_type: z.string().optional(),
+    request_object_id: z.string().optional(),
+    access_control_list: z.array(z.lazy(() => unmarshalAccessControlRequestSchema)).optional(),
+  })
+  .transform(d => ({
+    requestObjectType: d.request_object_type,
+    requestObjectId: d.request_object_id,
+    accessControlList: d.access_control_list,
+  }));
 
-export const unmarshalUpdateObjectPermissionsSchema: z.ZodType<UpdateObjectPermissions> =
-  z
-    .object({
-      request_object_type: z.string().optional(),
-      request_object_id: z.string().optional(),
-      access_control_list: z
-        .array(z.lazy(() => unmarshalAccessControlRequestSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      requestObjectType: d.request_object_type,
-      requestObjectId: d.request_object_id,
-      accessControlList: d.access_control_list,
-    }));
+export const unmarshalUpdateObjectPermissionsSchema: z.ZodType<UpdateObjectPermissions> = z
+  .object({
+    request_object_type: z.string().optional(),
+    request_object_id: z.string().optional(),
+    access_control_list: z.array(z.lazy(() => unmarshalAccessControlRequestSchema)).optional(),
+  })
+  .transform(d => ({
+    requestObjectType: d.request_object_type,
+    requestObjectId: d.request_object_id,
+    accessControlList: d.access_control_list,
+  }));
 
 export const marshalAccessControlRequestSchema: z.ZodType = z
   .object({
@@ -295,9 +276,7 @@ export const marshalGetPermissionLevelsSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalGetPermissionLevels_ResponseSchema: z.ZodType = z
   .object({
-    permissionLevels: z
-      .array(z.lazy(() => marshalPermissionsDescriptionSchema))
-      .optional(),
+    permissionLevels: z.array(z.lazy(() => marshalPermissionsDescriptionSchema)).optional(),
   })
   .transform(d => ({
     permission_levels: d.permissionLevels,
@@ -329,9 +308,7 @@ export const marshalPermissionsResponseSchema: z.ZodType = z
   .object({
     objectId: z.string().optional(),
     objectType: z.string().optional(),
-    accessControlList: z
-      .array(z.lazy(() => marshalAccessControlResponseSchema))
-      .optional(),
+    accessControlList: z.array(z.lazy(() => marshalAccessControlResponseSchema)).optional(),
   })
   .transform(d => ({
     object_id: d.objectId,
@@ -343,9 +320,7 @@ export const marshalSetObjectPermissionsSchema: z.ZodType = z
   .object({
     requestObjectType: z.string().optional(),
     requestObjectId: z.string().optional(),
-    accessControlList: z
-      .array(z.lazy(() => marshalAccessControlRequestSchema))
-      .optional(),
+    accessControlList: z.array(z.lazy(() => marshalAccessControlRequestSchema)).optional(),
   })
   .transform(d => ({
     request_object_type: d.requestObjectType,
@@ -357,9 +332,7 @@ export const marshalUpdateObjectPermissionsSchema: z.ZodType = z
   .object({
     requestObjectType: z.string().optional(),
     requestObjectId: z.string().optional(),
-    accessControlList: z
-      .array(z.lazy(() => marshalAccessControlRequestSchema))
-      .optional(),
+    accessControlList: z.array(z.lazy(() => marshalAccessControlRequestSchema)).optional(),
   })
   .transform(d => ({
     request_object_type: d.requestObjectType,
