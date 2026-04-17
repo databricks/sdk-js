@@ -39,20 +39,12 @@ export class Client {
    * child-parent pair. This API also refreshes the quota count if it is out of date.
    * Refreshes are triggered asynchronously. The updated count might not be returned in the first call.
    */
-  async getQuota(
-    signal: AbortSignal | undefined,
-    req: GetQuota,
-    options?: Options
-  ): Promise<GetQuota_Response> {
+  async getQuota(signal: AbortSignal | undefined, req: GetQuota, options?: Options): Promise<GetQuota_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/resource-quotas/${req.parentSecurableType ?? ''}/${req.parentFullName ?? ''}/${req.quotaName ?? ''}`;
     let resp: GetQuota_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalGetQuota_ResponseSchema);
     };
     await execute(signal, call, options);
@@ -65,15 +57,11 @@ export class Client {
   /**
    * ListQuotas returns all quota values under the metastore. There are no SLAs on the freshness of the counts
    * returned. This API does not trigger a refresh of quota counts.
-   *
+   * 
    * PAGINATION BEHAVIOR: The API is by default paginated, a page may contain zero results while still providing a next_page_token.
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
-  async listQuota(
-    signal: AbortSignal | undefined,
-    req: ListQuotas,
-    options?: Options
-  ): Promise<ListQuotas_Response> {
+  async listQuota(signal: AbortSignal | undefined, req: ListQuotas, options?: Options): Promise<ListQuotas_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/resource-quotas/all-resource-quotas`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -87,11 +75,7 @@ export class Client {
     let resp: ListQuotas_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListQuotas_ResponseSchema);
     };
     await execute(signal, call, options);
@@ -101,11 +85,8 @@ export class Client {
     return resp;
   }
 
-  async *listQuotaIter(
-    signal: AbortSignal | undefined,
-    req: ListQuotas,
-    options?: Options
-  ): AsyncGenerator<QuotaInfo> {
+
+  async *listQuotaIter(signal: AbortSignal | undefined, req: ListQuotas, options?: Options): AsyncGenerator<QuotaInfo> {
     const pageReq: ListQuotas = {...req};
     for (;;) {
       const resp = await this.listQuota(signal, pageReq, options);
@@ -118,4 +99,5 @@ export class Client {
       pageReq.pageToken = resp.nextPageToken;
     }
   }
+
 }

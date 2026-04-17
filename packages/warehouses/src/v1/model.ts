@@ -1,5 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask, type FieldPaths} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum ChannelName {
@@ -33,10 +34,10 @@ export enum EndpointSecurityPolicy {
 /**
  * EndpointSpotInstancePolicy configures whether the endpoint should use spot
  * instances.
- *
+ * 
  * The breakdown of how the EndpointSpotInstancePolicy converts to per cloud
  * configurations is:
- *
+ * 
  * +-------+--------------------------------------+--------------------------------+
  * | Cloud |            COST_OPTIMIZED            |     RELIABILITY_OPTIMIZED |
  * +-------+--------------------------------------+--------------------------------+
@@ -44,7 +45,7 @@ export enum EndpointSecurityPolicy {
  * Executors | | AZURE | On Demand Driver and Executors       | On Demand Driver
  * and Executors |
  * +-------+--------------------------------------+--------------------------------+
- *
+ * 
  * While including "spot" in the enum name may limit the the future
  * extensibility of this field because it limits this enum to denoting "spot or
  * not", this is the field that PM recommends after discussion with customers
@@ -55,7 +56,7 @@ export enum EndpointSpotInstancePolicy {
    * UNSPECIFIED if no value is set by the caller.
    * Consult endpoint docs to learn about the defaults that kick in if
    * UNSPECIFIED.
-   *
+   * 
    * Protobuf enums should start with INVALID/UNSPECIFIED=0
    * (https://github.com/uber/prototool/tree/dev/style#enums), but since proto
    * enum values must be unique within a proto package so protobuf recommends
@@ -63,11 +64,11 @@ export enum EndpointSpotInstancePolicy {
    * (https://buf.build/docs/lint-checkers/#enum_value_prefix). We do not want
    * to do that because it makes for unergonomic customer facing JSON api
    * {"spot_instance_policy": "ENDPOINT_SPOT_INSTANCE_POLICY_UNSPECIFIED"}.
-   *
+   * 
    * As a compromise between protobuf rules (i.e., package unique enum values)
    * and JSON friendliness, we prevent UNSPECIFIED collision but hope that the
    * rest of the enums do not collide.
-   *
+   * 
    * This follows Google APIs:
    * https://cloud.google.com/apis/design/design_patterns#enum_default_value.
    */
@@ -439,14 +440,14 @@ export enum TerminationCode {
   INVALID_AWS_PARAMETER = 'INVALID_AWS_PARAMETER',
   /**
    * ** Only relevant on k8s dataplanes (i.e. clusters launched with CMv2 - not CMv1).
-   *
+   * 
    * k8s evicted the driver pod due to disk pressure on the driver node. This is likely due to a
    * customer job consuming too much disk and so this is classified as a customer issue.
    */
   DRIVER_OUT_OF_DISK = 'DRIVER_OUT_OF_DISK',
   /**
    * ** Only relevant on k8s dataplanes (i.e. clusters launched with CMv2 - not CMv1).
-   *
+   * 
    * k8s evicted the driver pod due to memory pressure on the driver node. A customer job consuming
    * significant amounts of memory should not be able to trigger this as the driver container would
    * OOM first (we set memory limits on our pods). Thus this termination reason will be considered
@@ -738,7 +739,7 @@ export interface CreateDefaultWarehouseOverrideRequest {
 export interface CreateWarehouse {
   /**
    * Logical name for the cluster.
-   *
+   * 
    * Supported values:
    * - Must be unique within an org.
    * - Must be less than 100 characters.
@@ -749,7 +750,7 @@ export interface CreateWarehouse {
    * Increasing the size of a spark cluster allows you to run larger queries on
    * it. If you want to increase the number of concurrent queries, please tune
    * max_num_clusters.
-   *
+   * 
    * Supported values:
    * - 2X-Small
    * - X-Small
@@ -769,33 +770,33 @@ export interface CreateWarehouse {
    * always running and therefore may reduce the cold start time for new
    * queries. This is similar to reserved vs. revocable cores in a resource
    * manager.
-   *
+   * 
    * Supported values:
    * - Must be > 0
    * - Must be <= min(max_num_clusters, 30)
-   *
+   * 
    * Defaults to 1
    */
   minNumClusters?: number | undefined;
   /**
    * Maximum number of clusters that the autoscaler will create to handle
    * concurrent queries.
-   *
+   * 
    * Supported values:
    * - Must be >= min_num_clusters
    * - Must be <= 40.
-   *
+   * 
    * Defaults to min_clusters if unset.
    */
   maxNumClusters?: number | undefined;
   /**
    * The amount of time in minutes that a SQL warehouse must be idle (i.e., no
    * RUNNING queries) before it is automatically stopped.
-   *
+   * 
    * Supported values:
    * - Must be == 0 or >= 10 mins
    * - 0 indicates no autostop.
-   *
+   * 
    * Defaults to 120 mins
    */
   autoStopMins?: number | undefined;
@@ -806,7 +807,7 @@ export interface CreateWarehouse {
   /**
    * A set of key-value pairs that will be tagged on all resources (e.g., AWS instances and EBS volumes) associated
    * with this SQL warehouse.
-   *
+   * 
    * Supported values:
    * - Number of tags < 45.
    */
@@ -815,7 +816,7 @@ export interface CreateWarehouse {
   spotInstancePolicy?: EndpointSpotInstancePolicy | undefined;
   /**
    * Configures whether the warehouse should use Photon optimized clusters.
-   *
+   * 
    * Defaults to true.
    */
   enablePhoton?: boolean | undefined;
@@ -882,7 +883,7 @@ export interface EditWarehouseRequest {
   id?: string | undefined;
   /**
    * Logical name for the cluster.
-   *
+   * 
    * Supported values:
    * - Must be unique within an org.
    * - Must be less than 100 characters.
@@ -893,7 +894,7 @@ export interface EditWarehouseRequest {
    * Increasing the size of a spark cluster allows you to run larger queries on
    * it. If you want to increase the number of concurrent queries, please tune
    * max_num_clusters.
-   *
+   * 
    * Supported values:
    * - 2X-Small
    * - X-Small
@@ -913,33 +914,33 @@ export interface EditWarehouseRequest {
    * always running and therefore may reduce the cold start time for new
    * queries. This is similar to reserved vs. revocable cores in a resource
    * manager.
-   *
+   * 
    * Supported values:
    * - Must be > 0
    * - Must be <= min(max_num_clusters, 30)
-   *
+   * 
    * Defaults to 1
    */
   minNumClusters?: number | undefined;
   /**
    * Maximum number of clusters that the autoscaler will create to handle
    * concurrent queries.
-   *
+   * 
    * Supported values:
    * - Must be >= min_num_clusters
    * - Must be <= 40.
-   *
+   * 
    * Defaults to min_clusters if unset.
    */
   maxNumClusters?: number | undefined;
   /**
    * The amount of time in minutes that a SQL warehouse must be idle (i.e., no
    * RUNNING queries) before it is automatically stopped.
-   *
+   * 
    * Supported values:
    * - Must be == 0 or >= 10 mins
    * - 0 indicates no autostop.
-   *
+   * 
    * Defaults to 120 mins
    */
   autoStopMins?: number | undefined;
@@ -950,7 +951,7 @@ export interface EditWarehouseRequest {
   /**
    * A set of key-value pairs that will be tagged on all resources (e.g., AWS instances and EBS volumes) associated
    * with this SQL warehouse.
-   *
+   * 
    * Supported values:
    * - Number of tags < 45.
    */
@@ -959,7 +960,7 @@ export interface EditWarehouseRequest {
   spotInstancePolicy?: EndpointSpotInstancePolicy | undefined;
   /**
    * Configures whether the warehouse should use Photon optimized clusters.
-   *
+   * 
    * Defaults to true.
    */
   enablePhoton?: boolean | undefined;
@@ -1000,7 +1001,7 @@ export interface EndpointInfo {
   id?: string | undefined;
   /**
    * Logical name for the cluster.
-   *
+   * 
    * Supported values:
    * - Must be unique within an org.
    * - Must be less than 100 characters.
@@ -1011,7 +1012,7 @@ export interface EndpointInfo {
    * Increasing the size of a spark cluster allows you to run larger queries on
    * it. If you want to increase the number of concurrent queries, please tune
    * max_num_clusters.
-   *
+   * 
    * Supported values:
    * - 2X-Small
    * - X-Small
@@ -1031,33 +1032,33 @@ export interface EndpointInfo {
    * always running and therefore may reduce the cold start time for new
    * queries. This is similar to reserved vs. revocable cores in a resource
    * manager.
-   *
+   * 
    * Supported values:
    * - Must be > 0
    * - Must be <= min(max_num_clusters, 30)
-   *
+   * 
    * Defaults to 1
    */
   minNumClusters?: number | undefined;
   /**
    * Maximum number of clusters that the autoscaler will create to handle
    * concurrent queries.
-   *
+   * 
    * Supported values:
    * - Must be >= min_num_clusters
    * - Must be <= 40.
-   *
+   * 
    * Defaults to min_clusters if unset.
    */
   maxNumClusters?: number | undefined;
   /**
    * The amount of time in minutes that a SQL warehouse must be idle (i.e., no
    * RUNNING queries) before it is automatically stopped.
-   *
+   * 
    * Supported values:
    * - Must be == 0 or >= 10 mins
    * - 0 indicates no autostop.
-   *
+   * 
    * Defaults to 120 mins
    */
   autoStopMins?: number | undefined;
@@ -1068,7 +1069,7 @@ export interface EndpointInfo {
   /**
    * A set of key-value pairs that will be tagged on all resources (e.g., AWS instances and EBS volumes) associated
    * with this SQL warehouse.
-   *
+   * 
    * Supported values:
    * - Number of tags < 45.
    */
@@ -1077,7 +1078,7 @@ export interface EndpointInfo {
   spotInstancePolicy?: EndpointSpotInstancePolicy | undefined;
   /**
    * Configures whether the warehouse should use Photon optimized clusters.
-   *
+   * 
    * Defaults to true.
    */
   enablePhoton?: boolean | undefined;
@@ -1135,7 +1136,7 @@ export interface GetWarehouse_Response {
   id?: string | undefined;
   /**
    * Logical name for the cluster.
-   *
+   * 
    * Supported values:
    * - Must be unique within an org.
    * - Must be less than 100 characters.
@@ -1146,7 +1147,7 @@ export interface GetWarehouse_Response {
    * Increasing the size of a spark cluster allows you to run larger queries on
    * it. If you want to increase the number of concurrent queries, please tune
    * max_num_clusters.
-   *
+   * 
    * Supported values:
    * - 2X-Small
    * - X-Small
@@ -1166,33 +1167,33 @@ export interface GetWarehouse_Response {
    * always running and therefore may reduce the cold start time for new
    * queries. This is similar to reserved vs. revocable cores in a resource
    * manager.
-   *
+   * 
    * Supported values:
    * - Must be > 0
    * - Must be <= min(max_num_clusters, 30)
-   *
+   * 
    * Defaults to 1
    */
   minNumClusters?: number | undefined;
   /**
    * Maximum number of clusters that the autoscaler will create to handle
    * concurrent queries.
-   *
+   * 
    * Supported values:
    * - Must be >= min_num_clusters
    * - Must be <= 40.
-   *
+   * 
    * Defaults to min_clusters if unset.
    */
   maxNumClusters?: number | undefined;
   /**
    * The amount of time in minutes that a SQL warehouse must be idle (i.e., no
    * RUNNING queries) before it is automatically stopped.
-   *
+   * 
    * Supported values:
    * - Must be == 0 or >= 10 mins
    * - 0 indicates no autostop.
-   *
+   * 
    * Defaults to 120 mins
    */
   autoStopMins?: number | undefined;
@@ -1203,7 +1204,7 @@ export interface GetWarehouse_Response {
   /**
    * A set of key-value pairs that will be tagged on all resources (e.g., AWS instances and EBS volumes) associated
    * with this SQL warehouse.
-   *
+   * 
    * Supported values:
    * - Number of tags < 45.
    */
@@ -1212,7 +1213,7 @@ export interface GetWarehouse_Response {
   spotInstancePolicy?: EndpointSpotInstancePolicy | undefined;
   /**
    * Configures whether the warehouse should use Photon optimized clusters.
-   *
+   * 
    * Defaults to true.
    */
   enablePhoton?: boolean | undefined;
@@ -1300,7 +1301,7 @@ export interface ListDefaultWarehouseOverridesRequest {
   /**
    * A page token, received from a previous `ListDefaultWarehouseOverrides` call.
    * Provide this to retrieve the subsequent page.
-   *
+   * 
    * When paginating, all other parameters provided to `ListDefaultWarehouseOverrides`
    * must match the call that provided the page token.
    */
@@ -1333,7 +1334,7 @@ export interface RepeatedEndpointConfPairs {
 
 /**
  * Sets the workspace level warehouse configuration that is shared by all SQL warehouses in this workspace.
- *
+ * 
  * This is idempotent.
  */
 export interface SetWorkspaceWarehouseConfigRequest {
@@ -1409,7 +1410,7 @@ export interface UpdateDefaultWarehouseOverrideRequest {
    * Use "*" to update all fields.
    * When allow_missing is true, this field is ignored and all fields are applied.
    */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<FieldPaths<DefaultWarehouseOverride>> | undefined;
   /**
    * If set to true, and the override is not found, a new override will be created.
    * In this situation, `update_mask` is ignored and all fields are applied.
@@ -1461,7 +1462,7 @@ export interface ListWarehousesRequest {
    * A page token, received from a previous `ListWarehouses` call.
    * Provide this to retrieve the subsequent page; otherwise the first
    * will be retrieved.
-   *
+   * 
    * When paginating, all other parameters provided to `ListWarehouses` must match
    * the call that provided the page token.
    */
@@ -1513,18 +1514,15 @@ export const unmarshalChannelSchema: z.ZodType<Channel> = z
     dbsqlVersion: d.dbsql_version,
   }));
 
-export const unmarshalCreateDefaultWarehouseOverrideRequestSchema: z.ZodType<CreateDefaultWarehouseOverrideRequest> =
-  z
-    .object({
-      default_warehouse_override_id: z.string().optional(),
-      default_warehouse_override: z
-        .lazy(() => unmarshalDefaultWarehouseOverrideSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      defaultWarehouseOverrideId: d.default_warehouse_override_id,
-      defaultWarehouseOverride: d.default_warehouse_override,
-    }));
+export const unmarshalCreateDefaultWarehouseOverrideRequestSchema: z.ZodType<CreateDefaultWarehouseOverrideRequest> = z
+  .object({
+    default_warehouse_override_id: z.string().optional(),
+    default_warehouse_override: z.lazy(() => unmarshalDefaultWarehouseOverrideSchema).optional(),
+  })
+  .transform(d => ({
+    defaultWarehouseOverrideId: d.default_warehouse_override_id,
+    defaultWarehouseOverride: d.default_warehouse_override,
+  }));
 
 export const unmarshalCreateWarehouseSchema: z.ZodType<CreateWarehouse> = z
   .object({
@@ -1559,77 +1557,74 @@ export const unmarshalCreateWarehouseSchema: z.ZodType<CreateWarehouse> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateWarehouse_ResponseSchema: z.ZodType<CreateWarehouse_Response> =
-  z
-    .object({
-      id: z.string().optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-    }));
+export const unmarshalCreateWarehouse_ResponseSchema: z.ZodType<CreateWarehouse_Response> = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
 
-export const unmarshalDefaultWarehouseOverrideSchema: z.ZodType<DefaultWarehouseOverride> =
-  z
-    .object({
-      name: z.string().optional(),
-      default_warehouse_override_id: z.string().optional(),
-      type: z.enum(DefaultWarehouseOverrideType).optional(),
-      warehouse_id: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      defaultWarehouseOverrideId: d.default_warehouse_override_id,
-      type: d.type,
-      warehouseId: d.warehouse_id,
-    }));
+export const unmarshalDefaultWarehouseOverrideSchema: z.ZodType<DefaultWarehouseOverride> = z
+  .object({
+    name: z.string().optional(),
+    default_warehouse_override_id: z.string().optional(),
+    type: z.enum(DefaultWarehouseOverrideType).optional(),
+    warehouse_id: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    defaultWarehouseOverrideId: d.default_warehouse_override_id,
+    type: d.type,
+    warehouseId: d.warehouse_id,
+  }));
 
-export const unmarshalDeleteDefaultWarehouseOverrideRequestSchema: z.ZodType<DeleteDefaultWarehouseOverrideRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
+export const unmarshalDeleteDefaultWarehouseOverrideRequestSchema: z.ZodType<DeleteDefaultWarehouseOverrideRequest> = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
 
-export const unmarshalEditWarehouseRequestSchema: z.ZodType<EditWarehouseRequest> =
-  z
-    .object({
-      id: z.string().optional(),
-      name: z.string().optional(),
-      cluster_size: z.string().optional(),
-      min_num_clusters: z.number().optional(),
-      max_num_clusters: z.number().optional(),
-      auto_stop_mins: z.number().optional(),
-      creator_name: z.string().optional(),
-      instance_profile_arn: z.string().optional(),
-      tags: z.lazy(() => unmarshalEndpointTagsSchema).optional(),
-      spot_instance_policy: z.enum(EndpointSpotInstancePolicy).optional(),
-      enable_photon: z.boolean().optional(),
-      channel: z.lazy(() => unmarshalChannelSchema).optional(),
-      enable_serverless_compute: z.boolean().optional(),
-      warehouse_type: z.enum(WarehouseType).optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      name: d.name,
-      clusterSize: d.cluster_size,
-      minNumClusters: d.min_num_clusters,
-      maxNumClusters: d.max_num_clusters,
-      autoStopMins: d.auto_stop_mins,
-      creatorName: d.creator_name,
-      instanceProfileArn: d.instance_profile_arn,
-      tags: d.tags,
-      spotInstancePolicy: d.spot_instance_policy,
-      enablePhoton: d.enable_photon,
-      channel: d.channel,
-      enableServerlessCompute: d.enable_serverless_compute,
-      warehouseType: d.warehouse_type,
-    }));
+export const unmarshalEditWarehouseRequestSchema: z.ZodType<EditWarehouseRequest> = z
+  .object({
+    id: z.string().optional(),
+    name: z.string().optional(),
+    cluster_size: z.string().optional(),
+    min_num_clusters: z.number().optional(),
+    max_num_clusters: z.number().optional(),
+    auto_stop_mins: z.number().optional(),
+    creator_name: z.string().optional(),
+    instance_profile_arn: z.string().optional(),
+    tags: z.lazy(() => unmarshalEndpointTagsSchema).optional(),
+    spot_instance_policy: z.enum(EndpointSpotInstancePolicy).optional(),
+    enable_photon: z.boolean().optional(),
+    channel: z.lazy(() => unmarshalChannelSchema).optional(),
+    enable_serverless_compute: z.boolean().optional(),
+    warehouse_type: z.enum(WarehouseType).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    name: d.name,
+    clusterSize: d.cluster_size,
+    minNumClusters: d.min_num_clusters,
+    maxNumClusters: d.max_num_clusters,
+    autoStopMins: d.auto_stop_mins,
+    creatorName: d.creator_name,
+    instanceProfileArn: d.instance_profile_arn,
+    tags: d.tags,
+    spotInstancePolicy: d.spot_instance_policy,
+    enablePhoton: d.enable_photon,
+    channel: d.channel,
+    enableServerlessCompute: d.enable_serverless_compute,
+    warehouseType: d.warehouse_type,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEditWarehouseRequest_ResponseSchema: z.ZodType<EditWarehouseRequest_Response> =
-  z.object({});
+export const unmarshalEditWarehouseRequest_ResponseSchema: z.ZodType<EditWarehouseRequest_Response> = z
+  .object({
+  });
 
 export const unmarshalEndpointConfPairSchema: z.ZodType<EndpointConfPair> = z
   .object({
@@ -1715,22 +1710,19 @@ export const unmarshalEndpointTagPairSchema: z.ZodType<EndpointTagPair> = z
 
 export const unmarshalEndpointTagsSchema: z.ZodType<EndpointTags> = z
   .object({
-    custom_tags: z
-      .array(z.lazy(() => unmarshalEndpointTagPairSchema))
-      .optional(),
+    custom_tags: z.array(z.lazy(() => unmarshalEndpointTagPairSchema)).optional(),
   })
   .transform(d => ({
     customTags: d.custom_tags,
   }));
 
-export const unmarshalGetDefaultWarehouseOverrideRequestSchema: z.ZodType<GetDefaultWarehouseOverrideRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
+export const unmarshalGetDefaultWarehouseOverrideRequestSchema: z.ZodType<GetDefaultWarehouseOverrideRequest> = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
 
 export const unmarshalGetWarehouseSchema: z.ZodType<GetWarehouse> = z
   .object({
@@ -1741,117 +1733,102 @@ export const unmarshalGetWarehouseSchema: z.ZodType<GetWarehouse> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetWarehouse_ResponseSchema: z.ZodType<GetWarehouse_Response> =
-  z
-    .object({
-      id: z.string().optional(),
-      name: z.string().optional(),
-      cluster_size: z.string().optional(),
-      min_num_clusters: z.number().optional(),
-      max_num_clusters: z.number().optional(),
-      auto_stop_mins: z.number().optional(),
-      creator_name: z.string().optional(),
-      instance_profile_arn: z.string().optional(),
-      tags: z.lazy(() => unmarshalEndpointTagsSchema).optional(),
-      spot_instance_policy: z.enum(EndpointSpotInstancePolicy).optional(),
-      enable_photon: z.boolean().optional(),
-      channel: z.lazy(() => unmarshalChannelSchema).optional(),
-      enable_serverless_compute: z.boolean().optional(),
-      warehouse_type: z.enum(WarehouseType).optional(),
-      num_clusters: z.number().optional(),
-      num_active_sessions: z.number().optional(),
-      state: z.enum(EndpointState).optional(),
-      jdbc_url: z.string().optional(),
-      odbc_params: z.lazy(() => unmarshalOdbcParamsSchema).optional(),
-      health: z.lazy(() => unmarshalEndpointHealthSchema).optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      name: d.name,
-      clusterSize: d.cluster_size,
-      minNumClusters: d.min_num_clusters,
-      maxNumClusters: d.max_num_clusters,
-      autoStopMins: d.auto_stop_mins,
-      creatorName: d.creator_name,
-      instanceProfileArn: d.instance_profile_arn,
-      tags: d.tags,
-      spotInstancePolicy: d.spot_instance_policy,
-      enablePhoton: d.enable_photon,
-      channel: d.channel,
-      enableServerlessCompute: d.enable_serverless_compute,
-      warehouseType: d.warehouse_type,
-      numClusters: d.num_clusters,
-      numActiveSessions: d.num_active_sessions,
-      state: d.state,
-      jdbcUrl: d.jdbc_url,
-      odbcParams: d.odbc_params,
-      health: d.health,
-    }));
+export const unmarshalGetWarehouse_ResponseSchema: z.ZodType<GetWarehouse_Response> = z
+  .object({
+    id: z.string().optional(),
+    name: z.string().optional(),
+    cluster_size: z.string().optional(),
+    min_num_clusters: z.number().optional(),
+    max_num_clusters: z.number().optional(),
+    auto_stop_mins: z.number().optional(),
+    creator_name: z.string().optional(),
+    instance_profile_arn: z.string().optional(),
+    tags: z.lazy(() => unmarshalEndpointTagsSchema).optional(),
+    spot_instance_policy: z.enum(EndpointSpotInstancePolicy).optional(),
+    enable_photon: z.boolean().optional(),
+    channel: z.lazy(() => unmarshalChannelSchema).optional(),
+    enable_serverless_compute: z.boolean().optional(),
+    warehouse_type: z.enum(WarehouseType).optional(),
+    num_clusters: z.number().optional(),
+    num_active_sessions: z.number().optional(),
+    state: z.enum(EndpointState).optional(),
+    jdbc_url: z.string().optional(),
+    odbc_params: z.lazy(() => unmarshalOdbcParamsSchema).optional(),
+    health: z.lazy(() => unmarshalEndpointHealthSchema).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    name: d.name,
+    clusterSize: d.cluster_size,
+    minNumClusters: d.min_num_clusters,
+    maxNumClusters: d.max_num_clusters,
+    autoStopMins: d.auto_stop_mins,
+    creatorName: d.creator_name,
+    instanceProfileArn: d.instance_profile_arn,
+    tags: d.tags,
+    spotInstancePolicy: d.spot_instance_policy,
+    enablePhoton: d.enable_photon,
+    channel: d.channel,
+    enableServerlessCompute: d.enable_serverless_compute,
+    warehouseType: d.warehouse_type,
+    numClusters: d.num_clusters,
+    numActiveSessions: d.num_active_sessions,
+    state: d.state,
+    jdbcUrl: d.jdbc_url,
+    odbcParams: d.odbc_params,
+    health: d.health,
+  }));
 
-export const unmarshalGetWorkspaceWarehouseConfigRequestSchema: z.ZodType<GetWorkspaceWarehouseConfigRequest> =
-  z.object({});
+export const unmarshalGetWorkspaceWarehouseConfigRequestSchema: z.ZodType<GetWorkspaceWarehouseConfigRequest> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetWorkspaceWarehouseConfigRequest_ResponseSchema: z.ZodType<GetWorkspaceWarehouseConfigRequest_Response> =
-  z
-    .object({
-      security_policy: z.enum(EndpointSecurityPolicy).optional(),
-      data_access_config: z
-        .array(z.lazy(() => unmarshalEndpointConfPairSchema))
-        .optional(),
-      instance_profile_arn: z.string().optional(),
-      channel: z.lazy(() => unmarshalChannelSchema).optional(),
-      enable_serverless_compute: z.boolean().optional(),
-      global_param: z
-        .lazy(() => unmarshalRepeatedEndpointConfPairsSchema)
-        .optional(),
-      config_param: z
-        .lazy(() => unmarshalRepeatedEndpointConfPairsSchema)
-        .optional(),
-      sql_configuration_parameters: z
-        .lazy(() => unmarshalRepeatedEndpointConfPairsSchema)
-        .optional(),
-      google_service_account: z.string().optional(),
-      enabled_warehouse_types: z
-        .array(z.lazy(() => unmarshalWarehouseTypePairSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      securityPolicy: d.security_policy,
-      dataAccessConfig: d.data_access_config,
-      instanceProfileArn: d.instance_profile_arn,
-      channel: d.channel,
-      enableServerlessCompute: d.enable_serverless_compute,
-      globalParam: d.global_param,
-      configParam: d.config_param,
-      sqlConfigurationParameters: d.sql_configuration_parameters,
-      googleServiceAccount: d.google_service_account,
-      enabledWarehouseTypes: d.enabled_warehouse_types,
-    }));
+export const unmarshalGetWorkspaceWarehouseConfigRequest_ResponseSchema: z.ZodType<GetWorkspaceWarehouseConfigRequest_Response> = z
+  .object({
+    security_policy: z.enum(EndpointSecurityPolicy).optional(),
+    data_access_config: z.array(z.lazy(() => unmarshalEndpointConfPairSchema)).optional(),
+    instance_profile_arn: z.string().optional(),
+    channel: z.lazy(() => unmarshalChannelSchema).optional(),
+    enable_serverless_compute: z.boolean().optional(),
+    global_param: z.lazy(() => unmarshalRepeatedEndpointConfPairsSchema).optional(),
+    config_param: z.lazy(() => unmarshalRepeatedEndpointConfPairsSchema).optional(),
+    sql_configuration_parameters: z.lazy(() => unmarshalRepeatedEndpointConfPairsSchema).optional(),
+    google_service_account: z.string().optional(),
+    enabled_warehouse_types: z.array(z.lazy(() => unmarshalWarehouseTypePairSchema)).optional(),
+  })
+  .transform(d => ({
+    securityPolicy: d.security_policy,
+    dataAccessConfig: d.data_access_config,
+    instanceProfileArn: d.instance_profile_arn,
+    channel: d.channel,
+    enableServerlessCompute: d.enable_serverless_compute,
+    globalParam: d.global_param,
+    configParam: d.config_param,
+    sqlConfigurationParameters: d.sql_configuration_parameters,
+    googleServiceAccount: d.google_service_account,
+    enabledWarehouseTypes: d.enabled_warehouse_types,
+  }));
 
-export const unmarshalListDefaultWarehouseOverridesRequestSchema: z.ZodType<ListDefaultWarehouseOverridesRequest> =
-  z
-    .object({
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      pageSize: d.page_size,
-      pageToken: d.page_token,
-    }));
+export const unmarshalListDefaultWarehouseOverridesRequestSchema: z.ZodType<ListDefaultWarehouseOverridesRequest> = z
+  .object({
+    page_size: z.number().optional(),
+    page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    pageSize: d.page_size,
+    pageToken: d.page_token,
+  }));
 
-export const unmarshalListDefaultWarehouseOverridesResponseSchema: z.ZodType<ListDefaultWarehouseOverridesResponse> =
-  z
-    .object({
-      default_warehouse_overrides: z
-        .array(z.lazy(() => unmarshalDefaultWarehouseOverrideSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      defaultWarehouseOverrides: d.default_warehouse_overrides,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListDefaultWarehouseOverridesResponseSchema: z.ZodType<ListDefaultWarehouseOverridesResponse> = z
+  .object({
+    default_warehouse_overrides: z.array(z.lazy(() => unmarshalDefaultWarehouseOverrideSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    defaultWarehouseOverrides: d.default_warehouse_overrides,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalOdbcParamsSchema: z.ZodType<OdbcParams> = z
   .object({
@@ -1867,61 +1844,46 @@ export const unmarshalOdbcParamsSchema: z.ZodType<OdbcParams> = z
     port: d.port,
   }));
 
-export const unmarshalRepeatedEndpointConfPairsSchema: z.ZodType<RepeatedEndpointConfPairs> =
-  z
-    .object({
-      config_pair: z
-        .array(z.lazy(() => unmarshalEndpointConfPairSchema))
-        .optional(),
-      configuration_pairs: z
-        .array(z.lazy(() => unmarshalEndpointConfPairSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      configPair: d.config_pair,
-      configurationPairs: d.configuration_pairs,
-    }));
+export const unmarshalRepeatedEndpointConfPairsSchema: z.ZodType<RepeatedEndpointConfPairs> = z
+  .object({
+    config_pair: z.array(z.lazy(() => unmarshalEndpointConfPairSchema)).optional(),
+    configuration_pairs: z.array(z.lazy(() => unmarshalEndpointConfPairSchema)).optional(),
+  })
+  .transform(d => ({
+    configPair: d.config_pair,
+    configurationPairs: d.configuration_pairs,
+  }));
 
-export const unmarshalSetWorkspaceWarehouseConfigRequestSchema: z.ZodType<SetWorkspaceWarehouseConfigRequest> =
-  z
-    .object({
-      security_policy: z.enum(EndpointSecurityPolicy).optional(),
-      data_access_config: z
-        .array(z.lazy(() => unmarshalEndpointConfPairSchema))
-        .optional(),
-      instance_profile_arn: z.string().optional(),
-      channel: z.lazy(() => unmarshalChannelSchema).optional(),
-      enable_serverless_compute: z.boolean().optional(),
-      global_param: z
-        .lazy(() => unmarshalRepeatedEndpointConfPairsSchema)
-        .optional(),
-      config_param: z
-        .lazy(() => unmarshalRepeatedEndpointConfPairsSchema)
-        .optional(),
-      sql_configuration_parameters: z
-        .lazy(() => unmarshalRepeatedEndpointConfPairsSchema)
-        .optional(),
-      google_service_account: z.string().optional(),
-      enabled_warehouse_types: z
-        .array(z.lazy(() => unmarshalWarehouseTypePairSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      securityPolicy: d.security_policy,
-      dataAccessConfig: d.data_access_config,
-      instanceProfileArn: d.instance_profile_arn,
-      channel: d.channel,
-      enableServerlessCompute: d.enable_serverless_compute,
-      globalParam: d.global_param,
-      configParam: d.config_param,
-      sqlConfigurationParameters: d.sql_configuration_parameters,
-      googleServiceAccount: d.google_service_account,
-      enabledWarehouseTypes: d.enabled_warehouse_types,
-    }));
+export const unmarshalSetWorkspaceWarehouseConfigRequestSchema: z.ZodType<SetWorkspaceWarehouseConfigRequest> = z
+  .object({
+    security_policy: z.enum(EndpointSecurityPolicy).optional(),
+    data_access_config: z.array(z.lazy(() => unmarshalEndpointConfPairSchema)).optional(),
+    instance_profile_arn: z.string().optional(),
+    channel: z.lazy(() => unmarshalChannelSchema).optional(),
+    enable_serverless_compute: z.boolean().optional(),
+    global_param: z.lazy(() => unmarshalRepeatedEndpointConfPairsSchema).optional(),
+    config_param: z.lazy(() => unmarshalRepeatedEndpointConfPairsSchema).optional(),
+    sql_configuration_parameters: z.lazy(() => unmarshalRepeatedEndpointConfPairsSchema).optional(),
+    google_service_account: z.string().optional(),
+    enabled_warehouse_types: z.array(z.lazy(() => unmarshalWarehouseTypePairSchema)).optional(),
+  })
+  .transform(d => ({
+    securityPolicy: d.security_policy,
+    dataAccessConfig: d.data_access_config,
+    instanceProfileArn: d.instance_profile_arn,
+    channel: d.channel,
+    enableServerlessCompute: d.enable_serverless_compute,
+    globalParam: d.global_param,
+    configParam: d.config_param,
+    sqlConfigurationParameters: d.sql_configuration_parameters,
+    googleServiceAccount: d.google_service_account,
+    enabledWarehouseTypes: d.enabled_warehouse_types,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSetWorkspaceWarehouseConfigRequest_ResponseSchema: z.ZodType<SetWorkspaceWarehouseConfigRequest_Response> =
-  z.object({});
+export const unmarshalSetWorkspaceWarehouseConfigRequest_ResponseSchema: z.ZodType<SetWorkspaceWarehouseConfigRequest_Response> = z
+  .object({
+  });
 
 export const unmarshalTerminationReasonSchema: z.ZodType<TerminationReason> = z
   .object({
@@ -1936,31 +1898,27 @@ export const unmarshalTerminationReasonSchema: z.ZodType<TerminationReason> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalTerminationReason_ParametersEntrySchema: z.ZodType<TerminationReason_ParametersEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalTerminationReason_ParametersEntrySchema: z.ZodType<TerminationReason_ParametersEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
-export const unmarshalUpdateDefaultWarehouseOverrideRequestSchema: z.ZodType<UpdateDefaultWarehouseOverrideRequest> =
-  z
-    .object({
-      default_warehouse_override: z
-        .lazy(() => unmarshalDefaultWarehouseOverrideSchema)
-        .optional(),
-      update_mask: z.string().optional(),
-      allow_missing: z.boolean().optional(),
-    })
-    .transform(d => ({
-      defaultWarehouseOverride: d.default_warehouse_override,
-      updateMask: d.update_mask,
-      allowMissing: d.allow_missing,
-    }));
+export const unmarshalUpdateDefaultWarehouseOverrideRequestSchema: z.ZodType<UpdateDefaultWarehouseOverrideRequest> = z
+  .object({
+    default_warehouse_override: z.lazy(() => unmarshalDefaultWarehouseOverrideSchema).optional(),
+    update_mask: z.string().transform(s => FieldMask.of(...(s === '' ? [] : s.split(','))) as FieldMask<FieldPaths<DefaultWarehouseOverride>>).optional(),
+    allow_missing: z.boolean().optional(),
+  })
+  .transform(d => ({
+    defaultWarehouseOverride: d.default_warehouse_override,
+    updateMask: d.update_mask,
+    allowMissing: d.allow_missing,
+  }));
 
 export const unmarshalWarehouseTypePairSchema: z.ZodType<WarehouseTypePair> = z
   .object({
@@ -1972,43 +1930,41 @@ export const unmarshalWarehouseTypePairSchema: z.ZodType<WarehouseTypePair> = z
     enabled: d.enabled,
   }));
 
-export const unmarshalDeleteWarehouseRequestSchema: z.ZodType<DeleteWarehouseRequest> =
-  z
-    .object({
-      id: z.string().optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-    }));
+export const unmarshalDeleteWarehouseRequestSchema: z.ZodType<DeleteWarehouseRequest> = z
+  .object({
+    id: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteWarehouseRequest_ResponseSchema: z.ZodType<DeleteWarehouseRequest_Response> =
-  z.object({});
+export const unmarshalDeleteWarehouseRequest_ResponseSchema: z.ZodType<DeleteWarehouseRequest_Response> = z
+  .object({
+  });
 
-export const unmarshalListWarehousesRequestSchema: z.ZodType<ListWarehousesRequest> =
-  z
-    .object({
-      run_as_user_id: z.number().optional(),
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      runAsUserId: d.run_as_user_id,
-      pageSize: d.page_size,
-      pageToken: d.page_token,
-    }));
+export const unmarshalListWarehousesRequestSchema: z.ZodType<ListWarehousesRequest> = z
+  .object({
+    run_as_user_id: z.number().optional(),
+    page_size: z.number().optional(),
+    page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    runAsUserId: d.run_as_user_id,
+    pageSize: d.page_size,
+    pageToken: d.page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListWarehousesRequest_ResponseSchema: z.ZodType<ListWarehousesRequest_Response> =
-  z
-    .object({
-      warehouses: z.array(z.lazy(() => unmarshalEndpointInfoSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      warehouses: d.warehouses,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListWarehousesRequest_ResponseSchema: z.ZodType<ListWarehousesRequest_Response> = z
+  .object({
+    warehouses: z.array(z.lazy(() => unmarshalEndpointInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    warehouses: d.warehouses,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalStartRequestSchema: z.ZodType<StartRequest> = z
   .object({
@@ -2019,8 +1975,9 @@ export const unmarshalStartRequestSchema: z.ZodType<StartRequest> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalStartRequest_ResponseSchema: z.ZodType<StartRequest_Response> =
-  z.object({});
+export const unmarshalStartRequest_ResponseSchema: z.ZodType<StartRequest_Response> = z
+  .object({
+  });
 
 export const unmarshalStopRequestSchema: z.ZodType<StopRequest> = z
   .object({
@@ -2031,8 +1988,9 @@ export const unmarshalStopRequestSchema: z.ZodType<StopRequest> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalStopRequest_ResponseSchema: z.ZodType<StopRequest_Response> =
-  z.object({});
+export const unmarshalStopRequest_ResponseSchema: z.ZodType<StopRequest_Response> = z
+  .object({
+  });
 
 export const marshalChannelSchema: z.ZodType = z
   .object({
@@ -2047,9 +2005,7 @@ export const marshalChannelSchema: z.ZodType = z
 export const marshalCreateDefaultWarehouseOverrideRequestSchema: z.ZodType = z
   .object({
     defaultWarehouseOverrideId: z.string().optional(),
-    defaultWarehouseOverride: z
-      .lazy(() => marshalDefaultWarehouseOverrideSchema)
-      .optional(),
+    defaultWarehouseOverride: z.lazy(() => marshalDefaultWarehouseOverrideSchema).optional(),
   })
   .transform(d => ({
     default_warehouse_override_id: d.defaultWarehouseOverrideId,
@@ -2154,9 +2110,9 @@ export const marshalEditWarehouseRequestSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEditWarehouseRequest_ResponseSchema: z.ZodType = z.object(
-  {}
-);
+export const marshalEditWarehouseRequest_ResponseSchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalEndpointConfPairSchema: z.ZodType = z
   .object({
@@ -2311,46 +2267,36 @@ export const marshalGetWarehouse_ResponseSchema: z.ZodType = z
     health: d.health,
   }));
 
-export const marshalGetWorkspaceWarehouseConfigRequestSchema: z.ZodType =
-  z.object({});
+export const marshalGetWorkspaceWarehouseConfigRequestSchema: z.ZodType = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalGetWorkspaceWarehouseConfigRequest_ResponseSchema: z.ZodType =
-  z
-    .object({
-      securityPolicy: z.enum(EndpointSecurityPolicy).optional(),
-      dataAccessConfig: z
-        .array(z.lazy(() => marshalEndpointConfPairSchema))
-        .optional(),
-      instanceProfileArn: z.string().optional(),
-      channel: z.lazy(() => marshalChannelSchema).optional(),
-      enableServerlessCompute: z.boolean().optional(),
-      globalParam: z
-        .lazy(() => marshalRepeatedEndpointConfPairsSchema)
-        .optional(),
-      configParam: z
-        .lazy(() => marshalRepeatedEndpointConfPairsSchema)
-        .optional(),
-      sqlConfigurationParameters: z
-        .lazy(() => marshalRepeatedEndpointConfPairsSchema)
-        .optional(),
-      googleServiceAccount: z.string().optional(),
-      enabledWarehouseTypes: z
-        .array(z.lazy(() => marshalWarehouseTypePairSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      security_policy: d.securityPolicy,
-      data_access_config: d.dataAccessConfig,
-      instance_profile_arn: d.instanceProfileArn,
-      channel: d.channel,
-      enable_serverless_compute: d.enableServerlessCompute,
-      global_param: d.globalParam,
-      config_param: d.configParam,
-      sql_configuration_parameters: d.sqlConfigurationParameters,
-      google_service_account: d.googleServiceAccount,
-      enabled_warehouse_types: d.enabledWarehouseTypes,
-    }));
+export const marshalGetWorkspaceWarehouseConfigRequest_ResponseSchema: z.ZodType = z
+  .object({
+    securityPolicy: z.enum(EndpointSecurityPolicy).optional(),
+    dataAccessConfig: z.array(z.lazy(() => marshalEndpointConfPairSchema)).optional(),
+    instanceProfileArn: z.string().optional(),
+    channel: z.lazy(() => marshalChannelSchema).optional(),
+    enableServerlessCompute: z.boolean().optional(),
+    globalParam: z.lazy(() => marshalRepeatedEndpointConfPairsSchema).optional(),
+    configParam: z.lazy(() => marshalRepeatedEndpointConfPairsSchema).optional(),
+    sqlConfigurationParameters: z.lazy(() => marshalRepeatedEndpointConfPairsSchema).optional(),
+    googleServiceAccount: z.string().optional(),
+    enabledWarehouseTypes: z.array(z.lazy(() => marshalWarehouseTypePairSchema)).optional(),
+  })
+  .transform(d => ({
+    security_policy: d.securityPolicy,
+    data_access_config: d.dataAccessConfig,
+    instance_profile_arn: d.instanceProfileArn,
+    channel: d.channel,
+    enable_serverless_compute: d.enableServerlessCompute,
+    global_param: d.globalParam,
+    config_param: d.configParam,
+    sql_configuration_parameters: d.sqlConfigurationParameters,
+    google_service_account: d.googleServiceAccount,
+    enabled_warehouse_types: d.enabledWarehouseTypes,
+  }));
 
 export const marshalListDefaultWarehouseOverridesRequestSchema: z.ZodType = z
   .object({
@@ -2364,9 +2310,7 @@ export const marshalListDefaultWarehouseOverridesRequestSchema: z.ZodType = z
 
 export const marshalListDefaultWarehouseOverridesResponseSchema: z.ZodType = z
   .object({
-    defaultWarehouseOverrides: z
-      .array(z.lazy(() => marshalDefaultWarehouseOverrideSchema))
-      .optional(),
+    defaultWarehouseOverrides: z.array(z.lazy(() => marshalDefaultWarehouseOverrideSchema)).optional(),
     nextPageToken: z.string().optional(),
   })
   .transform(d => ({
@@ -2391,9 +2335,7 @@ export const marshalOdbcParamsSchema: z.ZodType = z
 export const marshalRepeatedEndpointConfPairsSchema: z.ZodType = z
   .object({
     configPair: z.array(z.lazy(() => marshalEndpointConfPairSchema)).optional(),
-    configurationPairs: z
-      .array(z.lazy(() => marshalEndpointConfPairSchema))
-      .optional(),
+    configurationPairs: z.array(z.lazy(() => marshalEndpointConfPairSchema)).optional(),
   })
   .transform(d => ({
     config_pair: d.configPair,
@@ -2403,25 +2345,15 @@ export const marshalRepeatedEndpointConfPairsSchema: z.ZodType = z
 export const marshalSetWorkspaceWarehouseConfigRequestSchema: z.ZodType = z
   .object({
     securityPolicy: z.enum(EndpointSecurityPolicy).optional(),
-    dataAccessConfig: z
-      .array(z.lazy(() => marshalEndpointConfPairSchema))
-      .optional(),
+    dataAccessConfig: z.array(z.lazy(() => marshalEndpointConfPairSchema)).optional(),
     instanceProfileArn: z.string().optional(),
     channel: z.lazy(() => marshalChannelSchema).optional(),
     enableServerlessCompute: z.boolean().optional(),
-    globalParam: z
-      .lazy(() => marshalRepeatedEndpointConfPairsSchema)
-      .optional(),
-    configParam: z
-      .lazy(() => marshalRepeatedEndpointConfPairsSchema)
-      .optional(),
-    sqlConfigurationParameters: z
-      .lazy(() => marshalRepeatedEndpointConfPairsSchema)
-      .optional(),
+    globalParam: z.lazy(() => marshalRepeatedEndpointConfPairsSchema).optional(),
+    configParam: z.lazy(() => marshalRepeatedEndpointConfPairsSchema).optional(),
+    sqlConfigurationParameters: z.lazy(() => marshalRepeatedEndpointConfPairsSchema).optional(),
     googleServiceAccount: z.string().optional(),
-    enabledWarehouseTypes: z
-      .array(z.lazy(() => marshalWarehouseTypePairSchema))
-      .optional(),
+    enabledWarehouseTypes: z.array(z.lazy(() => marshalWarehouseTypePairSchema)).optional(),
   })
   .transform(d => ({
     security_policy: d.securityPolicy,
@@ -2437,8 +2369,9 @@ export const marshalSetWorkspaceWarehouseConfigRequestSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSetWorkspaceWarehouseConfigRequest_ResponseSchema: z.ZodType =
-  z.object({});
+export const marshalSetWorkspaceWarehouseConfigRequest_ResponseSchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalTerminationReasonSchema: z.ZodType = z
   .object({
@@ -2465,10 +2398,8 @@ export const marshalTerminationReason_ParametersEntrySchema: z.ZodType = z
 
 export const marshalUpdateDefaultWarehouseOverrideRequestSchema: z.ZodType = z
   .object({
-    defaultWarehouseOverride: z
-      .lazy(() => marshalDefaultWarehouseOverrideSchema)
-      .optional(),
-    updateMask: z.string().optional(),
+    defaultWarehouseOverride: z.lazy(() => marshalDefaultWarehouseOverrideSchema).optional(),
+    updateMask: z.any().transform((d: FieldMask<FieldPaths<DefaultWarehouseOverride>>) => d.paths.join(',')).optional(),
     allowMissing: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2496,9 +2427,9 @@ export const marshalDeleteWarehouseRequestSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeleteWarehouseRequest_ResponseSchema: z.ZodType = z.object(
-  {}
-);
+export const marshalDeleteWarehouseRequest_ResponseSchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalListWarehousesRequestSchema: z.ZodType = z
   .object({
@@ -2532,7 +2463,9 @@ export const marshalStartRequestSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalStartRequest_ResponseSchema: z.ZodType = z.object({});
+export const marshalStartRequest_ResponseSchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalStopRequestSchema: z.ZodType = z
   .object({
@@ -2543,4 +2476,6 @@ export const marshalStopRequestSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalStopRequest_ResponseSchema: z.ZodType = z.object({});
+export const marshalStopRequest_ResponseSchema: z.ZodType = z
+  .object({
+  });

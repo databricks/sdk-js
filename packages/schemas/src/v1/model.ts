@@ -41,9 +41,7 @@ export interface CreateSchema {
   catalogType?: CatalogType | undefined;
   /** Storage location for managed tables within schema. */
   storageLocation?: string | undefined;
-  effectivePredictiveOptimizationFlag?:
-    | EffectivePredictiveOptimizationFlag
-    | undefined;
+  effectivePredictiveOptimizationFlag?: EffectivePredictiveOptimizationFlag | undefined;
   /** The unique identifier of the schema. */
   schemaId?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
@@ -150,9 +148,7 @@ export interface SchemaInfo {
   catalogType?: CatalogType | undefined;
   /** Storage location for managed tables within schema. */
   storageLocation?: string | undefined;
-  effectivePredictiveOptimizationFlag?:
-    | EffectivePredictiveOptimizationFlag
-    | undefined;
+  effectivePredictiveOptimizationFlag?: EffectivePredictiveOptimizationFlag | undefined;
   /** The unique identifier of the schema. */
   schemaId?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
@@ -208,9 +204,7 @@ export interface UpdateSchema {
   catalogType?: CatalogType | undefined;
   /** Storage location for managed tables within schema. */
   storageLocation?: string | undefined;
-  effectivePredictiveOptimizationFlag?:
-    | EffectivePredictiveOptimizationFlag
-    | undefined;
+  effectivePredictiveOptimizationFlag?: EffectivePredictiveOptimizationFlag | undefined;
   /** The unique identifier of the schema. */
   schemaId?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
@@ -249,9 +243,7 @@ export const unmarshalCreateSchemaSchema: z.ZodType<CreateSchema> = z
     updated_by: z.string().optional(),
     catalog_type: z.enum(CatalogType).optional(),
     storage_location: z.string().optional(),
-    effective_predictive_optimization_flag: z
-      .lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+    effective_predictive_optimization_flag: z.lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema).optional(),
     schema_id: z.string().optional(),
     browse_only: z.boolean().optional(),
     properties: z.record(z.string(), z.string()).optional(),
@@ -272,8 +264,7 @@ export const unmarshalCreateSchemaSchema: z.ZodType<CreateSchema> = z
     updatedBy: d.updated_by,
     catalogType: d.catalog_type,
     storageLocation: d.storage_location,
-    effectivePredictiveOptimizationFlag:
-      d.effective_predictive_optimization_flag,
+    effectivePredictiveOptimizationFlag: d.effective_predictive_optimization_flag,
     schemaId: d.schema_id,
     browseOnly: d.browse_only,
     properties: d.properties,
@@ -281,28 +272,26 @@ export const unmarshalCreateSchemaSchema: z.ZodType<CreateSchema> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateSchema_OptionsEntrySchema: z.ZodType<CreateSchema_OptionsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalCreateSchema_OptionsEntrySchema: z.ZodType<CreateSchema_OptionsEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateSchema_PropertiesEntrySchema: z.ZodType<CreateSchema_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalCreateSchema_PropertiesEntrySchema: z.ZodType<CreateSchema_PropertiesEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 export const unmarshalDeleteSchemaSchema: z.ZodType<DeleteSchema> = z
   .object({
@@ -315,21 +304,21 @@ export const unmarshalDeleteSchemaSchema: z.ZodType<DeleteSchema> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteSchema_ResponseSchema: z.ZodType<DeleteSchema_Response> =
-  z.object({});
+export const unmarshalDeleteSchema_ResponseSchema: z.ZodType<DeleteSchema_Response> = z
+  .object({
+  });
 
-export const unmarshalEffectivePredictiveOptimizationFlagSchema: z.ZodType<EffectivePredictiveOptimizationFlag> =
-  z
-    .object({
-      value: z.string().optional(),
-      inherited_from_type: z.string().optional(),
-      inherited_from_name: z.string().optional(),
-    })
-    .transform(d => ({
-      value: d.value,
-      inheritedFromType: d.inherited_from_type,
-      inheritedFromName: d.inherited_from_name,
-    }));
+export const unmarshalEffectivePredictiveOptimizationFlagSchema: z.ZodType<EffectivePredictiveOptimizationFlag> = z
+  .object({
+    value: z.string().optional(),
+    inherited_from_type: z.string().optional(),
+    inherited_from_name: z.string().optional(),
+  })
+  .transform(d => ({
+    value: d.value,
+    inheritedFromType: d.inherited_from_type,
+    inheritedFromName: d.inherited_from_name,
+  }));
 
 export const unmarshalGetSchemaSchema: z.ZodType<GetSchema> = z
   .object({
@@ -356,16 +345,15 @@ export const unmarshalListSchemasSchema: z.ZodType<ListSchemas> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListSchemas_ResponseSchema: z.ZodType<ListSchemas_Response> =
-  z
-    .object({
-      schemas: z.array(z.lazy(() => unmarshalSchemaInfoSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      schemas: d.schemas,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListSchemas_ResponseSchema: z.ZodType<ListSchemas_Response> = z
+  .object({
+    schemas: z.array(z.lazy(() => unmarshalSchemaInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    schemas: d.schemas,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalSchemaInfoSchema: z.ZodType<SchemaInfo> = z
   .object({
@@ -383,9 +371,7 @@ export const unmarshalSchemaInfoSchema: z.ZodType<SchemaInfo> = z
     updated_by: z.string().optional(),
     catalog_type: z.enum(CatalogType).optional(),
     storage_location: z.string().optional(),
-    effective_predictive_optimization_flag: z
-      .lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+    effective_predictive_optimization_flag: z.lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema).optional(),
     schema_id: z.string().optional(),
     browse_only: z.boolean().optional(),
     properties: z.record(z.string(), z.string()).optional(),
@@ -406,8 +392,7 @@ export const unmarshalSchemaInfoSchema: z.ZodType<SchemaInfo> = z
     updatedBy: d.updated_by,
     catalogType: d.catalog_type,
     storageLocation: d.storage_location,
-    effectivePredictiveOptimizationFlag:
-      d.effective_predictive_optimization_flag,
+    effectivePredictiveOptimizationFlag: d.effective_predictive_optimization_flag,
     schemaId: d.schema_id,
     browseOnly: d.browse_only,
     properties: d.properties,
@@ -415,28 +400,26 @@ export const unmarshalSchemaInfoSchema: z.ZodType<SchemaInfo> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSchemaInfo_OptionsEntrySchema: z.ZodType<SchemaInfo_OptionsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalSchemaInfo_OptionsEntrySchema: z.ZodType<SchemaInfo_OptionsEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSchemaInfo_PropertiesEntrySchema: z.ZodType<SchemaInfo_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalSchemaInfo_PropertiesEntrySchema: z.ZodType<SchemaInfo_PropertiesEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 export const unmarshalUpdateSchemaSchema: z.ZodType<UpdateSchema> = z
   .object({
@@ -456,9 +439,7 @@ export const unmarshalUpdateSchemaSchema: z.ZodType<UpdateSchema> = z
     updated_by: z.string().optional(),
     catalog_type: z.enum(CatalogType).optional(),
     storage_location: z.string().optional(),
-    effective_predictive_optimization_flag: z
-      .lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+    effective_predictive_optimization_flag: z.lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema).optional(),
     schema_id: z.string().optional(),
     browse_only: z.boolean().optional(),
     properties: z.record(z.string(), z.string()).optional(),
@@ -481,8 +462,7 @@ export const unmarshalUpdateSchemaSchema: z.ZodType<UpdateSchema> = z
     updatedBy: d.updated_by,
     catalogType: d.catalog_type,
     storageLocation: d.storage_location,
-    effectivePredictiveOptimizationFlag:
-      d.effective_predictive_optimization_flag,
+    effectivePredictiveOptimizationFlag: d.effective_predictive_optimization_flag,
     schemaId: d.schema_id,
     browseOnly: d.browse_only,
     properties: d.properties,
@@ -490,28 +470,26 @@ export const unmarshalUpdateSchemaSchema: z.ZodType<UpdateSchema> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateSchema_OptionsEntrySchema: z.ZodType<UpdateSchema_OptionsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalUpdateSchema_OptionsEntrySchema: z.ZodType<UpdateSchema_OptionsEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateSchema_PropertiesEntrySchema: z.ZodType<UpdateSchema_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalUpdateSchema_PropertiesEntrySchema: z.ZodType<UpdateSchema_PropertiesEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 export const marshalCreateSchemaSchema: z.ZodType = z
   .object({
@@ -529,9 +507,7 @@ export const marshalCreateSchemaSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     catalogType: z.enum(CatalogType).optional(),
     storageLocation: z.string().optional(),
-    effectivePredictiveOptimizationFlag: z
-      .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+    effectivePredictiveOptimizationFlag: z.lazy(() => marshalEffectivePredictiveOptimizationFlagSchema).optional(),
     schemaId: z.string().optional(),
     browseOnly: z.boolean().optional(),
     properties: z.record(z.string(), z.string()).optional(),
@@ -552,8 +528,7 @@ export const marshalCreateSchemaSchema: z.ZodType = z
     updated_by: d.updatedBy,
     catalog_type: d.catalogType,
     storage_location: d.storageLocation,
-    effective_predictive_optimization_flag:
-      d.effectivePredictiveOptimizationFlag,
+    effective_predictive_optimization_flag: d.effectivePredictiveOptimizationFlag,
     schema_id: d.schemaId,
     browse_only: d.browseOnly,
     properties: d.properties,
@@ -593,7 +568,9 @@ export const marshalDeleteSchemaSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeleteSchema_ResponseSchema: z.ZodType = z.object({});
+export const marshalDeleteSchema_ResponseSchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalEffectivePredictiveOptimizationFlagSchema: z.ZodType = z
   .object({
@@ -658,9 +635,7 @@ export const marshalSchemaInfoSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     catalogType: z.enum(CatalogType).optional(),
     storageLocation: z.string().optional(),
-    effectivePredictiveOptimizationFlag: z
-      .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+    effectivePredictiveOptimizationFlag: z.lazy(() => marshalEffectivePredictiveOptimizationFlagSchema).optional(),
     schemaId: z.string().optional(),
     browseOnly: z.boolean().optional(),
     properties: z.record(z.string(), z.string()).optional(),
@@ -681,8 +656,7 @@ export const marshalSchemaInfoSchema: z.ZodType = z
     updated_by: d.updatedBy,
     catalog_type: d.catalogType,
     storage_location: d.storageLocation,
-    effective_predictive_optimization_flag:
-      d.effectivePredictiveOptimizationFlag,
+    effective_predictive_optimization_flag: d.effectivePredictiveOptimizationFlag,
     schema_id: d.schemaId,
     browse_only: d.browseOnly,
     properties: d.properties,
@@ -729,9 +703,7 @@ export const marshalUpdateSchemaSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     catalogType: z.enum(CatalogType).optional(),
     storageLocation: z.string().optional(),
-    effectivePredictiveOptimizationFlag: z
-      .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+    effectivePredictiveOptimizationFlag: z.lazy(() => marshalEffectivePredictiveOptimizationFlagSchema).optional(),
     schemaId: z.string().optional(),
     browseOnly: z.boolean().optional(),
     properties: z.record(z.string(), z.string()).optional(),
@@ -754,8 +726,7 @@ export const marshalUpdateSchemaSchema: z.ZodType = z
     updated_by: d.updatedBy,
     catalog_type: d.catalogType,
     storage_location: d.storageLocation,
-    effective_predictive_optimization_flag:
-      d.effectivePredictiveOptimizationFlag,
+    effective_predictive_optimization_flag: d.effectivePredictiveOptimizationFlag,
     schema_id: d.schemaId,
     browse_only: d.browseOnly,
     properties: d.properties,

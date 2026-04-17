@@ -84,7 +84,7 @@ export interface CatalogInfo {
   catalogType?: CatalogType | undefined;
   /**
    * The name of delta sharing provider.
-   *
+   * 
    * A Delta Sharing catalog is a catalog that is based on a Delta share on a remote sharing server.
    */
   providerName?: string | undefined;
@@ -106,9 +106,7 @@ export interface CatalogInfo {
   storageLocation?: string | undefined;
   /** Whether the current securable is accessible from all workspaces or a specific set of workspaces. */
   isolationMode?: CatalogIsolationMode | undefined;
-  effectivePredictiveOptimizationFlag?:
-    | EffectivePredictiveOptimizationFlag
-    | undefined;
+  effectivePredictiveOptimizationFlag?: EffectivePredictiveOptimizationFlag | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
   provisioningInfo?: ProvisioningInfo | undefined;
@@ -159,7 +157,7 @@ export interface CreateCatalog {
   catalogType?: CatalogType | undefined;
   /**
    * The name of delta sharing provider.
-   *
+   * 
    * A Delta Sharing catalog is a catalog that is based on a Delta share on a remote sharing server.
    */
   providerName?: string | undefined;
@@ -181,9 +179,7 @@ export interface CreateCatalog {
   storageLocation?: string | undefined;
   /** Whether the current securable is accessible from all workspaces or a specific set of workspaces. */
   isolationMode?: CatalogIsolationMode | undefined;
-  effectivePredictiveOptimizationFlag?:
-    | EffectivePredictiveOptimizationFlag
-    | undefined;
+  effectivePredictiveOptimizationFlag?: EffectivePredictiveOptimizationFlag | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
   provisioningInfo?: ProvisioningInfo | undefined;
@@ -317,7 +313,7 @@ export interface UpdateCatalog {
   catalogType?: CatalogType | undefined;
   /**
    * The name of delta sharing provider.
-   *
+   * 
    * A Delta Sharing catalog is a catalog that is based on a Delta share on a remote sharing server.
    */
   providerName?: string | undefined;
@@ -339,9 +335,7 @@ export interface UpdateCatalog {
   storageLocation?: string | undefined;
   /** Whether the current securable is accessible from all workspaces or a specific set of workspaces. */
   isolationMode?: CatalogIsolationMode | undefined;
-  effectivePredictiveOptimizationFlag?:
-    | EffectivePredictiveOptimizationFlag
-    | undefined;
+  effectivePredictiveOptimizationFlag?: EffectivePredictiveOptimizationFlag | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
   provisioningInfo?: ProvisioningInfo | undefined;
@@ -372,18 +366,17 @@ export interface UpdateCatalog_PropertiesEntry {
   value?: string | undefined;
 }
 
-export const unmarshalAzureEncryptionSettingsSchema: z.ZodType<AzureEncryptionSettings> =
-  z
-    .object({
-      azure_tenant_id: z.string().optional(),
-      azure_cmk_access_connector_id: z.string().optional(),
-      azure_cmk_managed_identity_id: z.string().optional(),
-    })
-    .transform(d => ({
-      azureTenantId: d.azure_tenant_id,
-      azureCmkAccessConnectorId: d.azure_cmk_access_connector_id,
-      azureCmkManagedIdentityId: d.azure_cmk_managed_identity_id,
-    }));
+export const unmarshalAzureEncryptionSettingsSchema: z.ZodType<AzureEncryptionSettings> = z
+  .object({
+    azure_tenant_id: z.string().optional(),
+    azure_cmk_access_connector_id: z.string().optional(),
+    azure_cmk_managed_identity_id: z.string().optional(),
+  })
+  .transform(d => ({
+    azureTenantId: d.azure_tenant_id,
+    azureCmkAccessConnectorId: d.azure_cmk_access_connector_id,
+    azureCmkManagedIdentityId: d.azure_cmk_managed_identity_id,
+  }));
 
 export const unmarshalCatalogInfoSchema: z.ZodType<CatalogInfo> = z
   .object({
@@ -403,20 +396,14 @@ export const unmarshalCatalogInfoSchema: z.ZodType<CatalogInfo> = z
     updated_by: z.string().optional(),
     storage_location: z.string().optional(),
     isolation_mode: z.enum(CatalogIsolationMode).optional(),
-    effective_predictive_optimization_flag: z
-      .lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+    effective_predictive_optimization_flag: z.lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema).optional(),
     browse_only: z.boolean().optional(),
     provisioning_info: z.lazy(() => unmarshalProvisioningInfoSchema).optional(),
     full_name: z.string().optional(),
     securable_type: z.enum(SecurableType).optional(),
     conversion_info: z.lazy(() => unmarshalConversionInfoSchema).optional(),
-    dr_replication_info: z
-      .lazy(() => unmarshalDrReplicationInfoSchema)
-      .optional(),
-    managed_encryption_settings: z
-      .lazy(() => unmarshalEncryptionSettingsSchema)
-      .optional(),
+    dr_replication_info: z.lazy(() => unmarshalDrReplicationInfoSchema).optional(),
+    managed_encryption_settings: z.lazy(() => unmarshalEncryptionSettingsSchema).optional(),
     properties: z.record(z.string(), z.string()).optional(),
     options: z.record(z.string(), z.string()).optional(),
   })
@@ -437,8 +424,7 @@ export const unmarshalCatalogInfoSchema: z.ZodType<CatalogInfo> = z
     updatedBy: d.updated_by,
     storageLocation: d.storage_location,
     isolationMode: d.isolation_mode,
-    effectivePredictiveOptimizationFlag:
-      d.effective_predictive_optimization_flag,
+    effectivePredictiveOptimizationFlag: d.effective_predictive_optimization_flag,
     browseOnly: d.browse_only,
     provisioningInfo: d.provisioning_info,
     fullName: d.full_name,
@@ -451,28 +437,26 @@ export const unmarshalCatalogInfoSchema: z.ZodType<CatalogInfo> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCatalogInfo_OptionsEntrySchema: z.ZodType<CatalogInfo_OptionsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalCatalogInfo_OptionsEntrySchema: z.ZodType<CatalogInfo_OptionsEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCatalogInfo_PropertiesEntrySchema: z.ZodType<CatalogInfo_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalCatalogInfo_PropertiesEntrySchema: z.ZodType<CatalogInfo_PropertiesEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 export const unmarshalConversionInfoSchema: z.ZodType<ConversionInfo> = z
   .object({
@@ -500,20 +484,14 @@ export const unmarshalCreateCatalogSchema: z.ZodType<CreateCatalog> = z
     updated_by: z.string().optional(),
     storage_location: z.string().optional(),
     isolation_mode: z.enum(CatalogIsolationMode).optional(),
-    effective_predictive_optimization_flag: z
-      .lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+    effective_predictive_optimization_flag: z.lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema).optional(),
     browse_only: z.boolean().optional(),
     provisioning_info: z.lazy(() => unmarshalProvisioningInfoSchema).optional(),
     full_name: z.string().optional(),
     securable_type: z.enum(SecurableType).optional(),
     conversion_info: z.lazy(() => unmarshalConversionInfoSchema).optional(),
-    dr_replication_info: z
-      .lazy(() => unmarshalDrReplicationInfoSchema)
-      .optional(),
-    managed_encryption_settings: z
-      .lazy(() => unmarshalEncryptionSettingsSchema)
-      .optional(),
+    dr_replication_info: z.lazy(() => unmarshalDrReplicationInfoSchema).optional(),
+    managed_encryption_settings: z.lazy(() => unmarshalEncryptionSettingsSchema).optional(),
     properties: z.record(z.string(), z.string()).optional(),
     options: z.record(z.string(), z.string()).optional(),
   })
@@ -534,8 +512,7 @@ export const unmarshalCreateCatalogSchema: z.ZodType<CreateCatalog> = z
     updatedBy: d.updated_by,
     storageLocation: d.storage_location,
     isolationMode: d.isolation_mode,
-    effectivePredictiveOptimizationFlag:
-      d.effective_predictive_optimization_flag,
+    effectivePredictiveOptimizationFlag: d.effective_predictive_optimization_flag,
     browseOnly: d.browse_only,
     provisioningInfo: d.provisioning_info,
     fullName: d.full_name,
@@ -548,28 +525,26 @@ export const unmarshalCreateCatalogSchema: z.ZodType<CreateCatalog> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateCatalog_OptionsEntrySchema: z.ZodType<CreateCatalog_OptionsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalCreateCatalog_OptionsEntrySchema: z.ZodType<CreateCatalog_OptionsEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateCatalog_PropertiesEntrySchema: z.ZodType<CreateCatalog_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalCreateCatalog_PropertiesEntrySchema: z.ZodType<CreateCatalog_PropertiesEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 export const unmarshalDeleteCatalogSchema: z.ZodType<DeleteCatalog> = z
   .object({
@@ -582,49 +557,43 @@ export const unmarshalDeleteCatalogSchema: z.ZodType<DeleteCatalog> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteCatalog_ResponseSchema: z.ZodType<DeleteCatalog_Response> =
-  z.object({});
+export const unmarshalDeleteCatalog_ResponseSchema: z.ZodType<DeleteCatalog_Response> = z
+  .object({
+  });
 
 export const unmarshalDrReplicationInfoSchema: z.ZodType<DrReplicationInfo> = z
   .object({
     status: z.enum(DrReplicationStatus).optional(),
-    replicated_entities: z
-      .string()
-      .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
-      .optional(),
+    replicated_entities: z.string().transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0))).optional(),
   })
   .transform(d => ({
     status: d.status,
     replicatedEntities: d.replicated_entities,
   }));
 
-export const unmarshalEffectivePredictiveOptimizationFlagSchema: z.ZodType<EffectivePredictiveOptimizationFlag> =
-  z
-    .object({
-      value: z.string().optional(),
-      inherited_from_type: z.string().optional(),
-      inherited_from_name: z.string().optional(),
-    })
-    .transform(d => ({
-      value: d.value,
-      inheritedFromType: d.inherited_from_type,
-      inheritedFromName: d.inherited_from_name,
-    }));
+export const unmarshalEffectivePredictiveOptimizationFlagSchema: z.ZodType<EffectivePredictiveOptimizationFlag> = z
+  .object({
+    value: z.string().optional(),
+    inherited_from_type: z.string().optional(),
+    inherited_from_name: z.string().optional(),
+  })
+  .transform(d => ({
+    value: d.value,
+    inheritedFromType: d.inherited_from_type,
+    inheritedFromName: d.inherited_from_name,
+  }));
 
-export const unmarshalEncryptionSettingsSchema: z.ZodType<EncryptionSettings> =
-  z
-    .object({
-      customer_managed_key_id: z.string().optional(),
-      azure_key_vault_key_id: z.string().optional(),
-      azure_encryption_settings: z
-        .lazy(() => unmarshalAzureEncryptionSettingsSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      customerManagedKeyId: d.customer_managed_key_id,
-      azureKeyVaultKeyId: d.azure_key_vault_key_id,
-      azureEncryptionSettings: d.azure_encryption_settings,
-    }));
+export const unmarshalEncryptionSettingsSchema: z.ZodType<EncryptionSettings> = z
+  .object({
+    customer_managed_key_id: z.string().optional(),
+    azure_key_vault_key_id: z.string().optional(),
+    azure_encryption_settings: z.lazy(() => unmarshalAzureEncryptionSettingsSchema).optional(),
+  })
+  .transform(d => ({
+    customerManagedKeyId: d.customer_managed_key_id,
+    azureKeyVaultKeyId: d.azure_key_vault_key_id,
+    azureEncryptionSettings: d.azure_encryption_settings,
+  }));
 
 export const unmarshalGetCatalogSchema: z.ZodType<GetCatalog> = z
   .object({
@@ -651,16 +620,15 @@ export const unmarshalListCatalogsSchema: z.ZodType<ListCatalogs> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListCatalogs_ResponseSchema: z.ZodType<ListCatalogs_Response> =
-  z
-    .object({
-      catalogs: z.array(z.lazy(() => unmarshalCatalogInfoSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      catalogs: d.catalogs,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListCatalogs_ResponseSchema: z.ZodType<ListCatalogs_Response> = z
+  .object({
+    catalogs: z.array(z.lazy(() => unmarshalCatalogInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    catalogs: d.catalogs,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalProvisioningInfoSchema: z.ZodType<ProvisioningInfo> = z
   .object({
@@ -690,20 +658,14 @@ export const unmarshalUpdateCatalogSchema: z.ZodType<UpdateCatalog> = z
     updated_by: z.string().optional(),
     storage_location: z.string().optional(),
     isolation_mode: z.enum(CatalogIsolationMode).optional(),
-    effective_predictive_optimization_flag: z
-      .lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+    effective_predictive_optimization_flag: z.lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema).optional(),
     browse_only: z.boolean().optional(),
     provisioning_info: z.lazy(() => unmarshalProvisioningInfoSchema).optional(),
     full_name: z.string().optional(),
     securable_type: z.enum(SecurableType).optional(),
     conversion_info: z.lazy(() => unmarshalConversionInfoSchema).optional(),
-    dr_replication_info: z
-      .lazy(() => unmarshalDrReplicationInfoSchema)
-      .optional(),
-    managed_encryption_settings: z
-      .lazy(() => unmarshalEncryptionSettingsSchema)
-      .optional(),
+    dr_replication_info: z.lazy(() => unmarshalDrReplicationInfoSchema).optional(),
+    managed_encryption_settings: z.lazy(() => unmarshalEncryptionSettingsSchema).optional(),
     properties: z.record(z.string(), z.string()).optional(),
     options: z.record(z.string(), z.string()).optional(),
   })
@@ -726,8 +688,7 @@ export const unmarshalUpdateCatalogSchema: z.ZodType<UpdateCatalog> = z
     updatedBy: d.updated_by,
     storageLocation: d.storage_location,
     isolationMode: d.isolation_mode,
-    effectivePredictiveOptimizationFlag:
-      d.effective_predictive_optimization_flag,
+    effectivePredictiveOptimizationFlag: d.effective_predictive_optimization_flag,
     browseOnly: d.browse_only,
     provisioningInfo: d.provisioning_info,
     fullName: d.full_name,
@@ -740,28 +701,26 @@ export const unmarshalUpdateCatalogSchema: z.ZodType<UpdateCatalog> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateCatalog_OptionsEntrySchema: z.ZodType<UpdateCatalog_OptionsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalUpdateCatalog_OptionsEntrySchema: z.ZodType<UpdateCatalog_OptionsEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateCatalog_PropertiesEntrySchema: z.ZodType<UpdateCatalog_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalUpdateCatalog_PropertiesEntrySchema: z.ZodType<UpdateCatalog_PropertiesEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 export const marshalAzureEncryptionSettingsSchema: z.ZodType = z
   .object({
@@ -793,18 +752,14 @@ export const marshalCatalogInfoSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     storageLocation: z.string().optional(),
     isolationMode: z.enum(CatalogIsolationMode).optional(),
-    effectivePredictiveOptimizationFlag: z
-      .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+    effectivePredictiveOptimizationFlag: z.lazy(() => marshalEffectivePredictiveOptimizationFlagSchema).optional(),
     browseOnly: z.boolean().optional(),
     provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
     fullName: z.string().optional(),
     securableType: z.enum(SecurableType).optional(),
     conversionInfo: z.lazy(() => marshalConversionInfoSchema).optional(),
     drReplicationInfo: z.lazy(() => marshalDrReplicationInfoSchema).optional(),
-    managedEncryptionSettings: z
-      .lazy(() => marshalEncryptionSettingsSchema)
-      .optional(),
+    managedEncryptionSettings: z.lazy(() => marshalEncryptionSettingsSchema).optional(),
     properties: z.record(z.string(), z.string()).optional(),
     options: z.record(z.string(), z.string()).optional(),
   })
@@ -825,8 +780,7 @@ export const marshalCatalogInfoSchema: z.ZodType = z
     updated_by: d.updatedBy,
     storage_location: d.storageLocation,
     isolation_mode: d.isolationMode,
-    effective_predictive_optimization_flag:
-      d.effectivePredictiveOptimizationFlag,
+    effective_predictive_optimization_flag: d.effectivePredictiveOptimizationFlag,
     browse_only: d.browseOnly,
     provisioning_info: d.provisioningInfo,
     full_name: d.fullName,
@@ -886,18 +840,14 @@ export const marshalCreateCatalogSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     storageLocation: z.string().optional(),
     isolationMode: z.enum(CatalogIsolationMode).optional(),
-    effectivePredictiveOptimizationFlag: z
-      .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+    effectivePredictiveOptimizationFlag: z.lazy(() => marshalEffectivePredictiveOptimizationFlagSchema).optional(),
     browseOnly: z.boolean().optional(),
     provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
     fullName: z.string().optional(),
     securableType: z.enum(SecurableType).optional(),
     conversionInfo: z.lazy(() => marshalConversionInfoSchema).optional(),
     drReplicationInfo: z.lazy(() => marshalDrReplicationInfoSchema).optional(),
-    managedEncryptionSettings: z
-      .lazy(() => marshalEncryptionSettingsSchema)
-      .optional(),
+    managedEncryptionSettings: z.lazy(() => marshalEncryptionSettingsSchema).optional(),
     properties: z.record(z.string(), z.string()).optional(),
     options: z.record(z.string(), z.string()).optional(),
   })
@@ -918,8 +868,7 @@ export const marshalCreateCatalogSchema: z.ZodType = z
     updated_by: d.updatedBy,
     storage_location: d.storageLocation,
     isolation_mode: d.isolationMode,
-    effective_predictive_optimization_flag:
-      d.effectivePredictiveOptimizationFlag,
+    effective_predictive_optimization_flag: d.effectivePredictiveOptimizationFlag,
     browse_only: d.browseOnly,
     provisioning_info: d.provisioningInfo,
     full_name: d.fullName,
@@ -964,17 +913,14 @@ export const marshalDeleteCatalogSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeleteCatalog_ResponseSchema: z.ZodType = z.object({});
+export const marshalDeleteCatalog_ResponseSchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalDrReplicationInfoSchema: z.ZodType = z
   .object({
     status: z.enum(DrReplicationStatus).optional(),
-    replicatedEntities: z
-      .any()
-      .transform((d: Uint8Array) =>
-        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
-      )
-      .optional(),
+    replicatedEntities: z.any().transform((d: Uint8Array) => btoa(Array.from(d, b => String.fromCharCode(b)).join(''))).optional(),
   })
   .transform(d => ({
     status: d.status,
@@ -997,9 +943,7 @@ export const marshalEncryptionSettingsSchema: z.ZodType = z
   .object({
     customerManagedKeyId: z.string().optional(),
     azureKeyVaultKeyId: z.string().optional(),
-    azureEncryptionSettings: z
-      .lazy(() => marshalAzureEncryptionSettingsSchema)
-      .optional(),
+    azureEncryptionSettings: z.lazy(() => marshalAzureEncryptionSettingsSchema).optional(),
   })
   .transform(d => ({
     customer_managed_key_id: d.customerManagedKeyId,
@@ -1070,18 +1014,14 @@ export const marshalUpdateCatalogSchema: z.ZodType = z
     updatedBy: z.string().optional(),
     storageLocation: z.string().optional(),
     isolationMode: z.enum(CatalogIsolationMode).optional(),
-    effectivePredictiveOptimizationFlag: z
-      .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+    effectivePredictiveOptimizationFlag: z.lazy(() => marshalEffectivePredictiveOptimizationFlagSchema).optional(),
     browseOnly: z.boolean().optional(),
     provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
     fullName: z.string().optional(),
     securableType: z.enum(SecurableType).optional(),
     conversionInfo: z.lazy(() => marshalConversionInfoSchema).optional(),
     drReplicationInfo: z.lazy(() => marshalDrReplicationInfoSchema).optional(),
-    managedEncryptionSettings: z
-      .lazy(() => marshalEncryptionSettingsSchema)
-      .optional(),
+    managedEncryptionSettings: z.lazy(() => marshalEncryptionSettingsSchema).optional(),
     properties: z.record(z.string(), z.string()).optional(),
     options: z.record(z.string(), z.string()).optional(),
   })
@@ -1104,8 +1044,7 @@ export const marshalUpdateCatalogSchema: z.ZodType = z
     updated_by: d.updatedBy,
     storage_location: d.storageLocation,
     isolation_mode: d.isolationMode,
-    effective_predictive_optimization_flag:
-      d.effectivePredictiveOptimizationFlag,
+    effective_predictive_optimization_flag: d.effectivePredictiveOptimizationFlag,
     browse_only: d.browseOnly,
     provisioning_info: d.provisioningInfo,
     full_name: d.fullName,

@@ -318,8 +318,7 @@ export const unmarshalCreateMetastoreSchema: z.ZodType<CreateMetastore> = z
     defaultDataAccessConfigId: d.default_data_access_config_id,
     storageRootCredentialId: d.storage_root_credential_id,
     deltaSharingScope: d.delta_sharing_scope,
-    deltaSharingRecipientTokenLifetimeInSeconds:
-      d.delta_sharing_recipient_token_lifetime_in_seconds,
+    deltaSharingRecipientTokenLifetimeInSeconds: d.delta_sharing_recipient_token_lifetime_in_seconds,
     deltaSharingOrganizationName: d.delta_sharing_organization_name,
     owner: d.owner,
     privilegeModelVersion: d.privilege_model_version,
@@ -335,22 +334,22 @@ export const unmarshalCreateMetastoreSchema: z.ZodType<CreateMetastore> = z
     externalAccessEnabled: d.external_access_enabled,
   }));
 
-export const unmarshalCreateMetastoreAssignmentSchema: z.ZodType<CreateMetastoreAssignment> =
-  z
-    .object({
-      workspace_id: z.number().optional(),
-      metastore_id: z.string().optional(),
-      default_catalog_name: z.string().optional(),
-    })
-    .transform(d => ({
-      workspaceId: d.workspace_id,
-      metastoreId: d.metastore_id,
-      defaultCatalogName: d.default_catalog_name,
-    }));
+export const unmarshalCreateMetastoreAssignmentSchema: z.ZodType<CreateMetastoreAssignment> = z
+  .object({
+    workspace_id: z.number().optional(),
+    metastore_id: z.string().optional(),
+    default_catalog_name: z.string().optional(),
+  })
+  .transform(d => ({
+    workspaceId: d.workspace_id,
+    metastoreId: d.metastore_id,
+    defaultCatalogName: d.default_catalog_name,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateMetastoreAssignment_ResponseSchema: z.ZodType<CreateMetastoreAssignment_Response> =
-  z.object({});
+export const unmarshalCreateMetastoreAssignment_ResponseSchema: z.ZodType<CreateMetastoreAssignment_Response> = z
+  .object({
+  });
 
 export const unmarshalDeleteMetastoreSchema: z.ZodType<DeleteMetastore> = z
   .object({
@@ -363,29 +362,32 @@ export const unmarshalDeleteMetastoreSchema: z.ZodType<DeleteMetastore> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteMetastore_ResponseSchema: z.ZodType<DeleteMetastore_Response> =
-  z.object({});
+export const unmarshalDeleteMetastore_ResponseSchema: z.ZodType<DeleteMetastore_Response> = z
+  .object({
+  });
 
-export const unmarshalDeleteMetastoreAssignmentSchema: z.ZodType<DeleteMetastoreAssignment> =
-  z
-    .object({
-      workspace_id: z.number().optional(),
-      metastore_id: z.string().optional(),
-    })
-    .transform(d => ({
-      workspaceId: d.workspace_id,
-      metastoreId: d.metastore_id,
-    }));
+export const unmarshalDeleteMetastoreAssignmentSchema: z.ZodType<DeleteMetastoreAssignment> = z
+  .object({
+    workspace_id: z.number().optional(),
+    metastore_id: z.string().optional(),
+  })
+  .transform(d => ({
+    workspaceId: d.workspace_id,
+    metastoreId: d.metastore_id,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteMetastoreAssignment_ResponseSchema: z.ZodType<DeleteMetastoreAssignment_Response> =
-  z.object({});
+export const unmarshalDeleteMetastoreAssignment_ResponseSchema: z.ZodType<DeleteMetastoreAssignment_Response> = z
+  .object({
+  });
 
-export const unmarshalDeltaSharingScopeSchema: z.ZodType<DeltaSharingScope> =
-  z.object({});
+export const unmarshalDeltaSharingScopeSchema: z.ZodType<DeltaSharingScope> = z
+  .object({
+  });
 
-export const unmarshalGetCurrentMetastoreAssignmentSchema: z.ZodType<GetCurrentMetastoreAssignment> =
-  z.object({});
+export const unmarshalGetCurrentMetastoreAssignmentSchema: z.ZodType<GetCurrentMetastoreAssignment> = z
+  .object({
+  });
 
 export const unmarshalGetMetastoreSchema: z.ZodType<GetMetastore> = z
   .object({
@@ -395,55 +397,54 @@ export const unmarshalGetMetastoreSchema: z.ZodType<GetMetastore> = z
     id: d.id,
   }));
 
-export const unmarshalGetMetastoreSummarySchema: z.ZodType<GetMetastoreSummary> =
-  z.object({});
+export const unmarshalGetMetastoreSummarySchema: z.ZodType<GetMetastoreSummary> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetMetastoreSummary_ResponseSchema: z.ZodType<GetMetastoreSummary_Response> =
-  z
-    .object({
-      metastore_id: z.string().optional(),
-      name: z.string().optional(),
-      default_data_access_config_id: z.string().optional(),
-      storage_root_credential_id: z.string().optional(),
-      cloud: z.string().optional(),
-      region: z.string().optional(),
-      global_metastore_id: z.string().optional(),
-      storage_root_credential_name: z.string().optional(),
-      privilege_model_version: z.string().optional(),
-      delta_sharing_scope: z.enum(DeltaSharingScope_Enum).optional(),
-      delta_sharing_recipient_token_lifetime_in_seconds: z.number().optional(),
-      delta_sharing_organization_name: z.string().optional(),
-      storage_root: z.string().optional(),
-      owner: z.string().optional(),
-      created_at: z.number().optional(),
-      created_by: z.string().optional(),
-      updated_at: z.number().optional(),
-      updated_by: z.string().optional(),
-      external_access_enabled: z.boolean().optional(),
-    })
-    .transform(d => ({
-      metastoreId: d.metastore_id,
-      name: d.name,
-      defaultDataAccessConfigId: d.default_data_access_config_id,
-      storageRootCredentialId: d.storage_root_credential_id,
-      cloud: d.cloud,
-      region: d.region,
-      globalMetastoreId: d.global_metastore_id,
-      storageRootCredentialName: d.storage_root_credential_name,
-      privilegeModelVersion: d.privilege_model_version,
-      deltaSharingScope: d.delta_sharing_scope,
-      deltaSharingRecipientTokenLifetimeInSeconds:
-        d.delta_sharing_recipient_token_lifetime_in_seconds,
-      deltaSharingOrganizationName: d.delta_sharing_organization_name,
-      storageRoot: d.storage_root,
-      owner: d.owner,
-      createdAt: d.created_at,
-      createdBy: d.created_by,
-      updatedAt: d.updated_at,
-      updatedBy: d.updated_by,
-      externalAccessEnabled: d.external_access_enabled,
-    }));
+export const unmarshalGetMetastoreSummary_ResponseSchema: z.ZodType<GetMetastoreSummary_Response> = z
+  .object({
+    metastore_id: z.string().optional(),
+    name: z.string().optional(),
+    default_data_access_config_id: z.string().optional(),
+    storage_root_credential_id: z.string().optional(),
+    cloud: z.string().optional(),
+    region: z.string().optional(),
+    global_metastore_id: z.string().optional(),
+    storage_root_credential_name: z.string().optional(),
+    privilege_model_version: z.string().optional(),
+    delta_sharing_scope: z.enum(DeltaSharingScope_Enum).optional(),
+    delta_sharing_recipient_token_lifetime_in_seconds: z.number().optional(),
+    delta_sharing_organization_name: z.string().optional(),
+    storage_root: z.string().optional(),
+    owner: z.string().optional(),
+    created_at: z.number().optional(),
+    created_by: z.string().optional(),
+    updated_at: z.number().optional(),
+    updated_by: z.string().optional(),
+    external_access_enabled: z.boolean().optional(),
+  })
+  .transform(d => ({
+    metastoreId: d.metastore_id,
+    name: d.name,
+    defaultDataAccessConfigId: d.default_data_access_config_id,
+    storageRootCredentialId: d.storage_root_credential_id,
+    cloud: d.cloud,
+    region: d.region,
+    globalMetastoreId: d.global_metastore_id,
+    storageRootCredentialName: d.storage_root_credential_name,
+    privilegeModelVersion: d.privilege_model_version,
+    deltaSharingScope: d.delta_sharing_scope,
+    deltaSharingRecipientTokenLifetimeInSeconds: d.delta_sharing_recipient_token_lifetime_in_seconds,
+    deltaSharingOrganizationName: d.delta_sharing_organization_name,
+    storageRoot: d.storage_root,
+    owner: d.owner,
+    createdAt: d.created_at,
+    createdBy: d.created_by,
+    updatedAt: d.updated_at,
+    updatedBy: d.updated_by,
+    externalAccessEnabled: d.external_access_enabled,
+  }));
 
 export const unmarshalListMetastoresSchema: z.ZodType<ListMetastores> = z
   .object({
@@ -456,31 +457,27 @@ export const unmarshalListMetastoresSchema: z.ZodType<ListMetastores> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListMetastores_ResponseSchema: z.ZodType<ListMetastores_Response> =
-  z
-    .object({
-      metastores: z
-        .array(z.lazy(() => unmarshalMetastoreInfoSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      metastores: d.metastores,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListMetastores_ResponseSchema: z.ZodType<ListMetastores_Response> = z
+  .object({
+    metastores: z.array(z.lazy(() => unmarshalMetastoreInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    metastores: d.metastores,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalMetastoreAssignmentSchema: z.ZodType<MetastoreAssignment> =
-  z
-    .object({
-      workspace_id: z.number().optional(),
-      metastore_id: z.string().optional(),
-      default_catalog_name: z.string().optional(),
-    })
-    .transform(d => ({
-      workspaceId: d.workspace_id,
-      metastoreId: d.metastore_id,
-      defaultCatalogName: d.default_catalog_name,
-    }));
+export const unmarshalMetastoreAssignmentSchema: z.ZodType<MetastoreAssignment> = z
+  .object({
+    workspace_id: z.number().optional(),
+    metastore_id: z.string().optional(),
+    default_catalog_name: z.string().optional(),
+  })
+  .transform(d => ({
+    workspaceId: d.workspace_id,
+    metastoreId: d.metastore_id,
+    defaultCatalogName: d.default_catalog_name,
+  }));
 
 export const unmarshalMetastoreInfoSchema: z.ZodType<MetastoreInfo> = z
   .object({
@@ -510,8 +507,7 @@ export const unmarshalMetastoreInfoSchema: z.ZodType<MetastoreInfo> = z
     defaultDataAccessConfigId: d.default_data_access_config_id,
     storageRootCredentialId: d.storage_root_credential_id,
     deltaSharingScope: d.delta_sharing_scope,
-    deltaSharingRecipientTokenLifetimeInSeconds:
-      d.delta_sharing_recipient_token_lifetime_in_seconds,
+    deltaSharingRecipientTokenLifetimeInSeconds: d.delta_sharing_recipient_token_lifetime_in_seconds,
     deltaSharingOrganizationName: d.delta_sharing_organization_name,
     owner: d.owner,
     privilegeModelVersion: d.privilege_model_version,
@@ -559,8 +555,7 @@ export const unmarshalUpdateMetastoreSchema: z.ZodType<UpdateMetastore> = z
     defaultDataAccessConfigId: d.default_data_access_config_id,
     storageRootCredentialId: d.storage_root_credential_id,
     deltaSharingScope: d.delta_sharing_scope,
-    deltaSharingRecipientTokenLifetimeInSeconds:
-      d.delta_sharing_recipient_token_lifetime_in_seconds,
+    deltaSharingRecipientTokenLifetimeInSeconds: d.delta_sharing_recipient_token_lifetime_in_seconds,
     deltaSharingOrganizationName: d.delta_sharing_organization_name,
     owner: d.owner,
     privilegeModelVersion: d.privilege_model_version,
@@ -576,22 +571,22 @@ export const unmarshalUpdateMetastoreSchema: z.ZodType<UpdateMetastore> = z
     externalAccessEnabled: d.external_access_enabled,
   }));
 
-export const unmarshalUpdateMetastoreAssignmentSchema: z.ZodType<UpdateMetastoreAssignment> =
-  z
-    .object({
-      workspace_id: z.number().optional(),
-      metastore_id: z.string().optional(),
-      default_catalog_name: z.string().optional(),
-    })
-    .transform(d => ({
-      workspaceId: d.workspace_id,
-      metastoreId: d.metastore_id,
-      defaultCatalogName: d.default_catalog_name,
-    }));
+export const unmarshalUpdateMetastoreAssignmentSchema: z.ZodType<UpdateMetastoreAssignment> = z
+  .object({
+    workspace_id: z.number().optional(),
+    metastore_id: z.string().optional(),
+    default_catalog_name: z.string().optional(),
+  })
+  .transform(d => ({
+    workspaceId: d.workspace_id,
+    metastoreId: d.metastore_id,
+    defaultCatalogName: d.default_catalog_name,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateMetastoreAssignment_ResponseSchema: z.ZodType<UpdateMetastoreAssignment_Response> =
-  z.object({});
+export const unmarshalUpdateMetastoreAssignment_ResponseSchema: z.ZodType<UpdateMetastoreAssignment_Response> = z
+  .object({
+  });
 
 export const marshalCreateMetastoreSchema: z.ZodType = z
   .object({
@@ -621,8 +616,7 @@ export const marshalCreateMetastoreSchema: z.ZodType = z
     default_data_access_config_id: d.defaultDataAccessConfigId,
     storage_root_credential_id: d.storageRootCredentialId,
     delta_sharing_scope: d.deltaSharingScope,
-    delta_sharing_recipient_token_lifetime_in_seconds:
-      d.deltaSharingRecipientTokenLifetimeInSeconds,
+    delta_sharing_recipient_token_lifetime_in_seconds: d.deltaSharingRecipientTokenLifetimeInSeconds,
     delta_sharing_organization_name: d.deltaSharingOrganizationName,
     owner: d.owner,
     privilege_model_version: d.privilegeModelVersion,
@@ -651,8 +645,9 @@ export const marshalCreateMetastoreAssignmentSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCreateMetastoreAssignment_ResponseSchema: z.ZodType =
-  z.object({});
+export const marshalCreateMetastoreAssignment_ResponseSchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalDeleteMetastoreSchema: z.ZodType = z
   .object({
@@ -665,7 +660,9 @@ export const marshalDeleteMetastoreSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeleteMetastore_ResponseSchema: z.ZodType = z.object({});
+export const marshalDeleteMetastore_ResponseSchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalDeleteMetastoreAssignmentSchema: z.ZodType = z
   .object({
@@ -678,14 +675,17 @@ export const marshalDeleteMetastoreAssignmentSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeleteMetastoreAssignment_ResponseSchema: z.ZodType =
-  z.object({});
+export const marshalDeleteMetastoreAssignment_ResponseSchema: z.ZodType = z
+  .object({
+  });
 
-export const marshalDeltaSharingScopeSchema: z.ZodType = z.object({});
+export const marshalDeltaSharingScopeSchema: z.ZodType = z
+  .object({
+  });
 
-export const marshalGetCurrentMetastoreAssignmentSchema: z.ZodType = z.object(
-  {}
-);
+export const marshalGetCurrentMetastoreAssignmentSchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalGetMetastoreSchema: z.ZodType = z
   .object({
@@ -695,7 +695,9 @@ export const marshalGetMetastoreSchema: z.ZodType = z
     id: d.id,
   }));
 
-export const marshalGetMetastoreSummarySchema: z.ZodType = z.object({});
+export const marshalGetMetastoreSummarySchema: z.ZodType = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalGetMetastoreSummary_ResponseSchema: z.ZodType = z
@@ -731,8 +733,7 @@ export const marshalGetMetastoreSummary_ResponseSchema: z.ZodType = z
     storage_root_credential_name: d.storageRootCredentialName,
     privilege_model_version: d.privilegeModelVersion,
     delta_sharing_scope: d.deltaSharingScope,
-    delta_sharing_recipient_token_lifetime_in_seconds:
-      d.deltaSharingRecipientTokenLifetimeInSeconds,
+    delta_sharing_recipient_token_lifetime_in_seconds: d.deltaSharingRecipientTokenLifetimeInSeconds,
     delta_sharing_organization_name: d.deltaSharingOrganizationName,
     storage_root: d.storageRoot,
     owner: d.owner,
@@ -804,8 +805,7 @@ export const marshalMetastoreInfoSchema: z.ZodType = z
     default_data_access_config_id: d.defaultDataAccessConfigId,
     storage_root_credential_id: d.storageRootCredentialId,
     delta_sharing_scope: d.deltaSharingScope,
-    delta_sharing_recipient_token_lifetime_in_seconds:
-      d.deltaSharingRecipientTokenLifetimeInSeconds,
+    delta_sharing_recipient_token_lifetime_in_seconds: d.deltaSharingRecipientTokenLifetimeInSeconds,
     delta_sharing_organization_name: d.deltaSharingOrganizationName,
     owner: d.owner,
     privilege_model_version: d.privilegeModelVersion,
@@ -853,8 +853,7 @@ export const marshalUpdateMetastoreSchema: z.ZodType = z
     default_data_access_config_id: d.defaultDataAccessConfigId,
     storage_root_credential_id: d.storageRootCredentialId,
     delta_sharing_scope: d.deltaSharingScope,
-    delta_sharing_recipient_token_lifetime_in_seconds:
-      d.deltaSharingRecipientTokenLifetimeInSeconds,
+    delta_sharing_recipient_token_lifetime_in_seconds: d.deltaSharingRecipientTokenLifetimeInSeconds,
     delta_sharing_organization_name: d.deltaSharingOrganizationName,
     owner: d.owner,
     privilege_model_version: d.privilegeModelVersion,
@@ -883,5 +882,6 @@ export const marshalUpdateMetastoreAssignmentSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalUpdateMetastoreAssignment_ResponseSchema: z.ZodType =
-  z.object({});
+export const marshalUpdateMetastoreAssignment_ResponseSchema: z.ZodType = z
+  .object({
+  });

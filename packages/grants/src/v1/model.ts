@@ -35,7 +35,7 @@ export interface GetEffectivePermissions {
    * Specifies the maximum number of privileges to return (page length).
    * Every EffectivePrivilegeAssignment present in a single page response is guaranteed to contain all the effective
    * privileges granted on (or inherited by) the requested Securable for the respective principal.
-   *
+   * 
    * If not set, all the effective permissions are returned.
    * If set to
    * - lesser than 0: invalid parameter error
@@ -71,7 +71,7 @@ export interface GetPermissions {
    * Specifies the maximum number of privileges to return (page length).
    * Every PrivilegeAssignment present in a single page response is guaranteed to contain all the privileges granted on
    * the requested Securable for the respective principal.
-   *
+   * 
    * If not set, all the permissions are returned.
    * If set to
    * - lesser than 0: invalid parameter error
@@ -139,7 +139,7 @@ export interface ListPrivilegeAssignmentsRequest {
    * Specifies the maximum number of privileges to return (page length).
    * Every PrivilegeAssignment present in a single page response is guaranteed to contain all the privileges granted on
    * the requested Securable for the respective principal.
-   *
+   * 
    * If not set, page length is the server configured value.
    * If set to
    * - lesser than 0: invalid parameter error
@@ -174,9 +174,9 @@ export interface PermissionsChange {
   remove?: string[] | undefined;
   /**
    * An opaque internal ID that identifies the principal whose privileges should be removed.
-   *
+   * 
    * This field is intended for removing privileges associated with a deleted user. When set, only the entries specified in the remove field are processed; any entries in the add field will be rejected.
-   *
+   * 
    * Only one of principal or principal_id should be specified, never both at the same time.
    */
   principalId?: number | undefined;
@@ -209,62 +209,54 @@ export interface UpdatePermissions_Response {
   privilegeAssignments?: PrivilegeAssignment[] | undefined;
 }
 
-export const unmarshalEffectivePrivilegeSchema: z.ZodType<EffectivePrivilege> =
-  z
-    .object({
-      privilege: z.string().optional(),
-      inherited_from_type: z.string().optional(),
-      inherited_from_name: z.string().optional(),
-    })
-    .transform(d => ({
-      privilege: d.privilege,
-      inheritedFromType: d.inherited_from_type,
-      inheritedFromName: d.inherited_from_name,
-    }));
+export const unmarshalEffectivePrivilegeSchema: z.ZodType<EffectivePrivilege> = z
+  .object({
+    privilege: z.string().optional(),
+    inherited_from_type: z.string().optional(),
+    inherited_from_name: z.string().optional(),
+  })
+  .transform(d => ({
+    privilege: d.privilege,
+    inheritedFromType: d.inherited_from_type,
+    inheritedFromName: d.inherited_from_name,
+  }));
 
-export const unmarshalEffectivePrivilegeAssignmentSchema: z.ZodType<EffectivePrivilegeAssignment> =
-  z
-    .object({
-      principal: z.string().optional(),
-      privileges: z
-        .array(z.lazy(() => unmarshalEffectivePrivilegeSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      principal: d.principal,
-      privileges: d.privileges,
-    }));
+export const unmarshalEffectivePrivilegeAssignmentSchema: z.ZodType<EffectivePrivilegeAssignment> = z
+  .object({
+    principal: z.string().optional(),
+    privileges: z.array(z.lazy(() => unmarshalEffectivePrivilegeSchema)).optional(),
+  })
+  .transform(d => ({
+    principal: d.principal,
+    privileges: d.privileges,
+  }));
 
-export const unmarshalGetEffectivePermissionsSchema: z.ZodType<GetEffectivePermissions> =
-  z
-    .object({
-      securable_type: z.string().optional(),
-      securable_full_name: z.string().optional(),
-      principal: z.string().optional(),
-      max_results: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      securableType: d.securable_type,
-      securableFullName: d.securable_full_name,
-      principal: d.principal,
-      maxResults: d.max_results,
-      pageToken: d.page_token,
-    }));
+export const unmarshalGetEffectivePermissionsSchema: z.ZodType<GetEffectivePermissions> = z
+  .object({
+    securable_type: z.string().optional(),
+    securable_full_name: z.string().optional(),
+    principal: z.string().optional(),
+    max_results: z.number().optional(),
+    page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    securableType: d.securable_type,
+    securableFullName: d.securable_full_name,
+    principal: d.principal,
+    maxResults: d.max_results,
+    pageToken: d.page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetEffectivePermissions_ResponseSchema: z.ZodType<GetEffectivePermissions_Response> =
-  z
-    .object({
-      next_page_token: z.string().optional(),
-      privilege_assignments: z
-        .array(z.lazy(() => unmarshalEffectivePrivilegeAssignmentSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      nextPageToken: d.next_page_token,
-      privilegeAssignments: d.privilege_assignments,
-    }));
+export const unmarshalGetEffectivePermissions_ResponseSchema: z.ZodType<GetEffectivePermissions_Response> = z
+  .object({
+    next_page_token: z.string().optional(),
+    privilege_assignments: z.array(z.lazy(() => unmarshalEffectivePrivilegeAssignmentSchema)).optional(),
+  })
+  .transform(d => ({
+    nextPageToken: d.next_page_token,
+    privilegeAssignments: d.privilege_assignments,
+  }));
 
 export const unmarshalGetPermissionsSchema: z.ZodType<GetPermissions> = z
   .object({
@@ -285,82 +277,71 @@ export const unmarshalGetPermissionsSchema: z.ZodType<GetPermissions> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetPermissions_ResponseSchema: z.ZodType<GetPermissions_Response> =
-  z
-    .object({
-      next_page_token: z.string().optional(),
-      privilege_assignments: z
-        .array(z.lazy(() => unmarshalPrivilegeAssignmentSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      nextPageToken: d.next_page_token,
-      privilegeAssignments: d.privilege_assignments,
-    }));
+export const unmarshalGetPermissions_ResponseSchema: z.ZodType<GetPermissions_Response> = z
+  .object({
+    next_page_token: z.string().optional(),
+    privilege_assignments: z.array(z.lazy(() => unmarshalPrivilegeAssignmentSchema)).optional(),
+  })
+  .transform(d => ({
+    nextPageToken: d.next_page_token,
+    privilegeAssignments: d.privilege_assignments,
+  }));
 
-export const unmarshalListEffectivePrivilegeAssignmentsRequestSchema: z.ZodType<ListEffectivePrivilegeAssignmentsRequest> =
-  z
-    .object({
-      securable_type: z.string().optional(),
-      full_name: z.string().optional(),
-      principal: z.string().optional(),
-      include_deleted_principals: z.boolean().optional(),
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      securableType: d.securable_type,
-      fullName: d.full_name,
-      principal: d.principal,
-      includeDeletedPrincipals: d.include_deleted_principals,
-      pageSize: d.page_size,
-      pageToken: d.page_token,
-    }));
+export const unmarshalListEffectivePrivilegeAssignmentsRequestSchema: z.ZodType<ListEffectivePrivilegeAssignmentsRequest> = z
+  .object({
+    securable_type: z.string().optional(),
+    full_name: z.string().optional(),
+    principal: z.string().optional(),
+    include_deleted_principals: z.boolean().optional(),
+    page_size: z.number().optional(),
+    page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    securableType: d.securable_type,
+    fullName: d.full_name,
+    principal: d.principal,
+    includeDeletedPrincipals: d.include_deleted_principals,
+    pageSize: d.page_size,
+    pageToken: d.page_token,
+  }));
 
-export const unmarshalListEffectivePrivilegeAssignmentsResponseSchema: z.ZodType<ListEffectivePrivilegeAssignmentsResponse> =
-  z
-    .object({
-      effective_privilege_assignments: z
-        .array(z.lazy(() => unmarshalEffectivePrivilegeAssignmentSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      effectivePrivilegeAssignments: d.effective_privilege_assignments,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListEffectivePrivilegeAssignmentsResponseSchema: z.ZodType<ListEffectivePrivilegeAssignmentsResponse> = z
+  .object({
+    effective_privilege_assignments: z.array(z.lazy(() => unmarshalEffectivePrivilegeAssignmentSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    effectivePrivilegeAssignments: d.effective_privilege_assignments,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListPrivilegeAssignmentsRequestSchema: z.ZodType<ListPrivilegeAssignmentsRequest> =
-  z
-    .object({
-      securable_type: z.string().optional(),
-      full_name: z.string().optional(),
-      principal: z.string().optional(),
-      include_deleted_principals: z.boolean().optional(),
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      securableType: d.securable_type,
-      fullName: d.full_name,
-      principal: d.principal,
-      includeDeletedPrincipals: d.include_deleted_principals,
-      pageSize: d.page_size,
-      pageToken: d.page_token,
-    }));
+export const unmarshalListPrivilegeAssignmentsRequestSchema: z.ZodType<ListPrivilegeAssignmentsRequest> = z
+  .object({
+    securable_type: z.string().optional(),
+    full_name: z.string().optional(),
+    principal: z.string().optional(),
+    include_deleted_principals: z.boolean().optional(),
+    page_size: z.number().optional(),
+    page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    securableType: d.securable_type,
+    fullName: d.full_name,
+    principal: d.principal,
+    includeDeletedPrincipals: d.include_deleted_principals,
+    pageSize: d.page_size,
+    pageToken: d.page_token,
+  }));
 
-export const unmarshalListPrivilegeAssignmentsResponseSchema: z.ZodType<ListPrivilegeAssignmentsResponse> =
-  z
-    .object({
-      privilege_assignments: z
-        .array(z.lazy(() => unmarshalPrivilegeAssignmentSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      privilegeAssignments: d.privilege_assignments,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListPrivilegeAssignmentsResponseSchema: z.ZodType<ListPrivilegeAssignmentsResponse> = z
+  .object({
+    privilege_assignments: z.array(z.lazy(() => unmarshalPrivilegeAssignmentSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    privilegeAssignments: d.privilege_assignments,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalPermissionsChangeSchema: z.ZodType<PermissionsChange> = z
   .object({
@@ -376,18 +357,17 @@ export const unmarshalPermissionsChangeSchema: z.ZodType<PermissionsChange> = z
     principalId: d.principal_id,
   }));
 
-export const unmarshalPrivilegeAssignmentSchema: z.ZodType<PrivilegeAssignment> =
-  z
-    .object({
-      principal: z.string().optional(),
-      privileges: z.array(z.string()).optional(),
-      principal_id: z.number().optional(),
-    })
-    .transform(d => ({
-      principal: d.principal,
-      privileges: d.privileges,
-      principalId: d.principal_id,
-    }));
+export const unmarshalPrivilegeAssignmentSchema: z.ZodType<PrivilegeAssignment> = z
+  .object({
+    principal: z.string().optional(),
+    privileges: z.array(z.string()).optional(),
+    principal_id: z.number().optional(),
+  })
+  .transform(d => ({
+    principal: d.principal,
+    privileges: d.privileges,
+    principalId: d.principal_id,
+  }));
 
 export const unmarshalUpdatePermissionsSchema: z.ZodType<UpdatePermissions> = z
   .object({
@@ -402,16 +382,13 @@ export const unmarshalUpdatePermissionsSchema: z.ZodType<UpdatePermissions> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdatePermissions_ResponseSchema: z.ZodType<UpdatePermissions_Response> =
-  z
-    .object({
-      privilege_assignments: z
-        .array(z.lazy(() => unmarshalPrivilegeAssignmentSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      privilegeAssignments: d.privilege_assignments,
-    }));
+export const unmarshalUpdatePermissions_ResponseSchema: z.ZodType<UpdatePermissions_Response> = z
+  .object({
+    privilege_assignments: z.array(z.lazy(() => unmarshalPrivilegeAssignmentSchema)).optional(),
+  })
+  .transform(d => ({
+    privilegeAssignments: d.privilege_assignments,
+  }));
 
 export const marshalEffectivePrivilegeSchema: z.ZodType = z
   .object({
@@ -428,9 +405,7 @@ export const marshalEffectivePrivilegeSchema: z.ZodType = z
 export const marshalEffectivePrivilegeAssignmentSchema: z.ZodType = z
   .object({
     principal: z.string().optional(),
-    privileges: z
-      .array(z.lazy(() => marshalEffectivePrivilegeSchema))
-      .optional(),
+    privileges: z.array(z.lazy(() => marshalEffectivePrivilegeSchema)).optional(),
   })
   .transform(d => ({
     principal: d.principal,
@@ -457,9 +432,7 @@ export const marshalGetEffectivePermissionsSchema: z.ZodType = z
 export const marshalGetEffectivePermissions_ResponseSchema: z.ZodType = z
   .object({
     nextPageToken: z.string().optional(),
-    privilegeAssignments: z
-      .array(z.lazy(() => marshalEffectivePrivilegeAssignmentSchema))
-      .optional(),
+    privilegeAssignments: z.array(z.lazy(() => marshalEffectivePrivilegeAssignmentSchema)).optional(),
   })
   .transform(d => ({
     next_page_token: d.nextPageToken,
@@ -488,46 +461,40 @@ export const marshalGetPermissionsSchema: z.ZodType = z
 export const marshalGetPermissions_ResponseSchema: z.ZodType = z
   .object({
     nextPageToken: z.string().optional(),
-    privilegeAssignments: z
-      .array(z.lazy(() => marshalPrivilegeAssignmentSchema))
-      .optional(),
+    privilegeAssignments: z.array(z.lazy(() => marshalPrivilegeAssignmentSchema)).optional(),
   })
   .transform(d => ({
     next_page_token: d.nextPageToken,
     privilege_assignments: d.privilegeAssignments,
   }));
 
-export const marshalListEffectivePrivilegeAssignmentsRequestSchema: z.ZodType =
-  z
-    .object({
-      securableType: z.string().optional(),
-      fullName: z.string().optional(),
-      principal: z.string().optional(),
-      includeDeletedPrincipals: z.boolean().optional(),
-      pageSize: z.number().optional(),
-      pageToken: z.string().optional(),
-    })
-    .transform(d => ({
-      securable_type: d.securableType,
-      full_name: d.fullName,
-      principal: d.principal,
-      include_deleted_principals: d.includeDeletedPrincipals,
-      page_size: d.pageSize,
-      page_token: d.pageToken,
-    }));
+export const marshalListEffectivePrivilegeAssignmentsRequestSchema: z.ZodType = z
+  .object({
+    securableType: z.string().optional(),
+    fullName: z.string().optional(),
+    principal: z.string().optional(),
+    includeDeletedPrincipals: z.boolean().optional(),
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    securable_type: d.securableType,
+    full_name: d.fullName,
+    principal: d.principal,
+    include_deleted_principals: d.includeDeletedPrincipals,
+    page_size: d.pageSize,
+    page_token: d.pageToken,
+  }));
 
-export const marshalListEffectivePrivilegeAssignmentsResponseSchema: z.ZodType =
-  z
-    .object({
-      effectivePrivilegeAssignments: z
-        .array(z.lazy(() => marshalEffectivePrivilegeAssignmentSchema))
-        .optional(),
-      nextPageToken: z.string().optional(),
-    })
-    .transform(d => ({
-      effective_privilege_assignments: d.effectivePrivilegeAssignments,
-      next_page_token: d.nextPageToken,
-    }));
+export const marshalListEffectivePrivilegeAssignmentsResponseSchema: z.ZodType = z
+  .object({
+    effectivePrivilegeAssignments: z.array(z.lazy(() => marshalEffectivePrivilegeAssignmentSchema)).optional(),
+    nextPageToken: z.string().optional(),
+  })
+  .transform(d => ({
+    effective_privilege_assignments: d.effectivePrivilegeAssignments,
+    next_page_token: d.nextPageToken,
+  }));
 
 export const marshalListPrivilegeAssignmentsRequestSchema: z.ZodType = z
   .object({
@@ -549,9 +516,7 @@ export const marshalListPrivilegeAssignmentsRequestSchema: z.ZodType = z
 
 export const marshalListPrivilegeAssignmentsResponseSchema: z.ZodType = z
   .object({
-    privilegeAssignments: z
-      .array(z.lazy(() => marshalPrivilegeAssignmentSchema))
-      .optional(),
+    privilegeAssignments: z.array(z.lazy(() => marshalPrivilegeAssignmentSchema)).optional(),
     nextPageToken: z.string().optional(),
   })
   .transform(d => ({
@@ -600,9 +565,7 @@ export const marshalUpdatePermissionsSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalUpdatePermissions_ResponseSchema: z.ZodType = z
   .object({
-    privilegeAssignments: z
-      .array(z.lazy(() => marshalPrivilegeAssignmentSchema))
-      .optional(),
+    privilegeAssignments: z.array(z.lazy(() => marshalPrivilegeAssignmentSchema)).optional(),
   })
   .transform(d => ({
     privilege_assignments: d.privilegeAssignments,

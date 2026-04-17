@@ -54,22 +54,19 @@ export interface SetArtifactAllowlist {
   createdAt?: number | undefined;
 }
 
-export const unmarshalArtifactAllowlistInfoSchema: z.ZodType<ArtifactAllowlistInfo> =
-  z
-    .object({
-      artifact_matchers: z
-        .array(z.lazy(() => unmarshalArtifactMatcherSchema))
-        .optional(),
-      metastore_id: z.string().optional(),
-      created_by: z.string().optional(),
-      created_at: z.number().optional(),
-    })
-    .transform(d => ({
-      artifactMatchers: d.artifact_matchers,
-      metastoreId: d.metastore_id,
-      createdBy: d.created_by,
-      createdAt: d.created_at,
-    }));
+export const unmarshalArtifactAllowlistInfoSchema: z.ZodType<ArtifactAllowlistInfo> = z
+  .object({
+    artifact_matchers: z.array(z.lazy(() => unmarshalArtifactMatcherSchema)).optional(),
+    metastore_id: z.string().optional(),
+    created_by: z.string().optional(),
+    created_at: z.number().optional(),
+  })
+  .transform(d => ({
+    artifactMatchers: d.artifact_matchers,
+    metastoreId: d.metastore_id,
+    createdBy: d.created_by,
+    createdAt: d.created_at,
+  }));
 
 export const unmarshalArtifactMatcherSchema: z.ZodType<ArtifactMatcher> = z
   .object({
@@ -81,39 +78,33 @@ export const unmarshalArtifactMatcherSchema: z.ZodType<ArtifactMatcher> = z
     matchType: d.match_type,
   }));
 
-export const unmarshalGetArtifactAllowlistSchema: z.ZodType<GetArtifactAllowlist> =
-  z
-    .object({
-      artifact_type: z.enum(ArtifactType).optional(),
-    })
-    .transform(d => ({
-      artifactType: d.artifact_type,
-    }));
+export const unmarshalGetArtifactAllowlistSchema: z.ZodType<GetArtifactAllowlist> = z
+  .object({
+    artifact_type: z.enum(ArtifactType).optional(),
+  })
+  .transform(d => ({
+    artifactType: d.artifact_type,
+  }));
 
-export const unmarshalSetArtifactAllowlistSchema: z.ZodType<SetArtifactAllowlist> =
-  z
-    .object({
-      artifact_type: z.enum(ArtifactType).optional(),
-      artifact_matchers: z
-        .array(z.lazy(() => unmarshalArtifactMatcherSchema))
-        .optional(),
-      metastore_id: z.string().optional(),
-      created_by: z.string().optional(),
-      created_at: z.number().optional(),
-    })
-    .transform(d => ({
-      artifactType: d.artifact_type,
-      artifactMatchers: d.artifact_matchers,
-      metastoreId: d.metastore_id,
-      createdBy: d.created_by,
-      createdAt: d.created_at,
-    }));
+export const unmarshalSetArtifactAllowlistSchema: z.ZodType<SetArtifactAllowlist> = z
+  .object({
+    artifact_type: z.enum(ArtifactType).optional(),
+    artifact_matchers: z.array(z.lazy(() => unmarshalArtifactMatcherSchema)).optional(),
+    metastore_id: z.string().optional(),
+    created_by: z.string().optional(),
+    created_at: z.number().optional(),
+  })
+  .transform(d => ({
+    artifactType: d.artifact_type,
+    artifactMatchers: d.artifact_matchers,
+    metastoreId: d.metastore_id,
+    createdBy: d.created_by,
+    createdAt: d.created_at,
+  }));
 
 export const marshalArtifactAllowlistInfoSchema: z.ZodType = z
   .object({
-    artifactMatchers: z
-      .array(z.lazy(() => marshalArtifactMatcherSchema))
-      .optional(),
+    artifactMatchers: z.array(z.lazy(() => marshalArtifactMatcherSchema)).optional(),
     metastoreId: z.string().optional(),
     createdBy: z.string().optional(),
     createdAt: z.number().optional(),
@@ -146,9 +137,7 @@ export const marshalGetArtifactAllowlistSchema: z.ZodType = z
 export const marshalSetArtifactAllowlistSchema: z.ZodType = z
   .object({
     artifactType: z.enum(ArtifactType).optional(),
-    artifactMatchers: z
-      .array(z.lazy(() => marshalArtifactMatcherSchema))
-      .optional(),
+    artifactMatchers: z.array(z.lazy(() => marshalArtifactMatcherSchema)).optional(),
     metastoreId: z.string().optional(),
     createdBy: z.string().optional(),
     createdAt: z.number().optional(),

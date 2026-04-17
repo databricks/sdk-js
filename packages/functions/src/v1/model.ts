@@ -27,6 +27,7 @@ export enum ColumnTypeName {
   GEOMETRY = 'GEOMETRY',
   GEOGRAPHY = 'GEOGRAPHY',
   TIME = 'TIME',
+  FILE = 'FILE',
   TABLE_TYPE = 'TABLE_TYPE',
 }
 
@@ -160,13 +161,17 @@ export interface DeleteFunction_Response {}
 
 /**
  * A dependency of a SQL object. One of the following fields must be defined:
- * __table__, __function__, __connection__, or __credential__.
+ * __table__, __function__, __connection__, __credential__, __volume__, or __secret__.
  */
 export interface Dependency {
   table?: TableDependency | undefined;
   function?: FunctionDependency | undefined;
   connection?: ConnectionDependency | undefined;
   credential?: CredentialDependency | undefined;
+  /** A dependency on a Unity Catalog volume. */
+  volume?: VolumeDependency | undefined;
+  /** A dependency on a Unity Catalog secret. */
+  secret?: SecretDependency | undefined;
 }
 
 /** A list of dependencies. */
@@ -312,6 +317,12 @@ export interface ListFunctions_Response {
   nextPageToken?: string | undefined;
 }
 
+/** A secret that is dependent on a SQL object. */
+export interface SecretDependency {
+  /** Full name of the dependent secret, in the form of __catalog_name__.__schema_name__.__secret_name__. */
+  secretFullName?: string | undefined;
+}
+
 /** A table that is dependent on a SQL object. */
 export interface TableDependency {
   /** Full name of the dependent table, in the form of __catalog_name__.__schema_name__.__table_name__. */
@@ -383,23 +394,26 @@ export interface UpdateFunction {
   browseOnly?: boolean | undefined;
 }
 
-export const unmarshalConnectionDependencySchema: z.ZodType<ConnectionDependency> =
-  z
-    .object({
-      connection_name: z.string().optional(),
-    })
-    .transform(d => ({
-      connectionName: d.connection_name,
-    }));
+/** A volume that is dependent on a SQL object. */
+export interface VolumeDependency {
+  /** Full name of the dependent volume, in the form of __catalog_name__.__schema_name__.__volume_name__. */
+  volumeFullName?: string | undefined;
+}
+
+export const unmarshalConnectionDependencySchema: z.ZodType<ConnectionDependency> = z
+  .object({
+    connection_name: z.string().optional(),
+  })
+  .transform(d => ({
+    connectionName: d.connection_name,
+  }));
 
 export const unmarshalCreateFunctionSchema: z.ZodType<CreateFunction> = z
   .object({
     name: z.string().optional(),
     catalog_name: z.string().optional(),
     schema_name: z.string().optional(),
-    input_params: z
-      .lazy(() => unmarshalFunctionParameterInfosSchema)
-      .optional(),
+    input_params: z.lazy(() => unmarshalFunctionParameterInfosSchema).optional(),
     data_type: z.enum(ColumnTypeName).optional(),
     full_data_type: z.string().optional(),
     routine_body: z.enum(FunctionInfo_RoutineBody).optional(),
@@ -410,18 +424,14 @@ export const unmarshalCreateFunctionSchema: z.ZodType<CreateFunction> = z
     is_null_call: z.boolean().optional(),
     security_type: z.enum(FunctionInfo_SecurityType).optional(),
     specific_name: z.string().optional(),
-    return_params: z
-      .lazy(() => unmarshalFunctionParameterInfosSchema)
-      .optional(),
+    return_params: z.lazy(() => unmarshalFunctionParameterInfosSchema).optional(),
     external_name: z.string().optional(),
     external_language: z.string().optional(),
     sql_path: z.string().optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
     properties: z.string().optional(),
-    routine_dependencies: z
-      .lazy(() => unmarshalDependencyListSchema)
-      .optional(),
+    routine_dependencies: z.lazy(() => unmarshalDependencyListSchema).optional(),
     metastore_id: z.string().optional(),
     full_name: z.string().optional(),
     created_at: z.number().optional(),
@@ -464,23 +474,21 @@ export const unmarshalCreateFunctionSchema: z.ZodType<CreateFunction> = z
     browseOnly: d.browse_only,
   }));
 
-export const unmarshalCreateFunctionRequestSchema: z.ZodType<CreateFunctionRequest> =
-  z
-    .object({
-      function_info: z.lazy(() => unmarshalCreateFunctionSchema).optional(),
-    })
-    .transform(d => ({
-      functionInfo: d.function_info,
-    }));
+export const unmarshalCreateFunctionRequestSchema: z.ZodType<CreateFunctionRequest> = z
+  .object({
+    function_info: z.lazy(() => unmarshalCreateFunctionSchema).optional(),
+  })
+  .transform(d => ({
+    functionInfo: d.function_info,
+  }));
 
-export const unmarshalCredentialDependencySchema: z.ZodType<CredentialDependency> =
-  z
-    .object({
-      credential_name: z.string().optional(),
-    })
-    .transform(d => ({
-      credentialName: d.credential_name,
-    }));
+export const unmarshalCredentialDependencySchema: z.ZodType<CredentialDependency> = z
+  .object({
+    credential_name: z.string().optional(),
+  })
+  .transform(d => ({
+    credentialName: d.credential_name,
+  }));
 
 export const unmarshalDeleteFunctionSchema: z.ZodType<DeleteFunction> = z
   .object({
@@ -493,8 +501,9 @@ export const unmarshalDeleteFunctionSchema: z.ZodType<DeleteFunction> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteFunction_ResponseSchema: z.ZodType<DeleteFunction_Response> =
-  z.object({});
+export const unmarshalDeleteFunction_ResponseSchema: z.ZodType<DeleteFunction_Response> = z
+  .object({
+  });
 
 export const unmarshalDependencySchema: z.ZodType<Dependency> = z
   .object({
@@ -502,12 +511,16 @@ export const unmarshalDependencySchema: z.ZodType<Dependency> = z
     function: z.lazy(() => unmarshalFunctionDependencySchema).optional(),
     connection: z.lazy(() => unmarshalConnectionDependencySchema).optional(),
     credential: z.lazy(() => unmarshalCredentialDependencySchema).optional(),
+    volume: z.lazy(() => unmarshalVolumeDependencySchema).optional(),
+    secret: z.lazy(() => unmarshalSecretDependencySchema).optional(),
   })
   .transform(d => ({
     table: d.table,
     function: d.function,
     connection: d.connection,
     credential: d.credential,
+    volume: d.volume,
+    secret: d.secret,
   }));
 
 export const unmarshalDependencyListSchema: z.ZodType<DependencyList> = z
@@ -518,23 +531,20 @@ export const unmarshalDependencyListSchema: z.ZodType<DependencyList> = z
     dependencies: d.dependencies,
   }));
 
-export const unmarshalFunctionDependencySchema: z.ZodType<FunctionDependency> =
-  z
-    .object({
-      function_full_name: z.string().optional(),
-    })
-    .transform(d => ({
-      functionFullName: d.function_full_name,
-    }));
+export const unmarshalFunctionDependencySchema: z.ZodType<FunctionDependency> = z
+  .object({
+    function_full_name: z.string().optional(),
+  })
+  .transform(d => ({
+    functionFullName: d.function_full_name,
+  }));
 
 export const unmarshalFunctionInfoSchema: z.ZodType<FunctionInfo> = z
   .object({
     name: z.string().optional(),
     catalog_name: z.string().optional(),
     schema_name: z.string().optional(),
-    input_params: z
-      .lazy(() => unmarshalFunctionParameterInfosSchema)
-      .optional(),
+    input_params: z.lazy(() => unmarshalFunctionParameterInfosSchema).optional(),
     data_type: z.enum(ColumnTypeName).optional(),
     full_data_type: z.string().optional(),
     routine_body: z.enum(FunctionInfo_RoutineBody).optional(),
@@ -545,18 +555,14 @@ export const unmarshalFunctionInfoSchema: z.ZodType<FunctionInfo> = z
     is_null_call: z.boolean().optional(),
     security_type: z.enum(FunctionInfo_SecurityType).optional(),
     specific_name: z.string().optional(),
-    return_params: z
-      .lazy(() => unmarshalFunctionParameterInfosSchema)
-      .optional(),
+    return_params: z.lazy(() => unmarshalFunctionParameterInfosSchema).optional(),
     external_name: z.string().optional(),
     external_language: z.string().optional(),
     sql_path: z.string().optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
     properties: z.string().optional(),
-    routine_dependencies: z
-      .lazy(() => unmarshalDependencyListSchema)
-      .optional(),
+    routine_dependencies: z.lazy(() => unmarshalDependencyListSchema).optional(),
     metastore_id: z.string().optional(),
     full_name: z.string().optional(),
     created_at: z.number().optional(),
@@ -599,47 +605,43 @@ export const unmarshalFunctionInfoSchema: z.ZodType<FunctionInfo> = z
     browseOnly: d.browse_only,
   }));
 
-export const unmarshalFunctionParameterInfoSchema: z.ZodType<FunctionParameterInfo> =
-  z
-    .object({
-      name: z.string().optional(),
-      type_text: z.string().optional(),
-      type_json: z.string().optional(),
-      type_name: z.enum(ColumnTypeName).optional(),
-      type_precision: z.number().optional(),
-      type_scale: z.number().optional(),
-      type_interval_type: z.string().optional(),
-      position: z.number().optional(),
-      parameter_mode: z.enum(FunctionParameterMode).optional(),
-      parameter_type: z.enum(FunctionParameterType).optional(),
-      parameter_default: z.string().optional(),
-      comment: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      typeText: d.type_text,
-      typeJson: d.type_json,
-      typeName: d.type_name,
-      typePrecision: d.type_precision,
-      typeScale: d.type_scale,
-      typeIntervalType: d.type_interval_type,
-      position: d.position,
-      parameterMode: d.parameter_mode,
-      parameterType: d.parameter_type,
-      parameterDefault: d.parameter_default,
-      comment: d.comment,
-    }));
+export const unmarshalFunctionParameterInfoSchema: z.ZodType<FunctionParameterInfo> = z
+  .object({
+    name: z.string().optional(),
+    type_text: z.string().optional(),
+    type_json: z.string().optional(),
+    type_name: z.enum(ColumnTypeName).optional(),
+    type_precision: z.number().optional(),
+    type_scale: z.number().optional(),
+    type_interval_type: z.string().optional(),
+    position: z.number().optional(),
+    parameter_mode: z.enum(FunctionParameterMode).optional(),
+    parameter_type: z.enum(FunctionParameterType).optional(),
+    parameter_default: z.string().optional(),
+    comment: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    typeText: d.type_text,
+    typeJson: d.type_json,
+    typeName: d.type_name,
+    typePrecision: d.type_precision,
+    typeScale: d.type_scale,
+    typeIntervalType: d.type_interval_type,
+    position: d.position,
+    parameterMode: d.parameter_mode,
+    parameterType: d.parameter_type,
+    parameterDefault: d.parameter_default,
+    comment: d.comment,
+  }));
 
-export const unmarshalFunctionParameterInfosSchema: z.ZodType<FunctionParameterInfos> =
-  z
-    .object({
-      parameters: z
-        .array(z.lazy(() => unmarshalFunctionParameterInfoSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      parameters: d.parameters,
-    }));
+export const unmarshalFunctionParameterInfosSchema: z.ZodType<FunctionParameterInfos> = z
+  .object({
+    parameters: z.array(z.lazy(() => unmarshalFunctionParameterInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    parameters: d.parameters,
+  }));
 
 export const unmarshalGetFunctionSchema: z.ZodType<GetFunction> = z
   .object({
@@ -668,16 +670,23 @@ export const unmarshalListFunctionsSchema: z.ZodType<ListFunctions> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListFunctions_ResponseSchema: z.ZodType<ListFunctions_Response> =
-  z
-    .object({
-      functions: z.array(z.lazy(() => unmarshalFunctionInfoSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      functions: d.functions,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListFunctions_ResponseSchema: z.ZodType<ListFunctions_Response> = z
+  .object({
+    functions: z.array(z.lazy(() => unmarshalFunctionInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    functions: d.functions,
+    nextPageToken: d.next_page_token,
+  }));
+
+export const unmarshalSecretDependencySchema: z.ZodType<SecretDependency> = z
+  .object({
+    secret_full_name: z.string().optional(),
+  })
+  .transform(d => ({
+    secretFullName: d.secret_full_name,
+  }));
 
 export const unmarshalTableDependencySchema: z.ZodType<TableDependency> = z
   .object({
@@ -693,9 +702,7 @@ export const unmarshalUpdateFunctionSchema: z.ZodType<UpdateFunction> = z
     name: z.string().optional(),
     catalog_name: z.string().optional(),
     schema_name: z.string().optional(),
-    input_params: z
-      .lazy(() => unmarshalFunctionParameterInfosSchema)
-      .optional(),
+    input_params: z.lazy(() => unmarshalFunctionParameterInfosSchema).optional(),
     data_type: z.enum(ColumnTypeName).optional(),
     full_data_type: z.string().optional(),
     routine_body: z.enum(FunctionInfo_RoutineBody).optional(),
@@ -706,18 +713,14 @@ export const unmarshalUpdateFunctionSchema: z.ZodType<UpdateFunction> = z
     is_null_call: z.boolean().optional(),
     security_type: z.enum(FunctionInfo_SecurityType).optional(),
     specific_name: z.string().optional(),
-    return_params: z
-      .lazy(() => unmarshalFunctionParameterInfosSchema)
-      .optional(),
+    return_params: z.lazy(() => unmarshalFunctionParameterInfosSchema).optional(),
     external_name: z.string().optional(),
     external_language: z.string().optional(),
     sql_path: z.string().optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
     properties: z.string().optional(),
-    routine_dependencies: z
-      .lazy(() => unmarshalDependencyListSchema)
-      .optional(),
+    routine_dependencies: z.lazy(() => unmarshalDependencyListSchema).optional(),
     metastore_id: z.string().optional(),
     full_name: z.string().optional(),
     created_at: z.number().optional(),
@@ -759,6 +762,14 @@ export const unmarshalUpdateFunctionSchema: z.ZodType<UpdateFunction> = z
     updatedBy: d.updated_by,
     functionId: d.function_id,
     browseOnly: d.browse_only,
+  }));
+
+export const unmarshalVolumeDependencySchema: z.ZodType<VolumeDependency> = z
+  .object({
+    volume_full_name: z.string().optional(),
+  })
+  .transform(d => ({
+    volumeFullName: d.volume_full_name,
   }));
 
 export const marshalConnectionDependencySchema: z.ZodType = z
@@ -862,7 +873,9 @@ export const marshalDeleteFunctionSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeleteFunction_ResponseSchema: z.ZodType = z.object({});
+export const marshalDeleteFunction_ResponseSchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalDependencySchema: z.ZodType = z
   .object({
@@ -870,12 +883,16 @@ export const marshalDependencySchema: z.ZodType = z
     function: z.lazy(() => marshalFunctionDependencySchema).optional(),
     connection: z.lazy(() => marshalConnectionDependencySchema).optional(),
     credential: z.lazy(() => marshalCredentialDependencySchema).optional(),
+    volume: z.lazy(() => marshalVolumeDependencySchema).optional(),
+    secret: z.lazy(() => marshalSecretDependencySchema).optional(),
   })
   .transform(d => ({
     table: d.table,
     function: d.function,
     connection: d.connection,
     credential: d.credential,
+    volume: d.volume,
+    secret: d.secret,
   }));
 
 export const marshalDependencyListSchema: z.ZodType = z
@@ -992,9 +1009,7 @@ export const marshalFunctionParameterInfoSchema: z.ZodType = z
 
 export const marshalFunctionParameterInfosSchema: z.ZodType = z
   .object({
-    parameters: z
-      .array(z.lazy(() => marshalFunctionParameterInfoSchema))
-      .optional(),
+    parameters: z.array(z.lazy(() => marshalFunctionParameterInfoSchema)).optional(),
   })
   .transform(d => ({
     parameters: d.parameters,
@@ -1035,6 +1050,14 @@ export const marshalListFunctions_ResponseSchema: z.ZodType = z
   .transform(d => ({
     functions: d.functions,
     next_page_token: d.nextPageToken,
+  }));
+
+export const marshalSecretDependencySchema: z.ZodType = z
+  .object({
+    secretFullName: z.string().optional(),
+  })
+  .transform(d => ({
+    secret_full_name: d.secretFullName,
   }));
 
 export const marshalTableDependencySchema: z.ZodType = z
@@ -1111,4 +1134,12 @@ export const marshalUpdateFunctionSchema: z.ZodType = z
     updated_by: d.updatedBy,
     function_id: d.functionId,
     browse_only: d.browseOnly,
+  }));
+
+export const marshalVolumeDependencySchema: z.ZodType = z
+  .object({
+    volumeFullName: z.string().optional(),
+  })
+  .transform(d => ({
+    volume_full_name: d.volumeFullName,
   }));

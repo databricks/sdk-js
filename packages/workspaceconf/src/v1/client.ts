@@ -7,13 +7,11 @@ import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-databricks/transport';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {
-  buildHttpRequest,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
-import type {GetWorkspaceConfRequest, WorkspaceConf} from './model';
+import {buildHttpRequest, executeHttpCall, marshalRequest, parseResponse} from './utils';
+import type {
+  GetWorkspaceConfRequest,
+  WorkspaceConf,
+} from './model';
 import {
   marshalWorkspaceConfSchema,
   unmarshalWorkspaceConfSchema,
@@ -34,11 +32,7 @@ export class Client {
   }
 
   /** Gets the configuration status for a workspace. */
-  async getWorkspaceConf(
-    signal: AbortSignal | undefined,
-    req: GetWorkspaceConfRequest,
-    options?: Options
-  ): Promise<WorkspaceConf> {
+  async getWorkspaceConf(signal: AbortSignal | undefined, req: GetWorkspaceConfRequest, options?: Options): Promise<WorkspaceConf> {
     const url = `${this.host}/api/2.0/workspace-conf`;
     const params = new URLSearchParams();
     if (req.keys !== undefined) {
@@ -49,11 +43,7 @@ export class Client {
     let resp: WorkspaceConf | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalWorkspaceConfSchema);
     };
     await execute(signal, call, options);
@@ -64,20 +54,12 @@ export class Client {
   }
 
   /** Sets the configuration status for a workspace, including enabling or disabling it. */
-  async updateWorkspaceConf(
-    signal: AbortSignal | undefined,
-    req: WorkspaceConf,
-    options?: Options
-  ): Promise<void> {
+  async updateWorkspaceConf(signal: AbortSignal | undefined, req: WorkspaceConf, options?: Options): Promise<void> {
     const url = `${this.host}/api/2.0/workspace-conf`;
     const body = marshalRequest(req, marshalWorkspaceConfSchema);
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('PATCH', url, callSignal, body);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await execute(signal, call, options);
   }

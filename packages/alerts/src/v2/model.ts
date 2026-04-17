@@ -1,6 +1,8 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+
 import {Temporal} from '@js-temporal/polyfill';
+import {FieldMask, type FieldPaths} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum Aggregation {
@@ -209,7 +211,7 @@ export interface TrashAlertRequest {
 
 export interface UpdateAlertRequest {
   alert?: Alert | undefined;
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<FieldPaths<Alert>> | undefined;
 }
 
 export const unmarshalAlertSchema: z.ZodType<Alert> = z
@@ -217,14 +219,8 @@ export const unmarshalAlertSchema: z.ZodType<Alert> = z
     id: z.string().optional(),
     display_name: z.string().optional(),
     owner_user_name: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     parent_path: z.string().optional(),
     query_text: z.string().optional(),
     warehouse_id: z.string().optional(),
@@ -265,10 +261,7 @@ export const unmarshalAlertEvaluationSchema: z.ZodType<AlertEvaluation> = z
     threshold: z.lazy(() => unmarshalAlertOperandSchema).optional(),
     notification: z.lazy(() => unmarshalAlertNotificationSchema).optional(),
     state: z.enum(AlertEvaluationState).optional(),
-    last_evaluated_at: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    last_evaluated_at: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     empty_result_state: z.enum(AlertEvaluationState).optional(),
   })
   .transform(d => ({
@@ -283,9 +276,7 @@ export const unmarshalAlertEvaluationSchema: z.ZodType<AlertEvaluation> = z
 
 export const unmarshalAlertNotificationSchema: z.ZodType<AlertNotification> = z
   .object({
-    subscriptions: z
-      .array(z.lazy(() => unmarshalAlertSubscriptionSchema))
-      .optional(),
+    subscriptions: z.array(z.lazy(() => unmarshalAlertSubscriptionSchema)).optional(),
     retrigger_seconds: z.number().optional(),
     notify_on_ok: z.boolean().optional(),
   })
@@ -305,18 +296,17 @@ export const unmarshalAlertOperandSchema: z.ZodType<AlertOperand> = z
     value: d.value,
   }));
 
-export const unmarshalAlertOperandColumnSchema: z.ZodType<AlertOperandColumn> =
-  z
-    .object({
-      name: z.string().optional(),
-      display: z.string().optional(),
-      aggregation: z.enum(Aggregation).optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      display: d.display,
-      aggregation: d.aggregation,
-    }));
+export const unmarshalAlertOperandColumnSchema: z.ZodType<AlertOperandColumn> = z
+  .object({
+    name: z.string().optional(),
+    display: z.string().optional(),
+    aggregation: z.enum(Aggregation).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    display: d.display,
+    aggregation: d.aggregation,
+  }));
 
 export const unmarshalAlertOperandValueSchema: z.ZodType<AlertOperandValue> = z
   .object({
@@ -350,14 +340,13 @@ export const unmarshalAlertSubscriptionSchema: z.ZodType<AlertSubscription> = z
     destinationId: d.destination_id,
   }));
 
-export const unmarshalCreateAlertRequestSchema: z.ZodType<CreateAlertRequest> =
-  z
-    .object({
-      alert: z.lazy(() => unmarshalAlertSchema).optional(),
-    })
-    .transform(d => ({
-      alert: d.alert,
-    }));
+export const unmarshalCreateAlertRequestSchema: z.ZodType<CreateAlertRequest> = z
+  .object({
+    alert: z.lazy(() => unmarshalAlertSchema).optional(),
+  })
+  .transform(d => ({
+    alert: d.alert,
+  }));
 
 export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
   .object({
@@ -373,7 +362,9 @@ export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
     effectivePauseStatus: d.effective_pause_status,
   }));
 
-export const unmarshalEmptySchema: z.ZodType<Empty> = z.object({});
+export const unmarshalEmptySchema: z.ZodType<Empty> = z
+  .object({
+  });
 
 export const unmarshalGetAlertRequestSchema: z.ZodType<GetAlertRequest> = z
   .object({
@@ -393,16 +384,15 @@ export const unmarshalListAlertsRequestSchema: z.ZodType<ListAlertsRequest> = z
     pageSize: d.page_size,
   }));
 
-export const unmarshalListAlertsResponseSchema: z.ZodType<ListAlertsResponse> =
-  z
-    .object({
-      alerts: z.array(z.lazy(() => unmarshalAlertSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      alerts: d.alerts,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListAlertsResponseSchema: z.ZodType<ListAlertsResponse> = z
+  .object({
+    alerts: z.array(z.lazy(() => unmarshalAlertSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    alerts: d.alerts,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalTrashAlertRequestSchema: z.ZodType<TrashAlertRequest> = z
   .object({
@@ -414,30 +404,23 @@ export const unmarshalTrashAlertRequestSchema: z.ZodType<TrashAlertRequest> = z
     purge: d.purge,
   }));
 
-export const unmarshalUpdateAlertRequestSchema: z.ZodType<UpdateAlertRequest> =
-  z
-    .object({
-      alert: z.lazy(() => unmarshalAlertSchema).optional(),
-      update_mask: z.string().optional(),
-    })
-    .transform(d => ({
-      alert: d.alert,
-      updateMask: d.update_mask,
-    }));
+export const unmarshalUpdateAlertRequestSchema: z.ZodType<UpdateAlertRequest> = z
+  .object({
+    alert: z.lazy(() => unmarshalAlertSchema).optional(),
+    update_mask: z.string().transform(s => FieldMask.of(...(s === '' ? [] : s.split(','))) as FieldMask<FieldPaths<Alert>>).optional(),
+  })
+  .transform(d => ({
+    alert: d.alert,
+    updateMask: d.update_mask,
+  }));
 
 export const marshalAlertSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     displayName: z.string().optional(),
     ownerUserName: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     parentPath: z.string().optional(),
     queryText: z.string().optional(),
     warehouseId: z.string().optional(),
@@ -478,10 +461,7 @@ export const marshalAlertEvaluationSchema: z.ZodType = z
     threshold: z.lazy(() => marshalAlertOperandSchema).optional(),
     notification: z.lazy(() => marshalAlertNotificationSchema).optional(),
     state: z.enum(AlertEvaluationState).optional(),
-    lastEvaluatedAt: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    lastEvaluatedAt: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     emptyResultState: z.enum(AlertEvaluationState).optional(),
   })
   .transform(d => ({
@@ -496,9 +476,7 @@ export const marshalAlertEvaluationSchema: z.ZodType = z
 
 export const marshalAlertNotificationSchema: z.ZodType = z
   .object({
-    subscriptions: z
-      .array(z.lazy(() => marshalAlertSubscriptionSchema))
-      .optional(),
+    subscriptions: z.array(z.lazy(() => marshalAlertSubscriptionSchema)).optional(),
     retriggerSeconds: z.number().optional(),
     notifyOnOk: z.boolean().optional(),
   })
@@ -584,7 +562,9 @@ export const marshalCronScheduleSchema: z.ZodType = z
     effective_pause_status: d.effectivePauseStatus,
   }));
 
-export const marshalEmptySchema: z.ZodType = z.object({});
+export const marshalEmptySchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalGetAlertRequestSchema: z.ZodType = z
   .object({
@@ -627,7 +607,7 @@ export const marshalTrashAlertRequestSchema: z.ZodType = z
 export const marshalUpdateAlertRequestSchema: z.ZodType = z
   .object({
     alert: z.lazy(() => marshalAlertSchema).optional(),
-    updateMask: z.string().optional(),
+    updateMask: z.any().transform((d: FieldMask<FieldPaths<Alert>>) => d.paths.join(',')).optional(),
   })
   .transform(d => ({
     alert: d.alert,

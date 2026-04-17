@@ -1,5 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask, type FieldPaths} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** Auto-tagging mode. */
@@ -81,7 +82,7 @@ export interface GetCatalogConfigRequest {
 
 /**
  * Request to update the Data Classification configuration for a catalog.
- *
+ * 
  * Uses field mask to support partial updates of the configuration.
  * Only the fields specified in the update_mask will be modified.
  */
@@ -92,7 +93,7 @@ export interface UpdateCatalogConfigRequest {
    */
   catalogConfig?: CatalogConfig | undefined;
   /** Field mask specifying which fields to update. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<FieldPaths<CatalogConfig>> | undefined;
 }
 
 export const unmarshalAutoTaggingConfigSchema: z.ZodType<AutoTaggingConfig> = z
@@ -108,15 +109,9 @@ export const unmarshalAutoTaggingConfigSchema: z.ZodType<AutoTaggingConfig> = z
 export const unmarshalCatalogConfigSchema: z.ZodType<CatalogConfig> = z
   .object({
     name: z.string().optional(),
-    included_schemas: z
-      .lazy(() => unmarshalCatalogConfig_SchemaNamesSchema)
-      .optional(),
-    auto_tag_configs: z
-      .array(z.lazy(() => unmarshalAutoTaggingConfigSchema))
-      .optional(),
-    effective_auto_tag_configs: z
-      .array(z.lazy(() => unmarshalAutoTaggingConfigSchema))
-      .optional(),
+    included_schemas: z.lazy(() => unmarshalCatalogConfig_SchemaNamesSchema).optional(),
+    auto_tag_configs: z.array(z.lazy(() => unmarshalAutoTaggingConfigSchema)).optional(),
+    effective_auto_tag_configs: z.array(z.lazy(() => unmarshalAutoTaggingConfigSchema)).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -126,54 +121,49 @@ export const unmarshalCatalogConfigSchema: z.ZodType<CatalogConfig> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCatalogConfig_SchemaNamesSchema: z.ZodType<CatalogConfig_SchemaNames> =
-  z
-    .object({
-      names: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      names: d.names,
-    }));
+export const unmarshalCatalogConfig_SchemaNamesSchema: z.ZodType<CatalogConfig_SchemaNames> = z
+  .object({
+    names: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    names: d.names,
+  }));
 
-export const unmarshalCreateCatalogConfigRequestSchema: z.ZodType<CreateCatalogConfigRequest> =
-  z
-    .object({
-      parent: z.string().optional(),
-      catalog_config: z.lazy(() => unmarshalCatalogConfigSchema).optional(),
-    })
-    .transform(d => ({
-      parent: d.parent,
-      catalogConfig: d.catalog_config,
-    }));
+export const unmarshalCreateCatalogConfigRequestSchema: z.ZodType<CreateCatalogConfigRequest> = z
+  .object({
+    parent: z.string().optional(),
+    catalog_config: z.lazy(() => unmarshalCatalogConfigSchema).optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    catalogConfig: d.catalog_config,
+  }));
 
-export const unmarshalDeleteCatalogConfigRequestSchema: z.ZodType<DeleteCatalogConfigRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
+export const unmarshalDeleteCatalogConfigRequestSchema: z.ZodType<DeleteCatalogConfigRequest> = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
 
-export const unmarshalGetCatalogConfigRequestSchema: z.ZodType<GetCatalogConfigRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
+export const unmarshalGetCatalogConfigRequestSchema: z.ZodType<GetCatalogConfigRequest> = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
 
-export const unmarshalUpdateCatalogConfigRequestSchema: z.ZodType<UpdateCatalogConfigRequest> =
-  z
-    .object({
-      catalog_config: z.lazy(() => unmarshalCatalogConfigSchema).optional(),
-      update_mask: z.string().optional(),
-    })
-    .transform(d => ({
-      catalogConfig: d.catalog_config,
-      updateMask: d.update_mask,
-    }));
+export const unmarshalUpdateCatalogConfigRequestSchema: z.ZodType<UpdateCatalogConfigRequest> = z
+  .object({
+    catalog_config: z.lazy(() => unmarshalCatalogConfigSchema).optional(),
+    update_mask: z.string().transform(s => FieldMask.of(...(s === '' ? [] : s.split(','))) as FieldMask<FieldPaths<CatalogConfig>>).optional(),
+  })
+  .transform(d => ({
+    catalogConfig: d.catalog_config,
+    updateMask: d.update_mask,
+  }));
 
 export const marshalAutoTaggingConfigSchema: z.ZodType = z
   .object({
@@ -188,15 +178,9 @@ export const marshalAutoTaggingConfigSchema: z.ZodType = z
 export const marshalCatalogConfigSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    includedSchemas: z
-      .lazy(() => marshalCatalogConfig_SchemaNamesSchema)
-      .optional(),
-    autoTagConfigs: z
-      .array(z.lazy(() => marshalAutoTaggingConfigSchema))
-      .optional(),
-    effectiveAutoTagConfigs: z
-      .array(z.lazy(() => marshalAutoTaggingConfigSchema))
-      .optional(),
+    includedSchemas: z.lazy(() => marshalCatalogConfig_SchemaNamesSchema).optional(),
+    autoTagConfigs: z.array(z.lazy(() => marshalAutoTaggingConfigSchema)).optional(),
+    effectiveAutoTagConfigs: z.array(z.lazy(() => marshalAutoTaggingConfigSchema)).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -243,7 +227,7 @@ export const marshalGetCatalogConfigRequestSchema: z.ZodType = z
 export const marshalUpdateCatalogConfigRequestSchema: z.ZodType = z
   .object({
     catalogConfig: z.lazy(() => marshalCatalogConfigSchema).optional(),
-    updateMask: z.string().optional(),
+    updateMask: z.any().transform((d: FieldMask<FieldPaths<CatalogConfig>>) => d.paths.join(',')).optional(),
   })
   .transform(d => ({
     catalog_config: d.catalogConfig,

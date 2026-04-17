@@ -1,6 +1,11 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import type {JsonValue} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
+
+const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
+  z.union([z.null(), z.number(), z.string(), z.boolean(), z.record(z.string(), jsonValueSchema), z.array(jsonValueSchema)])
+);
 
 /** The name of the base data type. This doesn't include details for complex types such as STRUCT, MAP or ARRAY. */
 export enum ColumnTypeName {
@@ -172,15 +177,15 @@ export interface ExecuteStatementRequest {
   byteLimit?: number | undefined;
   /**
    * Statement execution supports three result formats: `JSON_ARRAY` (default), `ARROW_STREAM`, and `CSV`.
-   *
+   * 
    * Important: The formats `ARROW_STREAM` and `CSV` are supported only with `EXTERNAL_LINKS` disposition.
    * `JSON_ARRAY` is supported in `INLINE` and `EXTERNAL_LINKS` disposition.
-   *
+   * 
    * When specifying `format=JSON_ARRAY`, result data will be formatted as an array of arrays of values, where each
    * value is either the *string representation* of a value, or `null`.
    * For example, the output of `SELECT concat('id-', id) AS strCol, id AS intCol, null AS nullCol FROM range(3)` would
    * look like this:
-   *
+   * 
    * ```
    * [
    * [ "id-1", "1", null ],
@@ -188,14 +193,14 @@ export interface ExecuteStatementRequest {
    * [ "id-3", "3", null ],
    * ]
    * ```
-   *
+   * 
    * When specifying `format=JSON_ARRAY` and `disposition=EXTERNAL_LINKS`, each chunk in the result contains compact
    * JSON with no indentation or extra whitespace.
-   *
+   * 
    * When specifying `format=ARROW_STREAM` and `disposition=EXTERNAL_LINKS`, each chunk in the result will be formatted
    * as Apache Arrow Stream. See the
    * [Apache Arrow streaming format](https://arrow.apache.org/docs/format/Columnar.html#ipc-streaming-format).
-   *
+   * 
    * When specifying `format=CSV` and `disposition=EXTERNAL_LINKS`, each chunk in the result will be a CSV according to
    * [RFC 4180](https://www.rfc-editor.org/rfc/rfc4180) standard.
    * All the columns values will have *string representation* similar to the `JSON_ARRAY` format, and `null` values will
@@ -203,7 +208,7 @@ export interface ExecuteStatementRequest {
    * Only the first chunk in the result would contain a header row with column names.
    * For example, the output of `SELECT concat('id-', id) AS strCol, id AS intCol, null as nullCol FROM range(3)` would
    * look like this:
-   *
+   * 
    * ```
    * strCol,intCol,nullCol
    * id-1,1,null
@@ -214,23 +219,23 @@ export interface ExecuteStatementRequest {
   format?: Format | undefined;
   /**
    * The fetch disposition provides two modes of fetching results: `INLINE` and `EXTERNAL_LINKS`.
-   *
+   * 
    * Statements executed with `INLINE` disposition will return result data inline, in `JSON_ARRAY` format, in a series
    * of chunks. If a given statement produces a result set with a size larger than 25 MiB,
    * that statement execution is aborted, and no result set will be available.
-   *
+   * 
    * **NOTE**
    * Byte limits are computed based upon internal representations of the result set data, and might not match the sizes
    * visible in JSON responses.
-   *
+   * 
    * Statements executed with `EXTERNAL_LINKS` disposition will return result data as external links: URLs that point
    * to cloud storage internal to the workspace. Using `EXTERNAL_LINKS` disposition allows statements to generate
    * arbitrarily sized result sets for fetching up to 100 GiB. The resulting links have two important properties:
-   *
+   * 
    * 1. They point to resources _external_ to the <Databricks> compute; therefore any associated authentication
    * information (typically a personal access token, OAuth token, or similar) _must be removed_ when fetching from
    * these links.
-   *
+   * 
    * 2. These are  URLs
    * with a specific expiration, indicated in the response. The behavior when attempting to use an expired link is
    * cloud specific.
@@ -239,11 +244,11 @@ export interface ExecuteStatementRequest {
   /**
    * The time in seconds the call will wait for the statement's result set as `Ns`, where `N` can be set to 0 or to a
    * value between 5 and 50.
-   *
+   * 
    * When set to `0s`, the statement will execute in asynchronous mode and the call will not wait for the execution to
    * finish. In this case, the call returns directly with `PENDING` state and a statement ID which can be used for
    * polling with :method:statementexecution/getStatement.
-   *
+   * 
    * When set between 5 and 50 seconds, the call will behave synchronously up to this timeout and wait for the statement
    * execution to finish. If the execution finishes within this time, the call returns immediately with a manifest and
    * result data (or a `FAILED` state in case of an execution error). If the statement takes longer to execute,
@@ -263,20 +268,20 @@ export interface ExecuteStatementRequest {
    * parameter consists of a name, a value, and optionally a type. To represent a NULL
    * value, the `value` field may be omitted or set to `null` explicitly. If the `type` field
    * is omitted, the value is interpreted as a string.
-   *
+   * 
    * If the type is given, parameters will be checked for type correctness according
    * to the given type. A value is correct if the provided string can be converted to
    * the requested type using the `cast` function. The exact semantics are described in
    * the section [`cast` function](https://docs.databricks.com/sql/language-manual/functions/cast.html) of the SQL language reference.
-   *
+   * 
    * For example, the following statement contains two parameters, `my_name` and `my_date`:
-   *
+   * 
    * ```
    * SELECT * FROM my_table WHERE name = :my_name AND date = :my_date
    * ```
-   *
+   * 
    * The parameters can be passed in the request body as follows:
-   *
+   * 
    * `
    * {
    * ...,
@@ -287,10 +292,10 @@ export interface ExecuteStatementRequest {
    * ]
    * }
    * `
-   *
+   * 
    * Currently, positional parameters denoted by a `?` marker are not supported by the
    * Databricks SQL Statement Execution API.
-   *
+   * 
    * Also see the section [Parameter markers](https://docs.databricks.com/sql/language-manual/sql-ref-parameter-marker.html) of the SQL language reference.
    */
   parameters?: StatementParameter[] | undefined;
@@ -302,7 +307,7 @@ export interface ExecuteStatementRequest {
    * There's no significance to the order of tags. Only one value per key will be recorded.
    * A sequence in excess of 20 query tags will be coerced to 20.
    * Example:
-   *
+   * 
    * {
    * ...,
    * "query_tags": [
@@ -407,7 +412,7 @@ export interface ResultData {
    * The `JSON_ARRAY` format is an array of arrays of values, where each non-null value is
    * formatted as a string. Null values are encoded as JSON `null`.
    */
-  dataArray?: unknown[][] | undefined;
+  dataArray?: JsonValue[][] | undefined;
   /** The position within the sequence of result set chunks. */
   chunkIndex?: number | undefined;
   /** The starting row offset within the result set. */
@@ -510,17 +515,17 @@ export interface StatementStatus {
   sqlState?: string | undefined;
 }
 
-export const unmarshalCancelStatementRequestSchema: z.ZodType<CancelStatementRequest> =
-  z
-    .object({
-      statement_id: z.string().optional(),
-    })
-    .transform(d => ({
-      statementId: d.statement_id,
-    }));
+export const unmarshalCancelStatementRequestSchema: z.ZodType<CancelStatementRequest> = z
+  .object({
+    statement_id: z.string().optional(),
+  })
+  .transform(d => ({
+    statementId: d.statement_id,
+  }));
 
-export const unmarshalCancelStatementResponseSchema: z.ZodType<CancelStatementResponse> =
-  z.object({});
+export const unmarshalCancelStatementResponseSchema: z.ZodType<CancelStatementResponse> = z
+  .object({
+  });
 
 export const unmarshalChunkInfoSchema: z.ZodType<ChunkInfo> = z
   .object({
@@ -560,38 +565,35 @@ export const unmarshalColumnInfoSchema: z.ZodType<ColumnInfo> = z
     typeIntervalType: d.type_interval_type,
   }));
 
-export const unmarshalExecuteStatementRequestSchema: z.ZodType<ExecuteStatementRequest> =
-  z
-    .object({
-      statement: z.string().optional(),
-      warehouse_id: z.string().optional(),
-      catalog: z.string().optional(),
-      schema: z.string().optional(),
-      row_limit: z.number().optional(),
-      byte_limit: z.number().optional(),
-      format: z.enum(Format).optional(),
-      disposition: z.enum(Disposition).optional(),
-      wait_timeout: z.string().optional(),
-      on_wait_timeout: z.enum(TimeoutAction).optional(),
-      parameters: z
-        .array(z.lazy(() => unmarshalStatementParameterSchema))
-        .optional(),
-      query_tags: z.array(z.lazy(() => unmarshalQueryTagSchema)).optional(),
-    })
-    .transform(d => ({
-      statement: d.statement,
-      warehouseId: d.warehouse_id,
-      catalog: d.catalog,
-      schema: d.schema,
-      rowLimit: d.row_limit,
-      byteLimit: d.byte_limit,
-      format: d.format,
-      disposition: d.disposition,
-      waitTimeout: d.wait_timeout,
-      onWaitTimeout: d.on_wait_timeout,
-      parameters: d.parameters,
-      queryTags: d.query_tags,
-    }));
+export const unmarshalExecuteStatementRequestSchema: z.ZodType<ExecuteStatementRequest> = z
+  .object({
+    statement: z.string().optional(),
+    warehouse_id: z.string().optional(),
+    catalog: z.string().optional(),
+    schema: z.string().optional(),
+    row_limit: z.number().optional(),
+    byte_limit: z.number().optional(),
+    format: z.enum(Format).optional(),
+    disposition: z.enum(Disposition).optional(),
+    wait_timeout: z.string().optional(),
+    on_wait_timeout: z.enum(TimeoutAction).optional(),
+    parameters: z.array(z.lazy(() => unmarshalStatementParameterSchema)).optional(),
+    query_tags: z.array(z.lazy(() => unmarshalQueryTagSchema)).optional(),
+  })
+  .transform(d => ({
+    statement: d.statement,
+    warehouseId: d.warehouse_id,
+    catalog: d.catalog,
+    schema: d.schema,
+    rowLimit: d.row_limit,
+    byteLimit: d.byte_limit,
+    format: d.format,
+    disposition: d.disposition,
+    waitTimeout: d.wait_timeout,
+    onWaitTimeout: d.on_wait_timeout,
+    parameters: d.parameters,
+    queryTags: d.query_tags,
+  }));
 
 export const unmarshalExternalLinkSchema: z.ZodType<ExternalLink> = z
   .object({
@@ -618,36 +620,33 @@ export const unmarshalExternalLinkSchema: z.ZodType<ExternalLink> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalExternalLink_HttpHeadersEntrySchema: z.ZodType<ExternalLink_HttpHeadersEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalExternalLink_HttpHeadersEntrySchema: z.ZodType<ExternalLink_HttpHeadersEntry> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
-export const unmarshalGetResultDataRequestSchema: z.ZodType<GetResultDataRequest> =
-  z
-    .object({
-      statement_id: z.string().optional(),
-      chunk_index: z.number().optional(),
-    })
-    .transform(d => ({
-      statementId: d.statement_id,
-      chunkIndex: d.chunk_index,
-    }));
+export const unmarshalGetResultDataRequestSchema: z.ZodType<GetResultDataRequest> = z
+  .object({
+    statement_id: z.string().optional(),
+    chunk_index: z.number().optional(),
+  })
+  .transform(d => ({
+    statementId: d.statement_id,
+    chunkIndex: d.chunk_index,
+  }));
 
-export const unmarshalGetStatementResultRequestSchema: z.ZodType<GetStatementResultRequest> =
-  z
-    .object({
-      statement_id: z.string().optional(),
-    })
-    .transform(d => ({
-      statementId: d.statement_id,
-    }));
+export const unmarshalGetStatementResultRequestSchema: z.ZodType<GetStatementResultRequest> = z
+  .object({
+    statement_id: z.string().optional(),
+  })
+  .transform(d => ({
+    statementId: d.statement_id,
+  }));
 
 export const unmarshalQueryTagSchema: z.ZodType<QueryTag> = z
   .object({
@@ -661,10 +660,8 @@ export const unmarshalQueryTagSchema: z.ZodType<QueryTag> = z
 
 export const unmarshalResultDataSchema: z.ZodType<ResultData> = z
   .object({
-    external_links: z
-      .array(z.lazy(() => unmarshalExternalLinkSchema))
-      .optional(),
-    data_array: z.array(z.array(z.unknown())).optional(),
+    external_links: z.array(z.lazy(() => unmarshalExternalLinkSchema)).optional(),
+    data_array: z.array(z.array(jsonValueSchema)).optional(),
     chunk_index: z.number().optional(),
     row_offset: z.number().optional(),
     row_count: z.number().optional(),
@@ -723,18 +720,17 @@ export const unmarshalServiceErrorSchema: z.ZodType<ServiceError> = z
     message: d.message,
   }));
 
-export const unmarshalStatementParameterSchema: z.ZodType<StatementParameter> =
-  z
-    .object({
-      name: z.string().optional(),
-      value: z.string().optional(),
-      type: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      value: d.value,
-      type: d.type,
-    }));
+export const unmarshalStatementParameterSchema: z.ZodType<StatementParameter> = z
+  .object({
+    name: z.string().optional(),
+    value: z.string().optional(),
+    type: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    value: d.value,
+    type: d.type,
+  }));
 
 export const unmarshalStatementResponseSchema: z.ZodType<StatementResponse> = z
   .object({
@@ -770,7 +766,9 @@ export const marshalCancelStatementRequestSchema: z.ZodType = z
     statement_id: d.statementId,
   }));
 
-export const marshalCancelStatementResponseSchema: z.ZodType = z.object({});
+export const marshalCancelStatementResponseSchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalChunkInfoSchema: z.ZodType = z
   .object({
@@ -822,9 +820,7 @@ export const marshalExecuteStatementRequestSchema: z.ZodType = z
     disposition: z.enum(Disposition).optional(),
     waitTimeout: z.string().optional(),
     onWaitTimeout: z.enum(TimeoutAction).optional(),
-    parameters: z
-      .array(z.lazy(() => marshalStatementParameterSchema))
-      .optional(),
+    parameters: z.array(z.lazy(() => marshalStatementParameterSchema)).optional(),
     queryTags: z.array(z.lazy(() => marshalQueryTagSchema)).optional(),
   })
   .transform(d => ({
@@ -908,7 +904,7 @@ export const marshalQueryTagSchema: z.ZodType = z
 export const marshalResultDataSchema: z.ZodType = z
   .object({
     externalLinks: z.array(z.lazy(() => marshalExternalLinkSchema)).optional(),
-    dataArray: z.array(z.array(z.unknown())).optional(),
+    dataArray: z.array(z.array(jsonValueSchema)).optional(),
     chunkIndex: z.number().optional(),
     rowOffset: z.number().optional(),
     rowCount: z.number().optional(),

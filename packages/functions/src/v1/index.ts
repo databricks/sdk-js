@@ -1,5 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+
 export {Client} from './client';
 
 export {
@@ -28,6 +29,8 @@ export type {
   GetFunction,
   ListFunctions,
   ListFunctions_Response,
+  SecretDependency,
   TableDependency,
   UpdateFunction,
+  VolumeDependency,
 } from './model';

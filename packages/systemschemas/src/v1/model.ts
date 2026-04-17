@@ -60,37 +60,37 @@ export interface SystemSchemaInfo {
   state: string;
 }
 
-export const unmarshalDisableSystemSchemaSchema: z.ZodType<DisableSystemSchema> =
-  z
-    .object({
-      schema: z.string().optional(),
-      metastore_id: z.string().optional(),
-    })
-    .transform(d => ({
-      schema: d.schema,
-      metastoreId: d.metastore_id,
-    }));
+export const unmarshalDisableSystemSchemaSchema: z.ZodType<DisableSystemSchema> = z
+  .object({
+    schema: z.string().optional(),
+    metastore_id: z.string().optional(),
+  })
+  .transform(d => ({
+    schema: d.schema,
+    metastoreId: d.metastore_id,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDisableSystemSchema_ResponseSchema: z.ZodType<DisableSystemSchema_Response> =
-  z.object({});
+export const unmarshalDisableSystemSchema_ResponseSchema: z.ZodType<DisableSystemSchema_Response> = z
+  .object({
+  });
 
-export const unmarshalEnableSystemSchemaSchema: z.ZodType<EnableSystemSchema> =
-  z
-    .object({
-      schema: z.string().optional(),
-      metastore_id: z.string().optional(),
-      catalog_name: z.string().optional(),
-    })
-    .transform(d => ({
-      schema: d.schema,
-      metastoreId: d.metastore_id,
-      catalogName: d.catalog_name,
-    }));
+export const unmarshalEnableSystemSchemaSchema: z.ZodType<EnableSystemSchema> = z
+  .object({
+    schema: z.string().optional(),
+    metastore_id: z.string().optional(),
+    catalog_name: z.string().optional(),
+  })
+  .transform(d => ({
+    schema: d.schema,
+    metastoreId: d.metastore_id,
+    catalogName: d.catalog_name,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEnableSystemSchema_ResponseSchema: z.ZodType<EnableSystemSchema_Response> =
-  z.object({});
+export const unmarshalEnableSystemSchema_ResponseSchema: z.ZodType<EnableSystemSchema_Response> = z
+  .object({
+  });
 
 export const unmarshalListSystemSchemasSchema: z.ZodType<ListSystemSchemas> = z
   .object({
@@ -105,18 +105,15 @@ export const unmarshalListSystemSchemasSchema: z.ZodType<ListSystemSchemas> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListSystemSchemas_ResponseSchema: z.ZodType<ListSystemSchemas_Response> =
-  z
-    .object({
-      schemas: z
-        .array(z.lazy(() => unmarshalSystemSchemaInfoSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      schemas: d.schemas,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListSystemSchemas_ResponseSchema: z.ZodType<ListSystemSchemas_Response> = z
+  .object({
+    schemas: z.array(z.lazy(() => unmarshalSystemSchemaInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    schemas: d.schemas,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalSystemSchemaInfoSchema: z.ZodType<SystemSchemaInfo> = z
   .object({
@@ -139,9 +136,9 @@ export const marshalDisableSystemSchemaSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDisableSystemSchema_ResponseSchema: z.ZodType = z.object(
-  {}
-);
+export const marshalDisableSystemSchema_ResponseSchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalEnableSystemSchemaSchema: z.ZodType = z
   .object({
@@ -156,7 +153,9 @@ export const marshalEnableSystemSchemaSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEnableSystemSchema_ResponseSchema: z.ZodType = z.object({});
+export const marshalEnableSystemSchema_ResponseSchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalListSystemSchemasSchema: z.ZodType = z
   .object({

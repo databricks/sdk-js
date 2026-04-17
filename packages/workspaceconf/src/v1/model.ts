@@ -11,14 +11,13 @@ export interface WorkspaceConf {
   value?: string | undefined;
 }
 
-export const unmarshalGetWorkspaceConfRequestSchema: z.ZodType<GetWorkspaceConfRequest> =
-  z
-    .object({
-      keys: z.string().optional(),
-    })
-    .transform(d => ({
-      keys: d.keys,
-    }));
+export const unmarshalGetWorkspaceConfRequestSchema: z.ZodType<GetWorkspaceConfRequest> = z
+  .object({
+    keys: z.string().optional(),
+  })
+  .transform(d => ({
+    keys: d.keys,
+  }));
 
 export const unmarshalWorkspaceConfSchema: z.ZodType<WorkspaceConf> = z
   .object({

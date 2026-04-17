@@ -1,5 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+
 export {Client} from './client';
 
 export {
@@ -44,6 +45,7 @@ export type {
   PolicyFunctionArgument,
   PrimaryKeyConstraint,
   RowFilter,
+  SecretDependency,
   SecurableKindManifest,
   SseEncryptionDetails,
   TableConstraint,
@@ -56,4 +58,5 @@ export type {
   UpdateTable,
   UpdateTable_PropertiesEntry,
   UpdateTable_Response,
+  VolumeDependency,
 } from './model';

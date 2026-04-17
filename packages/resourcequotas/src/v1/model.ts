@@ -104,16 +104,15 @@ export const unmarshalListQuotasSchema: z.ZodType<ListQuotas> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListQuotas_ResponseSchema: z.ZodType<ListQuotas_Response> =
-  z
-    .object({
-      quotas: z.array(z.lazy(() => unmarshalQuotaInfoSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      quotas: d.quotas,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListQuotas_ResponseSchema: z.ZodType<ListQuotas_Response> = z
+  .object({
+    quotas: z.array(z.lazy(() => unmarshalQuotaInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    quotas: d.quotas,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalQuotaInfoSchema: z.ZodType<QuotaInfo> = z
   .object({

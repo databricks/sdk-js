@@ -1,6 +1,9 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {LaunchStage} from './model';
+
+export {
+  LaunchStage,
+} from './model';
 
 export type {
   FieldMetadata,

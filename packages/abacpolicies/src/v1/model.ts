@@ -1,5 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask, type FieldPaths} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum PolicyType {
@@ -292,7 +293,7 @@ export interface UpdatePolicy {
    * Optional. The update mask field for specifying user intentions on which
    * fields to update in the request.
    */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<FieldPaths<PolicyInfo>> | undefined;
 }
 
 export const unmarshalColumnMaskOptionsSchema: z.ZodType<ColumnMaskOptions> = z
@@ -307,16 +308,15 @@ export const unmarshalColumnMaskOptionsSchema: z.ZodType<ColumnMaskOptions> = z
     using: d.using,
   }));
 
-export const unmarshalColumnTagValueExtractionSchema: z.ZodType<ColumnTagValueExtraction> =
-  z
-    .object({
-      column_alias: z.string().optional(),
-      tag_key: z.string().optional(),
-    })
-    .transform(d => ({
-      columnAlias: d.column_alias,
-      tagKey: d.tag_key,
-    }));
+export const unmarshalColumnTagValueExtractionSchema: z.ZodType<ColumnTagValueExtraction> = z
+  .object({
+    column_alias: z.string().optional(),
+    tag_key: z.string().optional(),
+  })
+  .transform(d => ({
+    columnAlias: d.column_alias,
+    tagKey: d.tag_key,
+  }));
 
 export const unmarshalCreatePolicySchema: z.ZodType<CreatePolicy> = z
   .object({
@@ -339,8 +339,9 @@ export const unmarshalDeletePolicySchema: z.ZodType<DeletePolicy> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeletePolicy_ResponseSchema: z.ZodType<DeletePolicy_Response> =
-  z.object({});
+export const unmarshalDeletePolicy_ResponseSchema: z.ZodType<DeletePolicy_Response> = z
+  .object({
+  });
 
 export const unmarshalDenyOptionsSchema: z.ZodType<DenyOptions> = z
   .object({
@@ -354,9 +355,7 @@ export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
   .object({
     alias: z.string().optional(),
     constant: z.string().optional(),
-    metadata_extraction: z
-      .lazy(() => unmarshalMetadataExtractionExpressionSchema)
-      .optional(),
+    metadata_extraction: z.lazy(() => unmarshalMetadataExtractionExpressionSchema).optional(),
   })
   .transform(d => ({
     alias: d.alias,
@@ -401,16 +400,15 @@ export const unmarshalListPoliciesSchema: z.ZodType<ListPolicies> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListPolicies_ResponseSchema: z.ZodType<ListPolicies_Response> =
-  z
-    .object({
-      policies: z.array(z.lazy(() => unmarshalPolicyInfoSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      policies: d.policies,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListPolicies_ResponseSchema: z.ZodType<ListPolicies_Response> = z
+  .object({
+    policies: z.array(z.lazy(() => unmarshalPolicyInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    policies: d.policies,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalMatchColumnSchema: z.ZodType<MatchColumn> = z
   .object({
@@ -422,18 +420,15 @@ export const unmarshalMatchColumnSchema: z.ZodType<MatchColumn> = z
     alias: d.alias,
   }));
 
-export const unmarshalMetadataExtractionExpressionSchema: z.ZodType<MetadataExtractionExpression> =
-  z
-    .object({
-      tag_value: z.lazy(() => unmarshalTagValueExtractionSchema).optional(),
-      column_tag_value: z
-        .lazy(() => unmarshalColumnTagValueExtractionSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      tagValue: d.tag_value,
-      columnTagValue: d.column_tag_value,
-    }));
+export const unmarshalMetadataExtractionExpressionSchema: z.ZodType<MetadataExtractionExpression> = z
+  .object({
+    tag_value: z.lazy(() => unmarshalTagValueExtractionSchema).optional(),
+    column_tag_value: z.lazy(() => unmarshalColumnTagValueExtractionSchema).optional(),
+  })
+  .transform(d => ({
+    tagValue: d.tag_value,
+    columnTagValue: d.column_tag_value,
+  }));
 
 export const unmarshalPolicyInfoSchema: z.ZodType<PolicyInfo> = z
   .object({
@@ -491,14 +486,13 @@ export const unmarshalRowFilterOptionsSchema: z.ZodType<RowFilterOptions> = z
     using: d.using,
   }));
 
-export const unmarshalTagValueExtractionSchema: z.ZodType<TagValueExtraction> =
-  z
-    .object({
-      tag_key: z.string().optional(),
-    })
-    .transform(d => ({
-      tagKey: d.tag_key,
-    }));
+export const unmarshalTagValueExtractionSchema: z.ZodType<TagValueExtraction> = z
+  .object({
+    tag_key: z.string().optional(),
+  })
+  .transform(d => ({
+    tagKey: d.tag_key,
+  }));
 
 export const unmarshalUpdatePolicySchema: z.ZodType<UpdatePolicy> = z
   .object({
@@ -506,7 +500,7 @@ export const unmarshalUpdatePolicySchema: z.ZodType<UpdatePolicy> = z
     on_securable_fullname: z.string().optional(),
     name: z.string().optional(),
     policy_info: z.lazy(() => unmarshalPolicyInfoSchema).optional(),
-    update_mask: z.string().optional(),
+    update_mask: z.string().transform(s => FieldMask.of(...(s === '' ? [] : s.split(','))) as FieldMask<FieldPaths<PolicyInfo>>).optional(),
   })
   .transform(d => ({
     onSecurableType: d.on_securable_type,
@@ -559,7 +553,9 @@ export const marshalDeletePolicySchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeletePolicy_ResponseSchema: z.ZodType = z.object({});
+export const marshalDeletePolicy_ResponseSchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalDenyOptionsSchema: z.ZodType = z
   .object({
@@ -573,9 +569,7 @@ export const marshalFunctionArgumentSchema: z.ZodType = z
   .object({
     alias: z.string().optional(),
     constant: z.string().optional(),
-    metadataExtraction: z
-      .lazy(() => marshalMetadataExtractionExpressionSchema)
-      .optional(),
+    metadataExtraction: z.lazy(() => marshalMetadataExtractionExpressionSchema).optional(),
   })
   .transform(d => ({
     alias: d.alias,
@@ -643,9 +637,7 @@ export const marshalMatchColumnSchema: z.ZodType = z
 export const marshalMetadataExtractionExpressionSchema: z.ZodType = z
   .object({
     tagValue: z.lazy(() => marshalTagValueExtractionSchema).optional(),
-    columnTagValue: z
-      .lazy(() => marshalColumnTagValueExtractionSchema)
-      .optional(),
+    columnTagValue: z.lazy(() => marshalColumnTagValueExtractionSchema).optional(),
   })
   .transform(d => ({
     tag_value: d.tagValue,
@@ -722,7 +714,7 @@ export const marshalUpdatePolicySchema: z.ZodType = z
     onSecurableFullname: z.string().optional(),
     name: z.string().optional(),
     policyInfo: z.lazy(() => marshalPolicyInfoSchema).optional(),
-    updateMask: z.string().optional(),
+    updateMask: z.any().transform((d: FieldMask<FieldPaths<PolicyInfo>>) => d.paths.join(',')).optional(),
   })
   .transform(d => ({
     on_securable_type: d.onSecurableType,

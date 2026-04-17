@@ -1,5 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask, type FieldPaths} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** The granularity for aggregating data into time windows based on their timestamp. */
@@ -123,11 +124,11 @@ export interface CancelRefreshRequest {
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
-   *
+   * 
    * Find the `schema_id` from either:
    * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
-   *
+   * 
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
@@ -260,11 +261,11 @@ export interface DeleteMonitorRequest {
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
-   *
+   * 
    * Find the `schema_id` from either:
    * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
-   *
+   * 
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
@@ -278,11 +279,11 @@ export interface DeleteRefreshRequest {
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
-   *
+   * 
    * Find the `schema_id` from either:
    * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
-   *
+   * 
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
@@ -298,11 +299,11 @@ export interface GetMonitorRequest {
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
-   *
+   * 
    * Find the `schema_id` from either:
    * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
-   *
+   * 
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
@@ -316,11 +317,11 @@ export interface GetRefreshRequest {
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
-   *
+   * 
    * Find the `schema_id` from either:
    * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
-   *
+   * 
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
@@ -366,11 +367,11 @@ export interface ListRefreshRequest {
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
-   *
+   * 
    * Find the `schema_id` from either:
    * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
-   *
+   * 
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
@@ -392,11 +393,11 @@ export interface Monitor {
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
-   *
+   * 
    * Find the `schema_id` from either:
    * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
-   *
+   * 
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
@@ -445,11 +446,11 @@ export interface Refresh {
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
-   *
+   * 
    * Find the `schema_id` from either:
    * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
-   *
+   * 
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
@@ -492,11 +493,11 @@ export interface UpdateMonitorRequest {
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
-   *
+   * 
    * Find the `schema_id` from either:
    * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
-   *
+   * 
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
@@ -508,7 +509,7 @@ export interface UpdateMonitorRequest {
    * The field mask to specify which fields to update as a comma-separated list.
    * Example value: `data_profiling_config.custom_metrics,data_profiling_config.schedule.quartz_cron_expression`
    */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<FieldPaths<Monitor>> | undefined;
 }
 
 /** Request to update a refresh. */
@@ -517,11 +518,11 @@ export interface UpdateRefreshRequest {
   objectType?: string | undefined;
   /**
    * The UUID of the request object. It is `schema_id` for `schema`, and `table_id` for `table`.
-   *
+   * 
    * Find the `schema_id` from either:
    * 1. The [schema_id](https://docs.databricks.com/api/workspace/schemas/get#schema_id) of the `Schemas` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `schema` > go to the `Details` tab > the `Schema ID` field.
-   *
+   * 
    * Find the `table_id` from either:
    * 1. The [table_id](https://docs.databricks.com/api/workspace/tables/get#table_id) of the `Tables` resource.
    * 2. In [Catalog Explorer](https://docs.databricks.com/aws/en/catalog-explorer/) > select the `table` > go to the `Details` tab > the `Table ID` field.
@@ -532,7 +533,7 @@ export interface UpdateRefreshRequest {
   /** The refresh to update. */
   refresh?: Refresh | undefined;
   /** The field mask to specify which fields to update. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<FieldPaths<Refresh>> | undefined;
 }
 
 export interface ValidityCheckConfiguration {
@@ -543,64 +544,57 @@ export interface ValidityCheckConfiguration {
   uniquenessValidityCheck?: UniquenessValidityCheck | undefined;
 }
 
-export const unmarshalAnomalyDetectionConfigSchema: z.ZodType<AnomalyDetectionConfig> =
-  z
-    .object({
-      anomaly_detection_workflow_id: z.number().optional(),
-      publish_health_indicator: z.boolean().optional(),
-      job_type: z.enum(AnomalyDetectionJobType).optional(),
-      excluded_table_full_names: z.array(z.string()).optional(),
-      validity_check_configurations: z
-        .array(z.lazy(() => unmarshalValidityCheckConfigurationSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      anomalyDetectionWorkflowId: d.anomaly_detection_workflow_id,
-      publishHealthIndicator: d.publish_health_indicator,
-      jobType: d.job_type,
-      excludedTableFullNames: d.excluded_table_full_names,
-      validityCheckConfigurations: d.validity_check_configurations,
-    }));
+export const unmarshalAnomalyDetectionConfigSchema: z.ZodType<AnomalyDetectionConfig> = z
+  .object({
+    anomaly_detection_workflow_id: z.number().optional(),
+    publish_health_indicator: z.boolean().optional(),
+    job_type: z.enum(AnomalyDetectionJobType).optional(),
+    excluded_table_full_names: z.array(z.string()).optional(),
+    validity_check_configurations: z.array(z.lazy(() => unmarshalValidityCheckConfigurationSchema)).optional(),
+  })
+  .transform(d => ({
+    anomalyDetectionWorkflowId: d.anomaly_detection_workflow_id,
+    publishHealthIndicator: d.publish_health_indicator,
+    jobType: d.job_type,
+    excludedTableFullNames: d.excluded_table_full_names,
+    validityCheckConfigurations: d.validity_check_configurations,
+  }));
 
-export const unmarshalCancelRefreshRequestSchema: z.ZodType<CancelRefreshRequest> =
-  z
-    .object({
-      object_type: z.string().optional(),
-      object_id: z.string().optional(),
-      refresh_id: z.number().optional(),
-    })
-    .transform(d => ({
-      objectType: d.object_type,
-      objectId: d.object_id,
-      refreshId: d.refresh_id,
-    }));
+export const unmarshalCancelRefreshRequestSchema: z.ZodType<CancelRefreshRequest> = z
+  .object({
+    object_type: z.string().optional(),
+    object_id: z.string().optional(),
+    refresh_id: z.number().optional(),
+  })
+  .transform(d => ({
+    objectType: d.object_type,
+    objectId: d.object_id,
+    refreshId: d.refresh_id,
+  }));
 
-export const unmarshalCancelRefreshResponseSchema: z.ZodType<CancelRefreshResponse> =
-  z
-    .object({
-      refresh: z.lazy(() => unmarshalRefreshSchema).optional(),
-    })
-    .transform(d => ({
-      refresh: d.refresh,
-    }));
+export const unmarshalCancelRefreshResponseSchema: z.ZodType<CancelRefreshResponse> = z
+  .object({
+    refresh: z.lazy(() => unmarshalRefreshSchema).optional(),
+  })
+  .transform(d => ({
+    refresh: d.refresh,
+  }));
 
-export const unmarshalCreateMonitorRequestSchema: z.ZodType<CreateMonitorRequest> =
-  z
-    .object({
-      monitor: z.lazy(() => unmarshalMonitorSchema).optional(),
-    })
-    .transform(d => ({
-      monitor: d.monitor,
-    }));
+export const unmarshalCreateMonitorRequestSchema: z.ZodType<CreateMonitorRequest> = z
+  .object({
+    monitor: z.lazy(() => unmarshalMonitorSchema).optional(),
+  })
+  .transform(d => ({
+    monitor: d.monitor,
+  }));
 
-export const unmarshalCreateRefreshRequestSchema: z.ZodType<CreateRefreshRequest> =
-  z
-    .object({
-      refresh: z.lazy(() => unmarshalRefreshSchema).optional(),
-    })
-    .transform(d => ({
-      refresh: d.refresh,
-    }));
+export const unmarshalCreateRefreshRequestSchema: z.ZodType<CreateRefreshRequest> = z
+  .object({
+    refresh: z.lazy(() => unmarshalRefreshSchema).optional(),
+  })
+  .transform(d => ({
+    refresh: d.refresh,
+  }));
 
 export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
   .object({
@@ -614,97 +608,89 @@ export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
     pauseStatus: d.pause_status,
   }));
 
-export const unmarshalDataProfilingConfigSchema: z.ZodType<DataProfilingConfig> =
-  z
-    .object({
-      output_schema_id: z.string().optional(),
-      assets_dir: z.string().optional(),
-      inference_log: z.lazy(() => unmarshalInferenceLogConfigSchema).optional(),
-      time_series: z.lazy(() => unmarshalTimeSeriesConfigSchema).optional(),
-      snapshot: z.lazy(() => unmarshalSnapshotConfigSchema).optional(),
-      slicing_exprs: z.array(z.string()).optional(),
-      custom_metrics: z
-        .array(z.lazy(() => unmarshalDataProfilingCustomMetricSchema))
-        .optional(),
-      baseline_table_name: z.string().optional(),
-      schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
-      notification_settings: z
-        .lazy(() => unmarshalNotificationSettingsSchema)
-        .optional(),
-      skip_builtin_dashboard: z.boolean().optional(),
-      warehouse_id: z.string().optional(),
-      monitored_table_name: z.string().optional(),
-      status: z.enum(DataProfilingStatus).optional(),
-      latest_monitor_failure_message: z.string().optional(),
-      profile_metrics_table_name: z.string().optional(),
-      drift_metrics_table_name: z.string().optional(),
-      dashboard_id: z.string().optional(),
-      monitor_version: z.number().optional(),
-      effective_warehouse_id: z.string().optional(),
-    })
-    .transform(d => ({
-      outputSchemaId: d.output_schema_id,
-      assetsDir: d.assets_dir,
-      inferenceLog: d.inference_log,
-      timeSeries: d.time_series,
-      snapshot: d.snapshot,
-      slicingExprs: d.slicing_exprs,
-      customMetrics: d.custom_metrics,
-      baselineTableName: d.baseline_table_name,
-      schedule: d.schedule,
-      notificationSettings: d.notification_settings,
-      skipBuiltinDashboard: d.skip_builtin_dashboard,
-      warehouseId: d.warehouse_id,
-      monitoredTableName: d.monitored_table_name,
-      status: d.status,
-      latestMonitorFailureMessage: d.latest_monitor_failure_message,
-      profileMetricsTableName: d.profile_metrics_table_name,
-      driftMetricsTableName: d.drift_metrics_table_name,
-      dashboardId: d.dashboard_id,
-      monitorVersion: d.monitor_version,
-      effectiveWarehouseId: d.effective_warehouse_id,
-    }));
+export const unmarshalDataProfilingConfigSchema: z.ZodType<DataProfilingConfig> = z
+  .object({
+    output_schema_id: z.string().optional(),
+    assets_dir: z.string().optional(),
+    inference_log: z.lazy(() => unmarshalInferenceLogConfigSchema).optional(),
+    time_series: z.lazy(() => unmarshalTimeSeriesConfigSchema).optional(),
+    snapshot: z.lazy(() => unmarshalSnapshotConfigSchema).optional(),
+    slicing_exprs: z.array(z.string()).optional(),
+    custom_metrics: z.array(z.lazy(() => unmarshalDataProfilingCustomMetricSchema)).optional(),
+    baseline_table_name: z.string().optional(),
+    schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
+    notification_settings: z.lazy(() => unmarshalNotificationSettingsSchema).optional(),
+    skip_builtin_dashboard: z.boolean().optional(),
+    warehouse_id: z.string().optional(),
+    monitored_table_name: z.string().optional(),
+    status: z.enum(DataProfilingStatus).optional(),
+    latest_monitor_failure_message: z.string().optional(),
+    profile_metrics_table_name: z.string().optional(),
+    drift_metrics_table_name: z.string().optional(),
+    dashboard_id: z.string().optional(),
+    monitor_version: z.number().optional(),
+    effective_warehouse_id: z.string().optional(),
+  })
+  .transform(d => ({
+    outputSchemaId: d.output_schema_id,
+    assetsDir: d.assets_dir,
+    inferenceLog: d.inference_log,
+    timeSeries: d.time_series,
+    snapshot: d.snapshot,
+    slicingExprs: d.slicing_exprs,
+    customMetrics: d.custom_metrics,
+    baselineTableName: d.baseline_table_name,
+    schedule: d.schedule,
+    notificationSettings: d.notification_settings,
+    skipBuiltinDashboard: d.skip_builtin_dashboard,
+    warehouseId: d.warehouse_id,
+    monitoredTableName: d.monitored_table_name,
+    status: d.status,
+    latestMonitorFailureMessage: d.latest_monitor_failure_message,
+    profileMetricsTableName: d.profile_metrics_table_name,
+    driftMetricsTableName: d.drift_metrics_table_name,
+    dashboardId: d.dashboard_id,
+    monitorVersion: d.monitor_version,
+    effectiveWarehouseId: d.effective_warehouse_id,
+  }));
 
-export const unmarshalDataProfilingCustomMetricSchema: z.ZodType<DataProfilingCustomMetric> =
-  z
-    .object({
-      name: z.string().optional(),
-      definition: z.string().optional(),
-      input_columns: z.array(z.string()).optional(),
-      output_data_type: z.string().optional(),
-      type: z.enum(DataProfilingCustomMetricType).optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      definition: d.definition,
-      inputColumns: d.input_columns,
-      outputDataType: d.output_data_type,
-      type: d.type,
-    }));
+export const unmarshalDataProfilingCustomMetricSchema: z.ZodType<DataProfilingCustomMetric> = z
+  .object({
+    name: z.string().optional(),
+    definition: z.string().optional(),
+    input_columns: z.array(z.string()).optional(),
+    output_data_type: z.string().optional(),
+    type: z.enum(DataProfilingCustomMetricType).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    definition: d.definition,
+    inputColumns: d.input_columns,
+    outputDataType: d.output_data_type,
+    type: d.type,
+  }));
 
-export const unmarshalDeleteMonitorRequestSchema: z.ZodType<DeleteMonitorRequest> =
-  z
-    .object({
-      object_type: z.string().optional(),
-      object_id: z.string().optional(),
-    })
-    .transform(d => ({
-      objectType: d.object_type,
-      objectId: d.object_id,
-    }));
+export const unmarshalDeleteMonitorRequestSchema: z.ZodType<DeleteMonitorRequest> = z
+  .object({
+    object_type: z.string().optional(),
+    object_id: z.string().optional(),
+  })
+  .transform(d => ({
+    objectType: d.object_type,
+    objectId: d.object_id,
+  }));
 
-export const unmarshalDeleteRefreshRequestSchema: z.ZodType<DeleteRefreshRequest> =
-  z
-    .object({
-      object_type: z.string().optional(),
-      object_id: z.string().optional(),
-      refresh_id: z.number().optional(),
-    })
-    .transform(d => ({
-      objectType: d.object_type,
-      objectId: d.object_id,
-      refreshId: d.refresh_id,
-    }));
+export const unmarshalDeleteRefreshRequestSchema: z.ZodType<DeleteRefreshRequest> = z
+  .object({
+    object_type: z.string().optional(),
+    object_id: z.string().optional(),
+    refresh_id: z.number().optional(),
+  })
+  .transform(d => ({
+    objectType: d.object_type,
+    objectId: d.object_id,
+    refreshId: d.refresh_id,
+  }));
 
 export const unmarshalGetMonitorRequestSchema: z.ZodType<GetMonitorRequest> = z
   .object({
@@ -728,85 +714,76 @@ export const unmarshalGetRefreshRequestSchema: z.ZodType<GetRefreshRequest> = z
     refreshId: d.refresh_id,
   }));
 
-export const unmarshalInferenceLogConfigSchema: z.ZodType<InferenceLogConfig> =
-  z
-    .object({
-      problem_type: z.enum(InferenceProblemType).optional(),
-      timestamp_column: z.string().optional(),
-      granularities: z.array(z.enum(AggregationGranularity)).optional(),
-      prediction_column: z.string().optional(),
-      label_column: z.string().optional(),
-      model_id_column: z.string().optional(),
-      prediction_probability_column: z.string().optional(),
-    })
-    .transform(d => ({
-      problemType: d.problem_type,
-      timestampColumn: d.timestamp_column,
-      granularities: d.granularities,
-      predictionColumn: d.prediction_column,
-      labelColumn: d.label_column,
-      modelIdColumn: d.model_id_column,
-      predictionProbabilityColumn: d.prediction_probability_column,
-    }));
+export const unmarshalInferenceLogConfigSchema: z.ZodType<InferenceLogConfig> = z
+  .object({
+    problem_type: z.enum(InferenceProblemType).optional(),
+    timestamp_column: z.string().optional(),
+    granularities: z.array(z.enum(AggregationGranularity)).optional(),
+    prediction_column: z.string().optional(),
+    label_column: z.string().optional(),
+    model_id_column: z.string().optional(),
+    prediction_probability_column: z.string().optional(),
+  })
+  .transform(d => ({
+    problemType: d.problem_type,
+    timestampColumn: d.timestamp_column,
+    granularities: d.granularities,
+    predictionColumn: d.prediction_column,
+    labelColumn: d.label_column,
+    modelIdColumn: d.model_id_column,
+    predictionProbabilityColumn: d.prediction_probability_column,
+  }));
 
-export const unmarshalListMonitorRequestSchema: z.ZodType<ListMonitorRequest> =
-  z
-    .object({
-      page_token: z.string().optional(),
-      page_size: z.number().optional(),
-    })
-    .transform(d => ({
-      pageToken: d.page_token,
-      pageSize: d.page_size,
-    }));
+export const unmarshalListMonitorRequestSchema: z.ZodType<ListMonitorRequest> = z
+  .object({
+    page_token: z.string().optional(),
+    page_size: z.number().optional(),
+  })
+  .transform(d => ({
+    pageToken: d.page_token,
+    pageSize: d.page_size,
+  }));
 
-export const unmarshalListMonitorResponseSchema: z.ZodType<ListMonitorResponse> =
-  z
-    .object({
-      monitors: z.array(z.lazy(() => unmarshalMonitorSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      monitors: d.monitors,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListMonitorResponseSchema: z.ZodType<ListMonitorResponse> = z
+  .object({
+    monitors: z.array(z.lazy(() => unmarshalMonitorSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    monitors: d.monitors,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListRefreshRequestSchema: z.ZodType<ListRefreshRequest> =
-  z
-    .object({
-      object_type: z.string().optional(),
-      object_id: z.string().optional(),
-      page_token: z.string().optional(),
-      page_size: z.number().optional(),
-    })
-    .transform(d => ({
-      objectType: d.object_type,
-      objectId: d.object_id,
-      pageToken: d.page_token,
-      pageSize: d.page_size,
-    }));
+export const unmarshalListRefreshRequestSchema: z.ZodType<ListRefreshRequest> = z
+  .object({
+    object_type: z.string().optional(),
+    object_id: z.string().optional(),
+    page_token: z.string().optional(),
+    page_size: z.number().optional(),
+  })
+  .transform(d => ({
+    objectType: d.object_type,
+    objectId: d.object_id,
+    pageToken: d.page_token,
+    pageSize: d.page_size,
+  }));
 
-export const unmarshalListRefreshResponseSchema: z.ZodType<ListRefreshResponse> =
-  z
-    .object({
-      refreshes: z.array(z.lazy(() => unmarshalRefreshSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      refreshes: d.refreshes,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListRefreshResponseSchema: z.ZodType<ListRefreshResponse> = z
+  .object({
+    refreshes: z.array(z.lazy(() => unmarshalRefreshSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    refreshes: d.refreshes,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalMonitorSchema: z.ZodType<Monitor> = z
   .object({
     object_type: z.string().optional(),
     object_id: z.string().optional(),
-    anomaly_detection_config: z
-      .lazy(() => unmarshalAnomalyDetectionConfigSchema)
-      .optional(),
-    data_profiling_config: z
-      .lazy(() => unmarshalDataProfilingConfigSchema)
-      .optional(),
+    anomaly_detection_config: z.lazy(() => unmarshalAnomalyDetectionConfigSchema).optional(),
+    data_profiling_config: z.lazy(() => unmarshalDataProfilingConfigSchema).optional(),
   })
   .transform(d => ({
     objectType: d.object_type,
@@ -815,49 +792,43 @@ export const unmarshalMonitorSchema: z.ZodType<Monitor> = z
     dataProfilingConfig: d.data_profiling_config,
   }));
 
-export const unmarshalNotificationDestinationSchema: z.ZodType<NotificationDestination> =
-  z
-    .object({
-      email_addresses: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      emailAddresses: d.email_addresses,
-    }));
+export const unmarshalNotificationDestinationSchema: z.ZodType<NotificationDestination> = z
+  .object({
+    email_addresses: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    emailAddresses: d.email_addresses,
+  }));
 
-export const unmarshalNotificationSettingsSchema: z.ZodType<NotificationSettings> =
-  z
-    .object({
-      on_failure: z
-        .lazy(() => unmarshalNotificationDestinationSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      onFailure: d.on_failure,
-    }));
+export const unmarshalNotificationSettingsSchema: z.ZodType<NotificationSettings> = z
+  .object({
+    on_failure: z.lazy(() => unmarshalNotificationDestinationSchema).optional(),
+  })
+  .transform(d => ({
+    onFailure: d.on_failure,
+  }));
 
-export const unmarshalPercentNullValidityCheckSchema: z.ZodType<PercentNullValidityCheck> =
-  z
-    .object({
-      column_names: z.array(z.string()).optional(),
-      upper_bound: z.number().optional(),
-    })
-    .transform(d => ({
-      columnNames: d.column_names,
-      upperBound: d.upper_bound,
-    }));
+export const unmarshalPercentNullValidityCheckSchema: z.ZodType<PercentNullValidityCheck> = z
+  .object({
+    column_names: z.array(z.string()).optional(),
+    upper_bound: z.number().optional(),
+  })
+  .transform(d => ({
+    columnNames: d.column_names,
+    upperBound: d.upper_bound,
+  }));
 
-export const unmarshalRangeValidityCheckSchema: z.ZodType<RangeValidityCheck> =
-  z
-    .object({
-      column_names: z.array(z.string()).optional(),
-      lower_bound: z.number().optional(),
-      upper_bound: z.number().optional(),
-    })
-    .transform(d => ({
-      columnNames: d.column_names,
-      lowerBound: d.lower_bound,
-      upperBound: d.upper_bound,
-    }));
+export const unmarshalRangeValidityCheckSchema: z.ZodType<RangeValidityCheck> = z
+  .object({
+    column_names: z.array(z.string()).optional(),
+    lower_bound: z.number().optional(),
+    upper_bound: z.number().optional(),
+  })
+  .transform(d => ({
+    columnNames: d.column_names,
+    lowerBound: d.lower_bound,
+    upperBound: d.upper_bound,
+  }));
 
 export const unmarshalRefreshSchema: z.ZodType<Refresh> = z
   .object({
@@ -881,8 +852,9 @@ export const unmarshalRefreshSchema: z.ZodType<Refresh> = z
     trigger: d.trigger,
   }));
 
-export const unmarshalSnapshotConfigSchema: z.ZodType<SnapshotConfig> =
-  z.object({});
+export const unmarshalSnapshotConfigSchema: z.ZodType<SnapshotConfig> = z
+  .object({
+  });
 
 export const unmarshalTimeSeriesConfigSchema: z.ZodType<TimeSeriesConfig> = z
   .object({
@@ -894,67 +866,57 @@ export const unmarshalTimeSeriesConfigSchema: z.ZodType<TimeSeriesConfig> = z
     granularities: d.granularities,
   }));
 
-export const unmarshalUniquenessValidityCheckSchema: z.ZodType<UniquenessValidityCheck> =
-  z
-    .object({
-      column_names: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      columnNames: d.column_names,
-    }));
+export const unmarshalUniquenessValidityCheckSchema: z.ZodType<UniquenessValidityCheck> = z
+  .object({
+    column_names: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    columnNames: d.column_names,
+  }));
 
-export const unmarshalUpdateMonitorRequestSchema: z.ZodType<UpdateMonitorRequest> =
-  z
-    .object({
-      object_type: z.string().optional(),
-      object_id: z.string().optional(),
-      monitor: z.lazy(() => unmarshalMonitorSchema).optional(),
-      update_mask: z.string().optional(),
-    })
-    .transform(d => ({
-      objectType: d.object_type,
-      objectId: d.object_id,
-      monitor: d.monitor,
-      updateMask: d.update_mask,
-    }));
+export const unmarshalUpdateMonitorRequestSchema: z.ZodType<UpdateMonitorRequest> = z
+  .object({
+    object_type: z.string().optional(),
+    object_id: z.string().optional(),
+    monitor: z.lazy(() => unmarshalMonitorSchema).optional(),
+    update_mask: z.string().transform(s => FieldMask.of(...(s === '' ? [] : s.split(','))) as FieldMask<FieldPaths<Monitor>>).optional(),
+  })
+  .transform(d => ({
+    objectType: d.object_type,
+    objectId: d.object_id,
+    monitor: d.monitor,
+    updateMask: d.update_mask,
+  }));
 
-export const unmarshalUpdateRefreshRequestSchema: z.ZodType<UpdateRefreshRequest> =
-  z
-    .object({
-      object_type: z.string().optional(),
-      object_id: z.string().optional(),
-      refresh_id: z.number().optional(),
-      refresh: z.lazy(() => unmarshalRefreshSchema).optional(),
-      update_mask: z.string().optional(),
-    })
-    .transform(d => ({
-      objectType: d.object_type,
-      objectId: d.object_id,
-      refreshId: d.refresh_id,
-      refresh: d.refresh,
-      updateMask: d.update_mask,
-    }));
+export const unmarshalUpdateRefreshRequestSchema: z.ZodType<UpdateRefreshRequest> = z
+  .object({
+    object_type: z.string().optional(),
+    object_id: z.string().optional(),
+    refresh_id: z.number().optional(),
+    refresh: z.lazy(() => unmarshalRefreshSchema).optional(),
+    update_mask: z.string().transform(s => FieldMask.of(...(s === '' ? [] : s.split(','))) as FieldMask<FieldPaths<Refresh>>).optional(),
+  })
+  .transform(d => ({
+    objectType: d.object_type,
+    objectId: d.object_id,
+    refreshId: d.refresh_id,
+    refresh: d.refresh,
+    updateMask: d.update_mask,
+  }));
 
-export const unmarshalValidityCheckConfigurationSchema: z.ZodType<ValidityCheckConfiguration> =
-  z
-    .object({
-      name: z.string().optional(),
-      percent_null_validity_check: z
-        .lazy(() => unmarshalPercentNullValidityCheckSchema)
-        .optional(),
-      range_validity_check: z
-        .lazy(() => unmarshalRangeValidityCheckSchema)
-        .optional(),
-      uniqueness_validity_check: z
-        .lazy(() => unmarshalUniquenessValidityCheckSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      percentNullValidityCheck: d.percent_null_validity_check,
-      rangeValidityCheck: d.range_validity_check,
-      uniquenessValidityCheck: d.uniqueness_validity_check,
-    }));
+export const unmarshalValidityCheckConfigurationSchema: z.ZodType<ValidityCheckConfiguration> = z
+  .object({
+    name: z.string().optional(),
+    percent_null_validity_check: z.lazy(() => unmarshalPercentNullValidityCheckSchema).optional(),
+    range_validity_check: z.lazy(() => unmarshalRangeValidityCheckSchema).optional(),
+    uniqueness_validity_check: z.lazy(() => unmarshalUniquenessValidityCheckSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    percentNullValidityCheck: d.percent_null_validity_check,
+    rangeValidityCheck: d.range_validity_check,
+    uniquenessValidityCheck: d.uniqueness_validity_check,
+  }));
 
 export const marshalAnomalyDetectionConfigSchema: z.ZodType = z
   .object({
@@ -962,9 +924,7 @@ export const marshalAnomalyDetectionConfigSchema: z.ZodType = z
     publishHealthIndicator: z.boolean().optional(),
     jobType: z.enum(AnomalyDetectionJobType).optional(),
     excludedTableFullNames: z.array(z.string()).optional(),
-    validityCheckConfigurations: z
-      .array(z.lazy(() => marshalValidityCheckConfigurationSchema))
-      .optional(),
+    validityCheckConfigurations: z.array(z.lazy(() => marshalValidityCheckConfigurationSchema)).optional(),
   })
   .transform(d => ({
     anomaly_detection_workflow_id: d.anomalyDetectionWorkflowId,
@@ -1030,14 +990,10 @@ export const marshalDataProfilingConfigSchema: z.ZodType = z
     timeSeries: z.lazy(() => marshalTimeSeriesConfigSchema).optional(),
     snapshot: z.lazy(() => marshalSnapshotConfigSchema).optional(),
     slicingExprs: z.array(z.string()).optional(),
-    customMetrics: z
-      .array(z.lazy(() => marshalDataProfilingCustomMetricSchema))
-      .optional(),
+    customMetrics: z.array(z.lazy(() => marshalDataProfilingCustomMetricSchema)).optional(),
     baselineTableName: z.string().optional(),
     schedule: z.lazy(() => marshalCronScheduleSchema).optional(),
-    notificationSettings: z
-      .lazy(() => marshalNotificationSettingsSchema)
-      .optional(),
+    notificationSettings: z.lazy(() => marshalNotificationSettingsSchema).optional(),
     skipBuiltinDashboard: z.boolean().optional(),
     warehouseId: z.string().optional(),
     monitoredTableName: z.string().optional(),
@@ -1200,12 +1156,8 @@ export const marshalMonitorSchema: z.ZodType = z
   .object({
     objectType: z.string().optional(),
     objectId: z.string().optional(),
-    anomalyDetectionConfig: z
-      .lazy(() => marshalAnomalyDetectionConfigSchema)
-      .optional(),
-    dataProfilingConfig: z
-      .lazy(() => marshalDataProfilingConfigSchema)
-      .optional(),
+    anomalyDetectionConfig: z.lazy(() => marshalAnomalyDetectionConfigSchema).optional(),
+    dataProfilingConfig: z.lazy(() => marshalDataProfilingConfigSchema).optional(),
   })
   .transform(d => ({
     object_type: d.objectType,
@@ -1274,7 +1226,9 @@ export const marshalRefreshSchema: z.ZodType = z
     trigger: d.trigger,
   }));
 
-export const marshalSnapshotConfigSchema: z.ZodType = z.object({});
+export const marshalSnapshotConfigSchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalTimeSeriesConfigSchema: z.ZodType = z
   .object({
@@ -1299,7 +1253,7 @@ export const marshalUpdateMonitorRequestSchema: z.ZodType = z
     objectType: z.string().optional(),
     objectId: z.string().optional(),
     monitor: z.lazy(() => marshalMonitorSchema).optional(),
-    updateMask: z.string().optional(),
+    updateMask: z.any().transform((d: FieldMask<FieldPaths<Monitor>>) => d.paths.join(',')).optional(),
   })
   .transform(d => ({
     object_type: d.objectType,
@@ -1314,7 +1268,7 @@ export const marshalUpdateRefreshRequestSchema: z.ZodType = z
     objectId: z.string().optional(),
     refreshId: z.number().optional(),
     refresh: z.lazy(() => marshalRefreshSchema).optional(),
-    updateMask: z.string().optional(),
+    updateMask: z.any().transform((d: FieldMask<FieldPaths<Refresh>>) => d.paths.join(',')).optional(),
   })
   .transform(d => ({
     object_type: d.objectType,
@@ -1327,15 +1281,9 @@ export const marshalUpdateRefreshRequestSchema: z.ZodType = z
 export const marshalValidityCheckConfigurationSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    percentNullValidityCheck: z
-      .lazy(() => marshalPercentNullValidityCheckSchema)
-      .optional(),
-    rangeValidityCheck: z
-      .lazy(() => marshalRangeValidityCheckSchema)
-      .optional(),
-    uniquenessValidityCheck: z
-      .lazy(() => marshalUniquenessValidityCheckSchema)
-      .optional(),
+    percentNullValidityCheck: z.lazy(() => marshalPercentNullValidityCheckSchema).optional(),
+    rangeValidityCheck: z.lazy(() => marshalRangeValidityCheckSchema).optional(),
+    uniquenessValidityCheck: z.lazy(() => marshalUniquenessValidityCheckSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
