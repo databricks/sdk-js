@@ -62,6 +62,8 @@ import {
   unmarshalStopRequest_ResponseSchema,
 } from './model';
 
+class StillRunningError extends Error {}
+
 export class Client {
   private readonly host: string;
   private readonly httpClient: HttpClient;
@@ -600,7 +602,6 @@ export class CreateWarehouseWaiter {
     signal: AbortSignal | undefined,
     options?: Options
   ): Promise<GetWarehouse_Response> {
-    const errStillRunning = new Error('waiting for completion');
     let result: GetWarehouse_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -627,14 +628,14 @@ export class CreateWarehouseWaiter {
           throw new Error(`terminal state ${status}: ${msg}`);
         }
         default:
-          throw errStillRunning;
+          throw new StillRunningError();
       }
     };
 
     const retryOptions: Options = {
       retrier: () =>
         retryOn({}, (err: Error) => {
-          return err.message.includes('waiting for completion');
+          return err instanceof StillRunningError;
         }),
     };
     await execute(signal, call, retryOptions);
@@ -688,7 +689,6 @@ export class EditWarehouseWaiter {
     signal: AbortSignal | undefined,
     options?: Options
   ): Promise<GetWarehouse_Response> {
-    const errStillRunning = new Error('waiting for completion');
     let result: GetWarehouse_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -715,14 +715,14 @@ export class EditWarehouseWaiter {
           throw new Error(`terminal state ${status}: ${msg}`);
         }
         default:
-          throw errStillRunning;
+          throw new StillRunningError();
       }
     };
 
     const retryOptions: Options = {
       retrier: () =>
         retryOn({}, (err: Error) => {
-          return err.message.includes('waiting for completion');
+          return err instanceof StillRunningError;
         }),
     };
     await execute(signal, call, retryOptions);
@@ -776,7 +776,6 @@ export class StartWarehouseWaiter {
     signal: AbortSignal | undefined,
     options?: Options
   ): Promise<GetWarehouse_Response> {
-    const errStillRunning = new Error('waiting for completion');
     let result: GetWarehouse_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -803,14 +802,14 @@ export class StartWarehouseWaiter {
           throw new Error(`terminal state ${status}: ${msg}`);
         }
         default:
-          throw errStillRunning;
+          throw new StillRunningError();
       }
     };
 
     const retryOptions: Options = {
       retrier: () =>
         retryOn({}, (err: Error) => {
-          return err.message.includes('waiting for completion');
+          return err instanceof StillRunningError;
         }),
     };
     await execute(signal, call, retryOptions);
@@ -864,7 +863,6 @@ export class StopWarehouseWaiter {
     signal: AbortSignal | undefined,
     options?: Options
   ): Promise<GetWarehouse_Response> {
-    const errStillRunning = new Error('waiting for completion');
     let result: GetWarehouse_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -886,14 +884,14 @@ export class StopWarehouseWaiter {
           result = pollResp;
           return;
         default:
-          throw errStillRunning;
+          throw new StillRunningError();
       }
     };
 
     const retryOptions: Options = {
       retrier: () =>
         retryOn({}, (err: Error) => {
-          return err.message.includes('waiting for completion');
+          return err instanceof StillRunningError;
         }),
     };
     await execute(signal, call, retryOptions);

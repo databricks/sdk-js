@@ -89,6 +89,8 @@ import {
   unmarshalGenieStartConversationResponseSchema,
 } from './model';
 
+class StillRunningError extends Error {}
+
 export class Client {
   private readonly host: string;
   private readonly httpClient: HttpClient;
@@ -1032,7 +1034,6 @@ export class GenieCreateConversationMessageWaiter {
     signal: AbortSignal | undefined,
     options?: Options
   ): Promise<GenieMessage> {
-    const errStillRunning = new Error('waiting for completion');
     let result: GenieMessage | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1060,14 +1061,14 @@ export class GenieCreateConversationMessageWaiter {
           throw new Error(`terminal state ${status}: ${msg}`);
         }
         default:
-          throw errStillRunning;
+          throw new StillRunningError();
       }
     };
 
     const retryOptions: Options = {
       retrier: () =>
         retryOn({}, (err: Error) => {
-          return err.message.includes('waiting for completion');
+          return err instanceof StillRunningError;
         }),
     };
     await execute(signal, call, retryOptions);
@@ -1124,7 +1125,6 @@ export class GenieStartConversationWaiter {
     signal: AbortSignal | undefined,
     options?: Options
   ): Promise<GenieMessage> {
-    const errStillRunning = new Error('waiting for completion');
     let result: GenieMessage | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1152,14 +1152,14 @@ export class GenieStartConversationWaiter {
           throw new Error(`terminal state ${status}: ${msg}`);
         }
         default:
-          throw errStillRunning;
+          throw new StillRunningError();
       }
     };
 
     const retryOptions: Options = {
       retrier: () =>
         retryOn({}, (err: Error) => {
-          return err.message.includes('waiting for completion');
+          return err instanceof StillRunningError;
         }),
     };
     await execute(signal, call, retryOptions);
