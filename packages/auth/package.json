@@ -30,5 +30,8 @@
   "license": "Apache-2.0",
   "engines": {
     "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
   }
 }
