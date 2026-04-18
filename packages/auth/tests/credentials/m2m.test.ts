@@ -1,9 +1,8 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
 import {ZodError} from 'zod';
 
-import type {M2mCredentialsErrorCode} from '../../src/credentials/errors';
-import {M2mCredentialsError} from '../../src/credentials/errors';
-import {newM2mCredentials} from '../../src/credentials/m2m';
+import type {M2mCredentialsErrorCode} from '../../src/credentials';
+import {M2mCredentialsError, newM2mCredentials} from '../../src/credentials';
 
 interface CapturedRequest {
   url: string;
@@ -176,6 +175,7 @@ describe('newM2mCredentials', () => {
         tokenEndpoint: TOKEN_ENDPOINT,
         ...(scopes !== undefined && {scopes}),
       });
+      expect(creds.name()).toBe('oauth-m2m');
       const token = await creds.token();
 
       expect(token.value).toBe(want.tokenValue);

@@ -83,7 +83,7 @@ export function newM2mCredentials(
     fetchAccessToken(options.tokenEndpoint, basicAuth, body)
   );
 
-  return newTokenCredentials(provider);
+  return newTokenCredentials('oauth-m2m', provider);
 }
 
 async function fetchAccessToken(

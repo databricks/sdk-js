@@ -1,6 +1,6 @@
 import {describe, it, expect} from 'vitest';
-import {newPatCredentials} from '../../src/credentials/pat';
 import type {Header} from '../../src/auth';
+import {newPatCredentials} from '../../src/credentials';
 
 describe('newPatCredentials', () => {
   const validCases: {name: string; token: string; expected: Header[]}[] = [
@@ -30,6 +30,10 @@ describe('newPatCredentials', () => {
     const headers1 = await credentials.authHeaders();
     const headers2 = await credentials.authHeaders();
     expect(headers1).toEqual(headers2);
+  });
+
+  it('exposes the pat strategy name', () => {
+    expect(newPatCredentials('test-token').name()).toBe('pat');
   });
 
   it('should throw for empty token with correct error name and message', () => {
