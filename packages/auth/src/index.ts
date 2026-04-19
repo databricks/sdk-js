@@ -15,4 +15,12 @@ export type {
 export {tokenProviderFn, newTokenCredentials} from './auth';
 
 // Credential implementations.
-export {newPatCredentials} from './credentials';
+export {
+  M2mCredentialsError,
+  newM2mCredentials,
+  newPatCredentials,
+} from './credentials';
+export type {
+  M2mCredentialsErrorCode,
+  M2mCredentialsOptions,
+} from './credentials';
