@@ -1,6 +1,18 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import type {JsonValue} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
+
+const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
+  z.union([
+    z.null(),
+    z.number(),
+    z.string(),
+    z.boolean(),
+    z.record(z.string(), jsonValueSchema),
+    z.array(jsonValueSchema),
+  ])
+);
 
 /** The name of the base data type. This doesn't include details for complex types such as STRUCT, MAP or ARRAY. */
 export enum ColumnTypeName {
@@ -407,7 +419,7 @@ export interface ResultData {
    * The `JSON_ARRAY` format is an array of arrays of values, where each non-null value is
    * formatted as a string. Null values are encoded as JSON `null`.
    */
-  dataArray?: unknown[][] | undefined;
+  dataArray?: JsonValue[][] | undefined;
   /** The position within the sequence of result set chunks. */
   chunkIndex?: number | undefined;
   /** The starting row offset within the result set. */
@@ -664,7 +676,7 @@ export const unmarshalResultDataSchema: z.ZodType<ResultData> = z
     external_links: z
       .array(z.lazy(() => unmarshalExternalLinkSchema))
       .optional(),
-    data_array: z.array(z.array(z.unknown())).optional(),
+    data_array: z.array(z.array(jsonValueSchema)).optional(),
     chunk_index: z.number().optional(),
     row_offset: z.number().optional(),
     row_count: z.number().optional(),
@@ -908,7 +920,7 @@ export const marshalQueryTagSchema: z.ZodType = z
 export const marshalResultDataSchema: z.ZodType = z
   .object({
     externalLinks: z.array(z.lazy(() => marshalExternalLinkSchema)).optional(),
-    dataArray: z.array(z.array(z.unknown())).optional(),
+    dataArray: z.array(z.array(jsonValueSchema)).optional(),
     chunkIndex: z.number().optional(),
     rowOffset: z.number().optional(),
     rowCount: z.number().optional(),

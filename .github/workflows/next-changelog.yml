@@ -1,0 +1,163 @@
+# Generated file. DO NOT EDIT.
+name: Check for NEXT_CHANGELOG.md Changes
+
+on:
+  # Use pull_request_target to have access to GitHub API
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  check-next-changelog:
+    # Allow Dependabot PRs to pass without a changelog entry
+    if: github.actor != 'dependabot[bot]'
+    runs-on:
+      group: databricks-deco-testing-runner-group
+      labels: ubuntu-latest-deco
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Fetch list of changed files
+        id: changed-files
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Use the GitHub API to fetch the list of changed files, one per
+          # line. Stored as a file so the verify step can read it without
+          # passing PR-controlled strings through a shell command.
+          gh pr view ${{ github.event.pull_request.number }} --json files -q '.files[].path' > modified_files.txt
+          echo "Changed files:"
+          cat modified_files.txt
+
+      - name: Fetch PR description
+        id: pr-message
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Fetch the PR body; the verify step reads this as a literal string
+          # in Python, so shell escape rules never apply to its content.
+          gh pr view ${{ github.event.pull_request.number }} --json body -q '.body' > pr_body.txt
+
+      - name: Verify NEXT_CHANGELOG.md was modified for each touched package
+        run: |
+          python3 <<'PYEOF'
+          import os
+          import re
+          import sys
+
+          # Read inputs written by the previous steps. Reading as literal
+          # strings keeps PR-controlled content safely inert.
+          modified = {l for l in open('modified_files.txt').read().splitlines() if l}
+          pr_body = open('pr_body.txt').read()
+
+          # Parse NO_CHANGELOG directive from the PR body.
+          #   NO_CHANGELOG=true              -> skip every package.
+          #   NO_CHANGELOG=<pkg1>,<pkg2>,... -> skip only the listed packages.
+          skip_all = False
+          skip_packages = set()
+          m = re.search(r'NO_CHANGELOG=(\S+)', pr_body)
+          if m:
+              val = m.group(1).strip()
+              if val == 'true':
+                  skip_all = True
+              else:
+                  skip_packages = {p.strip().rstrip('/') for p in val.split(',') if p.strip()}
+
+          if skip_all:
+              print("NO_CHANGELOG=true found in PR body. Skipping check.")
+              sys.exit(0)
+
+          # Discover packages the same way tagging.py does: any directory that
+          # contains a .package.json is a release unit with its own changelog.
+          packages = []
+          for dirpath, dirnames, filenames in os.walk('.'):
+              dirnames[:] = [d for d in dirnames if d not in ('.git', 'node_modules', 'dist')]
+              if '.package.json' in filenames:
+                  rel = os.path.relpath(dirpath, '.')
+                  packages.append('' if rel == '.' else rel)
+
+          # Sub-package prefixes so a root-level package doesn't double-count
+          # files that live under a nested package.
+          sub_prefixes = tuple(p + '/' for p in packages if p)
+
+          # For each package with modified files (excluding its own bookkeeping
+          # files), require that its NEXT_CHANGELOG.md was also modified.
+          missing = []
+          for pkg in packages:
+              prefix = pkg + '/' if pkg else ''
+              next_changelog = prefix + 'NEXT_CHANGELOG.md'
+              changelog = prefix + 'CHANGELOG.md'
+              package_file = prefix + '.package.json'
+              in_pkg = [
+                  f for f in modified
+                  if (not pkg or f.startswith(prefix))
+                  and f not in (changelog, package_file)
+              ]
+              if not pkg:
+                  in_pkg = [f for f in in_pkg if not f.startswith(sub_prefixes)]
+              if not in_pkg:
+                  continue
+              if next_changelog not in modified:
+                  missing.append((pkg or '.', next_changelog))
+
+          # Honor per-package NO_CHANGELOG overrides.
+          missing = [(pkg, chg) for pkg, chg in missing if pkg not in skip_packages]
+
+          if missing:
+              # Build the PR comment body and also emit it to the workflow log
+              # so failures are debuggable without clicking into the PR.
+              lines = [
+                  "<!-- NEXT_CHANGELOG_INSTRUCTIONS -->",
+                  "One or more packages were modified without updating their `NEXT_CHANGELOG.md`:",
+                  "",
+              ]
+              for pkg, chg in missing:
+                  lines.append(f"- `{pkg}` — expected a change to `{chg}`")
+              lines.append("")
+              lines.append("If this is intentional, add one of the following to the PR description and rerun this job:")
+              lines.append("")
+              lines.append("- `NO_CHANGELOG=true` — skip the check for every package.")
+              suggested = ",".join(pkg for pkg, _ in missing)
+              lines.append(f"- `NO_CHANGELOG={suggested}` — skip only the packages listed above.")
+              body = "\n".join(lines) + "\n"
+              with open('pr_comment.md', 'w') as f:
+                  f.write(body)
+              sys.stdout.write(body)
+              sys.exit(1)
+
+          print("All modified packages have NEXT_CHANGELOG.md entries.")
+          PYEOF
+
+      - name: Comment on PR with the list of missing packages
+        if: failure() # Only runs if the verify step failed.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Replace any previous instructions comment so the list reflects the
+          # current PR state instead of accumulating stale entries.
+          previous_comment_ids=$(gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
+            --jq '.[] | select(.body | startswith("<!-- NEXT_CHANGELOG_INSTRUCTIONS -->")) | .id')
+          echo "Previous comment IDs: $previous_comment_ids"
+          for id in $previous_comment_ids; do
+            gh api "repos/${{ github.repository }}/issues/comments/$id" --method DELETE
+          done
+          gh pr comment ${{ github.event.pull_request.number }} --body-file pr_comment.md
+
+      - name: Delete instructions comment on success
+        if: success() # Only runs if the verify step passed.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Clean up any previous instructions comment now that the check is
+          # green.
+          previous_comment_ids=$(gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
+            --jq '.[] | select(.body | startswith("<!-- NEXT_CHANGELOG_INSTRUCTIONS -->")) | .id')
+          if [ -n "$previous_comment_ids" ]; then
+            echo "Deleting previous instructions comments: $previous_comment_ids"
+            for id in $previous_comment_ids; do
+              gh api "repos/${{ github.repository }}/issues/comments/$id" --method DELETE
+            done
+          else
+            echo "No instructions comment found to delete."
+          fi

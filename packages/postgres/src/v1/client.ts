@@ -35,6 +35,8 @@ import type {
   DeleteCatalogRequest,
   DeleteDatabaseRequest,
   DeleteEndpointRequest,
+  DeleteForwardEtlConfigurationRequest,
+  DeleteForwardEtlConfigurationResponse,
   DeleteProjectRequest,
   DeleteRoleRequest,
   DeleteSyncedTableRequest,
@@ -79,6 +81,7 @@ import type {
   SyncedTableOperationMetadata,
   Table,
   UndeleteBranchRequest,
+  UndeleteProjectRequest,
   UpdateBranchRequest,
   UpdateDatabaseRequest,
   UpdateEndpointRequest,
@@ -96,6 +99,7 @@ import {
   marshalSyncedTableSchema,
   marshalTableSchema,
   marshalUndeleteBranchRequestSchema,
+  marshalUndeleteProjectRequestSchema,
   unmarshalBranchOperationMetadataSchema,
   unmarshalBranchSchema,
   unmarshalCatalogOperationMetadataSchema,
@@ -104,6 +108,7 @@ import {
   unmarshalDatabaseCredentialSchema,
   unmarshalDatabaseOperationMetadataSchema,
   unmarshalDatabaseSchema,
+  unmarshalDeleteForwardEtlConfigurationResponseSchema,
   unmarshalDisableForwardEtlResponseSchema,
   unmarshalEndpointOperationMetadataSchema,
   unmarshalEndpointSchema,
@@ -589,6 +594,51 @@ export class Client {
     return new DeleteEndpointOperation(this, op);
   }
 
+  /**
+   * Hard delete a Forward ETL configuration and all associated table mappings.
+   * Unlike DisableForwardEtl, this permanently removes the config and mapping rows.
+   */
+  async deleteForwardEtlConfiguration(
+    signal: AbortSignal | undefined,
+    req: DeleteForwardEtlConfigurationRequest,
+    options?: Options
+  ): Promise<DeleteForwardEtlConfigurationResponse> {
+    const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/forward-etl/configuration`;
+    const params = new URLSearchParams();
+    if (req.tenantId !== undefined) {
+      params.append('tenant_id', req.tenantId);
+    }
+    if (req.timelineId !== undefined) {
+      params.append('timeline_id', req.timelineId);
+    }
+    if (req.pgDatabaseOid !== undefined) {
+      params.append('pg_database_oid', String(req.pgDatabaseOid));
+    }
+    if (req.pgSchemaOid !== undefined) {
+      params.append('pg_schema_oid', String(req.pgSchemaOid));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: DeleteForwardEtlConfigurationResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const httpReq = buildHttpRequest('DELETE', fullUrl, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalDeleteForwardEtlConfigurationResponseSchema
+      );
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
   /** Deletes the specified database project. */
   async deleteProject(
     signal: AbortSignal | undefined,
@@ -596,9 +646,15 @@ export class Client {
     options?: Options
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.purge !== undefined) {
+      params.append('purge', String(req.purge));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
+      const httpReq = buildHttpRequest('DELETE', fullUrl, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1438,6 +1494,40 @@ export class Client {
   ): Promise<UndeleteBranchOperation> {
     const op = await this.undeleteBranch(signal, req, options);
     return new UndeleteBranchOperation(this, op);
+  }
+
+  /** Undeletes a soft-deleted project. */
+  async undeleteProject(
+    signal: AbortSignal | undefined,
+    req: UndeleteProjectRequest,
+    options?: Options
+  ): Promise<Operation> {
+    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}/undelete`;
+    const body = marshalRequest(req, marshalUndeleteProjectRequestSchema);
+    let resp: Operation | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalOperationSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async undeleteProjectOperation(
+    signal: AbortSignal | undefined,
+    req: UndeleteProjectRequest,
+    options?: Options
+  ): Promise<UndeleteProjectOperation> {
+    const op = await this.undeleteProject(signal, req, options);
+    return new UndeleteProjectOperation(this, op);
   }
 
   /** Updates the specified database branch. You can set this branch as the project's default branch, or protect/unprotect it. */
@@ -2983,6 +3073,95 @@ export class UndeleteBranchOperation {
     return Promise.resolve(
       z
         .lazy(() => unmarshalBranchOperationMetadataSchema)
+        .parse(this.operation.metadata)
+    );
+  }
+
+  /**
+   * Polls the operation until it completes.
+   *
+   * Throws if the operation failed.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<void> {
+    const errStillRunning = new Error('operation still in progress');
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const op = await this.client.getOperation(
+        callSignal,
+        {
+          name: this.operation.name,
+        },
+        options
+      );
+      this.operation = op;
+      if (op.done === undefined) {
+        throw new Error('operation is missing the done field');
+      }
+      if (!op.done) {
+        throw errStillRunning;
+      }
+
+      if (op.error !== undefined) {
+        const msg =
+          op.error.message !== undefined && op.error.message !== ''
+            ? op.error.message
+            : 'unknown error';
+        const errorMsg =
+          op.error.errorCode !== undefined
+            ? `[${op.error.errorCode}] ${msg}`
+            : msg;
+        throw new Error(`operation failed: ${errorMsg}`, {
+          cause: op.error,
+        });
+      }
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err.message.includes('operation still in progress');
+        }),
+    };
+    await execute(signal, call, retryOptions);
+  }
+
+  /** Checks whether the operation has completed */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean | undefined> {
+    const op = await this.client.getOperation(
+      signal,
+      {name: this.operation.name},
+      options
+    );
+    this.operation = op;
+    return op.done;
+  }
+}
+
+export class UndeleteProjectOperation {
+  constructor(
+    private readonly client: Client,
+    private operation: Operation
+  ) {}
+
+  /** Returns the server-assigned name of the long-running operation. */
+  name(): Promise<string | undefined> {
+    return Promise.resolve(this.operation.name);
+  }
+
+  /** Returns metadata associated with the long-running operation. */
+  metadata(): Promise<ProjectOperationMetadata | undefined> {
+    if (this.operation.metadata === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(
+      z
+        .lazy(() => unmarshalProjectOperationMetadataSchema)
         .parse(this.operation.metadata)
     );
   }

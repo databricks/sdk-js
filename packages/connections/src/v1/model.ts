@@ -2,7 +2,7 @@
 
 import {z} from 'zod';
 
-/** Next Id: 75 */
+/** Next Id: 76 */
 export enum ConnectionType {
   UNKNOWN_CONNECTION_TYPE = 'UNKNOWN_CONNECTION_TYPE',
   MYSQL = 'MYSQL',
@@ -26,6 +26,7 @@ export enum ConnectionType {
   HTTP = 'HTTP',
   POWER_BI = 'POWER_BI',
   BIGLAKE = 'BIGLAKE',
+  GOOGLE_CLOUD_LAKEHOUSE = 'GOOGLE_CLOUD_LAKEHOUSE',
 }
 
 /** Next Id: 18 */
@@ -147,6 +148,11 @@ export interface ConnectionInfo_SecretsEntry {
 }
 
 export interface CreateConnection {
+  /**
+   * Parent schema for schema-level connections, in format "schemas/{catalog}.{schema}".
+   * Absent for metastore-level (L1) connections.
+   */
+  parent?: string | undefined;
   /** Name of the connection. */
   name?: string | undefined;
   /** The type of connection. */
@@ -237,6 +243,8 @@ export interface ListConnections {
   maxResults?: number | undefined;
   /** Opaque pagination token to go to next page based on previous query. */
   pageToken?: string | undefined;
+  /** Optional. Parent schema filter for listing schema-level connections, in format "schemas/{catalog}.{schema}". */
+  parent?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -408,6 +416,7 @@ export const unmarshalConnectionInfo_SecretsEntrySchema: z.ZodType<ConnectionInf
 
 export const unmarshalCreateConnectionSchema: z.ZodType<CreateConnection> = z
   .object({
+    parent: z.string().optional(),
     name: z.string().optional(),
     connection_type: z.enum(ConnectionType).optional(),
     owner: z.string().optional(),
@@ -432,6 +441,7 @@ export const unmarshalCreateConnectionSchema: z.ZodType<CreateConnection> = z
     properties: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
+    parent: d.parent,
     name: d.name,
     connectionType: d.connection_type,
     owner: d.owner,
@@ -525,10 +535,12 @@ export const unmarshalListConnectionsSchema: z.ZodType<ListConnections> = z
   .object({
     max_results: z.number().optional(),
     page_token: z.string().optional(),
+    parent: z.string().optional(),
   })
   .transform(d => ({
     maxResults: d.max_results,
     pageToken: d.page_token,
+    parent: d.parent,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -724,6 +736,7 @@ export const marshalConnectionInfo_SecretsEntrySchema: z.ZodType = z
 
 export const marshalCreateConnectionSchema: z.ZodType = z
   .object({
+    parent: z.string().optional(),
     name: z.string().optional(),
     connectionType: z.enum(ConnectionType).optional(),
     owner: z.string().optional(),
@@ -748,6 +761,7 @@ export const marshalCreateConnectionSchema: z.ZodType = z
     properties: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
+    parent: d.parent,
     name: d.name,
     connection_type: d.connectionType,
     owner: d.owner,
@@ -836,10 +850,12 @@ export const marshalListConnectionsSchema: z.ZodType = z
   .object({
     maxResults: z.number().optional(),
     pageToken: z.string().optional(),
+    parent: z.string().optional(),
   })
   .transform(d => ({
     max_results: d.maxResults,
     page_token: d.pageToken,
+    parent: d.parent,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

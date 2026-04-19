@@ -1,6 +1,10 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {Client} from './client';
+export {
+  Client,
+  GenieCreateConversationMessageWaiter,
+  GenieStartConversationWaiter,
+} from './client';
 
 export {
   ColumnTypeName,

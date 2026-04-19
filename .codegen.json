@@ -1,3 +1,6 @@
 {
-    "mode": "sdk-js"
+    "mode": "sdk-js",
+    "version": {
+        "package.json": "\"version\": \"$VERSION\""
+    }
 }

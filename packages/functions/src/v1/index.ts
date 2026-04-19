@@ -28,6 +28,8 @@ export type {
   GetFunction,
   ListFunctions,
   ListFunctions_Response,
+  SecretDependency,
   TableDependency,
   UpdateFunction,
+  VolumeDependency,
 } from './model';

@@ -1,7 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import type {Call, Options} from '@databricks/sdk-databricks/api';
-import {execute} from '@databricks/sdk-databricks/api';
+import {execute, retryOn} from '@databricks/sdk-databricks/api';
 import type {Logger} from '@databricks/sdk-databricks/logger';
 import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
@@ -60,6 +60,7 @@ import type {
   GenieUpdateSpaceRequest,
 } from './model';
 import {
+  MessageStatus_MessageStatus,
   marshalGenieCreateConversationMessageRequestSchema,
   marshalGenieCreateEvalRunRequestSchema,
   marshalGenieCreateMessageCommentRequestSchema,
@@ -87,6 +88,8 @@ import {
   unmarshalGenieSpaceSchema,
   unmarshalGenieStartConversationResponseSchema,
 } from './model';
+
+class StillRunningError extends Error {}
 
 export class Client {
   private readonly host: string;
@@ -156,6 +159,37 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async genieCreateConversationMessageWaiter(
+    signal: AbortSignal | undefined,
+    req: GenieCreateConversationMessageRequest,
+    options?: Options
+  ): Promise<GenieCreateConversationMessageWaiter> {
+    const resp = await this.genieCreateConversationMessage(
+      signal,
+      req,
+      options
+    );
+    if (resp.messageId === undefined) {
+      throw new Error(
+        'response field messageId required for polling is missing'
+      );
+    }
+    if (req.conversationId === undefined) {
+      throw new Error(
+        'request field conversationId required for polling is missing'
+      );
+    }
+    if (req.spaceId === undefined) {
+      throw new Error('request field spaceId required for polling is missing');
+    }
+    return new GenieCreateConversationMessageWaiter(
+      this,
+      resp.messageId,
+      req.conversationId,
+      req.spaceId
+    );
   }
 
   /** Create and run evaluations for multiple benchmark questions in a Genie space. */
@@ -912,6 +946,33 @@ export class Client {
     return resp;
   }
 
+  async genieStartConversationWaiter(
+    signal: AbortSignal | undefined,
+    req: GenieStartConversationMessageRequest,
+    options?: Options
+  ): Promise<GenieStartConversationWaiter> {
+    const resp = await this.genieStartConversation(signal, req, options);
+    if (resp.messageId === undefined) {
+      throw new Error(
+        'response field messageId required for polling is missing'
+      );
+    }
+    if (resp.conversationId === undefined) {
+      throw new Error(
+        'response field conversationId required for polling is missing'
+      );
+    }
+    if (req.spaceId === undefined) {
+      throw new Error('request field spaceId required for polling is missing');
+    }
+    return new GenieStartConversationWaiter(
+      this,
+      resp.messageId,
+      resp.conversationId,
+      req.spaceId
+    );
+  }
+
   /** Move a Genie Space to the trash. */
   async genieTrashSpace(
     signal: AbortSignal | undefined,
@@ -953,5 +1014,187 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+}
+
+export class GenieCreateConversationMessageWaiter {
+  constructor(
+    private readonly client: Client,
+    readonly messageId: string,
+    readonly conversationId: string,
+    readonly spaceId: string
+  ) {}
+
+  /**
+   * Polls until the operation reaches a terminal state.
+   *
+   * Throws if a failure state is reached.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<GenieMessage> {
+    let result: GenieMessage | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const pollResp = await this.client.genieGetConversationMessage(
+        callSignal,
+        {
+          messageId: this.messageId,
+          conversationId: this.conversationId,
+          spaceId: this.spaceId,
+        },
+        options
+      );
+
+      const status = pollResp.status;
+      if (status === undefined) {
+        throw new Error('response missing required status field');
+      }
+
+      switch (status) {
+        case MessageStatus_MessageStatus.COMPLETED:
+          result = pollResp;
+          return;
+        case MessageStatus_MessageStatus.FAILED: {
+          const msg = '(no message)';
+          throw new Error(`terminal state ${status}: ${msg}`);
+        }
+        default:
+          throw new StillRunningError();
+      }
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err instanceof StillRunningError;
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has reached a terminal state. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const pollResp = await this.client.genieGetConversationMessage(
+      signal,
+      {
+        messageId: this.messageId,
+        conversationId: this.conversationId,
+        spaceId: this.spaceId,
+      },
+      options
+    );
+
+    const status = pollResp.status;
+    if (status === undefined) {
+      throw new Error('response missing required status field');
+    }
+
+    switch (status) {
+      case MessageStatus_MessageStatus.COMPLETED:
+      case MessageStatus_MessageStatus.FAILED:
+        return true;
+      default:
+        return false;
+    }
+  }
+}
+
+export class GenieStartConversationWaiter {
+  constructor(
+    private readonly client: Client,
+    readonly messageId: string,
+    readonly conversationId: string,
+    readonly spaceId: string
+  ) {}
+
+  /**
+   * Polls until the operation reaches a terminal state.
+   *
+   * Throws if a failure state is reached.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<GenieMessage> {
+    let result: GenieMessage | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const pollResp = await this.client.genieGetConversationMessage(
+        callSignal,
+        {
+          messageId: this.messageId,
+          conversationId: this.conversationId,
+          spaceId: this.spaceId,
+        },
+        options
+      );
+
+      const status = pollResp.status;
+      if (status === undefined) {
+        throw new Error('response missing required status field');
+      }
+
+      switch (status) {
+        case MessageStatus_MessageStatus.COMPLETED:
+          result = pollResp;
+          return;
+        case MessageStatus_MessageStatus.FAILED: {
+          const msg = '(no message)';
+          throw new Error(`terminal state ${status}: ${msg}`);
+        }
+        default:
+          throw new StillRunningError();
+      }
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err instanceof StillRunningError;
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has reached a terminal state. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const pollResp = await this.client.genieGetConversationMessage(
+      signal,
+      {
+        messageId: this.messageId,
+        conversationId: this.conversationId,
+        spaceId: this.spaceId,
+      },
+      options
+    );
+
+    const status = pollResp.status;
+    if (status === undefined) {
+      throw new Error('response missing required status field');
+    }
+
+    switch (status) {
+      case MessageStatus_MessageStatus.COMPLETED:
+      case MessageStatus_MessageStatus.FAILED:
+        return true;
+      default:
+        return false;
+    }
   }
 }

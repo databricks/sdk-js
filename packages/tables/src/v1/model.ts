@@ -27,6 +27,7 @@ export enum ColumnTypeName {
   GEOMETRY = 'GEOMETRY',
   GEOGRAPHY = 'GEOGRAPHY',
   TIME = 'TIME',
+  FILE = 'FILE',
   TABLE_TYPE = 'TABLE_TYPE',
 }
 
@@ -436,13 +437,17 @@ export interface DeltaRuntimePropertiesKvPairs_DeltaRuntimePropertiesEntry {
 
 /**
  * A dependency of a SQL object. One of the following fields must be defined:
- * __table__, __function__, __connection__, or __credential__.
+ * __table__, __function__, __connection__, __credential__, __volume__, or __secret__.
  */
 export interface Dependency {
   table?: TableDependency | undefined;
   function?: FunctionDependency | undefined;
   connection?: ConnectionDependency | undefined;
   credential?: CredentialDependency | undefined;
+  /** A dependency on a Unity Catalog volume. */
+  volume?: VolumeDependency | undefined;
+  /** A dependency on a Unity Catalog secret. */
+  secret?: SecretDependency | undefined;
 }
 
 /** A list of dependencies. */
@@ -663,6 +668,12 @@ export interface RowFilter {
   inputArguments?: PolicyFunctionArgument[] | undefined;
 }
 
+/** A secret that is dependent on a SQL object. */
+export interface SecretDependency {
+  /** Full name of the dependent secret, in the form of __catalog_name__.__schema_name__.__secret_name__. */
+  secretFullName?: string | undefined;
+}
+
 /** Manifest of a specific securable kind. */
 export interface SecurableKindManifest {
   /** Securable Type of the kind. */
@@ -881,6 +892,12 @@ export interface UpdateTable_PropertiesEntry {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
 export interface UpdateTable_Response {}
+
+/** A volume that is dependent on a SQL object. */
+export interface VolumeDependency {
+  /** Full name of the dependent volume, in the form of __catalog_name__.__schema_name__.__volume_name__. */
+  volumeFullName?: string | undefined;
+}
 
 export const unmarshalColumnInfoSchema: z.ZodType<ColumnInfo> = z
   .object({
@@ -1117,12 +1134,16 @@ export const unmarshalDependencySchema: z.ZodType<Dependency> = z
     function: z.lazy(() => unmarshalFunctionDependencySchema).optional(),
     connection: z.lazy(() => unmarshalConnectionDependencySchema).optional(),
     credential: z.lazy(() => unmarshalCredentialDependencySchema).optional(),
+    volume: z.lazy(() => unmarshalVolumeDependencySchema).optional(),
+    secret: z.lazy(() => unmarshalSecretDependencySchema).optional(),
   })
   .transform(d => ({
     table: d.table,
     function: d.function,
     connection: d.connection,
     credential: d.credential,
+    volume: d.volume,
+    secret: d.secret,
   }));
 
 export const unmarshalDependencyListSchema: z.ZodType<DependencyList> = z
@@ -1348,6 +1369,14 @@ export const unmarshalRowFilterSchema: z.ZodType<RowFilter> = z
     functionName: d.function_name,
     inputColumnNames: d.input_column_names,
     inputArguments: d.input_arguments,
+  }));
+
+export const unmarshalSecretDependencySchema: z.ZodType<SecretDependency> = z
+  .object({
+    secret_full_name: z.string().optional(),
+  })
+  .transform(d => ({
+    secretFullName: d.secret_full_name,
   }));
 
 export const unmarshalSecurableKindManifestSchema: z.ZodType<SecurableKindManifest> =
@@ -1632,6 +1661,14 @@ export const unmarshalUpdateTable_PropertiesEntrySchema: z.ZodType<UpdateTable_P
 export const unmarshalUpdateTable_ResponseSchema: z.ZodType<UpdateTable_Response> =
   z.object({});
 
+export const unmarshalVolumeDependencySchema: z.ZodType<VolumeDependency> = z
+  .object({
+    volume_full_name: z.string().optional(),
+  })
+  .transform(d => ({
+    volumeFullName: d.volume_full_name,
+  }));
+
 export const marshalColumnInfoSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1858,12 +1895,16 @@ export const marshalDependencySchema: z.ZodType = z
     function: z.lazy(() => marshalFunctionDependencySchema).optional(),
     connection: z.lazy(() => marshalConnectionDependencySchema).optional(),
     credential: z.lazy(() => marshalCredentialDependencySchema).optional(),
+    volume: z.lazy(() => marshalVolumeDependencySchema).optional(),
+    secret: z.lazy(() => marshalSecretDependencySchema).optional(),
   })
   .transform(d => ({
     table: d.table,
     function: d.function,
     connection: d.connection,
     credential: d.credential,
+    volume: d.volume,
+    secret: d.secret,
   }));
 
 export const marshalDependencyListSchema: z.ZodType = z
@@ -2080,6 +2121,14 @@ export const marshalRowFilterSchema: z.ZodType = z
     function_name: d.functionName,
     input_column_names: d.inputColumnNames,
     input_arguments: d.inputArguments,
+  }));
+
+export const marshalSecretDependencySchema: z.ZodType = z
+  .object({
+    secretFullName: z.string().optional(),
+  })
+  .transform(d => ({
+    secret_full_name: d.secretFullName,
   }));
 
 export const marshalSecurableKindManifestSchema: z.ZodType = z
@@ -2353,3 +2402,11 @@ export const marshalUpdateTable_PropertiesEntrySchema: z.ZodType = z
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalUpdateTable_ResponseSchema: z.ZodType = z.object({});
+
+export const marshalVolumeDependencySchema: z.ZodType = z
+  .object({
+    volumeFullName: z.string().optional(),
+  })
+  .transform(d => ({
+    volume_full_name: d.volumeFullName,
+  }));

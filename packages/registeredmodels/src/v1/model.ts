@@ -85,13 +85,17 @@ export interface DeleteRegisteredModelAlias_Response {}
 
 /**
  * A dependency of a SQL object. One of the following fields must be defined:
- * __table__, __function__, __connection__, or __credential__.
+ * __table__, __function__, __connection__, __credential__, __volume__, or __secret__.
  */
 export interface Dependency {
   table?: TableDependency | undefined;
   function?: FunctionDependency | undefined;
   connection?: ConnectionDependency | undefined;
   credential?: CredentialDependency | undefined;
+  /** A dependency on a Unity Catalog volume. */
+  volume?: VolumeDependency | undefined;
+  /** A dependency on a Unity Catalog secret. */
+  secret?: SecretDependency | undefined;
 }
 
 /** A list of dependencies. */
@@ -299,6 +303,12 @@ export interface RegisteredModelInfo {
   browseOnly?: boolean | undefined;
 }
 
+/** A secret that is dependent on a SQL object. */
+export interface SecretDependency {
+  /** Full name of the dependent secret, in the form of __catalog_name__.__schema_name__.__secret_name__. */
+  secretFullName?: string | undefined;
+}
+
 export interface SetRegisteredModelAlias {
   /** The three-level (fully qualified) name of the registered model */
   fullNameArg?: string | undefined;
@@ -399,6 +409,12 @@ export interface UpdateRegisteredModel {
   aliases?: RegisteredModelAliasInfo[] | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
   browseOnly?: boolean | undefined;
+}
+
+/** A volume that is dependent on a SQL object. */
+export interface VolumeDependency {
+  /** Full name of the dependent volume, in the form of __catalog_name__.__schema_name__.__volume_name__. */
+  volumeFullName?: string | undefined;
 }
 
 export const unmarshalConnectionDependencySchema: z.ZodType<ConnectionDependency> =
@@ -505,12 +521,16 @@ export const unmarshalDependencySchema: z.ZodType<Dependency> = z
     function: z.lazy(() => unmarshalFunctionDependencySchema).optional(),
     connection: z.lazy(() => unmarshalConnectionDependencySchema).optional(),
     credential: z.lazy(() => unmarshalCredentialDependencySchema).optional(),
+    volume: z.lazy(() => unmarshalVolumeDependencySchema).optional(),
+    secret: z.lazy(() => unmarshalSecretDependencySchema).optional(),
   })
   .transform(d => ({
     table: d.table,
     function: d.function,
     connection: d.connection,
     credential: d.credential,
+    volume: d.volume,
+    secret: d.secret,
   }));
 
 export const unmarshalDependencyListSchema: z.ZodType<DependencyList> = z
@@ -731,6 +751,14 @@ export const unmarshalRegisteredModelInfoSchema: z.ZodType<RegisteredModelInfo> 
       browseOnly: d.browse_only,
     }));
 
+export const unmarshalSecretDependencySchema: z.ZodType<SecretDependency> = z
+  .object({
+    secret_full_name: z.string().optional(),
+  })
+  .transform(d => ({
+    secretFullName: d.secret_full_name,
+  }));
+
 export const unmarshalSetRegisteredModelAliasSchema: z.ZodType<SetRegisteredModelAlias> =
   z
     .object({
@@ -844,6 +872,14 @@ export const unmarshalUpdateRegisteredModelSchema: z.ZodType<UpdateRegisteredMod
       browseOnly: d.browse_only,
     }));
 
+export const unmarshalVolumeDependencySchema: z.ZodType<VolumeDependency> = z
+  .object({
+    volume_full_name: z.string().optional(),
+  })
+  .transform(d => ({
+    volumeFullName: d.volume_full_name,
+  }));
+
 export const marshalConnectionDependencySchema: z.ZodType = z
   .object({
     connectionName: z.string().optional(),
@@ -942,12 +978,16 @@ export const marshalDependencySchema: z.ZodType = z
     function: z.lazy(() => marshalFunctionDependencySchema).optional(),
     connection: z.lazy(() => marshalConnectionDependencySchema).optional(),
     credential: z.lazy(() => marshalCredentialDependencySchema).optional(),
+    volume: z.lazy(() => marshalVolumeDependencySchema).optional(),
+    secret: z.lazy(() => marshalSecretDependencySchema).optional(),
   })
   .transform(d => ({
     table: d.table,
     function: d.function,
     connection: d.connection,
     credential: d.credential,
+    volume: d.volume,
+    secret: d.secret,
   }));
 
 export const marshalDependencyListSchema: z.ZodType = z
@@ -1160,6 +1200,14 @@ export const marshalRegisteredModelInfoSchema: z.ZodType = z
     browse_only: d.browseOnly,
   }));
 
+export const marshalSecretDependencySchema: z.ZodType = z
+  .object({
+    secretFullName: z.string().optional(),
+  })
+  .transform(d => ({
+    secret_full_name: d.secretFullName,
+  }));
+
 export const marshalSetRegisteredModelAliasSchema: z.ZodType = z
   .object({
     fullNameArg: z.string().optional(),
@@ -1268,4 +1316,12 @@ export const marshalUpdateRegisteredModelSchema: z.ZodType = z
     updated_by: d.updatedBy,
     aliases: d.aliases,
     browse_only: d.browseOnly,
+  }));
+
+export const marshalVolumeDependencySchema: z.ZodType = z
+  .object({
+    volumeFullName: z.string().optional(),
+  })
+  .transform(d => ({
+    volume_full_name: d.volumeFullName,
   }));
