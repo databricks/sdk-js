@@ -1,0 +1,115 @@
+name: Prepare Release
+
+on:
+  push:
+    # Per-package tags produced by tagging.py, e.g. "settings/v0.2.0".
+    # Each tag push fires an independent prepare-release run, producing one
+    # tarball ready for release.
+    tags:
+      - "*/v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to prepare (e.g. settings/v0.2.0)"
+        required: true
+        type: string
+
+concurrency:
+  group: prepare-release-${{ github.ref_name || inputs.tag }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  prepare:
+    name: Prepare ${{ github.ref_name || inputs.tag }}
+    runs-on:
+      group: databricks-protected-runner-group
+      labels: linux-ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          # Fetch tags + full history so git for-each-ref can read the
+          # annotated tag body (where tagging.py stores release notes).
+          fetch-depth: 0
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: Parse tag into package and version
+        id: parse
+        run: |
+          tag="${{ inputs.tag || github.ref_name }}"
+          package="${tag%/v*}"
+          version="${tag##*/v}"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "package=$package" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Parsed tag=$tag package=$package version=$version"
+
+      - name: Validate package directory exists
+        run: |
+          if [ ! -f "packages/${{ steps.parse.outputs.package }}/package.json" ]; then
+            echo "::error::No package.json at packages/${{ steps.parse.outputs.package }}/"
+            echo "Tag ${{ steps.parse.outputs.tag }} does not correspond to a workspace package."
+            exit 1
+          fi
+
+      - name: Setup JFrog CLI
+        uses: jfrog/setup-jfrog-cli@279b1f629f43dd5bc658d8361ac4802a7ef8d2d5 # v4.9.1
+        env:
+          JF_URL: https://databricks.jfrog.io
+        with:
+          oidc-provider-name: github-actions
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Configure npm for JFrog
+        run: jf npmc --repo-resolve=db-npm
+
+      - name: Install dependencies
+        run: jf npm ci
+
+      - name: Build workspace
+        run: npm run build
+
+      - name: Pack package tarball
+        id: pack
+        working-directory: packages/${{ steps.parse.outputs.package }}
+        run: |
+          # npm pack emits the filename on stdout; capture it so release can
+          # match it without guessing the scope's underscore-encoding.
+          tarball=$(npm pack --silent)
+          echo "tarball=packages/${{ steps.parse.outputs.package }}/${tarball}" >> "$GITHUB_OUTPUT"
+          echo "Packed $tarball"
+
+      - name: Stage release artifacts
+        id: stage
+        run: |
+          mkdir -p release-artifacts
+          cp "${{ steps.pack.outputs.tarball }}" release-artifacts/
+          echo "${{ steps.parse.outputs.version }}" > release-artifacts/VERSION
+          echo "${{ steps.parse.outputs.package }}" > release-artifacts/PACKAGE
+          echo "${{ steps.parse.outputs.tag }}" > release-artifacts/TAG
+          # tagging.py embeds the NEXT_CHANGELOG section into the annotated
+          # tag body; extract it verbatim for release to attach to the GitHub
+          # release.
+          git for-each-ref --format='%(body)' "refs/tags/${{ steps.parse.outputs.tag }}" > release-artifacts/changelog-diff.md
+          (cd release-artifacts && sha256sum *.tgz VERSION PACKAGE TAG changelog-diff.md > SHA256SUMS)
+          echo "Artifacts staged:"
+          ls -la release-artifacts/
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
+        with:
+          name: sdk-js-release-${{ github.run_number }}
+          retention-days: 7
+          if-no-files-found: error
+          path: release-artifacts/
