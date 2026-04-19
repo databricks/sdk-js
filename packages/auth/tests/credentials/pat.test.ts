@@ -1,6 +1,9 @@
 import {describe, it, expect} from 'vitest';
 import type {Header} from '../../src/auth';
-import {newPatCredentials} from '../../src/credentials';
+// Import from the specific module rather than the barrel because the barrel
+// re-exports Node-only credentials (`newU2mCredentials`) that can't load in
+// browser test runs.
+import {newPatCredentials} from '../../src/credentials/pat';
 
 describe('newPatCredentials', () => {
   const validCases: {name: string; token: string; expected: Header[]}[] = [

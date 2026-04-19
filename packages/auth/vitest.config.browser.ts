@@ -9,5 +9,6 @@ export default defineConfig({
       headless: true,
     },
     include: ['tests/**/*.test.ts'],
+    exclude: ['tests/credentials/u2m.test.ts'],
   },
 });
