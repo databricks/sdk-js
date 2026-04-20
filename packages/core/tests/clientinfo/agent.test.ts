@@ -1,6 +1,9 @@
 import {describe, it, expect, beforeEach, afterEach} from 'vitest';
-import {agentProvider} from '../../src/clientinfo';
-import {clearAgentCache, lookupAgentProvider} from '../../src/clientinfo/agent';
+import {
+  agentProvider,
+  clearAgentCache,
+  lookupAgentProvider,
+} from '../../src/clientinfo/agent';
 
 describe('lookupAgentProvider', () => {
   let savedEnv: NodeJS.ProcessEnv;
