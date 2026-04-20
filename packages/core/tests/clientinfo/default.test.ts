@@ -72,9 +72,9 @@ describe('createDefault', () => {
       want: `${prefix} agent/claude-code`,
     },
     {
-      name: 'multiple agents are ambiguous and omit the agent segment',
+      name: 'multiple agents report the multiple sentinel',
       env: {CLAUDECODE: '1', CURSOR_AGENT: '1'},
-      want: prefix,
+      want: `${prefix} agent/multiple`,
     },
     {
       name: 'AGENT fallback to known product',

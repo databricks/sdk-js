@@ -69,27 +69,32 @@ function agentEnvFallback(): string {
  * Returns:
  *
  * - The product name when exactly one known env var is set.
- * - `""` when multiple known env vars are set (ambiguity).
+ * - `"multiple"` when multiple known env vars are set. Agent env vars
+ *   can be stacked when one agent invokes another as a subagent (e.g.
+ *   Claude Code spawning a Cursor CLI subprocess), so the child process
+ *   inherits env vars from multiple layers.
  * - When no known env var is set and `AGENT` is a non-empty value: the
  *   value itself if it names a known product, otherwise `"unknown"`.
  * - `""` when nothing is set.
- *
- * Unlike CI/CD detection (which returns the first match), agent
- * detection uses an ambiguity guard because agent env vars can be
- * stacked (e.g. running Cline inside Cursor).
  */
 export function lookupAgentProvider(): string {
-  const matches: string[] = [];
+  let matches: string[] = [];
   for (const a of KNOWN_AGENTS) {
     if (a.envVar in process.env) {
       matches.push(a.product);
     }
   }
+  // Known BYOK false positive: Copilot CLI users often set COPILOT_MODEL
+  // alongside COPILOT_CLI. Treat the pair as a single copilot-cli signal
+  // rather than a stacked multi-agent setup.
+  if (matches.includes('copilot-cli') && matches.includes('copilot-vscode')) {
+    matches = matches.filter(m => m !== 'copilot-vscode');
+  }
   if (matches.length === 1) {
     return matches[0];
   }
   if (matches.length > 1) {
-    return '';
+    return 'multiple';
   }
   return agentEnvFallback();
 }
@@ -104,10 +109,12 @@ let cached: string | undefined;
  * - The known product name when exactly one agent is detected via
  *   explicit env matchers, or when `AGENT` is set to a known product
  *   name and no explicit matcher fired.
+ * - `"multiple"` when multiple explicit matchers fire for different
+ *   agents (typically nested agents, e.g. Cursor CLI running as a
+ *   Claude Code subagent).
  * - `"unknown"` when no explicit matcher fired and `AGENT` is set to a
  *   value that is not a known product name.
- * - `""` when no agent is detected, or when multiple explicit matchers
- *   fire for different agents (ambiguity).
+ * - `""` when no agent is detected.
  */
 export function agentProvider(): string {
   cached ??= lookupAgentProvider();

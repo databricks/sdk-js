@@ -107,9 +107,14 @@ describe('lookupAgentProvider', () => {
       want: 'claude-code',
     },
     {
-      name: 'multiple agents are ambiguous',
+      name: 'multiple agents stacked (e.g. Cursor CLI subagent invoked by Claude Code)',
       env: {CLAUDECODE: '1', CURSOR_AGENT: '1'},
-      want: '',
+      want: 'multiple',
+    },
+    {
+      name: 'three stacked agents also report multiple',
+      env: {CLAUDECODE: '1', CURSOR_AGENT: '1', AUGMENT_AGENT: '1'},
+      want: 'multiple',
     },
     {
       name: 'goose via AGENT',
@@ -157,9 +162,14 @@ describe('lookupAgentProvider', () => {
       want: 'claude-code',
     },
     {
-      name: 'COPILOT_CLI and COPILOT_MODEL together is ambiguous',
+      name: 'COPILOT_CLI + COPILOT_MODEL collapses to copilot-cli (BYOK)',
       env: {COPILOT_CLI: '1', COPILOT_MODEL: 'gpt-4'},
-      want: '',
+      want: 'copilot-cli',
+    },
+    {
+      name: 'COPILOT_CLI + COPILOT_MODEL + CLAUDECODE still reports multiple after BYOK collapse',
+      env: {COPILOT_CLI: '1', COPILOT_MODEL: 'gpt-4', CLAUDECODE: '1'},
+      want: 'multiple',
     },
   ];
 
