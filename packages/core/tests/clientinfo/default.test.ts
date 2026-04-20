@@ -17,18 +17,21 @@ import {
   CACHED_NODE_VERSION,
   normalizeNodeVersion,
 } from '../../src/clientinfo/default';
+import {clearAgentCache} from '../../src/clientinfo/agent';
 
 describe('createDefault', () => {
   let savedEnv: NodeJS.ProcessEnv;
 
   beforeEach(() => {
     resetBase();
+    clearAgentCache();
     savedEnv = process.env;
     process.env = {...savedEnv};
   });
 
   afterEach(() => {
     process.env = savedEnv;
+    clearAgentCache();
   });
 
   const prefix = `${MODULE_NAME}/${VERSION} node/${CACHED_NODE_VERSION} os/${process.platform}`;
@@ -69,9 +72,19 @@ describe('createDefault', () => {
       want: `${prefix} agent/claude-code`,
     },
     {
-      name: 'multiple agents all reported',
+      name: 'multiple agents are ambiguous and omit the agent segment',
       env: {CLAUDECODE: '1', CURSOR_AGENT: '1'},
-      want: `${prefix} agent/claude-code agent/cursor`,
+      want: prefix,
+    },
+    {
+      name: 'AGENT fallback to known product',
+      env: {AGENT: 'goose'},
+      want: `${prefix} agent/goose`,
+    },
+    {
+      name: 'AGENT fallback to unknown',
+      env: {AGENT: 'somethingweird'},
+      want: `${prefix} agent/unknown`,
     },
     {
       name: 'databricks runtime',
