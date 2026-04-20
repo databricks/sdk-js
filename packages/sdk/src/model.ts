@@ -79,6 +79,13 @@ export interface FieldMetadata {
    * single path segment.
    */
   isMultiSegment?: boolean | undefined;
+  /**
+   * When true, the field carries a raw byte stream (e.g., file contents)
+   * rather than a small binary blob. SDK generators use this to send/receive
+   * the data as a streaming body (application/octet-stream) instead of
+   * base64-encoding it into JSON.
+   */
+  isStream?: boolean | undefined;
 }
 
 /**
@@ -413,9 +420,11 @@ export interface WaitForState_StateInfo {
 export const unmarshalFieldMetadataSchema: z.ZodType<FieldMetadata> = z
   .object({
     is_multi_segment: z.boolean().optional(),
+    is_stream: z.boolean().optional(),
   })
   .transform(d => ({
     isMultiSegment: d.is_multi_segment,
+    isStream: d.is_stream,
   }));
 
 export const unmarshalLongRunningOperationSchema: z.ZodType<LongRunningOperation> =
@@ -574,9 +583,11 @@ export const unmarshalWaitForState_StateInfoSchema: z.ZodType<WaitForState_State
 export const marshalFieldMetadataSchema: z.ZodType = z
   .object({
     isMultiSegment: z.boolean().optional(),
+    isStream: z.boolean().optional(),
   })
   .transform(d => ({
     is_multi_segment: d.isMultiSegment,
+    is_stream: d.isStream,
   }));
 
 export const marshalLongRunningOperationSchema: z.ZodType = z
