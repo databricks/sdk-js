@@ -12,6 +12,7 @@ export default defineConfig({
     exclude: [
       'tests/profiles/resolve.test.ts',
       'tests/clientinfo/default.test.ts',
+      'tests/clientinfo/agent.test.ts',
     ],
   },
 });

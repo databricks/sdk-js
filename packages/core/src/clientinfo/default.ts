@@ -1,10 +1,6 @@
 import {ClientInfo, sanitize} from './clientinfo';
 import {MODULE_NAME, VERSION, getBase} from './base';
-
-interface AgentDef {
-  readonly envVar: string;
-  readonly product: string;
-}
+import {agentProvider} from './agent';
 
 interface EnvCheck {
   readonly name: string;
@@ -15,18 +11,6 @@ interface CicdDef {
   readonly name: string;
   readonly envVars: readonly EnvCheck[];
 }
-
-const KNOWN_AGENTS: readonly AgentDef[] = [
-  {envVar: 'ANTIGRAVITY_AGENT', product: 'antigravity'},
-  {envVar: 'CLAUDECODE', product: 'claude-code'},
-  {envVar: 'CLINE_ACTIVE', product: 'cline'},
-  {envVar: 'CODEX_CI', product: 'codex'},
-  {envVar: 'COPILOT_CLI', product: 'copilot-cli'},
-  {envVar: 'CURSOR_AGENT', product: 'cursor'},
-  {envVar: 'GEMINI_CLI', product: 'gemini-cli'},
-  {envVar: 'OPENCODE', product: 'opencode'},
-  {envVar: 'OPENCLAW_SHELL', product: 'openclaw'},
-];
 
 const CICD_PROVIDERS: readonly CicdDef[] = [
   {
@@ -66,17 +50,6 @@ const CICD_PROVIDERS: readonly CicdDef[] = [
   },
   {name: 'tf-cloud', envVars: [{name: 'TFC_RUN_ID', expectedValue: ''}]},
 ];
-
-// Returns all detected AI coding agents.
-function detectAgents(): string[] {
-  const detected: string[] = [];
-  for (const a of KNOWN_AGENTS) {
-    if (process.env[a.envVar] !== undefined) {
-      detected.push(a.product);
-    }
-  }
-  return detected;
-}
 
 function detectCicd(): string {
   for (const p of CICD_PROVIDERS) {
@@ -146,7 +119,8 @@ export function createDefault(): ClientInfo {
     pairs.push({key: 'runtime', value: sanitize(runtime)});
   }
 
-  for (const agent of detectAgents()) {
+  const agent = agentProvider();
+  if (agent !== '') {
     pairs.push({key: 'agent', value: agent});
   }
 
