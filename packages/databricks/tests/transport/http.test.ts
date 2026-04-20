@@ -269,6 +269,7 @@ describe('newHttpClient', () => {
       },
     };
     const credentials: Credentials = {
+      name: () => 'test',
       authHeaders: () => Promise.resolve([]),
     };
     expect(() => newHttpClient({httpClient: custom, credentials})).toThrow(
@@ -321,8 +322,11 @@ describe('newHttpClient', () => {
       const credErr = tc.credErr;
       const credentials: Credentials =
         credErr !== undefined
-          ? {authHeaders: () => Promise.reject(credErr)}
-          : {authHeaders: () => Promise.resolve(tc.credHeaders)};
+          ? {name: () => 'test', authHeaders: () => Promise.reject(credErr)}
+          : {
+              name: () => 'test',
+              authHeaders: () => Promise.resolve(tc.credHeaders),
+            };
 
       const client = newHttpClient({credentials});
       const sendPromise = client.send({
@@ -360,6 +364,7 @@ describe('newHttpClient', () => {
 
     try {
       const credentials: Credentials = {
+        name: () => 'test',
         authHeaders: () =>
           Promise.resolve([{key: 'Authorization', value: 'Bearer token123'}]),
       };
@@ -399,6 +404,7 @@ describe('newHttpClient', () => {
 
     try {
       const credentials: Credentials = {
+        name: () => 'test',
         authHeaders: () =>
           Promise.resolve([{key: 'Authorization', value: 'Bearer token'}]),
       };

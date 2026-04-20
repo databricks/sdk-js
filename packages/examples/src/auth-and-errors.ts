@@ -12,7 +12,7 @@
  *   npm run auth-and-errors --workspace @databricks/sdk-examples
  */
 
-import {newPatCredentials} from '@databricks/sdk-auth';
+import {newPatCredentials} from '@databricks/sdk-auth/credentials';
 import {APIError} from '@databricks/sdk-databricks/apierror';
 import {codeToString} from '@databricks/sdk-databricks/apierror/codes';
 import {LogLevel} from '@databricks/sdk-databricks/logger';

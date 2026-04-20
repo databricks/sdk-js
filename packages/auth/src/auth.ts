@@ -20,6 +20,12 @@ export interface Header {
  */
 export interface Credentials {
   /**
+   * Short identifier for the authentication strategy, e.g. `pat` or
+   * `oauth-m2m`. Used for logging and for selecting between strategies.
+   */
+  name(): string;
+
+  /**
    * Returns headers to authenticate requests.
    */
   authHeaders(): Promise<Header[]>;
@@ -78,16 +84,25 @@ export interface TokenCredentials extends TokenProvider, Credentials {}
 /**
  * Creates a TokenCredentials that uses the given TokenProvider to return
  * authentication headers.
+ *
+ * @param name - Short identifier for the auth strategy (e.g. `oauth-m2m`).
+ * @param provider - Source of tokens used to build the Authorization header.
  */
-export function newTokenCredentials(provider: TokenProvider): TokenCredentials {
-  return new TokenCredentialsImpl(provider);
+export function newTokenCredentials(
+  name: string,
+  provider: TokenProvider
+): TokenCredentials {
+  return new TokenCredentialsImpl(name, provider);
 }
 
 class TokenCredentialsImpl implements TokenCredentials {
-  private readonly provider: TokenProvider;
+  constructor(
+    private readonly strategyName: string,
+    private readonly provider: TokenProvider
+  ) {}
 
-  constructor(provider: TokenProvider) {
-    this.provider = provider;
+  name(): string {
+    return this.strategyName;
   }
 
   async token(): Promise<Token> {

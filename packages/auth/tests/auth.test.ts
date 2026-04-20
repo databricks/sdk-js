@@ -1,6 +1,6 @@
 import {describe, it, expect} from 'vitest';
 import type {Token, Header} from '../src/auth';
-import {tokenProviderFn, newTokenCredentials} from '../src/auth';
+import {newTokenCredentials, tokenProviderFn} from '../src/auth';
 
 describe('tokenProviderFn', () => {
   const cases: {name: string; token: Token}[] = [
@@ -48,7 +48,7 @@ describe('newTokenCredentials', () => {
     'should produce correct auth header when $name',
     async ({token, expected}) => {
       const provider = tokenProviderFn(() => Promise.resolve(token));
-      const credentials = newTokenCredentials(provider);
+      const credentials = newTokenCredentials('test-strategy', provider);
       const headers = await credentials.authHeaders();
       expect(headers).toEqual(expected);
     }
@@ -57,15 +57,21 @@ describe('newTokenCredentials', () => {
   it('should delegate token() to the underlying provider', async () => {
     const expectedToken: Token = {value: 'test-token', expiry: new Date()};
     const provider = tokenProviderFn(() => Promise.resolve(expectedToken));
-    const credentials = newTokenCredentials(provider);
+    const credentials = newTokenCredentials('test-strategy', provider);
     const token = await credentials.token();
     expect(token).toEqual(expectedToken);
+  });
+
+  it('exposes the strategy name on the credentials', () => {
+    const provider = tokenProviderFn(() => Promise.resolve({value: 'v'}));
+    const credentials = newTokenCredentials('oauth-m2m', provider);
+    expect(credentials.name()).toBe('oauth-m2m');
   });
 
   it('should propagate errors from the underlying provider', async () => {
     const error = new Error('provider error');
     const provider = tokenProviderFn(() => Promise.reject(error));
-    const credentials = newTokenCredentials(provider);
+    const credentials = newTokenCredentials('test-strategy', provider);
     await expect(credentials.authHeaders()).rejects.toThrow(error);
   });
 });

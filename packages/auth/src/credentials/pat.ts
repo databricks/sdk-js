@@ -30,10 +30,10 @@ export function newPatCredentials(token: string): Credentials {
 }
 
 class PatCredentials implements Credentials {
-  private readonly token: string;
+  constructor(private readonly token: string) {}
 
-  constructor(token: string) {
-    this.token = token;
+  name(): string {
+    return 'pat';
   }
 
   authHeaders(): Promise<Header[]> {
