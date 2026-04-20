@@ -43,14 +43,8 @@ jobs:
       - name: Install dependencies
         run: jf npm ci
 
-      - name: Build packages
-        run: npm run build
-
-      - name: Run ESLint
-        run: npm run lint
-
-      - name: Check formatting
-        run: npm run format:check
+      - name: Run lint and format checks
+        run: npx turbo run lint format:check
 
   typecheck:
     name: Type Check
@@ -78,9 +72,6 @@ jobs:
 
       - name: Install dependencies
         run: jf npm ci
-
-      - name: Build packages
-        run: npm run build
 
       - name: Run type check
         run: npm run typecheck
@@ -116,9 +107,6 @@ jobs:
       - name: Install dependencies
         run: jf npm ci
 
-      - name: Build packages
-        run: npm run build
-
       - name: Run tests
         run: npm test
 
@@ -152,9 +140,6 @@ jobs:
 
       - name: Install dependencies
         run: jf npm ci
-
-      - name: Build packages
-        run: npm run build
 
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
