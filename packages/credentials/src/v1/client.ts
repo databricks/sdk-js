@@ -26,6 +26,8 @@ import type {
   GenerateTemporaryServiceCredential,
   GenerateTemporaryTableCredential,
   GenerateTemporaryTableCredential_Response,
+  GenerateTemporaryVolumeCredential,
+  GenerateTemporaryVolumeCredential_Response,
   GetCredential,
   GetStorageCredential,
   ListCredentials,
@@ -47,6 +49,7 @@ import {
   marshalGenerateTemporaryPathCredentialSchema,
   marshalGenerateTemporaryServiceCredentialSchema,
   marshalGenerateTemporaryTableCredentialSchema,
+  marshalGenerateTemporaryVolumeCredentialSchema,
   marshalUpdateCredentialSchema,
   marshalUpdateStorageCredentialSchema,
   marshalValidateCredentialSchema,
@@ -55,6 +58,7 @@ import {
   unmarshalDeleteStorageCredential_ResponseSchema,
   unmarshalGenerateTemporaryPathCredential_ResponseSchema,
   unmarshalGenerateTemporaryTableCredential_ResponseSchema,
+  unmarshalGenerateTemporaryVolumeCredential_ResponseSchema,
   unmarshalListCredentials_ResponseSchema,
   unmarshalListStorageCredentials_ResponseSchema,
   unmarshalStorageCredentialInfoSchema,
@@ -298,6 +302,42 @@ export class Client {
       resp = parseResponse(
         respBody,
         unmarshalGenerateTemporaryTableCredential_ResponseSchema
+      );
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Get a short-lived credential for directly accessing the volume data on cloud storage.
+   * The metastore must have **external_access_enabled** flag set to true (default false).
+   * The caller must have the **EXTERNAL_USE_SCHEMA** privilege on the parent schema and this privilege can only be granted
+   * by catalog owners.
+   */
+  async generateTemporaryVolumeCredential(
+    signal: AbortSignal | undefined,
+    req: GenerateTemporaryVolumeCredential,
+    options?: Options
+  ): Promise<GenerateTemporaryVolumeCredential_Response> {
+    const url = `${this.host}/api/2.0/unity-catalog/temporary-volume-credentials`;
+    const body = marshalRequest(
+      req,
+      marshalGenerateTemporaryVolumeCredentialSchema
+    );
+    let resp: GenerateTemporaryVolumeCredential_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalGenerateTemporaryVolumeCredential_ResponseSchema
       );
     };
     await execute(signal, call, options);

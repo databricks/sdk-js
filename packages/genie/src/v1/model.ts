@@ -27,6 +27,7 @@ export enum ColumnTypeName {
   GEOMETRY = 'GEOMETRY',
   GEOGRAPHY = 'GEOGRAPHY',
   TIME = 'TIME',
+  FILE = 'FILE',
   TABLE_TYPE = 'TABLE_TYPE',
 }
 
@@ -1483,6 +1484,11 @@ export interface GenieSpace {
    * This field provides the structure of the JSON string that represents the space's layout and components.
    */
   serializedSpace?: string | undefined;
+  /**
+   * ETag for this space. Pass this value back in the update request to prevent overwriting
+   * concurrent changes.
+   */
+  etag?: string | undefined;
 }
 
 export interface GenieStartConversationMessageRequest {
@@ -1527,6 +1533,11 @@ export interface GenieUpdateSpaceRequest {
   description?: string | undefined;
   /** Optional warehouse override */
   warehouseId?: string | undefined;
+  /**
+   * ETag returned by a previous GET or UPDATE. When set, the update will fail if the space
+   * has been modified since. Omit to apply the update unconditionally.
+   */
+  etag?: string | undefined;
 }
 
 /**
@@ -1713,7 +1724,15 @@ export interface TextAttachment {
 
 /** A single thought in the AI's reasoning process for a query. */
 export interface Thought {
-  /** The category of this thought. */
+  /**
+   * The category of this thought.
+   * The possible values are:
+   * * `THOUGHT_TYPE_DESCRIPTION`: A high-level description of how the question was interpreted.
+   * * `THOUGHT_TYPE_UNDERSTANDING`: How ambiguous parts of the question were resolved.
+   * * `THOUGHT_TYPE_DATA_SOURCING`: Which tables or datasets were identified as relevant.
+   * * `THOUGHT_TYPE_INSTRUCTIONS`: Which author-defined instructions were referenced.
+   * * `THOUGHT_TYPE_STEPS`: The logical steps taken to compute the answer.
+   */
   thoughtType?: ThoughtType | undefined;
   /** The md formatted content for this thought. */
   content?: string | undefined;
@@ -2583,6 +2602,7 @@ export const unmarshalGenieSpaceSchema: z.ZodType<GenieSpace> = z
     warehouse_id: z.string().optional(),
     parent_path: z.string().optional(),
     serialized_space: z.string().optional(),
+    etag: z.string().optional(),
   })
   .transform(d => ({
     spaceId: d.space_id,
@@ -2591,6 +2611,7 @@ export const unmarshalGenieSpaceSchema: z.ZodType<GenieSpace> = z
     warehouseId: d.warehouse_id,
     parentPath: d.parent_path,
     serializedSpace: d.serialized_space,
+    etag: d.etag,
   }));
 
 export const unmarshalGenieStartConversationMessageRequestSchema: z.ZodType<GenieStartConversationMessageRequest> =
@@ -2645,6 +2666,7 @@ export const unmarshalGenieUpdateSpaceRequestSchema: z.ZodType<GenieUpdateSpaceR
       title: z.string().optional(),
       description: z.string().optional(),
       warehouse_id: z.string().optional(),
+      etag: z.string().optional(),
     })
     .transform(d => ({
       spaceId: d.space_id,
@@ -2652,6 +2674,7 @@ export const unmarshalGenieUpdateSpaceRequestSchema: z.ZodType<GenieUpdateSpaceR
       title: d.title,
       description: d.description,
       warehouseId: d.warehouse_id,
+      etag: d.etag,
     }));
 
 export const unmarshalListValueSchema: z.ZodType<ListValue> = z
@@ -3657,6 +3680,7 @@ export const marshalGenieSpaceSchema: z.ZodType = z
     warehouseId: z.string().optional(),
     parentPath: z.string().optional(),
     serializedSpace: z.string().optional(),
+    etag: z.string().optional(),
   })
   .transform(d => ({
     space_id: d.spaceId,
@@ -3665,6 +3689,7 @@ export const marshalGenieSpaceSchema: z.ZodType = z
     warehouse_id: d.warehouseId,
     parent_path: d.parentPath,
     serialized_space: d.serializedSpace,
+    etag: d.etag,
   }));
 
 export const marshalGenieStartConversationMessageRequestSchema: z.ZodType = z
@@ -3714,6 +3739,7 @@ export const marshalGenieUpdateSpaceRequestSchema: z.ZodType = z
     title: z.string().optional(),
     description: z.string().optional(),
     warehouseId: z.string().optional(),
+    etag: z.string().optional(),
   })
   .transform(d => ({
     space_id: d.spaceId,
@@ -3721,6 +3747,7 @@ export const marshalGenieUpdateSpaceRequestSchema: z.ZodType = z
     title: d.title,
     description: d.description,
     warehouse_id: d.warehouseId,
+    etag: d.etag,
   }));
 
 export const marshalListValueSchema: z.ZodType = z

@@ -51,6 +51,7 @@ import type {
   GetWorkspaceAccessDetailRequest,
   GetWorkspaceAssignmentDetailProxyRequest,
   GetWorkspaceAssignmentDetailRequest,
+  GetWorkspaceIdentityDetailRequest,
   Group,
   ListAccountAccessIdentityRulesRequest,
   ListAccountAccessIdentityRulesResponse,
@@ -93,9 +94,11 @@ import type {
   UpdateUserRequest,
   UpdateWorkspaceAssignmentDetailProxyRequest,
   UpdateWorkspaceAssignmentDetailRequest,
+  UpdateWorkspaceIdentityDetailRequest,
   User,
   WorkspaceAccessDetail,
   WorkspaceAssignmentDetail,
+  WorkspaceIdentityDetail,
 } from './model';
 import {
   marshalAccountAccessIdentityRuleSchema,
@@ -110,6 +113,7 @@ import {
   marshalServicePrincipalSchema,
   marshalUserSchema,
   marshalWorkspaceAssignmentDetailSchema,
+  marshalWorkspaceIdentityDetailSchema,
   unmarshalAccountAccessIdentityRuleSchema,
   unmarshalDirectGroupMemberSchema,
   unmarshalGroupSchema,
@@ -128,6 +132,7 @@ import {
   unmarshalUserSchema,
   unmarshalWorkspaceAccessDetailSchema,
   unmarshalWorkspaceAssignmentDetailSchema,
+  unmarshalWorkspaceIdentityDetailSchema,
 } from './model';
 
 export class Client {
@@ -2125,6 +2130,64 @@ export class Client {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalWorkspaceAssignmentDetailSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Returns the identity details for a principal in a workspace. */
+  async getWorkspaceIdentityDetail(
+    signal: AbortSignal | undefined,
+    req: GetWorkspaceIdentityDetailRequest,
+    options?: Options
+  ): Promise<WorkspaceIdentityDetail> {
+    const url = `${this.host}/api/2.0/identity/workspaceIdentityDetails/${String(req.principalId ?? '')}`;
+    let resp: WorkspaceIdentityDetail | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalWorkspaceIdentityDetailSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Updates a workspace identity detail for a principal. */
+  async updateWorkspaceIdentityDetail(
+    signal: AbortSignal | undefined,
+    req: UpdateWorkspaceIdentityDetailRequest,
+    options?: Options
+  ): Promise<WorkspaceIdentityDetail> {
+    const url = `${this.host}/api/2.0/identity/workspaceIdentityDetails/${String(req.principalId ?? '')}`;
+    const params = new URLSearchParams();
+    if (req.updateMask !== undefined) {
+      params.append('update_mask', req.updateMask);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(
+      req.workspaceIdentityDetail,
+      marshalWorkspaceIdentityDetailSchema
+    );
+    let resp: WorkspaceIdentityDetail | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalWorkspaceIdentityDetailSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {

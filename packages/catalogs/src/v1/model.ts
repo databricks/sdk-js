@@ -229,6 +229,12 @@ export interface DrReplicationInfo {
   status?: DrReplicationStatus | undefined;
   /** See https://docs.google.com/document/d/1X0A_3hMhzuS2V1E3zB0x5wxPsFx70bVYK5rHep2AjW8. */
   replicatedEntities?: Uint8Array | undefined;
+  /**
+   * Wall-clock epoch milliseconds when this catalog was last promoted to primary
+   * via failover or failback. Set by DR Manager. Used by Predictive Optimization
+   * to suppress operations until sufficient workload history accumulates.
+   */
+  lastFailoverTimeMs?: number | undefined;
 }
 
 export interface EffectivePredictiveOptimizationFlag {
@@ -592,10 +598,12 @@ export const unmarshalDrReplicationInfoSchema: z.ZodType<DrReplicationInfo> = z
       .string()
       .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
       .optional(),
+    last_failover_time_ms: z.number().optional(),
   })
   .transform(d => ({
     status: d.status,
     replicatedEntities: d.replicated_entities,
+    lastFailoverTimeMs: d.last_failover_time_ms,
   }));
 
 export const unmarshalEffectivePredictiveOptimizationFlagSchema: z.ZodType<EffectivePredictiveOptimizationFlag> =
@@ -975,10 +983,12 @@ export const marshalDrReplicationInfoSchema: z.ZodType = z
         btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
       )
       .optional(),
+    lastFailoverTimeMs: z.number().optional(),
   })
   .transform(d => ({
     status: d.status,
     replicated_entities: d.replicatedEntities,
+    last_failover_time_ms: d.lastFailoverTimeMs,
   }));
 
 export const marshalEffectivePredictiveOptimizationFlagSchema: z.ZodType = z

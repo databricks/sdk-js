@@ -3,6 +3,7 @@
 export {Client} from './client';
 
 export {
+  PreviewPhase,
   AibiDashboardEmbeddingAccessPolicy_AccessPolicyType,
   ClusterAutoRestartMessage_MaintenanceWindow_DayOfWeek,
   ClusterAutoRestartMessage_MaintenanceWindow_WeekDayFrequency,

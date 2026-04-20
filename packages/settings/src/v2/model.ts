@@ -2,6 +2,30 @@
 
 import {z} from 'zod';
 
+/**
+ * Preview phase for settings that are feature previews.
+ * For settings that are not feature previews, the preview_phase field is left unset.
+ * Mirrors only the customer-facing phases surfaced in the UI; internal-only phases
+ * (DISABLED, DEV, UNDER_MIGRATION, LAUNCHED, etc.) are not exposed here.
+ */
+export enum PreviewPhase {
+  /** Default value. Indicates the preview phase is unknown or the setting is not a feature preview. */
+  PREVIEW_PHASE_UNSPECIFIED = 'PREVIEW_PHASE_UNSPECIFIED',
+  /** The feature is in private preview, available only to specifically enrolled customers. */
+  PRIVATE_PREVIEW = 'PRIVATE_PREVIEW',
+  /**
+   * The feature is in public preview, available to all customers. Also used for gated public
+   * preview (available to customers who request access) since the distinction is internal.
+   */
+  PUBLIC_PREVIEW = 'PUBLIC_PREVIEW',
+  /** The feature is in beta. */
+  BETA = 'BETA',
+  /** The feature is approaching general availability. */
+  GA_SOON = 'GA_SOON',
+  /** The feature has reached general availability. */
+  GA = 'GA',
+}
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum AibiDashboardEmbeddingAccessPolicy_AccessPolicyType {
   ACCESS_POLICY_TYPE_UNSPECIFIED = 'ACCESS_POLICY_TYPE_UNSPECIFIED',
@@ -326,6 +350,8 @@ export interface SettingsMetadata {
   type?: string | undefined;
   /** Link to databricks documentation for the setting */
   docsLink?: string | undefined;
+  /** Preview phase for feature preview settings. This field is not set for non-preview settings. */
+  previewPhase?: PreviewPhase | undefined;
 }
 
 export interface StringMessage {
@@ -717,12 +743,14 @@ export const unmarshalSettingsMetadataSchema: z.ZodType<SettingsMetadata> = z
     description: z.string().optional(),
     type: z.string().optional(),
     docs_link: z.string().optional(),
+    preview_phase: z.enum(PreviewPhase).optional(),
   })
   .transform(d => ({
     name: d.name,
     description: d.description,
     type: d.type,
     docsLink: d.docs_link,
+    previewPhase: d.preview_phase,
   }));
 
 export const unmarshalStringMessageSchema: z.ZodType<StringMessage> = z
@@ -1100,12 +1128,14 @@ export const marshalSettingsMetadataSchema: z.ZodType = z
     description: z.string().optional(),
     type: z.string().optional(),
     docsLink: z.string().optional(),
+    previewPhase: z.enum(PreviewPhase).optional(),
   })
   .transform(d => ({
     name: d.name,
     description: d.description,
     type: d.type,
     docs_link: d.docsLink,
+    preview_phase: d.previewPhase,
   }));
 
 export const marshalStringMessageSchema: z.ZodType = z

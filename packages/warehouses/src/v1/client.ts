@@ -1,7 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import type {Call, Options} from '@databricks/sdk-databricks/api';
-import {execute} from '@databricks/sdk-databricks/api';
+import {execute, retryOn} from '@databricks/sdk-databricks/api';
 import type {Logger} from '@databricks/sdk-databricks/logger';
 import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
@@ -42,6 +42,7 @@ import type {
   UpdateDefaultWarehouseOverrideRequest,
 } from './model';
 import {
+  EndpointState,
   marshalCreateWarehouseSchema,
   marshalDefaultWarehouseOverrideSchema,
   marshalEditWarehouseRequestSchema,
@@ -60,6 +61,8 @@ import {
   unmarshalStartRequest_ResponseSchema,
   unmarshalStopRequest_ResponseSchema,
 } from './model';
+
+class StillRunningError extends Error {}
 
 export class Client {
   private readonly host: string;
@@ -140,6 +143,18 @@ export class Client {
     return resp;
   }
 
+  async createWarehouseWaiter(
+    signal: AbortSignal | undefined,
+    req: CreateWarehouse,
+    options?: Options
+  ): Promise<CreateWarehouseWaiter> {
+    const resp = await this.createWarehouse(signal, req, options);
+    if (resp.id === undefined) {
+      throw new Error('response field id required for polling is missing');
+    }
+    return new CreateWarehouseWaiter(this, resp.id);
+  }
+
   /**
    * Deletes the default warehouse override for a user.
    * Users can delete their own override. Admins can delete overrides for any user.
@@ -215,6 +230,18 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async editWarehouseWaiter(
+    signal: AbortSignal | undefined,
+    req: EditWarehouseRequest,
+    options?: Options
+  ): Promise<EditWarehouseWaiter> {
+    await this.editWarehouse(signal, req, options);
+    if (req.id === undefined) {
+      throw new Error('request field id required for polling is missing');
+    }
+    return new EditWarehouseWaiter(this, req.id);
   }
 
   /**
@@ -470,6 +497,18 @@ export class Client {
     return resp;
   }
 
+  async startWarehouseWaiter(
+    signal: AbortSignal | undefined,
+    req: StartRequest,
+    options?: Options
+  ): Promise<StartWarehouseWaiter> {
+    await this.startWarehouse(signal, req, options);
+    if (req.id === undefined) {
+      throw new Error('request field id required for polling is missing');
+    }
+    return new StartWarehouseWaiter(this, req.id);
+  }
+
   /** Stops a SQL warehouse. */
   async stopWarehouse(
     signal: AbortSignal | undefined,
@@ -493,6 +532,18 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  async stopWarehouseWaiter(
+    signal: AbortSignal | undefined,
+    req: StopRequest,
+    options?: Options
+  ): Promise<StopWarehouseWaiter> {
+    await this.stopWarehouse(signal, req, options);
+    if (req.id === undefined) {
+      throw new Error('request field id required for polling is missing');
+    }
+    return new StopWarehouseWaiter(this, req.id);
   }
 
   /**
@@ -533,5 +584,346 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+}
+
+export class CreateWarehouseWaiter {
+  constructor(
+    private readonly client: Client,
+    readonly id: string
+  ) {}
+
+  /**
+   * Polls until the operation reaches a terminal state.
+   *
+   * Throws if a failure state is reached.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<GetWarehouse_Response> {
+    let result: GetWarehouse_Response | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const pollResp = await this.client.getWarehouse(
+        callSignal,
+        {
+          id: this.id,
+        },
+        options
+      );
+
+      const status = pollResp.state;
+      if (status === undefined) {
+        throw new Error('response missing required status field');
+      }
+
+      switch (status) {
+        case EndpointState.RUNNING:
+          result = pollResp;
+          return;
+        case EndpointState.STOPPED:
+        case EndpointState.DELETED: {
+          const msg = pollResp.health?.summary ?? '(no message)';
+          throw new Error(`terminal state ${status}: ${msg}`);
+        }
+        default:
+          throw new StillRunningError();
+      }
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err instanceof StillRunningError;
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has reached a terminal state. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const pollResp = await this.client.getWarehouse(
+      signal,
+      {
+        id: this.id,
+      },
+      options
+    );
+
+    const status = pollResp.state;
+    if (status === undefined) {
+      throw new Error('response missing required status field');
+    }
+
+    switch (status) {
+      case EndpointState.RUNNING:
+      case EndpointState.STOPPED:
+      case EndpointState.DELETED:
+        return true;
+      default:
+        return false;
+    }
+  }
+}
+
+export class EditWarehouseWaiter {
+  constructor(
+    private readonly client: Client,
+    readonly id: string
+  ) {}
+
+  /**
+   * Polls until the operation reaches a terminal state.
+   *
+   * Throws if a failure state is reached.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<GetWarehouse_Response> {
+    let result: GetWarehouse_Response | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const pollResp = await this.client.getWarehouse(
+        callSignal,
+        {
+          id: this.id,
+        },
+        options
+      );
+
+      const status = pollResp.state;
+      if (status === undefined) {
+        throw new Error('response missing required status field');
+      }
+
+      switch (status) {
+        case EndpointState.RUNNING:
+          result = pollResp;
+          return;
+        case EndpointState.STOPPED:
+        case EndpointState.DELETED: {
+          const msg = pollResp.health?.summary ?? '(no message)';
+          throw new Error(`terminal state ${status}: ${msg}`);
+        }
+        default:
+          throw new StillRunningError();
+      }
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err instanceof StillRunningError;
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has reached a terminal state. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const pollResp = await this.client.getWarehouse(
+      signal,
+      {
+        id: this.id,
+      },
+      options
+    );
+
+    const status = pollResp.state;
+    if (status === undefined) {
+      throw new Error('response missing required status field');
+    }
+
+    switch (status) {
+      case EndpointState.RUNNING:
+      case EndpointState.STOPPED:
+      case EndpointState.DELETED:
+        return true;
+      default:
+        return false;
+    }
+  }
+}
+
+export class StartWarehouseWaiter {
+  constructor(
+    private readonly client: Client,
+    readonly id: string
+  ) {}
+
+  /**
+   * Polls until the operation reaches a terminal state.
+   *
+   * Throws if a failure state is reached.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<GetWarehouse_Response> {
+    let result: GetWarehouse_Response | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const pollResp = await this.client.getWarehouse(
+        callSignal,
+        {
+          id: this.id,
+        },
+        options
+      );
+
+      const status = pollResp.state;
+      if (status === undefined) {
+        throw new Error('response missing required status field');
+      }
+
+      switch (status) {
+        case EndpointState.RUNNING:
+          result = pollResp;
+          return;
+        case EndpointState.STOPPED:
+        case EndpointState.DELETED: {
+          const msg = pollResp.health?.summary ?? '(no message)';
+          throw new Error(`terminal state ${status}: ${msg}`);
+        }
+        default:
+          throw new StillRunningError();
+      }
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err instanceof StillRunningError;
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has reached a terminal state. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const pollResp = await this.client.getWarehouse(
+      signal,
+      {
+        id: this.id,
+      },
+      options
+    );
+
+    const status = pollResp.state;
+    if (status === undefined) {
+      throw new Error('response missing required status field');
+    }
+
+    switch (status) {
+      case EndpointState.RUNNING:
+      case EndpointState.STOPPED:
+      case EndpointState.DELETED:
+        return true;
+      default:
+        return false;
+    }
+  }
+}
+
+export class StopWarehouseWaiter {
+  constructor(
+    private readonly client: Client,
+    readonly id: string
+  ) {}
+
+  /**
+   * Polls until the operation reaches a terminal state.
+   *
+   * Throws if a failure state is reached.
+   */
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<GetWarehouse_Response> {
+    let result: GetWarehouse_Response | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const pollResp = await this.client.getWarehouse(
+        callSignal,
+        {
+          id: this.id,
+        },
+        options
+      );
+
+      const status = pollResp.state;
+      if (status === undefined) {
+        throw new Error('response missing required status field');
+      }
+
+      switch (status) {
+        case EndpointState.STOPPED:
+          result = pollResp;
+          return;
+        default:
+          throw new StillRunningError();
+      }
+    };
+
+    const retryOptions: Options = {
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err instanceof StillRunningError;
+        }),
+    };
+    await execute(signal, call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has reached a terminal state. */
+  async done(
+    signal: AbortSignal | undefined,
+    options?: Options
+  ): Promise<boolean> {
+    const pollResp = await this.client.getWarehouse(
+      signal,
+      {
+        id: this.id,
+      },
+      options
+    );
+
+    const status = pollResp.state;
+    if (status === undefined) {
+      throw new Error('response missing required status field');
+    }
+
+    switch (status) {
+      case EndpointState.STOPPED:
+        return true;
+      default:
+        return false;
+    }
   }
 }

@@ -20,6 +20,11 @@ export enum TableOperation {
   READ_WRITE = 'READ_WRITE',
 }
 
+export enum VolumeOperation {
+  READ_VOLUME = 'READ_VOLUME',
+  WRITE_VOLUME = 'WRITE_VOLUME',
+}
+
 /** A enum represents the result of the file operation */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum ValidateCredential_Result {
@@ -435,6 +440,34 @@ export interface GenerateTemporaryTableCredential {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface GenerateTemporaryTableCredential_Response {
+  awsTempCredentials?: AwsCredentials | undefined;
+  azureUserDelegationSas?: AzureUserDelegationSas | undefined;
+  gcpOauthToken?: GcpOauthToken | undefined;
+  azureAad?: AzureActiveDirectoryToken | undefined;
+  r2TempCredentials?: R2Credentials | undefined;
+  ucEncryptedToken?: UcEncryptedToken | undefined;
+  /**
+   * Server time when the credential will expire, in epoch milliseconds.
+   * The API client is advised to cache the credential given this expiration time.
+   */
+  expirationTime?: number | undefined;
+  /** The URL of the storage path accessible by the temporary credential. */
+  url?: string | undefined;
+}
+
+/** Generate volume credentials RPC */
+export interface GenerateTemporaryVolumeCredential {
+  /** Id of the volume to read or write. */
+  volumeId?: string | undefined;
+  /**
+   * The operation performed against the volume data, either READ_VOLUME or WRITE_VOLUME. If WRITE_VOLUME is specified,
+   * the credentials returned will have write permissions, otherwise, it will be read only.
+   */
+  operation?: VolumeOperation | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface GenerateTemporaryVolumeCredential_Response {
   awsTempCredentials?: AwsCredentials | undefined;
   azureUserDelegationSas?: AzureUserDelegationSas | undefined;
   gcpOauthToken?: GcpOauthToken | undefined;
@@ -1291,6 +1324,51 @@ export const unmarshalGenerateTemporaryTableCredential_ResponseSchema: z.ZodType
       url: d.url,
     }));
 
+export const unmarshalGenerateTemporaryVolumeCredentialSchema: z.ZodType<GenerateTemporaryVolumeCredential> =
+  z
+    .object({
+      volume_id: z.string().optional(),
+      operation: z.enum(VolumeOperation).optional(),
+    })
+    .transform(d => ({
+      volumeId: d.volume_id,
+      operation: d.operation,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalGenerateTemporaryVolumeCredential_ResponseSchema: z.ZodType<GenerateTemporaryVolumeCredential_Response> =
+  z
+    .object({
+      aws_temp_credentials: z
+        .lazy(() => unmarshalAwsCredentialsSchema)
+        .optional(),
+      azure_user_delegation_sas: z
+        .lazy(() => unmarshalAzureUserDelegationSasSchema)
+        .optional(),
+      gcp_oauth_token: z.lazy(() => unmarshalGcpOauthTokenSchema).optional(),
+      azure_aad: z
+        .lazy(() => unmarshalAzureActiveDirectoryTokenSchema)
+        .optional(),
+      r2_temp_credentials: z
+        .lazy(() => unmarshalR2CredentialsSchema)
+        .optional(),
+      uc_encrypted_token: z
+        .lazy(() => unmarshalUcEncryptedTokenSchema)
+        .optional(),
+      expiration_time: z.number().optional(),
+      url: z.string().optional(),
+    })
+    .transform(d => ({
+      awsTempCredentials: d.aws_temp_credentials,
+      azureUserDelegationSas: d.azure_user_delegation_sas,
+      gcpOauthToken: d.gcp_oauth_token,
+      azureAad: d.azure_aad,
+      r2TempCredentials: d.r2_temp_credentials,
+      ucEncryptedToken: d.uc_encrypted_token,
+      expirationTime: d.expiration_time,
+      url: d.url,
+    }));
+
 export const unmarshalGetCredentialSchema: z.ZodType<GetCredential> = z
   .object({
     name_arg: z.string().optional(),
@@ -2099,6 +2177,42 @@ export const marshalGenerateTemporaryTableCredentialSchema: z.ZodType = z
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalGenerateTemporaryTableCredential_ResponseSchema: z.ZodType =
+  z
+    .object({
+      awsTempCredentials: z.lazy(() => marshalAwsCredentialsSchema).optional(),
+      azureUserDelegationSas: z
+        .lazy(() => marshalAzureUserDelegationSasSchema)
+        .optional(),
+      gcpOauthToken: z.lazy(() => marshalGcpOauthTokenSchema).optional(),
+      azureAad: z.lazy(() => marshalAzureActiveDirectoryTokenSchema).optional(),
+      r2TempCredentials: z.lazy(() => marshalR2CredentialsSchema).optional(),
+      ucEncryptedToken: z.lazy(() => marshalUcEncryptedTokenSchema).optional(),
+      expirationTime: z.number().optional(),
+      url: z.string().optional(),
+    })
+    .transform(d => ({
+      aws_temp_credentials: d.awsTempCredentials,
+      azure_user_delegation_sas: d.azureUserDelegationSas,
+      gcp_oauth_token: d.gcpOauthToken,
+      azure_aad: d.azureAad,
+      r2_temp_credentials: d.r2TempCredentials,
+      uc_encrypted_token: d.ucEncryptedToken,
+      expiration_time: d.expirationTime,
+      url: d.url,
+    }));
+
+export const marshalGenerateTemporaryVolumeCredentialSchema: z.ZodType = z
+  .object({
+    volumeId: z.string().optional(),
+    operation: z.enum(VolumeOperation).optional(),
+  })
+  .transform(d => ({
+    volume_id: d.volumeId,
+    operation: d.operation,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalGenerateTemporaryVolumeCredential_ResponseSchema: z.ZodType =
   z
     .object({
       awsTempCredentials: z.lazy(() => marshalAwsCredentialsSchema).optional(),
