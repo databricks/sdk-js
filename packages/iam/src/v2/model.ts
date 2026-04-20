@@ -71,6 +71,17 @@ export enum WorkspaceAccessDetail_AccessType {
   INDIRECT = 'INDIRECT',
 }
 
+/** The type of assignment the principal has to the workspace. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export enum WorkspaceIdentityDetail_AssignmentType {
+  /** Unknown assignment to the workspace. */
+  ASSIGNMENT_TYPE_UNSPECIFIED = 'ASSIGNMENT_TYPE_UNSPECIFIED',
+  /** Direct assignment to the workspace, meaning the principal is provisioned and directly assigned to the workspace. */
+  DIRECT = 'DIRECT',
+  /** Indirect assignment to the workspace, meaning the principal is provisioned and assigned to a group that has access to the workspace. */
+  INDIRECT = 'INDIRECT',
+}
+
 /** An identity rule that controls which principals can access an account. */
 export interface AccountAccessIdentityRule {
   /** Currently, only DENY action is supported. */
@@ -427,6 +438,12 @@ export interface GetWorkspaceAssignmentDetailRequest {
   /** Required. The workspace ID for which the assignment details are being requested. */
   workspaceId?: number | undefined;
   /** Required. The internal ID of the principal (user/sp/group) for which the assignment details are being requested. */
+  principalId?: number | undefined;
+}
+
+/** Request message for getting the workspace identity details for a principal in a workspace. */
+export interface GetWorkspaceIdentityDetailRequest {
+  /** Required. The internal ID of the principal (user/sp/group) for which the identity details are being requested. */
   principalId?: number | undefined;
 }
 
@@ -913,6 +930,16 @@ export interface UpdateWorkspaceAssignmentDetailRequest {
   updateMask?: string | undefined;
 }
 
+/** Request message for updating the workspace identity details for a principal in a workspace. */
+export interface UpdateWorkspaceIdentityDetailRequest {
+  /** Required. ID of the principal in <Databricks>. */
+  principalId?: number | undefined;
+  /** Required. Workspace identity detail to be updated in <Databricks>. */
+  workspaceIdentityDetail?: WorkspaceIdentityDetail | undefined;
+  /** Required. The list of fields to update. */
+  updateMask?: string | undefined;
+}
+
 /** The details of a User resource. */
 export interface User {
   /** The accountId parent of the user in <Databricks>. */
@@ -960,6 +987,18 @@ export interface WorkspaceAssignmentDetail {
   accountId?: string | undefined;
   principalType?: PrincipalType | undefined;
   entitlements?: Entitlement[] | undefined;
+}
+
+/** The details of a directly or indirectly assigned principal's details in a workspace. */
+export interface WorkspaceIdentityDetail {
+  /** The internal ID of the principal (user/sp/group) in <Databricks>. */
+  principalId?: number | undefined;
+  /** The type of the principal (user/service principal/group). */
+  principalType?: PrincipalType | undefined;
+  /** The activity status of an identity in a <Databricks> workspace. */
+  workspaceIdentityStatus?: State | undefined;
+  /** The type of assignment the principal has to the workspace (direct or indirect). */
+  assignmentType?: WorkspaceIdentityDetail_AssignmentType | undefined;
 }
 
 export const unmarshalAccountAccessIdentityRuleSchema: z.ZodType<AccountAccessIdentityRule> =
@@ -1381,6 +1420,15 @@ export const unmarshalGetWorkspaceAssignmentDetailRequestSchema: z.ZodType<GetWo
     .transform(d => ({
       accountId: d.account_id,
       workspaceId: d.workspace_id,
+      principalId: d.principal_id,
+    }));
+
+export const unmarshalGetWorkspaceIdentityDetailRequestSchema: z.ZodType<GetWorkspaceIdentityDetailRequest> =
+  z
+    .object({
+      principal_id: z.number().optional(),
+    })
+    .transform(d => ({
       principalId: d.principal_id,
     }));
 
@@ -1943,6 +1991,21 @@ export const unmarshalUpdateWorkspaceAssignmentDetailRequestSchema: z.ZodType<Up
       updateMask: d.update_mask,
     }));
 
+export const unmarshalUpdateWorkspaceIdentityDetailRequestSchema: z.ZodType<UpdateWorkspaceIdentityDetailRequest> =
+  z
+    .object({
+      principal_id: z.number().optional(),
+      workspace_identity_detail: z
+        .lazy(() => unmarshalWorkspaceIdentityDetailSchema)
+        .optional(),
+      update_mask: z.string().optional(),
+    })
+    .transform(d => ({
+      principalId: d.principal_id,
+      workspaceIdentityDetail: d.workspace_identity_detail,
+      updateMask: d.update_mask,
+    }));
+
 export const unmarshalUserSchema: z.ZodType<User> = z
   .object({
     account_id: z.string().optional(),
@@ -2008,6 +2071,23 @@ export const unmarshalWorkspaceAssignmentDetailSchema: z.ZodType<WorkspaceAssign
       accountId: d.account_id,
       principalType: d.principal_type,
       entitlements: d.entitlements,
+    }));
+
+export const unmarshalWorkspaceIdentityDetailSchema: z.ZodType<WorkspaceIdentityDetail> =
+  z
+    .object({
+      principal_id: z.number().optional(),
+      principal_type: z.enum(PrincipalType).optional(),
+      workspace_identity_status: z.enum(State).optional(),
+      assignment_type: z
+        .enum(WorkspaceIdentityDetail_AssignmentType)
+        .optional(),
+    })
+    .transform(d => ({
+      principalId: d.principal_id,
+      principalType: d.principal_type,
+      workspaceIdentityStatus: d.workspace_identity_status,
+      assignmentType: d.assignment_type,
     }));
 
 export const marshalAccountAccessIdentityRuleSchema: z.ZodType = z
@@ -2392,6 +2472,14 @@ export const marshalGetWorkspaceAssignmentDetailRequestSchema: z.ZodType = z
   .transform(d => ({
     account_id: d.accountId,
     workspace_id: d.workspaceId,
+    principal_id: d.principalId,
+  }));
+
+export const marshalGetWorkspaceIdentityDetailRequestSchema: z.ZodType = z
+  .object({
+    principalId: z.number().optional(),
+  })
+  .transform(d => ({
     principal_id: d.principalId,
   }));
 
@@ -2913,6 +3001,20 @@ export const marshalUpdateWorkspaceAssignmentDetailRequestSchema: z.ZodType = z
     update_mask: d.updateMask,
   }));
 
+export const marshalUpdateWorkspaceIdentityDetailRequestSchema: z.ZodType = z
+  .object({
+    principalId: z.number().optional(),
+    workspaceIdentityDetail: z
+      .lazy(() => marshalWorkspaceIdentityDetailSchema)
+      .optional(),
+    updateMask: z.string().optional(),
+  })
+  .transform(d => ({
+    principal_id: d.principalId,
+    workspace_identity_detail: d.workspaceIdentityDetail,
+    update_mask: d.updateMask,
+  }));
+
 export const marshalUserSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
@@ -2976,4 +3078,18 @@ export const marshalWorkspaceAssignmentDetailSchema: z.ZodType = z
     account_id: d.accountId,
     principal_type: d.principalType,
     entitlements: d.entitlements,
+  }));
+
+export const marshalWorkspaceIdentityDetailSchema: z.ZodType = z
+  .object({
+    principalId: z.number().optional(),
+    principalType: z.enum(PrincipalType).optional(),
+    workspaceIdentityStatus: z.enum(State).optional(),
+    assignmentType: z.enum(WorkspaceIdentityDetail_AssignmentType).optional(),
+  })
+  .transform(d => ({
+    principal_id: d.principalId,
+    principal_type: d.principalType,
+    workspace_identity_status: d.workspaceIdentityStatus,
+    assignment_type: d.assignmentType,
   }));

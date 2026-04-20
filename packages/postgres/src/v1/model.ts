@@ -635,6 +635,22 @@ export enum EndpointStatus_State {
   DEGRADED = 'DEGRADED',
 }
 
+/**
+ * Release channel of the underlying pipeline's runtime.
+ * PREVIEW provides early access to the latest features but may be less stable.
+ * Some source table configurations (e.g., read-time CDF) require PREVIEW.
+ * Defaults to CURRENT if not specified.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export enum NewPipelineSpec_PipelineChannel {
+  /** Default value; the pipeline channel is not specified and defaults to CURRENT. */
+  PIPELINE_CHANNEL_UNSPECIFIED = 'PIPELINE_CHANNEL_UNSPECIFIED',
+  /** Uses the stable, generally available runtime. */
+  CURRENT = 'CURRENT',
+  /** Uses the latest preview runtime. Required for Auto CDF (read-time CDF) sources. */
+  PREVIEW = 'PREVIEW',
+}
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum ProvisioningInfo_State {
   STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
@@ -1164,12 +1180,42 @@ export interface DeleteEndpointRequest {
   name?: string | undefined;
 }
 
+/** Request to hard delete a Forward ETL configuration and all associated table mappings. */
+export interface DeleteForwardEtlConfigurationRequest {
+  /**
+   * The Branch to delete Forward ETL configuration for.
+   * Format: projects/{project_id}/branches/{branch_id}
+   */
+  parent?: string | undefined;
+  /** Tenant ID (dashless UUID format). */
+  tenantId?: string | undefined;
+  /** Timeline ID (dashless UUID format). */
+  timelineId?: string | undefined;
+  /** PostgreSQL database OID to delete configuration for. */
+  pgDatabaseOid?: number | undefined;
+  /** PostgreSQL schema OID to delete configuration for. */
+  pgSchemaOid?: number | undefined;
+}
+
+/** Response to delete Forward ETL configuration. */
+export interface DeleteForwardEtlConfigurationResponse {
+  /** Number of configuration rows deleted (0 or 1). */
+  deletedConfigs?: number | undefined;
+  /** Number of table mapping rows deleted. */
+  deletedMappings?: number | undefined;
+}
+
 export interface DeleteProjectRequest {
   /**
    * The full resource path of the project to delete.
    * Format: projects/{project_id}
    */
   name?: string | undefined;
+  /**
+   * If true, permanently deletes the project (hard delete).
+   * If false or unset, performs a soft delete.
+   */
+  purge?: boolean | undefined;
 }
 
 export interface DeleteRoleRequest {
@@ -1755,6 +1801,12 @@ export interface NewPipelineSpec {
   storageSchema?: string | undefined;
   /** Budget policy to set on the newly created pipeline. */
   budgetPolicyId?: string | undefined;
+  /**
+   * Release channel of the underlying pipeline's runtime.
+   * Some source table configurations (e.g., read-time CDF) require PREVIEW.
+   * Defaults to CURRENT if not specified.
+   */
+  pipelineChannel?: NewPipelineSpec_PipelineChannel | undefined;
 }
 
 /**
@@ -2227,6 +2279,15 @@ export interface UndeleteBranchRequest {
   name?: string | undefined;
 }
 
+/** Request to restore a soft-deleted project within its retention period. */
+export interface UndeleteProjectRequest {
+  /**
+   * The full resource path of the project to undelete.
+   * Format: projects/{project_id}
+   */
+  name?: string | undefined;
+}
+
 export interface UpdateBranchRequest {
   /**
    * The Branch to update.
@@ -2695,13 +2756,43 @@ export const unmarshalDeleteEndpointRequestSchema: z.ZodType<DeleteEndpointReque
       name: d.name,
     }));
 
+export const unmarshalDeleteForwardEtlConfigurationRequestSchema: z.ZodType<DeleteForwardEtlConfigurationRequest> =
+  z
+    .object({
+      parent: z.string().optional(),
+      tenant_id: z.string().optional(),
+      timeline_id: z.string().optional(),
+      pg_database_oid: z.number().optional(),
+      pg_schema_oid: z.number().optional(),
+    })
+    .transform(d => ({
+      parent: d.parent,
+      tenantId: d.tenant_id,
+      timelineId: d.timeline_id,
+      pgDatabaseOid: d.pg_database_oid,
+      pgSchemaOid: d.pg_schema_oid,
+    }));
+
+export const unmarshalDeleteForwardEtlConfigurationResponseSchema: z.ZodType<DeleteForwardEtlConfigurationResponse> =
+  z
+    .object({
+      deleted_configs: z.number().optional(),
+      deleted_mappings: z.number().optional(),
+    })
+    .transform(d => ({
+      deletedConfigs: d.deleted_configs,
+      deletedMappings: d.deleted_mappings,
+    }));
+
 export const unmarshalDeleteProjectRequestSchema: z.ZodType<DeleteProjectRequest> =
   z
     .object({
       name: z.string().optional(),
+      purge: z.boolean().optional(),
     })
     .transform(d => ({
       name: d.name,
+      purge: d.purge,
     }));
 
 export const unmarshalDeleteRoleRequestSchema: z.ZodType<DeleteRoleRequest> = z
@@ -3310,11 +3401,13 @@ export const unmarshalNewPipelineSpecSchema: z.ZodType<NewPipelineSpec> = z
     storage_catalog: z.string().optional(),
     storage_schema: z.string().optional(),
     budget_policy_id: z.string().optional(),
+    pipeline_channel: z.enum(NewPipelineSpec_PipelineChannel).optional(),
   })
   .transform(d => ({
     storageCatalog: d.storage_catalog,
     storageSchema: d.storage_schema,
     budgetPolicyId: d.budget_policy_id,
+    pipelineChannel: d.pipeline_channel,
   }));
 
 export const unmarshalOperationSchema: z.ZodType<Operation> = z
@@ -3738,6 +3831,15 @@ export const unmarshalTableSchema: z.ZodType<Table> = z
   }));
 
 export const unmarshalUndeleteBranchRequestSchema: z.ZodType<UndeleteBranchRequest> =
+  z
+    .object({
+      name: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+    }));
+
+export const unmarshalUndeleteProjectRequestSchema: z.ZodType<UndeleteProjectRequest> =
   z
     .object({
       name: z.string().optional(),
@@ -4186,12 +4288,40 @@ export const marshalDeleteEndpointRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
+export const marshalDeleteForwardEtlConfigurationRequestSchema: z.ZodType = z
+  .object({
+    parent: z.string().optional(),
+    tenantId: z.string().optional(),
+    timelineId: z.string().optional(),
+    pgDatabaseOid: z.number().optional(),
+    pgSchemaOid: z.number().optional(),
+  })
+  .transform(d => ({
+    parent: d.parent,
+    tenant_id: d.tenantId,
+    timeline_id: d.timelineId,
+    pg_database_oid: d.pgDatabaseOid,
+    pg_schema_oid: d.pgSchemaOid,
+  }));
+
+export const marshalDeleteForwardEtlConfigurationResponseSchema: z.ZodType = z
+  .object({
+    deletedConfigs: z.number().optional(),
+    deletedMappings: z.number().optional(),
+  })
+  .transform(d => ({
+    deleted_configs: d.deletedConfigs,
+    deleted_mappings: d.deletedMappings,
+  }));
+
 export const marshalDeleteProjectRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
+    purge: z.boolean().optional(),
   })
   .transform(d => ({
     name: d.name,
+    purge: d.purge,
   }));
 
 export const marshalDeleteRoleRequestSchema: z.ZodType = z
@@ -4768,11 +4898,13 @@ export const marshalNewPipelineSpecSchema: z.ZodType = z
     storageCatalog: z.string().optional(),
     storageSchema: z.string().optional(),
     budgetPolicyId: z.string().optional(),
+    pipelineChannel: z.enum(NewPipelineSpec_PipelineChannel).optional(),
   })
   .transform(d => ({
     storage_catalog: d.storageCatalog,
     storage_schema: d.storageSchema,
     budget_policy_id: d.budgetPolicyId,
+    pipeline_channel: d.pipelineChannel,
   }));
 
 export const marshalOperationSchema: z.ZodType = z
@@ -5177,6 +5309,14 @@ export const marshalTableSchema: z.ZodType = z
   }));
 
 export const marshalUndeleteBranchRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalUndeleteProjectRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })

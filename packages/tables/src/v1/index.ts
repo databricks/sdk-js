@@ -44,6 +44,7 @@ export type {
   PolicyFunctionArgument,
   PrimaryKeyConstraint,
   RowFilter,
+  SecretDependency,
   SecurableKindManifest,
   SseEncryptionDetails,
   TableConstraint,
@@ -56,4 +57,5 @@ export type {
   UpdateTable,
   UpdateTable_PropertiesEntry,
   UpdateTable_Response,
+  VolumeDependency,
 } from './model';
