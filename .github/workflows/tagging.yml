@@ -4,7 +4,12 @@ name: tagging
 on:
   # Manual dispatch.
   workflow_dispatch:
-    # No inputs are required for the manual dispatch.
+    inputs:
+      package:
+        description: 'Package to tag (leave empty to tag all packages with pending releases).'
+        required: false
+        type: string
+        default: ''
 
   # NOTE: Temporarily disable automated releases.
   #
@@ -32,8 +37,8 @@ jobs:
       github.repository == 'databricks/databricks-sdk-java'
     environment: "release-is"
     runs-on:
-      group: databricks-deco-testing-runner-group
-      labels: ubuntu-latest-deco
+      group: databricks-protected-runner-group
+      labels: linux-ubuntu-latest
     steps:
       - name: Generate GitHub App Token
         id: generate-token
@@ -61,4 +66,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-        run: uv run --locked tagging.py
+          PACKAGE: ${{ inputs.package }}
+        run: |
+          if [ -n "$PACKAGE" ]; then
+            uv run --locked tagging.py --package "$PACKAGE"
+          else
+            uv run --locked tagging.py
+          fi
