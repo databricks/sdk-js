@@ -461,9 +461,9 @@ def get_next_tag_info(package: Package) -> Optional[TagInfo]:
     # Ensure there is exactly one empty line before each section
     next_changelog = re.sub(r"(\n*)(###[^\n]+)", r"\n\n\2", next_changelog)
 
-    if not re.search(r"###", next_changelog):
-        print("All sections are empty. No changes will be made to the changelog.")
-        return None
+    # if not re.search(r"###", next_changelog):
+    #     print("All sections are empty. No changes will be made to the changelog.")
+    #     return None
 
     version_match = re.search(rf"## Release v({Version.PATTERN})", next_changelog)
 
