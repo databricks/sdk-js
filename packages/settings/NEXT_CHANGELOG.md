@@ -9,5 +9,6 @@
 ### Documentation
 
 ### Internal Changes
+* E2E test: add marker file for next-changelog workflow verification.
 
 ### API Changes
