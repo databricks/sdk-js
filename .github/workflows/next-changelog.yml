@@ -2,8 +2,10 @@
 name: Check for NEXT_CHANGELOG.md Changes
 
 on:
-  # Use pull_request_target to have access to GitHub API
-  pull_request_target:
+  # TEMPORARY (e2e test only): switched from pull_request_target to
+  # pull_request so the workflow fires from the PR branch. Production
+  # deployment requires landing this file on main first.
+  pull_request:
     types: [opened, synchronize, reopened, edited]
 
 jobs:
