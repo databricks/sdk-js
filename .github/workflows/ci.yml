@@ -17,10 +17,16 @@ concurrency:
 
 jobs:
   lint:
-    name: Lint
+    name: Lint (${{ matrix.shard }})
     runs-on:
       group: databricks-protected-runner-group
       labels: linux-ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Shards partition packages by the first letter after `@databricks/sdk-`.
+        # Together the four ranges cover a-z.
+        shard: ['[a-c]*', '[d-i]*', '[m-r]*', '[s-z]*']
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -44,7 +50,7 @@ jobs:
         run: jf npm ci
 
       - name: Run lint and format checks
-        run: npm run checks
+        run: npx turbo run lint format:check --filter="@databricks/sdk-${{ matrix.shard }}"
 
   typecheck:
     name: Type Check
