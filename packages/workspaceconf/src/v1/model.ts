@@ -11,15 +11,6 @@ export interface WorkspaceConf {
   value?: string | undefined;
 }
 
-export const unmarshalGetWorkspaceConfRequestSchema: z.ZodType<GetWorkspaceConfRequest> =
-  z
-    .object({
-      keys: z.string().optional(),
-    })
-    .transform(d => ({
-      keys: d.keys,
-    }));
-
 export const unmarshalWorkspaceConfSchema: z.ZodType<WorkspaceConf> = z
   .object({
     key: z.string().optional(),
@@ -28,14 +19,6 @@ export const unmarshalWorkspaceConfSchema: z.ZodType<WorkspaceConf> = z
   .transform(d => ({
     key: d.key,
     value: d.value,
-  }));
-
-export const marshalGetWorkspaceConfRequestSchema: z.ZodType = z
-  .object({
-    keys: z.string().optional(),
-  })
-  .transform(d => ({
-    keys: d.keys,
   }));
 
 export const marshalWorkspaceConfSchema: z.ZodType = z

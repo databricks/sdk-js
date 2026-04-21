@@ -318,26 +318,6 @@ export const unmarshalColumnTagValueExtractionSchema: z.ZodType<ColumnTagValueEx
       tagKey: d.tag_key,
     }));
 
-export const unmarshalCreatePolicySchema: z.ZodType<CreatePolicy> = z
-  .object({
-    policy_info: z.lazy(() => unmarshalPolicyInfoSchema).optional(),
-  })
-  .transform(d => ({
-    policyInfo: d.policy_info,
-  }));
-
-export const unmarshalDeletePolicySchema: z.ZodType<DeletePolicy> = z
-  .object({
-    on_securable_type: z.string().optional(),
-    on_securable_fullname: z.string().optional(),
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    onSecurableType: d.on_securable_type,
-    onSecurableFullname: d.on_securable_fullname,
-    name: d.name,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeletePolicy_ResponseSchema: z.ZodType<DeletePolicy_Response> =
   z.object({});
@@ -364,40 +344,12 @@ export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
     metadataExtraction: d.metadata_extraction,
   }));
 
-export const unmarshalGetPolicySchema: z.ZodType<GetPolicy> = z
-  .object({
-    on_securable_type: z.string().optional(),
-    on_securable_fullname: z.string().optional(),
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    onSecurableType: d.on_securable_type,
-    onSecurableFullname: d.on_securable_fullname,
-    name: d.name,
-  }));
-
 export const unmarshalGrantOptionsSchema: z.ZodType<GrantOptions> = z
   .object({
     privileges: z.array(z.string()).optional(),
   })
   .transform(d => ({
     privileges: d.privileges,
-  }));
-
-export const unmarshalListPoliciesSchema: z.ZodType<ListPolicies> = z
-  .object({
-    on_securable_type: z.string().optional(),
-    on_securable_fullname: z.string().optional(),
-    include_inherited: z.boolean().optional(),
-    max_results: z.number().optional(),
-    page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    onSecurableType: d.on_securable_type,
-    onSecurableFullname: d.on_securable_fullname,
-    includeInherited: d.include_inherited,
-    maxResults: d.max_results,
-    pageToken: d.page_token,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -500,22 +452,6 @@ export const unmarshalTagValueExtractionSchema: z.ZodType<TagValueExtraction> =
       tagKey: d.tag_key,
     }));
 
-export const unmarshalUpdatePolicySchema: z.ZodType<UpdatePolicy> = z
-  .object({
-    on_securable_type: z.string().optional(),
-    on_securable_fullname: z.string().optional(),
-    name: z.string().optional(),
-    policy_info: z.lazy(() => unmarshalPolicyInfoSchema).optional(),
-    update_mask: z.string().optional(),
-  })
-  .transform(d => ({
-    onSecurableType: d.on_securable_type,
-    onSecurableFullname: d.on_securable_fullname,
-    name: d.name,
-    policyInfo: d.policy_info,
-    updateMask: d.update_mask,
-  }));
-
 export const marshalColumnMaskOptionsSchema: z.ZodType = z
   .object({
     functionName: z.string().optional(),
@@ -536,26 +472,6 @@ export const marshalColumnTagValueExtractionSchema: z.ZodType = z
   .transform(d => ({
     column_alias: d.columnAlias,
     tag_key: d.tagKey,
-  }));
-
-export const marshalCreatePolicySchema: z.ZodType = z
-  .object({
-    policyInfo: z.lazy(() => marshalPolicyInfoSchema).optional(),
-  })
-  .transform(d => ({
-    policy_info: d.policyInfo,
-  }));
-
-export const marshalDeletePolicySchema: z.ZodType = z
-  .object({
-    onSecurableType: z.string().optional(),
-    onSecurableFullname: z.string().optional(),
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    on_securable_type: d.onSecurableType,
-    on_securable_fullname: d.onSecurableFullname,
-    name: d.name,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -583,40 +499,12 @@ export const marshalFunctionArgumentSchema: z.ZodType = z
     metadata_extraction: d.metadataExtraction,
   }));
 
-export const marshalGetPolicySchema: z.ZodType = z
-  .object({
-    onSecurableType: z.string().optional(),
-    onSecurableFullname: z.string().optional(),
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    on_securable_type: d.onSecurableType,
-    on_securable_fullname: d.onSecurableFullname,
-    name: d.name,
-  }));
-
 export const marshalGrantOptionsSchema: z.ZodType = z
   .object({
     privileges: z.array(z.string()).optional(),
   })
   .transform(d => ({
     privileges: d.privileges,
-  }));
-
-export const marshalListPoliciesSchema: z.ZodType = z
-  .object({
-    onSecurableType: z.string().optional(),
-    onSecurableFullname: z.string().optional(),
-    includeInherited: z.boolean().optional(),
-    maxResults: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    on_securable_type: d.onSecurableType,
-    on_securable_fullname: d.onSecurableFullname,
-    include_inherited: d.includeInherited,
-    max_results: d.maxResults,
-    page_token: d.pageToken,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -714,20 +602,4 @@ export const marshalTagValueExtractionSchema: z.ZodType = z
   })
   .transform(d => ({
     tag_key: d.tagKey,
-  }));
-
-export const marshalUpdatePolicySchema: z.ZodType = z
-  .object({
-    onSecurableType: z.string().optional(),
-    onSecurableFullname: z.string().optional(),
-    name: z.string().optional(),
-    policyInfo: z.lazy(() => marshalPolicyInfoSchema).optional(),
-    updateMask: z.string().optional(),
-  })
-  .transform(d => ({
-    on_securable_type: d.onSecurableType,
-    on_securable_fullname: d.onSecurableFullname,
-    name: d.name,
-    policy_info: d.policyInfo,
-    update_mask: d.updateMask,
   }));

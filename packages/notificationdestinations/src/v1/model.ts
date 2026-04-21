@@ -174,15 +174,6 @@ export const unmarshalCreateNotificationDestinationRequestSchema: z.ZodType<Crea
       config: d.config,
     }));
 
-export const unmarshalDeleteNotificationDestinationRequestSchema: z.ZodType<DeleteNotificationDestinationRequest> =
-  z
-    .object({
-      id: z.string().optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-    }));
-
 export const unmarshalEmailConfigSchema: z.ZodType<EmailConfig> = z
   .object({
     addresses: z.array(z.string()).optional(),
@@ -210,26 +201,6 @@ export const unmarshalGenericWebhookConfigSchema: z.ZodType<GenericWebhookConfig
       usernameSet: d.username_set,
       password: d.password,
       passwordSet: d.password_set,
-    }));
-
-export const unmarshalGetNotificationDestinationRequestSchema: z.ZodType<GetNotificationDestinationRequest> =
-  z
-    .object({
-      id: z.string().optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-    }));
-
-export const unmarshalListNotificationDestinationsRequestSchema: z.ZodType<ListNotificationDestinationsRequest> =
-  z
-    .object({
-      page_token: z.string().optional(),
-      page_size: z.number().optional(),
-    })
-    .transform(d => ({
-      pageToken: d.page_token,
-      pageSize: d.page_size,
     }));
 
 export const unmarshalListNotificationDestinationsResponseSchema: z.ZodType<ListNotificationDestinationsResponse> =
@@ -369,14 +340,6 @@ export const marshalCreateNotificationDestinationRequestSchema: z.ZodType = z
     config: d.config,
   }));
 
-export const marshalDeleteNotificationDestinationRequestSchema: z.ZodType = z
-  .object({
-    id: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-  }));
-
 export const marshalEmailConfigSchema: z.ZodType = z
   .object({
     addresses: z.array(z.string()).optional(),
@@ -403,24 +366,6 @@ export const marshalGenericWebhookConfigSchema: z.ZodType = z
     username_set: d.usernameSet,
     password: d.password,
     password_set: d.passwordSet,
-  }));
-
-export const marshalGetNotificationDestinationRequestSchema: z.ZodType = z
-  .object({
-    id: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-  }));
-
-export const marshalListNotificationDestinationsRequestSchema: z.ZodType = z
-  .object({
-    pageToken: z.string().optional(),
-    pageSize: z.number().optional(),
-  })
-  .transform(d => ({
-    page_token: d.pageToken,
-    page_size: d.pageSize,
   }));
 
 export const marshalListNotificationDestinationsResponseSchema: z.ZodType = z

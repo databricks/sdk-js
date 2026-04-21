@@ -85,30 +85,6 @@ export interface UpdateEntityTagAssignmentRequest {
   updateMask?: string | undefined;
 }
 
-export const unmarshalCreateEntityTagAssignmentRequestSchema: z.ZodType<CreateEntityTagAssignmentRequest> =
-  z
-    .object({
-      tag_assignment: z
-        .lazy(() => unmarshalEntityTagAssignmentSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      tagAssignment: d.tag_assignment,
-    }));
-
-export const unmarshalDeleteEntityTagAssignmentRequestSchema: z.ZodType<DeleteEntityTagAssignmentRequest> =
-  z
-    .object({
-      entity_name: z.string().optional(),
-      tag_key: z.string().optional(),
-      entity_type: z.string().optional(),
-    })
-    .transform(d => ({
-      entityName: d.entity_name,
-      tagKey: d.tag_key,
-      entityType: d.entity_type,
-    }));
-
 export const unmarshalEntityTagAssignmentSchema: z.ZodType<EntityTagAssignment> =
   z
     .object({
@@ -135,38 +111,6 @@ export const unmarshalEntityTagAssignmentSchema: z.ZodType<EntityTagAssignment> 
       inherited: d.inherited,
     }));
 
-export const unmarshalGetEntityTagAssignmentRequestSchema: z.ZodType<GetEntityTagAssignmentRequest> =
-  z
-    .object({
-      entity_name: z.string().optional(),
-      tag_key: z.string().optional(),
-      entity_type: z.string().optional(),
-      include_inherited: z.boolean().optional(),
-    })
-    .transform(d => ({
-      entityName: d.entity_name,
-      tagKey: d.tag_key,
-      entityType: d.entity_type,
-      includeInherited: d.include_inherited,
-    }));
-
-export const unmarshalListEntityTagAssignmentsRequestSchema: z.ZodType<ListEntityTagAssignmentsRequest> =
-  z
-    .object({
-      entity_name: z.string().optional(),
-      max_results: z.number().optional(),
-      page_token: z.string().optional(),
-      entity_type: z.string().optional(),
-      include_inherited: z.boolean().optional(),
-    })
-    .transform(d => ({
-      entityName: d.entity_name,
-      maxResults: d.max_results,
-      pageToken: d.page_token,
-      entityType: d.entity_type,
-      includeInherited: d.include_inherited,
-    }));
-
 export const unmarshalListEntityTagAssignmentsResponseSchema: z.ZodType<ListEntityTagAssignmentsResponse> =
   z
     .object({
@@ -179,39 +123,6 @@ export const unmarshalListEntityTagAssignmentsResponseSchema: z.ZodType<ListEnti
       tagAssignments: d.tag_assignments,
       nextPageToken: d.next_page_token,
     }));
-
-export const unmarshalUpdateEntityTagAssignmentRequestSchema: z.ZodType<UpdateEntityTagAssignmentRequest> =
-  z
-    .object({
-      tag_assignment: z
-        .lazy(() => unmarshalEntityTagAssignmentSchema)
-        .optional(),
-      update_mask: z.string().optional(),
-    })
-    .transform(d => ({
-      tagAssignment: d.tag_assignment,
-      updateMask: d.update_mask,
-    }));
-
-export const marshalCreateEntityTagAssignmentRequestSchema: z.ZodType = z
-  .object({
-    tagAssignment: z.lazy(() => marshalEntityTagAssignmentSchema).optional(),
-  })
-  .transform(d => ({
-    tag_assignment: d.tagAssignment,
-  }));
-
-export const marshalDeleteEntityTagAssignmentRequestSchema: z.ZodType = z
-  .object({
-    entityName: z.string().optional(),
-    tagKey: z.string().optional(),
-    entityType: z.string().optional(),
-  })
-  .transform(d => ({
-    entity_name: d.entityName,
-    tag_key: d.tagKey,
-    entity_type: d.entityType,
-  }));
 
 export const marshalEntityTagAssignmentSchema: z.ZodType = z
   .object({
@@ -238,36 +149,6 @@ export const marshalEntityTagAssignmentSchema: z.ZodType = z
     inherited: d.inherited,
   }));
 
-export const marshalGetEntityTagAssignmentRequestSchema: z.ZodType = z
-  .object({
-    entityName: z.string().optional(),
-    tagKey: z.string().optional(),
-    entityType: z.string().optional(),
-    includeInherited: z.boolean().optional(),
-  })
-  .transform(d => ({
-    entity_name: d.entityName,
-    tag_key: d.tagKey,
-    entity_type: d.entityType,
-    include_inherited: d.includeInherited,
-  }));
-
-export const marshalListEntityTagAssignmentsRequestSchema: z.ZodType = z
-  .object({
-    entityName: z.string().optional(),
-    maxResults: z.number().optional(),
-    pageToken: z.string().optional(),
-    entityType: z.string().optional(),
-    includeInherited: z.boolean().optional(),
-  })
-  .transform(d => ({
-    entity_name: d.entityName,
-    max_results: d.maxResults,
-    page_token: d.pageToken,
-    entity_type: d.entityType,
-    include_inherited: d.includeInherited,
-  }));
-
 export const marshalListEntityTagAssignmentsResponseSchema: z.ZodType = z
   .object({
     tagAssignments: z
@@ -278,14 +159,4 @@ export const marshalListEntityTagAssignmentsResponseSchema: z.ZodType = z
   .transform(d => ({
     tag_assignments: d.tagAssignments,
     next_page_token: d.nextPageToken,
-  }));
-
-export const marshalUpdateEntityTagAssignmentRequestSchema: z.ZodType = z
-  .object({
-    tagAssignment: z.lazy(() => marshalEntityTagAssignmentSchema).optional(),
-    updateMask: z.string().optional(),
-  })
-  .transform(d => ({
-    tag_assignment: d.tagAssignment,
-    update_mask: d.updateMask,
   }));

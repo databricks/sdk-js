@@ -183,15 +183,6 @@ export const unmarshalColumnMatcherSchema: z.ZodType<ColumnMatcher> = z
     columnNames: d.column_names,
   }));
 
-export const unmarshalCreateQualityMonitorRequestSchema: z.ZodType<CreateQualityMonitorRequest> =
-  z
-    .object({
-      quality_monitor: z.lazy(() => unmarshalQualityMonitorSchema).optional(),
-    })
-    .transform(d => ({
-      qualityMonitor: d.quality_monitor,
-    }));
-
 export const unmarshalCustomCheckConfigurationSchema: z.ZodType<CustomCheckConfiguration> =
   z
     .object({
@@ -227,39 +218,6 @@ export const unmarshalCustomScalarCheckSchema: z.ZodType<CustomScalarCheck> = z
     columnMatchers: d.column_matchers,
     thresholds: d.thresholds,
   }));
-
-export const unmarshalDeleteQualityMonitorRequestSchema: z.ZodType<DeleteQualityMonitorRequest> =
-  z
-    .object({
-      object_type: z.string().optional(),
-      object_id: z.string().optional(),
-    })
-    .transform(d => ({
-      objectType: d.object_type,
-      objectId: d.object_id,
-    }));
-
-export const unmarshalGetQualityMonitorRequestSchema: z.ZodType<GetQualityMonitorRequest> =
-  z
-    .object({
-      object_type: z.string().optional(),
-      object_id: z.string().optional(),
-    })
-    .transform(d => ({
-      objectType: d.object_type,
-      objectId: d.object_id,
-    }));
-
-export const unmarshalListQualityMonitorRequestSchema: z.ZodType<ListQualityMonitorRequest> =
-  z
-    .object({
-      page_token: z.string().optional(),
-      page_size: z.number().optional(),
-    })
-    .transform(d => ({
-      pageToken: d.page_token,
-      pageSize: d.page_size,
-    }));
 
 export const unmarshalListQualityMonitorResponseSchema: z.ZodType<ListQualityMonitorResponse> =
   z
@@ -335,19 +293,6 @@ export const unmarshalUniquenessValidityCheckSchema: z.ZodType<UniquenessValidit
       columnNames: d.column_names,
     }));
 
-export const unmarshalUpdateQualityMonitorRequestSchema: z.ZodType<UpdateQualityMonitorRequest> =
-  z
-    .object({
-      object_type: z.string().optional(),
-      object_id: z.string().optional(),
-      quality_monitor: z.lazy(() => unmarshalQualityMonitorSchema).optional(),
-    })
-    .transform(d => ({
-      objectType: d.object_type,
-      objectId: d.object_id,
-      qualityMonitor: d.quality_monitor,
-    }));
-
 export const unmarshalValidityCheckConfigurationSchema: z.ZodType<ValidityCheckConfiguration> =
   z
     .object({
@@ -401,14 +346,6 @@ export const marshalColumnMatcherSchema: z.ZodType = z
     column_names: d.columnNames,
   }));
 
-export const marshalCreateQualityMonitorRequestSchema: z.ZodType = z
-  .object({
-    qualityMonitor: z.lazy(() => marshalQualityMonitorSchema).optional(),
-  })
-  .transform(d => ({
-    quality_monitor: d.qualityMonitor,
-  }));
-
 export const marshalCustomCheckConfigurationSchema: z.ZodType = z
   .object({
     scalarCheck: z.lazy(() => marshalCustomScalarCheckSchema).optional(),
@@ -441,36 +378,6 @@ export const marshalCustomScalarCheckSchema: z.ZodType = z
     sql_query: d.sqlQuery,
     column_matchers: d.columnMatchers,
     thresholds: d.thresholds,
-  }));
-
-export const marshalDeleteQualityMonitorRequestSchema: z.ZodType = z
-  .object({
-    objectType: z.string().optional(),
-    objectId: z.string().optional(),
-  })
-  .transform(d => ({
-    object_type: d.objectType,
-    object_id: d.objectId,
-  }));
-
-export const marshalGetQualityMonitorRequestSchema: z.ZodType = z
-  .object({
-    objectType: z.string().optional(),
-    objectId: z.string().optional(),
-  })
-  .transform(d => ({
-    object_type: d.objectType,
-    object_id: d.objectId,
-  }));
-
-export const marshalListQualityMonitorRequestSchema: z.ZodType = z
-  .object({
-    pageToken: z.string().optional(),
-    pageSize: z.number().optional(),
-  })
-  .transform(d => ({
-    page_token: d.pageToken,
-    page_size: d.pageSize,
   }));
 
 export const marshalListQualityMonitorResponseSchema: z.ZodType = z
@@ -541,18 +448,6 @@ export const marshalUniquenessValidityCheckSchema: z.ZodType = z
   })
   .transform(d => ({
     column_names: d.columnNames,
-  }));
-
-export const marshalUpdateQualityMonitorRequestSchema: z.ZodType = z
-  .object({
-    objectType: z.string().optional(),
-    objectId: z.string().optional(),
-    qualityMonitor: z.lazy(() => marshalQualityMonitorSchema).optional(),
-  })
-  .transform(d => ({
-    object_type: d.objectType,
-    object_id: d.objectId,
-    quality_monitor: d.qualityMonitor,
   }));
 
 export const marshalValidityCheckConfigurationSchema: z.ZodType = z

@@ -36,19 +36,6 @@ export interface PublishedOAuthApp {
   scopes?: string[] | undefined;
 }
 
-export const unmarshalListPublishedOAuthAppsSchema: z.ZodType<ListPublishedOAuthApps> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      page_token: z.string().optional(),
-      page_size: z.number().optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      pageToken: d.page_token,
-      pageSize: d.page_size,
-    }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListPublishedOAuthApps_ResponseSchema: z.ZodType<ListPublishedOAuthApps_Response> =
   z
@@ -79,18 +66,6 @@ export const unmarshalPublishedOAuthAppSchema: z.ZodType<PublishedOAuthApp> = z
     isConfidentialClient: d.is_confidential_client,
     redirectUrls: d.redirect_urls,
     scopes: d.scopes,
-  }));
-
-export const marshalListPublishedOAuthAppsSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    pageToken: z.string().optional(),
-    pageSize: z.number().optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    page_token: d.pageToken,
-    page_size: d.pageSize,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

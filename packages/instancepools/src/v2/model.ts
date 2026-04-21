@@ -821,18 +821,6 @@ export const unmarshalCreateInstancePoolSchema: z.ZodType<CreateInstancePool> =
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateInstancePool_CustomTagsEntrySchema: z.ZodType<CreateInstancePool_CustomTagsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalCreateInstancePool_ResponseSchema: z.ZodType<CreateInstancePool_Response> =
   z
     .object({
@@ -954,28 +942,8 @@ export const unmarshalEditInstancePoolSchema: z.ZodType<EditInstancePool> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEditInstancePool_CustomTagsEntrySchema: z.ZodType<EditInstancePool_CustomTagsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalEditInstancePool_ResponseSchema: z.ZodType<EditInstancePool_Response> =
   z.object({});
-
-export const unmarshalGetInstancePoolSchema: z.ZodType<GetInstancePool> = z
-  .object({
-    instance_pool_id: z.string().optional(),
-  })
-  .transform(d => ({
-    instancePoolId: d.instance_pool_id,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalGetInstancePool_ResponseSchema: z.ZodType<GetInstancePool_Response> =
@@ -1040,30 +1008,6 @@ export const unmarshalGetInstancePool_ResponseSchema: z.ZodType<GetInstancePool_
       totalInitialRemoteDiskSize: d.total_initial_remote_disk_size,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetInstancePool_Response_CustomTagsEntrySchema: z.ZodType<GetInstancePool_Response_CustomTagsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetInstancePool_Response_DefaultTagsEntrySchema: z.ZodType<GetInstancePool_Response_DefaultTagsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
 export const unmarshalInstancePoolAndStatsSchema: z.ZodType<InstancePoolAndStats> =
   z
     .object({
@@ -1124,30 +1068,6 @@ export const unmarshalInstancePoolAndStatsSchema: z.ZodType<InstancePoolAndStats
       enableAutoAlternateNodeTypes: d.enable_auto_alternate_node_types,
       remoteDiskThroughput: d.remote_disk_throughput,
       totalInitialRemoteDiskSize: d.total_initial_remote_disk_size,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalInstancePoolAndStats_CustomTagsEntrySchema: z.ZodType<InstancePoolAndStats_CustomTagsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalInstancePoolAndStats_DefaultTagsEntrySchema: z.ZodType<InstancePoolAndStats_DefaultTagsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
     }));
 
 export const unmarshalInstancePoolAwsAttributesSchema: z.ZodType<InstancePoolAwsAttributes> =
@@ -1213,9 +1133,6 @@ export const unmarshalInstancePoolStatusSchema: z.ZodType<InstancePoolStatus> =
     .transform(d => ({
       pendingInstanceErrors: d.pending_instance_errors,
     }));
-
-export const unmarshalListInstancePoolsSchema: z.ZodType<ListInstancePools> =
-  z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListInstancePools_ResponseSchema: z.ZodType<ListInstancePools_Response> =
@@ -1297,17 +1214,6 @@ export const marshalCreateInstancePoolSchema: z.ZodType = z
     enable_auto_alternate_node_types: d.enableAutoAlternateNodeTypes,
     remote_disk_throughput: d.remoteDiskThroughput,
     total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCreateInstancePool_CustomTagsEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1429,26 +1335,7 @@ export const marshalEditInstancePoolSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEditInstancePool_CustomTagsEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalEditInstancePool_ResponseSchema: z.ZodType = z.object({});
-
-export const marshalGetInstancePoolSchema: z.ZodType = z
-  .object({
-    instancePoolId: z.string().optional(),
-  })
-  .transform(d => ({
-    instance_pool_id: d.instancePoolId,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalGetInstancePool_ResponseSchema: z.ZodType = z
@@ -1511,30 +1398,6 @@ export const marshalGetInstancePool_ResponseSchema: z.ZodType = z
     total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalGetInstancePool_Response_CustomTagsEntrySchema: z.ZodType =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalGetInstancePool_Response_DefaultTagsEntrySchema: z.ZodType =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
 export const marshalInstancePoolAndStatsSchema: z.ZodType = z
   .object({
     stats: z.lazy(() => marshalInstancePoolStatsSchema).optional(),
@@ -1593,28 +1456,6 @@ export const marshalInstancePoolAndStatsSchema: z.ZodType = z
     enable_auto_alternate_node_types: d.enableAutoAlternateNodeTypes,
     remote_disk_throughput: d.remoteDiskThroughput,
     total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalInstancePoolAndStats_CustomTagsEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalInstancePoolAndStats_DefaultTagsEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
   }));
 
 export const marshalInstancePoolAwsAttributesSchema: z.ZodType = z
@@ -1676,8 +1517,6 @@ export const marshalInstancePoolStatusSchema: z.ZodType = z
   .transform(d => ({
     pending_instance_errors: d.pendingInstanceErrors,
   }));
-
-export const marshalListInstancePoolsSchema: z.ZodType = z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalListInstancePools_ResponseSchema: z.ZodType = z

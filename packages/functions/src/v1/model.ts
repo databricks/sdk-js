@@ -499,16 +499,6 @@ export const unmarshalCredentialDependencySchema: z.ZodType<CredentialDependency
       credentialName: d.credential_name,
     }));
 
-export const unmarshalDeleteFunctionSchema: z.ZodType<DeleteFunction> = z
-  .object({
-    full_name_arg: z.string().optional(),
-    force: z.boolean().optional(),
-  })
-  .transform(d => ({
-    fullNameArg: d.full_name_arg,
-    force: d.force,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteFunction_ResponseSchema: z.ZodType<DeleteFunction_Response> =
   z.object({});
@@ -661,32 +651,6 @@ export const unmarshalFunctionParameterInfosSchema: z.ZodType<FunctionParameterI
     .transform(d => ({
       parameters: d.parameters,
     }));
-
-export const unmarshalGetFunctionSchema: z.ZodType<GetFunction> = z
-  .object({
-    full_name_arg: z.string().optional(),
-    include_browse: z.boolean().optional(),
-  })
-  .transform(d => ({
-    fullNameArg: d.full_name_arg,
-    includeBrowse: d.include_browse,
-  }));
-
-export const unmarshalListFunctionsSchema: z.ZodType<ListFunctions> = z
-  .object({
-    catalog_name: z.string().optional(),
-    schema_name: z.string().optional(),
-    include_browse: z.boolean().optional(),
-    max_results: z.number().optional(),
-    page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    catalogName: d.catalog_name,
-    schemaName: d.schema_name,
-    includeBrowse: d.include_browse,
-    maxResults: d.max_results,
-    pageToken: d.page_token,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListFunctions_ResponseSchema: z.ZodType<ListFunctions_Response> =
@@ -888,16 +852,6 @@ export const marshalCredentialDependencySchema: z.ZodType = z
     credential_name: d.credentialName,
   }));
 
-export const marshalDeleteFunctionSchema: z.ZodType = z
-  .object({
-    fullNameArg: z.string().optional(),
-    force: z.boolean().optional(),
-  })
-  .transform(d => ({
-    full_name_arg: d.fullNameArg,
-    force: d.force,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteFunction_ResponseSchema: z.ZodType = z.object({});
 
@@ -1039,32 +993,6 @@ export const marshalFunctionParameterInfosSchema: z.ZodType = z
   })
   .transform(d => ({
     parameters: d.parameters,
-  }));
-
-export const marshalGetFunctionSchema: z.ZodType = z
-  .object({
-    fullNameArg: z.string().optional(),
-    includeBrowse: z.boolean().optional(),
-  })
-  .transform(d => ({
-    full_name_arg: d.fullNameArg,
-    include_browse: d.includeBrowse,
-  }));
-
-export const marshalListFunctionsSchema: z.ZodType = z
-  .object({
-    catalogName: z.string().optional(),
-    schemaName: z.string().optional(),
-    includeBrowse: z.boolean().optional(),
-    maxResults: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    catalog_name: d.catalogName,
-    schema_name: d.schemaName,
-    include_browse: d.includeBrowse,
-    max_results: d.maxResults,
-    page_token: d.pageToken,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

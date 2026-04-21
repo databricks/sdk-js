@@ -1513,19 +1513,6 @@ export const unmarshalChannelSchema: z.ZodType<Channel> = z
     dbsqlVersion: d.dbsql_version,
   }));
 
-export const unmarshalCreateDefaultWarehouseOverrideRequestSchema: z.ZodType<CreateDefaultWarehouseOverrideRequest> =
-  z
-    .object({
-      default_warehouse_override_id: z.string().optional(),
-      default_warehouse_override: z
-        .lazy(() => unmarshalDefaultWarehouseOverrideSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      defaultWarehouseOverrideId: d.default_warehouse_override_id,
-      defaultWarehouseOverride: d.default_warehouse_override,
-    }));
-
 export const unmarshalCreateWarehouseSchema: z.ZodType<CreateWarehouse> = z
   .object({
     name: z.string().optional(),
@@ -1581,15 +1568,6 @@ export const unmarshalDefaultWarehouseOverrideSchema: z.ZodType<DefaultWarehouse
       defaultWarehouseOverrideId: d.default_warehouse_override_id,
       type: d.type,
       warehouseId: d.warehouse_id,
-    }));
-
-export const unmarshalDeleteDefaultWarehouseOverrideRequestSchema: z.ZodType<DeleteDefaultWarehouseOverrideRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
     }));
 
 export const unmarshalEditWarehouseRequestSchema: z.ZodType<EditWarehouseRequest> =
@@ -1723,23 +1701,6 @@ export const unmarshalEndpointTagsSchema: z.ZodType<EndpointTags> = z
     customTags: d.custom_tags,
   }));
 
-export const unmarshalGetDefaultWarehouseOverrideRequestSchema: z.ZodType<GetDefaultWarehouseOverrideRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
-export const unmarshalGetWarehouseSchema: z.ZodType<GetWarehouse> = z
-  .object({
-    id: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalGetWarehouse_ResponseSchema: z.ZodType<GetWarehouse_Response> =
   z
@@ -1788,9 +1749,6 @@ export const unmarshalGetWarehouse_ResponseSchema: z.ZodType<GetWarehouse_Respon
       health: d.health,
     }));
 
-export const unmarshalGetWorkspaceWarehouseConfigRequestSchema: z.ZodType<GetWorkspaceWarehouseConfigRequest> =
-  z.object({});
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalGetWorkspaceWarehouseConfigRequest_ResponseSchema: z.ZodType<GetWorkspaceWarehouseConfigRequest_Response> =
   z
@@ -1827,17 +1785,6 @@ export const unmarshalGetWorkspaceWarehouseConfigRequest_ResponseSchema: z.ZodTy
       sqlConfigurationParameters: d.sql_configuration_parameters,
       googleServiceAccount: d.google_service_account,
       enabledWarehouseTypes: d.enabled_warehouse_types,
-    }));
-
-export const unmarshalListDefaultWarehouseOverridesRequestSchema: z.ZodType<ListDefaultWarehouseOverridesRequest> =
-  z
-    .object({
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      pageSize: d.page_size,
-      pageToken: d.page_token,
     }));
 
 export const unmarshalListDefaultWarehouseOverridesResponseSchema: z.ZodType<ListDefaultWarehouseOverridesResponse> =
@@ -1935,33 +1882,6 @@ export const unmarshalTerminationReasonSchema: z.ZodType<TerminationReason> = z
     parameters: d.parameters,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalTerminationReason_ParametersEntrySchema: z.ZodType<TerminationReason_ParametersEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-export const unmarshalUpdateDefaultWarehouseOverrideRequestSchema: z.ZodType<UpdateDefaultWarehouseOverrideRequest> =
-  z
-    .object({
-      default_warehouse_override: z
-        .lazy(() => unmarshalDefaultWarehouseOverrideSchema)
-        .optional(),
-      update_mask: z.string().optional(),
-      allow_missing: z.boolean().optional(),
-    })
-    .transform(d => ({
-      defaultWarehouseOverride: d.default_warehouse_override,
-      updateMask: d.update_mask,
-      allowMissing: d.allow_missing,
-    }));
-
 export const unmarshalWarehouseTypePairSchema: z.ZodType<WarehouseTypePair> = z
   .object({
     warehouse_type: z.enum(WarehouseType).optional(),
@@ -1972,31 +1892,9 @@ export const unmarshalWarehouseTypePairSchema: z.ZodType<WarehouseTypePair> = z
     enabled: d.enabled,
   }));
 
-export const unmarshalDeleteWarehouseRequestSchema: z.ZodType<DeleteWarehouseRequest> =
-  z
-    .object({
-      id: z.string().optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-    }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteWarehouseRequest_ResponseSchema: z.ZodType<DeleteWarehouseRequest_Response> =
   z.object({});
-
-export const unmarshalListWarehousesRequestSchema: z.ZodType<ListWarehousesRequest> =
-  z
-    .object({
-      run_as_user_id: z.number().optional(),
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      runAsUserId: d.run_as_user_id,
-      pageSize: d.page_size,
-      pageToken: d.page_token,
-    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListWarehousesRequest_ResponseSchema: z.ZodType<ListWarehousesRequest_Response> =
@@ -2042,18 +1940,6 @@ export const marshalChannelSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     dbsql_version: d.dbsqlVersion,
-  }));
-
-export const marshalCreateDefaultWarehouseOverrideRequestSchema: z.ZodType = z
-  .object({
-    defaultWarehouseOverrideId: z.string().optional(),
-    defaultWarehouseOverride: z
-      .lazy(() => marshalDefaultWarehouseOverrideSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    default_warehouse_override_id: d.defaultWarehouseOverrideId,
-    default_warehouse_override: d.defaultWarehouseOverride,
   }));
 
 export const marshalCreateWarehouseSchema: z.ZodType = z
@@ -2109,14 +1995,6 @@ export const marshalDefaultWarehouseOverrideSchema: z.ZodType = z
     default_warehouse_override_id: d.defaultWarehouseOverrideId,
     type: d.type,
     warehouse_id: d.warehouseId,
-  }));
-
-export const marshalDeleteDefaultWarehouseOverrideRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
   }));
 
 export const marshalEditWarehouseRequestSchema: z.ZodType = z
@@ -2248,22 +2126,6 @@ export const marshalEndpointTagsSchema: z.ZodType = z
     custom_tags: d.customTags,
   }));
 
-export const marshalGetDefaultWarehouseOverrideRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalGetWarehouseSchema: z.ZodType = z
-  .object({
-    id: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalGetWarehouse_ResponseSchema: z.ZodType = z
   .object({
@@ -2311,9 +2173,6 @@ export const marshalGetWarehouse_ResponseSchema: z.ZodType = z
     health: d.health,
   }));
 
-export const marshalGetWorkspaceWarehouseConfigRequestSchema: z.ZodType =
-  z.object({});
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalGetWorkspaceWarehouseConfigRequest_ResponseSchema: z.ZodType =
   z
@@ -2351,16 +2210,6 @@ export const marshalGetWorkspaceWarehouseConfigRequest_ResponseSchema: z.ZodType
       google_service_account: d.googleServiceAccount,
       enabled_warehouse_types: d.enabledWarehouseTypes,
     }));
-
-export const marshalListDefaultWarehouseOverridesRequestSchema: z.ZodType = z
-  .object({
-    pageSize: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    page_size: d.pageSize,
-    page_token: d.pageToken,
-  }));
 
 export const marshalListDefaultWarehouseOverridesResponseSchema: z.ZodType = z
   .object({
@@ -2452,31 +2301,6 @@ export const marshalTerminationReasonSchema: z.ZodType = z
     parameters: d.parameters,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalTerminationReason_ParametersEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-export const marshalUpdateDefaultWarehouseOverrideRequestSchema: z.ZodType = z
-  .object({
-    defaultWarehouseOverride: z
-      .lazy(() => marshalDefaultWarehouseOverrideSchema)
-      .optional(),
-    updateMask: z.string().optional(),
-    allowMissing: z.boolean().optional(),
-  })
-  .transform(d => ({
-    default_warehouse_override: d.defaultWarehouseOverride,
-    update_mask: d.updateMask,
-    allow_missing: d.allowMissing,
-  }));
-
 export const marshalWarehouseTypePairSchema: z.ZodType = z
   .object({
     warehouseType: z.enum(WarehouseType).optional(),
@@ -2487,30 +2311,10 @@ export const marshalWarehouseTypePairSchema: z.ZodType = z
     enabled: d.enabled,
   }));
 
-export const marshalDeleteWarehouseRequestSchema: z.ZodType = z
-  .object({
-    id: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteWarehouseRequest_ResponseSchema: z.ZodType = z.object(
   {}
 );
-
-export const marshalListWarehousesRequestSchema: z.ZodType = z
-  .object({
-    runAsUserId: z.number().optional(),
-    pageSize: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    run_as_user_id: d.runAsUserId,
-    page_size: d.pageSize,
-    page_token: d.pageToken,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalListWarehousesRequest_ResponseSchema: z.ZodType = z

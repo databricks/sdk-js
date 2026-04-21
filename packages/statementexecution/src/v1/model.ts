@@ -629,38 +629,6 @@ export const unmarshalExternalLinkSchema: z.ZodType<ExternalLink> = z
     nextChunkInternalLink: d.next_chunk_internal_link,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalExternalLink_HttpHeadersEntrySchema: z.ZodType<ExternalLink_HttpHeadersEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-export const unmarshalGetResultDataRequestSchema: z.ZodType<GetResultDataRequest> =
-  z
-    .object({
-      statement_id: z.string().optional(),
-      chunk_index: z.number().optional(),
-    })
-    .transform(d => ({
-      statementId: d.statement_id,
-      chunkIndex: d.chunk_index,
-    }));
-
-export const unmarshalGetStatementResultRequestSchema: z.ZodType<GetStatementResultRequest> =
-  z
-    .object({
-      statement_id: z.string().optional(),
-    })
-    .transform(d => ({
-      statementId: d.statement_id,
-    }));
-
 export const unmarshalQueryTagSchema: z.ZodType<QueryTag> = z
   .object({
     key: z.string().optional(),
@@ -876,35 +844,6 @@ export const marshalExternalLinkSchema: z.ZodType = z
     byte_count: d.byteCount,
     next_chunk_index: d.nextChunkIndex,
     next_chunk_internal_link: d.nextChunkInternalLink,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalExternalLink_HttpHeadersEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-export const marshalGetResultDataRequestSchema: z.ZodType = z
-  .object({
-    statementId: z.string().optional(),
-    chunkIndex: z.number().optional(),
-  })
-  .transform(d => ({
-    statement_id: d.statementId,
-    chunk_index: d.chunkIndex,
-  }));
-
-export const marshalGetStatementResultRequestSchema: z.ZodType = z
-  .object({
-    statementId: z.string().optional(),
-  })
-  .transform(d => ({
-    statement_id: d.statementId,
   }));
 
 export const marshalQueryTagSchema: z.ZodType = z

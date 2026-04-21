@@ -119,8 +119,6 @@ export const unmarshalCreateToken_ResponseSchema: z.ZodType<CreateToken_Response
       tokenInfo: d.token_info,
     }));
 
-export const unmarshalListTokensSchema: z.ZodType<ListTokens> = z.object({});
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListTokens_ResponseSchema: z.ZodType<ListTokens_Response> =
   z
@@ -208,8 +206,6 @@ export const marshalCreateToken_ResponseSchema: z.ZodType = z
     token_value: d.tokenValue,
     token_info: d.tokenInfo,
   }));
-
-export const marshalListTokensSchema: z.ZodType = z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalListTokens_ResponseSchema: z.ZodType = z

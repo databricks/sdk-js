@@ -350,15 +350,6 @@ export const unmarshalAlertSubscriptionSchema: z.ZodType<AlertSubscription> = z
     destinationId: d.destination_id,
   }));
 
-export const unmarshalCreateAlertRequestSchema: z.ZodType<CreateAlertRequest> =
-  z
-    .object({
-      alert: z.lazy(() => unmarshalAlertSchema).optional(),
-    })
-    .transform(d => ({
-      alert: d.alert,
-    }));
-
 export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
   .object({
     quartz_cron_schedule: z.string().optional(),
@@ -375,24 +366,6 @@ export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
 
 export const unmarshalEmptySchema: z.ZodType<Empty> = z.object({});
 
-export const unmarshalGetAlertRequestSchema: z.ZodType<GetAlertRequest> = z
-  .object({
-    id: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-  }));
-
-export const unmarshalListAlertsRequestSchema: z.ZodType<ListAlertsRequest> = z
-  .object({
-    page_token: z.string().optional(),
-    page_size: z.number().optional(),
-  })
-  .transform(d => ({
-    pageToken: d.page_token,
-    pageSize: d.page_size,
-  }));
-
 export const unmarshalListAlertsResponseSchema: z.ZodType<ListAlertsResponse> =
   z
     .object({
@@ -402,27 +375,6 @@ export const unmarshalListAlertsResponseSchema: z.ZodType<ListAlertsResponse> =
     .transform(d => ({
       alerts: d.alerts,
       nextPageToken: d.next_page_token,
-    }));
-
-export const unmarshalTrashAlertRequestSchema: z.ZodType<TrashAlertRequest> = z
-  .object({
-    id: z.string().optional(),
-    purge: z.boolean().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-    purge: d.purge,
-  }));
-
-export const unmarshalUpdateAlertRequestSchema: z.ZodType<UpdateAlertRequest> =
-  z
-    .object({
-      alert: z.lazy(() => unmarshalAlertSchema).optional(),
-      update_mask: z.string().optional(),
-    })
-    .transform(d => ({
-      alert: d.alert,
-      updateMask: d.update_mask,
     }));
 
 export const marshalAlertSchema: z.ZodType = z
@@ -562,14 +514,6 @@ export const marshalAlertSubscriptionSchema: z.ZodType = z
     destination_id: d.destinationId,
   }));
 
-export const marshalCreateAlertRequestSchema: z.ZodType = z
-  .object({
-    alert: z.lazy(() => marshalAlertSchema).optional(),
-  })
-  .transform(d => ({
-    alert: d.alert,
-  }));
-
 export const marshalCronScheduleSchema: z.ZodType = z
   .object({
     quartzCronSchedule: z.string().optional(),
@@ -586,24 +530,6 @@ export const marshalCronScheduleSchema: z.ZodType = z
 
 export const marshalEmptySchema: z.ZodType = z.object({});
 
-export const marshalGetAlertRequestSchema: z.ZodType = z
-  .object({
-    id: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-  }));
-
-export const marshalListAlertsRequestSchema: z.ZodType = z
-  .object({
-    pageToken: z.string().optional(),
-    pageSize: z.number().optional(),
-  })
-  .transform(d => ({
-    page_token: d.pageToken,
-    page_size: d.pageSize,
-  }));
-
 export const marshalListAlertsResponseSchema: z.ZodType = z
   .object({
     alerts: z.array(z.lazy(() => marshalAlertSchema)).optional(),
@@ -612,24 +538,4 @@ export const marshalListAlertsResponseSchema: z.ZodType = z
   .transform(d => ({
     alerts: d.alerts,
     next_page_token: d.nextPageToken,
-  }));
-
-export const marshalTrashAlertRequestSchema: z.ZodType = z
-  .object({
-    id: z.string().optional(),
-    purge: z.boolean().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-    purge: d.purge,
-  }));
-
-export const marshalUpdateAlertRequestSchema: z.ZodType = z
-  .object({
-    alert: z.lazy(() => marshalAlertSchema).optional(),
-    updateMask: z.string().optional(),
-  })
-  .transform(d => ({
-    alert: d.alert,
-    update_mask: d.updateMask,
   }));

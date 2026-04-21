@@ -176,14 +176,6 @@ export const unmarshalCreateOnBehalfOfToken_ResponseSchema: z.ZodType<CreateOnBe
       tokenInfo: d.token_info,
     }));
 
-export const unmarshalGetTokenSchema: z.ZodType<GetToken> = z
-  .object({
-    token_id: z.string().optional(),
-  })
-  .transform(d => ({
-    tokenId: d.token_id,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalGetToken_ResponseSchema: z.ZodType<GetToken_Response> = z
   .object({
@@ -191,16 +183,6 @@ export const unmarshalGetToken_ResponseSchema: z.ZodType<GetToken_Response> = z
   })
   .transform(d => ({
     tokenInfo: d.token_info,
-  }));
-
-export const unmarshalListTokensSchema: z.ZodType<ListTokens> = z
-  .object({
-    created_by_id: z.number().optional(),
-    created_by_username: z.string().optional(),
-  })
-  .transform(d => ({
-    createdById: d.created_by_id,
-    createdByUsername: d.created_by_username,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -214,14 +196,6 @@ export const unmarshalListTokens_ResponseSchema: z.ZodType<ListTokens_Response> 
     .transform(d => ({
       tokenInfos: d.token_infos,
     }));
-
-export const unmarshalRevokeTokenSchema: z.ZodType<RevokeToken> = z
-  .object({
-    token_id: z.string().optional(),
-  })
-  .transform(d => ({
-    tokenId: d.token_id,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalRevokeToken_ResponseSchema: z.ZodType<RevokeToken_Response> =
@@ -292,14 +266,6 @@ export const marshalCreateOnBehalfOfToken_ResponseSchema: z.ZodType = z
     token_info: d.tokenInfo,
   }));
 
-export const marshalGetTokenSchema: z.ZodType = z
-  .object({
-    tokenId: z.string().optional(),
-  })
-  .transform(d => ({
-    token_id: d.tokenId,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalGetToken_ResponseSchema: z.ZodType = z
   .object({
@@ -309,16 +275,6 @@ export const marshalGetToken_ResponseSchema: z.ZodType = z
     token_info: d.tokenInfo,
   }));
 
-export const marshalListTokensSchema: z.ZodType = z
-  .object({
-    createdById: z.number().optional(),
-    createdByUsername: z.string().optional(),
-  })
-  .transform(d => ({
-    created_by_id: d.createdById,
-    created_by_username: d.createdByUsername,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalListTokens_ResponseSchema: z.ZodType = z
   .object({
@@ -326,14 +282,6 @@ export const marshalListTokens_ResponseSchema: z.ZodType = z
   })
   .transform(d => ({
     token_infos: d.tokenInfos,
-  }));
-
-export const marshalRevokeTokenSchema: z.ZodType = z
-  .object({
-    tokenId: z.string().optional(),
-  })
-  .transform(d => ({
-    token_id: d.tokenId,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

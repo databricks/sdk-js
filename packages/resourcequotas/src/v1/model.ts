@@ -72,18 +72,6 @@ export interface QuotaInfo {
   lastRefreshedAt?: number | undefined;
 }
 
-export const unmarshalGetQuotaSchema: z.ZodType<GetQuota> = z
-  .object({
-    parent_securable_type: z.string().optional(),
-    parent_full_name: z.string().optional(),
-    quota_name: z.string().optional(),
-  })
-  .transform(d => ({
-    parentSecurableType: d.parent_securable_type,
-    parentFullName: d.parent_full_name,
-    quotaName: d.quota_name,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalGetQuota_ResponseSchema: z.ZodType<GetQuota_Response> = z
   .object({
@@ -91,16 +79,6 @@ export const unmarshalGetQuota_ResponseSchema: z.ZodType<GetQuota_Response> = z
   })
   .transform(d => ({
     quotaInfo: d.quota_info,
-  }));
-
-export const unmarshalListQuotasSchema: z.ZodType<ListQuotas> = z
-  .object({
-    max_results: z.number().optional(),
-    page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    maxResults: d.max_results,
-    pageToken: d.page_token,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -133,18 +111,6 @@ export const unmarshalQuotaInfoSchema: z.ZodType<QuotaInfo> = z
     lastRefreshedAt: d.last_refreshed_at,
   }));
 
-export const marshalGetQuotaSchema: z.ZodType = z
-  .object({
-    parentSecurableType: z.string().optional(),
-    parentFullName: z.string().optional(),
-    quotaName: z.string().optional(),
-  })
-  .transform(d => ({
-    parent_securable_type: d.parentSecurableType,
-    parent_full_name: d.parentFullName,
-    quota_name: d.quotaName,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalGetQuota_ResponseSchema: z.ZodType = z
   .object({
@@ -152,16 +118,6 @@ export const marshalGetQuota_ResponseSchema: z.ZodType = z
   })
   .transform(d => ({
     quota_info: d.quotaInfo,
-  }));
-
-export const marshalListQuotasSchema: z.ZodType = z
-  .object({
-    maxResults: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    max_results: d.maxResults,
-    page_token: d.pageToken,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

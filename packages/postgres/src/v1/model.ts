@@ -2541,99 +2541,6 @@ export const unmarshalComputeInstanceSchema: z.ZodType<ComputeInstance> = z
     suspendTime: d.suspend_time,
   }));
 
-export const unmarshalCreateBranchRequestSchema: z.ZodType<CreateBranchRequest> =
-  z
-    .object({
-      parent: z.string().optional(),
-      branch_id: z.string().optional(),
-      branch: z.lazy(() => unmarshalBranchSchema).optional(),
-    })
-    .transform(d => ({
-      parent: d.parent,
-      branchId: d.branch_id,
-      branch: d.branch,
-    }));
-
-export const unmarshalCreateCatalogRequestSchema: z.ZodType<CreateCatalogRequest> =
-  z
-    .object({
-      catalog_id: z.string().optional(),
-      catalog: z.lazy(() => unmarshalCatalogSchema).optional(),
-    })
-    .transform(d => ({
-      catalogId: d.catalog_id,
-      catalog: d.catalog,
-    }));
-
-export const unmarshalCreateDatabaseRequestSchema: z.ZodType<CreateDatabaseRequest> =
-  z
-    .object({
-      parent: z.string().optional(),
-      database_id: z.string().optional(),
-      database: z.lazy(() => unmarshalDatabaseSchema).optional(),
-    })
-    .transform(d => ({
-      parent: d.parent,
-      databaseId: d.database_id,
-      database: d.database,
-    }));
-
-export const unmarshalCreateEndpointRequestSchema: z.ZodType<CreateEndpointRequest> =
-  z
-    .object({
-      parent: z.string().optional(),
-      endpoint_id: z.string().optional(),
-      endpoint: z.lazy(() => unmarshalEndpointSchema).optional(),
-    })
-    .transform(d => ({
-      parent: d.parent,
-      endpointId: d.endpoint_id,
-      endpoint: d.endpoint,
-    }));
-
-export const unmarshalCreateProjectRequestSchema: z.ZodType<CreateProjectRequest> =
-  z
-    .object({
-      project_id: z.string().optional(),
-      project: z.lazy(() => unmarshalProjectSchema).optional(),
-    })
-    .transform(d => ({
-      projectId: d.project_id,
-      project: d.project,
-    }));
-
-export const unmarshalCreateRoleRequestSchema: z.ZodType<CreateRoleRequest> = z
-  .object({
-    parent: z.string().optional(),
-    role_id: z.string().optional(),
-    role: z.lazy(() => unmarshalRoleSchema).optional(),
-  })
-  .transform(d => ({
-    parent: d.parent,
-    roleId: d.role_id,
-    role: d.role,
-  }));
-
-export const unmarshalCreateSyncedTableRequestSchema: z.ZodType<CreateSyncedTableRequest> =
-  z
-    .object({
-      synced_table_id: z.string().optional(),
-      synced_table: z.lazy(() => unmarshalSyncedTableSchema).optional(),
-    })
-    .transform(d => ({
-      syncedTableId: d.synced_table_id,
-      syncedTable: d.synced_table,
-    }));
-
-export const unmarshalCreateTableRequestSchema: z.ZodType<CreateTableRequest> =
-  z
-    .object({
-      table: z.lazy(() => unmarshalTableSchema).optional(),
-    })
-    .transform(d => ({
-      table: d.table,
-    }));
-
 export const unmarshalDatabaseSchema: z.ZodType<Database> = z
   .object({
     name: z.string().optional(),
@@ -2716,63 +2623,6 @@ export const unmarshalDatabricksServiceExceptionWithDetailsProtoSchema: z.ZodTyp
       details: d.details,
     }));
 
-export const unmarshalDeleteBranchRequestSchema: z.ZodType<DeleteBranchRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-      purge: z.boolean().optional(),
-      allow_missing: z.boolean().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      purge: d.purge,
-      allowMissing: d.allow_missing,
-    }));
-
-export const unmarshalDeleteCatalogRequestSchema: z.ZodType<DeleteCatalogRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
-export const unmarshalDeleteDatabaseRequestSchema: z.ZodType<DeleteDatabaseRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
-export const unmarshalDeleteEndpointRequestSchema: z.ZodType<DeleteEndpointRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
-export const unmarshalDeleteForwardEtlConfigurationRequestSchema: z.ZodType<DeleteForwardEtlConfigurationRequest> =
-  z
-    .object({
-      parent: z.string().optional(),
-      tenant_id: z.string().optional(),
-      timeline_id: z.string().optional(),
-      pg_database_oid: z.number().optional(),
-      pg_schema_oid: z.number().optional(),
-    })
-    .transform(d => ({
-      parent: d.parent,
-      tenantId: d.tenant_id,
-      timelineId: d.timeline_id,
-      pgDatabaseOid: d.pg_database_oid,
-      pgSchemaOid: d.pg_schema_oid,
-    }));
-
 export const unmarshalDeleteForwardEtlConfigurationResponseSchema: z.ZodType<DeleteForwardEtlConfigurationResponse> =
   z
     .object({
@@ -2782,45 +2632,6 @@ export const unmarshalDeleteForwardEtlConfigurationResponseSchema: z.ZodType<Del
     .transform(d => ({
       deletedConfigs: d.deleted_configs,
       deletedMappings: d.deleted_mappings,
-    }));
-
-export const unmarshalDeleteProjectRequestSchema: z.ZodType<DeleteProjectRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-      purge: z.boolean().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      purge: d.purge,
-    }));
-
-export const unmarshalDeleteRoleRequestSchema: z.ZodType<DeleteRoleRequest> = z
-  .object({
-    name: z.string().optional(),
-    reassign_owned_to: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    reassignOwnedTo: d.reassign_owned_to,
-  }));
-
-export const unmarshalDeleteSyncedTableRequestSchema: z.ZodType<DeleteSyncedTableRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
-export const unmarshalDeleteTableRequestSchema: z.ZodType<DeleteTableRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
     }));
 
 export const unmarshalDeltaTableSyncInfoSchema: z.ZodType<DeltaTableSyncInfo> =
@@ -2835,23 +2646,6 @@ export const unmarshalDeltaTableSyncInfoSchema: z.ZodType<DeltaTableSyncInfo> =
     .transform(d => ({
       deltaCommitVersion: d.delta_commit_version,
       deltaCommitTime: d.delta_commit_time,
-    }));
-
-export const unmarshalDisableForwardEtlRequestSchema: z.ZodType<DisableForwardEtlRequest> =
-  z
-    .object({
-      parent: z.string().optional(),
-      tenant_id: z.string().optional(),
-      timeline_id: z.string().optional(),
-      pg_database_oid: z.number().optional(),
-      pg_schema_oid: z.number().optional(),
-    })
-    .transform(d => ({
-      parent: d.parent,
-      tenantId: d.tenant_id,
-      timelineId: d.timeline_id,
-      pgDatabaseOid: d.pg_database_oid,
-      pgSchemaOid: d.pg_schema_oid,
     }));
 
 export const unmarshalDisableForwardEtlResponseSchema: z.ZodType<DisableForwardEtlResponse> =
@@ -2938,18 +2732,6 @@ export const unmarshalEndpointSettingsSchema: z.ZodType<EndpointSettings> = z
   .transform(d => ({
     pgSettings: d.pg_settings,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEndpointSettings_PgSettingsEntrySchema: z.ZodType<EndpointSettings_PgSettingsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
 
 export const unmarshalEndpointSpecSchema: z.ZodType<EndpointSpec> = z
   .object({
@@ -3130,117 +2912,6 @@ export const unmarshalGenerateDatabaseCredentialRequestSchema: z.ZodType<Generat
       expireTime: d.expire_time,
     }));
 
-export const unmarshalGetBranchRequestSchema: z.ZodType<GetBranchRequest> = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const unmarshalGetCatalogRequestSchema: z.ZodType<GetCatalogRequest> = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const unmarshalGetComputeInstanceRequestSchema: z.ZodType<GetComputeInstanceRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
-export const unmarshalGetDatabaseRequestSchema: z.ZodType<GetDatabaseRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
-export const unmarshalGetEndpointRequestSchema: z.ZodType<GetEndpointRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
-export const unmarshalGetForwardEtlMetadataRequestSchema: z.ZodType<GetForwardEtlMetadataRequest> =
-  z
-    .object({
-      parent: z.string().optional(),
-      tenant_id: z.string().optional(),
-      timeline_id: z.string().optional(),
-    })
-    .transform(d => ({
-      parent: d.parent,
-      tenantId: d.tenant_id,
-      timelineId: d.timeline_id,
-    }));
-
-export const unmarshalGetForwardEtlStatusRequestSchema: z.ZodType<GetForwardEtlStatusRequest> =
-  z
-    .object({
-      parent: z.string().optional(),
-      tenant_id: z.string().optional(),
-      timeline_id: z.string().optional(),
-    })
-    .transform(d => ({
-      parent: d.parent,
-      tenantId: d.tenant_id,
-      timelineId: d.timeline_id,
-    }));
-
-export const unmarshalGetOperationRequestSchema: z.ZodType<GetOperationRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
-export const unmarshalGetProjectRequestSchema: z.ZodType<GetProjectRequest> = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const unmarshalGetRoleRequestSchema: z.ZodType<GetRoleRequest> = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const unmarshalGetSyncedTableRequestSchema: z.ZodType<GetSyncedTableRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
-export const unmarshalGetTableRequestSchema: z.ZodType<GetTableRequest> = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
 export const unmarshalInitialEndpointSpecSchema: z.ZodType<InitialEndpointSpec> =
   z
     .object({
@@ -3248,21 +2919,6 @@ export const unmarshalInitialEndpointSpecSchema: z.ZodType<InitialEndpointSpec> 
     })
     .transform(d => ({
       group: d.group,
-    }));
-
-export const unmarshalListBranchesRequestSchema: z.ZodType<ListBranchesRequest> =
-  z
-    .object({
-      parent: z.string().optional(),
-      page_token: z.string().optional(),
-      page_size: z.number().optional(),
-      show_deleted: z.boolean().optional(),
-    })
-    .transform(d => ({
-      parent: d.parent,
-      pageToken: d.page_token,
-      pageSize: d.page_size,
-      showDeleted: d.show_deleted,
     }));
 
 export const unmarshalListBranchesResponseSchema: z.ZodType<ListBranchesResponse> =
@@ -3274,19 +2930,6 @@ export const unmarshalListBranchesResponseSchema: z.ZodType<ListBranchesResponse
     .transform(d => ({
       branches: d.branches,
       nextPageToken: d.next_page_token,
-    }));
-
-export const unmarshalListComputeInstancesRequestSchema: z.ZodType<ListComputeInstancesRequest> =
-  z
-    .object({
-      parent: z.string().optional(),
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      parent: d.parent,
-      pageSize: d.page_size,
-      pageToken: d.page_token,
     }));
 
 export const unmarshalListComputeInstancesResponseSchema: z.ZodType<ListComputeInstancesResponse> =
@@ -3302,19 +2945,6 @@ export const unmarshalListComputeInstancesResponseSchema: z.ZodType<ListComputeI
       nextPageToken: d.next_page_token,
     }));
 
-export const unmarshalListDatabasesRequestSchema: z.ZodType<ListDatabasesRequest> =
-  z
-    .object({
-      parent: z.string().optional(),
-      page_token: z.string().optional(),
-      page_size: z.number().optional(),
-    })
-    .transform(d => ({
-      parent: d.parent,
-      pageToken: d.page_token,
-      pageSize: d.page_size,
-    }));
-
 export const unmarshalListDatabasesResponseSchema: z.ZodType<ListDatabasesResponse> =
   z
     .object({
@@ -3324,19 +2954,6 @@ export const unmarshalListDatabasesResponseSchema: z.ZodType<ListDatabasesRespon
     .transform(d => ({
       databases: d.databases,
       nextPageToken: d.next_page_token,
-    }));
-
-export const unmarshalListEndpointsRequestSchema: z.ZodType<ListEndpointsRequest> =
-  z
-    .object({
-      parent: z.string().optional(),
-      page_token: z.string().optional(),
-      page_size: z.number().optional(),
-    })
-    .transform(d => ({
-      parent: d.parent,
-      pageToken: d.page_token,
-      pageSize: d.page_size,
     }));
 
 export const unmarshalListEndpointsResponseSchema: z.ZodType<ListEndpointsResponse> =
@@ -3350,19 +2967,6 @@ export const unmarshalListEndpointsResponseSchema: z.ZodType<ListEndpointsRespon
       nextPageToken: d.next_page_token,
     }));
 
-export const unmarshalListProjectsRequestSchema: z.ZodType<ListProjectsRequest> =
-  z
-    .object({
-      page_token: z.string().optional(),
-      page_size: z.number().optional(),
-      show_deleted: z.boolean().optional(),
-    })
-    .transform(d => ({
-      pageToken: d.page_token,
-      pageSize: d.page_size,
-      showDeleted: d.show_deleted,
-    }));
-
 export const unmarshalListProjectsResponseSchema: z.ZodType<ListProjectsResponse> =
   z
     .object({
@@ -3373,18 +2977,6 @@ export const unmarshalListProjectsResponseSchema: z.ZodType<ListProjectsResponse
       projects: d.projects,
       nextPageToken: d.next_page_token,
     }));
-
-export const unmarshalListRolesRequestSchema: z.ZodType<ListRolesRequest> = z
-  .object({
-    parent: z.string().optional(),
-    page_token: z.string().optional(),
-    page_size: z.number().optional(),
-  })
-  .transform(d => ({
-    parent: d.parent,
-    pageToken: d.page_token,
-    pageSize: d.page_size,
-  }));
 
 export const unmarshalListRolesResponseSchema: z.ZodType<ListRolesResponse> = z
   .object({
@@ -3496,18 +3088,6 @@ export const unmarshalProjectDefaultEndpointSettingsSchema: z.ZodType<ProjectDef
       pgSettings: d.pg_settings,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalProjectDefaultEndpointSettings_PgSettingsEntrySchema: z.ZodType<ProjectDefaultEndpointSettings_PgSettingsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
 export const unmarshalProjectOperationMetadataSchema: z.ZodType<ProjectOperationMetadata> =
   z.object({});
 
@@ -3583,9 +3163,6 @@ export const unmarshalProjectStatusSchema: z.ZodType<ProjectStatus> = z
     defaultBranch: d.default_branch,
     projectId: d.project_id,
   }));
-
-export const unmarshalProvisioningInfoSchema: z.ZodType<ProvisioningInfo> =
-  z.object({});
 
 export const unmarshalRequestedClaimsSchema: z.ZodType<RequestedClaims> = z
   .object({
@@ -3848,60 +3425,6 @@ export const unmarshalUndeleteProjectRequestSchema: z.ZodType<UndeleteProjectReq
       name: d.name,
     }));
 
-export const unmarshalUpdateBranchRequestSchema: z.ZodType<UpdateBranchRequest> =
-  z
-    .object({
-      branch: z.lazy(() => unmarshalBranchSchema).optional(),
-      update_mask: z.string().optional(),
-    })
-    .transform(d => ({
-      branch: d.branch,
-      updateMask: d.update_mask,
-    }));
-
-export const unmarshalUpdateDatabaseRequestSchema: z.ZodType<UpdateDatabaseRequest> =
-  z
-    .object({
-      database: z.lazy(() => unmarshalDatabaseSchema).optional(),
-      update_mask: z.string().optional(),
-    })
-    .transform(d => ({
-      database: d.database,
-      updateMask: d.update_mask,
-    }));
-
-export const unmarshalUpdateEndpointRequestSchema: z.ZodType<UpdateEndpointRequest> =
-  z
-    .object({
-      endpoint: z.lazy(() => unmarshalEndpointSchema).optional(),
-      update_mask: z.string().optional(),
-    })
-    .transform(d => ({
-      endpoint: d.endpoint,
-      updateMask: d.update_mask,
-    }));
-
-export const unmarshalUpdateProjectRequestSchema: z.ZodType<UpdateProjectRequest> =
-  z
-    .object({
-      project: z.lazy(() => unmarshalProjectSchema).optional(),
-      update_mask: z.string().optional(),
-    })
-    .transform(d => ({
-      project: d.project,
-      updateMask: d.update_mask,
-    }));
-
-export const unmarshalUpdateRoleRequestSchema: z.ZodType<UpdateRoleRequest> = z
-  .object({
-    role: z.lazy(() => unmarshalRoleSchema).optional(),
-    update_mask: z.string().optional(),
-  })
-  .transform(d => ({
-    role: d.role,
-    updateMask: d.update_mask,
-  }));
-
 export const marshalBranchSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -4088,92 +3611,6 @@ export const marshalComputeInstanceSchema: z.ZodType = z
     suspend_time: d.suspendTime,
   }));
 
-export const marshalCreateBranchRequestSchema: z.ZodType = z
-  .object({
-    parent: z.string().optional(),
-    branchId: z.string().optional(),
-    branch: z.lazy(() => marshalBranchSchema).optional(),
-  })
-  .transform(d => ({
-    parent: d.parent,
-    branch_id: d.branchId,
-    branch: d.branch,
-  }));
-
-export const marshalCreateCatalogRequestSchema: z.ZodType = z
-  .object({
-    catalogId: z.string().optional(),
-    catalog: z.lazy(() => marshalCatalogSchema).optional(),
-  })
-  .transform(d => ({
-    catalog_id: d.catalogId,
-    catalog: d.catalog,
-  }));
-
-export const marshalCreateDatabaseRequestSchema: z.ZodType = z
-  .object({
-    parent: z.string().optional(),
-    databaseId: z.string().optional(),
-    database: z.lazy(() => marshalDatabaseSchema).optional(),
-  })
-  .transform(d => ({
-    parent: d.parent,
-    database_id: d.databaseId,
-    database: d.database,
-  }));
-
-export const marshalCreateEndpointRequestSchema: z.ZodType = z
-  .object({
-    parent: z.string().optional(),
-    endpointId: z.string().optional(),
-    endpoint: z.lazy(() => marshalEndpointSchema).optional(),
-  })
-  .transform(d => ({
-    parent: d.parent,
-    endpoint_id: d.endpointId,
-    endpoint: d.endpoint,
-  }));
-
-export const marshalCreateProjectRequestSchema: z.ZodType = z
-  .object({
-    projectId: z.string().optional(),
-    project: z.lazy(() => marshalProjectSchema).optional(),
-  })
-  .transform(d => ({
-    project_id: d.projectId,
-    project: d.project,
-  }));
-
-export const marshalCreateRoleRequestSchema: z.ZodType = z
-  .object({
-    parent: z.string().optional(),
-    roleId: z.string().optional(),
-    role: z.lazy(() => marshalRoleSchema).optional(),
-  })
-  .transform(d => ({
-    parent: d.parent,
-    role_id: d.roleId,
-    role: d.role,
-  }));
-
-export const marshalCreateSyncedTableRequestSchema: z.ZodType = z
-  .object({
-    syncedTableId: z.string().optional(),
-    syncedTable: z.lazy(() => marshalSyncedTableSchema).optional(),
-  })
-  .transform(d => ({
-    synced_table_id: d.syncedTableId,
-    synced_table: d.syncedTable,
-  }));
-
-export const marshalCreateTableRequestSchema: z.ZodType = z
-  .object({
-    table: z.lazy(() => marshalTableSchema).optional(),
-  })
-  .transform(d => ({
-    table: d.table,
-  }));
-
 export const marshalDatabaseSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -4252,58 +3689,6 @@ export const marshalDatabricksServiceExceptionWithDetailsProtoSchema: z.ZodType 
       details: d.details,
     }));
 
-export const marshalDeleteBranchRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    purge: z.boolean().optional(),
-    allowMissing: z.boolean().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    purge: d.purge,
-    allow_missing: d.allowMissing,
-  }));
-
-export const marshalDeleteCatalogRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalDeleteDatabaseRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalDeleteEndpointRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalDeleteForwardEtlConfigurationRequestSchema: z.ZodType = z
-  .object({
-    parent: z.string().optional(),
-    tenantId: z.string().optional(),
-    timelineId: z.string().optional(),
-    pgDatabaseOid: z.number().optional(),
-    pgSchemaOid: z.number().optional(),
-  })
-  .transform(d => ({
-    parent: d.parent,
-    tenant_id: d.tenantId,
-    timeline_id: d.timelineId,
-    pg_database_oid: d.pgDatabaseOid,
-    pg_schema_oid: d.pgSchemaOid,
-  }));
-
 export const marshalDeleteForwardEtlConfigurationResponseSchema: z.ZodType = z
   .object({
     deletedConfigs: z.number().optional(),
@@ -4312,42 +3697,6 @@ export const marshalDeleteForwardEtlConfigurationResponseSchema: z.ZodType = z
   .transform(d => ({
     deleted_configs: d.deletedConfigs,
     deleted_mappings: d.deletedMappings,
-  }));
-
-export const marshalDeleteProjectRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    purge: z.boolean().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    purge: d.purge,
-  }));
-
-export const marshalDeleteRoleRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    reassignOwnedTo: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    reassign_owned_to: d.reassignOwnedTo,
-  }));
-
-export const marshalDeleteSyncedTableRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalDeleteTableRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
   }));
 
 export const marshalDeltaTableSyncInfoSchema: z.ZodType = z
@@ -4361,22 +3710,6 @@ export const marshalDeltaTableSyncInfoSchema: z.ZodType = z
   .transform(d => ({
     delta_commit_version: d.deltaCommitVersion,
     delta_commit_time: d.deltaCommitTime,
-  }));
-
-export const marshalDisableForwardEtlRequestSchema: z.ZodType = z
-  .object({
-    parent: z.string().optional(),
-    tenantId: z.string().optional(),
-    timelineId: z.string().optional(),
-    pgDatabaseOid: z.number().optional(),
-    pgSchemaOid: z.number().optional(),
-  })
-  .transform(d => ({
-    parent: d.parent,
-    tenant_id: d.tenantId,
-    timeline_id: d.timelineId,
-    pg_database_oid: d.pgDatabaseOid,
-    pg_schema_oid: d.pgSchemaOid,
   }));
 
 export const marshalDisableForwardEtlResponseSchema: z.ZodType = z
@@ -4459,17 +3792,6 @@ export const marshalEndpointSettingsSchema: z.ZodType = z
   })
   .transform(d => ({
     pg_settings: d.pgSettings,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEndpointSettings_PgSettingsEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
   }));
 
 export const marshalEndpointSpecSchema: z.ZodType = z
@@ -4645,130 +3967,12 @@ export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
     expire_time: d.expireTime,
   }));
 
-export const marshalGetBranchRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalGetCatalogRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalGetComputeInstanceRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalGetDatabaseRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalGetEndpointRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalGetForwardEtlMetadataRequestSchema: z.ZodType = z
-  .object({
-    parent: z.string().optional(),
-    tenantId: z.string().optional(),
-    timelineId: z.string().optional(),
-  })
-  .transform(d => ({
-    parent: d.parent,
-    tenant_id: d.tenantId,
-    timeline_id: d.timelineId,
-  }));
-
-export const marshalGetForwardEtlStatusRequestSchema: z.ZodType = z
-  .object({
-    parent: z.string().optional(),
-    tenantId: z.string().optional(),
-    timelineId: z.string().optional(),
-  })
-  .transform(d => ({
-    parent: d.parent,
-    tenant_id: d.tenantId,
-    timeline_id: d.timelineId,
-  }));
-
-export const marshalGetOperationRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalGetProjectRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalGetRoleRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalGetSyncedTableRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalGetTableRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
 export const marshalInitialEndpointSpecSchema: z.ZodType = z
   .object({
     group: z.lazy(() => marshalEndpointGroupSpecSchema).optional(),
   })
   .transform(d => ({
     group: d.group,
-  }));
-
-export const marshalListBranchesRequestSchema: z.ZodType = z
-  .object({
-    parent: z.string().optional(),
-    pageToken: z.string().optional(),
-    pageSize: z.number().optional(),
-    showDeleted: z.boolean().optional(),
-  })
-  .transform(d => ({
-    parent: d.parent,
-    page_token: d.pageToken,
-    page_size: d.pageSize,
-    show_deleted: d.showDeleted,
   }));
 
 export const marshalListBranchesResponseSchema: z.ZodType = z
@@ -4779,18 +3983,6 @@ export const marshalListBranchesResponseSchema: z.ZodType = z
   .transform(d => ({
     branches: d.branches,
     next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListComputeInstancesRequestSchema: z.ZodType = z
-  .object({
-    parent: z.string().optional(),
-    pageSize: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    parent: d.parent,
-    page_size: d.pageSize,
-    page_token: d.pageToken,
   }));
 
 export const marshalListComputeInstancesResponseSchema: z.ZodType = z
@@ -4805,18 +3997,6 @@ export const marshalListComputeInstancesResponseSchema: z.ZodType = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalListDatabasesRequestSchema: z.ZodType = z
-  .object({
-    parent: z.string().optional(),
-    pageToken: z.string().optional(),
-    pageSize: z.number().optional(),
-  })
-  .transform(d => ({
-    parent: d.parent,
-    page_token: d.pageToken,
-    page_size: d.pageSize,
-  }));
-
 export const marshalListDatabasesResponseSchema: z.ZodType = z
   .object({
     databases: z.array(z.lazy(() => marshalDatabaseSchema)).optional(),
@@ -4825,18 +4005,6 @@ export const marshalListDatabasesResponseSchema: z.ZodType = z
   .transform(d => ({
     databases: d.databases,
     next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListEndpointsRequestSchema: z.ZodType = z
-  .object({
-    parent: z.string().optional(),
-    pageToken: z.string().optional(),
-    pageSize: z.number().optional(),
-  })
-  .transform(d => ({
-    parent: d.parent,
-    page_token: d.pageToken,
-    page_size: d.pageSize,
   }));
 
 export const marshalListEndpointsResponseSchema: z.ZodType = z
@@ -4849,18 +4017,6 @@ export const marshalListEndpointsResponseSchema: z.ZodType = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalListProjectsRequestSchema: z.ZodType = z
-  .object({
-    pageToken: z.string().optional(),
-    pageSize: z.number().optional(),
-    showDeleted: z.boolean().optional(),
-  })
-  .transform(d => ({
-    page_token: d.pageToken,
-    page_size: d.pageSize,
-    show_deleted: d.showDeleted,
-  }));
-
 export const marshalListProjectsResponseSchema: z.ZodType = z
   .object({
     projects: z.array(z.lazy(() => marshalProjectSchema)).optional(),
@@ -4869,18 +4025,6 @@ export const marshalListProjectsResponseSchema: z.ZodType = z
   .transform(d => ({
     projects: d.projects,
     next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListRolesRequestSchema: z.ZodType = z
-  .object({
-    parent: z.string().optional(),
-    pageToken: z.string().optional(),
-    pageSize: z.number().optional(),
-  })
-  .transform(d => ({
-    parent: d.parent,
-    page_token: d.pageToken,
-    page_size: d.pageSize,
   }));
 
 export const marshalListRolesResponseSchema: z.ZodType = z
@@ -4992,18 +4136,6 @@ export const marshalProjectDefaultEndpointSettingsSchema: z.ZodType = z
     pg_settings: d.pgSettings,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalProjectDefaultEndpointSettings_PgSettingsEntrySchema: z.ZodType =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
 export const marshalProjectOperationMetadataSchema: z.ZodType = z.object({});
 
 export const marshalProjectSpecSchema: z.ZodType = z
@@ -5074,8 +4206,6 @@ export const marshalProjectStatusSchema: z.ZodType = z
     default_branch: d.defaultBranch,
     project_id: d.projectId,
   }));
-
-export const marshalProvisioningInfoSchema: z.ZodType = z.object({});
 
 export const marshalRequestedClaimsSchema: z.ZodType = z
   .object({
@@ -5322,54 +4452,4 @@ export const marshalUndeleteProjectRequestSchema: z.ZodType = z
   })
   .transform(d => ({
     name: d.name,
-  }));
-
-export const marshalUpdateBranchRequestSchema: z.ZodType = z
-  .object({
-    branch: z.lazy(() => marshalBranchSchema).optional(),
-    updateMask: z.string().optional(),
-  })
-  .transform(d => ({
-    branch: d.branch,
-    update_mask: d.updateMask,
-  }));
-
-export const marshalUpdateDatabaseRequestSchema: z.ZodType = z
-  .object({
-    database: z.lazy(() => marshalDatabaseSchema).optional(),
-    updateMask: z.string().optional(),
-  })
-  .transform(d => ({
-    database: d.database,
-    update_mask: d.updateMask,
-  }));
-
-export const marshalUpdateEndpointRequestSchema: z.ZodType = z
-  .object({
-    endpoint: z.lazy(() => marshalEndpointSchema).optional(),
-    updateMask: z.string().optional(),
-  })
-  .transform(d => ({
-    endpoint: d.endpoint,
-    update_mask: d.updateMask,
-  }));
-
-export const marshalUpdateProjectRequestSchema: z.ZodType = z
-  .object({
-    project: z.lazy(() => marshalProjectSchema).optional(),
-    updateMask: z.string().optional(),
-  })
-  .transform(d => ({
-    project: d.project,
-    update_mask: d.updateMask,
-  }));
-
-export const marshalUpdateRoleRequestSchema: z.ZodType = z
-  .object({
-    role: z.lazy(() => marshalRoleSchema).optional(),
-    updateMask: z.string().optional(),
-  })
-  .transform(d => ({
-    role: d.role,
-    update_mask: d.updateMask,
   }));

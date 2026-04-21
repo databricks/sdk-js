@@ -140,28 +140,6 @@ export const unmarshalAccessControlResponseSchema: z.ZodType<AccessControlRespon
       allPermissions: d.all_permissions,
     }));
 
-export const unmarshalGetObjectPermissionsSchema: z.ZodType<GetObjectPermissions> =
-  z
-    .object({
-      request_object_type: z.string().optional(),
-      request_object_id: z.string().optional(),
-    })
-    .transform(d => ({
-      requestObjectType: d.request_object_type,
-      requestObjectId: d.request_object_id,
-    }));
-
-export const unmarshalGetPermissionLevelsSchema: z.ZodType<GetPermissionLevels> =
-  z
-    .object({
-      request_object_type: z.string().optional(),
-      request_object_id: z.string().optional(),
-    })
-    .transform(d => ({
-      requestObjectType: d.request_object_type,
-      requestObjectId: d.request_object_id,
-    }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalGetPermissionLevels_ResponseSchema: z.ZodType<GetPermissionLevels_Response> =
   z
@@ -270,26 +248,6 @@ export const marshalAccessControlResponseSchema: z.ZodType = z
     service_principal_name: d.servicePrincipalName,
     display_name: d.displayName,
     all_permissions: d.allPermissions,
-  }));
-
-export const marshalGetObjectPermissionsSchema: z.ZodType = z
-  .object({
-    requestObjectType: z.string().optional(),
-    requestObjectId: z.string().optional(),
-  })
-  .transform(d => ({
-    request_object_type: d.requestObjectType,
-    request_object_id: d.requestObjectId,
-  }));
-
-export const marshalGetPermissionLevelsSchema: z.ZodType = z
-  .object({
-    requestObjectType: z.string().optional(),
-    requestObjectId: z.string().optional(),
-  })
-  .transform(d => ({
-    request_object_type: d.requestObjectType,
-    request_object_id: d.requestObjectId,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

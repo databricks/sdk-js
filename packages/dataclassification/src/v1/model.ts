@@ -135,46 +135,6 @@ export const unmarshalCatalogConfig_SchemaNamesSchema: z.ZodType<CatalogConfig_S
       names: d.names,
     }));
 
-export const unmarshalCreateCatalogConfigRequestSchema: z.ZodType<CreateCatalogConfigRequest> =
-  z
-    .object({
-      parent: z.string().optional(),
-      catalog_config: z.lazy(() => unmarshalCatalogConfigSchema).optional(),
-    })
-    .transform(d => ({
-      parent: d.parent,
-      catalogConfig: d.catalog_config,
-    }));
-
-export const unmarshalDeleteCatalogConfigRequestSchema: z.ZodType<DeleteCatalogConfigRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
-export const unmarshalGetCatalogConfigRequestSchema: z.ZodType<GetCatalogConfigRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
-export const unmarshalUpdateCatalogConfigRequestSchema: z.ZodType<UpdateCatalogConfigRequest> =
-  z
-    .object({
-      catalog_config: z.lazy(() => unmarshalCatalogConfigSchema).optional(),
-      update_mask: z.string().optional(),
-    })
-    .transform(d => ({
-      catalogConfig: d.catalog_config,
-      updateMask: d.update_mask,
-    }));
-
 export const marshalAutoTaggingConfigSchema: z.ZodType = z
   .object({
     classificationTag: z.string().optional(),
@@ -212,40 +172,4 @@ export const marshalCatalogConfig_SchemaNamesSchema: z.ZodType = z
   })
   .transform(d => ({
     names: d.names,
-  }));
-
-export const marshalCreateCatalogConfigRequestSchema: z.ZodType = z
-  .object({
-    parent: z.string().optional(),
-    catalogConfig: z.lazy(() => marshalCatalogConfigSchema).optional(),
-  })
-  .transform(d => ({
-    parent: d.parent,
-    catalog_config: d.catalogConfig,
-  }));
-
-export const marshalDeleteCatalogConfigRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalGetCatalogConfigRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalUpdateCatalogConfigRequestSchema: z.ZodType = z
-  .object({
-    catalogConfig: z.lazy(() => marshalCatalogConfigSchema).optional(),
-    updateMask: z.string().optional(),
-  })
-  .transform(d => ({
-    catalog_config: d.catalogConfig,
-    update_mask: d.updateMask,
   }));

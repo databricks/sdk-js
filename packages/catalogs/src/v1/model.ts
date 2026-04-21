@@ -456,30 +456,6 @@ export const unmarshalCatalogInfoSchema: z.ZodType<CatalogInfo> = z
     options: d.options,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCatalogInfo_OptionsEntrySchema: z.ZodType<CatalogInfo_OptionsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCatalogInfo_PropertiesEntrySchema: z.ZodType<CatalogInfo_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
 export const unmarshalConversionInfoSchema: z.ZodType<ConversionInfo> = z
   .object({
     state: z.enum(ConversionInfo_State).optional(),
@@ -554,40 +530,6 @@ export const unmarshalCreateCatalogSchema: z.ZodType<CreateCatalog> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateCatalog_OptionsEntrySchema: z.ZodType<CreateCatalog_OptionsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateCatalog_PropertiesEntrySchema: z.ZodType<CreateCatalog_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-export const unmarshalDeleteCatalogSchema: z.ZodType<DeleteCatalog> = z
-  .object({
-    name_arg: z.string().optional(),
-    force: z.boolean().optional(),
-  })
-  .transform(d => ({
-    nameArg: d.name_arg,
-    force: d.force,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteCatalog_ResponseSchema: z.ZodType<DeleteCatalog_Response> =
   z.object({});
 
@@ -633,30 +575,6 @@ export const unmarshalEncryptionSettingsSchema: z.ZodType<EncryptionSettings> =
       azureKeyVaultKeyId: d.azure_key_vault_key_id,
       azureEncryptionSettings: d.azure_encryption_settings,
     }));
-
-export const unmarshalGetCatalogSchema: z.ZodType<GetCatalog> = z
-  .object({
-    name_arg: z.string().optional(),
-    include_browse: z.boolean().optional(),
-  })
-  .transform(d => ({
-    nameArg: d.name_arg,
-    includeBrowse: d.include_browse,
-  }));
-
-export const unmarshalListCatalogsSchema: z.ZodType<ListCatalogs> = z
-  .object({
-    include_browse: z.boolean().optional(),
-    max_results: z.number().optional(),
-    page_token: z.string().optional(),
-    include_unbound: z.boolean().optional(),
-  })
-  .transform(d => ({
-    includeBrowse: d.include_browse,
-    maxResults: d.max_results,
-    pageToken: d.page_token,
-    includeUnbound: d.include_unbound,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListCatalogs_ResponseSchema: z.ZodType<ListCatalogs_Response> =
@@ -747,30 +665,6 @@ export const unmarshalUpdateCatalogSchema: z.ZodType<UpdateCatalog> = z
     options: d.options,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateCatalog_OptionsEntrySchema: z.ZodType<UpdateCatalog_OptionsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateCatalog_PropertiesEntrySchema: z.ZodType<UpdateCatalog_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
 export const marshalAzureEncryptionSettingsSchema: z.ZodType = z
   .object({
     azureTenantId: z.string().optional(),
@@ -846,28 +740,6 @@ export const marshalCatalogInfoSchema: z.ZodType = z
     options: d.options,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCatalogInfo_OptionsEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCatalogInfo_PropertiesEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
 export const marshalConversionInfoSchema: z.ZodType = z
   .object({
     state: z.enum(ConversionInfo_State).optional(),
@@ -940,38 +812,6 @@ export const marshalCreateCatalogSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCreateCatalog_OptionsEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCreateCatalog_PropertiesEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-export const marshalDeleteCatalogSchema: z.ZodType = z
-  .object({
-    nameArg: z.string().optional(),
-    force: z.boolean().optional(),
-  })
-  .transform(d => ({
-    name_arg: d.nameArg,
-    force: d.force,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteCatalog_ResponseSchema: z.ZodType = z.object({});
 
 export const marshalDrReplicationInfoSchema: z.ZodType = z
@@ -1015,30 +855,6 @@ export const marshalEncryptionSettingsSchema: z.ZodType = z
     customer_managed_key_id: d.customerManagedKeyId,
     azure_key_vault_key_id: d.azureKeyVaultKeyId,
     azure_encryption_settings: d.azureEncryptionSettings,
-  }));
-
-export const marshalGetCatalogSchema: z.ZodType = z
-  .object({
-    nameArg: z.string().optional(),
-    includeBrowse: z.boolean().optional(),
-  })
-  .transform(d => ({
-    name_arg: d.nameArg,
-    include_browse: d.includeBrowse,
-  }));
-
-export const marshalListCatalogsSchema: z.ZodType = z
-  .object({
-    includeBrowse: z.boolean().optional(),
-    maxResults: z.number().optional(),
-    pageToken: z.string().optional(),
-    includeUnbound: z.boolean().optional(),
-  })
-  .transform(d => ({
-    include_browse: d.includeBrowse,
-    max_results: d.maxResults,
-    page_token: d.pageToken,
-    include_unbound: d.includeUnbound,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1125,26 +941,4 @@ export const marshalUpdateCatalogSchema: z.ZodType = z
     managed_encryption_settings: d.managedEncryptionSettings,
     properties: d.properties,
     options: d.options,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalUpdateCatalog_OptionsEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalUpdateCatalog_PropertiesEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
   }));

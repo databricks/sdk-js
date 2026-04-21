@@ -212,14 +212,6 @@ export const unmarshalFileInfoSchema: z.ZodType<FileInfo> = z
     modificationTime: d.modification_time,
   }));
 
-export const unmarshalGetStatusSchema: z.ZodType<GetStatus> = z
-  .object({
-    path: z.string().optional(),
-  })
-  .transform(d => ({
-    path: d.path,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalGetStatus_ResponseSchema: z.ZodType<GetStatus_Response> =
   z
@@ -235,14 +227,6 @@ export const unmarshalGetStatus_ResponseSchema: z.ZodType<GetStatus_Response> =
       fileSize: d.file_size,
       modificationTime: d.modification_time,
     }));
-
-export const unmarshalListStatusSchema: z.ZodType<ListStatus> = z
-  .object({
-    path: z.string().optional(),
-  })
-  .transform(d => ({
-    path: d.path,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListStatus_ResponseSchema: z.ZodType<ListStatus_Response> =
@@ -300,18 +284,6 @@ export const unmarshalPutSchema: z.ZodType<Put> = z
 export const unmarshalPut_ResponseSchema: z.ZodType<Put_Response> = z.object(
   {}
 );
-
-export const unmarshalReadSchema: z.ZodType<Read> = z
-  .object({
-    path: z.string().optional(),
-    offset: z.number().optional(),
-    length: z.number().optional(),
-  })
-  .transform(d => ({
-    path: d.path,
-    offset: d.offset,
-    length: d.length,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalRead_ResponseSchema: z.ZodType<Read_Response> = z
@@ -402,14 +374,6 @@ export const marshalFileInfoSchema: z.ZodType = z
     modification_time: d.modificationTime,
   }));
 
-export const marshalGetStatusSchema: z.ZodType = z
-  .object({
-    path: z.string().optional(),
-  })
-  .transform(d => ({
-    path: d.path,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalGetStatus_ResponseSchema: z.ZodType = z
   .object({
@@ -423,14 +387,6 @@ export const marshalGetStatus_ResponseSchema: z.ZodType = z
     is_dir: d.isDir,
     file_size: d.fileSize,
     modification_time: d.modificationTime,
-  }));
-
-export const marshalListStatusSchema: z.ZodType = z
-  .object({
-    path: z.string().optional(),
-  })
-  .transform(d => ({
-    path: d.path,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -485,18 +441,6 @@ export const marshalPutSchema: z.ZodType = z
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalPut_ResponseSchema: z.ZodType = z.object({});
-
-export const marshalReadSchema: z.ZodType = z
-  .object({
-    path: z.string().optional(),
-    offset: z.number().optional(),
-    length: z.number().optional(),
-  })
-  .transform(d => ({
-    path: d.path,
-    offset: d.offset,
-    length: d.length,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalRead_ResponseSchema: z.ZodType = z

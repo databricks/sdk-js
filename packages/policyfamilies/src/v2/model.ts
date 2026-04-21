@@ -37,27 +37,6 @@ export interface PolicyFamily {
   definition?: string | undefined;
 }
 
-export const unmarshalGetPolicyFamilySchema: z.ZodType<GetPolicyFamily> = z
-  .object({
-    policy_family_id: z.string().optional(),
-    version: z.number().optional(),
-  })
-  .transform(d => ({
-    policyFamilyId: d.policy_family_id,
-    version: d.version,
-  }));
-
-export const unmarshalListPolicyFamiliesSchema: z.ZodType<ListPolicyFamilies> =
-  z
-    .object({
-      max_results: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      maxResults: d.max_results,
-      pageToken: d.page_token,
-    }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListPolicyFamilies_ResponseSchema: z.ZodType<ListPolicyFamilies_Response> =
   z
@@ -84,26 +63,6 @@ export const unmarshalPolicyFamilySchema: z.ZodType<PolicyFamily> = z
     name: d.name,
     description: d.description,
     definition: d.definition,
-  }));
-
-export const marshalGetPolicyFamilySchema: z.ZodType = z
-  .object({
-    policyFamilyId: z.string().optional(),
-    version: z.number().optional(),
-  })
-  .transform(d => ({
-    policy_family_id: d.policyFamilyId,
-    version: d.version,
-  }));
-
-export const marshalListPolicyFamiliesSchema: z.ZodType = z
-  .object({
-    maxResults: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    max_results: d.maxResults,
-    page_token: d.pageToken,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

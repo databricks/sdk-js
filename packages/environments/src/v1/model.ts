@@ -749,21 +749,6 @@ export interface WorkspaceBaseEnvironmentCache {}
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface WorkspaceBaseEnvironmentOperationMetadata {}
 
-export const unmarshalCreateWorkspaceBaseEnvironmentRequestSchema: z.ZodType<CreateWorkspaceBaseEnvironmentRequest> =
-  z
-    .object({
-      workspace_base_environment: z
-        .lazy(() => unmarshalWorkspaceBaseEnvironmentSchema)
-        .optional(),
-      workspace_base_environment_id: z.string().optional(),
-      request_id: z.string().optional(),
-    })
-    .transform(d => ({
-      workspaceBaseEnvironment: d.workspace_base_environment,
-      workspaceBaseEnvironmentId: d.workspace_base_environment_id,
-      requestId: d.request_id,
-    }));
-
 export const unmarshalDatabricksServiceExceptionWithDetailsProtoSchema: z.ZodType<DatabricksServiceExceptionWithDetailsProto> =
   z
     .object({
@@ -790,53 +775,6 @@ export const unmarshalDefaultWorkspaceBaseEnvironmentSchema: z.ZodType<DefaultWo
       name: d.name,
       cpuWorkspaceBaseEnvironment: d.cpu_workspace_base_environment,
       gpuWorkspaceBaseEnvironment: d.gpu_workspace_base_environment,
-    }));
-
-export const unmarshalDeleteWorkspaceBaseEnvironmentRequestSchema: z.ZodType<DeleteWorkspaceBaseEnvironmentRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
-export const unmarshalGetDefaultWorkspaceBaseEnvironmentRequestSchema: z.ZodType<GetDefaultWorkspaceBaseEnvironmentRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
-export const unmarshalGetOperationRequestSchema: z.ZodType<GetOperationRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
-export const unmarshalGetWorkspaceBaseEnvironmentRequestSchema: z.ZodType<GetWorkspaceBaseEnvironmentRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
-export const unmarshalListWorkspaceBaseEnvironmentsRequestSchema: z.ZodType<ListWorkspaceBaseEnvironmentsRequest> =
-  z
-    .object({
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      pageSize: d.page_size,
-      pageToken: d.page_token,
     }));
 
 export const unmarshalListWorkspaceBaseEnvironmentsResponseSchema: z.ZodType<ListWorkspaceBaseEnvironmentsResponse> =
@@ -879,32 +817,6 @@ export const unmarshalRefreshWorkspaceBaseEnvironmentRequestSchema: z.ZodType<Re
       name: d.name,
     }));
 
-export const unmarshalUpdateDefaultWorkspaceBaseEnvironmentRequestSchema: z.ZodType<UpdateDefaultWorkspaceBaseEnvironmentRequest> =
-  z
-    .object({
-      default_workspace_base_environment: z
-        .lazy(() => unmarshalDefaultWorkspaceBaseEnvironmentSchema)
-        .optional(),
-      update_mask: z.string().optional(),
-    })
-    .transform(d => ({
-      defaultWorkspaceBaseEnvironment: d.default_workspace_base_environment,
-      updateMask: d.update_mask,
-    }));
-
-export const unmarshalUpdateWorkspaceBaseEnvironmentRequestSchema: z.ZodType<UpdateWorkspaceBaseEnvironmentRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-      workspace_base_environment: z
-        .lazy(() => unmarshalWorkspaceBaseEnvironmentSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      workspaceBaseEnvironment: d.workspace_base_environment,
-    }));
-
 export const unmarshalWorkspaceBaseEnvironmentSchema: z.ZodType<WorkspaceBaseEnvironment> =
   z
     .object({
@@ -944,25 +856,8 @@ export const unmarshalWorkspaceBaseEnvironmentSchema: z.ZodType<WorkspaceBaseEnv
       baseEnvironmentProvider: d.base_environment_provider,
     }));
 
-export const unmarshalWorkspaceBaseEnvironmentCacheSchema: z.ZodType<WorkspaceBaseEnvironmentCache> =
-  z.object({});
-
 export const unmarshalWorkspaceBaseEnvironmentOperationMetadataSchema: z.ZodType<WorkspaceBaseEnvironmentOperationMetadata> =
   z.object({});
-
-export const marshalCreateWorkspaceBaseEnvironmentRequestSchema: z.ZodType = z
-  .object({
-    workspaceBaseEnvironment: z
-      .lazy(() => marshalWorkspaceBaseEnvironmentSchema)
-      .optional(),
-    workspaceBaseEnvironmentId: z.string().optional(),
-    requestId: z.string().optional(),
-  })
-  .transform(d => ({
-    workspace_base_environment: d.workspaceBaseEnvironment,
-    workspace_base_environment_id: d.workspaceBaseEnvironmentId,
-    request_id: d.requestId,
-  }));
 
 export const marshalDatabricksServiceExceptionWithDetailsProtoSchema: z.ZodType =
   z
@@ -989,49 +884,6 @@ export const marshalDefaultWorkspaceBaseEnvironmentSchema: z.ZodType = z
     name: d.name,
     cpu_workspace_base_environment: d.cpuWorkspaceBaseEnvironment,
     gpu_workspace_base_environment: d.gpuWorkspaceBaseEnvironment,
-  }));
-
-export const marshalDeleteWorkspaceBaseEnvironmentRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalGetDefaultWorkspaceBaseEnvironmentRequestSchema: z.ZodType =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
-export const marshalGetOperationRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalGetWorkspaceBaseEnvironmentRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalListWorkspaceBaseEnvironmentsRequestSchema: z.ZodType = z
-  .object({
-    pageSize: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    page_size: d.pageSize,
-    page_token: d.pageToken,
   }));
 
 export const marshalListWorkspaceBaseEnvironmentsResponseSchema: z.ZodType = z
@@ -1072,31 +924,6 @@ export const marshalRefreshWorkspaceBaseEnvironmentRequestSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalUpdateDefaultWorkspaceBaseEnvironmentRequestSchema: z.ZodType =
-  z
-    .object({
-      defaultWorkspaceBaseEnvironment: z
-        .lazy(() => marshalDefaultWorkspaceBaseEnvironmentSchema)
-        .optional(),
-      updateMask: z.string().optional(),
-    })
-    .transform(d => ({
-      default_workspace_base_environment: d.defaultWorkspaceBaseEnvironment,
-      update_mask: d.updateMask,
-    }));
-
-export const marshalUpdateWorkspaceBaseEnvironmentRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    workspaceBaseEnvironment: z
-      .lazy(() => marshalWorkspaceBaseEnvironmentSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    workspace_base_environment: d.workspaceBaseEnvironment,
-  }));
-
 export const marshalWorkspaceBaseEnvironmentSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1134,10 +961,6 @@ export const marshalWorkspaceBaseEnvironmentSchema: z.ZodType = z
     base_environment_type: d.baseEnvironmentType,
     base_environment_provider: d.baseEnvironmentProvider,
   }));
-
-export const marshalWorkspaceBaseEnvironmentCacheSchema: z.ZodType = z.object(
-  {}
-);
 
 export const marshalWorkspaceBaseEnvironmentOperationMetadataSchema: z.ZodType =
   z.object({});
