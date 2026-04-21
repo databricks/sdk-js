@@ -13,6 +13,10 @@
     "./credentials": {
       "types": "./dist/credentials/index.d.ts",
       "import": "./dist/credentials/index.js"
+    },
+    "./credentials/browser": {
+      "types": "./dist/credentials/index.browser.d.ts",
+      "import": "./dist/credentials/index.browser.js"
     }
   },
   "files": [

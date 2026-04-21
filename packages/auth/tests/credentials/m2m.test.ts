@@ -1,8 +1,12 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
 import {ZodError} from 'zod';
 
-import type {M2mCredentialsErrorCode} from '../../src/credentials';
-import {M2mCredentialsError, newM2mCredentials} from '../../src/credentials';
+// Import from specific modules rather than the barrel because the barrel
+// re-exports Node-only credentials (`newU2mCredentials`) that can't load in
+// browser test runs.
+import type {M2mCredentialsErrorCode} from '../../src/credentials/errors';
+import {M2mCredentialsError} from '../../src/credentials/errors';
+import {newM2mCredentials} from '../../src/credentials/m2m';
 
 interface CapturedRequest {
   url: string;
