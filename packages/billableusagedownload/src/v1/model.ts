@@ -33,40 +33,12 @@ export interface DownloadResponse {
   content?: string | undefined;
 }
 
-export const unmarshalDownloadRequestSchema: z.ZodType<DownloadRequest> = z
-  .object({
-    account_id: z.string().optional(),
-    start_month: z.string().optional(),
-    end_month: z.string().optional(),
-    personal_data: z.boolean().optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    startMonth: d.start_month,
-    endMonth: d.end_month,
-    personalData: d.personal_data,
-  }));
-
 export const unmarshalDownloadResponseSchema: z.ZodType<DownloadResponse> = z
   .object({
     content: z.string().optional(),
   })
   .transform(d => ({
     content: d.content,
-  }));
-
-export const marshalDownloadRequestSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    startMonth: z.string().optional(),
-    endMonth: z.string().optional(),
-    personalData: z.boolean().optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    start_month: d.startMonth,
-    end_month: d.endMonth,
-    personal_data: d.personalData,
   }));
 
 export const marshalDownloadResponseSchema: z.ZodType = z

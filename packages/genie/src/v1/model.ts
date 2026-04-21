@@ -1869,18 +1869,6 @@ export const unmarshalExternalLinkSchema: z.ZodType<ExternalLink> = z
     nextChunkInternalLink: d.next_chunk_internal_link,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalExternalLink_HttpHeadersEntrySchema: z.ZodType<ExternalLink_HttpHeadersEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
 export const unmarshalGenieAttachmentSchema: z.ZodType<GenieAttachment> = z
   .object({
     text: z.lazy(() => unmarshalTextAttachmentSchema).optional(),
@@ -1984,30 +1972,6 @@ export const unmarshalGenieCreateSpaceRequestSchema: z.ZodType<GenieCreateSpaceR
       serializedSpace: d.serialized_space,
       title: d.title,
       description: d.description,
-    }));
-
-export const unmarshalGenieDeleteConversationMessageRequestSchema: z.ZodType<GenieDeleteConversationMessageRequest> =
-  z
-    .object({
-      space_id: z.string().optional(),
-      conversation_id: z.string().optional(),
-      message_id: z.string().optional(),
-    })
-    .transform(d => ({
-      spaceId: d.space_id,
-      conversationId: d.conversation_id,
-      messageId: d.message_id,
-    }));
-
-export const unmarshalGenieDeleteConversationRequestSchema: z.ZodType<GenieDeleteConversationRequest> =
-  z
-    .object({
-      space_id: z.string().optional(),
-      conversation_id: z.string().optional(),
-    })
-    .transform(d => ({
-      spaceId: d.space_id,
-      conversationId: d.conversation_id,
     }));
 
 export const unmarshalGenieEvalResponseSchema: z.ZodType<GenieEvalResponse> = z
@@ -2162,38 +2126,6 @@ export const unmarshalGenieGenerateDownloadFullQueryResultResponseSchema: z.ZodT
       downloadIdSignature: d.download_id_signature,
     }));
 
-export const unmarshalGenieGetConversationMessageRequestSchema: z.ZodType<GenieGetConversationMessageRequest> =
-  z
-    .object({
-      space_id: z.string().optional(),
-      conversation_id: z.string().optional(),
-      message_id: z.string().optional(),
-    })
-    .transform(d => ({
-      spaceId: d.space_id,
-      conversationId: d.conversation_id,
-      messageId: d.message_id,
-    }));
-
-export const unmarshalGenieGetDownloadFullQueryResultRequestSchema: z.ZodType<GenieGetDownloadFullQueryResultRequest> =
-  z
-    .object({
-      space_id: z.string().optional(),
-      conversation_id: z.string().optional(),
-      message_id: z.string().optional(),
-      attachment_id: z.string().optional(),
-      download_id: z.string().optional(),
-      download_id_signature: z.string().optional(),
-    })
-    .transform(d => ({
-      spaceId: d.space_id,
-      conversationId: d.conversation_id,
-      messageId: d.message_id,
-      attachmentId: d.attachment_id,
-      downloadId: d.download_id,
-      downloadIdSignature: d.download_id_signature,
-    }));
-
 export const unmarshalGenieGetDownloadFullQueryResultResponseSchema: z.ZodType<GenieGetDownloadFullQueryResultResponse> =
   z
     .object({
@@ -2205,58 +2137,6 @@ export const unmarshalGenieGetDownloadFullQueryResultResponseSchema: z.ZodType<G
       statementResponse: d.statement_response,
     }));
 
-export const unmarshalGenieGetEvalResultDetailsRequestSchema: z.ZodType<GenieGetEvalResultDetailsRequest> =
-  z
-    .object({
-      space_id: z.string().optional(),
-      eval_run_id: z.string().optional(),
-      result_id: z.string().optional(),
-    })
-    .transform(d => ({
-      spaceId: d.space_id,
-      evalRunId: d.eval_run_id,
-      resultId: d.result_id,
-    }));
-
-export const unmarshalGenieGetEvalRunRequestSchema: z.ZodType<GenieGetEvalRunRequest> =
-  z
-    .object({
-      space_id: z.string().optional(),
-      eval_run_id: z.string().optional(),
-    })
-    .transform(d => ({
-      spaceId: d.space_id,
-      evalRunId: d.eval_run_id,
-    }));
-
-export const unmarshalGenieGetMessageAttachmentQueryResultRequestSchema: z.ZodType<GenieGetMessageAttachmentQueryResultRequest> =
-  z
-    .object({
-      message_id: z.string().optional(),
-      space_id: z.string().optional(),
-      conversation_id: z.string().optional(),
-      attachment_id: z.string().optional(),
-    })
-    .transform(d => ({
-      messageId: d.message_id,
-      spaceId: d.space_id,
-      conversationId: d.conversation_id,
-      attachmentId: d.attachment_id,
-    }));
-
-export const unmarshalGenieGetMessageQueryResultRequestSchema: z.ZodType<GenieGetMessageQueryResultRequest> =
-  z
-    .object({
-      message_id: z.string().optional(),
-      space_id: z.string().optional(),
-      conversation_id: z.string().optional(),
-    })
-    .transform(d => ({
-      messageId: d.message_id,
-      spaceId: d.space_id,
-      conversationId: d.conversation_id,
-    }));
-
 export const unmarshalGenieGetMessageQueryResultResponseSchema: z.ZodType<GenieGetMessageQueryResultResponse> =
   z
     .object({
@@ -2266,47 +2146,6 @@ export const unmarshalGenieGetMessageQueryResultResponseSchema: z.ZodType<GenieG
     })
     .transform(d => ({
       statementResponse: d.statement_response,
-    }));
-
-export const unmarshalGenieGetQueryResultByAttachmentRequestSchema: z.ZodType<GenieGetQueryResultByAttachmentRequest> =
-  z
-    .object({
-      message_id: z.string().optional(),
-      space_id: z.string().optional(),
-      conversation_id: z.string().optional(),
-      attachment_id: z.string().optional(),
-    })
-    .transform(d => ({
-      messageId: d.message_id,
-      spaceId: d.space_id,
-      conversationId: d.conversation_id,
-      attachmentId: d.attachment_id,
-    }));
-
-export const unmarshalGenieGetSpaceRequestSchema: z.ZodType<GenieGetSpaceRequest> =
-  z
-    .object({
-      space_id: z.string().optional(),
-      include_serialized_space: z.boolean().optional(),
-    })
-    .transform(d => ({
-      spaceId: d.space_id,
-      includeSerializedSpace: d.include_serialized_space,
-    }));
-
-export const unmarshalGenieListConversationCommentsRequestSchema: z.ZodType<GenieListConversationCommentsRequest> =
-  z
-    .object({
-      space_id: z.string().optional(),
-      conversation_id: z.string().optional(),
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      spaceId: d.space_id,
-      conversationId: d.conversation_id,
-      pageSize: d.page_size,
-      pageToken: d.page_token,
     }));
 
 export const unmarshalGenieListConversationCommentsResponseSchema: z.ZodType<GenieListConversationCommentsResponse> =
@@ -2322,21 +2161,6 @@ export const unmarshalGenieListConversationCommentsResponseSchema: z.ZodType<Gen
       nextPageToken: d.next_page_token,
     }));
 
-export const unmarshalGenieListConversationMessagesRequestSchema: z.ZodType<GenieListConversationMessagesRequest> =
-  z
-    .object({
-      space_id: z.string().optional(),
-      conversation_id: z.string().optional(),
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      spaceId: d.space_id,
-      conversationId: d.conversation_id,
-      pageSize: d.page_size,
-      pageToken: d.page_token,
-    }));
-
 export const unmarshalGenieListConversationMessagesResponseSchema: z.ZodType<GenieListConversationMessagesResponse> =
   z
     .object({
@@ -2346,21 +2170,6 @@ export const unmarshalGenieListConversationMessagesResponseSchema: z.ZodType<Gen
     .transform(d => ({
       messages: d.messages,
       nextPageToken: d.next_page_token,
-    }));
-
-export const unmarshalGenieListConversationsRequestSchema: z.ZodType<GenieListConversationsRequest> =
-  z
-    .object({
-      space_id: z.string().optional(),
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-      include_all: z.boolean().optional(),
-    })
-    .transform(d => ({
-      spaceId: d.space_id,
-      pageSize: d.page_size,
-      pageToken: d.page_token,
-      includeAll: d.include_all,
     }));
 
 export const unmarshalGenieListConversationsResponseSchema: z.ZodType<GenieListConversationsResponse> =
@@ -2376,21 +2185,6 @@ export const unmarshalGenieListConversationsResponseSchema: z.ZodType<GenieListC
       nextPageToken: d.next_page_token,
     }));
 
-export const unmarshalGenieListEvalResultsRequestSchema: z.ZodType<GenieListEvalResultsRequest> =
-  z
-    .object({
-      space_id: z.string().optional(),
-      eval_run_id: z.string().optional(),
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      spaceId: d.space_id,
-      evalRunId: d.eval_run_id,
-      pageSize: d.page_size,
-      pageToken: d.page_token,
-    }));
-
 export const unmarshalGenieListEvalResultsResponseSchema: z.ZodType<GenieListEvalResultsResponse> =
   z
     .object({
@@ -2402,19 +2196,6 @@ export const unmarshalGenieListEvalResultsResponseSchema: z.ZodType<GenieListEva
     .transform(d => ({
       evalResults: d.eval_results,
       nextPageToken: d.next_page_token,
-    }));
-
-export const unmarshalGenieListEvalRunsRequestSchema: z.ZodType<GenieListEvalRunsRequest> =
-  z
-    .object({
-      space_id: z.string().optional(),
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      spaceId: d.space_id,
-      pageSize: d.page_size,
-      pageToken: d.page_token,
     }));
 
 export const unmarshalGenieListEvalRunsResponseSchema: z.ZodType<GenieListEvalRunsResponse> =
@@ -2430,23 +2211,6 @@ export const unmarshalGenieListEvalRunsResponseSchema: z.ZodType<GenieListEvalRu
       nextPageToken: d.next_page_token,
     }));
 
-export const unmarshalGenieListMessageCommentsRequestSchema: z.ZodType<GenieListMessageCommentsRequest> =
-  z
-    .object({
-      space_id: z.string().optional(),
-      conversation_id: z.string().optional(),
-      message_id: z.string().optional(),
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      spaceId: d.space_id,
-      conversationId: d.conversation_id,
-      messageId: d.message_id,
-      pageSize: d.page_size,
-      pageToken: d.page_token,
-    }));
-
 export const unmarshalGenieListMessageCommentsResponseSchema: z.ZodType<GenieListMessageCommentsResponse> =
   z
     .object({
@@ -2458,17 +2222,6 @@ export const unmarshalGenieListMessageCommentsResponseSchema: z.ZodType<GenieLis
     .transform(d => ({
       comments: d.comments,
       nextPageToken: d.next_page_token,
-    }));
-
-export const unmarshalGenieListSpacesRequestSchema: z.ZodType<GenieListSpacesRequest> =
-  z
-    .object({
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      pageSize: d.page_size,
-      pageToken: d.page_token,
     }));
 
 export const unmarshalGenieListSpacesResponseSchema: z.ZodType<GenieListSpacesResponse> =
@@ -2649,15 +2402,6 @@ export const unmarshalGenieSuggestedQuestionsAttachmentSchema: z.ZodType<GenieSu
       questions: d.questions,
     }));
 
-export const unmarshalGenieTrashSpaceRequestSchema: z.ZodType<GenieTrashSpaceRequest> =
-  z
-    .object({
-      space_id: z.string().optional(),
-    })
-    .transform(d => ({
-      spaceId: d.space_id,
-    }));
-
 export const unmarshalGenieUpdateSpaceRequestSchema: z.ZodType<GenieUpdateSpaceRequest> =
   z
     .object({
@@ -2705,10 +2449,6 @@ export const unmarshalMessageErrorSchema: z.ZodType<MessageError> = z
     error: d.error,
     type: d.type,
   }));
-
-export const unmarshalMessageStatusSchema: z.ZodType<MessageStatus> = z.object(
-  {}
-);
 
 export const unmarshalPolicyFunctionArgumentSchema: z.ZodType<PolicyFunctionArgument> =
   z
@@ -2995,17 +2735,6 @@ export const marshalExternalLinkSchema: z.ZodType = z
     next_chunk_internal_link: d.nextChunkInternalLink,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalExternalLink_HttpHeadersEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
 export const marshalGenieAttachmentSchema: z.ZodType = z
   .object({
     text: z.lazy(() => marshalTextAttachmentSchema).optional(),
@@ -3104,28 +2833,6 @@ export const marshalGenieCreateSpaceRequestSchema: z.ZodType = z
     serialized_space: d.serializedSpace,
     title: d.title,
     description: d.description,
-  }));
-
-export const marshalGenieDeleteConversationMessageRequestSchema: z.ZodType = z
-  .object({
-    spaceId: z.string().optional(),
-    conversationId: z.string().optional(),
-    messageId: z.string().optional(),
-  })
-  .transform(d => ({
-    space_id: d.spaceId,
-    conversation_id: d.conversationId,
-    message_id: d.messageId,
-  }));
-
-export const marshalGenieDeleteConversationRequestSchema: z.ZodType = z
-  .object({
-    spaceId: z.string().optional(),
-    conversationId: z.string().optional(),
-  })
-  .transform(d => ({
-    space_id: d.spaceId,
-    conversation_id: d.conversationId,
   }));
 
 export const marshalGenieEvalResponseSchema: z.ZodType = z
@@ -3275,36 +2982,6 @@ export const marshalGenieGenerateDownloadFullQueryResultResponseSchema: z.ZodTyp
       download_id_signature: d.downloadIdSignature,
     }));
 
-export const marshalGenieGetConversationMessageRequestSchema: z.ZodType = z
-  .object({
-    spaceId: z.string().optional(),
-    conversationId: z.string().optional(),
-    messageId: z.string().optional(),
-  })
-  .transform(d => ({
-    space_id: d.spaceId,
-    conversation_id: d.conversationId,
-    message_id: d.messageId,
-  }));
-
-export const marshalGenieGetDownloadFullQueryResultRequestSchema: z.ZodType = z
-  .object({
-    spaceId: z.string().optional(),
-    conversationId: z.string().optional(),
-    messageId: z.string().optional(),
-    attachmentId: z.string().optional(),
-    downloadId: z.string().optional(),
-    downloadIdSignature: z.string().optional(),
-  })
-  .transform(d => ({
-    space_id: d.spaceId,
-    conversation_id: d.conversationId,
-    message_id: d.messageId,
-    attachment_id: d.attachmentId,
-    download_id: d.downloadId,
-    download_id_signature: d.downloadIdSignature,
-  }));
-
 export const marshalGenieGetDownloadFullQueryResultResponseSchema: z.ZodType = z
   .object({
     statementResponse: z.lazy(() => marshalStatementResponseSchema).optional(),
@@ -3313,99 +2990,12 @@ export const marshalGenieGetDownloadFullQueryResultResponseSchema: z.ZodType = z
     statement_response: d.statementResponse,
   }));
 
-export const marshalGenieGetEvalResultDetailsRequestSchema: z.ZodType = z
-  .object({
-    spaceId: z.string().optional(),
-    evalRunId: z.string().optional(),
-    resultId: z.string().optional(),
-  })
-  .transform(d => ({
-    space_id: d.spaceId,
-    eval_run_id: d.evalRunId,
-    result_id: d.resultId,
-  }));
-
-export const marshalGenieGetEvalRunRequestSchema: z.ZodType = z
-  .object({
-    spaceId: z.string().optional(),
-    evalRunId: z.string().optional(),
-  })
-  .transform(d => ({
-    space_id: d.spaceId,
-    eval_run_id: d.evalRunId,
-  }));
-
-export const marshalGenieGetMessageAttachmentQueryResultRequestSchema: z.ZodType =
-  z
-    .object({
-      messageId: z.string().optional(),
-      spaceId: z.string().optional(),
-      conversationId: z.string().optional(),
-      attachmentId: z.string().optional(),
-    })
-    .transform(d => ({
-      message_id: d.messageId,
-      space_id: d.spaceId,
-      conversation_id: d.conversationId,
-      attachment_id: d.attachmentId,
-    }));
-
-export const marshalGenieGetMessageQueryResultRequestSchema: z.ZodType = z
-  .object({
-    messageId: z.string().optional(),
-    spaceId: z.string().optional(),
-    conversationId: z.string().optional(),
-  })
-  .transform(d => ({
-    message_id: d.messageId,
-    space_id: d.spaceId,
-    conversation_id: d.conversationId,
-  }));
-
 export const marshalGenieGetMessageQueryResultResponseSchema: z.ZodType = z
   .object({
     statementResponse: z.lazy(() => marshalStatementResponseSchema).optional(),
   })
   .transform(d => ({
     statement_response: d.statementResponse,
-  }));
-
-export const marshalGenieGetQueryResultByAttachmentRequestSchema: z.ZodType = z
-  .object({
-    messageId: z.string().optional(),
-    spaceId: z.string().optional(),
-    conversationId: z.string().optional(),
-    attachmentId: z.string().optional(),
-  })
-  .transform(d => ({
-    message_id: d.messageId,
-    space_id: d.spaceId,
-    conversation_id: d.conversationId,
-    attachment_id: d.attachmentId,
-  }));
-
-export const marshalGenieGetSpaceRequestSchema: z.ZodType = z
-  .object({
-    spaceId: z.string().optional(),
-    includeSerializedSpace: z.boolean().optional(),
-  })
-  .transform(d => ({
-    space_id: d.spaceId,
-    include_serialized_space: d.includeSerializedSpace,
-  }));
-
-export const marshalGenieListConversationCommentsRequestSchema: z.ZodType = z
-  .object({
-    spaceId: z.string().optional(),
-    conversationId: z.string().optional(),
-    pageSize: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    space_id: d.spaceId,
-    conversation_id: d.conversationId,
-    page_size: d.pageSize,
-    page_token: d.pageToken,
   }));
 
 export const marshalGenieListConversationCommentsResponseSchema: z.ZodType = z
@@ -3420,20 +3010,6 @@ export const marshalGenieListConversationCommentsResponseSchema: z.ZodType = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalGenieListConversationMessagesRequestSchema: z.ZodType = z
-  .object({
-    spaceId: z.string().optional(),
-    conversationId: z.string().optional(),
-    pageSize: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    space_id: d.spaceId,
-    conversation_id: d.conversationId,
-    page_size: d.pageSize,
-    page_token: d.pageToken,
-  }));
-
 export const marshalGenieListConversationMessagesResponseSchema: z.ZodType = z
   .object({
     messages: z.array(z.lazy(() => marshalGenieMessageSchema)).optional(),
@@ -3442,20 +3018,6 @@ export const marshalGenieListConversationMessagesResponseSchema: z.ZodType = z
   .transform(d => ({
     messages: d.messages,
     next_page_token: d.nextPageToken,
-  }));
-
-export const marshalGenieListConversationsRequestSchema: z.ZodType = z
-  .object({
-    spaceId: z.string().optional(),
-    pageSize: z.number().optional(),
-    pageToken: z.string().optional(),
-    includeAll: z.boolean().optional(),
-  })
-  .transform(d => ({
-    space_id: d.spaceId,
-    page_size: d.pageSize,
-    page_token: d.pageToken,
-    include_all: d.includeAll,
   }));
 
 export const marshalGenieListConversationsResponseSchema: z.ZodType = z
@@ -3470,20 +3032,6 @@ export const marshalGenieListConversationsResponseSchema: z.ZodType = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalGenieListEvalResultsRequestSchema: z.ZodType = z
-  .object({
-    spaceId: z.string().optional(),
-    evalRunId: z.string().optional(),
-    pageSize: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    space_id: d.spaceId,
-    eval_run_id: d.evalRunId,
-    page_size: d.pageSize,
-    page_token: d.pageToken,
-  }));
-
 export const marshalGenieListEvalResultsResponseSchema: z.ZodType = z
   .object({
     evalResults: z.array(z.lazy(() => marshalGenieEvalResultSchema)).optional(),
@@ -3492,18 +3040,6 @@ export const marshalGenieListEvalResultsResponseSchema: z.ZodType = z
   .transform(d => ({
     eval_results: d.evalResults,
     next_page_token: d.nextPageToken,
-  }));
-
-export const marshalGenieListEvalRunsRequestSchema: z.ZodType = z
-  .object({
-    spaceId: z.string().optional(),
-    pageSize: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    space_id: d.spaceId,
-    page_size: d.pageSize,
-    page_token: d.pageToken,
   }));
 
 export const marshalGenieListEvalRunsResponseSchema: z.ZodType = z
@@ -3518,22 +3054,6 @@ export const marshalGenieListEvalRunsResponseSchema: z.ZodType = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalGenieListMessageCommentsRequestSchema: z.ZodType = z
-  .object({
-    spaceId: z.string().optional(),
-    conversationId: z.string().optional(),
-    messageId: z.string().optional(),
-    pageSize: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    space_id: d.spaceId,
-    conversation_id: d.conversationId,
-    message_id: d.messageId,
-    page_size: d.pageSize,
-    page_token: d.pageToken,
-  }));
-
 export const marshalGenieListMessageCommentsResponseSchema: z.ZodType = z
   .object({
     comments: z
@@ -3544,16 +3064,6 @@ export const marshalGenieListMessageCommentsResponseSchema: z.ZodType = z
   .transform(d => ({
     comments: d.comments,
     next_page_token: d.nextPageToken,
-  }));
-
-export const marshalGenieListSpacesRequestSchema: z.ZodType = z
-  .object({
-    pageSize: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    page_size: d.pageSize,
-    page_token: d.pageToken,
   }));
 
 export const marshalGenieListSpacesResponseSchema: z.ZodType = z
@@ -3724,14 +3234,6 @@ export const marshalGenieSuggestedQuestionsAttachmentSchema: z.ZodType = z
     questions: d.questions,
   }));
 
-export const marshalGenieTrashSpaceRequestSchema: z.ZodType = z
-  .object({
-    spaceId: z.string().optional(),
-  })
-  .transform(d => ({
-    space_id: d.spaceId,
-  }));
-
 export const marshalGenieUpdateSpaceRequestSchema: z.ZodType = z
   .object({
     spaceId: z.string().optional(),
@@ -3777,8 +3279,6 @@ export const marshalMessageErrorSchema: z.ZodType = z
     error: d.error,
     type: d.type,
   }));
-
-export const marshalMessageStatusSchema: z.ZodType = z.object({});
 
 export const marshalPolicyFunctionArgumentSchema: z.ZodType = z
   .object({

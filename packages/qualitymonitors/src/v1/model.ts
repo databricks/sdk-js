@@ -606,14 +606,6 @@ export const unmarshalDataMonitorInfoSchema: z.ZodType<DataMonitorInfo> = z
     monitorVersion: d.monitor_version,
   }));
 
-export const unmarshalDeleteMonitorSchema: z.ZodType<DeleteMonitor> = z
-  .object({
-    full_table_name_arg: z.string().optional(),
-  })
-  .transform(d => ({
-    fullTableNameArg: d.full_table_name_arg,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteMonitor_ResponseSchema: z.ZodType<DeleteMonitor_Response> =
   z.object({});
@@ -624,24 +616,6 @@ export const unmarshalDestinationSchema: z.ZodType<Destination> = z
   })
   .transform(d => ({
     emailAddresses: d.email_addresses,
-  }));
-
-export const unmarshalGetMonitorSchema: z.ZodType<GetMonitor> = z
-  .object({
-    full_table_name_arg: z.string().optional(),
-  })
-  .transform(d => ({
-    fullTableNameArg: d.full_table_name_arg,
-  }));
-
-export const unmarshalGetRefreshSchema: z.ZodType<GetRefresh> = z
-  .object({
-    full_table_name_arg: z.string().optional(),
-    refresh_id: z.number().optional(),
-  })
-  .transform(d => ({
-    fullTableNameArg: d.full_table_name_arg,
-    refreshId: d.refresh_id,
   }));
 
 export const unmarshalInferenceLogAnalysisConfigSchema: z.ZodType<InferenceLogAnalysisConfig> =
@@ -664,14 +638,6 @@ export const unmarshalInferenceLogAnalysisConfigSchema: z.ZodType<InferenceLogAn
       modelIdCol: d.model_id_col,
       predictionProbaCol: d.prediction_proba_col,
     }));
-
-export const unmarshalListRefreshesSchema: z.ZodType<ListRefreshes> = z
-  .object({
-    full_table_name_arg: z.string().optional(),
-  })
-  .transform(d => ({
-    fullTableNameArg: d.full_table_name_arg,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListRefreshes_ResponseSchema: z.ZodType<ListRefreshes_Response> =
@@ -958,14 +924,6 @@ export const marshalDataMonitorInfoSchema: z.ZodType = z
     monitor_version: d.monitorVersion,
   }));
 
-export const marshalDeleteMonitorSchema: z.ZodType = z
-  .object({
-    fullTableNameArg: z.string().optional(),
-  })
-  .transform(d => ({
-    full_table_name_arg: d.fullTableNameArg,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteMonitor_ResponseSchema: z.ZodType = z.object({});
 
@@ -975,24 +933,6 @@ export const marshalDestinationSchema: z.ZodType = z
   })
   .transform(d => ({
     email_addresses: d.emailAddresses,
-  }));
-
-export const marshalGetMonitorSchema: z.ZodType = z
-  .object({
-    fullTableNameArg: z.string().optional(),
-  })
-  .transform(d => ({
-    full_table_name_arg: d.fullTableNameArg,
-  }));
-
-export const marshalGetRefreshSchema: z.ZodType = z
-  .object({
-    fullTableNameArg: z.string().optional(),
-    refreshId: z.number().optional(),
-  })
-  .transform(d => ({
-    full_table_name_arg: d.fullTableNameArg,
-    refresh_id: d.refreshId,
   }));
 
 export const marshalInferenceLogAnalysisConfigSchema: z.ZodType = z
@@ -1013,14 +953,6 @@ export const marshalInferenceLogAnalysisConfigSchema: z.ZodType = z
     label_col: d.labelCol,
     model_id_col: d.modelIdCol,
     prediction_proba_col: d.predictionProbaCol,
-  }));
-
-export const marshalListRefreshesSchema: z.ZodType = z
-  .object({
-    fullTableNameArg: z.string().optional(),
-  })
-  .transform(d => ({
-    full_table_name_arg: d.fullTableNameArg,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

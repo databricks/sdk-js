@@ -85,7 +85,6 @@ export enum ProvisioningInfo_State {
   DEGRADED = 'DEGRADED',
 }
 
-/** Next ID: 25 */
 export interface ConnectionInfo {
   /** Name of the connection. */
   name?: string | undefined;
@@ -379,42 +378,6 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
     properties: d.properties,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalConnectionInfo_OptionsEntrySchema: z.ZodType<ConnectionInfo_OptionsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalConnectionInfo_PropertiesEntrySchema: z.ZodType<ConnectionInfo_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalConnectionInfo_SecretsEntrySchema: z.ZodType<ConnectionInfo_SecretsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
 export const unmarshalCreateConnectionSchema: z.ZodType<CreateConnection> = z
   .object({
     parent: z.string().optional(),
@@ -466,50 +429,6 @@ export const unmarshalCreateConnectionSchema: z.ZodType<CreateConnection> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateConnection_OptionsEntrySchema: z.ZodType<CreateConnection_OptionsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateConnection_PropertiesEntrySchema: z.ZodType<CreateConnection_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateConnection_SecretsEntrySchema: z.ZodType<CreateConnection_SecretsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-export const unmarshalDeleteConnectionSchema: z.ZodType<DeleteConnection> = z
-  .object({
-    name_arg: z.string().optional(),
-  })
-  .transform(d => ({
-    nameArg: d.name_arg,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteConnection_ResponseSchema: z.ZodType<DeleteConnection_Response> =
   z.object({});
 
@@ -523,26 +442,6 @@ export const unmarshalEnvironmentSettingsSchema: z.ZodType<EnvironmentSettings> 
       javaDependencies: d.java_dependencies,
       environmentVersion: d.environment_version,
     }));
-
-export const unmarshalGetConnectionSchema: z.ZodType<GetConnection> = z
-  .object({
-    name_arg: z.string().optional(),
-  })
-  .transform(d => ({
-    nameArg: d.name_arg,
-  }));
-
-export const unmarshalListConnectionsSchema: z.ZodType<ListConnections> = z
-  .object({
-    max_results: z.number().optional(),
-    page_token: z.string().optional(),
-    parent: z.string().optional(),
-  })
-  .transform(d => ({
-    maxResults: d.max_results,
-    pageToken: d.page_token,
-    parent: d.parent,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListConnections_ResponseSchema: z.ZodType<ListConnections_Response> =
@@ -618,42 +517,6 @@ export const unmarshalUpdateConnectionSchema: z.ZodType<UpdateConnection> = z
     properties: d.properties,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateConnection_OptionsEntrySchema: z.ZodType<UpdateConnection_OptionsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateConnection_PropertiesEntrySchema: z.ZodType<UpdateConnection_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateConnection_SecretsEntrySchema: z.ZodType<UpdateConnection_SecretsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
 export const marshalConnectionInfoSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -700,39 +563,6 @@ export const marshalConnectionInfoSchema: z.ZodType = z
     options: d.options,
     secrets: d.secrets,
     properties: d.properties,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalConnectionInfo_OptionsEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalConnectionInfo_PropertiesEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalConnectionInfo_SecretsEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
   }));
 
 export const marshalCreateConnectionSchema: z.ZodType = z
@@ -786,47 +616,6 @@ export const marshalCreateConnectionSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCreateConnection_OptionsEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCreateConnection_PropertiesEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCreateConnection_SecretsEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-export const marshalDeleteConnectionSchema: z.ZodType = z
-  .object({
-    nameArg: z.string().optional(),
-  })
-  .transform(d => ({
-    name_arg: d.nameArg,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteConnection_ResponseSchema: z.ZodType = z.object({});
 
 export const marshalEnvironmentSettingsSchema: z.ZodType = z
@@ -837,26 +626,6 @@ export const marshalEnvironmentSettingsSchema: z.ZodType = z
   .transform(d => ({
     java_dependencies: d.javaDependencies,
     environment_version: d.environmentVersion,
-  }));
-
-export const marshalGetConnectionSchema: z.ZodType = z
-  .object({
-    nameArg: z.string().optional(),
-  })
-  .transform(d => ({
-    name_arg: d.nameArg,
-  }));
-
-export const marshalListConnectionsSchema: z.ZodType = z
-  .object({
-    maxResults: z.number().optional(),
-    pageToken: z.string().optional(),
-    parent: z.string().optional(),
-  })
-  .transform(d => ({
-    max_results: d.maxResults,
-    page_token: d.pageToken,
-    parent: d.parent,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -928,37 +697,4 @@ export const marshalUpdateConnectionSchema: z.ZodType = z
     options: d.options,
     secrets: d.secrets,
     properties: d.properties,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalUpdateConnection_OptionsEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalUpdateConnection_PropertiesEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalUpdateConnection_SecretsEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
   }));

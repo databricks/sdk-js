@@ -86,15 +86,6 @@ export const unmarshalConflictResolutionPolicySchema: z.ZodType<ConflictResoluti
       defaultValueOverride: d.default_value_override,
     }));
 
-export const unmarshalCreateTagPolicyRequestSchema: z.ZodType<CreateTagPolicyRequest> =
-  z
-    .object({
-      tag_policy: z.lazy(() => unmarshalTagPolicySchema).optional(),
-    })
-    .transform(d => ({
-      tagPolicy: d.tag_policy,
-    }));
-
 export const unmarshalDefaultValueOverridePolicySchema: z.ZodType<DefaultValueOverridePolicy> =
   z
     .object({
@@ -102,35 +93,6 @@ export const unmarshalDefaultValueOverridePolicySchema: z.ZodType<DefaultValueOv
     })
     .transform(d => ({
       defaultValue: d.default_value,
-    }));
-
-export const unmarshalDeleteTagPolicyRequestSchema: z.ZodType<DeleteTagPolicyRequest> =
-  z
-    .object({
-      tag_key: z.string().optional(),
-    })
-    .transform(d => ({
-      tagKey: d.tag_key,
-    }));
-
-export const unmarshalGetTagPolicyRequestSchema: z.ZodType<GetTagPolicyRequest> =
-  z
-    .object({
-      tag_key: z.string().optional(),
-    })
-    .transform(d => ({
-      tagKey: d.tag_key,
-    }));
-
-export const unmarshalListTagPoliciesRequestSchema: z.ZodType<ListTagPoliciesRequest> =
-  z
-    .object({
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      pageSize: d.page_size,
-      pageToken: d.page_token,
     }));
 
 export const unmarshalListTagPoliciesResponseSchema: z.ZodType<ListTagPoliciesResponse> =
@@ -186,17 +148,6 @@ export const unmarshalTagPolicySchema: z.ZodType<TagPolicy> = z
     accountId: d.account_id,
   }));
 
-export const unmarshalUpdateTagPolicyRequestSchema: z.ZodType<UpdateTagPolicyRequest> =
-  z
-    .object({
-      tag_policy: z.lazy(() => unmarshalTagPolicySchema).optional(),
-      update_mask: z.string().optional(),
-    })
-    .transform(d => ({
-      tagPolicy: d.tag_policy,
-      updateMask: d.update_mask,
-    }));
-
 export const unmarshalValueSchema: z.ZodType<Value> = z
   .object({
     name: z.string().optional(),
@@ -215,46 +166,12 @@ export const marshalConflictResolutionPolicySchema: z.ZodType = z
     default_value_override: d.defaultValueOverride,
   }));
 
-export const marshalCreateTagPolicyRequestSchema: z.ZodType = z
-  .object({
-    tagPolicy: z.lazy(() => marshalTagPolicySchema).optional(),
-  })
-  .transform(d => ({
-    tag_policy: d.tagPolicy,
-  }));
-
 export const marshalDefaultValueOverridePolicySchema: z.ZodType = z
   .object({
     defaultValue: z.string().optional(),
   })
   .transform(d => ({
     default_value: d.defaultValue,
-  }));
-
-export const marshalDeleteTagPolicyRequestSchema: z.ZodType = z
-  .object({
-    tagKey: z.string().optional(),
-  })
-  .transform(d => ({
-    tag_key: d.tagKey,
-  }));
-
-export const marshalGetTagPolicyRequestSchema: z.ZodType = z
-  .object({
-    tagKey: z.string().optional(),
-  })
-  .transform(d => ({
-    tag_key: d.tagKey,
-  }));
-
-export const marshalListTagPoliciesRequestSchema: z.ZodType = z
-  .object({
-    pageSize: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    page_size: d.pageSize,
-    page_token: d.pageToken,
   }));
 
 export const marshalListTagPoliciesResponseSchema: z.ZodType = z
@@ -305,16 +222,6 @@ export const marshalTagPolicySchema: z.ZodType = z
     update_time: d.updateTime,
     propagation_config: d.propagationConfig,
     account_id: d.accountId,
-  }));
-
-export const marshalUpdateTagPolicyRequestSchema: z.ZodType = z
-  .object({
-    tagPolicy: z.lazy(() => marshalTagPolicySchema).optional(),
-    updateMask: z.string().optional(),
-  })
-  .transform(d => ({
-    tag_policy: d.tagPolicy,
-    update_mask: d.updateMask,
   }));
 
 export const marshalValueSchema: z.ZodType = z

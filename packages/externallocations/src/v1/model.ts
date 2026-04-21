@@ -365,17 +365,6 @@ export const unmarshalCreateExternalLocationSchema: z.ZodType<CreateExternalLoca
       effectiveFileEventQueue: d.effective_file_event_queue,
     }));
 
-export const unmarshalDeleteExternalLocationSchema: z.ZodType<DeleteExternalLocation> =
-  z
-    .object({
-      name_arg: z.string().optional(),
-      force: z.boolean().optional(),
-    })
-    .transform(d => ({
-      nameArg: d.name_arg,
-      force: d.force,
-    }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteExternalLocation_ResponseSchema: z.ZodType<DeleteExternalLocation_Response> =
   z.object({});
@@ -468,32 +457,6 @@ export const unmarshalGcpPubsubSchema: z.ZodType<GcpPubsub> = z
     subscriptionName: d.subscription_name,
     managedResourceId: d.managed_resource_id,
   }));
-
-export const unmarshalGetExternalLocationSchema: z.ZodType<GetExternalLocation> =
-  z
-    .object({
-      name_arg: z.string().optional(),
-      include_browse: z.boolean().optional(),
-    })
-    .transform(d => ({
-      nameArg: d.name_arg,
-      includeBrowse: d.include_browse,
-    }));
-
-export const unmarshalListExternalLocationsSchema: z.ZodType<ListExternalLocations> =
-  z
-    .object({
-      include_browse: z.boolean().optional(),
-      max_results: z.number().optional(),
-      page_token: z.string().optional(),
-      include_unbound: z.boolean().optional(),
-    })
-    .transform(d => ({
-      includeBrowse: d.include_browse,
-      maxResults: d.max_results,
-      pageToken: d.page_token,
-      includeUnbound: d.include_unbound,
-    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListExternalLocations_ResponseSchema: z.ZodType<ListExternalLocations_Response> =
@@ -653,16 +616,6 @@ export const marshalCreateExternalLocationSchema: z.ZodType = z
     effective_file_event_queue: d.effectiveFileEventQueue,
   }));
 
-export const marshalDeleteExternalLocationSchema: z.ZodType = z
-  .object({
-    nameArg: z.string().optional(),
-    force: z.boolean().optional(),
-  })
-  .transform(d => ({
-    name_arg: d.nameArg,
-    force: d.force,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteExternalLocation_ResponseSchema: z.ZodType = z.object(
   {}
@@ -752,30 +705,6 @@ export const marshalGcpPubsubSchema: z.ZodType = z
   .transform(d => ({
     subscription_name: d.subscriptionName,
     managed_resource_id: d.managedResourceId,
-  }));
-
-export const marshalGetExternalLocationSchema: z.ZodType = z
-  .object({
-    nameArg: z.string().optional(),
-    includeBrowse: z.boolean().optional(),
-  })
-  .transform(d => ({
-    name_arg: d.nameArg,
-    include_browse: d.includeBrowse,
-  }));
-
-export const marshalListExternalLocationsSchema: z.ZodType = z
-  .object({
-    includeBrowse: z.boolean().optional(),
-    maxResults: z.number().optional(),
-    pageToken: z.string().optional(),
-    includeUnbound: z.boolean().optional(),
-  })
-  .transform(d => ({
-    include_browse: d.includeBrowse,
-    max_results: d.maxResults,
-    page_token: d.pageToken,
-    include_unbound: d.includeUnbound,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

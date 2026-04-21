@@ -120,37 +120,9 @@ export const unmarshalCreateServicePrincipalSecretResponseSchema: z.ZodType<Crea
       expireTime: d.expire_time,
     }));
 
-export const unmarshalDeleteServicePrincipalSecretSchema: z.ZodType<DeleteServicePrincipalSecret> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      service_principal: z.string().optional(),
-      secret_id: z.string().optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      servicePrincipal: d.service_principal,
-      secretId: d.secret_id,
-    }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteServicePrincipalSecret_ResponseSchema: z.ZodType<DeleteServicePrincipalSecret_Response> =
   z.object({});
-
-export const unmarshalListServicePrincipalSecretsSchema: z.ZodType<ListServicePrincipalSecrets> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      service_principal: z.string().optional(),
-      page_token: z.string().optional(),
-      page_size: z.number().optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      servicePrincipal: d.service_principal,
-      pageToken: d.page_token,
-      pageSize: d.page_size,
-    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListServicePrincipalSecrets_ResponseSchema: z.ZodType<ListServicePrincipalSecrets_Response> =
@@ -228,35 +200,9 @@ export const marshalCreateServicePrincipalSecretResponseSchema: z.ZodType = z
     expire_time: d.expireTime,
   }));
 
-export const marshalDeleteServicePrincipalSecretSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    servicePrincipal: z.string().optional(),
-    secretId: z.string().optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    service_principal: d.servicePrincipal,
-    secret_id: d.secretId,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteServicePrincipalSecret_ResponseSchema: z.ZodType =
   z.object({});
-
-export const marshalListServicePrincipalSecretsSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    servicePrincipal: z.string().optional(),
-    pageToken: z.string().optional(),
-    pageSize: z.number().optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    service_principal: d.servicePrincipal,
-    page_token: d.pageToken,
-    page_size: d.pageSize,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalListServicePrincipalSecrets_ResponseSchema: z.ZodType = z

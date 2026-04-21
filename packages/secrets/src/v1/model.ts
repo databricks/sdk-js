@@ -275,26 +275,6 @@ export const unmarshalDeleteSecretSchema: z.ZodType<DeleteSecret> = z
 export const unmarshalDeleteSecret_ResponseSchema: z.ZodType<DeleteSecret_Response> =
   z.object({});
 
-export const unmarshalGetAclSchema: z.ZodType<GetAcl> = z
-  .object({
-    scope: z.string().optional(),
-    principal: z.string().optional(),
-  })
-  .transform(d => ({
-    scope: d.scope,
-    principal: d.principal,
-  }));
-
-export const unmarshalGetSecretSchema: z.ZodType<GetSecret> = z
-  .object({
-    scope: z.string().optional(),
-    key: z.string().optional(),
-  })
-  .transform(d => ({
-    scope: d.scope,
-    key: d.key,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalGetSecret_ResponseSchema: z.ZodType<GetSecret_Response> =
   z
@@ -310,14 +290,6 @@ export const unmarshalGetSecret_ResponseSchema: z.ZodType<GetSecret_Response> =
       value: d.value,
     }));
 
-export const unmarshalListAclsSchema: z.ZodType<ListAcls> = z
-  .object({
-    scope: z.string().optional(),
-  })
-  .transform(d => ({
-    scope: d.scope,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListAcls_ResponseSchema: z.ZodType<ListAcls_Response> = z
   .object({
@@ -326,8 +298,6 @@ export const unmarshalListAcls_ResponseSchema: z.ZodType<ListAcls_Response> = z
   .transform(d => ({
     items: d.items,
   }));
-
-export const unmarshalListScopesSchema: z.ZodType<ListScopes> = z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListScopes_ResponseSchema: z.ZodType<ListScopes_Response> =
@@ -338,14 +308,6 @@ export const unmarshalListScopes_ResponseSchema: z.ZodType<ListScopes_Response> 
     .transform(d => ({
       scopes: d.scopes,
     }));
-
-export const unmarshalListSecretsSchema: z.ZodType<ListSecrets> = z
-  .object({
-    scope: z.string().optional(),
-  })
-  .transform(d => ({
-    scope: d.scope,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListSecrets_ResponseSchema: z.ZodType<ListSecrets_Response> =
@@ -494,26 +456,6 @@ export const marshalDeleteSecretSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteSecret_ResponseSchema: z.ZodType = z.object({});
 
-export const marshalGetAclSchema: z.ZodType = z
-  .object({
-    scope: z.string().optional(),
-    principal: z.string().optional(),
-  })
-  .transform(d => ({
-    scope: d.scope,
-    principal: d.principal,
-  }));
-
-export const marshalGetSecretSchema: z.ZodType = z
-  .object({
-    scope: z.string().optional(),
-    key: z.string().optional(),
-  })
-  .transform(d => ({
-    scope: d.scope,
-    key: d.key,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalGetSecret_ResponseSchema: z.ZodType = z
   .object({
@@ -530,14 +472,6 @@ export const marshalGetSecret_ResponseSchema: z.ZodType = z
     value: d.value,
   }));
 
-export const marshalListAclsSchema: z.ZodType = z
-  .object({
-    scope: z.string().optional(),
-  })
-  .transform(d => ({
-    scope: d.scope,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalListAcls_ResponseSchema: z.ZodType = z
   .object({
@@ -547,8 +481,6 @@ export const marshalListAcls_ResponseSchema: z.ZodType = z
     items: d.items,
   }));
 
-export const marshalListScopesSchema: z.ZodType = z.object({});
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalListScopes_ResponseSchema: z.ZodType = z
   .object({
@@ -556,14 +488,6 @@ export const marshalListScopes_ResponseSchema: z.ZodType = z
   })
   .transform(d => ({
     scopes: d.scopes,
-  }));
-
-export const marshalListSecretsSchema: z.ZodType = z
-  .object({
-    scope: z.string().optional(),
-  })
-  .transform(d => ({
-    scope: d.scope,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

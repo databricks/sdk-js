@@ -313,14 +313,6 @@ export const unmarshalEditPolicySchema: z.ZodType<EditPolicy> = z
 export const unmarshalEditPolicy_ResponseSchema: z.ZodType<EditPolicy_Response> =
   z.object({});
 
-export const unmarshalGetPolicySchema: z.ZodType<GetPolicy> = z
-  .object({
-    policy_id: z.string().optional(),
-  })
-  .transform(d => ({
-    policyId: d.policy_id,
-  }));
-
 export const unmarshalLibrarySchema: z.ZodType<Library> = z
   .object({
     jar: z.string().optional(),
@@ -339,16 +331,6 @@ export const unmarshalLibrarySchema: z.ZodType<Library> = z
     cran: d.cran,
     whl: d.whl,
     requirements: d.requirements,
-  }));
-
-export const unmarshalListPoliciesSchema: z.ZodType<ListPolicies> = z
-  .object({
-    sort_order: z.enum(ListOrder).optional(),
-    sort_column: z.enum(PolicySortColumn).optional(),
-  })
-  .transform(d => ({
-    sortOrder: d.sort_order,
-    sortColumn: d.sort_column,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -486,14 +468,6 @@ export const marshalEditPolicySchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalEditPolicy_ResponseSchema: z.ZodType = z.object({});
 
-export const marshalGetPolicySchema: z.ZodType = z
-  .object({
-    policyId: z.string().optional(),
-  })
-  .transform(d => ({
-    policy_id: d.policyId,
-  }));
-
 export const marshalLibrarySchema: z.ZodType = z
   .object({
     jar: z.string().optional(),
@@ -512,16 +486,6 @@ export const marshalLibrarySchema: z.ZodType = z
     cran: d.cran,
     whl: d.whl,
     requirements: d.requirements,
-  }));
-
-export const marshalListPoliciesSchema: z.ZodType = z
-  .object({
-    sortOrder: z.enum(ListOrder).optional(),
-    sortColumn: z.enum(PolicySortColumn).optional(),
-  })
-  .transform(d => ({
-    sort_order: d.sortOrder,
-    sort_column: d.sortColumn,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

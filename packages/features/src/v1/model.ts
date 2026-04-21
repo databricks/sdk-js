@@ -795,24 +795,6 @@ export const unmarshalCountFunctionSchema: z.ZodType<CountFunction> = z
     input: d.input,
   }));
 
-export const unmarshalCreateFeatureRequestSchema: z.ZodType<CreateFeatureRequest> =
-  z
-    .object({
-      feature: z.lazy(() => unmarshalFeatureSchema).optional(),
-    })
-    .transform(d => ({
-      feature: d.feature,
-    }));
-
-export const unmarshalCreateKafkaConfigRequestSchema: z.ZodType<CreateKafkaConfigRequest> =
-  z
-    .object({
-      kafka_config: z.lazy(() => unmarshalKafkaConfigSchema).optional(),
-    })
-    .transform(d => ({
-      kafkaConfig: d.kafka_config,
-    }));
-
 export const unmarshalCreateMaterializedFeatureRequestSchema: z.ZodType<CreateMaterializedFeatureRequest> =
   z
     .object({
@@ -837,33 +819,6 @@ export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
     kafkaSource: d.kafka_source,
     requestSource: d.request_source,
   }));
-
-export const unmarshalDeleteFeatureRequestSchema: z.ZodType<DeleteFeatureRequest> =
-  z
-    .object({
-      full_name: z.string().optional(),
-    })
-    .transform(d => ({
-      fullName: d.full_name,
-    }));
-
-export const unmarshalDeleteKafkaConfigRequestSchema: z.ZodType<DeleteKafkaConfigRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
-export const unmarshalDeleteMaterializedFeatureRequestSchema: z.ZodType<DeleteMaterializedFeatureRequest> =
-  z
-    .object({
-      materialized_feature_id: z.string().optional(),
-    })
-    .transform(d => ({
-      materializedFeatureId: d.materialized_feature_id,
-    }));
 
 export const unmarshalDeltaTableSourceSchema: z.ZodType<DeltaTableSource> = z
   .object({
@@ -973,32 +928,6 @@ export const unmarshalFunction_ExtraParameterSchema: z.ZodType<Function_ExtraPar
       value: d.value,
     }));
 
-export const unmarshalGetFeatureRequestSchema: z.ZodType<GetFeatureRequest> = z
-  .object({
-    full_name: z.string().optional(),
-  })
-  .transform(d => ({
-    fullName: d.full_name,
-  }));
-
-export const unmarshalGetKafkaConfigRequestSchema: z.ZodType<GetKafkaConfigRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
-export const unmarshalGetMaterializedFeatureRequestSchema: z.ZodType<GetMaterializedFeatureRequest> =
-  z
-    .object({
-      materialized_feature_id: z.string().optional(),
-    })
-    .transform(d => ({
-      materializedFeatureId: d.materialized_feature_id,
-    }));
-
 export const unmarshalJobContextSchema: z.ZodType<JobContext> = z
   .object({
     job_id: z.number().optional(),
@@ -1030,18 +959,6 @@ export const unmarshalKafkaConfigSchema: z.ZodType<KafkaConfig> = z
     extraOptions: d.extra_options,
     backfillSource: d.backfill_source,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalKafkaConfig_ExtraOptionsEntrySchema: z.ZodType<KafkaConfig_ExtraOptionsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
 
 export const unmarshalKafkaSourceSchema: z.ZodType<KafkaSource> = z
   .object({
@@ -1079,17 +996,6 @@ export const unmarshalLineageContextSchema: z.ZodType<LineageContext> = z
     jobContext: d.job_context,
   }));
 
-export const unmarshalListFeaturesRequestSchema: z.ZodType<ListFeaturesRequest> =
-  z
-    .object({
-      page_token: z.string().optional(),
-      page_size: z.number().optional(),
-    })
-    .transform(d => ({
-      pageToken: d.page_token,
-      pageSize: d.page_size,
-    }));
-
 export const unmarshalListFeaturesResponseSchema: z.ZodType<ListFeaturesResponse> =
   z
     .object({
@@ -1099,17 +1005,6 @@ export const unmarshalListFeaturesResponseSchema: z.ZodType<ListFeaturesResponse
     .transform(d => ({
       features: d.features,
       nextPageToken: d.next_page_token,
-    }));
-
-export const unmarshalListKafkaConfigsRequestSchema: z.ZodType<ListKafkaConfigsRequest> =
-  z
-    .object({
-      page_token: z.string().optional(),
-      page_size: z.number().optional(),
-    })
-    .transform(d => ({
-      pageToken: d.page_token,
-      pageSize: d.page_size,
     }));
 
 export const unmarshalListKafkaConfigsResponseSchema: z.ZodType<ListKafkaConfigsResponse> =
@@ -1123,19 +1018,6 @@ export const unmarshalListKafkaConfigsResponseSchema: z.ZodType<ListKafkaConfigs
     .transform(d => ({
       kafkaConfigs: d.kafka_configs,
       nextPageToken: d.next_page_token,
-    }));
-
-export const unmarshalListMaterializedFeaturesRequestSchema: z.ZodType<ListMaterializedFeaturesRequest> =
-  z
-    .object({
-      feature_name: z.string().optional(),
-      page_token: z.string().optional(),
-      page_size: z.number().optional(),
-    })
-    .transform(d => ({
-      featureName: d.feature_name,
-      pageToken: d.page_token,
-      pageSize: d.page_size,
     }));
 
 export const unmarshalListMaterializedFeaturesResponseSchema: z.ZodType<ListMaterializedFeaturesResponse> =
@@ -1328,41 +1210,6 @@ export const unmarshalTumblingWindowSchema: z.ZodType<TumblingWindow> = z
     windowDuration: d.window_duration,
   }));
 
-export const unmarshalUpdateFeatureRequestSchema: z.ZodType<UpdateFeatureRequest> =
-  z
-    .object({
-      feature: z.lazy(() => unmarshalFeatureSchema).optional(),
-      update_mask: z.string().optional(),
-    })
-    .transform(d => ({
-      feature: d.feature,
-      updateMask: d.update_mask,
-    }));
-
-export const unmarshalUpdateKafkaConfigRequestSchema: z.ZodType<UpdateKafkaConfigRequest> =
-  z
-    .object({
-      kafka_config: z.lazy(() => unmarshalKafkaConfigSchema).optional(),
-      update_mask: z.string().optional(),
-    })
-    .transform(d => ({
-      kafkaConfig: d.kafka_config,
-      updateMask: d.update_mask,
-    }));
-
-export const unmarshalUpdateMaterializedFeatureRequestSchema: z.ZodType<UpdateMaterializedFeatureRequest> =
-  z
-    .object({
-      materialized_feature: z
-        .lazy(() => unmarshalMaterializedFeatureSchema)
-        .optional(),
-      update_mask: z.string().optional(),
-    })
-    .transform(d => ({
-      materializedFeature: d.materialized_feature,
-      updateMask: d.update_mask,
-    }));
-
 export const unmarshalVarPopFunctionSchema: z.ZodType<VarPopFunction> = z
   .object({
     input: z.string().optional(),
@@ -1523,22 +1370,6 @@ export const marshalCountFunctionSchema: z.ZodType = z
     input: d.input,
   }));
 
-export const marshalCreateFeatureRequestSchema: z.ZodType = z
-  .object({
-    feature: z.lazy(() => marshalFeatureSchema).optional(),
-  })
-  .transform(d => ({
-    feature: d.feature,
-  }));
-
-export const marshalCreateKafkaConfigRequestSchema: z.ZodType = z
-  .object({
-    kafkaConfig: z.lazy(() => marshalKafkaConfigSchema).optional(),
-  })
-  .transform(d => ({
-    kafka_config: d.kafkaConfig,
-  }));
-
 export const marshalCreateMaterializedFeatureRequestSchema: z.ZodType = z
   .object({
     materializedFeature: z
@@ -1559,30 +1390,6 @@ export const marshalDataSourceSchema: z.ZodType = z
     delta_table_source: d.deltaTableSource,
     kafka_source: d.kafkaSource,
     request_source: d.requestSource,
-  }));
-
-export const marshalDeleteFeatureRequestSchema: z.ZodType = z
-  .object({
-    fullName: z.string().optional(),
-  })
-  .transform(d => ({
-    full_name: d.fullName,
-  }));
-
-export const marshalDeleteKafkaConfigRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalDeleteMaterializedFeatureRequestSchema: z.ZodType = z
-  .object({
-    materializedFeatureId: z.string().optional(),
-  })
-  .transform(d => ({
-    materialized_feature_id: d.materializedFeatureId,
   }));
 
 export const marshalDeltaTableSourceSchema: z.ZodType = z
@@ -1692,30 +1499,6 @@ export const marshalFunction_ExtraParameterSchema: z.ZodType = z
     value: d.value,
   }));
 
-export const marshalGetFeatureRequestSchema: z.ZodType = z
-  .object({
-    fullName: z.string().optional(),
-  })
-  .transform(d => ({
-    full_name: d.fullName,
-  }));
-
-export const marshalGetKafkaConfigRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalGetMaterializedFeatureRequestSchema: z.ZodType = z
-  .object({
-    materializedFeatureId: z.string().optional(),
-  })
-  .transform(d => ({
-    materialized_feature_id: d.materializedFeatureId,
-  }));
-
 export const marshalJobContextSchema: z.ZodType = z
   .object({
     jobId: z.number().optional(),
@@ -1746,17 +1529,6 @@ export const marshalKafkaConfigSchema: z.ZodType = z
     value_schema: d.valueSchema,
     extra_options: d.extraOptions,
     backfill_source: d.backfillSource,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalKafkaConfig_ExtraOptionsEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
   }));
 
 export const marshalKafkaSourceSchema: z.ZodType = z
@@ -1795,16 +1567,6 @@ export const marshalLineageContextSchema: z.ZodType = z
     job_context: d.jobContext,
   }));
 
-export const marshalListFeaturesRequestSchema: z.ZodType = z
-  .object({
-    pageToken: z.string().optional(),
-    pageSize: z.number().optional(),
-  })
-  .transform(d => ({
-    page_token: d.pageToken,
-    page_size: d.pageSize,
-  }));
-
 export const marshalListFeaturesResponseSchema: z.ZodType = z
   .object({
     features: z.array(z.lazy(() => marshalFeatureSchema)).optional(),
@@ -1815,16 +1577,6 @@ export const marshalListFeaturesResponseSchema: z.ZodType = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalListKafkaConfigsRequestSchema: z.ZodType = z
-  .object({
-    pageToken: z.string().optional(),
-    pageSize: z.number().optional(),
-  })
-  .transform(d => ({
-    page_token: d.pageToken,
-    page_size: d.pageSize,
-  }));
-
 export const marshalListKafkaConfigsResponseSchema: z.ZodType = z
   .object({
     kafkaConfigs: z.array(z.lazy(() => marshalKafkaConfigSchema)).optional(),
@@ -1833,18 +1585,6 @@ export const marshalListKafkaConfigsResponseSchema: z.ZodType = z
   .transform(d => ({
     kafka_configs: d.kafkaConfigs,
     next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListMaterializedFeaturesRequestSchema: z.ZodType = z
-  .object({
-    featureName: z.string().optional(),
-    pageToken: z.string().optional(),
-    pageSize: z.number().optional(),
-  })
-  .transform(d => ({
-    feature_name: d.featureName,
-    page_token: d.pageToken,
-    page_size: d.pageSize,
   }));
 
 export const marshalListMaterializedFeaturesResponseSchema: z.ZodType = z
@@ -2029,38 +1769,6 @@ export const marshalTumblingWindowSchema: z.ZodType = z
   })
   .transform(d => ({
     window_duration: d.windowDuration,
-  }));
-
-export const marshalUpdateFeatureRequestSchema: z.ZodType = z
-  .object({
-    feature: z.lazy(() => marshalFeatureSchema).optional(),
-    updateMask: z.string().optional(),
-  })
-  .transform(d => ({
-    feature: d.feature,
-    update_mask: d.updateMask,
-  }));
-
-export const marshalUpdateKafkaConfigRequestSchema: z.ZodType = z
-  .object({
-    kafkaConfig: z.lazy(() => marshalKafkaConfigSchema).optional(),
-    updateMask: z.string().optional(),
-  })
-  .transform(d => ({
-    kafka_config: d.kafkaConfig,
-    update_mask: d.updateMask,
-  }));
-
-export const marshalUpdateMaterializedFeatureRequestSchema: z.ZodType = z
-  .object({
-    materializedFeature: z
-      .lazy(() => marshalMaterializedFeatureSchema)
-      .optional(),
-    updateMask: z.string().optional(),
-  })
-  .transform(d => ({
-    materialized_feature: d.materializedFeature,
-    update_mask: d.updateMask,
   }));
 
 export const marshalVarPopFunctionSchema: z.ZodType = z

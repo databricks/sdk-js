@@ -96,32 +96,6 @@ export interface UpdateFeatureTagRequest {
   updateMask?: string | undefined;
 }
 
-export const unmarshalCreateFeatureTagRequestSchema: z.ZodType<CreateFeatureTagRequest> =
-  z
-    .object({
-      table_name: z.string().optional(),
-      feature_name: z.string().optional(),
-      feature_tag: z.lazy(() => unmarshalFeatureTagSchema).optional(),
-    })
-    .transform(d => ({
-      tableName: d.table_name,
-      featureName: d.feature_name,
-      featureTag: d.feature_tag,
-    }));
-
-export const unmarshalDeleteFeatureTagRequestSchema: z.ZodType<DeleteFeatureTagRequest> =
-  z
-    .object({
-      table_name: z.string().optional(),
-      feature_name: z.string().optional(),
-      key: z.string().optional(),
-    })
-    .transform(d => ({
-      tableName: d.table_name,
-      featureName: d.feature_name,
-      key: d.key,
-    }));
-
 export const unmarshalFeatureLineageSchema: z.ZodType<FeatureLineage> = z
   .object({
     models: z
@@ -184,45 +158,6 @@ export const unmarshalFeatureTagSchema: z.ZodType<FeatureTag> = z
     value: d.value,
   }));
 
-export const unmarshalGetFeatureLineageRequestSchema: z.ZodType<GetFeatureLineageRequest> =
-  z
-    .object({
-      feature_name: z.string().optional(),
-      table_name: z.string().optional(),
-    })
-    .transform(d => ({
-      featureName: d.feature_name,
-      tableName: d.table_name,
-    }));
-
-export const unmarshalGetFeatureTagRequestSchema: z.ZodType<GetFeatureTagRequest> =
-  z
-    .object({
-      table_name: z.string().optional(),
-      feature_name: z.string().optional(),
-      key: z.string().optional(),
-    })
-    .transform(d => ({
-      tableName: d.table_name,
-      featureName: d.feature_name,
-      key: d.key,
-    }));
-
-export const unmarshalListFeatureTagsRequestSchema: z.ZodType<ListFeatureTagsRequest> =
-  z
-    .object({
-      table_name: z.string().optional(),
-      feature_name: z.string().optional(),
-      page_token: z.string().optional(),
-      page_size: z.number().optional(),
-    })
-    .transform(d => ({
-      tableName: d.table_name,
-      featureName: d.feature_name,
-      pageToken: d.page_token,
-      pageSize: d.page_size,
-    }));
-
 export const unmarshalListFeatureTagsResponseSchema: z.ZodType<ListFeatureTagsResponse> =
   z
     .object({
@@ -233,45 +168,6 @@ export const unmarshalListFeatureTagsResponseSchema: z.ZodType<ListFeatureTagsRe
       featureTags: d.feature_tags,
       nextPageToken: d.next_page_token,
     }));
-
-export const unmarshalUpdateFeatureTagRequestSchema: z.ZodType<UpdateFeatureTagRequest> =
-  z
-    .object({
-      table_name: z.string().optional(),
-      feature_name: z.string().optional(),
-      feature_tag: z.lazy(() => unmarshalFeatureTagSchema).optional(),
-      update_mask: z.string().optional(),
-    })
-    .transform(d => ({
-      tableName: d.table_name,
-      featureName: d.feature_name,
-      featureTag: d.feature_tag,
-      updateMask: d.update_mask,
-    }));
-
-export const marshalCreateFeatureTagRequestSchema: z.ZodType = z
-  .object({
-    tableName: z.string().optional(),
-    featureName: z.string().optional(),
-    featureTag: z.lazy(() => marshalFeatureTagSchema).optional(),
-  })
-  .transform(d => ({
-    table_name: d.tableName,
-    feature_name: d.featureName,
-    feature_tag: d.featureTag,
-  }));
-
-export const marshalDeleteFeatureTagRequestSchema: z.ZodType = z
-  .object({
-    tableName: z.string().optional(),
-    featureName: z.string().optional(),
-    key: z.string().optional(),
-  })
-  .transform(d => ({
-    table_name: d.tableName,
-    feature_name: d.featureName,
-    key: d.key,
-  }));
 
 export const marshalFeatureLineageSchema: z.ZodType = z
   .object({
@@ -330,42 +226,6 @@ export const marshalFeatureTagSchema: z.ZodType = z
     value: d.value,
   }));
 
-export const marshalGetFeatureLineageRequestSchema: z.ZodType = z
-  .object({
-    featureName: z.string().optional(),
-    tableName: z.string().optional(),
-  })
-  .transform(d => ({
-    feature_name: d.featureName,
-    table_name: d.tableName,
-  }));
-
-export const marshalGetFeatureTagRequestSchema: z.ZodType = z
-  .object({
-    tableName: z.string().optional(),
-    featureName: z.string().optional(),
-    key: z.string().optional(),
-  })
-  .transform(d => ({
-    table_name: d.tableName,
-    feature_name: d.featureName,
-    key: d.key,
-  }));
-
-export const marshalListFeatureTagsRequestSchema: z.ZodType = z
-  .object({
-    tableName: z.string().optional(),
-    featureName: z.string().optional(),
-    pageToken: z.string().optional(),
-    pageSize: z.number().optional(),
-  })
-  .transform(d => ({
-    table_name: d.tableName,
-    feature_name: d.featureName,
-    page_token: d.pageToken,
-    page_size: d.pageSize,
-  }));
-
 export const marshalListFeatureTagsResponseSchema: z.ZodType = z
   .object({
     featureTags: z.array(z.lazy(() => marshalFeatureTagSchema)).optional(),
@@ -374,18 +234,4 @@ export const marshalListFeatureTagsResponseSchema: z.ZodType = z
   .transform(d => ({
     feature_tags: d.featureTags,
     next_page_token: d.nextPageToken,
-  }));
-
-export const marshalUpdateFeatureTagRequestSchema: z.ZodType = z
-  .object({
-    tableName: z.string().optional(),
-    featureName: z.string().optional(),
-    featureTag: z.lazy(() => marshalFeatureTagSchema).optional(),
-    updateMask: z.string().optional(),
-  })
-  .transform(d => ({
-    table_name: d.tableName,
-    feature_name: d.featureName,
-    feature_tag: d.featureTag,
-    update_mask: d.updateMask,
   }));

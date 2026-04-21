@@ -81,15 +81,6 @@ export const unmarshalArtifactMatcherSchema: z.ZodType<ArtifactMatcher> = z
     matchType: d.match_type,
   }));
 
-export const unmarshalGetArtifactAllowlistSchema: z.ZodType<GetArtifactAllowlist> =
-  z
-    .object({
-      artifact_type: z.enum(ArtifactType).optional(),
-    })
-    .transform(d => ({
-      artifactType: d.artifact_type,
-    }));
-
 export const unmarshalSetArtifactAllowlistSchema: z.ZodType<SetArtifactAllowlist> =
   z
     .object({
@@ -133,14 +124,6 @@ export const marshalArtifactMatcherSchema: z.ZodType = z
   .transform(d => ({
     artifact: d.artifact,
     match_type: d.matchType,
-  }));
-
-export const marshalGetArtifactAllowlistSchema: z.ZodType = z
-  .object({
-    artifactType: z.enum(ArtifactType).optional(),
-  })
-  .transform(d => ({
-    artifact_type: d.artifactType,
   }));
 
 export const marshalSetArtifactAllowlistSchema: z.ZodType = z

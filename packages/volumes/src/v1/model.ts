@@ -238,14 +238,6 @@ export const unmarshalCreateVolumeSchema: z.ZodType<CreateVolume> = z
     browseOnly: d.browse_only,
   }));
 
-export const unmarshalDeleteVolumeSchema: z.ZodType<DeleteVolume> = z
-  .object({
-    full_name_arg: z.string().optional(),
-  })
-  .transform(d => ({
-    fullNameArg: d.full_name_arg,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteVolume_ResponseSchema: z.ZodType<DeleteVolume_Response> =
   z.object({});
@@ -258,32 +250,6 @@ export const unmarshalEncryptionDetailsSchema: z.ZodType<EncryptionDetails> = z
   })
   .transform(d => ({
     sseEncryptionDetails: d.sse_encryption_details,
-  }));
-
-export const unmarshalGetVolumeSchema: z.ZodType<GetVolume> = z
-  .object({
-    full_name_arg: z.string().optional(),
-    include_browse: z.boolean().optional(),
-  })
-  .transform(d => ({
-    fullNameArg: d.full_name_arg,
-    includeBrowse: d.include_browse,
-  }));
-
-export const unmarshalListVolumesSchema: z.ZodType<ListVolumes> = z
-  .object({
-    catalog_name: z.string().optional(),
-    schema_name: z.string().optional(),
-    include_browse: z.boolean().optional(),
-    max_results: z.number().optional(),
-    page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    catalogName: d.catalog_name,
-    schemaName: d.schema_name,
-    includeBrowse: d.include_browse,
-    maxResults: d.max_results,
-    pageToken: d.page_token,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -437,14 +403,6 @@ export const marshalCreateVolumeSchema: z.ZodType = z
     browse_only: d.browseOnly,
   }));
 
-export const marshalDeleteVolumeSchema: z.ZodType = z
-  .object({
-    fullNameArg: z.string().optional(),
-  })
-  .transform(d => ({
-    full_name_arg: d.fullNameArg,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteVolume_ResponseSchema: z.ZodType = z.object({});
 
@@ -456,32 +414,6 @@ export const marshalEncryptionDetailsSchema: z.ZodType = z
   })
   .transform(d => ({
     sse_encryption_details: d.sseEncryptionDetails,
-  }));
-
-export const marshalGetVolumeSchema: z.ZodType = z
-  .object({
-    fullNameArg: z.string().optional(),
-    includeBrowse: z.boolean().optional(),
-  })
-  .transform(d => ({
-    full_name_arg: d.fullNameArg,
-    include_browse: d.includeBrowse,
-  }));
-
-export const marshalListVolumesSchema: z.ZodType = z
-  .object({
-    catalogName: z.string().optional(),
-    schemaName: z.string().optional(),
-    includeBrowse: z.boolean().optional(),
-    maxResults: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    catalog_name: d.catalogName,
-    schema_name: d.schemaName,
-    include_browse: d.includeBrowse,
-    max_results: d.maxResults,
-    page_token: d.pageToken,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

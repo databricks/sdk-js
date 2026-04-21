@@ -281,40 +281,6 @@ export const unmarshalCreateSchemaSchema: z.ZodType<CreateSchema> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateSchema_OptionsEntrySchema: z.ZodType<CreateSchema_OptionsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateSchema_PropertiesEntrySchema: z.ZodType<CreateSchema_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-export const unmarshalDeleteSchemaSchema: z.ZodType<DeleteSchema> = z
-  .object({
-    full_name_arg: z.string().optional(),
-    force: z.boolean().optional(),
-  })
-  .transform(d => ({
-    fullNameArg: d.full_name_arg,
-    force: d.force,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteSchema_ResponseSchema: z.ZodType<DeleteSchema_Response> =
   z.object({});
 
@@ -330,30 +296,6 @@ export const unmarshalEffectivePredictiveOptimizationFlagSchema: z.ZodType<Effec
       inheritedFromType: d.inherited_from_type,
       inheritedFromName: d.inherited_from_name,
     }));
-
-export const unmarshalGetSchemaSchema: z.ZodType<GetSchema> = z
-  .object({
-    full_name_arg: z.string().optional(),
-    include_browse: z.boolean().optional(),
-  })
-  .transform(d => ({
-    fullNameArg: d.full_name_arg,
-    includeBrowse: d.include_browse,
-  }));
-
-export const unmarshalListSchemasSchema: z.ZodType<ListSchemas> = z
-  .object({
-    catalog_name: z.string().optional(),
-    max_results: z.number().optional(),
-    page_token: z.string().optional(),
-    include_browse: z.boolean().optional(),
-  })
-  .transform(d => ({
-    catalogName: d.catalog_name,
-    maxResults: d.max_results,
-    pageToken: d.page_token,
-    includeBrowse: d.include_browse,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListSchemas_ResponseSchema: z.ZodType<ListSchemas_Response> =
@@ -414,30 +356,6 @@ export const unmarshalSchemaInfoSchema: z.ZodType<SchemaInfo> = z
     options: d.options,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSchemaInfo_OptionsEntrySchema: z.ZodType<SchemaInfo_OptionsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSchemaInfo_PropertiesEntrySchema: z.ZodType<SchemaInfo_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
 export const unmarshalUpdateSchemaSchema: z.ZodType<UpdateSchema> = z
   .object({
     full_name_arg: z.string().optional(),
@@ -489,30 +407,6 @@ export const unmarshalUpdateSchemaSchema: z.ZodType<UpdateSchema> = z
     options: d.options,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateSchema_OptionsEntrySchema: z.ZodType<UpdateSchema_OptionsEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateSchema_PropertiesEntrySchema: z.ZodType<UpdateSchema_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
 export const marshalCreateSchemaSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -561,38 +455,6 @@ export const marshalCreateSchemaSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCreateSchema_OptionsEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCreateSchema_PropertiesEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-export const marshalDeleteSchemaSchema: z.ZodType = z
-  .object({
-    fullNameArg: z.string().optional(),
-    force: z.boolean().optional(),
-  })
-  .transform(d => ({
-    full_name_arg: d.fullNameArg,
-    force: d.force,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteSchema_ResponseSchema: z.ZodType = z.object({});
 
 export const marshalEffectivePredictiveOptimizationFlagSchema: z.ZodType = z
@@ -605,30 +467,6 @@ export const marshalEffectivePredictiveOptimizationFlagSchema: z.ZodType = z
     value: d.value,
     inherited_from_type: d.inheritedFromType,
     inherited_from_name: d.inheritedFromName,
-  }));
-
-export const marshalGetSchemaSchema: z.ZodType = z
-  .object({
-    fullNameArg: z.string().optional(),
-    includeBrowse: z.boolean().optional(),
-  })
-  .transform(d => ({
-    full_name_arg: d.fullNameArg,
-    include_browse: d.includeBrowse,
-  }));
-
-export const marshalListSchemasSchema: z.ZodType = z
-  .object({
-    catalogName: z.string().optional(),
-    maxResults: z.number().optional(),
-    pageToken: z.string().optional(),
-    includeBrowse: z.boolean().optional(),
-  })
-  .transform(d => ({
-    catalog_name: d.catalogName,
-    max_results: d.maxResults,
-    page_token: d.pageToken,
-    include_browse: d.includeBrowse,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -689,28 +527,6 @@ export const marshalSchemaInfoSchema: z.ZodType = z
     options: d.options,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSchemaInfo_OptionsEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSchemaInfo_PropertiesEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
 export const marshalUpdateSchemaSchema: z.ZodType = z
   .object({
     fullNameArg: z.string().optional(),
@@ -760,26 +576,4 @@ export const marshalUpdateSchemaSchema: z.ZodType = z
     browse_only: d.browseOnly,
     properties: d.properties,
     options: d.options,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalUpdateSchema_OptionsEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalUpdateSchema_PropertiesEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
   }));

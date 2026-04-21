@@ -110,17 +110,6 @@ export interface UpdateRuleSetRequest {
   ruleSet?: RuleSetUpdateRequest | undefined;
 }
 
-export const unmarshalGetAssignableRolesForResourceRequestSchema: z.ZodType<GetAssignableRolesForResourceRequest> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      resource: z.string().optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      resource: d.resource,
-    }));
-
 export const unmarshalGetAssignableRolesForResourceResponseSchema: z.ZodType<GetAssignableRolesForResourceResponse> =
   z
     .object({
@@ -129,18 +118,6 @@ export const unmarshalGetAssignableRolesForResourceResponseSchema: z.ZodType<Get
     .transform(d => ({
       roles: d.roles,
     }));
-
-export const unmarshalGetRuleSetRequestSchema: z.ZodType<GetRuleSetRequest> = z
-  .object({
-    account_id: z.string().optional(),
-    name: z.string().optional(),
-    etag: z.string().optional(),
-  })
-  .transform(d => ({
-    accountId: d.account_id,
-    name: d.name,
-    etag: d.etag,
-  }));
 
 export const unmarshalGrantRuleSchema: z.ZodType<GrantRule> = z
   .object({
@@ -198,34 +175,12 @@ export const unmarshalUpdateRuleSetRequestSchema: z.ZodType<UpdateRuleSetRequest
       ruleSet: d.rule_set,
     }));
 
-export const marshalGetAssignableRolesForResourceRequestSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    resource: z.string().optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    resource: d.resource,
-  }));
-
 export const marshalGetAssignableRolesForResourceResponseSchema: z.ZodType = z
   .object({
     roles: z.array(z.lazy(() => marshalRoleSchema)).optional(),
   })
   .transform(d => ({
     roles: d.roles,
-  }));
-
-export const marshalGetRuleSetRequestSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    name: z.string().optional(),
-    etag: z.string().optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    name: d.name,
-    etag: d.etag,
   }));
 
 export const marshalGrantRuleSchema: z.ZodType = z

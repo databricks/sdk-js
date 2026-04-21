@@ -451,25 +451,6 @@ export const unmarshalEnumValueSchema: z.ZodType<EnumValue> = z
     multiValuesOptions: d.multi_values_options,
   }));
 
-export const unmarshalGetQueryRequestSchema: z.ZodType<GetQueryRequest> = z
-  .object({
-    id: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-  }));
-
-export const unmarshalListQueriesRequestSchema: z.ZodType<ListQueriesRequest> =
-  z
-    .object({
-      page_token: z.string().optional(),
-      page_size: z.number().optional(),
-    })
-    .transform(d => ({
-      pageToken: d.page_token,
-      pageSize: d.page_size,
-    }));
-
 export const unmarshalListQueriesResponseSchema: z.ZodType<ListQueriesResponse> =
   z
     .object({
@@ -530,19 +511,6 @@ export const unmarshalListQueryObjectsResponseQuerySchema: z.ZodType<ListQueryOb
       applyAutoLimit: d.apply_auto_limit,
       catalog: d.catalog,
       schema: d.schema,
-    }));
-
-export const unmarshalListVisualizationsForQueryRequestSchema: z.ZodType<ListVisualizationsForQueryRequest> =
-  z
-    .object({
-      id: z.string().optional(),
-      page_token: z.string().optional(),
-      page_size: z.number().optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      pageToken: d.page_token,
-      pageSize: d.page_size,
     }));
 
 export const unmarshalListVisualizationsForQueryResponseSchema: z.ZodType<ListVisualizationsForQueryResponse> =
@@ -667,14 +635,6 @@ export const unmarshalTextValueSchema: z.ZodType<TextValue> = z
   })
   .transform(d => ({
     value: d.value,
-  }));
-
-export const unmarshalTrashQueryRequestSchema: z.ZodType<TrashQueryRequest> = z
-  .object({
-    id: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
   }));
 
 export const unmarshalUpdateQueryRequestSchema: z.ZodType<UpdateQueryRequest> =
@@ -877,24 +837,6 @@ export const marshalEnumValueSchema: z.ZodType = z
     multi_values_options: d.multiValuesOptions,
   }));
 
-export const marshalGetQueryRequestSchema: z.ZodType = z
-  .object({
-    id: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-  }));
-
-export const marshalListQueriesRequestSchema: z.ZodType = z
-  .object({
-    pageToken: z.string().optional(),
-    pageSize: z.number().optional(),
-  })
-  .transform(d => ({
-    page_token: d.pageToken,
-    page_size: d.pageSize,
-  }));
-
 export const marshalListQueriesResponseSchema: z.ZodType = z
   .object({
     results: z
@@ -951,18 +893,6 @@ export const marshalListQueryObjectsResponseQuerySchema: z.ZodType = z
     apply_auto_limit: d.applyAutoLimit,
     catalog: d.catalog,
     schema: d.schema,
-  }));
-
-export const marshalListVisualizationsForQueryRequestSchema: z.ZodType = z
-  .object({
-    id: z.string().optional(),
-    pageToken: z.string().optional(),
-    pageSize: z.number().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-    page_token: d.pageToken,
-    page_size: d.pageSize,
   }));
 
 export const marshalListVisualizationsForQueryResponseSchema: z.ZodType = z
@@ -1083,14 +1013,6 @@ export const marshalTextValueSchema: z.ZodType = z
   })
   .transform(d => ({
     value: d.value,
-  }));
-
-export const marshalTrashQueryRequestSchema: z.ZodType = z
-  .object({
-    id: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
   }));
 
 export const marshalUpdateQueryRequestSchema: z.ZodType = z

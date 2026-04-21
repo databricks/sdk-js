@@ -122,27 +122,9 @@ export const unmarshalCreateGlobalInitScript_ResponseSchema: z.ZodType<CreateGlo
       scriptId: d.script_id,
     }));
 
-export const unmarshalDeleteGlobalInitScriptSchema: z.ZodType<DeleteGlobalInitScript> =
-  z
-    .object({
-      script_id: z.string().optional(),
-    })
-    .transform(d => ({
-      scriptId: d.script_id,
-    }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteGlobalInitScript_ResponseSchema: z.ZodType<DeleteGlobalInitScript_Response> =
   z.object({});
-
-export const unmarshalGetGlobalInitScriptSchema: z.ZodType<GetGlobalInitScript> =
-  z
-    .object({
-      script_id: z.string().optional(),
-    })
-    .transform(d => ({
-      scriptId: d.script_id,
-    }));
 
 export const unmarshalGlobalInitScriptDetailsSchema: z.ZodType<GlobalInitScriptDetails> =
   z
@@ -166,9 +148,6 @@ export const unmarshalGlobalInitScriptDetailsSchema: z.ZodType<GlobalInitScriptD
       updatedBy: d.updated_by,
       updatedAt: d.updated_at,
     }));
-
-export const unmarshalListGlobalInitScriptsSchema: z.ZodType<ListGlobalInitScripts> =
-  z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListGlobalInitScripts_ResponseSchema: z.ZodType<ListGlobalInitScripts_Response> =
@@ -234,26 +213,10 @@ export const marshalCreateGlobalInitScript_ResponseSchema: z.ZodType = z
     script_id: d.scriptId,
   }));
 
-export const marshalDeleteGlobalInitScriptSchema: z.ZodType = z
-  .object({
-    scriptId: z.string().optional(),
-  })
-  .transform(d => ({
-    script_id: d.scriptId,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteGlobalInitScript_ResponseSchema: z.ZodType = z.object(
   {}
 );
-
-export const marshalGetGlobalInitScriptSchema: z.ZodType = z
-  .object({
-    scriptId: z.string().optional(),
-  })
-  .transform(d => ({
-    script_id: d.scriptId,
-  }));
 
 export const marshalGlobalInitScriptDetailsSchema: z.ZodType = z
   .object({
@@ -276,8 +239,6 @@ export const marshalGlobalInitScriptDetailsSchema: z.ZodType = z
     updated_by: d.updatedBy,
     updated_at: d.updatedAt,
   }));
-
-export const marshalListGlobalInitScriptsSchema: z.ZodType = z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalListGlobalInitScripts_ResponseSchema: z.ZodType = z

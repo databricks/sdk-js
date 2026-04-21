@@ -370,24 +370,6 @@ export const unmarshalCreateAlertRequestAlertSchema: z.ZodType<CreateAlertReques
 
 export const unmarshalEmptySchema: z.ZodType<Empty> = z.object({});
 
-export const unmarshalGetAlertRequestSchema: z.ZodType<GetAlertRequest> = z
-  .object({
-    id: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-  }));
-
-export const unmarshalListAlertsRequestSchema: z.ZodType<ListAlertsRequest> = z
-  .object({
-    page_token: z.string().optional(),
-    page_size: z.number().optional(),
-  })
-  .transform(d => ({
-    pageToken: d.page_token,
-    pageSize: d.page_size,
-  }));
-
 export const unmarshalListAlertsResponseSchema: z.ZodType<ListAlertsResponse> =
   z
     .object({
@@ -446,14 +428,6 @@ export const unmarshalListAlertsResponseAlertSchema: z.ZodType<ListAlertsRespons
       updateTime: d.update_time,
       notifyOnOk: d.notify_on_ok,
     }));
-
-export const unmarshalTrashAlertRequestSchema: z.ZodType<TrashAlertRequest> = z
-  .object({
-    id: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-  }));
 
 export const unmarshalUpdateAlertRequestSchema: z.ZodType<UpdateAlertRequest> =
   z
@@ -662,24 +636,6 @@ export const marshalCreateAlertRequestAlertSchema: z.ZodType = z
 
 export const marshalEmptySchema: z.ZodType = z.object({});
 
-export const marshalGetAlertRequestSchema: z.ZodType = z
-  .object({
-    id: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-  }));
-
-export const marshalListAlertsRequestSchema: z.ZodType = z
-  .object({
-    pageToken: z.string().optional(),
-    pageSize: z.number().optional(),
-  })
-  .transform(d => ({
-    page_token: d.pageToken,
-    page_size: d.pageSize,
-  }));
-
 export const marshalListAlertsResponseSchema: z.ZodType = z
   .object({
     results: z
@@ -735,14 +691,6 @@ export const marshalListAlertsResponseAlertSchema: z.ZodType = z
     create_time: d.createTime,
     update_time: d.updateTime,
     notify_on_ok: d.notifyOnOk,
-  }));
-
-export const marshalTrashAlertRequestSchema: z.ZodType = z
-  .object({
-    id: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
   }));
 
 export const marshalUpdateAlertRequestSchema: z.ZodType = z

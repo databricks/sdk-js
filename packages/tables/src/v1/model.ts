@@ -1050,18 +1050,6 @@ export const unmarshalCreateTableSchema: z.ZodType<CreateTable> = z
     properties: d.properties,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateTable_PropertiesEntrySchema: z.ZodType<CreateTable_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
-
 export const unmarshalCreateTableConstraintSchema: z.ZodType<CreateTableConstraint> =
   z
     .object({
@@ -1082,30 +1070,9 @@ export const unmarshalCredentialDependencySchema: z.ZodType<CredentialDependency
       credentialName: d.credential_name,
     }));
 
-export const unmarshalDeleteTableSchema: z.ZodType<DeleteTable> = z
-  .object({
-    full_name_arg: z.string().optional(),
-  })
-  .transform(d => ({
-    fullNameArg: d.full_name_arg,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteTable_ResponseSchema: z.ZodType<DeleteTable_Response> =
   z.object({});
-
-export const unmarshalDeleteTableConstraintSchema: z.ZodType<DeleteTableConstraint> =
-  z
-    .object({
-      full_name_arg: z.string().optional(),
-      constraint_name: z.string().optional(),
-      cascade: z.boolean().optional(),
-    })
-    .transform(d => ({
-      fullNameArg: d.full_name_arg,
-      constraintName: d.constraint_name,
-      cascade: d.cascade,
-    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteTableConstraint_ResponseSchema: z.ZodType<DeleteTableConstraint_Response> =
@@ -1118,18 +1085,6 @@ export const unmarshalDeltaRuntimePropertiesKvPairsSchema: z.ZodType<DeltaRuntim
     })
     .transform(d => ({
       deltaRuntimeProperties: d.delta_runtime_properties,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeltaRuntimePropertiesKvPairs_DeltaRuntimePropertiesEntrySchema: z.ZodType<DeltaRuntimePropertiesKvPairs_DeltaRuntimePropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
     }));
 
 export const unmarshalDependencySchema: z.ZodType<Dependency> = z
@@ -1207,39 +1162,6 @@ export const unmarshalFunctionDependencySchema: z.ZodType<FunctionDependency> =
       functionFullName: d.function_full_name,
     }));
 
-export const unmarshalGetTableSchema: z.ZodType<GetTable> = z
-  .object({
-    full_name_arg: z.string().optional(),
-    include_delta_metadata: z.boolean().optional(),
-    include_browse: z.boolean().optional(),
-    include_manifest_capabilities: z.boolean().optional(),
-  })
-  .transform(d => ({
-    fullNameArg: d.full_name_arg,
-    includeDeltaMetadata: d.include_delta_metadata,
-    includeBrowse: d.include_browse,
-    includeManifestCapabilities: d.include_manifest_capabilities,
-  }));
-
-export const unmarshalListTableSummariesSchema: z.ZodType<ListTableSummaries> =
-  z
-    .object({
-      catalog_name: z.string().optional(),
-      schema_name_pattern: z.string().optional(),
-      table_name_pattern: z.string().optional(),
-      max_results: z.number().optional(),
-      page_token: z.string().optional(),
-      include_manifest_capabilities: z.boolean().optional(),
-    })
-    .transform(d => ({
-      catalogName: d.catalog_name,
-      schemaNamePattern: d.schema_name_pattern,
-      tableNamePattern: d.table_name_pattern,
-      maxResults: d.max_results,
-      pageToken: d.page_token,
-      includeManifestCapabilities: d.include_manifest_capabilities,
-    }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListTableSummaries_ResponseSchema: z.ZodType<ListTableSummaries_Response> =
   z
@@ -1251,30 +1173,6 @@ export const unmarshalListTableSummaries_ResponseSchema: z.ZodType<ListTableSumm
       tables: d.tables,
       nextPageToken: d.next_page_token,
     }));
-
-export const unmarshalListTablesSchema: z.ZodType<ListTables> = z
-  .object({
-    catalog_name: z.string().optional(),
-    schema_name: z.string().optional(),
-    max_results: z.number().optional(),
-    page_token: z.string().optional(),
-    omit_columns: z.boolean().optional(),
-    omit_properties: z.boolean().optional(),
-    omit_username: z.boolean().optional(),
-    include_browse: z.boolean().optional(),
-    include_manifest_capabilities: z.boolean().optional(),
-  })
-  .transform(d => ({
-    catalogName: d.catalog_name,
-    schemaName: d.schema_name,
-    maxResults: d.max_results,
-    pageToken: d.page_token,
-    omitColumns: d.omit_columns,
-    omitProperties: d.omit_properties,
-    omitUsername: d.omit_username,
-    includeBrowse: d.include_browse,
-    includeManifestCapabilities: d.include_manifest_capabilities,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListTables_ResponseSchema: z.ZodType<ListTables_Response> =
@@ -1437,14 +1335,6 @@ export const unmarshalTableDependencySchema: z.ZodType<TableDependency> = z
     tableFullName: d.table_full_name,
   }));
 
-export const unmarshalTableExistsSchema: z.ZodType<TableExists> = z
-  .object({
-    full_name_arg: z.string().optional(),
-  })
-  .transform(d => ({
-    fullNameArg: d.full_name_arg,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalTableExists_ResponseSchema: z.ZodType<TableExists_Response> =
   z
@@ -1537,18 +1427,6 @@ export const unmarshalTableInfoSchema: z.ZodType<TableInfo> = z
     columns: d.columns,
     properties: d.properties,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalTableInfo_PropertiesEntrySchema: z.ZodType<TableInfo_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
 
 export const unmarshalTableSummarySchema: z.ZodType<TableSummary> = z
   .object({
@@ -1648,18 +1526,6 @@ export const unmarshalUpdateTableSchema: z.ZodType<UpdateTable> = z
     columns: d.columns,
     properties: d.properties,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateTable_PropertiesEntrySchema: z.ZodType<UpdateTable_PropertiesEntry> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalUpdateTable_ResponseSchema: z.ZodType<UpdateTable_Response> =
@@ -1816,17 +1682,6 @@ export const marshalCreateTableSchema: z.ZodType = z
     properties: d.properties,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCreateTable_PropertiesEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
 export const marshalCreateTableConstraintSchema: z.ZodType = z
   .object({
     fullNameArg: z.string().optional(),
@@ -1845,28 +1700,8 @@ export const marshalCredentialDependencySchema: z.ZodType = z
     credential_name: d.credentialName,
   }));
 
-export const marshalDeleteTableSchema: z.ZodType = z
-  .object({
-    fullNameArg: z.string().optional(),
-  })
-  .transform(d => ({
-    full_name_arg: d.fullNameArg,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteTable_ResponseSchema: z.ZodType = z.object({});
-
-export const marshalDeleteTableConstraintSchema: z.ZodType = z
-  .object({
-    fullNameArg: z.string().optional(),
-    constraintName: z.string().optional(),
-    cascade: z.boolean().optional(),
-  })
-  .transform(d => ({
-    full_name_arg: d.fullNameArg,
-    constraint_name: d.constraintName,
-    cascade: d.cascade,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteTableConstraint_ResponseSchema: z.ZodType = z.object(
@@ -1880,18 +1715,6 @@ export const marshalDeltaRuntimePropertiesKvPairsSchema: z.ZodType = z
   .transform(d => ({
     delta_runtime_properties: d.deltaRuntimeProperties,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeltaRuntimePropertiesKvPairs_DeltaRuntimePropertiesEntrySchema: z.ZodType =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
 
 export const marshalDependencySchema: z.ZodType = z
   .object({
@@ -1965,38 +1788,6 @@ export const marshalFunctionDependencySchema: z.ZodType = z
     function_full_name: d.functionFullName,
   }));
 
-export const marshalGetTableSchema: z.ZodType = z
-  .object({
-    fullNameArg: z.string().optional(),
-    includeDeltaMetadata: z.boolean().optional(),
-    includeBrowse: z.boolean().optional(),
-    includeManifestCapabilities: z.boolean().optional(),
-  })
-  .transform(d => ({
-    full_name_arg: d.fullNameArg,
-    include_delta_metadata: d.includeDeltaMetadata,
-    include_browse: d.includeBrowse,
-    include_manifest_capabilities: d.includeManifestCapabilities,
-  }));
-
-export const marshalListTableSummariesSchema: z.ZodType = z
-  .object({
-    catalogName: z.string().optional(),
-    schemaNamePattern: z.string().optional(),
-    tableNamePattern: z.string().optional(),
-    maxResults: z.number().optional(),
-    pageToken: z.string().optional(),
-    includeManifestCapabilities: z.boolean().optional(),
-  })
-  .transform(d => ({
-    catalog_name: d.catalogName,
-    schema_name_pattern: d.schemaNamePattern,
-    table_name_pattern: d.tableNamePattern,
-    max_results: d.maxResults,
-    page_token: d.pageToken,
-    include_manifest_capabilities: d.includeManifestCapabilities,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalListTableSummaries_ResponseSchema: z.ZodType = z
   .object({
@@ -2006,30 +1797,6 @@ export const marshalListTableSummaries_ResponseSchema: z.ZodType = z
   .transform(d => ({
     tables: d.tables,
     next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListTablesSchema: z.ZodType = z
-  .object({
-    catalogName: z.string().optional(),
-    schemaName: z.string().optional(),
-    maxResults: z.number().optional(),
-    pageToken: z.string().optional(),
-    omitColumns: z.boolean().optional(),
-    omitProperties: z.boolean().optional(),
-    omitUsername: z.boolean().optional(),
-    includeBrowse: z.boolean().optional(),
-    includeManifestCapabilities: z.boolean().optional(),
-  })
-  .transform(d => ({
-    catalog_name: d.catalogName,
-    schema_name: d.schemaName,
-    max_results: d.maxResults,
-    page_token: d.pageToken,
-    omit_columns: d.omitColumns,
-    omit_properties: d.omitProperties,
-    omit_username: d.omitUsername,
-    include_browse: d.includeBrowse,
-    include_manifest_capabilities: d.includeManifestCapabilities,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2187,14 +1954,6 @@ export const marshalTableDependencySchema: z.ZodType = z
     table_full_name: d.tableFullName,
   }));
 
-export const marshalTableExistsSchema: z.ZodType = z
-  .object({
-    fullNameArg: z.string().optional(),
-  })
-  .transform(d => ({
-    full_name_arg: d.fullNameArg,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalTableExists_ResponseSchema: z.ZodType = z
   .object({
@@ -2283,17 +2042,6 @@ export const marshalTableInfoSchema: z.ZodType = z
     securable_kind_manifest: d.securableKindManifest,
     columns: d.columns,
     properties: d.properties,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalTableInfo_PropertiesEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
   }));
 
 export const marshalTableSummarySchema: z.ZodType = z
@@ -2391,17 +2139,6 @@ export const marshalUpdateTableSchema: z.ZodType = z
     securable_kind_manifest: d.securableKindManifest,
     columns: d.columns,
     properties: d.properties,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalUpdateTable_PropertiesEntrySchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

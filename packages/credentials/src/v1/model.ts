@@ -1141,30 +1141,9 @@ export const unmarshalDatabricksGcpServiceAccountSchema: z.ZodType<DatabricksGcp
       credentialId: d.credential_id,
     }));
 
-export const unmarshalDeleteCredentialSchema: z.ZodType<DeleteCredential> = z
-  .object({
-    name_arg: z.string().optional(),
-    force: z.boolean().optional(),
-  })
-  .transform(d => ({
-    nameArg: d.name_arg,
-    force: d.force,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteCredential_ResponseSchema: z.ZodType<DeleteCredential_Response> =
   z.object({});
-
-export const unmarshalDeleteStorageCredentialSchema: z.ZodType<DeleteStorageCredential> =
-  z
-    .object({
-      name_arg: z.string().optional(),
-      force: z.boolean().optional(),
-    })
-    .transform(d => ({
-      nameArg: d.name_arg,
-      force: d.force,
-    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteStorageCredential_ResponseSchema: z.ZodType<DeleteStorageCredential_Response> =
@@ -1369,35 +1348,6 @@ export const unmarshalGenerateTemporaryVolumeCredential_ResponseSchema: z.ZodTyp
       url: d.url,
     }));
 
-export const unmarshalGetCredentialSchema: z.ZodType<GetCredential> = z
-  .object({
-    name_arg: z.string().optional(),
-  })
-  .transform(d => ({
-    nameArg: d.name_arg,
-  }));
-
-export const unmarshalGetStorageCredentialSchema: z.ZodType<GetStorageCredential> =
-  z
-    .object({
-      name_arg: z.string().optional(),
-    })
-    .transform(d => ({
-      nameArg: d.name_arg,
-    }));
-
-export const unmarshalListCredentialsSchema: z.ZodType<ListCredentials> = z
-  .object({
-    include_unbound: z.boolean().optional(),
-    max_results: z.number().optional(),
-    page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    includeUnbound: d.include_unbound,
-    maxResults: d.max_results,
-    pageToken: d.page_token,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListCredentials_ResponseSchema: z.ZodType<ListCredentials_Response> =
   z
@@ -1410,19 +1360,6 @@ export const unmarshalListCredentials_ResponseSchema: z.ZodType<ListCredentials_
     .transform(d => ({
       credentials: d.credentials,
       nextPageToken: d.next_page_token,
-    }));
-
-export const unmarshalListStorageCredentialsSchema: z.ZodType<ListStorageCredentials> =
-  z
-    .object({
-      include_unbound: z.boolean().optional(),
-      max_results: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      includeUnbound: d.include_unbound,
-      maxResults: d.max_results,
-      pageToken: d.page_token,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2044,28 +1981,8 @@ export const marshalDatabricksGcpServiceAccountSchema: z.ZodType = z
     credential_id: d.credentialId,
   }));
 
-export const marshalDeleteCredentialSchema: z.ZodType = z
-  .object({
-    nameArg: z.string().optional(),
-    force: z.boolean().optional(),
-  })
-  .transform(d => ({
-    name_arg: d.nameArg,
-    force: d.force,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteCredential_ResponseSchema: z.ZodType = z.object({});
-
-export const marshalDeleteStorageCredentialSchema: z.ZodType = z
-  .object({
-    nameArg: z.string().optional(),
-    force: z.boolean().optional(),
-  })
-  .transform(d => ({
-    name_arg: d.nameArg,
-    force: d.force,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteStorageCredential_ResponseSchema: z.ZodType =
@@ -2237,34 +2154,6 @@ export const marshalGenerateTemporaryVolumeCredential_ResponseSchema: z.ZodType 
       url: d.url,
     }));
 
-export const marshalGetCredentialSchema: z.ZodType = z
-  .object({
-    nameArg: z.string().optional(),
-  })
-  .transform(d => ({
-    name_arg: d.nameArg,
-  }));
-
-export const marshalGetStorageCredentialSchema: z.ZodType = z
-  .object({
-    nameArg: z.string().optional(),
-  })
-  .transform(d => ({
-    name_arg: d.nameArg,
-  }));
-
-export const marshalListCredentialsSchema: z.ZodType = z
-  .object({
-    includeUnbound: z.boolean().optional(),
-    maxResults: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    include_unbound: d.includeUnbound,
-    max_results: d.maxResults,
-    page_token: d.pageToken,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalListCredentials_ResponseSchema: z.ZodType = z
   .object({
@@ -2274,18 +2163,6 @@ export const marshalListCredentials_ResponseSchema: z.ZodType = z
   .transform(d => ({
     credentials: d.credentials,
     next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListStorageCredentialsSchema: z.ZodType = z
-  .object({
-    includeUnbound: z.boolean().optional(),
-    maxResults: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    include_unbound: d.includeUnbound,
-    max_results: d.maxResults,
-    page_token: d.pageToken,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

@@ -352,50 +352,12 @@ export const unmarshalCreateMetastoreAssignmentSchema: z.ZodType<CreateMetastore
 export const unmarshalCreateMetastoreAssignment_ResponseSchema: z.ZodType<CreateMetastoreAssignment_Response> =
   z.object({});
 
-export const unmarshalDeleteMetastoreSchema: z.ZodType<DeleteMetastore> = z
-  .object({
-    id: z.string().optional(),
-    force: z.boolean().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-    force: d.force,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteMetastore_ResponseSchema: z.ZodType<DeleteMetastore_Response> =
   z.object({});
 
-export const unmarshalDeleteMetastoreAssignmentSchema: z.ZodType<DeleteMetastoreAssignment> =
-  z
-    .object({
-      workspace_id: z.number().optional(),
-      metastore_id: z.string().optional(),
-    })
-    .transform(d => ({
-      workspaceId: d.workspace_id,
-      metastoreId: d.metastore_id,
-    }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteMetastoreAssignment_ResponseSchema: z.ZodType<DeleteMetastoreAssignment_Response> =
-  z.object({});
-
-export const unmarshalDeltaSharingScopeSchema: z.ZodType<DeltaSharingScope> =
-  z.object({});
-
-export const unmarshalGetCurrentMetastoreAssignmentSchema: z.ZodType<GetCurrentMetastoreAssignment> =
-  z.object({});
-
-export const unmarshalGetMetastoreSchema: z.ZodType<GetMetastore> = z
-  .object({
-    id: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-  }));
-
-export const unmarshalGetMetastoreSummarySchema: z.ZodType<GetMetastoreSummary> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -444,16 +406,6 @@ export const unmarshalGetMetastoreSummary_ResponseSchema: z.ZodType<GetMetastore
       updatedBy: d.updated_by,
       externalAccessEnabled: d.external_access_enabled,
     }));
-
-export const unmarshalListMetastoresSchema: z.ZodType<ListMetastores> = z
-  .object({
-    max_results: z.number().optional(),
-    page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    maxResults: d.max_results,
-    pageToken: d.page_token,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListMetastores_ResponseSchema: z.ZodType<ListMetastores_Response> =
@@ -654,48 +606,12 @@ export const marshalCreateMetastoreAssignmentSchema: z.ZodType = z
 export const marshalCreateMetastoreAssignment_ResponseSchema: z.ZodType =
   z.object({});
 
-export const marshalDeleteMetastoreSchema: z.ZodType = z
-  .object({
-    id: z.string().optional(),
-    force: z.boolean().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-    force: d.force,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteMetastore_ResponseSchema: z.ZodType = z.object({});
-
-export const marshalDeleteMetastoreAssignmentSchema: z.ZodType = z
-  .object({
-    workspaceId: z.number().optional(),
-    metastoreId: z.string().optional(),
-  })
-  .transform(d => ({
-    workspace_id: d.workspaceId,
-    metastore_id: d.metastoreId,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteMetastoreAssignment_ResponseSchema: z.ZodType =
   z.object({});
-
-export const marshalDeltaSharingScopeSchema: z.ZodType = z.object({});
-
-export const marshalGetCurrentMetastoreAssignmentSchema: z.ZodType = z.object(
-  {}
-);
-
-export const marshalGetMetastoreSchema: z.ZodType = z
-  .object({
-    id: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-  }));
-
-export const marshalGetMetastoreSummarySchema: z.ZodType = z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalGetMetastoreSummary_ResponseSchema: z.ZodType = z
@@ -741,16 +657,6 @@ export const marshalGetMetastoreSummary_ResponseSchema: z.ZodType = z
     updated_at: d.updatedAt,
     updated_by: d.updatedBy,
     external_access_enabled: d.externalAccessEnabled,
-  }));
-
-export const marshalListMetastoresSchema: z.ZodType = z
-  .object({
-    maxResults: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    max_results: d.maxResults,
-    page_token: d.pageToken,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

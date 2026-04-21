@@ -472,44 +472,13 @@ export const unmarshalCredentialDependencySchema: z.ZodType<CredentialDependency
       credentialName: d.credential_name,
     }));
 
-export const unmarshalDeleteModelVersionSchema: z.ZodType<DeleteModelVersion> =
-  z
-    .object({
-      full_name_arg: z.string().optional(),
-      version_arg: z.number().optional(),
-    })
-    .transform(d => ({
-      fullNameArg: d.full_name_arg,
-      versionArg: d.version_arg,
-    }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteModelVersion_ResponseSchema: z.ZodType<DeleteModelVersion_Response> =
   z.object({});
 
-export const unmarshalDeleteRegisteredModelSchema: z.ZodType<DeleteRegisteredModel> =
-  z
-    .object({
-      full_name_arg: z.string().optional(),
-    })
-    .transform(d => ({
-      fullNameArg: d.full_name_arg,
-    }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteRegisteredModel_ResponseSchema: z.ZodType<DeleteRegisteredModel_Response> =
   z.object({});
-
-export const unmarshalDeleteRegisteredModelAliasSchema: z.ZodType<DeleteRegisteredModelAlias> =
-  z
-    .object({
-      full_name_arg: z.string().optional(),
-      alias_arg: z.string().optional(),
-    })
-    .transform(d => ({
-      fullNameArg: d.full_name_arg,
-      aliasArg: d.alias_arg,
-    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteRegisteredModelAlias_ResponseSchema: z.ZodType<DeleteRegisteredModelAlias_Response> =
@@ -550,60 +519,6 @@ export const unmarshalFunctionDependencySchema: z.ZodType<FunctionDependency> =
       functionFullName: d.function_full_name,
     }));
 
-export const unmarshalGetModelVersionSchema: z.ZodType<GetModelVersion> = z
-  .object({
-    full_name_arg: z.string().optional(),
-    version_arg: z.number().optional(),
-    include_aliases: z.boolean().optional(),
-    include_browse: z.boolean().optional(),
-  })
-  .transform(d => ({
-    fullNameArg: d.full_name_arg,
-    versionArg: d.version_arg,
-    includeAliases: d.include_aliases,
-    includeBrowse: d.include_browse,
-  }));
-
-export const unmarshalGetModelVersionByAliasSchema: z.ZodType<GetModelVersionByAlias> =
-  z
-    .object({
-      full_name_arg: z.string().optional(),
-      alias_arg: z.string().optional(),
-      include_aliases: z.boolean().optional(),
-    })
-    .transform(d => ({
-      fullNameArg: d.full_name_arg,
-      aliasArg: d.alias_arg,
-      includeAliases: d.include_aliases,
-    }));
-
-export const unmarshalGetRegisteredModelSchema: z.ZodType<GetRegisteredModel> =
-  z
-    .object({
-      full_name_arg: z.string().optional(),
-      include_aliases: z.boolean().optional(),
-      include_browse: z.boolean().optional(),
-    })
-    .transform(d => ({
-      fullNameArg: d.full_name_arg,
-      includeAliases: d.include_aliases,
-      includeBrowse: d.include_browse,
-    }));
-
-export const unmarshalListModelVersionsSchema: z.ZodType<ListModelVersions> = z
-  .object({
-    full_name_arg: z.string().optional(),
-    max_results: z.number().optional(),
-    page_token: z.string().optional(),
-    include_browse: z.boolean().optional(),
-  })
-  .transform(d => ({
-    fullNameArg: d.full_name_arg,
-    maxResults: d.max_results,
-    pageToken: d.page_token,
-    includeBrowse: d.include_browse,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListModelVersions_ResponseSchema: z.ZodType<ListModelVersions_Response> =
   z
@@ -616,23 +531,6 @@ export const unmarshalListModelVersions_ResponseSchema: z.ZodType<ListModelVersi
     .transform(d => ({
       modelVersions: d.model_versions,
       nextPageToken: d.next_page_token,
-    }));
-
-export const unmarshalListRegisteredModelsSchema: z.ZodType<ListRegisteredModels> =
-  z
-    .object({
-      catalog_name: z.string().optional(),
-      schema_name: z.string().optional(),
-      include_browse: z.boolean().optional(),
-      max_results: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      catalogName: d.catalog_name,
-      schemaName: d.schema_name,
-      includeBrowse: d.include_browse,
-      maxResults: d.max_results,
-      pageToken: d.page_token,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -932,41 +830,13 @@ export const marshalCredentialDependencySchema: z.ZodType = z
     credential_name: d.credentialName,
   }));
 
-export const marshalDeleteModelVersionSchema: z.ZodType = z
-  .object({
-    fullNameArg: z.string().optional(),
-    versionArg: z.number().optional(),
-  })
-  .transform(d => ({
-    full_name_arg: d.fullNameArg,
-    version_arg: d.versionArg,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteModelVersion_ResponseSchema: z.ZodType = z.object({});
-
-export const marshalDeleteRegisteredModelSchema: z.ZodType = z
-  .object({
-    fullNameArg: z.string().optional(),
-  })
-  .transform(d => ({
-    full_name_arg: d.fullNameArg,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteRegisteredModel_ResponseSchema: z.ZodType = z.object(
   {}
 );
-
-export const marshalDeleteRegisteredModelAliasSchema: z.ZodType = z
-  .object({
-    fullNameArg: z.string().optional(),
-    aliasArg: z.string().optional(),
-  })
-  .transform(d => ({
-    full_name_arg: d.fullNameArg,
-    alias_arg: d.aliasArg,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteRegisteredModelAlias_ResponseSchema: z.ZodType =
@@ -1006,58 +876,6 @@ export const marshalFunctionDependencySchema: z.ZodType = z
     function_full_name: d.functionFullName,
   }));
 
-export const marshalGetModelVersionSchema: z.ZodType = z
-  .object({
-    fullNameArg: z.string().optional(),
-    versionArg: z.number().optional(),
-    includeAliases: z.boolean().optional(),
-    includeBrowse: z.boolean().optional(),
-  })
-  .transform(d => ({
-    full_name_arg: d.fullNameArg,
-    version_arg: d.versionArg,
-    include_aliases: d.includeAliases,
-    include_browse: d.includeBrowse,
-  }));
-
-export const marshalGetModelVersionByAliasSchema: z.ZodType = z
-  .object({
-    fullNameArg: z.string().optional(),
-    aliasArg: z.string().optional(),
-    includeAliases: z.boolean().optional(),
-  })
-  .transform(d => ({
-    full_name_arg: d.fullNameArg,
-    alias_arg: d.aliasArg,
-    include_aliases: d.includeAliases,
-  }));
-
-export const marshalGetRegisteredModelSchema: z.ZodType = z
-  .object({
-    fullNameArg: z.string().optional(),
-    includeAliases: z.boolean().optional(),
-    includeBrowse: z.boolean().optional(),
-  })
-  .transform(d => ({
-    full_name_arg: d.fullNameArg,
-    include_aliases: d.includeAliases,
-    include_browse: d.includeBrowse,
-  }));
-
-export const marshalListModelVersionsSchema: z.ZodType = z
-  .object({
-    fullNameArg: z.string().optional(),
-    maxResults: z.number().optional(),
-    pageToken: z.string().optional(),
-    includeBrowse: z.boolean().optional(),
-  })
-  .transform(d => ({
-    full_name_arg: d.fullNameArg,
-    max_results: d.maxResults,
-    page_token: d.pageToken,
-    include_browse: d.includeBrowse,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalListModelVersions_ResponseSchema: z.ZodType = z
   .object({
@@ -1069,22 +887,6 @@ export const marshalListModelVersions_ResponseSchema: z.ZodType = z
   .transform(d => ({
     model_versions: d.modelVersions,
     next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListRegisteredModelsSchema: z.ZodType = z
-  .object({
-    catalogName: z.string().optional(),
-    schemaName: z.string().optional(),
-    includeBrowse: z.boolean().optional(),
-    maxResults: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    catalog_name: d.catalogName,
-    schema_name: d.schemaName,
-    include_browse: d.includeBrowse,
-    max_results: d.maxResults,
-    page_token: d.pageToken,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

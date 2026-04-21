@@ -92,15 +92,6 @@ export interface WorkspaceBindingInfo {
   bindingType?: BindingType | undefined;
 }
 
-export const unmarshalGetCatalogWorkspaceBindingsSchema: z.ZodType<GetCatalogWorkspaceBindings> =
-  z
-    .object({
-      catalog_name: z.string().optional(),
-    })
-    .transform(d => ({
-      catalogName: d.catalog_name,
-    }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalGetCatalogWorkspaceBindings_ResponseSchema: z.ZodType<GetCatalogWorkspaceBindings_Response> =
   z
@@ -109,21 +100,6 @@ export const unmarshalGetCatalogWorkspaceBindings_ResponseSchema: z.ZodType<GetC
     })
     .transform(d => ({
       workspaces: d.workspaces,
-    }));
-
-export const unmarshalGetWorkspaceBindingsSchema: z.ZodType<GetWorkspaceBindings> =
-  z
-    .object({
-      securable_type: z.string().optional(),
-      securable_full_name: z.string().optional(),
-      max_results: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      securableType: d.securable_type,
-      securableFullName: d.securable_full_name,
-      maxResults: d.max_results,
-      pageToken: d.page_token,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -205,14 +181,6 @@ export const unmarshalWorkspaceBindingInfoSchema: z.ZodType<WorkspaceBindingInfo
       bindingType: d.binding_type,
     }));
 
-export const marshalGetCatalogWorkspaceBindingsSchema: z.ZodType = z
-  .object({
-    catalogName: z.string().optional(),
-  })
-  .transform(d => ({
-    catalog_name: d.catalogName,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalGetCatalogWorkspaceBindings_ResponseSchema: z.ZodType = z
   .object({
@@ -220,20 +188,6 @@ export const marshalGetCatalogWorkspaceBindings_ResponseSchema: z.ZodType = z
   })
   .transform(d => ({
     workspaces: d.workspaces,
-  }));
-
-export const marshalGetWorkspaceBindingsSchema: z.ZodType = z
-  .object({
-    securableType: z.string().optional(),
-    securableFullName: z.string().optional(),
-    maxResults: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    securable_type: d.securableType,
-    securable_full_name: d.securableFullName,
-    max_results: d.maxResults,
-    page_token: d.pageToken,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

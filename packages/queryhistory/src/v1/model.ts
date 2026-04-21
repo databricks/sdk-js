@@ -416,20 +416,6 @@ export const unmarshalExternalQuerySource_JobInfoSchema: z.ZodType<ExternalQuery
       jobTaskRunId: d.job_task_run_id,
     }));
 
-export const unmarshalListQueriesSchema: z.ZodType<ListQueries> = z
-  .object({
-    filter_by: z.lazy(() => unmarshalQueryFilterSchema).optional(),
-    max_results: z.number().optional(),
-    page_token: z.string().optional(),
-    include_metrics: z.boolean().optional(),
-  })
-  .transform(d => ({
-    filterBy: d.filter_by,
-    maxResults: d.max_results,
-    pageToken: d.page_token,
-    includeMetrics: d.include_metrics,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListQueries_ResponseSchema: z.ZodType<ListQueries_Response> =
   z
@@ -668,20 +654,6 @@ export const marshalExternalQuerySource_JobInfoSchema: z.ZodType = z
     job_id: d.jobId,
     job_run_id: d.jobRunId,
     job_task_run_id: d.jobTaskRunId,
-  }));
-
-export const marshalListQueriesSchema: z.ZodType = z
-  .object({
-    filterBy: z.lazy(() => marshalQueryFilterSchema).optional(),
-    maxResults: z.number().optional(),
-    pageToken: z.string().optional(),
-    includeMetrics: z.boolean().optional(),
-  })
-  .transform(d => ({
-    filter_by: d.filterBy,
-    max_results: d.maxResults,
-    page_token: d.pageToken,
-    include_metrics: d.includeMetrics,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

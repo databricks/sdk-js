@@ -148,9 +148,6 @@ export const unmarshalInstanceProfileSchema: z.ZodType<InstanceProfile> = z
     iamRoleArn: d.iam_role_arn,
   }));
 
-export const unmarshalListInstanceProfilesSchema: z.ZodType<ListInstanceProfiles> =
-  z.object({});
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListInstanceProfiles_ResponseSchema: z.ZodType<ListInstanceProfiles_Response> =
   z
@@ -221,8 +218,6 @@ export const marshalInstanceProfileSchema: z.ZodType = z
     is_meta_instance_profile: d.isMetaInstanceProfile,
     iam_role_arn: d.iamRoleArn,
   }));
-
-export const marshalListInstanceProfilesSchema: z.ZodType = z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalListInstanceProfiles_ResponseSchema: z.ZodType = z

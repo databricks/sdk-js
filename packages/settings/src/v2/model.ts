@@ -352,6 +352,11 @@ export interface SettingsMetadata {
   docsLink?: string | undefined;
   /** Preview phase for feature preview settings. This field is not set for non-preview settings. */
   previewPhase?: PreviewPhase | undefined;
+  /**
+   * Human-readable display name for the setting or feature preview.
+   * This field may be unset if no display name is available.
+   */
+  displayName?: string | undefined;
 }
 
 export interface StringMessage {
@@ -488,39 +493,6 @@ export const unmarshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTim
       minutes: d.minutes,
     }));
 
-export const unmarshalGetPublicAccountSettingRequestSchema: z.ZodType<GetPublicAccountSettingRequest> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      name: d.name,
-    }));
-
-export const unmarshalGetPublicAccountUserPreferenceRequestSchema: z.ZodType<GetPublicAccountUserPreferenceRequest> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      user_id: z.string().optional(),
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      userId: d.user_id,
-      name: d.name,
-    }));
-
-export const unmarshalGetPublicWorkspaceSettingRequestSchema: z.ZodType<GetPublicWorkspaceSettingRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
 export const unmarshalIntegerMessageSchema: z.ZodType<IntegerMessage> = z
   .object({
     value: z.number().optional(),
@@ -528,19 +500,6 @@ export const unmarshalIntegerMessageSchema: z.ZodType<IntegerMessage> = z
   .transform(d => ({
     value: d.value,
   }));
-
-export const unmarshalListAccountSettingsMetadataRequestSchema: z.ZodType<ListAccountSettingsMetadataRequest> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      pageSize: d.page_size,
-      pageToken: d.page_token,
-    }));
 
 export const unmarshalListAccountSettingsMetadataResponseSchema: z.ZodType<ListAccountSettingsMetadataResponse> =
   z
@@ -553,21 +512,6 @@ export const unmarshalListAccountSettingsMetadataResponseSchema: z.ZodType<ListA
     .transform(d => ({
       settingsMetadata: d.settings_metadata,
       nextPageToken: d.next_page_token,
-    }));
-
-export const unmarshalListAccountUserPreferencesMetadataRequestSchema: z.ZodType<ListAccountUserPreferencesMetadataRequest> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      user_id: z.string().optional(),
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      userId: d.user_id,
-      pageSize: d.page_size,
-      pageToken: d.page_token,
     }));
 
 export const unmarshalListAccountUserPreferencesMetadataResponseSchema: z.ZodType<ListAccountUserPreferencesMetadataResponse> =
@@ -583,17 +527,6 @@ export const unmarshalListAccountUserPreferencesMetadataResponseSchema: z.ZodTyp
       nextPageToken: d.next_page_token,
     }));
 
-export const unmarshalListWorkspaceSettingsMetadataRequestSchema: z.ZodType<ListWorkspaceSettingsMetadataRequest> =
-  z
-    .object({
-      page_size: z.number().optional(),
-      page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      pageSize: d.page_size,
-      pageToken: d.page_token,
-    }));
-
 export const unmarshalListWorkspaceSettingsMetadataResponseSchema: z.ZodType<ListWorkspaceSettingsMetadataResponse> =
   z
     .object({
@@ -605,45 +538,6 @@ export const unmarshalListWorkspaceSettingsMetadataResponseSchema: z.ZodType<Lis
     .transform(d => ({
       settingsMetadata: d.settings_metadata,
       nextPageToken: d.next_page_token,
-    }));
-
-export const unmarshalPatchPublicAccountSettingRequestSchema: z.ZodType<PatchPublicAccountSettingRequest> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      name: z.string().optional(),
-      setting: z.lazy(() => unmarshalSettingSchema).optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      name: d.name,
-      setting: d.setting,
-    }));
-
-export const unmarshalPatchPublicAccountUserPreferenceRequestSchema: z.ZodType<PatchPublicAccountUserPreferenceRequest> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      user_id: z.string().optional(),
-      name: z.string().optional(),
-      setting: z.lazy(() => unmarshalUserPreferenceSchema).optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      userId: d.user_id,
-      name: d.name,
-      setting: d.setting,
-    }));
-
-export const unmarshalPatchPublicWorkspaceSettingRequestSchema: z.ZodType<PatchPublicWorkspaceSettingRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-      setting: z.lazy(() => unmarshalSettingSchema).optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      setting: d.setting,
     }));
 
 export const unmarshalPersonalComputeMessageSchema: z.ZodType<PersonalComputeMessage> =
@@ -744,6 +638,7 @@ export const unmarshalSettingsMetadataSchema: z.ZodType<SettingsMetadata> = z
     type: z.string().optional(),
     docs_link: z.string().optional(),
     preview_phase: z.enum(PreviewPhase).optional(),
+    display_name: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -751,6 +646,7 @@ export const unmarshalSettingsMetadataSchema: z.ZodType<SettingsMetadata> = z
     type: d.type,
     docsLink: d.docs_link,
     previewPhase: d.preview_phase,
+    displayName: d.display_name,
   }));
 
 export const unmarshalStringMessageSchema: z.ZodType<StringMessage> = z
@@ -891,54 +787,12 @@ export const marshalClusterAutoRestartMessage_MaintenanceWindow_WindowStartTimeS
       minutes: d.minutes,
     }));
 
-export const marshalGetPublicAccountSettingRequestSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    name: d.name,
-  }));
-
-export const marshalGetPublicAccountUserPreferenceRequestSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    userId: z.string().optional(),
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    user_id: d.userId,
-    name: d.name,
-  }));
-
-export const marshalGetPublicWorkspaceSettingRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
 export const marshalIntegerMessageSchema: z.ZodType = z
   .object({
     value: z.number().optional(),
   })
   .transform(d => ({
     value: d.value,
-  }));
-
-export const marshalListAccountSettingsMetadataRequestSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    pageSize: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    page_size: d.pageSize,
-    page_token: d.pageToken,
   }));
 
 export const marshalListAccountSettingsMetadataResponseSchema: z.ZodType = z
@@ -953,21 +807,6 @@ export const marshalListAccountSettingsMetadataResponseSchema: z.ZodType = z
     next_page_token: d.nextPageToken,
   }));
 
-export const marshalListAccountUserPreferencesMetadataRequestSchema: z.ZodType =
-  z
-    .object({
-      accountId: z.string().optional(),
-      userId: z.string().optional(),
-      pageSize: z.number().optional(),
-      pageToken: z.string().optional(),
-    })
-    .transform(d => ({
-      account_id: d.accountId,
-      user_id: d.userId,
-      page_size: d.pageSize,
-      page_token: d.pageToken,
-    }));
-
 export const marshalListAccountUserPreferencesMetadataResponseSchema: z.ZodType =
   z
     .object({
@@ -981,16 +820,6 @@ export const marshalListAccountUserPreferencesMetadataResponseSchema: z.ZodType 
       next_page_token: d.nextPageToken,
     }));
 
-export const marshalListWorkspaceSettingsMetadataRequestSchema: z.ZodType = z
-  .object({
-    pageSize: z.number().optional(),
-    pageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    page_size: d.pageSize,
-    page_token: d.pageToken,
-  }));
-
 export const marshalListWorkspaceSettingsMetadataResponseSchema: z.ZodType = z
   .object({
     settingsMetadata: z
@@ -1001,42 +830,6 @@ export const marshalListWorkspaceSettingsMetadataResponseSchema: z.ZodType = z
   .transform(d => ({
     settings_metadata: d.settingsMetadata,
     next_page_token: d.nextPageToken,
-  }));
-
-export const marshalPatchPublicAccountSettingRequestSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    name: z.string().optional(),
-    setting: z.lazy(() => marshalSettingSchema).optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    name: d.name,
-    setting: d.setting,
-  }));
-
-export const marshalPatchPublicAccountUserPreferenceRequestSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    userId: z.string().optional(),
-    name: z.string().optional(),
-    setting: z.lazy(() => marshalUserPreferenceSchema).optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    user_id: d.userId,
-    name: d.name,
-    setting: d.setting,
-  }));
-
-export const marshalPatchPublicWorkspaceSettingRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    setting: z.lazy(() => marshalSettingSchema).optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    setting: d.setting,
   }));
 
 export const marshalPersonalComputeMessageSchema: z.ZodType = z
@@ -1129,6 +922,7 @@ export const marshalSettingsMetadataSchema: z.ZodType = z
     type: z.string().optional(),
     docsLink: z.string().optional(),
     previewPhase: z.enum(PreviewPhase).optional(),
+    displayName: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1136,6 +930,7 @@ export const marshalSettingsMetadataSchema: z.ZodType = z
     type: d.type,
     docs_link: d.docsLink,
     preview_phase: d.previewPhase,
+    display_name: d.displayName,
   }));
 
 export const marshalStringMessageSchema: z.ZodType = z

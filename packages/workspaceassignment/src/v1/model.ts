@@ -110,39 +110,9 @@ export interface WorkspacePermissionAssignmentOutput {
   error?: string | undefined;
 }
 
-export const unmarshalDeleteWorkspacePermissionAssignmentSchema: z.ZodType<DeleteWorkspacePermissionAssignment> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      workspace_id: z.number().optional(),
-      principal_id: z.number().optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      workspaceId: d.workspace_id,
-      principalId: d.principal_id,
-    }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteWorkspacePermissionAssignment_ResponseSchema: z.ZodType<DeleteWorkspacePermissionAssignment_Response> =
   z.object({});
-
-export const unmarshalGetWorkspacePermissionAssignmentsSchema: z.ZodType<GetWorkspacePermissionAssignments> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      workspace_id: z.number().optional(),
-      page_token: z.string().optional(),
-      max_results: z.number().optional(),
-      filter: z.string().optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      workspaceId: d.workspace_id,
-      pageToken: d.page_token,
-      maxResults: d.max_results,
-      filter: d.filter,
-    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalGetWorkspacePermissionAssignments_ResponseSchema: z.ZodType<GetWorkspacePermissionAssignments_Response> =
@@ -158,17 +128,6 @@ export const unmarshalGetWorkspacePermissionAssignments_ResponseSchema: z.ZodTyp
       permissionAssignments: d.permission_assignments,
       nextPageToken: d.next_page_token,
       prevPageToken: d.prev_page_token,
-    }));
-
-export const unmarshalListWorkspacePermissionsSchema: z.ZodType<ListWorkspacePermissions> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      workspace_id: z.number().optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      workspaceId: d.workspace_id,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -237,37 +196,9 @@ export const unmarshalWorkspacePermissionAssignmentOutputSchema: z.ZodType<Works
       error: d.error,
     }));
 
-export const marshalDeleteWorkspacePermissionAssignmentSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    workspaceId: z.number().optional(),
-    principalId: z.number().optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    workspace_id: d.workspaceId,
-    principal_id: d.principalId,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalDeleteWorkspacePermissionAssignment_ResponseSchema: z.ZodType =
   z.object({});
-
-export const marshalGetWorkspacePermissionAssignmentsSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    workspaceId: z.number().optional(),
-    pageToken: z.string().optional(),
-    maxResults: z.number().optional(),
-    filter: z.string().optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    workspace_id: d.workspaceId,
-    page_token: d.pageToken,
-    max_results: d.maxResults,
-    filter: d.filter,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalGetWorkspacePermissionAssignments_ResponseSchema: z.ZodType =
@@ -284,16 +215,6 @@ export const marshalGetWorkspacePermissionAssignments_ResponseSchema: z.ZodType 
       next_page_token: d.nextPageToken,
       prev_page_token: d.prevPageToken,
     }));
-
-export const marshalListWorkspacePermissionsSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    workspaceId: z.number().optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    workspace_id: d.workspaceId,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalListWorkspacePermissions_ResponseSchema: z.ZodType = z
