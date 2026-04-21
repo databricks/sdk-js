@@ -44,7 +44,7 @@ jobs:
         run: jf npm ci
 
       - name: Run lint and format checks
-        run: npx turbo run lint format:check
+        run: npm run checks
 
   typecheck:
     name: Type Check
