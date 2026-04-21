@@ -26,7 +26,7 @@ jobs:
       matrix:
         # Shards partition packages by the first letter after `@databricks/sdk-`.
         # Together the four ranges cover a-z.
-        shard: ['[a-c]*', '[d-i]*', '[m-r]*', '[s-z]*']
+        shard: ['[a-c]*', '[d-l]*', '[m-r]*', '[s-z]*']
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -53,10 +53,14 @@ jobs:
         run: npx turbo run lint format:check --filter="@databricks/sdk-${{ matrix.shard }}"
 
   typecheck:
-    name: Type Check
+    name: Type Check (${{ matrix.shard }})
     runs-on:
       group: databricks-protected-runner-group
       labels: linux-ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ['[a-c]*', '[d-l]*', '[m-r]*', '[s-z]*']
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -80,7 +84,7 @@ jobs:
         run: jf npm ci
 
       - name: Run type check
-        run: npm run typecheck
+        run: npx turbo run typecheck --filter="@databricks/sdk-${{ matrix.shard }}"
 
   test:
     name: Test (Node.js ${{ matrix.node-version }})
@@ -154,7 +158,7 @@ jobs:
         run: npm run test:browser
 
   build:
-    name: Build (Node.js ${{ matrix.node-version }})
+    name: Build (Node.js ${{ matrix.node-version }}, ${{ matrix.shard }})
     runs-on:
       group: databricks-protected-runner-group
       labels: linux-ubuntu-latest
@@ -162,6 +166,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version: ['22', '24']
+        shard: ['[a-c]*', '[d-l]*', '[m-r]*', '[s-z]*']
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -185,7 +190,7 @@ jobs:
         run: jf npm ci
 
       - name: Build
-        run: npm run build
+        run: npx turbo run build --filter="@databricks/sdk-${{ matrix.shard }}"
 
   # This job gates merging. It depends on all CI jobs so that branch protection
   # only needs to reference this single check. When adding new jobs, append
