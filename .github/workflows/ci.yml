@@ -17,10 +17,16 @@ concurrency:
 
 jobs:
   lint:
-    name: Lint
+    name: Lint (${{ matrix.shard }})
     runs-on:
       group: databricks-protected-runner-group
       labels: linux-ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Shards partition packages by the first letter after `@databricks/sdk-`.
+        # Together the four ranges cover a-z.
+        shard: ['[a-c]*', '[d-l]*', '[m-r]*', '[s-z]*']
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -43,20 +49,18 @@ jobs:
       - name: Install dependencies
         run: jf npm ci
 
-      - name: Build packages
-        run: npm run build
-
-      - name: Run ESLint
-        run: npm run lint
-
-      - name: Check formatting
-        run: npm run format:check
+      - name: Run lint and format checks
+        run: npm run checks -- --filter='@databricks/sdk-${{ matrix.shard }}'
 
   typecheck:
-    name: Type Check
+    name: Type Check (${{ matrix.shard }})
     runs-on:
       group: databricks-protected-runner-group
       labels: linux-ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ['[a-c]*', '[d-l]*', '[m-r]*', '[s-z]*']
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -79,11 +83,8 @@ jobs:
       - name: Install dependencies
         run: jf npm ci
 
-      - name: Build packages
-        run: npm run build
-
       - name: Run type check
-        run: npm run typecheck
+        run: npm run typecheck -- --filter='@databricks/sdk-${{ matrix.shard }}'
 
   test:
     name: Test (Node.js ${{ matrix.node-version }})
@@ -115,9 +116,6 @@ jobs:
 
       - name: Install dependencies
         run: jf npm ci
-
-      - name: Build packages
-        run: npm run build
 
       - name: Run tests
         run: npm test
@@ -153,9 +151,6 @@ jobs:
       - name: Install dependencies
         run: jf npm ci
 
-      - name: Build packages
-        run: npm run build
-
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
 
@@ -163,7 +158,7 @@ jobs:
         run: npm run test:browser
 
   build:
-    name: Build (Node.js ${{ matrix.node-version }})
+    name: Build (Node.js ${{ matrix.node-version }}, ${{ matrix.shard }})
     runs-on:
       group: databricks-protected-runner-group
       labels: linux-ubuntu-latest
@@ -171,6 +166,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version: ['22', '24']
+        shard: ['[a-c]*', '[d-l]*', '[m-r]*', '[s-z]*']
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -194,7 +190,7 @@ jobs:
         run: jf npm ci
 
       - name: Build
-        run: npm run build
+        run: npm run build -- --filter='@databricks/sdk-${{ matrix.shard }}'
 
   # This job gates merging. It depends on all CI jobs so that branch protection
   # only needs to reference this single check. When adding new jobs, append

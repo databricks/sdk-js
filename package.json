@@ -15,6 +15,7 @@
     "lint:fix": "turbo run lint:fix",
     "format": "turbo run format",
     "format:check": "turbo run format:check",
+    "checks": "turbo run lint format:check",
     "typecheck": "turbo run typecheck",
     "clean": "turbo run clean"
   },
