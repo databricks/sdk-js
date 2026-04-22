@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /**
@@ -1546,3 +1548,529 @@ export const marshalPendingInstanceErrorSchema: z.ZodType = z
     instance_id: d.instanceId,
     message: d.message,
   }));
+
+const createInstancePoolFieldMaskSchema: FieldMaskSchema = {
+  awsAttributes: {
+    wire: 'aws_attributes',
+    children: () => instancePoolAwsAttributesFieldMaskSchema,
+  },
+  azureAttributes: {
+    wire: 'azure_attributes',
+    children: () => instancePoolAzureAttributesFieldMaskSchema,
+  },
+  customTags: {wire: 'custom_tags'},
+  diskSpec: {wire: 'disk_spec', children: () => diskSpecFieldMaskSchema},
+  enableAutoAlternateNodeTypes: {wire: 'enable_auto_alternate_node_types'},
+  enableElasticDisk: {wire: 'enable_elastic_disk'},
+  gcpAttributes: {
+    wire: 'gcp_attributes',
+    children: () => instancePoolGcpAttributesFieldMaskSchema,
+  },
+  idleInstanceAutoterminationMinutes: {
+    wire: 'idle_instance_autotermination_minutes',
+  },
+  instancePoolName: {wire: 'instance_pool_name'},
+  maxCapacity: {wire: 'max_capacity'},
+  minIdleInstances: {wire: 'min_idle_instances'},
+  nodeTypeFlexibility: {
+    wire: 'node_type_flexibility',
+    children: () => nodeTypeFlexibilityFieldMaskSchema,
+  },
+  nodeTypeId: {wire: 'node_type_id'},
+  preloadedDockerImages: {wire: 'preloaded_docker_images'},
+  preloadedSparkVersions: {wire: 'preloaded_spark_versions'},
+  remoteDiskThroughput: {wire: 'remote_disk_throughput'},
+  totalInitialRemoteDiskSize: {wire: 'total_initial_remote_disk_size'},
+};
+
+export function createInstancePoolFieldMask(
+  ...paths: string[]
+): FieldMask<CreateInstancePool> {
+  return FieldMask.build<CreateInstancePool>(
+    paths,
+    createInstancePoolFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const createInstancePool_CustomTagsEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function createInstancePool_CustomTagsEntryFieldMask(
+  ...paths: string[]
+): FieldMask<CreateInstancePool_CustomTagsEntry> {
+  return FieldMask.build<CreateInstancePool_CustomTagsEntry>(
+    paths,
+    createInstancePool_CustomTagsEntryFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const createInstancePool_ResponseFieldMaskSchema: FieldMaskSchema = {
+  instancePoolId: {wire: 'instance_pool_id'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function createInstancePool_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<CreateInstancePool_Response> {
+  return FieldMask.build<CreateInstancePool_Response>(
+    paths,
+    createInstancePool_ResponseFieldMaskSchema
+  );
+}
+
+const deleteInstancePoolFieldMaskSchema: FieldMaskSchema = {
+  instancePoolId: {wire: 'instance_pool_id'},
+};
+
+export function deleteInstancePoolFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteInstancePool> {
+  return FieldMask.build<DeleteInstancePool>(
+    paths,
+    deleteInstancePoolFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deleteInstancePool_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deleteInstancePool_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteInstancePool_Response> {
+  return FieldMask.build<DeleteInstancePool_Response>(
+    paths,
+    deleteInstancePool_ResponseFieldMaskSchema
+  );
+}
+
+const diskSpecFieldMaskSchema: FieldMaskSchema = {
+  diskCount: {wire: 'disk_count'},
+  diskIops: {wire: 'disk_iops'},
+  diskSize: {wire: 'disk_size'},
+  diskThroughput: {wire: 'disk_throughput'},
+  diskType: {wire: 'disk_type', children: () => diskTypeFieldMaskSchema},
+};
+
+export function diskSpecFieldMask(...paths: string[]): FieldMask<DiskSpec> {
+  return FieldMask.build<DiskSpec>(paths, diskSpecFieldMaskSchema);
+}
+
+const diskTypeFieldMaskSchema: FieldMaskSchema = {
+  azureDiskVolumeType: {wire: 'azure_disk_volume_type'},
+  ebsVolumeType: {wire: 'ebs_volume_type'},
+};
+
+export function diskTypeFieldMask(...paths: string[]): FieldMask<DiskType> {
+  return FieldMask.build<DiskType>(paths, diskTypeFieldMaskSchema);
+}
+
+const dockerBasicAuthFieldMaskSchema: FieldMaskSchema = {
+  password: {wire: 'password'},
+  username: {wire: 'username'},
+};
+
+export function dockerBasicAuthFieldMask(
+  ...paths: string[]
+): FieldMask<DockerBasicAuth> {
+  return FieldMask.build<DockerBasicAuth>(
+    paths,
+    dockerBasicAuthFieldMaskSchema
+  );
+}
+
+const dockerImageFieldMaskSchema: FieldMaskSchema = {
+  basicAuth: {
+    wire: 'basic_auth',
+    children: () => dockerBasicAuthFieldMaskSchema,
+  },
+  url: {wire: 'url'},
+};
+
+export function dockerImageFieldMask(
+  ...paths: string[]
+): FieldMask<DockerImage> {
+  return FieldMask.build<DockerImage>(paths, dockerImageFieldMaskSchema);
+}
+
+const editInstancePoolFieldMaskSchema: FieldMaskSchema = {
+  awsAttributes: {
+    wire: 'aws_attributes',
+    children: () => instancePoolAwsAttributesFieldMaskSchema,
+  },
+  azureAttributes: {
+    wire: 'azure_attributes',
+    children: () => instancePoolAzureAttributesFieldMaskSchema,
+  },
+  customTags: {wire: 'custom_tags'},
+  diskSpec: {wire: 'disk_spec', children: () => diskSpecFieldMaskSchema},
+  enableAutoAlternateNodeTypes: {wire: 'enable_auto_alternate_node_types'},
+  enableElasticDisk: {wire: 'enable_elastic_disk'},
+  gcpAttributes: {
+    wire: 'gcp_attributes',
+    children: () => instancePoolGcpAttributesFieldMaskSchema,
+  },
+  idleInstanceAutoterminationMinutes: {
+    wire: 'idle_instance_autotermination_minutes',
+  },
+  instancePoolId: {wire: 'instance_pool_id'},
+  instancePoolName: {wire: 'instance_pool_name'},
+  maxCapacity: {wire: 'max_capacity'},
+  minIdleInstances: {wire: 'min_idle_instances'},
+  nodeTypeFlexibility: {
+    wire: 'node_type_flexibility',
+    children: () => nodeTypeFlexibilityFieldMaskSchema,
+  },
+  nodeTypeId: {wire: 'node_type_id'},
+  preloadedDockerImages: {wire: 'preloaded_docker_images'},
+  preloadedSparkVersions: {wire: 'preloaded_spark_versions'},
+  remoteDiskThroughput: {wire: 'remote_disk_throughput'},
+  totalInitialRemoteDiskSize: {wire: 'total_initial_remote_disk_size'},
+};
+
+export function editInstancePoolFieldMask(
+  ...paths: string[]
+): FieldMask<EditInstancePool> {
+  return FieldMask.build<EditInstancePool>(
+    paths,
+    editInstancePoolFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const editInstancePool_CustomTagsEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function editInstancePool_CustomTagsEntryFieldMask(
+  ...paths: string[]
+): FieldMask<EditInstancePool_CustomTagsEntry> {
+  return FieldMask.build<EditInstancePool_CustomTagsEntry>(
+    paths,
+    editInstancePool_CustomTagsEntryFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const editInstancePool_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function editInstancePool_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<EditInstancePool_Response> {
+  return FieldMask.build<EditInstancePool_Response>(
+    paths,
+    editInstancePool_ResponseFieldMaskSchema
+  );
+}
+
+const getInstancePoolFieldMaskSchema: FieldMaskSchema = {
+  instancePoolId: {wire: 'instance_pool_id'},
+};
+
+export function getInstancePoolFieldMask(
+  ...paths: string[]
+): FieldMask<GetInstancePool> {
+  return FieldMask.build<GetInstancePool>(
+    paths,
+    getInstancePoolFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const getInstancePool_ResponseFieldMaskSchema: FieldMaskSchema = {
+  awsAttributes: {
+    wire: 'aws_attributes',
+    children: () => instancePoolAwsAttributesFieldMaskSchema,
+  },
+  azureAttributes: {
+    wire: 'azure_attributes',
+    children: () => instancePoolAzureAttributesFieldMaskSchema,
+  },
+  customTags: {wire: 'custom_tags'},
+  defaultTags: {wire: 'default_tags'},
+  diskSpec: {wire: 'disk_spec', children: () => diskSpecFieldMaskSchema},
+  enableAutoAlternateNodeTypes: {wire: 'enable_auto_alternate_node_types'},
+  enableElasticDisk: {wire: 'enable_elastic_disk'},
+  gcpAttributes: {
+    wire: 'gcp_attributes',
+    children: () => instancePoolGcpAttributesFieldMaskSchema,
+  },
+  idleInstanceAutoterminationMinutes: {
+    wire: 'idle_instance_autotermination_minutes',
+  },
+  instancePoolId: {wire: 'instance_pool_id'},
+  instancePoolName: {wire: 'instance_pool_name'},
+  maxCapacity: {wire: 'max_capacity'},
+  minIdleInstances: {wire: 'min_idle_instances'},
+  nodeTypeFlexibility: {
+    wire: 'node_type_flexibility',
+    children: () => nodeTypeFlexibilityFieldMaskSchema,
+  },
+  nodeTypeId: {wire: 'node_type_id'},
+  preloadedDockerImages: {wire: 'preloaded_docker_images'},
+  preloadedSparkVersions: {wire: 'preloaded_spark_versions'},
+  remoteDiskThroughput: {wire: 'remote_disk_throughput'},
+  state: {wire: 'state'},
+  stats: {wire: 'stats', children: () => instancePoolStatsFieldMaskSchema},
+  status: {wire: 'status', children: () => instancePoolStatusFieldMaskSchema},
+  totalInitialRemoteDiskSize: {wire: 'total_initial_remote_disk_size'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function getInstancePool_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GetInstancePool_Response> {
+  return FieldMask.build<GetInstancePool_Response>(
+    paths,
+    getInstancePool_ResponseFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const getInstancePool_Response_CustomTagsEntryFieldMaskSchema: FieldMaskSchema =
+  {
+    key: {wire: 'key'},
+    value: {wire: 'value'},
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function getInstancePool_Response_CustomTagsEntryFieldMask(
+  ...paths: string[]
+): FieldMask<GetInstancePool_Response_CustomTagsEntry> {
+  return FieldMask.build<GetInstancePool_Response_CustomTagsEntry>(
+    paths,
+    getInstancePool_Response_CustomTagsEntryFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const getInstancePool_Response_DefaultTagsEntryFieldMaskSchema: FieldMaskSchema =
+  {
+    key: {wire: 'key'},
+    value: {wire: 'value'},
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function getInstancePool_Response_DefaultTagsEntryFieldMask(
+  ...paths: string[]
+): FieldMask<GetInstancePool_Response_DefaultTagsEntry> {
+  return FieldMask.build<GetInstancePool_Response_DefaultTagsEntry>(
+    paths,
+    getInstancePool_Response_DefaultTagsEntryFieldMaskSchema
+  );
+}
+
+const instancePoolAndStatsFieldMaskSchema: FieldMaskSchema = {
+  awsAttributes: {
+    wire: 'aws_attributes',
+    children: () => instancePoolAwsAttributesFieldMaskSchema,
+  },
+  azureAttributes: {
+    wire: 'azure_attributes',
+    children: () => instancePoolAzureAttributesFieldMaskSchema,
+  },
+  customTags: {wire: 'custom_tags'},
+  defaultTags: {wire: 'default_tags'},
+  diskSpec: {wire: 'disk_spec', children: () => diskSpecFieldMaskSchema},
+  enableAutoAlternateNodeTypes: {wire: 'enable_auto_alternate_node_types'},
+  enableElasticDisk: {wire: 'enable_elastic_disk'},
+  gcpAttributes: {
+    wire: 'gcp_attributes',
+    children: () => instancePoolGcpAttributesFieldMaskSchema,
+  },
+  idleInstanceAutoterminationMinutes: {
+    wire: 'idle_instance_autotermination_minutes',
+  },
+  instancePoolId: {wire: 'instance_pool_id'},
+  instancePoolName: {wire: 'instance_pool_name'},
+  maxCapacity: {wire: 'max_capacity'},
+  minIdleInstances: {wire: 'min_idle_instances'},
+  nodeTypeFlexibility: {
+    wire: 'node_type_flexibility',
+    children: () => nodeTypeFlexibilityFieldMaskSchema,
+  },
+  nodeTypeId: {wire: 'node_type_id'},
+  preloadedDockerImages: {wire: 'preloaded_docker_images'},
+  preloadedSparkVersions: {wire: 'preloaded_spark_versions'},
+  remoteDiskThroughput: {wire: 'remote_disk_throughput'},
+  state: {wire: 'state'},
+  stats: {wire: 'stats', children: () => instancePoolStatsFieldMaskSchema},
+  status: {wire: 'status', children: () => instancePoolStatusFieldMaskSchema},
+  totalInitialRemoteDiskSize: {wire: 'total_initial_remote_disk_size'},
+};
+
+export function instancePoolAndStatsFieldMask(
+  ...paths: string[]
+): FieldMask<InstancePoolAndStats> {
+  return FieldMask.build<InstancePoolAndStats>(
+    paths,
+    instancePoolAndStatsFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const instancePoolAndStats_CustomTagsEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function instancePoolAndStats_CustomTagsEntryFieldMask(
+  ...paths: string[]
+): FieldMask<InstancePoolAndStats_CustomTagsEntry> {
+  return FieldMask.build<InstancePoolAndStats_CustomTagsEntry>(
+    paths,
+    instancePoolAndStats_CustomTagsEntryFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const instancePoolAndStats_DefaultTagsEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function instancePoolAndStats_DefaultTagsEntryFieldMask(
+  ...paths: string[]
+): FieldMask<InstancePoolAndStats_DefaultTagsEntry> {
+  return FieldMask.build<InstancePoolAndStats_DefaultTagsEntry>(
+    paths,
+    instancePoolAndStats_DefaultTagsEntryFieldMaskSchema
+  );
+}
+
+const instancePoolAwsAttributesFieldMaskSchema: FieldMaskSchema = {
+  availability: {wire: 'availability'},
+  instanceProfileArn: {wire: 'instance_profile_arn'},
+  spotBidPricePercent: {wire: 'spot_bid_price_percent'},
+  zoneId: {wire: 'zone_id'},
+};
+
+export function instancePoolAwsAttributesFieldMask(
+  ...paths: string[]
+): FieldMask<InstancePoolAwsAttributes> {
+  return FieldMask.build<InstancePoolAwsAttributes>(
+    paths,
+    instancePoolAwsAttributesFieldMaskSchema
+  );
+}
+
+const instancePoolAzureAttributesFieldMaskSchema: FieldMaskSchema = {
+  availability: {wire: 'availability'},
+  spotBidMaxPrice: {wire: 'spot_bid_max_price'},
+};
+
+export function instancePoolAzureAttributesFieldMask(
+  ...paths: string[]
+): FieldMask<InstancePoolAzureAttributes> {
+  return FieldMask.build<InstancePoolAzureAttributes>(
+    paths,
+    instancePoolAzureAttributesFieldMaskSchema
+  );
+}
+
+const instancePoolGcpAttributesFieldMaskSchema: FieldMaskSchema = {
+  gcpAvailability: {wire: 'gcp_availability'},
+  localSsdCount: {wire: 'local_ssd_count'},
+  zoneId: {wire: 'zone_id'},
+};
+
+export function instancePoolGcpAttributesFieldMask(
+  ...paths: string[]
+): FieldMask<InstancePoolGcpAttributes> {
+  return FieldMask.build<InstancePoolGcpAttributes>(
+    paths,
+    instancePoolGcpAttributesFieldMaskSchema
+  );
+}
+
+const instancePoolStatsFieldMaskSchema: FieldMaskSchema = {
+  idleCount: {wire: 'idle_count'},
+  pendingIdleCount: {wire: 'pending_idle_count'},
+  pendingUsedCount: {wire: 'pending_used_count'},
+  usedCount: {wire: 'used_count'},
+};
+
+export function instancePoolStatsFieldMask(
+  ...paths: string[]
+): FieldMask<InstancePoolStats> {
+  return FieldMask.build<InstancePoolStats>(
+    paths,
+    instancePoolStatsFieldMaskSchema
+  );
+}
+
+const instancePoolStatusFieldMaskSchema: FieldMaskSchema = {
+  pendingInstanceErrors: {wire: 'pending_instance_errors'},
+};
+
+export function instancePoolStatusFieldMask(
+  ...paths: string[]
+): FieldMask<InstancePoolStatus> {
+  return FieldMask.build<InstancePoolStatus>(
+    paths,
+    instancePoolStatusFieldMaskSchema
+  );
+}
+
+const listInstancePoolsFieldMaskSchema: FieldMaskSchema = {};
+
+export function listInstancePoolsFieldMask(
+  ...paths: string[]
+): FieldMask<ListInstancePools> {
+  return FieldMask.build<ListInstancePools>(
+    paths,
+    listInstancePoolsFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listInstancePools_ResponseFieldMaskSchema: FieldMaskSchema = {
+  instancePools: {wire: 'instance_pools'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listInstancePools_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListInstancePools_Response> {
+  return FieldMask.build<ListInstancePools_Response>(
+    paths,
+    listInstancePools_ResponseFieldMaskSchema
+  );
+}
+
+const nodeTypeFlexibilityFieldMaskSchema: FieldMaskSchema = {
+  alternateNodeTypeIds: {wire: 'alternate_node_type_ids'},
+};
+
+export function nodeTypeFlexibilityFieldMask(
+  ...paths: string[]
+): FieldMask<NodeTypeFlexibility> {
+  return FieldMask.build<NodeTypeFlexibility>(
+    paths,
+    nodeTypeFlexibilityFieldMaskSchema
+  );
+}
+
+const pendingInstanceErrorFieldMaskSchema: FieldMaskSchema = {
+  instanceId: {wire: 'instance_id'},
+  message: {wire: 'message'},
+};
+
+export function pendingInstanceErrorFieldMask(
+  ...paths: string[]
+): FieldMask<PendingInstanceError> {
+  return FieldMask.build<PendingInstanceError>(
+    paths,
+    pendingInstanceErrorFieldMaskSchema
+  );
+}

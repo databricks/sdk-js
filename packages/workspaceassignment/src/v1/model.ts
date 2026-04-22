@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum Permission {
@@ -278,3 +280,161 @@ export const marshalWorkspacePermissionAssignmentOutputSchema: z.ZodType = z
     permissions: d.permissions,
     error: d.error,
   }));
+
+const deleteWorkspacePermissionAssignmentFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
+  principalId: {wire: 'principal_id'},
+  workspaceId: {wire: 'workspace_id'},
+};
+
+export function deleteWorkspacePermissionAssignmentFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteWorkspacePermissionAssignment> {
+  return FieldMask.build<DeleteWorkspacePermissionAssignment>(
+    paths,
+    deleteWorkspacePermissionAssignmentFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deleteWorkspacePermissionAssignment_ResponseFieldMaskSchema: FieldMaskSchema =
+  {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deleteWorkspacePermissionAssignment_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteWorkspacePermissionAssignment_Response> {
+  return FieldMask.build<DeleteWorkspacePermissionAssignment_Response>(
+    paths,
+    deleteWorkspacePermissionAssignment_ResponseFieldMaskSchema
+  );
+}
+
+const getWorkspacePermissionAssignmentsFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
+  filter: {wire: 'filter'},
+  maxResults: {wire: 'max_results'},
+  pageToken: {wire: 'page_token'},
+  workspaceId: {wire: 'workspace_id'},
+};
+
+export function getWorkspacePermissionAssignmentsFieldMask(
+  ...paths: string[]
+): FieldMask<GetWorkspacePermissionAssignments> {
+  return FieldMask.build<GetWorkspacePermissionAssignments>(
+    paths,
+    getWorkspacePermissionAssignmentsFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const getWorkspacePermissionAssignments_ResponseFieldMaskSchema: FieldMaskSchema =
+  {
+    nextPageToken: {wire: 'next_page_token'},
+    permissionAssignments: {wire: 'permission_assignments'},
+    prevPageToken: {wire: 'prev_page_token'},
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function getWorkspacePermissionAssignments_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GetWorkspacePermissionAssignments_Response> {
+  return FieldMask.build<GetWorkspacePermissionAssignments_Response>(
+    paths,
+    getWorkspacePermissionAssignments_ResponseFieldMaskSchema
+  );
+}
+
+const listWorkspacePermissionsFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
+  workspaceId: {wire: 'workspace_id'},
+};
+
+export function listWorkspacePermissionsFieldMask(
+  ...paths: string[]
+): FieldMask<ListWorkspacePermissions> {
+  return FieldMask.build<ListWorkspacePermissions>(
+    paths,
+    listWorkspacePermissionsFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listWorkspacePermissions_ResponseFieldMaskSchema: FieldMaskSchema = {
+  permissions: {wire: 'permissions'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listWorkspacePermissions_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListWorkspacePermissions_Response> {
+  return FieldMask.build<ListWorkspacePermissions_Response>(
+    paths,
+    listWorkspacePermissions_ResponseFieldMaskSchema
+  );
+}
+
+const permissionOutputFieldMaskSchema: FieldMaskSchema = {
+  description: {wire: 'description'},
+  permissionLevel: {wire: 'permission_level'},
+};
+
+export function permissionOutputFieldMask(
+  ...paths: string[]
+): FieldMask<PermissionOutput> {
+  return FieldMask.build<PermissionOutput>(
+    paths,
+    permissionOutputFieldMaskSchema
+  );
+}
+
+const principalOutputFieldMaskSchema: FieldMaskSchema = {
+  displayName: {wire: 'display_name'},
+  groupName: {wire: 'group_name'},
+  principalId: {wire: 'principal_id'},
+  servicePrincipalName: {wire: 'service_principal_name'},
+  userName: {wire: 'user_name'},
+};
+
+export function principalOutputFieldMask(
+  ...paths: string[]
+): FieldMask<PrincipalOutput> {
+  return FieldMask.build<PrincipalOutput>(
+    paths,
+    principalOutputFieldMaskSchema
+  );
+}
+
+const updateWorkspacePermissionAssignmentFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
+  permissions: {wire: 'permissions'},
+  principalId: {wire: 'principal_id'},
+  workspaceId: {wire: 'workspace_id'},
+};
+
+export function updateWorkspacePermissionAssignmentFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateWorkspacePermissionAssignment> {
+  return FieldMask.build<UpdateWorkspacePermissionAssignment>(
+    paths,
+    updateWorkspacePermissionAssignmentFieldMaskSchema
+  );
+}
+
+const workspacePermissionAssignmentOutputFieldMaskSchema: FieldMaskSchema = {
+  error: {wire: 'error'},
+  permissions: {wire: 'permissions'},
+  principal: {
+    wire: 'principal',
+    children: () => principalOutputFieldMaskSchema,
+  },
+};
+
+export function workspacePermissionAssignmentOutputFieldMask(
+  ...paths: string[]
+): FieldMask<WorkspacePermissionAssignmentOutput> {
+  return FieldMask.build<WorkspacePermissionAssignmentOutput>(
+    paths,
+    workspacePermissionAssignmentOutputFieldMaskSchema
+  );
+}

@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export interface CreateGlobalInitScript {
@@ -276,3 +278,149 @@ export const marshalUpdateGlobalInitScriptSchema: z.ZodType = z
 export const marshalUpdateGlobalInitScript_ResponseSchema: z.ZodType = z.object(
   {}
 );
+
+const createGlobalInitScriptFieldMaskSchema: FieldMaskSchema = {
+  enabled: {wire: 'enabled'},
+  name: {wire: 'name'},
+  position: {wire: 'position'},
+  script: {wire: 'script'},
+};
+
+export function createGlobalInitScriptFieldMask(
+  ...paths: string[]
+): FieldMask<CreateGlobalInitScript> {
+  return FieldMask.build<CreateGlobalInitScript>(
+    paths,
+    createGlobalInitScriptFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const createGlobalInitScript_ResponseFieldMaskSchema: FieldMaskSchema = {
+  scriptId: {wire: 'script_id'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function createGlobalInitScript_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<CreateGlobalInitScript_Response> {
+  return FieldMask.build<CreateGlobalInitScript_Response>(
+    paths,
+    createGlobalInitScript_ResponseFieldMaskSchema
+  );
+}
+
+const deleteGlobalInitScriptFieldMaskSchema: FieldMaskSchema = {
+  scriptId: {wire: 'script_id'},
+};
+
+export function deleteGlobalInitScriptFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteGlobalInitScript> {
+  return FieldMask.build<DeleteGlobalInitScript>(
+    paths,
+    deleteGlobalInitScriptFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deleteGlobalInitScript_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deleteGlobalInitScript_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteGlobalInitScript_Response> {
+  return FieldMask.build<DeleteGlobalInitScript_Response>(
+    paths,
+    deleteGlobalInitScript_ResponseFieldMaskSchema
+  );
+}
+
+const getGlobalInitScriptFieldMaskSchema: FieldMaskSchema = {
+  scriptId: {wire: 'script_id'},
+};
+
+export function getGlobalInitScriptFieldMask(
+  ...paths: string[]
+): FieldMask<GetGlobalInitScript> {
+  return FieldMask.build<GetGlobalInitScript>(
+    paths,
+    getGlobalInitScriptFieldMaskSchema
+  );
+}
+
+const globalInitScriptDetailsFieldMaskSchema: FieldMaskSchema = {
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  enabled: {wire: 'enabled'},
+  name: {wire: 'name'},
+  position: {wire: 'position'},
+  scriptId: {wire: 'script_id'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+};
+
+export function globalInitScriptDetailsFieldMask(
+  ...paths: string[]
+): FieldMask<GlobalInitScriptDetails> {
+  return FieldMask.build<GlobalInitScriptDetails>(
+    paths,
+    globalInitScriptDetailsFieldMaskSchema
+  );
+}
+
+const listGlobalInitScriptsFieldMaskSchema: FieldMaskSchema = {};
+
+export function listGlobalInitScriptsFieldMask(
+  ...paths: string[]
+): FieldMask<ListGlobalInitScripts> {
+  return FieldMask.build<ListGlobalInitScripts>(
+    paths,
+    listGlobalInitScriptsFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listGlobalInitScripts_ResponseFieldMaskSchema: FieldMaskSchema = {
+  scripts: {wire: 'scripts'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listGlobalInitScripts_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListGlobalInitScripts_Response> {
+  return FieldMask.build<ListGlobalInitScripts_Response>(
+    paths,
+    listGlobalInitScripts_ResponseFieldMaskSchema
+  );
+}
+
+const updateGlobalInitScriptFieldMaskSchema: FieldMaskSchema = {
+  enabled: {wire: 'enabled'},
+  name: {wire: 'name'},
+  position: {wire: 'position'},
+  script: {wire: 'script'},
+  scriptId: {wire: 'script_id'},
+};
+
+export function updateGlobalInitScriptFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateGlobalInitScript> {
+  return FieldMask.build<UpdateGlobalInitScript>(
+    paths,
+    updateGlobalInitScriptFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const updateGlobalInitScript_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function updateGlobalInitScript_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateGlobalInitScript_Response> {
+  return FieldMask.build<UpdateGlobalInitScript_Response>(
+    paths,
+    updateGlobalInitScript_ResponseFieldMaskSchema
+  );
+}

@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export interface ListPublishedOAuthApps {
@@ -98,3 +100,53 @@ export const marshalPublishedOAuthAppSchema: z.ZodType = z
     redirect_urls: d.redirectUrls,
     scopes: d.scopes,
   }));
+
+const listPublishedOAuthAppsFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+};
+
+export function listPublishedOAuthAppsFieldMask(
+  ...paths: string[]
+): FieldMask<ListPublishedOAuthApps> {
+  return FieldMask.build<ListPublishedOAuthApps>(
+    paths,
+    listPublishedOAuthAppsFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listPublishedOAuthApps_ResponseFieldMaskSchema: FieldMaskSchema = {
+  apps: {wire: 'apps'},
+  nextPageToken: {wire: 'next_page_token'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listPublishedOAuthApps_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListPublishedOAuthApps_Response> {
+  return FieldMask.build<ListPublishedOAuthApps_Response>(
+    paths,
+    listPublishedOAuthApps_ResponseFieldMaskSchema
+  );
+}
+
+const publishedOAuthAppFieldMaskSchema: FieldMaskSchema = {
+  appId: {wire: 'app_id'},
+  clientId: {wire: 'client_id'},
+  description: {wire: 'description'},
+  isConfidentialClient: {wire: 'is_confidential_client'},
+  name: {wire: 'name'},
+  redirectUrls: {wire: 'redirect_urls'},
+  scopes: {wire: 'scopes'},
+};
+
+export function publishedOAuthAppFieldMask(
+  ...paths: string[]
+): FieldMask<PublishedOAuthApp> {
+  return FieldMask.build<PublishedOAuthApp>(
+    paths,
+    publishedOAuthAppFieldMaskSchema
+  );
+}

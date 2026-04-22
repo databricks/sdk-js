@@ -1,6 +1,8 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {Temporal} from '@js-temporal/polyfill';
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -258,3 +260,162 @@ export const marshalPublishTableResponseSchema: z.ZodType = z
     online_table_name: d.onlineTableName,
     pipeline_id: d.pipelineId,
   }));
+
+const createOnlineStoreRequestFieldMaskSchema: FieldMaskSchema = {
+  onlineStore: {
+    wire: 'online_store',
+    children: () => onlineStoreFieldMaskSchema,
+  },
+};
+
+export function createOnlineStoreRequestFieldMask(
+  ...paths: string[]
+): FieldMask<CreateOnlineStoreRequest> {
+  return FieldMask.build<CreateOnlineStoreRequest>(
+    paths,
+    createOnlineStoreRequestFieldMaskSchema
+  );
+}
+
+const deleteOnlineStoreRequestFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+};
+
+export function deleteOnlineStoreRequestFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteOnlineStoreRequest> {
+  return FieldMask.build<DeleteOnlineStoreRequest>(
+    paths,
+    deleteOnlineStoreRequestFieldMaskSchema
+  );
+}
+
+const deleteOnlineTableRequestFieldMaskSchema: FieldMaskSchema = {
+  onlineTableName: {wire: 'online_table_name'},
+};
+
+export function deleteOnlineTableRequestFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteOnlineTableRequest> {
+  return FieldMask.build<DeleteOnlineTableRequest>(
+    paths,
+    deleteOnlineTableRequestFieldMaskSchema
+  );
+}
+
+const getOnlineStoreRequestFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+};
+
+export function getOnlineStoreRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GetOnlineStoreRequest> {
+  return FieldMask.build<GetOnlineStoreRequest>(
+    paths,
+    getOnlineStoreRequestFieldMaskSchema
+  );
+}
+
+const listOnlineStoresRequestFieldMaskSchema: FieldMaskSchema = {
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+};
+
+export function listOnlineStoresRequestFieldMask(
+  ...paths: string[]
+): FieldMask<ListOnlineStoresRequest> {
+  return FieldMask.build<ListOnlineStoresRequest>(
+    paths,
+    listOnlineStoresRequestFieldMaskSchema
+  );
+}
+
+const listOnlineStoresResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  onlineStores: {wire: 'online_stores'},
+};
+
+export function listOnlineStoresResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListOnlineStoresResponse> {
+  return FieldMask.build<ListOnlineStoresResponse>(
+    paths,
+    listOnlineStoresResponseFieldMaskSchema
+  );
+}
+
+const onlineStoreFieldMaskSchema: FieldMaskSchema = {
+  capacity: {wire: 'capacity'},
+  creationTime: {wire: 'creation_time'},
+  creator: {wire: 'creator'},
+  name: {wire: 'name'},
+  readReplicaCount: {wire: 'read_replica_count'},
+  state: {wire: 'state'},
+  usagePolicyId: {wire: 'usage_policy_id'},
+};
+
+export function onlineStoreFieldMask(
+  ...paths: string[]
+): FieldMask<OnlineStore> {
+  return FieldMask.build<OnlineStore>(paths, onlineStoreFieldMaskSchema);
+}
+
+const publishSpecFieldMaskSchema: FieldMaskSchema = {
+  onlineStore: {wire: 'online_store'},
+  onlineTableName: {wire: 'online_table_name'},
+  publishMode: {wire: 'publish_mode'},
+};
+
+export function publishSpecFieldMask(
+  ...paths: string[]
+): FieldMask<PublishSpec> {
+  return FieldMask.build<PublishSpec>(paths, publishSpecFieldMaskSchema);
+}
+
+const publishTableRequestFieldMaskSchema: FieldMaskSchema = {
+  publishSpec: {
+    wire: 'publish_spec',
+    children: () => publishSpecFieldMaskSchema,
+  },
+  sourceTableName: {wire: 'source_table_name'},
+};
+
+export function publishTableRequestFieldMask(
+  ...paths: string[]
+): FieldMask<PublishTableRequest> {
+  return FieldMask.build<PublishTableRequest>(
+    paths,
+    publishTableRequestFieldMaskSchema
+  );
+}
+
+const publishTableResponseFieldMaskSchema: FieldMaskSchema = {
+  onlineTableName: {wire: 'online_table_name'},
+  pipelineId: {wire: 'pipeline_id'},
+};
+
+export function publishTableResponseFieldMask(
+  ...paths: string[]
+): FieldMask<PublishTableResponse> {
+  return FieldMask.build<PublishTableResponse>(
+    paths,
+    publishTableResponseFieldMaskSchema
+  );
+}
+
+const updateOnlineStoreRequestFieldMaskSchema: FieldMaskSchema = {
+  onlineStore: {
+    wire: 'online_store',
+    children: () => onlineStoreFieldMaskSchema,
+  },
+  updateMask: {wire: 'update_mask'},
+};
+
+export function updateOnlineStoreRequestFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateOnlineStoreRequest> {
+  return FieldMask.build<UpdateOnlineStoreRequest>(
+    paths,
+    updateOnlineStoreRequestFieldMaskSchema
+  );
+}

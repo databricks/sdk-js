@@ -1,6 +1,8 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {Temporal} from '@js-temporal/polyfill';
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum DatePrecision {
@@ -1102,3 +1104,381 @@ export const marshalVisualizationSchema: z.ZodType = z
     serialized_options: d.serializedOptions,
     query_id: d.queryId,
   }));
+
+const createQueryRequestFieldMaskSchema: FieldMaskSchema = {
+  autoResolveDisplayName: {wire: 'auto_resolve_display_name'},
+  query: {
+    wire: 'query',
+    children: () => createQueryRequestQueryFieldMaskSchema,
+  },
+};
+
+export function createQueryRequestFieldMask(
+  ...paths: string[]
+): FieldMask<CreateQueryRequest> {
+  return FieldMask.build<CreateQueryRequest>(
+    paths,
+    createQueryRequestFieldMaskSchema
+  );
+}
+
+const createQueryRequestQueryFieldMaskSchema: FieldMaskSchema = {
+  applyAutoLimit: {wire: 'apply_auto_limit'},
+  catalog: {wire: 'catalog'},
+  createTime: {wire: 'create_time'},
+  description: {wire: 'description'},
+  displayName: {wire: 'display_name'},
+  id: {wire: 'id'},
+  lastModifierUserName: {wire: 'last_modifier_user_name'},
+  lifecycleState: {wire: 'lifecycle_state'},
+  ownerUserName: {wire: 'owner_user_name'},
+  parameters: {wire: 'parameters'},
+  parentPath: {wire: 'parent_path'},
+  queryText: {wire: 'query_text'},
+  runAsMode: {wire: 'run_as_mode'},
+  schema: {wire: 'schema'},
+  tags: {wire: 'tags'},
+  updateTime: {wire: 'update_time'},
+  warehouseId: {wire: 'warehouse_id'},
+};
+
+export function createQueryRequestQueryFieldMask(
+  ...paths: string[]
+): FieldMask<CreateQueryRequestQuery> {
+  return FieldMask.build<CreateQueryRequestQuery>(
+    paths,
+    createQueryRequestQueryFieldMaskSchema
+  );
+}
+
+const dateRangeFieldMaskSchema: FieldMaskSchema = {
+  end: {wire: 'end'},
+  start: {wire: 'start'},
+};
+
+export function dateRangeFieldMask(...paths: string[]): FieldMask<DateRange> {
+  return FieldMask.build<DateRange>(paths, dateRangeFieldMaskSchema);
+}
+
+const dateRangeValueFieldMaskSchema: FieldMaskSchema = {
+  dateRangeValue: {
+    wire: 'date_range_value',
+    children: () => dateRangeFieldMaskSchema,
+  },
+  dynamicDateRangeValue: {wire: 'dynamic_date_range_value'},
+  precision: {wire: 'precision'},
+  startDayOfWeek: {wire: 'start_day_of_week'},
+};
+
+export function dateRangeValueFieldMask(
+  ...paths: string[]
+): FieldMask<DateRangeValue> {
+  return FieldMask.build<DateRangeValue>(paths, dateRangeValueFieldMaskSchema);
+}
+
+const dateValueFieldMaskSchema: FieldMaskSchema = {
+  dateValue: {wire: 'date_value'},
+  dynamicDateValue: {wire: 'dynamic_date_value'},
+  precision: {wire: 'precision'},
+};
+
+export function dateValueFieldMask(...paths: string[]): FieldMask<DateValue> {
+  return FieldMask.build<DateValue>(paths, dateValueFieldMaskSchema);
+}
+
+const emptyFieldMaskSchema: FieldMaskSchema = {};
+
+export function emptyFieldMask(...paths: string[]): FieldMask<Empty> {
+  return FieldMask.build<Empty>(paths, emptyFieldMaskSchema);
+}
+
+const enumValueFieldMaskSchema: FieldMaskSchema = {
+  enumOptions: {wire: 'enum_options'},
+  multiValuesOptions: {
+    wire: 'multi_values_options',
+    children: () => multiValuesOptionsFieldMaskSchema,
+  },
+  values: {wire: 'values'},
+};
+
+export function enumValueFieldMask(...paths: string[]): FieldMask<EnumValue> {
+  return FieldMask.build<EnumValue>(paths, enumValueFieldMaskSchema);
+}
+
+const getQueryRequestFieldMaskSchema: FieldMaskSchema = {
+  id: {wire: 'id'},
+};
+
+export function getQueryRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GetQueryRequest> {
+  return FieldMask.build<GetQueryRequest>(
+    paths,
+    getQueryRequestFieldMaskSchema
+  );
+}
+
+const listQueriesRequestFieldMaskSchema: FieldMaskSchema = {
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+};
+
+export function listQueriesRequestFieldMask(
+  ...paths: string[]
+): FieldMask<ListQueriesRequest> {
+  return FieldMask.build<ListQueriesRequest>(
+    paths,
+    listQueriesRequestFieldMaskSchema
+  );
+}
+
+const listQueriesResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  results: {wire: 'results'},
+};
+
+export function listQueriesResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListQueriesResponse> {
+  return FieldMask.build<ListQueriesResponse>(
+    paths,
+    listQueriesResponseFieldMaskSchema
+  );
+}
+
+const listQueryObjectsResponseQueryFieldMaskSchema: FieldMaskSchema = {
+  applyAutoLimit: {wire: 'apply_auto_limit'},
+  catalog: {wire: 'catalog'},
+  createTime: {wire: 'create_time'},
+  description: {wire: 'description'},
+  displayName: {wire: 'display_name'},
+  id: {wire: 'id'},
+  lastModifierUserName: {wire: 'last_modifier_user_name'},
+  lifecycleState: {wire: 'lifecycle_state'},
+  ownerUserName: {wire: 'owner_user_name'},
+  parameters: {wire: 'parameters'},
+  parentPath: {wire: 'parent_path'},
+  queryText: {wire: 'query_text'},
+  runAsMode: {wire: 'run_as_mode'},
+  schema: {wire: 'schema'},
+  tags: {wire: 'tags'},
+  updateTime: {wire: 'update_time'},
+  warehouseId: {wire: 'warehouse_id'},
+};
+
+export function listQueryObjectsResponseQueryFieldMask(
+  ...paths: string[]
+): FieldMask<ListQueryObjectsResponseQuery> {
+  return FieldMask.build<ListQueryObjectsResponseQuery>(
+    paths,
+    listQueryObjectsResponseQueryFieldMaskSchema
+  );
+}
+
+const listVisualizationsForQueryRequestFieldMaskSchema: FieldMaskSchema = {
+  id: {wire: 'id'},
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+};
+
+export function listVisualizationsForQueryRequestFieldMask(
+  ...paths: string[]
+): FieldMask<ListVisualizationsForQueryRequest> {
+  return FieldMask.build<ListVisualizationsForQueryRequest>(
+    paths,
+    listVisualizationsForQueryRequestFieldMaskSchema
+  );
+}
+
+const listVisualizationsForQueryResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  results: {wire: 'results'},
+};
+
+export function listVisualizationsForQueryResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListVisualizationsForQueryResponse> {
+  return FieldMask.build<ListVisualizationsForQueryResponse>(
+    paths,
+    listVisualizationsForQueryResponseFieldMaskSchema
+  );
+}
+
+const multiValuesOptionsFieldMaskSchema: FieldMaskSchema = {
+  prefix: {wire: 'prefix'},
+  separator: {wire: 'separator'},
+  suffix: {wire: 'suffix'},
+};
+
+export function multiValuesOptionsFieldMask(
+  ...paths: string[]
+): FieldMask<MultiValuesOptions> {
+  return FieldMask.build<MultiValuesOptions>(
+    paths,
+    multiValuesOptionsFieldMaskSchema
+  );
+}
+
+const numericValueFieldMaskSchema: FieldMaskSchema = {
+  value: {wire: 'value'},
+};
+
+export function numericValueFieldMask(
+  ...paths: string[]
+): FieldMask<NumericValue> {
+  return FieldMask.build<NumericValue>(paths, numericValueFieldMaskSchema);
+}
+
+const queryFieldMaskSchema: FieldMaskSchema = {
+  applyAutoLimit: {wire: 'apply_auto_limit'},
+  catalog: {wire: 'catalog'},
+  createTime: {wire: 'create_time'},
+  description: {wire: 'description'},
+  displayName: {wire: 'display_name'},
+  id: {wire: 'id'},
+  lastModifierUserName: {wire: 'last_modifier_user_name'},
+  lifecycleState: {wire: 'lifecycle_state'},
+  ownerUserName: {wire: 'owner_user_name'},
+  parameters: {wire: 'parameters'},
+  parentPath: {wire: 'parent_path'},
+  queryText: {wire: 'query_text'},
+  runAsMode: {wire: 'run_as_mode'},
+  schema: {wire: 'schema'},
+  tags: {wire: 'tags'},
+  updateTime: {wire: 'update_time'},
+  warehouseId: {wire: 'warehouse_id'},
+};
+
+export function queryFieldMask(...paths: string[]): FieldMask<Query> {
+  return FieldMask.build<Query>(paths, queryFieldMaskSchema);
+}
+
+const queryBackedValueFieldMaskSchema: FieldMaskSchema = {
+  multiValuesOptions: {
+    wire: 'multi_values_options',
+    children: () => multiValuesOptionsFieldMaskSchema,
+  },
+  queryId: {wire: 'query_id'},
+  values: {wire: 'values'},
+};
+
+export function queryBackedValueFieldMask(
+  ...paths: string[]
+): FieldMask<QueryBackedValue> {
+  return FieldMask.build<QueryBackedValue>(
+    paths,
+    queryBackedValueFieldMaskSchema
+  );
+}
+
+const queryParameterFieldMaskSchema: FieldMaskSchema = {
+  dateRangeValue: {
+    wire: 'date_range_value',
+    children: () => dateRangeValueFieldMaskSchema,
+  },
+  dateValue: {wire: 'date_value', children: () => dateValueFieldMaskSchema},
+  enumValue: {wire: 'enum_value', children: () => enumValueFieldMaskSchema},
+  name: {wire: 'name'},
+  numericValue: {
+    wire: 'numeric_value',
+    children: () => numericValueFieldMaskSchema,
+  },
+  queryBackedValue: {
+    wire: 'query_backed_value',
+    children: () => queryBackedValueFieldMaskSchema,
+  },
+  textValue: {wire: 'text_value', children: () => textValueFieldMaskSchema},
+  title: {wire: 'title'},
+};
+
+export function queryParameterFieldMask(
+  ...paths: string[]
+): FieldMask<QueryParameter> {
+  return FieldMask.build<QueryParameter>(paths, queryParameterFieldMaskSchema);
+}
+
+const textValueFieldMaskSchema: FieldMaskSchema = {
+  value: {wire: 'value'},
+};
+
+export function textValueFieldMask(...paths: string[]): FieldMask<TextValue> {
+  return FieldMask.build<TextValue>(paths, textValueFieldMaskSchema);
+}
+
+const trashQueryRequestFieldMaskSchema: FieldMaskSchema = {
+  id: {wire: 'id'},
+};
+
+export function trashQueryRequestFieldMask(
+  ...paths: string[]
+): FieldMask<TrashQueryRequest> {
+  return FieldMask.build<TrashQueryRequest>(
+    paths,
+    trashQueryRequestFieldMaskSchema
+  );
+}
+
+const updateQueryRequestFieldMaskSchema: FieldMaskSchema = {
+  autoResolveDisplayName: {wire: 'auto_resolve_display_name'},
+  id: {wire: 'id'},
+  query: {
+    wire: 'query',
+    children: () => updateQueryRequestQueryFieldMaskSchema,
+  },
+  updateMask: {wire: 'update_mask'},
+};
+
+export function updateQueryRequestFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateQueryRequest> {
+  return FieldMask.build<UpdateQueryRequest>(
+    paths,
+    updateQueryRequestFieldMaskSchema
+  );
+}
+
+const updateQueryRequestQueryFieldMaskSchema: FieldMaskSchema = {
+  applyAutoLimit: {wire: 'apply_auto_limit'},
+  catalog: {wire: 'catalog'},
+  createTime: {wire: 'create_time'},
+  description: {wire: 'description'},
+  displayName: {wire: 'display_name'},
+  id: {wire: 'id'},
+  lastModifierUserName: {wire: 'last_modifier_user_name'},
+  lifecycleState: {wire: 'lifecycle_state'},
+  ownerUserName: {wire: 'owner_user_name'},
+  parameters: {wire: 'parameters'},
+  parentPath: {wire: 'parent_path'},
+  queryText: {wire: 'query_text'},
+  runAsMode: {wire: 'run_as_mode'},
+  schema: {wire: 'schema'},
+  tags: {wire: 'tags'},
+  updateTime: {wire: 'update_time'},
+  warehouseId: {wire: 'warehouse_id'},
+};
+
+export function updateQueryRequestQueryFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateQueryRequestQuery> {
+  return FieldMask.build<UpdateQueryRequestQuery>(
+    paths,
+    updateQueryRequestQueryFieldMaskSchema
+  );
+}
+
+const visualizationFieldMaskSchema: FieldMaskSchema = {
+  createTime: {wire: 'create_time'},
+  displayName: {wire: 'display_name'},
+  id: {wire: 'id'},
+  queryId: {wire: 'query_id'},
+  serializedOptions: {wire: 'serialized_options'},
+  serializedQueryPlan: {wire: 'serialized_query_plan'},
+  type: {wire: 'type'},
+  updateTime: {wire: 'update_time'},
+};
+
+export function visualizationFieldMask(
+  ...paths: string[]
+): FieldMask<Visualization> {
+  return FieldMask.build<Visualization>(paths, visualizationFieldMaskSchema);
+}

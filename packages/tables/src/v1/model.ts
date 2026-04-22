@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum ColumnTypeName {
@@ -2151,3 +2153,783 @@ export const marshalVolumeDependencySchema: z.ZodType = z
   .transform(d => ({
     volume_full_name: d.volumeFullName,
   }));
+
+const columnInfoFieldMaskSchema: FieldMaskSchema = {
+  comment: {wire: 'comment'},
+  mask: {wire: 'mask', children: () => columnMaskFieldMaskSchema},
+  name: {wire: 'name'},
+  nullable: {wire: 'nullable'},
+  partitionIndex: {wire: 'partition_index'},
+  position: {wire: 'position'},
+  typeIntervalType: {wire: 'type_interval_type'},
+  typeJson: {wire: 'type_json'},
+  typeName: {wire: 'type_name'},
+  typePrecision: {wire: 'type_precision'},
+  typeScale: {wire: 'type_scale'},
+  typeText: {wire: 'type_text'},
+};
+
+export function columnInfoFieldMask(...paths: string[]): FieldMask<ColumnInfo> {
+  return FieldMask.build<ColumnInfo>(paths, columnInfoFieldMaskSchema);
+}
+
+const columnMaskFieldMaskSchema: FieldMaskSchema = {
+  functionName: {wire: 'function_name'},
+  usingArguments: {wire: 'using_arguments'},
+  usingColumnNames: {wire: 'using_column_names'},
+};
+
+export function columnMaskFieldMask(...paths: string[]): FieldMask<ColumnMask> {
+  return FieldMask.build<ColumnMask>(paths, columnMaskFieldMaskSchema);
+}
+
+const conditionalDisplayFieldMaskSchema: FieldMaskSchema = {
+  dependsOnOption: {wire: 'depends_on_option'},
+  hiddenWhenValues: {wire: 'hidden_when_values'},
+};
+
+export function conditionalDisplayFieldMask(
+  ...paths: string[]
+): FieldMask<ConditionalDisplay> {
+  return FieldMask.build<ConditionalDisplay>(
+    paths,
+    conditionalDisplayFieldMaskSchema
+  );
+}
+
+const connectionDependencyFieldMaskSchema: FieldMaskSchema = {
+  connectionName: {wire: 'connection_name'},
+};
+
+export function connectionDependencyFieldMask(
+  ...paths: string[]
+): FieldMask<ConnectionDependency> {
+  return FieldMask.build<ConnectionDependency>(
+    paths,
+    connectionDependencyFieldMaskSchema
+  );
+}
+
+const createTableFieldMaskSchema: FieldMaskSchema = {
+  accessPoint: {wire: 'access_point'},
+  browseOnly: {wire: 'browse_only'},
+  catalogName: {wire: 'catalog_name'},
+  columns: {wire: 'columns'},
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  dataAccessConfigurationId: {wire: 'data_access_configuration_id'},
+  dataSourceFormat: {wire: 'data_source_format'},
+  deletedAt: {wire: 'deleted_at'},
+  deltaRuntimePropertiesKvpairs: {
+    wire: 'delta_runtime_properties_kvpairs',
+    children: () => deltaRuntimePropertiesKvPairsFieldMaskSchema,
+  },
+  effectivePredictiveOptimizationFlag: {
+    wire: 'effective_predictive_optimization_flag',
+    children: () => effectivePredictiveOptimizationFlagFieldMaskSchema,
+  },
+  enablePredictiveOptimization: {wire: 'enable_predictive_optimization'},
+  encryptionDetails: {
+    wire: 'encryption_details',
+    children: () => encryptionDetailsFieldMaskSchema,
+  },
+  fullName: {wire: 'full_name'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  owner: {wire: 'owner'},
+  pipelineId: {wire: 'pipeline_id'},
+  properties: {wire: 'properties'},
+  rowFilter: {wire: 'row_filter', children: () => rowFilterFieldMaskSchema},
+  schemaName: {wire: 'schema_name'},
+  securableKindManifest: {
+    wire: 'securable_kind_manifest',
+    children: () => securableKindManifestFieldMaskSchema,
+  },
+  sqlPath: {wire: 'sql_path'},
+  storageCredentialName: {wire: 'storage_credential_name'},
+  storageLocation: {wire: 'storage_location'},
+  tableConstraints: {wire: 'table_constraints'},
+  tableId: {wire: 'table_id'},
+  tableType: {wire: 'table_type'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+  viewDefinition: {wire: 'view_definition'},
+  viewDependencies: {
+    wire: 'view_dependencies',
+    children: () => dependencyListFieldMaskSchema,
+  },
+};
+
+export function createTableFieldMask(
+  ...paths: string[]
+): FieldMask<CreateTable> {
+  return FieldMask.build<CreateTable>(paths, createTableFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const createTable_PropertiesEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function createTable_PropertiesEntryFieldMask(
+  ...paths: string[]
+): FieldMask<CreateTable_PropertiesEntry> {
+  return FieldMask.build<CreateTable_PropertiesEntry>(
+    paths,
+    createTable_PropertiesEntryFieldMaskSchema
+  );
+}
+
+const createTableConstraintFieldMaskSchema: FieldMaskSchema = {
+  constraint: {
+    wire: 'constraint',
+    children: () => tableConstraintFieldMaskSchema,
+  },
+  fullNameArg: {wire: 'full_name_arg'},
+};
+
+export function createTableConstraintFieldMask(
+  ...paths: string[]
+): FieldMask<CreateTableConstraint> {
+  return FieldMask.build<CreateTableConstraint>(
+    paths,
+    createTableConstraintFieldMaskSchema
+  );
+}
+
+const credentialDependencyFieldMaskSchema: FieldMaskSchema = {
+  credentialName: {wire: 'credential_name'},
+};
+
+export function credentialDependencyFieldMask(
+  ...paths: string[]
+): FieldMask<CredentialDependency> {
+  return FieldMask.build<CredentialDependency>(
+    paths,
+    credentialDependencyFieldMaskSchema
+  );
+}
+
+const deleteTableFieldMaskSchema: FieldMaskSchema = {
+  fullNameArg: {wire: 'full_name_arg'},
+};
+
+export function deleteTableFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteTable> {
+  return FieldMask.build<DeleteTable>(paths, deleteTableFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deleteTable_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deleteTable_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteTable_Response> {
+  return FieldMask.build<DeleteTable_Response>(
+    paths,
+    deleteTable_ResponseFieldMaskSchema
+  );
+}
+
+const deleteTableConstraintFieldMaskSchema: FieldMaskSchema = {
+  cascade: {wire: 'cascade'},
+  constraintName: {wire: 'constraint_name'},
+  fullNameArg: {wire: 'full_name_arg'},
+};
+
+export function deleteTableConstraintFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteTableConstraint> {
+  return FieldMask.build<DeleteTableConstraint>(
+    paths,
+    deleteTableConstraintFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deleteTableConstraint_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deleteTableConstraint_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteTableConstraint_Response> {
+  return FieldMask.build<DeleteTableConstraint_Response>(
+    paths,
+    deleteTableConstraint_ResponseFieldMaskSchema
+  );
+}
+
+const deltaRuntimePropertiesKvPairsFieldMaskSchema: FieldMaskSchema = {
+  deltaRuntimeProperties: {wire: 'delta_runtime_properties'},
+};
+
+export function deltaRuntimePropertiesKvPairsFieldMask(
+  ...paths: string[]
+): FieldMask<DeltaRuntimePropertiesKvPairs> {
+  return FieldMask.build<DeltaRuntimePropertiesKvPairs>(
+    paths,
+    deltaRuntimePropertiesKvPairsFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deltaRuntimePropertiesKvPairs_DeltaRuntimePropertiesEntryFieldMaskSchema: FieldMaskSchema =
+  {
+    key: {wire: 'key'},
+    value: {wire: 'value'},
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deltaRuntimePropertiesKvPairs_DeltaRuntimePropertiesEntryFieldMask(
+  ...paths: string[]
+): FieldMask<DeltaRuntimePropertiesKvPairs_DeltaRuntimePropertiesEntry> {
+  return FieldMask.build<DeltaRuntimePropertiesKvPairs_DeltaRuntimePropertiesEntry>(
+    paths,
+    deltaRuntimePropertiesKvPairs_DeltaRuntimePropertiesEntryFieldMaskSchema
+  );
+}
+
+const dependencyFieldMaskSchema: FieldMaskSchema = {
+  connection: {
+    wire: 'connection',
+    children: () => connectionDependencyFieldMaskSchema,
+  },
+  credential: {
+    wire: 'credential',
+    children: () => credentialDependencyFieldMaskSchema,
+  },
+  function: {
+    wire: 'function',
+    children: () => functionDependencyFieldMaskSchema,
+  },
+  secret: {wire: 'secret', children: () => secretDependencyFieldMaskSchema},
+  table: {wire: 'table', children: () => tableDependencyFieldMaskSchema},
+  volume: {wire: 'volume', children: () => volumeDependencyFieldMaskSchema},
+};
+
+export function dependencyFieldMask(...paths: string[]): FieldMask<Dependency> {
+  return FieldMask.build<Dependency>(paths, dependencyFieldMaskSchema);
+}
+
+const dependencyListFieldMaskSchema: FieldMaskSchema = {
+  dependencies: {wire: 'dependencies'},
+};
+
+export function dependencyListFieldMask(
+  ...paths: string[]
+): FieldMask<DependencyList> {
+  return FieldMask.build<DependencyList>(paths, dependencyListFieldMaskSchema);
+}
+
+const effectivePredictiveOptimizationFlagFieldMaskSchema: FieldMaskSchema = {
+  inheritedFromName: {wire: 'inherited_from_name'},
+  inheritedFromType: {wire: 'inherited_from_type'},
+  value: {wire: 'value'},
+};
+
+export function effectivePredictiveOptimizationFlagFieldMask(
+  ...paths: string[]
+): FieldMask<EffectivePredictiveOptimizationFlag> {
+  return FieldMask.build<EffectivePredictiveOptimizationFlag>(
+    paths,
+    effectivePredictiveOptimizationFlagFieldMaskSchema
+  );
+}
+
+const encryptionDetailsFieldMaskSchema: FieldMaskSchema = {
+  sseEncryptionDetails: {
+    wire: 'sse_encryption_details',
+    children: () => sseEncryptionDetailsFieldMaskSchema,
+  },
+};
+
+export function encryptionDetailsFieldMask(
+  ...paths: string[]
+): FieldMask<EncryptionDetails> {
+  return FieldMask.build<EncryptionDetails>(
+    paths,
+    encryptionDetailsFieldMaskSchema
+  );
+}
+
+const foreignKeyConstraintFieldMaskSchema: FieldMaskSchema = {
+  childColumns: {wire: 'child_columns'},
+  name: {wire: 'name'},
+  parentColumns: {wire: 'parent_columns'},
+  parentTable: {wire: 'parent_table'},
+  rely: {wire: 'rely'},
+};
+
+export function foreignKeyConstraintFieldMask(
+  ...paths: string[]
+): FieldMask<ForeignKeyConstraint> {
+  return FieldMask.build<ForeignKeyConstraint>(
+    paths,
+    foreignKeyConstraintFieldMaskSchema
+  );
+}
+
+const functionDependencyFieldMaskSchema: FieldMaskSchema = {
+  functionFullName: {wire: 'function_full_name'},
+};
+
+export function functionDependencyFieldMask(
+  ...paths: string[]
+): FieldMask<FunctionDependency> {
+  return FieldMask.build<FunctionDependency>(
+    paths,
+    functionDependencyFieldMaskSchema
+  );
+}
+
+const getTableFieldMaskSchema: FieldMaskSchema = {
+  fullNameArg: {wire: 'full_name_arg'},
+  includeBrowse: {wire: 'include_browse'},
+  includeDeltaMetadata: {wire: 'include_delta_metadata'},
+  includeManifestCapabilities: {wire: 'include_manifest_capabilities'},
+};
+
+export function getTableFieldMask(...paths: string[]): FieldMask<GetTable> {
+  return FieldMask.build<GetTable>(paths, getTableFieldMaskSchema);
+}
+
+const listTableSummariesFieldMaskSchema: FieldMaskSchema = {
+  catalogName: {wire: 'catalog_name'},
+  includeManifestCapabilities: {wire: 'include_manifest_capabilities'},
+  maxResults: {wire: 'max_results'},
+  pageToken: {wire: 'page_token'},
+  schemaNamePattern: {wire: 'schema_name_pattern'},
+  tableNamePattern: {wire: 'table_name_pattern'},
+};
+
+export function listTableSummariesFieldMask(
+  ...paths: string[]
+): FieldMask<ListTableSummaries> {
+  return FieldMask.build<ListTableSummaries>(
+    paths,
+    listTableSummariesFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listTableSummaries_ResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  tables: {wire: 'tables'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listTableSummaries_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListTableSummaries_Response> {
+  return FieldMask.build<ListTableSummaries_Response>(
+    paths,
+    listTableSummaries_ResponseFieldMaskSchema
+  );
+}
+
+const listTablesFieldMaskSchema: FieldMaskSchema = {
+  catalogName: {wire: 'catalog_name'},
+  includeBrowse: {wire: 'include_browse'},
+  includeManifestCapabilities: {wire: 'include_manifest_capabilities'},
+  maxResults: {wire: 'max_results'},
+  omitColumns: {wire: 'omit_columns'},
+  omitProperties: {wire: 'omit_properties'},
+  omitUsername: {wire: 'omit_username'},
+  pageToken: {wire: 'page_token'},
+  schemaName: {wire: 'schema_name'},
+};
+
+export function listTablesFieldMask(...paths: string[]): FieldMask<ListTables> {
+  return FieldMask.build<ListTables>(paths, listTablesFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listTables_ResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  tables: {wire: 'tables'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listTables_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListTables_Response> {
+  return FieldMask.build<ListTables_Response>(
+    paths,
+    listTables_ResponseFieldMaskSchema
+  );
+}
+
+const namedTableConstraintFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+};
+
+export function namedTableConstraintFieldMask(
+  ...paths: string[]
+): FieldMask<NamedTableConstraint> {
+  return FieldMask.build<NamedTableConstraint>(
+    paths,
+    namedTableConstraintFieldMaskSchema
+  );
+}
+
+const optionSpecFieldMaskSchema: FieldMaskSchema = {
+  allowedValues: {wire: 'allowed_values'},
+  conditionalDisplay: {
+    wire: 'conditional_display',
+    children: () => conditionalDisplayFieldMaskSchema,
+  },
+  defaultValue: {wire: 'default_value'},
+  description: {wire: 'description'},
+  hint: {wire: 'hint'},
+  isCopiable: {wire: 'is_copiable'},
+  isCreatable: {wire: 'is_creatable'},
+  isHidden: {wire: 'is_hidden'},
+  isLoggable: {wire: 'is_loggable'},
+  isRequired: {wire: 'is_required'},
+  isSecret: {wire: 'is_secret'},
+  isUpdatable: {wire: 'is_updatable'},
+  name: {wire: 'name'},
+  oauthStage: {wire: 'oauth_stage'},
+  type: {wire: 'type'},
+};
+
+export function optionSpecFieldMask(...paths: string[]): FieldMask<OptionSpec> {
+  return FieldMask.build<OptionSpec>(paths, optionSpecFieldMaskSchema);
+}
+
+const policyFunctionArgumentFieldMaskSchema: FieldMaskSchema = {
+  column: {wire: 'column'},
+  constant: {wire: 'constant'},
+};
+
+export function policyFunctionArgumentFieldMask(
+  ...paths: string[]
+): FieldMask<PolicyFunctionArgument> {
+  return FieldMask.build<PolicyFunctionArgument>(
+    paths,
+    policyFunctionArgumentFieldMaskSchema
+  );
+}
+
+const primaryKeyConstraintFieldMaskSchema: FieldMaskSchema = {
+  childColumns: {wire: 'child_columns'},
+  name: {wire: 'name'},
+  rely: {wire: 'rely'},
+  timeseriesColumns: {wire: 'timeseries_columns'},
+};
+
+export function primaryKeyConstraintFieldMask(
+  ...paths: string[]
+): FieldMask<PrimaryKeyConstraint> {
+  return FieldMask.build<PrimaryKeyConstraint>(
+    paths,
+    primaryKeyConstraintFieldMaskSchema
+  );
+}
+
+const rowFilterFieldMaskSchema: FieldMaskSchema = {
+  functionName: {wire: 'function_name'},
+  inputArguments: {wire: 'input_arguments'},
+  inputColumnNames: {wire: 'input_column_names'},
+};
+
+export function rowFilterFieldMask(...paths: string[]): FieldMask<RowFilter> {
+  return FieldMask.build<RowFilter>(paths, rowFilterFieldMaskSchema);
+}
+
+const secretDependencyFieldMaskSchema: FieldMaskSchema = {
+  secretFullName: {wire: 'secret_full_name'},
+};
+
+export function secretDependencyFieldMask(
+  ...paths: string[]
+): FieldMask<SecretDependency> {
+  return FieldMask.build<SecretDependency>(
+    paths,
+    secretDependencyFieldMaskSchema
+  );
+}
+
+const securableKindManifestFieldMaskSchema: FieldMaskSchema = {
+  assignablePrivileges: {wire: 'assignable_privileges'},
+  capabilities: {wire: 'capabilities'},
+  options: {wire: 'options'},
+  securableKind: {wire: 'securable_kind'},
+  securableType: {wire: 'securable_type'},
+};
+
+export function securableKindManifestFieldMask(
+  ...paths: string[]
+): FieldMask<SecurableKindManifest> {
+  return FieldMask.build<SecurableKindManifest>(
+    paths,
+    securableKindManifestFieldMaskSchema
+  );
+}
+
+const sseEncryptionDetailsFieldMaskSchema: FieldMaskSchema = {
+  algorithm: {wire: 'algorithm'},
+  awsKmsKeyArn: {wire: 'aws_kms_key_arn'},
+};
+
+export function sseEncryptionDetailsFieldMask(
+  ...paths: string[]
+): FieldMask<SseEncryptionDetails> {
+  return FieldMask.build<SseEncryptionDetails>(
+    paths,
+    sseEncryptionDetailsFieldMaskSchema
+  );
+}
+
+const tableConstraintFieldMaskSchema: FieldMaskSchema = {
+  foreignKeyConstraint: {
+    wire: 'foreign_key_constraint',
+    children: () => foreignKeyConstraintFieldMaskSchema,
+  },
+  namedTableConstraint: {
+    wire: 'named_table_constraint',
+    children: () => namedTableConstraintFieldMaskSchema,
+  },
+  primaryKeyConstraint: {
+    wire: 'primary_key_constraint',
+    children: () => primaryKeyConstraintFieldMaskSchema,
+  },
+};
+
+export function tableConstraintFieldMask(
+  ...paths: string[]
+): FieldMask<TableConstraint> {
+  return FieldMask.build<TableConstraint>(
+    paths,
+    tableConstraintFieldMaskSchema
+  );
+}
+
+const tableDependencyFieldMaskSchema: FieldMaskSchema = {
+  tableFullName: {wire: 'table_full_name'},
+};
+
+export function tableDependencyFieldMask(
+  ...paths: string[]
+): FieldMask<TableDependency> {
+  return FieldMask.build<TableDependency>(
+    paths,
+    tableDependencyFieldMaskSchema
+  );
+}
+
+const tableExistsFieldMaskSchema: FieldMaskSchema = {
+  fullNameArg: {wire: 'full_name_arg'},
+};
+
+export function tableExistsFieldMask(
+  ...paths: string[]
+): FieldMask<TableExists> {
+  return FieldMask.build<TableExists>(paths, tableExistsFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const tableExists_ResponseFieldMaskSchema: FieldMaskSchema = {
+  tableExists: {wire: 'table_exists'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function tableExists_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<TableExists_Response> {
+  return FieldMask.build<TableExists_Response>(
+    paths,
+    tableExists_ResponseFieldMaskSchema
+  );
+}
+
+const tableInfoFieldMaskSchema: FieldMaskSchema = {
+  accessPoint: {wire: 'access_point'},
+  browseOnly: {wire: 'browse_only'},
+  catalogName: {wire: 'catalog_name'},
+  columns: {wire: 'columns'},
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  dataAccessConfigurationId: {wire: 'data_access_configuration_id'},
+  dataSourceFormat: {wire: 'data_source_format'},
+  deletedAt: {wire: 'deleted_at'},
+  deltaRuntimePropertiesKvpairs: {
+    wire: 'delta_runtime_properties_kvpairs',
+    children: () => deltaRuntimePropertiesKvPairsFieldMaskSchema,
+  },
+  effectivePredictiveOptimizationFlag: {
+    wire: 'effective_predictive_optimization_flag',
+    children: () => effectivePredictiveOptimizationFlagFieldMaskSchema,
+  },
+  enablePredictiveOptimization: {wire: 'enable_predictive_optimization'},
+  encryptionDetails: {
+    wire: 'encryption_details',
+    children: () => encryptionDetailsFieldMaskSchema,
+  },
+  fullName: {wire: 'full_name'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  owner: {wire: 'owner'},
+  pipelineId: {wire: 'pipeline_id'},
+  properties: {wire: 'properties'},
+  rowFilter: {wire: 'row_filter', children: () => rowFilterFieldMaskSchema},
+  schemaName: {wire: 'schema_name'},
+  securableKindManifest: {
+    wire: 'securable_kind_manifest',
+    children: () => securableKindManifestFieldMaskSchema,
+  },
+  sqlPath: {wire: 'sql_path'},
+  storageCredentialName: {wire: 'storage_credential_name'},
+  storageLocation: {wire: 'storage_location'},
+  tableConstraints: {wire: 'table_constraints'},
+  tableId: {wire: 'table_id'},
+  tableType: {wire: 'table_type'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+  viewDefinition: {wire: 'view_definition'},
+  viewDependencies: {
+    wire: 'view_dependencies',
+    children: () => dependencyListFieldMaskSchema,
+  },
+};
+
+export function tableInfoFieldMask(...paths: string[]): FieldMask<TableInfo> {
+  return FieldMask.build<TableInfo>(paths, tableInfoFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const tableInfo_PropertiesEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function tableInfo_PropertiesEntryFieldMask(
+  ...paths: string[]
+): FieldMask<TableInfo_PropertiesEntry> {
+  return FieldMask.build<TableInfo_PropertiesEntry>(
+    paths,
+    tableInfo_PropertiesEntryFieldMaskSchema
+  );
+}
+
+const tableSummaryFieldMaskSchema: FieldMaskSchema = {
+  fullName: {wire: 'full_name'},
+  securableKindManifest: {
+    wire: 'securable_kind_manifest',
+    children: () => securableKindManifestFieldMaskSchema,
+  },
+  tableType: {wire: 'table_type'},
+};
+
+export function tableSummaryFieldMask(
+  ...paths: string[]
+): FieldMask<TableSummary> {
+  return FieldMask.build<TableSummary>(paths, tableSummaryFieldMaskSchema);
+}
+
+const updateTableFieldMaskSchema: FieldMaskSchema = {
+  accessPoint: {wire: 'access_point'},
+  browseOnly: {wire: 'browse_only'},
+  catalogName: {wire: 'catalog_name'},
+  columns: {wire: 'columns'},
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  dataAccessConfigurationId: {wire: 'data_access_configuration_id'},
+  dataSourceFormat: {wire: 'data_source_format'},
+  deletedAt: {wire: 'deleted_at'},
+  deltaRuntimePropertiesKvpairs: {
+    wire: 'delta_runtime_properties_kvpairs',
+    children: () => deltaRuntimePropertiesKvPairsFieldMaskSchema,
+  },
+  effectivePredictiveOptimizationFlag: {
+    wire: 'effective_predictive_optimization_flag',
+    children: () => effectivePredictiveOptimizationFlagFieldMaskSchema,
+  },
+  enablePredictiveOptimization: {wire: 'enable_predictive_optimization'},
+  encryptionDetails: {
+    wire: 'encryption_details',
+    children: () => encryptionDetailsFieldMaskSchema,
+  },
+  fullName: {wire: 'full_name'},
+  fullNameArg: {wire: 'full_name_arg'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  owner: {wire: 'owner'},
+  pipelineId: {wire: 'pipeline_id'},
+  properties: {wire: 'properties'},
+  rowFilter: {wire: 'row_filter', children: () => rowFilterFieldMaskSchema},
+  schemaName: {wire: 'schema_name'},
+  securableKindManifest: {
+    wire: 'securable_kind_manifest',
+    children: () => securableKindManifestFieldMaskSchema,
+  },
+  sqlPath: {wire: 'sql_path'},
+  storageCredentialName: {wire: 'storage_credential_name'},
+  storageLocation: {wire: 'storage_location'},
+  tableConstraints: {wire: 'table_constraints'},
+  tableId: {wire: 'table_id'},
+  tableType: {wire: 'table_type'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+  viewDefinition: {wire: 'view_definition'},
+  viewDependencies: {
+    wire: 'view_dependencies',
+    children: () => dependencyListFieldMaskSchema,
+  },
+};
+
+export function updateTableFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateTable> {
+  return FieldMask.build<UpdateTable>(paths, updateTableFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const updateTable_PropertiesEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function updateTable_PropertiesEntryFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateTable_PropertiesEntry> {
+  return FieldMask.build<UpdateTable_PropertiesEntry>(
+    paths,
+    updateTable_PropertiesEntryFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const updateTable_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function updateTable_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateTable_Response> {
+  return FieldMask.build<UpdateTable_Response>(
+    paths,
+    updateTable_ResponseFieldMaskSchema
+  );
+}
+
+const volumeDependencyFieldMaskSchema: FieldMaskSchema = {
+  volumeFullName: {wire: 'volume_full_name'},
+};
+
+export function volumeDependencyFieldMask(
+  ...paths: string[]
+): FieldMask<VolumeDependency> {
+  return FieldMask.build<VolumeDependency>(
+    paths,
+    volumeDependencyFieldMaskSchema
+  );
+}

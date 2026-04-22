@@ -1,6 +1,8 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {Temporal} from '@js-temporal/polyfill';
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** Enum representing the source type of a tag assignment */
@@ -160,3 +162,118 @@ export const marshalListEntityTagAssignmentsResponseSchema: z.ZodType = z
     tag_assignments: d.tagAssignments,
     next_page_token: d.nextPageToken,
   }));
+
+const createEntityTagAssignmentRequestFieldMaskSchema: FieldMaskSchema = {
+  tagAssignment: {
+    wire: 'tag_assignment',
+    children: () => entityTagAssignmentFieldMaskSchema,
+  },
+};
+
+export function createEntityTagAssignmentRequestFieldMask(
+  ...paths: string[]
+): FieldMask<CreateEntityTagAssignmentRequest> {
+  return FieldMask.build<CreateEntityTagAssignmentRequest>(
+    paths,
+    createEntityTagAssignmentRequestFieldMaskSchema
+  );
+}
+
+const deleteEntityTagAssignmentRequestFieldMaskSchema: FieldMaskSchema = {
+  entityName: {wire: 'entity_name'},
+  entityType: {wire: 'entity_type'},
+  tagKey: {wire: 'tag_key'},
+};
+
+export function deleteEntityTagAssignmentRequestFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteEntityTagAssignmentRequest> {
+  return FieldMask.build<DeleteEntityTagAssignmentRequest>(
+    paths,
+    deleteEntityTagAssignmentRequestFieldMaskSchema
+  );
+}
+
+const entityTagAssignmentFieldMaskSchema: FieldMaskSchema = {
+  entityName: {wire: 'entity_name'},
+  entityType: {wire: 'entity_type'},
+  inherited: {wire: 'inherited'},
+  sourceType: {wire: 'source_type'},
+  tagKey: {wire: 'tag_key'},
+  tagValue: {wire: 'tag_value'},
+  updateTime: {wire: 'update_time'},
+  updatedBy: {wire: 'updated_by'},
+};
+
+export function entityTagAssignmentFieldMask(
+  ...paths: string[]
+): FieldMask<EntityTagAssignment> {
+  return FieldMask.build<EntityTagAssignment>(
+    paths,
+    entityTagAssignmentFieldMaskSchema
+  );
+}
+
+const getEntityTagAssignmentRequestFieldMaskSchema: FieldMaskSchema = {
+  entityName: {wire: 'entity_name'},
+  entityType: {wire: 'entity_type'},
+  includeInherited: {wire: 'include_inherited'},
+  tagKey: {wire: 'tag_key'},
+};
+
+export function getEntityTagAssignmentRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GetEntityTagAssignmentRequest> {
+  return FieldMask.build<GetEntityTagAssignmentRequest>(
+    paths,
+    getEntityTagAssignmentRequestFieldMaskSchema
+  );
+}
+
+const listEntityTagAssignmentsRequestFieldMaskSchema: FieldMaskSchema = {
+  entityName: {wire: 'entity_name'},
+  entityType: {wire: 'entity_type'},
+  includeInherited: {wire: 'include_inherited'},
+  maxResults: {wire: 'max_results'},
+  pageToken: {wire: 'page_token'},
+};
+
+export function listEntityTagAssignmentsRequestFieldMask(
+  ...paths: string[]
+): FieldMask<ListEntityTagAssignmentsRequest> {
+  return FieldMask.build<ListEntityTagAssignmentsRequest>(
+    paths,
+    listEntityTagAssignmentsRequestFieldMaskSchema
+  );
+}
+
+const listEntityTagAssignmentsResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  tagAssignments: {wire: 'tag_assignments'},
+};
+
+export function listEntityTagAssignmentsResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListEntityTagAssignmentsResponse> {
+  return FieldMask.build<ListEntityTagAssignmentsResponse>(
+    paths,
+    listEntityTagAssignmentsResponseFieldMaskSchema
+  );
+}
+
+const updateEntityTagAssignmentRequestFieldMaskSchema: FieldMaskSchema = {
+  tagAssignment: {
+    wire: 'tag_assignment',
+    children: () => entityTagAssignmentFieldMaskSchema,
+  },
+  updateMask: {wire: 'update_mask'},
+};
+
+export function updateEntityTagAssignmentRequestFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateEntityTagAssignmentRequest> {
+  return FieldMask.build<UpdateEntityTagAssignmentRequest>(
+    paths,
+    updateEntityTagAssignmentRequestFieldMaskSchema
+  );
+}

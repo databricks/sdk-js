@@ -1,6 +1,8 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {Temporal} from '@js-temporal/polyfill';
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** If changed, also update estore/namespaces/defaultbaseenvironments/latest.proto */
@@ -964,3 +966,244 @@ export const marshalWorkspaceBaseEnvironmentSchema: z.ZodType = z
 
 export const marshalWorkspaceBaseEnvironmentOperationMetadataSchema: z.ZodType =
   z.object({});
+
+const createWorkspaceBaseEnvironmentRequestFieldMaskSchema: FieldMaskSchema = {
+  requestId: {wire: 'request_id'},
+  workspaceBaseEnvironment: {
+    wire: 'workspace_base_environment',
+    children: () => workspaceBaseEnvironmentFieldMaskSchema,
+  },
+  workspaceBaseEnvironmentId: {wire: 'workspace_base_environment_id'},
+};
+
+export function createWorkspaceBaseEnvironmentRequestFieldMask(
+  ...paths: string[]
+): FieldMask<CreateWorkspaceBaseEnvironmentRequest> {
+  return FieldMask.build<CreateWorkspaceBaseEnvironmentRequest>(
+    paths,
+    createWorkspaceBaseEnvironmentRequestFieldMaskSchema
+  );
+}
+
+const databricksServiceExceptionWithDetailsProtoFieldMaskSchema: FieldMaskSchema =
+  {
+    details: {wire: 'details'},
+    errorCode: {wire: 'error_code'},
+    message: {wire: 'message'},
+    stackTrace: {wire: 'stack_trace'},
+  };
+
+export function databricksServiceExceptionWithDetailsProtoFieldMask(
+  ...paths: string[]
+): FieldMask<DatabricksServiceExceptionWithDetailsProto> {
+  return FieldMask.build<DatabricksServiceExceptionWithDetailsProto>(
+    paths,
+    databricksServiceExceptionWithDetailsProtoFieldMaskSchema
+  );
+}
+
+const defaultWorkspaceBaseEnvironmentFieldMaskSchema: FieldMaskSchema = {
+  cpuWorkspaceBaseEnvironment: {wire: 'cpu_workspace_base_environment'},
+  gpuWorkspaceBaseEnvironment: {wire: 'gpu_workspace_base_environment'},
+  name: {wire: 'name'},
+};
+
+export function defaultWorkspaceBaseEnvironmentFieldMask(
+  ...paths: string[]
+): FieldMask<DefaultWorkspaceBaseEnvironment> {
+  return FieldMask.build<DefaultWorkspaceBaseEnvironment>(
+    paths,
+    defaultWorkspaceBaseEnvironmentFieldMaskSchema
+  );
+}
+
+const deleteWorkspaceBaseEnvironmentRequestFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+};
+
+export function deleteWorkspaceBaseEnvironmentRequestFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteWorkspaceBaseEnvironmentRequest> {
+  return FieldMask.build<DeleteWorkspaceBaseEnvironmentRequest>(
+    paths,
+    deleteWorkspaceBaseEnvironmentRequestFieldMaskSchema
+  );
+}
+
+const getDefaultWorkspaceBaseEnvironmentRequestFieldMaskSchema: FieldMaskSchema =
+  {
+    name: {wire: 'name'},
+  };
+
+export function getDefaultWorkspaceBaseEnvironmentRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GetDefaultWorkspaceBaseEnvironmentRequest> {
+  return FieldMask.build<GetDefaultWorkspaceBaseEnvironmentRequest>(
+    paths,
+    getDefaultWorkspaceBaseEnvironmentRequestFieldMaskSchema
+  );
+}
+
+const getOperationRequestFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+};
+
+export function getOperationRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GetOperationRequest> {
+  return FieldMask.build<GetOperationRequest>(
+    paths,
+    getOperationRequestFieldMaskSchema
+  );
+}
+
+const getWorkspaceBaseEnvironmentRequestFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+};
+
+export function getWorkspaceBaseEnvironmentRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GetWorkspaceBaseEnvironmentRequest> {
+  return FieldMask.build<GetWorkspaceBaseEnvironmentRequest>(
+    paths,
+    getWorkspaceBaseEnvironmentRequestFieldMaskSchema
+  );
+}
+
+const listWorkspaceBaseEnvironmentsRequestFieldMaskSchema: FieldMaskSchema = {
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+};
+
+export function listWorkspaceBaseEnvironmentsRequestFieldMask(
+  ...paths: string[]
+): FieldMask<ListWorkspaceBaseEnvironmentsRequest> {
+  return FieldMask.build<ListWorkspaceBaseEnvironmentsRequest>(
+    paths,
+    listWorkspaceBaseEnvironmentsRequestFieldMaskSchema
+  );
+}
+
+const listWorkspaceBaseEnvironmentsResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  workspaceBaseEnvironments: {wire: 'workspace_base_environments'},
+};
+
+export function listWorkspaceBaseEnvironmentsResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListWorkspaceBaseEnvironmentsResponse> {
+  return FieldMask.build<ListWorkspaceBaseEnvironmentsResponse>(
+    paths,
+    listWorkspaceBaseEnvironmentsResponseFieldMaskSchema
+  );
+}
+
+const operationFieldMaskSchema: FieldMaskSchema = {
+  done: {wire: 'done'},
+  error: {
+    wire: 'error',
+    children: () => databricksServiceExceptionWithDetailsProtoFieldMaskSchema,
+  },
+  metadata: {wire: 'metadata'},
+  name: {wire: 'name'},
+  response: {wire: 'response'},
+};
+
+export function operationFieldMask(...paths: string[]): FieldMask<Operation> {
+  return FieldMask.build<Operation>(paths, operationFieldMaskSchema);
+}
+
+const refreshWorkspaceBaseEnvironmentRequestFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+};
+
+export function refreshWorkspaceBaseEnvironmentRequestFieldMask(
+  ...paths: string[]
+): FieldMask<RefreshWorkspaceBaseEnvironmentRequest> {
+  return FieldMask.build<RefreshWorkspaceBaseEnvironmentRequest>(
+    paths,
+    refreshWorkspaceBaseEnvironmentRequestFieldMaskSchema
+  );
+}
+
+const updateDefaultWorkspaceBaseEnvironmentRequestFieldMaskSchema: FieldMaskSchema =
+  {
+    defaultWorkspaceBaseEnvironment: {
+      wire: 'default_workspace_base_environment',
+      children: () => defaultWorkspaceBaseEnvironmentFieldMaskSchema,
+    },
+    updateMask: {wire: 'update_mask'},
+  };
+
+export function updateDefaultWorkspaceBaseEnvironmentRequestFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateDefaultWorkspaceBaseEnvironmentRequest> {
+  return FieldMask.build<UpdateDefaultWorkspaceBaseEnvironmentRequest>(
+    paths,
+    updateDefaultWorkspaceBaseEnvironmentRequestFieldMaskSchema
+  );
+}
+
+const updateWorkspaceBaseEnvironmentRequestFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+  workspaceBaseEnvironment: {
+    wire: 'workspace_base_environment',
+    children: () => workspaceBaseEnvironmentFieldMaskSchema,
+  },
+};
+
+export function updateWorkspaceBaseEnvironmentRequestFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateWorkspaceBaseEnvironmentRequest> {
+  return FieldMask.build<UpdateWorkspaceBaseEnvironmentRequest>(
+    paths,
+    updateWorkspaceBaseEnvironmentRequestFieldMaskSchema
+  );
+}
+
+const workspaceBaseEnvironmentFieldMaskSchema: FieldMaskSchema = {
+  baseEnvironmentProvider: {wire: 'base_environment_provider'},
+  baseEnvironmentType: {wire: 'base_environment_type'},
+  createTime: {wire: 'create_time'},
+  creatorUserId: {wire: 'creator_user_id'},
+  displayName: {wire: 'display_name'},
+  filepath: {wire: 'filepath'},
+  isDefault: {wire: 'is_default'},
+  lastUpdatedUserId: {wire: 'last_updated_user_id'},
+  message: {wire: 'message'},
+  name: {wire: 'name'},
+  status: {wire: 'status'},
+  updateTime: {wire: 'update_time'},
+};
+
+export function workspaceBaseEnvironmentFieldMask(
+  ...paths: string[]
+): FieldMask<WorkspaceBaseEnvironment> {
+  return FieldMask.build<WorkspaceBaseEnvironment>(
+    paths,
+    workspaceBaseEnvironmentFieldMaskSchema
+  );
+}
+
+const workspaceBaseEnvironmentCacheFieldMaskSchema: FieldMaskSchema = {};
+
+export function workspaceBaseEnvironmentCacheFieldMask(
+  ...paths: string[]
+): FieldMask<WorkspaceBaseEnvironmentCache> {
+  return FieldMask.build<WorkspaceBaseEnvironmentCache>(
+    paths,
+    workspaceBaseEnvironmentCacheFieldMaskSchema
+  );
+}
+
+const workspaceBaseEnvironmentOperationMetadataFieldMaskSchema: FieldMaskSchema =
+  {};
+
+export function workspaceBaseEnvironmentOperationMetadataFieldMask(
+  ...paths: string[]
+): FieldMask<WorkspaceBaseEnvironmentOperationMetadata> {
+  return FieldMask.build<WorkspaceBaseEnvironmentOperationMetadata>(
+    paths,
+    workspaceBaseEnvironmentOperationMetadataFieldMaskSchema
+  );
+}
