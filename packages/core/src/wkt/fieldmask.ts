@@ -1,49 +1,7 @@
-// True if any property of T is callable, indicating a class instance (e.g.
-// Temporal.Instant, Date) rather than a plain data interface.
-type HasMethods<T> = true extends {
-  [K in keyof T]-?: NonNullable<T[K]> extends (...args: never[]) => unknown
-    ? true
-    : never;
-}[keyof T]
-  ? true
-  : false;
-
-/**
- * Utility type that derives all valid dot-separated field paths from a
- * TypeScript interface. Provides compile-time path validation for
- * {@link FieldMask}.
- *
- * Recursion stops at arrays, index signatures (Record/Map), and class
- * instances with methods (e.g. Temporal.Instant, Date). These are treated
- * as leaf nodes.
- *
- * @example
- * ```ts
- * interface Cluster {
- *   name: string;
- *   config: {numWorkers: number; scaling: {min: number}};
- * }
- * // "name" | "config" | "config.numWorkers" | "config.scaling" | "config.scaling.min"
- * type ClusterPaths = FieldPaths<Cluster>;
- * ```
- */
-export type FieldPaths<T, Prefix extends string = ''> = {
-  [K in keyof T & string]: NonNullable<T[K]> extends unknown[]
-    ? `${Prefix}${K}` // Array field — leaf, do not recurse.
-    : NonNullable<T[K]> extends Record<string, unknown>
-      ? string extends keyof NonNullable<T[K]>
-        ? `${Prefix}${K}` // Index signature (Record/Map) — leaf, do not recurse.
-        : HasMethods<NonNullable<T[K]>> extends true
-          ? `${Prefix}${K}` // Class instance with methods — leaf, do not recurse.
-          : `${Prefix}${K}` | FieldPaths<NonNullable<T[K]>, `${Prefix}${K}.`>
-      : `${Prefix}${K}`;
-}[keyof T & string];
-
-// Remove duplicates and paths subsumed by a parent (e.g. "config" subsumes
-// "config.numWorkers").
-function normalize<P extends string>(paths: P[]): P[] {
+// Remove duplicates and paths subsumed by a parent (e.g. "config" subsumes "config.numWorkers").
+function normalize(paths: string[]): string[] {
   const unique = [...new Set(paths)].sort();
-  const result: P[] = [];
+  const result: string[] = [];
   for (const path of unique) {
     const isSubsumed = result.some(existing => path.startsWith(existing + '.'));
     if (!isSubsumed) {
@@ -54,33 +12,78 @@ function normalize<P extends string>(paths: P[]): P[] {
 }
 
 /**
- * A type-safe field mask implementing google.protobuf.FieldMask semantics.
- * Provides compile-time path validation via {@link FieldPaths}. Paths are
- * always normalized: duplicates and paths subsumed by a parent are removed.
- *
- * @example
- * ```ts
- * const mask = FieldMask.of<FieldPaths<Cluster>>(
- *   'displayName',
- *   'config.numWorkers'
- * );
- * ```
+ * One field entry in a {@link FieldMaskSchema}: its wire-format name and, for message-typed fields, a lazy reference to the nested message's schema. Array, map, enum, and scalar fields omit `children`.
  */
-export class FieldMask<TPath extends string = string> {
-  /** The list of field paths in this mask. */
-  readonly paths: TPath[];
+export interface FieldMaskSchemaField {
+  readonly wire: string;
+  readonly children?: () => FieldMaskSchema;
+}
 
-  private constructor(paths: TPath[]) {
-    this.paths = normalize(paths);
+/**
+ * Structural description of one message's FieldMask-reachable fields. Maps each typescript field name to its wire-format name and, for message-typed fields, a lazy `() => FieldMaskSchema` reference that lets recursive and mutually-recursive messages describe themselves.
+ */
+export type FieldMaskSchema = Readonly<Record<string, FieldMaskSchemaField>>;
+
+// Walk a dot-separated typescript field name path against a schema, returning the equivalent wire-format path. Returns `undefined` when any segment fails: a name that isn't a field of the current message, or a non-terminal segment that doesn't reference another message.
+function walkFieldMaskPath(
+  schema: FieldMaskSchema,
+  path: string
+): string | undefined {
+  const segments = path.split('.');
+  const wireSegments: string[] = [];
+  let current: FieldMaskSchema = schema;
+  for (let i = 0; i < segments.length; i++) {
+    const seg = segments[i];
+    // Existence check before lookup: `current[seg]` is typed as FieldMaskSchemaField without noUncheckedIndexedAccess, so an undefined check downstream would be flagged "unnecessary".
+    if (!(seg in current)) return undefined;
+    const field = current[seg];
+    wireSegments.push(field.wire);
+    if (i < segments.length - 1) {
+      if (field.children === undefined) return undefined;
+      current = field.children();
+    }
+  }
+  return wireSegments.join('.');
+}
+
+/**
+ * A field mask implementing google.protobuf.FieldMask semantics.
+ */
+export class FieldMask<T = unknown> {
+  // Phantom marker: keeps `FieldMask<Alert>` and `FieldMask<Query>` compile-time distinct under TypeScript's otherwise-structural typing. Never set at runtime.
+  declare private readonly _tag: T;
+
+  // Stored post-translation, normalized wire-format paths.
+  private readonly paths: string[];
+
+  private constructor(paths: string[]) {
+    this.paths = paths;
   }
 
-  /** Create a field mask from one or more paths. */
-  static of<P extends string>(...paths: P[]): FieldMask<P> {
-    return new FieldMask(paths);
+  /**
+   * Build a FieldMask from typescript field name paths against the target message's schema. Validates every path by walking each segment through the schema and throws Error when any segment fails.
+   *
+   * Reserved for generated per-message factories; user code should call the factory (e.g. `alertFieldMask(...)`), which supplies the schema before delegating here.
+   *
+   * @internal
+   */
+  static build<T>(paths: string[], schema: FieldMaskSchema): FieldMask<T> {
+    const normalized = normalize(paths);
+    const wire: string[] = [];
+    for (const p of normalized) {
+      const w = walkFieldMaskPath(schema, p);
+      if (w === undefined) {
+        throw new Error(`Unknown field path "${p}"`);
+      }
+      wire.push(w);
+    }
+    return new FieldMask<T>(wire);
   }
 
-  /** Return a new mask with additional paths appended. */
-  append(...paths: TPath[]): FieldMask<TPath> {
-    return new FieldMask([...this.paths, ...paths]);
+  /**
+   * Serialize the mask to the wire-format string.
+   */
+  toString(): string {
+    return this.paths.join(',');
   }
 }
