@@ -50,9 +50,7 @@ jobs:
         run: jf npm ci
 
       - name: Run lint and format checks
-        env:
-          FILTER: '@databricks/sdk-${{ matrix.shard }}'
-        run: npm run checks:shard
+        run: npm run checks -- --filter='@databricks/sdk-${{ matrix.shard }}'
 
   typecheck:
     name: Type Check (${{ matrix.shard }})
@@ -86,9 +84,7 @@ jobs:
         run: jf npm ci
 
       - name: Run type check
-        env:
-          FILTER: '@databricks/sdk-${{ matrix.shard }}'
-        run: npm run typecheck:shard
+        run: npm run typecheck -- --filter='@databricks/sdk-${{ matrix.shard }}'
 
   test:
     name: Test (Node.js ${{ matrix.node-version }})
@@ -194,9 +190,7 @@ jobs:
         run: jf npm ci
 
       - name: Build
-        env:
-          FILTER: '@databricks/sdk-${{ matrix.shard }}'
-        run: npm run build:shard
+        run: npm run build -- --filter='@databricks/sdk-${{ matrix.shard }}'
 
   # This job gates merging. It depends on all CI jobs so that branch protection
   # only needs to reference this single check. When adding new jobs, append
