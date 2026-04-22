@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** Next Id: 77 */
@@ -698,3 +700,355 @@ export const marshalUpdateConnectionSchema: z.ZodType = z
     secrets: d.secrets,
     properties: d.properties,
   }));
+
+const connectionInfoFieldMaskSchema: FieldMaskSchema = {
+  comment: {wire: 'comment'},
+  connectionId: {wire: 'connection_id'},
+  connectionType: {wire: 'connection_type'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  credentialType: {wire: 'credential_type'},
+  environmentSettings: {
+    wire: 'environment_settings',
+    children: () => environmentSettingsFieldMaskSchema,
+  },
+  fullName: {wire: 'full_name'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  options: {wire: 'options'},
+  owner: {wire: 'owner'},
+  properties: {wire: 'properties'},
+  provisioningInfo: {
+    wire: 'provisioning_info',
+    children: () => provisioningInfoFieldMaskSchema,
+  },
+  readOnly: {wire: 'read_only'},
+  secrets: {wire: 'secrets'},
+  securableType: {wire: 'securable_type'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+  url: {wire: 'url'},
+};
+
+export function connectionInfoFieldMask(
+  ...paths: string[]
+): FieldMask<ConnectionInfo> {
+  return FieldMask.build<ConnectionInfo>(paths, connectionInfoFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const connectionInfo_OptionsEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function connectionInfo_OptionsEntryFieldMask(
+  ...paths: string[]
+): FieldMask<ConnectionInfo_OptionsEntry> {
+  return FieldMask.build<ConnectionInfo_OptionsEntry>(
+    paths,
+    connectionInfo_OptionsEntryFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const connectionInfo_PropertiesEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function connectionInfo_PropertiesEntryFieldMask(
+  ...paths: string[]
+): FieldMask<ConnectionInfo_PropertiesEntry> {
+  return FieldMask.build<ConnectionInfo_PropertiesEntry>(
+    paths,
+    connectionInfo_PropertiesEntryFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const connectionInfo_SecretsEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function connectionInfo_SecretsEntryFieldMask(
+  ...paths: string[]
+): FieldMask<ConnectionInfo_SecretsEntry> {
+  return FieldMask.build<ConnectionInfo_SecretsEntry>(
+    paths,
+    connectionInfo_SecretsEntryFieldMaskSchema
+  );
+}
+
+const createConnectionFieldMaskSchema: FieldMaskSchema = {
+  comment: {wire: 'comment'},
+  connectionId: {wire: 'connection_id'},
+  connectionType: {wire: 'connection_type'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  credentialType: {wire: 'credential_type'},
+  environmentSettings: {
+    wire: 'environment_settings',
+    children: () => environmentSettingsFieldMaskSchema,
+  },
+  fullName: {wire: 'full_name'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  options: {wire: 'options'},
+  owner: {wire: 'owner'},
+  parent: {wire: 'parent'},
+  properties: {wire: 'properties'},
+  provisioningInfo: {
+    wire: 'provisioning_info',
+    children: () => provisioningInfoFieldMaskSchema,
+  },
+  readOnly: {wire: 'read_only'},
+  secrets: {wire: 'secrets'},
+  securableType: {wire: 'securable_type'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+  url: {wire: 'url'},
+};
+
+export function createConnectionFieldMask(
+  ...paths: string[]
+): FieldMask<CreateConnection> {
+  return FieldMask.build<CreateConnection>(
+    paths,
+    createConnectionFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const createConnection_OptionsEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function createConnection_OptionsEntryFieldMask(
+  ...paths: string[]
+): FieldMask<CreateConnection_OptionsEntry> {
+  return FieldMask.build<CreateConnection_OptionsEntry>(
+    paths,
+    createConnection_OptionsEntryFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const createConnection_PropertiesEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function createConnection_PropertiesEntryFieldMask(
+  ...paths: string[]
+): FieldMask<CreateConnection_PropertiesEntry> {
+  return FieldMask.build<CreateConnection_PropertiesEntry>(
+    paths,
+    createConnection_PropertiesEntryFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const createConnection_SecretsEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function createConnection_SecretsEntryFieldMask(
+  ...paths: string[]
+): FieldMask<CreateConnection_SecretsEntry> {
+  return FieldMask.build<CreateConnection_SecretsEntry>(
+    paths,
+    createConnection_SecretsEntryFieldMaskSchema
+  );
+}
+
+const deleteConnectionFieldMaskSchema: FieldMaskSchema = {
+  nameArg: {wire: 'name_arg'},
+};
+
+export function deleteConnectionFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteConnection> {
+  return FieldMask.build<DeleteConnection>(
+    paths,
+    deleteConnectionFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deleteConnection_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deleteConnection_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteConnection_Response> {
+  return FieldMask.build<DeleteConnection_Response>(
+    paths,
+    deleteConnection_ResponseFieldMaskSchema
+  );
+}
+
+const environmentSettingsFieldMaskSchema: FieldMaskSchema = {
+  environmentVersion: {wire: 'environment_version'},
+  javaDependencies: {wire: 'java_dependencies'},
+};
+
+export function environmentSettingsFieldMask(
+  ...paths: string[]
+): FieldMask<EnvironmentSettings> {
+  return FieldMask.build<EnvironmentSettings>(
+    paths,
+    environmentSettingsFieldMaskSchema
+  );
+}
+
+const getConnectionFieldMaskSchema: FieldMaskSchema = {
+  nameArg: {wire: 'name_arg'},
+};
+
+export function getConnectionFieldMask(
+  ...paths: string[]
+): FieldMask<GetConnection> {
+  return FieldMask.build<GetConnection>(paths, getConnectionFieldMaskSchema);
+}
+
+const listConnectionsFieldMaskSchema: FieldMaskSchema = {
+  maxResults: {wire: 'max_results'},
+  pageToken: {wire: 'page_token'},
+  parent: {wire: 'parent'},
+};
+
+export function listConnectionsFieldMask(
+  ...paths: string[]
+): FieldMask<ListConnections> {
+  return FieldMask.build<ListConnections>(
+    paths,
+    listConnectionsFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listConnections_ResponseFieldMaskSchema: FieldMaskSchema = {
+  connections: {wire: 'connections'},
+  nextPageToken: {wire: 'next_page_token'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listConnections_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListConnections_Response> {
+  return FieldMask.build<ListConnections_Response>(
+    paths,
+    listConnections_ResponseFieldMaskSchema
+  );
+}
+
+const provisioningInfoFieldMaskSchema: FieldMaskSchema = {
+  state: {wire: 'state'},
+};
+
+export function provisioningInfoFieldMask(
+  ...paths: string[]
+): FieldMask<ProvisioningInfo> {
+  return FieldMask.build<ProvisioningInfo>(
+    paths,
+    provisioningInfoFieldMaskSchema
+  );
+}
+
+const updateConnectionFieldMaskSchema: FieldMaskSchema = {
+  comment: {wire: 'comment'},
+  connectionId: {wire: 'connection_id'},
+  connectionType: {wire: 'connection_type'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  credentialType: {wire: 'credential_type'},
+  environmentSettings: {
+    wire: 'environment_settings',
+    children: () => environmentSettingsFieldMaskSchema,
+  },
+  fullName: {wire: 'full_name'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  nameArg: {wire: 'name_arg'},
+  newName: {wire: 'new_name'},
+  options: {wire: 'options'},
+  owner: {wire: 'owner'},
+  properties: {wire: 'properties'},
+  provisioningInfo: {
+    wire: 'provisioning_info',
+    children: () => provisioningInfoFieldMaskSchema,
+  },
+  readOnly: {wire: 'read_only'},
+  secrets: {wire: 'secrets'},
+  securableType: {wire: 'securable_type'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+  url: {wire: 'url'},
+};
+
+export function updateConnectionFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateConnection> {
+  return FieldMask.build<UpdateConnection>(
+    paths,
+    updateConnectionFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const updateConnection_OptionsEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function updateConnection_OptionsEntryFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateConnection_OptionsEntry> {
+  return FieldMask.build<UpdateConnection_OptionsEntry>(
+    paths,
+    updateConnection_OptionsEntryFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const updateConnection_PropertiesEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function updateConnection_PropertiesEntryFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateConnection_PropertiesEntry> {
+  return FieldMask.build<UpdateConnection_PropertiesEntry>(
+    paths,
+    updateConnection_PropertiesEntryFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const updateConnection_SecretsEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function updateConnection_SecretsEntryFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateConnection_SecretsEntry> {
+  return FieldMask.build<UpdateConnection_SecretsEntry>(
+    paths,
+    updateConnection_SecretsEntryFieldMaskSchema
+  );
+}

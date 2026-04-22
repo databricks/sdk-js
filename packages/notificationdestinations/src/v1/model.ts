@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum DestinationType {
@@ -473,3 +475,224 @@ export const marshalUpdateNotificationDestinationRequestSchema: z.ZodType = z
     display_name: d.displayName,
     config: d.config,
   }));
+
+const configFieldMaskSchema: FieldMaskSchema = {
+  email: {wire: 'email', children: () => emailConfigFieldMaskSchema},
+  genericWebhook: {
+    wire: 'generic_webhook',
+    children: () => genericWebhookConfigFieldMaskSchema,
+  },
+  microsoftTeams: {
+    wire: 'microsoft_teams',
+    children: () => microsoftTeamsConfigFieldMaskSchema,
+  },
+  pagerduty: {
+    wire: 'pagerduty',
+    children: () => pagerdutyConfigFieldMaskSchema,
+  },
+  slack: {wire: 'slack', children: () => slackConfigFieldMaskSchema},
+};
+
+export function configFieldMask(...paths: string[]): FieldMask<Config> {
+  return FieldMask.build<Config>(paths, configFieldMaskSchema);
+}
+
+const createNotificationDestinationRequestFieldMaskSchema: FieldMaskSchema = {
+  config: {wire: 'config', children: () => configFieldMaskSchema},
+  displayName: {wire: 'display_name'},
+};
+
+export function createNotificationDestinationRequestFieldMask(
+  ...paths: string[]
+): FieldMask<CreateNotificationDestinationRequest> {
+  return FieldMask.build<CreateNotificationDestinationRequest>(
+    paths,
+    createNotificationDestinationRequestFieldMaskSchema
+  );
+}
+
+const deleteNotificationDestinationRequestFieldMaskSchema: FieldMaskSchema = {
+  id: {wire: 'id'},
+};
+
+export function deleteNotificationDestinationRequestFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteNotificationDestinationRequest> {
+  return FieldMask.build<DeleteNotificationDestinationRequest>(
+    paths,
+    deleteNotificationDestinationRequestFieldMaskSchema
+  );
+}
+
+const emailConfigFieldMaskSchema: FieldMaskSchema = {
+  addresses: {wire: 'addresses'},
+};
+
+export function emailConfigFieldMask(
+  ...paths: string[]
+): FieldMask<EmailConfig> {
+  return FieldMask.build<EmailConfig>(paths, emailConfigFieldMaskSchema);
+}
+
+const emptyFieldMaskSchema: FieldMaskSchema = {};
+
+export function emptyFieldMask(...paths: string[]): FieldMask<Empty> {
+  return FieldMask.build<Empty>(paths, emptyFieldMaskSchema);
+}
+
+const genericWebhookConfigFieldMaskSchema: FieldMaskSchema = {
+  password: {wire: 'password'},
+  passwordSet: {wire: 'password_set'},
+  url: {wire: 'url'},
+  urlSet: {wire: 'url_set'},
+  username: {wire: 'username'},
+  usernameSet: {wire: 'username_set'},
+};
+
+export function genericWebhookConfigFieldMask(
+  ...paths: string[]
+): FieldMask<GenericWebhookConfig> {
+  return FieldMask.build<GenericWebhookConfig>(
+    paths,
+    genericWebhookConfigFieldMaskSchema
+  );
+}
+
+const getNotificationDestinationRequestFieldMaskSchema: FieldMaskSchema = {
+  id: {wire: 'id'},
+};
+
+export function getNotificationDestinationRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GetNotificationDestinationRequest> {
+  return FieldMask.build<GetNotificationDestinationRequest>(
+    paths,
+    getNotificationDestinationRequestFieldMaskSchema
+  );
+}
+
+const listNotificationDestinationsRequestFieldMaskSchema: FieldMaskSchema = {
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+};
+
+export function listNotificationDestinationsRequestFieldMask(
+  ...paths: string[]
+): FieldMask<ListNotificationDestinationsRequest> {
+  return FieldMask.build<ListNotificationDestinationsRequest>(
+    paths,
+    listNotificationDestinationsRequestFieldMaskSchema
+  );
+}
+
+const listNotificationDestinationsResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  results: {wire: 'results'},
+};
+
+export function listNotificationDestinationsResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListNotificationDestinationsResponse> {
+  return FieldMask.build<ListNotificationDestinationsResponse>(
+    paths,
+    listNotificationDestinationsResponseFieldMaskSchema
+  );
+}
+
+const listNotificationDestinationsResultFieldMaskSchema: FieldMaskSchema = {
+  config: {wire: 'config', children: () => configFieldMaskSchema},
+  destinationType: {wire: 'destination_type'},
+  displayName: {wire: 'display_name'},
+  id: {wire: 'id'},
+};
+
+export function listNotificationDestinationsResultFieldMask(
+  ...paths: string[]
+): FieldMask<ListNotificationDestinationsResult> {
+  return FieldMask.build<ListNotificationDestinationsResult>(
+    paths,
+    listNotificationDestinationsResultFieldMaskSchema
+  );
+}
+
+const microsoftTeamsConfigFieldMaskSchema: FieldMaskSchema = {
+  appId: {wire: 'app_id'},
+  appIdSet: {wire: 'app_id_set'},
+  authSecret: {wire: 'auth_secret'},
+  authSecretSet: {wire: 'auth_secret_set'},
+  channelUrl: {wire: 'channel_url'},
+  channelUrlSet: {wire: 'channel_url_set'},
+  tenantId: {wire: 'tenant_id'},
+  tenantIdSet: {wire: 'tenant_id_set'},
+  url: {wire: 'url'},
+  urlSet: {wire: 'url_set'},
+};
+
+export function microsoftTeamsConfigFieldMask(
+  ...paths: string[]
+): FieldMask<MicrosoftTeamsConfig> {
+  return FieldMask.build<MicrosoftTeamsConfig>(
+    paths,
+    microsoftTeamsConfigFieldMaskSchema
+  );
+}
+
+const notificationDestinationFieldMaskSchema: FieldMaskSchema = {
+  config: {wire: 'config', children: () => configFieldMaskSchema},
+  destinationType: {wire: 'destination_type'},
+  displayName: {wire: 'display_name'},
+  id: {wire: 'id'},
+};
+
+export function notificationDestinationFieldMask(
+  ...paths: string[]
+): FieldMask<NotificationDestination> {
+  return FieldMask.build<NotificationDestination>(
+    paths,
+    notificationDestinationFieldMaskSchema
+  );
+}
+
+const pagerdutyConfigFieldMaskSchema: FieldMaskSchema = {
+  integrationKey: {wire: 'integration_key'},
+  integrationKeySet: {wire: 'integration_key_set'},
+};
+
+export function pagerdutyConfigFieldMask(
+  ...paths: string[]
+): FieldMask<PagerdutyConfig> {
+  return FieldMask.build<PagerdutyConfig>(
+    paths,
+    pagerdutyConfigFieldMaskSchema
+  );
+}
+
+const slackConfigFieldMaskSchema: FieldMaskSchema = {
+  channelId: {wire: 'channel_id'},
+  channelIdSet: {wire: 'channel_id_set'},
+  oauthToken: {wire: 'oauth_token'},
+  oauthTokenSet: {wire: 'oauth_token_set'},
+  url: {wire: 'url'},
+  urlSet: {wire: 'url_set'},
+};
+
+export function slackConfigFieldMask(
+  ...paths: string[]
+): FieldMask<SlackConfig> {
+  return FieldMask.build<SlackConfig>(paths, slackConfigFieldMaskSchema);
+}
+
+const updateNotificationDestinationRequestFieldMaskSchema: FieldMaskSchema = {
+  config: {wire: 'config', children: () => configFieldMaskSchema},
+  displayName: {wire: 'display_name'},
+  id: {wire: 'id'},
+};
+
+export function updateNotificationDestinationRequestFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateNotificationDestinationRequest> {
+  return FieldMask.build<UpdateNotificationDestinationRequest>(
+    paths,
+    updateNotificationDestinationRequestFieldMaskSchema
+  );
+}

@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum ChannelName {
@@ -850,3 +852,230 @@ export const marshalTimeRangeSchema: z.ZodType = z
     start_time_ms: d.startTimeMs,
     end_time_ms: d.endTimeMs,
   }));
+
+const channelInfoFieldMaskSchema: FieldMaskSchema = {
+  dbsqlVersion: {wire: 'dbsql_version'},
+  name: {wire: 'name'},
+};
+
+export function channelInfoFieldMask(
+  ...paths: string[]
+): FieldMask<ChannelInfo> {
+  return FieldMask.build<ChannelInfo>(paths, channelInfoFieldMaskSchema);
+}
+
+const externalQuerySourceFieldMaskSchema: FieldMaskSchema = {
+  alertId: {wire: 'alert_id'},
+  dashboardId: {wire: 'dashboard_id'},
+  genieSpaceId: {wire: 'genie_space_id'},
+  jobInfo: {
+    wire: 'job_info',
+    children: () => externalQuerySource_JobInfoFieldMaskSchema,
+  },
+  legacyDashboardId: {wire: 'legacy_dashboard_id'},
+  notebookId: {wire: 'notebook_id'},
+  sqlQueryId: {wire: 'sql_query_id'},
+};
+
+export function externalQuerySourceFieldMask(
+  ...paths: string[]
+): FieldMask<ExternalQuerySource> {
+  return FieldMask.build<ExternalQuerySource>(
+    paths,
+    externalQuerySourceFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const externalQuerySource_JobInfoFieldMaskSchema: FieldMaskSchema = {
+  jobId: {wire: 'job_id'},
+  jobRunId: {wire: 'job_run_id'},
+  jobTaskRunId: {wire: 'job_task_run_id'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function externalQuerySource_JobInfoFieldMask(
+  ...paths: string[]
+): FieldMask<ExternalQuerySource_JobInfo> {
+  return FieldMask.build<ExternalQuerySource_JobInfo>(
+    paths,
+    externalQuerySource_JobInfoFieldMaskSchema
+  );
+}
+
+const listQueriesFieldMaskSchema: FieldMaskSchema = {
+  filterBy: {wire: 'filter_by', children: () => queryFilterFieldMaskSchema},
+  includeMetrics: {wire: 'include_metrics'},
+  maxResults: {wire: 'max_results'},
+  pageToken: {wire: 'page_token'},
+};
+
+export function listQueriesFieldMask(
+  ...paths: string[]
+): FieldMask<ListQueries> {
+  return FieldMask.build<ListQueries>(paths, listQueriesFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listQueries_ResponseFieldMaskSchema: FieldMaskSchema = {
+  hasNextPage: {wire: 'has_next_page'},
+  nextPageToken: {wire: 'next_page_token'},
+  res: {wire: 'res'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listQueries_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListQueries_Response> {
+  return FieldMask.build<ListQueries_Response>(
+    paths,
+    listQueries_ResponseFieldMaskSchema
+  );
+}
+
+const queryFilterFieldMaskSchema: FieldMaskSchema = {
+  queryStartTimeRange: {
+    wire: 'query_start_time_range',
+    children: () => timeRangeFieldMaskSchema,
+  },
+  statementIds: {wire: 'statement_ids'},
+  statuses: {wire: 'statuses'},
+  userIds: {wire: 'user_ids'},
+  warehouseIds: {wire: 'warehouse_ids'},
+};
+
+export function queryFilterFieldMask(
+  ...paths: string[]
+): FieldMask<QueryFilter> {
+  return FieldMask.build<QueryFilter>(paths, queryFilterFieldMaskSchema);
+}
+
+const queryInfoFieldMaskSchema: FieldMaskSchema = {
+  cacheQueryId: {wire: 'cache_query_id'},
+  channelUsed: {
+    wire: 'channel_used',
+    children: () => channelInfoFieldMaskSchema,
+  },
+  clientApplication: {wire: 'client_application'},
+  duration: {wire: 'duration'},
+  endpointId: {wire: 'endpoint_id'},
+  errorMessage: {wire: 'error_message'},
+  executedAsUserId: {wire: 'executed_as_user_id'},
+  executedAsUserName: {wire: 'executed_as_user_name'},
+  executionEndTimeMs: {wire: 'execution_end_time_ms'},
+  isFinal: {wire: 'is_final'},
+  lookupKey: {wire: 'lookup_key'},
+  metrics: {wire: 'metrics', children: () => queryMetricsFieldMaskSchema},
+  plansState: {wire: 'plans_state'},
+  queryEndTimeMs: {wire: 'query_end_time_ms'},
+  queryId: {wire: 'query_id'},
+  querySource: {
+    wire: 'query_source',
+    children: () => externalQuerySourceFieldMaskSchema,
+  },
+  queryStartTimeMs: {wire: 'query_start_time_ms'},
+  queryTags: {wire: 'query_tags'},
+  queryText: {wire: 'query_text'},
+  rowsProduced: {wire: 'rows_produced'},
+  sessionId: {wire: 'session_id'},
+  sparkUiUrl: {wire: 'spark_ui_url'},
+  statementType: {wire: 'statement_type'},
+  status: {wire: 'status'},
+  userId: {wire: 'user_id'},
+  userName: {wire: 'user_name'},
+  warehouseId: {wire: 'warehouse_id'},
+};
+
+export function queryInfoFieldMask(...paths: string[]): FieldMask<QueryInfo> {
+  return FieldMask.build<QueryInfo>(paths, queryInfoFieldMaskSchema);
+}
+
+const queryMetricsFieldMaskSchema: FieldMaskSchema = {
+  compilationTimeMs: {wire: 'compilation_time_ms'},
+  executionTimeMs: {wire: 'execution_time_ms'},
+  networkSentBytes: {wire: 'network_sent_bytes'},
+  overloadingQueueStartTimestamp: {wire: 'overloading_queue_start_timestamp'},
+  photonTotalTimeMs: {wire: 'photon_total_time_ms'},
+  projectedRemainingTaskTotalTimeMs: {
+    wire: 'projected_remaining_task_total_time_ms',
+  },
+  projectedRemainingWallclockTimeMs: {
+    wire: 'projected_remaining_wallclock_time_ms',
+  },
+  provisioningQueueStartTimestamp: {wire: 'provisioning_queue_start_timestamp'},
+  prunedBytes: {wire: 'pruned_bytes'},
+  prunedFilesCount: {wire: 'pruned_files_count'},
+  queryCompilationStartTimestamp: {wire: 'query_compilation_start_timestamp'},
+  readBytes: {wire: 'read_bytes'},
+  readCacheBytes: {wire: 'read_cache_bytes'},
+  readFilesBytes: {wire: 'read_files_bytes'},
+  readFilesCount: {wire: 'read_files_count'},
+  readPartitionsCount: {wire: 'read_partitions_count'},
+  readRemoteBytes: {wire: 'read_remote_bytes'},
+  remainingTaskCount: {wire: 'remaining_task_count'},
+  resultFetchTimeMs: {wire: 'result_fetch_time_ms'},
+  resultFromCache: {wire: 'result_from_cache'},
+  rowsProducedCount: {wire: 'rows_produced_count'},
+  rowsReadCount: {wire: 'rows_read_count'},
+  runnableTasks: {wire: 'runnable_tasks'},
+  spillToDiskBytes: {wire: 'spill_to_disk_bytes'},
+  taskTimeOverTimeRange: {
+    wire: 'task_time_over_time_range',
+    children: () => taskTimeOverRangeFieldMaskSchema,
+  },
+  taskTotalTimeMs: {wire: 'task_total_time_ms'},
+  totalTimeMs: {wire: 'total_time_ms'},
+  workToBeDone: {wire: 'work_to_be_done'},
+  writeRemoteBytes: {wire: 'write_remote_bytes'},
+};
+
+export function queryMetricsFieldMask(
+  ...paths: string[]
+): FieldMask<QueryMetrics> {
+  return FieldMask.build<QueryMetrics>(paths, queryMetricsFieldMaskSchema);
+}
+
+const queryTagFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+export function queryTagFieldMask(...paths: string[]): FieldMask<QueryTag> {
+  return FieldMask.build<QueryTag>(paths, queryTagFieldMaskSchema);
+}
+
+const taskTimeOverRangeFieldMaskSchema: FieldMaskSchema = {
+  entries: {wire: 'entries'},
+  interval: {wire: 'interval'},
+};
+
+export function taskTimeOverRangeFieldMask(
+  ...paths: string[]
+): FieldMask<TaskTimeOverRange> {
+  return FieldMask.build<TaskTimeOverRange>(
+    paths,
+    taskTimeOverRangeFieldMaskSchema
+  );
+}
+
+const taskTimeOverRangeEntryFieldMaskSchema: FieldMaskSchema = {
+  taskCompletedTimeMs: {wire: 'task_completed_time_ms'},
+};
+
+export function taskTimeOverRangeEntryFieldMask(
+  ...paths: string[]
+): FieldMask<TaskTimeOverRangeEntry> {
+  return FieldMask.build<TaskTimeOverRangeEntry>(
+    paths,
+    taskTimeOverRangeEntryFieldMaskSchema
+  );
+}
+
+const timeRangeFieldMaskSchema: FieldMaskSchema = {
+  endTimeMs: {wire: 'end_time_ms'},
+  startTimeMs: {wire: 'start_time_ms'},
+};
+
+export function timeRangeFieldMask(...paths: string[]): FieldMask<TimeRange> {
+  return FieldMask.build<TimeRange>(paths, timeRangeFieldMaskSchema);
+}

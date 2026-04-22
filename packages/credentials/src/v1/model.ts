@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum IsolationMode {
@@ -2508,3 +2510,967 @@ export const marshalValidateStorageCredential_ValidationResultSchema: z.ZodType 
       result: d.result,
       message: d.message,
     }));
+
+const awsCredentialsFieldMaskSchema: FieldMaskSchema = {
+  accessKeyId: {wire: 'access_key_id'},
+  accessPoint: {wire: 'access_point'},
+  secretAccessKey: {wire: 'secret_access_key'},
+  sessionToken: {wire: 'session_token'},
+};
+
+export function awsCredentialsFieldMask(
+  ...paths: string[]
+): FieldMask<AwsCredentials> {
+  return FieldMask.build<AwsCredentials>(paths, awsCredentialsFieldMaskSchema);
+}
+
+const awsIamRoleFieldMaskSchema: FieldMaskSchema = {
+  externalId: {wire: 'external_id'},
+  roleArn: {wire: 'role_arn'},
+  unityCatalogIamArn: {wire: 'unity_catalog_iam_arn'},
+};
+
+export function awsIamRoleFieldMask(...paths: string[]): FieldMask<AwsIamRole> {
+  return FieldMask.build<AwsIamRole>(paths, awsIamRoleFieldMaskSchema);
+}
+
+const azureActiveDirectoryTokenFieldMaskSchema: FieldMaskSchema = {
+  aadToken: {wire: 'aad_token'},
+};
+
+export function azureActiveDirectoryTokenFieldMask(
+  ...paths: string[]
+): FieldMask<AzureActiveDirectoryToken> {
+  return FieldMask.build<AzureActiveDirectoryToken>(
+    paths,
+    azureActiveDirectoryTokenFieldMaskSchema
+  );
+}
+
+const azureManagedIdentityFieldMaskSchema: FieldMaskSchema = {
+  accessConnectorId: {wire: 'access_connector_id'},
+  credentialId: {wire: 'credential_id'},
+  managedIdentityId: {wire: 'managed_identity_id'},
+};
+
+export function azureManagedIdentityFieldMask(
+  ...paths: string[]
+): FieldMask<AzureManagedIdentity> {
+  return FieldMask.build<AzureManagedIdentity>(
+    paths,
+    azureManagedIdentityFieldMaskSchema
+  );
+}
+
+const azureServicePrincipalFieldMaskSchema: FieldMaskSchema = {
+  applicationId: {wire: 'application_id'},
+  clientSecret: {wire: 'client_secret'},
+  directoryId: {wire: 'directory_id'},
+};
+
+export function azureServicePrincipalFieldMask(
+  ...paths: string[]
+): FieldMask<AzureServicePrincipal> {
+  return FieldMask.build<AzureServicePrincipal>(
+    paths,
+    azureServicePrincipalFieldMaskSchema
+  );
+}
+
+const azureUserDelegationSasFieldMaskSchema: FieldMaskSchema = {
+  sasToken: {wire: 'sas_token'},
+};
+
+export function azureUserDelegationSasFieldMask(
+  ...paths: string[]
+): FieldMask<AzureUserDelegationSas> {
+  return FieldMask.build<AzureUserDelegationSas>(
+    paths,
+    azureUserDelegationSasFieldMaskSchema
+  );
+}
+
+const cloudflareApiTokenFieldMaskSchema: FieldMaskSchema = {
+  accessKeyId: {wire: 'access_key_id'},
+  accountId: {wire: 'account_id'},
+  secretAccessKey: {wire: 'secret_access_key'},
+};
+
+export function cloudflareApiTokenFieldMask(
+  ...paths: string[]
+): FieldMask<CloudflareApiToken> {
+  return FieldMask.build<CloudflareApiToken>(
+    paths,
+    cloudflareApiTokenFieldMaskSchema
+  );
+}
+
+const createCredentialFieldMaskSchema: FieldMaskSchema = {
+  awsIamRole: {wire: 'aws_iam_role', children: () => awsIamRoleFieldMaskSchema},
+  azureManagedIdentity: {
+    wire: 'azure_managed_identity',
+    children: () => azureManagedIdentityFieldMaskSchema,
+  },
+  azureServicePrincipal: {
+    wire: 'azure_service_principal',
+    children: () => azureServicePrincipalFieldMaskSchema,
+  },
+  cloudflareApiToken: {
+    wire: 'cloudflare_api_token',
+    children: () => cloudflareApiTokenFieldMaskSchema,
+  },
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  databricksGcpServiceAccount: {
+    wire: 'databricks_gcp_service_account',
+    children: () => databricksGcpServiceAccountFieldMaskSchema,
+  },
+  fullName: {wire: 'full_name'},
+  gcpServiceAccountKey: {
+    wire: 'gcp_service_account_key',
+    children: () => gcpServiceAccountKeyFieldMaskSchema,
+  },
+  id: {wire: 'id'},
+  isolationMode: {wire: 'isolation_mode'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  owner: {wire: 'owner'},
+  readOnly: {wire: 'read_only'},
+  skipValidation: {wire: 'skip_validation'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+  usedForManagedStorage: {wire: 'used_for_managed_storage'},
+};
+
+export function createCredentialFieldMask(
+  ...paths: string[]
+): FieldMask<CreateCredential> {
+  return FieldMask.build<CreateCredential>(
+    paths,
+    createCredentialFieldMaskSchema
+  );
+}
+
+const createStorageCredentialFieldMaskSchema: FieldMaskSchema = {
+  awsIamRole: {wire: 'aws_iam_role', children: () => awsIamRoleFieldMaskSchema},
+  azureManagedIdentity: {
+    wire: 'azure_managed_identity',
+    children: () => azureManagedIdentityFieldMaskSchema,
+  },
+  azureServicePrincipal: {
+    wire: 'azure_service_principal',
+    children: () => azureServicePrincipalFieldMaskSchema,
+  },
+  cloudflareApiToken: {
+    wire: 'cloudflare_api_token',
+    children: () => cloudflareApiTokenFieldMaskSchema,
+  },
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  databricksGcpServiceAccount: {
+    wire: 'databricks_gcp_service_account',
+    children: () => databricksGcpServiceAccountFieldMaskSchema,
+  },
+  fullName: {wire: 'full_name'},
+  gcpServiceAccountKey: {
+    wire: 'gcp_service_account_key',
+    children: () => gcpServiceAccountKeyFieldMaskSchema,
+  },
+  id: {wire: 'id'},
+  isolationMode: {wire: 'isolation_mode'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  owner: {wire: 'owner'},
+  readOnly: {wire: 'read_only'},
+  skipValidation: {wire: 'skip_validation'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+  usedForManagedStorage: {wire: 'used_for_managed_storage'},
+};
+
+export function createStorageCredentialFieldMask(
+  ...paths: string[]
+): FieldMask<CreateStorageCredential> {
+  return FieldMask.build<CreateStorageCredential>(
+    paths,
+    createStorageCredentialFieldMaskSchema
+  );
+}
+
+const credentialInfoFieldMaskSchema: FieldMaskSchema = {
+  awsIamRole: {wire: 'aws_iam_role', children: () => awsIamRoleFieldMaskSchema},
+  azureManagedIdentity: {
+    wire: 'azure_managed_identity',
+    children: () => azureManagedIdentityFieldMaskSchema,
+  },
+  azureServicePrincipal: {
+    wire: 'azure_service_principal',
+    children: () => azureServicePrincipalFieldMaskSchema,
+  },
+  cloudflareApiToken: {
+    wire: 'cloudflare_api_token',
+    children: () => cloudflareApiTokenFieldMaskSchema,
+  },
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  databricksGcpServiceAccount: {
+    wire: 'databricks_gcp_service_account',
+    children: () => databricksGcpServiceAccountFieldMaskSchema,
+  },
+  fullName: {wire: 'full_name'},
+  gcpServiceAccountKey: {
+    wire: 'gcp_service_account_key',
+    children: () => gcpServiceAccountKeyFieldMaskSchema,
+  },
+  id: {wire: 'id'},
+  isolationMode: {wire: 'isolation_mode'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  owner: {wire: 'owner'},
+  readOnly: {wire: 'read_only'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+  usedForManagedStorage: {wire: 'used_for_managed_storage'},
+};
+
+export function credentialInfoFieldMask(
+  ...paths: string[]
+): FieldMask<CredentialInfo> {
+  return FieldMask.build<CredentialInfo>(paths, credentialInfoFieldMaskSchema);
+}
+
+const databricksGcpServiceAccountFieldMaskSchema: FieldMaskSchema = {
+  credentialId: {wire: 'credential_id'},
+  email: {wire: 'email'},
+  privateKeyId: {wire: 'private_key_id'},
+};
+
+export function databricksGcpServiceAccountFieldMask(
+  ...paths: string[]
+): FieldMask<DatabricksGcpServiceAccount> {
+  return FieldMask.build<DatabricksGcpServiceAccount>(
+    paths,
+    databricksGcpServiceAccountFieldMaskSchema
+  );
+}
+
+const deleteCredentialFieldMaskSchema: FieldMaskSchema = {
+  force: {wire: 'force'},
+  nameArg: {wire: 'name_arg'},
+};
+
+export function deleteCredentialFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteCredential> {
+  return FieldMask.build<DeleteCredential>(
+    paths,
+    deleteCredentialFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deleteCredential_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deleteCredential_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteCredential_Response> {
+  return FieldMask.build<DeleteCredential_Response>(
+    paths,
+    deleteCredential_ResponseFieldMaskSchema
+  );
+}
+
+const deleteStorageCredentialFieldMaskSchema: FieldMaskSchema = {
+  force: {wire: 'force'},
+  nameArg: {wire: 'name_arg'},
+};
+
+export function deleteStorageCredentialFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteStorageCredential> {
+  return FieldMask.build<DeleteStorageCredential>(
+    paths,
+    deleteStorageCredentialFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deleteStorageCredential_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deleteStorageCredential_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteStorageCredential_Response> {
+  return FieldMask.build<DeleteStorageCredential_Response>(
+    paths,
+    deleteStorageCredential_ResponseFieldMaskSchema
+  );
+}
+
+const gcpOauthTokenFieldMaskSchema: FieldMaskSchema = {
+  oauthToken: {wire: 'oauth_token'},
+};
+
+export function gcpOauthTokenFieldMask(
+  ...paths: string[]
+): FieldMask<GcpOauthToken> {
+  return FieldMask.build<GcpOauthToken>(paths, gcpOauthTokenFieldMaskSchema);
+}
+
+const gcpServiceAccountKeyFieldMaskSchema: FieldMaskSchema = {
+  email: {wire: 'email'},
+  privateKey: {wire: 'private_key'},
+  privateKeyId: {wire: 'private_key_id'},
+};
+
+export function gcpServiceAccountKeyFieldMask(
+  ...paths: string[]
+): FieldMask<GcpServiceAccountKey> {
+  return FieldMask.build<GcpServiceAccountKey>(
+    paths,
+    gcpServiceAccountKeyFieldMaskSchema
+  );
+}
+
+const generateTemporaryPathCredentialFieldMaskSchema: FieldMaskSchema = {
+  dryRun: {wire: 'dry_run'},
+  operation: {wire: 'operation'},
+  url: {wire: 'url'},
+};
+
+export function generateTemporaryPathCredentialFieldMask(
+  ...paths: string[]
+): FieldMask<GenerateTemporaryPathCredential> {
+  return FieldMask.build<GenerateTemporaryPathCredential>(
+    paths,
+    generateTemporaryPathCredentialFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const generateTemporaryPathCredential_ResponseFieldMaskSchema: FieldMaskSchema =
+  {
+    awsTempCredentials: {
+      wire: 'aws_temp_credentials',
+      children: () => awsCredentialsFieldMaskSchema,
+    },
+    azureAad: {
+      wire: 'azure_aad',
+      children: () => azureActiveDirectoryTokenFieldMaskSchema,
+    },
+    azureUserDelegationSas: {
+      wire: 'azure_user_delegation_sas',
+      children: () => azureUserDelegationSasFieldMaskSchema,
+    },
+    expirationTime: {wire: 'expiration_time'},
+    gcpOauthToken: {
+      wire: 'gcp_oauth_token',
+      children: () => gcpOauthTokenFieldMaskSchema,
+    },
+    r2TempCredentials: {
+      wire: 'r2_temp_credentials',
+      children: () => r2CredentialsFieldMaskSchema,
+    },
+    ucEncryptedToken: {
+      wire: 'uc_encrypted_token',
+      children: () => ucEncryptedTokenFieldMaskSchema,
+    },
+    url: {wire: 'url'},
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function generateTemporaryPathCredential_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GenerateTemporaryPathCredential_Response> {
+  return FieldMask.build<GenerateTemporaryPathCredential_Response>(
+    paths,
+    generateTemporaryPathCredential_ResponseFieldMaskSchema
+  );
+}
+
+const generateTemporaryServiceCredentialFieldMaskSchema: FieldMaskSchema = {
+  azureOptions: {
+    wire: 'azure_options',
+    children: () =>
+      generateTemporaryServiceCredential_AzureOptionsFieldMaskSchema,
+  },
+  credentialName: {wire: 'credential_name'},
+  gcpOptions: {
+    wire: 'gcp_options',
+    children: () =>
+      generateTemporaryServiceCredential_GcpOptionsFieldMaskSchema,
+  },
+};
+
+export function generateTemporaryServiceCredentialFieldMask(
+  ...paths: string[]
+): FieldMask<GenerateTemporaryServiceCredential> {
+  return FieldMask.build<GenerateTemporaryServiceCredential>(
+    paths,
+    generateTemporaryServiceCredentialFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const generateTemporaryServiceCredential_AzureOptionsFieldMaskSchema: FieldMaskSchema =
+  {
+    resources: {wire: 'resources'},
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function generateTemporaryServiceCredential_AzureOptionsFieldMask(
+  ...paths: string[]
+): FieldMask<GenerateTemporaryServiceCredential_AzureOptions> {
+  return FieldMask.build<GenerateTemporaryServiceCredential_AzureOptions>(
+    paths,
+    generateTemporaryServiceCredential_AzureOptionsFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const generateTemporaryServiceCredential_GcpOptionsFieldMaskSchema: FieldMaskSchema =
+  {
+    scopes: {wire: 'scopes'},
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function generateTemporaryServiceCredential_GcpOptionsFieldMask(
+  ...paths: string[]
+): FieldMask<GenerateTemporaryServiceCredential_GcpOptions> {
+  return FieldMask.build<GenerateTemporaryServiceCredential_GcpOptions>(
+    paths,
+    generateTemporaryServiceCredential_GcpOptionsFieldMaskSchema
+  );
+}
+
+const generateTemporaryTableCredentialFieldMaskSchema: FieldMaskSchema = {
+  operation: {wire: 'operation'},
+  tableId: {wire: 'table_id'},
+};
+
+export function generateTemporaryTableCredentialFieldMask(
+  ...paths: string[]
+): FieldMask<GenerateTemporaryTableCredential> {
+  return FieldMask.build<GenerateTemporaryTableCredential>(
+    paths,
+    generateTemporaryTableCredentialFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const generateTemporaryTableCredential_ResponseFieldMaskSchema: FieldMaskSchema =
+  {
+    awsTempCredentials: {
+      wire: 'aws_temp_credentials',
+      children: () => awsCredentialsFieldMaskSchema,
+    },
+    azureAad: {
+      wire: 'azure_aad',
+      children: () => azureActiveDirectoryTokenFieldMaskSchema,
+    },
+    azureUserDelegationSas: {
+      wire: 'azure_user_delegation_sas',
+      children: () => azureUserDelegationSasFieldMaskSchema,
+    },
+    expirationTime: {wire: 'expiration_time'},
+    gcpOauthToken: {
+      wire: 'gcp_oauth_token',
+      children: () => gcpOauthTokenFieldMaskSchema,
+    },
+    r2TempCredentials: {
+      wire: 'r2_temp_credentials',
+      children: () => r2CredentialsFieldMaskSchema,
+    },
+    ucEncryptedToken: {
+      wire: 'uc_encrypted_token',
+      children: () => ucEncryptedTokenFieldMaskSchema,
+    },
+    url: {wire: 'url'},
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function generateTemporaryTableCredential_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GenerateTemporaryTableCredential_Response> {
+  return FieldMask.build<GenerateTemporaryTableCredential_Response>(
+    paths,
+    generateTemporaryTableCredential_ResponseFieldMaskSchema
+  );
+}
+
+const generateTemporaryVolumeCredentialFieldMaskSchema: FieldMaskSchema = {
+  operation: {wire: 'operation'},
+  volumeId: {wire: 'volume_id'},
+};
+
+export function generateTemporaryVolumeCredentialFieldMask(
+  ...paths: string[]
+): FieldMask<GenerateTemporaryVolumeCredential> {
+  return FieldMask.build<GenerateTemporaryVolumeCredential>(
+    paths,
+    generateTemporaryVolumeCredentialFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const generateTemporaryVolumeCredential_ResponseFieldMaskSchema: FieldMaskSchema =
+  {
+    awsTempCredentials: {
+      wire: 'aws_temp_credentials',
+      children: () => awsCredentialsFieldMaskSchema,
+    },
+    azureAad: {
+      wire: 'azure_aad',
+      children: () => azureActiveDirectoryTokenFieldMaskSchema,
+    },
+    azureUserDelegationSas: {
+      wire: 'azure_user_delegation_sas',
+      children: () => azureUserDelegationSasFieldMaskSchema,
+    },
+    expirationTime: {wire: 'expiration_time'},
+    gcpOauthToken: {
+      wire: 'gcp_oauth_token',
+      children: () => gcpOauthTokenFieldMaskSchema,
+    },
+    r2TempCredentials: {
+      wire: 'r2_temp_credentials',
+      children: () => r2CredentialsFieldMaskSchema,
+    },
+    ucEncryptedToken: {
+      wire: 'uc_encrypted_token',
+      children: () => ucEncryptedTokenFieldMaskSchema,
+    },
+    url: {wire: 'url'},
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function generateTemporaryVolumeCredential_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GenerateTemporaryVolumeCredential_Response> {
+  return FieldMask.build<GenerateTemporaryVolumeCredential_Response>(
+    paths,
+    generateTemporaryVolumeCredential_ResponseFieldMaskSchema
+  );
+}
+
+const getCredentialFieldMaskSchema: FieldMaskSchema = {
+  nameArg: {wire: 'name_arg'},
+};
+
+export function getCredentialFieldMask(
+  ...paths: string[]
+): FieldMask<GetCredential> {
+  return FieldMask.build<GetCredential>(paths, getCredentialFieldMaskSchema);
+}
+
+const getStorageCredentialFieldMaskSchema: FieldMaskSchema = {
+  nameArg: {wire: 'name_arg'},
+};
+
+export function getStorageCredentialFieldMask(
+  ...paths: string[]
+): FieldMask<GetStorageCredential> {
+  return FieldMask.build<GetStorageCredential>(
+    paths,
+    getStorageCredentialFieldMaskSchema
+  );
+}
+
+const listCredentialsFieldMaskSchema: FieldMaskSchema = {
+  includeUnbound: {wire: 'include_unbound'},
+  maxResults: {wire: 'max_results'},
+  pageToken: {wire: 'page_token'},
+};
+
+export function listCredentialsFieldMask(
+  ...paths: string[]
+): FieldMask<ListCredentials> {
+  return FieldMask.build<ListCredentials>(
+    paths,
+    listCredentialsFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listCredentials_ResponseFieldMaskSchema: FieldMaskSchema = {
+  credentials: {wire: 'credentials'},
+  nextPageToken: {wire: 'next_page_token'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listCredentials_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListCredentials_Response> {
+  return FieldMask.build<ListCredentials_Response>(
+    paths,
+    listCredentials_ResponseFieldMaskSchema
+  );
+}
+
+const listStorageCredentialsFieldMaskSchema: FieldMaskSchema = {
+  includeUnbound: {wire: 'include_unbound'},
+  maxResults: {wire: 'max_results'},
+  pageToken: {wire: 'page_token'},
+};
+
+export function listStorageCredentialsFieldMask(
+  ...paths: string[]
+): FieldMask<ListStorageCredentials> {
+  return FieldMask.build<ListStorageCredentials>(
+    paths,
+    listStorageCredentialsFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listStorageCredentials_ResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  storageCredentials: {wire: 'storage_credentials'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listStorageCredentials_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListStorageCredentials_Response> {
+  return FieldMask.build<ListStorageCredentials_Response>(
+    paths,
+    listStorageCredentials_ResponseFieldMaskSchema
+  );
+}
+
+const r2CredentialsFieldMaskSchema: FieldMaskSchema = {
+  accessKeyId: {wire: 'access_key_id'},
+  secretAccessKey: {wire: 'secret_access_key'},
+  sessionToken: {wire: 'session_token'},
+};
+
+export function r2CredentialsFieldMask(
+  ...paths: string[]
+): FieldMask<R2Credentials> {
+  return FieldMask.build<R2Credentials>(paths, r2CredentialsFieldMaskSchema);
+}
+
+const storageCredentialInfoFieldMaskSchema: FieldMaskSchema = {
+  awsIamRole: {wire: 'aws_iam_role', children: () => awsIamRoleFieldMaskSchema},
+  azureManagedIdentity: {
+    wire: 'azure_managed_identity',
+    children: () => azureManagedIdentityFieldMaskSchema,
+  },
+  azureServicePrincipal: {
+    wire: 'azure_service_principal',
+    children: () => azureServicePrincipalFieldMaskSchema,
+  },
+  cloudflareApiToken: {
+    wire: 'cloudflare_api_token',
+    children: () => cloudflareApiTokenFieldMaskSchema,
+  },
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  databricksGcpServiceAccount: {
+    wire: 'databricks_gcp_service_account',
+    children: () => databricksGcpServiceAccountFieldMaskSchema,
+  },
+  fullName: {wire: 'full_name'},
+  gcpServiceAccountKey: {
+    wire: 'gcp_service_account_key',
+    children: () => gcpServiceAccountKeyFieldMaskSchema,
+  },
+  id: {wire: 'id'},
+  isolationMode: {wire: 'isolation_mode'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  owner: {wire: 'owner'},
+  readOnly: {wire: 'read_only'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+  usedForManagedStorage: {wire: 'used_for_managed_storage'},
+};
+
+export function storageCredentialInfoFieldMask(
+  ...paths: string[]
+): FieldMask<StorageCredentialInfo> {
+  return FieldMask.build<StorageCredentialInfo>(
+    paths,
+    storageCredentialInfoFieldMaskSchema
+  );
+}
+
+const temporaryCredentialsFieldMaskSchema: FieldMaskSchema = {
+  awsTempCredentials: {
+    wire: 'aws_temp_credentials',
+    children: () => awsCredentialsFieldMaskSchema,
+  },
+  azureAad: {
+    wire: 'azure_aad',
+    children: () => azureActiveDirectoryTokenFieldMaskSchema,
+  },
+  azureUserDelegationSas: {
+    wire: 'azure_user_delegation_sas',
+    children: () => azureUserDelegationSasFieldMaskSchema,
+  },
+  expirationTime: {wire: 'expiration_time'},
+  gcpOauthToken: {
+    wire: 'gcp_oauth_token',
+    children: () => gcpOauthTokenFieldMaskSchema,
+  },
+  r2TempCredentials: {
+    wire: 'r2_temp_credentials',
+    children: () => r2CredentialsFieldMaskSchema,
+  },
+  ucEncryptedToken: {
+    wire: 'uc_encrypted_token',
+    children: () => ucEncryptedTokenFieldMaskSchema,
+  },
+  url: {wire: 'url'},
+};
+
+export function temporaryCredentialsFieldMask(
+  ...paths: string[]
+): FieldMask<TemporaryCredentials> {
+  return FieldMask.build<TemporaryCredentials>(
+    paths,
+    temporaryCredentialsFieldMaskSchema
+  );
+}
+
+const ucEncryptedTokenFieldMaskSchema: FieldMaskSchema = {
+  encryptedPayload: {wire: 'encrypted_payload'},
+};
+
+export function ucEncryptedTokenFieldMask(
+  ...paths: string[]
+): FieldMask<UcEncryptedToken> {
+  return FieldMask.build<UcEncryptedToken>(
+    paths,
+    ucEncryptedTokenFieldMaskSchema
+  );
+}
+
+const updateCredentialFieldMaskSchema: FieldMaskSchema = {
+  awsIamRole: {wire: 'aws_iam_role', children: () => awsIamRoleFieldMaskSchema},
+  azureManagedIdentity: {
+    wire: 'azure_managed_identity',
+    children: () => azureManagedIdentityFieldMaskSchema,
+  },
+  azureServicePrincipal: {
+    wire: 'azure_service_principal',
+    children: () => azureServicePrincipalFieldMaskSchema,
+  },
+  cloudflareApiToken: {
+    wire: 'cloudflare_api_token',
+    children: () => cloudflareApiTokenFieldMaskSchema,
+  },
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  databricksGcpServiceAccount: {
+    wire: 'databricks_gcp_service_account',
+    children: () => databricksGcpServiceAccountFieldMaskSchema,
+  },
+  force: {wire: 'force'},
+  fullName: {wire: 'full_name'},
+  gcpServiceAccountKey: {
+    wire: 'gcp_service_account_key',
+    children: () => gcpServiceAccountKeyFieldMaskSchema,
+  },
+  id: {wire: 'id'},
+  isolationMode: {wire: 'isolation_mode'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  nameArg: {wire: 'name_arg'},
+  newName: {wire: 'new_name'},
+  owner: {wire: 'owner'},
+  readOnly: {wire: 'read_only'},
+  skipValidation: {wire: 'skip_validation'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+  usedForManagedStorage: {wire: 'used_for_managed_storage'},
+};
+
+export function updateCredentialFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateCredential> {
+  return FieldMask.build<UpdateCredential>(
+    paths,
+    updateCredentialFieldMaskSchema
+  );
+}
+
+const updateStorageCredentialFieldMaskSchema: FieldMaskSchema = {
+  awsIamRole: {wire: 'aws_iam_role', children: () => awsIamRoleFieldMaskSchema},
+  azureManagedIdentity: {
+    wire: 'azure_managed_identity',
+    children: () => azureManagedIdentityFieldMaskSchema,
+  },
+  azureServicePrincipal: {
+    wire: 'azure_service_principal',
+    children: () => azureServicePrincipalFieldMaskSchema,
+  },
+  cloudflareApiToken: {
+    wire: 'cloudflare_api_token',
+    children: () => cloudflareApiTokenFieldMaskSchema,
+  },
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  databricksGcpServiceAccount: {
+    wire: 'databricks_gcp_service_account',
+    children: () => databricksGcpServiceAccountFieldMaskSchema,
+  },
+  force: {wire: 'force'},
+  fullName: {wire: 'full_name'},
+  gcpServiceAccountKey: {
+    wire: 'gcp_service_account_key',
+    children: () => gcpServiceAccountKeyFieldMaskSchema,
+  },
+  id: {wire: 'id'},
+  isolationMode: {wire: 'isolation_mode'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  nameArg: {wire: 'name_arg'},
+  newName: {wire: 'new_name'},
+  owner: {wire: 'owner'},
+  readOnly: {wire: 'read_only'},
+  skipValidation: {wire: 'skip_validation'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+  usedForManagedStorage: {wire: 'used_for_managed_storage'},
+};
+
+export function updateStorageCredentialFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateStorageCredential> {
+  return FieldMask.build<UpdateStorageCredential>(
+    paths,
+    updateStorageCredentialFieldMaskSchema
+  );
+}
+
+const validateCredentialFieldMaskSchema: FieldMaskSchema = {
+  awsIamRole: {wire: 'aws_iam_role', children: () => awsIamRoleFieldMaskSchema},
+  azureManagedIdentity: {
+    wire: 'azure_managed_identity',
+    children: () => azureManagedIdentityFieldMaskSchema,
+  },
+  credentialName: {wire: 'credential_name'},
+  databricksGcpServiceAccount: {
+    wire: 'databricks_gcp_service_account',
+    children: () => databricksGcpServiceAccountFieldMaskSchema,
+  },
+  externalLocationName: {wire: 'external_location_name'},
+  readOnly: {wire: 'read_only'},
+  url: {wire: 'url'},
+};
+
+export function validateCredentialFieldMask(
+  ...paths: string[]
+): FieldMask<ValidateCredential> {
+  return FieldMask.build<ValidateCredential>(
+    paths,
+    validateCredentialFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const validateCredential_ResponseFieldMaskSchema: FieldMaskSchema = {
+  isDir: {wire: 'isDir'},
+  results: {wire: 'results'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function validateCredential_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ValidateCredential_Response> {
+  return FieldMask.build<ValidateCredential_Response>(
+    paths,
+    validateCredential_ResponseFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const validateCredential_ValidationResultFieldMaskSchema: FieldMaskSchema = {
+  message: {wire: 'message'},
+  result: {wire: 'result'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function validateCredential_ValidationResultFieldMask(
+  ...paths: string[]
+): FieldMask<ValidateCredential_ValidationResult> {
+  return FieldMask.build<ValidateCredential_ValidationResult>(
+    paths,
+    validateCredential_ValidationResultFieldMaskSchema
+  );
+}
+
+const validateStorageCredentialFieldMaskSchema: FieldMaskSchema = {
+  awsIamRole: {wire: 'aws_iam_role', children: () => awsIamRoleFieldMaskSchema},
+  azureManagedIdentity: {
+    wire: 'azure_managed_identity',
+    children: () => azureManagedIdentityFieldMaskSchema,
+  },
+  azureServicePrincipal: {
+    wire: 'azure_service_principal',
+    children: () => azureServicePrincipalFieldMaskSchema,
+  },
+  cloudflareApiToken: {
+    wire: 'cloudflare_api_token',
+    children: () => cloudflareApiTokenFieldMaskSchema,
+  },
+  databricksGcpServiceAccount: {
+    wire: 'databricks_gcp_service_account',
+    children: () => databricksGcpServiceAccountFieldMaskSchema,
+  },
+  externalLocationName: {wire: 'external_location_name'},
+  readOnly: {wire: 'read_only'},
+  storageCredentialName: {wire: 'storage_credential_name'},
+  url: {wire: 'url'},
+};
+
+export function validateStorageCredentialFieldMask(
+  ...paths: string[]
+): FieldMask<ValidateStorageCredential> {
+  return FieldMask.build<ValidateStorageCredential>(
+    paths,
+    validateStorageCredentialFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const validateStorageCredential_ResponseFieldMaskSchema: FieldMaskSchema = {
+  isDir: {wire: 'isDir'},
+  results: {wire: 'results'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function validateStorageCredential_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ValidateStorageCredential_Response> {
+  return FieldMask.build<ValidateStorageCredential_Response>(
+    paths,
+    validateStorageCredential_ResponseFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const validateStorageCredential_ValidationResultFieldMaskSchema: FieldMaskSchema =
+  {
+    message: {wire: 'message'},
+    operation: {wire: 'operation'},
+    result: {wire: 'result'},
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function validateStorageCredential_ValidationResultFieldMask(
+  ...paths: string[]
+): FieldMask<ValidateStorageCredential_ValidationResult> {
+  return FieldMask.build<ValidateStorageCredential_ValidationResult>(
+    paths,
+    validateStorageCredential_ValidationResultFieldMaskSchema
+  );
+}

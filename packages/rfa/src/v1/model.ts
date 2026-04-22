@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum DestinationType {
@@ -412,3 +414,158 @@ export const marshalSecurablePermissionsSchema: z.ZodType = z
     securable: d.securable,
     permissions: d.permissions,
   }));
+
+const accessRequestDestinationsFieldMaskSchema: FieldMaskSchema = {
+  areAnyDestinationsHidden: {wire: 'are_any_destinations_hidden'},
+  destinationSourceSecurable: {
+    wire: 'destination_source_securable',
+    children: () => securableFieldMaskSchema,
+  },
+  destinations: {wire: 'destinations'},
+  fullName: {wire: 'full_name'},
+  securable: {wire: 'securable', children: () => securableFieldMaskSchema},
+  securableType: {wire: 'securable_type'},
+};
+
+export function accessRequestDestinationsFieldMask(
+  ...paths: string[]
+): FieldMask<AccessRequestDestinations> {
+  return FieldMask.build<AccessRequestDestinations>(
+    paths,
+    accessRequestDestinationsFieldMaskSchema
+  );
+}
+
+const batchCreateAccessRequestsRequestFieldMaskSchema: FieldMaskSchema = {
+  requests: {wire: 'requests'},
+};
+
+export function batchCreateAccessRequestsRequestFieldMask(
+  ...paths: string[]
+): FieldMask<BatchCreateAccessRequestsRequest> {
+  return FieldMask.build<BatchCreateAccessRequestsRequest>(
+    paths,
+    batchCreateAccessRequestsRequestFieldMaskSchema
+  );
+}
+
+const batchCreateAccessRequestsResponseFieldMaskSchema: FieldMaskSchema = {
+  responses: {wire: 'responses'},
+};
+
+export function batchCreateAccessRequestsResponseFieldMask(
+  ...paths: string[]
+): FieldMask<BatchCreateAccessRequestsResponse> {
+  return FieldMask.build<BatchCreateAccessRequestsResponse>(
+    paths,
+    batchCreateAccessRequestsResponseFieldMaskSchema
+  );
+}
+
+const createAccessRequestFieldMaskSchema: FieldMaskSchema = {
+  behalfOf: {wire: 'behalf_of', children: () => principalFieldMaskSchema},
+  comment: {wire: 'comment'},
+  securablePermissions: {wire: 'securable_permissions'},
+};
+
+export function createAccessRequestFieldMask(
+  ...paths: string[]
+): FieldMask<CreateAccessRequest> {
+  return FieldMask.build<CreateAccessRequest>(
+    paths,
+    createAccessRequestFieldMaskSchema
+  );
+}
+
+const createAccessRequestResponseFieldMaskSchema: FieldMaskSchema = {
+  behalfOf: {wire: 'behalf_of', children: () => principalFieldMaskSchema},
+  requestDestinations: {wire: 'request_destinations'},
+};
+
+export function createAccessRequestResponseFieldMask(
+  ...paths: string[]
+): FieldMask<CreateAccessRequestResponse> {
+  return FieldMask.build<CreateAccessRequestResponse>(
+    paths,
+    createAccessRequestResponseFieldMaskSchema
+  );
+}
+
+const getAccessRequestDestinationsRequestFieldMaskSchema: FieldMaskSchema = {
+  fullName: {wire: 'full_name'},
+  securableType: {wire: 'securable_type'},
+};
+
+export function getAccessRequestDestinationsRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GetAccessRequestDestinationsRequest> {
+  return FieldMask.build<GetAccessRequestDestinationsRequest>(
+    paths,
+    getAccessRequestDestinationsRequestFieldMaskSchema
+  );
+}
+
+const notificationDestinationFieldMaskSchema: FieldMaskSchema = {
+  destinationId: {wire: 'destination_id'},
+  destinationType: {wire: 'destination_type'},
+  specialDestination: {wire: 'special_destination'},
+};
+
+export function notificationDestinationFieldMask(
+  ...paths: string[]
+): FieldMask<NotificationDestination> {
+  return FieldMask.build<NotificationDestination>(
+    paths,
+    notificationDestinationFieldMaskSchema
+  );
+}
+
+const principalFieldMaskSchema: FieldMaskSchema = {
+  id: {wire: 'id'},
+  principalType: {wire: 'principal_type'},
+};
+
+export function principalFieldMask(...paths: string[]): FieldMask<Principal> {
+  return FieldMask.build<Principal>(paths, principalFieldMaskSchema);
+}
+
+const securableFieldMaskSchema: FieldMaskSchema = {
+  fullName: {wire: 'full_name'},
+  providerShare: {wire: 'provider_share'},
+  type: {wire: 'type'},
+};
+
+export function securableFieldMask(...paths: string[]): FieldMask<Securable> {
+  return FieldMask.build<Securable>(paths, securableFieldMaskSchema);
+}
+
+const securablePermissionsFieldMaskSchema: FieldMaskSchema = {
+  permissions: {wire: 'permissions'},
+  securable: {wire: 'securable', children: () => securableFieldMaskSchema},
+};
+
+export function securablePermissionsFieldMask(
+  ...paths: string[]
+): FieldMask<SecurablePermissions> {
+  return FieldMask.build<SecurablePermissions>(
+    paths,
+    securablePermissionsFieldMaskSchema
+  );
+}
+
+const updateAccessRequestDestinationsRequestFieldMaskSchema: FieldMaskSchema = {
+  accessRequestDestinations: {
+    wire: 'access_request_destinations',
+    children: () => accessRequestDestinationsFieldMaskSchema,
+  },
+  updateMask: {wire: 'update_mask'},
+};
+
+export function updateAccessRequestDestinationsRequestFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateAccessRequestDestinationsRequest> {
+  return FieldMask.build<UpdateAccessRequestDestinationsRequest>(
+    paths,
+    updateAccessRequestDestinationsRequestFieldMaskSchema
+  );
+}

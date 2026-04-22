@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export interface AddBlock {
@@ -457,3 +459,232 @@ export const marshalRead_ResponseSchema: z.ZodType = z
     bytes_read: d.bytesRead,
     data: d.data,
   }));
+
+const addBlockFieldMaskSchema: FieldMaskSchema = {
+  data: {wire: 'data'},
+  handle: {wire: 'handle'},
+};
+
+export function addBlockFieldMask(...paths: string[]): FieldMask<AddBlock> {
+  return FieldMask.build<AddBlock>(paths, addBlockFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const addBlock_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function addBlock_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<AddBlock_Response> {
+  return FieldMask.build<AddBlock_Response>(
+    paths,
+    addBlock_ResponseFieldMaskSchema
+  );
+}
+
+const closeFieldMaskSchema: FieldMaskSchema = {
+  handle: {wire: 'handle'},
+};
+
+export function closeFieldMask(...paths: string[]): FieldMask<Close> {
+  return FieldMask.build<Close>(paths, closeFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const close_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function close_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<Close_Response> {
+  return FieldMask.build<Close_Response>(paths, close_ResponseFieldMaskSchema);
+}
+
+const createFieldMaskSchema: FieldMaskSchema = {
+  overwrite: {wire: 'overwrite'},
+  path: {wire: 'path'},
+};
+
+export function createFieldMask(...paths: string[]): FieldMask<Create> {
+  return FieldMask.build<Create>(paths, createFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const create_ResponseFieldMaskSchema: FieldMaskSchema = {
+  handle: {wire: 'handle'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function create_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<Create_Response> {
+  return FieldMask.build<Create_Response>(
+    paths,
+    create_ResponseFieldMaskSchema
+  );
+}
+
+const deleteFieldMaskSchema: FieldMaskSchema = {
+  path: {wire: 'path'},
+  recursive: {wire: 'recursive'},
+};
+
+export function deleteFieldMask(...paths: string[]): FieldMask<Delete> {
+  return FieldMask.build<Delete>(paths, deleteFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const delete_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function delete_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<Delete_Response> {
+  return FieldMask.build<Delete_Response>(
+    paths,
+    delete_ResponseFieldMaskSchema
+  );
+}
+
+const fileInfoFieldMaskSchema: FieldMaskSchema = {
+  fileSize: {wire: 'file_size'},
+  isDir: {wire: 'is_dir'},
+  modificationTime: {wire: 'modification_time'},
+  path: {wire: 'path'},
+};
+
+export function fileInfoFieldMask(...paths: string[]): FieldMask<FileInfo> {
+  return FieldMask.build<FileInfo>(paths, fileInfoFieldMaskSchema);
+}
+
+const getStatusFieldMaskSchema: FieldMaskSchema = {
+  path: {wire: 'path'},
+};
+
+export function getStatusFieldMask(...paths: string[]): FieldMask<GetStatus> {
+  return FieldMask.build<GetStatus>(paths, getStatusFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const getStatus_ResponseFieldMaskSchema: FieldMaskSchema = {
+  fileSize: {wire: 'file_size'},
+  isDir: {wire: 'is_dir'},
+  modificationTime: {wire: 'modification_time'},
+  path: {wire: 'path'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function getStatus_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GetStatus_Response> {
+  return FieldMask.build<GetStatus_Response>(
+    paths,
+    getStatus_ResponseFieldMaskSchema
+  );
+}
+
+const listStatusFieldMaskSchema: FieldMaskSchema = {
+  path: {wire: 'path'},
+};
+
+export function listStatusFieldMask(...paths: string[]): FieldMask<ListStatus> {
+  return FieldMask.build<ListStatus>(paths, listStatusFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listStatus_ResponseFieldMaskSchema: FieldMaskSchema = {
+  files: {wire: 'files'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listStatus_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListStatus_Response> {
+  return FieldMask.build<ListStatus_Response>(
+    paths,
+    listStatus_ResponseFieldMaskSchema
+  );
+}
+
+const mkDirsFieldMaskSchema: FieldMaskSchema = {
+  path: {wire: 'path'},
+};
+
+export function mkDirsFieldMask(...paths: string[]): FieldMask<MkDirs> {
+  return FieldMask.build<MkDirs>(paths, mkDirsFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const mkDirs_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function mkDirs_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<MkDirs_Response> {
+  return FieldMask.build<MkDirs_Response>(
+    paths,
+    mkDirs_ResponseFieldMaskSchema
+  );
+}
+
+const moveFieldMaskSchema: FieldMaskSchema = {
+  destinationPath: {wire: 'destination_path'},
+  sourcePath: {wire: 'source_path'},
+};
+
+export function moveFieldMask(...paths: string[]): FieldMask<Move> {
+  return FieldMask.build<Move>(paths, moveFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const move_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function move_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<Move_Response> {
+  return FieldMask.build<Move_Response>(paths, move_ResponseFieldMaskSchema);
+}
+
+const putFieldMaskSchema: FieldMaskSchema = {
+  contents: {wire: 'contents'},
+  overwrite: {wire: 'overwrite'},
+  path: {wire: 'path'},
+};
+
+export function putFieldMask(...paths: string[]): FieldMask<Put> {
+  return FieldMask.build<Put>(paths, putFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const put_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function put_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<Put_Response> {
+  return FieldMask.build<Put_Response>(paths, put_ResponseFieldMaskSchema);
+}
+
+const readFieldMaskSchema: FieldMaskSchema = {
+  length: {wire: 'length'},
+  offset: {wire: 'offset'},
+  path: {wire: 'path'},
+};
+
+export function readFieldMask(...paths: string[]): FieldMask<Read> {
+  return FieldMask.build<Read>(paths, readFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const read_ResponseFieldMaskSchema: FieldMaskSchema = {
+  bytesRead: {wire: 'bytes_read'},
+  data: {wire: 'data'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function read_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<Read_Response> {
+  return FieldMask.build<Read_Response>(paths, read_ResponseFieldMaskSchema);
+}

@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export interface AddInstanceProfile {
@@ -242,3 +244,127 @@ export const marshalRemoveInstanceProfileSchema: z.ZodType = z
 export const marshalRemoveInstanceProfile_ResponseSchema: z.ZodType = z.object(
   {}
 );
+
+const addInstanceProfileFieldMaskSchema: FieldMaskSchema = {
+  iamRoleArn: {wire: 'iam_role_arn'},
+  instanceProfileArn: {wire: 'instance_profile_arn'},
+  isMetaInstanceProfile: {wire: 'is_meta_instance_profile'},
+  skipValidation: {wire: 'skip_validation'},
+};
+
+export function addInstanceProfileFieldMask(
+  ...paths: string[]
+): FieldMask<AddInstanceProfile> {
+  return FieldMask.build<AddInstanceProfile>(
+    paths,
+    addInstanceProfileFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const addInstanceProfile_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function addInstanceProfile_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<AddInstanceProfile_Response> {
+  return FieldMask.build<AddInstanceProfile_Response>(
+    paths,
+    addInstanceProfile_ResponseFieldMaskSchema
+  );
+}
+
+const editInstanceProfileFieldMaskSchema: FieldMaskSchema = {
+  iamRoleArn: {wire: 'iam_role_arn'},
+  instanceProfileArn: {wire: 'instance_profile_arn'},
+  isMetaInstanceProfile: {wire: 'is_meta_instance_profile'},
+};
+
+export function editInstanceProfileFieldMask(
+  ...paths: string[]
+): FieldMask<EditInstanceProfile> {
+  return FieldMask.build<EditInstanceProfile>(
+    paths,
+    editInstanceProfileFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const editInstanceProfile_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function editInstanceProfile_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<EditInstanceProfile_Response> {
+  return FieldMask.build<EditInstanceProfile_Response>(
+    paths,
+    editInstanceProfile_ResponseFieldMaskSchema
+  );
+}
+
+const instanceProfileFieldMaskSchema: FieldMaskSchema = {
+  iamRoleArn: {wire: 'iam_role_arn'},
+  instanceProfileArn: {wire: 'instance_profile_arn'},
+  isMetaInstanceProfile: {wire: 'is_meta_instance_profile'},
+};
+
+export function instanceProfileFieldMask(
+  ...paths: string[]
+): FieldMask<InstanceProfile> {
+  return FieldMask.build<InstanceProfile>(
+    paths,
+    instanceProfileFieldMaskSchema
+  );
+}
+
+const listInstanceProfilesFieldMaskSchema: FieldMaskSchema = {};
+
+export function listInstanceProfilesFieldMask(
+  ...paths: string[]
+): FieldMask<ListInstanceProfiles> {
+  return FieldMask.build<ListInstanceProfiles>(
+    paths,
+    listInstanceProfilesFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listInstanceProfiles_ResponseFieldMaskSchema: FieldMaskSchema = {
+  instanceProfiles: {wire: 'instance_profiles'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listInstanceProfiles_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListInstanceProfiles_Response> {
+  return FieldMask.build<ListInstanceProfiles_Response>(
+    paths,
+    listInstanceProfiles_ResponseFieldMaskSchema
+  );
+}
+
+const removeInstanceProfileFieldMaskSchema: FieldMaskSchema = {
+  instanceProfileArn: {wire: 'instance_profile_arn'},
+};
+
+export function removeInstanceProfileFieldMask(
+  ...paths: string[]
+): FieldMask<RemoveInstanceProfile> {
+  return FieldMask.build<RemoveInstanceProfile>(
+    paths,
+    removeInstanceProfileFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const removeInstanceProfile_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function removeInstanceProfile_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<RemoveInstanceProfile_Response> {
+  return FieldMask.build<RemoveInstanceProfile_Response>(
+    paths,
+    removeInstanceProfile_ResponseFieldMaskSchema
+  );
+}

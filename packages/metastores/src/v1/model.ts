@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -791,3 +793,331 @@ export const marshalUpdateMetastoreAssignmentSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalUpdateMetastoreAssignment_ResponseSchema: z.ZodType =
   z.object({});
+
+const createMetastoreFieldMaskSchema: FieldMaskSchema = {
+  cloud: {wire: 'cloud'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  defaultDataAccessConfigId: {wire: 'default_data_access_config_id'},
+  deltaSharingOrganizationName: {wire: 'delta_sharing_organization_name'},
+  deltaSharingRecipientTokenLifetimeInSeconds: {
+    wire: 'delta_sharing_recipient_token_lifetime_in_seconds',
+  },
+  deltaSharingScope: {wire: 'delta_sharing_scope'},
+  externalAccessEnabled: {wire: 'external_access_enabled'},
+  globalMetastoreId: {wire: 'global_metastore_id'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  owner: {wire: 'owner'},
+  privilegeModelVersion: {wire: 'privilege_model_version'},
+  region: {wire: 'region'},
+  storageRoot: {wire: 'storage_root'},
+  storageRootCredentialId: {wire: 'storage_root_credential_id'},
+  storageRootCredentialName: {wire: 'storage_root_credential_name'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+};
+
+export function createMetastoreFieldMask(
+  ...paths: string[]
+): FieldMask<CreateMetastore> {
+  return FieldMask.build<CreateMetastore>(
+    paths,
+    createMetastoreFieldMaskSchema
+  );
+}
+
+const createMetastoreAssignmentFieldMaskSchema: FieldMaskSchema = {
+  defaultCatalogName: {wire: 'default_catalog_name'},
+  metastoreId: {wire: 'metastore_id'},
+  workspaceId: {wire: 'workspace_id'},
+};
+
+export function createMetastoreAssignmentFieldMask(
+  ...paths: string[]
+): FieldMask<CreateMetastoreAssignment> {
+  return FieldMask.build<CreateMetastoreAssignment>(
+    paths,
+    createMetastoreAssignmentFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const createMetastoreAssignment_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function createMetastoreAssignment_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<CreateMetastoreAssignment_Response> {
+  return FieldMask.build<CreateMetastoreAssignment_Response>(
+    paths,
+    createMetastoreAssignment_ResponseFieldMaskSchema
+  );
+}
+
+const deleteMetastoreFieldMaskSchema: FieldMaskSchema = {
+  force: {wire: 'force'},
+  id: {wire: 'id'},
+};
+
+export function deleteMetastoreFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteMetastore> {
+  return FieldMask.build<DeleteMetastore>(
+    paths,
+    deleteMetastoreFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deleteMetastore_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deleteMetastore_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteMetastore_Response> {
+  return FieldMask.build<DeleteMetastore_Response>(
+    paths,
+    deleteMetastore_ResponseFieldMaskSchema
+  );
+}
+
+const deleteMetastoreAssignmentFieldMaskSchema: FieldMaskSchema = {
+  metastoreId: {wire: 'metastore_id'},
+  workspaceId: {wire: 'workspace_id'},
+};
+
+export function deleteMetastoreAssignmentFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteMetastoreAssignment> {
+  return FieldMask.build<DeleteMetastoreAssignment>(
+    paths,
+    deleteMetastoreAssignmentFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deleteMetastoreAssignment_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deleteMetastoreAssignment_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteMetastoreAssignment_Response> {
+  return FieldMask.build<DeleteMetastoreAssignment_Response>(
+    paths,
+    deleteMetastoreAssignment_ResponseFieldMaskSchema
+  );
+}
+
+const deltaSharingScopeFieldMaskSchema: FieldMaskSchema = {};
+
+export function deltaSharingScopeFieldMask(
+  ...paths: string[]
+): FieldMask<DeltaSharingScope> {
+  return FieldMask.build<DeltaSharingScope>(
+    paths,
+    deltaSharingScopeFieldMaskSchema
+  );
+}
+
+const getCurrentMetastoreAssignmentFieldMaskSchema: FieldMaskSchema = {};
+
+export function getCurrentMetastoreAssignmentFieldMask(
+  ...paths: string[]
+): FieldMask<GetCurrentMetastoreAssignment> {
+  return FieldMask.build<GetCurrentMetastoreAssignment>(
+    paths,
+    getCurrentMetastoreAssignmentFieldMaskSchema
+  );
+}
+
+const getMetastoreFieldMaskSchema: FieldMaskSchema = {
+  id: {wire: 'id'},
+};
+
+export function getMetastoreFieldMask(
+  ...paths: string[]
+): FieldMask<GetMetastore> {
+  return FieldMask.build<GetMetastore>(paths, getMetastoreFieldMaskSchema);
+}
+
+const getMetastoreSummaryFieldMaskSchema: FieldMaskSchema = {};
+
+export function getMetastoreSummaryFieldMask(
+  ...paths: string[]
+): FieldMask<GetMetastoreSummary> {
+  return FieldMask.build<GetMetastoreSummary>(
+    paths,
+    getMetastoreSummaryFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const getMetastoreSummary_ResponseFieldMaskSchema: FieldMaskSchema = {
+  cloud: {wire: 'cloud'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  defaultDataAccessConfigId: {wire: 'default_data_access_config_id'},
+  deltaSharingOrganizationName: {wire: 'delta_sharing_organization_name'},
+  deltaSharingRecipientTokenLifetimeInSeconds: {
+    wire: 'delta_sharing_recipient_token_lifetime_in_seconds',
+  },
+  deltaSharingScope: {wire: 'delta_sharing_scope'},
+  externalAccessEnabled: {wire: 'external_access_enabled'},
+  globalMetastoreId: {wire: 'global_metastore_id'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  owner: {wire: 'owner'},
+  privilegeModelVersion: {wire: 'privilege_model_version'},
+  region: {wire: 'region'},
+  storageRoot: {wire: 'storage_root'},
+  storageRootCredentialId: {wire: 'storage_root_credential_id'},
+  storageRootCredentialName: {wire: 'storage_root_credential_name'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function getMetastoreSummary_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GetMetastoreSummary_Response> {
+  return FieldMask.build<GetMetastoreSummary_Response>(
+    paths,
+    getMetastoreSummary_ResponseFieldMaskSchema
+  );
+}
+
+const listMetastoresFieldMaskSchema: FieldMaskSchema = {
+  maxResults: {wire: 'max_results'},
+  pageToken: {wire: 'page_token'},
+};
+
+export function listMetastoresFieldMask(
+  ...paths: string[]
+): FieldMask<ListMetastores> {
+  return FieldMask.build<ListMetastores>(paths, listMetastoresFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listMetastores_ResponseFieldMaskSchema: FieldMaskSchema = {
+  metastores: {wire: 'metastores'},
+  nextPageToken: {wire: 'next_page_token'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listMetastores_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListMetastores_Response> {
+  return FieldMask.build<ListMetastores_Response>(
+    paths,
+    listMetastores_ResponseFieldMaskSchema
+  );
+}
+
+const metastoreAssignmentFieldMaskSchema: FieldMaskSchema = {
+  defaultCatalogName: {wire: 'default_catalog_name'},
+  metastoreId: {wire: 'metastore_id'},
+  workspaceId: {wire: 'workspace_id'},
+};
+
+export function metastoreAssignmentFieldMask(
+  ...paths: string[]
+): FieldMask<MetastoreAssignment> {
+  return FieldMask.build<MetastoreAssignment>(
+    paths,
+    metastoreAssignmentFieldMaskSchema
+  );
+}
+
+const metastoreInfoFieldMaskSchema: FieldMaskSchema = {
+  cloud: {wire: 'cloud'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  defaultDataAccessConfigId: {wire: 'default_data_access_config_id'},
+  deltaSharingOrganizationName: {wire: 'delta_sharing_organization_name'},
+  deltaSharingRecipientTokenLifetimeInSeconds: {
+    wire: 'delta_sharing_recipient_token_lifetime_in_seconds',
+  },
+  deltaSharingScope: {wire: 'delta_sharing_scope'},
+  externalAccessEnabled: {wire: 'external_access_enabled'},
+  globalMetastoreId: {wire: 'global_metastore_id'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  owner: {wire: 'owner'},
+  privilegeModelVersion: {wire: 'privilege_model_version'},
+  region: {wire: 'region'},
+  storageRoot: {wire: 'storage_root'},
+  storageRootCredentialId: {wire: 'storage_root_credential_id'},
+  storageRootCredentialName: {wire: 'storage_root_credential_name'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+};
+
+export function metastoreInfoFieldMask(
+  ...paths: string[]
+): FieldMask<MetastoreInfo> {
+  return FieldMask.build<MetastoreInfo>(paths, metastoreInfoFieldMaskSchema);
+}
+
+const updateMetastoreFieldMaskSchema: FieldMaskSchema = {
+  cloud: {wire: 'cloud'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  defaultDataAccessConfigId: {wire: 'default_data_access_config_id'},
+  deltaSharingOrganizationName: {wire: 'delta_sharing_organization_name'},
+  deltaSharingRecipientTokenLifetimeInSeconds: {
+    wire: 'delta_sharing_recipient_token_lifetime_in_seconds',
+  },
+  deltaSharingScope: {wire: 'delta_sharing_scope'},
+  externalAccessEnabled: {wire: 'external_access_enabled'},
+  globalMetastoreId: {wire: 'global_metastore_id'},
+  id: {wire: 'id'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  newName: {wire: 'new_name'},
+  owner: {wire: 'owner'},
+  privilegeModelVersion: {wire: 'privilege_model_version'},
+  region: {wire: 'region'},
+  storageRoot: {wire: 'storage_root'},
+  storageRootCredentialId: {wire: 'storage_root_credential_id'},
+  storageRootCredentialName: {wire: 'storage_root_credential_name'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+};
+
+export function updateMetastoreFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateMetastore> {
+  return FieldMask.build<UpdateMetastore>(
+    paths,
+    updateMetastoreFieldMaskSchema
+  );
+}
+
+const updateMetastoreAssignmentFieldMaskSchema: FieldMaskSchema = {
+  defaultCatalogName: {wire: 'default_catalog_name'},
+  metastoreId: {wire: 'metastore_id'},
+  workspaceId: {wire: 'workspace_id'},
+};
+
+export function updateMetastoreAssignmentFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateMetastoreAssignment> {
+  return FieldMask.build<UpdateMetastoreAssignment>(
+    paths,
+    updateMetastoreAssignmentFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const updateMetastoreAssignment_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function updateMetastoreAssignment_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateMetastoreAssignment_Response> {
+  return FieldMask.build<UpdateMetastoreAssignment_Response>(
+    paths,
+    updateMetastoreAssignment_ResponseFieldMaskSchema
+  );
+}

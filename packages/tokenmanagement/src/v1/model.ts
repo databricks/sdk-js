@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /**
@@ -296,3 +298,143 @@ export const marshalUpdateTokenSchema: z.ZodType = z
     token: d.token,
     update_mask: d.updateMask,
   }));
+
+const adminTokenInfoFieldMaskSchema: FieldMaskSchema = {
+  autoscopeState: {wire: 'autoscope_state'},
+  comment: {wire: 'comment'},
+  createdById: {wire: 'created_by_id'},
+  createdByUsername: {wire: 'created_by_username'},
+  creationTime: {wire: 'creation_time'},
+  expiryTime: {wire: 'expiry_time'},
+  lastUsedDay: {wire: 'last_used_day'},
+  ownerId: {wire: 'owner_id'},
+  scopes: {wire: 'scopes'},
+  tokenId: {wire: 'token_id'},
+  workspaceId: {wire: 'workspace_id'},
+};
+
+export function adminTokenInfoFieldMask(
+  ...paths: string[]
+): FieldMask<AdminTokenInfo> {
+  return FieldMask.build<AdminTokenInfo>(paths, adminTokenInfoFieldMaskSchema);
+}
+
+const createOnBehalfOfTokenFieldMaskSchema: FieldMaskSchema = {
+  applicationId: {wire: 'application_id'},
+  autoscopeEnabled: {wire: 'autoscope_enabled'},
+  comment: {wire: 'comment'},
+  lifetimeSeconds: {wire: 'lifetime_seconds'},
+  scopes: {wire: 'scopes'},
+};
+
+export function createOnBehalfOfTokenFieldMask(
+  ...paths: string[]
+): FieldMask<CreateOnBehalfOfToken> {
+  return FieldMask.build<CreateOnBehalfOfToken>(
+    paths,
+    createOnBehalfOfTokenFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const createOnBehalfOfToken_ResponseFieldMaskSchema: FieldMaskSchema = {
+  tokenInfo: {
+    wire: 'token_info',
+    children: () => adminTokenInfoFieldMaskSchema,
+  },
+  tokenValue: {wire: 'token_value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function createOnBehalfOfToken_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<CreateOnBehalfOfToken_Response> {
+  return FieldMask.build<CreateOnBehalfOfToken_Response>(
+    paths,
+    createOnBehalfOfToken_ResponseFieldMaskSchema
+  );
+}
+
+const getTokenFieldMaskSchema: FieldMaskSchema = {
+  tokenId: {wire: 'token_id'},
+};
+
+export function getTokenFieldMask(...paths: string[]): FieldMask<GetToken> {
+  return FieldMask.build<GetToken>(paths, getTokenFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const getToken_ResponseFieldMaskSchema: FieldMaskSchema = {
+  tokenInfo: {
+    wire: 'token_info',
+    children: () => adminTokenInfoFieldMaskSchema,
+  },
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function getToken_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GetToken_Response> {
+  return FieldMask.build<GetToken_Response>(
+    paths,
+    getToken_ResponseFieldMaskSchema
+  );
+}
+
+const listTokensFieldMaskSchema: FieldMaskSchema = {
+  createdById: {wire: 'created_by_id'},
+  createdByUsername: {wire: 'created_by_username'},
+};
+
+export function listTokensFieldMask(...paths: string[]): FieldMask<ListTokens> {
+  return FieldMask.build<ListTokens>(paths, listTokensFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listTokens_ResponseFieldMaskSchema: FieldMaskSchema = {
+  tokenInfos: {wire: 'token_infos'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listTokens_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListTokens_Response> {
+  return FieldMask.build<ListTokens_Response>(
+    paths,
+    listTokens_ResponseFieldMaskSchema
+  );
+}
+
+const revokeTokenFieldMaskSchema: FieldMaskSchema = {
+  tokenId: {wire: 'token_id'},
+};
+
+export function revokeTokenFieldMask(
+  ...paths: string[]
+): FieldMask<RevokeToken> {
+  return FieldMask.build<RevokeToken>(paths, revokeTokenFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const revokeToken_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function revokeToken_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<RevokeToken_Response> {
+  return FieldMask.build<RevokeToken_Response>(
+    paths,
+    revokeToken_ResponseFieldMaskSchema
+  );
+}
+
+const updateTokenFieldMaskSchema: FieldMaskSchema = {
+  token: {wire: 'token', children: () => adminTokenInfoFieldMaskSchema},
+  updateMask: {wire: 'update_mask'},
+};
+
+export function updateTokenFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateToken> {
+  return FieldMask.build<UpdateToken>(paths, updateTokenFieldMaskSchema);
+}

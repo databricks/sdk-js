@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export interface EffectivePrivilege {
@@ -463,3 +465,223 @@ export const marshalUpdatePermissions_ResponseSchema: z.ZodType = z
   .transform(d => ({
     privilege_assignments: d.privilegeAssignments,
   }));
+
+const effectivePrivilegeFieldMaskSchema: FieldMaskSchema = {
+  inheritedFromName: {wire: 'inherited_from_name'},
+  inheritedFromType: {wire: 'inherited_from_type'},
+  privilege: {wire: 'privilege'},
+};
+
+export function effectivePrivilegeFieldMask(
+  ...paths: string[]
+): FieldMask<EffectivePrivilege> {
+  return FieldMask.build<EffectivePrivilege>(
+    paths,
+    effectivePrivilegeFieldMaskSchema
+  );
+}
+
+const effectivePrivilegeAssignmentFieldMaskSchema: FieldMaskSchema = {
+  principal: {wire: 'principal'},
+  privileges: {wire: 'privileges'},
+};
+
+export function effectivePrivilegeAssignmentFieldMask(
+  ...paths: string[]
+): FieldMask<EffectivePrivilegeAssignment> {
+  return FieldMask.build<EffectivePrivilegeAssignment>(
+    paths,
+    effectivePrivilegeAssignmentFieldMaskSchema
+  );
+}
+
+const getEffectivePermissionsFieldMaskSchema: FieldMaskSchema = {
+  maxResults: {wire: 'max_results'},
+  pageToken: {wire: 'page_token'},
+  principal: {wire: 'principal'},
+  securableFullName: {wire: 'securable_full_name'},
+  securableType: {wire: 'securable_type'},
+};
+
+export function getEffectivePermissionsFieldMask(
+  ...paths: string[]
+): FieldMask<GetEffectivePermissions> {
+  return FieldMask.build<GetEffectivePermissions>(
+    paths,
+    getEffectivePermissionsFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const getEffectivePermissions_ResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  privilegeAssignments: {wire: 'privilege_assignments'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function getEffectivePermissions_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GetEffectivePermissions_Response> {
+  return FieldMask.build<GetEffectivePermissions_Response>(
+    paths,
+    getEffectivePermissions_ResponseFieldMaskSchema
+  );
+}
+
+const getPermissionsFieldMaskSchema: FieldMaskSchema = {
+  includeDeletedPrincipals: {wire: 'include_deleted_principals'},
+  maxResults: {wire: 'max_results'},
+  pageToken: {wire: 'page_token'},
+  principal: {wire: 'principal'},
+  securableFullName: {wire: 'securable_full_name'},
+  securableType: {wire: 'securable_type'},
+};
+
+export function getPermissionsFieldMask(
+  ...paths: string[]
+): FieldMask<GetPermissions> {
+  return FieldMask.build<GetPermissions>(paths, getPermissionsFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const getPermissions_ResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  privilegeAssignments: {wire: 'privilege_assignments'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function getPermissions_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GetPermissions_Response> {
+  return FieldMask.build<GetPermissions_Response>(
+    paths,
+    getPermissions_ResponseFieldMaskSchema
+  );
+}
+
+const listEffectivePrivilegeAssignmentsRequestFieldMaskSchema: FieldMaskSchema =
+  {
+    fullName: {wire: 'full_name'},
+    includeDeletedPrincipals: {wire: 'include_deleted_principals'},
+    pageSize: {wire: 'page_size'},
+    pageToken: {wire: 'page_token'},
+    principal: {wire: 'principal'},
+    securableType: {wire: 'securable_type'},
+  };
+
+export function listEffectivePrivilegeAssignmentsRequestFieldMask(
+  ...paths: string[]
+): FieldMask<ListEffectivePrivilegeAssignmentsRequest> {
+  return FieldMask.build<ListEffectivePrivilegeAssignmentsRequest>(
+    paths,
+    listEffectivePrivilegeAssignmentsRequestFieldMaskSchema
+  );
+}
+
+const listEffectivePrivilegeAssignmentsResponseFieldMaskSchema: FieldMaskSchema =
+  {
+    effectivePrivilegeAssignments: {wire: 'effective_privilege_assignments'},
+    nextPageToken: {wire: 'next_page_token'},
+  };
+
+export function listEffectivePrivilegeAssignmentsResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListEffectivePrivilegeAssignmentsResponse> {
+  return FieldMask.build<ListEffectivePrivilegeAssignmentsResponse>(
+    paths,
+    listEffectivePrivilegeAssignmentsResponseFieldMaskSchema
+  );
+}
+
+const listPrivilegeAssignmentsRequestFieldMaskSchema: FieldMaskSchema = {
+  fullName: {wire: 'full_name'},
+  includeDeletedPrincipals: {wire: 'include_deleted_principals'},
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+  principal: {wire: 'principal'},
+  securableType: {wire: 'securable_type'},
+};
+
+export function listPrivilegeAssignmentsRequestFieldMask(
+  ...paths: string[]
+): FieldMask<ListPrivilegeAssignmentsRequest> {
+  return FieldMask.build<ListPrivilegeAssignmentsRequest>(
+    paths,
+    listPrivilegeAssignmentsRequestFieldMaskSchema
+  );
+}
+
+const listPrivilegeAssignmentsResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  privilegeAssignments: {wire: 'privilege_assignments'},
+};
+
+export function listPrivilegeAssignmentsResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListPrivilegeAssignmentsResponse> {
+  return FieldMask.build<ListPrivilegeAssignmentsResponse>(
+    paths,
+    listPrivilegeAssignmentsResponseFieldMaskSchema
+  );
+}
+
+const permissionsChangeFieldMaskSchema: FieldMaskSchema = {
+  add: {wire: 'add'},
+  principal: {wire: 'principal'},
+  principalId: {wire: 'principal_id'},
+  remove: {wire: 'remove'},
+};
+
+export function permissionsChangeFieldMask(
+  ...paths: string[]
+): FieldMask<PermissionsChange> {
+  return FieldMask.build<PermissionsChange>(
+    paths,
+    permissionsChangeFieldMaskSchema
+  );
+}
+
+const privilegeAssignmentFieldMaskSchema: FieldMaskSchema = {
+  principal: {wire: 'principal'},
+  principalId: {wire: 'principal_id'},
+  privileges: {wire: 'privileges'},
+};
+
+export function privilegeAssignmentFieldMask(
+  ...paths: string[]
+): FieldMask<PrivilegeAssignment> {
+  return FieldMask.build<PrivilegeAssignment>(
+    paths,
+    privilegeAssignmentFieldMaskSchema
+  );
+}
+
+const updatePermissionsFieldMaskSchema: FieldMaskSchema = {
+  changes: {wire: 'changes'},
+  securableFullName: {wire: 'securable_full_name'},
+  securableType: {wire: 'securable_type'},
+};
+
+export function updatePermissionsFieldMask(
+  ...paths: string[]
+): FieldMask<UpdatePermissions> {
+  return FieldMask.build<UpdatePermissions>(
+    paths,
+    updatePermissionsFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const updatePermissions_ResponseFieldMaskSchema: FieldMaskSchema = {
+  privilegeAssignments: {wire: 'privilege_assignments'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function updatePermissions_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<UpdatePermissions_Response> {
+  return FieldMask.build<UpdatePermissions_Response>(
+    paths,
+    updatePermissions_ResponseFieldMaskSchema
+  );
+}

@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** The type of the catalog. */
@@ -577,3 +579,269 @@ export const marshalUpdateSchemaSchema: z.ZodType = z
     properties: d.properties,
     options: d.options,
   }));
+
+const createSchemaFieldMaskSchema: FieldMaskSchema = {
+  browseOnly: {wire: 'browse_only'},
+  catalogName: {wire: 'catalog_name'},
+  catalogType: {wire: 'catalog_type'},
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  effectivePredictiveOptimizationFlag: {
+    wire: 'effective_predictive_optimization_flag',
+    children: () => effectivePredictiveOptimizationFlagFieldMaskSchema,
+  },
+  enablePredictiveOptimization: {wire: 'enable_predictive_optimization'},
+  fullName: {wire: 'full_name'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  options: {wire: 'options'},
+  owner: {wire: 'owner'},
+  properties: {wire: 'properties'},
+  schemaId: {wire: 'schema_id'},
+  storageLocation: {wire: 'storage_location'},
+  storageRoot: {wire: 'storage_root'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+};
+
+export function createSchemaFieldMask(
+  ...paths: string[]
+): FieldMask<CreateSchema> {
+  return FieldMask.build<CreateSchema>(paths, createSchemaFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const createSchema_OptionsEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function createSchema_OptionsEntryFieldMask(
+  ...paths: string[]
+): FieldMask<CreateSchema_OptionsEntry> {
+  return FieldMask.build<CreateSchema_OptionsEntry>(
+    paths,
+    createSchema_OptionsEntryFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const createSchema_PropertiesEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function createSchema_PropertiesEntryFieldMask(
+  ...paths: string[]
+): FieldMask<CreateSchema_PropertiesEntry> {
+  return FieldMask.build<CreateSchema_PropertiesEntry>(
+    paths,
+    createSchema_PropertiesEntryFieldMaskSchema
+  );
+}
+
+const deleteSchemaFieldMaskSchema: FieldMaskSchema = {
+  force: {wire: 'force'},
+  fullNameArg: {wire: 'full_name_arg'},
+};
+
+export function deleteSchemaFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteSchema> {
+  return FieldMask.build<DeleteSchema>(paths, deleteSchemaFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deleteSchema_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deleteSchema_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteSchema_Response> {
+  return FieldMask.build<DeleteSchema_Response>(
+    paths,
+    deleteSchema_ResponseFieldMaskSchema
+  );
+}
+
+const effectivePredictiveOptimizationFlagFieldMaskSchema: FieldMaskSchema = {
+  inheritedFromName: {wire: 'inherited_from_name'},
+  inheritedFromType: {wire: 'inherited_from_type'},
+  value: {wire: 'value'},
+};
+
+export function effectivePredictiveOptimizationFlagFieldMask(
+  ...paths: string[]
+): FieldMask<EffectivePredictiveOptimizationFlag> {
+  return FieldMask.build<EffectivePredictiveOptimizationFlag>(
+    paths,
+    effectivePredictiveOptimizationFlagFieldMaskSchema
+  );
+}
+
+const getSchemaFieldMaskSchema: FieldMaskSchema = {
+  fullNameArg: {wire: 'full_name_arg'},
+  includeBrowse: {wire: 'include_browse'},
+};
+
+export function getSchemaFieldMask(...paths: string[]): FieldMask<GetSchema> {
+  return FieldMask.build<GetSchema>(paths, getSchemaFieldMaskSchema);
+}
+
+const listSchemasFieldMaskSchema: FieldMaskSchema = {
+  catalogName: {wire: 'catalog_name'},
+  includeBrowse: {wire: 'include_browse'},
+  maxResults: {wire: 'max_results'},
+  pageToken: {wire: 'page_token'},
+};
+
+export function listSchemasFieldMask(
+  ...paths: string[]
+): FieldMask<ListSchemas> {
+  return FieldMask.build<ListSchemas>(paths, listSchemasFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listSchemas_ResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  schemas: {wire: 'schemas'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listSchemas_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListSchemas_Response> {
+  return FieldMask.build<ListSchemas_Response>(
+    paths,
+    listSchemas_ResponseFieldMaskSchema
+  );
+}
+
+const schemaInfoFieldMaskSchema: FieldMaskSchema = {
+  browseOnly: {wire: 'browse_only'},
+  catalogName: {wire: 'catalog_name'},
+  catalogType: {wire: 'catalog_type'},
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  effectivePredictiveOptimizationFlag: {
+    wire: 'effective_predictive_optimization_flag',
+    children: () => effectivePredictiveOptimizationFlagFieldMaskSchema,
+  },
+  enablePredictiveOptimization: {wire: 'enable_predictive_optimization'},
+  fullName: {wire: 'full_name'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  options: {wire: 'options'},
+  owner: {wire: 'owner'},
+  properties: {wire: 'properties'},
+  schemaId: {wire: 'schema_id'},
+  storageLocation: {wire: 'storage_location'},
+  storageRoot: {wire: 'storage_root'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+};
+
+export function schemaInfoFieldMask(...paths: string[]): FieldMask<SchemaInfo> {
+  return FieldMask.build<SchemaInfo>(paths, schemaInfoFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const schemaInfo_OptionsEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function schemaInfo_OptionsEntryFieldMask(
+  ...paths: string[]
+): FieldMask<SchemaInfo_OptionsEntry> {
+  return FieldMask.build<SchemaInfo_OptionsEntry>(
+    paths,
+    schemaInfo_OptionsEntryFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const schemaInfo_PropertiesEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function schemaInfo_PropertiesEntryFieldMask(
+  ...paths: string[]
+): FieldMask<SchemaInfo_PropertiesEntry> {
+  return FieldMask.build<SchemaInfo_PropertiesEntry>(
+    paths,
+    schemaInfo_PropertiesEntryFieldMaskSchema
+  );
+}
+
+const updateSchemaFieldMaskSchema: FieldMaskSchema = {
+  browseOnly: {wire: 'browse_only'},
+  catalogName: {wire: 'catalog_name'},
+  catalogType: {wire: 'catalog_type'},
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  effectivePredictiveOptimizationFlag: {
+    wire: 'effective_predictive_optimization_flag',
+    children: () => effectivePredictiveOptimizationFlagFieldMaskSchema,
+  },
+  enablePredictiveOptimization: {wire: 'enable_predictive_optimization'},
+  fullName: {wire: 'full_name'},
+  fullNameArg: {wire: 'full_name_arg'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  newName: {wire: 'new_name'},
+  options: {wire: 'options'},
+  owner: {wire: 'owner'},
+  properties: {wire: 'properties'},
+  schemaId: {wire: 'schema_id'},
+  storageLocation: {wire: 'storage_location'},
+  storageRoot: {wire: 'storage_root'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+};
+
+export function updateSchemaFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateSchema> {
+  return FieldMask.build<UpdateSchema>(paths, updateSchemaFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const updateSchema_OptionsEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function updateSchema_OptionsEntryFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateSchema_OptionsEntry> {
+  return FieldMask.build<UpdateSchema_OptionsEntry>(
+    paths,
+    updateSchema_OptionsEntryFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const updateSchema_PropertiesEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function updateSchema_PropertiesEntryFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateSchema_PropertiesEntry> {
+  return FieldMask.build<UpdateSchema_PropertiesEntry>(
+    paths,
+    updateSchema_PropertiesEntryFieldMaskSchema
+  );
+}

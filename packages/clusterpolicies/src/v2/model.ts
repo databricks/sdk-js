@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum ListOrder {
@@ -556,3 +558,188 @@ export const marshalRCranLibrarySchema: z.ZodType = z
     package: d.package,
     repo: d.repo,
   }));
+
+const createPolicyFieldMaskSchema: FieldMaskSchema = {
+  definition: {wire: 'definition'},
+  description: {wire: 'description'},
+  libraries: {wire: 'libraries'},
+  maxClustersPerUser: {wire: 'max_clusters_per_user'},
+  name: {wire: 'name'},
+  policyFamilyDefinitionOverrides: {wire: 'policy_family_definition_overrides'},
+  policyFamilyId: {wire: 'policy_family_id'},
+};
+
+export function createPolicyFieldMask(
+  ...paths: string[]
+): FieldMask<CreatePolicy> {
+  return FieldMask.build<CreatePolicy>(paths, createPolicyFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const createPolicy_ResponseFieldMaskSchema: FieldMaskSchema = {
+  policyId: {wire: 'policy_id'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function createPolicy_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<CreatePolicy_Response> {
+  return FieldMask.build<CreatePolicy_Response>(
+    paths,
+    createPolicy_ResponseFieldMaskSchema
+  );
+}
+
+const deletePolicyFieldMaskSchema: FieldMaskSchema = {
+  policyId: {wire: 'policy_id'},
+};
+
+export function deletePolicyFieldMask(
+  ...paths: string[]
+): FieldMask<DeletePolicy> {
+  return FieldMask.build<DeletePolicy>(paths, deletePolicyFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deletePolicy_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deletePolicy_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeletePolicy_Response> {
+  return FieldMask.build<DeletePolicy_Response>(
+    paths,
+    deletePolicy_ResponseFieldMaskSchema
+  );
+}
+
+const editPolicyFieldMaskSchema: FieldMaskSchema = {
+  definition: {wire: 'definition'},
+  description: {wire: 'description'},
+  libraries: {wire: 'libraries'},
+  maxClustersPerUser: {wire: 'max_clusters_per_user'},
+  name: {wire: 'name'},
+  policyFamilyDefinitionOverrides: {wire: 'policy_family_definition_overrides'},
+  policyFamilyId: {wire: 'policy_family_id'},
+  policyId: {wire: 'policy_id'},
+};
+
+export function editPolicyFieldMask(...paths: string[]): FieldMask<EditPolicy> {
+  return FieldMask.build<EditPolicy>(paths, editPolicyFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const editPolicy_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function editPolicy_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<EditPolicy_Response> {
+  return FieldMask.build<EditPolicy_Response>(
+    paths,
+    editPolicy_ResponseFieldMaskSchema
+  );
+}
+
+const getPolicyFieldMaskSchema: FieldMaskSchema = {
+  policyId: {wire: 'policy_id'},
+};
+
+export function getPolicyFieldMask(...paths: string[]): FieldMask<GetPolicy> {
+  return FieldMask.build<GetPolicy>(paths, getPolicyFieldMaskSchema);
+}
+
+const libraryFieldMaskSchema: FieldMaskSchema = {
+  cran: {wire: 'cran', children: () => rCranLibraryFieldMaskSchema},
+  egg: {wire: 'egg'},
+  jar: {wire: 'jar'},
+  maven: {wire: 'maven', children: () => mavenLibraryFieldMaskSchema},
+  pypi: {wire: 'pypi', children: () => pythonPyPiLibraryFieldMaskSchema},
+  requirements: {wire: 'requirements'},
+  whl: {wire: 'whl'},
+};
+
+export function libraryFieldMask(...paths: string[]): FieldMask<Library> {
+  return FieldMask.build<Library>(paths, libraryFieldMaskSchema);
+}
+
+const listPoliciesFieldMaskSchema: FieldMaskSchema = {
+  sortColumn: {wire: 'sort_column'},
+  sortOrder: {wire: 'sort_order'},
+};
+
+export function listPoliciesFieldMask(
+  ...paths: string[]
+): FieldMask<ListPolicies> {
+  return FieldMask.build<ListPolicies>(paths, listPoliciesFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listPolicies_ResponseFieldMaskSchema: FieldMaskSchema = {
+  policies: {wire: 'policies'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listPolicies_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListPolicies_Response> {
+  return FieldMask.build<ListPolicies_Response>(
+    paths,
+    listPolicies_ResponseFieldMaskSchema
+  );
+}
+
+const mavenLibraryFieldMaskSchema: FieldMaskSchema = {
+  coordinates: {wire: 'coordinates'},
+  exclusions: {wire: 'exclusions'},
+  repo: {wire: 'repo'},
+};
+
+export function mavenLibraryFieldMask(
+  ...paths: string[]
+): FieldMask<MavenLibrary> {
+  return FieldMask.build<MavenLibrary>(paths, mavenLibraryFieldMaskSchema);
+}
+
+const policyFieldMaskSchema: FieldMaskSchema = {
+  createdAtTimestamp: {wire: 'created_at_timestamp'},
+  creatorUserName: {wire: 'creator_user_name'},
+  definition: {wire: 'definition'},
+  description: {wire: 'description'},
+  isDefault: {wire: 'is_default'},
+  libraries: {wire: 'libraries'},
+  maxClustersPerUser: {wire: 'max_clusters_per_user'},
+  name: {wire: 'name'},
+  policyFamilyDefinitionOverrides: {wire: 'policy_family_definition_overrides'},
+  policyFamilyId: {wire: 'policy_family_id'},
+  policyId: {wire: 'policy_id'},
+};
+
+export function policyFieldMask(...paths: string[]): FieldMask<Policy> {
+  return FieldMask.build<Policy>(paths, policyFieldMaskSchema);
+}
+
+const pythonPyPiLibraryFieldMaskSchema: FieldMaskSchema = {
+  package: {wire: 'package'},
+  repo: {wire: 'repo'},
+};
+
+export function pythonPyPiLibraryFieldMask(
+  ...paths: string[]
+): FieldMask<PythonPyPiLibrary> {
+  return FieldMask.build<PythonPyPiLibrary>(
+    paths,
+    pythonPyPiLibraryFieldMaskSchema
+  );
+}
+
+const rCranLibraryFieldMaskSchema: FieldMaskSchema = {
+  package: {wire: 'package'},
+  repo: {wire: 'repo'},
+};
+
+export function rCranLibraryFieldMask(
+  ...paths: string[]
+): FieldMask<RCranLibrary> {
+  return FieldMask.build<RCranLibrary>(paths, rCranLibraryFieldMaskSchema);
+}

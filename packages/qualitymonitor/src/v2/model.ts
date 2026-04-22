@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum AnomalyDetectionJobType {
@@ -469,3 +471,263 @@ export const marshalValidityCheckConfigurationSchema: z.ZodType = z
     range_validity_check: d.rangeValidityCheck,
     uniqueness_validity_check: d.uniquenessValidityCheck,
   }));
+
+const anomalyDetectionConfigFieldMaskSchema: FieldMaskSchema = {
+  customCheckConfigurations: {wire: 'custom_check_configurations'},
+  excludedTableFullNames: {wire: 'excluded_table_full_names'},
+  jobType: {wire: 'job_type'},
+  lastRunId: {wire: 'last_run_id'},
+  latestRunStatus: {wire: 'latest_run_status'},
+  validityCheckConfigurations: {wire: 'validity_check_configurations'},
+};
+
+export function anomalyDetectionConfigFieldMask(
+  ...paths: string[]
+): FieldMask<AnomalyDetectionConfig> {
+  return FieldMask.build<AnomalyDetectionConfig>(
+    paths,
+    anomalyDetectionConfigFieldMaskSchema
+  );
+}
+
+const columnMatcherFieldMaskSchema: FieldMaskSchema = {
+  columnNames: {wire: 'column_names'},
+  variableName: {wire: 'variable_name'},
+};
+
+export function columnMatcherFieldMask(
+  ...paths: string[]
+): FieldMask<ColumnMatcher> {
+  return FieldMask.build<ColumnMatcher>(paths, columnMatcherFieldMaskSchema);
+}
+
+const createQualityMonitorRequestFieldMaskSchema: FieldMaskSchema = {
+  qualityMonitor: {
+    wire: 'quality_monitor',
+    children: () => qualityMonitorFieldMaskSchema,
+  },
+};
+
+export function createQualityMonitorRequestFieldMask(
+  ...paths: string[]
+): FieldMask<CreateQualityMonitorRequest> {
+  return FieldMask.build<CreateQualityMonitorRequest>(
+    paths,
+    createQualityMonitorRequestFieldMaskSchema
+  );
+}
+
+const customCheckConfigurationFieldMaskSchema: FieldMaskSchema = {
+  scalarCheck: {
+    wire: 'scalar_check',
+    children: () => customScalarCheckFieldMaskSchema,
+  },
+};
+
+export function customCheckConfigurationFieldMask(
+  ...paths: string[]
+): FieldMask<CustomCheckConfiguration> {
+  return FieldMask.build<CustomCheckConfiguration>(
+    paths,
+    customCheckConfigurationFieldMaskSchema
+  );
+}
+
+const customCheckThresholdsFieldMaskSchema: FieldMaskSchema = {
+  lowerBound: {wire: 'lower_bound', children: () => thresholdFieldMaskSchema},
+  upperBound: {wire: 'upper_bound', children: () => thresholdFieldMaskSchema},
+};
+
+export function customCheckThresholdsFieldMask(
+  ...paths: string[]
+): FieldMask<CustomCheckThresholds> {
+  return FieldMask.build<CustomCheckThresholds>(
+    paths,
+    customCheckThresholdsFieldMaskSchema
+  );
+}
+
+const customScalarCheckFieldMaskSchema: FieldMaskSchema = {
+  checkName: {wire: 'check_name'},
+  columnMatchers: {wire: 'column_matchers'},
+  sqlQuery: {wire: 'sql_query'},
+  thresholds: {
+    wire: 'thresholds',
+    children: () => customCheckThresholdsFieldMaskSchema,
+  },
+};
+
+export function customScalarCheckFieldMask(
+  ...paths: string[]
+): FieldMask<CustomScalarCheck> {
+  return FieldMask.build<CustomScalarCheck>(
+    paths,
+    customScalarCheckFieldMaskSchema
+  );
+}
+
+const deleteQualityMonitorRequestFieldMaskSchema: FieldMaskSchema = {
+  objectId: {wire: 'object_id'},
+  objectType: {wire: 'object_type'},
+};
+
+export function deleteQualityMonitorRequestFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteQualityMonitorRequest> {
+  return FieldMask.build<DeleteQualityMonitorRequest>(
+    paths,
+    deleteQualityMonitorRequestFieldMaskSchema
+  );
+}
+
+const getQualityMonitorRequestFieldMaskSchema: FieldMaskSchema = {
+  objectId: {wire: 'object_id'},
+  objectType: {wire: 'object_type'},
+};
+
+export function getQualityMonitorRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GetQualityMonitorRequest> {
+  return FieldMask.build<GetQualityMonitorRequest>(
+    paths,
+    getQualityMonitorRequestFieldMaskSchema
+  );
+}
+
+const listQualityMonitorRequestFieldMaskSchema: FieldMaskSchema = {
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+};
+
+export function listQualityMonitorRequestFieldMask(
+  ...paths: string[]
+): FieldMask<ListQualityMonitorRequest> {
+  return FieldMask.build<ListQualityMonitorRequest>(
+    paths,
+    listQualityMonitorRequestFieldMaskSchema
+  );
+}
+
+const listQualityMonitorResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  qualityMonitors: {wire: 'quality_monitors'},
+};
+
+export function listQualityMonitorResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListQualityMonitorResponse> {
+  return FieldMask.build<ListQualityMonitorResponse>(
+    paths,
+    listQualityMonitorResponseFieldMaskSchema
+  );
+}
+
+const percentNullValidityCheckFieldMaskSchema: FieldMaskSchema = {
+  columnNames: {wire: 'column_names'},
+  upperBound: {wire: 'upper_bound'},
+};
+
+export function percentNullValidityCheckFieldMask(
+  ...paths: string[]
+): FieldMask<PercentNullValidityCheck> {
+  return FieldMask.build<PercentNullValidityCheck>(
+    paths,
+    percentNullValidityCheckFieldMaskSchema
+  );
+}
+
+const qualityMonitorFieldMaskSchema: FieldMaskSchema = {
+  anomalyDetectionConfig: {
+    wire: 'anomaly_detection_config',
+    children: () => anomalyDetectionConfigFieldMaskSchema,
+  },
+  objectId: {wire: 'object_id'},
+  objectType: {wire: 'object_type'},
+  validityCheckConfigurations: {wire: 'validity_check_configurations'},
+};
+
+export function qualityMonitorFieldMask(
+  ...paths: string[]
+): FieldMask<QualityMonitor> {
+  return FieldMask.build<QualityMonitor>(paths, qualityMonitorFieldMaskSchema);
+}
+
+const rangeValidityCheckFieldMaskSchema: FieldMaskSchema = {
+  columnNames: {wire: 'column_names'},
+  lowerBound: {wire: 'lower_bound'},
+  upperBound: {wire: 'upper_bound'},
+};
+
+export function rangeValidityCheckFieldMask(
+  ...paths: string[]
+): FieldMask<RangeValidityCheck> {
+  return FieldMask.build<RangeValidityCheck>(
+    paths,
+    rangeValidityCheckFieldMaskSchema
+  );
+}
+
+const thresholdFieldMaskSchema: FieldMaskSchema = {
+  boundValue: {wire: 'bound_value'},
+  thresholdType: {wire: 'threshold_type'},
+};
+
+export function thresholdFieldMask(...paths: string[]): FieldMask<Threshold> {
+  return FieldMask.build<Threshold>(paths, thresholdFieldMaskSchema);
+}
+
+const uniquenessValidityCheckFieldMaskSchema: FieldMaskSchema = {
+  columnNames: {wire: 'column_names'},
+};
+
+export function uniquenessValidityCheckFieldMask(
+  ...paths: string[]
+): FieldMask<UniquenessValidityCheck> {
+  return FieldMask.build<UniquenessValidityCheck>(
+    paths,
+    uniquenessValidityCheckFieldMaskSchema
+  );
+}
+
+const updateQualityMonitorRequestFieldMaskSchema: FieldMaskSchema = {
+  objectId: {wire: 'object_id'},
+  objectType: {wire: 'object_type'},
+  qualityMonitor: {
+    wire: 'quality_monitor',
+    children: () => qualityMonitorFieldMaskSchema,
+  },
+};
+
+export function updateQualityMonitorRequestFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateQualityMonitorRequest> {
+  return FieldMask.build<UpdateQualityMonitorRequest>(
+    paths,
+    updateQualityMonitorRequestFieldMaskSchema
+  );
+}
+
+const validityCheckConfigurationFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+  percentNullValidityCheck: {
+    wire: 'percent_null_validity_check',
+    children: () => percentNullValidityCheckFieldMaskSchema,
+  },
+  rangeValidityCheck: {
+    wire: 'range_validity_check',
+    children: () => rangeValidityCheckFieldMaskSchema,
+  },
+  uniquenessValidityCheck: {
+    wire: 'uniqueness_validity_check',
+    children: () => uniquenessValidityCheckFieldMaskSchema,
+  },
+};
+
+export function validityCheckConfigurationFieldMask(
+  ...paths: string[]
+): FieldMask<ValidityCheckConfiguration> {
+  return FieldMask.build<ValidityCheckConfiguration>(
+    paths,
+    validityCheckConfigurationFieldMaskSchema
+  );
+}

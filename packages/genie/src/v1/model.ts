@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum ColumnTypeName {
@@ -3459,3 +3461,1160 @@ export const marshalVerificationMetadataSchema: z.ZodType = z
     section: d.section,
     index: d.index,
   }));
+
+const chunkInfoFieldMaskSchema: FieldMaskSchema = {
+  byteCount: {wire: 'byte_count'},
+  chunkIndex: {wire: 'chunk_index'},
+  nextChunkIndex: {wire: 'next_chunk_index'},
+  nextChunkInternalLink: {wire: 'next_chunk_internal_link'},
+  rowCount: {wire: 'row_count'},
+  rowOffset: {wire: 'row_offset'},
+};
+
+export function chunkInfoFieldMask(...paths: string[]): FieldMask<ChunkInfo> {
+  return FieldMask.build<ChunkInfo>(paths, chunkInfoFieldMaskSchema);
+}
+
+const columnInfoFieldMaskSchema: FieldMaskSchema = {
+  comment: {wire: 'comment'},
+  mask: {wire: 'mask', children: () => columnMaskFieldMaskSchema},
+  name: {wire: 'name'},
+  nullable: {wire: 'nullable'},
+  partitionIndex: {wire: 'partition_index'},
+  position: {wire: 'position'},
+  typeIntervalType: {wire: 'type_interval_type'},
+  typeJson: {wire: 'type_json'},
+  typeName: {wire: 'type_name'},
+  typePrecision: {wire: 'type_precision'},
+  typeScale: {wire: 'type_scale'},
+  typeText: {wire: 'type_text'},
+};
+
+export function columnInfoFieldMask(...paths: string[]): FieldMask<ColumnInfo> {
+  return FieldMask.build<ColumnInfo>(paths, columnInfoFieldMaskSchema);
+}
+
+const columnMaskFieldMaskSchema: FieldMaskSchema = {
+  functionName: {wire: 'function_name'},
+  usingArguments: {wire: 'using_arguments'},
+  usingColumnNames: {wire: 'using_column_names'},
+};
+
+export function columnMaskFieldMask(...paths: string[]): FieldMask<ColumnMask> {
+  return FieldMask.build<ColumnMask>(paths, columnMaskFieldMaskSchema);
+}
+
+const databricksServiceExceptionProtoFieldMaskSchema: FieldMaskSchema = {
+  errorCode: {wire: 'error_code'},
+  message: {wire: 'message'},
+  stackTrace: {wire: 'stack_trace'},
+};
+
+export function databricksServiceExceptionProtoFieldMask(
+  ...paths: string[]
+): FieldMask<DatabricksServiceExceptionProto> {
+  return FieldMask.build<DatabricksServiceExceptionProto>(
+    paths,
+    databricksServiceExceptionProtoFieldMaskSchema
+  );
+}
+
+const externalLinkFieldMaskSchema: FieldMaskSchema = {
+  byteCount: {wire: 'byte_count'},
+  chunkIndex: {wire: 'chunk_index'},
+  expiration: {wire: 'expiration'},
+  externalLink: {wire: 'external_link'},
+  httpHeaders: {wire: 'http_headers'},
+  nextChunkIndex: {wire: 'next_chunk_index'},
+  nextChunkInternalLink: {wire: 'next_chunk_internal_link'},
+  rowCount: {wire: 'row_count'},
+  rowOffset: {wire: 'row_offset'},
+};
+
+export function externalLinkFieldMask(
+  ...paths: string[]
+): FieldMask<ExternalLink> {
+  return FieldMask.build<ExternalLink>(paths, externalLinkFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const externalLink_HttpHeadersEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function externalLink_HttpHeadersEntryFieldMask(
+  ...paths: string[]
+): FieldMask<ExternalLink_HttpHeadersEntry> {
+  return FieldMask.build<ExternalLink_HttpHeadersEntry>(
+    paths,
+    externalLink_HttpHeadersEntryFieldMaskSchema
+  );
+}
+
+const genieAttachmentFieldMaskSchema: FieldMaskSchema = {
+  attachmentId: {wire: 'attachment_id'},
+  query: {wire: 'query', children: () => genieQueryAttachmentFieldMaskSchema},
+  suggestedQuestions: {
+    wire: 'suggested_questions',
+    children: () => genieSuggestedQuestionsAttachmentFieldMaskSchema,
+  },
+  text: {wire: 'text', children: () => textAttachmentFieldMaskSchema},
+};
+
+export function genieAttachmentFieldMask(
+  ...paths: string[]
+): FieldMask<GenieAttachment> {
+  return FieldMask.build<GenieAttachment>(
+    paths,
+    genieAttachmentFieldMaskSchema
+  );
+}
+
+const genieConversationFieldMaskSchema: FieldMaskSchema = {
+  conversationId: {wire: 'conversation_id'},
+  createdTimestamp: {wire: 'created_timestamp'},
+  id: {wire: 'id'},
+  lastUpdatedTimestamp: {wire: 'last_updated_timestamp'},
+  spaceId: {wire: 'space_id'},
+  title: {wire: 'title'},
+  userId: {wire: 'user_id'},
+};
+
+export function genieConversationFieldMask(
+  ...paths: string[]
+): FieldMask<GenieConversation> {
+  return FieldMask.build<GenieConversation>(
+    paths,
+    genieConversationFieldMaskSchema
+  );
+}
+
+const genieConversationSummaryFieldMaskSchema: FieldMaskSchema = {
+  conversationId: {wire: 'conversation_id'},
+  createdTimestamp: {wire: 'created_timestamp'},
+  title: {wire: 'title'},
+};
+
+export function genieConversationSummaryFieldMask(
+  ...paths: string[]
+): FieldMask<GenieConversationSummary> {
+  return FieldMask.build<GenieConversationSummary>(
+    paths,
+    genieConversationSummaryFieldMaskSchema
+  );
+}
+
+const genieCreateConversationMessageRequestFieldMaskSchema: FieldMaskSchema = {
+  content: {wire: 'content'},
+  conversationId: {wire: 'conversation_id'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieCreateConversationMessageRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieCreateConversationMessageRequest> {
+  return FieldMask.build<GenieCreateConversationMessageRequest>(
+    paths,
+    genieCreateConversationMessageRequestFieldMaskSchema
+  );
+}
+
+const genieCreateEvalRunRequestFieldMaskSchema: FieldMaskSchema = {
+  benchmarkQuestionIds: {wire: 'benchmark_question_ids'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieCreateEvalRunRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieCreateEvalRunRequest> {
+  return FieldMask.build<GenieCreateEvalRunRequest>(
+    paths,
+    genieCreateEvalRunRequestFieldMaskSchema
+  );
+}
+
+const genieCreateMessageCommentRequestFieldMaskSchema: FieldMaskSchema = {
+  content: {wire: 'content'},
+  conversationId: {wire: 'conversation_id'},
+  messageId: {wire: 'message_id'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieCreateMessageCommentRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieCreateMessageCommentRequest> {
+  return FieldMask.build<GenieCreateMessageCommentRequest>(
+    paths,
+    genieCreateMessageCommentRequestFieldMaskSchema
+  );
+}
+
+const genieCreateSpaceRequestFieldMaskSchema: FieldMaskSchema = {
+  description: {wire: 'description'},
+  parentPath: {wire: 'parent_path'},
+  serializedSpace: {wire: 'serialized_space'},
+  title: {wire: 'title'},
+  warehouseId: {wire: 'warehouse_id'},
+};
+
+export function genieCreateSpaceRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieCreateSpaceRequest> {
+  return FieldMask.build<GenieCreateSpaceRequest>(
+    paths,
+    genieCreateSpaceRequestFieldMaskSchema
+  );
+}
+
+const genieDeleteConversationMessageRequestFieldMaskSchema: FieldMaskSchema = {
+  conversationId: {wire: 'conversation_id'},
+  messageId: {wire: 'message_id'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieDeleteConversationMessageRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieDeleteConversationMessageRequest> {
+  return FieldMask.build<GenieDeleteConversationMessageRequest>(
+    paths,
+    genieDeleteConversationMessageRequestFieldMaskSchema
+  );
+}
+
+const genieDeleteConversationRequestFieldMaskSchema: FieldMaskSchema = {
+  conversationId: {wire: 'conversation_id'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieDeleteConversationRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieDeleteConversationRequest> {
+  return FieldMask.build<GenieDeleteConversationRequest>(
+    paths,
+    genieDeleteConversationRequestFieldMaskSchema
+  );
+}
+
+const genieEvalResponseFieldMaskSchema: FieldMaskSchema = {
+  response: {wire: 'response'},
+  responseType: {wire: 'response_type'},
+  sqlExecutionResult: {
+    wire: 'sql_execution_result',
+    children: () => statementResponseFieldMaskSchema,
+  },
+};
+
+export function genieEvalResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GenieEvalResponse> {
+  return FieldMask.build<GenieEvalResponse>(
+    paths,
+    genieEvalResponseFieldMaskSchema
+  );
+}
+
+const genieEvalResultFieldMaskSchema: FieldMaskSchema = {
+  benchmarkAnswer: {wire: 'benchmark_answer'},
+  benchmarkQuestionId: {wire: 'benchmark_question_id'},
+  createdByUser: {wire: 'created_by_user'},
+  question: {wire: 'question'},
+  resultId: {wire: 'result_id'},
+  spaceId: {wire: 'space_id'},
+  status: {wire: 'status'},
+};
+
+export function genieEvalResultFieldMask(
+  ...paths: string[]
+): FieldMask<GenieEvalResult> {
+  return FieldMask.build<GenieEvalResult>(
+    paths,
+    genieEvalResultFieldMaskSchema
+  );
+}
+
+const genieEvalResultDetailsFieldMaskSchema: FieldMaskSchema = {
+  actualResponse: {wire: 'actual_response'},
+  assessment: {wire: 'assessment'},
+  assessmentReasons: {wire: 'assessment_reasons'},
+  benchmarkQuestionId: {wire: 'benchmark_question_id'},
+  evalRunStatus: {wire: 'eval_run_status'},
+  expectedResponse: {wire: 'expected_response'},
+  manualAssessment: {wire: 'manual_assessment'},
+  resultId: {wire: 'result_id'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieEvalResultDetailsFieldMask(
+  ...paths: string[]
+): FieldMask<GenieEvalResultDetails> {
+  return FieldMask.build<GenieEvalResultDetails>(
+    paths,
+    genieEvalResultDetailsFieldMaskSchema
+  );
+}
+
+const genieEvalRunResponseFieldMaskSchema: FieldMaskSchema = {
+  createdTimestamp: {wire: 'created_timestamp'},
+  evalRunId: {wire: 'eval_run_id'},
+  evalRunStatus: {wire: 'eval_run_status'},
+  lastUpdatedTimestamp: {wire: 'last_updated_timestamp'},
+  numCorrect: {wire: 'num_correct'},
+  numDone: {wire: 'num_done'},
+  numNeedsReview: {wire: 'num_needs_review'},
+  numQuestions: {wire: 'num_questions'},
+  runByUser: {wire: 'run_by_user'},
+};
+
+export function genieEvalRunResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GenieEvalRunResponse> {
+  return FieldMask.build<GenieEvalRunResponse>(
+    paths,
+    genieEvalRunResponseFieldMaskSchema
+  );
+}
+
+const genieExecuteMessageAttachmentQueryRequestFieldMaskSchema: FieldMaskSchema =
+  {
+    attachmentId: {wire: 'attachment_id'},
+    conversationId: {wire: 'conversation_id'},
+    messageId: {wire: 'message_id'},
+    spaceId: {wire: 'space_id'},
+  };
+
+export function genieExecuteMessageAttachmentQueryRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieExecuteMessageAttachmentQueryRequest> {
+  return FieldMask.build<GenieExecuteMessageAttachmentQueryRequest>(
+    paths,
+    genieExecuteMessageAttachmentQueryRequestFieldMaskSchema
+  );
+}
+
+const genieExecuteMessageQueryRequestFieldMaskSchema: FieldMaskSchema = {
+  conversationId: {wire: 'conversation_id'},
+  messageId: {wire: 'message_id'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieExecuteMessageQueryRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieExecuteMessageQueryRequest> {
+  return FieldMask.build<GenieExecuteMessageQueryRequest>(
+    paths,
+    genieExecuteMessageQueryRequestFieldMaskSchema
+  );
+}
+
+const genieFeedbackFieldMaskSchema: FieldMaskSchema = {
+  comment: {wire: 'comment'},
+  rating: {wire: 'rating'},
+};
+
+export function genieFeedbackFieldMask(
+  ...paths: string[]
+): FieldMask<GenieFeedback> {
+  return FieldMask.build<GenieFeedback>(paths, genieFeedbackFieldMaskSchema);
+}
+
+const genieGenerateDownloadFullQueryResultRequestFieldMaskSchema: FieldMaskSchema =
+  {
+    attachmentId: {wire: 'attachment_id'},
+    conversationId: {wire: 'conversation_id'},
+    messageId: {wire: 'message_id'},
+    spaceId: {wire: 'space_id'},
+  };
+
+export function genieGenerateDownloadFullQueryResultRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieGenerateDownloadFullQueryResultRequest> {
+  return FieldMask.build<GenieGenerateDownloadFullQueryResultRequest>(
+    paths,
+    genieGenerateDownloadFullQueryResultRequestFieldMaskSchema
+  );
+}
+
+const genieGenerateDownloadFullQueryResultResponseFieldMaskSchema: FieldMaskSchema =
+  {
+    downloadId: {wire: 'download_id'},
+    downloadIdSignature: {wire: 'download_id_signature'},
+  };
+
+export function genieGenerateDownloadFullQueryResultResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GenieGenerateDownloadFullQueryResultResponse> {
+  return FieldMask.build<GenieGenerateDownloadFullQueryResultResponse>(
+    paths,
+    genieGenerateDownloadFullQueryResultResponseFieldMaskSchema
+  );
+}
+
+const genieGetConversationMessageRequestFieldMaskSchema: FieldMaskSchema = {
+  conversationId: {wire: 'conversation_id'},
+  messageId: {wire: 'message_id'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieGetConversationMessageRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieGetConversationMessageRequest> {
+  return FieldMask.build<GenieGetConversationMessageRequest>(
+    paths,
+    genieGetConversationMessageRequestFieldMaskSchema
+  );
+}
+
+const genieGetDownloadFullQueryResultRequestFieldMaskSchema: FieldMaskSchema = {
+  attachmentId: {wire: 'attachment_id'},
+  conversationId: {wire: 'conversation_id'},
+  downloadId: {wire: 'download_id'},
+  downloadIdSignature: {wire: 'download_id_signature'},
+  messageId: {wire: 'message_id'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieGetDownloadFullQueryResultRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieGetDownloadFullQueryResultRequest> {
+  return FieldMask.build<GenieGetDownloadFullQueryResultRequest>(
+    paths,
+    genieGetDownloadFullQueryResultRequestFieldMaskSchema
+  );
+}
+
+const genieGetDownloadFullQueryResultResponseFieldMaskSchema: FieldMaskSchema =
+  {
+    statementResponse: {
+      wire: 'statement_response',
+      children: () => statementResponseFieldMaskSchema,
+    },
+  };
+
+export function genieGetDownloadFullQueryResultResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GenieGetDownloadFullQueryResultResponse> {
+  return FieldMask.build<GenieGetDownloadFullQueryResultResponse>(
+    paths,
+    genieGetDownloadFullQueryResultResponseFieldMaskSchema
+  );
+}
+
+const genieGetEvalResultDetailsRequestFieldMaskSchema: FieldMaskSchema = {
+  evalRunId: {wire: 'eval_run_id'},
+  resultId: {wire: 'result_id'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieGetEvalResultDetailsRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieGetEvalResultDetailsRequest> {
+  return FieldMask.build<GenieGetEvalResultDetailsRequest>(
+    paths,
+    genieGetEvalResultDetailsRequestFieldMaskSchema
+  );
+}
+
+const genieGetEvalRunRequestFieldMaskSchema: FieldMaskSchema = {
+  evalRunId: {wire: 'eval_run_id'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieGetEvalRunRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieGetEvalRunRequest> {
+  return FieldMask.build<GenieGetEvalRunRequest>(
+    paths,
+    genieGetEvalRunRequestFieldMaskSchema
+  );
+}
+
+const genieGetMessageAttachmentQueryResultRequestFieldMaskSchema: FieldMaskSchema =
+  {
+    attachmentId: {wire: 'attachment_id'},
+    conversationId: {wire: 'conversation_id'},
+    messageId: {wire: 'message_id'},
+    spaceId: {wire: 'space_id'},
+  };
+
+export function genieGetMessageAttachmentQueryResultRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieGetMessageAttachmentQueryResultRequest> {
+  return FieldMask.build<GenieGetMessageAttachmentQueryResultRequest>(
+    paths,
+    genieGetMessageAttachmentQueryResultRequestFieldMaskSchema
+  );
+}
+
+const genieGetMessageQueryResultRequestFieldMaskSchema: FieldMaskSchema = {
+  conversationId: {wire: 'conversation_id'},
+  messageId: {wire: 'message_id'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieGetMessageQueryResultRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieGetMessageQueryResultRequest> {
+  return FieldMask.build<GenieGetMessageQueryResultRequest>(
+    paths,
+    genieGetMessageQueryResultRequestFieldMaskSchema
+  );
+}
+
+const genieGetMessageQueryResultResponseFieldMaskSchema: FieldMaskSchema = {
+  statementResponse: {
+    wire: 'statement_response',
+    children: () => statementResponseFieldMaskSchema,
+  },
+};
+
+export function genieGetMessageQueryResultResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GenieGetMessageQueryResultResponse> {
+  return FieldMask.build<GenieGetMessageQueryResultResponse>(
+    paths,
+    genieGetMessageQueryResultResponseFieldMaskSchema
+  );
+}
+
+const genieGetQueryResultByAttachmentRequestFieldMaskSchema: FieldMaskSchema = {
+  attachmentId: {wire: 'attachment_id'},
+  conversationId: {wire: 'conversation_id'},
+  messageId: {wire: 'message_id'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieGetQueryResultByAttachmentRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieGetQueryResultByAttachmentRequest> {
+  return FieldMask.build<GenieGetQueryResultByAttachmentRequest>(
+    paths,
+    genieGetQueryResultByAttachmentRequestFieldMaskSchema
+  );
+}
+
+const genieGetSpaceRequestFieldMaskSchema: FieldMaskSchema = {
+  includeSerializedSpace: {wire: 'include_serialized_space'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieGetSpaceRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieGetSpaceRequest> {
+  return FieldMask.build<GenieGetSpaceRequest>(
+    paths,
+    genieGetSpaceRequestFieldMaskSchema
+  );
+}
+
+const genieListConversationCommentsRequestFieldMaskSchema: FieldMaskSchema = {
+  conversationId: {wire: 'conversation_id'},
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieListConversationCommentsRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieListConversationCommentsRequest> {
+  return FieldMask.build<GenieListConversationCommentsRequest>(
+    paths,
+    genieListConversationCommentsRequestFieldMaskSchema
+  );
+}
+
+const genieListConversationCommentsResponseFieldMaskSchema: FieldMaskSchema = {
+  comments: {wire: 'comments'},
+  nextPageToken: {wire: 'next_page_token'},
+};
+
+export function genieListConversationCommentsResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GenieListConversationCommentsResponse> {
+  return FieldMask.build<GenieListConversationCommentsResponse>(
+    paths,
+    genieListConversationCommentsResponseFieldMaskSchema
+  );
+}
+
+const genieListConversationMessagesRequestFieldMaskSchema: FieldMaskSchema = {
+  conversationId: {wire: 'conversation_id'},
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieListConversationMessagesRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieListConversationMessagesRequest> {
+  return FieldMask.build<GenieListConversationMessagesRequest>(
+    paths,
+    genieListConversationMessagesRequestFieldMaskSchema
+  );
+}
+
+const genieListConversationMessagesResponseFieldMaskSchema: FieldMaskSchema = {
+  messages: {wire: 'messages'},
+  nextPageToken: {wire: 'next_page_token'},
+};
+
+export function genieListConversationMessagesResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GenieListConversationMessagesResponse> {
+  return FieldMask.build<GenieListConversationMessagesResponse>(
+    paths,
+    genieListConversationMessagesResponseFieldMaskSchema
+  );
+}
+
+const genieListConversationsRequestFieldMaskSchema: FieldMaskSchema = {
+  includeAll: {wire: 'include_all'},
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieListConversationsRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieListConversationsRequest> {
+  return FieldMask.build<GenieListConversationsRequest>(
+    paths,
+    genieListConversationsRequestFieldMaskSchema
+  );
+}
+
+const genieListConversationsResponseFieldMaskSchema: FieldMaskSchema = {
+  conversations: {wire: 'conversations'},
+  nextPageToken: {wire: 'next_page_token'},
+};
+
+export function genieListConversationsResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GenieListConversationsResponse> {
+  return FieldMask.build<GenieListConversationsResponse>(
+    paths,
+    genieListConversationsResponseFieldMaskSchema
+  );
+}
+
+const genieListEvalResultsRequestFieldMaskSchema: FieldMaskSchema = {
+  evalRunId: {wire: 'eval_run_id'},
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieListEvalResultsRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieListEvalResultsRequest> {
+  return FieldMask.build<GenieListEvalResultsRequest>(
+    paths,
+    genieListEvalResultsRequestFieldMaskSchema
+  );
+}
+
+const genieListEvalResultsResponseFieldMaskSchema: FieldMaskSchema = {
+  evalResults: {wire: 'eval_results'},
+  nextPageToken: {wire: 'next_page_token'},
+};
+
+export function genieListEvalResultsResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GenieListEvalResultsResponse> {
+  return FieldMask.build<GenieListEvalResultsResponse>(
+    paths,
+    genieListEvalResultsResponseFieldMaskSchema
+  );
+}
+
+const genieListEvalRunsRequestFieldMaskSchema: FieldMaskSchema = {
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieListEvalRunsRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieListEvalRunsRequest> {
+  return FieldMask.build<GenieListEvalRunsRequest>(
+    paths,
+    genieListEvalRunsRequestFieldMaskSchema
+  );
+}
+
+const genieListEvalRunsResponseFieldMaskSchema: FieldMaskSchema = {
+  evalRuns: {wire: 'eval_runs'},
+  nextPageToken: {wire: 'next_page_token'},
+};
+
+export function genieListEvalRunsResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GenieListEvalRunsResponse> {
+  return FieldMask.build<GenieListEvalRunsResponse>(
+    paths,
+    genieListEvalRunsResponseFieldMaskSchema
+  );
+}
+
+const genieListMessageCommentsRequestFieldMaskSchema: FieldMaskSchema = {
+  conversationId: {wire: 'conversation_id'},
+  messageId: {wire: 'message_id'},
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieListMessageCommentsRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieListMessageCommentsRequest> {
+  return FieldMask.build<GenieListMessageCommentsRequest>(
+    paths,
+    genieListMessageCommentsRequestFieldMaskSchema
+  );
+}
+
+const genieListMessageCommentsResponseFieldMaskSchema: FieldMaskSchema = {
+  comments: {wire: 'comments'},
+  nextPageToken: {wire: 'next_page_token'},
+};
+
+export function genieListMessageCommentsResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GenieListMessageCommentsResponse> {
+  return FieldMask.build<GenieListMessageCommentsResponse>(
+    paths,
+    genieListMessageCommentsResponseFieldMaskSchema
+  );
+}
+
+const genieListSpacesRequestFieldMaskSchema: FieldMaskSchema = {
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+};
+
+export function genieListSpacesRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieListSpacesRequest> {
+  return FieldMask.build<GenieListSpacesRequest>(
+    paths,
+    genieListSpacesRequestFieldMaskSchema
+  );
+}
+
+const genieListSpacesResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  spaces: {wire: 'spaces'},
+};
+
+export function genieListSpacesResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GenieListSpacesResponse> {
+  return FieldMask.build<GenieListSpacesResponse>(
+    paths,
+    genieListSpacesResponseFieldMaskSchema
+  );
+}
+
+const genieMessageFieldMaskSchema: FieldMaskSchema = {
+  attachments: {wire: 'attachments'},
+  content: {wire: 'content'},
+  conversationId: {wire: 'conversation_id'},
+  createdTimestamp: {wire: 'created_timestamp'},
+  error: {wire: 'error', children: () => messageErrorFieldMaskSchema},
+  feedback: {wire: 'feedback', children: () => genieFeedbackFieldMaskSchema},
+  id: {wire: 'id'},
+  lastUpdatedTimestamp: {wire: 'last_updated_timestamp'},
+  messageId: {wire: 'message_id'},
+  queryResult: {wire: 'query_result', children: () => resultFieldMaskSchema},
+  spaceId: {wire: 'space_id'},
+  status: {wire: 'status'},
+  userId: {wire: 'user_id'},
+};
+
+export function genieMessageFieldMask(
+  ...paths: string[]
+): FieldMask<GenieMessage> {
+  return FieldMask.build<GenieMessage>(paths, genieMessageFieldMaskSchema);
+}
+
+const genieMessageCommentFieldMaskSchema: FieldMaskSchema = {
+  content: {wire: 'content'},
+  conversationId: {wire: 'conversation_id'},
+  createdTimestamp: {wire: 'created_timestamp'},
+  messageCommentId: {wire: 'message_comment_id'},
+  messageId: {wire: 'message_id'},
+  spaceId: {wire: 'space_id'},
+  userId: {wire: 'user_id'},
+};
+
+export function genieMessageCommentFieldMask(
+  ...paths: string[]
+): FieldMask<GenieMessageComment> {
+  return FieldMask.build<GenieMessageComment>(
+    paths,
+    genieMessageCommentFieldMaskSchema
+  );
+}
+
+const genieQueryAttachmentFieldMaskSchema: FieldMaskSchema = {
+  description: {wire: 'description'},
+  id: {wire: 'id'},
+  lastUpdatedTimestamp: {wire: 'last_updated_timestamp'},
+  parameters: {wire: 'parameters'},
+  query: {wire: 'query'},
+  queryResultMetadata: {
+    wire: 'query_result_metadata',
+    children: () => genieResultMetadataFieldMaskSchema,
+  },
+  statementId: {wire: 'statement_id'},
+  thoughts: {wire: 'thoughts'},
+  title: {wire: 'title'},
+};
+
+export function genieQueryAttachmentFieldMask(
+  ...paths: string[]
+): FieldMask<GenieQueryAttachment> {
+  return FieldMask.build<GenieQueryAttachment>(
+    paths,
+    genieQueryAttachmentFieldMaskSchema
+  );
+}
+
+const genieResultMetadataFieldMaskSchema: FieldMaskSchema = {
+  isTruncated: {wire: 'is_truncated'},
+  rowCount: {wire: 'row_count'},
+};
+
+export function genieResultMetadataFieldMask(
+  ...paths: string[]
+): FieldMask<GenieResultMetadata> {
+  return FieldMask.build<GenieResultMetadata>(
+    paths,
+    genieResultMetadataFieldMaskSchema
+  );
+}
+
+const genieSendMessageFeedbackRequestFieldMaskSchema: FieldMaskSchema = {
+  comment: {wire: 'comment'},
+  conversationId: {wire: 'conversation_id'},
+  messageId: {wire: 'message_id'},
+  rating: {wire: 'rating'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieSendMessageFeedbackRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieSendMessageFeedbackRequest> {
+  return FieldMask.build<GenieSendMessageFeedbackRequest>(
+    paths,
+    genieSendMessageFeedbackRequestFieldMaskSchema
+  );
+}
+
+const genieSpaceFieldMaskSchema: FieldMaskSchema = {
+  description: {wire: 'description'},
+  etag: {wire: 'etag'},
+  parentPath: {wire: 'parent_path'},
+  serializedSpace: {wire: 'serialized_space'},
+  spaceId: {wire: 'space_id'},
+  title: {wire: 'title'},
+  warehouseId: {wire: 'warehouse_id'},
+};
+
+export function genieSpaceFieldMask(...paths: string[]): FieldMask<GenieSpace> {
+  return FieldMask.build<GenieSpace>(paths, genieSpaceFieldMaskSchema);
+}
+
+const genieStartConversationMessageRequestFieldMaskSchema: FieldMaskSchema = {
+  content: {wire: 'content'},
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieStartConversationMessageRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieStartConversationMessageRequest> {
+  return FieldMask.build<GenieStartConversationMessageRequest>(
+    paths,
+    genieStartConversationMessageRequestFieldMaskSchema
+  );
+}
+
+const genieStartConversationResponseFieldMaskSchema: FieldMaskSchema = {
+  conversation: {
+    wire: 'conversation',
+    children: () => genieConversationFieldMaskSchema,
+  },
+  conversationId: {wire: 'conversation_id'},
+  message: {wire: 'message', children: () => genieMessageFieldMaskSchema},
+  messageId: {wire: 'message_id'},
+};
+
+export function genieStartConversationResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GenieStartConversationResponse> {
+  return FieldMask.build<GenieStartConversationResponse>(
+    paths,
+    genieStartConversationResponseFieldMaskSchema
+  );
+}
+
+const genieSuggestedQuestionsAttachmentFieldMaskSchema: FieldMaskSchema = {
+  questions: {wire: 'questions'},
+};
+
+export function genieSuggestedQuestionsAttachmentFieldMask(
+  ...paths: string[]
+): FieldMask<GenieSuggestedQuestionsAttachment> {
+  return FieldMask.build<GenieSuggestedQuestionsAttachment>(
+    paths,
+    genieSuggestedQuestionsAttachmentFieldMaskSchema
+  );
+}
+
+const genieTrashSpaceRequestFieldMaskSchema: FieldMaskSchema = {
+  spaceId: {wire: 'space_id'},
+};
+
+export function genieTrashSpaceRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieTrashSpaceRequest> {
+  return FieldMask.build<GenieTrashSpaceRequest>(
+    paths,
+    genieTrashSpaceRequestFieldMaskSchema
+  );
+}
+
+const genieUpdateSpaceRequestFieldMaskSchema: FieldMaskSchema = {
+  description: {wire: 'description'},
+  etag: {wire: 'etag'},
+  serializedSpace: {wire: 'serialized_space'},
+  spaceId: {wire: 'space_id'},
+  title: {wire: 'title'},
+  warehouseId: {wire: 'warehouse_id'},
+};
+
+export function genieUpdateSpaceRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GenieUpdateSpaceRequest> {
+  return FieldMask.build<GenieUpdateSpaceRequest>(
+    paths,
+    genieUpdateSpaceRequestFieldMaskSchema
+  );
+}
+
+const listValueFieldMaskSchema: FieldMaskSchema = {
+  values: {wire: 'values'},
+};
+
+export function listValueFieldMask(...paths: string[]): FieldMask<ListValue> {
+  return FieldMask.build<ListValue>(paths, listValueFieldMaskSchema);
+}
+
+const mapStringValueEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value', children: () => valueFieldMaskSchema},
+};
+
+export function mapStringValueEntryFieldMask(
+  ...paths: string[]
+): FieldMask<MapStringValueEntry> {
+  return FieldMask.build<MapStringValueEntry>(
+    paths,
+    mapStringValueEntryFieldMaskSchema
+  );
+}
+
+const messageErrorFieldMaskSchema: FieldMaskSchema = {
+  error: {wire: 'error'},
+  type: {wire: 'type'},
+};
+
+export function messageErrorFieldMask(
+  ...paths: string[]
+): FieldMask<MessageError> {
+  return FieldMask.build<MessageError>(paths, messageErrorFieldMaskSchema);
+}
+
+const messageStatusFieldMaskSchema: FieldMaskSchema = {};
+
+export function messageStatusFieldMask(
+  ...paths: string[]
+): FieldMask<MessageStatus> {
+  return FieldMask.build<MessageStatus>(paths, messageStatusFieldMaskSchema);
+}
+
+const policyFunctionArgumentFieldMaskSchema: FieldMaskSchema = {
+  column: {wire: 'column'},
+  constant: {wire: 'constant'},
+};
+
+export function policyFunctionArgumentFieldMask(
+  ...paths: string[]
+): FieldMask<PolicyFunctionArgument> {
+  return FieldMask.build<PolicyFunctionArgument>(
+    paths,
+    policyFunctionArgumentFieldMaskSchema
+  );
+}
+
+const queryAttachmentParameterFieldMaskSchema: FieldMaskSchema = {
+  keyword: {wire: 'keyword'},
+  sqlType: {wire: 'sql_type'},
+  value: {wire: 'value'},
+};
+
+export function queryAttachmentParameterFieldMask(
+  ...paths: string[]
+): FieldMask<QueryAttachmentParameter> {
+  return FieldMask.build<QueryAttachmentParameter>(
+    paths,
+    queryAttachmentParameterFieldMaskSchema
+  );
+}
+
+const resultFieldMaskSchema: FieldMaskSchema = {
+  isTruncated: {wire: 'is_truncated'},
+  rowCount: {wire: 'row_count'},
+  statementId: {wire: 'statement_id'},
+  statementIdSignature: {wire: 'statement_id_signature'},
+};
+
+export function resultFieldMask(...paths: string[]): FieldMask<Result> {
+  return FieldMask.build<Result>(paths, resultFieldMaskSchema);
+}
+
+const resultDataFieldMaskSchema: FieldMaskSchema = {
+  byteCount: {wire: 'byte_count'},
+  chunkIndex: {wire: 'chunk_index'},
+  dataArray: {wire: 'data_array'},
+  externalLinks: {wire: 'external_links'},
+  nextChunkIndex: {wire: 'next_chunk_index'},
+  nextChunkInternalLink: {wire: 'next_chunk_internal_link'},
+  rowCount: {wire: 'row_count'},
+  rowOffset: {wire: 'row_offset'},
+};
+
+export function resultDataFieldMask(...paths: string[]): FieldMask<ResultData> {
+  return FieldMask.build<ResultData>(paths, resultDataFieldMaskSchema);
+}
+
+const resultManifestFieldMaskSchema: FieldMaskSchema = {
+  chunks: {wire: 'chunks'},
+  format: {wire: 'format'},
+  schema: {wire: 'schema', children: () => schemaFieldMaskSchema},
+  totalByteCount: {wire: 'total_byte_count'},
+  totalChunkCount: {wire: 'total_chunk_count'},
+  totalRowCount: {wire: 'total_row_count'},
+  truncated: {wire: 'truncated'},
+};
+
+export function resultManifestFieldMask(
+  ...paths: string[]
+): FieldMask<ResultManifest> {
+  return FieldMask.build<ResultManifest>(paths, resultManifestFieldMaskSchema);
+}
+
+const schemaFieldMaskSchema: FieldMaskSchema = {
+  columnCount: {wire: 'column_count'},
+  columns: {wire: 'columns'},
+};
+
+export function schemaFieldMask(...paths: string[]): FieldMask<Schema> {
+  return FieldMask.build<Schema>(paths, schemaFieldMaskSchema);
+}
+
+const statementResponseFieldMaskSchema: FieldMaskSchema = {
+  manifest: {wire: 'manifest', children: () => resultManifestFieldMaskSchema},
+  result: {wire: 'result', children: () => resultDataFieldMaskSchema},
+  statementId: {wire: 'statement_id'},
+  status: {wire: 'status', children: () => statementStatusFieldMaskSchema},
+};
+
+export function statementResponseFieldMask(
+  ...paths: string[]
+): FieldMask<StatementResponse> {
+  return FieldMask.build<StatementResponse>(
+    paths,
+    statementResponseFieldMaskSchema
+  );
+}
+
+const statementStatusFieldMaskSchema: FieldMaskSchema = {
+  error: {
+    wire: 'error',
+    children: () => databricksServiceExceptionProtoFieldMaskSchema,
+  },
+  sqlState: {wire: 'sql_state'},
+  state: {wire: 'state'},
+};
+
+export function statementStatusFieldMask(
+  ...paths: string[]
+): FieldMask<StatementStatus> {
+  return FieldMask.build<StatementStatus>(
+    paths,
+    statementStatusFieldMaskSchema
+  );
+}
+
+const structFieldMaskSchema: FieldMaskSchema = {
+  fields: {wire: 'fields'},
+};
+
+export function structFieldMask(...paths: string[]): FieldMask<Struct> {
+  return FieldMask.build<Struct>(paths, structFieldMaskSchema);
+}
+
+const textAttachmentFieldMaskSchema: FieldMaskSchema = {
+  content: {wire: 'content'},
+  id: {wire: 'id'},
+  phase: {wire: 'phase'},
+  purpose: {wire: 'purpose'},
+  verificationMetadata: {
+    wire: 'verification_metadata',
+    children: () => verificationMetadataFieldMaskSchema,
+  },
+};
+
+export function textAttachmentFieldMask(
+  ...paths: string[]
+): FieldMask<TextAttachment> {
+  return FieldMask.build<TextAttachment>(paths, textAttachmentFieldMaskSchema);
+}
+
+const thoughtFieldMaskSchema: FieldMaskSchema = {
+  content: {wire: 'content'},
+  thoughtType: {wire: 'thought_type'},
+};
+
+export function thoughtFieldMask(...paths: string[]): FieldMask<Thought> {
+  return FieldMask.build<Thought>(paths, thoughtFieldMaskSchema);
+}
+
+const valueFieldMaskSchema: FieldMaskSchema = {
+  boolValue: {wire: 'bool_value'},
+  listValue: {wire: 'list_value', children: () => listValueFieldMaskSchema},
+  nullValue: {wire: 'null_value'},
+  numberValue: {wire: 'number_value'},
+  stringValue: {wire: 'string_value'},
+  structValue: {wire: 'struct_value', children: () => structFieldMaskSchema},
+};
+
+export function valueFieldMask(...paths: string[]): FieldMask<Value> {
+  return FieldMask.build<Value>(paths, valueFieldMaskSchema);
+}
+
+const verificationMetadataFieldMaskSchema: FieldMaskSchema = {
+  index: {wire: 'index'},
+  section: {wire: 'section'},
+};
+
+export function verificationMetadataFieldMask(
+  ...paths: string[]
+): FieldMask<VerificationMetadata> {
+  return FieldMask.build<VerificationMetadata>(
+    paths,
+    verificationMetadataFieldMaskSchema
+  );
+}

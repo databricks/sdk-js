@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** Request message for CreateFeatureTag. */
@@ -235,3 +237,176 @@ export const marshalListFeatureTagsResponseSchema: z.ZodType = z
     feature_tags: d.featureTags,
     next_page_token: d.nextPageToken,
   }));
+
+const createFeatureTagRequestFieldMaskSchema: FieldMaskSchema = {
+  featureName: {wire: 'feature_name'},
+  featureTag: {wire: 'feature_tag', children: () => featureTagFieldMaskSchema},
+  tableName: {wire: 'table_name'},
+};
+
+export function createFeatureTagRequestFieldMask(
+  ...paths: string[]
+): FieldMask<CreateFeatureTagRequest> {
+  return FieldMask.build<CreateFeatureTagRequest>(
+    paths,
+    createFeatureTagRequestFieldMaskSchema
+  );
+}
+
+const deleteFeatureTagRequestFieldMaskSchema: FieldMaskSchema = {
+  featureName: {wire: 'feature_name'},
+  key: {wire: 'key'},
+  tableName: {wire: 'table_name'},
+};
+
+export function deleteFeatureTagRequestFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteFeatureTagRequest> {
+  return FieldMask.build<DeleteFeatureTagRequest>(
+    paths,
+    deleteFeatureTagRequestFieldMaskSchema
+  );
+}
+
+const featureLineageFieldMaskSchema: FieldMaskSchema = {
+  featureSpecs: {wire: 'feature_specs'},
+  models: {wire: 'models'},
+  onlineFeatures: {wire: 'online_features'},
+};
+
+export function featureLineageFieldMask(
+  ...paths: string[]
+): FieldMask<FeatureLineage> {
+  return FieldMask.build<FeatureLineage>(paths, featureLineageFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const featureLineage_FeatureSpecFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function featureLineage_FeatureSpecFieldMask(
+  ...paths: string[]
+): FieldMask<FeatureLineage_FeatureSpec> {
+  return FieldMask.build<FeatureLineage_FeatureSpec>(
+    paths,
+    featureLineage_FeatureSpecFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const featureLineage_ModelFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+  version: {wire: 'version'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function featureLineage_ModelFieldMask(
+  ...paths: string[]
+): FieldMask<FeatureLineage_Model> {
+  return FieldMask.build<FeatureLineage_Model>(
+    paths,
+    featureLineage_ModelFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const featureLineage_OnlineFeatureFieldMaskSchema: FieldMaskSchema = {
+  featureName: {wire: 'feature_name'},
+  tableName: {wire: 'table_name'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function featureLineage_OnlineFeatureFieldMask(
+  ...paths: string[]
+): FieldMask<FeatureLineage_OnlineFeature> {
+  return FieldMask.build<FeatureLineage_OnlineFeature>(
+    paths,
+    featureLineage_OnlineFeatureFieldMaskSchema
+  );
+}
+
+const featureTagFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+export function featureTagFieldMask(...paths: string[]): FieldMask<FeatureTag> {
+  return FieldMask.build<FeatureTag>(paths, featureTagFieldMaskSchema);
+}
+
+const getFeatureLineageRequestFieldMaskSchema: FieldMaskSchema = {
+  featureName: {wire: 'feature_name'},
+  tableName: {wire: 'table_name'},
+};
+
+export function getFeatureLineageRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GetFeatureLineageRequest> {
+  return FieldMask.build<GetFeatureLineageRequest>(
+    paths,
+    getFeatureLineageRequestFieldMaskSchema
+  );
+}
+
+const getFeatureTagRequestFieldMaskSchema: FieldMaskSchema = {
+  featureName: {wire: 'feature_name'},
+  key: {wire: 'key'},
+  tableName: {wire: 'table_name'},
+};
+
+export function getFeatureTagRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GetFeatureTagRequest> {
+  return FieldMask.build<GetFeatureTagRequest>(
+    paths,
+    getFeatureTagRequestFieldMaskSchema
+  );
+}
+
+const listFeatureTagsRequestFieldMaskSchema: FieldMaskSchema = {
+  featureName: {wire: 'feature_name'},
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+  tableName: {wire: 'table_name'},
+};
+
+export function listFeatureTagsRequestFieldMask(
+  ...paths: string[]
+): FieldMask<ListFeatureTagsRequest> {
+  return FieldMask.build<ListFeatureTagsRequest>(
+    paths,
+    listFeatureTagsRequestFieldMaskSchema
+  );
+}
+
+const listFeatureTagsResponseFieldMaskSchema: FieldMaskSchema = {
+  featureTags: {wire: 'feature_tags'},
+  nextPageToken: {wire: 'next_page_token'},
+};
+
+export function listFeatureTagsResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListFeatureTagsResponse> {
+  return FieldMask.build<ListFeatureTagsResponse>(
+    paths,
+    listFeatureTagsResponseFieldMaskSchema
+  );
+}
+
+const updateFeatureTagRequestFieldMaskSchema: FieldMaskSchema = {
+  featureName: {wire: 'feature_name'},
+  featureTag: {wire: 'feature_tag', children: () => featureTagFieldMaskSchema},
+  tableName: {wire: 'table_name'},
+  updateMask: {wire: 'update_mask'},
+};
+
+export function updateFeatureTagRequestFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateFeatureTagRequest> {
+  return FieldMask.build<UpdateFeatureTagRequest>(
+    paths,
+    updateFeatureTagRequestFieldMaskSchema
+  );
+}

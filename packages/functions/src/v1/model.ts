@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum ColumnTypeName {
@@ -1097,3 +1099,376 @@ export const marshalVolumeDependencySchema: z.ZodType = z
   .transform(d => ({
     volume_full_name: d.volumeFullName,
   }));
+
+const connectionDependencyFieldMaskSchema: FieldMaskSchema = {
+  connectionName: {wire: 'connection_name'},
+};
+
+export function connectionDependencyFieldMask(
+  ...paths: string[]
+): FieldMask<ConnectionDependency> {
+  return FieldMask.build<ConnectionDependency>(
+    paths,
+    connectionDependencyFieldMaskSchema
+  );
+}
+
+const createFunctionFieldMaskSchema: FieldMaskSchema = {
+  browseOnly: {wire: 'browse_only'},
+  catalogName: {wire: 'catalog_name'},
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  dataType: {wire: 'data_type'},
+  externalLanguage: {wire: 'external_language'},
+  externalName: {wire: 'external_name'},
+  fullDataType: {wire: 'full_data_type'},
+  fullName: {wire: 'full_name'},
+  functionId: {wire: 'function_id'},
+  inputParams: {
+    wire: 'input_params',
+    children: () => functionParameterInfosFieldMaskSchema,
+  },
+  isDeterministic: {wire: 'is_deterministic'},
+  isNullCall: {wire: 'is_null_call'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  owner: {wire: 'owner'},
+  parameterStyle: {wire: 'parameter_style'},
+  properties: {wire: 'properties'},
+  returnParams: {
+    wire: 'return_params',
+    children: () => functionParameterInfosFieldMaskSchema,
+  },
+  routineBody: {wire: 'routine_body'},
+  routineDefinition: {wire: 'routine_definition'},
+  routineDependencies: {
+    wire: 'routine_dependencies',
+    children: () => dependencyListFieldMaskSchema,
+  },
+  schemaName: {wire: 'schema_name'},
+  securityType: {wire: 'security_type'},
+  specificName: {wire: 'specific_name'},
+  sqlDataAccess: {wire: 'sql_data_access'},
+  sqlPath: {wire: 'sql_path'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+};
+
+export function createFunctionFieldMask(
+  ...paths: string[]
+): FieldMask<CreateFunction> {
+  return FieldMask.build<CreateFunction>(paths, createFunctionFieldMaskSchema);
+}
+
+const createFunctionRequestFieldMaskSchema: FieldMaskSchema = {
+  functionInfo: {
+    wire: 'function_info',
+    children: () => createFunctionFieldMaskSchema,
+  },
+};
+
+export function createFunctionRequestFieldMask(
+  ...paths: string[]
+): FieldMask<CreateFunctionRequest> {
+  return FieldMask.build<CreateFunctionRequest>(
+    paths,
+    createFunctionRequestFieldMaskSchema
+  );
+}
+
+const credentialDependencyFieldMaskSchema: FieldMaskSchema = {
+  credentialName: {wire: 'credential_name'},
+};
+
+export function credentialDependencyFieldMask(
+  ...paths: string[]
+): FieldMask<CredentialDependency> {
+  return FieldMask.build<CredentialDependency>(
+    paths,
+    credentialDependencyFieldMaskSchema
+  );
+}
+
+const deleteFunctionFieldMaskSchema: FieldMaskSchema = {
+  force: {wire: 'force'},
+  fullNameArg: {wire: 'full_name_arg'},
+};
+
+export function deleteFunctionFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteFunction> {
+  return FieldMask.build<DeleteFunction>(paths, deleteFunctionFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deleteFunction_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deleteFunction_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteFunction_Response> {
+  return FieldMask.build<DeleteFunction_Response>(
+    paths,
+    deleteFunction_ResponseFieldMaskSchema
+  );
+}
+
+const dependencyFieldMaskSchema: FieldMaskSchema = {
+  connection: {
+    wire: 'connection',
+    children: () => connectionDependencyFieldMaskSchema,
+  },
+  credential: {
+    wire: 'credential',
+    children: () => credentialDependencyFieldMaskSchema,
+  },
+  function: {
+    wire: 'function',
+    children: () => functionDependencyFieldMaskSchema,
+  },
+  secret: {wire: 'secret', children: () => secretDependencyFieldMaskSchema},
+  table: {wire: 'table', children: () => tableDependencyFieldMaskSchema},
+  volume: {wire: 'volume', children: () => volumeDependencyFieldMaskSchema},
+};
+
+export function dependencyFieldMask(...paths: string[]): FieldMask<Dependency> {
+  return FieldMask.build<Dependency>(paths, dependencyFieldMaskSchema);
+}
+
+const dependencyListFieldMaskSchema: FieldMaskSchema = {
+  dependencies: {wire: 'dependencies'},
+};
+
+export function dependencyListFieldMask(
+  ...paths: string[]
+): FieldMask<DependencyList> {
+  return FieldMask.build<DependencyList>(paths, dependencyListFieldMaskSchema);
+}
+
+const functionDependencyFieldMaskSchema: FieldMaskSchema = {
+  functionFullName: {wire: 'function_full_name'},
+};
+
+export function functionDependencyFieldMask(
+  ...paths: string[]
+): FieldMask<FunctionDependency> {
+  return FieldMask.build<FunctionDependency>(
+    paths,
+    functionDependencyFieldMaskSchema
+  );
+}
+
+const functionInfoFieldMaskSchema: FieldMaskSchema = {
+  browseOnly: {wire: 'browse_only'},
+  catalogName: {wire: 'catalog_name'},
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  dataType: {wire: 'data_type'},
+  externalLanguage: {wire: 'external_language'},
+  externalName: {wire: 'external_name'},
+  fullDataType: {wire: 'full_data_type'},
+  fullName: {wire: 'full_name'},
+  functionId: {wire: 'function_id'},
+  inputParams: {
+    wire: 'input_params',
+    children: () => functionParameterInfosFieldMaskSchema,
+  },
+  isDeterministic: {wire: 'is_deterministic'},
+  isNullCall: {wire: 'is_null_call'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  owner: {wire: 'owner'},
+  parameterStyle: {wire: 'parameter_style'},
+  properties: {wire: 'properties'},
+  returnParams: {
+    wire: 'return_params',
+    children: () => functionParameterInfosFieldMaskSchema,
+  },
+  routineBody: {wire: 'routine_body'},
+  routineDefinition: {wire: 'routine_definition'},
+  routineDependencies: {
+    wire: 'routine_dependencies',
+    children: () => dependencyListFieldMaskSchema,
+  },
+  schemaName: {wire: 'schema_name'},
+  securityType: {wire: 'security_type'},
+  specificName: {wire: 'specific_name'},
+  sqlDataAccess: {wire: 'sql_data_access'},
+  sqlPath: {wire: 'sql_path'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+};
+
+export function functionInfoFieldMask(
+  ...paths: string[]
+): FieldMask<FunctionInfo> {
+  return FieldMask.build<FunctionInfo>(paths, functionInfoFieldMaskSchema);
+}
+
+const functionParameterInfoFieldMaskSchema: FieldMaskSchema = {
+  comment: {wire: 'comment'},
+  name: {wire: 'name'},
+  parameterDefault: {wire: 'parameter_default'},
+  parameterMode: {wire: 'parameter_mode'},
+  parameterType: {wire: 'parameter_type'},
+  position: {wire: 'position'},
+  typeIntervalType: {wire: 'type_interval_type'},
+  typeJson: {wire: 'type_json'},
+  typeName: {wire: 'type_name'},
+  typePrecision: {wire: 'type_precision'},
+  typeScale: {wire: 'type_scale'},
+  typeText: {wire: 'type_text'},
+};
+
+export function functionParameterInfoFieldMask(
+  ...paths: string[]
+): FieldMask<FunctionParameterInfo> {
+  return FieldMask.build<FunctionParameterInfo>(
+    paths,
+    functionParameterInfoFieldMaskSchema
+  );
+}
+
+const functionParameterInfosFieldMaskSchema: FieldMaskSchema = {
+  parameters: {wire: 'parameters'},
+};
+
+export function functionParameterInfosFieldMask(
+  ...paths: string[]
+): FieldMask<FunctionParameterInfos> {
+  return FieldMask.build<FunctionParameterInfos>(
+    paths,
+    functionParameterInfosFieldMaskSchema
+  );
+}
+
+const getFunctionFieldMaskSchema: FieldMaskSchema = {
+  fullNameArg: {wire: 'full_name_arg'},
+  includeBrowse: {wire: 'include_browse'},
+};
+
+export function getFunctionFieldMask(
+  ...paths: string[]
+): FieldMask<GetFunction> {
+  return FieldMask.build<GetFunction>(paths, getFunctionFieldMaskSchema);
+}
+
+const listFunctionsFieldMaskSchema: FieldMaskSchema = {
+  catalogName: {wire: 'catalog_name'},
+  includeBrowse: {wire: 'include_browse'},
+  maxResults: {wire: 'max_results'},
+  pageToken: {wire: 'page_token'},
+  schemaName: {wire: 'schema_name'},
+};
+
+export function listFunctionsFieldMask(
+  ...paths: string[]
+): FieldMask<ListFunctions> {
+  return FieldMask.build<ListFunctions>(paths, listFunctionsFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listFunctions_ResponseFieldMaskSchema: FieldMaskSchema = {
+  functions: {wire: 'functions'},
+  nextPageToken: {wire: 'next_page_token'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listFunctions_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListFunctions_Response> {
+  return FieldMask.build<ListFunctions_Response>(
+    paths,
+    listFunctions_ResponseFieldMaskSchema
+  );
+}
+
+const secretDependencyFieldMaskSchema: FieldMaskSchema = {
+  secretFullName: {wire: 'secret_full_name'},
+};
+
+export function secretDependencyFieldMask(
+  ...paths: string[]
+): FieldMask<SecretDependency> {
+  return FieldMask.build<SecretDependency>(
+    paths,
+    secretDependencyFieldMaskSchema
+  );
+}
+
+const tableDependencyFieldMaskSchema: FieldMaskSchema = {
+  tableFullName: {wire: 'table_full_name'},
+};
+
+export function tableDependencyFieldMask(
+  ...paths: string[]
+): FieldMask<TableDependency> {
+  return FieldMask.build<TableDependency>(
+    paths,
+    tableDependencyFieldMaskSchema
+  );
+}
+
+const updateFunctionFieldMaskSchema: FieldMaskSchema = {
+  browseOnly: {wire: 'browse_only'},
+  catalogName: {wire: 'catalog_name'},
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  dataType: {wire: 'data_type'},
+  externalLanguage: {wire: 'external_language'},
+  externalName: {wire: 'external_name'},
+  fullDataType: {wire: 'full_data_type'},
+  fullName: {wire: 'full_name'},
+  fullNameArg: {wire: 'full_name_arg'},
+  functionId: {wire: 'function_id'},
+  inputParams: {
+    wire: 'input_params',
+    children: () => functionParameterInfosFieldMaskSchema,
+  },
+  isDeterministic: {wire: 'is_deterministic'},
+  isNullCall: {wire: 'is_null_call'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  owner: {wire: 'owner'},
+  parameterStyle: {wire: 'parameter_style'},
+  properties: {wire: 'properties'},
+  returnParams: {
+    wire: 'return_params',
+    children: () => functionParameterInfosFieldMaskSchema,
+  },
+  routineBody: {wire: 'routine_body'},
+  routineDefinition: {wire: 'routine_definition'},
+  routineDependencies: {
+    wire: 'routine_dependencies',
+    children: () => dependencyListFieldMaskSchema,
+  },
+  schemaName: {wire: 'schema_name'},
+  securityType: {wire: 'security_type'},
+  specificName: {wire: 'specific_name'},
+  sqlDataAccess: {wire: 'sql_data_access'},
+  sqlPath: {wire: 'sql_path'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+};
+
+export function updateFunctionFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateFunction> {
+  return FieldMask.build<UpdateFunction>(paths, updateFunctionFieldMaskSchema);
+}
+
+const volumeDependencyFieldMaskSchema: FieldMaskSchema = {
+  volumeFullName: {wire: 'volume_full_name'},
+};
+
+export function volumeDependencyFieldMask(
+  ...paths: string[]
+): FieldMask<VolumeDependency> {
+  return FieldMask.build<VolumeDependency>(
+    paths,
+    volumeDependencyFieldMaskSchema
+  );
+}

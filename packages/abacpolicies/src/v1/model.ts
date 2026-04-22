@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum PolicyType {
@@ -603,3 +605,250 @@ export const marshalTagValueExtractionSchema: z.ZodType = z
   .transform(d => ({
     tag_key: d.tagKey,
   }));
+
+const columnMaskOptionsFieldMaskSchema: FieldMaskSchema = {
+  functionName: {wire: 'function_name'},
+  onColumn: {wire: 'on_column'},
+  using: {wire: 'using'},
+};
+
+export function columnMaskOptionsFieldMask(
+  ...paths: string[]
+): FieldMask<ColumnMaskOptions> {
+  return FieldMask.build<ColumnMaskOptions>(
+    paths,
+    columnMaskOptionsFieldMaskSchema
+  );
+}
+
+const columnTagValueExtractionFieldMaskSchema: FieldMaskSchema = {
+  columnAlias: {wire: 'column_alias'},
+  tagKey: {wire: 'tag_key'},
+};
+
+export function columnTagValueExtractionFieldMask(
+  ...paths: string[]
+): FieldMask<ColumnTagValueExtraction> {
+  return FieldMask.build<ColumnTagValueExtraction>(
+    paths,
+    columnTagValueExtractionFieldMaskSchema
+  );
+}
+
+const createPolicyFieldMaskSchema: FieldMaskSchema = {
+  policyInfo: {wire: 'policy_info', children: () => policyInfoFieldMaskSchema},
+};
+
+export function createPolicyFieldMask(
+  ...paths: string[]
+): FieldMask<CreatePolicy> {
+  return FieldMask.build<CreatePolicy>(paths, createPolicyFieldMaskSchema);
+}
+
+const deletePolicyFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+  onSecurableFullname: {wire: 'on_securable_fullname'},
+  onSecurableType: {wire: 'on_securable_type'},
+};
+
+export function deletePolicyFieldMask(
+  ...paths: string[]
+): FieldMask<DeletePolicy> {
+  return FieldMask.build<DeletePolicy>(paths, deletePolicyFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deletePolicy_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deletePolicy_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeletePolicy_Response> {
+  return FieldMask.build<DeletePolicy_Response>(
+    paths,
+    deletePolicy_ResponseFieldMaskSchema
+  );
+}
+
+const denyOptionsFieldMaskSchema: FieldMaskSchema = {
+  privileges: {wire: 'privileges'},
+};
+
+export function denyOptionsFieldMask(
+  ...paths: string[]
+): FieldMask<DenyOptions> {
+  return FieldMask.build<DenyOptions>(paths, denyOptionsFieldMaskSchema);
+}
+
+const functionArgumentFieldMaskSchema: FieldMaskSchema = {
+  alias: {wire: 'alias'},
+  constant: {wire: 'constant'},
+  metadataExtraction: {
+    wire: 'metadata_extraction',
+    children: () => metadataExtractionExpressionFieldMaskSchema,
+  },
+};
+
+export function functionArgumentFieldMask(
+  ...paths: string[]
+): FieldMask<FunctionArgument> {
+  return FieldMask.build<FunctionArgument>(
+    paths,
+    functionArgumentFieldMaskSchema
+  );
+}
+
+const getPolicyFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+  onSecurableFullname: {wire: 'on_securable_fullname'},
+  onSecurableType: {wire: 'on_securable_type'},
+};
+
+export function getPolicyFieldMask(...paths: string[]): FieldMask<GetPolicy> {
+  return FieldMask.build<GetPolicy>(paths, getPolicyFieldMaskSchema);
+}
+
+const grantOptionsFieldMaskSchema: FieldMaskSchema = {
+  privileges: {wire: 'privileges'},
+};
+
+export function grantOptionsFieldMask(
+  ...paths: string[]
+): FieldMask<GrantOptions> {
+  return FieldMask.build<GrantOptions>(paths, grantOptionsFieldMaskSchema);
+}
+
+const listPoliciesFieldMaskSchema: FieldMaskSchema = {
+  includeInherited: {wire: 'include_inherited'},
+  maxResults: {wire: 'max_results'},
+  onSecurableFullname: {wire: 'on_securable_fullname'},
+  onSecurableType: {wire: 'on_securable_type'},
+  pageToken: {wire: 'page_token'},
+};
+
+export function listPoliciesFieldMask(
+  ...paths: string[]
+): FieldMask<ListPolicies> {
+  return FieldMask.build<ListPolicies>(paths, listPoliciesFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listPolicies_ResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  policies: {wire: 'policies'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listPolicies_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListPolicies_Response> {
+  return FieldMask.build<ListPolicies_Response>(
+    paths,
+    listPolicies_ResponseFieldMaskSchema
+  );
+}
+
+const matchColumnFieldMaskSchema: FieldMaskSchema = {
+  alias: {wire: 'alias'},
+  condition: {wire: 'condition'},
+};
+
+export function matchColumnFieldMask(
+  ...paths: string[]
+): FieldMask<MatchColumn> {
+  return FieldMask.build<MatchColumn>(paths, matchColumnFieldMaskSchema);
+}
+
+const metadataExtractionExpressionFieldMaskSchema: FieldMaskSchema = {
+  columnTagValue: {
+    wire: 'column_tag_value',
+    children: () => columnTagValueExtractionFieldMaskSchema,
+  },
+  tagValue: {
+    wire: 'tag_value',
+    children: () => tagValueExtractionFieldMaskSchema,
+  },
+};
+
+export function metadataExtractionExpressionFieldMask(
+  ...paths: string[]
+): FieldMask<MetadataExtractionExpression> {
+  return FieldMask.build<MetadataExtractionExpression>(
+    paths,
+    metadataExtractionExpressionFieldMaskSchema
+  );
+}
+
+const policyInfoFieldMaskSchema: FieldMaskSchema = {
+  columnMask: {
+    wire: 'column_mask',
+    children: () => columnMaskOptionsFieldMaskSchema,
+  },
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  deny: {wire: 'deny', children: () => denyOptionsFieldMaskSchema},
+  exceptPrincipals: {wire: 'except_principals'},
+  forSecurableType: {wire: 'for_securable_type'},
+  grant: {wire: 'grant', children: () => grantOptionsFieldMaskSchema},
+  id: {wire: 'id'},
+  matchColumns: {wire: 'match_columns'},
+  name: {wire: 'name'},
+  onSecurableFullname: {wire: 'on_securable_fullname'},
+  onSecurableType: {wire: 'on_securable_type'},
+  policyType: {wire: 'policy_type'},
+  rowFilter: {
+    wire: 'row_filter',
+    children: () => rowFilterOptionsFieldMaskSchema,
+  },
+  toPrincipals: {wire: 'to_principals'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+  useSessionIdentity: {wire: 'use_session_identity'},
+  whenCondition: {wire: 'when_condition'},
+};
+
+export function policyInfoFieldMask(...paths: string[]): FieldMask<PolicyInfo> {
+  return FieldMask.build<PolicyInfo>(paths, policyInfoFieldMaskSchema);
+}
+
+const rowFilterOptionsFieldMaskSchema: FieldMaskSchema = {
+  functionName: {wire: 'function_name'},
+  using: {wire: 'using'},
+};
+
+export function rowFilterOptionsFieldMask(
+  ...paths: string[]
+): FieldMask<RowFilterOptions> {
+  return FieldMask.build<RowFilterOptions>(
+    paths,
+    rowFilterOptionsFieldMaskSchema
+  );
+}
+
+const tagValueExtractionFieldMaskSchema: FieldMaskSchema = {
+  tagKey: {wire: 'tag_key'},
+};
+
+export function tagValueExtractionFieldMask(
+  ...paths: string[]
+): FieldMask<TagValueExtraction> {
+  return FieldMask.build<TagValueExtraction>(
+    paths,
+    tagValueExtractionFieldMaskSchema
+  );
+}
+
+const updatePolicyFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+  onSecurableFullname: {wire: 'on_securable_fullname'},
+  onSecurableType: {wire: 'on_securable_type'},
+  policyInfo: {wire: 'policy_info', children: () => policyInfoFieldMaskSchema},
+  updateMask: {wire: 'update_mask'},
+};
+
+export function updatePolicyFieldMask(
+  ...paths: string[]
+): FieldMask<UpdatePolicy> {
+  return FieldMask.build<UpdatePolicy>(paths, updatePolicyFieldMaskSchema);
+}

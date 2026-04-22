@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum SseEncryptionAlgorithm {
@@ -520,3 +522,182 @@ export const marshalVolumeInfoSchema: z.ZodType = z
     encryption_details: d.encryptionDetails,
     browse_only: d.browseOnly,
   }));
+
+const createVolumeFieldMaskSchema: FieldMaskSchema = {
+  accessPoint: {wire: 'access_point'},
+  browseOnly: {wire: 'browse_only'},
+  catalogName: {wire: 'catalog_name'},
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  encryptionDetails: {
+    wire: 'encryption_details',
+    children: () => encryptionDetailsFieldMaskSchema,
+  },
+  fullName: {wire: 'full_name'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  owner: {wire: 'owner'},
+  schemaName: {wire: 'schema_name'},
+  storageLocation: {wire: 'storage_location'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+  volumeId: {wire: 'volume_id'},
+  volumeType: {wire: 'volume_type'},
+};
+
+export function createVolumeFieldMask(
+  ...paths: string[]
+): FieldMask<CreateVolume> {
+  return FieldMask.build<CreateVolume>(paths, createVolumeFieldMaskSchema);
+}
+
+const deleteVolumeFieldMaskSchema: FieldMaskSchema = {
+  fullNameArg: {wire: 'full_name_arg'},
+};
+
+export function deleteVolumeFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteVolume> {
+  return FieldMask.build<DeleteVolume>(paths, deleteVolumeFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deleteVolume_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deleteVolume_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteVolume_Response> {
+  return FieldMask.build<DeleteVolume_Response>(
+    paths,
+    deleteVolume_ResponseFieldMaskSchema
+  );
+}
+
+const encryptionDetailsFieldMaskSchema: FieldMaskSchema = {
+  sseEncryptionDetails: {
+    wire: 'sse_encryption_details',
+    children: () => sseEncryptionDetailsFieldMaskSchema,
+  },
+};
+
+export function encryptionDetailsFieldMask(
+  ...paths: string[]
+): FieldMask<EncryptionDetails> {
+  return FieldMask.build<EncryptionDetails>(
+    paths,
+    encryptionDetailsFieldMaskSchema
+  );
+}
+
+const getVolumeFieldMaskSchema: FieldMaskSchema = {
+  fullNameArg: {wire: 'full_name_arg'},
+  includeBrowse: {wire: 'include_browse'},
+};
+
+export function getVolumeFieldMask(...paths: string[]): FieldMask<GetVolume> {
+  return FieldMask.build<GetVolume>(paths, getVolumeFieldMaskSchema);
+}
+
+const listVolumesFieldMaskSchema: FieldMaskSchema = {
+  catalogName: {wire: 'catalog_name'},
+  includeBrowse: {wire: 'include_browse'},
+  maxResults: {wire: 'max_results'},
+  pageToken: {wire: 'page_token'},
+  schemaName: {wire: 'schema_name'},
+};
+
+export function listVolumesFieldMask(
+  ...paths: string[]
+): FieldMask<ListVolumes> {
+  return FieldMask.build<ListVolumes>(paths, listVolumesFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listVolumes_ResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  volumes: {wire: 'volumes'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listVolumes_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListVolumes_Response> {
+  return FieldMask.build<ListVolumes_Response>(
+    paths,
+    listVolumes_ResponseFieldMaskSchema
+  );
+}
+
+const sseEncryptionDetailsFieldMaskSchema: FieldMaskSchema = {
+  algorithm: {wire: 'algorithm'},
+  awsKmsKeyArn: {wire: 'aws_kms_key_arn'},
+};
+
+export function sseEncryptionDetailsFieldMask(
+  ...paths: string[]
+): FieldMask<SseEncryptionDetails> {
+  return FieldMask.build<SseEncryptionDetails>(
+    paths,
+    sseEncryptionDetailsFieldMaskSchema
+  );
+}
+
+const updateVolumeFieldMaskSchema: FieldMaskSchema = {
+  accessPoint: {wire: 'access_point'},
+  browseOnly: {wire: 'browse_only'},
+  catalogName: {wire: 'catalog_name'},
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  encryptionDetails: {
+    wire: 'encryption_details',
+    children: () => encryptionDetailsFieldMaskSchema,
+  },
+  fullName: {wire: 'full_name'},
+  fullNameArg: {wire: 'full_name_arg'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  newName: {wire: 'new_name'},
+  owner: {wire: 'owner'},
+  schemaName: {wire: 'schema_name'},
+  storageLocation: {wire: 'storage_location'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+  volumeId: {wire: 'volume_id'},
+  volumeType: {wire: 'volume_type'},
+};
+
+export function updateVolumeFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateVolume> {
+  return FieldMask.build<UpdateVolume>(paths, updateVolumeFieldMaskSchema);
+}
+
+const volumeInfoFieldMaskSchema: FieldMaskSchema = {
+  accessPoint: {wire: 'access_point'},
+  browseOnly: {wire: 'browse_only'},
+  catalogName: {wire: 'catalog_name'},
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  encryptionDetails: {
+    wire: 'encryption_details',
+    children: () => encryptionDetailsFieldMaskSchema,
+  },
+  fullName: {wire: 'full_name'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  owner: {wire: 'owner'},
+  schemaName: {wire: 'schema_name'},
+  storageLocation: {wire: 'storage_location'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+  volumeId: {wire: 'volume_id'},
+  volumeType: {wire: 'volume_type'},
+};
+
+export function volumeInfoFieldMask(...paths: string[]): FieldMask<VolumeInfo> {
+  return FieldMask.build<VolumeInfo>(paths, volumeInfoFieldMaskSchema);
+}

@@ -1,6 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-import type {JsonValue} from '@databricks/sdk-core/wkt';
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema, JsonValue} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
@@ -955,3 +956,245 @@ export const marshalStatementStatusSchema: z.ZodType = z
     error: d.error,
     sql_state: d.sqlState,
   }));
+
+const cancelStatementRequestFieldMaskSchema: FieldMaskSchema = {
+  statementId: {wire: 'statement_id'},
+};
+
+export function cancelStatementRequestFieldMask(
+  ...paths: string[]
+): FieldMask<CancelStatementRequest> {
+  return FieldMask.build<CancelStatementRequest>(
+    paths,
+    cancelStatementRequestFieldMaskSchema
+  );
+}
+
+const cancelStatementResponseFieldMaskSchema: FieldMaskSchema = {};
+
+export function cancelStatementResponseFieldMask(
+  ...paths: string[]
+): FieldMask<CancelStatementResponse> {
+  return FieldMask.build<CancelStatementResponse>(
+    paths,
+    cancelStatementResponseFieldMaskSchema
+  );
+}
+
+const chunkInfoFieldMaskSchema: FieldMaskSchema = {
+  byteCount: {wire: 'byte_count'},
+  chunkIndex: {wire: 'chunk_index'},
+  nextChunkIndex: {wire: 'next_chunk_index'},
+  nextChunkInternalLink: {wire: 'next_chunk_internal_link'},
+  rowCount: {wire: 'row_count'},
+  rowOffset: {wire: 'row_offset'},
+};
+
+export function chunkInfoFieldMask(...paths: string[]): FieldMask<ChunkInfo> {
+  return FieldMask.build<ChunkInfo>(paths, chunkInfoFieldMaskSchema);
+}
+
+const columnInfoFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+  position: {wire: 'position'},
+  typeIntervalType: {wire: 'type_interval_type'},
+  typeName: {wire: 'type_name'},
+  typePrecision: {wire: 'type_precision'},
+  typeScale: {wire: 'type_scale'},
+  typeText: {wire: 'type_text'},
+};
+
+export function columnInfoFieldMask(...paths: string[]): FieldMask<ColumnInfo> {
+  return FieldMask.build<ColumnInfo>(paths, columnInfoFieldMaskSchema);
+}
+
+const executeStatementRequestFieldMaskSchema: FieldMaskSchema = {
+  byteLimit: {wire: 'byte_limit'},
+  catalog: {wire: 'catalog'},
+  disposition: {wire: 'disposition'},
+  format: {wire: 'format'},
+  onWaitTimeout: {wire: 'on_wait_timeout'},
+  parameters: {wire: 'parameters'},
+  queryTags: {wire: 'query_tags'},
+  rowLimit: {wire: 'row_limit'},
+  schema: {wire: 'schema'},
+  statement: {wire: 'statement'},
+  waitTimeout: {wire: 'wait_timeout'},
+  warehouseId: {wire: 'warehouse_id'},
+};
+
+export function executeStatementRequestFieldMask(
+  ...paths: string[]
+): FieldMask<ExecuteStatementRequest> {
+  return FieldMask.build<ExecuteStatementRequest>(
+    paths,
+    executeStatementRequestFieldMaskSchema
+  );
+}
+
+const externalLinkFieldMaskSchema: FieldMaskSchema = {
+  byteCount: {wire: 'byte_count'},
+  chunkIndex: {wire: 'chunk_index'},
+  expiration: {wire: 'expiration'},
+  externalLink: {wire: 'external_link'},
+  httpHeaders: {wire: 'http_headers'},
+  nextChunkIndex: {wire: 'next_chunk_index'},
+  nextChunkInternalLink: {wire: 'next_chunk_internal_link'},
+  rowCount: {wire: 'row_count'},
+  rowOffset: {wire: 'row_offset'},
+};
+
+export function externalLinkFieldMask(
+  ...paths: string[]
+): FieldMask<ExternalLink> {
+  return FieldMask.build<ExternalLink>(paths, externalLinkFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const externalLink_HttpHeadersEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function externalLink_HttpHeadersEntryFieldMask(
+  ...paths: string[]
+): FieldMask<ExternalLink_HttpHeadersEntry> {
+  return FieldMask.build<ExternalLink_HttpHeadersEntry>(
+    paths,
+    externalLink_HttpHeadersEntryFieldMaskSchema
+  );
+}
+
+const getResultDataRequestFieldMaskSchema: FieldMaskSchema = {
+  chunkIndex: {wire: 'chunk_index'},
+  statementId: {wire: 'statement_id'},
+};
+
+export function getResultDataRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GetResultDataRequest> {
+  return FieldMask.build<GetResultDataRequest>(
+    paths,
+    getResultDataRequestFieldMaskSchema
+  );
+}
+
+const getStatementResultRequestFieldMaskSchema: FieldMaskSchema = {
+  statementId: {wire: 'statement_id'},
+};
+
+export function getStatementResultRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GetStatementResultRequest> {
+  return FieldMask.build<GetStatementResultRequest>(
+    paths,
+    getStatementResultRequestFieldMaskSchema
+  );
+}
+
+const queryTagFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+export function queryTagFieldMask(...paths: string[]): FieldMask<QueryTag> {
+  return FieldMask.build<QueryTag>(paths, queryTagFieldMaskSchema);
+}
+
+const resultDataFieldMaskSchema: FieldMaskSchema = {
+  byteCount: {wire: 'byte_count'},
+  chunkIndex: {wire: 'chunk_index'},
+  dataArray: {wire: 'data_array'},
+  externalLinks: {wire: 'external_links'},
+  nextChunkIndex: {wire: 'next_chunk_index'},
+  nextChunkInternalLink: {wire: 'next_chunk_internal_link'},
+  rowCount: {wire: 'row_count'},
+  rowOffset: {wire: 'row_offset'},
+};
+
+export function resultDataFieldMask(...paths: string[]): FieldMask<ResultData> {
+  return FieldMask.build<ResultData>(paths, resultDataFieldMaskSchema);
+}
+
+const resultManifestFieldMaskSchema: FieldMaskSchema = {
+  chunks: {wire: 'chunks'},
+  format: {wire: 'format'},
+  schema: {wire: 'schema', children: () => schemaFieldMaskSchema},
+  totalByteCount: {wire: 'total_byte_count'},
+  totalChunkCount: {wire: 'total_chunk_count'},
+  totalRowCount: {wire: 'total_row_count'},
+  truncated: {wire: 'truncated'},
+};
+
+export function resultManifestFieldMask(
+  ...paths: string[]
+): FieldMask<ResultManifest> {
+  return FieldMask.build<ResultManifest>(paths, resultManifestFieldMaskSchema);
+}
+
+const schemaFieldMaskSchema: FieldMaskSchema = {
+  columnCount: {wire: 'column_count'},
+  columns: {wire: 'columns'},
+};
+
+export function schemaFieldMask(...paths: string[]): FieldMask<Schema> {
+  return FieldMask.build<Schema>(paths, schemaFieldMaskSchema);
+}
+
+const serviceErrorFieldMaskSchema: FieldMaskSchema = {
+  errorCode: {wire: 'error_code'},
+  message: {wire: 'message'},
+};
+
+export function serviceErrorFieldMask(
+  ...paths: string[]
+): FieldMask<ServiceError> {
+  return FieldMask.build<ServiceError>(paths, serviceErrorFieldMaskSchema);
+}
+
+const statementParameterFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+  type: {wire: 'type'},
+  value: {wire: 'value'},
+};
+
+export function statementParameterFieldMask(
+  ...paths: string[]
+): FieldMask<StatementParameter> {
+  return FieldMask.build<StatementParameter>(
+    paths,
+    statementParameterFieldMaskSchema
+  );
+}
+
+const statementResponseFieldMaskSchema: FieldMaskSchema = {
+  manifest: {wire: 'manifest', children: () => resultManifestFieldMaskSchema},
+  result: {wire: 'result', children: () => resultDataFieldMaskSchema},
+  statementId: {wire: 'statement_id'},
+  status: {wire: 'status', children: () => statementStatusFieldMaskSchema},
+};
+
+export function statementResponseFieldMask(
+  ...paths: string[]
+): FieldMask<StatementResponse> {
+  return FieldMask.build<StatementResponse>(
+    paths,
+    statementResponseFieldMaskSchema
+  );
+}
+
+const statementStatusFieldMaskSchema: FieldMaskSchema = {
+  error: {wire: 'error', children: () => serviceErrorFieldMaskSchema},
+  sqlState: {wire: 'sql_state'},
+  state: {wire: 'state'},
+};
+
+export function statementStatusFieldMask(
+  ...paths: string[]
+): FieldMask<StatementStatus> {
+  return FieldMask.build<StatementStatus>(
+    paths,
+    statementStatusFieldMaskSchema
+  );
+}

@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** Permission level */
@@ -324,3 +326,148 @@ export const marshalUpdateObjectPermissionsSchema: z.ZodType = z
     request_object_id: d.requestObjectId,
     access_control_list: d.accessControlList,
   }));
+
+const accessControlRequestFieldMaskSchema: FieldMaskSchema = {
+  groupName: {wire: 'group_name'},
+  permissionLevel: {wire: 'permission_level'},
+  servicePrincipalName: {wire: 'service_principal_name'},
+  userName: {wire: 'user_name'},
+};
+
+export function accessControlRequestFieldMask(
+  ...paths: string[]
+): FieldMask<AccessControlRequest> {
+  return FieldMask.build<AccessControlRequest>(
+    paths,
+    accessControlRequestFieldMaskSchema
+  );
+}
+
+const accessControlResponseFieldMaskSchema: FieldMaskSchema = {
+  allPermissions: {wire: 'all_permissions'},
+  displayName: {wire: 'display_name'},
+  groupName: {wire: 'group_name'},
+  servicePrincipalName: {wire: 'service_principal_name'},
+  userName: {wire: 'user_name'},
+};
+
+export function accessControlResponseFieldMask(
+  ...paths: string[]
+): FieldMask<AccessControlResponse> {
+  return FieldMask.build<AccessControlResponse>(
+    paths,
+    accessControlResponseFieldMaskSchema
+  );
+}
+
+const getObjectPermissionsFieldMaskSchema: FieldMaskSchema = {
+  requestObjectId: {wire: 'request_object_id'},
+  requestObjectType: {wire: 'request_object_type'},
+};
+
+export function getObjectPermissionsFieldMask(
+  ...paths: string[]
+): FieldMask<GetObjectPermissions> {
+  return FieldMask.build<GetObjectPermissions>(
+    paths,
+    getObjectPermissionsFieldMaskSchema
+  );
+}
+
+const getPermissionLevelsFieldMaskSchema: FieldMaskSchema = {
+  requestObjectId: {wire: 'request_object_id'},
+  requestObjectType: {wire: 'request_object_type'},
+};
+
+export function getPermissionLevelsFieldMask(
+  ...paths: string[]
+): FieldMask<GetPermissionLevels> {
+  return FieldMask.build<GetPermissionLevels>(
+    paths,
+    getPermissionLevelsFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const getPermissionLevels_ResponseFieldMaskSchema: FieldMaskSchema = {
+  permissionLevels: {wire: 'permission_levels'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function getPermissionLevels_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GetPermissionLevels_Response> {
+  return FieldMask.build<GetPermissionLevels_Response>(
+    paths,
+    getPermissionLevels_ResponseFieldMaskSchema
+  );
+}
+
+const permissionFieldMaskSchema: FieldMaskSchema = {
+  inherited: {wire: 'inherited'},
+  inheritedFromObject: {wire: 'inherited_from_object'},
+  permissionLevel: {wire: 'permission_level'},
+};
+
+export function permissionFieldMask(...paths: string[]): FieldMask<Permission> {
+  return FieldMask.build<Permission>(paths, permissionFieldMaskSchema);
+}
+
+const permissionsDescriptionFieldMaskSchema: FieldMaskSchema = {
+  description: {wire: 'description'},
+  permissionLevel: {wire: 'permission_level'},
+};
+
+export function permissionsDescriptionFieldMask(
+  ...paths: string[]
+): FieldMask<PermissionsDescription> {
+  return FieldMask.build<PermissionsDescription>(
+    paths,
+    permissionsDescriptionFieldMaskSchema
+  );
+}
+
+const permissionsResponseFieldMaskSchema: FieldMaskSchema = {
+  accessControlList: {wire: 'access_control_list'},
+  objectId: {wire: 'object_id'},
+  objectType: {wire: 'object_type'},
+};
+
+export function permissionsResponseFieldMask(
+  ...paths: string[]
+): FieldMask<PermissionsResponse> {
+  return FieldMask.build<PermissionsResponse>(
+    paths,
+    permissionsResponseFieldMaskSchema
+  );
+}
+
+const setObjectPermissionsFieldMaskSchema: FieldMaskSchema = {
+  accessControlList: {wire: 'access_control_list'},
+  requestObjectId: {wire: 'request_object_id'},
+  requestObjectType: {wire: 'request_object_type'},
+};
+
+export function setObjectPermissionsFieldMask(
+  ...paths: string[]
+): FieldMask<SetObjectPermissions> {
+  return FieldMask.build<SetObjectPermissions>(
+    paths,
+    setObjectPermissionsFieldMaskSchema
+  );
+}
+
+const updateObjectPermissionsFieldMaskSchema: FieldMaskSchema = {
+  accessControlList: {wire: 'access_control_list'},
+  requestObjectId: {wire: 'request_object_id'},
+  requestObjectType: {wire: 'request_object_type'},
+};
+
+export function updateObjectPermissionsFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateObjectPermissions> {
+  return FieldMask.build<UpdateObjectPermissions>(
+    paths,
+    updateObjectPermissionsFieldMaskSchema
+  );
+}
