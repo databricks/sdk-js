@@ -1,6 +1,8 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {Temporal} from '@js-temporal/polyfill';
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export interface CreateCustomOAuthAppIntegration {
@@ -626,3 +628,358 @@ export const marshalUpdatePublishedOAuthAppIntegrationSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalUpdatePublishedOAuthAppIntegration_ResponseSchema: z.ZodType =
   z.object({});
+
+const createCustomOAuthAppIntegrationFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
+  confidential: {wire: 'confidential'},
+  name: {wire: 'name'},
+  redirectUrls: {wire: 'redirect_urls'},
+  scopes: {wire: 'scopes'},
+  tokenAccessPolicy: {
+    wire: 'token_access_policy',
+    children: () => tokenAccessPolicyFieldMaskSchema,
+  },
+  userAuthorizedScopes: {wire: 'user_authorized_scopes'},
+};
+
+export function createCustomOAuthAppIntegrationFieldMask(
+  ...paths: string[]
+): FieldMask<CreateCustomOAuthAppIntegration> {
+  return FieldMask.build<CreateCustomOAuthAppIntegration>(
+    paths,
+    createCustomOAuthAppIntegrationFieldMaskSchema
+  );
+}
+
+const createPublishedOAuthAppIntegrationFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
+  appId: {wire: 'app_id'},
+  tokenAccessPolicy: {
+    wire: 'token_access_policy',
+    children: () => tokenAccessPolicyFieldMaskSchema,
+  },
+};
+
+export function createPublishedOAuthAppIntegrationFieldMask(
+  ...paths: string[]
+): FieldMask<CreatePublishedOAuthAppIntegration> {
+  return FieldMask.build<CreatePublishedOAuthAppIntegration>(
+    paths,
+    createPublishedOAuthAppIntegrationFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const createPublishedOAuthAppIntegration_ResponseFieldMaskSchema: FieldMaskSchema =
+  {
+    integrationId: {wire: 'integration_id'},
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function createPublishedOAuthAppIntegration_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<CreatePublishedOAuthAppIntegration_Response> {
+  return FieldMask.build<CreatePublishedOAuthAppIntegration_Response>(
+    paths,
+    createPublishedOAuthAppIntegration_ResponseFieldMaskSchema
+  );
+}
+
+const customOAuthAppIntegrationFieldMaskSchema: FieldMaskSchema = {
+  clientId: {wire: 'client_id'},
+  confidential: {wire: 'confidential'},
+  createTime: {wire: 'create_time'},
+  createdBy: {wire: 'created_by'},
+  creatorUsername: {wire: 'creator_username'},
+  integrationId: {wire: 'integration_id'},
+  name: {wire: 'name'},
+  principalId: {wire: 'principal_id'},
+  redirectUrls: {wire: 'redirect_urls'},
+  scopes: {wire: 'scopes'},
+  tokenAccessPolicy: {
+    wire: 'token_access_policy',
+    children: () => tokenAccessPolicyFieldMaskSchema,
+  },
+  userAuthorizedScopes: {wire: 'user_authorized_scopes'},
+};
+
+export function customOAuthAppIntegrationFieldMask(
+  ...paths: string[]
+): FieldMask<CustomOAuthAppIntegration> {
+  return FieldMask.build<CustomOAuthAppIntegration>(
+    paths,
+    customOAuthAppIntegrationFieldMaskSchema
+  );
+}
+
+const customOAuthAppIntegrationSecretFieldMaskSchema: FieldMaskSchema = {
+  clientId: {wire: 'client_id'},
+  clientSecret: {wire: 'client_secret'},
+  clientSecretExpireTime: {wire: 'client_secret_expire_time'},
+  integrationId: {wire: 'integration_id'},
+  principalId: {wire: 'principal_id'},
+};
+
+export function customOAuthAppIntegrationSecretFieldMask(
+  ...paths: string[]
+): FieldMask<CustomOAuthAppIntegrationSecret> {
+  return FieldMask.build<CustomOAuthAppIntegrationSecret>(
+    paths,
+    customOAuthAppIntegrationSecretFieldMaskSchema
+  );
+}
+
+const deleteCustomOAuthAppIntegrationFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
+  integrationId: {wire: 'integration_id'},
+};
+
+export function deleteCustomOAuthAppIntegrationFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteCustomOAuthAppIntegration> {
+  return FieldMask.build<DeleteCustomOAuthAppIntegration>(
+    paths,
+    deleteCustomOAuthAppIntegrationFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deleteCustomOAuthAppIntegration_ResponseFieldMaskSchema: FieldMaskSchema =
+  {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deleteCustomOAuthAppIntegration_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteCustomOAuthAppIntegration_Response> {
+  return FieldMask.build<DeleteCustomOAuthAppIntegration_Response>(
+    paths,
+    deleteCustomOAuthAppIntegration_ResponseFieldMaskSchema
+  );
+}
+
+const deletePublishedOAuthAppIntegrationFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
+  integrationId: {wire: 'integration_id'},
+};
+
+export function deletePublishedOAuthAppIntegrationFieldMask(
+  ...paths: string[]
+): FieldMask<DeletePublishedOAuthAppIntegration> {
+  return FieldMask.build<DeletePublishedOAuthAppIntegration>(
+    paths,
+    deletePublishedOAuthAppIntegrationFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deletePublishedOAuthAppIntegration_ResponseFieldMaskSchema: FieldMaskSchema =
+  {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deletePublishedOAuthAppIntegration_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeletePublishedOAuthAppIntegration_Response> {
+  return FieldMask.build<DeletePublishedOAuthAppIntegration_Response>(
+    paths,
+    deletePublishedOAuthAppIntegration_ResponseFieldMaskSchema
+  );
+}
+
+const getCustomOAuthAppIntegrationFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
+  integrationId: {wire: 'integration_id'},
+};
+
+export function getCustomOAuthAppIntegrationFieldMask(
+  ...paths: string[]
+): FieldMask<GetCustomOAuthAppIntegration> {
+  return FieldMask.build<GetCustomOAuthAppIntegration>(
+    paths,
+    getCustomOAuthAppIntegrationFieldMaskSchema
+  );
+}
+
+const getPublishedOAuthAppIntegrationFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
+  integrationId: {wire: 'integration_id'},
+};
+
+export function getPublishedOAuthAppIntegrationFieldMask(
+  ...paths: string[]
+): FieldMask<GetPublishedOAuthAppIntegration> {
+  return FieldMask.build<GetPublishedOAuthAppIntegration>(
+    paths,
+    getPublishedOAuthAppIntegrationFieldMaskSchema
+  );
+}
+
+const listCustomOAuthAppIntegrationsFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
+  includeCreatorUsername: {wire: 'include_creator_username'},
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+};
+
+export function listCustomOAuthAppIntegrationsFieldMask(
+  ...paths: string[]
+): FieldMask<ListCustomOAuthAppIntegrations> {
+  return FieldMask.build<ListCustomOAuthAppIntegrations>(
+    paths,
+    listCustomOAuthAppIntegrationsFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listCustomOAuthAppIntegrations_ResponseFieldMaskSchema: FieldMaskSchema =
+  {
+    apps: {wire: 'apps'},
+    nextPageToken: {wire: 'next_page_token'},
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listCustomOAuthAppIntegrations_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListCustomOAuthAppIntegrations_Response> {
+  return FieldMask.build<ListCustomOAuthAppIntegrations_Response>(
+    paths,
+    listCustomOAuthAppIntegrations_ResponseFieldMaskSchema
+  );
+}
+
+const listPublishedOAuthAppIntegrationsFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+};
+
+export function listPublishedOAuthAppIntegrationsFieldMask(
+  ...paths: string[]
+): FieldMask<ListPublishedOAuthAppIntegrations> {
+  return FieldMask.build<ListPublishedOAuthAppIntegrations>(
+    paths,
+    listPublishedOAuthAppIntegrationsFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listPublishedOAuthAppIntegrations_ResponseFieldMaskSchema: FieldMaskSchema =
+  {
+    apps: {wire: 'apps'},
+    nextPageToken: {wire: 'next_page_token'},
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listPublishedOAuthAppIntegrations_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListPublishedOAuthAppIntegrations_Response> {
+  return FieldMask.build<ListPublishedOAuthAppIntegrations_Response>(
+    paths,
+    listPublishedOAuthAppIntegrations_ResponseFieldMaskSchema
+  );
+}
+
+const publishedOAuthAppIntegrationFieldMaskSchema: FieldMaskSchema = {
+  appId: {wire: 'app_id'},
+  createTime: {wire: 'create_time'},
+  createdBy: {wire: 'created_by'},
+  integrationId: {wire: 'integration_id'},
+  name: {wire: 'name'},
+  tokenAccessPolicy: {
+    wire: 'token_access_policy',
+    children: () => tokenAccessPolicyFieldMaskSchema,
+  },
+};
+
+export function publishedOAuthAppIntegrationFieldMask(
+  ...paths: string[]
+): FieldMask<PublishedOAuthAppIntegration> {
+  return FieldMask.build<PublishedOAuthAppIntegration>(
+    paths,
+    publishedOAuthAppIntegrationFieldMaskSchema
+  );
+}
+
+const tokenAccessPolicyFieldMaskSchema: FieldMaskSchema = {
+  absoluteSessionLifetimeInMinutes: {
+    wire: 'absolute_session_lifetime_in_minutes',
+  },
+  accessTokenTtlInMinutes: {wire: 'access_token_ttl_in_minutes'},
+  enableSingleUseRefreshTokens: {wire: 'enable_single_use_refresh_tokens'},
+  refreshTokenTtlInMinutes: {wire: 'refresh_token_ttl_in_minutes'},
+};
+
+export function tokenAccessPolicyFieldMask(
+  ...paths: string[]
+): FieldMask<TokenAccessPolicy> {
+  return FieldMask.build<TokenAccessPolicy>(
+    paths,
+    tokenAccessPolicyFieldMaskSchema
+  );
+}
+
+const updateCustomOAuthAppIntegrationFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
+  integrationId: {wire: 'integration_id'},
+  redirectUrls: {wire: 'redirect_urls'},
+  scopes: {wire: 'scopes'},
+  tokenAccessPolicy: {
+    wire: 'token_access_policy',
+    children: () => tokenAccessPolicyFieldMaskSchema,
+  },
+  userAuthorizedScopes: {wire: 'user_authorized_scopes'},
+};
+
+export function updateCustomOAuthAppIntegrationFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateCustomOAuthAppIntegration> {
+  return FieldMask.build<UpdateCustomOAuthAppIntegration>(
+    paths,
+    updateCustomOAuthAppIntegrationFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const updateCustomOAuthAppIntegration_ResponseFieldMaskSchema: FieldMaskSchema =
+  {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function updateCustomOAuthAppIntegration_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateCustomOAuthAppIntegration_Response> {
+  return FieldMask.build<UpdateCustomOAuthAppIntegration_Response>(
+    paths,
+    updateCustomOAuthAppIntegration_ResponseFieldMaskSchema
+  );
+}
+
+const updatePublishedOAuthAppIntegrationFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
+  integrationId: {wire: 'integration_id'},
+  tokenAccessPolicy: {
+    wire: 'token_access_policy',
+    children: () => tokenAccessPolicyFieldMaskSchema,
+  },
+};
+
+export function updatePublishedOAuthAppIntegrationFieldMask(
+  ...paths: string[]
+): FieldMask<UpdatePublishedOAuthAppIntegration> {
+  return FieldMask.build<UpdatePublishedOAuthAppIntegration>(
+    paths,
+    updatePublishedOAuthAppIntegrationFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const updatePublishedOAuthAppIntegration_ResponseFieldMaskSchema: FieldMaskSchema =
+  {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function updatePublishedOAuthAppIntegration_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<UpdatePublishedOAuthAppIntegration_Response> {
+  return FieldMask.build<UpdatePublishedOAuthAppIntegration_Response>(
+    paths,
+    updatePublishedOAuthAppIntegration_ResponseFieldMaskSchema
+  );
+}

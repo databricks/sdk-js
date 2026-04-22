@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum ChannelName {
@@ -2348,3 +2350,587 @@ export const marshalStopRequestSchema: z.ZodType = z
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalStopRequest_ResponseSchema: z.ZodType = z.object({});
+
+const channelFieldMaskSchema: FieldMaskSchema = {
+  dbsqlVersion: {wire: 'dbsql_version'},
+  name: {wire: 'name'},
+};
+
+export function channelFieldMask(...paths: string[]): FieldMask<Channel> {
+  return FieldMask.build<Channel>(paths, channelFieldMaskSchema);
+}
+
+const createDefaultWarehouseOverrideRequestFieldMaskSchema: FieldMaskSchema = {
+  defaultWarehouseOverride: {
+    wire: 'default_warehouse_override',
+    children: () => defaultWarehouseOverrideFieldMaskSchema,
+  },
+  defaultWarehouseOverrideId: {wire: 'default_warehouse_override_id'},
+};
+
+export function createDefaultWarehouseOverrideRequestFieldMask(
+  ...paths: string[]
+): FieldMask<CreateDefaultWarehouseOverrideRequest> {
+  return FieldMask.build<CreateDefaultWarehouseOverrideRequest>(
+    paths,
+    createDefaultWarehouseOverrideRequestFieldMaskSchema
+  );
+}
+
+const createWarehouseFieldMaskSchema: FieldMaskSchema = {
+  autoStopMins: {wire: 'auto_stop_mins'},
+  channel: {wire: 'channel', children: () => channelFieldMaskSchema},
+  clusterSize: {wire: 'cluster_size'},
+  creatorName: {wire: 'creator_name'},
+  enablePhoton: {wire: 'enable_photon'},
+  enableServerlessCompute: {wire: 'enable_serverless_compute'},
+  instanceProfileArn: {wire: 'instance_profile_arn'},
+  maxNumClusters: {wire: 'max_num_clusters'},
+  minNumClusters: {wire: 'min_num_clusters'},
+  name: {wire: 'name'},
+  spotInstancePolicy: {wire: 'spot_instance_policy'},
+  tags: {wire: 'tags', children: () => endpointTagsFieldMaskSchema},
+  warehouseType: {wire: 'warehouse_type'},
+};
+
+export function createWarehouseFieldMask(
+  ...paths: string[]
+): FieldMask<CreateWarehouse> {
+  return FieldMask.build<CreateWarehouse>(
+    paths,
+    createWarehouseFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const createWarehouse_ResponseFieldMaskSchema: FieldMaskSchema = {
+  id: {wire: 'id'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function createWarehouse_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<CreateWarehouse_Response> {
+  return FieldMask.build<CreateWarehouse_Response>(
+    paths,
+    createWarehouse_ResponseFieldMaskSchema
+  );
+}
+
+const defaultWarehouseOverrideFieldMaskSchema: FieldMaskSchema = {
+  defaultWarehouseOverrideId: {wire: 'default_warehouse_override_id'},
+  name: {wire: 'name'},
+  type: {wire: 'type'},
+  warehouseId: {wire: 'warehouse_id'},
+};
+
+export function defaultWarehouseOverrideFieldMask(
+  ...paths: string[]
+): FieldMask<DefaultWarehouseOverride> {
+  return FieldMask.build<DefaultWarehouseOverride>(
+    paths,
+    defaultWarehouseOverrideFieldMaskSchema
+  );
+}
+
+const deleteDefaultWarehouseOverrideRequestFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+};
+
+export function deleteDefaultWarehouseOverrideRequestFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteDefaultWarehouseOverrideRequest> {
+  return FieldMask.build<DeleteDefaultWarehouseOverrideRequest>(
+    paths,
+    deleteDefaultWarehouseOverrideRequestFieldMaskSchema
+  );
+}
+
+const editWarehouseRequestFieldMaskSchema: FieldMaskSchema = {
+  autoStopMins: {wire: 'auto_stop_mins'},
+  channel: {wire: 'channel', children: () => channelFieldMaskSchema},
+  clusterSize: {wire: 'cluster_size'},
+  creatorName: {wire: 'creator_name'},
+  enablePhoton: {wire: 'enable_photon'},
+  enableServerlessCompute: {wire: 'enable_serverless_compute'},
+  id: {wire: 'id'},
+  instanceProfileArn: {wire: 'instance_profile_arn'},
+  maxNumClusters: {wire: 'max_num_clusters'},
+  minNumClusters: {wire: 'min_num_clusters'},
+  name: {wire: 'name'},
+  spotInstancePolicy: {wire: 'spot_instance_policy'},
+  tags: {wire: 'tags', children: () => endpointTagsFieldMaskSchema},
+  warehouseType: {wire: 'warehouse_type'},
+};
+
+export function editWarehouseRequestFieldMask(
+  ...paths: string[]
+): FieldMask<EditWarehouseRequest> {
+  return FieldMask.build<EditWarehouseRequest>(
+    paths,
+    editWarehouseRequestFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const editWarehouseRequest_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function editWarehouseRequest_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<EditWarehouseRequest_Response> {
+  return FieldMask.build<EditWarehouseRequest_Response>(
+    paths,
+    editWarehouseRequest_ResponseFieldMaskSchema
+  );
+}
+
+const endpointConfPairFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+export function endpointConfPairFieldMask(
+  ...paths: string[]
+): FieldMask<EndpointConfPair> {
+  return FieldMask.build<EndpointConfPair>(
+    paths,
+    endpointConfPairFieldMaskSchema
+  );
+}
+
+const endpointHealthFieldMaskSchema: FieldMaskSchema = {
+  details: {wire: 'details'},
+  failureReason: {
+    wire: 'failure_reason',
+    children: () => terminationReasonFieldMaskSchema,
+  },
+  message: {wire: 'message'},
+  status: {wire: 'status'},
+  summary: {wire: 'summary'},
+};
+
+export function endpointHealthFieldMask(
+  ...paths: string[]
+): FieldMask<EndpointHealth> {
+  return FieldMask.build<EndpointHealth>(paths, endpointHealthFieldMaskSchema);
+}
+
+const endpointInfoFieldMaskSchema: FieldMaskSchema = {
+  autoStopMins: {wire: 'auto_stop_mins'},
+  channel: {wire: 'channel', children: () => channelFieldMaskSchema},
+  clusterSize: {wire: 'cluster_size'},
+  creatorName: {wire: 'creator_name'},
+  enablePhoton: {wire: 'enable_photon'},
+  enableServerlessCompute: {wire: 'enable_serverless_compute'},
+  health: {wire: 'health', children: () => endpointHealthFieldMaskSchema},
+  id: {wire: 'id'},
+  instanceProfileArn: {wire: 'instance_profile_arn'},
+  jdbcUrl: {wire: 'jdbc_url'},
+  maxNumClusters: {wire: 'max_num_clusters'},
+  minNumClusters: {wire: 'min_num_clusters'},
+  name: {wire: 'name'},
+  numActiveSessions: {wire: 'num_active_sessions'},
+  numClusters: {wire: 'num_clusters'},
+  odbcParams: {wire: 'odbc_params', children: () => odbcParamsFieldMaskSchema},
+  spotInstancePolicy: {wire: 'spot_instance_policy'},
+  state: {wire: 'state'},
+  tags: {wire: 'tags', children: () => endpointTagsFieldMaskSchema},
+  warehouseType: {wire: 'warehouse_type'},
+};
+
+export function endpointInfoFieldMask(
+  ...paths: string[]
+): FieldMask<EndpointInfo> {
+  return FieldMask.build<EndpointInfo>(paths, endpointInfoFieldMaskSchema);
+}
+
+const endpointTagPairFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+export function endpointTagPairFieldMask(
+  ...paths: string[]
+): FieldMask<EndpointTagPair> {
+  return FieldMask.build<EndpointTagPair>(
+    paths,
+    endpointTagPairFieldMaskSchema
+  );
+}
+
+const endpointTagsFieldMaskSchema: FieldMaskSchema = {
+  customTags: {wire: 'custom_tags'},
+};
+
+export function endpointTagsFieldMask(
+  ...paths: string[]
+): FieldMask<EndpointTags> {
+  return FieldMask.build<EndpointTags>(paths, endpointTagsFieldMaskSchema);
+}
+
+const getDefaultWarehouseOverrideRequestFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+};
+
+export function getDefaultWarehouseOverrideRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GetDefaultWarehouseOverrideRequest> {
+  return FieldMask.build<GetDefaultWarehouseOverrideRequest>(
+    paths,
+    getDefaultWarehouseOverrideRequestFieldMaskSchema
+  );
+}
+
+const getWarehouseFieldMaskSchema: FieldMaskSchema = {
+  id: {wire: 'id'},
+};
+
+export function getWarehouseFieldMask(
+  ...paths: string[]
+): FieldMask<GetWarehouse> {
+  return FieldMask.build<GetWarehouse>(paths, getWarehouseFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const getWarehouse_ResponseFieldMaskSchema: FieldMaskSchema = {
+  autoStopMins: {wire: 'auto_stop_mins'},
+  channel: {wire: 'channel', children: () => channelFieldMaskSchema},
+  clusterSize: {wire: 'cluster_size'},
+  creatorName: {wire: 'creator_name'},
+  enablePhoton: {wire: 'enable_photon'},
+  enableServerlessCompute: {wire: 'enable_serverless_compute'},
+  health: {wire: 'health', children: () => endpointHealthFieldMaskSchema},
+  id: {wire: 'id'},
+  instanceProfileArn: {wire: 'instance_profile_arn'},
+  jdbcUrl: {wire: 'jdbc_url'},
+  maxNumClusters: {wire: 'max_num_clusters'},
+  minNumClusters: {wire: 'min_num_clusters'},
+  name: {wire: 'name'},
+  numActiveSessions: {wire: 'num_active_sessions'},
+  numClusters: {wire: 'num_clusters'},
+  odbcParams: {wire: 'odbc_params', children: () => odbcParamsFieldMaskSchema},
+  spotInstancePolicy: {wire: 'spot_instance_policy'},
+  state: {wire: 'state'},
+  tags: {wire: 'tags', children: () => endpointTagsFieldMaskSchema},
+  warehouseType: {wire: 'warehouse_type'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function getWarehouse_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GetWarehouse_Response> {
+  return FieldMask.build<GetWarehouse_Response>(
+    paths,
+    getWarehouse_ResponseFieldMaskSchema
+  );
+}
+
+const getWorkspaceWarehouseConfigRequestFieldMaskSchema: FieldMaskSchema = {};
+
+export function getWorkspaceWarehouseConfigRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GetWorkspaceWarehouseConfigRequest> {
+  return FieldMask.build<GetWorkspaceWarehouseConfigRequest>(
+    paths,
+    getWorkspaceWarehouseConfigRequestFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const getWorkspaceWarehouseConfigRequest_ResponseFieldMaskSchema: FieldMaskSchema =
+  {
+    channel: {wire: 'channel', children: () => channelFieldMaskSchema},
+    configParam: {
+      wire: 'config_param',
+      children: () => repeatedEndpointConfPairsFieldMaskSchema,
+    },
+    dataAccessConfig: {wire: 'data_access_config'},
+    enableServerlessCompute: {wire: 'enable_serverless_compute'},
+    enabledWarehouseTypes: {wire: 'enabled_warehouse_types'},
+    globalParam: {
+      wire: 'global_param',
+      children: () => repeatedEndpointConfPairsFieldMaskSchema,
+    },
+    googleServiceAccount: {wire: 'google_service_account'},
+    instanceProfileArn: {wire: 'instance_profile_arn'},
+    securityPolicy: {wire: 'security_policy'},
+    sqlConfigurationParameters: {
+      wire: 'sql_configuration_parameters',
+      children: () => repeatedEndpointConfPairsFieldMaskSchema,
+    },
+  };
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function getWorkspaceWarehouseConfigRequest_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<GetWorkspaceWarehouseConfigRequest_Response> {
+  return FieldMask.build<GetWorkspaceWarehouseConfigRequest_Response>(
+    paths,
+    getWorkspaceWarehouseConfigRequest_ResponseFieldMaskSchema
+  );
+}
+
+const listDefaultWarehouseOverridesRequestFieldMaskSchema: FieldMaskSchema = {
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+};
+
+export function listDefaultWarehouseOverridesRequestFieldMask(
+  ...paths: string[]
+): FieldMask<ListDefaultWarehouseOverridesRequest> {
+  return FieldMask.build<ListDefaultWarehouseOverridesRequest>(
+    paths,
+    listDefaultWarehouseOverridesRequestFieldMaskSchema
+  );
+}
+
+const listDefaultWarehouseOverridesResponseFieldMaskSchema: FieldMaskSchema = {
+  defaultWarehouseOverrides: {wire: 'default_warehouse_overrides'},
+  nextPageToken: {wire: 'next_page_token'},
+};
+
+export function listDefaultWarehouseOverridesResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListDefaultWarehouseOverridesResponse> {
+  return FieldMask.build<ListDefaultWarehouseOverridesResponse>(
+    paths,
+    listDefaultWarehouseOverridesResponseFieldMaskSchema
+  );
+}
+
+const odbcParamsFieldMaskSchema: FieldMaskSchema = {
+  hostname: {wire: 'hostname'},
+  path: {wire: 'path'},
+  port: {wire: 'port'},
+  protocol: {wire: 'protocol'},
+};
+
+export function odbcParamsFieldMask(...paths: string[]): FieldMask<OdbcParams> {
+  return FieldMask.build<OdbcParams>(paths, odbcParamsFieldMaskSchema);
+}
+
+const repeatedEndpointConfPairsFieldMaskSchema: FieldMaskSchema = {
+  configPair: {wire: 'config_pair'},
+  configurationPairs: {wire: 'configuration_pairs'},
+};
+
+export function repeatedEndpointConfPairsFieldMask(
+  ...paths: string[]
+): FieldMask<RepeatedEndpointConfPairs> {
+  return FieldMask.build<RepeatedEndpointConfPairs>(
+    paths,
+    repeatedEndpointConfPairsFieldMaskSchema
+  );
+}
+
+const setWorkspaceWarehouseConfigRequestFieldMaskSchema: FieldMaskSchema = {
+  channel: {wire: 'channel', children: () => channelFieldMaskSchema},
+  configParam: {
+    wire: 'config_param',
+    children: () => repeatedEndpointConfPairsFieldMaskSchema,
+  },
+  dataAccessConfig: {wire: 'data_access_config'},
+  enableServerlessCompute: {wire: 'enable_serverless_compute'},
+  enabledWarehouseTypes: {wire: 'enabled_warehouse_types'},
+  globalParam: {
+    wire: 'global_param',
+    children: () => repeatedEndpointConfPairsFieldMaskSchema,
+  },
+  googleServiceAccount: {wire: 'google_service_account'},
+  instanceProfileArn: {wire: 'instance_profile_arn'},
+  securityPolicy: {wire: 'security_policy'},
+  sqlConfigurationParameters: {
+    wire: 'sql_configuration_parameters',
+    children: () => repeatedEndpointConfPairsFieldMaskSchema,
+  },
+};
+
+export function setWorkspaceWarehouseConfigRequestFieldMask(
+  ...paths: string[]
+): FieldMask<SetWorkspaceWarehouseConfigRequest> {
+  return FieldMask.build<SetWorkspaceWarehouseConfigRequest>(
+    paths,
+    setWorkspaceWarehouseConfigRequestFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const setWorkspaceWarehouseConfigRequest_ResponseFieldMaskSchema: FieldMaskSchema =
+  {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function setWorkspaceWarehouseConfigRequest_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<SetWorkspaceWarehouseConfigRequest_Response> {
+  return FieldMask.build<SetWorkspaceWarehouseConfigRequest_Response>(
+    paths,
+    setWorkspaceWarehouseConfigRequest_ResponseFieldMaskSchema
+  );
+}
+
+const terminationReasonFieldMaskSchema: FieldMaskSchema = {
+  code: {wire: 'code'},
+  parameters: {wire: 'parameters'},
+  type: {wire: 'type'},
+};
+
+export function terminationReasonFieldMask(
+  ...paths: string[]
+): FieldMask<TerminationReason> {
+  return FieldMask.build<TerminationReason>(
+    paths,
+    terminationReasonFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const terminationReason_ParametersEntryFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  value: {wire: 'value'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function terminationReason_ParametersEntryFieldMask(
+  ...paths: string[]
+): FieldMask<TerminationReason_ParametersEntry> {
+  return FieldMask.build<TerminationReason_ParametersEntry>(
+    paths,
+    terminationReason_ParametersEntryFieldMaskSchema
+  );
+}
+
+const updateDefaultWarehouseOverrideRequestFieldMaskSchema: FieldMaskSchema = {
+  allowMissing: {wire: 'allow_missing'},
+  defaultWarehouseOverride: {
+    wire: 'default_warehouse_override',
+    children: () => defaultWarehouseOverrideFieldMaskSchema,
+  },
+  updateMask: {wire: 'update_mask'},
+};
+
+export function updateDefaultWarehouseOverrideRequestFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateDefaultWarehouseOverrideRequest> {
+  return FieldMask.build<UpdateDefaultWarehouseOverrideRequest>(
+    paths,
+    updateDefaultWarehouseOverrideRequestFieldMaskSchema
+  );
+}
+
+const warehouseTypePairFieldMaskSchema: FieldMaskSchema = {
+  enabled: {wire: 'enabled'},
+  warehouseType: {wire: 'warehouse_type'},
+};
+
+export function warehouseTypePairFieldMask(
+  ...paths: string[]
+): FieldMask<WarehouseTypePair> {
+  return FieldMask.build<WarehouseTypePair>(
+    paths,
+    warehouseTypePairFieldMaskSchema
+  );
+}
+
+const deleteWarehouseRequestFieldMaskSchema: FieldMaskSchema = {
+  id: {wire: 'id'},
+};
+
+export function deleteWarehouseRequestFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteWarehouseRequest> {
+  return FieldMask.build<DeleteWarehouseRequest>(
+    paths,
+    deleteWarehouseRequestFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deleteWarehouseRequest_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deleteWarehouseRequest_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteWarehouseRequest_Response> {
+  return FieldMask.build<DeleteWarehouseRequest_Response>(
+    paths,
+    deleteWarehouseRequest_ResponseFieldMaskSchema
+  );
+}
+
+const listWarehousesRequestFieldMaskSchema: FieldMaskSchema = {
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+  runAsUserId: {wire: 'run_as_user_id'},
+};
+
+export function listWarehousesRequestFieldMask(
+  ...paths: string[]
+): FieldMask<ListWarehousesRequest> {
+  return FieldMask.build<ListWarehousesRequest>(
+    paths,
+    listWarehousesRequestFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listWarehousesRequest_ResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  warehouses: {wire: 'warehouses'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listWarehousesRequest_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListWarehousesRequest_Response> {
+  return FieldMask.build<ListWarehousesRequest_Response>(
+    paths,
+    listWarehousesRequest_ResponseFieldMaskSchema
+  );
+}
+
+const startRequestFieldMaskSchema: FieldMaskSchema = {
+  id: {wire: 'id'},
+};
+
+export function startRequestFieldMask(
+  ...paths: string[]
+): FieldMask<StartRequest> {
+  return FieldMask.build<StartRequest>(paths, startRequestFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const startRequest_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function startRequest_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<StartRequest_Response> {
+  return FieldMask.build<StartRequest_Response>(
+    paths,
+    startRequest_ResponseFieldMaskSchema
+  );
+}
+
+const stopRequestFieldMaskSchema: FieldMaskSchema = {
+  id: {wire: 'id'},
+};
+
+export function stopRequestFieldMask(
+  ...paths: string[]
+): FieldMask<StopRequest> {
+  return FieldMask.build<StopRequest>(paths, stopRequestFieldMaskSchema);
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const stopRequest_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function stopRequest_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<StopRequest_Response> {
+  return FieldMask.build<StopRequest_Response>(
+    paths,
+    stopRequest_ResponseFieldMaskSchema
+  );
+}

@@ -1,6 +1,8 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {Temporal} from '@js-temporal/polyfill';
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export interface CreateServicePrincipalSecret {
@@ -239,3 +241,117 @@ export const marshalServicePrincipalSecretSchema: z.ZodType = z
     status: d.status,
     expire_time: d.expireTime,
   }));
+
+const createServicePrincipalSecretFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
+  lifetime: {wire: 'lifetime'},
+  servicePrincipal: {wire: 'service_principal'},
+};
+
+export function createServicePrincipalSecretFieldMask(
+  ...paths: string[]
+): FieldMask<CreateServicePrincipalSecret> {
+  return FieldMask.build<CreateServicePrincipalSecret>(
+    paths,
+    createServicePrincipalSecretFieldMaskSchema
+  );
+}
+
+const createServicePrincipalSecretResponseFieldMaskSchema: FieldMaskSchema = {
+  createTime: {wire: 'create_time'},
+  expireTime: {wire: 'expire_time'},
+  id: {wire: 'id'},
+  secret: {wire: 'secret'},
+  secretHash: {wire: 'secret_hash'},
+  status: {wire: 'status'},
+  updateTime: {wire: 'update_time'},
+};
+
+export function createServicePrincipalSecretResponseFieldMask(
+  ...paths: string[]
+): FieldMask<CreateServicePrincipalSecretResponse> {
+  return FieldMask.build<CreateServicePrincipalSecretResponse>(
+    paths,
+    createServicePrincipalSecretResponseFieldMaskSchema
+  );
+}
+
+const deleteServicePrincipalSecretFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
+  secretId: {wire: 'secret_id'},
+  servicePrincipal: {wire: 'service_principal'},
+};
+
+export function deleteServicePrincipalSecretFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteServicePrincipalSecret> {
+  return FieldMask.build<DeleteServicePrincipalSecret>(
+    paths,
+    deleteServicePrincipalSecretFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deleteServicePrincipalSecret_ResponseFieldMaskSchema: FieldMaskSchema =
+  {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deleteServicePrincipalSecret_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteServicePrincipalSecret_Response> {
+  return FieldMask.build<DeleteServicePrincipalSecret_Response>(
+    paths,
+    deleteServicePrincipalSecret_ResponseFieldMaskSchema
+  );
+}
+
+const listServicePrincipalSecretsFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+  servicePrincipal: {wire: 'service_principal'},
+};
+
+export function listServicePrincipalSecretsFieldMask(
+  ...paths: string[]
+): FieldMask<ListServicePrincipalSecrets> {
+  return FieldMask.build<ListServicePrincipalSecrets>(
+    paths,
+    listServicePrincipalSecretsFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listServicePrincipalSecrets_ResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  secrets: {wire: 'secrets'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listServicePrincipalSecrets_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListServicePrincipalSecrets_Response> {
+  return FieldMask.build<ListServicePrincipalSecrets_Response>(
+    paths,
+    listServicePrincipalSecrets_ResponseFieldMaskSchema
+  );
+}
+
+const servicePrincipalSecretFieldMaskSchema: FieldMaskSchema = {
+  createTime: {wire: 'create_time'},
+  expireTime: {wire: 'expire_time'},
+  id: {wire: 'id'},
+  secret: {wire: 'secret'},
+  secretHash: {wire: 'secret_hash'},
+  status: {wire: 'status'},
+  updateTime: {wire: 'update_time'},
+};
+
+export function servicePrincipalSecretFieldMask(
+  ...paths: string[]
+): FieldMask<ServicePrincipalSecret> {
+  return FieldMask.build<ServicePrincipalSecret>(
+    paths,
+    servicePrincipalSecretFieldMaskSchema
+  );
+}

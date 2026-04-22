@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum ModelVersionStatus {
@@ -1127,3 +1129,485 @@ export const marshalVolumeDependencySchema: z.ZodType = z
   .transform(d => ({
     volume_full_name: d.volumeFullName,
   }));
+
+const connectionDependencyFieldMaskSchema: FieldMaskSchema = {
+  connectionName: {wire: 'connection_name'},
+};
+
+export function connectionDependencyFieldMask(
+  ...paths: string[]
+): FieldMask<ConnectionDependency> {
+  return FieldMask.build<ConnectionDependency>(
+    paths,
+    connectionDependencyFieldMaskSchema
+  );
+}
+
+const createRegisteredModelFieldMaskSchema: FieldMaskSchema = {
+  aliases: {wire: 'aliases'},
+  browseOnly: {wire: 'browse_only'},
+  catalogName: {wire: 'catalog_name'},
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  fullName: {wire: 'full_name'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  owner: {wire: 'owner'},
+  schemaName: {wire: 'schema_name'},
+  storageLocation: {wire: 'storage_location'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+};
+
+export function createRegisteredModelFieldMask(
+  ...paths: string[]
+): FieldMask<CreateRegisteredModel> {
+  return FieldMask.build<CreateRegisteredModel>(
+    paths,
+    createRegisteredModelFieldMaskSchema
+  );
+}
+
+const credentialDependencyFieldMaskSchema: FieldMaskSchema = {
+  credentialName: {wire: 'credential_name'},
+};
+
+export function credentialDependencyFieldMask(
+  ...paths: string[]
+): FieldMask<CredentialDependency> {
+  return FieldMask.build<CredentialDependency>(
+    paths,
+    credentialDependencyFieldMaskSchema
+  );
+}
+
+const deleteModelVersionFieldMaskSchema: FieldMaskSchema = {
+  fullNameArg: {wire: 'full_name_arg'},
+  versionArg: {wire: 'version_arg'},
+};
+
+export function deleteModelVersionFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteModelVersion> {
+  return FieldMask.build<DeleteModelVersion>(
+    paths,
+    deleteModelVersionFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deleteModelVersion_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deleteModelVersion_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteModelVersion_Response> {
+  return FieldMask.build<DeleteModelVersion_Response>(
+    paths,
+    deleteModelVersion_ResponseFieldMaskSchema
+  );
+}
+
+const deleteRegisteredModelFieldMaskSchema: FieldMaskSchema = {
+  fullNameArg: {wire: 'full_name_arg'},
+};
+
+export function deleteRegisteredModelFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteRegisteredModel> {
+  return FieldMask.build<DeleteRegisteredModel>(
+    paths,
+    deleteRegisteredModelFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deleteRegisteredModel_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deleteRegisteredModel_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteRegisteredModel_Response> {
+  return FieldMask.build<DeleteRegisteredModel_Response>(
+    paths,
+    deleteRegisteredModel_ResponseFieldMaskSchema
+  );
+}
+
+const deleteRegisteredModelAliasFieldMaskSchema: FieldMaskSchema = {
+  aliasArg: {wire: 'alias_arg'},
+  fullNameArg: {wire: 'full_name_arg'},
+};
+
+export function deleteRegisteredModelAliasFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteRegisteredModelAlias> {
+  return FieldMask.build<DeleteRegisteredModelAlias>(
+    paths,
+    deleteRegisteredModelAliasFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const deleteRegisteredModelAlias_ResponseFieldMaskSchema: FieldMaskSchema = {};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function deleteRegisteredModelAlias_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<DeleteRegisteredModelAlias_Response> {
+  return FieldMask.build<DeleteRegisteredModelAlias_Response>(
+    paths,
+    deleteRegisteredModelAlias_ResponseFieldMaskSchema
+  );
+}
+
+const dependencyFieldMaskSchema: FieldMaskSchema = {
+  connection: {
+    wire: 'connection',
+    children: () => connectionDependencyFieldMaskSchema,
+  },
+  credential: {
+    wire: 'credential',
+    children: () => credentialDependencyFieldMaskSchema,
+  },
+  function: {
+    wire: 'function',
+    children: () => functionDependencyFieldMaskSchema,
+  },
+  secret: {wire: 'secret', children: () => secretDependencyFieldMaskSchema},
+  table: {wire: 'table', children: () => tableDependencyFieldMaskSchema},
+  volume: {wire: 'volume', children: () => volumeDependencyFieldMaskSchema},
+};
+
+export function dependencyFieldMask(...paths: string[]): FieldMask<Dependency> {
+  return FieldMask.build<Dependency>(paths, dependencyFieldMaskSchema);
+}
+
+const dependencyListFieldMaskSchema: FieldMaskSchema = {
+  dependencies: {wire: 'dependencies'},
+};
+
+export function dependencyListFieldMask(
+  ...paths: string[]
+): FieldMask<DependencyList> {
+  return FieldMask.build<DependencyList>(paths, dependencyListFieldMaskSchema);
+}
+
+const functionDependencyFieldMaskSchema: FieldMaskSchema = {
+  functionFullName: {wire: 'function_full_name'},
+};
+
+export function functionDependencyFieldMask(
+  ...paths: string[]
+): FieldMask<FunctionDependency> {
+  return FieldMask.build<FunctionDependency>(
+    paths,
+    functionDependencyFieldMaskSchema
+  );
+}
+
+const getModelVersionFieldMaskSchema: FieldMaskSchema = {
+  fullNameArg: {wire: 'full_name_arg'},
+  includeAliases: {wire: 'include_aliases'},
+  includeBrowse: {wire: 'include_browse'},
+  versionArg: {wire: 'version_arg'},
+};
+
+export function getModelVersionFieldMask(
+  ...paths: string[]
+): FieldMask<GetModelVersion> {
+  return FieldMask.build<GetModelVersion>(
+    paths,
+    getModelVersionFieldMaskSchema
+  );
+}
+
+const getModelVersionByAliasFieldMaskSchema: FieldMaskSchema = {
+  aliasArg: {wire: 'alias_arg'},
+  fullNameArg: {wire: 'full_name_arg'},
+  includeAliases: {wire: 'include_aliases'},
+};
+
+export function getModelVersionByAliasFieldMask(
+  ...paths: string[]
+): FieldMask<GetModelVersionByAlias> {
+  return FieldMask.build<GetModelVersionByAlias>(
+    paths,
+    getModelVersionByAliasFieldMaskSchema
+  );
+}
+
+const getRegisteredModelFieldMaskSchema: FieldMaskSchema = {
+  fullNameArg: {wire: 'full_name_arg'},
+  includeAliases: {wire: 'include_aliases'},
+  includeBrowse: {wire: 'include_browse'},
+};
+
+export function getRegisteredModelFieldMask(
+  ...paths: string[]
+): FieldMask<GetRegisteredModel> {
+  return FieldMask.build<GetRegisteredModel>(
+    paths,
+    getRegisteredModelFieldMaskSchema
+  );
+}
+
+const listModelVersionsFieldMaskSchema: FieldMaskSchema = {
+  fullNameArg: {wire: 'full_name_arg'},
+  includeBrowse: {wire: 'include_browse'},
+  maxResults: {wire: 'max_results'},
+  pageToken: {wire: 'page_token'},
+};
+
+export function listModelVersionsFieldMask(
+  ...paths: string[]
+): FieldMask<ListModelVersions> {
+  return FieldMask.build<ListModelVersions>(
+    paths,
+    listModelVersionsFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listModelVersions_ResponseFieldMaskSchema: FieldMaskSchema = {
+  modelVersions: {wire: 'model_versions'},
+  nextPageToken: {wire: 'next_page_token'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listModelVersions_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListModelVersions_Response> {
+  return FieldMask.build<ListModelVersions_Response>(
+    paths,
+    listModelVersions_ResponseFieldMaskSchema
+  );
+}
+
+const listRegisteredModelsFieldMaskSchema: FieldMaskSchema = {
+  catalogName: {wire: 'catalog_name'},
+  includeBrowse: {wire: 'include_browse'},
+  maxResults: {wire: 'max_results'},
+  pageToken: {wire: 'page_token'},
+  schemaName: {wire: 'schema_name'},
+};
+
+export function listRegisteredModelsFieldMask(
+  ...paths: string[]
+): FieldMask<ListRegisteredModels> {
+  return FieldMask.build<ListRegisteredModels>(
+    paths,
+    listRegisteredModelsFieldMaskSchema
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+const listRegisteredModels_ResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  registeredModels: {wire: 'registered_models'},
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export function listRegisteredModels_ResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListRegisteredModels_Response> {
+  return FieldMask.build<ListRegisteredModels_Response>(
+    paths,
+    listRegisteredModels_ResponseFieldMaskSchema
+  );
+}
+
+const modelVersionInfoFieldMaskSchema: FieldMaskSchema = {
+  aliases: {wire: 'aliases'},
+  catalogName: {wire: 'catalog_name'},
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  id: {wire: 'id'},
+  metastoreId: {wire: 'metastore_id'},
+  modelName: {wire: 'model_name'},
+  modelVersionDependencies: {
+    wire: 'model_version_dependencies',
+    children: () => dependencyListFieldMaskSchema,
+  },
+  runId: {wire: 'run_id'},
+  runWorkspaceId: {wire: 'run_workspace_id'},
+  schemaName: {wire: 'schema_name'},
+  source: {wire: 'source'},
+  status: {wire: 'status'},
+  storageLocation: {wire: 'storage_location'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+  version: {wire: 'version'},
+};
+
+export function modelVersionInfoFieldMask(
+  ...paths: string[]
+): FieldMask<ModelVersionInfo> {
+  return FieldMask.build<ModelVersionInfo>(
+    paths,
+    modelVersionInfoFieldMaskSchema
+  );
+}
+
+const registeredModelAliasInfoFieldMaskSchema: FieldMaskSchema = {
+  aliasName: {wire: 'alias_name'},
+  catalogName: {wire: 'catalog_name'},
+  id: {wire: 'id'},
+  modelName: {wire: 'model_name'},
+  schemaName: {wire: 'schema_name'},
+  versionNum: {wire: 'version_num'},
+};
+
+export function registeredModelAliasInfoFieldMask(
+  ...paths: string[]
+): FieldMask<RegisteredModelAliasInfo> {
+  return FieldMask.build<RegisteredModelAliasInfo>(
+    paths,
+    registeredModelAliasInfoFieldMaskSchema
+  );
+}
+
+const registeredModelInfoFieldMaskSchema: FieldMaskSchema = {
+  aliases: {wire: 'aliases'},
+  browseOnly: {wire: 'browse_only'},
+  catalogName: {wire: 'catalog_name'},
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  fullName: {wire: 'full_name'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  owner: {wire: 'owner'},
+  schemaName: {wire: 'schema_name'},
+  storageLocation: {wire: 'storage_location'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+};
+
+export function registeredModelInfoFieldMask(
+  ...paths: string[]
+): FieldMask<RegisteredModelInfo> {
+  return FieldMask.build<RegisteredModelInfo>(
+    paths,
+    registeredModelInfoFieldMaskSchema
+  );
+}
+
+const secretDependencyFieldMaskSchema: FieldMaskSchema = {
+  secretFullName: {wire: 'secret_full_name'},
+};
+
+export function secretDependencyFieldMask(
+  ...paths: string[]
+): FieldMask<SecretDependency> {
+  return FieldMask.build<SecretDependency>(
+    paths,
+    secretDependencyFieldMaskSchema
+  );
+}
+
+const setRegisteredModelAliasFieldMaskSchema: FieldMaskSchema = {
+  aliasArg: {wire: 'alias_arg'},
+  fullNameArg: {wire: 'full_name_arg'},
+  versionNum: {wire: 'version_num'},
+};
+
+export function setRegisteredModelAliasFieldMask(
+  ...paths: string[]
+): FieldMask<SetRegisteredModelAlias> {
+  return FieldMask.build<SetRegisteredModelAlias>(
+    paths,
+    setRegisteredModelAliasFieldMaskSchema
+  );
+}
+
+const tableDependencyFieldMaskSchema: FieldMaskSchema = {
+  tableFullName: {wire: 'table_full_name'},
+};
+
+export function tableDependencyFieldMask(
+  ...paths: string[]
+): FieldMask<TableDependency> {
+  return FieldMask.build<TableDependency>(
+    paths,
+    tableDependencyFieldMaskSchema
+  );
+}
+
+const updateModelVersionFieldMaskSchema: FieldMaskSchema = {
+  aliases: {wire: 'aliases'},
+  catalogName: {wire: 'catalog_name'},
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  fullNameArg: {wire: 'full_name_arg'},
+  id: {wire: 'id'},
+  metastoreId: {wire: 'metastore_id'},
+  modelName: {wire: 'model_name'},
+  modelVersionDependencies: {
+    wire: 'model_version_dependencies',
+    children: () => dependencyListFieldMaskSchema,
+  },
+  runId: {wire: 'run_id'},
+  runWorkspaceId: {wire: 'run_workspace_id'},
+  schemaName: {wire: 'schema_name'},
+  source: {wire: 'source'},
+  status: {wire: 'status'},
+  storageLocation: {wire: 'storage_location'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+  version: {wire: 'version'},
+  versionArg: {wire: 'version_arg'},
+};
+
+export function updateModelVersionFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateModelVersion> {
+  return FieldMask.build<UpdateModelVersion>(
+    paths,
+    updateModelVersionFieldMaskSchema
+  );
+}
+
+const updateRegisteredModelFieldMaskSchema: FieldMaskSchema = {
+  aliases: {wire: 'aliases'},
+  browseOnly: {wire: 'browse_only'},
+  catalogName: {wire: 'catalog_name'},
+  comment: {wire: 'comment'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  fullName: {wire: 'full_name'},
+  fullNameArg: {wire: 'full_name_arg'},
+  metastoreId: {wire: 'metastore_id'},
+  name: {wire: 'name'},
+  newName: {wire: 'new_name'},
+  owner: {wire: 'owner'},
+  schemaName: {wire: 'schema_name'},
+  storageLocation: {wire: 'storage_location'},
+  updatedAt: {wire: 'updated_at'},
+  updatedBy: {wire: 'updated_by'},
+};
+
+export function updateRegisteredModelFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateRegisteredModel> {
+  return FieldMask.build<UpdateRegisteredModel>(
+    paths,
+    updateRegisteredModelFieldMaskSchema
+  );
+}
+
+const volumeDependencyFieldMaskSchema: FieldMaskSchema = {
+  volumeFullName: {wire: 'volume_full_name'},
+};
+
+export function volumeDependencyFieldMask(
+  ...paths: string[]
+): FieldMask<VolumeDependency> {
+  return FieldMask.build<VolumeDependency>(
+    paths,
+    volumeDependencyFieldMaskSchema
+  );
+}

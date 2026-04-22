@@ -1,6 +1,8 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {Temporal} from '@js-temporal/polyfill';
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum AlertOperator {
@@ -751,3 +753,254 @@ export const marshalUpdateAlertRequestAlertSchema: z.ZodType = z
     update_time: d.updateTime,
     notify_on_ok: d.notifyOnOk,
   }));
+
+const alertFieldMaskSchema: FieldMaskSchema = {
+  condition: {wire: 'condition', children: () => alertConditionFieldMaskSchema},
+  createTime: {wire: 'create_time'},
+  customBody: {wire: 'custom_body'},
+  customSubject: {wire: 'custom_subject'},
+  displayName: {wire: 'display_name'},
+  id: {wire: 'id'},
+  lifecycleState: {wire: 'lifecycle_state'},
+  notifyOnOk: {wire: 'notify_on_ok'},
+  ownerUserName: {wire: 'owner_user_name'},
+  parentPath: {wire: 'parent_path'},
+  queryId: {wire: 'query_id'},
+  secondsToRetrigger: {wire: 'seconds_to_retrigger'},
+  state: {wire: 'state'},
+  triggerTime: {wire: 'trigger_time'},
+  updateTime: {wire: 'update_time'},
+};
+
+export function alertFieldMask(...paths: string[]): FieldMask<Alert> {
+  return FieldMask.build<Alert>(paths, alertFieldMaskSchema);
+}
+
+const alertConditionFieldMaskSchema: FieldMaskSchema = {
+  emptyResultState: {wire: 'empty_result_state'},
+  op: {wire: 'op'},
+  operand: {wire: 'operand', children: () => alertOperandFieldMaskSchema},
+  threshold: {wire: 'threshold', children: () => alertOperandFieldMaskSchema},
+};
+
+export function alertConditionFieldMask(
+  ...paths: string[]
+): FieldMask<AlertCondition> {
+  return FieldMask.build<AlertCondition>(paths, alertConditionFieldMaskSchema);
+}
+
+const alertOperandFieldMaskSchema: FieldMaskSchema = {
+  column: {wire: 'column', children: () => alertOperandColumnFieldMaskSchema},
+  value: {wire: 'value', children: () => alertOperandValueFieldMaskSchema},
+};
+
+export function alertOperandFieldMask(
+  ...paths: string[]
+): FieldMask<AlertOperand> {
+  return FieldMask.build<AlertOperand>(paths, alertOperandFieldMaskSchema);
+}
+
+const alertOperandColumnFieldMaskSchema: FieldMaskSchema = {
+  name: {wire: 'name'},
+};
+
+export function alertOperandColumnFieldMask(
+  ...paths: string[]
+): FieldMask<AlertOperandColumn> {
+  return FieldMask.build<AlertOperandColumn>(
+    paths,
+    alertOperandColumnFieldMaskSchema
+  );
+}
+
+const alertOperandValueFieldMaskSchema: FieldMaskSchema = {
+  boolValue: {wire: 'bool_value'},
+  doubleValue: {wire: 'double_value'},
+  stringValue: {wire: 'string_value'},
+};
+
+export function alertOperandValueFieldMask(
+  ...paths: string[]
+): FieldMask<AlertOperandValue> {
+  return FieldMask.build<AlertOperandValue>(
+    paths,
+    alertOperandValueFieldMaskSchema
+  );
+}
+
+const createAlertRequestFieldMaskSchema: FieldMaskSchema = {
+  alert: {
+    wire: 'alert',
+    children: () => createAlertRequestAlertFieldMaskSchema,
+  },
+  autoResolveDisplayName: {wire: 'auto_resolve_display_name'},
+};
+
+export function createAlertRequestFieldMask(
+  ...paths: string[]
+): FieldMask<CreateAlertRequest> {
+  return FieldMask.build<CreateAlertRequest>(
+    paths,
+    createAlertRequestFieldMaskSchema
+  );
+}
+
+const createAlertRequestAlertFieldMaskSchema: FieldMaskSchema = {
+  condition: {wire: 'condition', children: () => alertConditionFieldMaskSchema},
+  createTime: {wire: 'create_time'},
+  customBody: {wire: 'custom_body'},
+  customSubject: {wire: 'custom_subject'},
+  displayName: {wire: 'display_name'},
+  id: {wire: 'id'},
+  lifecycleState: {wire: 'lifecycle_state'},
+  notifyOnOk: {wire: 'notify_on_ok'},
+  ownerUserName: {wire: 'owner_user_name'},
+  parentPath: {wire: 'parent_path'},
+  queryId: {wire: 'query_id'},
+  secondsToRetrigger: {wire: 'seconds_to_retrigger'},
+  state: {wire: 'state'},
+  triggerTime: {wire: 'trigger_time'},
+  updateTime: {wire: 'update_time'},
+};
+
+export function createAlertRequestAlertFieldMask(
+  ...paths: string[]
+): FieldMask<CreateAlertRequestAlert> {
+  return FieldMask.build<CreateAlertRequestAlert>(
+    paths,
+    createAlertRequestAlertFieldMaskSchema
+  );
+}
+
+const emptyFieldMaskSchema: FieldMaskSchema = {};
+
+export function emptyFieldMask(...paths: string[]): FieldMask<Empty> {
+  return FieldMask.build<Empty>(paths, emptyFieldMaskSchema);
+}
+
+const getAlertRequestFieldMaskSchema: FieldMaskSchema = {
+  id: {wire: 'id'},
+};
+
+export function getAlertRequestFieldMask(
+  ...paths: string[]
+): FieldMask<GetAlertRequest> {
+  return FieldMask.build<GetAlertRequest>(
+    paths,
+    getAlertRequestFieldMaskSchema
+  );
+}
+
+const listAlertsRequestFieldMaskSchema: FieldMaskSchema = {
+  pageSize: {wire: 'page_size'},
+  pageToken: {wire: 'page_token'},
+};
+
+export function listAlertsRequestFieldMask(
+  ...paths: string[]
+): FieldMask<ListAlertsRequest> {
+  return FieldMask.build<ListAlertsRequest>(
+    paths,
+    listAlertsRequestFieldMaskSchema
+  );
+}
+
+const listAlertsResponseFieldMaskSchema: FieldMaskSchema = {
+  nextPageToken: {wire: 'next_page_token'},
+  results: {wire: 'results'},
+};
+
+export function listAlertsResponseFieldMask(
+  ...paths: string[]
+): FieldMask<ListAlertsResponse> {
+  return FieldMask.build<ListAlertsResponse>(
+    paths,
+    listAlertsResponseFieldMaskSchema
+  );
+}
+
+const listAlertsResponseAlertFieldMaskSchema: FieldMaskSchema = {
+  condition: {wire: 'condition', children: () => alertConditionFieldMaskSchema},
+  createTime: {wire: 'create_time'},
+  customBody: {wire: 'custom_body'},
+  customSubject: {wire: 'custom_subject'},
+  displayName: {wire: 'display_name'},
+  id: {wire: 'id'},
+  lifecycleState: {wire: 'lifecycle_state'},
+  notifyOnOk: {wire: 'notify_on_ok'},
+  ownerUserName: {wire: 'owner_user_name'},
+  parentPath: {wire: 'parent_path'},
+  queryId: {wire: 'query_id'},
+  secondsToRetrigger: {wire: 'seconds_to_retrigger'},
+  state: {wire: 'state'},
+  triggerTime: {wire: 'trigger_time'},
+  updateTime: {wire: 'update_time'},
+};
+
+export function listAlertsResponseAlertFieldMask(
+  ...paths: string[]
+): FieldMask<ListAlertsResponseAlert> {
+  return FieldMask.build<ListAlertsResponseAlert>(
+    paths,
+    listAlertsResponseAlertFieldMaskSchema
+  );
+}
+
+const trashAlertRequestFieldMaskSchema: FieldMaskSchema = {
+  id: {wire: 'id'},
+};
+
+export function trashAlertRequestFieldMask(
+  ...paths: string[]
+): FieldMask<TrashAlertRequest> {
+  return FieldMask.build<TrashAlertRequest>(
+    paths,
+    trashAlertRequestFieldMaskSchema
+  );
+}
+
+const updateAlertRequestFieldMaskSchema: FieldMaskSchema = {
+  alert: {
+    wire: 'alert',
+    children: () => updateAlertRequestAlertFieldMaskSchema,
+  },
+  autoResolveDisplayName: {wire: 'auto_resolve_display_name'},
+  id: {wire: 'id'},
+  updateMask: {wire: 'update_mask'},
+};
+
+export function updateAlertRequestFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateAlertRequest> {
+  return FieldMask.build<UpdateAlertRequest>(
+    paths,
+    updateAlertRequestFieldMaskSchema
+  );
+}
+
+const updateAlertRequestAlertFieldMaskSchema: FieldMaskSchema = {
+  condition: {wire: 'condition', children: () => alertConditionFieldMaskSchema},
+  createTime: {wire: 'create_time'},
+  customBody: {wire: 'custom_body'},
+  customSubject: {wire: 'custom_subject'},
+  displayName: {wire: 'display_name'},
+  id: {wire: 'id'},
+  lifecycleState: {wire: 'lifecycle_state'},
+  notifyOnOk: {wire: 'notify_on_ok'},
+  ownerUserName: {wire: 'owner_user_name'},
+  parentPath: {wire: 'parent_path'},
+  queryId: {wire: 'query_id'},
+  secondsToRetrigger: {wire: 'seconds_to_retrigger'},
+  state: {wire: 'state'},
+  triggerTime: {wire: 'trigger_time'},
+  updateTime: {wire: 'update_time'},
+};
+
+export function updateAlertRequestAlertFieldMask(
+  ...paths: string[]
+): FieldMask<UpdateAlertRequestAlert> {
+  return FieldMask.build<UpdateAlertRequestAlert>(
+    paths,
+    updateAlertRequestAlertFieldMaskSchema
+  );
+}

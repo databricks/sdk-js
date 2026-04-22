@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** The artifact type */
@@ -143,3 +145,63 @@ export const marshalSetArtifactAllowlistSchema: z.ZodType = z
     created_by: d.createdBy,
     created_at: d.createdAt,
   }));
+
+const artifactAllowlistInfoFieldMaskSchema: FieldMaskSchema = {
+  artifactMatchers: {wire: 'artifact_matchers'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  metastoreId: {wire: 'metastore_id'},
+};
+
+export function artifactAllowlistInfoFieldMask(
+  ...paths: string[]
+): FieldMask<ArtifactAllowlistInfo> {
+  return FieldMask.build<ArtifactAllowlistInfo>(
+    paths,
+    artifactAllowlistInfoFieldMaskSchema
+  );
+}
+
+const artifactMatcherFieldMaskSchema: FieldMaskSchema = {
+  artifact: {wire: 'artifact'},
+  matchType: {wire: 'match_type'},
+};
+
+export function artifactMatcherFieldMask(
+  ...paths: string[]
+): FieldMask<ArtifactMatcher> {
+  return FieldMask.build<ArtifactMatcher>(
+    paths,
+    artifactMatcherFieldMaskSchema
+  );
+}
+
+const getArtifactAllowlistFieldMaskSchema: FieldMaskSchema = {
+  artifactType: {wire: 'artifact_type'},
+};
+
+export function getArtifactAllowlistFieldMask(
+  ...paths: string[]
+): FieldMask<GetArtifactAllowlist> {
+  return FieldMask.build<GetArtifactAllowlist>(
+    paths,
+    getArtifactAllowlistFieldMaskSchema
+  );
+}
+
+const setArtifactAllowlistFieldMaskSchema: FieldMaskSchema = {
+  artifactMatchers: {wire: 'artifact_matchers'},
+  artifactType: {wire: 'artifact_type'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
+  metastoreId: {wire: 'metastore_id'},
+};
+
+export function setArtifactAllowlistFieldMask(
+  ...paths: string[]
+): FieldMask<SetArtifactAllowlist> {
+  return FieldMask.build<SetArtifactAllowlist>(
+    paths,
+    setArtifactAllowlistFieldMaskSchema
+  );
+}
