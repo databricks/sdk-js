@@ -1,7 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-import {FieldMask} from '@databricks/sdk-core/wkt';
-import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export enum ListOrder {
@@ -247,26 +245,6 @@ export interface RCranLibrary {
   repo?: string | undefined;
 }
 
-export const unmarshalCreatePolicySchema: z.ZodType<CreatePolicy> = z
-  .object({
-    name: z.string().optional(),
-    definition: z.string().optional(),
-    description: z.string().optional(),
-    policy_family_id: z.string().optional(),
-    policy_family_definition_overrides: z.string().optional(),
-    max_clusters_per_user: z.number().optional(),
-    libraries: z.array(z.lazy(() => unmarshalLibrarySchema)).optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    definition: d.definition,
-    description: d.description,
-    policyFamilyId: d.policy_family_id,
-    policyFamilyDefinitionOverrides: d.policy_family_definition_overrides,
-    maxClustersPerUser: d.max_clusters_per_user,
-    libraries: d.libraries,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalCreatePolicy_ResponseSchema: z.ZodType<CreatePolicy_Response> =
   z
@@ -277,39 +255,9 @@ export const unmarshalCreatePolicy_ResponseSchema: z.ZodType<CreatePolicy_Respon
       policyId: d.policy_id,
     }));
 
-export const unmarshalDeletePolicySchema: z.ZodType<DeletePolicy> = z
-  .object({
-    policy_id: z.string().optional(),
-  })
-  .transform(d => ({
-    policyId: d.policy_id,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeletePolicy_ResponseSchema: z.ZodType<DeletePolicy_Response> =
   z.object({});
-
-export const unmarshalEditPolicySchema: z.ZodType<EditPolicy> = z
-  .object({
-    policy_id: z.string().optional(),
-    name: z.string().optional(),
-    definition: z.string().optional(),
-    description: z.string().optional(),
-    policy_family_id: z.string().optional(),
-    policy_family_definition_overrides: z.string().optional(),
-    max_clusters_per_user: z.number().optional(),
-    libraries: z.array(z.lazy(() => unmarshalLibrarySchema)).optional(),
-  })
-  .transform(d => ({
-    policyId: d.policy_id,
-    name: d.name,
-    definition: d.definition,
-    description: d.description,
-    policyFamilyId: d.policy_family_id,
-    policyFamilyDefinitionOverrides: d.policy_family_definition_overrides,
-    maxClustersPerUser: d.max_clusters_per_user,
-    libraries: d.libraries,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalEditPolicy_ResponseSchema: z.ZodType<EditPolicy_Response> =
@@ -425,15 +373,6 @@ export const marshalCreatePolicySchema: z.ZodType = z
     libraries: d.libraries,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCreatePolicy_ResponseSchema: z.ZodType = z
-  .object({
-    policyId: z.string().optional(),
-  })
-  .transform(d => ({
-    policy_id: d.policyId,
-  }));
-
 export const marshalDeletePolicySchema: z.ZodType = z
   .object({
     policyId: z.string().optional(),
@@ -441,9 +380,6 @@ export const marshalDeletePolicySchema: z.ZodType = z
   .transform(d => ({
     policy_id: d.policyId,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeletePolicy_ResponseSchema: z.ZodType = z.object({});
 
 export const marshalEditPolicySchema: z.ZodType = z
   .object({
@@ -467,9 +403,6 @@ export const marshalEditPolicySchema: z.ZodType = z
     libraries: d.libraries,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEditPolicy_ResponseSchema: z.ZodType = z.object({});
-
 export const marshalLibrarySchema: z.ZodType = z
   .object({
     jar: z.string().optional(),
@@ -490,15 +423,6 @@ export const marshalLibrarySchema: z.ZodType = z
     requirements: d.requirements,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalListPolicies_ResponseSchema: z.ZodType = z
-  .object({
-    policies: z.array(z.lazy(() => marshalPolicySchema)).optional(),
-  })
-  .transform(d => ({
-    policies: d.policies,
-  }));
-
 export const marshalMavenLibrarySchema: z.ZodType = z
   .object({
     coordinates: z.string().optional(),
@@ -509,34 +433,6 @@ export const marshalMavenLibrarySchema: z.ZodType = z
     coordinates: d.coordinates,
     repo: d.repo,
     exclusions: d.exclusions,
-  }));
-
-export const marshalPolicySchema: z.ZodType = z
-  .object({
-    policyId: z.string().optional(),
-    creatorUserName: z.string().optional(),
-    createdAtTimestamp: z.number().optional(),
-    isDefault: z.boolean().optional(),
-    name: z.string().optional(),
-    definition: z.string().optional(),
-    description: z.string().optional(),
-    policyFamilyId: z.string().optional(),
-    policyFamilyDefinitionOverrides: z.string().optional(),
-    maxClustersPerUser: z.number().optional(),
-    libraries: z.array(z.lazy(() => marshalLibrarySchema)).optional(),
-  })
-  .transform(d => ({
-    policy_id: d.policyId,
-    creator_user_name: d.creatorUserName,
-    created_at_timestamp: d.createdAtTimestamp,
-    is_default: d.isDefault,
-    name: d.name,
-    definition: d.definition,
-    description: d.description,
-    policy_family_id: d.policyFamilyId,
-    policy_family_definition_overrides: d.policyFamilyDefinitionOverrides,
-    max_clusters_per_user: d.maxClustersPerUser,
-    libraries: d.libraries,
   }));
 
 export const marshalPythonPyPiLibrarySchema: z.ZodType = z
@@ -558,188 +454,3 @@ export const marshalRCranLibrarySchema: z.ZodType = z
     package: d.package,
     repo: d.repo,
   }));
-
-const createPolicyFieldMaskSchema: FieldMaskSchema = {
-  definition: {wire: 'definition'},
-  description: {wire: 'description'},
-  libraries: {wire: 'libraries'},
-  maxClustersPerUser: {wire: 'max_clusters_per_user'},
-  name: {wire: 'name'},
-  policyFamilyDefinitionOverrides: {wire: 'policy_family_definition_overrides'},
-  policyFamilyId: {wire: 'policy_family_id'},
-};
-
-export function createPolicyFieldMask(
-  ...paths: string[]
-): FieldMask<CreatePolicy> {
-  return FieldMask.build<CreatePolicy>(paths, createPolicyFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const createPolicy_ResponseFieldMaskSchema: FieldMaskSchema = {
-  policyId: {wire: 'policy_id'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function createPolicy_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<CreatePolicy_Response> {
-  return FieldMask.build<CreatePolicy_Response>(
-    paths,
-    createPolicy_ResponseFieldMaskSchema
-  );
-}
-
-const deletePolicyFieldMaskSchema: FieldMaskSchema = {
-  policyId: {wire: 'policy_id'},
-};
-
-export function deletePolicyFieldMask(
-  ...paths: string[]
-): FieldMask<DeletePolicy> {
-  return FieldMask.build<DeletePolicy>(paths, deletePolicyFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const deletePolicy_ResponseFieldMaskSchema: FieldMaskSchema = {};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function deletePolicy_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<DeletePolicy_Response> {
-  return FieldMask.build<DeletePolicy_Response>(
-    paths,
-    deletePolicy_ResponseFieldMaskSchema
-  );
-}
-
-const editPolicyFieldMaskSchema: FieldMaskSchema = {
-  definition: {wire: 'definition'},
-  description: {wire: 'description'},
-  libraries: {wire: 'libraries'},
-  maxClustersPerUser: {wire: 'max_clusters_per_user'},
-  name: {wire: 'name'},
-  policyFamilyDefinitionOverrides: {wire: 'policy_family_definition_overrides'},
-  policyFamilyId: {wire: 'policy_family_id'},
-  policyId: {wire: 'policy_id'},
-};
-
-export function editPolicyFieldMask(...paths: string[]): FieldMask<EditPolicy> {
-  return FieldMask.build<EditPolicy>(paths, editPolicyFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const editPolicy_ResponseFieldMaskSchema: FieldMaskSchema = {};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function editPolicy_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<EditPolicy_Response> {
-  return FieldMask.build<EditPolicy_Response>(
-    paths,
-    editPolicy_ResponseFieldMaskSchema
-  );
-}
-
-const getPolicyFieldMaskSchema: FieldMaskSchema = {
-  policyId: {wire: 'policy_id'},
-};
-
-export function getPolicyFieldMask(...paths: string[]): FieldMask<GetPolicy> {
-  return FieldMask.build<GetPolicy>(paths, getPolicyFieldMaskSchema);
-}
-
-const libraryFieldMaskSchema: FieldMaskSchema = {
-  cran: {wire: 'cran', children: () => rCranLibraryFieldMaskSchema},
-  egg: {wire: 'egg'},
-  jar: {wire: 'jar'},
-  maven: {wire: 'maven', children: () => mavenLibraryFieldMaskSchema},
-  pypi: {wire: 'pypi', children: () => pythonPyPiLibraryFieldMaskSchema},
-  requirements: {wire: 'requirements'},
-  whl: {wire: 'whl'},
-};
-
-export function libraryFieldMask(...paths: string[]): FieldMask<Library> {
-  return FieldMask.build<Library>(paths, libraryFieldMaskSchema);
-}
-
-const listPoliciesFieldMaskSchema: FieldMaskSchema = {
-  sortColumn: {wire: 'sort_column'},
-  sortOrder: {wire: 'sort_order'},
-};
-
-export function listPoliciesFieldMask(
-  ...paths: string[]
-): FieldMask<ListPolicies> {
-  return FieldMask.build<ListPolicies>(paths, listPoliciesFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const listPolicies_ResponseFieldMaskSchema: FieldMaskSchema = {
-  policies: {wire: 'policies'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function listPolicies_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListPolicies_Response> {
-  return FieldMask.build<ListPolicies_Response>(
-    paths,
-    listPolicies_ResponseFieldMaskSchema
-  );
-}
-
-const mavenLibraryFieldMaskSchema: FieldMaskSchema = {
-  coordinates: {wire: 'coordinates'},
-  exclusions: {wire: 'exclusions'},
-  repo: {wire: 'repo'},
-};
-
-export function mavenLibraryFieldMask(
-  ...paths: string[]
-): FieldMask<MavenLibrary> {
-  return FieldMask.build<MavenLibrary>(paths, mavenLibraryFieldMaskSchema);
-}
-
-const policyFieldMaskSchema: FieldMaskSchema = {
-  createdAtTimestamp: {wire: 'created_at_timestamp'},
-  creatorUserName: {wire: 'creator_user_name'},
-  definition: {wire: 'definition'},
-  description: {wire: 'description'},
-  isDefault: {wire: 'is_default'},
-  libraries: {wire: 'libraries'},
-  maxClustersPerUser: {wire: 'max_clusters_per_user'},
-  name: {wire: 'name'},
-  policyFamilyDefinitionOverrides: {wire: 'policy_family_definition_overrides'},
-  policyFamilyId: {wire: 'policy_family_id'},
-  policyId: {wire: 'policy_id'},
-};
-
-export function policyFieldMask(...paths: string[]): FieldMask<Policy> {
-  return FieldMask.build<Policy>(paths, policyFieldMaskSchema);
-}
-
-const pythonPyPiLibraryFieldMaskSchema: FieldMaskSchema = {
-  package: {wire: 'package'},
-  repo: {wire: 'repo'},
-};
-
-export function pythonPyPiLibraryFieldMask(
-  ...paths: string[]
-): FieldMask<PythonPyPiLibrary> {
-  return FieldMask.build<PythonPyPiLibrary>(
-    paths,
-    pythonPyPiLibraryFieldMaskSchema
-  );
-}
-
-const rCranLibraryFieldMaskSchema: FieldMaskSchema = {
-  package: {wire: 'package'},
-  repo: {wire: 'repo'},
-};
-
-export function rCranLibraryFieldMask(
-  ...paths: string[]
-): FieldMask<RCranLibrary> {
-  return FieldMask.build<RCranLibrary>(paths, rCranLibraryFieldMaskSchema);
-}

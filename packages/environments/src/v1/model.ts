@@ -693,7 +693,7 @@ export interface UpdateDefaultWorkspaceBaseEnvironmentRequest {
    * To unset one or both defaults, include the field path(s) in the mask and omit them from the request body.
    * To unset both, you must list both paths explicitly — the wildcard '*' cannot be used to unset fields.
    */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<DefaultWorkspaceBaseEnvironment> | undefined;
 }
 
 /** Request message for UpdateWorkspaceBaseEnvironment. */
@@ -810,15 +810,6 @@ export const unmarshalOperationSchema: z.ZodType<Operation> = z
     response: d.response,
   }));
 
-export const unmarshalRefreshWorkspaceBaseEnvironmentRequestSchema: z.ZodType<RefreshWorkspaceBaseEnvironmentRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
 export const unmarshalWorkspaceBaseEnvironmentSchema: z.ZodType<WorkspaceBaseEnvironment> =
   z
     .object({
@@ -861,21 +852,6 @@ export const unmarshalWorkspaceBaseEnvironmentSchema: z.ZodType<WorkspaceBaseEnv
 export const unmarshalWorkspaceBaseEnvironmentOperationMetadataSchema: z.ZodType<WorkspaceBaseEnvironmentOperationMetadata> =
   z.object({});
 
-export const marshalDatabricksServiceExceptionWithDetailsProtoSchema: z.ZodType =
-  z
-    .object({
-      errorCode: z.enum(ErrorCode).optional(),
-      message: z.string().optional(),
-      stackTrace: z.string().optional(),
-      details: z.array(z.record(z.string(), z.unknown())).optional(),
-    })
-    .transform(d => ({
-      error_code: d.errorCode,
-      message: d.message,
-      stack_trace: d.stackTrace,
-      details: d.details,
-    }));
-
 export const marshalDefaultWorkspaceBaseEnvironmentSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -886,36 +862,6 @@ export const marshalDefaultWorkspaceBaseEnvironmentSchema: z.ZodType = z
     name: d.name,
     cpu_workspace_base_environment: d.cpuWorkspaceBaseEnvironment,
     gpu_workspace_base_environment: d.gpuWorkspaceBaseEnvironment,
-  }));
-
-export const marshalListWorkspaceBaseEnvironmentsResponseSchema: z.ZodType = z
-  .object({
-    workspaceBaseEnvironments: z
-      .array(z.lazy(() => marshalWorkspaceBaseEnvironmentSchema))
-      .optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    workspace_base_environments: d.workspaceBaseEnvironments,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalOperationSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    metadata: z.record(z.string(), z.unknown()).optional(),
-    done: z.boolean().optional(),
-    error: z
-      .lazy(() => marshalDatabricksServiceExceptionWithDetailsProtoSchema)
-      .optional(),
-    response: z.record(z.string(), z.unknown()).optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    metadata: d.metadata,
-    done: d.done,
-    error: d.error,
-    response: d.response,
   }));
 
 export const marshalRefreshWorkspaceBaseEnvironmentRequestSchema: z.ZodType = z
@@ -964,44 +910,6 @@ export const marshalWorkspaceBaseEnvironmentSchema: z.ZodType = z
     base_environment_provider: d.baseEnvironmentProvider,
   }));
 
-export const marshalWorkspaceBaseEnvironmentOperationMetadataSchema: z.ZodType =
-  z.object({});
-
-const createWorkspaceBaseEnvironmentRequestFieldMaskSchema: FieldMaskSchema = {
-  requestId: {wire: 'request_id'},
-  workspaceBaseEnvironment: {
-    wire: 'workspace_base_environment',
-    children: () => workspaceBaseEnvironmentFieldMaskSchema,
-  },
-  workspaceBaseEnvironmentId: {wire: 'workspace_base_environment_id'},
-};
-
-export function createWorkspaceBaseEnvironmentRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateWorkspaceBaseEnvironmentRequest> {
-  return FieldMask.build<CreateWorkspaceBaseEnvironmentRequest>(
-    paths,
-    createWorkspaceBaseEnvironmentRequestFieldMaskSchema
-  );
-}
-
-const databricksServiceExceptionWithDetailsProtoFieldMaskSchema: FieldMaskSchema =
-  {
-    details: {wire: 'details'},
-    errorCode: {wire: 'error_code'},
-    message: {wire: 'message'},
-    stackTrace: {wire: 'stack_trace'},
-  };
-
-export function databricksServiceExceptionWithDetailsProtoFieldMask(
-  ...paths: string[]
-): FieldMask<DatabricksServiceExceptionWithDetailsProto> {
-  return FieldMask.build<DatabricksServiceExceptionWithDetailsProto>(
-    paths,
-    databricksServiceExceptionWithDetailsProtoFieldMaskSchema
-  );
-}
-
 const defaultWorkspaceBaseEnvironmentFieldMaskSchema: FieldMaskSchema = {
   cpuWorkspaceBaseEnvironment: {wire: 'cpu_workspace_base_environment'},
   gpuWorkspaceBaseEnvironment: {wire: 'gpu_workspace_base_environment'},
@@ -1014,196 +922,5 @@ export function defaultWorkspaceBaseEnvironmentFieldMask(
   return FieldMask.build<DefaultWorkspaceBaseEnvironment>(
     paths,
     defaultWorkspaceBaseEnvironmentFieldMaskSchema
-  );
-}
-
-const deleteWorkspaceBaseEnvironmentRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function deleteWorkspaceBaseEnvironmentRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteWorkspaceBaseEnvironmentRequest> {
-  return FieldMask.build<DeleteWorkspaceBaseEnvironmentRequest>(
-    paths,
-    deleteWorkspaceBaseEnvironmentRequestFieldMaskSchema
-  );
-}
-
-const getDefaultWorkspaceBaseEnvironmentRequestFieldMaskSchema: FieldMaskSchema =
-  {
-    name: {wire: 'name'},
-  };
-
-export function getDefaultWorkspaceBaseEnvironmentRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetDefaultWorkspaceBaseEnvironmentRequest> {
-  return FieldMask.build<GetDefaultWorkspaceBaseEnvironmentRequest>(
-    paths,
-    getDefaultWorkspaceBaseEnvironmentRequestFieldMaskSchema
-  );
-}
-
-const getOperationRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function getOperationRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetOperationRequest> {
-  return FieldMask.build<GetOperationRequest>(
-    paths,
-    getOperationRequestFieldMaskSchema
-  );
-}
-
-const getWorkspaceBaseEnvironmentRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function getWorkspaceBaseEnvironmentRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetWorkspaceBaseEnvironmentRequest> {
-  return FieldMask.build<GetWorkspaceBaseEnvironmentRequest>(
-    paths,
-    getWorkspaceBaseEnvironmentRequestFieldMaskSchema
-  );
-}
-
-const listWorkspaceBaseEnvironmentsRequestFieldMaskSchema: FieldMaskSchema = {
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listWorkspaceBaseEnvironmentsRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListWorkspaceBaseEnvironmentsRequest> {
-  return FieldMask.build<ListWorkspaceBaseEnvironmentsRequest>(
-    paths,
-    listWorkspaceBaseEnvironmentsRequestFieldMaskSchema
-  );
-}
-
-const listWorkspaceBaseEnvironmentsResponseFieldMaskSchema: FieldMaskSchema = {
-  nextPageToken: {wire: 'next_page_token'},
-  workspaceBaseEnvironments: {wire: 'workspace_base_environments'},
-};
-
-export function listWorkspaceBaseEnvironmentsResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListWorkspaceBaseEnvironmentsResponse> {
-  return FieldMask.build<ListWorkspaceBaseEnvironmentsResponse>(
-    paths,
-    listWorkspaceBaseEnvironmentsResponseFieldMaskSchema
-  );
-}
-
-const operationFieldMaskSchema: FieldMaskSchema = {
-  done: {wire: 'done'},
-  error: {
-    wire: 'error',
-    children: () => databricksServiceExceptionWithDetailsProtoFieldMaskSchema,
-  },
-  metadata: {wire: 'metadata'},
-  name: {wire: 'name'},
-  response: {wire: 'response'},
-};
-
-export function operationFieldMask(...paths: string[]): FieldMask<Operation> {
-  return FieldMask.build<Operation>(paths, operationFieldMaskSchema);
-}
-
-const refreshWorkspaceBaseEnvironmentRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function refreshWorkspaceBaseEnvironmentRequestFieldMask(
-  ...paths: string[]
-): FieldMask<RefreshWorkspaceBaseEnvironmentRequest> {
-  return FieldMask.build<RefreshWorkspaceBaseEnvironmentRequest>(
-    paths,
-    refreshWorkspaceBaseEnvironmentRequestFieldMaskSchema
-  );
-}
-
-const updateDefaultWorkspaceBaseEnvironmentRequestFieldMaskSchema: FieldMaskSchema =
-  {
-    defaultWorkspaceBaseEnvironment: {
-      wire: 'default_workspace_base_environment',
-      children: () => defaultWorkspaceBaseEnvironmentFieldMaskSchema,
-    },
-    updateMask: {wire: 'update_mask'},
-  };
-
-export function updateDefaultWorkspaceBaseEnvironmentRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateDefaultWorkspaceBaseEnvironmentRequest> {
-  return FieldMask.build<UpdateDefaultWorkspaceBaseEnvironmentRequest>(
-    paths,
-    updateDefaultWorkspaceBaseEnvironmentRequestFieldMaskSchema
-  );
-}
-
-const updateWorkspaceBaseEnvironmentRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-  workspaceBaseEnvironment: {
-    wire: 'workspace_base_environment',
-    children: () => workspaceBaseEnvironmentFieldMaskSchema,
-  },
-};
-
-export function updateWorkspaceBaseEnvironmentRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateWorkspaceBaseEnvironmentRequest> {
-  return FieldMask.build<UpdateWorkspaceBaseEnvironmentRequest>(
-    paths,
-    updateWorkspaceBaseEnvironmentRequestFieldMaskSchema
-  );
-}
-
-const workspaceBaseEnvironmentFieldMaskSchema: FieldMaskSchema = {
-  baseEnvironmentProvider: {wire: 'base_environment_provider'},
-  baseEnvironmentType: {wire: 'base_environment_type'},
-  createTime: {wire: 'create_time'},
-  creatorUserId: {wire: 'creator_user_id'},
-  displayName: {wire: 'display_name'},
-  filepath: {wire: 'filepath'},
-  isDefault: {wire: 'is_default'},
-  lastUpdatedUserId: {wire: 'last_updated_user_id'},
-  message: {wire: 'message'},
-  name: {wire: 'name'},
-  status: {wire: 'status'},
-  updateTime: {wire: 'update_time'},
-};
-
-export function workspaceBaseEnvironmentFieldMask(
-  ...paths: string[]
-): FieldMask<WorkspaceBaseEnvironment> {
-  return FieldMask.build<WorkspaceBaseEnvironment>(
-    paths,
-    workspaceBaseEnvironmentFieldMaskSchema
-  );
-}
-
-const workspaceBaseEnvironmentCacheFieldMaskSchema: FieldMaskSchema = {};
-
-export function workspaceBaseEnvironmentCacheFieldMask(
-  ...paths: string[]
-): FieldMask<WorkspaceBaseEnvironmentCache> {
-  return FieldMask.build<WorkspaceBaseEnvironmentCache>(
-    paths,
-    workspaceBaseEnvironmentCacheFieldMaskSchema
-  );
-}
-
-const workspaceBaseEnvironmentOperationMetadataFieldMaskSchema: FieldMaskSchema =
-  {};
-
-export function workspaceBaseEnvironmentOperationMetadataFieldMask(
-  ...paths: string[]
-): FieldMask<WorkspaceBaseEnvironmentOperationMetadata> {
-  return FieldMask.build<WorkspaceBaseEnvironmentOperationMetadata>(
-    paths,
-    workspaceBaseEnvironmentOperationMetadataFieldMaskSchema
   );
 }

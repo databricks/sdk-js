@@ -89,25 +89,11 @@ export interface UpdateToken {
   tokenId?: string | undefined;
   token?: PublicTokenInfo | undefined;
   /** A list of field name under PublicTokenInfo, For example in request use {"update_mask": "comment,scopes"} */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<PublicTokenInfo> | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface UpdateTokenResponse {}
-
-export const unmarshalCreateTokenSchema: z.ZodType<CreateToken> = z
-  .object({
-    lifetime_seconds: z.number().optional(),
-    comment: z.string().optional(),
-    scopes: z.array(z.string()).optional(),
-    autoscope_enabled: z.boolean().optional(),
-  })
-  .transform(d => ({
-    lifetimeSeconds: d.lifetime_seconds,
-    comment: d.comment,
-    scopes: d.scopes,
-    autoscopeEnabled: d.autoscope_enabled,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalCreateToken_ResponseSchema: z.ZodType<CreateToken_Response> =
@@ -157,29 +143,9 @@ export const unmarshalPublicTokenInfoSchema: z.ZodType<PublicTokenInfo> = z
     backfillScopes: d.backfill_scopes,
   }));
 
-export const unmarshalRevokeTokenSchema: z.ZodType<RevokeToken> = z
-  .object({
-    token_id: z.string().optional(),
-  })
-  .transform(d => ({
-    tokenId: d.token_id,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalRevokeToken_ResponseSchema: z.ZodType<RevokeToken_Response> =
   z.object({});
-
-export const unmarshalUpdateTokenSchema: z.ZodType<UpdateToken> = z
-  .object({
-    token_id: z.string().optional(),
-    token: z.lazy(() => unmarshalPublicTokenInfoSchema).optional(),
-    update_mask: z.string().optional(),
-  })
-  .transform(d => ({
-    tokenId: d.token_id,
-    token: d.token,
-    updateMask: d.update_mask,
-  }));
 
 export const unmarshalUpdateTokenResponseSchema: z.ZodType<UpdateTokenResponse> =
   z.object({});
@@ -196,26 +162,6 @@ export const marshalCreateTokenSchema: z.ZodType = z
     comment: d.comment,
     scopes: d.scopes,
     autoscope_enabled: d.autoscopeEnabled,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCreateToken_ResponseSchema: z.ZodType = z
-  .object({
-    tokenValue: z.string().optional(),
-    tokenInfo: z.lazy(() => marshalPublicTokenInfoSchema).optional(),
-  })
-  .transform(d => ({
-    token_value: d.tokenValue,
-    token_info: d.tokenInfo,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalListTokens_ResponseSchema: z.ZodType = z
-  .object({
-    tokenInfos: z.array(z.lazy(() => marshalPublicTokenInfoSchema)).optional(),
-  })
-  .transform(d => ({
-    token_infos: d.tokenInfos,
   }));
 
 export const marshalPublicTokenInfoSchema: z.ZodType = z
@@ -250,75 +196,20 @@ export const marshalRevokeTokenSchema: z.ZodType = z
     token_id: d.tokenId,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalRevokeToken_ResponseSchema: z.ZodType = z.object({});
-
 export const marshalUpdateTokenSchema: z.ZodType = z
   .object({
     tokenId: z.string().optional(),
     token: z.lazy(() => marshalPublicTokenInfoSchema).optional(),
-    updateMask: z.string().optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
   })
   .transform(d => ({
     token_id: d.tokenId,
     token: d.token,
     update_mask: d.updateMask,
   }));
-
-export const marshalUpdateTokenResponseSchema: z.ZodType = z.object({});
-
-const createTokenFieldMaskSchema: FieldMaskSchema = {
-  autoscopeEnabled: {wire: 'autoscope_enabled'},
-  comment: {wire: 'comment'},
-  lifetimeSeconds: {wire: 'lifetime_seconds'},
-  scopes: {wire: 'scopes'},
-};
-
-export function createTokenFieldMask(
-  ...paths: string[]
-): FieldMask<CreateToken> {
-  return FieldMask.build<CreateToken>(paths, createTokenFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const createToken_ResponseFieldMaskSchema: FieldMaskSchema = {
-  tokenInfo: {
-    wire: 'token_info',
-    children: () => publicTokenInfoFieldMaskSchema,
-  },
-  tokenValue: {wire: 'token_value'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function createToken_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<CreateToken_Response> {
-  return FieldMask.build<CreateToken_Response>(
-    paths,
-    createToken_ResponseFieldMaskSchema
-  );
-}
-
-const listTokensFieldMaskSchema: FieldMaskSchema = {};
-
-export function listTokensFieldMask(...paths: string[]): FieldMask<ListTokens> {
-  return FieldMask.build<ListTokens>(paths, listTokensFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const listTokens_ResponseFieldMaskSchema: FieldMaskSchema = {
-  tokenInfos: {wire: 'token_infos'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function listTokens_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListTokens_Response> {
-  return FieldMask.build<ListTokens_Response>(
-    paths,
-    listTokens_ResponseFieldMaskSchema
-  );
-}
 
 const publicTokenInfoFieldMaskSchema: FieldMaskSchema = {
   autoscopeState: {wire: 'autoscope_state'},
@@ -338,51 +229,5 @@ export function publicTokenInfoFieldMask(
   return FieldMask.build<PublicTokenInfo>(
     paths,
     publicTokenInfoFieldMaskSchema
-  );
-}
-
-const revokeTokenFieldMaskSchema: FieldMaskSchema = {
-  tokenId: {wire: 'token_id'},
-};
-
-export function revokeTokenFieldMask(
-  ...paths: string[]
-): FieldMask<RevokeToken> {
-  return FieldMask.build<RevokeToken>(paths, revokeTokenFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const revokeToken_ResponseFieldMaskSchema: FieldMaskSchema = {};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function revokeToken_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<RevokeToken_Response> {
-  return FieldMask.build<RevokeToken_Response>(
-    paths,
-    revokeToken_ResponseFieldMaskSchema
-  );
-}
-
-const updateTokenFieldMaskSchema: FieldMaskSchema = {
-  token: {wire: 'token', children: () => publicTokenInfoFieldMaskSchema},
-  tokenId: {wire: 'token_id'},
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateTokenFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateToken> {
-  return FieldMask.build<UpdateToken>(paths, updateTokenFieldMaskSchema);
-}
-
-const updateTokenResponseFieldMaskSchema: FieldMaskSchema = {};
-
-export function updateTokenResponseFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateTokenResponse> {
-  return FieldMask.build<UpdateTokenResponse>(
-    paths,
-    updateTokenResponseFieldMaskSchema
   );
 }

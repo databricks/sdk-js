@@ -1,7 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-import {FieldMask} from '@databricks/sdk-core/wkt';
-import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export interface DownloadRequest {
@@ -42,40 +40,3 @@ export const unmarshalDownloadResponseSchema: z.ZodType<DownloadResponse> = z
   .transform(d => ({
     content: d.content,
   }));
-
-export const marshalDownloadResponseSchema: z.ZodType = z
-  .object({
-    content: z.string().optional(),
-  })
-  .transform(d => ({
-    content: d.content,
-  }));
-
-const downloadRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  endMonth: {wire: 'end_month'},
-  personalData: {wire: 'personal_data'},
-  startMonth: {wire: 'start_month'},
-};
-
-export function downloadRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DownloadRequest> {
-  return FieldMask.build<DownloadRequest>(
-    paths,
-    downloadRequestFieldMaskSchema
-  );
-}
-
-const downloadResponseFieldMaskSchema: FieldMaskSchema = {
-  content: {wire: 'content'},
-};
-
-export function downloadResponseFieldMask(
-  ...paths: string[]
-): FieldMask<DownloadResponse> {
-  return FieldMask.build<DownloadResponse>(
-    paths,
-    downloadResponseFieldMaskSchema
-  );
-}

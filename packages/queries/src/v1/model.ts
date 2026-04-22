@@ -278,7 +278,7 @@ export interface TrashQueryRequest {
 
 export interface UpdateQueryRequest {
   query?: UpdateQueryRequestQuery | undefined;
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<UpdateQueryRequestQuery> | undefined;
   id?: string | undefined;
   /** If true, automatically resolve alert display name conflicts. Otherwise, fail the request if the alert's display name conflicts with an existing alert's display name. */
   autoResolveDisplayName?: boolean | undefined;
@@ -338,66 +338,6 @@ export interface Visualization {
   /** UUID of the query that the visualization is attached to. */
   queryId?: string | undefined;
 }
-
-export const unmarshalCreateQueryRequestSchema: z.ZodType<CreateQueryRequest> =
-  z
-    .object({
-      query: z.lazy(() => unmarshalCreateQueryRequestQuerySchema).optional(),
-      auto_resolve_display_name: z.boolean().optional(),
-    })
-    .transform(d => ({
-      query: d.query,
-      autoResolveDisplayName: d.auto_resolve_display_name,
-    }));
-
-export const unmarshalCreateQueryRequestQuerySchema: z.ZodType<CreateQueryRequestQuery> =
-  z
-    .object({
-      id: z.string().optional(),
-      display_name: z.string().optional(),
-      description: z.string().optional(),
-      owner_user_name: z.string().optional(),
-      warehouse_id: z.string().optional(),
-      query_text: z.string().optional(),
-      run_as_mode: z.enum(RunAsMode).optional(),
-      lifecycle_state: z.enum(LifecycleState).optional(),
-      last_modifier_user_name: z.string().optional(),
-      parent_path: z.string().optional(),
-      tags: z.array(z.string()).optional(),
-      create_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      update_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      parameters: z
-        .array(z.lazy(() => unmarshalQueryParameterSchema))
-        .optional(),
-      apply_auto_limit: z.boolean().optional(),
-      catalog: z.string().optional(),
-      schema: z.string().optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      displayName: d.display_name,
-      description: d.description,
-      ownerUserName: d.owner_user_name,
-      warehouseId: d.warehouse_id,
-      queryText: d.query_text,
-      runAsMode: d.run_as_mode,
-      lifecycleState: d.lifecycle_state,
-      lastModifierUserName: d.last_modifier_user_name,
-      parentPath: d.parent_path,
-      tags: d.tags,
-      createTime: d.create_time,
-      updateTime: d.update_time,
-      parameters: d.parameters,
-      applyAutoLimit: d.apply_auto_limit,
-      catalog: d.catalog,
-      schema: d.schema,
-    }));
 
 export const unmarshalDateRangeSchema: z.ZodType<DateRange> = z
   .object({
@@ -639,70 +579,6 @@ export const unmarshalTextValueSchema: z.ZodType<TextValue> = z
     value: d.value,
   }));
 
-export const unmarshalUpdateQueryRequestSchema: z.ZodType<UpdateQueryRequest> =
-  z
-    .object({
-      query: z.lazy(() => unmarshalUpdateQueryRequestQuerySchema).optional(),
-      update_mask: z.string().optional(),
-      id: z.string().optional(),
-      auto_resolve_display_name: z.boolean().optional(),
-    })
-    .transform(d => ({
-      query: d.query,
-      updateMask: d.update_mask,
-      id: d.id,
-      autoResolveDisplayName: d.auto_resolve_display_name,
-    }));
-
-export const unmarshalUpdateQueryRequestQuerySchema: z.ZodType<UpdateQueryRequestQuery> =
-  z
-    .object({
-      id: z.string().optional(),
-      display_name: z.string().optional(),
-      description: z.string().optional(),
-      owner_user_name: z.string().optional(),
-      warehouse_id: z.string().optional(),
-      query_text: z.string().optional(),
-      run_as_mode: z.enum(RunAsMode).optional(),
-      lifecycle_state: z.enum(LifecycleState).optional(),
-      last_modifier_user_name: z.string().optional(),
-      parent_path: z.string().optional(),
-      tags: z.array(z.string()).optional(),
-      create_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      update_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      parameters: z
-        .array(z.lazy(() => unmarshalQueryParameterSchema))
-        .optional(),
-      apply_auto_limit: z.boolean().optional(),
-      catalog: z.string().optional(),
-      schema: z.string().optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      displayName: d.display_name,
-      description: d.description,
-      ownerUserName: d.owner_user_name,
-      warehouseId: d.warehouse_id,
-      queryText: d.query_text,
-      runAsMode: d.run_as_mode,
-      lifecycleState: d.lifecycle_state,
-      lastModifierUserName: d.last_modifier_user_name,
-      parentPath: d.parent_path,
-      tags: d.tags,
-      createTime: d.create_time,
-      updateTime: d.update_time,
-      parameters: d.parameters,
-      applyAutoLimit: d.apply_auto_limit,
-      catalog: d.catalog,
-      schema: d.schema,
-    }));
-
 export const unmarshalVisualizationSchema: z.ZodType<Visualization> = z
   .object({
     id: z.string().optional(),
@@ -823,8 +699,6 @@ export const marshalDateValueSchema: z.ZodType = z
     precision: d.precision,
   }));
 
-export const marshalEmptySchema: z.ZodType = z.object({});
-
 export const marshalEnumValueSchema: z.ZodType = z
   .object({
     values: z.array(z.string()).optional(),
@@ -837,74 +711,6 @@ export const marshalEnumValueSchema: z.ZodType = z
     values: d.values,
     enum_options: d.enumOptions,
     multi_values_options: d.multiValuesOptions,
-  }));
-
-export const marshalListQueriesResponseSchema: z.ZodType = z
-  .object({
-    results: z
-      .array(z.lazy(() => marshalListQueryObjectsResponseQuerySchema))
-      .optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    results: d.results,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListQueryObjectsResponseQuerySchema: z.ZodType = z
-  .object({
-    id: z.string().optional(),
-    displayName: z.string().optional(),
-    description: z.string().optional(),
-    ownerUserName: z.string().optional(),
-    warehouseId: z.string().optional(),
-    queryText: z.string().optional(),
-    runAsMode: z.enum(RunAsMode).optional(),
-    lifecycleState: z.enum(LifecycleState).optional(),
-    lastModifierUserName: z.string().optional(),
-    parentPath: z.string().optional(),
-    tags: z.array(z.string()).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    parameters: z.array(z.lazy(() => marshalQueryParameterSchema)).optional(),
-    applyAutoLimit: z.boolean().optional(),
-    catalog: z.string().optional(),
-    schema: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-    display_name: d.displayName,
-    description: d.description,
-    owner_user_name: d.ownerUserName,
-    warehouse_id: d.warehouseId,
-    query_text: d.queryText,
-    run_as_mode: d.runAsMode,
-    lifecycle_state: d.lifecycleState,
-    last_modifier_user_name: d.lastModifierUserName,
-    parent_path: d.parentPath,
-    tags: d.tags,
-    create_time: d.createTime,
-    update_time: d.updateTime,
-    parameters: d.parameters,
-    apply_auto_limit: d.applyAutoLimit,
-    catalog: d.catalog,
-    schema: d.schema,
-  }));
-
-export const marshalListVisualizationsForQueryResponseSchema: z.ZodType = z
-  .object({
-    results: z.array(z.lazy(() => marshalVisualizationSchema)).optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    results: d.results,
-    next_page_token: d.nextPageToken,
   }));
 
 export const marshalMultiValuesOptionsSchema: z.ZodType = z
@@ -925,52 +731,6 @@ export const marshalNumericValueSchema: z.ZodType = z
   })
   .transform(d => ({
     value: d.value,
-  }));
-
-export const marshalQuerySchema: z.ZodType = z
-  .object({
-    id: z.string().optional(),
-    displayName: z.string().optional(),
-    description: z.string().optional(),
-    ownerUserName: z.string().optional(),
-    warehouseId: z.string().optional(),
-    queryText: z.string().optional(),
-    runAsMode: z.enum(RunAsMode).optional(),
-    lifecycleState: z.enum(LifecycleState).optional(),
-    lastModifierUserName: z.string().optional(),
-    parentPath: z.string().optional(),
-    tags: z.array(z.string()).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    parameters: z.array(z.lazy(() => marshalQueryParameterSchema)).optional(),
-    applyAutoLimit: z.boolean().optional(),
-    catalog: z.string().optional(),
-    schema: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-    display_name: d.displayName,
-    description: d.description,
-    owner_user_name: d.ownerUserName,
-    warehouse_id: d.warehouseId,
-    query_text: d.queryText,
-    run_as_mode: d.runAsMode,
-    lifecycle_state: d.lifecycleState,
-    last_modifier_user_name: d.lastModifierUserName,
-    parent_path: d.parentPath,
-    tags: d.tags,
-    create_time: d.createTime,
-    update_time: d.updateTime,
-    parameters: d.parameters,
-    apply_auto_limit: d.applyAutoLimit,
-    catalog: d.catalog,
-    schema: d.schema,
   }));
 
 export const marshalQueryBackedValueSchema: z.ZodType = z
@@ -1020,7 +780,10 @@ export const marshalTextValueSchema: z.ZodType = z
 export const marshalUpdateQueryRequestSchema: z.ZodType = z
   .object({
     query: z.lazy(() => marshalUpdateQueryRequestQuerySchema).optional(),
-    updateMask: z.string().optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
     id: z.string().optional(),
     autoResolveDisplayName: z.boolean().optional(),
   })
@@ -1077,80 +840,6 @@ export const marshalUpdateQueryRequestQuerySchema: z.ZodType = z
     schema: d.schema,
   }));
 
-export const marshalVisualizationSchema: z.ZodType = z
-  .object({
-    id: z.string().optional(),
-    displayName: z.string().optional(),
-    type: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    serializedQueryPlan: z.string().optional(),
-    serializedOptions: z.string().optional(),
-    queryId: z.string().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-    display_name: d.displayName,
-    type: d.type,
-    create_time: d.createTime,
-    update_time: d.updateTime,
-    serialized_query_plan: d.serializedQueryPlan,
-    serialized_options: d.serializedOptions,
-    query_id: d.queryId,
-  }));
-
-const createQueryRequestFieldMaskSchema: FieldMaskSchema = {
-  autoResolveDisplayName: {wire: 'auto_resolve_display_name'},
-  query: {
-    wire: 'query',
-    children: () => createQueryRequestQueryFieldMaskSchema,
-  },
-};
-
-export function createQueryRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateQueryRequest> {
-  return FieldMask.build<CreateQueryRequest>(
-    paths,
-    createQueryRequestFieldMaskSchema
-  );
-}
-
-const createQueryRequestQueryFieldMaskSchema: FieldMaskSchema = {
-  applyAutoLimit: {wire: 'apply_auto_limit'},
-  catalog: {wire: 'catalog'},
-  createTime: {wire: 'create_time'},
-  description: {wire: 'description'},
-  displayName: {wire: 'display_name'},
-  id: {wire: 'id'},
-  lastModifierUserName: {wire: 'last_modifier_user_name'},
-  lifecycleState: {wire: 'lifecycle_state'},
-  ownerUserName: {wire: 'owner_user_name'},
-  parameters: {wire: 'parameters'},
-  parentPath: {wire: 'parent_path'},
-  queryText: {wire: 'query_text'},
-  runAsMode: {wire: 'run_as_mode'},
-  schema: {wire: 'schema'},
-  tags: {wire: 'tags'},
-  updateTime: {wire: 'update_time'},
-  warehouseId: {wire: 'warehouse_id'},
-};
-
-export function createQueryRequestQueryFieldMask(
-  ...paths: string[]
-): FieldMask<CreateQueryRequestQuery> {
-  return FieldMask.build<CreateQueryRequestQuery>(
-    paths,
-    createQueryRequestQueryFieldMaskSchema
-  );
-}
-
 const dateRangeFieldMaskSchema: FieldMaskSchema = {
   end: {wire: 'end'},
   start: {wire: 'start'},
@@ -1186,12 +875,6 @@ export function dateValueFieldMask(...paths: string[]): FieldMask<DateValue> {
   return FieldMask.build<DateValue>(paths, dateValueFieldMaskSchema);
 }
 
-const emptyFieldMaskSchema: FieldMaskSchema = {};
-
-export function emptyFieldMask(...paths: string[]): FieldMask<Empty> {
-  return FieldMask.build<Empty>(paths, emptyFieldMaskSchema);
-}
-
 const enumValueFieldMaskSchema: FieldMaskSchema = {
   enumOptions: {wire: 'enum_options'},
   multiValuesOptions: {
@@ -1203,105 +886,6 @@ const enumValueFieldMaskSchema: FieldMaskSchema = {
 
 export function enumValueFieldMask(...paths: string[]): FieldMask<EnumValue> {
   return FieldMask.build<EnumValue>(paths, enumValueFieldMaskSchema);
-}
-
-const getQueryRequestFieldMaskSchema: FieldMaskSchema = {
-  id: {wire: 'id'},
-};
-
-export function getQueryRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetQueryRequest> {
-  return FieldMask.build<GetQueryRequest>(
-    paths,
-    getQueryRequestFieldMaskSchema
-  );
-}
-
-const listQueriesRequestFieldMaskSchema: FieldMaskSchema = {
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listQueriesRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListQueriesRequest> {
-  return FieldMask.build<ListQueriesRequest>(
-    paths,
-    listQueriesRequestFieldMaskSchema
-  );
-}
-
-const listQueriesResponseFieldMaskSchema: FieldMaskSchema = {
-  nextPageToken: {wire: 'next_page_token'},
-  results: {wire: 'results'},
-};
-
-export function listQueriesResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListQueriesResponse> {
-  return FieldMask.build<ListQueriesResponse>(
-    paths,
-    listQueriesResponseFieldMaskSchema
-  );
-}
-
-const listQueryObjectsResponseQueryFieldMaskSchema: FieldMaskSchema = {
-  applyAutoLimit: {wire: 'apply_auto_limit'},
-  catalog: {wire: 'catalog'},
-  createTime: {wire: 'create_time'},
-  description: {wire: 'description'},
-  displayName: {wire: 'display_name'},
-  id: {wire: 'id'},
-  lastModifierUserName: {wire: 'last_modifier_user_name'},
-  lifecycleState: {wire: 'lifecycle_state'},
-  ownerUserName: {wire: 'owner_user_name'},
-  parameters: {wire: 'parameters'},
-  parentPath: {wire: 'parent_path'},
-  queryText: {wire: 'query_text'},
-  runAsMode: {wire: 'run_as_mode'},
-  schema: {wire: 'schema'},
-  tags: {wire: 'tags'},
-  updateTime: {wire: 'update_time'},
-  warehouseId: {wire: 'warehouse_id'},
-};
-
-export function listQueryObjectsResponseQueryFieldMask(
-  ...paths: string[]
-): FieldMask<ListQueryObjectsResponseQuery> {
-  return FieldMask.build<ListQueryObjectsResponseQuery>(
-    paths,
-    listQueryObjectsResponseQueryFieldMaskSchema
-  );
-}
-
-const listVisualizationsForQueryRequestFieldMaskSchema: FieldMaskSchema = {
-  id: {wire: 'id'},
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listVisualizationsForQueryRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListVisualizationsForQueryRequest> {
-  return FieldMask.build<ListVisualizationsForQueryRequest>(
-    paths,
-    listVisualizationsForQueryRequestFieldMaskSchema
-  );
-}
-
-const listVisualizationsForQueryResponseFieldMaskSchema: FieldMaskSchema = {
-  nextPageToken: {wire: 'next_page_token'},
-  results: {wire: 'results'},
-};
-
-export function listVisualizationsForQueryResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListVisualizationsForQueryResponse> {
-  return FieldMask.build<ListVisualizationsForQueryResponse>(
-    paths,
-    listVisualizationsForQueryResponseFieldMaskSchema
-  );
 }
 
 const multiValuesOptionsFieldMaskSchema: FieldMaskSchema = {
@@ -1327,30 +911,6 @@ export function numericValueFieldMask(
   ...paths: string[]
 ): FieldMask<NumericValue> {
   return FieldMask.build<NumericValue>(paths, numericValueFieldMaskSchema);
-}
-
-const queryFieldMaskSchema: FieldMaskSchema = {
-  applyAutoLimit: {wire: 'apply_auto_limit'},
-  catalog: {wire: 'catalog'},
-  createTime: {wire: 'create_time'},
-  description: {wire: 'description'},
-  displayName: {wire: 'display_name'},
-  id: {wire: 'id'},
-  lastModifierUserName: {wire: 'last_modifier_user_name'},
-  lifecycleState: {wire: 'lifecycle_state'},
-  ownerUserName: {wire: 'owner_user_name'},
-  parameters: {wire: 'parameters'},
-  parentPath: {wire: 'parent_path'},
-  queryText: {wire: 'query_text'},
-  runAsMode: {wire: 'run_as_mode'},
-  schema: {wire: 'schema'},
-  tags: {wire: 'tags'},
-  updateTime: {wire: 'update_time'},
-  warehouseId: {wire: 'warehouse_id'},
-};
-
-export function queryFieldMask(...paths: string[]): FieldMask<Query> {
-  return FieldMask.build<Query>(paths, queryFieldMaskSchema);
 }
 
 const queryBackedValueFieldMaskSchema: FieldMaskSchema = {
@@ -1405,38 +965,6 @@ export function textValueFieldMask(...paths: string[]): FieldMask<TextValue> {
   return FieldMask.build<TextValue>(paths, textValueFieldMaskSchema);
 }
 
-const trashQueryRequestFieldMaskSchema: FieldMaskSchema = {
-  id: {wire: 'id'},
-};
-
-export function trashQueryRequestFieldMask(
-  ...paths: string[]
-): FieldMask<TrashQueryRequest> {
-  return FieldMask.build<TrashQueryRequest>(
-    paths,
-    trashQueryRequestFieldMaskSchema
-  );
-}
-
-const updateQueryRequestFieldMaskSchema: FieldMaskSchema = {
-  autoResolveDisplayName: {wire: 'auto_resolve_display_name'},
-  id: {wire: 'id'},
-  query: {
-    wire: 'query',
-    children: () => updateQueryRequestQueryFieldMaskSchema,
-  },
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateQueryRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateQueryRequest> {
-  return FieldMask.build<UpdateQueryRequest>(
-    paths,
-    updateQueryRequestFieldMaskSchema
-  );
-}
-
 const updateQueryRequestQueryFieldMaskSchema: FieldMaskSchema = {
   applyAutoLimit: {wire: 'apply_auto_limit'},
   catalog: {wire: 'catalog'},
@@ -1464,21 +992,4 @@ export function updateQueryRequestQueryFieldMask(
     paths,
     updateQueryRequestQueryFieldMaskSchema
   );
-}
-
-const visualizationFieldMaskSchema: FieldMaskSchema = {
-  createTime: {wire: 'create_time'},
-  displayName: {wire: 'display_name'},
-  id: {wire: 'id'},
-  queryId: {wire: 'query_id'},
-  serializedOptions: {wire: 'serialized_options'},
-  serializedQueryPlan: {wire: 'serialized_query_plan'},
-  type: {wire: 'type'},
-  updateTime: {wire: 'update_time'},
-};
-
-export function visualizationFieldMask(
-  ...paths: string[]
-): FieldMask<Visualization> {
-  return FieldMask.build<Visualization>(paths, visualizationFieldMaskSchema);
 }

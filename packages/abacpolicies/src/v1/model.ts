@@ -294,7 +294,7 @@ export interface UpdatePolicy {
    * Optional. The update mask field for specifying user intentions on which
    * fields to update in the request.
    */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<PolicyInfo> | undefined;
 }
 
 export const unmarshalColumnMaskOptionsSchema: z.ZodType<ColumnMaskOptions> = z
@@ -476,9 +476,6 @@ export const marshalColumnTagValueExtractionSchema: z.ZodType = z
     tag_key: d.tagKey,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeletePolicy_ResponseSchema: z.ZodType = z.object({});
-
 export const marshalDenyOptionsSchema: z.ZodType = z
   .object({
     privileges: z.array(z.string()).optional(),
@@ -507,17 +504,6 @@ export const marshalGrantOptionsSchema: z.ZodType = z
   })
   .transform(d => ({
     privileges: d.privileges,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalListPolicies_ResponseSchema: z.ZodType = z
-  .object({
-    policies: z.array(z.lazy(() => marshalPolicyInfoSchema)).optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    policies: d.policies,
-    next_page_token: d.nextPageToken,
   }));
 
 export const marshalMatchColumnSchema: z.ZodType = z
@@ -635,41 +621,6 @@ export function columnTagValueExtractionFieldMask(
   );
 }
 
-const createPolicyFieldMaskSchema: FieldMaskSchema = {
-  policyInfo: {wire: 'policy_info', children: () => policyInfoFieldMaskSchema},
-};
-
-export function createPolicyFieldMask(
-  ...paths: string[]
-): FieldMask<CreatePolicy> {
-  return FieldMask.build<CreatePolicy>(paths, createPolicyFieldMaskSchema);
-}
-
-const deletePolicyFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-  onSecurableFullname: {wire: 'on_securable_fullname'},
-  onSecurableType: {wire: 'on_securable_type'},
-};
-
-export function deletePolicyFieldMask(
-  ...paths: string[]
-): FieldMask<DeletePolicy> {
-  return FieldMask.build<DeletePolicy>(paths, deletePolicyFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const deletePolicy_ResponseFieldMaskSchema: FieldMaskSchema = {};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function deletePolicy_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<DeletePolicy_Response> {
-  return FieldMask.build<DeletePolicy_Response>(
-    paths,
-    deletePolicy_ResponseFieldMaskSchema
-  );
-}
-
 const denyOptionsFieldMaskSchema: FieldMaskSchema = {
   privileges: {wire: 'privileges'},
 };
@@ -698,16 +649,6 @@ export function functionArgumentFieldMask(
   );
 }
 
-const getPolicyFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-  onSecurableFullname: {wire: 'on_securable_fullname'},
-  onSecurableType: {wire: 'on_securable_type'},
-};
-
-export function getPolicyFieldMask(...paths: string[]): FieldMask<GetPolicy> {
-  return FieldMask.build<GetPolicy>(paths, getPolicyFieldMaskSchema);
-}
-
 const grantOptionsFieldMaskSchema: FieldMaskSchema = {
   privileges: {wire: 'privileges'},
 };
@@ -716,36 +657,6 @@ export function grantOptionsFieldMask(
   ...paths: string[]
 ): FieldMask<GrantOptions> {
   return FieldMask.build<GrantOptions>(paths, grantOptionsFieldMaskSchema);
-}
-
-const listPoliciesFieldMaskSchema: FieldMaskSchema = {
-  includeInherited: {wire: 'include_inherited'},
-  maxResults: {wire: 'max_results'},
-  onSecurableFullname: {wire: 'on_securable_fullname'},
-  onSecurableType: {wire: 'on_securable_type'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listPoliciesFieldMask(
-  ...paths: string[]
-): FieldMask<ListPolicies> {
-  return FieldMask.build<ListPolicies>(paths, listPoliciesFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const listPolicies_ResponseFieldMaskSchema: FieldMaskSchema = {
-  nextPageToken: {wire: 'next_page_token'},
-  policies: {wire: 'policies'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function listPolicies_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListPolicies_Response> {
-  return FieldMask.build<ListPolicies_Response>(
-    paths,
-    listPolicies_ResponseFieldMaskSchema
-  );
 }
 
 const matchColumnFieldMaskSchema: FieldMaskSchema = {
@@ -837,18 +748,4 @@ export function tagValueExtractionFieldMask(
     paths,
     tagValueExtractionFieldMaskSchema
   );
-}
-
-const updatePolicyFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-  onSecurableFullname: {wire: 'on_securable_fullname'},
-  onSecurableType: {wire: 'on_securable_type'},
-  policyInfo: {wire: 'policy_info', children: () => policyInfoFieldMaskSchema},
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updatePolicyFieldMask(
-  ...paths: string[]
-): FieldMask<UpdatePolicy> {
-  return FieldMask.build<UpdatePolicy>(paths, updatePolicyFieldMaskSchema);
 }

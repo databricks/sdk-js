@@ -417,7 +417,7 @@ export class Client {
     const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
-      params.append('update_mask', req.updateMask);
+      params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -448,7 +448,7 @@ export class Client {
     const url = `${this.host}/api/data-quality/v1/monitors/${req.objectType ?? ''}/${req.objectId ?? ''}/refreshes/${String(req.refreshId ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
-      params.append('update_mask', req.updateMask);
+      params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;

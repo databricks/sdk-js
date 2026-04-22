@@ -835,7 +835,7 @@ export interface UpdateGroupProxyRequest {
   /** Required. Group to be updated in <Databricks> */
   group?: Group | undefined;
   /** Optional. The list of fields to update. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<Group> | undefined;
 }
 
 /** TODO: Write description later when this method is implemented */
@@ -847,7 +847,7 @@ export interface UpdateGroupRequest {
   /** Required. Group to be updated in <Databricks> */
   group?: Group | undefined;
   /** Optional. The list of fields to update. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<Group> | undefined;
 }
 
 /** TODO: Write description later when this method is implemented */
@@ -857,7 +857,7 @@ export interface UpdateServicePrincipalProxyRequest {
   /** Required. Service principal to be updated in <Databricks> */
   servicePrincipal?: ServicePrincipal | undefined;
   /** Optional. The list of fields to update. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<ServicePrincipal> | undefined;
 }
 
 /** TODO: Write description later when this method is implemented */
@@ -869,7 +869,7 @@ export interface UpdateServicePrincipalRequest {
   /** Required. Service Principal to be updated in <Databricks> */
   servicePrincipal?: ServicePrincipal | undefined;
   /** Optional. The list of fields to update. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<ServicePrincipal> | undefined;
 }
 
 /**
@@ -886,7 +886,7 @@ export interface UpdateUserProxyRequest {
   /** Required. User to be updated in <Databricks> */
   user?: User | undefined;
   /** Optional. The list of fields to update. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<User> | undefined;
 }
 
 /**
@@ -905,7 +905,7 @@ export interface UpdateUserRequest {
   /** Required. User to be updated in <Databricks> */
   user?: User | undefined;
   /** Optional. The list of fields to update. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<User> | undefined;
 }
 
 /** Proxy request for updating a workspace assignment detail for a principal. */
@@ -915,7 +915,7 @@ export interface UpdateWorkspaceAssignmentDetailProxyRequest {
   /** Required. Workspace assignment detail to be updated in <Databricks>. */
   workspaceAssignmentDetail?: WorkspaceAssignmentDetail | undefined;
   /** Required. The list of fields to update. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<WorkspaceAssignmentDetail> | undefined;
 }
 
 /** TBD since the only updatable field is permissions */
@@ -929,7 +929,7 @@ export interface UpdateWorkspaceAssignmentDetailRequest {
   /** Required. Workspace assignment detail to be updated in <Databricks>. */
   workspaceAssignmentDetail?: WorkspaceAssignmentDetail | undefined;
   /** Required. The list of fields to update. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<WorkspaceAssignmentDetail> | undefined;
 }
 
 /** Request message for updating the workspace identity details for a principal in a workspace. */
@@ -939,7 +939,7 @@ export interface UpdateWorkspaceIdentityDetailRequest {
   /** Required. Workspace identity detail to be updated in <Databricks>. */
   workspaceIdentityDetail?: WorkspaceIdentityDetail | undefined;
   /** Required. The list of fields to update. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<WorkspaceIdentityDetail> | undefined;
 }
 
 /** The details of a User resource. */
@@ -1149,26 +1149,6 @@ export const unmarshalListWorkspaceAssignmentDetailsResponseSchema: z.ZodType<Li
       nextPageToken: d.next_page_token,
     }));
 
-export const unmarshalResolveGroupProxyRequestSchema: z.ZodType<ResolveGroupProxyRequest> =
-  z
-    .object({
-      external_id: z.string().optional(),
-    })
-    .transform(d => ({
-      externalId: d.external_id,
-    }));
-
-export const unmarshalResolveGroupRequestSchema: z.ZodType<ResolveGroupRequest> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      external_id: z.string().optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      externalId: d.external_id,
-    }));
-
 export const unmarshalResolveGroupResponseSchema: z.ZodType<ResolveGroupResponse> =
   z
     .object({
@@ -1176,26 +1156,6 @@ export const unmarshalResolveGroupResponseSchema: z.ZodType<ResolveGroupResponse
     })
     .transform(d => ({
       group: d.group,
-    }));
-
-export const unmarshalResolveServicePrincipalProxyRequestSchema: z.ZodType<ResolveServicePrincipalProxyRequest> =
-  z
-    .object({
-      external_id: z.string().optional(),
-    })
-    .transform(d => ({
-      externalId: d.external_id,
-    }));
-
-export const unmarshalResolveServicePrincipalRequestSchema: z.ZodType<ResolveServicePrincipalRequest> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      external_id: z.string().optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      externalId: d.external_id,
     }));
 
 export const unmarshalResolveServicePrincipalResponseSchema: z.ZodType<ResolveServicePrincipalResponse> =
@@ -1207,26 +1167,6 @@ export const unmarshalResolveServicePrincipalResponseSchema: z.ZodType<ResolveSe
     })
     .transform(d => ({
       servicePrincipal: d.service_principal,
-    }));
-
-export const unmarshalResolveUserProxyRequestSchema: z.ZodType<ResolveUserProxyRequest> =
-  z
-    .object({
-      external_id: z.string().optional(),
-    })
-    .transform(d => ({
-      externalId: d.external_id,
-    }));
-
-export const unmarshalResolveUserRequestSchema: z.ZodType<ResolveUserRequest> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      external_id: z.string().optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      externalId: d.external_id,
     }));
 
 export const unmarshalResolveUserResponseSchema: z.ZodType<ResolveUserResponse> =
@@ -1399,98 +1339,6 @@ export const marshalGroupSchema: z.ZodType = z
     group_name: d.groupName,
   }));
 
-export const marshalListAccountAccessIdentityRulesResponseSchema: z.ZodType = z
-  .object({
-    accountAccessIdentityRules: z
-      .array(z.lazy(() => marshalAccountAccessIdentityRuleSchema))
-      .optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    account_access_identity_rules: d.accountAccessIdentityRules,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListDirectGroupMembersResponseSchema: z.ZodType = z
-  .object({
-    directGroupMembers: z
-      .array(z.lazy(() => marshalDirectGroupMemberSchema))
-      .optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    direct_group_members: d.directGroupMembers,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListGroupsResponseSchema: z.ZodType = z
-  .object({
-    groups: z.array(z.lazy(() => marshalGroupSchema)).optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    groups: d.groups,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListServicePrincipalsResponseSchema: z.ZodType = z
-  .object({
-    servicePrincipals: z
-      .array(z.lazy(() => marshalServicePrincipalSchema))
-      .optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    service_principals: d.servicePrincipals,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListTransitiveParentGroupsResponseSchema: z.ZodType = z
-  .object({
-    transitiveParentGroups: z
-      .array(z.lazy(() => marshalTransitiveParentGroupSchema))
-      .optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    transitive_parent_groups: d.transitiveParentGroups,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListUsersResponseSchema: z.ZodType = z
-  .object({
-    users: z.array(z.lazy(() => marshalUserSchema)).optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    users: d.users,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListWorkspaceAccessDetailsResponseSchema: z.ZodType = z
-  .object({
-    workspaceAccessDetails: z
-      .array(z.lazy(() => marshalWorkspaceAccessDetailSchema))
-      .optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    workspace_access_details: d.workspaceAccessDetails,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListWorkspaceAssignmentDetailsResponseSchema: z.ZodType = z
-  .object({
-    workspaceAssignmentDetails: z
-      .array(z.lazy(() => marshalWorkspaceAssignmentDetailSchema))
-      .optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    workspace_assignment_details: d.workspaceAssignmentDetails,
-    next_page_token: d.nextPageToken,
-  }));
-
 export const marshalResolveGroupProxyRequestSchema: z.ZodType = z
   .object({
     externalId: z.string().optional(),
@@ -1507,14 +1355,6 @@ export const marshalResolveGroupRequestSchema: z.ZodType = z
   .transform(d => ({
     account_id: d.accountId,
     external_id: d.externalId,
-  }));
-
-export const marshalResolveGroupResponseSchema: z.ZodType = z
-  .object({
-    group: z.lazy(() => marshalGroupSchema).optional(),
-  })
-  .transform(d => ({
-    group: d.group,
   }));
 
 export const marshalResolveServicePrincipalProxyRequestSchema: z.ZodType = z
@@ -1535,14 +1375,6 @@ export const marshalResolveServicePrincipalRequestSchema: z.ZodType = z
     external_id: d.externalId,
   }));
 
-export const marshalResolveServicePrincipalResponseSchema: z.ZodType = z
-  .object({
-    servicePrincipal: z.lazy(() => marshalServicePrincipalSchema).optional(),
-  })
-  .transform(d => ({
-    service_principal: d.servicePrincipal,
-  }));
-
 export const marshalResolveUserProxyRequestSchema: z.ZodType = z
   .object({
     externalId: z.string().optional(),
@@ -1561,14 +1393,6 @@ export const marshalResolveUserRequestSchema: z.ZodType = z
     external_id: d.externalId,
   }));
 
-export const marshalResolveUserResponseSchema: z.ZodType = z
-  .object({
-    user: z.lazy(() => marshalUserSchema).optional(),
-  })
-  .transform(d => ({
-    user: d.user,
-  }));
-
 export const marshalServicePrincipalSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
@@ -1585,18 +1409,6 @@ export const marshalServicePrincipalSchema: z.ZodType = z
     application_id: d.applicationId,
     display_name: d.displayName,
     account_sp_status: d.accountSpStatus,
-  }));
-
-export const marshalTransitiveParentGroupSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    internalId: z.number().optional(),
-    externalId: z.string().optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    internal_id: d.internalId,
-    external_id: d.externalId,
   }));
 
 export const marshalUserSchema: z.ZodType = z
@@ -1626,26 +1438,6 @@ export const marshalUser_NameSchema: z.ZodType = z
   .transform(d => ({
     given_name: d.givenName,
     family_name: d.familyName,
-  }));
-
-export const marshalWorkspaceAccessDetailSchema: z.ZodType = z
-  .object({
-    principalId: z.number().optional(),
-    workspaceId: z.number().optional(),
-    accountId: z.string().optional(),
-    principalType: z.enum(PrincipalType).optional(),
-    accessType: z.enum(WorkspaceAccessDetail_AccessType).optional(),
-    status: z.enum(State).optional(),
-    permissions: z.array(z.enum(WorkspacePermission)).optional(),
-  })
-  .transform(d => ({
-    principal_id: d.principalId,
-    workspace_id: d.workspaceId,
-    account_id: d.accountId,
-    principal_type: d.principalType,
-    access_type: d.accessType,
-    status: d.status,
-    permissions: d.permissions,
   }));
 
 export const marshalWorkspaceAssignmentDetailSchema: z.ZodType = z
@@ -1678,561 +1470,6 @@ export const marshalWorkspaceIdentityDetailSchema: z.ZodType = z
     assignment_type: d.assignmentType,
   }));
 
-const accountAccessIdentityRuleFieldMaskSchema: FieldMaskSchema = {
-  action: {wire: 'action'},
-  displayName: {wire: 'display_name'},
-  externalPrincipalId: {wire: 'external_principal_id'},
-  name: {wire: 'name'},
-  principalType: {wire: 'principal_type'},
-};
-
-export function accountAccessIdentityRuleFieldMask(
-  ...paths: string[]
-): FieldMask<AccountAccessIdentityRule> {
-  return FieldMask.build<AccountAccessIdentityRule>(
-    paths,
-    accountAccessIdentityRuleFieldMaskSchema
-  );
-}
-
-const createAccountAccessIdentityRuleRequestFieldMaskSchema: FieldMaskSchema = {
-  accountAccessIdentityRule: {
-    wire: 'account_access_identity_rule',
-    children: () => accountAccessIdentityRuleFieldMaskSchema,
-  },
-  externalPrincipalId: {wire: 'external_principal_id'},
-  parent: {wire: 'parent'},
-};
-
-export function createAccountAccessIdentityRuleRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateAccountAccessIdentityRuleRequest> {
-  return FieldMask.build<CreateAccountAccessIdentityRuleRequest>(
-    paths,
-    createAccountAccessIdentityRuleRequestFieldMaskSchema
-  );
-}
-
-const createDirectGroupMemberProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  directGroupMember: {
-    wire: 'direct_group_member',
-    children: () => directGroupMemberFieldMaskSchema,
-  },
-  groupId: {wire: 'group_id'},
-};
-
-export function createDirectGroupMemberProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateDirectGroupMemberProxyRequest> {
-  return FieldMask.build<CreateDirectGroupMemberProxyRequest>(
-    paths,
-    createDirectGroupMemberProxyRequestFieldMaskSchema
-  );
-}
-
-const createDirectGroupMemberRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  directGroupMember: {
-    wire: 'direct_group_member',
-    children: () => directGroupMemberFieldMaskSchema,
-  },
-  groupId: {wire: 'group_id'},
-};
-
-export function createDirectGroupMemberRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateDirectGroupMemberRequest> {
-  return FieldMask.build<CreateDirectGroupMemberRequest>(
-    paths,
-    createDirectGroupMemberRequestFieldMaskSchema
-  );
-}
-
-const createGroupProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  group: {wire: 'group', children: () => groupFieldMaskSchema},
-};
-
-export function createGroupProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateGroupProxyRequest> {
-  return FieldMask.build<CreateGroupProxyRequest>(
-    paths,
-    createGroupProxyRequestFieldMaskSchema
-  );
-}
-
-const createGroupRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  group: {wire: 'group', children: () => groupFieldMaskSchema},
-};
-
-export function createGroupRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateGroupRequest> {
-  return FieldMask.build<CreateGroupRequest>(
-    paths,
-    createGroupRequestFieldMaskSchema
-  );
-}
-
-const createServicePrincipalProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  servicePrincipal: {
-    wire: 'service_principal',
-    children: () => servicePrincipalFieldMaskSchema,
-  },
-};
-
-export function createServicePrincipalProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateServicePrincipalProxyRequest> {
-  return FieldMask.build<CreateServicePrincipalProxyRequest>(
-    paths,
-    createServicePrincipalProxyRequestFieldMaskSchema
-  );
-}
-
-const createServicePrincipalRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  servicePrincipal: {
-    wire: 'service_principal',
-    children: () => servicePrincipalFieldMaskSchema,
-  },
-};
-
-export function createServicePrincipalRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateServicePrincipalRequest> {
-  return FieldMask.build<CreateServicePrincipalRequest>(
-    paths,
-    createServicePrincipalRequestFieldMaskSchema
-  );
-}
-
-const createUserProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  user: {wire: 'user', children: () => userFieldMaskSchema},
-};
-
-export function createUserProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateUserProxyRequest> {
-  return FieldMask.build<CreateUserProxyRequest>(
-    paths,
-    createUserProxyRequestFieldMaskSchema
-  );
-}
-
-const createUserRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  user: {wire: 'user', children: () => userFieldMaskSchema},
-};
-
-export function createUserRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateUserRequest> {
-  return FieldMask.build<CreateUserRequest>(
-    paths,
-    createUserRequestFieldMaskSchema
-  );
-}
-
-const createWorkspaceAssignmentDetailProxyRequestFieldMaskSchema: FieldMaskSchema =
-  {
-    workspaceAssignmentDetail: {
-      wire: 'workspace_assignment_detail',
-      children: () => workspaceAssignmentDetailFieldMaskSchema,
-    },
-  };
-
-export function createWorkspaceAssignmentDetailProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateWorkspaceAssignmentDetailProxyRequest> {
-  return FieldMask.build<CreateWorkspaceAssignmentDetailProxyRequest>(
-    paths,
-    createWorkspaceAssignmentDetailProxyRequestFieldMaskSchema
-  );
-}
-
-const createWorkspaceAssignmentDetailRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  workspaceAssignmentDetail: {
-    wire: 'workspace_assignment_detail',
-    children: () => workspaceAssignmentDetailFieldMaskSchema,
-  },
-  workspaceId: {wire: 'workspace_id'},
-};
-
-export function createWorkspaceAssignmentDetailRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateWorkspaceAssignmentDetailRequest> {
-  return FieldMask.build<CreateWorkspaceAssignmentDetailRequest>(
-    paths,
-    createWorkspaceAssignmentDetailRequestFieldMaskSchema
-  );
-}
-
-const deleteAccountAccessIdentityRuleRequestFieldMaskSchema: FieldMaskSchema = {
-  externalPrincipalId: {wire: 'external_principal_id'},
-  parent: {wire: 'parent'},
-};
-
-export function deleteAccountAccessIdentityRuleRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteAccountAccessIdentityRuleRequest> {
-  return FieldMask.build<DeleteAccountAccessIdentityRuleRequest>(
-    paths,
-    deleteAccountAccessIdentityRuleRequestFieldMaskSchema
-  );
-}
-
-const deleteDirectGroupMemberProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  groupId: {wire: 'group_id'},
-  principalId: {wire: 'principal_id'},
-};
-
-export function deleteDirectGroupMemberProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteDirectGroupMemberProxyRequest> {
-  return FieldMask.build<DeleteDirectGroupMemberProxyRequest>(
-    paths,
-    deleteDirectGroupMemberProxyRequestFieldMaskSchema
-  );
-}
-
-const deleteDirectGroupMemberRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  groupId: {wire: 'group_id'},
-  principalId: {wire: 'principal_id'},
-};
-
-export function deleteDirectGroupMemberRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteDirectGroupMemberRequest> {
-  return FieldMask.build<DeleteDirectGroupMemberRequest>(
-    paths,
-    deleteDirectGroupMemberRequestFieldMaskSchema
-  );
-}
-
-const deleteGroupProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  internalId: {wire: 'internal_id'},
-};
-
-export function deleteGroupProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteGroupProxyRequest> {
-  return FieldMask.build<DeleteGroupProxyRequest>(
-    paths,
-    deleteGroupProxyRequestFieldMaskSchema
-  );
-}
-
-const deleteGroupRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  internalId: {wire: 'internal_id'},
-};
-
-export function deleteGroupRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteGroupRequest> {
-  return FieldMask.build<DeleteGroupRequest>(
-    paths,
-    deleteGroupRequestFieldMaskSchema
-  );
-}
-
-const deleteServicePrincipalProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  internalId: {wire: 'internal_id'},
-};
-
-export function deleteServicePrincipalProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteServicePrincipalProxyRequest> {
-  return FieldMask.build<DeleteServicePrincipalProxyRequest>(
-    paths,
-    deleteServicePrincipalProxyRequestFieldMaskSchema
-  );
-}
-
-const deleteServicePrincipalRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  internalId: {wire: 'internal_id'},
-};
-
-export function deleteServicePrincipalRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteServicePrincipalRequest> {
-  return FieldMask.build<DeleteServicePrincipalRequest>(
-    paths,
-    deleteServicePrincipalRequestFieldMaskSchema
-  );
-}
-
-const deleteUserProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  internalId: {wire: 'internal_id'},
-};
-
-export function deleteUserProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteUserProxyRequest> {
-  return FieldMask.build<DeleteUserProxyRequest>(
-    paths,
-    deleteUserProxyRequestFieldMaskSchema
-  );
-}
-
-const deleteUserRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  internalId: {wire: 'internal_id'},
-};
-
-export function deleteUserRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteUserRequest> {
-  return FieldMask.build<DeleteUserRequest>(
-    paths,
-    deleteUserRequestFieldMaskSchema
-  );
-}
-
-const deleteWorkspaceAssignmentDetailProxyRequestFieldMaskSchema: FieldMaskSchema =
-  {
-    principalId: {wire: 'principal_id'},
-  };
-
-export function deleteWorkspaceAssignmentDetailProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteWorkspaceAssignmentDetailProxyRequest> {
-  return FieldMask.build<DeleteWorkspaceAssignmentDetailProxyRequest>(
-    paths,
-    deleteWorkspaceAssignmentDetailProxyRequestFieldMaskSchema
-  );
-}
-
-const deleteWorkspaceAssignmentDetailRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  principalId: {wire: 'principal_id'},
-  workspaceId: {wire: 'workspace_id'},
-};
-
-export function deleteWorkspaceAssignmentDetailRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteWorkspaceAssignmentDetailRequest> {
-  return FieldMask.build<DeleteWorkspaceAssignmentDetailRequest>(
-    paths,
-    deleteWorkspaceAssignmentDetailRequestFieldMaskSchema
-  );
-}
-
-const directGroupMemberFieldMaskSchema: FieldMaskSchema = {
-  displayName: {wire: 'display_name'},
-  externalId: {wire: 'external_id'},
-  membershipSource: {wire: 'membership_source'},
-  principalId: {wire: 'principal_id'},
-  principalType: {wire: 'principal_type'},
-};
-
-export function directGroupMemberFieldMask(
-  ...paths: string[]
-): FieldMask<DirectGroupMember> {
-  return FieldMask.build<DirectGroupMember>(
-    paths,
-    directGroupMemberFieldMaskSchema
-  );
-}
-
-const getAccountAccessIdentityRuleRequestFieldMaskSchema: FieldMaskSchema = {
-  externalPrincipalId: {wire: 'external_principal_id'},
-  parent: {wire: 'parent'},
-};
-
-export function getAccountAccessIdentityRuleRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetAccountAccessIdentityRuleRequest> {
-  return FieldMask.build<GetAccountAccessIdentityRuleRequest>(
-    paths,
-    getAccountAccessIdentityRuleRequestFieldMaskSchema
-  );
-}
-
-const getDirectGroupMemberProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  groupId: {wire: 'group_id'},
-  principalId: {wire: 'principal_id'},
-};
-
-export function getDirectGroupMemberProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetDirectGroupMemberProxyRequest> {
-  return FieldMask.build<GetDirectGroupMemberProxyRequest>(
-    paths,
-    getDirectGroupMemberProxyRequestFieldMaskSchema
-  );
-}
-
-const getDirectGroupMemberRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  groupId: {wire: 'group_id'},
-  principalId: {wire: 'principal_id'},
-};
-
-export function getDirectGroupMemberRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetDirectGroupMemberRequest> {
-  return FieldMask.build<GetDirectGroupMemberRequest>(
-    paths,
-    getDirectGroupMemberRequestFieldMaskSchema
-  );
-}
-
-const getGroupProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  internalId: {wire: 'internal_id'},
-};
-
-export function getGroupProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetGroupProxyRequest> {
-  return FieldMask.build<GetGroupProxyRequest>(
-    paths,
-    getGroupProxyRequestFieldMaskSchema
-  );
-}
-
-const getGroupRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  internalId: {wire: 'internal_id'},
-};
-
-export function getGroupRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetGroupRequest> {
-  return FieldMask.build<GetGroupRequest>(
-    paths,
-    getGroupRequestFieldMaskSchema
-  );
-}
-
-const getServicePrincipalProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  internalId: {wire: 'internal_id'},
-};
-
-export function getServicePrincipalProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetServicePrincipalProxyRequest> {
-  return FieldMask.build<GetServicePrincipalProxyRequest>(
-    paths,
-    getServicePrincipalProxyRequestFieldMaskSchema
-  );
-}
-
-const getServicePrincipalRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  internalId: {wire: 'internal_id'},
-};
-
-export function getServicePrincipalRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetServicePrincipalRequest> {
-  return FieldMask.build<GetServicePrincipalRequest>(
-    paths,
-    getServicePrincipalRequestFieldMaskSchema
-  );
-}
-
-const getUserProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  internalId: {wire: 'internal_id'},
-};
-
-export function getUserProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetUserProxyRequest> {
-  return FieldMask.build<GetUserProxyRequest>(
-    paths,
-    getUserProxyRequestFieldMaskSchema
-  );
-}
-
-const getUserRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  internalId: {wire: 'internal_id'},
-};
-
-export function getUserRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetUserRequest> {
-  return FieldMask.build<GetUserRequest>(paths, getUserRequestFieldMaskSchema);
-}
-
-const getWorkspaceAccessDetailLocalRequestFieldMaskSchema: FieldMaskSchema = {
-  principalId: {wire: 'principal_id'},
-  view: {wire: 'view'},
-};
-
-export function getWorkspaceAccessDetailLocalRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetWorkspaceAccessDetailLocalRequest> {
-  return FieldMask.build<GetWorkspaceAccessDetailLocalRequest>(
-    paths,
-    getWorkspaceAccessDetailLocalRequestFieldMaskSchema
-  );
-}
-
-const getWorkspaceAccessDetailRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  principalId: {wire: 'principal_id'},
-  view: {wire: 'view'},
-  workspaceId: {wire: 'workspace_id'},
-};
-
-export function getWorkspaceAccessDetailRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetWorkspaceAccessDetailRequest> {
-  return FieldMask.build<GetWorkspaceAccessDetailRequest>(
-    paths,
-    getWorkspaceAccessDetailRequestFieldMaskSchema
-  );
-}
-
-const getWorkspaceAssignmentDetailProxyRequestFieldMaskSchema: FieldMaskSchema =
-  {
-    principalId: {wire: 'principal_id'},
-  };
-
-export function getWorkspaceAssignmentDetailProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetWorkspaceAssignmentDetailProxyRequest> {
-  return FieldMask.build<GetWorkspaceAssignmentDetailProxyRequest>(
-    paths,
-    getWorkspaceAssignmentDetailProxyRequestFieldMaskSchema
-  );
-}
-
-const getWorkspaceAssignmentDetailRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  principalId: {wire: 'principal_id'},
-  workspaceId: {wire: 'workspace_id'},
-};
-
-export function getWorkspaceAssignmentDetailRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetWorkspaceAssignmentDetailRequest> {
-  return FieldMask.build<GetWorkspaceAssignmentDetailRequest>(
-    paths,
-    getWorkspaceAssignmentDetailRequestFieldMaskSchema
-  );
-}
-
-const getWorkspaceIdentityDetailRequestFieldMaskSchema: FieldMaskSchema = {
-  principalId: {wire: 'principal_id'},
-};
-
-export function getWorkspaceIdentityDetailRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetWorkspaceIdentityDetailRequest> {
-  return FieldMask.build<GetWorkspaceIdentityDetailRequest>(
-    paths,
-    getWorkspaceIdentityDetailRequestFieldMaskSchema
-  );
-}
-
 const groupFieldMaskSchema: FieldMaskSchema = {
   accountId: {wire: 'account_id'},
   externalId: {wire: 'external_id'},
@@ -2242,473 +1479,6 @@ const groupFieldMaskSchema: FieldMaskSchema = {
 
 export function groupFieldMask(...paths: string[]): FieldMask<Group> {
   return FieldMask.build<Group>(paths, groupFieldMaskSchema);
-}
-
-const listAccountAccessIdentityRulesRequestFieldMaskSchema: FieldMaskSchema = {
-  filter: {wire: 'filter'},
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-  parent: {wire: 'parent'},
-};
-
-export function listAccountAccessIdentityRulesRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListAccountAccessIdentityRulesRequest> {
-  return FieldMask.build<ListAccountAccessIdentityRulesRequest>(
-    paths,
-    listAccountAccessIdentityRulesRequestFieldMaskSchema
-  );
-}
-
-const listAccountAccessIdentityRulesResponseFieldMaskSchema: FieldMaskSchema = {
-  accountAccessIdentityRules: {wire: 'account_access_identity_rules'},
-  nextPageToken: {wire: 'next_page_token'},
-};
-
-export function listAccountAccessIdentityRulesResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListAccountAccessIdentityRulesResponse> {
-  return FieldMask.build<ListAccountAccessIdentityRulesResponse>(
-    paths,
-    listAccountAccessIdentityRulesResponseFieldMaskSchema
-  );
-}
-
-const listDirectGroupMembersProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  groupId: {wire: 'group_id'},
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listDirectGroupMembersProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListDirectGroupMembersProxyRequest> {
-  return FieldMask.build<ListDirectGroupMembersProxyRequest>(
-    paths,
-    listDirectGroupMembersProxyRequestFieldMaskSchema
-  );
-}
-
-const listDirectGroupMembersRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  groupId: {wire: 'group_id'},
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listDirectGroupMembersRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListDirectGroupMembersRequest> {
-  return FieldMask.build<ListDirectGroupMembersRequest>(
-    paths,
-    listDirectGroupMembersRequestFieldMaskSchema
-  );
-}
-
-const listDirectGroupMembersResponseFieldMaskSchema: FieldMaskSchema = {
-  directGroupMembers: {wire: 'direct_group_members'},
-  nextPageToken: {wire: 'next_page_token'},
-};
-
-export function listDirectGroupMembersResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListDirectGroupMembersResponse> {
-  return FieldMask.build<ListDirectGroupMembersResponse>(
-    paths,
-    listDirectGroupMembersResponseFieldMaskSchema
-  );
-}
-
-const listGroupsProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  filter: {wire: 'filter'},
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listGroupsProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListGroupsProxyRequest> {
-  return FieldMask.build<ListGroupsProxyRequest>(
-    paths,
-    listGroupsProxyRequestFieldMaskSchema
-  );
-}
-
-const listGroupsRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  filter: {wire: 'filter'},
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listGroupsRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListGroupsRequest> {
-  return FieldMask.build<ListGroupsRequest>(
-    paths,
-    listGroupsRequestFieldMaskSchema
-  );
-}
-
-const listGroupsResponseFieldMaskSchema: FieldMaskSchema = {
-  groups: {wire: 'groups'},
-  nextPageToken: {wire: 'next_page_token'},
-};
-
-export function listGroupsResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListGroupsResponse> {
-  return FieldMask.build<ListGroupsResponse>(
-    paths,
-    listGroupsResponseFieldMaskSchema
-  );
-}
-
-const listServicePrincipalsProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  filter: {wire: 'filter'},
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listServicePrincipalsProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListServicePrincipalsProxyRequest> {
-  return FieldMask.build<ListServicePrincipalsProxyRequest>(
-    paths,
-    listServicePrincipalsProxyRequestFieldMaskSchema
-  );
-}
-
-const listServicePrincipalsRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  filter: {wire: 'filter'},
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listServicePrincipalsRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListServicePrincipalsRequest> {
-  return FieldMask.build<ListServicePrincipalsRequest>(
-    paths,
-    listServicePrincipalsRequestFieldMaskSchema
-  );
-}
-
-const listServicePrincipalsResponseFieldMaskSchema: FieldMaskSchema = {
-  nextPageToken: {wire: 'next_page_token'},
-  servicePrincipals: {wire: 'service_principals'},
-};
-
-export function listServicePrincipalsResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListServicePrincipalsResponse> {
-  return FieldMask.build<ListServicePrincipalsResponse>(
-    paths,
-    listServicePrincipalsResponseFieldMaskSchema
-  );
-}
-
-const listTransitiveParentGroupsProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-  principalId: {wire: 'principal_id'},
-};
-
-export function listTransitiveParentGroupsProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListTransitiveParentGroupsProxyRequest> {
-  return FieldMask.build<ListTransitiveParentGroupsProxyRequest>(
-    paths,
-    listTransitiveParentGroupsProxyRequestFieldMaskSchema
-  );
-}
-
-const listTransitiveParentGroupsRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-  principalId: {wire: 'principal_id'},
-};
-
-export function listTransitiveParentGroupsRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListTransitiveParentGroupsRequest> {
-  return FieldMask.build<ListTransitiveParentGroupsRequest>(
-    paths,
-    listTransitiveParentGroupsRequestFieldMaskSchema
-  );
-}
-
-const listTransitiveParentGroupsResponseFieldMaskSchema: FieldMaskSchema = {
-  nextPageToken: {wire: 'next_page_token'},
-  transitiveParentGroups: {wire: 'transitive_parent_groups'},
-};
-
-export function listTransitiveParentGroupsResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListTransitiveParentGroupsResponse> {
-  return FieldMask.build<ListTransitiveParentGroupsResponse>(
-    paths,
-    listTransitiveParentGroupsResponseFieldMaskSchema
-  );
-}
-
-const listUsersProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  filter: {wire: 'filter'},
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listUsersProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListUsersProxyRequest> {
-  return FieldMask.build<ListUsersProxyRequest>(
-    paths,
-    listUsersProxyRequestFieldMaskSchema
-  );
-}
-
-const listUsersRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  filter: {wire: 'filter'},
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listUsersRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListUsersRequest> {
-  return FieldMask.build<ListUsersRequest>(
-    paths,
-    listUsersRequestFieldMaskSchema
-  );
-}
-
-const listUsersResponseFieldMaskSchema: FieldMaskSchema = {
-  nextPageToken: {wire: 'next_page_token'},
-  users: {wire: 'users'},
-};
-
-export function listUsersResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListUsersResponse> {
-  return FieldMask.build<ListUsersResponse>(
-    paths,
-    listUsersResponseFieldMaskSchema
-  );
-}
-
-const listWorkspaceAccessDetailsLocalRequestFieldMaskSchema: FieldMaskSchema = {
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listWorkspaceAccessDetailsLocalRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListWorkspaceAccessDetailsLocalRequest> {
-  return FieldMask.build<ListWorkspaceAccessDetailsLocalRequest>(
-    paths,
-    listWorkspaceAccessDetailsLocalRequestFieldMaskSchema
-  );
-}
-
-const listWorkspaceAccessDetailsRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-  workspaceId: {wire: 'workspace_id'},
-};
-
-export function listWorkspaceAccessDetailsRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListWorkspaceAccessDetailsRequest> {
-  return FieldMask.build<ListWorkspaceAccessDetailsRequest>(
-    paths,
-    listWorkspaceAccessDetailsRequestFieldMaskSchema
-  );
-}
-
-const listWorkspaceAccessDetailsResponseFieldMaskSchema: FieldMaskSchema = {
-  nextPageToken: {wire: 'next_page_token'},
-  workspaceAccessDetails: {wire: 'workspace_access_details'},
-};
-
-export function listWorkspaceAccessDetailsResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListWorkspaceAccessDetailsResponse> {
-  return FieldMask.build<ListWorkspaceAccessDetailsResponse>(
-    paths,
-    listWorkspaceAccessDetailsResponseFieldMaskSchema
-  );
-}
-
-const listWorkspaceAssignmentDetailsProxyRequestFieldMaskSchema: FieldMaskSchema =
-  {
-    pageSize: {wire: 'page_size'},
-    pageToken: {wire: 'page_token'},
-  };
-
-export function listWorkspaceAssignmentDetailsProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListWorkspaceAssignmentDetailsProxyRequest> {
-  return FieldMask.build<ListWorkspaceAssignmentDetailsProxyRequest>(
-    paths,
-    listWorkspaceAssignmentDetailsProxyRequestFieldMaskSchema
-  );
-}
-
-const listWorkspaceAssignmentDetailsRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-  workspaceId: {wire: 'workspace_id'},
-};
-
-export function listWorkspaceAssignmentDetailsRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListWorkspaceAssignmentDetailsRequest> {
-  return FieldMask.build<ListWorkspaceAssignmentDetailsRequest>(
-    paths,
-    listWorkspaceAssignmentDetailsRequestFieldMaskSchema
-  );
-}
-
-const listWorkspaceAssignmentDetailsResponseFieldMaskSchema: FieldMaskSchema = {
-  nextPageToken: {wire: 'next_page_token'},
-  workspaceAssignmentDetails: {wire: 'workspace_assignment_details'},
-};
-
-export function listWorkspaceAssignmentDetailsResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListWorkspaceAssignmentDetailsResponse> {
-  return FieldMask.build<ListWorkspaceAssignmentDetailsResponse>(
-    paths,
-    listWorkspaceAssignmentDetailsResponseFieldMaskSchema
-  );
-}
-
-const resolveGroupProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  externalId: {wire: 'external_id'},
-};
-
-export function resolveGroupProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ResolveGroupProxyRequest> {
-  return FieldMask.build<ResolveGroupProxyRequest>(
-    paths,
-    resolveGroupProxyRequestFieldMaskSchema
-  );
-}
-
-const resolveGroupRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  externalId: {wire: 'external_id'},
-};
-
-export function resolveGroupRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ResolveGroupRequest> {
-  return FieldMask.build<ResolveGroupRequest>(
-    paths,
-    resolveGroupRequestFieldMaskSchema
-  );
-}
-
-const resolveGroupResponseFieldMaskSchema: FieldMaskSchema = {
-  group: {wire: 'group', children: () => groupFieldMaskSchema},
-};
-
-export function resolveGroupResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ResolveGroupResponse> {
-  return FieldMask.build<ResolveGroupResponse>(
-    paths,
-    resolveGroupResponseFieldMaskSchema
-  );
-}
-
-const resolveServicePrincipalProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  externalId: {wire: 'external_id'},
-};
-
-export function resolveServicePrincipalProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ResolveServicePrincipalProxyRequest> {
-  return FieldMask.build<ResolveServicePrincipalProxyRequest>(
-    paths,
-    resolveServicePrincipalProxyRequestFieldMaskSchema
-  );
-}
-
-const resolveServicePrincipalRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  externalId: {wire: 'external_id'},
-};
-
-export function resolveServicePrincipalRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ResolveServicePrincipalRequest> {
-  return FieldMask.build<ResolveServicePrincipalRequest>(
-    paths,
-    resolveServicePrincipalRequestFieldMaskSchema
-  );
-}
-
-const resolveServicePrincipalResponseFieldMaskSchema: FieldMaskSchema = {
-  servicePrincipal: {
-    wire: 'service_principal',
-    children: () => servicePrincipalFieldMaskSchema,
-  },
-};
-
-export function resolveServicePrincipalResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ResolveServicePrincipalResponse> {
-  return FieldMask.build<ResolveServicePrincipalResponse>(
-    paths,
-    resolveServicePrincipalResponseFieldMaskSchema
-  );
-}
-
-const resolveUserProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  externalId: {wire: 'external_id'},
-};
-
-export function resolveUserProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ResolveUserProxyRequest> {
-  return FieldMask.build<ResolveUserProxyRequest>(
-    paths,
-    resolveUserProxyRequestFieldMaskSchema
-  );
-}
-
-const resolveUserRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  externalId: {wire: 'external_id'},
-};
-
-export function resolveUserRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ResolveUserRequest> {
-  return FieldMask.build<ResolveUserRequest>(
-    paths,
-    resolveUserRequestFieldMaskSchema
-  );
-}
-
-const resolveUserResponseFieldMaskSchema: FieldMaskSchema = {
-  user: {wire: 'user', children: () => userFieldMaskSchema},
-};
-
-export function resolveUserResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ResolveUserResponse> {
-  return FieldMask.build<ResolveUserResponse>(
-    paths,
-    resolveUserResponseFieldMaskSchema
-  );
 }
 
 const servicePrincipalFieldMaskSchema: FieldMaskSchema = {
@@ -2726,177 +1496,6 @@ export function servicePrincipalFieldMask(
   return FieldMask.build<ServicePrincipal>(
     paths,
     servicePrincipalFieldMaskSchema
-  );
-}
-
-const transitiveParentGroupFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  externalId: {wire: 'external_id'},
-  internalId: {wire: 'internal_id'},
-};
-
-export function transitiveParentGroupFieldMask(
-  ...paths: string[]
-): FieldMask<TransitiveParentGroup> {
-  return FieldMask.build<TransitiveParentGroup>(
-    paths,
-    transitiveParentGroupFieldMaskSchema
-  );
-}
-
-const updateGroupProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  group: {wire: 'group', children: () => groupFieldMaskSchema},
-  internalId: {wire: 'internal_id'},
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateGroupProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateGroupProxyRequest> {
-  return FieldMask.build<UpdateGroupProxyRequest>(
-    paths,
-    updateGroupProxyRequestFieldMaskSchema
-  );
-}
-
-const updateGroupRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  group: {wire: 'group', children: () => groupFieldMaskSchema},
-  internalId: {wire: 'internal_id'},
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateGroupRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateGroupRequest> {
-  return FieldMask.build<UpdateGroupRequest>(
-    paths,
-    updateGroupRequestFieldMaskSchema
-  );
-}
-
-const updateServicePrincipalProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  internalId: {wire: 'internal_id'},
-  servicePrincipal: {
-    wire: 'service_principal',
-    children: () => servicePrincipalFieldMaskSchema,
-  },
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateServicePrincipalProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateServicePrincipalProxyRequest> {
-  return FieldMask.build<UpdateServicePrincipalProxyRequest>(
-    paths,
-    updateServicePrincipalProxyRequestFieldMaskSchema
-  );
-}
-
-const updateServicePrincipalRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  internalId: {wire: 'internal_id'},
-  servicePrincipal: {
-    wire: 'service_principal',
-    children: () => servicePrincipalFieldMaskSchema,
-  },
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateServicePrincipalRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateServicePrincipalRequest> {
-  return FieldMask.build<UpdateServicePrincipalRequest>(
-    paths,
-    updateServicePrincipalRequestFieldMaskSchema
-  );
-}
-
-const updateUserProxyRequestFieldMaskSchema: FieldMaskSchema = {
-  internalId: {wire: 'internal_id'},
-  updateMask: {wire: 'update_mask'},
-  user: {wire: 'user', children: () => userFieldMaskSchema},
-};
-
-export function updateUserProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateUserProxyRequest> {
-  return FieldMask.build<UpdateUserProxyRequest>(
-    paths,
-    updateUserProxyRequestFieldMaskSchema
-  );
-}
-
-const updateUserRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  internalId: {wire: 'internal_id'},
-  updateMask: {wire: 'update_mask'},
-  user: {wire: 'user', children: () => userFieldMaskSchema},
-};
-
-export function updateUserRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateUserRequest> {
-  return FieldMask.build<UpdateUserRequest>(
-    paths,
-    updateUserRequestFieldMaskSchema
-  );
-}
-
-const updateWorkspaceAssignmentDetailProxyRequestFieldMaskSchema: FieldMaskSchema =
-  {
-    principalId: {wire: 'principal_id'},
-    updateMask: {wire: 'update_mask'},
-    workspaceAssignmentDetail: {
-      wire: 'workspace_assignment_detail',
-      children: () => workspaceAssignmentDetailFieldMaskSchema,
-    },
-  };
-
-export function updateWorkspaceAssignmentDetailProxyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateWorkspaceAssignmentDetailProxyRequest> {
-  return FieldMask.build<UpdateWorkspaceAssignmentDetailProxyRequest>(
-    paths,
-    updateWorkspaceAssignmentDetailProxyRequestFieldMaskSchema
-  );
-}
-
-const updateWorkspaceAssignmentDetailRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  principalId: {wire: 'principal_id'},
-  updateMask: {wire: 'update_mask'},
-  workspaceAssignmentDetail: {
-    wire: 'workspace_assignment_detail',
-    children: () => workspaceAssignmentDetailFieldMaskSchema,
-  },
-  workspaceId: {wire: 'workspace_id'},
-};
-
-export function updateWorkspaceAssignmentDetailRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateWorkspaceAssignmentDetailRequest> {
-  return FieldMask.build<UpdateWorkspaceAssignmentDetailRequest>(
-    paths,
-    updateWorkspaceAssignmentDetailRequestFieldMaskSchema
-  );
-}
-
-const updateWorkspaceIdentityDetailRequestFieldMaskSchema: FieldMaskSchema = {
-  principalId: {wire: 'principal_id'},
-  updateMask: {wire: 'update_mask'},
-  workspaceIdentityDetail: {
-    wire: 'workspace_identity_detail',
-    children: () => workspaceIdentityDetailFieldMaskSchema,
-  },
-};
-
-export function updateWorkspaceIdentityDetailRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateWorkspaceIdentityDetailRequest> {
-  return FieldMask.build<UpdateWorkspaceIdentityDetailRequest>(
-    paths,
-    updateWorkspaceIdentityDetailRequestFieldMaskSchema
   );
 }
 
@@ -2922,25 +1521,6 @@ const user_NameFieldMaskSchema: FieldMaskSchema = {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export function user_NameFieldMask(...paths: string[]): FieldMask<User_Name> {
   return FieldMask.build<User_Name>(paths, user_NameFieldMaskSchema);
-}
-
-const workspaceAccessDetailFieldMaskSchema: FieldMaskSchema = {
-  accessType: {wire: 'access_type'},
-  accountId: {wire: 'account_id'},
-  permissions: {wire: 'permissions'},
-  principalId: {wire: 'principal_id'},
-  principalType: {wire: 'principal_type'},
-  status: {wire: 'status'},
-  workspaceId: {wire: 'workspace_id'},
-};
-
-export function workspaceAccessDetailFieldMask(
-  ...paths: string[]
-): FieldMask<WorkspaceAccessDetail> {
-  return FieldMask.build<WorkspaceAccessDetail>(
-    paths,
-    workspaceAccessDetailFieldMaskSchema
-  );
 }
 
 const workspaceAssignmentDetailFieldMaskSchema: FieldMaskSchema = {

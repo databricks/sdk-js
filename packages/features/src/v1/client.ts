@@ -489,7 +489,7 @@ export class Client {
     const url = `${this.host}/api/2.0/feature-engineering/features/${req.feature?.fullName ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
-      params.append('update_mask', req.updateMask);
+      params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -524,7 +524,7 @@ export class Client {
     const url = `${this.host}/api/2.0/feature-engineering/features/kafka-configs/${req.kafkaConfig?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
-      params.append('update_mask', req.updateMask);
+      params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -555,7 +555,7 @@ export class Client {
     const url = `${this.host}/api/2.0/feature-engineering/materialized-features/${req.materializedFeature?.materializedFeatureId ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
-      params.append('update_mask', req.updateMask);
+      params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;

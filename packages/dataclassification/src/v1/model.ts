@@ -94,7 +94,7 @@ export interface UpdateCatalogConfigRequest {
    */
   catalogConfig?: CatalogConfig | undefined;
   /** Field mask specifying which fields to update. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<CatalogConfig> | undefined;
 }
 
 export const unmarshalAutoTaggingConfigSchema: z.ZodType<AutoTaggingConfig> = z
@@ -218,65 +218,5 @@ export function catalogConfig_SchemaNamesFieldMask(
   return FieldMask.build<CatalogConfig_SchemaNames>(
     paths,
     catalogConfig_SchemaNamesFieldMaskSchema
-  );
-}
-
-const createCatalogConfigRequestFieldMaskSchema: FieldMaskSchema = {
-  catalogConfig: {
-    wire: 'catalog_config',
-    children: () => catalogConfigFieldMaskSchema,
-  },
-  parent: {wire: 'parent'},
-};
-
-export function createCatalogConfigRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateCatalogConfigRequest> {
-  return FieldMask.build<CreateCatalogConfigRequest>(
-    paths,
-    createCatalogConfigRequestFieldMaskSchema
-  );
-}
-
-const deleteCatalogConfigRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function deleteCatalogConfigRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteCatalogConfigRequest> {
-  return FieldMask.build<DeleteCatalogConfigRequest>(
-    paths,
-    deleteCatalogConfigRequestFieldMaskSchema
-  );
-}
-
-const getCatalogConfigRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function getCatalogConfigRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetCatalogConfigRequest> {
-  return FieldMask.build<GetCatalogConfigRequest>(
-    paths,
-    getCatalogConfigRequestFieldMaskSchema
-  );
-}
-
-const updateCatalogConfigRequestFieldMaskSchema: FieldMaskSchema = {
-  catalogConfig: {
-    wire: 'catalog_config',
-    children: () => catalogConfigFieldMaskSchema,
-  },
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateCatalogConfigRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateCatalogConfigRequest> {
-  return FieldMask.build<UpdateCatalogConfigRequest>(
-    paths,
-    updateCatalogConfigRequestFieldMaskSchema
   );
 }

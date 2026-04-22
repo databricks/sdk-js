@@ -2299,7 +2299,7 @@ export interface UpdateBranchRequest {
    */
   branch?: Branch | undefined;
   /** The list of fields to update. If unspecified, all fields will be updated when possible. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<Branch> | undefined;
 }
 
 export interface UpdateDatabaseRequest {
@@ -2311,7 +2311,7 @@ export interface UpdateDatabaseRequest {
    */
   database?: Database | undefined;
   /** The list of fields to update. If unspecified, all fields will be updated when possible. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<Database> | undefined;
 }
 
 export interface UpdateEndpointRequest {
@@ -2323,7 +2323,7 @@ export interface UpdateEndpointRequest {
    */
   endpoint?: Endpoint | undefined;
   /** The list of fields to update. If unspecified, all fields will be updated when possible. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<Endpoint> | undefined;
 }
 
 export interface UpdateProjectRequest {
@@ -2335,7 +2335,7 @@ export interface UpdateProjectRequest {
    */
   project?: Project | undefined;
   /** The list of fields to update. If unspecified, all fields will be updated when possible. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<Project> | undefined;
 }
 
 export interface UpdateRoleRequest {
@@ -2350,7 +2350,7 @@ export interface UpdateRoleRequest {
    * The list of fields to update in Postgres Role.
    * If unspecified, all fields will be updated when possible.
    */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<Role> | undefined;
 }
 
 export const unmarshalBranchSchema: z.ZodType<Branch> = z
@@ -2891,29 +2891,6 @@ export const unmarshalForwardEtlTableMappingSchema: z.ZodType<ForwardEtlTableMap
       enabled: d.enabled,
     }));
 
-export const unmarshalGenerateDatabaseCredentialRequestSchema: z.ZodType<GenerateDatabaseCredentialRequest> =
-  z
-    .object({
-      claims: z.array(z.lazy(() => unmarshalRequestedClaimsSchema)).optional(),
-      endpoint: z.string().optional(),
-      group_name: z.string().optional(),
-      ttl: z
-        .string()
-        .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-        .optional(),
-      expire_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-    })
-    .transform(d => ({
-      claims: d.claims,
-      endpoint: d.endpoint,
-      groupName: d.group_name,
-      ttl: d.ttl,
-      expireTime: d.expire_time,
-    }));
-
 export const unmarshalInitialEndpointSpecSchema: z.ZodType<InitialEndpointSpec> =
   z
     .object({
@@ -3166,28 +3143,6 @@ export const unmarshalProjectStatusSchema: z.ZodType<ProjectStatus> = z
     projectId: d.project_id,
   }));
 
-export const unmarshalRequestedClaimsSchema: z.ZodType<RequestedClaims> = z
-  .object({
-    permission_set: z.enum(RequestedClaims_PermissionSet).optional(),
-    resources: z
-      .array(z.lazy(() => unmarshalRequestedResourceSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    permissionSet: d.permission_set,
-    resources: d.resources,
-  }));
-
-export const unmarshalRequestedResourceSchema: z.ZodType<RequestedResource> = z
-  .object({
-    unspecified_resource_name: z.string().optional(),
-    table_name: z.string().optional(),
-  })
-  .transform(d => ({
-    unspecifiedResourceName: d.unspecified_resource_name,
-    tableName: d.table_name,
-  }));
-
 export const unmarshalRoleSchema: z.ZodType<Role> = z
   .object({
     name: z.string().optional(),
@@ -3409,24 +3364,6 @@ export const unmarshalTableSchema: z.ZodType<Table> = z
     tableServingUrl: d.table_serving_url,
   }));
 
-export const unmarshalUndeleteBranchRequestSchema: z.ZodType<UndeleteBranchRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
-export const unmarshalUndeleteProjectRequestSchema: z.ZodType<UndeleteProjectRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
-
 export const marshalBranchSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -3452,8 +3389,6 @@ export const marshalBranchSchema: z.ZodType = z
     spec: d.spec,
     status: d.status,
   }));
-
-export const marshalBranchOperationMetadataSchema: z.ZodType = z.object({});
 
 export const marshalBranchSpecSchema: z.ZodType = z
   .object({
@@ -3583,36 +3518,6 @@ export const marshalCatalog_CatalogStatusSchema: z.ZodType = z
     catalog_id: d.catalogId,
   }));
 
-export const marshalCatalogOperationMetadataSchema: z.ZodType = z.object({});
-
-export const marshalComputeInstanceSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    computeInstanceId: z.string().optional(),
-    currentState: z.enum(ComputeInstance_ComputeState).optional(),
-    pendingState: z.enum(ComputeInstance_ComputeState).optional(),
-    role: z.enum(ComputeInstance_ComputeType).optional(),
-    computeHost: z.string().optional(),
-    startTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    suspendTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    compute_instance_id: d.computeInstanceId,
-    current_state: d.currentState,
-    pending_state: d.pendingState,
-    role: d.role,
-    compute_host: d.computeHost,
-    start_time: d.startTime,
-    suspend_time: d.suspendTime,
-  }));
-
 export const marshalDatabaseSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -3661,46 +3566,6 @@ export const marshalDatabase_DatabaseStatusSchema: z.ZodType = z
     database_id: d.databaseId,
   }));
 
-export const marshalDatabaseCredentialSchema: z.ZodType = z
-  .object({
-    token: z.string().optional(),
-    expireTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-  })
-  .transform(d => ({
-    token: d.token,
-    expire_time: d.expireTime,
-  }));
-
-export const marshalDatabaseOperationMetadataSchema: z.ZodType = z.object({});
-
-export const marshalDatabricksServiceExceptionWithDetailsProtoSchema: z.ZodType =
-  z
-    .object({
-      errorCode: z.enum(ErrorCode).optional(),
-      message: z.string().optional(),
-      stackTrace: z.string().optional(),
-      details: z.array(z.record(z.string(), z.unknown())).optional(),
-    })
-    .transform(d => ({
-      error_code: d.errorCode,
-      message: d.message,
-      stack_trace: d.stackTrace,
-      details: d.details,
-    }));
-
-export const marshalDeleteForwardEtlConfigurationResponseSchema: z.ZodType = z
-  .object({
-    deletedConfigs: z.number().optional(),
-    deletedMappings: z.number().optional(),
-  })
-  .transform(d => ({
-    deleted_configs: d.deletedConfigs,
-    deleted_mappings: d.deletedMappings,
-  }));
-
 export const marshalDeltaTableSyncInfoSchema: z.ZodType = z
   .object({
     deltaCommitVersion: z.number().optional(),
@@ -3712,14 +3577,6 @@ export const marshalDeltaTableSyncInfoSchema: z.ZodType = z
   .transform(d => ({
     delta_commit_version: d.deltaCommitVersion,
     delta_commit_time: d.deltaCommitTime,
-  }));
-
-export const marshalDisableForwardEtlResponseSchema: z.ZodType = z
-  .object({
-    disabled: z.boolean().optional(),
-  })
-  .transform(d => ({
-    disabled: d.disabled,
   }));
 
 export const marshalEndpointSchema: z.ZodType = z
@@ -3785,8 +3642,6 @@ export const marshalEndpointHostsSchema: z.ZodType = z
     read_write_pooled_host: d.readWritePooledHost,
     read_only_pooled_host: d.readOnlyPooledHost,
   }));
-
-export const marshalEndpointOperationMetadataSchema: z.ZodType = z.object({});
 
 export const marshalEndpointSettingsSchema: z.ZodType = z
   .object({
@@ -3857,96 +3712,6 @@ export const marshalEndpointStatusSchema: z.ZodType = z
     endpoint_id: d.endpointId,
   }));
 
-export const marshalForwardEtlConfigSchema: z.ZodType = z
-  .object({
-    workspaceId: z.number().optional(),
-    tenantId: z.string().optional(),
-    timelineId: z.string().optional(),
-    pgDatabaseOid: z.number().optional(),
-    pgSchemaOid: z.number().optional(),
-    ucCatalogId: z.string().optional(),
-    ucSchemaId: z.string().optional(),
-    enabled: z.boolean().optional(),
-    createTimeMillis: z.number().optional(),
-    updateTimeMillis: z.number().optional(),
-  })
-  .transform(d => ({
-    workspace_id: d.workspaceId,
-    tenant_id: d.tenantId,
-    timeline_id: d.timelineId,
-    pg_database_oid: d.pgDatabaseOid,
-    pg_schema_oid: d.pgSchemaOid,
-    uc_catalog_id: d.ucCatalogId,
-    uc_schema_id: d.ucSchemaId,
-    enabled: d.enabled,
-    create_time_millis: d.createTimeMillis,
-    update_time_millis: d.updateTimeMillis,
-  }));
-
-export const marshalForwardEtlDatabaseSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    oid: z.number().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    oid: d.oid,
-  }));
-
-export const marshalForwardEtlMetadataSchema: z.ZodType = z
-  .object({
-    databases: z
-      .array(z.lazy(() => marshalForwardEtlDatabaseSchema))
-      .optional(),
-    schemas: z.array(z.lazy(() => marshalForwardEtlSchemaSchema)).optional(),
-  })
-  .transform(d => ({
-    databases: d.databases,
-    schemas: d.schemas,
-  }));
-
-export const marshalForwardEtlSchemaSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    oid: z.number().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    oid: d.oid,
-  }));
-
-export const marshalForwardEtlStatusSchema: z.ZodType = z
-  .object({
-    configurations: z
-      .array(z.lazy(() => marshalForwardEtlConfigSchema))
-      .optional(),
-    tableMappings: z
-      .array(z.lazy(() => marshalForwardEtlTableMappingSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    configurations: d.configurations,
-    table_mappings: d.tableMappings,
-  }));
-
-export const marshalForwardEtlTableMappingSchema: z.ZodType = z
-  .object({
-    pgTableOid: z.number().optional(),
-    ucTableId: z.string().optional(),
-    lastSyncedLsn: z.string().optional(),
-    pgTableName: z.string().optional(),
-    ucTableName: z.string().optional(),
-    enabled: z.boolean().optional(),
-  })
-  .transform(d => ({
-    pg_table_oid: d.pgTableOid,
-    uc_table_id: d.ucTableId,
-    last_synced_lsn: d.lastSyncedLsn,
-    pg_table_name: d.pgTableName,
-    uc_table_name: d.ucTableName,
-    enabled: d.enabled,
-  }));
-
 export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
   .object({
     claims: z.array(z.lazy(() => marshalRequestedClaimsSchema)).optional(),
@@ -3977,68 +3742,6 @@ export const marshalInitialEndpointSpecSchema: z.ZodType = z
     group: d.group,
   }));
 
-export const marshalListBranchesResponseSchema: z.ZodType = z
-  .object({
-    branches: z.array(z.lazy(() => marshalBranchSchema)).optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    branches: d.branches,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListComputeInstancesResponseSchema: z.ZodType = z
-  .object({
-    computeInstances: z
-      .array(z.lazy(() => marshalComputeInstanceSchema))
-      .optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    compute_instances: d.computeInstances,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListDatabasesResponseSchema: z.ZodType = z
-  .object({
-    databases: z.array(z.lazy(() => marshalDatabaseSchema)).optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    databases: d.databases,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListEndpointsResponseSchema: z.ZodType = z
-  .object({
-    endpoints: z.array(z.lazy(() => marshalEndpointSchema)).optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    endpoints: d.endpoints,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListProjectsResponseSchema: z.ZodType = z
-  .object({
-    projects: z.array(z.lazy(() => marshalProjectSchema)).optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    projects: d.projects,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListRolesResponseSchema: z.ZodType = z
-  .object({
-    roles: z.array(z.lazy(() => marshalRoleSchema)).optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    roles: d.roles,
-    next_page_token: d.nextPageToken,
-  }));
-
 export const marshalNewPipelineSpecSchema: z.ZodType = z
   .object({
     storageCatalog: z.string().optional(),
@@ -4051,24 +3754,6 @@ export const marshalNewPipelineSpecSchema: z.ZodType = z
     storage_schema: d.storageSchema,
     budget_policy_id: d.budgetPolicyId,
     pipeline_channel: d.pipelineChannel,
-  }));
-
-export const marshalOperationSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    metadata: z.record(z.string(), z.unknown()).optional(),
-    done: z.boolean().optional(),
-    error: z
-      .lazy(() => marshalDatabricksServiceExceptionWithDetailsProtoSchema)
-      .optional(),
-    response: z.record(z.string(), z.unknown()).optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    metadata: d.metadata,
-    done: d.done,
-    error: d.error,
-    response: d.response,
   }));
 
 export const marshalProjectSchema: z.ZodType = z
@@ -4137,8 +3822,6 @@ export const marshalProjectDefaultEndpointSettingsSchema: z.ZodType = z
     no_suspension: d.noSuspension,
     pg_settings: d.pgSettings,
   }));
-
-export const marshalProjectOperationMetadataSchema: z.ZodType = z.object({});
 
 export const marshalProjectSpecSchema: z.ZodType = z
   .object({
@@ -4302,8 +3985,6 @@ export const marshalRole_RoleStatusSchema: z.ZodType = z
     role_id: d.roleId,
   }));
 
-export const marshalRoleOperationMetadataSchema: z.ZodType = z.object({});
-
 export const marshalSyncedTableSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -4383,10 +4064,6 @@ export const marshalSyncedTable_SyncedTableStatusSchema: z.ZodType = z
     unity_catalog_provisioning_state: d.unityCatalogProvisioningState,
     project: d.project,
   }));
-
-export const marshalSyncedTableOperationMetadataSchema: z.ZodType = z.object(
-  {}
-);
 
 export const marshalSyncedTablePipelineProgressSchema: z.ZodType = z
   .object({
@@ -4470,17 +4147,6 @@ export function branchFieldMask(...paths: string[]): FieldMask<Branch> {
   return FieldMask.build<Branch>(paths, branchFieldMaskSchema);
 }
 
-const branchOperationMetadataFieldMaskSchema: FieldMaskSchema = {};
-
-export function branchOperationMetadataFieldMask(
-  ...paths: string[]
-): FieldMask<BranchOperationMetadata> {
-  return FieldMask.build<BranchOperationMetadata>(
-    paths,
-    branchOperationMetadataFieldMaskSchema
-  );
-}
-
 const branchSpecFieldMaskSchema: FieldMaskSchema = {
   expireTime: {wire: 'expire_time'},
   isProtected: {wire: 'is_protected'},
@@ -4515,206 +4181,6 @@ export function branchStatusFieldMask(
   ...paths: string[]
 ): FieldMask<BranchStatus> {
   return FieldMask.build<BranchStatus>(paths, branchStatusFieldMaskSchema);
-}
-
-const catalogFieldMaskSchema: FieldMaskSchema = {
-  createTime: {wire: 'create_time'},
-  name: {wire: 'name'},
-  spec: {wire: 'spec', children: () => catalog_CatalogSpecFieldMaskSchema},
-  status: {
-    wire: 'status',
-    children: () => catalog_CatalogStatusFieldMaskSchema,
-  },
-  uid: {wire: 'uid'},
-  updateTime: {wire: 'update_time'},
-};
-
-export function catalogFieldMask(...paths: string[]): FieldMask<Catalog> {
-  return FieldMask.build<Catalog>(paths, catalogFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const catalog_CatalogSpecFieldMaskSchema: FieldMaskSchema = {
-  branch: {wire: 'branch'},
-  createDatabaseIfMissing: {wire: 'create_database_if_missing'},
-  postgresDatabase: {wire: 'postgres_database'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function catalog_CatalogSpecFieldMask(
-  ...paths: string[]
-): FieldMask<Catalog_CatalogSpec> {
-  return FieldMask.build<Catalog_CatalogSpec>(
-    paths,
-    catalog_CatalogSpecFieldMaskSchema
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const catalog_CatalogStatusFieldMaskSchema: FieldMaskSchema = {
-  branch: {wire: 'branch'},
-  catalogId: {wire: 'catalog_id'},
-  postgresDatabase: {wire: 'postgres_database'},
-  project: {wire: 'project'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function catalog_CatalogStatusFieldMask(
-  ...paths: string[]
-): FieldMask<Catalog_CatalogStatus> {
-  return FieldMask.build<Catalog_CatalogStatus>(
-    paths,
-    catalog_CatalogStatusFieldMaskSchema
-  );
-}
-
-const catalogOperationMetadataFieldMaskSchema: FieldMaskSchema = {};
-
-export function catalogOperationMetadataFieldMask(
-  ...paths: string[]
-): FieldMask<CatalogOperationMetadata> {
-  return FieldMask.build<CatalogOperationMetadata>(
-    paths,
-    catalogOperationMetadataFieldMaskSchema
-  );
-}
-
-const computeInstanceFieldMaskSchema: FieldMaskSchema = {
-  computeHost: {wire: 'compute_host'},
-  computeInstanceId: {wire: 'compute_instance_id'},
-  currentState: {wire: 'current_state'},
-  name: {wire: 'name'},
-  pendingState: {wire: 'pending_state'},
-  role: {wire: 'role'},
-  startTime: {wire: 'start_time'},
-  suspendTime: {wire: 'suspend_time'},
-};
-
-export function computeInstanceFieldMask(
-  ...paths: string[]
-): FieldMask<ComputeInstance> {
-  return FieldMask.build<ComputeInstance>(
-    paths,
-    computeInstanceFieldMaskSchema
-  );
-}
-
-const createBranchRequestFieldMaskSchema: FieldMaskSchema = {
-  branch: {wire: 'branch', children: () => branchFieldMaskSchema},
-  branchId: {wire: 'branch_id'},
-  parent: {wire: 'parent'},
-};
-
-export function createBranchRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateBranchRequest> {
-  return FieldMask.build<CreateBranchRequest>(
-    paths,
-    createBranchRequestFieldMaskSchema
-  );
-}
-
-const createCatalogRequestFieldMaskSchema: FieldMaskSchema = {
-  catalog: {wire: 'catalog', children: () => catalogFieldMaskSchema},
-  catalogId: {wire: 'catalog_id'},
-};
-
-export function createCatalogRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateCatalogRequest> {
-  return FieldMask.build<CreateCatalogRequest>(
-    paths,
-    createCatalogRequestFieldMaskSchema
-  );
-}
-
-const createDatabaseRequestFieldMaskSchema: FieldMaskSchema = {
-  database: {wire: 'database', children: () => databaseFieldMaskSchema},
-  databaseId: {wire: 'database_id'},
-  parent: {wire: 'parent'},
-};
-
-export function createDatabaseRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateDatabaseRequest> {
-  return FieldMask.build<CreateDatabaseRequest>(
-    paths,
-    createDatabaseRequestFieldMaskSchema
-  );
-}
-
-const createEndpointRequestFieldMaskSchema: FieldMaskSchema = {
-  endpoint: {wire: 'endpoint', children: () => endpointFieldMaskSchema},
-  endpointId: {wire: 'endpoint_id'},
-  parent: {wire: 'parent'},
-};
-
-export function createEndpointRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateEndpointRequest> {
-  return FieldMask.build<CreateEndpointRequest>(
-    paths,
-    createEndpointRequestFieldMaskSchema
-  );
-}
-
-const createProjectRequestFieldMaskSchema: FieldMaskSchema = {
-  project: {wire: 'project', children: () => projectFieldMaskSchema},
-  projectId: {wire: 'project_id'},
-};
-
-export function createProjectRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateProjectRequest> {
-  return FieldMask.build<CreateProjectRequest>(
-    paths,
-    createProjectRequestFieldMaskSchema
-  );
-}
-
-const createRoleRequestFieldMaskSchema: FieldMaskSchema = {
-  parent: {wire: 'parent'},
-  role: {wire: 'role', children: () => roleFieldMaskSchema},
-  roleId: {wire: 'role_id'},
-};
-
-export function createRoleRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateRoleRequest> {
-  return FieldMask.build<CreateRoleRequest>(
-    paths,
-    createRoleRequestFieldMaskSchema
-  );
-}
-
-const createSyncedTableRequestFieldMaskSchema: FieldMaskSchema = {
-  syncedTable: {
-    wire: 'synced_table',
-    children: () => syncedTableFieldMaskSchema,
-  },
-  syncedTableId: {wire: 'synced_table_id'},
-};
-
-export function createSyncedTableRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateSyncedTableRequest> {
-  return FieldMask.build<CreateSyncedTableRequest>(
-    paths,
-    createSyncedTableRequestFieldMaskSchema
-  );
-}
-
-const createTableRequestFieldMaskSchema: FieldMaskSchema = {
-  table: {wire: 'table', children: () => tableFieldMaskSchema},
-};
-
-export function createTableRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateTableRequest> {
-  return FieldMask.build<CreateTableRequest>(
-    paths,
-    createTableRequestFieldMaskSchema
-  );
 }
 
 const databaseFieldMaskSchema: FieldMaskSchema = {
@@ -4763,231 +4229,6 @@ export function database_DatabaseStatusFieldMask(
   return FieldMask.build<Database_DatabaseStatus>(
     paths,
     database_DatabaseStatusFieldMaskSchema
-  );
-}
-
-const databaseCredentialFieldMaskSchema: FieldMaskSchema = {
-  expireTime: {wire: 'expire_time'},
-  token: {wire: 'token'},
-};
-
-export function databaseCredentialFieldMask(
-  ...paths: string[]
-): FieldMask<DatabaseCredential> {
-  return FieldMask.build<DatabaseCredential>(
-    paths,
-    databaseCredentialFieldMaskSchema
-  );
-}
-
-const databaseOperationMetadataFieldMaskSchema: FieldMaskSchema = {};
-
-export function databaseOperationMetadataFieldMask(
-  ...paths: string[]
-): FieldMask<DatabaseOperationMetadata> {
-  return FieldMask.build<DatabaseOperationMetadata>(
-    paths,
-    databaseOperationMetadataFieldMaskSchema
-  );
-}
-
-const databricksServiceExceptionWithDetailsProtoFieldMaskSchema: FieldMaskSchema =
-  {
-    details: {wire: 'details'},
-    errorCode: {wire: 'error_code'},
-    message: {wire: 'message'},
-    stackTrace: {wire: 'stack_trace'},
-  };
-
-export function databricksServiceExceptionWithDetailsProtoFieldMask(
-  ...paths: string[]
-): FieldMask<DatabricksServiceExceptionWithDetailsProto> {
-  return FieldMask.build<DatabricksServiceExceptionWithDetailsProto>(
-    paths,
-    databricksServiceExceptionWithDetailsProtoFieldMaskSchema
-  );
-}
-
-const deleteBranchRequestFieldMaskSchema: FieldMaskSchema = {
-  allowMissing: {wire: 'allow_missing'},
-  name: {wire: 'name'},
-  purge: {wire: 'purge'},
-};
-
-export function deleteBranchRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteBranchRequest> {
-  return FieldMask.build<DeleteBranchRequest>(
-    paths,
-    deleteBranchRequestFieldMaskSchema
-  );
-}
-
-const deleteCatalogRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function deleteCatalogRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteCatalogRequest> {
-  return FieldMask.build<DeleteCatalogRequest>(
-    paths,
-    deleteCatalogRequestFieldMaskSchema
-  );
-}
-
-const deleteDatabaseRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function deleteDatabaseRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteDatabaseRequest> {
-  return FieldMask.build<DeleteDatabaseRequest>(
-    paths,
-    deleteDatabaseRequestFieldMaskSchema
-  );
-}
-
-const deleteEndpointRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function deleteEndpointRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteEndpointRequest> {
-  return FieldMask.build<DeleteEndpointRequest>(
-    paths,
-    deleteEndpointRequestFieldMaskSchema
-  );
-}
-
-const deleteForwardEtlConfigurationRequestFieldMaskSchema: FieldMaskSchema = {
-  parent: {wire: 'parent'},
-  pgDatabaseOid: {wire: 'pg_database_oid'},
-  pgSchemaOid: {wire: 'pg_schema_oid'},
-  tenantId: {wire: 'tenant_id'},
-  timelineId: {wire: 'timeline_id'},
-};
-
-export function deleteForwardEtlConfigurationRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteForwardEtlConfigurationRequest> {
-  return FieldMask.build<DeleteForwardEtlConfigurationRequest>(
-    paths,
-    deleteForwardEtlConfigurationRequestFieldMaskSchema
-  );
-}
-
-const deleteForwardEtlConfigurationResponseFieldMaskSchema: FieldMaskSchema = {
-  deletedConfigs: {wire: 'deleted_configs'},
-  deletedMappings: {wire: 'deleted_mappings'},
-};
-
-export function deleteForwardEtlConfigurationResponseFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteForwardEtlConfigurationResponse> {
-  return FieldMask.build<DeleteForwardEtlConfigurationResponse>(
-    paths,
-    deleteForwardEtlConfigurationResponseFieldMaskSchema
-  );
-}
-
-const deleteProjectRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-  purge: {wire: 'purge'},
-};
-
-export function deleteProjectRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteProjectRequest> {
-  return FieldMask.build<DeleteProjectRequest>(
-    paths,
-    deleteProjectRequestFieldMaskSchema
-  );
-}
-
-const deleteRoleRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-  reassignOwnedTo: {wire: 'reassign_owned_to'},
-};
-
-export function deleteRoleRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteRoleRequest> {
-  return FieldMask.build<DeleteRoleRequest>(
-    paths,
-    deleteRoleRequestFieldMaskSchema
-  );
-}
-
-const deleteSyncedTableRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function deleteSyncedTableRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteSyncedTableRequest> {
-  return FieldMask.build<DeleteSyncedTableRequest>(
-    paths,
-    deleteSyncedTableRequestFieldMaskSchema
-  );
-}
-
-const deleteTableRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function deleteTableRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteTableRequest> {
-  return FieldMask.build<DeleteTableRequest>(
-    paths,
-    deleteTableRequestFieldMaskSchema
-  );
-}
-
-const deltaTableSyncInfoFieldMaskSchema: FieldMaskSchema = {
-  deltaCommitTime: {wire: 'delta_commit_time'},
-  deltaCommitVersion: {wire: 'delta_commit_version'},
-};
-
-export function deltaTableSyncInfoFieldMask(
-  ...paths: string[]
-): FieldMask<DeltaTableSyncInfo> {
-  return FieldMask.build<DeltaTableSyncInfo>(
-    paths,
-    deltaTableSyncInfoFieldMaskSchema
-  );
-}
-
-const disableForwardEtlRequestFieldMaskSchema: FieldMaskSchema = {
-  parent: {wire: 'parent'},
-  pgDatabaseOid: {wire: 'pg_database_oid'},
-  pgSchemaOid: {wire: 'pg_schema_oid'},
-  tenantId: {wire: 'tenant_id'},
-  timelineId: {wire: 'timeline_id'},
-};
-
-export function disableForwardEtlRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DisableForwardEtlRequest> {
-  return FieldMask.build<DisableForwardEtlRequest>(
-    paths,
-    disableForwardEtlRequestFieldMaskSchema
-  );
-}
-
-const disableForwardEtlResponseFieldMaskSchema: FieldMaskSchema = {
-  disabled: {wire: 'disabled'},
-};
-
-export function disableForwardEtlResponseFieldMask(
-  ...paths: string[]
-): FieldMask<DisableForwardEtlResponse> {
-  return FieldMask.build<DisableForwardEtlResponse>(
-    paths,
-    disableForwardEtlResponseFieldMaskSchema
   );
 }
 
@@ -5048,17 +4289,6 @@ export function endpointHostsFieldMask(
   return FieldMask.build<EndpointHosts>(paths, endpointHostsFieldMaskSchema);
 }
 
-const endpointOperationMetadataFieldMaskSchema: FieldMaskSchema = {};
-
-export function endpointOperationMetadataFieldMask(
-  ...paths: string[]
-): FieldMask<EndpointOperationMetadata> {
-  return FieldMask.build<EndpointOperationMetadata>(
-    paths,
-    endpointOperationMetadataFieldMaskSchema
-  );
-}
-
 const endpointSettingsFieldMaskSchema: FieldMaskSchema = {
   pgSettings: {wire: 'pg_settings'},
 };
@@ -5069,22 +4299,6 @@ export function endpointSettingsFieldMask(
   return FieldMask.build<EndpointSettings>(
     paths,
     endpointSettingsFieldMaskSchema
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const endpointSettings_PgSettingsEntryFieldMaskSchema: FieldMaskSchema = {
-  key: {wire: 'key'},
-  value: {wire: 'value'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function endpointSettings_PgSettingsEntryFieldMask(
-  ...paths: string[]
-): FieldMask<EndpointSettings_PgSettingsEntry> {
-  return FieldMask.build<EndpointSettings_PgSettingsEntry>(
-    paths,
-    endpointSettings_PgSettingsEntryFieldMaskSchema
   );
 }
 
@@ -5126,276 +4340,6 @@ export function endpointStatusFieldMask(
   return FieldMask.build<EndpointStatus>(paths, endpointStatusFieldMaskSchema);
 }
 
-const forwardEtlConfigFieldMaskSchema: FieldMaskSchema = {
-  createTimeMillis: {wire: 'create_time_millis'},
-  enabled: {wire: 'enabled'},
-  pgDatabaseOid: {wire: 'pg_database_oid'},
-  pgSchemaOid: {wire: 'pg_schema_oid'},
-  tenantId: {wire: 'tenant_id'},
-  timelineId: {wire: 'timeline_id'},
-  ucCatalogId: {wire: 'uc_catalog_id'},
-  ucSchemaId: {wire: 'uc_schema_id'},
-  updateTimeMillis: {wire: 'update_time_millis'},
-  workspaceId: {wire: 'workspace_id'},
-};
-
-export function forwardEtlConfigFieldMask(
-  ...paths: string[]
-): FieldMask<ForwardEtlConfig> {
-  return FieldMask.build<ForwardEtlConfig>(
-    paths,
-    forwardEtlConfigFieldMaskSchema
-  );
-}
-
-const forwardEtlDatabaseFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-  oid: {wire: 'oid'},
-};
-
-export function forwardEtlDatabaseFieldMask(
-  ...paths: string[]
-): FieldMask<ForwardEtlDatabase> {
-  return FieldMask.build<ForwardEtlDatabase>(
-    paths,
-    forwardEtlDatabaseFieldMaskSchema
-  );
-}
-
-const forwardEtlMetadataFieldMaskSchema: FieldMaskSchema = {
-  databases: {wire: 'databases'},
-  schemas: {wire: 'schemas'},
-};
-
-export function forwardEtlMetadataFieldMask(
-  ...paths: string[]
-): FieldMask<ForwardEtlMetadata> {
-  return FieldMask.build<ForwardEtlMetadata>(
-    paths,
-    forwardEtlMetadataFieldMaskSchema
-  );
-}
-
-const forwardEtlSchemaFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-  oid: {wire: 'oid'},
-};
-
-export function forwardEtlSchemaFieldMask(
-  ...paths: string[]
-): FieldMask<ForwardEtlSchema> {
-  return FieldMask.build<ForwardEtlSchema>(
-    paths,
-    forwardEtlSchemaFieldMaskSchema
-  );
-}
-
-const forwardEtlStatusFieldMaskSchema: FieldMaskSchema = {
-  configurations: {wire: 'configurations'},
-  tableMappings: {wire: 'table_mappings'},
-};
-
-export function forwardEtlStatusFieldMask(
-  ...paths: string[]
-): FieldMask<ForwardEtlStatus> {
-  return FieldMask.build<ForwardEtlStatus>(
-    paths,
-    forwardEtlStatusFieldMaskSchema
-  );
-}
-
-const forwardEtlTableMappingFieldMaskSchema: FieldMaskSchema = {
-  enabled: {wire: 'enabled'},
-  lastSyncedLsn: {wire: 'last_synced_lsn'},
-  pgTableName: {wire: 'pg_table_name'},
-  pgTableOid: {wire: 'pg_table_oid'},
-  ucTableId: {wire: 'uc_table_id'},
-  ucTableName: {wire: 'uc_table_name'},
-};
-
-export function forwardEtlTableMappingFieldMask(
-  ...paths: string[]
-): FieldMask<ForwardEtlTableMapping> {
-  return FieldMask.build<ForwardEtlTableMapping>(
-    paths,
-    forwardEtlTableMappingFieldMaskSchema
-  );
-}
-
-const generateDatabaseCredentialRequestFieldMaskSchema: FieldMaskSchema = {
-  claims: {wire: 'claims'},
-  endpoint: {wire: 'endpoint'},
-  expireTime: {wire: 'expire_time'},
-  groupName: {wire: 'group_name'},
-  ttl: {wire: 'ttl'},
-};
-
-export function generateDatabaseCredentialRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GenerateDatabaseCredentialRequest> {
-  return FieldMask.build<GenerateDatabaseCredentialRequest>(
-    paths,
-    generateDatabaseCredentialRequestFieldMaskSchema
-  );
-}
-
-const getBranchRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function getBranchRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetBranchRequest> {
-  return FieldMask.build<GetBranchRequest>(
-    paths,
-    getBranchRequestFieldMaskSchema
-  );
-}
-
-const getCatalogRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function getCatalogRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetCatalogRequest> {
-  return FieldMask.build<GetCatalogRequest>(
-    paths,
-    getCatalogRequestFieldMaskSchema
-  );
-}
-
-const getComputeInstanceRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function getComputeInstanceRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetComputeInstanceRequest> {
-  return FieldMask.build<GetComputeInstanceRequest>(
-    paths,
-    getComputeInstanceRequestFieldMaskSchema
-  );
-}
-
-const getDatabaseRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function getDatabaseRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetDatabaseRequest> {
-  return FieldMask.build<GetDatabaseRequest>(
-    paths,
-    getDatabaseRequestFieldMaskSchema
-  );
-}
-
-const getEndpointRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function getEndpointRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetEndpointRequest> {
-  return FieldMask.build<GetEndpointRequest>(
-    paths,
-    getEndpointRequestFieldMaskSchema
-  );
-}
-
-const getForwardEtlMetadataRequestFieldMaskSchema: FieldMaskSchema = {
-  parent: {wire: 'parent'},
-  tenantId: {wire: 'tenant_id'},
-  timelineId: {wire: 'timeline_id'},
-};
-
-export function getForwardEtlMetadataRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetForwardEtlMetadataRequest> {
-  return FieldMask.build<GetForwardEtlMetadataRequest>(
-    paths,
-    getForwardEtlMetadataRequestFieldMaskSchema
-  );
-}
-
-const getForwardEtlStatusRequestFieldMaskSchema: FieldMaskSchema = {
-  parent: {wire: 'parent'},
-  tenantId: {wire: 'tenant_id'},
-  timelineId: {wire: 'timeline_id'},
-};
-
-export function getForwardEtlStatusRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetForwardEtlStatusRequest> {
-  return FieldMask.build<GetForwardEtlStatusRequest>(
-    paths,
-    getForwardEtlStatusRequestFieldMaskSchema
-  );
-}
-
-const getOperationRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function getOperationRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetOperationRequest> {
-  return FieldMask.build<GetOperationRequest>(
-    paths,
-    getOperationRequestFieldMaskSchema
-  );
-}
-
-const getProjectRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function getProjectRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetProjectRequest> {
-  return FieldMask.build<GetProjectRequest>(
-    paths,
-    getProjectRequestFieldMaskSchema
-  );
-}
-
-const getRoleRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function getRoleRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetRoleRequest> {
-  return FieldMask.build<GetRoleRequest>(paths, getRoleRequestFieldMaskSchema);
-}
-
-const getSyncedTableRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function getSyncedTableRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetSyncedTableRequest> {
-  return FieldMask.build<GetSyncedTableRequest>(
-    paths,
-    getSyncedTableRequestFieldMaskSchema
-  );
-}
-
-const getTableRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function getTableRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetTableRequest> {
-  return FieldMask.build<GetTableRequest>(
-    paths,
-    getTableRequestFieldMaskSchema
-  );
-}
-
 const initialEndpointSpecFieldMaskSchema: FieldMaskSchema = {
   group: {wire: 'group', children: () => endpointGroupSpecFieldMaskSchema},
 };
@@ -5407,212 +4351,6 @@ export function initialEndpointSpecFieldMask(
     paths,
     initialEndpointSpecFieldMaskSchema
   );
-}
-
-const listBranchesRequestFieldMaskSchema: FieldMaskSchema = {
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-  parent: {wire: 'parent'},
-  showDeleted: {wire: 'show_deleted'},
-};
-
-export function listBranchesRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListBranchesRequest> {
-  return FieldMask.build<ListBranchesRequest>(
-    paths,
-    listBranchesRequestFieldMaskSchema
-  );
-}
-
-const listBranchesResponseFieldMaskSchema: FieldMaskSchema = {
-  branches: {wire: 'branches'},
-  nextPageToken: {wire: 'next_page_token'},
-};
-
-export function listBranchesResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListBranchesResponse> {
-  return FieldMask.build<ListBranchesResponse>(
-    paths,
-    listBranchesResponseFieldMaskSchema
-  );
-}
-
-const listComputeInstancesRequestFieldMaskSchema: FieldMaskSchema = {
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-  parent: {wire: 'parent'},
-};
-
-export function listComputeInstancesRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListComputeInstancesRequest> {
-  return FieldMask.build<ListComputeInstancesRequest>(
-    paths,
-    listComputeInstancesRequestFieldMaskSchema
-  );
-}
-
-const listComputeInstancesResponseFieldMaskSchema: FieldMaskSchema = {
-  computeInstances: {wire: 'compute_instances'},
-  nextPageToken: {wire: 'next_page_token'},
-};
-
-export function listComputeInstancesResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListComputeInstancesResponse> {
-  return FieldMask.build<ListComputeInstancesResponse>(
-    paths,
-    listComputeInstancesResponseFieldMaskSchema
-  );
-}
-
-const listDatabasesRequestFieldMaskSchema: FieldMaskSchema = {
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-  parent: {wire: 'parent'},
-};
-
-export function listDatabasesRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListDatabasesRequest> {
-  return FieldMask.build<ListDatabasesRequest>(
-    paths,
-    listDatabasesRequestFieldMaskSchema
-  );
-}
-
-const listDatabasesResponseFieldMaskSchema: FieldMaskSchema = {
-  databases: {wire: 'databases'},
-  nextPageToken: {wire: 'next_page_token'},
-};
-
-export function listDatabasesResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListDatabasesResponse> {
-  return FieldMask.build<ListDatabasesResponse>(
-    paths,
-    listDatabasesResponseFieldMaskSchema
-  );
-}
-
-const listEndpointsRequestFieldMaskSchema: FieldMaskSchema = {
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-  parent: {wire: 'parent'},
-};
-
-export function listEndpointsRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListEndpointsRequest> {
-  return FieldMask.build<ListEndpointsRequest>(
-    paths,
-    listEndpointsRequestFieldMaskSchema
-  );
-}
-
-const listEndpointsResponseFieldMaskSchema: FieldMaskSchema = {
-  endpoints: {wire: 'endpoints'},
-  nextPageToken: {wire: 'next_page_token'},
-};
-
-export function listEndpointsResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListEndpointsResponse> {
-  return FieldMask.build<ListEndpointsResponse>(
-    paths,
-    listEndpointsResponseFieldMaskSchema
-  );
-}
-
-const listProjectsRequestFieldMaskSchema: FieldMaskSchema = {
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-  showDeleted: {wire: 'show_deleted'},
-};
-
-export function listProjectsRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListProjectsRequest> {
-  return FieldMask.build<ListProjectsRequest>(
-    paths,
-    listProjectsRequestFieldMaskSchema
-  );
-}
-
-const listProjectsResponseFieldMaskSchema: FieldMaskSchema = {
-  nextPageToken: {wire: 'next_page_token'},
-  projects: {wire: 'projects'},
-};
-
-export function listProjectsResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListProjectsResponse> {
-  return FieldMask.build<ListProjectsResponse>(
-    paths,
-    listProjectsResponseFieldMaskSchema
-  );
-}
-
-const listRolesRequestFieldMaskSchema: FieldMaskSchema = {
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-  parent: {wire: 'parent'},
-};
-
-export function listRolesRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListRolesRequest> {
-  return FieldMask.build<ListRolesRequest>(
-    paths,
-    listRolesRequestFieldMaskSchema
-  );
-}
-
-const listRolesResponseFieldMaskSchema: FieldMaskSchema = {
-  nextPageToken: {wire: 'next_page_token'},
-  roles: {wire: 'roles'},
-};
-
-export function listRolesResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListRolesResponse> {
-  return FieldMask.build<ListRolesResponse>(
-    paths,
-    listRolesResponseFieldMaskSchema
-  );
-}
-
-const newPipelineSpecFieldMaskSchema: FieldMaskSchema = {
-  budgetPolicyId: {wire: 'budget_policy_id'},
-  pipelineChannel: {wire: 'pipeline_channel'},
-  storageCatalog: {wire: 'storage_catalog'},
-  storageSchema: {wire: 'storage_schema'},
-};
-
-export function newPipelineSpecFieldMask(
-  ...paths: string[]
-): FieldMask<NewPipelineSpec> {
-  return FieldMask.build<NewPipelineSpec>(
-    paths,
-    newPipelineSpecFieldMaskSchema
-  );
-}
-
-const operationFieldMaskSchema: FieldMaskSchema = {
-  done: {wire: 'done'},
-  error: {
-    wire: 'error',
-    children: () => databricksServiceExceptionWithDetailsProtoFieldMaskSchema,
-  },
-  metadata: {wire: 'metadata'},
-  name: {wire: 'name'},
-  response: {wire: 'response'},
-};
-
-export function operationFieldMask(...paths: string[]): FieldMask<Operation> {
-  return FieldMask.build<Operation>(paths, operationFieldMaskSchema);
 }
 
 const projectFieldMaskSchema: FieldMaskSchema = {
@@ -5665,34 +4403,6 @@ export function projectDefaultEndpointSettingsFieldMask(
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const projectDefaultEndpointSettings_PgSettingsEntryFieldMaskSchema: FieldMaskSchema =
-  {
-    key: {wire: 'key'},
-    value: {wire: 'value'},
-  };
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function projectDefaultEndpointSettings_PgSettingsEntryFieldMask(
-  ...paths: string[]
-): FieldMask<ProjectDefaultEndpointSettings_PgSettingsEntry> {
-  return FieldMask.build<ProjectDefaultEndpointSettings_PgSettingsEntry>(
-    paths,
-    projectDefaultEndpointSettings_PgSettingsEntryFieldMaskSchema
-  );
-}
-
-const projectOperationMetadataFieldMaskSchema: FieldMaskSchema = {};
-
-export function projectOperationMetadataFieldMask(
-  ...paths: string[]
-): FieldMask<ProjectOperationMetadata> {
-  return FieldMask.build<ProjectOperationMetadata>(
-    paths,
-    projectOperationMetadataFieldMaskSchema
-  );
-}
-
 const projectSpecFieldMaskSchema: FieldMaskSchema = {
   budgetPolicyId: {wire: 'budget_policy_id'},
   customTags: {wire: 'custom_tags'},
@@ -5737,45 +4447,6 @@ export function projectStatusFieldMask(
   ...paths: string[]
 ): FieldMask<ProjectStatus> {
   return FieldMask.build<ProjectStatus>(paths, projectStatusFieldMaskSchema);
-}
-
-const provisioningInfoFieldMaskSchema: FieldMaskSchema = {};
-
-export function provisioningInfoFieldMask(
-  ...paths: string[]
-): FieldMask<ProvisioningInfo> {
-  return FieldMask.build<ProvisioningInfo>(
-    paths,
-    provisioningInfoFieldMaskSchema
-  );
-}
-
-const requestedClaimsFieldMaskSchema: FieldMaskSchema = {
-  permissionSet: {wire: 'permission_set'},
-  resources: {wire: 'resources'},
-};
-
-export function requestedClaimsFieldMask(
-  ...paths: string[]
-): FieldMask<RequestedClaims> {
-  return FieldMask.build<RequestedClaims>(
-    paths,
-    requestedClaimsFieldMaskSchema
-  );
-}
-
-const requestedResourceFieldMaskSchema: FieldMaskSchema = {
-  tableName: {wire: 'table_name'},
-  unspecifiedResourceName: {wire: 'unspecified_resource_name'},
-};
-
-export function requestedResourceFieldMask(
-  ...paths: string[]
-): FieldMask<RequestedResource> {
-  return FieldMask.build<RequestedResource>(
-    paths,
-    requestedResourceFieldMaskSchema
-  );
 }
 
 const roleFieldMaskSchema: FieldMaskSchema = {
@@ -5847,249 +4518,5 @@ export function role_RoleStatusFieldMask(
   return FieldMask.build<Role_RoleStatus>(
     paths,
     role_RoleStatusFieldMaskSchema
-  );
-}
-
-const roleOperationMetadataFieldMaskSchema: FieldMaskSchema = {};
-
-export function roleOperationMetadataFieldMask(
-  ...paths: string[]
-): FieldMask<RoleOperationMetadata> {
-  return FieldMask.build<RoleOperationMetadata>(
-    paths,
-    roleOperationMetadataFieldMaskSchema
-  );
-}
-
-const syncedTableFieldMaskSchema: FieldMaskSchema = {
-  createTime: {wire: 'create_time'},
-  name: {wire: 'name'},
-  spec: {
-    wire: 'spec',
-    children: () => syncedTable_SyncedTableSpecFieldMaskSchema,
-  },
-  status: {
-    wire: 'status',
-    children: () => syncedTable_SyncedTableStatusFieldMaskSchema,
-  },
-  uid: {wire: 'uid'},
-};
-
-export function syncedTableFieldMask(
-  ...paths: string[]
-): FieldMask<SyncedTable> {
-  return FieldMask.build<SyncedTable>(paths, syncedTableFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const syncedTable_SyncedTableSpecFieldMaskSchema: FieldMaskSchema = {
-  acceleratedSync: {wire: 'accelerated_sync'},
-  branch: {wire: 'branch'},
-  createDatabaseObjectsIfMissing: {wire: 'create_database_objects_if_missing'},
-  existingPipelineId: {wire: 'existing_pipeline_id'},
-  newPipelineSpec: {
-    wire: 'new_pipeline_spec',
-    children: () => newPipelineSpecFieldMaskSchema,
-  },
-  postgresDatabase: {wire: 'postgres_database'},
-  primaryKeyColumns: {wire: 'primary_key_columns'},
-  schedulingPolicy: {wire: 'scheduling_policy'},
-  sourceTableFullName: {wire: 'source_table_full_name'},
-  timeseriesKey: {wire: 'timeseries_key'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function syncedTable_SyncedTableSpecFieldMask(
-  ...paths: string[]
-): FieldMask<SyncedTable_SyncedTableSpec> {
-  return FieldMask.build<SyncedTable_SyncedTableSpec>(
-    paths,
-    syncedTable_SyncedTableSpecFieldMaskSchema
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const syncedTable_SyncedTableStatusFieldMaskSchema: FieldMaskSchema = {
-  detailedState: {wire: 'detailed_state'},
-  lastProcessedCommitVersion: {wire: 'last_processed_commit_version'},
-  lastSync: {
-    wire: 'last_sync',
-    children: () => syncedTablePositionFieldMaskSchema,
-  },
-  lastSyncTime: {wire: 'last_sync_time'},
-  message: {wire: 'message'},
-  ongoingSyncProgress: {
-    wire: 'ongoing_sync_progress',
-    children: () => syncedTablePipelineProgressFieldMaskSchema,
-  },
-  pipelineId: {wire: 'pipeline_id'},
-  project: {wire: 'project'},
-  provisioningPhase: {wire: 'provisioning_phase'},
-  unityCatalogProvisioningState: {wire: 'unity_catalog_provisioning_state'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function syncedTable_SyncedTableStatusFieldMask(
-  ...paths: string[]
-): FieldMask<SyncedTable_SyncedTableStatus> {
-  return FieldMask.build<SyncedTable_SyncedTableStatus>(
-    paths,
-    syncedTable_SyncedTableStatusFieldMaskSchema
-  );
-}
-
-const syncedTableOperationMetadataFieldMaskSchema: FieldMaskSchema = {};
-
-export function syncedTableOperationMetadataFieldMask(
-  ...paths: string[]
-): FieldMask<SyncedTableOperationMetadata> {
-  return FieldMask.build<SyncedTableOperationMetadata>(
-    paths,
-    syncedTableOperationMetadataFieldMaskSchema
-  );
-}
-
-const syncedTablePipelineProgressFieldMaskSchema: FieldMaskSchema = {
-  estimatedCompletionTimeSeconds: {wire: 'estimated_completion_time_seconds'},
-  latestVersionCurrentlyProcessing: {
-    wire: 'latest_version_currently_processing',
-  },
-  syncProgressCompletion: {wire: 'sync_progress_completion'},
-  syncedRowCount: {wire: 'synced_row_count'},
-  totalRowCount: {wire: 'total_row_count'},
-};
-
-export function syncedTablePipelineProgressFieldMask(
-  ...paths: string[]
-): FieldMask<SyncedTablePipelineProgress> {
-  return FieldMask.build<SyncedTablePipelineProgress>(
-    paths,
-    syncedTablePipelineProgressFieldMaskSchema
-  );
-}
-
-const syncedTablePositionFieldMaskSchema: FieldMaskSchema = {
-  deltaTableSyncInfo: {
-    wire: 'delta_table_sync_info',
-    children: () => deltaTableSyncInfoFieldMaskSchema,
-  },
-  syncEndTime: {wire: 'sync_end_time'},
-  syncStartTime: {wire: 'sync_start_time'},
-};
-
-export function syncedTablePositionFieldMask(
-  ...paths: string[]
-): FieldMask<SyncedTablePosition> {
-  return FieldMask.build<SyncedTablePosition>(
-    paths,
-    syncedTablePositionFieldMaskSchema
-  );
-}
-
-const tableFieldMaskSchema: FieldMaskSchema = {
-  branch: {wire: 'branch'},
-  database: {wire: 'database'},
-  name: {wire: 'name'},
-  project: {wire: 'project'},
-  tableServingUrl: {wire: 'table_serving_url'},
-};
-
-export function tableFieldMask(...paths: string[]): FieldMask<Table> {
-  return FieldMask.build<Table>(paths, tableFieldMaskSchema);
-}
-
-const undeleteBranchRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function undeleteBranchRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UndeleteBranchRequest> {
-  return FieldMask.build<UndeleteBranchRequest>(
-    paths,
-    undeleteBranchRequestFieldMaskSchema
-  );
-}
-
-const undeleteProjectRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function undeleteProjectRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UndeleteProjectRequest> {
-  return FieldMask.build<UndeleteProjectRequest>(
-    paths,
-    undeleteProjectRequestFieldMaskSchema
-  );
-}
-
-const updateBranchRequestFieldMaskSchema: FieldMaskSchema = {
-  branch: {wire: 'branch', children: () => branchFieldMaskSchema},
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateBranchRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateBranchRequest> {
-  return FieldMask.build<UpdateBranchRequest>(
-    paths,
-    updateBranchRequestFieldMaskSchema
-  );
-}
-
-const updateDatabaseRequestFieldMaskSchema: FieldMaskSchema = {
-  database: {wire: 'database', children: () => databaseFieldMaskSchema},
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateDatabaseRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateDatabaseRequest> {
-  return FieldMask.build<UpdateDatabaseRequest>(
-    paths,
-    updateDatabaseRequestFieldMaskSchema
-  );
-}
-
-const updateEndpointRequestFieldMaskSchema: FieldMaskSchema = {
-  endpoint: {wire: 'endpoint', children: () => endpointFieldMaskSchema},
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateEndpointRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateEndpointRequest> {
-  return FieldMask.build<UpdateEndpointRequest>(
-    paths,
-    updateEndpointRequestFieldMaskSchema
-  );
-}
-
-const updateProjectRequestFieldMaskSchema: FieldMaskSchema = {
-  project: {wire: 'project', children: () => projectFieldMaskSchema},
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateProjectRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateProjectRequest> {
-  return FieldMask.build<UpdateProjectRequest>(
-    paths,
-    updateProjectRequestFieldMaskSchema
-  );
-}
-
-const updateRoleRequestFieldMaskSchema: FieldMaskSchema = {
-  role: {wire: 'role', children: () => roleFieldMaskSchema},
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateRoleRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateRoleRequest> {
-  return FieldMask.build<UpdateRoleRequest>(
-    paths,
-    updateRoleRequestFieldMaskSchema
   );
 }

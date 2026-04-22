@@ -183,7 +183,7 @@ export interface UpdateAccessRequestDestinationsRequest {
    * For each destination, a **destination_id** and **destination_type** must be defined.
    */
   accessRequestDestinations?: AccessRequestDestinations | undefined;
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<AccessRequestDestinations> | undefined;
 }
 
 export const unmarshalAccessRequestDestinationsSchema: z.ZodType<AccessRequestDestinations> =
@@ -209,17 +209,6 @@ export const unmarshalAccessRequestDestinationsSchema: z.ZodType<AccessRequestDe
       fullName: d.full_name,
     }));
 
-export const unmarshalBatchCreateAccessRequestsRequestSchema: z.ZodType<BatchCreateAccessRequestsRequest> =
-  z
-    .object({
-      requests: z
-        .array(z.lazy(() => unmarshalCreateAccessRequestSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      requests: d.requests,
-    }));
-
 export const unmarshalBatchCreateAccessRequestsResponseSchema: z.ZodType<BatchCreateAccessRequestsResponse> =
   z
     .object({
@@ -229,21 +218,6 @@ export const unmarshalBatchCreateAccessRequestsResponseSchema: z.ZodType<BatchCr
     })
     .transform(d => ({
       responses: d.responses,
-    }));
-
-export const unmarshalCreateAccessRequestSchema: z.ZodType<CreateAccessRequest> =
-  z
-    .object({
-      behalf_of: z.lazy(() => unmarshalPrincipalSchema).optional(),
-      comment: z.string().optional(),
-      securable_permissions: z
-        .array(z.lazy(() => unmarshalSecurablePermissionsSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      behalfOf: d.behalf_of,
-      comment: d.comment,
-      securablePermissions: d.securable_permissions,
     }));
 
 export const unmarshalCreateAccessRequestResponseSchema: z.ZodType<CreateAccessRequestResponse> =
@@ -294,17 +268,6 @@ export const unmarshalSecurableSchema: z.ZodType<Securable> = z
     providerShare: d.provider_share,
   }));
 
-export const unmarshalSecurablePermissionsSchema: z.ZodType<SecurablePermissions> =
-  z
-    .object({
-      securable: z.lazy(() => unmarshalSecurableSchema).optional(),
-      permissions: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      securable: d.securable,
-      permissions: d.permissions,
-    }));
-
 export const marshalAccessRequestDestinationsSchema: z.ZodType = z
   .object({
     destinations: z
@@ -335,16 +298,6 @@ export const marshalBatchCreateAccessRequestsRequestSchema: z.ZodType = z
     requests: d.requests,
   }));
 
-export const marshalBatchCreateAccessRequestsResponseSchema: z.ZodType = z
-  .object({
-    responses: z
-      .array(z.lazy(() => marshalCreateAccessRequestResponseSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    responses: d.responses,
-  }));
-
 export const marshalCreateAccessRequestSchema: z.ZodType = z
   .object({
     behalfOf: z.lazy(() => marshalPrincipalSchema).optional(),
@@ -357,18 +310,6 @@ export const marshalCreateAccessRequestSchema: z.ZodType = z
     behalf_of: d.behalfOf,
     comment: d.comment,
     securable_permissions: d.securablePermissions,
-  }));
-
-export const marshalCreateAccessRequestResponseSchema: z.ZodType = z
-  .object({
-    behalfOf: z.lazy(() => marshalPrincipalSchema).optional(),
-    requestDestinations: z
-      .array(z.lazy(() => marshalAccessRequestDestinationsSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    behalf_of: d.behalfOf,
-    request_destinations: d.requestDestinations,
   }));
 
 export const marshalNotificationDestinationSchema: z.ZodType = z
@@ -436,75 +377,6 @@ export function accessRequestDestinationsFieldMask(
   );
 }
 
-const batchCreateAccessRequestsRequestFieldMaskSchema: FieldMaskSchema = {
-  requests: {wire: 'requests'},
-};
-
-export function batchCreateAccessRequestsRequestFieldMask(
-  ...paths: string[]
-): FieldMask<BatchCreateAccessRequestsRequest> {
-  return FieldMask.build<BatchCreateAccessRequestsRequest>(
-    paths,
-    batchCreateAccessRequestsRequestFieldMaskSchema
-  );
-}
-
-const batchCreateAccessRequestsResponseFieldMaskSchema: FieldMaskSchema = {
-  responses: {wire: 'responses'},
-};
-
-export function batchCreateAccessRequestsResponseFieldMask(
-  ...paths: string[]
-): FieldMask<BatchCreateAccessRequestsResponse> {
-  return FieldMask.build<BatchCreateAccessRequestsResponse>(
-    paths,
-    batchCreateAccessRequestsResponseFieldMaskSchema
-  );
-}
-
-const createAccessRequestFieldMaskSchema: FieldMaskSchema = {
-  behalfOf: {wire: 'behalf_of', children: () => principalFieldMaskSchema},
-  comment: {wire: 'comment'},
-  securablePermissions: {wire: 'securable_permissions'},
-};
-
-export function createAccessRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateAccessRequest> {
-  return FieldMask.build<CreateAccessRequest>(
-    paths,
-    createAccessRequestFieldMaskSchema
-  );
-}
-
-const createAccessRequestResponseFieldMaskSchema: FieldMaskSchema = {
-  behalfOf: {wire: 'behalf_of', children: () => principalFieldMaskSchema},
-  requestDestinations: {wire: 'request_destinations'},
-};
-
-export function createAccessRequestResponseFieldMask(
-  ...paths: string[]
-): FieldMask<CreateAccessRequestResponse> {
-  return FieldMask.build<CreateAccessRequestResponse>(
-    paths,
-    createAccessRequestResponseFieldMaskSchema
-  );
-}
-
-const getAccessRequestDestinationsRequestFieldMaskSchema: FieldMaskSchema = {
-  fullName: {wire: 'full_name'},
-  securableType: {wire: 'securable_type'},
-};
-
-export function getAccessRequestDestinationsRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetAccessRequestDestinationsRequest> {
-  return FieldMask.build<GetAccessRequestDestinationsRequest>(
-    paths,
-    getAccessRequestDestinationsRequestFieldMaskSchema
-  );
-}
-
 const notificationDestinationFieldMaskSchema: FieldMaskSchema = {
   destinationId: {wire: 'destination_id'},
   destinationType: {wire: 'destination_type'},
@@ -520,15 +392,6 @@ export function notificationDestinationFieldMask(
   );
 }
 
-const principalFieldMaskSchema: FieldMaskSchema = {
-  id: {wire: 'id'},
-  principalType: {wire: 'principal_type'},
-};
-
-export function principalFieldMask(...paths: string[]): FieldMask<Principal> {
-  return FieldMask.build<Principal>(paths, principalFieldMaskSchema);
-}
-
 const securableFieldMaskSchema: FieldMaskSchema = {
   fullName: {wire: 'full_name'},
   providerShare: {wire: 'provider_share'},
@@ -537,35 +400,4 @@ const securableFieldMaskSchema: FieldMaskSchema = {
 
 export function securableFieldMask(...paths: string[]): FieldMask<Securable> {
   return FieldMask.build<Securable>(paths, securableFieldMaskSchema);
-}
-
-const securablePermissionsFieldMaskSchema: FieldMaskSchema = {
-  permissions: {wire: 'permissions'},
-  securable: {wire: 'securable', children: () => securableFieldMaskSchema},
-};
-
-export function securablePermissionsFieldMask(
-  ...paths: string[]
-): FieldMask<SecurablePermissions> {
-  return FieldMask.build<SecurablePermissions>(
-    paths,
-    securablePermissionsFieldMaskSchema
-  );
-}
-
-const updateAccessRequestDestinationsRequestFieldMaskSchema: FieldMaskSchema = {
-  accessRequestDestinations: {
-    wire: 'access_request_destinations',
-    children: () => accessRequestDestinationsFieldMaskSchema,
-  },
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateAccessRequestDestinationsRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateAccessRequestDestinationsRequest> {
-  return FieldMask.build<UpdateAccessRequestDestinationsRequest>(
-    paths,
-    updateAccessRequestDestinationsRequestFieldMaskSchema
-  );
 }
