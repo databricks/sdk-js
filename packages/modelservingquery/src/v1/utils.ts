@@ -128,38 +128,3 @@ export function flattenQueryParams(
     throw new Error(`Unsupported query parameter type: ${typeof value}`);
   }
 }
-
-/**
- * Sends an HTTP request and checks for API errors. On non-2xx responses the
- * body is buffered and parsed into an APIError. On 2xx the raw HttpResponse
- * is returned with the body stream untouched.
- */
-export async function sendAndCheckError(
-  opts: HttpCallOptions
-): Promise<HttpResponse> {
-  opts.logger.debug('HTTP request', {
-    method: opts.request.method,
-    url: opts.request.url,
-  });
-
-  let resp: HttpResponse;
-  try {
-    resp = await opts.httpClient.send(opts.request);
-  } catch (e: unknown) {
-    opts.logger.debug('HTTP request failed');
-    throw e;
-  }
-
-  opts.logger.debug('HTTP response', {statusCode: resp.statusCode});
-
-  if (resp.statusCode < 200 || resp.statusCode >= 300) {
-    const body = await readAll(resp.body);
-    const apiErr = APIError.fromHttpError(resp.statusCode, resp.headers, body);
-    if (apiErr !== undefined) {
-      throw apiErr;
-    }
-    throw new Error(`unexpected HTTP status ${String(resp.statusCode)}`);
-  }
-
-  return resp;
-}
