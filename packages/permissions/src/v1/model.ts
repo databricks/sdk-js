@@ -1,7 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-import {FieldMask} from '@databricks/sdk-core/wkt';
-import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** Permission level */
@@ -57,14 +55,14 @@ export interface AccessControlResponse {
 }
 
 export interface GetObjectPermissions {
-  /** The type of the request object. Can be one of the following: alerts, alertsv2, authorization, clusters, cluster-policies, dashboards, database-projects, dbsql-dashboards, directories, experiments, files, genie, instance-pools, jobs, notebooks, pipelines, queries, registered-models, repos, serving-endpoints, or warehouses. */
+  /** The type of the request object. Can be one of the following: alerts, alertsv2, authorization, clusters, cluster-policies, dashboards, database-projects, dbsql-dashboards, directories, experiments, files, genie, instance-pools, jobs, knowledge-assistants, notebooks, pipelines, queries, registered-models, repos, serving-endpoints, or warehouses. */
   requestObjectType?: string | undefined;
   /** The id of the request object. */
   requestObjectId?: string | undefined;
 }
 
 export interface GetPermissionLevels {
-  /** The type of the request object. Can be one of the following: alerts, alertsv2, authorization, clusters, cluster-policies, dashboards, database-projects, dbsql-dashboards, directories, experiments, files, genie, instance-pools, jobs, notebooks, pipelines, queries, registered-models, repos, serving-endpoints, or warehouses. */
+  /** The type of the request object. Can be one of the following: alerts, alertsv2, authorization, clusters, cluster-policies, dashboards, database-projects, dbsql-dashboards, directories, experiments, files, genie, instance-pools, jobs, knowledge-assistants, notebooks, pipelines, queries, registered-models, repos, serving-endpoints, or warehouses. */
   requestObjectType?: string | undefined;
   requestObjectId?: string | undefined;
 }
@@ -93,7 +91,7 @@ export interface PermissionsResponse {
 }
 
 export interface SetObjectPermissions {
-  /** The type of the request object. Can be one of the following: alerts, alertsv2, authorization, clusters, cluster-policies, dashboards, database-projects, dbsql-dashboards, directories, experiments, files, genie, instance-pools, jobs, notebooks, pipelines, queries, registered-models, repos, serving-endpoints, or warehouses. */
+  /** The type of the request object. Can be one of the following: alerts, alertsv2, authorization, clusters, cluster-policies, dashboards, database-projects, dbsql-dashboards, directories, experiments, files, genie, instance-pools, jobs, knowledge-assistants, notebooks, pipelines, queries, registered-models, repos, serving-endpoints, or warehouses. */
   requestObjectType?: string | undefined;
   /** The id of the request object. */
   requestObjectId?: string | undefined;
@@ -101,27 +99,12 @@ export interface SetObjectPermissions {
 }
 
 export interface UpdateObjectPermissions {
-  /** The type of the request object. Can be one of the following: alerts, alertsv2, authorization, clusters, cluster-policies, dashboards, database-projects, dbsql-dashboards, directories, experiments, files, genie, instance-pools, jobs, notebooks, pipelines, queries, registered-models, repos, serving-endpoints, or warehouses. */
+  /** The type of the request object. Can be one of the following: alerts, alertsv2, authorization, clusters, cluster-policies, dashboards, database-projects, dbsql-dashboards, directories, experiments, files, genie, instance-pools, jobs, knowledge-assistants, notebooks, pipelines, queries, registered-models, repos, serving-endpoints, or warehouses. */
   requestObjectType?: string | undefined;
   /** The id of the request object. */
   requestObjectId?: string | undefined;
   accessControlList?: AccessControlRequest[] | undefined;
 }
-
-export const unmarshalAccessControlRequestSchema: z.ZodType<AccessControlRequest> =
-  z
-    .object({
-      user_name: z.string().optional(),
-      group_name: z.string().optional(),
-      service_principal_name: z.string().optional(),
-      permission_level: z.enum(PermissionLevel).optional(),
-    })
-    .transform(d => ({
-      userName: d.user_name,
-      groupName: d.group_name,
-      servicePrincipalName: d.service_principal_name,
-      permissionLevel: d.permission_level,
-    }));
 
 export const unmarshalAccessControlResponseSchema: z.ZodType<AccessControlResponse> =
   z
@@ -192,36 +175,6 @@ export const unmarshalPermissionsResponseSchema: z.ZodType<PermissionsResponse> 
       accessControlList: d.access_control_list,
     }));
 
-export const unmarshalSetObjectPermissionsSchema: z.ZodType<SetObjectPermissions> =
-  z
-    .object({
-      request_object_type: z.string().optional(),
-      request_object_id: z.string().optional(),
-      access_control_list: z
-        .array(z.lazy(() => unmarshalAccessControlRequestSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      requestObjectType: d.request_object_type,
-      requestObjectId: d.request_object_id,
-      accessControlList: d.access_control_list,
-    }));
-
-export const unmarshalUpdateObjectPermissionsSchema: z.ZodType<UpdateObjectPermissions> =
-  z
-    .object({
-      request_object_type: z.string().optional(),
-      request_object_id: z.string().optional(),
-      access_control_list: z
-        .array(z.lazy(() => unmarshalAccessControlRequestSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      requestObjectType: d.request_object_type,
-      requestObjectId: d.request_object_id,
-      accessControlList: d.access_control_list,
-    }));
-
 export const marshalAccessControlRequestSchema: z.ZodType = z
   .object({
     userName: z.string().optional(),
@@ -234,69 +187,6 @@ export const marshalAccessControlRequestSchema: z.ZodType = z
     group_name: d.groupName,
     service_principal_name: d.servicePrincipalName,
     permission_level: d.permissionLevel,
-  }));
-
-export const marshalAccessControlResponseSchema: z.ZodType = z
-  .object({
-    userName: z.string().optional(),
-    groupName: z.string().optional(),
-    servicePrincipalName: z.string().optional(),
-    displayName: z.string().optional(),
-    allPermissions: z.array(z.lazy(() => marshalPermissionSchema)).optional(),
-  })
-  .transform(d => ({
-    user_name: d.userName,
-    group_name: d.groupName,
-    service_principal_name: d.servicePrincipalName,
-    display_name: d.displayName,
-    all_permissions: d.allPermissions,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalGetPermissionLevels_ResponseSchema: z.ZodType = z
-  .object({
-    permissionLevels: z
-      .array(z.lazy(() => marshalPermissionsDescriptionSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    permission_levels: d.permissionLevels,
-  }));
-
-export const marshalPermissionSchema: z.ZodType = z
-  .object({
-    permissionLevel: z.enum(PermissionLevel).optional(),
-    inherited: z.boolean().optional(),
-    inheritedFromObject: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    permission_level: d.permissionLevel,
-    inherited: d.inherited,
-    inherited_from_object: d.inheritedFromObject,
-  }));
-
-export const marshalPermissionsDescriptionSchema: z.ZodType = z
-  .object({
-    permissionLevel: z.enum(PermissionLevel).optional(),
-    description: z.string().optional(),
-  })
-  .transform(d => ({
-    permission_level: d.permissionLevel,
-    description: d.description,
-  }));
-
-export const marshalPermissionsResponseSchema: z.ZodType = z
-  .object({
-    objectId: z.string().optional(),
-    objectType: z.string().optional(),
-    accessControlList: z
-      .array(z.lazy(() => marshalAccessControlResponseSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    object_id: d.objectId,
-    object_type: d.objectType,
-    access_control_list: d.accessControlList,
   }));
 
 export const marshalSetObjectPermissionsSchema: z.ZodType = z
@@ -326,148 +216,3 @@ export const marshalUpdateObjectPermissionsSchema: z.ZodType = z
     request_object_id: d.requestObjectId,
     access_control_list: d.accessControlList,
   }));
-
-const accessControlRequestFieldMaskSchema: FieldMaskSchema = {
-  groupName: {wire: 'group_name'},
-  permissionLevel: {wire: 'permission_level'},
-  servicePrincipalName: {wire: 'service_principal_name'},
-  userName: {wire: 'user_name'},
-};
-
-export function accessControlRequestFieldMask(
-  ...paths: string[]
-): FieldMask<AccessControlRequest> {
-  return FieldMask.build<AccessControlRequest>(
-    paths,
-    accessControlRequestFieldMaskSchema
-  );
-}
-
-const accessControlResponseFieldMaskSchema: FieldMaskSchema = {
-  allPermissions: {wire: 'all_permissions'},
-  displayName: {wire: 'display_name'},
-  groupName: {wire: 'group_name'},
-  servicePrincipalName: {wire: 'service_principal_name'},
-  userName: {wire: 'user_name'},
-};
-
-export function accessControlResponseFieldMask(
-  ...paths: string[]
-): FieldMask<AccessControlResponse> {
-  return FieldMask.build<AccessControlResponse>(
-    paths,
-    accessControlResponseFieldMaskSchema
-  );
-}
-
-const getObjectPermissionsFieldMaskSchema: FieldMaskSchema = {
-  requestObjectId: {wire: 'request_object_id'},
-  requestObjectType: {wire: 'request_object_type'},
-};
-
-export function getObjectPermissionsFieldMask(
-  ...paths: string[]
-): FieldMask<GetObjectPermissions> {
-  return FieldMask.build<GetObjectPermissions>(
-    paths,
-    getObjectPermissionsFieldMaskSchema
-  );
-}
-
-const getPermissionLevelsFieldMaskSchema: FieldMaskSchema = {
-  requestObjectId: {wire: 'request_object_id'},
-  requestObjectType: {wire: 'request_object_type'},
-};
-
-export function getPermissionLevelsFieldMask(
-  ...paths: string[]
-): FieldMask<GetPermissionLevels> {
-  return FieldMask.build<GetPermissionLevels>(
-    paths,
-    getPermissionLevelsFieldMaskSchema
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const getPermissionLevels_ResponseFieldMaskSchema: FieldMaskSchema = {
-  permissionLevels: {wire: 'permission_levels'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function getPermissionLevels_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<GetPermissionLevels_Response> {
-  return FieldMask.build<GetPermissionLevels_Response>(
-    paths,
-    getPermissionLevels_ResponseFieldMaskSchema
-  );
-}
-
-const permissionFieldMaskSchema: FieldMaskSchema = {
-  inherited: {wire: 'inherited'},
-  inheritedFromObject: {wire: 'inherited_from_object'},
-  permissionLevel: {wire: 'permission_level'},
-};
-
-export function permissionFieldMask(...paths: string[]): FieldMask<Permission> {
-  return FieldMask.build<Permission>(paths, permissionFieldMaskSchema);
-}
-
-const permissionsDescriptionFieldMaskSchema: FieldMaskSchema = {
-  description: {wire: 'description'},
-  permissionLevel: {wire: 'permission_level'},
-};
-
-export function permissionsDescriptionFieldMask(
-  ...paths: string[]
-): FieldMask<PermissionsDescription> {
-  return FieldMask.build<PermissionsDescription>(
-    paths,
-    permissionsDescriptionFieldMaskSchema
-  );
-}
-
-const permissionsResponseFieldMaskSchema: FieldMaskSchema = {
-  accessControlList: {wire: 'access_control_list'},
-  objectId: {wire: 'object_id'},
-  objectType: {wire: 'object_type'},
-};
-
-export function permissionsResponseFieldMask(
-  ...paths: string[]
-): FieldMask<PermissionsResponse> {
-  return FieldMask.build<PermissionsResponse>(
-    paths,
-    permissionsResponseFieldMaskSchema
-  );
-}
-
-const setObjectPermissionsFieldMaskSchema: FieldMaskSchema = {
-  accessControlList: {wire: 'access_control_list'},
-  requestObjectId: {wire: 'request_object_id'},
-  requestObjectType: {wire: 'request_object_type'},
-};
-
-export function setObjectPermissionsFieldMask(
-  ...paths: string[]
-): FieldMask<SetObjectPermissions> {
-  return FieldMask.build<SetObjectPermissions>(
-    paths,
-    setObjectPermissionsFieldMaskSchema
-  );
-}
-
-const updateObjectPermissionsFieldMaskSchema: FieldMaskSchema = {
-  accessControlList: {wire: 'access_control_list'},
-  requestObjectId: {wire: 'request_object_id'},
-  requestObjectType: {wire: 'request_object_type'},
-};
-
-export function updateObjectPermissionsFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateObjectPermissions> {
-  return FieldMask.build<UpdateObjectPermissions>(
-    paths,
-    updateObjectPermissionsFieldMaskSchema
-  );
-}

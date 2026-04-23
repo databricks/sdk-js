@@ -1,7 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-import {FieldMask} from '@databricks/sdk-core/wkt';
-import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export interface GetAssignableRolesForResourceRequest {
@@ -151,40 +149,6 @@ export const unmarshalRuleSetSchema: z.ZodType<RuleSet> = z
     grantRules: d.grant_rules,
   }));
 
-export const unmarshalRuleSetUpdateRequestSchema: z.ZodType<RuleSetUpdateRequest> =
-  z
-    .object({
-      name: z.string().optional(),
-      etag: z.string().optional(),
-      grant_rules: z.array(z.lazy(() => unmarshalGrantRuleSchema)).optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      etag: d.etag,
-      grantRules: d.grant_rules,
-    }));
-
-export const unmarshalUpdateRuleSetRequestSchema: z.ZodType<UpdateRuleSetRequest> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      name: z.string().optional(),
-      rule_set: z.lazy(() => unmarshalRuleSetUpdateRequestSchema).optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      name: d.name,
-      ruleSet: d.rule_set,
-    }));
-
-export const marshalGetAssignableRolesForResourceResponseSchema: z.ZodType = z
-  .object({
-    roles: z.array(z.lazy(() => marshalRoleSchema)).optional(),
-  })
-  .transform(d => ({
-    roles: d.roles,
-  }));
-
 export const marshalGrantRuleSchema: z.ZodType = z
   .object({
     principals: z.array(z.string()).optional(),
@@ -193,26 +157,6 @@ export const marshalGrantRuleSchema: z.ZodType = z
   .transform(d => ({
     principals: d.principals,
     role: d.role,
-  }));
-
-export const marshalRoleSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalRuleSetSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    etag: z.string().optional(),
-    grantRules: z.array(z.lazy(() => marshalGrantRuleSchema)).optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    etag: d.etag,
-    grant_rules: d.grantRules,
   }));
 
 export const marshalRuleSetUpdateRequestSchema: z.ZodType = z
@@ -238,105 +182,3 @@ export const marshalUpdateRuleSetRequestSchema: z.ZodType = z
     name: d.name,
     rule_set: d.ruleSet,
   }));
-
-const getAssignableRolesForResourceRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  resource: {wire: 'resource'},
-};
-
-export function getAssignableRolesForResourceRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetAssignableRolesForResourceRequest> {
-  return FieldMask.build<GetAssignableRolesForResourceRequest>(
-    paths,
-    getAssignableRolesForResourceRequestFieldMaskSchema
-  );
-}
-
-const getAssignableRolesForResourceResponseFieldMaskSchema: FieldMaskSchema = {
-  roles: {wire: 'roles'},
-};
-
-export function getAssignableRolesForResourceResponseFieldMask(
-  ...paths: string[]
-): FieldMask<GetAssignableRolesForResourceResponse> {
-  return FieldMask.build<GetAssignableRolesForResourceResponse>(
-    paths,
-    getAssignableRolesForResourceResponseFieldMaskSchema
-  );
-}
-
-const getRuleSetRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  etag: {wire: 'etag'},
-  name: {wire: 'name'},
-};
-
-export function getRuleSetRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetRuleSetRequest> {
-  return FieldMask.build<GetRuleSetRequest>(
-    paths,
-    getRuleSetRequestFieldMaskSchema
-  );
-}
-
-const grantRuleFieldMaskSchema: FieldMaskSchema = {
-  principals: {wire: 'principals'},
-  role: {wire: 'role'},
-};
-
-export function grantRuleFieldMask(...paths: string[]): FieldMask<GrantRule> {
-  return FieldMask.build<GrantRule>(paths, grantRuleFieldMaskSchema);
-}
-
-const roleFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function roleFieldMask(...paths: string[]): FieldMask<Role> {
-  return FieldMask.build<Role>(paths, roleFieldMaskSchema);
-}
-
-const ruleSetFieldMaskSchema: FieldMaskSchema = {
-  etag: {wire: 'etag'},
-  grantRules: {wire: 'grant_rules'},
-  name: {wire: 'name'},
-};
-
-export function ruleSetFieldMask(...paths: string[]): FieldMask<RuleSet> {
-  return FieldMask.build<RuleSet>(paths, ruleSetFieldMaskSchema);
-}
-
-const ruleSetUpdateRequestFieldMaskSchema: FieldMaskSchema = {
-  etag: {wire: 'etag'},
-  grantRules: {wire: 'grant_rules'},
-  name: {wire: 'name'},
-};
-
-export function ruleSetUpdateRequestFieldMask(
-  ...paths: string[]
-): FieldMask<RuleSetUpdateRequest> {
-  return FieldMask.build<RuleSetUpdateRequest>(
-    paths,
-    ruleSetUpdateRequestFieldMaskSchema
-  );
-}
-
-const updateRuleSetRequestFieldMaskSchema: FieldMaskSchema = {
-  accountId: {wire: 'account_id'},
-  name: {wire: 'name'},
-  ruleSet: {
-    wire: 'rule_set',
-    children: () => ruleSetUpdateRequestFieldMaskSchema,
-  },
-};
-
-export function updateRuleSetRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateRuleSetRequest> {
-  return FieldMask.build<UpdateRuleSetRequest>(
-    paths,
-    updateRuleSetRequestFieldMaskSchema
-  );
-}

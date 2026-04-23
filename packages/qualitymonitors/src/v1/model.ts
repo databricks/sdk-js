@@ -1,7 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-import {FieldMask} from '@databricks/sdk-core/wkt';
-import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /**
@@ -463,75 +461,9 @@ export interface UpdateMonitor {
   monitorVersion?: number | undefined;
 }
 
-export const unmarshalCancelRefreshSchema: z.ZodType<CancelRefresh> = z
-  .object({
-    full_table_name_arg: z.string().optional(),
-    refresh_id: z.number().optional(),
-  })
-  .transform(d => ({
-    fullTableNameArg: d.full_table_name_arg,
-    refreshId: d.refresh_id,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalCancelRefresh_ResponseSchema: z.ZodType<CancelRefresh_Response> =
   z.object({});
-
-export const unmarshalCreateMonitorSchema: z.ZodType<CreateMonitor> = z
-  .object({
-    full_table_name_arg: z.string().optional(),
-    skip_builtin_dashboard: z.boolean().optional(),
-    warehouse_id: z.string().optional(),
-    output_schema_name: z.string().optional(),
-    assets_dir: z.string().optional(),
-    inference_log: z
-      .lazy(() => unmarshalInferenceLogAnalysisConfigSchema)
-      .optional(),
-    time_series: z
-      .lazy(() => unmarshalTimeSeriesAnalysisConfigSchema)
-      .optional(),
-    snapshot: z.lazy(() => unmarshalSnapshotAnalysisConfigSchema).optional(),
-    slicing_exprs: z.array(z.string()).optional(),
-    custom_metrics: z
-      .array(z.lazy(() => unmarshalCustomMetricSchema))
-      .optional(),
-    baseline_table_name: z.string().optional(),
-    schedule: z.lazy(() => unmarshalMonitorCronScheduleSchema).optional(),
-    notifications: z.lazy(() => unmarshalNotificationsSchema).optional(),
-    data_classification_config: z
-      .lazy(() => unmarshalDataClassificationConfigSchema)
-      .optional(),
-    table_name: z.string().optional(),
-    status: z.enum(MonitorStatus).optional(),
-    latest_monitor_failure_msg: z.string().optional(),
-    profile_metrics_table_name: z.string().optional(),
-    drift_metrics_table_name: z.string().optional(),
-    dashboard_id: z.string().optional(),
-    monitor_version: z.number().optional(),
-  })
-  .transform(d => ({
-    fullTableNameArg: d.full_table_name_arg,
-    skipBuiltinDashboard: d.skip_builtin_dashboard,
-    warehouseId: d.warehouse_id,
-    outputSchemaName: d.output_schema_name,
-    assetsDir: d.assets_dir,
-    inferenceLog: d.inference_log,
-    timeSeries: d.time_series,
-    snapshot: d.snapshot,
-    slicingExprs: d.slicing_exprs,
-    customMetrics: d.custom_metrics,
-    baselineTableName: d.baseline_table_name,
-    schedule: d.schedule,
-    notifications: d.notifications,
-    dataClassificationConfig: d.data_classification_config,
-    tableName: d.table_name,
-    status: d.status,
-    latestMonitorFailureMsg: d.latest_monitor_failure_msg,
-    profileMetricsTableName: d.profile_metrics_table_name,
-    driftMetricsTableName: d.drift_metrics_table_name,
-    dashboardId: d.dashboard_id,
-    monitorVersion: d.monitor_version,
-  }));
 
 export const unmarshalCustomMetricSchema: z.ZodType<CustomMetric> = z
   .object({
@@ -694,17 +626,6 @@ export const unmarshalRefreshInfoSchema: z.ZodType<RefreshInfo> = z
     trigger: d.trigger,
   }));
 
-export const unmarshalRegenerateDashboardSchema: z.ZodType<RegenerateDashboard> =
-  z
-    .object({
-      full_table_name_arg: z.string().optional(),
-      warehouse_id: z.string().optional(),
-    })
-    .transform(d => ({
-      fullTableNameArg: d.full_table_name_arg,
-      warehouseId: d.warehouse_id,
-    }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalRegenerateDashboard_ResponseSchema: z.ZodType<RegenerateDashboard_Response> =
   z
@@ -716,14 +637,6 @@ export const unmarshalRegenerateDashboard_ResponseSchema: z.ZodType<RegenerateDa
       dashboardId: d.dashboard_id,
       parentFolder: d.parent_folder,
     }));
-
-export const unmarshalRunRefreshSchema: z.ZodType<RunRefresh> = z
-  .object({
-    full_table_name_arg: z.string().optional(),
-  })
-  .transform(d => ({
-    fullTableNameArg: d.full_table_name_arg,
-  }));
 
 export const unmarshalSnapshotAnalysisConfigSchema: z.ZodType<SnapshotAnalysisConfig> =
   z.object({});
@@ -739,58 +652,6 @@ export const unmarshalTimeSeriesAnalysisConfigSchema: z.ZodType<TimeSeriesAnalys
       granularities: d.granularities,
     }));
 
-export const unmarshalUpdateMonitorSchema: z.ZodType<UpdateMonitor> = z
-  .object({
-    full_table_name_arg: z.string().optional(),
-    output_schema_name: z.string().optional(),
-    assets_dir: z.string().optional(),
-    inference_log: z
-      .lazy(() => unmarshalInferenceLogAnalysisConfigSchema)
-      .optional(),
-    time_series: z
-      .lazy(() => unmarshalTimeSeriesAnalysisConfigSchema)
-      .optional(),
-    snapshot: z.lazy(() => unmarshalSnapshotAnalysisConfigSchema).optional(),
-    slicing_exprs: z.array(z.string()).optional(),
-    custom_metrics: z
-      .array(z.lazy(() => unmarshalCustomMetricSchema))
-      .optional(),
-    baseline_table_name: z.string().optional(),
-    schedule: z.lazy(() => unmarshalMonitorCronScheduleSchema).optional(),
-    notifications: z.lazy(() => unmarshalNotificationsSchema).optional(),
-    data_classification_config: z
-      .lazy(() => unmarshalDataClassificationConfigSchema)
-      .optional(),
-    table_name: z.string().optional(),
-    status: z.enum(MonitorStatus).optional(),
-    latest_monitor_failure_msg: z.string().optional(),
-    profile_metrics_table_name: z.string().optional(),
-    drift_metrics_table_name: z.string().optional(),
-    dashboard_id: z.string().optional(),
-    monitor_version: z.number().optional(),
-  })
-  .transform(d => ({
-    fullTableNameArg: d.full_table_name_arg,
-    outputSchemaName: d.output_schema_name,
-    assetsDir: d.assets_dir,
-    inferenceLog: d.inference_log,
-    timeSeries: d.time_series,
-    snapshot: d.snapshot,
-    slicingExprs: d.slicing_exprs,
-    customMetrics: d.custom_metrics,
-    baselineTableName: d.baseline_table_name,
-    schedule: d.schedule,
-    notifications: d.notifications,
-    dataClassificationConfig: d.data_classification_config,
-    tableName: d.table_name,
-    status: d.status,
-    latestMonitorFailureMsg: d.latest_monitor_failure_msg,
-    profileMetricsTableName: d.profile_metrics_table_name,
-    driftMetricsTableName: d.drift_metrics_table_name,
-    dashboardId: d.dashboard_id,
-    monitorVersion: d.monitor_version,
-  }));
-
 export const marshalCancelRefreshSchema: z.ZodType = z
   .object({
     fullTableNameArg: z.string().optional(),
@@ -800,9 +661,6 @@ export const marshalCancelRefreshSchema: z.ZodType = z
     full_table_name_arg: d.fullTableNameArg,
     refresh_id: d.refreshId,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCancelRefresh_ResponseSchema: z.ZodType = z.object({});
 
 export const marshalCreateMonitorSchema: z.ZodType = z
   .object({
@@ -880,55 +738,6 @@ export const marshalDataClassificationConfigSchema: z.ZodType = z
     enabled: d.enabled,
   }));
 
-export const marshalDataMonitorInfoSchema: z.ZodType = z
-  .object({
-    outputSchemaName: z.string().optional(),
-    assetsDir: z.string().optional(),
-    inferenceLog: z
-      .lazy(() => marshalInferenceLogAnalysisConfigSchema)
-      .optional(),
-    timeSeries: z.lazy(() => marshalTimeSeriesAnalysisConfigSchema).optional(),
-    snapshot: z.lazy(() => marshalSnapshotAnalysisConfigSchema).optional(),
-    slicingExprs: z.array(z.string()).optional(),
-    customMetrics: z.array(z.lazy(() => marshalCustomMetricSchema)).optional(),
-    baselineTableName: z.string().optional(),
-    schedule: z.lazy(() => marshalMonitorCronScheduleSchema).optional(),
-    notifications: z.lazy(() => marshalNotificationsSchema).optional(),
-    dataClassificationConfig: z
-      .lazy(() => marshalDataClassificationConfigSchema)
-      .optional(),
-    tableName: z.string().optional(),
-    status: z.enum(MonitorStatus).optional(),
-    latestMonitorFailureMsg: z.string().optional(),
-    profileMetricsTableName: z.string().optional(),
-    driftMetricsTableName: z.string().optional(),
-    dashboardId: z.string().optional(),
-    monitorVersion: z.number().optional(),
-  })
-  .transform(d => ({
-    output_schema_name: d.outputSchemaName,
-    assets_dir: d.assetsDir,
-    inference_log: d.inferenceLog,
-    time_series: d.timeSeries,
-    snapshot: d.snapshot,
-    slicing_exprs: d.slicingExprs,
-    custom_metrics: d.customMetrics,
-    baseline_table_name: d.baselineTableName,
-    schedule: d.schedule,
-    notifications: d.notifications,
-    data_classification_config: d.dataClassificationConfig,
-    table_name: d.tableName,
-    status: d.status,
-    latest_monitor_failure_msg: d.latestMonitorFailureMsg,
-    profile_metrics_table_name: d.profileMetricsTableName,
-    drift_metrics_table_name: d.driftMetricsTableName,
-    dashboard_id: d.dashboardId,
-    monitor_version: d.monitorVersion,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeleteMonitor_ResponseSchema: z.ZodType = z.object({});
-
 export const marshalDestinationSchema: z.ZodType = z
   .object({
     emailAddresses: z.array(z.string()).optional(),
@@ -957,15 +766,6 @@ export const marshalInferenceLogAnalysisConfigSchema: z.ZodType = z
     prediction_proba_col: d.predictionProbaCol,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalListRefreshes_ResponseSchema: z.ZodType = z
-  .object({
-    refreshes: z.array(z.lazy(() => marshalRefreshInfoSchema)).optional(),
-  })
-  .transform(d => ({
-    refreshes: d.refreshes,
-  }));
-
 export const marshalMonitorCronScheduleSchema: z.ZodType = z
   .object({
     quartzCronExpression: z.string().optional(),
@@ -990,24 +790,6 @@ export const marshalNotificationsSchema: z.ZodType = z
     on_new_classification_tag_detected: d.onNewClassificationTagDetected,
   }));
 
-export const marshalRefreshInfoSchema: z.ZodType = z
-  .object({
-    refreshId: z.number().optional(),
-    state: z.enum(RefreshState).optional(),
-    message: z.string().optional(),
-    startTimeMs: z.number().optional(),
-    endTimeMs: z.number().optional(),
-    trigger: z.enum(RefreshTrigger).optional(),
-  })
-  .transform(d => ({
-    refresh_id: d.refreshId,
-    state: d.state,
-    message: d.message,
-    start_time_ms: d.startTimeMs,
-    end_time_ms: d.endTimeMs,
-    trigger: d.trigger,
-  }));
-
 export const marshalRegenerateDashboardSchema: z.ZodType = z
   .object({
     fullTableNameArg: z.string().optional(),
@@ -1016,17 +798,6 @@ export const marshalRegenerateDashboardSchema: z.ZodType = z
   .transform(d => ({
     full_table_name_arg: d.fullTableNameArg,
     warehouse_id: d.warehouseId,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalRegenerateDashboard_ResponseSchema: z.ZodType = z
-  .object({
-    dashboardId: z.string().optional(),
-    parentFolder: z.string().optional(),
-  })
-  .transform(d => ({
-    dashboard_id: d.dashboardId,
-    parent_folder: d.parentFolder,
   }));
 
 export const marshalRunRefreshSchema: z.ZodType = z
@@ -1096,397 +867,3 @@ export const marshalUpdateMonitorSchema: z.ZodType = z
     dashboard_id: d.dashboardId,
     monitor_version: d.monitorVersion,
   }));
-
-const cancelRefreshFieldMaskSchema: FieldMaskSchema = {
-  fullTableNameArg: {wire: 'full_table_name_arg'},
-  refreshId: {wire: 'refresh_id'},
-};
-
-export function cancelRefreshFieldMask(
-  ...paths: string[]
-): FieldMask<CancelRefresh> {
-  return FieldMask.build<CancelRefresh>(paths, cancelRefreshFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const cancelRefresh_ResponseFieldMaskSchema: FieldMaskSchema = {};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function cancelRefresh_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<CancelRefresh_Response> {
-  return FieldMask.build<CancelRefresh_Response>(
-    paths,
-    cancelRefresh_ResponseFieldMaskSchema
-  );
-}
-
-const createMonitorFieldMaskSchema: FieldMaskSchema = {
-  assetsDir: {wire: 'assets_dir'},
-  baselineTableName: {wire: 'baseline_table_name'},
-  customMetrics: {wire: 'custom_metrics'},
-  dashboardId: {wire: 'dashboard_id'},
-  dataClassificationConfig: {
-    wire: 'data_classification_config',
-    children: () => dataClassificationConfigFieldMaskSchema,
-  },
-  driftMetricsTableName: {wire: 'drift_metrics_table_name'},
-  fullTableNameArg: {wire: 'full_table_name_arg'},
-  inferenceLog: {
-    wire: 'inference_log',
-    children: () => inferenceLogAnalysisConfigFieldMaskSchema,
-  },
-  latestMonitorFailureMsg: {wire: 'latest_monitor_failure_msg'},
-  monitorVersion: {wire: 'monitor_version'},
-  notifications: {
-    wire: 'notifications',
-    children: () => notificationsFieldMaskSchema,
-  },
-  outputSchemaName: {wire: 'output_schema_name'},
-  profileMetricsTableName: {wire: 'profile_metrics_table_name'},
-  schedule: {
-    wire: 'schedule',
-    children: () => monitorCronScheduleFieldMaskSchema,
-  },
-  skipBuiltinDashboard: {wire: 'skip_builtin_dashboard'},
-  slicingExprs: {wire: 'slicing_exprs'},
-  snapshot: {
-    wire: 'snapshot',
-    children: () => snapshotAnalysisConfigFieldMaskSchema,
-  },
-  status: {wire: 'status'},
-  tableName: {wire: 'table_name'},
-  timeSeries: {
-    wire: 'time_series',
-    children: () => timeSeriesAnalysisConfigFieldMaskSchema,
-  },
-  warehouseId: {wire: 'warehouse_id'},
-};
-
-export function createMonitorFieldMask(
-  ...paths: string[]
-): FieldMask<CreateMonitor> {
-  return FieldMask.build<CreateMonitor>(paths, createMonitorFieldMaskSchema);
-}
-
-const customMetricFieldMaskSchema: FieldMaskSchema = {
-  definition: {wire: 'definition'},
-  inputColumns: {wire: 'input_columns'},
-  name: {wire: 'name'},
-  outputDataType: {wire: 'output_data_type'},
-  type: {wire: 'type'},
-};
-
-export function customMetricFieldMask(
-  ...paths: string[]
-): FieldMask<CustomMetric> {
-  return FieldMask.build<CustomMetric>(paths, customMetricFieldMaskSchema);
-}
-
-const dataClassificationConfigFieldMaskSchema: FieldMaskSchema = {
-  enabled: {wire: 'enabled'},
-};
-
-export function dataClassificationConfigFieldMask(
-  ...paths: string[]
-): FieldMask<DataClassificationConfig> {
-  return FieldMask.build<DataClassificationConfig>(
-    paths,
-    dataClassificationConfigFieldMaskSchema
-  );
-}
-
-const dataMonitorInfoFieldMaskSchema: FieldMaskSchema = {
-  assetsDir: {wire: 'assets_dir'},
-  baselineTableName: {wire: 'baseline_table_name'},
-  customMetrics: {wire: 'custom_metrics'},
-  dashboardId: {wire: 'dashboard_id'},
-  dataClassificationConfig: {
-    wire: 'data_classification_config',
-    children: () => dataClassificationConfigFieldMaskSchema,
-  },
-  driftMetricsTableName: {wire: 'drift_metrics_table_name'},
-  inferenceLog: {
-    wire: 'inference_log',
-    children: () => inferenceLogAnalysisConfigFieldMaskSchema,
-  },
-  latestMonitorFailureMsg: {wire: 'latest_monitor_failure_msg'},
-  monitorVersion: {wire: 'monitor_version'},
-  notifications: {
-    wire: 'notifications',
-    children: () => notificationsFieldMaskSchema,
-  },
-  outputSchemaName: {wire: 'output_schema_name'},
-  profileMetricsTableName: {wire: 'profile_metrics_table_name'},
-  schedule: {
-    wire: 'schedule',
-    children: () => monitorCronScheduleFieldMaskSchema,
-  },
-  slicingExprs: {wire: 'slicing_exprs'},
-  snapshot: {
-    wire: 'snapshot',
-    children: () => snapshotAnalysisConfigFieldMaskSchema,
-  },
-  status: {wire: 'status'},
-  tableName: {wire: 'table_name'},
-  timeSeries: {
-    wire: 'time_series',
-    children: () => timeSeriesAnalysisConfigFieldMaskSchema,
-  },
-};
-
-export function dataMonitorInfoFieldMask(
-  ...paths: string[]
-): FieldMask<DataMonitorInfo> {
-  return FieldMask.build<DataMonitorInfo>(
-    paths,
-    dataMonitorInfoFieldMaskSchema
-  );
-}
-
-const deleteMonitorFieldMaskSchema: FieldMaskSchema = {
-  fullTableNameArg: {wire: 'full_table_name_arg'},
-};
-
-export function deleteMonitorFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteMonitor> {
-  return FieldMask.build<DeleteMonitor>(paths, deleteMonitorFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const deleteMonitor_ResponseFieldMaskSchema: FieldMaskSchema = {};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function deleteMonitor_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteMonitor_Response> {
-  return FieldMask.build<DeleteMonitor_Response>(
-    paths,
-    deleteMonitor_ResponseFieldMaskSchema
-  );
-}
-
-const destinationFieldMaskSchema: FieldMaskSchema = {
-  emailAddresses: {wire: 'email_addresses'},
-};
-
-export function destinationFieldMask(
-  ...paths: string[]
-): FieldMask<Destination> {
-  return FieldMask.build<Destination>(paths, destinationFieldMaskSchema);
-}
-
-const getMonitorFieldMaskSchema: FieldMaskSchema = {
-  fullTableNameArg: {wire: 'full_table_name_arg'},
-};
-
-export function getMonitorFieldMask(...paths: string[]): FieldMask<GetMonitor> {
-  return FieldMask.build<GetMonitor>(paths, getMonitorFieldMaskSchema);
-}
-
-const getRefreshFieldMaskSchema: FieldMaskSchema = {
-  fullTableNameArg: {wire: 'full_table_name_arg'},
-  refreshId: {wire: 'refresh_id'},
-};
-
-export function getRefreshFieldMask(...paths: string[]): FieldMask<GetRefresh> {
-  return FieldMask.build<GetRefresh>(paths, getRefreshFieldMaskSchema);
-}
-
-const inferenceLogAnalysisConfigFieldMaskSchema: FieldMaskSchema = {
-  granularities: {wire: 'granularities'},
-  labelCol: {wire: 'label_col'},
-  modelIdCol: {wire: 'model_id_col'},
-  predictionCol: {wire: 'prediction_col'},
-  predictionProbaCol: {wire: 'prediction_proba_col'},
-  problemType: {wire: 'problem_type'},
-  timestampCol: {wire: 'timestamp_col'},
-};
-
-export function inferenceLogAnalysisConfigFieldMask(
-  ...paths: string[]
-): FieldMask<InferenceLogAnalysisConfig> {
-  return FieldMask.build<InferenceLogAnalysisConfig>(
-    paths,
-    inferenceLogAnalysisConfigFieldMaskSchema
-  );
-}
-
-const listRefreshesFieldMaskSchema: FieldMaskSchema = {
-  fullTableNameArg: {wire: 'full_table_name_arg'},
-};
-
-export function listRefreshesFieldMask(
-  ...paths: string[]
-): FieldMask<ListRefreshes> {
-  return FieldMask.build<ListRefreshes>(paths, listRefreshesFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const listRefreshes_ResponseFieldMaskSchema: FieldMaskSchema = {
-  refreshes: {wire: 'refreshes'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function listRefreshes_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListRefreshes_Response> {
-  return FieldMask.build<ListRefreshes_Response>(
-    paths,
-    listRefreshes_ResponseFieldMaskSchema
-  );
-}
-
-const monitorCronScheduleFieldMaskSchema: FieldMaskSchema = {
-  pauseStatus: {wire: 'pause_status'},
-  quartzCronExpression: {wire: 'quartz_cron_expression'},
-  timezoneId: {wire: 'timezone_id'},
-};
-
-export function monitorCronScheduleFieldMask(
-  ...paths: string[]
-): FieldMask<MonitorCronSchedule> {
-  return FieldMask.build<MonitorCronSchedule>(
-    paths,
-    monitorCronScheduleFieldMaskSchema
-  );
-}
-
-const notificationsFieldMaskSchema: FieldMaskSchema = {
-  onFailure: {wire: 'on_failure', children: () => destinationFieldMaskSchema},
-  onNewClassificationTagDetected: {
-    wire: 'on_new_classification_tag_detected',
-    children: () => destinationFieldMaskSchema,
-  },
-};
-
-export function notificationsFieldMask(
-  ...paths: string[]
-): FieldMask<Notifications> {
-  return FieldMask.build<Notifications>(paths, notificationsFieldMaskSchema);
-}
-
-const refreshInfoFieldMaskSchema: FieldMaskSchema = {
-  endTimeMs: {wire: 'end_time_ms'},
-  message: {wire: 'message'},
-  refreshId: {wire: 'refresh_id'},
-  startTimeMs: {wire: 'start_time_ms'},
-  state: {wire: 'state'},
-  trigger: {wire: 'trigger'},
-};
-
-export function refreshInfoFieldMask(
-  ...paths: string[]
-): FieldMask<RefreshInfo> {
-  return FieldMask.build<RefreshInfo>(paths, refreshInfoFieldMaskSchema);
-}
-
-const regenerateDashboardFieldMaskSchema: FieldMaskSchema = {
-  fullTableNameArg: {wire: 'full_table_name_arg'},
-  warehouseId: {wire: 'warehouse_id'},
-};
-
-export function regenerateDashboardFieldMask(
-  ...paths: string[]
-): FieldMask<RegenerateDashboard> {
-  return FieldMask.build<RegenerateDashboard>(
-    paths,
-    regenerateDashboardFieldMaskSchema
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const regenerateDashboard_ResponseFieldMaskSchema: FieldMaskSchema = {
-  dashboardId: {wire: 'dashboard_id'},
-  parentFolder: {wire: 'parent_folder'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function regenerateDashboard_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<RegenerateDashboard_Response> {
-  return FieldMask.build<RegenerateDashboard_Response>(
-    paths,
-    regenerateDashboard_ResponseFieldMaskSchema
-  );
-}
-
-const runRefreshFieldMaskSchema: FieldMaskSchema = {
-  fullTableNameArg: {wire: 'full_table_name_arg'},
-};
-
-export function runRefreshFieldMask(...paths: string[]): FieldMask<RunRefresh> {
-  return FieldMask.build<RunRefresh>(paths, runRefreshFieldMaskSchema);
-}
-
-const snapshotAnalysisConfigFieldMaskSchema: FieldMaskSchema = {};
-
-export function snapshotAnalysisConfigFieldMask(
-  ...paths: string[]
-): FieldMask<SnapshotAnalysisConfig> {
-  return FieldMask.build<SnapshotAnalysisConfig>(
-    paths,
-    snapshotAnalysisConfigFieldMaskSchema
-  );
-}
-
-const timeSeriesAnalysisConfigFieldMaskSchema: FieldMaskSchema = {
-  granularities: {wire: 'granularities'},
-  timestampCol: {wire: 'timestamp_col'},
-};
-
-export function timeSeriesAnalysisConfigFieldMask(
-  ...paths: string[]
-): FieldMask<TimeSeriesAnalysisConfig> {
-  return FieldMask.build<TimeSeriesAnalysisConfig>(
-    paths,
-    timeSeriesAnalysisConfigFieldMaskSchema
-  );
-}
-
-const updateMonitorFieldMaskSchema: FieldMaskSchema = {
-  assetsDir: {wire: 'assets_dir'},
-  baselineTableName: {wire: 'baseline_table_name'},
-  customMetrics: {wire: 'custom_metrics'},
-  dashboardId: {wire: 'dashboard_id'},
-  dataClassificationConfig: {
-    wire: 'data_classification_config',
-    children: () => dataClassificationConfigFieldMaskSchema,
-  },
-  driftMetricsTableName: {wire: 'drift_metrics_table_name'},
-  fullTableNameArg: {wire: 'full_table_name_arg'},
-  inferenceLog: {
-    wire: 'inference_log',
-    children: () => inferenceLogAnalysisConfigFieldMaskSchema,
-  },
-  latestMonitorFailureMsg: {wire: 'latest_monitor_failure_msg'},
-  monitorVersion: {wire: 'monitor_version'},
-  notifications: {
-    wire: 'notifications',
-    children: () => notificationsFieldMaskSchema,
-  },
-  outputSchemaName: {wire: 'output_schema_name'},
-  profileMetricsTableName: {wire: 'profile_metrics_table_name'},
-  schedule: {
-    wire: 'schedule',
-    children: () => monitorCronScheduleFieldMaskSchema,
-  },
-  slicingExprs: {wire: 'slicing_exprs'},
-  snapshot: {
-    wire: 'snapshot',
-    children: () => snapshotAnalysisConfigFieldMaskSchema,
-  },
-  status: {wire: 'status'},
-  tableName: {wire: 'table_name'},
-  timeSeries: {
-    wire: 'time_series',
-    children: () => timeSeriesAnalysisConfigFieldMaskSchema,
-  },
-};
-
-export function updateMonitorFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateMonitor> {
-  return FieldMask.build<UpdateMonitor>(paths, updateMonitorFieldMaskSchema);
-}

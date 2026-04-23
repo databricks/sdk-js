@@ -184,7 +184,7 @@ export interface TrashAlertRequest {
 
 export interface UpdateAlertRequest {
   alert?: UpdateAlertRequestAlert | undefined;
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<UpdateAlertRequestAlert> | undefined;
   id?: string | undefined;
   /** If true, automatically resolve alert display name conflicts. Otherwise, fail the request if the alert's display name conflicts with an existing alert's display name. */
   autoResolveDisplayName?: boolean | undefined;
@@ -313,63 +313,6 @@ export const unmarshalAlertOperandValueSchema: z.ZodType<AlertOperandValue> = z
     boolValue: d.bool_value,
   }));
 
-export const unmarshalCreateAlertRequestSchema: z.ZodType<CreateAlertRequest> =
-  z
-    .object({
-      alert: z.lazy(() => unmarshalCreateAlertRequestAlertSchema).optional(),
-      auto_resolve_display_name: z.boolean().optional(),
-    })
-    .transform(d => ({
-      alert: d.alert,
-      autoResolveDisplayName: d.auto_resolve_display_name,
-    }));
-
-export const unmarshalCreateAlertRequestAlertSchema: z.ZodType<CreateAlertRequestAlert> =
-  z
-    .object({
-      id: z.string().optional(),
-      display_name: z.string().optional(),
-      query_id: z.string().optional(),
-      state: z.enum(AlertState).optional(),
-      seconds_to_retrigger: z.number().optional(),
-      lifecycle_state: z.enum(LifecycleState).optional(),
-      trigger_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      custom_body: z.string().optional(),
-      custom_subject: z.string().optional(),
-      condition: z.lazy(() => unmarshalAlertConditionSchema).optional(),
-      owner_user_name: z.string().optional(),
-      parent_path: z.string().optional(),
-      create_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      update_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      notify_on_ok: z.boolean().optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      displayName: d.display_name,
-      queryId: d.query_id,
-      state: d.state,
-      secondsToRetrigger: d.seconds_to_retrigger,
-      lifecycleState: d.lifecycle_state,
-      triggerTime: d.trigger_time,
-      customBody: d.custom_body,
-      customSubject: d.custom_subject,
-      condition: d.condition,
-      ownerUserName: d.owner_user_name,
-      parentPath: d.parent_path,
-      createTime: d.create_time,
-      updateTime: d.update_time,
-      notifyOnOk: d.notify_on_ok,
-    }));
-
 export const unmarshalEmptySchema: z.ZodType<Empty> = z.object({});
 
 export const unmarshalListAlertsResponseSchema: z.ZodType<ListAlertsResponse> =
@@ -430,112 +373,6 @@ export const unmarshalListAlertsResponseAlertSchema: z.ZodType<ListAlertsRespons
       updateTime: d.update_time,
       notifyOnOk: d.notify_on_ok,
     }));
-
-export const unmarshalUpdateAlertRequestSchema: z.ZodType<UpdateAlertRequest> =
-  z
-    .object({
-      alert: z.lazy(() => unmarshalUpdateAlertRequestAlertSchema).optional(),
-      update_mask: z.string().optional(),
-      id: z.string().optional(),
-      auto_resolve_display_name: z.boolean().optional(),
-    })
-    .transform(d => ({
-      alert: d.alert,
-      updateMask: d.update_mask,
-      id: d.id,
-      autoResolveDisplayName: d.auto_resolve_display_name,
-    }));
-
-export const unmarshalUpdateAlertRequestAlertSchema: z.ZodType<UpdateAlertRequestAlert> =
-  z
-    .object({
-      id: z.string().optional(),
-      display_name: z.string().optional(),
-      query_id: z.string().optional(),
-      state: z.enum(AlertState).optional(),
-      seconds_to_retrigger: z.number().optional(),
-      lifecycle_state: z.enum(LifecycleState).optional(),
-      trigger_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      custom_body: z.string().optional(),
-      custom_subject: z.string().optional(),
-      condition: z.lazy(() => unmarshalAlertConditionSchema).optional(),
-      owner_user_name: z.string().optional(),
-      parent_path: z.string().optional(),
-      create_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      update_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      notify_on_ok: z.boolean().optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      displayName: d.display_name,
-      queryId: d.query_id,
-      state: d.state,
-      secondsToRetrigger: d.seconds_to_retrigger,
-      lifecycleState: d.lifecycle_state,
-      triggerTime: d.trigger_time,
-      customBody: d.custom_body,
-      customSubject: d.custom_subject,
-      condition: d.condition,
-      ownerUserName: d.owner_user_name,
-      parentPath: d.parent_path,
-      createTime: d.create_time,
-      updateTime: d.update_time,
-      notifyOnOk: d.notify_on_ok,
-    }));
-
-export const marshalAlertSchema: z.ZodType = z
-  .object({
-    id: z.string().optional(),
-    displayName: z.string().optional(),
-    queryId: z.string().optional(),
-    state: z.enum(AlertState).optional(),
-    secondsToRetrigger: z.number().optional(),
-    lifecycleState: z.enum(LifecycleState).optional(),
-    triggerTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    customBody: z.string().optional(),
-    customSubject: z.string().optional(),
-    condition: z.lazy(() => marshalAlertConditionSchema).optional(),
-    ownerUserName: z.string().optional(),
-    parentPath: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    notifyOnOk: z.boolean().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-    display_name: d.displayName,
-    query_id: d.queryId,
-    state: d.state,
-    seconds_to_retrigger: d.secondsToRetrigger,
-    lifecycle_state: d.lifecycleState,
-    trigger_time: d.triggerTime,
-    custom_body: d.customBody,
-    custom_subject: d.customSubject,
-    condition: d.condition,
-    owner_user_name: d.ownerUserName,
-    parent_path: d.parentPath,
-    create_time: d.createTime,
-    update_time: d.updateTime,
-    notify_on_ok: d.notifyOnOk,
-  }));
 
 export const marshalAlertConditionSchema: z.ZodType = z
   .object({
@@ -636,69 +473,13 @@ export const marshalCreateAlertRequestAlertSchema: z.ZodType = z
     notify_on_ok: d.notifyOnOk,
   }));
 
-export const marshalEmptySchema: z.ZodType = z.object({});
-
-export const marshalListAlertsResponseSchema: z.ZodType = z
-  .object({
-    results: z
-      .array(z.lazy(() => marshalListAlertsResponseAlertSchema))
-      .optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    results: d.results,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListAlertsResponseAlertSchema: z.ZodType = z
-  .object({
-    id: z.string().optional(),
-    displayName: z.string().optional(),
-    queryId: z.string().optional(),
-    state: z.enum(AlertState).optional(),
-    secondsToRetrigger: z.number().optional(),
-    lifecycleState: z.enum(LifecycleState).optional(),
-    triggerTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    customBody: z.string().optional(),
-    customSubject: z.string().optional(),
-    condition: z.lazy(() => marshalAlertConditionSchema).optional(),
-    ownerUserName: z.string().optional(),
-    parentPath: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    notifyOnOk: z.boolean().optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-    display_name: d.displayName,
-    query_id: d.queryId,
-    state: d.state,
-    seconds_to_retrigger: d.secondsToRetrigger,
-    lifecycle_state: d.lifecycleState,
-    trigger_time: d.triggerTime,
-    custom_body: d.customBody,
-    custom_subject: d.customSubject,
-    condition: d.condition,
-    owner_user_name: d.ownerUserName,
-    parent_path: d.parentPath,
-    create_time: d.createTime,
-    update_time: d.updateTime,
-    notify_on_ok: d.notifyOnOk,
-  }));
-
 export const marshalUpdateAlertRequestSchema: z.ZodType = z
   .object({
     alert: z.lazy(() => marshalUpdateAlertRequestAlertSchema).optional(),
-    updateMask: z.string().optional(),
+    updateMask: z
+      .any()
+      .transform((m: FieldMask) => m.toString())
+      .optional(),
     id: z.string().optional(),
     autoResolveDisplayName: z.boolean().optional(),
   })
@@ -754,28 +535,6 @@ export const marshalUpdateAlertRequestAlertSchema: z.ZodType = z
     notify_on_ok: d.notifyOnOk,
   }));
 
-const alertFieldMaskSchema: FieldMaskSchema = {
-  condition: {wire: 'condition', children: () => alertConditionFieldMaskSchema},
-  createTime: {wire: 'create_time'},
-  customBody: {wire: 'custom_body'},
-  customSubject: {wire: 'custom_subject'},
-  displayName: {wire: 'display_name'},
-  id: {wire: 'id'},
-  lifecycleState: {wire: 'lifecycle_state'},
-  notifyOnOk: {wire: 'notify_on_ok'},
-  ownerUserName: {wire: 'owner_user_name'},
-  parentPath: {wire: 'parent_path'},
-  queryId: {wire: 'query_id'},
-  secondsToRetrigger: {wire: 'seconds_to_retrigger'},
-  state: {wire: 'state'},
-  triggerTime: {wire: 'trigger_time'},
-  updateTime: {wire: 'update_time'},
-};
-
-export function alertFieldMask(...paths: string[]): FieldMask<Alert> {
-  return FieldMask.build<Alert>(paths, alertFieldMaskSchema);
-}
-
 const alertConditionFieldMaskSchema: FieldMaskSchema = {
   emptyResultState: {wire: 'empty_result_state'},
   op: {wire: 'op'},
@@ -783,200 +542,20 @@ const alertConditionFieldMaskSchema: FieldMaskSchema = {
   threshold: {wire: 'threshold', children: () => alertOperandFieldMaskSchema},
 };
 
-export function alertConditionFieldMask(
-  ...paths: string[]
-): FieldMask<AlertCondition> {
-  return FieldMask.build<AlertCondition>(paths, alertConditionFieldMaskSchema);
-}
-
 const alertOperandFieldMaskSchema: FieldMaskSchema = {
   column: {wire: 'column', children: () => alertOperandColumnFieldMaskSchema},
   value: {wire: 'value', children: () => alertOperandValueFieldMaskSchema},
 };
 
-export function alertOperandFieldMask(
-  ...paths: string[]
-): FieldMask<AlertOperand> {
-  return FieldMask.build<AlertOperand>(paths, alertOperandFieldMaskSchema);
-}
-
 const alertOperandColumnFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
 };
-
-export function alertOperandColumnFieldMask(
-  ...paths: string[]
-): FieldMask<AlertOperandColumn> {
-  return FieldMask.build<AlertOperandColumn>(
-    paths,
-    alertOperandColumnFieldMaskSchema
-  );
-}
 
 const alertOperandValueFieldMaskSchema: FieldMaskSchema = {
   boolValue: {wire: 'bool_value'},
   doubleValue: {wire: 'double_value'},
   stringValue: {wire: 'string_value'},
 };
-
-export function alertOperandValueFieldMask(
-  ...paths: string[]
-): FieldMask<AlertOperandValue> {
-  return FieldMask.build<AlertOperandValue>(
-    paths,
-    alertOperandValueFieldMaskSchema
-  );
-}
-
-const createAlertRequestFieldMaskSchema: FieldMaskSchema = {
-  alert: {
-    wire: 'alert',
-    children: () => createAlertRequestAlertFieldMaskSchema,
-  },
-  autoResolveDisplayName: {wire: 'auto_resolve_display_name'},
-};
-
-export function createAlertRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateAlertRequest> {
-  return FieldMask.build<CreateAlertRequest>(
-    paths,
-    createAlertRequestFieldMaskSchema
-  );
-}
-
-const createAlertRequestAlertFieldMaskSchema: FieldMaskSchema = {
-  condition: {wire: 'condition', children: () => alertConditionFieldMaskSchema},
-  createTime: {wire: 'create_time'},
-  customBody: {wire: 'custom_body'},
-  customSubject: {wire: 'custom_subject'},
-  displayName: {wire: 'display_name'},
-  id: {wire: 'id'},
-  lifecycleState: {wire: 'lifecycle_state'},
-  notifyOnOk: {wire: 'notify_on_ok'},
-  ownerUserName: {wire: 'owner_user_name'},
-  parentPath: {wire: 'parent_path'},
-  queryId: {wire: 'query_id'},
-  secondsToRetrigger: {wire: 'seconds_to_retrigger'},
-  state: {wire: 'state'},
-  triggerTime: {wire: 'trigger_time'},
-  updateTime: {wire: 'update_time'},
-};
-
-export function createAlertRequestAlertFieldMask(
-  ...paths: string[]
-): FieldMask<CreateAlertRequestAlert> {
-  return FieldMask.build<CreateAlertRequestAlert>(
-    paths,
-    createAlertRequestAlertFieldMaskSchema
-  );
-}
-
-const emptyFieldMaskSchema: FieldMaskSchema = {};
-
-export function emptyFieldMask(...paths: string[]): FieldMask<Empty> {
-  return FieldMask.build<Empty>(paths, emptyFieldMaskSchema);
-}
-
-const getAlertRequestFieldMaskSchema: FieldMaskSchema = {
-  id: {wire: 'id'},
-};
-
-export function getAlertRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetAlertRequest> {
-  return FieldMask.build<GetAlertRequest>(
-    paths,
-    getAlertRequestFieldMaskSchema
-  );
-}
-
-const listAlertsRequestFieldMaskSchema: FieldMaskSchema = {
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listAlertsRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListAlertsRequest> {
-  return FieldMask.build<ListAlertsRequest>(
-    paths,
-    listAlertsRequestFieldMaskSchema
-  );
-}
-
-const listAlertsResponseFieldMaskSchema: FieldMaskSchema = {
-  nextPageToken: {wire: 'next_page_token'},
-  results: {wire: 'results'},
-};
-
-export function listAlertsResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListAlertsResponse> {
-  return FieldMask.build<ListAlertsResponse>(
-    paths,
-    listAlertsResponseFieldMaskSchema
-  );
-}
-
-const listAlertsResponseAlertFieldMaskSchema: FieldMaskSchema = {
-  condition: {wire: 'condition', children: () => alertConditionFieldMaskSchema},
-  createTime: {wire: 'create_time'},
-  customBody: {wire: 'custom_body'},
-  customSubject: {wire: 'custom_subject'},
-  displayName: {wire: 'display_name'},
-  id: {wire: 'id'},
-  lifecycleState: {wire: 'lifecycle_state'},
-  notifyOnOk: {wire: 'notify_on_ok'},
-  ownerUserName: {wire: 'owner_user_name'},
-  parentPath: {wire: 'parent_path'},
-  queryId: {wire: 'query_id'},
-  secondsToRetrigger: {wire: 'seconds_to_retrigger'},
-  state: {wire: 'state'},
-  triggerTime: {wire: 'trigger_time'},
-  updateTime: {wire: 'update_time'},
-};
-
-export function listAlertsResponseAlertFieldMask(
-  ...paths: string[]
-): FieldMask<ListAlertsResponseAlert> {
-  return FieldMask.build<ListAlertsResponseAlert>(
-    paths,
-    listAlertsResponseAlertFieldMaskSchema
-  );
-}
-
-const trashAlertRequestFieldMaskSchema: FieldMaskSchema = {
-  id: {wire: 'id'},
-};
-
-export function trashAlertRequestFieldMask(
-  ...paths: string[]
-): FieldMask<TrashAlertRequest> {
-  return FieldMask.build<TrashAlertRequest>(
-    paths,
-    trashAlertRequestFieldMaskSchema
-  );
-}
-
-const updateAlertRequestFieldMaskSchema: FieldMaskSchema = {
-  alert: {
-    wire: 'alert',
-    children: () => updateAlertRequestAlertFieldMaskSchema,
-  },
-  autoResolveDisplayName: {wire: 'auto_resolve_display_name'},
-  id: {wire: 'id'},
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateAlertRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateAlertRequest> {
-  return FieldMask.build<UpdateAlertRequest>(
-    paths,
-    updateAlertRequestFieldMaskSchema
-  );
-}
 
 const updateAlertRequestAlertFieldMaskSchema: FieldMaskSchema = {
   condition: {wire: 'condition', children: () => alertConditionFieldMaskSchema},

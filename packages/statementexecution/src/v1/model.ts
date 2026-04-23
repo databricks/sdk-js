@@ -1,7 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-import {FieldMask} from '@databricks/sdk-core/wkt';
-import type {FieldMaskSchema, JsonValue} from '@databricks/sdk-core/wkt';
+import type {JsonValue} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
@@ -523,15 +522,6 @@ export interface StatementStatus {
   sqlState?: string | undefined;
 }
 
-export const unmarshalCancelStatementRequestSchema: z.ZodType<CancelStatementRequest> =
-  z
-    .object({
-      statement_id: z.string().optional(),
-    })
-    .transform(d => ({
-      statementId: d.statement_id,
-    }));
-
 export const unmarshalCancelStatementResponseSchema: z.ZodType<CancelStatementResponse> =
   z.object({});
 
@@ -573,39 +563,6 @@ export const unmarshalColumnInfoSchema: z.ZodType<ColumnInfo> = z
     typeIntervalType: d.type_interval_type,
   }));
 
-export const unmarshalExecuteStatementRequestSchema: z.ZodType<ExecuteStatementRequest> =
-  z
-    .object({
-      statement: z.string().optional(),
-      warehouse_id: z.string().optional(),
-      catalog: z.string().optional(),
-      schema: z.string().optional(),
-      row_limit: z.number().optional(),
-      byte_limit: z.number().optional(),
-      format: z.enum(Format).optional(),
-      disposition: z.enum(Disposition).optional(),
-      wait_timeout: z.string().optional(),
-      on_wait_timeout: z.enum(TimeoutAction).optional(),
-      parameters: z
-        .array(z.lazy(() => unmarshalStatementParameterSchema))
-        .optional(),
-      query_tags: z.array(z.lazy(() => unmarshalQueryTagSchema)).optional(),
-    })
-    .transform(d => ({
-      statement: d.statement,
-      warehouseId: d.warehouse_id,
-      catalog: d.catalog,
-      schema: d.schema,
-      rowLimit: d.row_limit,
-      byteLimit: d.byte_limit,
-      format: d.format,
-      disposition: d.disposition,
-      waitTimeout: d.wait_timeout,
-      onWaitTimeout: d.on_wait_timeout,
-      parameters: d.parameters,
-      queryTags: d.query_tags,
-    }));
-
 export const unmarshalExternalLinkSchema: z.ZodType<ExternalLink> = z
   .object({
     external_link: z.string().optional(),
@@ -628,16 +585,6 @@ export const unmarshalExternalLinkSchema: z.ZodType<ExternalLink> = z
     byteCount: d.byte_count,
     nextChunkIndex: d.next_chunk_index,
     nextChunkInternalLink: d.next_chunk_internal_link,
-  }));
-
-export const unmarshalQueryTagSchema: z.ZodType<QueryTag> = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
   }));
 
 export const unmarshalResultDataSchema: z.ZodType<ResultData> = z
@@ -704,19 +651,6 @@ export const unmarshalServiceErrorSchema: z.ZodType<ServiceError> = z
     message: d.message,
   }));
 
-export const unmarshalStatementParameterSchema: z.ZodType<StatementParameter> =
-  z
-    .object({
-      name: z.string().optional(),
-      value: z.string().optional(),
-      type: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      value: d.value,
-      type: d.type,
-    }));
-
 export const unmarshalStatementResponseSchema: z.ZodType<StatementResponse> = z
   .object({
     statement_id: z.string().optional(),
@@ -751,46 +685,6 @@ export const marshalCancelStatementRequestSchema: z.ZodType = z
     statement_id: d.statementId,
   }));
 
-export const marshalCancelStatementResponseSchema: z.ZodType = z.object({});
-
-export const marshalChunkInfoSchema: z.ZodType = z
-  .object({
-    chunkIndex: z.number().optional(),
-    rowOffset: z.number().optional(),
-    rowCount: z.number().optional(),
-    byteCount: z.number().optional(),
-    nextChunkIndex: z.number().optional(),
-    nextChunkInternalLink: z.string().optional(),
-  })
-  .transform(d => ({
-    chunk_index: d.chunkIndex,
-    row_offset: d.rowOffset,
-    row_count: d.rowCount,
-    byte_count: d.byteCount,
-    next_chunk_index: d.nextChunkIndex,
-    next_chunk_internal_link: d.nextChunkInternalLink,
-  }));
-
-export const marshalColumnInfoSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    typeText: z.string().optional(),
-    typeName: z.enum(ColumnTypeName).optional(),
-    position: z.number().optional(),
-    typePrecision: z.number().optional(),
-    typeScale: z.number().optional(),
-    typeIntervalType: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    type_text: d.typeText,
-    type_name: d.typeName,
-    position: d.position,
-    type_precision: d.typePrecision,
-    type_scale: d.typeScale,
-    type_interval_type: d.typeIntervalType,
-  }));
-
 export const marshalExecuteStatementRequestSchema: z.ZodType = z
   .object({
     statement: z.string().optional(),
@@ -823,30 +717,6 @@ export const marshalExecuteStatementRequestSchema: z.ZodType = z
     query_tags: d.queryTags,
   }));
 
-export const marshalExternalLinkSchema: z.ZodType = z
-  .object({
-    externalLink: z.string().optional(),
-    expiration: z.string().optional(),
-    httpHeaders: z.record(z.string(), z.string()).optional(),
-    chunkIndex: z.number().optional(),
-    rowOffset: z.number().optional(),
-    rowCount: z.number().optional(),
-    byteCount: z.number().optional(),
-    nextChunkIndex: z.number().optional(),
-    nextChunkInternalLink: z.string().optional(),
-  })
-  .transform(d => ({
-    external_link: d.externalLink,
-    expiration: d.expiration,
-    http_headers: d.httpHeaders,
-    chunk_index: d.chunkIndex,
-    row_offset: d.rowOffset,
-    row_count: d.rowCount,
-    byte_count: d.byteCount,
-    next_chunk_index: d.nextChunkIndex,
-    next_chunk_internal_link: d.nextChunkInternalLink,
-  }));
-
 export const marshalQueryTagSchema: z.ZodType = z
   .object({
     key: z.string().optional(),
@@ -855,68 +725,6 @@ export const marshalQueryTagSchema: z.ZodType = z
   .transform(d => ({
     key: d.key,
     value: d.value,
-  }));
-
-export const marshalResultDataSchema: z.ZodType = z
-  .object({
-    externalLinks: z.array(z.lazy(() => marshalExternalLinkSchema)).optional(),
-    dataArray: z.array(z.array(jsonValueSchema)).optional(),
-    chunkIndex: z.number().optional(),
-    rowOffset: z.number().optional(),
-    rowCount: z.number().optional(),
-    byteCount: z.number().optional(),
-    nextChunkIndex: z.number().optional(),
-    nextChunkInternalLink: z.string().optional(),
-  })
-  .transform(d => ({
-    external_links: d.externalLinks,
-    data_array: d.dataArray,
-    chunk_index: d.chunkIndex,
-    row_offset: d.rowOffset,
-    row_count: d.rowCount,
-    byte_count: d.byteCount,
-    next_chunk_index: d.nextChunkIndex,
-    next_chunk_internal_link: d.nextChunkInternalLink,
-  }));
-
-export const marshalResultManifestSchema: z.ZodType = z
-  .object({
-    format: z.enum(Format).optional(),
-    schema: z.lazy(() => marshalSchemaSchema).optional(),
-    totalChunkCount: z.number().optional(),
-    chunks: z.array(z.lazy(() => marshalChunkInfoSchema)).optional(),
-    totalRowCount: z.number().optional(),
-    totalByteCount: z.number().optional(),
-    truncated: z.boolean().optional(),
-  })
-  .transform(d => ({
-    format: d.format,
-    schema: d.schema,
-    total_chunk_count: d.totalChunkCount,
-    chunks: d.chunks,
-    total_row_count: d.totalRowCount,
-    total_byte_count: d.totalByteCount,
-    truncated: d.truncated,
-  }));
-
-export const marshalSchemaSchema: z.ZodType = z
-  .object({
-    columnCount: z.number().optional(),
-    columns: z.array(z.lazy(() => marshalColumnInfoSchema)).optional(),
-  })
-  .transform(d => ({
-    column_count: d.columnCount,
-    columns: d.columns,
-  }));
-
-export const marshalServiceErrorSchema: z.ZodType = z
-  .object({
-    errorCode: z.enum(ServiceErrorCode).optional(),
-    message: z.string().optional(),
-  })
-  .transform(d => ({
-    error_code: d.errorCode,
-    message: d.message,
   }));
 
 export const marshalStatementParameterSchema: z.ZodType = z
@@ -930,271 +738,3 @@ export const marshalStatementParameterSchema: z.ZodType = z
     value: d.value,
     type: d.type,
   }));
-
-export const marshalStatementResponseSchema: z.ZodType = z
-  .object({
-    statementId: z.string().optional(),
-    status: z.lazy(() => marshalStatementStatusSchema).optional(),
-    manifest: z.lazy(() => marshalResultManifestSchema).optional(),
-    result: z.lazy(() => marshalResultDataSchema).optional(),
-  })
-  .transform(d => ({
-    statement_id: d.statementId,
-    status: d.status,
-    manifest: d.manifest,
-    result: d.result,
-  }));
-
-export const marshalStatementStatusSchema: z.ZodType = z
-  .object({
-    state: z.enum(StatementStatus_State).optional(),
-    error: z.lazy(() => marshalServiceErrorSchema).optional(),
-    sqlState: z.string().optional(),
-  })
-  .transform(d => ({
-    state: d.state,
-    error: d.error,
-    sql_state: d.sqlState,
-  }));
-
-const cancelStatementRequestFieldMaskSchema: FieldMaskSchema = {
-  statementId: {wire: 'statement_id'},
-};
-
-export function cancelStatementRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CancelStatementRequest> {
-  return FieldMask.build<CancelStatementRequest>(
-    paths,
-    cancelStatementRequestFieldMaskSchema
-  );
-}
-
-const cancelStatementResponseFieldMaskSchema: FieldMaskSchema = {};
-
-export function cancelStatementResponseFieldMask(
-  ...paths: string[]
-): FieldMask<CancelStatementResponse> {
-  return FieldMask.build<CancelStatementResponse>(
-    paths,
-    cancelStatementResponseFieldMaskSchema
-  );
-}
-
-const chunkInfoFieldMaskSchema: FieldMaskSchema = {
-  byteCount: {wire: 'byte_count'},
-  chunkIndex: {wire: 'chunk_index'},
-  nextChunkIndex: {wire: 'next_chunk_index'},
-  nextChunkInternalLink: {wire: 'next_chunk_internal_link'},
-  rowCount: {wire: 'row_count'},
-  rowOffset: {wire: 'row_offset'},
-};
-
-export function chunkInfoFieldMask(...paths: string[]): FieldMask<ChunkInfo> {
-  return FieldMask.build<ChunkInfo>(paths, chunkInfoFieldMaskSchema);
-}
-
-const columnInfoFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-  position: {wire: 'position'},
-  typeIntervalType: {wire: 'type_interval_type'},
-  typeName: {wire: 'type_name'},
-  typePrecision: {wire: 'type_precision'},
-  typeScale: {wire: 'type_scale'},
-  typeText: {wire: 'type_text'},
-};
-
-export function columnInfoFieldMask(...paths: string[]): FieldMask<ColumnInfo> {
-  return FieldMask.build<ColumnInfo>(paths, columnInfoFieldMaskSchema);
-}
-
-const executeStatementRequestFieldMaskSchema: FieldMaskSchema = {
-  byteLimit: {wire: 'byte_limit'},
-  catalog: {wire: 'catalog'},
-  disposition: {wire: 'disposition'},
-  format: {wire: 'format'},
-  onWaitTimeout: {wire: 'on_wait_timeout'},
-  parameters: {wire: 'parameters'},
-  queryTags: {wire: 'query_tags'},
-  rowLimit: {wire: 'row_limit'},
-  schema: {wire: 'schema'},
-  statement: {wire: 'statement'},
-  waitTimeout: {wire: 'wait_timeout'},
-  warehouseId: {wire: 'warehouse_id'},
-};
-
-export function executeStatementRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ExecuteStatementRequest> {
-  return FieldMask.build<ExecuteStatementRequest>(
-    paths,
-    executeStatementRequestFieldMaskSchema
-  );
-}
-
-const externalLinkFieldMaskSchema: FieldMaskSchema = {
-  byteCount: {wire: 'byte_count'},
-  chunkIndex: {wire: 'chunk_index'},
-  expiration: {wire: 'expiration'},
-  externalLink: {wire: 'external_link'},
-  httpHeaders: {wire: 'http_headers'},
-  nextChunkIndex: {wire: 'next_chunk_index'},
-  nextChunkInternalLink: {wire: 'next_chunk_internal_link'},
-  rowCount: {wire: 'row_count'},
-  rowOffset: {wire: 'row_offset'},
-};
-
-export function externalLinkFieldMask(
-  ...paths: string[]
-): FieldMask<ExternalLink> {
-  return FieldMask.build<ExternalLink>(paths, externalLinkFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const externalLink_HttpHeadersEntryFieldMaskSchema: FieldMaskSchema = {
-  key: {wire: 'key'},
-  value: {wire: 'value'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function externalLink_HttpHeadersEntryFieldMask(
-  ...paths: string[]
-): FieldMask<ExternalLink_HttpHeadersEntry> {
-  return FieldMask.build<ExternalLink_HttpHeadersEntry>(
-    paths,
-    externalLink_HttpHeadersEntryFieldMaskSchema
-  );
-}
-
-const getResultDataRequestFieldMaskSchema: FieldMaskSchema = {
-  chunkIndex: {wire: 'chunk_index'},
-  statementId: {wire: 'statement_id'},
-};
-
-export function getResultDataRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetResultDataRequest> {
-  return FieldMask.build<GetResultDataRequest>(
-    paths,
-    getResultDataRequestFieldMaskSchema
-  );
-}
-
-const getStatementResultRequestFieldMaskSchema: FieldMaskSchema = {
-  statementId: {wire: 'statement_id'},
-};
-
-export function getStatementResultRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetStatementResultRequest> {
-  return FieldMask.build<GetStatementResultRequest>(
-    paths,
-    getStatementResultRequestFieldMaskSchema
-  );
-}
-
-const queryTagFieldMaskSchema: FieldMaskSchema = {
-  key: {wire: 'key'},
-  value: {wire: 'value'},
-};
-
-export function queryTagFieldMask(...paths: string[]): FieldMask<QueryTag> {
-  return FieldMask.build<QueryTag>(paths, queryTagFieldMaskSchema);
-}
-
-const resultDataFieldMaskSchema: FieldMaskSchema = {
-  byteCount: {wire: 'byte_count'},
-  chunkIndex: {wire: 'chunk_index'},
-  dataArray: {wire: 'data_array'},
-  externalLinks: {wire: 'external_links'},
-  nextChunkIndex: {wire: 'next_chunk_index'},
-  nextChunkInternalLink: {wire: 'next_chunk_internal_link'},
-  rowCount: {wire: 'row_count'},
-  rowOffset: {wire: 'row_offset'},
-};
-
-export function resultDataFieldMask(...paths: string[]): FieldMask<ResultData> {
-  return FieldMask.build<ResultData>(paths, resultDataFieldMaskSchema);
-}
-
-const resultManifestFieldMaskSchema: FieldMaskSchema = {
-  chunks: {wire: 'chunks'},
-  format: {wire: 'format'},
-  schema: {wire: 'schema', children: () => schemaFieldMaskSchema},
-  totalByteCount: {wire: 'total_byte_count'},
-  totalChunkCount: {wire: 'total_chunk_count'},
-  totalRowCount: {wire: 'total_row_count'},
-  truncated: {wire: 'truncated'},
-};
-
-export function resultManifestFieldMask(
-  ...paths: string[]
-): FieldMask<ResultManifest> {
-  return FieldMask.build<ResultManifest>(paths, resultManifestFieldMaskSchema);
-}
-
-const schemaFieldMaskSchema: FieldMaskSchema = {
-  columnCount: {wire: 'column_count'},
-  columns: {wire: 'columns'},
-};
-
-export function schemaFieldMask(...paths: string[]): FieldMask<Schema> {
-  return FieldMask.build<Schema>(paths, schemaFieldMaskSchema);
-}
-
-const serviceErrorFieldMaskSchema: FieldMaskSchema = {
-  errorCode: {wire: 'error_code'},
-  message: {wire: 'message'},
-};
-
-export function serviceErrorFieldMask(
-  ...paths: string[]
-): FieldMask<ServiceError> {
-  return FieldMask.build<ServiceError>(paths, serviceErrorFieldMaskSchema);
-}
-
-const statementParameterFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-  type: {wire: 'type'},
-  value: {wire: 'value'},
-};
-
-export function statementParameterFieldMask(
-  ...paths: string[]
-): FieldMask<StatementParameter> {
-  return FieldMask.build<StatementParameter>(
-    paths,
-    statementParameterFieldMaskSchema
-  );
-}
-
-const statementResponseFieldMaskSchema: FieldMaskSchema = {
-  manifest: {wire: 'manifest', children: () => resultManifestFieldMaskSchema},
-  result: {wire: 'result', children: () => resultDataFieldMaskSchema},
-  statementId: {wire: 'statement_id'},
-  status: {wire: 'status', children: () => statementStatusFieldMaskSchema},
-};
-
-export function statementResponseFieldMask(
-  ...paths: string[]
-): FieldMask<StatementResponse> {
-  return FieldMask.build<StatementResponse>(
-    paths,
-    statementResponseFieldMaskSchema
-  );
-}
-
-const statementStatusFieldMaskSchema: FieldMaskSchema = {
-  error: {wire: 'error', children: () => serviceErrorFieldMaskSchema},
-  sqlState: {wire: 'sql_state'},
-  state: {wire: 'state'},
-};
-
-export function statementStatusFieldMask(
-  ...paths: string[]
-): FieldMask<StatementStatus> {
-  return FieldMask.build<StatementStatus>(
-    paths,
-    statementStatusFieldMaskSchema
-  );
-}

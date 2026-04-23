@@ -169,7 +169,7 @@ export class Client {
     const url = `${this.host}/api/2.0/entity-tag-assignments/${req.tagAssignment?.entityType ?? ''}/${req.tagAssignment?.entityId ?? ''}/tags/${req.tagAssignment?.tagKey ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
-      params.append('update_mask', req.updateMask);
+      params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;

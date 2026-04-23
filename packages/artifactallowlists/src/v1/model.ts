@@ -1,7 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-import {FieldMask} from '@databricks/sdk-core/wkt';
-import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** The artifact type */
@@ -83,41 +81,6 @@ export const unmarshalArtifactMatcherSchema: z.ZodType<ArtifactMatcher> = z
     matchType: d.match_type,
   }));
 
-export const unmarshalSetArtifactAllowlistSchema: z.ZodType<SetArtifactAllowlist> =
-  z
-    .object({
-      artifact_type: z.enum(ArtifactType).optional(),
-      artifact_matchers: z
-        .array(z.lazy(() => unmarshalArtifactMatcherSchema))
-        .optional(),
-      metastore_id: z.string().optional(),
-      created_by: z.string().optional(),
-      created_at: z.number().optional(),
-    })
-    .transform(d => ({
-      artifactType: d.artifact_type,
-      artifactMatchers: d.artifact_matchers,
-      metastoreId: d.metastore_id,
-      createdBy: d.created_by,
-      createdAt: d.created_at,
-    }));
-
-export const marshalArtifactAllowlistInfoSchema: z.ZodType = z
-  .object({
-    artifactMatchers: z
-      .array(z.lazy(() => marshalArtifactMatcherSchema))
-      .optional(),
-    metastoreId: z.string().optional(),
-    createdBy: z.string().optional(),
-    createdAt: z.number().optional(),
-  })
-  .transform(d => ({
-    artifact_matchers: d.artifactMatchers,
-    metastore_id: d.metastoreId,
-    created_by: d.createdBy,
-    created_at: d.createdAt,
-  }));
-
 export const marshalArtifactMatcherSchema: z.ZodType = z
   .object({
     artifact: z.string().optional(),
@@ -145,63 +108,3 @@ export const marshalSetArtifactAllowlistSchema: z.ZodType = z
     created_by: d.createdBy,
     created_at: d.createdAt,
   }));
-
-const artifactAllowlistInfoFieldMaskSchema: FieldMaskSchema = {
-  artifactMatchers: {wire: 'artifact_matchers'},
-  createdAt: {wire: 'created_at'},
-  createdBy: {wire: 'created_by'},
-  metastoreId: {wire: 'metastore_id'},
-};
-
-export function artifactAllowlistInfoFieldMask(
-  ...paths: string[]
-): FieldMask<ArtifactAllowlistInfo> {
-  return FieldMask.build<ArtifactAllowlistInfo>(
-    paths,
-    artifactAllowlistInfoFieldMaskSchema
-  );
-}
-
-const artifactMatcherFieldMaskSchema: FieldMaskSchema = {
-  artifact: {wire: 'artifact'},
-  matchType: {wire: 'match_type'},
-};
-
-export function artifactMatcherFieldMask(
-  ...paths: string[]
-): FieldMask<ArtifactMatcher> {
-  return FieldMask.build<ArtifactMatcher>(
-    paths,
-    artifactMatcherFieldMaskSchema
-  );
-}
-
-const getArtifactAllowlistFieldMaskSchema: FieldMaskSchema = {
-  artifactType: {wire: 'artifact_type'},
-};
-
-export function getArtifactAllowlistFieldMask(
-  ...paths: string[]
-): FieldMask<GetArtifactAllowlist> {
-  return FieldMask.build<GetArtifactAllowlist>(
-    paths,
-    getArtifactAllowlistFieldMaskSchema
-  );
-}
-
-const setArtifactAllowlistFieldMaskSchema: FieldMaskSchema = {
-  artifactMatchers: {wire: 'artifact_matchers'},
-  artifactType: {wire: 'artifact_type'},
-  createdAt: {wire: 'created_at'},
-  createdBy: {wire: 'created_by'},
-  metastoreId: {wire: 'metastore_id'},
-};
-
-export function setArtifactAllowlistFieldMask(
-  ...paths: string[]
-): FieldMask<SetArtifactAllowlist> {
-  return FieldMask.build<SetArtifactAllowlist>(
-    paths,
-    setArtifactAllowlistFieldMaskSchema
-  );
-}

@@ -1,7 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-import {FieldMask} from '@databricks/sdk-core/wkt';
-import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 export interface DisableSystemSchema {
@@ -66,19 +64,6 @@ export interface SystemSchemaInfo {
 export const unmarshalDisableSystemSchema_ResponseSchema: z.ZodType<DisableSystemSchema_Response> =
   z.object({});
 
-export const unmarshalEnableSystemSchemaSchema: z.ZodType<EnableSystemSchema> =
-  z
-    .object({
-      schema: z.string().optional(),
-      metastore_id: z.string().optional(),
-      catalog_name: z.string().optional(),
-    })
-    .transform(d => ({
-      schema: d.schema,
-      metastoreId: d.metastore_id,
-      catalogName: d.catalog_name,
-    }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalEnableSystemSchema_ResponseSchema: z.ZodType<EnableSystemSchema_Response> =
   z.object({});
@@ -107,11 +92,6 @@ export const unmarshalSystemSchemaInfoSchema: z.ZodType<SystemSchemaInfo> = z
     state: d.state,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDisableSystemSchema_ResponseSchema: z.ZodType = z.object(
-  {}
-);
-
 export const marshalEnableSystemSchemaSchema: z.ZodType = z
   .object({
     schema: z.string().optional(),
@@ -123,127 +103,3 @@ export const marshalEnableSystemSchemaSchema: z.ZodType = z
     metastore_id: d.metastoreId,
     catalog_name: d.catalogName,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEnableSystemSchema_ResponseSchema: z.ZodType = z.object({});
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalListSystemSchemas_ResponseSchema: z.ZodType = z
-  .object({
-    schemas: z.array(z.lazy(() => marshalSystemSchemaInfoSchema)).optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    schemas: d.schemas,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalSystemSchemaInfoSchema: z.ZodType = z
-  .object({
-    schema: z.string(),
-    state: z.string(),
-  })
-  .transform(d => ({
-    schema: d.schema,
-    state: d.state,
-  }));
-
-const disableSystemSchemaFieldMaskSchema: FieldMaskSchema = {
-  metastoreId: {wire: 'metastore_id'},
-  schema: {wire: 'schema'},
-};
-
-export function disableSystemSchemaFieldMask(
-  ...paths: string[]
-): FieldMask<DisableSystemSchema> {
-  return FieldMask.build<DisableSystemSchema>(
-    paths,
-    disableSystemSchemaFieldMaskSchema
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const disableSystemSchema_ResponseFieldMaskSchema: FieldMaskSchema = {};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function disableSystemSchema_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<DisableSystemSchema_Response> {
-  return FieldMask.build<DisableSystemSchema_Response>(
-    paths,
-    disableSystemSchema_ResponseFieldMaskSchema
-  );
-}
-
-const enableSystemSchemaFieldMaskSchema: FieldMaskSchema = {
-  catalogName: {wire: 'catalog_name'},
-  metastoreId: {wire: 'metastore_id'},
-  schema: {wire: 'schema'},
-};
-
-export function enableSystemSchemaFieldMask(
-  ...paths: string[]
-): FieldMask<EnableSystemSchema> {
-  return FieldMask.build<EnableSystemSchema>(
-    paths,
-    enableSystemSchemaFieldMaskSchema
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const enableSystemSchema_ResponseFieldMaskSchema: FieldMaskSchema = {};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function enableSystemSchema_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<EnableSystemSchema_Response> {
-  return FieldMask.build<EnableSystemSchema_Response>(
-    paths,
-    enableSystemSchema_ResponseFieldMaskSchema
-  );
-}
-
-const listSystemSchemasFieldMaskSchema: FieldMaskSchema = {
-  maxResults: {wire: 'max_results'},
-  metastoreId: {wire: 'metastore_id'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listSystemSchemasFieldMask(
-  ...paths: string[]
-): FieldMask<ListSystemSchemas> {
-  return FieldMask.build<ListSystemSchemas>(
-    paths,
-    listSystemSchemasFieldMaskSchema
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const listSystemSchemas_ResponseFieldMaskSchema: FieldMaskSchema = {
-  nextPageToken: {wire: 'next_page_token'},
-  schemas: {wire: 'schemas'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function listSystemSchemas_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListSystemSchemas_Response> {
-  return FieldMask.build<ListSystemSchemas_Response>(
-    paths,
-    listSystemSchemas_ResponseFieldMaskSchema
-  );
-}
-
-const systemSchemaInfoFieldMaskSchema: FieldMaskSchema = {
-  schema: {wire: 'schema'},
-  state: {wire: 'state'},
-};
-
-export function systemSchemaInfoFieldMask(
-  ...paths: string[]
-): FieldMask<SystemSchemaInfo> {
-  return FieldMask.build<SystemSchemaInfo>(
-    paths,
-    systemSchemaInfoFieldMaskSchema
-  );
-}

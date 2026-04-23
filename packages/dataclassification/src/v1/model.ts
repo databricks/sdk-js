@@ -94,7 +94,7 @@ export interface UpdateCatalogConfigRequest {
    */
   catalogConfig?: CatalogConfig | undefined;
   /** Field mask specifying which fields to update. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<CatalogConfig> | undefined;
 }
 
 export const unmarshalAutoTaggingConfigSchema: z.ZodType<AutoTaggingConfig> = z
@@ -176,20 +176,6 @@ export const marshalCatalogConfig_SchemaNamesSchema: z.ZodType = z
     names: d.names,
   }));
 
-const autoTaggingConfigFieldMaskSchema: FieldMaskSchema = {
-  autoTaggingMode: {wire: 'auto_tagging_mode'},
-  classificationTag: {wire: 'classification_tag'},
-};
-
-export function autoTaggingConfigFieldMask(
-  ...paths: string[]
-): FieldMask<AutoTaggingConfig> {
-  return FieldMask.build<AutoTaggingConfig>(
-    paths,
-    autoTaggingConfigFieldMaskSchema
-  );
-}
-
 const catalogConfigFieldMaskSchema: FieldMaskSchema = {
   autoTagConfigs: {wire: 'auto_tag_configs'},
   effectiveAutoTagConfigs: {wire: 'effective_auto_tag_configs'},
@@ -210,73 +196,3 @@ export function catalogConfigFieldMask(
 const catalogConfig_SchemaNamesFieldMaskSchema: FieldMaskSchema = {
   names: {wire: 'names'},
 };
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function catalogConfig_SchemaNamesFieldMask(
-  ...paths: string[]
-): FieldMask<CatalogConfig_SchemaNames> {
-  return FieldMask.build<CatalogConfig_SchemaNames>(
-    paths,
-    catalogConfig_SchemaNamesFieldMaskSchema
-  );
-}
-
-const createCatalogConfigRequestFieldMaskSchema: FieldMaskSchema = {
-  catalogConfig: {
-    wire: 'catalog_config',
-    children: () => catalogConfigFieldMaskSchema,
-  },
-  parent: {wire: 'parent'},
-};
-
-export function createCatalogConfigRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateCatalogConfigRequest> {
-  return FieldMask.build<CreateCatalogConfigRequest>(
-    paths,
-    createCatalogConfigRequestFieldMaskSchema
-  );
-}
-
-const deleteCatalogConfigRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function deleteCatalogConfigRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteCatalogConfigRequest> {
-  return FieldMask.build<DeleteCatalogConfigRequest>(
-    paths,
-    deleteCatalogConfigRequestFieldMaskSchema
-  );
-}
-
-const getCatalogConfigRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function getCatalogConfigRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetCatalogConfigRequest> {
-  return FieldMask.build<GetCatalogConfigRequest>(
-    paths,
-    getCatalogConfigRequestFieldMaskSchema
-  );
-}
-
-const updateCatalogConfigRequestFieldMaskSchema: FieldMaskSchema = {
-  catalogConfig: {
-    wire: 'catalog_config',
-    children: () => catalogConfigFieldMaskSchema,
-  },
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateCatalogConfigRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateCatalogConfigRequest> {
-  return FieldMask.build<UpdateCatalogConfigRequest>(
-    paths,
-    updateCatalogConfigRequestFieldMaskSchema
-  );
-}

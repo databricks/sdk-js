@@ -70,7 +70,7 @@ export interface TagPolicy {
 
 export interface UpdateTagPolicyRequest {
   tagPolicy?: TagPolicy | undefined;
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<TagPolicy> | undefined;
 }
 
 export interface Value {
@@ -176,16 +176,6 @@ export const marshalDefaultValueOverridePolicySchema: z.ZodType = z
     default_value: d.defaultValue,
   }));
 
-export const marshalListTagPoliciesResponseSchema: z.ZodType = z
-  .object({
-    tagPolicies: z.array(z.lazy(() => marshalTagPolicySchema)).optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    tag_policies: d.tagPolicies,
-    next_page_token: d.nextPageToken,
-  }));
-
 export const marshalPropagationConfigSchema: z.ZodType = z
   .object({
     enabled: z.boolean().optional(),
@@ -241,94 +231,9 @@ const conflictResolutionPolicyFieldMaskSchema: FieldMaskSchema = {
   },
 };
 
-export function conflictResolutionPolicyFieldMask(
-  ...paths: string[]
-): FieldMask<ConflictResolutionPolicy> {
-  return FieldMask.build<ConflictResolutionPolicy>(
-    paths,
-    conflictResolutionPolicyFieldMaskSchema
-  );
-}
-
-const createTagPolicyRequestFieldMaskSchema: FieldMaskSchema = {
-  tagPolicy: {wire: 'tag_policy', children: () => tagPolicyFieldMaskSchema},
-};
-
-export function createTagPolicyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateTagPolicyRequest> {
-  return FieldMask.build<CreateTagPolicyRequest>(
-    paths,
-    createTagPolicyRequestFieldMaskSchema
-  );
-}
-
 const defaultValueOverridePolicyFieldMaskSchema: FieldMaskSchema = {
   defaultValue: {wire: 'default_value'},
 };
-
-export function defaultValueOverridePolicyFieldMask(
-  ...paths: string[]
-): FieldMask<DefaultValueOverridePolicy> {
-  return FieldMask.build<DefaultValueOverridePolicy>(
-    paths,
-    defaultValueOverridePolicyFieldMaskSchema
-  );
-}
-
-const deleteTagPolicyRequestFieldMaskSchema: FieldMaskSchema = {
-  tagKey: {wire: 'tag_key'},
-};
-
-export function deleteTagPolicyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteTagPolicyRequest> {
-  return FieldMask.build<DeleteTagPolicyRequest>(
-    paths,
-    deleteTagPolicyRequestFieldMaskSchema
-  );
-}
-
-const getTagPolicyRequestFieldMaskSchema: FieldMaskSchema = {
-  tagKey: {wire: 'tag_key'},
-};
-
-export function getTagPolicyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetTagPolicyRequest> {
-  return FieldMask.build<GetTagPolicyRequest>(
-    paths,
-    getTagPolicyRequestFieldMaskSchema
-  );
-}
-
-const listTagPoliciesRequestFieldMaskSchema: FieldMaskSchema = {
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listTagPoliciesRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListTagPoliciesRequest> {
-  return FieldMask.build<ListTagPoliciesRequest>(
-    paths,
-    listTagPoliciesRequestFieldMaskSchema
-  );
-}
-
-const listTagPoliciesResponseFieldMaskSchema: FieldMaskSchema = {
-  nextPageToken: {wire: 'next_page_token'},
-  tagPolicies: {wire: 'tag_policies'},
-};
-
-export function listTagPoliciesResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListTagPoliciesResponse> {
-  return FieldMask.build<ListTagPoliciesResponse>(
-    paths,
-    listTagPoliciesResponseFieldMaskSchema
-  );
-}
 
 const propagationConfigFieldMaskSchema: FieldMaskSchema = {
   conflictResolution: {
@@ -337,15 +242,6 @@ const propagationConfigFieldMaskSchema: FieldMaskSchema = {
   },
   enabled: {wire: 'enabled'},
 };
-
-export function propagationConfigFieldMask(
-  ...paths: string[]
-): FieldMask<PropagationConfig> {
-  return FieldMask.build<PropagationConfig>(
-    paths,
-    propagationConfigFieldMaskSchema
-  );
-}
 
 const tagPolicyFieldMaskSchema: FieldMaskSchema = {
   accountId: {wire: 'account_id'},
@@ -363,26 +259,4 @@ const tagPolicyFieldMaskSchema: FieldMaskSchema = {
 
 export function tagPolicyFieldMask(...paths: string[]): FieldMask<TagPolicy> {
   return FieldMask.build<TagPolicy>(paths, tagPolicyFieldMaskSchema);
-}
-
-const updateTagPolicyRequestFieldMaskSchema: FieldMaskSchema = {
-  tagPolicy: {wire: 'tag_policy', children: () => tagPolicyFieldMaskSchema},
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateTagPolicyRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateTagPolicyRequest> {
-  return FieldMask.build<UpdateTagPolicyRequest>(
-    paths,
-    updateTagPolicyRequestFieldMaskSchema
-  );
-}
-
-const valueFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function valueFieldMask(...paths: string[]): FieldMask<Value> {
-  return FieldMask.build<Value>(paths, valueFieldMaskSchema);
 }

@@ -558,7 +558,7 @@ export class Client {
     const url = `${this.host}/api/warehouses/v1/${req.defaultWarehouseOverride?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
-      params.append('update_mask', req.updateMask);
+      params.append('update_mask', req.updateMask.toString());
     }
     if (req.allowMissing !== undefined) {
       params.append('allow_missing', String(req.allowMissing));
