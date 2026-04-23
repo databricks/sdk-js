@@ -5,8 +5,9 @@
  */
 
 import type {Credentials} from '@databricks/sdk-auth';
+import type {HttpClient} from '@databricks/sdk-core/http';
+
 import type {Logger} from '../logger/logger';
-import type {HttpClient} from '../transport/http';
 
 /** Options to configure Databricks API clients. */
 export interface ClientOptions {

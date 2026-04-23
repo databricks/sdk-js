@@ -2,13 +2,13 @@
  * Internal utilities for the Files service client.
  */
 
-import {APIError} from '@databricks/sdk-databricks/apierror';
+import {APIError} from '@databricks/sdk-core/apierror';
 import type {Logger} from '@databricks/sdk-databricks/logger';
 import type {
   HttpClient,
   HttpRequest,
   HttpResponse,
-} from '@databricks/sdk-databricks/transport';
+} from '@databricks/sdk-core/http';
 
 export interface HttpCallOptions {
   readonly request: HttpRequest;

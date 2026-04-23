@@ -29,6 +29,22 @@
     "./clientinfo/browser": {
       "types": "./dist/clientinfo/index.browser.d.ts",
       "import": "./dist/clientinfo/index.browser.js"
+    },
+    "./http": {
+      "types": "./dist/http/index.d.ts",
+      "import": "./dist/http/index.js"
+    },
+    "./api": {
+      "types": "./dist/api/index.d.ts",
+      "import": "./dist/api/index.js"
+    },
+    "./apierror": {
+      "types": "./dist/apierror/index.d.ts",
+      "import": "./dist/apierror/index.js"
+    },
+    "./apierror/codes": {
+      "types": "./dist/apierror/codes/index.d.ts",
+      "import": "./dist/apierror/codes/index.js"
     }
   },
   "files": [
@@ -50,5 +66,8 @@
   "license": "Apache-2.0",
   "engines": {
     "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
   }
 }

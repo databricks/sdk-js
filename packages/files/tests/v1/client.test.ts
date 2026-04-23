@@ -4,7 +4,7 @@ import type {
   HttpClient,
   HttpRequest,
   HttpResponse,
-} from '@databricks/sdk-databricks/transport';
+} from '@databricks/sdk-core/http';
 
 import {Client} from '../../src/v1';
 

@@ -1,11 +1,11 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-import type {Call, Options} from '@databricks/sdk-databricks/api';
-import {execute} from '@databricks/sdk-databricks/api';
+import type {Call, Options} from '@databricks/sdk-core/api';
+import {execute} from '@databricks/sdk-core/api';
 import type {Logger} from '@databricks/sdk-databricks/logger';
 import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
-import type {HttpClient} from '@databricks/sdk-databricks/transport';
+import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
