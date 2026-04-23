@@ -7,9 +7,8 @@ import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-databricks/transport';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {buildHttpRequest, executeHttpCall, parseResponse} from './utils';
+import {buildHttpRequest, sendAndCheckError} from './utils';
 import type {DownloadRequest, DownloadResponse} from './model';
-import {unmarshalDownloadResponseSchema} from './model';
 
 export class Client {
   private readonly host: string;
@@ -63,12 +62,14 @@ export class Client {
     let resp: DownloadResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
+      const httpResp = await sendAndCheckError({
         request: httpReq,
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDownloadResponseSchema);
+      resp = {
+        contents: httpResp.body ?? undefined,
+      };
     };
     await execute(signal, call, options);
     if (resp === undefined) {
