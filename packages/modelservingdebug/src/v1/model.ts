@@ -2,14 +2,15 @@
 
 import {z} from 'zod';
 
+
 /**
  * *
  * Proto version of com.databricks.rpc.HttpOverRpcResponse.
- *
+ * 
  * This message can be specially handled in UnaryRpcService with JettyRPC when the advanced feature
  * CustomHandlingForHttpOverRpcProtoResponse is enabled - bypass the RPC serializer and populate
  * HTTP status, response headers and response body from the proto message directly.
- *
+ * 
  * Don't add/modify the fields before being aware of the implications.
  */
 export interface ExportMetricsResponse {
@@ -48,21 +49,19 @@ export interface GetServedModelLogs_Response {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetServedModelBuildLogs_ResponseSchema: z.ZodType<GetServedModelBuildLogs_Response> =
-  z
-    .object({
-      logs: z.string().optional(),
-    })
-    .transform(d => ({
-      logs: d.logs,
-    }));
+export const unmarshalGetServedModelBuildLogs_ResponseSchema: z.ZodType<GetServedModelBuildLogs_Response> = z
+  .object({
+    logs: z.string().optional(),
+  })
+  .transform(d => ({
+    logs: d.logs,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetServedModelLogs_ResponseSchema: z.ZodType<GetServedModelLogs_Response> =
-  z
-    .object({
-      logs: z.string().optional(),
-    })
-    .transform(d => ({
-      logs: d.logs,
-    }));
+export const unmarshalGetServedModelLogs_ResponseSchema: z.ZodType<GetServedModelLogs_Response> = z
+  .object({
+    logs: z.string().optional(),
+  })
+  .transform(d => ({
+    logs: d.logs,
+  }));

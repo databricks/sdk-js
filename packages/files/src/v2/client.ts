@@ -9,7 +9,9 @@ import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  encodeMultiSegmentPath,
   executeHttpCall,
+  sendAndCheckError,
   marshalRequest,
   parseResponse,
 } from './utils';
@@ -19,11 +21,26 @@ import type {
   Close,
   Close_Response,
   Create,
+  CreateDirectoryRequest,
+  CreateDirectoryResponse,
   Create_Response,
   Delete,
+  DeleteDirectoryRequest,
+  DeleteDirectoryResponse,
+  DeleteFileRequest,
+  DeleteFileResponse,
   Delete_Response,
+  DirectoryEntry,
+  DownloadFileRequest,
+  DownloadFileResponse,
+  GetDirectoryMetadataRequest,
+  GetDirectoryMetadataResponse,
+  GetFileMetadataRequest,
+  GetFileMetadataResponse,
   GetStatus,
   GetStatus_Response,
+  ListDirectoryContentsRequest,
+  ListDirectoryResponse,
   ListStatus,
   ListStatus_Response,
   MkDirs,
@@ -34,6 +51,8 @@ import type {
   Put_Response,
   Read,
   Read_Response,
+  UploadFileRequest,
+  UploadFileResponse,
 } from './model';
 import {
   marshalAddBlockSchema,
@@ -45,14 +64,21 @@ import {
   marshalPutSchema,
   unmarshalAddBlock_ResponseSchema,
   unmarshalClose_ResponseSchema,
+  unmarshalCreateDirectoryResponseSchema,
   unmarshalCreate_ResponseSchema,
+  unmarshalDeleteDirectoryResponseSchema,
+  unmarshalDeleteFileResponseSchema,
   unmarshalDelete_ResponseSchema,
+  unmarshalGetDirectoryMetadataResponseSchema,
+  unmarshalGetFileMetadataResponseSchema,
   unmarshalGetStatus_ResponseSchema,
+  unmarshalListDirectoryResponseSchema,
   unmarshalListStatus_ResponseSchema,
   unmarshalMkDirs_ResponseSchema,
   unmarshalMove_ResponseSchema,
   unmarshalPut_ResponseSchema,
   unmarshalRead_ResponseSchema,
+  unmarshalUploadFileResponseSchema,
 } from './model';
 
 export class Client {
@@ -84,7 +110,8 @@ export class Client {
     const body = marshalRequest(req, marshalAddBlockSchema);
     let resp: AddBlock_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -112,7 +139,8 @@ export class Client {
     const body = marshalRequest(req, marshalCloseSchema);
     let resp: Close_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -147,7 +175,8 @@ export class Client {
     const body = marshalRequest(req, marshalCreateSchema);
     let resp: Create_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -187,7 +216,8 @@ export class Client {
     const body = marshalRequest(req, marshalDeleteSchema);
     let resp: Delete_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -220,7 +250,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GetStatus_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -260,7 +291,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListStatus_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -289,7 +321,8 @@ export class Client {
     const body = marshalRequest(req, marshalMkDirsSchema);
     let resp: MkDirs_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -319,7 +352,8 @@ export class Client {
     const body = marshalRequest(req, marshalMoveSchema);
     let resp: Move_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -355,7 +389,8 @@ export class Client {
     const body = marshalRequest(req, marshalPutSchema);
     let resp: Put_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -398,7 +433,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: Read_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -411,5 +447,301 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  /**
+   * Creates an empty directory. If necessary, also creates any parent directories of the
+   * new, empty directory (like the shell command `mkdir -p`). If called on an existing
+   * directory, returns a success response; this method is idempotent (it will succeed if the directory already
+   * exists).
+   */
+  async createDirectory(
+    signal: AbortSignal | undefined,
+    req: CreateDirectoryRequest,
+    options?: Options
+  ): Promise<CreateDirectoryResponse> {
+    const url = `${this.host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath ?? '')}`;
+    let resp: CreateDirectoryResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalCreateDirectoryResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Deletes an empty directory.
+   *
+   * To delete a non-empty directory, first delete all of its contents. This can be done
+   * by listing the directory contents and deleting each file and subdirectory recursively.
+   */
+  async deleteDirectory(
+    signal: AbortSignal | undefined,
+    req: DeleteDirectoryRequest,
+    options?: Options
+  ): Promise<DeleteDirectoryResponse> {
+    const url = `${this.host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath ?? '')}`;
+    let resp: DeleteDirectoryResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalDeleteDirectoryResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Deletes a file. If the request is successful, there is no response body. */
+  async deleteFile(
+    signal: AbortSignal | undefined,
+    req: DeleteFileRequest,
+    options?: Options
+  ): Promise<DeleteFileResponse> {
+    const url = `${this.host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
+    let resp: DeleteFileResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalDeleteFileResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Downloads a file. The file contents are the response body. This is a
+   * standard HTTP file download, not a JSON RPC. It supports the
+   * Range and If-Unmodified-Since HTTP headers.
+   */
+  async downloadFile(
+    signal: AbortSignal | undefined,
+    req: DownloadFileRequest,
+    options?: Options
+  ): Promise<DownloadFileResponse> {
+    const url = `${this.host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
+    const params = new URLSearchParams();
+    if (req.range !== undefined) {
+      params.append('Range', req.range);
+    }
+    if (req.ifUnmodifiedSince !== undefined) {
+      params.append('If-Unmodified-Since', req.ifUnmodifiedSince);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: DownloadFileResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const httpResp = await sendAndCheckError({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      const contentLengthHeader = httpResp.headers.get('content-length');
+      resp = {
+        contentLength:
+          contentLengthHeader !== null
+            ? Number(contentLengthHeader)
+            : undefined,
+        contentType: httpResp.headers.get('content-type') ?? undefined,
+        lastModified: httpResp.headers.get('last-modified') ?? undefined,
+        contents: httpResp.body ?? undefined,
+      };
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Get the metadata of a directory. The response HTTP headers contain the metadata.
+   * There is no response body.
+   *
+   * This method is useful to check if a directory exists and the caller has access to it.
+   *
+   * If you wish to ensure the directory exists, you can instead use `PUT`, which will create
+   * the directory if it does not exist, and is idempotent (it will succeed if the directory
+   * already exists).
+   */
+  async getDirectoryMetadata(
+    signal: AbortSignal | undefined,
+    req: GetDirectoryMetadataRequest,
+    options?: Options
+  ): Promise<GetDirectoryMetadataResponse> {
+    const url = `${this.host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath ?? '')}`;
+    let resp: GetDirectoryMetadataResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('head', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalGetDirectoryMetadataResponseSchema
+      );
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Get the metadata of a file. The response HTTP headers contain the metadata. There is no
+   * response body.
+   */
+  async getFileMetadata(
+    signal: AbortSignal | undefined,
+    req: GetFileMetadataRequest,
+    options?: Options
+  ): Promise<GetFileMetadataResponse> {
+    const url = `${this.host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
+    const params = new URLSearchParams();
+    if (req.range !== undefined) {
+      params.append('Range', req.range);
+    }
+    if (req.ifUnmodifiedSince !== undefined) {
+      params.append('If-Unmodified-Since', req.ifUnmodifiedSince);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: GetFileMetadataResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('head', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalGetFileMetadataResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Returns the contents of a directory.
+   * If there is no directory at the specified path, the API returns a HTTP 404 error.
+   */
+  async listDirectoryContents(
+    signal: AbortSignal | undefined,
+    req: ListDirectoryContentsRequest,
+    options?: Options
+  ): Promise<ListDirectoryResponse> {
+    const url = `${this.host}/api/2.0/fs/directories${encodeMultiSegmentPath(req.directoryPath ?? '')}`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListDirectoryResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalListDirectoryResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listDirectoryContentsIter(
+    signal: AbortSignal | undefined,
+    req: ListDirectoryContentsRequest,
+    options?: Options
+  ): AsyncGenerator<DirectoryEntry> {
+    const pageReq: ListDirectoryContentsRequest = {...req};
+    for (;;) {
+      const resp = await this.listDirectoryContents(signal, pageReq, options);
+      for (const item of resp.contents ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /**
+   * Uploads a file of up to 5 GiB. The file contents should be sent as the request body as
+   * raw bytes (an octet stream); do not encode or otherwise modify the bytes before sending.
+   * The contents of the resulting file will be exactly the bytes sent in the request body.
+   * If the request is successful, there is no response body.
+   */
+  async uploadFile(
+    signal: AbortSignal | undefined,
+    req: UploadFileRequest
+  ): Promise<UploadFileResponse> {
+    const url = `${this.host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
+    const params = new URLSearchParams();
+    if (req.overwrite !== undefined) {
+      params.append('overwrite', String(req.overwrite));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    // Streaming requests bypass the retry wrapper because a ReadableStream
+    // body is consumed on first send and cannot be replayed.
+    const headers = new Headers({'Content-Type': 'application/octet-stream'});
+    const httpReq = buildHttpRequest(
+      'PUT',
+      fullUrl,
+      headers,
+      signal,
+      req.contents
+    );
+    const respBody = await executeHttpCall({
+      request: httpReq,
+      httpClient: this.httpClient,
+      logger: this.logger,
+    });
+    return parseResponse(respBody, unmarshalUploadFileResponseSchema);
   }
 }

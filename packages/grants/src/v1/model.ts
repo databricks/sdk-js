@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export interface EffectivePrivilege {
   /** The privilege assigned to the principal. */
   privilege?: string | undefined;
@@ -35,7 +36,7 @@ export interface GetEffectivePermissions {
    * Specifies the maximum number of privileges to return (page length).
    * Every EffectivePrivilegeAssignment present in a single page response is guaranteed to contain all the effective
    * privileges granted on (or inherited by) the requested Securable for the respective principal.
-   *
+   * 
    * If not set, all the effective permissions are returned.
    * If set to
    * - lesser than 0: invalid parameter error
@@ -71,7 +72,7 @@ export interface GetPermissions {
    * Specifies the maximum number of privileges to return (page length).
    * Every PrivilegeAssignment present in a single page response is guaranteed to contain all the privileges granted on
    * the requested Securable for the respective principal.
-   *
+   * 
    * If not set, all the permissions are returned.
    * If set to
    * - lesser than 0: invalid parameter error
@@ -139,7 +140,7 @@ export interface ListPrivilegeAssignmentsRequest {
    * Specifies the maximum number of privileges to return (page length).
    * Every PrivilegeAssignment present in a single page response is guaranteed to contain all the privileges granted on
    * the requested Securable for the respective principal.
-   *
+   * 
    * If not set, page length is the server configured value.
    * If set to
    * - lesser than 0: invalid parameter error
@@ -174,9 +175,9 @@ export interface PermissionsChange {
   remove?: string[] | undefined;
   /**
    * An opaque internal ID that identifies the principal whose privileges should be removed.
-   *
+   * 
    * This field is intended for removing privileges associated with a deleted user. When set, only the entries specified in the remove field are processed; any entries in the add field will be rejected.
-   *
+   * 
    * Only one of principal or principal_id should be specified, never both at the same time.
    */
   principalId?: number | undefined;
@@ -209,110 +210,90 @@ export interface UpdatePermissions_Response {
   privilegeAssignments?: PrivilegeAssignment[] | undefined;
 }
 
-export const unmarshalEffectivePrivilegeSchema: z.ZodType<EffectivePrivilege> =
-  z
-    .object({
-      privilege: z.string().optional(),
-      inherited_from_type: z.string().optional(),
-      inherited_from_name: z.string().optional(),
-    })
-    .transform(d => ({
-      privilege: d.privilege,
-      inheritedFromType: d.inherited_from_type,
-      inheritedFromName: d.inherited_from_name,
-    }));
+export const unmarshalEffectivePrivilegeSchema: z.ZodType<EffectivePrivilege> = z
+  .object({
+    privilege: z.string().optional(),
+    inherited_from_type: z.string().optional(),
+    inherited_from_name: z.string().optional(),
+  })
+  .transform(d => ({
+    privilege: d.privilege,
+    inheritedFromType: d.inherited_from_type,
+    inheritedFromName: d.inherited_from_name,
+  }));
 
-export const unmarshalEffectivePrivilegeAssignmentSchema: z.ZodType<EffectivePrivilegeAssignment> =
-  z
-    .object({
-      principal: z.string().optional(),
-      privileges: z
-        .array(z.lazy(() => unmarshalEffectivePrivilegeSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      principal: d.principal,
-      privileges: d.privileges,
-    }));
+export const unmarshalEffectivePrivilegeAssignmentSchema: z.ZodType<EffectivePrivilegeAssignment> = z
+  .object({
+    principal: z.string().optional(),
+    privileges: z.array(z.lazy(() => unmarshalEffectivePrivilegeSchema)).optional(),
+  })
+  .transform(d => ({
+    principal: d.principal,
+    privileges: d.privileges,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetEffectivePermissions_ResponseSchema: z.ZodType<GetEffectivePermissions_Response> =
-  z
-    .object({
-      next_page_token: z.string().optional(),
-      privilege_assignments: z
-        .array(z.lazy(() => unmarshalEffectivePrivilegeAssignmentSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      nextPageToken: d.next_page_token,
-      privilegeAssignments: d.privilege_assignments,
-    }));
+export const unmarshalGetEffectivePermissions_ResponseSchema: z.ZodType<GetEffectivePermissions_Response> = z
+  .object({
+    next_page_token: z.string().optional(),
+    privilege_assignments: z.array(z.lazy(() => unmarshalEffectivePrivilegeAssignmentSchema)).optional(),
+  })
+  .transform(d => ({
+    nextPageToken: d.next_page_token,
+    privilegeAssignments: d.privilege_assignments,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetPermissions_ResponseSchema: z.ZodType<GetPermissions_Response> =
-  z
-    .object({
-      next_page_token: z.string().optional(),
-      privilege_assignments: z
-        .array(z.lazy(() => unmarshalPrivilegeAssignmentSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      nextPageToken: d.next_page_token,
-      privilegeAssignments: d.privilege_assignments,
-    }));
+export const unmarshalGetPermissions_ResponseSchema: z.ZodType<GetPermissions_Response> = z
+  .object({
+    next_page_token: z.string().optional(),
+    privilege_assignments: z.array(z.lazy(() => unmarshalPrivilegeAssignmentSchema)).optional(),
+  })
+  .transform(d => ({
+    nextPageToken: d.next_page_token,
+    privilegeAssignments: d.privilege_assignments,
+  }));
 
-export const unmarshalListEffectivePrivilegeAssignmentsResponseSchema: z.ZodType<ListEffectivePrivilegeAssignmentsResponse> =
-  z
-    .object({
-      effective_privilege_assignments: z
-        .array(z.lazy(() => unmarshalEffectivePrivilegeAssignmentSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      effectivePrivilegeAssignments: d.effective_privilege_assignments,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListEffectivePrivilegeAssignmentsResponseSchema: z.ZodType<ListEffectivePrivilegeAssignmentsResponse> = z
+  .object({
+    effective_privilege_assignments: z.array(z.lazy(() => unmarshalEffectivePrivilegeAssignmentSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    effectivePrivilegeAssignments: d.effective_privilege_assignments,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListPrivilegeAssignmentsResponseSchema: z.ZodType<ListPrivilegeAssignmentsResponse> =
-  z
-    .object({
-      privilege_assignments: z
-        .array(z.lazy(() => unmarshalPrivilegeAssignmentSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      privilegeAssignments: d.privilege_assignments,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListPrivilegeAssignmentsResponseSchema: z.ZodType<ListPrivilegeAssignmentsResponse> = z
+  .object({
+    privilege_assignments: z.array(z.lazy(() => unmarshalPrivilegeAssignmentSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    privilegeAssignments: d.privilege_assignments,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalPrivilegeAssignmentSchema: z.ZodType<PrivilegeAssignment> =
-  z
-    .object({
-      principal: z.string().optional(),
-      privileges: z.array(z.string()).optional(),
-      principal_id: z.number().optional(),
-    })
-    .transform(d => ({
-      principal: d.principal,
-      privileges: d.privileges,
-      principalId: d.principal_id,
-    }));
+export const unmarshalPrivilegeAssignmentSchema: z.ZodType<PrivilegeAssignment> = z
+  .object({
+    principal: z.string().optional(),
+    privileges: z.array(z.string()).optional(),
+    principal_id: z.number().optional(),
+  })
+  .transform(d => ({
+    principal: d.principal,
+    privileges: d.privileges,
+    principalId: d.principal_id,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdatePermissions_ResponseSchema: z.ZodType<UpdatePermissions_Response> =
-  z
-    .object({
-      privilege_assignments: z
-        .array(z.lazy(() => unmarshalPrivilegeAssignmentSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      privilegeAssignments: d.privilege_assignments,
-    }));
+export const unmarshalUpdatePermissions_ResponseSchema: z.ZodType<UpdatePermissions_Response> = z
+  .object({
+    privilege_assignments: z.array(z.lazy(() => unmarshalPrivilegeAssignmentSchema)).optional(),
+  })
+  .transform(d => ({
+    privilegeAssignments: d.privilege_assignments,
+  }));
 
 export const marshalPermissionsChangeSchema: z.ZodType = z
   .object({

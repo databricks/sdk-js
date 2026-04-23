@@ -5,6 +5,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 export enum Aggregation {
   SUM = 'SUM',
   COUNT = 'COUNT',
@@ -219,14 +220,8 @@ export const unmarshalAlertSchema: z.ZodType<Alert> = z
     id: z.string().optional(),
     display_name: z.string().optional(),
     owner_user_name: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     parent_path: z.string().optional(),
     query_text: z.string().optional(),
     warehouse_id: z.string().optional(),
@@ -267,10 +262,7 @@ export const unmarshalAlertEvaluationSchema: z.ZodType<AlertEvaluation> = z
     threshold: z.lazy(() => unmarshalAlertOperandSchema).optional(),
     notification: z.lazy(() => unmarshalAlertNotificationSchema).optional(),
     state: z.enum(AlertEvaluationState).optional(),
-    last_evaluated_at: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    last_evaluated_at: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     empty_result_state: z.enum(AlertEvaluationState).optional(),
   })
   .transform(d => ({
@@ -285,9 +277,7 @@ export const unmarshalAlertEvaluationSchema: z.ZodType<AlertEvaluation> = z
 
 export const unmarshalAlertNotificationSchema: z.ZodType<AlertNotification> = z
   .object({
-    subscriptions: z
-      .array(z.lazy(() => unmarshalAlertSubscriptionSchema))
-      .optional(),
+    subscriptions: z.array(z.lazy(() => unmarshalAlertSubscriptionSchema)).optional(),
     retrigger_seconds: z.number().optional(),
     notify_on_ok: z.boolean().optional(),
   })
@@ -307,18 +297,17 @@ export const unmarshalAlertOperandSchema: z.ZodType<AlertOperand> = z
     value: d.value,
   }));
 
-export const unmarshalAlertOperandColumnSchema: z.ZodType<AlertOperandColumn> =
-  z
-    .object({
-      name: z.string().optional(),
-      display: z.string().optional(),
-      aggregation: z.enum(Aggregation).optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      display: d.display,
-      aggregation: d.aggregation,
-    }));
+export const unmarshalAlertOperandColumnSchema: z.ZodType<AlertOperandColumn> = z
+  .object({
+    name: z.string().optional(),
+    display: z.string().optional(),
+    aggregation: z.enum(Aggregation).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    display: d.display,
+    aggregation: d.aggregation,
+  }));
 
 export const unmarshalAlertOperandValueSchema: z.ZodType<AlertOperandValue> = z
   .object({
@@ -366,32 +355,27 @@ export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
     effectivePauseStatus: d.effective_pause_status,
   }));
 
-export const unmarshalEmptySchema: z.ZodType<Empty> = z.object({});
+export const unmarshalEmptySchema: z.ZodType<Empty> = z
+  .object({
+  });
 
-export const unmarshalListAlertsResponseSchema: z.ZodType<ListAlertsResponse> =
-  z
-    .object({
-      alerts: z.array(z.lazy(() => unmarshalAlertSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      alerts: d.alerts,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListAlertsResponseSchema: z.ZodType<ListAlertsResponse> = z
+  .object({
+    alerts: z.array(z.lazy(() => unmarshalAlertSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    alerts: d.alerts,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const marshalAlertSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     displayName: z.string().optional(),
     ownerUserName: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     parentPath: z.string().optional(),
     queryText: z.string().optional(),
     warehouseId: z.string().optional(),
@@ -432,10 +416,7 @@ export const marshalAlertEvaluationSchema: z.ZodType = z
     threshold: z.lazy(() => marshalAlertOperandSchema).optional(),
     notification: z.lazy(() => marshalAlertNotificationSchema).optional(),
     state: z.enum(AlertEvaluationState).optional(),
-    lastEvaluatedAt: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    lastEvaluatedAt: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     emptyResultState: z.enum(AlertEvaluationState).optional(),
   })
   .transform(d => ({
@@ -450,9 +431,7 @@ export const marshalAlertEvaluationSchema: z.ZodType = z
 
 export const marshalAlertNotificationSchema: z.ZodType = z
   .object({
-    subscriptions: z
-      .array(z.lazy(() => marshalAlertSubscriptionSchema))
-      .optional(),
+    subscriptions: z.array(z.lazy(() => marshalAlertSubscriptionSchema)).optional(),
     retriggerSeconds: z.number().optional(),
     notifyOnOk: z.boolean().optional(),
   })
@@ -536,14 +515,8 @@ const alertFieldMaskSchema: FieldMaskSchema = {
   customSummary: {wire: 'custom_summary'},
   displayName: {wire: 'display_name'},
   effectiveParentPath: {wire: 'effective_parent_path'},
-  effectiveRunAs: {
-    wire: 'effective_run_as',
-    children: () => alertRunAsFieldMaskSchema,
-  },
-  evaluation: {
-    wire: 'evaluation',
-    children: () => alertEvaluationFieldMaskSchema,
-  },
+  effectiveRunAs: {wire: 'effective_run_as', children: () => alertRunAsFieldMaskSchema},
+  evaluation: {wire: 'evaluation', children: () => alertEvaluationFieldMaskSchema},
   id: {wire: 'id'},
   lifecycleState: {wire: 'lifecycle_state'},
   ownerUserName: {wire: 'owner_user_name'},
@@ -564,10 +537,7 @@ const alertEvaluationFieldMaskSchema: FieldMaskSchema = {
   comparisonOperator: {wire: 'comparison_operator'},
   emptyResultState: {wire: 'empty_result_state'},
   lastEvaluatedAt: {wire: 'last_evaluated_at'},
-  notification: {
-    wire: 'notification',
-    children: () => alertNotificationFieldMaskSchema,
-  },
+  notification: {wire: 'notification', children: () => alertNotificationFieldMaskSchema},
   source: {wire: 'source', children: () => alertOperandColumnFieldMaskSchema},
   state: {wire: 'state'},
   threshold: {wire: 'threshold', children: () => alertOperandFieldMaskSchema},

@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 /** The ACL permission levels for Secret ACLs applied to secret scopes. */
 export enum AclPermission {
   /** Allowed to perform read operations (get, list) on secrets in this scope. */
@@ -204,47 +205,46 @@ export const unmarshalAclItemSchema: z.ZodType<AclItem> = z
     permission: d.permission,
   }));
 
-export const unmarshalAzureKeyVaultSecretScopeMetadataSchema: z.ZodType<AzureKeyVaultSecretScopeMetadata> =
-  z
-    .object({
-      resource_id: z.string().optional(),
-      dns_name: z.string().optional(),
-    })
-    .transform(d => ({
-      resourceId: d.resource_id,
-      dnsName: d.dns_name,
-    }));
+export const unmarshalAzureKeyVaultSecretScopeMetadataSchema: z.ZodType<AzureKeyVaultSecretScopeMetadata> = z
+  .object({
+    resource_id: z.string().optional(),
+    dns_name: z.string().optional(),
+  })
+  .transform(d => ({
+    resourceId: d.resource_id,
+    dnsName: d.dns_name,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateScope_ResponseSchema: z.ZodType<CreateScope_Response> =
-  z.object({});
+export const unmarshalCreateScope_ResponseSchema: z.ZodType<CreateScope_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteAcl_ResponseSchema: z.ZodType<DeleteAcl_Response> =
-  z.object({});
+export const unmarshalDeleteAcl_ResponseSchema: z.ZodType<DeleteAcl_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteScope_ResponseSchema: z.ZodType<DeleteScope_Response> =
-  z.object({});
+export const unmarshalDeleteScope_ResponseSchema: z.ZodType<DeleteScope_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteSecret_ResponseSchema: z.ZodType<DeleteSecret_Response> =
-  z.object({});
+export const unmarshalDeleteSecret_ResponseSchema: z.ZodType<DeleteSecret_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetSecret_ResponseSchema: z.ZodType<GetSecret_Response> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z
-        .string()
-        .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
-        .optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalGetSecret_ResponseSchema: z.ZodType<GetSecret_Response> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0))).optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListAcls_ResponseSchema: z.ZodType<ListAcls_Response> = z
@@ -256,32 +256,32 @@ export const unmarshalListAcls_ResponseSchema: z.ZodType<ListAcls_Response> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListScopes_ResponseSchema: z.ZodType<ListScopes_Response> =
-  z
-    .object({
-      scopes: z.array(z.lazy(() => unmarshalSecretScopeSchema)).optional(),
-    })
-    .transform(d => ({
-      scopes: d.scopes,
-    }));
+export const unmarshalListScopes_ResponseSchema: z.ZodType<ListScopes_Response> = z
+  .object({
+    scopes: z.array(z.lazy(() => unmarshalSecretScopeSchema)).optional(),
+  })
+  .transform(d => ({
+    scopes: d.scopes,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListSecrets_ResponseSchema: z.ZodType<ListSecrets_Response> =
-  z
-    .object({
-      secrets: z.array(z.lazy(() => unmarshalSecretMetadataSchema)).optional(),
-    })
-    .transform(d => ({
-      secrets: d.secrets,
-    }));
+export const unmarshalListSecrets_ResponseSchema: z.ZodType<ListSecrets_Response> = z
+  .object({
+    secrets: z.array(z.lazy(() => unmarshalSecretMetadataSchema)).optional(),
+  })
+  .transform(d => ({
+    secrets: d.secrets,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPutAcl_ResponseSchema: z.ZodType<PutAcl_Response> =
-  z.object({});
+export const unmarshalPutAcl_ResponseSchema: z.ZodType<PutAcl_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPutSecret_ResponseSchema: z.ZodType<PutSecret_Response> =
-  z.object({});
+export const unmarshalPutSecret_ResponseSchema: z.ZodType<PutSecret_Response> = z
+  .object({
+  });
 
 export const unmarshalSecretMetadataSchema: z.ZodType<SecretMetadata> = z
   .object({
@@ -297,9 +297,7 @@ export const unmarshalSecretScopeSchema: z.ZodType<SecretScope> = z
   .object({
     name: z.string().optional(),
     backend_type: z.enum(ScopeBackendType).optional(),
-    keyvault_metadata: z
-      .lazy(() => unmarshalAzureKeyVaultSecretScopeMetadataSchema)
-      .optional(),
+    keyvault_metadata: z.lazy(() => unmarshalAzureKeyVaultSecretScopeMetadataSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -322,9 +320,7 @@ export const marshalCreateScopeSchema: z.ZodType = z
     scope: z.string().optional(),
     initialManagePrincipal: z.string().optional(),
     scopeBackendType: z.enum(ScopeBackendType).optional(),
-    backendAzureKeyvault: z
-      .lazy(() => marshalAzureKeyVaultSecretScopeMetadataSchema)
-      .optional(),
+    backendAzureKeyvault: z.lazy(() => marshalAzureKeyVaultSecretScopeMetadataSchema).optional(),
   })
   .transform(d => ({
     scope: d.scope,
@@ -378,12 +374,7 @@ export const marshalPutSecretSchema: z.ZodType = z
     scope: z.string().optional(),
     key: z.string().optional(),
     stringValue: z.string().optional(),
-    bytesValue: z
-      .any()
-      .transform((d: Uint8Array) =>
-        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
-      )
-      .optional(),
+    bytesValue: z.any().transform((d: Uint8Array) => btoa(Array.from(d, b => String.fromCharCode(b)).join(''))).optional(),
   })
   .transform(d => ({
     scope: d.scope,

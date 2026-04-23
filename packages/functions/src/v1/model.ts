@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export enum ColumnTypeName {
   BOOLEAN = 'BOOLEAN',
   BYTE = 'BYTE',
@@ -400,27 +401,26 @@ export interface VolumeDependency {
   volumeFullName?: string | undefined;
 }
 
-export const unmarshalConnectionDependencySchema: z.ZodType<ConnectionDependency> =
-  z
-    .object({
-      connection_name: z.string().optional(),
-    })
-    .transform(d => ({
-      connectionName: d.connection_name,
-    }));
+export const unmarshalConnectionDependencySchema: z.ZodType<ConnectionDependency> = z
+  .object({
+    connection_name: z.string().optional(),
+  })
+  .transform(d => ({
+    connectionName: d.connection_name,
+  }));
 
-export const unmarshalCredentialDependencySchema: z.ZodType<CredentialDependency> =
-  z
-    .object({
-      credential_name: z.string().optional(),
-    })
-    .transform(d => ({
-      credentialName: d.credential_name,
-    }));
+export const unmarshalCredentialDependencySchema: z.ZodType<CredentialDependency> = z
+  .object({
+    credential_name: z.string().optional(),
+  })
+  .transform(d => ({
+    credentialName: d.credential_name,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteFunction_ResponseSchema: z.ZodType<DeleteFunction_Response> =
-  z.object({});
+export const unmarshalDeleteFunction_ResponseSchema: z.ZodType<DeleteFunction_Response> = z
+  .object({
+  });
 
 export const unmarshalDependencySchema: z.ZodType<Dependency> = z
   .object({
@@ -448,23 +448,20 @@ export const unmarshalDependencyListSchema: z.ZodType<DependencyList> = z
     dependencies: d.dependencies,
   }));
 
-export const unmarshalFunctionDependencySchema: z.ZodType<FunctionDependency> =
-  z
-    .object({
-      function_full_name: z.string().optional(),
-    })
-    .transform(d => ({
-      functionFullName: d.function_full_name,
-    }));
+export const unmarshalFunctionDependencySchema: z.ZodType<FunctionDependency> = z
+  .object({
+    function_full_name: z.string().optional(),
+  })
+  .transform(d => ({
+    functionFullName: d.function_full_name,
+  }));
 
 export const unmarshalFunctionInfoSchema: z.ZodType<FunctionInfo> = z
   .object({
     name: z.string().optional(),
     catalog_name: z.string().optional(),
     schema_name: z.string().optional(),
-    input_params: z
-      .lazy(() => unmarshalFunctionParameterInfosSchema)
-      .optional(),
+    input_params: z.lazy(() => unmarshalFunctionParameterInfosSchema).optional(),
     data_type: z.enum(ColumnTypeName).optional(),
     full_data_type: z.string().optional(),
     routine_body: z.enum(FunctionInfo_RoutineBody).optional(),
@@ -475,18 +472,14 @@ export const unmarshalFunctionInfoSchema: z.ZodType<FunctionInfo> = z
     is_null_call: z.boolean().optional(),
     security_type: z.enum(FunctionInfo_SecurityType).optional(),
     specific_name: z.string().optional(),
-    return_params: z
-      .lazy(() => unmarshalFunctionParameterInfosSchema)
-      .optional(),
+    return_params: z.lazy(() => unmarshalFunctionParameterInfosSchema).optional(),
     external_name: z.string().optional(),
     external_language: z.string().optional(),
     sql_path: z.string().optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
     properties: z.string().optional(),
-    routine_dependencies: z
-      .lazy(() => unmarshalDependencyListSchema)
-      .optional(),
+    routine_dependencies: z.lazy(() => unmarshalDependencyListSchema).optional(),
     metastore_id: z.string().optional(),
     full_name: z.string().optional(),
     created_at: z.number().optional(),
@@ -529,59 +522,54 @@ export const unmarshalFunctionInfoSchema: z.ZodType<FunctionInfo> = z
     browseOnly: d.browse_only,
   }));
 
-export const unmarshalFunctionParameterInfoSchema: z.ZodType<FunctionParameterInfo> =
-  z
-    .object({
-      name: z.string().optional(),
-      type_text: z.string().optional(),
-      type_json: z.string().optional(),
-      type_name: z.enum(ColumnTypeName).optional(),
-      type_precision: z.number().optional(),
-      type_scale: z.number().optional(),
-      type_interval_type: z.string().optional(),
-      position: z.number().optional(),
-      parameter_mode: z.enum(FunctionParameterMode).optional(),
-      parameter_type: z.enum(FunctionParameterType).optional(),
-      parameter_default: z.string().optional(),
-      comment: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      typeText: d.type_text,
-      typeJson: d.type_json,
-      typeName: d.type_name,
-      typePrecision: d.type_precision,
-      typeScale: d.type_scale,
-      typeIntervalType: d.type_interval_type,
-      position: d.position,
-      parameterMode: d.parameter_mode,
-      parameterType: d.parameter_type,
-      parameterDefault: d.parameter_default,
-      comment: d.comment,
-    }));
+export const unmarshalFunctionParameterInfoSchema: z.ZodType<FunctionParameterInfo> = z
+  .object({
+    name: z.string().optional(),
+    type_text: z.string().optional(),
+    type_json: z.string().optional(),
+    type_name: z.enum(ColumnTypeName).optional(),
+    type_precision: z.number().optional(),
+    type_scale: z.number().optional(),
+    type_interval_type: z.string().optional(),
+    position: z.number().optional(),
+    parameter_mode: z.enum(FunctionParameterMode).optional(),
+    parameter_type: z.enum(FunctionParameterType).optional(),
+    parameter_default: z.string().optional(),
+    comment: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    typeText: d.type_text,
+    typeJson: d.type_json,
+    typeName: d.type_name,
+    typePrecision: d.type_precision,
+    typeScale: d.type_scale,
+    typeIntervalType: d.type_interval_type,
+    position: d.position,
+    parameterMode: d.parameter_mode,
+    parameterType: d.parameter_type,
+    parameterDefault: d.parameter_default,
+    comment: d.comment,
+  }));
 
-export const unmarshalFunctionParameterInfosSchema: z.ZodType<FunctionParameterInfos> =
-  z
-    .object({
-      parameters: z
-        .array(z.lazy(() => unmarshalFunctionParameterInfoSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      parameters: d.parameters,
-    }));
+export const unmarshalFunctionParameterInfosSchema: z.ZodType<FunctionParameterInfos> = z
+  .object({
+    parameters: z.array(z.lazy(() => unmarshalFunctionParameterInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    parameters: d.parameters,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListFunctions_ResponseSchema: z.ZodType<ListFunctions_Response> =
-  z
-    .object({
-      functions: z.array(z.lazy(() => unmarshalFunctionInfoSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      functions: d.functions,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListFunctions_ResponseSchema: z.ZodType<ListFunctions_Response> = z
+  .object({
+    functions: z.array(z.lazy(() => unmarshalFunctionInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    functions: d.functions,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalSecretDependencySchema: z.ZodType<SecretDependency> = z
   .object({
@@ -763,9 +751,7 @@ export const marshalFunctionParameterInfoSchema: z.ZodType = z
 
 export const marshalFunctionParameterInfosSchema: z.ZodType = z
   .object({
-    parameters: z
-      .array(z.lazy(() => marshalFunctionParameterInfoSchema))
-      .optional(),
+    parameters: z.array(z.lazy(() => marshalFunctionParameterInfoSchema)).optional(),
   })
   .transform(d => ({
     parameters: d.parameters,

@@ -7,13 +7,11 @@ import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {
-  buildHttpRequest,
-  executeHttpCall,
-  parseResponse,
-  flattenQueryParams,
-} from './utils';
-import type {ListQueries, ListQueries_Response} from './model';
+import {buildHttpRequest, executeHttpCall, parseResponse, flattenQueryParams} from './utils';
+import type {
+  ListQueries,
+  ListQueries_Response,
+} from './model';
 import {
   marshalQueryFilterSchema,
   unmarshalListQueries_ResponseSchema,
@@ -35,24 +33,16 @@ export class Client {
 
   /**
    * List the history of queries through SQL warehouses, and serverless compute.
-   *
+   * 
    * You can filter by user ID, warehouse ID, status, and time range.
    * Most recently started queries are returned first (up to max_results in request).
    * The pagination token returned in response can be used to list subsequent query statuses.
    */
-  async listQueries(
-    signal: AbortSignal | undefined,
-    req: ListQueries,
-    options?: Options
-  ): Promise<ListQueries_Response> {
+  async listQueries(signal: AbortSignal | undefined, req: ListQueries, options?: Options): Promise<ListQueries_Response> {
     const url = `${this.host}/api/2.0/sql/history/queries`;
     const params = new URLSearchParams();
     if (req.filterBy !== undefined) {
-      flattenQueryParams(
-        'filter_by',
-        marshalQueryFilterSchema.parse(req.filterBy),
-        params
-      );
+      flattenQueryParams('filter_by', marshalQueryFilterSchema.parse(req.filterBy), params);
     }
     if (req.maxResults !== undefined) {
       params.append('max_results', String(req.maxResults));
@@ -67,12 +57,9 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListQueries_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListQueries_ResponseSchema);
     };
     await execute(signal, call, options);

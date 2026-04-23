@@ -1,8 +1,12 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+
 export {Client} from './client';
 
-export {AclPermission, ScopeBackendType} from './model';
+export {
+  AclPermission,
+  ScopeBackendType,
+} from './model';
 
 export type {
   AclItem,

@@ -7,12 +7,7 @@ import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {
-  buildHttpRequest,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import type {
   DeleteWorkspacePermissionAssignment,
   DeleteWorkspacePermissionAssignment_Response,
@@ -46,11 +41,7 @@ export class Client {
   }
 
   /** Deletes the workspace permissions assignment in a given account and workspace for the specified principal. */
-  async deleteWorkspacePermissionAssignment(
-    signal: AbortSignal | undefined,
-    req: DeleteWorkspacePermissionAssignment,
-    options?: Options
-  ): Promise<DeleteWorkspacePermissionAssignment_Response> {
+  async deleteWorkspacePermissionAssignment(signal: AbortSignal | undefined, req: DeleteWorkspacePermissionAssignment, options?: Options): Promise<DeleteWorkspacePermissionAssignment_Response> {
     const url = `${this.host}/api/2.0/accounts//workspaces/${String(req.workspaceId ?? '')}/permissionassignments/principals/${String(req.principalId ?? '')}`;
     const params = new URLSearchParams();
     if (req.accountId !== undefined) {
@@ -60,16 +51,10 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: DeleteWorkspacePermissionAssignment_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteWorkspacePermissionAssignment_ResponseSchema
-      );
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteWorkspacePermissionAssignment_ResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -79,11 +64,7 @@ export class Client {
   }
 
   /** Get the permission assignments for the specified <Account> and <Workspace>. */
-  async getWorkspacePermissionAssignments(
-    signal: AbortSignal | undefined,
-    req: GetWorkspacePermissionAssignments,
-    options?: Options
-  ): Promise<GetWorkspacePermissionAssignments_Response> {
+  async getWorkspacePermissionAssignments(signal: AbortSignal | undefined, req: GetWorkspacePermissionAssignments, options?: Options): Promise<GetWorkspacePermissionAssignments_Response> {
     const url = `${this.host}/api/2.0/accounts//workspaces/${String(req.workspaceId ?? '')}/permissionassignments`;
     const params = new URLSearchParams();
     if (req.accountId !== undefined) {
@@ -102,16 +83,10 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GetWorkspacePermissionAssignments_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetWorkspacePermissionAssignments_ResponseSchema
-      );
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetWorkspacePermissionAssignments_ResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -121,11 +96,7 @@ export class Client {
   }
 
   /** Get an array of workspace permissions for the specified account and workspace. */
-  async listWorkspacePermissions(
-    signal: AbortSignal | undefined,
-    req: ListWorkspacePermissions,
-    options?: Options
-  ): Promise<ListWorkspacePermissions_Response> {
+  async listWorkspacePermissions(signal: AbortSignal | undefined, req: ListWorkspacePermissions, options?: Options): Promise<ListWorkspacePermissions_Response> {
     const url = `${this.host}/api/2.0/accounts//workspaces/${String(req.workspaceId ?? '')}/permissionassignments/permissions`;
     const params = new URLSearchParams();
     if (req.accountId !== undefined) {
@@ -135,16 +106,10 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListWorkspacePermissions_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListWorkspacePermissions_ResponseSchema
-      );
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListWorkspacePermissions_ResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -154,28 +119,15 @@ export class Client {
   }
 
   /** Creates or updates the workspace permissions assignment in a given account and workspace for the specified principal. */
-  async updateWorkspacePermissionAssignment(
-    signal: AbortSignal | undefined,
-    req: UpdateWorkspacePermissionAssignment,
-    options?: Options
-  ): Promise<WorkspacePermissionAssignmentOutput> {
+  async updateWorkspacePermissionAssignment(signal: AbortSignal | undefined, req: UpdateWorkspacePermissionAssignment, options?: Options): Promise<WorkspacePermissionAssignmentOutput> {
     const url = `${this.host}/api/2.0/accounts//workspaces/${String(req.workspaceId ?? '')}/permissionassignments/principals/${String(req.principalId ?? '')}`;
-    const body = marshalRequest(
-      req,
-      marshalUpdateWorkspacePermissionAssignmentSchema
-    );
+    const body = marshalRequest(req, marshalUpdateWorkspacePermissionAssignmentSchema);
     let resp: WorkspacePermissionAssignmentOutput | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PUT', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalWorkspacePermissionAssignmentOutputSchema
-      );
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalWorkspacePermissionAssignmentOutputSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {

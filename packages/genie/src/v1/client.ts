@@ -7,12 +7,7 @@ import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {
-  buildHttpRequest,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import type {
   GenieCreateConversationMessageRequest,
   GenieCreateEvalRunRequest,
@@ -106,21 +101,14 @@ export class Client {
   }
 
   /** Creates a Genie space from a serialized payload. */
-  async createSpace(
-    signal: AbortSignal | undefined,
-    req: GenieCreateSpaceRequest,
-    options?: Options
-  ): Promise<GenieSpace> {
+  async createSpace(signal: AbortSignal | undefined, req: GenieCreateSpaceRequest, options?: Options): Promise<GenieSpace> {
     const url = `${this.host}/api/2.0/genie/spaces`;
     const body = marshalRequest(req, marshalGenieCreateSpaceRequestSchema);
     let resp: GenieSpace | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalGenieSpaceSchema);
     };
     await execute(signal, call, options);
@@ -134,24 +122,14 @@ export class Client {
    * Create new message in a [conversation](:method:genie/startconversation).
    * The AI response uses all previously created messages in the conversation to respond.
    */
-  async genieCreateConversationMessage(
-    signal: AbortSignal | undefined,
-    req: GenieCreateConversationMessageRequest,
-    options?: Options
-  ): Promise<GenieMessage> {
+  async genieCreateConversationMessage(signal: AbortSignal | undefined, req: GenieCreateConversationMessageRequest, options?: Options): Promise<GenieMessage> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages`;
-    const body = marshalRequest(
-      req,
-      marshalGenieCreateConversationMessageRequestSchema
-    );
+    const body = marshalRequest(req, marshalGenieCreateConversationMessageRequestSchema);
     let resp: GenieMessage | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalGenieMessageSchema);
     };
     await execute(signal, call, options);
@@ -161,16 +139,12 @@ export class Client {
     return resp;
   }
 
-  async genieCreateConversationMessageWaiter(
+async genieCreateConversationMessageWaiter(
     signal: AbortSignal | undefined,
     req: GenieCreateConversationMessageRequest,
     options?: Options
   ): Promise<GenieCreateConversationMessageWaiter> {
-    const resp = await this.genieCreateConversationMessage(
-      signal,
-      req,
-      options
-    );
+    const resp = await this.genieCreateConversationMessage(signal, req, options);
     if (resp.messageId === undefined) {
       throw new Error(
         'response field messageId required for polling is missing'
@@ -182,32 +156,27 @@ export class Client {
       );
     }
     if (req.spaceId === undefined) {
-      throw new Error('request field spaceId required for polling is missing');
+      throw new Error(
+        'request field spaceId required for polling is missing'
+      );
     }
     return new GenieCreateConversationMessageWaiter(
       this,
       resp.messageId,
       req.conversationId,
-      req.spaceId
+      req.spaceId,
     );
   }
 
   /** Create and run evaluations for multiple benchmark questions in a Genie space. */
-  async genieCreateEvalRun(
-    signal: AbortSignal | undefined,
-    req: GenieCreateEvalRunRequest,
-    options?: Options
-  ): Promise<GenieEvalRunResponse> {
+  async genieCreateEvalRun(signal: AbortSignal | undefined, req: GenieCreateEvalRunRequest, options?: Options): Promise<GenieEvalRunResponse> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/eval-runs`;
     const body = marshalRequest(req, marshalGenieCreateEvalRunRequestSchema);
     let resp: GenieEvalRunResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalGenieEvalRunResponseSchema);
     };
     await execute(signal, call, options);
@@ -218,24 +187,14 @@ export class Client {
   }
 
   /** Create a comment on a conversation message. */
-  async genieCreateMessageComment(
-    signal: AbortSignal | undefined,
-    req: GenieCreateMessageCommentRequest,
-    options?: Options
-  ): Promise<GenieMessageComment> {
+  async genieCreateMessageComment(signal: AbortSignal | undefined, req: GenieCreateMessageCommentRequest, options?: Options): Promise<GenieMessageComment> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/comments`;
-    const body = marshalRequest(
-      req,
-      marshalGenieCreateMessageCommentRequestSchema
-    );
+    const body = marshalRequest(req, marshalGenieCreateMessageCommentRequestSchema);
     let resp: GenieMessageComment | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalGenieMessageCommentSchema);
     };
     await execute(signal, call, options);
@@ -246,64 +205,37 @@ export class Client {
   }
 
   /** Delete a conversation. */
-  async genieDeleteConversation(
-    signal: AbortSignal | undefined,
-    req: GenieDeleteConversationRequest,
-    options?: Options
-  ): Promise<void> {
+  async genieDeleteConversation(signal: AbortSignal | undefined, req: GenieDeleteConversationRequest, options?: Options): Promise<void> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await execute(signal, call, options);
   }
 
   /** Delete a conversation message. */
-  async genieDeleteConversationMessage(
-    signal: AbortSignal | undefined,
-    req: GenieDeleteConversationMessageRequest,
-    options?: Options
-  ): Promise<void> {
+  async genieDeleteConversationMessage(signal: AbortSignal | undefined, req: GenieDeleteConversationMessageRequest, options?: Options): Promise<void> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await execute(signal, call, options);
   }
 
   /** Execute the SQL for a message query attachment. Use this API when the query attachment has expired and needs to be re-executed. */
-  async genieExecuteMessageAttachmentQuery(
-    signal: AbortSignal | undefined,
-    req: GenieExecuteMessageAttachmentQueryRequest,
-    options?: Options
-  ): Promise<GenieGetMessageQueryResultResponse> {
+  async genieExecuteMessageAttachmentQuery(signal: AbortSignal | undefined, req: GenieExecuteMessageAttachmentQueryRequest, options?: Options): Promise<GenieGetMessageQueryResultResponse> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/attachments/${req.attachmentId ?? ''}/execute-query`;
-    const body = marshalRequest(
-      req,
-      marshalGenieExecuteMessageAttachmentQueryRequestSchema
-    );
+    const body = marshalRequest(req, marshalGenieExecuteMessageAttachmentQueryRequestSchema);
     let resp: GenieGetMessageQueryResultResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGenieGetMessageQueryResultResponseSchema
-      );
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGenieGetMessageQueryResultResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -313,28 +245,15 @@ export class Client {
   }
 
   /** DEPRECATED: Use [Execute Message Attachment Query](:method:genie/executemessageattachmentquery) instead. */
-  async genieExecuteMessageQuery(
-    signal: AbortSignal | undefined,
-    req: GenieExecuteMessageQueryRequest,
-    options?: Options
-  ): Promise<GenieGetMessageQueryResultResponse> {
+  async genieExecuteMessageQuery(signal: AbortSignal | undefined, req: GenieExecuteMessageQueryRequest, options?: Options): Promise<GenieGetMessageQueryResultResponse> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/execute-query`;
-    const body = marshalRequest(
-      req,
-      marshalGenieExecuteMessageQueryRequestSchema
-    );
+    const body = marshalRequest(req, marshalGenieExecuteMessageQueryRequestSchema);
     let resp: GenieGetMessageQueryResultResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGenieGetMessageQueryResultResponseSchema
-      );
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGenieGetMessageQueryResultResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -347,11 +266,11 @@ export class Client {
    * Initiates a new SQL execution and returns a `download_id` and `download_id_signature` that you can use to track the progress of the download.
    * The query result is stored in an external link and can be retrieved using the [Get Download Full Query Result](:method:genie/getdownloadfullqueryresult) API.
    * Both `download_id` and `download_id_signature` must be provided when calling the Get endpoint.
-   *
+   * 
    * ----
-   *
+   * 
    * ### **Warning: Databricks strongly recommends that you protect the URLs that are returned by the `EXTERNAL_LINKS` disposition.**
-   *
+   * 
    * When you use the `EXTERNAL_LINKS` disposition, a
    * short-lived,  URL is generated, which can be
    * used to download the results directly
@@ -359,37 +278,24 @@ export class Client {
    * short-lived  is
    * embedded in this  URL, you should protect
    * the URL.
-   *
+   * 
    * Because  URLs are already generated with
    * embedded temporary s,
    * you must not set an `Authorization` header in the download requests.
-   *
+   * 
    * See [Execute Statement](:method:statementexecution/executestatement) for more details.
-   *
+   * 
    * ----
    */
-  async genieGenerateDownloadFullQueryResult(
-    signal: AbortSignal | undefined,
-    req: GenieGenerateDownloadFullQueryResultRequest,
-    options?: Options
-  ): Promise<GenieGenerateDownloadFullQueryResultResponse> {
+  async genieGenerateDownloadFullQueryResult(signal: AbortSignal | undefined, req: GenieGenerateDownloadFullQueryResultRequest, options?: Options): Promise<GenieGenerateDownloadFullQueryResultResponse> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/attachments/${req.attachmentId ?? ''}/downloads`;
-    const body = marshalRequest(
-      req,
-      marshalGenieGenerateDownloadFullQueryResultRequestSchema
-    );
+    const body = marshalRequest(req, marshalGenieGenerateDownloadFullQueryResultRequestSchema);
     let resp: GenieGenerateDownloadFullQueryResultResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGenieGenerateDownloadFullQueryResultResponseSchema
-      );
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGenieGenerateDownloadFullQueryResultResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -399,20 +305,13 @@ export class Client {
   }
 
   /** Get message from conversation. */
-  async genieGetConversationMessage(
-    signal: AbortSignal | undefined,
-    req: GenieGetConversationMessageRequest,
-    options?: Options
-  ): Promise<GenieMessage> {
+  async genieGetConversationMessage(signal: AbortSignal | undefined, req: GenieGetConversationMessageRequest, options?: Options): Promise<GenieMessage> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}`;
     let resp: GenieMessage | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalGenieMessageSchema);
     };
     await execute(signal, call, options);
@@ -426,11 +325,11 @@ export class Client {
    * After [Generating a Full Query Result Download](:method:genie/generatedownloadfullqueryresult) and successfully receiving a `download_id` and `download_id_signature`, use this API to poll the download progress.
    * Both `download_id` and `download_id_signature` are required to call this endpoint.
    * When the download is complete, the API returns the result in the `EXTERNAL_LINKS` disposition, containing one or more external links to the query result files.
-   *
+   * 
    * ----
-   *
+   * 
    * ### **Warning: Databricks strongly recommends that you protect the URLs that are returned by the `EXTERNAL_LINKS` disposition.**
-   *
+   * 
    * When you use the `EXTERNAL_LINKS` disposition, a
    * short-lived,  URL is generated, which can be
    * used to download the results directly
@@ -438,20 +337,16 @@ export class Client {
    * short-lived  is
    * embedded in this  URL, you should protect
    * the URL.
-   *
+   * 
    * Because  URLs are already generated with
    * embedded temporary s,
    * you must not set an `Authorization` header in the download requests.
-   *
+   * 
    * See [Execute Statement](:method:statementexecution/executestatement) for more details.
-   *
+   * 
    * ----
    */
-  async genieGetDownloadFullQueryResult(
-    signal: AbortSignal | undefined,
-    req: GenieGetDownloadFullQueryResultRequest,
-    options?: Options
-  ): Promise<GenieGetDownloadFullQueryResultResponse> {
+  async genieGetDownloadFullQueryResult(signal: AbortSignal | undefined, req: GenieGetDownloadFullQueryResultRequest, options?: Options): Promise<GenieGetDownloadFullQueryResultResponse> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/attachments/${req.attachmentId ?? ''}/downloads/${req.downloadId ?? ''}`;
     const params = new URLSearchParams();
     if (req.downloadIdSignature !== undefined) {
@@ -461,16 +356,10 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GenieGetDownloadFullQueryResultResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGenieGetDownloadFullQueryResultResponseSchema
-      );
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGenieGetDownloadFullQueryResultResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -480,20 +369,13 @@ export class Client {
   }
 
   /** Get details for evaluation results. */
-  async genieGetEvalResultDetails(
-    signal: AbortSignal | undefined,
-    req: GenieGetEvalResultDetailsRequest,
-    options?: Options
-  ): Promise<GenieEvalResultDetails> {
+  async genieGetEvalResultDetails(signal: AbortSignal | undefined, req: GenieGetEvalResultDetailsRequest, options?: Options): Promise<GenieEvalResultDetails> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/eval-runs/${req.evalRunId ?? ''}/results/${req.resultId ?? ''}`;
     let resp: GenieEvalResultDetails | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalGenieEvalResultDetailsSchema);
     };
     await execute(signal, call, options);
@@ -504,20 +386,13 @@ export class Client {
   }
 
   /** Get evaluation run details. */
-  async genieGetEvalRun(
-    signal: AbortSignal | undefined,
-    req: GenieGetEvalRunRequest,
-    options?: Options
-  ): Promise<GenieEvalRunResponse> {
+  async genieGetEvalRun(signal: AbortSignal | undefined, req: GenieGetEvalRunRequest, options?: Options): Promise<GenieEvalRunResponse> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/eval-runs/${req.evalRunId ?? ''}`;
     let resp: GenieEvalRunResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalGenieEvalRunResponseSchema);
     };
     await execute(signal, call, options);
@@ -531,24 +406,14 @@ export class Client {
    * Get the result of SQL query if the message has a query attachment.
    * This is only available if a message has a query attachment and the message status is `EXECUTING_QUERY` OR `COMPLETED`.
    */
-  async genieGetMessageAttachmentQueryResult(
-    signal: AbortSignal | undefined,
-    req: GenieGetMessageAttachmentQueryResultRequest,
-    options?: Options
-  ): Promise<GenieGetMessageQueryResultResponse> {
+  async genieGetMessageAttachmentQueryResult(signal: AbortSignal | undefined, req: GenieGetMessageAttachmentQueryResultRequest, options?: Options): Promise<GenieGetMessageQueryResultResponse> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/attachments/${req.attachmentId ?? ''}/query-result`;
     let resp: GenieGetMessageQueryResultResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGenieGetMessageQueryResultResponseSchema
-      );
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGenieGetMessageQueryResultResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -558,24 +423,14 @@ export class Client {
   }
 
   /** DEPRECATED: Use [Get Message Attachment Query Result](:method:genie/getmessageattachmentqueryresult) instead. */
-  async genieGetMessageQueryResult(
-    signal: AbortSignal | undefined,
-    req: GenieGetMessageQueryResultRequest,
-    options?: Options
-  ): Promise<GenieGetMessageQueryResultResponse> {
+  async genieGetMessageQueryResult(signal: AbortSignal | undefined, req: GenieGetMessageQueryResultRequest, options?: Options): Promise<GenieGetMessageQueryResultResponse> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/query-result`;
     let resp: GenieGetMessageQueryResultResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGenieGetMessageQueryResultResponseSchema
-      );
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGenieGetMessageQueryResultResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -585,24 +440,14 @@ export class Client {
   }
 
   /** DEPRECATED: Use [Get Message Attachment Query Result](:method:genie/getmessageattachmentqueryresult) instead. */
-  async genieGetQueryResultByAttachment(
-    signal: AbortSignal | undefined,
-    req: GenieGetQueryResultByAttachmentRequest,
-    options?: Options
-  ): Promise<GenieGetMessageQueryResultResponse> {
+  async genieGetQueryResultByAttachment(signal: AbortSignal | undefined, req: GenieGetQueryResultByAttachmentRequest, options?: Options): Promise<GenieGetMessageQueryResultResponse> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/query-result/${req.attachmentId ?? ''}`;
     let resp: GenieGetMessageQueryResultResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGenieGetMessageQueryResultResponseSchema
-      );
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGenieGetMessageQueryResultResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -612,29 +457,19 @@ export class Client {
   }
 
   /** Get details of a Genie Space. */
-  async genieGetSpace(
-    signal: AbortSignal | undefined,
-    req: GenieGetSpaceRequest,
-    options?: Options
-  ): Promise<GenieSpace> {
+  async genieGetSpace(signal: AbortSignal | undefined, req: GenieGetSpaceRequest, options?: Options): Promise<GenieSpace> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}`;
     const params = new URLSearchParams();
     if (req.includeSerializedSpace !== undefined) {
-      params.append(
-        'include_serialized_space',
-        String(req.includeSerializedSpace)
-      );
+      params.append('include_serialized_space', String(req.includeSerializedSpace));
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GenieSpace | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalGenieSpaceSchema);
     };
     await execute(signal, call, options);
@@ -645,11 +480,7 @@ export class Client {
   }
 
   /** List all comments across all messages in a conversation. */
-  async genieListConversationComments(
-    signal: AbortSignal | undefined,
-    req: GenieListConversationCommentsRequest,
-    options?: Options
-  ): Promise<GenieListConversationCommentsResponse> {
+  async genieListConversationComments(signal: AbortSignal | undefined, req: GenieListConversationCommentsRequest, options?: Options): Promise<GenieListConversationCommentsResponse> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/list-comments`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -662,16 +493,10 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GenieListConversationCommentsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGenieListConversationCommentsResponseSchema
-      );
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGenieListConversationCommentsResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -681,11 +506,7 @@ export class Client {
   }
 
   /** List messages in a conversation */
-  async genieListConversationMessages(
-    signal: AbortSignal | undefined,
-    req: GenieListConversationMessagesRequest,
-    options?: Options
-  ): Promise<GenieListConversationMessagesResponse> {
+  async genieListConversationMessages(signal: AbortSignal | undefined, req: GenieListConversationMessagesRequest, options?: Options): Promise<GenieListConversationMessagesResponse> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -698,16 +519,10 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GenieListConversationMessagesResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGenieListConversationMessagesResponseSchema
-      );
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGenieListConversationMessagesResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -717,11 +532,7 @@ export class Client {
   }
 
   /** Get a list of conversations in a Genie Space. */
-  async genieListConversations(
-    signal: AbortSignal | undefined,
-    req: GenieListConversationsRequest,
-    options?: Options
-  ): Promise<GenieListConversationsResponse> {
+  async genieListConversations(signal: AbortSignal | undefined, req: GenieListConversationsRequest, options?: Options): Promise<GenieListConversationsResponse> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -737,16 +548,10 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GenieListConversationsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGenieListConversationsResponseSchema
-      );
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGenieListConversationsResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -756,11 +561,7 @@ export class Client {
   }
 
   /** List evaluation results for a specific evaluation run. */
-  async genieListEvalResults(
-    signal: AbortSignal | undefined,
-    req: GenieListEvalResultsRequest,
-    options?: Options
-  ): Promise<GenieListEvalResultsResponse> {
+  async genieListEvalResults(signal: AbortSignal | undefined, req: GenieListEvalResultsRequest, options?: Options): Promise<GenieListEvalResultsResponse> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/eval-runs/${req.evalRunId ?? ''}/results`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -773,16 +574,10 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GenieListEvalResultsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGenieListEvalResultsResponseSchema
-      );
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGenieListEvalResultsResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -792,11 +587,7 @@ export class Client {
   }
 
   /** Lists all evaluation runs in a space. */
-  async genieListEvalRuns(
-    signal: AbortSignal | undefined,
-    req: GenieListEvalRunsRequest,
-    options?: Options
-  ): Promise<GenieListEvalRunsResponse> {
+  async genieListEvalRuns(signal: AbortSignal | undefined, req: GenieListEvalRunsRequest, options?: Options): Promise<GenieListEvalRunsResponse> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/eval-runs`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -809,12 +600,9 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GenieListEvalRunsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalGenieListEvalRunsResponseSchema);
     };
     await execute(signal, call, options);
@@ -825,11 +613,7 @@ export class Client {
   }
 
   /** List comments on a specific conversation message. */
-  async genieListMessageComments(
-    signal: AbortSignal | undefined,
-    req: GenieListMessageCommentsRequest,
-    options?: Options
-  ): Promise<GenieListMessageCommentsResponse> {
+  async genieListMessageComments(signal: AbortSignal | undefined, req: GenieListMessageCommentsRequest, options?: Options): Promise<GenieListMessageCommentsResponse> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/comments`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -842,16 +626,10 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GenieListMessageCommentsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGenieListMessageCommentsResponseSchema
-      );
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGenieListMessageCommentsResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -861,11 +639,7 @@ export class Client {
   }
 
   /** Get list of Genie Spaces. */
-  async genieListSpaces(
-    signal: AbortSignal | undefined,
-    req: GenieListSpacesRequest,
-    options?: Options
-  ): Promise<GenieListSpacesResponse> {
+  async genieListSpaces(signal: AbortSignal | undefined, req: GenieListSpacesRequest, options?: Options): Promise<GenieListSpacesResponse> {
     const url = `${this.host}/api/2.0/genie/spaces`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -878,12 +652,9 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GenieListSpacesResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalGenieListSpacesResponseSchema);
     };
     await execute(signal, call, options);
@@ -894,50 +665,27 @@ export class Client {
   }
 
   /** Send feedback for a message. */
-  async genieSendMessageFeedback(
-    signal: AbortSignal | undefined,
-    req: GenieSendMessageFeedbackRequest,
-    options?: Options
-  ): Promise<void> {
+  async genieSendMessageFeedback(signal: AbortSignal | undefined, req: GenieSendMessageFeedbackRequest, options?: Options): Promise<void> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/conversations/${req.conversationId ?? ''}/messages/${req.messageId ?? ''}/feedback`;
-    const body = marshalRequest(
-      req,
-      marshalGenieSendMessageFeedbackRequestSchema
-    );
+    const body = marshalRequest(req, marshalGenieSendMessageFeedbackRequestSchema);
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await execute(signal, call, options);
   }
 
   /** Start a new conversation. */
-  async genieStartConversation(
-    signal: AbortSignal | undefined,
-    req: GenieStartConversationMessageRequest,
-    options?: Options
-  ): Promise<GenieStartConversationResponse> {
+  async genieStartConversation(signal: AbortSignal | undefined, req: GenieStartConversationMessageRequest, options?: Options): Promise<GenieStartConversationResponse> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}/start-conversation`;
-    const body = marshalRequest(
-      req,
-      marshalGenieStartConversationMessageRequestSchema
-    );
+    const body = marshalRequest(req, marshalGenieStartConversationMessageRequestSchema);
     let resp: GenieStartConversationResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGenieStartConversationResponseSchema
-      );
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGenieStartConversationResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -946,7 +694,7 @@ export class Client {
     return resp;
   }
 
-  async genieStartConversationWaiter(
+async genieStartConversationWaiter(
     signal: AbortSignal | undefined,
     req: GenieStartConversationMessageRequest,
     options?: Options
@@ -963,50 +711,38 @@ export class Client {
       );
     }
     if (req.spaceId === undefined) {
-      throw new Error('request field spaceId required for polling is missing');
+      throw new Error(
+        'request field spaceId required for polling is missing'
+      );
     }
     return new GenieStartConversationWaiter(
       this,
       resp.messageId,
       resp.conversationId,
-      req.spaceId
+      req.spaceId,
     );
   }
 
   /** Move a Genie Space to the trash. */
-  async genieTrashSpace(
-    signal: AbortSignal | undefined,
-    req: GenieTrashSpaceRequest,
-    options?: Options
-  ): Promise<void> {
+  async genieTrashSpace(signal: AbortSignal | undefined, req: GenieTrashSpaceRequest, options?: Options): Promise<void> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await execute(signal, call, options);
   }
 
   /** Updates a Genie space with a serialized payload. */
-  async updateSpace(
-    signal: AbortSignal | undefined,
-    req: GenieUpdateSpaceRequest,
-    options?: Options
-  ): Promise<GenieSpace> {
+  async updateSpace(signal: AbortSignal | undefined, req: GenieUpdateSpaceRequest, options?: Options): Promise<GenieSpace> {
     const url = `${this.host}/api/2.0/genie/spaces/${req.spaceId ?? ''}`;
     const body = marshalRequest(req, marshalGenieUpdateSpaceRequestSchema);
     let resp: GenieSpace | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PATCH', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalGenieSpaceSchema);
     };
     await execute(signal, call, options);
@@ -1022,7 +758,7 @@ export class GenieCreateConversationMessageWaiter {
     private readonly client: Client,
     readonly messageId: string,
     readonly conversationId: string,
-    readonly spaceId: string
+    readonly spaceId: string,
   ) {}
 
   /**
@@ -1056,7 +792,8 @@ export class GenieCreateConversationMessageWaiter {
         case MessageStatus_MessageStatus.COMPLETED:
           result = pollResp;
           return;
-        case MessageStatus_MessageStatus.FAILED: {
+        case MessageStatus_MessageStatus.FAILED:
+        {
           const msg = '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }
@@ -1113,7 +850,7 @@ export class GenieStartConversationWaiter {
     private readonly client: Client,
     readonly messageId: string,
     readonly conversationId: string,
-    readonly spaceId: string
+    readonly spaceId: string,
   ) {}
 
   /**
@@ -1147,7 +884,8 @@ export class GenieStartConversationWaiter {
         case MessageStatus_MessageStatus.COMPLETED:
           result = pollResp;
           return;
-        case MessageStatus_MessageStatus.FAILED: {
+        case MessageStatus_MessageStatus.FAILED:
+        {
           const msg = '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }

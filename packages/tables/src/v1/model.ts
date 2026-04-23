@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export enum ColumnTypeName {
   BOOLEAN = 'BOOLEAN',
   BYTE = 'BYTE',
@@ -367,9 +368,7 @@ export interface CreateTable {
   deltaRuntimePropertiesKvpairs?: DeltaRuntimePropertiesKvPairs | undefined;
   /** Time at which this table was deleted, in epoch milliseconds. Field is omitted if table is not deleted. */
   deletedAt?: number | undefined;
-  effectivePredictiveOptimizationFlag?:
-    | EffectivePredictiveOptimizationFlag
-    | undefined;
+  effectivePredictiveOptimizationFlag?: EffectivePredictiveOptimizationFlag | undefined;
   /** The AWS access point to use when accesing s3 for this external location. */
   accessPoint?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
@@ -785,9 +784,7 @@ export interface TableInfo {
   deltaRuntimePropertiesKvpairs?: DeltaRuntimePropertiesKvPairs | undefined;
   /** Time at which this table was deleted, in epoch milliseconds. Field is omitted if table is not deleted. */
   deletedAt?: number | undefined;
-  effectivePredictiveOptimizationFlag?:
-    | EffectivePredictiveOptimizationFlag
-    | undefined;
+  effectivePredictiveOptimizationFlag?: EffectivePredictiveOptimizationFlag | undefined;
   /** The AWS access point to use when accesing s3 for this external location. */
   accessPoint?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
@@ -872,9 +869,7 @@ export interface UpdateTable {
   deltaRuntimePropertiesKvpairs?: DeltaRuntimePropertiesKvPairs | undefined;
   /** Time at which this table was deleted, in epoch milliseconds. Field is omitted if table is not deleted. */
   deletedAt?: number | undefined;
-  effectivePredictiveOptimizationFlag?:
-    | EffectivePredictiveOptimizationFlag
-    | undefined;
+  effectivePredictiveOptimizationFlag?: EffectivePredictiveOptimizationFlag | undefined;
   /** The AWS access point to use when accesing s3 for this external location. */
   accessPoint?: string | undefined;
   /** Indicates whether the principal is limited to retrieving metadata for the associated object through the BROWSE privilege when include_browse is enabled in the request. */
@@ -937,9 +932,7 @@ export const unmarshalColumnMaskSchema: z.ZodType<ColumnMask> = z
   .object({
     function_name: z.string().optional(),
     using_column_names: z.array(z.string()).optional(),
-    using_arguments: z
-      .array(z.lazy(() => unmarshalPolicyFunctionArgumentSchema))
-      .optional(),
+    using_arguments: z.array(z.lazy(() => unmarshalPolicyFunctionArgumentSchema)).optional(),
   })
   .transform(d => ({
     functionName: d.function_name,
@@ -947,51 +940,49 @@ export const unmarshalColumnMaskSchema: z.ZodType<ColumnMask> = z
     usingArguments: d.using_arguments,
   }));
 
-export const unmarshalConditionalDisplaySchema: z.ZodType<ConditionalDisplay> =
-  z
-    .object({
-      depends_on_option: z.string().optional(),
-      hidden_when_values: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      dependsOnOption: d.depends_on_option,
-      hiddenWhenValues: d.hidden_when_values,
-    }));
+export const unmarshalConditionalDisplaySchema: z.ZodType<ConditionalDisplay> = z
+  .object({
+    depends_on_option: z.string().optional(),
+    hidden_when_values: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    dependsOnOption: d.depends_on_option,
+    hiddenWhenValues: d.hidden_when_values,
+  }));
 
-export const unmarshalConnectionDependencySchema: z.ZodType<ConnectionDependency> =
-  z
-    .object({
-      connection_name: z.string().optional(),
-    })
-    .transform(d => ({
-      connectionName: d.connection_name,
-    }));
+export const unmarshalConnectionDependencySchema: z.ZodType<ConnectionDependency> = z
+  .object({
+    connection_name: z.string().optional(),
+  })
+  .transform(d => ({
+    connectionName: d.connection_name,
+  }));
 
-export const unmarshalCredentialDependencySchema: z.ZodType<CredentialDependency> =
-  z
-    .object({
-      credential_name: z.string().optional(),
-    })
-    .transform(d => ({
-      credentialName: d.credential_name,
-    }));
+export const unmarshalCredentialDependencySchema: z.ZodType<CredentialDependency> = z
+  .object({
+    credential_name: z.string().optional(),
+  })
+  .transform(d => ({
+    credentialName: d.credential_name,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteTable_ResponseSchema: z.ZodType<DeleteTable_Response> =
-  z.object({});
+export const unmarshalDeleteTable_ResponseSchema: z.ZodType<DeleteTable_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteTableConstraint_ResponseSchema: z.ZodType<DeleteTableConstraint_Response> =
-  z.object({});
+export const unmarshalDeleteTableConstraint_ResponseSchema: z.ZodType<DeleteTableConstraint_Response> = z
+  .object({
+  });
 
-export const unmarshalDeltaRuntimePropertiesKvPairsSchema: z.ZodType<DeltaRuntimePropertiesKvPairs> =
-  z
-    .object({
-      delta_runtime_properties: z.record(z.string(), z.string()).optional(),
-    })
-    .transform(d => ({
-      deltaRuntimeProperties: d.delta_runtime_properties,
-    }));
+export const unmarshalDeltaRuntimePropertiesKvPairsSchema: z.ZodType<DeltaRuntimePropertiesKvPairs> = z
+  .object({
+    delta_runtime_properties: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    deltaRuntimeProperties: d.delta_runtime_properties,
+  }));
 
 export const unmarshalDependencySchema: z.ZodType<Dependency> = z
   .object({
@@ -1019,87 +1010,79 @@ export const unmarshalDependencyListSchema: z.ZodType<DependencyList> = z
     dependencies: d.dependencies,
   }));
 
-export const unmarshalEffectivePredictiveOptimizationFlagSchema: z.ZodType<EffectivePredictiveOptimizationFlag> =
-  z
-    .object({
-      value: z.string().optional(),
-      inherited_from_type: z.string().optional(),
-      inherited_from_name: z.string().optional(),
-    })
-    .transform(d => ({
-      value: d.value,
-      inheritedFromType: d.inherited_from_type,
-      inheritedFromName: d.inherited_from_name,
-    }));
+export const unmarshalEffectivePredictiveOptimizationFlagSchema: z.ZodType<EffectivePredictiveOptimizationFlag> = z
+  .object({
+    value: z.string().optional(),
+    inherited_from_type: z.string().optional(),
+    inherited_from_name: z.string().optional(),
+  })
+  .transform(d => ({
+    value: d.value,
+    inheritedFromType: d.inherited_from_type,
+    inheritedFromName: d.inherited_from_name,
+  }));
 
 export const unmarshalEncryptionDetailsSchema: z.ZodType<EncryptionDetails> = z
   .object({
-    sse_encryption_details: z
-      .lazy(() => unmarshalSseEncryptionDetailsSchema)
-      .optional(),
+    sse_encryption_details: z.lazy(() => unmarshalSseEncryptionDetailsSchema).optional(),
   })
   .transform(d => ({
     sseEncryptionDetails: d.sse_encryption_details,
   }));
 
-export const unmarshalForeignKeyConstraintSchema: z.ZodType<ForeignKeyConstraint> =
-  z
-    .object({
-      name: z.string().optional(),
-      child_columns: z.array(z.string()).optional(),
-      parent_table: z.string().optional(),
-      parent_columns: z.array(z.string()).optional(),
-      rely: z.boolean().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      childColumns: d.child_columns,
-      parentTable: d.parent_table,
-      parentColumns: d.parent_columns,
-      rely: d.rely,
-    }));
+export const unmarshalForeignKeyConstraintSchema: z.ZodType<ForeignKeyConstraint> = z
+  .object({
+    name: z.string().optional(),
+    child_columns: z.array(z.string()).optional(),
+    parent_table: z.string().optional(),
+    parent_columns: z.array(z.string()).optional(),
+    rely: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    childColumns: d.child_columns,
+    parentTable: d.parent_table,
+    parentColumns: d.parent_columns,
+    rely: d.rely,
+  }));
 
-export const unmarshalFunctionDependencySchema: z.ZodType<FunctionDependency> =
-  z
-    .object({
-      function_full_name: z.string().optional(),
-    })
-    .transform(d => ({
-      functionFullName: d.function_full_name,
-    }));
+export const unmarshalFunctionDependencySchema: z.ZodType<FunctionDependency> = z
+  .object({
+    function_full_name: z.string().optional(),
+  })
+  .transform(d => ({
+    functionFullName: d.function_full_name,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListTableSummaries_ResponseSchema: z.ZodType<ListTableSummaries_Response> =
-  z
-    .object({
-      tables: z.array(z.lazy(() => unmarshalTableSummarySchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      tables: d.tables,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListTableSummaries_ResponseSchema: z.ZodType<ListTableSummaries_Response> = z
+  .object({
+    tables: z.array(z.lazy(() => unmarshalTableSummarySchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    tables: d.tables,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListTables_ResponseSchema: z.ZodType<ListTables_Response> =
-  z
-    .object({
-      tables: z.array(z.lazy(() => unmarshalTableInfoSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      tables: d.tables,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListTables_ResponseSchema: z.ZodType<ListTables_Response> = z
+  .object({
+    tables: z.array(z.lazy(() => unmarshalTableInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    tables: d.tables,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalNamedTableConstraintSchema: z.ZodType<NamedTableConstraint> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
+export const unmarshalNamedTableConstraintSchema: z.ZodType<NamedTableConstraint> = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
 
 export const unmarshalOptionSpecSchema: z.ZodType<OptionSpec> = z
   .object({
@@ -1117,9 +1100,7 @@ export const unmarshalOptionSpecSchema: z.ZodType<OptionSpec> = z
     is_loggable: z.boolean().optional(),
     is_creatable: z.boolean().optional(),
     is_copiable: z.boolean().optional(),
-    conditional_display: z
-      .lazy(() => unmarshalConditionalDisplaySchema)
-      .optional(),
+    conditional_display: z.lazy(() => unmarshalConditionalDisplaySchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1139,39 +1120,35 @@ export const unmarshalOptionSpecSchema: z.ZodType<OptionSpec> = z
     conditionalDisplay: d.conditional_display,
   }));
 
-export const unmarshalPolicyFunctionArgumentSchema: z.ZodType<PolicyFunctionArgument> =
-  z
-    .object({
-      column: z.string().optional(),
-      constant: z.string().optional(),
-    })
-    .transform(d => ({
-      column: d.column,
-      constant: d.constant,
-    }));
+export const unmarshalPolicyFunctionArgumentSchema: z.ZodType<PolicyFunctionArgument> = z
+  .object({
+    column: z.string().optional(),
+    constant: z.string().optional(),
+  })
+  .transform(d => ({
+    column: d.column,
+    constant: d.constant,
+  }));
 
-export const unmarshalPrimaryKeyConstraintSchema: z.ZodType<PrimaryKeyConstraint> =
-  z
-    .object({
-      name: z.string().optional(),
-      child_columns: z.array(z.string()).optional(),
-      timeseries_columns: z.array(z.string()).optional(),
-      rely: z.boolean().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      childColumns: d.child_columns,
-      timeseriesColumns: d.timeseries_columns,
-      rely: d.rely,
-    }));
+export const unmarshalPrimaryKeyConstraintSchema: z.ZodType<PrimaryKeyConstraint> = z
+  .object({
+    name: z.string().optional(),
+    child_columns: z.array(z.string()).optional(),
+    timeseries_columns: z.array(z.string()).optional(),
+    rely: z.boolean().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    childColumns: d.child_columns,
+    timeseriesColumns: d.timeseries_columns,
+    rely: d.rely,
+  }));
 
 export const unmarshalRowFilterSchema: z.ZodType<RowFilter> = z
   .object({
     function_name: z.string().optional(),
     input_column_names: z.array(z.string()).optional(),
-    input_arguments: z
-      .array(z.lazy(() => unmarshalPolicyFunctionArgumentSchema))
-      .optional(),
+    input_arguments: z.array(z.lazy(() => unmarshalPolicyFunctionArgumentSchema)).optional(),
   })
   .transform(d => ({
     functionName: d.function_name,
@@ -1187,45 +1164,37 @@ export const unmarshalSecretDependencySchema: z.ZodType<SecretDependency> = z
     secretFullName: d.secret_full_name,
   }));
 
-export const unmarshalSecurableKindManifestSchema: z.ZodType<SecurableKindManifest> =
-  z
-    .object({
-      securable_type: z.enum(SecurableType).optional(),
-      securable_kind: z.enum(SecurableKind).optional(),
-      assignable_privileges: z.array(z.string()).optional(),
-      options: z.array(z.lazy(() => unmarshalOptionSpecSchema)).optional(),
-      capabilities: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      securableType: d.securable_type,
-      securableKind: d.securable_kind,
-      assignablePrivileges: d.assignable_privileges,
-      options: d.options,
-      capabilities: d.capabilities,
-    }));
+export const unmarshalSecurableKindManifestSchema: z.ZodType<SecurableKindManifest> = z
+  .object({
+    securable_type: z.enum(SecurableType).optional(),
+    securable_kind: z.enum(SecurableKind).optional(),
+    assignable_privileges: z.array(z.string()).optional(),
+    options: z.array(z.lazy(() => unmarshalOptionSpecSchema)).optional(),
+    capabilities: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    securableType: d.securable_type,
+    securableKind: d.securable_kind,
+    assignablePrivileges: d.assignable_privileges,
+    options: d.options,
+    capabilities: d.capabilities,
+  }));
 
-export const unmarshalSseEncryptionDetailsSchema: z.ZodType<SseEncryptionDetails> =
-  z
-    .object({
-      algorithm: z.enum(SseEncryptionAlgorithm).optional(),
-      aws_kms_key_arn: z.string().optional(),
-    })
-    .transform(d => ({
-      algorithm: d.algorithm,
-      awsKmsKeyArn: d.aws_kms_key_arn,
-    }));
+export const unmarshalSseEncryptionDetailsSchema: z.ZodType<SseEncryptionDetails> = z
+  .object({
+    algorithm: z.enum(SseEncryptionAlgorithm).optional(),
+    aws_kms_key_arn: z.string().optional(),
+  })
+  .transform(d => ({
+    algorithm: d.algorithm,
+    awsKmsKeyArn: d.aws_kms_key_arn,
+  }));
 
 export const unmarshalTableConstraintSchema: z.ZodType<TableConstraint> = z
   .object({
-    primary_key_constraint: z
-      .lazy(() => unmarshalPrimaryKeyConstraintSchema)
-      .optional(),
-    foreign_key_constraint: z
-      .lazy(() => unmarshalForeignKeyConstraintSchema)
-      .optional(),
-    named_table_constraint: z
-      .lazy(() => unmarshalNamedTableConstraintSchema)
-      .optional(),
+    primary_key_constraint: z.lazy(() => unmarshalPrimaryKeyConstraintSchema).optional(),
+    foreign_key_constraint: z.lazy(() => unmarshalForeignKeyConstraintSchema).optional(),
+    named_table_constraint: z.lazy(() => unmarshalNamedTableConstraintSchema).optional(),
   })
   .transform(d => ({
     primaryKeyConstraint: d.primary_key_constraint,
@@ -1242,14 +1211,13 @@ export const unmarshalTableDependencySchema: z.ZodType<TableDependency> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalTableExists_ResponseSchema: z.ZodType<TableExists_Response> =
-  z
-    .object({
-      table_exists: z.boolean().optional(),
-    })
-    .transform(d => ({
-      tableExists: d.table_exists,
-    }));
+export const unmarshalTableExists_ResponseSchema: z.ZodType<TableExists_Response> = z
+  .object({
+    table_exists: z.boolean().optional(),
+  })
+  .transform(d => ({
+    tableExists: d.table_exists,
+  }));
 
 export const unmarshalTableInfoSchema: z.ZodType<TableInfo> = z
   .object({
@@ -1265,9 +1233,7 @@ export const unmarshalTableInfoSchema: z.ZodType<TableInfo> = z
     owner: z.string().optional(),
     comment: z.string().optional(),
     storage_credential_name: z.string().optional(),
-    table_constraints: z
-      .array(z.lazy(() => unmarshalTableConstraintSchema))
-      .optional(),
+    table_constraints: z.array(z.lazy(() => unmarshalTableConstraintSchema)).optional(),
     row_filter: z.lazy(() => unmarshalRowFilterSchema).optional(),
     pipeline_id: z.string().optional(),
     enable_predictive_optimization: z.string().optional(),
@@ -1279,21 +1245,13 @@ export const unmarshalTableInfoSchema: z.ZodType<TableInfo> = z
     updated_at: z.number().optional(),
     updated_by: z.string().optional(),
     table_id: z.string().optional(),
-    delta_runtime_properties_kvpairs: z
-      .lazy(() => unmarshalDeltaRuntimePropertiesKvPairsSchema)
-      .optional(),
+    delta_runtime_properties_kvpairs: z.lazy(() => unmarshalDeltaRuntimePropertiesKvPairsSchema).optional(),
     deleted_at: z.number().optional(),
-    effective_predictive_optimization_flag: z
-      .lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+    effective_predictive_optimization_flag: z.lazy(() => unmarshalEffectivePredictiveOptimizationFlagSchema).optional(),
     access_point: z.string().optional(),
     browse_only: z.boolean().optional(),
-    encryption_details: z
-      .lazy(() => unmarshalEncryptionDetailsSchema)
-      .optional(),
-    securable_kind_manifest: z
-      .lazy(() => unmarshalSecurableKindManifestSchema)
-      .optional(),
+    encryption_details: z.lazy(() => unmarshalEncryptionDetailsSchema).optional(),
+    securable_kind_manifest: z.lazy(() => unmarshalSecurableKindManifestSchema).optional(),
     columns: z.array(z.lazy(() => unmarshalColumnInfoSchema)).optional(),
     properties: z.record(z.string(), z.string()).optional(),
   })
@@ -1324,8 +1282,7 @@ export const unmarshalTableInfoSchema: z.ZodType<TableInfo> = z
     tableId: d.table_id,
     deltaRuntimePropertiesKvpairs: d.delta_runtime_properties_kvpairs,
     deletedAt: d.deleted_at,
-    effectivePredictiveOptimizationFlag:
-      d.effective_predictive_optimization_flag,
+    effectivePredictiveOptimizationFlag: d.effective_predictive_optimization_flag,
     accessPoint: d.access_point,
     browseOnly: d.browse_only,
     encryptionDetails: d.encryption_details,
@@ -1338,9 +1295,7 @@ export const unmarshalTableSummarySchema: z.ZodType<TableSummary> = z
   .object({
     full_name: z.string().optional(),
     table_type: z.enum(TableType).optional(),
-    securable_kind_manifest: z
-      .lazy(() => unmarshalSecurableKindManifestSchema)
-      .optional(),
+    securable_kind_manifest: z.lazy(() => unmarshalSecurableKindManifestSchema).optional(),
   })
   .transform(d => ({
     fullName: d.full_name,
@@ -1349,8 +1304,9 @@ export const unmarshalTableSummarySchema: z.ZodType<TableSummary> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateTable_ResponseSchema: z.ZodType<UpdateTable_Response> =
-  z.object({});
+export const unmarshalUpdateTable_ResponseSchema: z.ZodType<UpdateTable_Response> = z
+  .object({
+  });
 
 export const unmarshalVolumeDependencySchema: z.ZodType<VolumeDependency> = z
   .object({
@@ -1394,9 +1350,7 @@ export const marshalColumnMaskSchema: z.ZodType = z
   .object({
     functionName: z.string().optional(),
     usingColumnNames: z.array(z.string()).optional(),
-    usingArguments: z
-      .array(z.lazy(() => marshalPolicyFunctionArgumentSchema))
-      .optional(),
+    usingArguments: z.array(z.lazy(() => marshalPolicyFunctionArgumentSchema)).optional(),
   })
   .transform(d => ({
     function_name: d.functionName,
@@ -1436,9 +1390,7 @@ export const marshalCreateTableSchema: z.ZodType = z
     owner: z.string().optional(),
     comment: z.string().optional(),
     storageCredentialName: z.string().optional(),
-    tableConstraints: z
-      .array(z.lazy(() => marshalTableConstraintSchema))
-      .optional(),
+    tableConstraints: z.array(z.lazy(() => marshalTableConstraintSchema)).optional(),
     rowFilter: z.lazy(() => marshalRowFilterSchema).optional(),
     pipelineId: z.string().optional(),
     enablePredictiveOptimization: z.string().optional(),
@@ -1450,19 +1402,13 @@ export const marshalCreateTableSchema: z.ZodType = z
     updatedAt: z.number().optional(),
     updatedBy: z.string().optional(),
     tableId: z.string().optional(),
-    deltaRuntimePropertiesKvpairs: z
-      .lazy(() => marshalDeltaRuntimePropertiesKvPairsSchema)
-      .optional(),
+    deltaRuntimePropertiesKvpairs: z.lazy(() => marshalDeltaRuntimePropertiesKvPairsSchema).optional(),
     deletedAt: z.number().optional(),
-    effectivePredictiveOptimizationFlag: z
-      .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+    effectivePredictiveOptimizationFlag: z.lazy(() => marshalEffectivePredictiveOptimizationFlagSchema).optional(),
     accessPoint: z.string().optional(),
     browseOnly: z.boolean().optional(),
     encryptionDetails: z.lazy(() => marshalEncryptionDetailsSchema).optional(),
-    securableKindManifest: z
-      .lazy(() => marshalSecurableKindManifestSchema)
-      .optional(),
+    securableKindManifest: z.lazy(() => marshalSecurableKindManifestSchema).optional(),
     columns: z.array(z.lazy(() => marshalColumnInfoSchema)).optional(),
     properties: z.record(z.string(), z.string()).optional(),
   })
@@ -1493,8 +1439,7 @@ export const marshalCreateTableSchema: z.ZodType = z
     table_id: d.tableId,
     delta_runtime_properties_kvpairs: d.deltaRuntimePropertiesKvpairs,
     deleted_at: d.deletedAt,
-    effective_predictive_optimization_flag:
-      d.effectivePredictiveOptimizationFlag,
+    effective_predictive_optimization_flag: d.effectivePredictiveOptimizationFlag,
     access_point: d.accessPoint,
     browse_only: d.browseOnly,
     encryption_details: d.encryptionDetails,
@@ -1569,9 +1514,7 @@ export const marshalEffectivePredictiveOptimizationFlagSchema: z.ZodType = z
 
 export const marshalEncryptionDetailsSchema: z.ZodType = z
   .object({
-    sseEncryptionDetails: z
-      .lazy(() => marshalSseEncryptionDetailsSchema)
-      .optional(),
+    sseEncryptionDetails: z.lazy(() => marshalSseEncryptionDetailsSchema).optional(),
   })
   .transform(d => ({
     sse_encryption_details: d.sseEncryptionDetails,
@@ -1625,9 +1568,7 @@ export const marshalOptionSpecSchema: z.ZodType = z
     isLoggable: z.boolean().optional(),
     isCreatable: z.boolean().optional(),
     isCopiable: z.boolean().optional(),
-    conditionalDisplay: z
-      .lazy(() => marshalConditionalDisplaySchema)
-      .optional(),
+    conditionalDisplay: z.lazy(() => marshalConditionalDisplaySchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1675,9 +1616,7 @@ export const marshalRowFilterSchema: z.ZodType = z
   .object({
     functionName: z.string().optional(),
     inputColumnNames: z.array(z.string()).optional(),
-    inputArguments: z
-      .array(z.lazy(() => marshalPolicyFunctionArgumentSchema))
-      .optional(),
+    inputArguments: z.array(z.lazy(() => marshalPolicyFunctionArgumentSchema)).optional(),
   })
   .transform(d => ({
     function_name: d.functionName,
@@ -1721,15 +1660,9 @@ export const marshalSseEncryptionDetailsSchema: z.ZodType = z
 
 export const marshalTableConstraintSchema: z.ZodType = z
   .object({
-    primaryKeyConstraint: z
-      .lazy(() => marshalPrimaryKeyConstraintSchema)
-      .optional(),
-    foreignKeyConstraint: z
-      .lazy(() => marshalForeignKeyConstraintSchema)
-      .optional(),
-    namedTableConstraint: z
-      .lazy(() => marshalNamedTableConstraintSchema)
-      .optional(),
+    primaryKeyConstraint: z.lazy(() => marshalPrimaryKeyConstraintSchema).optional(),
+    foreignKeyConstraint: z.lazy(() => marshalForeignKeyConstraintSchema).optional(),
+    namedTableConstraint: z.lazy(() => marshalNamedTableConstraintSchema).optional(),
   })
   .transform(d => ({
     primary_key_constraint: d.primaryKeyConstraint,
@@ -1760,9 +1693,7 @@ export const marshalUpdateTableSchema: z.ZodType = z
     owner: z.string().optional(),
     comment: z.string().optional(),
     storageCredentialName: z.string().optional(),
-    tableConstraints: z
-      .array(z.lazy(() => marshalTableConstraintSchema))
-      .optional(),
+    tableConstraints: z.array(z.lazy(() => marshalTableConstraintSchema)).optional(),
     rowFilter: z.lazy(() => marshalRowFilterSchema).optional(),
     pipelineId: z.string().optional(),
     enablePredictiveOptimization: z.string().optional(),
@@ -1774,19 +1705,13 @@ export const marshalUpdateTableSchema: z.ZodType = z
     updatedAt: z.number().optional(),
     updatedBy: z.string().optional(),
     tableId: z.string().optional(),
-    deltaRuntimePropertiesKvpairs: z
-      .lazy(() => marshalDeltaRuntimePropertiesKvPairsSchema)
-      .optional(),
+    deltaRuntimePropertiesKvpairs: z.lazy(() => marshalDeltaRuntimePropertiesKvPairsSchema).optional(),
     deletedAt: z.number().optional(),
-    effectivePredictiveOptimizationFlag: z
-      .lazy(() => marshalEffectivePredictiveOptimizationFlagSchema)
-      .optional(),
+    effectivePredictiveOptimizationFlag: z.lazy(() => marshalEffectivePredictiveOptimizationFlagSchema).optional(),
     accessPoint: z.string().optional(),
     browseOnly: z.boolean().optional(),
     encryptionDetails: z.lazy(() => marshalEncryptionDetailsSchema).optional(),
-    securableKindManifest: z
-      .lazy(() => marshalSecurableKindManifestSchema)
-      .optional(),
+    securableKindManifest: z.lazy(() => marshalSecurableKindManifestSchema).optional(),
     columns: z.array(z.lazy(() => marshalColumnInfoSchema)).optional(),
     properties: z.record(z.string(), z.string()).optional(),
   })
@@ -1818,8 +1743,7 @@ export const marshalUpdateTableSchema: z.ZodType = z
     table_id: d.tableId,
     delta_runtime_properties_kvpairs: d.deltaRuntimePropertiesKvpairs,
     deleted_at: d.deletedAt,
-    effective_predictive_optimization_flag:
-      d.effectivePredictiveOptimizationFlag,
+    effective_predictive_optimization_flag: d.effectivePredictiveOptimizationFlag,
     access_point: d.accessPoint,
     browse_only: d.browseOnly,
     encryption_details: d.encryptionDetails,

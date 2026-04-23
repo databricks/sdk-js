@@ -4,6 +4,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 /** Request message for CreateFeatureTag. */
 export interface CreateFeatureTagRequest {
   tableName?: string | undefined;
@@ -100,15 +101,9 @@ export interface UpdateFeatureTagRequest {
 
 export const unmarshalFeatureLineageSchema: z.ZodType<FeatureLineage> = z
   .object({
-    models: z
-      .array(z.lazy(() => unmarshalFeatureLineage_ModelSchema))
-      .optional(),
-    feature_specs: z
-      .array(z.lazy(() => unmarshalFeatureLineage_FeatureSpecSchema))
-      .optional(),
-    online_features: z
-      .array(z.lazy(() => unmarshalFeatureLineage_OnlineFeatureSchema))
-      .optional(),
+    models: z.array(z.lazy(() => unmarshalFeatureLineage_ModelSchema)).optional(),
+    feature_specs: z.array(z.lazy(() => unmarshalFeatureLineage_FeatureSpecSchema)).optional(),
+    online_features: z.array(z.lazy(() => unmarshalFeatureLineage_OnlineFeatureSchema)).optional(),
   })
   .transform(d => ({
     models: d.models,
@@ -117,38 +112,35 @@ export const unmarshalFeatureLineageSchema: z.ZodType<FeatureLineage> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalFeatureLineage_FeatureSpecSchema: z.ZodType<FeatureLineage_FeatureSpec> =
-  z
-    .object({
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-    }));
+export const unmarshalFeatureLineage_FeatureSpecSchema: z.ZodType<FeatureLineage_FeatureSpec> = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalFeatureLineage_ModelSchema: z.ZodType<FeatureLineage_Model> =
-  z
-    .object({
-      name: z.string().optional(),
-      version: z.number().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      version: d.version,
-    }));
+export const unmarshalFeatureLineage_ModelSchema: z.ZodType<FeatureLineage_Model> = z
+  .object({
+    name: z.string().optional(),
+    version: z.number().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    version: d.version,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalFeatureLineage_OnlineFeatureSchema: z.ZodType<FeatureLineage_OnlineFeature> =
-  z
-    .object({
-      feature_name: z.string().optional(),
-      table_name: z.string().optional(),
-    })
-    .transform(d => ({
-      featureName: d.feature_name,
-      tableName: d.table_name,
-    }));
+export const unmarshalFeatureLineage_OnlineFeatureSchema: z.ZodType<FeatureLineage_OnlineFeature> = z
+  .object({
+    feature_name: z.string().optional(),
+    table_name: z.string().optional(),
+  })
+  .transform(d => ({
+    featureName: d.feature_name,
+    tableName: d.table_name,
+  }));
 
 export const unmarshalFeatureTagSchema: z.ZodType<FeatureTag> = z
   .object({
@@ -160,16 +152,15 @@ export const unmarshalFeatureTagSchema: z.ZodType<FeatureTag> = z
     value: d.value,
   }));
 
-export const unmarshalListFeatureTagsResponseSchema: z.ZodType<ListFeatureTagsResponse> =
-  z
-    .object({
-      feature_tags: z.array(z.lazy(() => unmarshalFeatureTagSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      featureTags: d.feature_tags,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListFeatureTagsResponseSchema: z.ZodType<ListFeatureTagsResponse> = z
+  .object({
+    feature_tags: z.array(z.lazy(() => unmarshalFeatureTagSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    featureTags: d.feature_tags,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const marshalFeatureTagSchema: z.ZodType = z
   .object({

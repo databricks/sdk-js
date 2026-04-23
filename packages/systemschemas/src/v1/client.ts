@@ -7,12 +7,7 @@ import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {
-  buildHttpRequest,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import type {
   DisableSystemSchema,
   DisableSystemSchema_Response,
@@ -47,24 +42,14 @@ export class Client {
    * Disables the system schema and removes it from the system catalog.
    * The caller must be an account admin or a metastore admin.
    */
-  async disableSystemSchema(
-    signal: AbortSignal | undefined,
-    req: DisableSystemSchema,
-    options?: Options
-  ): Promise<DisableSystemSchema_Response> {
+  async disableSystemSchema(signal: AbortSignal | undefined, req: DisableSystemSchema, options?: Options): Promise<DisableSystemSchema_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.metastoreId ?? ''}/systemschemas/${req.schema ?? ''}`;
     let resp: DisableSystemSchema_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDisableSystemSchema_ResponseSchema
-      );
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDisableSystemSchema_ResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -77,25 +62,15 @@ export class Client {
    * Enables the system schema and adds it to the system catalog.
    * The caller must be an account admin or a metastore admin.
    */
-  async enableSystemSchema(
-    signal: AbortSignal | undefined,
-    req: EnableSystemSchema,
-    options?: Options
-  ): Promise<EnableSystemSchema_Response> {
+  async enableSystemSchema(signal: AbortSignal | undefined, req: EnableSystemSchema, options?: Options): Promise<EnableSystemSchema_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.metastoreId ?? ''}/systemschemas/${req.schema ?? ''}`;
     const body = marshalRequest(req, marshalEnableSystemSchemaSchema);
     let resp: EnableSystemSchema_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PUT', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalEnableSystemSchema_ResponseSchema
-      );
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalEnableSystemSchema_ResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -107,17 +82,13 @@ export class Client {
   /**
    * Gets an array of system schemas for a metastore.
    * The caller must be an account admin or a metastore admin.
-   *
+   * 
    * NOTE: we recommend using max_results=0 to use the paginated version of this API. Unpaginated calls will be deprecated soon.
-   *
+   * 
    * PAGINATION BEHAVIOR: When using pagination (max_results >= 0), a page may contain zero results while still providing a next_page_token.
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
-  async listSystemSchemas(
-    signal: AbortSignal | undefined,
-    req: ListSystemSchemas,
-    options?: Options
-  ): Promise<ListSystemSchemas_Response> {
+  async listSystemSchemas(signal: AbortSignal | undefined, req: ListSystemSchemas, options?: Options): Promise<ListSystemSchemas_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.metastoreId ?? ''}/systemschemas`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -130,12 +101,9 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListSystemSchemas_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListSystemSchemas_ResponseSchema);
     };
     await execute(signal, call, options);
@@ -145,11 +113,8 @@ export class Client {
     return resp;
   }
 
-  async *listSystemSchemasIter(
-    signal: AbortSignal | undefined,
-    req: ListSystemSchemas,
-    options?: Options
-  ): AsyncGenerator<SystemSchemaInfo> {
+
+  async *listSystemSchemasIter(signal: AbortSignal | undefined, req: ListSystemSchemas, options?: Options): AsyncGenerator<SystemSchemaInfo> {
     const pageReq: ListSystemSchemas = {...req};
     for (;;) {
       const resp = await this.listSystemSchemas(signal, pageReq, options);
@@ -162,4 +127,5 @@ export class Client {
       pageReq.pageToken = resp.nextPageToken;
     }
   }
+
 }

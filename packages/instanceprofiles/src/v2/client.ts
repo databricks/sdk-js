@@ -7,12 +7,7 @@ import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {
-  buildHttpRequest,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import type {
   AddInstanceProfile,
   AddInstanceProfile_Response,
@@ -50,28 +45,18 @@ export class Client {
   /**
    * Registers an instance profile in <Databricks>. In the UI, you can then give users the permission
    * to use this instance profile when launching clusters.
-   *
+   * 
    * This API is only available to admin users.
    */
-  async addInstanceProfile(
-    signal: AbortSignal | undefined,
-    req: AddInstanceProfile,
-    options?: Options
-  ): Promise<AddInstanceProfile_Response> {
+  async addInstanceProfile(signal: AbortSignal | undefined, req: AddInstanceProfile, options?: Options): Promise<AddInstanceProfile_Response> {
     const url = `${this.host}/api/2.0/instance-profiles/add`;
     const body = marshalRequest(req, marshalAddInstanceProfileSchema);
     let resp: AddInstanceProfile_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalAddInstanceProfile_ResponseSchema
-      );
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalAddInstanceProfile_ResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -84,35 +69,25 @@ export class Client {
    * The only supported field to change is the optional IAM role ARN associated with
    * the instance profile. It is required to specify the IAM role ARN if both of
    * the following are true:
-   *
+   * 
    * * Your role name and instance profile name do not match. The name is the part
    * after the last slash in each ARN.
    * * You want to use the instance profile with [Databricks SQL Serverless](/sql/admin/serverless.html).
-   *
+   * 
    * To understand where these fields are in the AWS console, see
    * [Enable serverless SQL warehouses](/sql/admin/serverless.html).
-   *
+   * 
    * This API is only available to admin users.
    */
-  async editInstanceProfile(
-    signal: AbortSignal | undefined,
-    req: EditInstanceProfile,
-    options?: Options
-  ): Promise<EditInstanceProfile_Response> {
+  async editInstanceProfile(signal: AbortSignal | undefined, req: EditInstanceProfile, options?: Options): Promise<EditInstanceProfile_Response> {
     const url = `${this.host}/api/2.0/instance-profiles/edit`;
     const body = marshalRequest(req, marshalEditInstanceProfileSchema);
     let resp: EditInstanceProfile_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalEditInstanceProfile_ResponseSchema
-      );
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalEditInstanceProfile_ResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -123,27 +98,17 @@ export class Client {
 
   /**
    * List the instance profiles that the calling user can use to launch a cluster.
-   *
+   * 
    * This API is available to all users.
    */
-  async listInstanceProfiles(
-    signal: AbortSignal | undefined,
-    _req: ListInstanceProfiles,
-    options?: Options
-  ): Promise<ListInstanceProfiles_Response> {
+  async listInstanceProfiles(signal: AbortSignal | undefined, _req: ListInstanceProfiles, options?: Options): Promise<ListInstanceProfiles_Response> {
     const url = `${this.host}/api/2.0/instance-profiles/list`;
     let resp: ListInstanceProfiles_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListInstanceProfiles_ResponseSchema
-      );
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListInstanceProfiles_ResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -155,28 +120,18 @@ export class Client {
   /**
    * Remove the instance profile with the provided ARN.
    * Existing clusters with this instance profile will continue to function.
-   *
+   * 
    * This API is only accessible to admin users.
    */
-  async removeInstanceProfile(
-    signal: AbortSignal | undefined,
-    req: RemoveInstanceProfile,
-    options?: Options
-  ): Promise<RemoveInstanceProfile_Response> {
+  async removeInstanceProfile(signal: AbortSignal | undefined, req: RemoveInstanceProfile, options?: Options): Promise<RemoveInstanceProfile_Response> {
     const url = `${this.host}/api/2.0/instance-profiles/remove`;
     const body = marshalRequest(req, marshalRemoveInstanceProfileSchema);
     let resp: RemoveInstanceProfile_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalRemoveInstanceProfile_ResponseSchema
-      );
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalRemoveInstanceProfile_ResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {

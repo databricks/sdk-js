@@ -4,6 +4,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 /** The action type for an account access identity rule (currently DENY only). */
 export enum AccountAccessRuleAction {
   ACCOUNT_ACCESS_RULE_ACTION_UNSPECIFIED = 'ACCOUNT_ACCESS_RULE_ACTION_UNSPECIFIED',
@@ -1003,22 +1004,21 @@ export interface WorkspaceIdentityDetail {
   assignmentType?: WorkspaceIdentityDetail_AssignmentType | undefined;
 }
 
-export const unmarshalAccountAccessIdentityRuleSchema: z.ZodType<AccountAccessIdentityRule> =
-  z
-    .object({
-      action: z.enum(AccountAccessRuleAction).optional(),
-      external_principal_id: z.string().optional(),
-      display_name: z.string().optional(),
-      principal_type: z.enum(PrincipalType).optional(),
-      name: z.string().optional(),
-    })
-    .transform(d => ({
-      action: d.action,
-      externalPrincipalId: d.external_principal_id,
-      displayName: d.display_name,
-      principalType: d.principal_type,
-      name: d.name,
-    }));
+export const unmarshalAccountAccessIdentityRuleSchema: z.ZodType<AccountAccessIdentityRule> = z
+  .object({
+    action: z.enum(AccountAccessRuleAction).optional(),
+    external_principal_id: z.string().optional(),
+    display_name: z.string().optional(),
+    principal_type: z.enum(PrincipalType).optional(),
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    action: d.action,
+    externalPrincipalId: d.external_principal_id,
+    displayName: d.display_name,
+    principalType: d.principal_type,
+    name: d.name,
+  }));
 
 export const unmarshalDirectGroupMemberSchema: z.ZodType<DirectGroupMember> = z
   .object({
@@ -1050,68 +1050,55 @@ export const unmarshalGroupSchema: z.ZodType<Group> = z
     groupName: d.group_name,
   }));
 
-export const unmarshalListAccountAccessIdentityRulesResponseSchema: z.ZodType<ListAccountAccessIdentityRulesResponse> =
-  z
-    .object({
-      account_access_identity_rules: z
-        .array(z.lazy(() => unmarshalAccountAccessIdentityRuleSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      accountAccessIdentityRules: d.account_access_identity_rules,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListAccountAccessIdentityRulesResponseSchema: z.ZodType<ListAccountAccessIdentityRulesResponse> = z
+  .object({
+    account_access_identity_rules: z.array(z.lazy(() => unmarshalAccountAccessIdentityRuleSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    accountAccessIdentityRules: d.account_access_identity_rules,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListDirectGroupMembersResponseSchema: z.ZodType<ListDirectGroupMembersResponse> =
-  z
-    .object({
-      direct_group_members: z
-        .array(z.lazy(() => unmarshalDirectGroupMemberSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      directGroupMembers: d.direct_group_members,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListDirectGroupMembersResponseSchema: z.ZodType<ListDirectGroupMembersResponse> = z
+  .object({
+    direct_group_members: z.array(z.lazy(() => unmarshalDirectGroupMemberSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    directGroupMembers: d.direct_group_members,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListGroupsResponseSchema: z.ZodType<ListGroupsResponse> =
-  z
-    .object({
-      groups: z.array(z.lazy(() => unmarshalGroupSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      groups: d.groups,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListGroupsResponseSchema: z.ZodType<ListGroupsResponse> = z
+  .object({
+    groups: z.array(z.lazy(() => unmarshalGroupSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    groups: d.groups,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListServicePrincipalsResponseSchema: z.ZodType<ListServicePrincipalsResponse> =
-  z
-    .object({
-      service_principals: z
-        .array(z.lazy(() => unmarshalServicePrincipalSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      servicePrincipals: d.service_principals,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListServicePrincipalsResponseSchema: z.ZodType<ListServicePrincipalsResponse> = z
+  .object({
+    service_principals: z.array(z.lazy(() => unmarshalServicePrincipalSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    servicePrincipals: d.service_principals,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListTransitiveParentGroupsResponseSchema: z.ZodType<ListTransitiveParentGroupsResponse> =
-  z
-    .object({
-      transitive_parent_groups: z
-        .array(z.lazy(() => unmarshalTransitiveParentGroupSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      transitiveParentGroups: d.transitive_parent_groups,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListTransitiveParentGroupsResponseSchema: z.ZodType<ListTransitiveParentGroupsResponse> = z
+  .object({
+    transitive_parent_groups: z.array(z.lazy(() => unmarshalTransitiveParentGroupSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    transitiveParentGroups: d.transitive_parent_groups,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalListUsersResponseSchema: z.ZodType<ListUsersResponse> = z
   .object({
@@ -1123,60 +1110,49 @@ export const unmarshalListUsersResponseSchema: z.ZodType<ListUsersResponse> = z
     nextPageToken: d.next_page_token,
   }));
 
-export const unmarshalListWorkspaceAccessDetailsResponseSchema: z.ZodType<ListWorkspaceAccessDetailsResponse> =
-  z
-    .object({
-      workspace_access_details: z
-        .array(z.lazy(() => unmarshalWorkspaceAccessDetailSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      workspaceAccessDetails: d.workspace_access_details,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListWorkspaceAccessDetailsResponseSchema: z.ZodType<ListWorkspaceAccessDetailsResponse> = z
+  .object({
+    workspace_access_details: z.array(z.lazy(() => unmarshalWorkspaceAccessDetailSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    workspaceAccessDetails: d.workspace_access_details,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListWorkspaceAssignmentDetailsResponseSchema: z.ZodType<ListWorkspaceAssignmentDetailsResponse> =
-  z
-    .object({
-      workspace_assignment_details: z
-        .array(z.lazy(() => unmarshalWorkspaceAssignmentDetailSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      workspaceAssignmentDetails: d.workspace_assignment_details,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListWorkspaceAssignmentDetailsResponseSchema: z.ZodType<ListWorkspaceAssignmentDetailsResponse> = z
+  .object({
+    workspace_assignment_details: z.array(z.lazy(() => unmarshalWorkspaceAssignmentDetailSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    workspaceAssignmentDetails: d.workspace_assignment_details,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalResolveGroupResponseSchema: z.ZodType<ResolveGroupResponse> =
-  z
-    .object({
-      group: z.lazy(() => unmarshalGroupSchema).optional(),
-    })
-    .transform(d => ({
-      group: d.group,
-    }));
+export const unmarshalResolveGroupResponseSchema: z.ZodType<ResolveGroupResponse> = z
+  .object({
+    group: z.lazy(() => unmarshalGroupSchema).optional(),
+  })
+  .transform(d => ({
+    group: d.group,
+  }));
 
-export const unmarshalResolveServicePrincipalResponseSchema: z.ZodType<ResolveServicePrincipalResponse> =
-  z
-    .object({
-      service_principal: z
-        .lazy(() => unmarshalServicePrincipalSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      servicePrincipal: d.service_principal,
-    }));
+export const unmarshalResolveServicePrincipalResponseSchema: z.ZodType<ResolveServicePrincipalResponse> = z
+  .object({
+    service_principal: z.lazy(() => unmarshalServicePrincipalSchema).optional(),
+  })
+  .transform(d => ({
+    servicePrincipal: d.service_principal,
+  }));
 
-export const unmarshalResolveUserResponseSchema: z.ZodType<ResolveUserResponse> =
-  z
-    .object({
-      user: z.lazy(() => unmarshalUserSchema).optional(),
-    })
-    .transform(d => ({
-      user: d.user,
-    }));
+export const unmarshalResolveUserResponseSchema: z.ZodType<ResolveUserResponse> = z
+  .object({
+    user: z.lazy(() => unmarshalUserSchema).optional(),
+  })
+  .transform(d => ({
+    user: d.user,
+  }));
 
 export const unmarshalServicePrincipalSchema: z.ZodType<ServicePrincipal> = z
   .object({
@@ -1196,18 +1172,17 @@ export const unmarshalServicePrincipalSchema: z.ZodType<ServicePrincipal> = z
     accountSpStatus: d.account_sp_status,
   }));
 
-export const unmarshalTransitiveParentGroupSchema: z.ZodType<TransitiveParentGroup> =
-  z
-    .object({
-      account_id: z.string().optional(),
-      internal_id: z.number().optional(),
-      external_id: z.string().optional(),
-    })
-    .transform(d => ({
-      accountId: d.account_id,
-      internalId: d.internal_id,
-      externalId: d.external_id,
-    }));
+export const unmarshalTransitiveParentGroupSchema: z.ZodType<TransitiveParentGroup> = z
+  .object({
+    account_id: z.string().optional(),
+    internal_id: z.number().optional(),
+    external_id: z.string().optional(),
+  })
+  .transform(d => ({
+    accountId: d.account_id,
+    internalId: d.internal_id,
+    externalId: d.external_id,
+  }));
 
 export const unmarshalUserSchema: z.ZodType<User> = z
   .object({
@@ -1238,60 +1213,55 @@ export const unmarshalUser_NameSchema: z.ZodType<User_Name> = z
     familyName: d.family_name,
   }));
 
-export const unmarshalWorkspaceAccessDetailSchema: z.ZodType<WorkspaceAccessDetail> =
-  z
-    .object({
-      principal_id: z.number().optional(),
-      workspace_id: z.number().optional(),
-      account_id: z.string().optional(),
-      principal_type: z.enum(PrincipalType).optional(),
-      access_type: z.enum(WorkspaceAccessDetail_AccessType).optional(),
-      status: z.enum(State).optional(),
-      permissions: z.array(z.enum(WorkspacePermission)).optional(),
-    })
-    .transform(d => ({
-      principalId: d.principal_id,
-      workspaceId: d.workspace_id,
-      accountId: d.account_id,
-      principalType: d.principal_type,
-      accessType: d.access_type,
-      status: d.status,
-      permissions: d.permissions,
-    }));
+export const unmarshalWorkspaceAccessDetailSchema: z.ZodType<WorkspaceAccessDetail> = z
+  .object({
+    principal_id: z.number().optional(),
+    workspace_id: z.number().optional(),
+    account_id: z.string().optional(),
+    principal_type: z.enum(PrincipalType).optional(),
+    access_type: z.enum(WorkspaceAccessDetail_AccessType).optional(),
+    status: z.enum(State).optional(),
+    permissions: z.array(z.enum(WorkspacePermission)).optional(),
+  })
+  .transform(d => ({
+    principalId: d.principal_id,
+    workspaceId: d.workspace_id,
+    accountId: d.account_id,
+    principalType: d.principal_type,
+    accessType: d.access_type,
+    status: d.status,
+    permissions: d.permissions,
+  }));
 
-export const unmarshalWorkspaceAssignmentDetailSchema: z.ZodType<WorkspaceAssignmentDetail> =
-  z
-    .object({
-      principal_id: z.number().optional(),
-      workspace_id: z.number().optional(),
-      account_id: z.string().optional(),
-      principal_type: z.enum(PrincipalType).optional(),
-      entitlements: z.array(z.enum(Entitlement)).optional(),
-    })
-    .transform(d => ({
-      principalId: d.principal_id,
-      workspaceId: d.workspace_id,
-      accountId: d.account_id,
-      principalType: d.principal_type,
-      entitlements: d.entitlements,
-    }));
+export const unmarshalWorkspaceAssignmentDetailSchema: z.ZodType<WorkspaceAssignmentDetail> = z
+  .object({
+    principal_id: z.number().optional(),
+    workspace_id: z.number().optional(),
+    account_id: z.string().optional(),
+    principal_type: z.enum(PrincipalType).optional(),
+    entitlements: z.array(z.enum(Entitlement)).optional(),
+  })
+  .transform(d => ({
+    principalId: d.principal_id,
+    workspaceId: d.workspace_id,
+    accountId: d.account_id,
+    principalType: d.principal_type,
+    entitlements: d.entitlements,
+  }));
 
-export const unmarshalWorkspaceIdentityDetailSchema: z.ZodType<WorkspaceIdentityDetail> =
-  z
-    .object({
-      principal_id: z.number().optional(),
-      principal_type: z.enum(PrincipalType).optional(),
-      workspace_identity_status: z.enum(State).optional(),
-      assignment_type: z
-        .enum(WorkspaceIdentityDetail_AssignmentType)
-        .optional(),
-    })
-    .transform(d => ({
-      principalId: d.principal_id,
-      principalType: d.principal_type,
-      workspaceIdentityStatus: d.workspace_identity_status,
-      assignmentType: d.assignment_type,
-    }));
+export const unmarshalWorkspaceIdentityDetailSchema: z.ZodType<WorkspaceIdentityDetail> = z
+  .object({
+    principal_id: z.number().optional(),
+    principal_type: z.enum(PrincipalType).optional(),
+    workspace_identity_status: z.enum(State).optional(),
+    assignment_type: z.enum(WorkspaceIdentityDetail_AssignmentType).optional(),
+  })
+  .transform(d => ({
+    principalId: d.principal_id,
+    principalType: d.principal_type,
+    workspaceIdentityStatus: d.workspace_identity_status,
+    assignmentType: d.assignment_type,
+  }));
 
 export const marshalAccountAccessIdentityRuleSchema: z.ZodType = z
   .object({
@@ -1490,13 +1460,8 @@ const servicePrincipalFieldMaskSchema: FieldMaskSchema = {
   internalId: {wire: 'internal_id'},
 };
 
-export function servicePrincipalFieldMask(
-  ...paths: string[]
-): FieldMask<ServicePrincipal> {
-  return FieldMask.build<ServicePrincipal>(
-    paths,
-    servicePrincipalFieldMaskSchema
-  );
+export function servicePrincipalFieldMask(...paths: string[]): FieldMask<ServicePrincipal> {
+  return FieldMask.build<ServicePrincipal>(paths, servicePrincipalFieldMaskSchema);
 }
 
 const userFieldMaskSchema: FieldMaskSchema = {
@@ -1526,13 +1491,8 @@ const workspaceAssignmentDetailFieldMaskSchema: FieldMaskSchema = {
   workspaceId: {wire: 'workspace_id'},
 };
 
-export function workspaceAssignmentDetailFieldMask(
-  ...paths: string[]
-): FieldMask<WorkspaceAssignmentDetail> {
-  return FieldMask.build<WorkspaceAssignmentDetail>(
-    paths,
-    workspaceAssignmentDetailFieldMaskSchema
-  );
+export function workspaceAssignmentDetailFieldMask(...paths: string[]): FieldMask<WorkspaceAssignmentDetail> {
+  return FieldMask.build<WorkspaceAssignmentDetail>(paths, workspaceAssignmentDetailFieldMaskSchema);
 }
 
 const workspaceIdentityDetailFieldMaskSchema: FieldMaskSchema = {
@@ -1542,11 +1502,6 @@ const workspaceIdentityDetailFieldMaskSchema: FieldMaskSchema = {
   workspaceIdentityStatus: {wire: 'workspace_identity_status'},
 };
 
-export function workspaceIdentityDetailFieldMask(
-  ...paths: string[]
-): FieldMask<WorkspaceIdentityDetail> {
-  return FieldMask.build<WorkspaceIdentityDetail>(
-    paths,
-    workspaceIdentityDetailFieldMaskSchema
-  );
+export function workspaceIdentityDetailFieldMask(...paths: string[]): FieldMask<WorkspaceIdentityDetail> {
+  return FieldMask.build<WorkspaceIdentityDetail>(paths, workspaceIdentityDetailFieldMaskSchema);
 }

@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 /** Returns the details of a policy family at a specific version */
 export interface GetPolicyFamily {
   /** The family ID about which to retrieve information. */
@@ -38,18 +39,15 @@ export interface PolicyFamily {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListPolicyFamilies_ResponseSchema: z.ZodType<ListPolicyFamilies_Response> =
-  z
-    .object({
-      policy_families: z
-        .array(z.lazy(() => unmarshalPolicyFamilySchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      policyFamilies: d.policy_families,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListPolicyFamilies_ResponseSchema: z.ZodType<ListPolicyFamilies_Response> = z
+  .object({
+    policy_families: z.array(z.lazy(() => unmarshalPolicyFamilySchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    policyFamilies: d.policy_families,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalPolicyFamilySchema: z.ZodType<PolicyFamily> = z
   .object({

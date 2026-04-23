@@ -16,7 +16,7 @@ export interface HttpCallOptions {
 }
 
 async function readAll(
-  body: ReadableStream<Uint8Array> | null
+  body: ReadableStream<Uint8Array> | null,
 ): Promise<Uint8Array> {
   if (body === null) {
     return new Uint8Array(0);
@@ -41,7 +41,7 @@ async function readAll(
 }
 
 export async function executeHttpCall(
-  opts: HttpCallOptions
+  opts: HttpCallOptions,
 ): Promise<Uint8Array> {
   opts.logger.debug('HTTP request', {
     method: opts.request.method,
@@ -74,11 +74,10 @@ export async function executeHttpCall(
 export function buildHttpRequest(
   method: string,
   url: string,
+  headers: Headers,
   signal?: AbortSignal,
-  body?: string
+  body?: string | ReadableStream<Uint8Array>,
 ): HttpRequest {
-  const headers = new Headers();
-  headers.set('Content-Type', 'application/json');
 
   const req: HttpRequest = {url, method, headers};
   if (body !== undefined) {
@@ -135,7 +134,7 @@ export function flattenQueryParams(
  * is returned with the body stream untouched.
  */
 export async function sendAndCheckError(
-  opts: HttpCallOptions
+  opts: HttpCallOptions,
 ): Promise<HttpResponse> {
   opts.logger.debug('HTTP request', {
     method: opts.request.method,

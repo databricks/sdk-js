@@ -34,11 +34,7 @@ export class Client {
   }
 
   /** Retrieve the information for an policy family based on its identifier and version */
-  async getPolicyFamily(
-    signal: AbortSignal | undefined,
-    req: GetPolicyFamily,
-    options?: Options
-  ): Promise<PolicyFamily> {
+  async getPolicyFamily(signal: AbortSignal | undefined, req: GetPolicyFamily, options?: Options): Promise<PolicyFamily> {
     const url = `${this.host}/api/2.0/policy-families/${req.policyFamilyId ?? ''}`;
     const params = new URLSearchParams();
     if (req.version !== undefined) {
@@ -48,12 +44,9 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: PolicyFamily | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalPolicyFamilySchema);
     };
     await execute(signal, call, options);
@@ -64,11 +57,7 @@ export class Client {
   }
 
   /** Returns the list of policy definition types available to use at their latest version. This API is paginated. */
-  async listPolicyFamilies(
-    signal: AbortSignal | undefined,
-    req: ListPolicyFamilies,
-    options?: Options
-  ): Promise<ListPolicyFamilies_Response> {
+  async listPolicyFamilies(signal: AbortSignal | undefined, req: ListPolicyFamilies, options?: Options): Promise<ListPolicyFamilies_Response> {
     const url = `${this.host}/api/2.0/policy-families`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -81,16 +70,10 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListPolicyFamilies_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListPolicyFamilies_ResponseSchema
-      );
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListPolicyFamilies_ResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -99,11 +82,8 @@ export class Client {
     return resp;
   }
 
-  async *listPolicyFamiliesIter(
-    signal: AbortSignal | undefined,
-    req: ListPolicyFamilies,
-    options?: Options
-  ): AsyncGenerator<PolicyFamily> {
+
+  async *listPolicyFamiliesIter(signal: AbortSignal | undefined, req: ListPolicyFamilies, options?: Options): AsyncGenerator<PolicyFamily> {
     const pageReq: ListPolicyFamilies = {...req};
     for (;;) {
       const resp = await this.listPolicyFamilies(signal, pageReq, options);
@@ -116,4 +96,5 @@ export class Client {
       pageReq.pageToken = resp.nextPageToken;
     }
   }
+
 }

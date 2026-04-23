@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export enum DestinationType {
   SLACK = 'SLACK',
   EMAIL = 'EMAIL',
@@ -147,13 +148,9 @@ export const unmarshalConfigSchema: z.ZodType<Config> = z
   .object({
     slack: z.lazy(() => unmarshalSlackConfigSchema).optional(),
     email: z.lazy(() => unmarshalEmailConfigSchema).optional(),
-    generic_webhook: z
-      .lazy(() => unmarshalGenericWebhookConfigSchema)
-      .optional(),
+    generic_webhook: z.lazy(() => unmarshalGenericWebhookConfigSchema).optional(),
     pagerduty: z.lazy(() => unmarshalPagerdutyConfigSchema).optional(),
-    microsoft_teams: z
-      .lazy(() => unmarshalMicrosoftTeamsConfigSchema)
-      .optional(),
+    microsoft_teams: z.lazy(() => unmarshalMicrosoftTeamsConfigSchema).optional(),
   })
   .transform(d => ({
     slack: d.slack,
@@ -171,96 +168,91 @@ export const unmarshalEmailConfigSchema: z.ZodType<EmailConfig> = z
     addresses: d.addresses,
   }));
 
-export const unmarshalEmptySchema: z.ZodType<Empty> = z.object({});
+export const unmarshalEmptySchema: z.ZodType<Empty> = z
+  .object({
+  });
 
-export const unmarshalGenericWebhookConfigSchema: z.ZodType<GenericWebhookConfig> =
-  z
-    .object({
-      url: z.string().optional(),
-      url_set: z.boolean().optional(),
-      username: z.string().optional(),
-      username_set: z.boolean().optional(),
-      password: z.string().optional(),
-      password_set: z.boolean().optional(),
-    })
-    .transform(d => ({
-      url: d.url,
-      urlSet: d.url_set,
-      username: d.username,
-      usernameSet: d.username_set,
-      password: d.password,
-      passwordSet: d.password_set,
-    }));
+export const unmarshalGenericWebhookConfigSchema: z.ZodType<GenericWebhookConfig> = z
+  .object({
+    url: z.string().optional(),
+    url_set: z.boolean().optional(),
+    username: z.string().optional(),
+    username_set: z.boolean().optional(),
+    password: z.string().optional(),
+    password_set: z.boolean().optional(),
+  })
+  .transform(d => ({
+    url: d.url,
+    urlSet: d.url_set,
+    username: d.username,
+    usernameSet: d.username_set,
+    password: d.password,
+    passwordSet: d.password_set,
+  }));
 
-export const unmarshalListNotificationDestinationsResponseSchema: z.ZodType<ListNotificationDestinationsResponse> =
-  z
-    .object({
-      results: z
-        .array(z.lazy(() => unmarshalListNotificationDestinationsResultSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      results: d.results,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListNotificationDestinationsResponseSchema: z.ZodType<ListNotificationDestinationsResponse> = z
+  .object({
+    results: z.array(z.lazy(() => unmarshalListNotificationDestinationsResultSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    results: d.results,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListNotificationDestinationsResultSchema: z.ZodType<ListNotificationDestinationsResult> =
-  z
-    .object({
-      id: z.string().optional(),
-      display_name: z.string().optional(),
-      destination_type: z.enum(DestinationType).optional(),
-      config: z.lazy(() => unmarshalConfigSchema).optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      displayName: d.display_name,
-      destinationType: d.destination_type,
-      config: d.config,
-    }));
+export const unmarshalListNotificationDestinationsResultSchema: z.ZodType<ListNotificationDestinationsResult> = z
+  .object({
+    id: z.string().optional(),
+    display_name: z.string().optional(),
+    destination_type: z.enum(DestinationType).optional(),
+    config: z.lazy(() => unmarshalConfigSchema).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    displayName: d.display_name,
+    destinationType: d.destination_type,
+    config: d.config,
+  }));
 
-export const unmarshalMicrosoftTeamsConfigSchema: z.ZodType<MicrosoftTeamsConfig> =
-  z
-    .object({
-      url: z.string().optional(),
-      url_set: z.boolean().optional(),
-      app_id: z.string().optional(),
-      app_id_set: z.boolean().optional(),
-      auth_secret: z.string().optional(),
-      auth_secret_set: z.boolean().optional(),
-      channel_url: z.string().optional(),
-      channel_url_set: z.boolean().optional(),
-      tenant_id: z.string().optional(),
-      tenant_id_set: z.boolean().optional(),
-    })
-    .transform(d => ({
-      url: d.url,
-      urlSet: d.url_set,
-      appId: d.app_id,
-      appIdSet: d.app_id_set,
-      authSecret: d.auth_secret,
-      authSecretSet: d.auth_secret_set,
-      channelUrl: d.channel_url,
-      channelUrlSet: d.channel_url_set,
-      tenantId: d.tenant_id,
-      tenantIdSet: d.tenant_id_set,
-    }));
+export const unmarshalMicrosoftTeamsConfigSchema: z.ZodType<MicrosoftTeamsConfig> = z
+  .object({
+    url: z.string().optional(),
+    url_set: z.boolean().optional(),
+    app_id: z.string().optional(),
+    app_id_set: z.boolean().optional(),
+    auth_secret: z.string().optional(),
+    auth_secret_set: z.boolean().optional(),
+    channel_url: z.string().optional(),
+    channel_url_set: z.boolean().optional(),
+    tenant_id: z.string().optional(),
+    tenant_id_set: z.boolean().optional(),
+  })
+  .transform(d => ({
+    url: d.url,
+    urlSet: d.url_set,
+    appId: d.app_id,
+    appIdSet: d.app_id_set,
+    authSecret: d.auth_secret,
+    authSecretSet: d.auth_secret_set,
+    channelUrl: d.channel_url,
+    channelUrlSet: d.channel_url_set,
+    tenantId: d.tenant_id,
+    tenantIdSet: d.tenant_id_set,
+  }));
 
-export const unmarshalNotificationDestinationSchema: z.ZodType<NotificationDestination> =
-  z
-    .object({
-      id: z.string().optional(),
-      display_name: z.string().optional(),
-      destination_type: z.enum(DestinationType).optional(),
-      config: z.lazy(() => unmarshalConfigSchema).optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      displayName: d.display_name,
-      destinationType: d.destination_type,
-      config: d.config,
-    }));
+export const unmarshalNotificationDestinationSchema: z.ZodType<NotificationDestination> = z
+  .object({
+    id: z.string().optional(),
+    display_name: z.string().optional(),
+    destination_type: z.enum(DestinationType).optional(),
+    config: z.lazy(() => unmarshalConfigSchema).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    displayName: d.display_name,
+    destinationType: d.destination_type,
+    config: d.config,
+  }));
 
 export const unmarshalPagerdutyConfigSchema: z.ZodType<PagerdutyConfig> = z
   .object({

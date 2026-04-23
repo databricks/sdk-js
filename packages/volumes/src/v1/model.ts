@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export enum SseEncryptionAlgorithm {
   SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED = 'SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED',
   AWS_SSE_S3 = 'AWS_SSE_S3',
@@ -81,12 +82,12 @@ export interface ListVolumes {
   includeBrowse?: boolean | undefined;
   /**
    * Maximum number of volumes to return (page length).
-   *
+   * 
    * If not set, the page length is set to a server configured value (10000, as of 1/29/2024).
    * - when set to a value greater than 0, the page length is the minimum of this value and a server configured value (10000, as of 1/29/2024);
    * - when set to 0, the page length is set to a server configured value (10000, as of 1/29/2024) (recommended);
    * - when set to a value less than 0, an invalid parameter error is returned;
-   *
+   * 
    * Note: this parameter controls only the maximum number of volumes to return. The actual number of volumes returned in a page
    * may be smaller than this value, including 0, even if there are more pages.
    */
@@ -197,41 +198,38 @@ export interface VolumeInfo {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteVolume_ResponseSchema: z.ZodType<DeleteVolume_Response> =
-  z.object({});
+export const unmarshalDeleteVolume_ResponseSchema: z.ZodType<DeleteVolume_Response> = z
+  .object({
+  });
 
 export const unmarshalEncryptionDetailsSchema: z.ZodType<EncryptionDetails> = z
   .object({
-    sse_encryption_details: z
-      .lazy(() => unmarshalSseEncryptionDetailsSchema)
-      .optional(),
+    sse_encryption_details: z.lazy(() => unmarshalSseEncryptionDetailsSchema).optional(),
   })
   .transform(d => ({
     sseEncryptionDetails: d.sse_encryption_details,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListVolumes_ResponseSchema: z.ZodType<ListVolumes_Response> =
-  z
-    .object({
-      volumes: z.array(z.lazy(() => unmarshalVolumeInfoSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      volumes: d.volumes,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListVolumes_ResponseSchema: z.ZodType<ListVolumes_Response> = z
+  .object({
+    volumes: z.array(z.lazy(() => unmarshalVolumeInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    volumes: d.volumes,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalSseEncryptionDetailsSchema: z.ZodType<SseEncryptionDetails> =
-  z
-    .object({
-      algorithm: z.enum(SseEncryptionAlgorithm).optional(),
-      aws_kms_key_arn: z.string().optional(),
-    })
-    .transform(d => ({
-      algorithm: d.algorithm,
-      awsKmsKeyArn: d.aws_kms_key_arn,
-    }));
+export const unmarshalSseEncryptionDetailsSchema: z.ZodType<SseEncryptionDetails> = z
+  .object({
+    algorithm: z.enum(SseEncryptionAlgorithm).optional(),
+    aws_kms_key_arn: z.string().optional(),
+  })
+  .transform(d => ({
+    algorithm: d.algorithm,
+    awsKmsKeyArn: d.aws_kms_key_arn,
+  }));
 
 export const unmarshalVolumeInfoSchema: z.ZodType<VolumeInfo> = z
   .object({
@@ -250,9 +248,7 @@ export const unmarshalVolumeInfoSchema: z.ZodType<VolumeInfo> = z
     updated_at: z.number().optional(),
     updated_by: z.string().optional(),
     access_point: z.string().optional(),
-    encryption_details: z
-      .lazy(() => unmarshalEncryptionDetailsSchema)
-      .optional(),
+    encryption_details: z.lazy(() => unmarshalEncryptionDetailsSchema).optional(),
     browse_only: z.boolean().optional(),
   })
   .transform(d => ({
@@ -317,9 +313,7 @@ export const marshalCreateVolumeSchema: z.ZodType = z
 
 export const marshalEncryptionDetailsSchema: z.ZodType = z
   .object({
-    sseEncryptionDetails: z
-      .lazy(() => marshalSseEncryptionDetailsSchema)
-      .optional(),
+    sseEncryptionDetails: z.lazy(() => marshalSseEncryptionDetailsSchema).optional(),
   })
   .transform(d => ({
     sse_encryption_details: d.sseEncryptionDetails,

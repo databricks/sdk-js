@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export enum Behavior {
   BEHAVIOR_UNSPECIFIED = 'BEHAVIOR_UNSPECIFIED',
   NONE = 'NONE',
@@ -513,7 +514,7 @@ export interface GoogleCloudVertexAiConfig {
    * API key directly, see `private_key_plaintext`. You must provide an API
    * key using one of the following fields: `private_key` or
    * `private_key_plaintext`
-   *
+   * 
    * [Best practices for managing service account keys]: https://cloud.google.com/iam/docs/best-practices-for-managing-service-account-keys
    */
   privateKey?: string | undefined;
@@ -526,7 +527,7 @@ export interface GoogleCloudVertexAiConfig {
    * This is the region for the Google Cloud Vertex AI Service. See [supported
    * regions] for more details. Some models are only available in specific
    * regions.
-   *
+   * 
    * [supported regions]: https://cloud.google.com/vertex-ai/docs/general/locations
    */
   region?: string | undefined;
@@ -537,7 +538,7 @@ export interface GoogleCloudVertexAiConfig {
    * your key using Databricks Secrets, see `private_key`. You must provide an
    * API key using one of the following fields: `private_key` or
    * `private_key_plaintext`.
-   *
+   * 
    * [Best practices for managing service account keys]: https://cloud.google.com/iam/docs/best-practices-for-managing-service-account-keys
    */
   privateKeyPlaintext?: string | undefined;
@@ -1028,15 +1029,9 @@ export const unmarshalAi21LabsConfigSchema: z.ZodType<Ai21LabsConfig> = z
 
 export const unmarshalAiGatewayConfigSchema: z.ZodType<AiGatewayConfig> = z
   .object({
-    usage_tracking_config: z
-      .lazy(() => unmarshalUsageTrackingConfigSchema)
-      .optional(),
-    inference_table_config: z
-      .lazy(() => unmarshalInferenceTableConfigSchema)
-      .optional(),
-    rate_limits: z
-      .array(z.lazy(() => unmarshalAiGatewayRateLimitSchema))
-      .optional(),
+    usage_tracking_config: z.lazy(() => unmarshalUsageTrackingConfigSchema).optional(),
+    inference_table_config: z.lazy(() => unmarshalInferenceTableConfigSchema).optional(),
+    rate_limits: z.array(z.lazy(() => unmarshalAiGatewayRateLimitSchema)).optional(),
     guardrails: z.lazy(() => unmarshalAiGuardrailsSchema).optional(),
     fallback_config: z.lazy(() => unmarshalFallbackConfigSchema).optional(),
   })
@@ -1048,37 +1043,35 @@ export const unmarshalAiGatewayConfigSchema: z.ZodType<AiGatewayConfig> = z
     fallbackConfig: d.fallback_config,
   }));
 
-export const unmarshalAiGatewayRateLimitSchema: z.ZodType<AiGatewayRateLimit> =
-  z
-    .object({
-      calls: z.number().optional(),
-      key: z.string().optional(),
-      renewal_period: z.string().optional(),
-      principal: z.string().optional(),
-      tokens: z.number().optional(),
-    })
-    .transform(d => ({
-      calls: d.calls,
-      key: d.key,
-      renewalPeriod: d.renewal_period,
-      principal: d.principal,
-      tokens: d.tokens,
-    }));
+export const unmarshalAiGatewayRateLimitSchema: z.ZodType<AiGatewayRateLimit> = z
+  .object({
+    calls: z.number().optional(),
+    key: z.string().optional(),
+    renewal_period: z.string().optional(),
+    principal: z.string().optional(),
+    tokens: z.number().optional(),
+  })
+  .transform(d => ({
+    calls: d.calls,
+    key: d.key,
+    renewalPeriod: d.renewal_period,
+    principal: d.principal,
+    tokens: d.tokens,
+  }));
 
-export const unmarshalAiGuardrailParametersSchema: z.ZodType<AiGuardrailParameters> =
-  z
-    .object({
-      safety: z.boolean().optional(),
-      pii: z.lazy(() => unmarshalPiiSettingsSchema).optional(),
-      valid_topics: z.array(z.string()).optional(),
-      invalid_keywords: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      safety: d.safety,
-      pii: d.pii,
-      validTopics: d.valid_topics,
-      invalidKeywords: d.invalid_keywords,
-    }));
+export const unmarshalAiGuardrailParametersSchema: z.ZodType<AiGuardrailParameters> = z
+  .object({
+    safety: z.boolean().optional(),
+    pii: z.lazy(() => unmarshalPiiSettingsSchema).optional(),
+    valid_topics: z.array(z.string()).optional(),
+    invalid_keywords: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    safety: d.safety,
+    pii: d.pii,
+    validTopics: d.valid_topics,
+    invalidKeywords: d.invalid_keywords,
+  }));
 
 export const unmarshalAiGuardrailsSchema: z.ZodType<AiGuardrails> = z
   .object({
@@ -1090,28 +1083,27 @@ export const unmarshalAiGuardrailsSchema: z.ZodType<AiGuardrails> = z
     output: d.output,
   }));
 
-export const unmarshalAmazonBedrockConfigSchema: z.ZodType<AmazonBedrockConfig> =
-  z
-    .object({
-      aws_region: z.string().optional(),
-      aws_access_key_id: z.string().optional(),
-      aws_secret_access_key: z.string().optional(),
-      bedrock_provider: z.string().optional(),
-      aws_access_key_id_plaintext: z.string().optional(),
-      aws_secret_access_key_plaintext: z.string().optional(),
-      instance_profile_arn: z.string().optional(),
-      uc_service_credential_name: z.string().optional(),
-    })
-    .transform(d => ({
-      awsRegion: d.aws_region,
-      awsAccessKeyId: d.aws_access_key_id,
-      awsSecretAccessKey: d.aws_secret_access_key,
-      bedrockProvider: d.bedrock_provider,
-      awsAccessKeyIdPlaintext: d.aws_access_key_id_plaintext,
-      awsSecretAccessKeyPlaintext: d.aws_secret_access_key_plaintext,
-      instanceProfileArn: d.instance_profile_arn,
-      ucServiceCredentialName: d.uc_service_credential_name,
-    }));
+export const unmarshalAmazonBedrockConfigSchema: z.ZodType<AmazonBedrockConfig> = z
+  .object({
+    aws_region: z.string().optional(),
+    aws_access_key_id: z.string().optional(),
+    aws_secret_access_key: z.string().optional(),
+    bedrock_provider: z.string().optional(),
+    aws_access_key_id_plaintext: z.string().optional(),
+    aws_secret_access_key_plaintext: z.string().optional(),
+    instance_profile_arn: z.string().optional(),
+    uc_service_credential_name: z.string().optional(),
+  })
+  .transform(d => ({
+    awsRegion: d.aws_region,
+    awsAccessKeyId: d.aws_access_key_id,
+    awsSecretAccessKey: d.aws_secret_access_key,
+    bedrockProvider: d.bedrock_provider,
+    awsAccessKeyIdPlaintext: d.aws_access_key_id_plaintext,
+    awsSecretAccessKeyPlaintext: d.aws_secret_access_key_plaintext,
+    instanceProfileArn: d.instance_profile_arn,
+    ucServiceCredentialName: d.uc_service_credential_name,
+  }));
 
 export const unmarshalAnthropicConfigSchema: z.ZodType<AnthropicConfig> = z
   .object({
@@ -1181,20 +1173,17 @@ export const unmarshalCohereConfigSchema: z.ZodType<CohereConfig> = z
     cohereApiBase: d.cohere_api_base,
   }));
 
-export const unmarshalCustomProviderConfigSchema: z.ZodType<CustomProviderConfig> =
-  z
-    .object({
-      custom_provider_url: z.string().optional(),
-      bearer_token_auth: z
-        .lazy(() => unmarshalBearerTokenAuthSchema)
-        .optional(),
-      api_key_auth: z.lazy(() => unmarshalApiKeyAuthSchema).optional(),
-    })
-    .transform(d => ({
-      customProviderUrl: d.custom_provider_url,
-      bearerTokenAuth: d.bearer_token_auth,
-      apiKeyAuth: d.api_key_auth,
-    }));
+export const unmarshalCustomProviderConfigSchema: z.ZodType<CustomProviderConfig> = z
+  .object({
+    custom_provider_url: z.string().optional(),
+    bearer_token_auth: z.lazy(() => unmarshalBearerTokenAuthSchema).optional(),
+    api_key_auth: z.lazy(() => unmarshalApiKeyAuthSchema).optional(),
+  })
+  .transform(d => ({
+    customProviderUrl: d.custom_provider_url,
+    bearerTokenAuth: d.bearer_token_auth,
+    apiKeyAuth: d.api_key_auth,
+  }));
 
 export const unmarshalDataPlaneInfoSchema: z.ZodType<DataPlaneInfo> = z
   .object({
@@ -1206,71 +1195,58 @@ export const unmarshalDataPlaneInfoSchema: z.ZodType<DataPlaneInfo> = z
     authorizationDetails: d.authorization_details,
   }));
 
-export const unmarshalDatabricksModelServingConfigSchema: z.ZodType<DatabricksModelServingConfig> =
-  z
-    .object({
-      databricks_api_token: z.string().optional(),
-      databricks_workspace_url: z.string().optional(),
-      databricks_api_token_plaintext: z.string().optional(),
-    })
-    .transform(d => ({
-      databricksApiToken: d.databricks_api_token,
-      databricksWorkspaceUrl: d.databricks_workspace_url,
-      databricksApiTokenPlaintext: d.databricks_api_token_plaintext,
-    }));
+export const unmarshalDatabricksModelServingConfigSchema: z.ZodType<DatabricksModelServingConfig> = z
+  .object({
+    databricks_api_token: z.string().optional(),
+    databricks_workspace_url: z.string().optional(),
+    databricks_api_token_plaintext: z.string().optional(),
+  })
+  .transform(d => ({
+    databricksApiToken: d.databricks_api_token,
+    databricksWorkspaceUrl: d.databricks_workspace_url,
+    databricksApiTokenPlaintext: d.databricks_api_token_plaintext,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteInferenceEndpoint_ResponseSchema: z.ZodType<DeleteInferenceEndpoint_Response> =
-  z.object({});
+export const unmarshalDeleteInferenceEndpoint_ResponseSchema: z.ZodType<DeleteInferenceEndpoint_Response> = z
+  .object({
+  });
 
-export const unmarshalEmailNotificationsSchema: z.ZodType<EmailNotifications> =
-  z
-    .object({
-      on_update_success: z.array(z.string()).optional(),
-      on_update_failure: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      onUpdateSuccess: d.on_update_success,
-      onUpdateFailure: d.on_update_failure,
-    }));
+export const unmarshalEmailNotificationsSchema: z.ZodType<EmailNotifications> = z
+  .object({
+    on_update_success: z.array(z.string()).optional(),
+    on_update_failure: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    onUpdateSuccess: d.on_update_success,
+    onUpdateFailure: d.on_update_failure,
+  }));
 
-export const unmarshalEndpointCoreConfigOutputSchema: z.ZodType<EndpointCoreConfigOutput> =
-  z
-    .object({
-      config_version: z.number().optional(),
-      served_entities: z
-        .array(z.lazy(() => unmarshalServedModelSchema))
-        .optional(),
-      served_models: z
-        .array(z.lazy(() => unmarshalServedModelSchema))
-        .optional(),
-      traffic_config: z.lazy(() => unmarshalTrafficConfigSchema).optional(),
-      auto_capture_config: z
-        .lazy(() => unmarshalAutoCaptureConfigSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      configVersion: d.config_version,
-      servedEntities: d.served_entities,
-      servedModels: d.served_models,
-      trafficConfig: d.traffic_config,
-      autoCaptureConfig: d.auto_capture_config,
-    }));
+export const unmarshalEndpointCoreConfigOutputSchema: z.ZodType<EndpointCoreConfigOutput> = z
+  .object({
+    config_version: z.number().optional(),
+    served_entities: z.array(z.lazy(() => unmarshalServedModelSchema)).optional(),
+    served_models: z.array(z.lazy(() => unmarshalServedModelSchema)).optional(),
+    traffic_config: z.lazy(() => unmarshalTrafficConfigSchema).optional(),
+    auto_capture_config: z.lazy(() => unmarshalAutoCaptureConfigSchema).optional(),
+  })
+  .transform(d => ({
+    configVersion: d.config_version,
+    servedEntities: d.served_entities,
+    servedModels: d.served_models,
+    trafficConfig: d.traffic_config,
+    autoCaptureConfig: d.auto_capture_config,
+  }));
 
-export const unmarshalEndpointCoreConfigSummarySchema: z.ZodType<EndpointCoreConfigSummary> =
-  z
-    .object({
-      served_entities: z
-        .array(z.lazy(() => unmarshalServedModelLiteSchema))
-        .optional(),
-      served_models: z
-        .array(z.lazy(() => unmarshalServedModelLiteSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      servedEntities: d.served_entities,
-      servedModels: d.served_models,
-    }));
+export const unmarshalEndpointCoreConfigSummarySchema: z.ZodType<EndpointCoreConfigSummary> = z
+  .object({
+    served_entities: z.array(z.lazy(() => unmarshalServedModelLiteSchema)).optional(),
+    served_models: z.array(z.lazy(() => unmarshalServedModelLiteSchema)).optional(),
+  })
+  .transform(d => ({
+    servedEntities: d.served_entities,
+    servedModels: d.served_models,
+  }));
 
 export const unmarshalEndpointTagSchema: z.ZodType<EndpointTag> = z
   .object({
@@ -1289,21 +1265,13 @@ export const unmarshalExternalModelSchema: z.ZodType<ExternalModel> = z
     task: z.string().optional(),
     ai21labs_config: z.lazy(() => unmarshalAi21LabsConfigSchema).optional(),
     anthropic_config: z.lazy(() => unmarshalAnthropicConfigSchema).optional(),
-    amazon_bedrock_config: z
-      .lazy(() => unmarshalAmazonBedrockConfigSchema)
-      .optional(),
+    amazon_bedrock_config: z.lazy(() => unmarshalAmazonBedrockConfigSchema).optional(),
     cohere_config: z.lazy(() => unmarshalCohereConfigSchema).optional(),
-    google_cloud_vertex_ai_config: z
-      .lazy(() => unmarshalGoogleCloudVertexAiConfigSchema)
-      .optional(),
-    databricks_model_serving_config: z
-      .lazy(() => unmarshalDatabricksModelServingConfigSchema)
-      .optional(),
+    google_cloud_vertex_ai_config: z.lazy(() => unmarshalGoogleCloudVertexAiConfigSchema).optional(),
+    databricks_model_serving_config: z.lazy(() => unmarshalDatabricksModelServingConfigSchema).optional(),
     openai_config: z.lazy(() => unmarshalOpenAiConfigSchema).optional(),
     palm_config: z.lazy(() => unmarshalPaLmConfigSchema).optional(),
-    custom_provider_config: z
-      .lazy(() => unmarshalCustomProviderConfigSchema)
-      .optional(),
+    custom_provider_config: z.lazy(() => unmarshalCustomProviderConfigSchema).optional(),
   })
   .transform(d => ({
     provider: d.provider,
@@ -1342,20 +1310,19 @@ export const unmarshalFoundationModelSchema: z.ZodType<FoundationModel> = z
     description: d.description,
   }));
 
-export const unmarshalGoogleCloudVertexAiConfigSchema: z.ZodType<GoogleCloudVertexAiConfig> =
-  z
-    .object({
-      private_key: z.string().optional(),
-      project_id: z.string().optional(),
-      region: z.string().optional(),
-      private_key_plaintext: z.string().optional(),
-    })
-    .transform(d => ({
-      privateKey: d.private_key,
-      projectId: d.project_id,
-      region: d.region,
-      privateKeyPlaintext: d.private_key_plaintext,
-    }));
+export const unmarshalGoogleCloudVertexAiConfigSchema: z.ZodType<GoogleCloudVertexAiConfig> = z
+  .object({
+    private_key: z.string().optional(),
+    project_id: z.string().optional(),
+    region: z.string().optional(),
+    private_key_plaintext: z.string().optional(),
+  })
+  .transform(d => ({
+    privateKey: d.private_key,
+    projectId: d.project_id,
+    region: d.region,
+    privateKeyPlaintext: d.private_key_plaintext,
+  }));
 
 export const unmarshalInferenceEndpointSchema: z.ZodType<InferenceEndpoint> = z
   .object({
@@ -1389,103 +1356,88 @@ export const unmarshalInferenceEndpointSchema: z.ZodType<InferenceEndpoint> = z
     usagePolicyId: d.usage_policy_id,
   }));
 
-export const unmarshalInferenceEndpointDetailedSchema: z.ZodType<InferenceEndpointDetailed> =
-  z
-    .object({
-      name: z.string().optional(),
-      creator: z.string().optional(),
-      creation_timestamp: z.number().optional(),
-      last_updated_timestamp: z.number().optional(),
-      state: z.lazy(() => unmarshalInferenceEndpointStateSchema).optional(),
-      config: z.lazy(() => unmarshalEndpointCoreConfigOutputSchema).optional(),
-      pending_config: z.lazy(() => unmarshalPendingConfigSchema).optional(),
-      id: z.string().optional(),
-      permission_level: z
-        .enum(ServingEndpointDetailedPermissionLevel)
-        .optional(),
-      tags: z.array(z.lazy(() => unmarshalEndpointTagSchema)).optional(),
-      task: z.string().optional(),
-      route_optimized: z.boolean().optional(),
-      endpoint_url: z.string().optional(),
-      data_plane_info: z
-        .lazy(() => unmarshalModelDataPlaneInfoSchema)
-        .optional(),
-      ai_gateway: z.lazy(() => unmarshalAiGatewayConfigSchema).optional(),
-      budget_policy_id: z.string().optional(),
-      email_notifications: z
-        .lazy(() => unmarshalEmailNotificationsSchema)
-        .optional(),
-      description: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      creator: d.creator,
-      creationTimestamp: d.creation_timestamp,
-      lastUpdatedTimestamp: d.last_updated_timestamp,
-      state: d.state,
-      config: d.config,
-      pendingConfig: d.pending_config,
-      id: d.id,
-      permissionLevel: d.permission_level,
-      tags: d.tags,
-      task: d.task,
-      routeOptimized: d.route_optimized,
-      endpointUrl: d.endpoint_url,
-      dataPlaneInfo: d.data_plane_info,
-      aiGateway: d.ai_gateway,
-      budgetPolicyId: d.budget_policy_id,
-      emailNotifications: d.email_notifications,
-      description: d.description,
-    }));
+export const unmarshalInferenceEndpointDetailedSchema: z.ZodType<InferenceEndpointDetailed> = z
+  .object({
+    name: z.string().optional(),
+    creator: z.string().optional(),
+    creation_timestamp: z.number().optional(),
+    last_updated_timestamp: z.number().optional(),
+    state: z.lazy(() => unmarshalInferenceEndpointStateSchema).optional(),
+    config: z.lazy(() => unmarshalEndpointCoreConfigOutputSchema).optional(),
+    pending_config: z.lazy(() => unmarshalPendingConfigSchema).optional(),
+    id: z.string().optional(),
+    permission_level: z.enum(ServingEndpointDetailedPermissionLevel).optional(),
+    tags: z.array(z.lazy(() => unmarshalEndpointTagSchema)).optional(),
+    task: z.string().optional(),
+    route_optimized: z.boolean().optional(),
+    endpoint_url: z.string().optional(),
+    data_plane_info: z.lazy(() => unmarshalModelDataPlaneInfoSchema).optional(),
+    ai_gateway: z.lazy(() => unmarshalAiGatewayConfigSchema).optional(),
+    budget_policy_id: z.string().optional(),
+    email_notifications: z.lazy(() => unmarshalEmailNotificationsSchema).optional(),
+    description: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    creator: d.creator,
+    creationTimestamp: d.creation_timestamp,
+    lastUpdatedTimestamp: d.last_updated_timestamp,
+    state: d.state,
+    config: d.config,
+    pendingConfig: d.pending_config,
+    id: d.id,
+    permissionLevel: d.permission_level,
+    tags: d.tags,
+    task: d.task,
+    routeOptimized: d.route_optimized,
+    endpointUrl: d.endpoint_url,
+    dataPlaneInfo: d.data_plane_info,
+    aiGateway: d.ai_gateway,
+    budgetPolicyId: d.budget_policy_id,
+    emailNotifications: d.email_notifications,
+    description: d.description,
+  }));
 
-export const unmarshalInferenceEndpointStateSchema: z.ZodType<InferenceEndpointState> =
-  z
-    .object({
-      ready: z.enum(InferenceEndpointState_ReadyState).optional(),
-      config_update: z
-        .enum(InferenceEndpointState_ConfigUpdateState)
-        .optional(),
-    })
-    .transform(d => ({
-      ready: d.ready,
-      configUpdate: d.config_update,
-    }));
+export const unmarshalInferenceEndpointStateSchema: z.ZodType<InferenceEndpointState> = z
+  .object({
+    ready: z.enum(InferenceEndpointState_ReadyState).optional(),
+    config_update: z.enum(InferenceEndpointState_ConfigUpdateState).optional(),
+  })
+  .transform(d => ({
+    ready: d.ready,
+    configUpdate: d.config_update,
+  }));
 
-export const unmarshalInferenceTableConfigSchema: z.ZodType<InferenceTableConfig> =
-  z
-    .object({
-      catalog_name: z.string().optional(),
-      schema_name: z.string().optional(),
-      table_name_prefix: z.string().optional(),
-      enabled: z.boolean().optional(),
-    })
-    .transform(d => ({
-      catalogName: d.catalog_name,
-      schemaName: d.schema_name,
-      tableNamePrefix: d.table_name_prefix,
-      enabled: d.enabled,
-    }));
+export const unmarshalInferenceTableConfigSchema: z.ZodType<InferenceTableConfig> = z
+  .object({
+    catalog_name: z.string().optional(),
+    schema_name: z.string().optional(),
+    table_name_prefix: z.string().optional(),
+    enabled: z.boolean().optional(),
+  })
+  .transform(d => ({
+    catalogName: d.catalog_name,
+    schemaName: d.schema_name,
+    tableNamePrefix: d.table_name_prefix,
+    enabled: d.enabled,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListInferenceEndpoints_ResponseSchema: z.ZodType<ListInferenceEndpoints_Response> =
-  z
-    .object({
-      endpoints: z
-        .array(z.lazy(() => unmarshalInferenceEndpointSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      endpoints: d.endpoints,
-    }));
+export const unmarshalListInferenceEndpoints_ResponseSchema: z.ZodType<ListInferenceEndpoints_Response> = z
+  .object({
+    endpoints: z.array(z.lazy(() => unmarshalInferenceEndpointSchema)).optional(),
+  })
+  .transform(d => ({
+    endpoints: d.endpoints,
+  }));
 
-export const unmarshalModelDataPlaneInfoSchema: z.ZodType<ModelDataPlaneInfo> =
-  z
-    .object({
-      query_info: z.lazy(() => unmarshalDataPlaneInfoSchema).optional(),
-    })
-    .transform(d => ({
-      queryInfo: d.query_info,
-    }));
+export const unmarshalModelDataPlaneInfoSchema: z.ZodType<ModelDataPlaneInfo> = z
+  .object({
+    query_info: z.lazy(() => unmarshalDataPlaneInfoSchema).optional(),
+  })
+  .transform(d => ({
+    queryInfo: d.query_info,
+  }));
 
 export const unmarshalOpenAiConfigSchema: z.ZodType<OpenAiConfig> = z
   .object({
@@ -1512,8 +1464,7 @@ export const unmarshalOpenAiConfigSchema: z.ZodType<OpenAiConfig> = z
     microsoftEntraClientId: d.microsoft_entra_client_id,
     microsoftEntraClientSecret: d.microsoft_entra_client_secret,
     openaiApiKeyPlaintext: d.openai_api_key_plaintext,
-    microsoftEntraClientSecretPlaintext:
-      d.microsoft_entra_client_secret_plaintext,
+    microsoftEntraClientSecretPlaintext: d.microsoft_entra_client_secret_plaintext,
   }));
 
 export const unmarshalPaLmConfigSchema: z.ZodType<PaLmConfig> = z
@@ -1527,14 +1478,13 @@ export const unmarshalPaLmConfigSchema: z.ZodType<PaLmConfig> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPatchInferenceEndpointTags_ResponseSchema: z.ZodType<PatchInferenceEndpointTags_Response> =
-  z
-    .object({
-      tags: z.array(z.lazy(() => unmarshalEndpointTagSchema)).optional(),
-    })
-    .transform(d => ({
-      tags: d.tags,
-    }));
+export const unmarshalPatchInferenceEndpointTags_ResponseSchema: z.ZodType<PatchInferenceEndpointTags_Response> = z
+  .object({
+    tags: z.array(z.lazy(() => unmarshalEndpointTagSchema)).optional(),
+  })
+  .transform(d => ({
+    tags: d.tags,
+  }));
 
 export const unmarshalPayloadTableSchema: z.ZodType<PayloadTable> = z
   .object({
@@ -1550,16 +1500,12 @@ export const unmarshalPayloadTableSchema: z.ZodType<PayloadTable> = z
 
 export const unmarshalPendingConfigSchema: z.ZodType<PendingConfig> = z
   .object({
-    served_entities: z
-      .array(z.lazy(() => unmarshalServedModelSchema))
-      .optional(),
+    served_entities: z.array(z.lazy(() => unmarshalServedModelSchema)).optional(),
     served_models: z.array(z.lazy(() => unmarshalServedModelSchema)).optional(),
     traffic_config: z.lazy(() => unmarshalTrafficConfigSchema).optional(),
     config_version: z.number().optional(),
     start_time: z.number().optional(),
-    auto_capture_config: z
-      .lazy(() => unmarshalAutoCaptureConfigSchema)
-      .optional(),
+    auto_capture_config: z.lazy(() => unmarshalAutoCaptureConfigSchema).optional(),
   })
   .transform(d => ({
     servedEntities: d.served_entities,
@@ -1579,38 +1525,30 @@ export const unmarshalPiiSettingsSchema: z.ZodType<PiiSettings> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPutInferenceEndpointAiGateway_ResponseSchema: z.ZodType<PutInferenceEndpointAiGateway_Response> =
-  z
-    .object({
-      usage_tracking_config: z
-        .lazy(() => unmarshalUsageTrackingConfigSchema)
-        .optional(),
-      inference_table_config: z
-        .lazy(() => unmarshalInferenceTableConfigSchema)
-        .optional(),
-      rate_limits: z
-        .array(z.lazy(() => unmarshalAiGatewayRateLimitSchema))
-        .optional(),
-      guardrails: z.lazy(() => unmarshalAiGuardrailsSchema).optional(),
-      fallback_config: z.lazy(() => unmarshalFallbackConfigSchema).optional(),
-    })
-    .transform(d => ({
-      usageTrackingConfig: d.usage_tracking_config,
-      inferenceTableConfig: d.inference_table_config,
-      rateLimits: d.rate_limits,
-      guardrails: d.guardrails,
-      fallbackConfig: d.fallback_config,
-    }));
+export const unmarshalPutInferenceEndpointAiGateway_ResponseSchema: z.ZodType<PutInferenceEndpointAiGateway_Response> = z
+  .object({
+    usage_tracking_config: z.lazy(() => unmarshalUsageTrackingConfigSchema).optional(),
+    inference_table_config: z.lazy(() => unmarshalInferenceTableConfigSchema).optional(),
+    rate_limits: z.array(z.lazy(() => unmarshalAiGatewayRateLimitSchema)).optional(),
+    guardrails: z.lazy(() => unmarshalAiGuardrailsSchema).optional(),
+    fallback_config: z.lazy(() => unmarshalFallbackConfigSchema).optional(),
+  })
+  .transform(d => ({
+    usageTrackingConfig: d.usage_tracking_config,
+    inferenceTableConfig: d.inference_table_config,
+    rateLimits: d.rate_limits,
+    guardrails: d.guardrails,
+    fallbackConfig: d.fallback_config,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPutInferenceEndpointRateLimits_ResponseSchema: z.ZodType<PutInferenceEndpointRateLimits_Response> =
-  z
-    .object({
-      rate_limits: z.array(z.lazy(() => unmarshalRateLimitSchema)).optional(),
-    })
-    .transform(d => ({
-      rateLimits: d.rate_limits,
-    }));
+export const unmarshalPutInferenceEndpointRateLimits_ResponseSchema: z.ZodType<PutInferenceEndpointRateLimits_Response> = z
+  .object({
+    rate_limits: z.array(z.lazy(() => unmarshalRateLimitSchema)).optional(),
+  })
+  .transform(d => ({
+    rateLimits: d.rate_limits,
+  }));
 
 export const unmarshalRateLimitSchema: z.ZodType<RateLimit> = z
   .object({
@@ -1721,27 +1659,23 @@ export const unmarshalTrafficConfigSchema: z.ZodType<TrafficConfig> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateInferenceEndpointNotifications_ResponseSchema: z.ZodType<UpdateInferenceEndpointNotifications_Response> =
-  z
-    .object({
-      name: z.string().optional(),
-      email_notifications: z
-        .lazy(() => unmarshalEmailNotificationsSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      emailNotifications: d.email_notifications,
-    }));
+export const unmarshalUpdateInferenceEndpointNotifications_ResponseSchema: z.ZodType<UpdateInferenceEndpointNotifications_Response> = z
+  .object({
+    name: z.string().optional(),
+    email_notifications: z.lazy(() => unmarshalEmailNotificationsSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    emailNotifications: d.email_notifications,
+  }));
 
-export const unmarshalUsageTrackingConfigSchema: z.ZodType<UsageTrackingConfig> =
-  z
-    .object({
-      enabled: z.boolean().optional(),
-    })
-    .transform(d => ({
-      enabled: d.enabled,
-    }));
+export const unmarshalUsageTrackingConfigSchema: z.ZodType<UsageTrackingConfig> = z
+  .object({
+    enabled: z.boolean().optional(),
+  })
+  .transform(d => ({
+    enabled: d.enabled,
+  }));
 
 export const marshalAi21LabsConfigSchema: z.ZodType = z
   .object({
@@ -1755,15 +1689,9 @@ export const marshalAi21LabsConfigSchema: z.ZodType = z
 
 export const marshalAiGatewayConfigSchema: z.ZodType = z
   .object({
-    usageTrackingConfig: z
-      .lazy(() => marshalUsageTrackingConfigSchema)
-      .optional(),
-    inferenceTableConfig: z
-      .lazy(() => marshalInferenceTableConfigSchema)
-      .optional(),
-    rateLimits: z
-      .array(z.lazy(() => marshalAiGatewayRateLimitSchema))
-      .optional(),
+    usageTrackingConfig: z.lazy(() => marshalUsageTrackingConfigSchema).optional(),
+    inferenceTableConfig: z.lazy(() => marshalInferenceTableConfigSchema).optional(),
+    rateLimits: z.array(z.lazy(() => marshalAiGatewayRateLimitSchema)).optional(),
     guardrails: z.lazy(() => marshalAiGuardrailsSchema).optional(),
     fallbackConfig: z.lazy(() => marshalFallbackConfigSchema).optional(),
   })
@@ -1914,9 +1842,7 @@ export const marshalCreateInferenceEndpointSchema: z.ZodType = z
     rateLimits: z.array(z.lazy(() => marshalRateLimitSchema)).optional(),
     aiGateway: z.lazy(() => marshalAiGatewayConfigSchema).optional(),
     budgetPolicyId: z.string().optional(),
-    emailNotifications: z
-      .lazy(() => marshalEmailNotificationsSchema)
-      .optional(),
+    emailNotifications: z.lazy(() => marshalEmailNotificationsSchema).optional(),
     description: z.string().optional(),
   })
   .transform(d => ({
@@ -1938,9 +1864,7 @@ export const marshalCreatePtEndpointSchema: z.ZodType = z
     tags: z.array(z.lazy(() => marshalEndpointTagSchema)).optional(),
     aiGateway: z.lazy(() => marshalAiGatewayConfigSchema).optional(),
     budgetPolicyId: z.string().optional(),
-    emailNotifications: z
-      .lazy(() => marshalEmailNotificationsSchema)
-      .optional(),
+    emailNotifications: z.lazy(() => marshalEmailNotificationsSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2036,21 +1960,13 @@ export const marshalExternalModelSchema: z.ZodType = z
     task: z.string().optional(),
     ai21labsConfig: z.lazy(() => marshalAi21LabsConfigSchema).optional(),
     anthropicConfig: z.lazy(() => marshalAnthropicConfigSchema).optional(),
-    amazonBedrockConfig: z
-      .lazy(() => marshalAmazonBedrockConfigSchema)
-      .optional(),
+    amazonBedrockConfig: z.lazy(() => marshalAmazonBedrockConfigSchema).optional(),
     cohereConfig: z.lazy(() => marshalCohereConfigSchema).optional(),
-    googleCloudVertexAiConfig: z
-      .lazy(() => marshalGoogleCloudVertexAiConfigSchema)
-      .optional(),
-    databricksModelServingConfig: z
-      .lazy(() => marshalDatabricksModelServingConfigSchema)
-      .optional(),
+    googleCloudVertexAiConfig: z.lazy(() => marshalGoogleCloudVertexAiConfigSchema).optional(),
+    databricksModelServingConfig: z.lazy(() => marshalDatabricksModelServingConfigSchema).optional(),
     openaiConfig: z.lazy(() => marshalOpenAiConfigSchema).optional(),
     palmConfig: z.lazy(() => marshalPaLmConfigSchema).optional(),
-    customProviderConfig: z
-      .lazy(() => marshalCustomProviderConfigSchema)
-      .optional(),
+    customProviderConfig: z.lazy(() => marshalCustomProviderConfigSchema).optional(),
   })
   .transform(d => ({
     provider: d.provider,
@@ -2142,8 +2058,7 @@ export const marshalOpenAiConfigSchema: z.ZodType = z
     microsoft_entra_client_id: d.microsoftEntraClientId,
     microsoft_entra_client_secret: d.microsoftEntraClientSecret,
     openai_api_key_plaintext: d.openaiApiKeyPlaintext,
-    microsoft_entra_client_secret_plaintext:
-      d.microsoftEntraClientSecretPlaintext,
+    microsoft_entra_client_secret_plaintext: d.microsoftEntraClientSecretPlaintext,
   }));
 
 export const marshalPaLmConfigSchema: z.ZodType = z
@@ -2190,9 +2105,7 @@ export const marshalPiiSettingsSchema: z.ZodType = z
 
 export const marshalPtEndpointCoreConfigSchema: z.ZodType = z
   .object({
-    servedEntities: z
-      .array(z.lazy(() => marshalPtServedModelSchema))
-      .optional(),
+    servedEntities: z.array(z.lazy(() => marshalPtServedModelSchema)).optional(),
     trafficConfig: z.lazy(() => marshalTrafficConfigSchema).optional(),
   })
   .transform(d => ({
@@ -2219,15 +2132,9 @@ export const marshalPtServedModelSchema: z.ZodType = z
 export const marshalPutInferenceEndpointAiGatewaySchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    usageTrackingConfig: z
-      .lazy(() => marshalUsageTrackingConfigSchema)
-      .optional(),
-    inferenceTableConfig: z
-      .lazy(() => marshalInferenceTableConfigSchema)
-      .optional(),
-    rateLimits: z
-      .array(z.lazy(() => marshalAiGatewayRateLimitSchema))
-      .optional(),
+    usageTrackingConfig: z.lazy(() => marshalUsageTrackingConfigSchema).optional(),
+    inferenceTableConfig: z.lazy(() => marshalInferenceTableConfigSchema).optional(),
+    rateLimits: z.array(z.lazy(() => marshalAiGatewayRateLimitSchema)).optional(),
     guardrails: z.lazy(() => marshalAiGuardrailsSchema).optional(),
     fallbackConfig: z.lazy(() => marshalFallbackConfigSchema).optional(),
   })
@@ -2367,9 +2274,7 @@ export const marshalTrafficConfigSchema: z.ZodType = z
 export const marshalUpdateInferenceEndpointNotificationsSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    emailNotifications: z
-      .lazy(() => marshalEmailNotificationsSchema)
-      .optional(),
+    emailNotifications: z.lazy(() => marshalEmailNotificationsSchema).optional(),
   })
   .transform(d => ({
     name: d.name,

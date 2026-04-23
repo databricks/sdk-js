@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export enum IsolationMode {
   ISOLATION_MODE_UNSPECIFIED = 'ISOLATION_MODE_UNSPECIFIED',
   ISOLATION_MODE_OPEN = 'ISOLATION_MODE_OPEN',
@@ -313,69 +314,63 @@ export const unmarshalAzureQueueStorageSchema: z.ZodType<AzureQueueStorage> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteExternalLocation_ResponseSchema: z.ZodType<DeleteExternalLocation_Response> =
-  z.object({});
+export const unmarshalDeleteExternalLocation_ResponseSchema: z.ZodType<DeleteExternalLocation_Response> = z
+  .object({
+  });
 
 export const unmarshalEncryptionDetailsSchema: z.ZodType<EncryptionDetails> = z
   .object({
-    sse_encryption_details: z
-      .lazy(() => unmarshalSseEncryptionDetailsSchema)
-      .optional(),
+    sse_encryption_details: z.lazy(() => unmarshalSseEncryptionDetailsSchema).optional(),
   })
   .transform(d => ({
     sseEncryptionDetails: d.sse_encryption_details,
   }));
 
-export const unmarshalExternalLocationInfoSchema: z.ZodType<ExternalLocationInfo> =
-  z
-    .object({
-      name: z.string().optional(),
-      url: z.string().optional(),
-      credential_name: z.string().optional(),
-      read_only: z.boolean().optional(),
-      comment: z.string().optional(),
-      enable_file_events: z.boolean().optional(),
-      file_event_queue: z.lazy(() => unmarshalFileEventQueueSchema).optional(),
-      owner: z.string().optional(),
-      encryption_details: z
-        .lazy(() => unmarshalEncryptionDetailsSchema)
-        .optional(),
-      metastore_id: z.string().optional(),
-      credential_id: z.string().optional(),
-      created_at: z.number().optional(),
-      created_by: z.string().optional(),
-      updated_at: z.number().optional(),
-      updated_by: z.string().optional(),
-      browse_only: z.boolean().optional(),
-      isolation_mode: z.enum(IsolationMode).optional(),
-      fallback: z.boolean().optional(),
-      effective_enable_file_events: z.boolean().optional(),
-      effective_file_event_queue: z
-        .lazy(() => unmarshalFileEventQueueSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      url: d.url,
-      credentialName: d.credential_name,
-      readOnly: d.read_only,
-      comment: d.comment,
-      enableFileEvents: d.enable_file_events,
-      fileEventQueue: d.file_event_queue,
-      owner: d.owner,
-      encryptionDetails: d.encryption_details,
-      metastoreId: d.metastore_id,
-      credentialId: d.credential_id,
-      createdAt: d.created_at,
-      createdBy: d.created_by,
-      updatedAt: d.updated_at,
-      updatedBy: d.updated_by,
-      browseOnly: d.browse_only,
-      isolationMode: d.isolation_mode,
-      fallback: d.fallback,
-      effectiveEnableFileEvents: d.effective_enable_file_events,
-      effectiveFileEventQueue: d.effective_file_event_queue,
-    }));
+export const unmarshalExternalLocationInfoSchema: z.ZodType<ExternalLocationInfo> = z
+  .object({
+    name: z.string().optional(),
+    url: z.string().optional(),
+    credential_name: z.string().optional(),
+    read_only: z.boolean().optional(),
+    comment: z.string().optional(),
+    enable_file_events: z.boolean().optional(),
+    file_event_queue: z.lazy(() => unmarshalFileEventQueueSchema).optional(),
+    owner: z.string().optional(),
+    encryption_details: z.lazy(() => unmarshalEncryptionDetailsSchema).optional(),
+    metastore_id: z.string().optional(),
+    credential_id: z.string().optional(),
+    created_at: z.number().optional(),
+    created_by: z.string().optional(),
+    updated_at: z.number().optional(),
+    updated_by: z.string().optional(),
+    browse_only: z.boolean().optional(),
+    isolation_mode: z.enum(IsolationMode).optional(),
+    fallback: z.boolean().optional(),
+    effective_enable_file_events: z.boolean().optional(),
+    effective_file_event_queue: z.lazy(() => unmarshalFileEventQueueSchema).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    url: d.url,
+    credentialName: d.credential_name,
+    readOnly: d.read_only,
+    comment: d.comment,
+    enableFileEvents: d.enable_file_events,
+    fileEventQueue: d.file_event_queue,
+    owner: d.owner,
+    encryptionDetails: d.encryption_details,
+    metastoreId: d.metastore_id,
+    credentialId: d.credential_id,
+    createdAt: d.created_at,
+    createdBy: d.created_by,
+    updatedAt: d.updated_at,
+    updatedBy: d.updated_by,
+    browseOnly: d.browse_only,
+    isolationMode: d.isolation_mode,
+    fallback: d.fallback,
+    effectiveEnableFileEvents: d.effective_enable_file_events,
+    effectiveFileEventQueue: d.effective_file_event_queue,
+  }));
 
 export const unmarshalFileEventQueueSchema: z.ZodType<FileEventQueue> = z
   .object({
@@ -406,29 +401,25 @@ export const unmarshalGcpPubsubSchema: z.ZodType<GcpPubsub> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListExternalLocations_ResponseSchema: z.ZodType<ListExternalLocations_Response> =
-  z
-    .object({
-      external_locations: z
-        .array(z.lazy(() => unmarshalExternalLocationInfoSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      externalLocations: d.external_locations,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListExternalLocations_ResponseSchema: z.ZodType<ListExternalLocations_Response> = z
+  .object({
+    external_locations: z.array(z.lazy(() => unmarshalExternalLocationInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    externalLocations: d.external_locations,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalSseEncryptionDetailsSchema: z.ZodType<SseEncryptionDetails> =
-  z
-    .object({
-      algorithm: z.enum(SseEncryptionAlgorithm).optional(),
-      aws_kms_key_arn: z.string().optional(),
-    })
-    .transform(d => ({
-      algorithm: d.algorithm,
-      awsKmsKeyArn: d.aws_kms_key_arn,
-    }));
+export const unmarshalSseEncryptionDetailsSchema: z.ZodType<SseEncryptionDetails> = z
+  .object({
+    algorithm: z.enum(SseEncryptionAlgorithm).optional(),
+    aws_kms_key_arn: z.string().optional(),
+  })
+  .transform(d => ({
+    algorithm: d.algorithm,
+    awsKmsKeyArn: d.aws_kms_key_arn,
+  }));
 
 export const marshalAwsSqsQueueSchema: z.ZodType = z
   .object({
@@ -476,9 +467,7 @@ export const marshalCreateExternalLocationSchema: z.ZodType = z
     isolationMode: z.enum(IsolationMode).optional(),
     fallback: z.boolean().optional(),
     effectiveEnableFileEvents: z.boolean().optional(),
-    effectiveFileEventQueue: z
-      .lazy(() => marshalFileEventQueueSchema)
-      .optional(),
+    effectiveFileEventQueue: z.lazy(() => marshalFileEventQueueSchema).optional(),
   })
   .transform(d => ({
     skip_validation: d.skipValidation,
@@ -506,9 +495,7 @@ export const marshalCreateExternalLocationSchema: z.ZodType = z
 
 export const marshalEncryptionDetailsSchema: z.ZodType = z
   .object({
-    sseEncryptionDetails: z
-      .lazy(() => marshalSseEncryptionDetailsSchema)
-      .optional(),
+    sseEncryptionDetails: z.lazy(() => marshalSseEncryptionDetailsSchema).optional(),
   })
   .transform(d => ({
     sse_encryption_details: d.sseEncryptionDetails,
@@ -577,9 +564,7 @@ export const marshalUpdateExternalLocationSchema: z.ZodType = z
     isolationMode: z.enum(IsolationMode).optional(),
     fallback: z.boolean().optional(),
     effectiveEnableFileEvents: z.boolean().optional(),
-    effectiveFileEventQueue: z
-      .lazy(() => marshalFileEventQueueSchema)
-      .optional(),
+    effectiveFileEventQueue: z.lazy(() => marshalFileEventQueueSchema).optional(),
   })
   .transform(d => ({
     name_arg: d.nameArg,

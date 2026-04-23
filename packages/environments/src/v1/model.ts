@@ -5,6 +5,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 /** If changed, also update estore/namespaces/defaultbaseenvironments/latest.proto */
 export enum BaseEnvironmentType {
   BASE_ENVIRONMENT_TYPE_UNSPECIFIED = 'BASE_ENVIRONMENT_TYPE_UNSPECIFIED',
@@ -17,10 +18,10 @@ export enum ErrorCode {
   /**
    * Unknown error. This error generally should not be returned explicitly, but will be used
    * as a fallback if the error enum is missing from the message for some reason.
-   *
+   * 
    * It's assigned tag 0 to follow the best practice from
    * https://developers.google.com/protocol-buffers/docs/style#enums
-   *
+   * 
    * TODO(PLAT-55898): Add custom option to declare HTTP and gRPC mappings.
    * Maps to:
    * - google.rpc.Code: UNKNOWN = 2;
@@ -31,10 +32,10 @@ export enum ErrorCode {
    * Internal error. This means that some invariants expected by the underlying system have been
    * broken. This error code is reserved for serious errors, which generally cannot be resolved
    * by the user.
-   *
+   * 
    * Prefer this over all kinds of detailed error messages (e.g IO_ERROR), unless there's some
    * automation that relies on the custom error code.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: INTERNAL = 13;
    * - HTTP code: 500 Internal Server Error
@@ -44,12 +45,12 @@ export enum ErrorCode {
    * The service is currently unavailable. This is most likely a transient condition, which can be
    * corrected by retrying with a backoff. Note that it is not always safe to retry non-idempotent
    * operations.
-   *
+   * 
    * Prefer this over SERVICE_UNDER_MAINTENANCE, WORKSPACE_TEMPORARILY_UNAVAILABLE.
-   *
+   * 
    * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
    * for guideline on how to pick this vs RESOURCE_EXHAUSTED.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: UNAVAILABLE = 14;
    * - HTTP code: 503 Service Unavailable
@@ -64,9 +65,9 @@ export enum ErrorCode {
   /**
    * The request is invalid. Prefer more specific error code whenever possible.
    * Also see similar recommendation for the google.rpc.Code.FAILED_PRECONDITION.
-   *
+   * 
    * Prefer this error code over MALFORMED_REQUEST, INVALID_STATE, UNPARSEABLE_HTTP_ERROR.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: FAILED_PRECONDITION = 9;
    * - HTTP code: 400 Bad Request
@@ -86,7 +87,7 @@ export enum ErrorCode {
    * the deadline to expire. When possible - implementations should make sure further processing of
    * the request is aborted, e.g. by throwing an exception instead of making the RPC request,
    * making the database query, etc.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: DEADLINE_EXCEEDED = 4;
    * - HTTP code: 504 Gateway Timeout
@@ -95,7 +96,7 @@ export enum ErrorCode {
   /**
    * The operation was canceled by the caller. An example - client closed the connection without
    * waiting for a response.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: CANCELLED = 1;
    * - HTTP code: 499 Client Closed Request
@@ -105,10 +106,10 @@ export enum ErrorCode {
    * The operation is rejected because of either rate limiting or resource quota,
    * such as the client has sent too many requests recently or the client has allocated too many
    * resources.
-   *
+   * 
    * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
    * for guideline on how to pick this vs TEMPORARILY_UNAVAILABLE.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
    * - HTTP code: 429 Too Many Requests
@@ -117,7 +118,7 @@ export enum ErrorCode {
   /**
    * The operation was aborted, typically due to a concurrency issue such as a sequencer
    * check failure, transaction abort, or transaction conflict.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: ABORTED = 10;
    * - HTTP code: 409 Conflict
@@ -126,7 +127,7 @@ export enum ErrorCode {
   /**
    * Operation was performed on a resource that does not exist,
    * e.g. file or directory was not found.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
@@ -135,9 +136,9 @@ export enum ErrorCode {
   /**
    * Operation was rejected due a conflict with an existing resource, e.g. attempted to create
    * file or directory that already exists.
-   *
+   * 
    * Prefer this over RESOURCE_CONFLICT.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: ALREADY_EXISTS = 6;
    * - HTTP code: 409 Conflict
@@ -145,11 +146,11 @@ export enum ErrorCode {
   ALREADY_EXISTS = 'ALREADY_EXISTS',
   /**
    * The request does not have valid authentication (AuthN) credentials for the operation.
-   *
+   * 
    * Prefer this over CUSTOMER_UNAUTHORIZED, unless you need to keep consistent behavior with legacy
    * code.
    * For authorization (AuthZ) errors use PERMISSION_DENIED.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: UNAUTHENTICATED = 16;
    * - HTTP code: 401 Unauthorized
@@ -164,7 +165,7 @@ export enum ErrorCode {
    * not know whether it is because the domain name is completely wrong (non-transient situation) or
    * the domain name is valid but the DNS server does not have an entry for this domain name yet (transient
    * situation). Hence, `UNAVAILABLE`  is suitable for this case.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: UNAVAILABLE = 14;
    * - HTTP code: 503 Service Unavailable
@@ -172,7 +173,7 @@ export enum ErrorCode {
   UNAVAILABLE = 'UNAVAILABLE',
   /**
    * Supplied value for a parameter was invalid (e.g., giving a number for a string parameter).
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: INVALID_ARGUMENT = 3;
    * - HTTP code: 400 Bad Request
@@ -181,7 +182,7 @@ export enum ErrorCode {
   /**
    * Indicates that the given API endpoint does not exist. Legacy, when possible - NOT_IMPLEMENTED
    * should be used instead to indicate that API doesn't exist.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
@@ -203,7 +204,7 @@ export enum ErrorCode {
    * use CUSTOMER_UNAUTHORIZED instead for those errors.
    * This error code does not imply the request is valid or the requested entity exists or
    * satisfies other pre-conditions.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: PERMISSION_DENIED = 7;
    * - HTTP code: 403 Forbidden
@@ -213,9 +214,9 @@ export enum ErrorCode {
    * NOTE: Deprecated due to inconsistent mapping in legacy code, see
    * https://docs.google.com/document/d/17TZIKX_Y39cJMBr333lc-d5dTvvBLSu3DPUyGU5eMJg/edit?disco=AAAAzVGt6FA.
    * Prefer using NOT_FOUND or PERMISSION_DENIED.
-   *
+   * 
    * If a given user/entity is trying to use a feature which has been disabled.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
@@ -223,20 +224,20 @@ export enum ErrorCode {
   FEATURE_DISABLED = 'FEATURE_DISABLED',
   /**
    * The request does not have valid authentication (AuthN) credentials for the operation.
-   *
+   * 
    * For authentication (AuthN) errors prefer using UNAUTHENTICATED, unless you need to keep
    * consistent behavior with legacy code.
    * For authorization (AuthZ) errors use PERMISSION_DENIED.
-   *
+   * 
    * Important: name is confusing, this error code is for authentication (AuthN) errors, not
    * authorization (AuthZ) errors. It maps to 401 Unauthorized and suffers from the same confusing
    * naming. See https://datatracker.ietf.org/doc/html/rfc7235#section-3.1 - "[...] status code
    * indicates that the request has not been applied because it lacks valid authentication
    * credentials for the target resource. [...] If the request included authentication credentials,
    * then the 401 response indicates that authorization has been refused for those credentials."
-   *
+   * 
    * Also, see https://stackoverflow.com/a/6937030/16352922, it covers it pretty well.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: UNAUTHENTICATED = 16;
    * - HTTP code: 401 Unauthorized
@@ -245,12 +246,12 @@ export enum ErrorCode {
   /**
    * The operation is rejected because of request rate limit, for example rate limiting applied to
    * users, workspaces, IP addresses, etc.
-   *
+   * 
    * Prefer a more generic RESOURCE_EXHAUSTED for the new use cases.
-   *
+   * 
    * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
    * for guideline on the rate limiting vs throttling.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
    * - HTTP code: 429 Too Many Requests
@@ -267,7 +268,7 @@ export enum ErrorCode {
   UNPARSEABLE_HTTP_ERROR = 'UNPARSEABLE_HTTP_ERROR',
   /**
    * The operation is not implemented or is not supported/enabled in this service.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: UNIMPLEMENTED = 12;
    * - HTTP code: 501 Not Implemented
@@ -275,14 +276,14 @@ export enum ErrorCode {
   NOT_IMPLEMENTED = 'NOT_IMPLEMENTED',
   /**
    * Unrecoverable data loss or corruption.
-   *
+   * 
    * One of the major use cases is to indicate that server failed to validate the integrity of
    * the request. This error can occur when the checksum specified in the `X-Databricks-Checksum`
    * request header (or trailer) doesn't match the actual request content checksum.
-   *
+   * 
    * Note, in case of the severe corruption that results in a malformed request, the server may
    * send a generic `400 Bad Request` response rather than sending this error code.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: DATA_LOSS = 15;
    * - HTTP code: 500 Internal Server Error
@@ -300,7 +301,7 @@ export enum ErrorCode {
    * NOTE: Deprecated, prefer using ALREADY_EXISTS.
    * Unlike ALREADY_EXISTS - this maps to HTTP code 400 Bad Request due to legacy reasons,
    * remapping will be a backwards incompatible change.
-   *
+   * 
    * Operation was performed on a resource that already exists.
    */
   RESOURCE_ALREADY_EXISTS = 'RESOURCE_ALREADY_EXISTS',
@@ -308,7 +309,7 @@ export enum ErrorCode {
    * NOTE: Deprecated, prefer using NOT_FOUND - see the note for the RESOURCE_ALREADY_EXISTS,
    * because this pair of codes is related and RESOURCE_ALREADY_EXISTS has bad mapping to the HTTP
    * codes we added new error codes NOT_FOUND and ALREADY_EXISTS, and recommend to use them instead.
-   *
+   * 
    * Operation was performed on a resource that does not exist.
    */
   RESOURCE_DOES_NOT_EXIST = 'RESOURCE_DOES_NOT_EXIST',
@@ -689,7 +690,7 @@ export interface UpdateDefaultWorkspaceBaseEnvironmentRequest {
    * Field mask specifying which fields to update. Use comma as the separator for multiple fields (no space).
    * The special value '*' indicates that all fields should be updated (full replacement).
    * Valid field paths: cpu_workspace_base_environment, gpu_workspace_base_environment
-   *
+   * 
    * To unset one or both defaults, include the field path(s) in the mask and omit them from the request body.
    * To unset both, you must list both paths explicitly — the wildcard '*' cannot be used to unset fields.
    */
@@ -751,55 +752,48 @@ export interface WorkspaceBaseEnvironmentCache {}
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface WorkspaceBaseEnvironmentOperationMetadata {}
 
-export const unmarshalDatabricksServiceExceptionWithDetailsProtoSchema: z.ZodType<DatabricksServiceExceptionWithDetailsProto> =
-  z
-    .object({
-      error_code: z.enum(ErrorCode).optional(),
-      message: z.string().optional(),
-      stack_trace: z.string().optional(),
-      details: z.array(z.record(z.string(), z.unknown())).optional(),
-    })
-    .transform(d => ({
-      errorCode: d.error_code,
-      message: d.message,
-      stackTrace: d.stack_trace,
-      details: d.details,
-    }));
+export const unmarshalDatabricksServiceExceptionWithDetailsProtoSchema: z.ZodType<DatabricksServiceExceptionWithDetailsProto> = z
+  .object({
+    error_code: z.enum(ErrorCode).optional(),
+    message: z.string().optional(),
+    stack_trace: z.string().optional(),
+    details: z.array(z.record(z.string(), z.unknown())).optional(),
+  })
+  .transform(d => ({
+    errorCode: d.error_code,
+    message: d.message,
+    stackTrace: d.stack_trace,
+    details: d.details,
+  }));
 
-export const unmarshalDefaultWorkspaceBaseEnvironmentSchema: z.ZodType<DefaultWorkspaceBaseEnvironment> =
-  z
-    .object({
-      name: z.string().optional(),
-      cpu_workspace_base_environment: z.string().optional(),
-      gpu_workspace_base_environment: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      cpuWorkspaceBaseEnvironment: d.cpu_workspace_base_environment,
-      gpuWorkspaceBaseEnvironment: d.gpu_workspace_base_environment,
-    }));
+export const unmarshalDefaultWorkspaceBaseEnvironmentSchema: z.ZodType<DefaultWorkspaceBaseEnvironment> = z
+  .object({
+    name: z.string().optional(),
+    cpu_workspace_base_environment: z.string().optional(),
+    gpu_workspace_base_environment: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    cpuWorkspaceBaseEnvironment: d.cpu_workspace_base_environment,
+    gpuWorkspaceBaseEnvironment: d.gpu_workspace_base_environment,
+  }));
 
-export const unmarshalListWorkspaceBaseEnvironmentsResponseSchema: z.ZodType<ListWorkspaceBaseEnvironmentsResponse> =
-  z
-    .object({
-      workspace_base_environments: z
-        .array(z.lazy(() => unmarshalWorkspaceBaseEnvironmentSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      workspaceBaseEnvironments: d.workspace_base_environments,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListWorkspaceBaseEnvironmentsResponseSchema: z.ZodType<ListWorkspaceBaseEnvironmentsResponse> = z
+  .object({
+    workspace_base_environments: z.array(z.lazy(() => unmarshalWorkspaceBaseEnvironmentSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    workspaceBaseEnvironments: d.workspace_base_environments,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalOperationSchema: z.ZodType<Operation> = z
   .object({
     name: z.string().optional(),
     metadata: z.record(z.string(), z.unknown()).optional(),
     done: z.boolean().optional(),
-    error: z
-      .lazy(() => unmarshalDatabricksServiceExceptionWithDetailsProtoSchema)
-      .optional(),
+    error: z.lazy(() => unmarshalDatabricksServiceExceptionWithDetailsProtoSchema).optional(),
     response: z.record(z.string(), z.unknown()).optional(),
   })
   .transform(d => ({
@@ -810,47 +804,39 @@ export const unmarshalOperationSchema: z.ZodType<Operation> = z
     response: d.response,
   }));
 
-export const unmarshalWorkspaceBaseEnvironmentSchema: z.ZodType<WorkspaceBaseEnvironment> =
-  z
-    .object({
-      name: z.string().optional(),
-      display_name: z.string().optional(),
-      filepath: z.string().optional(),
-      creator_user_id: z.string().optional(),
-      create_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      last_updated_user_id: z.string().optional(),
-      update_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      status: z.enum(WorkspaceBaseEnvironmentCache_Status).optional(),
-      message: z.string().optional(),
-      is_default: z.boolean().optional(),
-      base_environment_type: z.enum(BaseEnvironmentType).optional(),
-      base_environment_provider: z
-        .enum(WorkspaceBaseEnvironmentProvider)
-        .optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      displayName: d.display_name,
-      filepath: d.filepath,
-      creatorUserId: d.creator_user_id,
-      createTime: d.create_time,
-      lastUpdatedUserId: d.last_updated_user_id,
-      updateTime: d.update_time,
-      status: d.status,
-      message: d.message,
-      isDefault: d.is_default,
-      baseEnvironmentType: d.base_environment_type,
-      baseEnvironmentProvider: d.base_environment_provider,
-    }));
+export const unmarshalWorkspaceBaseEnvironmentSchema: z.ZodType<WorkspaceBaseEnvironment> = z
+  .object({
+    name: z.string().optional(),
+    display_name: z.string().optional(),
+    filepath: z.string().optional(),
+    creator_user_id: z.string().optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    last_updated_user_id: z.string().optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    status: z.enum(WorkspaceBaseEnvironmentCache_Status).optional(),
+    message: z.string().optional(),
+    is_default: z.boolean().optional(),
+    base_environment_type: z.enum(BaseEnvironmentType).optional(),
+    base_environment_provider: z.enum(WorkspaceBaseEnvironmentProvider).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    displayName: d.display_name,
+    filepath: d.filepath,
+    creatorUserId: d.creator_user_id,
+    createTime: d.create_time,
+    lastUpdatedUserId: d.last_updated_user_id,
+    updateTime: d.update_time,
+    status: d.status,
+    message: d.message,
+    isDefault: d.is_default,
+    baseEnvironmentType: d.base_environment_type,
+    baseEnvironmentProvider: d.base_environment_provider,
+  }));
 
-export const unmarshalWorkspaceBaseEnvironmentOperationMetadataSchema: z.ZodType<WorkspaceBaseEnvironmentOperationMetadata> =
-  z.object({});
+export const unmarshalWorkspaceBaseEnvironmentOperationMetadataSchema: z.ZodType<WorkspaceBaseEnvironmentOperationMetadata> = z
+  .object({
+  });
 
 export const marshalDefaultWorkspaceBaseEnvironmentSchema: z.ZodType = z
   .object({
@@ -878,22 +864,14 @@ export const marshalWorkspaceBaseEnvironmentSchema: z.ZodType = z
     displayName: z.string().optional(),
     filepath: z.string().optional(),
     creatorUserId: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     lastUpdatedUserId: z.string().optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     status: z.enum(WorkspaceBaseEnvironmentCache_Status).optional(),
     message: z.string().optional(),
     isDefault: z.boolean().optional(),
     baseEnvironmentType: z.enum(BaseEnvironmentType).optional(),
-    baseEnvironmentProvider: z
-      .enum(WorkspaceBaseEnvironmentProvider)
-      .optional(),
+    baseEnvironmentProvider: z.enum(WorkspaceBaseEnvironmentProvider).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -916,11 +894,6 @@ const defaultWorkspaceBaseEnvironmentFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
 };
 
-export function defaultWorkspaceBaseEnvironmentFieldMask(
-  ...paths: string[]
-): FieldMask<DefaultWorkspaceBaseEnvironment> {
-  return FieldMask.build<DefaultWorkspaceBaseEnvironment>(
-    paths,
-    defaultWorkspaceBaseEnvironmentFieldMaskSchema
-  );
+export function defaultWorkspaceBaseEnvironmentFieldMask(...paths: string[]): FieldMask<DefaultWorkspaceBaseEnvironment> {
+  return FieldMask.build<DefaultWorkspaceBaseEnvironment>(paths, defaultWorkspaceBaseEnvironmentFieldMaskSchema);
 }

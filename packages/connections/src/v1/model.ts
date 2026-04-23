@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 /** Next Id: 77 */
 export enum ConnectionType {
   UNKNOWN_CONNECTION_TYPE = 'UNKNOWN_CONNECTION_TYPE',
@@ -337,9 +338,7 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
     owner: z.string().optional(),
     read_only: z.boolean().optional(),
     comment: z.string().optional(),
-    environment_settings: z
-      .lazy(() => unmarshalEnvironmentSettingsSchema)
-      .optional(),
+    environment_settings: z.lazy(() => unmarshalEnvironmentSettingsSchema).optional(),
     full_name: z.string().optional(),
     url: z.string().optional(),
     credential_type: z.enum(CredentialType).optional(),
@@ -379,33 +378,30 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteConnection_ResponseSchema: z.ZodType<DeleteConnection_Response> =
-  z.object({});
+export const unmarshalDeleteConnection_ResponseSchema: z.ZodType<DeleteConnection_Response> = z
+  .object({
+  });
 
-export const unmarshalEnvironmentSettingsSchema: z.ZodType<EnvironmentSettings> =
-  z
-    .object({
-      java_dependencies: z.array(z.string()).optional(),
-      environment_version: z.string().optional(),
-    })
-    .transform(d => ({
-      javaDependencies: d.java_dependencies,
-      environmentVersion: d.environment_version,
-    }));
+export const unmarshalEnvironmentSettingsSchema: z.ZodType<EnvironmentSettings> = z
+  .object({
+    java_dependencies: z.array(z.string()).optional(),
+    environment_version: z.string().optional(),
+  })
+  .transform(d => ({
+    javaDependencies: d.java_dependencies,
+    environmentVersion: d.environment_version,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListConnections_ResponseSchema: z.ZodType<ListConnections_Response> =
-  z
-    .object({
-      connections: z
-        .array(z.lazy(() => unmarshalConnectionInfoSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      connections: d.connections,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListConnections_ResponseSchema: z.ZodType<ListConnections_Response> = z
+  .object({
+    connections: z.array(z.lazy(() => unmarshalConnectionInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    connections: d.connections,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalProvisioningInfoSchema: z.ZodType<ProvisioningInfo> = z
   .object({
@@ -423,9 +419,7 @@ export const marshalCreateConnectionSchema: z.ZodType = z
     owner: z.string().optional(),
     readOnly: z.boolean().optional(),
     comment: z.string().optional(),
-    environmentSettings: z
-      .lazy(() => marshalEnvironmentSettingsSchema)
-      .optional(),
+    environmentSettings: z.lazy(() => marshalEnvironmentSettingsSchema).optional(),
     fullName: z.string().optional(),
     url: z.string().optional(),
     credentialType: z.enum(CredentialType).optional(),
@@ -492,9 +486,7 @@ export const marshalUpdateConnectionSchema: z.ZodType = z
     owner: z.string().optional(),
     readOnly: z.boolean().optional(),
     comment: z.string().optional(),
-    environmentSettings: z
-      .lazy(() => marshalEnvironmentSettingsSchema)
-      .optional(),
+    environmentSettings: z.lazy(() => marshalEnvironmentSettingsSchema).optional(),
     fullName: z.string().optional(),
     url: z.string().optional(),
     credentialType: z.enum(CredentialType).optional(),

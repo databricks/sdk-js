@@ -4,6 +4,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 /** Auto-tagging mode. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum AutoTaggingConfig_AutoTaggingMode {
@@ -83,7 +84,7 @@ export interface GetCatalogConfigRequest {
 
 /**
  * Request to update the Data Classification configuration for a catalog.
- *
+ * 
  * Uses field mask to support partial updates of the configuration.
  * Only the fields specified in the update_mask will be modified.
  */
@@ -110,15 +111,9 @@ export const unmarshalAutoTaggingConfigSchema: z.ZodType<AutoTaggingConfig> = z
 export const unmarshalCatalogConfigSchema: z.ZodType<CatalogConfig> = z
   .object({
     name: z.string().optional(),
-    included_schemas: z
-      .lazy(() => unmarshalCatalogConfig_SchemaNamesSchema)
-      .optional(),
-    auto_tag_configs: z
-      .array(z.lazy(() => unmarshalAutoTaggingConfigSchema))
-      .optional(),
-    effective_auto_tag_configs: z
-      .array(z.lazy(() => unmarshalAutoTaggingConfigSchema))
-      .optional(),
+    included_schemas: z.lazy(() => unmarshalCatalogConfig_SchemaNamesSchema).optional(),
+    auto_tag_configs: z.array(z.lazy(() => unmarshalAutoTaggingConfigSchema)).optional(),
+    effective_auto_tag_configs: z.array(z.lazy(() => unmarshalAutoTaggingConfigSchema)).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -128,14 +123,13 @@ export const unmarshalCatalogConfigSchema: z.ZodType<CatalogConfig> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCatalogConfig_SchemaNamesSchema: z.ZodType<CatalogConfig_SchemaNames> =
-  z
-    .object({
-      names: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      names: d.names,
-    }));
+export const unmarshalCatalogConfig_SchemaNamesSchema: z.ZodType<CatalogConfig_SchemaNames> = z
+  .object({
+    names: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    names: d.names,
+  }));
 
 export const marshalAutoTaggingConfigSchema: z.ZodType = z
   .object({
@@ -150,15 +144,9 @@ export const marshalAutoTaggingConfigSchema: z.ZodType = z
 export const marshalCatalogConfigSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    includedSchemas: z
-      .lazy(() => marshalCatalogConfig_SchemaNamesSchema)
-      .optional(),
-    autoTagConfigs: z
-      .array(z.lazy(() => marshalAutoTaggingConfigSchema))
-      .optional(),
-    effectiveAutoTagConfigs: z
-      .array(z.lazy(() => marshalAutoTaggingConfigSchema))
-      .optional(),
+    includedSchemas: z.lazy(() => marshalCatalogConfig_SchemaNamesSchema).optional(),
+    autoTagConfigs: z.array(z.lazy(() => marshalAutoTaggingConfigSchema)).optional(),
+    effectiveAutoTagConfigs: z.array(z.lazy(() => marshalAutoTaggingConfigSchema)).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -179,16 +167,11 @@ export const marshalCatalogConfig_SchemaNamesSchema: z.ZodType = z
 const catalogConfigFieldMaskSchema: FieldMaskSchema = {
   autoTagConfigs: {wire: 'auto_tag_configs'},
   effectiveAutoTagConfigs: {wire: 'effective_auto_tag_configs'},
-  includedSchemas: {
-    wire: 'included_schemas',
-    children: () => catalogConfig_SchemaNamesFieldMaskSchema,
-  },
+  includedSchemas: {wire: 'included_schemas', children: () => catalogConfig_SchemaNamesFieldMaskSchema},
   name: {wire: 'name'},
 };
 
-export function catalogConfigFieldMask(
-  ...paths: string[]
-): FieldMask<CatalogConfig> {
+export function catalogConfigFieldMask(...paths: string[]): FieldMask<CatalogConfig> {
   return FieldMask.build<CatalogConfig>(paths, catalogConfigFieldMaskSchema);
 }
 

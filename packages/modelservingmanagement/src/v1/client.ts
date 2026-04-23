@@ -7,13 +7,7 @@ import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {
-  buildHttpRequest,
-  executeHttpCall,
-  sendAndCheckError,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeHttpCall, sendAndCheckError, marshalRequest, parseResponse} from './utils';
 import type {
   CreateInferenceEndpoint,
   CreatePtEndpoint,
@@ -75,21 +69,14 @@ export class Client {
   }
 
   /** Create a new serving endpoint. */
-  async createInferenceEndpoint(
-    signal: AbortSignal | undefined,
-    req: CreateInferenceEndpoint,
-    options?: Options
-  ): Promise<InferenceEndpointDetailed> {
+  async createInferenceEndpoint(signal: AbortSignal | undefined, req: CreateInferenceEndpoint, options?: Options): Promise<InferenceEndpointDetailed> {
     const url = `${this.host}/api/2.0/serving-endpoints`;
     const body = marshalRequest(req, marshalCreateInferenceEndpointSchema);
     let resp: InferenceEndpointDetailed | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalInferenceEndpointDetailedSchema);
     };
     await execute(signal, call, options);
@@ -99,34 +86,32 @@ export class Client {
     return resp;
   }
 
-  async createInferenceEndpointWaiter(
+async createInferenceEndpointWaiter(
     signal: AbortSignal | undefined,
     req: CreateInferenceEndpoint,
     options?: Options
   ): Promise<CreateInferenceEndpointWaiter> {
     await this.createInferenceEndpoint(signal, req, options);
     if (req.name === undefined) {
-      throw new Error('request field name required for polling is missing');
+      throw new Error(
+        'request field name required for polling is missing'
+      );
     }
-    return new CreateInferenceEndpointWaiter(this, req.name);
+    return new CreateInferenceEndpointWaiter(
+      this,
+      req.name,
+    );
   }
 
   /** Create a new PT serving endpoint. */
-  async createProvisionedThroughputInferenceEndpoint(
-    signal: AbortSignal | undefined,
-    req: CreatePtEndpoint,
-    options?: Options
-  ): Promise<InferenceEndpointDetailed> {
+  async createProvisionedThroughputInferenceEndpoint(signal: AbortSignal | undefined, req: CreatePtEndpoint, options?: Options): Promise<InferenceEndpointDetailed> {
     const url = `${this.host}/api/2.0/serving-endpoints/pt`;
     const body = marshalRequest(req, marshalCreatePtEndpointSchema);
     let resp: InferenceEndpointDetailed | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalInferenceEndpointDetailedSchema);
     };
     await execute(signal, call, options);
@@ -136,44 +121,32 @@ export class Client {
     return resp;
   }
 
-  async createProvisionedThroughputInferenceEndpointWaiter(
+async createProvisionedThroughputInferenceEndpointWaiter(
     signal: AbortSignal | undefined,
     req: CreatePtEndpoint,
     options?: Options
   ): Promise<CreateProvisionedThroughputInferenceEndpointWaiter> {
-    await this.createProvisionedThroughputInferenceEndpoint(
-      signal,
-      req,
-      options
-    );
+    await this.createProvisionedThroughputInferenceEndpoint(signal, req, options);
     if (req.name === undefined) {
-      throw new Error('request field name required for polling is missing');
+      throw new Error(
+        'request field name required for polling is missing'
+      );
     }
     return new CreateProvisionedThroughputInferenceEndpointWaiter(
       this,
-      req.name
+      req.name,
     );
   }
 
   /** Delete a serving endpoint. */
-  async deleteInferenceEndpoint(
-    signal: AbortSignal | undefined,
-    req: DeleteInferenceEndpoint,
-    options?: Options
-  ): Promise<DeleteInferenceEndpoint_Response> {
+  async deleteInferenceEndpoint(signal: AbortSignal | undefined, req: DeleteInferenceEndpoint, options?: Options): Promise<DeleteInferenceEndpoint_Response> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}`;
     let resp: DeleteInferenceEndpoint_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteInferenceEndpoint_ResponseSchema
-      );
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteInferenceEndpoint_ResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -183,20 +156,13 @@ export class Client {
   }
 
   /** Retrieves the details for a single serving endpoint. */
-  async getInferenceEndpoint(
-    signal: AbortSignal | undefined,
-    req: GetInferenceEndpoint,
-    options?: Options
-  ): Promise<InferenceEndpointDetailed> {
+  async getInferenceEndpoint(signal: AbortSignal | undefined, req: GetInferenceEndpoint, options?: Options): Promise<InferenceEndpointDetailed> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}`;
     let resp: InferenceEndpointDetailed | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalInferenceEndpointDetailedSchema);
     };
     await execute(signal, call, options);
@@ -207,20 +173,13 @@ export class Client {
   }
 
   /** Get the query schema of the serving endpoint in OpenAPI format. The schema contains information for the supported paths, input and output format and datatypes. */
-  async getInferenceEndpointSchema(
-    signal: AbortSignal | undefined,
-    req: GetInferenceEndpointSchema,
-    options?: Options
-  ): Promise<GetOpenApiResponse> {
+  async getInferenceEndpointSchema(signal: AbortSignal | undefined, req: GetInferenceEndpointSchema, options?: Options): Promise<GetOpenApiResponse> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/openapi`;
     let resp: GetOpenApiResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
-      const httpResp = await sendAndCheckError({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const httpResp = await sendAndCheckError({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = {
         contents: httpResp.body ?? undefined,
       };
@@ -233,24 +192,14 @@ export class Client {
   }
 
   /** Get all serving endpoints. */
-  async listInferenceEndpoints(
-    signal: AbortSignal | undefined,
-    _req: ListInferenceEndpoints,
-    options?: Options
-  ): Promise<ListInferenceEndpoints_Response> {
+  async listInferenceEndpoints(signal: AbortSignal | undefined, _req: ListInferenceEndpoints, options?: Options): Promise<ListInferenceEndpoints_Response> {
     const url = `${this.host}/api/2.0/serving-endpoints`;
     let resp: ListInferenceEndpoints_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListInferenceEndpoints_ResponseSchema
-      );
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListInferenceEndpoints_ResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -260,25 +209,15 @@ export class Client {
   }
 
   /** Used to batch add and delete tags from a serving endpoint with a single API call. */
-  async patchInferenceEndpointTags(
-    signal: AbortSignal | undefined,
-    req: PatchInferenceEndpointTags,
-    options?: Options
-  ): Promise<PatchInferenceEndpointTags_Response> {
+  async patchInferenceEndpointTags(signal: AbortSignal | undefined, req: PatchInferenceEndpointTags, options?: Options): Promise<PatchInferenceEndpointTags_Response> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/tags`;
     const body = marshalRequest(req, marshalPatchInferenceEndpointTagsSchema);
     let resp: PatchInferenceEndpointTags_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PATCH', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalPatchInferenceEndpointTags_ResponseSchema
-      );
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalPatchInferenceEndpointTags_ResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -288,28 +227,15 @@ export class Client {
   }
 
   /** Used to update the AI Gateway of a serving endpoint. NOTE: External model, provisioned throughput, and pay-per-token endpoints are fully supported; agent endpoints currently only support inference tables. */
-  async putInferenceEndpointAiGateway(
-    signal: AbortSignal | undefined,
-    req: PutInferenceEndpointAiGateway,
-    options?: Options
-  ): Promise<PutInferenceEndpointAiGateway_Response> {
+  async putInferenceEndpointAiGateway(signal: AbortSignal | undefined, req: PutInferenceEndpointAiGateway, options?: Options): Promise<PutInferenceEndpointAiGateway_Response> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/ai-gateway`;
-    const body = marshalRequest(
-      req,
-      marshalPutInferenceEndpointAiGatewaySchema
-    );
+    const body = marshalRequest(req, marshalPutInferenceEndpointAiGatewaySchema);
     let resp: PutInferenceEndpointAiGateway_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PUT', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalPutInferenceEndpointAiGateway_ResponseSchema
-      );
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalPutInferenceEndpointAiGateway_ResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -319,21 +245,14 @@ export class Client {
   }
 
   /** Updates any combination of the serving endpoint's served entities, the compute configuration of those served entities, and the endpoint's traffic config. An endpoint that already has an update in progress can not be updated until the current update completes or fails. */
-  async putInferenceEndpointConfig(
-    signal: AbortSignal | undefined,
-    req: PutInferenceEndpointConfig,
-    options?: Options
-  ): Promise<InferenceEndpointDetailed> {
+  async putInferenceEndpointConfig(signal: AbortSignal | undefined, req: PutInferenceEndpointConfig, options?: Options): Promise<InferenceEndpointDetailed> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/config`;
     const body = marshalRequest(req, marshalPutInferenceEndpointConfigSchema);
     let resp: InferenceEndpointDetailed | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PUT', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalInferenceEndpointDetailedSchema);
     };
     await execute(signal, call, options);
@@ -343,41 +262,33 @@ export class Client {
     return resp;
   }
 
-  async putInferenceEndpointConfigWaiter(
+async putInferenceEndpointConfigWaiter(
     signal: AbortSignal | undefined,
     req: PutInferenceEndpointConfig,
     options?: Options
   ): Promise<PutInferenceEndpointConfigWaiter> {
     await this.putInferenceEndpointConfig(signal, req, options);
     if (req.name === undefined) {
-      throw new Error('request field name required for polling is missing');
+      throw new Error(
+        'request field name required for polling is missing'
+      );
     }
-    return new PutInferenceEndpointConfigWaiter(this, req.name);
+    return new PutInferenceEndpointConfigWaiter(
+      this,
+      req.name,
+    );
   }
 
   /** Deprecated: Please use AI Gateway to manage rate limits instead. */
-  async putInferenceEndpointRateLimits(
-    signal: AbortSignal | undefined,
-    req: PutInferenceEndpointRateLimits,
-    options?: Options
-  ): Promise<PutInferenceEndpointRateLimits_Response> {
+  async putInferenceEndpointRateLimits(signal: AbortSignal | undefined, req: PutInferenceEndpointRateLimits, options?: Options): Promise<PutInferenceEndpointRateLimits_Response> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/rate-limits`;
-    const body = marshalRequest(
-      req,
-      marshalPutInferenceEndpointRateLimitsSchema
-    );
+    const body = marshalRequest(req, marshalPutInferenceEndpointRateLimitsSchema);
     let resp: PutInferenceEndpointRateLimits_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PUT', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalPutInferenceEndpointRateLimits_ResponseSchema
-      );
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalPutInferenceEndpointRateLimits_ResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -387,21 +298,14 @@ export class Client {
   }
 
   /** Updates any combination of the pt endpoint's served entities, the compute configuration of those served entities, and the endpoint's traffic config. Updates are instantaneous and endpoint should be updated instantly */
-  async putProvisionedThroughputInferenceEndpointConfig(
-    signal: AbortSignal | undefined,
-    req: PutPtEndpointConfig,
-    options?: Options
-  ): Promise<InferenceEndpointDetailed> {
+  async putProvisionedThroughputInferenceEndpointConfig(signal: AbortSignal | undefined, req: PutPtEndpointConfig, options?: Options): Promise<InferenceEndpointDetailed> {
     const url = `${this.host}/api/2.0/serving-endpoints/pt/${req.name ?? ''}/config`;
     const body = marshalRequest(req, marshalPutPtEndpointConfigSchema);
     let resp: InferenceEndpointDetailed | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PUT', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalInferenceEndpointDetailedSchema);
     };
     await execute(signal, call, options);
@@ -411,48 +315,33 @@ export class Client {
     return resp;
   }
 
-  async putProvisionedThroughputInferenceEndpointConfigWaiter(
+async putProvisionedThroughputInferenceEndpointConfigWaiter(
     signal: AbortSignal | undefined,
     req: PutPtEndpointConfig,
     options?: Options
   ): Promise<PutProvisionedThroughputInferenceEndpointConfigWaiter> {
-    await this.putProvisionedThroughputInferenceEndpointConfig(
-      signal,
-      req,
-      options
-    );
+    await this.putProvisionedThroughputInferenceEndpointConfig(signal, req, options);
     if (req.name === undefined) {
-      throw new Error('request field name required for polling is missing');
+      throw new Error(
+        'request field name required for polling is missing'
+      );
     }
     return new PutProvisionedThroughputInferenceEndpointConfigWaiter(
       this,
-      req.name
+      req.name,
     );
   }
 
   /** Updates the email and webhook notification settings for an endpoint. */
-  async updateInferenceEndpointNotifications(
-    signal: AbortSignal | undefined,
-    req: UpdateInferenceEndpointNotifications,
-    options?: Options
-  ): Promise<UpdateInferenceEndpointNotifications_Response> {
+  async updateInferenceEndpointNotifications(signal: AbortSignal | undefined, req: UpdateInferenceEndpointNotifications, options?: Options): Promise<UpdateInferenceEndpointNotifications_Response> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/notifications`;
-    const body = marshalRequest(
-      req,
-      marshalUpdateInferenceEndpointNotificationsSchema
-    );
+    const body = marshalRequest(req, marshalUpdateInferenceEndpointNotificationsSchema);
     let resp: UpdateInferenceEndpointNotifications_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PATCH', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdateInferenceEndpointNotifications_ResponseSchema
-      );
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalUpdateInferenceEndpointNotifications_ResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -462,21 +351,14 @@ export class Client {
   }
 
   /** Make external services call using the credentials stored in UC Connection. */
-  async httpRequest(
-    signal: AbortSignal | undefined,
-    req: ExternalFunctionRequest,
-    options?: Options
-  ): Promise<ExternalFunctionResponse> {
+  async httpRequest(signal: AbortSignal | undefined, req: ExternalFunctionRequest, options?: Options): Promise<ExternalFunctionResponse> {
     const url = `${this.host}/api/2.0/external-function`;
     const body = marshalRequest(req, marshalExternalFunctionRequestSchema);
     let resp: ExternalFunctionResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const httpResp = await sendAndCheckError({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const httpResp = await sendAndCheckError({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = {
         contents: httpResp.body ?? undefined,
       };
@@ -492,7 +374,7 @@ export class Client {
 export class CreateInferenceEndpointWaiter {
   constructor(
     private readonly client: Client,
-    readonly name: string
+    readonly name: string,
   ) {}
 
   /**
@@ -525,7 +407,8 @@ export class CreateInferenceEndpointWaiter {
           result = pollResp;
           return;
         case InferenceEndpointState_ConfigUpdateState.UPDATE_FAILED:
-        case InferenceEndpointState_ConfigUpdateState.UPDATE_CANCELED: {
+        case InferenceEndpointState_ConfigUpdateState.UPDATE_CANCELED:
+        {
           const msg = '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }
@@ -579,7 +462,7 @@ export class CreateInferenceEndpointWaiter {
 export class CreateProvisionedThroughputInferenceEndpointWaiter {
   constructor(
     private readonly client: Client,
-    readonly name: string
+    readonly name: string,
   ) {}
 
   /**
@@ -612,7 +495,8 @@ export class CreateProvisionedThroughputInferenceEndpointWaiter {
           result = pollResp;
           return;
         case InferenceEndpointState_ConfigUpdateState.UPDATE_FAILED:
-        case InferenceEndpointState_ConfigUpdateState.UPDATE_CANCELED: {
+        case InferenceEndpointState_ConfigUpdateState.UPDATE_CANCELED:
+        {
           const msg = '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }
@@ -666,7 +550,7 @@ export class CreateProvisionedThroughputInferenceEndpointWaiter {
 export class PutInferenceEndpointConfigWaiter {
   constructor(
     private readonly client: Client,
-    readonly name: string
+    readonly name: string,
   ) {}
 
   /**
@@ -699,7 +583,8 @@ export class PutInferenceEndpointConfigWaiter {
           result = pollResp;
           return;
         case InferenceEndpointState_ConfigUpdateState.UPDATE_FAILED:
-        case InferenceEndpointState_ConfigUpdateState.UPDATE_CANCELED: {
+        case InferenceEndpointState_ConfigUpdateState.UPDATE_CANCELED:
+        {
           const msg = '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }
@@ -753,7 +638,7 @@ export class PutInferenceEndpointConfigWaiter {
 export class PutProvisionedThroughputInferenceEndpointConfigWaiter {
   constructor(
     private readonly client: Client,
-    readonly name: string
+    readonly name: string,
   ) {}
 
   /**
@@ -786,7 +671,8 @@ export class PutProvisionedThroughputInferenceEndpointConfigWaiter {
           result = pollResp;
           return;
         case InferenceEndpointState_ConfigUpdateState.UPDATE_FAILED:
-        case InferenceEndpointState_ConfigUpdateState.UPDATE_CANCELED: {
+        case InferenceEndpointState_ConfigUpdateState.UPDATE_CANCELED:
+        {
           const msg = '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }

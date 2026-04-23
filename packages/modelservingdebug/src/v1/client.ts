@@ -7,12 +7,7 @@ import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {
-  buildHttpRequest,
-  executeHttpCall,
-  sendAndCheckError,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeHttpCall, sendAndCheckError, parseResponse} from './utils';
 import type {
   ExportMetricsResponse,
   GetExportEndpointMetrics,
@@ -41,20 +36,13 @@ export class Client {
   }
 
   /** Retrieves the metrics associated with the provided serving endpoint in either Prometheus or OpenMetrics exposition format. */
-  async getExportEndpointMetrics(
-    signal: AbortSignal | undefined,
-    req: GetExportEndpointMetrics,
-    options?: Options
-  ): Promise<ExportMetricsResponse> {
+  async getExportEndpointMetrics(signal: AbortSignal | undefined, req: GetExportEndpointMetrics, options?: Options): Promise<ExportMetricsResponse> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/metrics`;
     let resp: ExportMetricsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
-      const httpResp = await sendAndCheckError({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const httpResp = await sendAndCheckError({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = {
         contents: httpResp.body ?? undefined,
       };
@@ -67,24 +55,14 @@ export class Client {
   }
 
   /** Retrieves the build logs associated with the provided served model. */
-  async getServedModelBuildLogs(
-    signal: AbortSignal | undefined,
-    req: GetServedModelBuildLogs,
-    options?: Options
-  ): Promise<GetServedModelBuildLogs_Response> {
+  async getServedModelBuildLogs(signal: AbortSignal | undefined, req: GetServedModelBuildLogs, options?: Options): Promise<GetServedModelBuildLogs_Response> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/served-models/${req.servedModelName ?? ''}/build-logs`;
     let resp: GetServedModelBuildLogs_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetServedModelBuildLogs_ResponseSchema
-      );
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetServedModelBuildLogs_ResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {
@@ -94,24 +72,14 @@ export class Client {
   }
 
   /** Retrieves the service logs associated with the provided served model. */
-  async getServedModelLogs(
-    signal: AbortSignal | undefined,
-    req: GetServedModelLogs,
-    options?: Options
-  ): Promise<GetServedModelLogs_Response> {
+  async getServedModelLogs(signal: AbortSignal | undefined, req: GetServedModelLogs, options?: Options): Promise<GetServedModelLogs_Response> {
     const url = `${this.host}/api/2.0/serving-endpoints/${req.name ?? ''}/served-models/${req.servedModelName ?? ''}/logs`;
     let resp: GetServedModelLogs_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetServedModelLogs_ResponseSchema
-      );
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetServedModelLogs_ResponseSchema);
     };
     await execute(signal, call, options);
     if (resp === undefined) {

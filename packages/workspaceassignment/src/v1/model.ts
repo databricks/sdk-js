@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export enum Permission {
   UNKNOWN = 'UNKNOWN',
   /** The most basic workspace permission */
@@ -111,36 +112,31 @@ export interface WorkspacePermissionAssignmentOutput {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteWorkspacePermissionAssignment_ResponseSchema: z.ZodType<DeleteWorkspacePermissionAssignment_Response> =
-  z.object({});
+export const unmarshalDeleteWorkspacePermissionAssignment_ResponseSchema: z.ZodType<DeleteWorkspacePermissionAssignment_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetWorkspacePermissionAssignments_ResponseSchema: z.ZodType<GetWorkspacePermissionAssignments_Response> =
-  z
-    .object({
-      permission_assignments: z
-        .array(z.lazy(() => unmarshalWorkspacePermissionAssignmentOutputSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-      prev_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      permissionAssignments: d.permission_assignments,
-      nextPageToken: d.next_page_token,
-      prevPageToken: d.prev_page_token,
-    }));
+export const unmarshalGetWorkspacePermissionAssignments_ResponseSchema: z.ZodType<GetWorkspacePermissionAssignments_Response> = z
+  .object({
+    permission_assignments: z.array(z.lazy(() => unmarshalWorkspacePermissionAssignmentOutputSchema)).optional(),
+    next_page_token: z.string().optional(),
+    prev_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    permissionAssignments: d.permission_assignments,
+    nextPageToken: d.next_page_token,
+    prevPageToken: d.prev_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListWorkspacePermissions_ResponseSchema: z.ZodType<ListWorkspacePermissions_Response> =
-  z
-    .object({
-      permissions: z
-        .array(z.lazy(() => unmarshalPermissionOutputSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      permissions: d.permissions,
-    }));
+export const unmarshalListWorkspacePermissions_ResponseSchema: z.ZodType<ListWorkspacePermissions_Response> = z
+  .object({
+    permissions: z.array(z.lazy(() => unmarshalPermissionOutputSchema)).optional(),
+  })
+  .transform(d => ({
+    permissions: d.permissions,
+  }));
 
 export const unmarshalPermissionOutputSchema: z.ZodType<PermissionOutput> = z
   .object({
@@ -168,18 +164,17 @@ export const unmarshalPrincipalOutputSchema: z.ZodType<PrincipalOutput> = z
     displayName: d.display_name,
   }));
 
-export const unmarshalWorkspacePermissionAssignmentOutputSchema: z.ZodType<WorkspacePermissionAssignmentOutput> =
-  z
-    .object({
-      principal: z.lazy(() => unmarshalPrincipalOutputSchema).optional(),
-      permissions: z.array(z.enum(Permission)).optional(),
-      error: z.string().optional(),
-    })
-    .transform(d => ({
-      principal: d.principal,
-      permissions: d.permissions,
-      error: d.error,
-    }));
+export const unmarshalWorkspacePermissionAssignmentOutputSchema: z.ZodType<WorkspacePermissionAssignmentOutput> = z
+  .object({
+    principal: z.lazy(() => unmarshalPrincipalOutputSchema).optional(),
+    permissions: z.array(z.enum(Permission)).optional(),
+    error: z.string().optional(),
+  })
+  .transform(d => ({
+    principal: d.principal,
+    permissions: d.permissions,
+    error: d.error,
+  }));
 
 export const marshalUpdateWorkspacePermissionAssignmentSchema: z.ZodType = z
   .object({

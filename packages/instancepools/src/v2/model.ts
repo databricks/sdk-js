@@ -2,9 +2,10 @@
 
 import {z} from 'zod';
 
+
 /**
  * Availability type used for all subsequent nodes past the `first_on_demand` ones.
- *
+ * 
  * Note: If `first_on_demand` is zero, this availability type will be used for the entire cluster.
  */
 export enum AwsAvailability {
@@ -69,7 +70,7 @@ export enum GcpAvailability {
 
 /**
  * The state of a Cluster. The current allowable state transitions are as follows:
- *
+ * 
  * - ``ACTIVE`` -> ``STOPPED``
  * - ``ACTIVE`` -> ``DELETED``
  * - ``STOPPED`` -> ``ACTIVE``
@@ -116,7 +117,7 @@ export interface CreateInstancePool {
   /**
    * Additional tags for pool resources. <Databricks> will tag all pool resources (e.g., AWS
    * instances and EBS volumes) with these tags in addition to `default_tags`. Notes:
-   *
+   * 
    * - Currently, <Databricks> allows at most 45 custom tags
    */
   customTags?: Record<string, string> | undefined;
@@ -216,15 +217,15 @@ export interface DiskSpec {
    * - Users can choose up to the limit of the disks supported by the node type.
    * - For node types with no OS disk, at least one disk must be specified;
    * otherwise, cluster creation will fail.
-   *
+   * 
    * If disks are attached, <Databricks> will configure Spark to use only the disks for
    * scratch storage, because heterogenously sized scratch devices can lead to inefficient disk
    * utilization. If no disks are attached, <Databricks> will configure Spark to use
    * instance store disks.
-   *
+   * 
    * Note: If disks are specified, then the Spark configuration
    * `spark.local.dir` will be overridden.
-   *
+   * 
    * Disks will be mounted at:
    * - For AWS: `/ebs0`, `/ebs1`, and etc.
    * - For Azure: `/remote_volume0`, `/remote_volume1`, and etc.
@@ -233,11 +234,11 @@ export interface DiskSpec {
   /**
    * The size of each disk (in GiB) launched for each instance.
    * Values must fall into the supported range for a particular instance type.
-   *
+   * 
    * For AWS:
    * - General Purpose SSD: 100 - 4096 GiB
    * - Throughput Optimized HDD: 500 - 4096 GiB
-   *
+   * 
    * For Azure:
    * - Premium LRS (SSD): 1 - 1023 GiB
    * - Standard LRS (HDD): 1- 1023 GiB
@@ -298,7 +299,7 @@ export interface EditInstancePool {
   /**
    * Additional tags for pool resources. <Databricks> will tag all pool resources (e.g., AWS
    * instances and EBS volumes) with these tags in addition to `default_tags`. Notes:
-   *
+   * 
    * - Currently, <Databricks> allows at most 45 custom tags
    */
   customTags?: Record<string, string> | undefined;
@@ -387,13 +388,13 @@ export interface GetInstancePool_Response {
   instancePoolId?: string | undefined;
   /**
    * Tags that are added by <Databricks> regardless of any ``custom_tags``, including:
-   *
+   * 
    * - Vendor: <Databricks>
-   *
+   * 
    * - InstancePoolCreator: <user_id_of_creator>
-   *
+   * 
    * - InstancePoolName: <name_of_pool>
-   *
+   * 
    * - InstancePoolId: <id_of_pool>
    */
   defaultTags?: Record<string, string> | undefined;
@@ -427,7 +428,7 @@ export interface GetInstancePool_Response {
   /**
    * Additional tags for pool resources. <Databricks> will tag all pool resources (e.g., AWS
    * instances and EBS volumes) with these tags in addition to `default_tags`. Notes:
-   *
+   * 
    * - Currently, <Databricks> allows at most 45 custom tags
    */
   customTags?: Record<string, string> | undefined;
@@ -523,13 +524,13 @@ export interface InstancePoolAndStats {
   instancePoolId?: string | undefined;
   /**
    * Tags that are added by <Databricks> regardless of any ``custom_tags``, including:
-   *
+   * 
    * - Vendor: <Databricks>
-   *
+   * 
    * - InstancePoolCreator: <user_id_of_creator>
-   *
+   * 
    * - InstancePoolName: <name_of_pool>
-   *
+   * 
    * - InstancePoolId: <id_of_pool>
    */
   defaultTags?: Record<string, string> | undefined;
@@ -563,7 +564,7 @@ export interface InstancePoolAndStats {
   /**
    * Additional tags for pool resources. <Databricks> will tag all pool resources (e.g., AWS
    * instances and EBS volumes) with these tags in addition to `default_tags`. Notes:
-   *
+   * 
    * - Currently, <Databricks> allows at most 45 custom tags
    */
   customTags?: Record<string, string> | undefined;
@@ -682,7 +683,7 @@ export interface InstancePoolAwsAttributes {
    * pool will inherit the instance profile, and must not specify their own instance profile on cluster creation or
    * update. If the pool does not specify an instance profile, clusters using the pool may specify any instance profile.
    * The instance profile must have previously been added to the <Databricks> environment by an account administrator.
-   *
+   * 
    * This feature may only be available to certain customer plans.
    */
   instanceProfileArn?: string | undefined;
@@ -717,11 +718,11 @@ export interface InstancePoolGcpAttributes {
    * zone must be in the same region as the <Databricks> workspace. For example, "us-west1-a"
    * is not a valid zone id if the <Databricks> workspace resides in the "us-east1" region.
    * This is an optional field at instance pool creation, and if not specified, a default zone will be used.
-   *
+   * 
    * This field can be one of the following:
    * - "HA" => High availability, spread nodes across availability zones for a <Databricks> deployment region
    * - A GCP availability zone => Pick One of the available zones for (machine type + region) from https://cloud.google.com/compute/docs/regions-zones (e.g. "us-west1-a").
-   *
+   * 
    * If empty, <Databricks> picks an availability zone to schedule the cluster on.
    */
   zoneId?: string | undefined;
@@ -769,18 +770,18 @@ export interface PendingInstanceError {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateInstancePool_ResponseSchema: z.ZodType<CreateInstancePool_Response> =
-  z
-    .object({
-      instance_pool_id: z.string().optional(),
-    })
-    .transform(d => ({
-      instancePoolId: d.instance_pool_id,
-    }));
+export const unmarshalCreateInstancePool_ResponseSchema: z.ZodType<CreateInstancePool_Response> = z
+  .object({
+    instance_pool_id: z.string().optional(),
+  })
+  .transform(d => ({
+    instancePoolId: d.instance_pool_id,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteInstancePool_ResponseSchema: z.ZodType<DeleteInstancePool_Response> =
-  z.object({});
+export const unmarshalDeleteInstancePool_ResponseSchema: z.ZodType<DeleteInstancePool_Response> = z
+  .object({
+  });
 
 export const unmarshalDiskSpecSchema: z.ZodType<DiskSpec> = z
   .object({
@@ -829,172 +830,146 @@ export const unmarshalDockerImageSchema: z.ZodType<DockerImage> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEditInstancePool_ResponseSchema: z.ZodType<EditInstancePool_Response> =
-  z.object({});
+export const unmarshalEditInstancePool_ResponseSchema: z.ZodType<EditInstancePool_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetInstancePool_ResponseSchema: z.ZodType<GetInstancePool_Response> =
-  z
-    .object({
-      stats: z.lazy(() => unmarshalInstancePoolStatsSchema).optional(),
-      status: z.lazy(() => unmarshalInstancePoolStatusSchema).optional(),
-      instance_pool_id: z.string().optional(),
-      default_tags: z.record(z.string(), z.string()).optional(),
-      state: z.enum(InstancePoolState).optional(),
-      instance_pool_name: z.string().optional(),
-      min_idle_instances: z.number().optional(),
-      max_capacity: z.number().optional(),
-      aws_attributes: z
-        .lazy(() => unmarshalInstancePoolAwsAttributesSchema)
-        .optional(),
-      node_type_id: z.string().optional(),
-      custom_tags: z.record(z.string(), z.string()).optional(),
-      idle_instance_autotermination_minutes: z.number().optional(),
-      enable_elastic_disk: z.boolean().optional(),
-      disk_spec: z.lazy(() => unmarshalDiskSpecSchema).optional(),
-      preloaded_docker_images: z
-        .array(z.lazy(() => unmarshalDockerImageSchema))
-        .optional(),
-      preloaded_spark_versions: z.array(z.string()).optional(),
-      azure_attributes: z
-        .lazy(() => unmarshalInstancePoolAzureAttributesSchema)
-        .optional(),
-      gcp_attributes: z
-        .lazy(() => unmarshalInstancePoolGcpAttributesSchema)
-        .optional(),
-      node_type_flexibility: z
-        .lazy(() => unmarshalNodeTypeFlexibilitySchema)
-        .optional(),
-      enable_auto_alternate_node_types: z.boolean().optional(),
-      remote_disk_throughput: z.number().optional(),
-      total_initial_remote_disk_size: z.number().optional(),
-    })
-    .transform(d => ({
-      stats: d.stats,
-      status: d.status,
-      instancePoolId: d.instance_pool_id,
-      defaultTags: d.default_tags,
-      state: d.state,
-      instancePoolName: d.instance_pool_name,
-      minIdleInstances: d.min_idle_instances,
-      maxCapacity: d.max_capacity,
-      awsAttributes: d.aws_attributes,
-      nodeTypeId: d.node_type_id,
-      customTags: d.custom_tags,
-      idleInstanceAutoterminationMinutes:
-        d.idle_instance_autotermination_minutes,
-      enableElasticDisk: d.enable_elastic_disk,
-      diskSpec: d.disk_spec,
-      preloadedDockerImages: d.preloaded_docker_images,
-      preloadedSparkVersions: d.preloaded_spark_versions,
-      azureAttributes: d.azure_attributes,
-      gcpAttributes: d.gcp_attributes,
-      nodeTypeFlexibility: d.node_type_flexibility,
-      enableAutoAlternateNodeTypes: d.enable_auto_alternate_node_types,
-      remoteDiskThroughput: d.remote_disk_throughput,
-      totalInitialRemoteDiskSize: d.total_initial_remote_disk_size,
-    }));
+export const unmarshalGetInstancePool_ResponseSchema: z.ZodType<GetInstancePool_Response> = z
+  .object({
+    stats: z.lazy(() => unmarshalInstancePoolStatsSchema).optional(),
+    status: z.lazy(() => unmarshalInstancePoolStatusSchema).optional(),
+    instance_pool_id: z.string().optional(),
+    default_tags: z.record(z.string(), z.string()).optional(),
+    state: z.enum(InstancePoolState).optional(),
+    instance_pool_name: z.string().optional(),
+    min_idle_instances: z.number().optional(),
+    max_capacity: z.number().optional(),
+    aws_attributes: z.lazy(() => unmarshalInstancePoolAwsAttributesSchema).optional(),
+    node_type_id: z.string().optional(),
+    custom_tags: z.record(z.string(), z.string()).optional(),
+    idle_instance_autotermination_minutes: z.number().optional(),
+    enable_elastic_disk: z.boolean().optional(),
+    disk_spec: z.lazy(() => unmarshalDiskSpecSchema).optional(),
+    preloaded_docker_images: z.array(z.lazy(() => unmarshalDockerImageSchema)).optional(),
+    preloaded_spark_versions: z.array(z.string()).optional(),
+    azure_attributes: z.lazy(() => unmarshalInstancePoolAzureAttributesSchema).optional(),
+    gcp_attributes: z.lazy(() => unmarshalInstancePoolGcpAttributesSchema).optional(),
+    node_type_flexibility: z.lazy(() => unmarshalNodeTypeFlexibilitySchema).optional(),
+    enable_auto_alternate_node_types: z.boolean().optional(),
+    remote_disk_throughput: z.number().optional(),
+    total_initial_remote_disk_size: z.number().optional(),
+  })
+  .transform(d => ({
+    stats: d.stats,
+    status: d.status,
+    instancePoolId: d.instance_pool_id,
+    defaultTags: d.default_tags,
+    state: d.state,
+    instancePoolName: d.instance_pool_name,
+    minIdleInstances: d.min_idle_instances,
+    maxCapacity: d.max_capacity,
+    awsAttributes: d.aws_attributes,
+    nodeTypeId: d.node_type_id,
+    customTags: d.custom_tags,
+    idleInstanceAutoterminationMinutes: d.idle_instance_autotermination_minutes,
+    enableElasticDisk: d.enable_elastic_disk,
+    diskSpec: d.disk_spec,
+    preloadedDockerImages: d.preloaded_docker_images,
+    preloadedSparkVersions: d.preloaded_spark_versions,
+    azureAttributes: d.azure_attributes,
+    gcpAttributes: d.gcp_attributes,
+    nodeTypeFlexibility: d.node_type_flexibility,
+    enableAutoAlternateNodeTypes: d.enable_auto_alternate_node_types,
+    remoteDiskThroughput: d.remote_disk_throughput,
+    totalInitialRemoteDiskSize: d.total_initial_remote_disk_size,
+  }));
 
-export const unmarshalInstancePoolAndStatsSchema: z.ZodType<InstancePoolAndStats> =
-  z
-    .object({
-      stats: z.lazy(() => unmarshalInstancePoolStatsSchema).optional(),
-      status: z.lazy(() => unmarshalInstancePoolStatusSchema).optional(),
-      instance_pool_id: z.string().optional(),
-      default_tags: z.record(z.string(), z.string()).optional(),
-      state: z.enum(InstancePoolState).optional(),
-      instance_pool_name: z.string().optional(),
-      min_idle_instances: z.number().optional(),
-      max_capacity: z.number().optional(),
-      aws_attributes: z
-        .lazy(() => unmarshalInstancePoolAwsAttributesSchema)
-        .optional(),
-      node_type_id: z.string().optional(),
-      custom_tags: z.record(z.string(), z.string()).optional(),
-      idle_instance_autotermination_minutes: z.number().optional(),
-      enable_elastic_disk: z.boolean().optional(),
-      disk_spec: z.lazy(() => unmarshalDiskSpecSchema).optional(),
-      preloaded_docker_images: z
-        .array(z.lazy(() => unmarshalDockerImageSchema))
-        .optional(),
-      preloaded_spark_versions: z.array(z.string()).optional(),
-      azure_attributes: z
-        .lazy(() => unmarshalInstancePoolAzureAttributesSchema)
-        .optional(),
-      gcp_attributes: z
-        .lazy(() => unmarshalInstancePoolGcpAttributesSchema)
-        .optional(),
-      node_type_flexibility: z
-        .lazy(() => unmarshalNodeTypeFlexibilitySchema)
-        .optional(),
-      enable_auto_alternate_node_types: z.boolean().optional(),
-      remote_disk_throughput: z.number().optional(),
-      total_initial_remote_disk_size: z.number().optional(),
-    })
-    .transform(d => ({
-      stats: d.stats,
-      status: d.status,
-      instancePoolId: d.instance_pool_id,
-      defaultTags: d.default_tags,
-      state: d.state,
-      instancePoolName: d.instance_pool_name,
-      minIdleInstances: d.min_idle_instances,
-      maxCapacity: d.max_capacity,
-      awsAttributes: d.aws_attributes,
-      nodeTypeId: d.node_type_id,
-      customTags: d.custom_tags,
-      idleInstanceAutoterminationMinutes:
-        d.idle_instance_autotermination_minutes,
-      enableElasticDisk: d.enable_elastic_disk,
-      diskSpec: d.disk_spec,
-      preloadedDockerImages: d.preloaded_docker_images,
-      preloadedSparkVersions: d.preloaded_spark_versions,
-      azureAttributes: d.azure_attributes,
-      gcpAttributes: d.gcp_attributes,
-      nodeTypeFlexibility: d.node_type_flexibility,
-      enableAutoAlternateNodeTypes: d.enable_auto_alternate_node_types,
-      remoteDiskThroughput: d.remote_disk_throughput,
-      totalInitialRemoteDiskSize: d.total_initial_remote_disk_size,
-    }));
+export const unmarshalInstancePoolAndStatsSchema: z.ZodType<InstancePoolAndStats> = z
+  .object({
+    stats: z.lazy(() => unmarshalInstancePoolStatsSchema).optional(),
+    status: z.lazy(() => unmarshalInstancePoolStatusSchema).optional(),
+    instance_pool_id: z.string().optional(),
+    default_tags: z.record(z.string(), z.string()).optional(),
+    state: z.enum(InstancePoolState).optional(),
+    instance_pool_name: z.string().optional(),
+    min_idle_instances: z.number().optional(),
+    max_capacity: z.number().optional(),
+    aws_attributes: z.lazy(() => unmarshalInstancePoolAwsAttributesSchema).optional(),
+    node_type_id: z.string().optional(),
+    custom_tags: z.record(z.string(), z.string()).optional(),
+    idle_instance_autotermination_minutes: z.number().optional(),
+    enable_elastic_disk: z.boolean().optional(),
+    disk_spec: z.lazy(() => unmarshalDiskSpecSchema).optional(),
+    preloaded_docker_images: z.array(z.lazy(() => unmarshalDockerImageSchema)).optional(),
+    preloaded_spark_versions: z.array(z.string()).optional(),
+    azure_attributes: z.lazy(() => unmarshalInstancePoolAzureAttributesSchema).optional(),
+    gcp_attributes: z.lazy(() => unmarshalInstancePoolGcpAttributesSchema).optional(),
+    node_type_flexibility: z.lazy(() => unmarshalNodeTypeFlexibilitySchema).optional(),
+    enable_auto_alternate_node_types: z.boolean().optional(),
+    remote_disk_throughput: z.number().optional(),
+    total_initial_remote_disk_size: z.number().optional(),
+  })
+  .transform(d => ({
+    stats: d.stats,
+    status: d.status,
+    instancePoolId: d.instance_pool_id,
+    defaultTags: d.default_tags,
+    state: d.state,
+    instancePoolName: d.instance_pool_name,
+    minIdleInstances: d.min_idle_instances,
+    maxCapacity: d.max_capacity,
+    awsAttributes: d.aws_attributes,
+    nodeTypeId: d.node_type_id,
+    customTags: d.custom_tags,
+    idleInstanceAutoterminationMinutes: d.idle_instance_autotermination_minutes,
+    enableElasticDisk: d.enable_elastic_disk,
+    diskSpec: d.disk_spec,
+    preloadedDockerImages: d.preloaded_docker_images,
+    preloadedSparkVersions: d.preloaded_spark_versions,
+    azureAttributes: d.azure_attributes,
+    gcpAttributes: d.gcp_attributes,
+    nodeTypeFlexibility: d.node_type_flexibility,
+    enableAutoAlternateNodeTypes: d.enable_auto_alternate_node_types,
+    remoteDiskThroughput: d.remote_disk_throughput,
+    totalInitialRemoteDiskSize: d.total_initial_remote_disk_size,
+  }));
 
-export const unmarshalInstancePoolAwsAttributesSchema: z.ZodType<InstancePoolAwsAttributes> =
-  z
-    .object({
-      availability: z.enum(AwsAvailability).optional(),
-      zone_id: z.string().optional(),
-      spot_bid_price_percent: z.number().optional(),
-      instance_profile_arn: z.string().optional(),
-    })
-    .transform(d => ({
-      availability: d.availability,
-      zoneId: d.zone_id,
-      spotBidPricePercent: d.spot_bid_price_percent,
-      instanceProfileArn: d.instance_profile_arn,
-    }));
+export const unmarshalInstancePoolAwsAttributesSchema: z.ZodType<InstancePoolAwsAttributes> = z
+  .object({
+    availability: z.enum(AwsAvailability).optional(),
+    zone_id: z.string().optional(),
+    spot_bid_price_percent: z.number().optional(),
+    instance_profile_arn: z.string().optional(),
+  })
+  .transform(d => ({
+    availability: d.availability,
+    zoneId: d.zone_id,
+    spotBidPricePercent: d.spot_bid_price_percent,
+    instanceProfileArn: d.instance_profile_arn,
+  }));
 
-export const unmarshalInstancePoolAzureAttributesSchema: z.ZodType<InstancePoolAzureAttributes> =
-  z
-    .object({
-      availability: z.enum(AzureAvailability).optional(),
-      spot_bid_max_price: z.number().optional(),
-    })
-    .transform(d => ({
-      availability: d.availability,
-      spotBidMaxPrice: d.spot_bid_max_price,
-    }));
+export const unmarshalInstancePoolAzureAttributesSchema: z.ZodType<InstancePoolAzureAttributes> = z
+  .object({
+    availability: z.enum(AzureAvailability).optional(),
+    spot_bid_max_price: z.number().optional(),
+  })
+  .transform(d => ({
+    availability: d.availability,
+    spotBidMaxPrice: d.spot_bid_max_price,
+  }));
 
-export const unmarshalInstancePoolGcpAttributesSchema: z.ZodType<InstancePoolGcpAttributes> =
-  z
-    .object({
-      gcp_availability: z.enum(GcpAvailability).optional(),
-      local_ssd_count: z.number().optional(),
-      zone_id: z.string().optional(),
-    })
-    .transform(d => ({
-      gcpAvailability: d.gcp_availability,
-      localSsdCount: d.local_ssd_count,
-      zoneId: d.zone_id,
-    }));
+export const unmarshalInstancePoolGcpAttributesSchema: z.ZodType<InstancePoolGcpAttributes> = z
+  .object({
+    gcp_availability: z.enum(GcpAvailability).optional(),
+    local_ssd_count: z.number().optional(),
+    zone_id: z.string().optional(),
+  })
+  .transform(d => ({
+    gcpAvailability: d.gcp_availability,
+    localSsdCount: d.local_ssd_count,
+    zoneId: d.zone_id,
+  }));
 
 export const unmarshalInstancePoolStatsSchema: z.ZodType<InstancePoolStats> = z
   .object({
@@ -1010,75 +985,57 @@ export const unmarshalInstancePoolStatsSchema: z.ZodType<InstancePoolStats> = z
     pendingIdleCount: d.pending_idle_count,
   }));
 
-export const unmarshalInstancePoolStatusSchema: z.ZodType<InstancePoolStatus> =
-  z
-    .object({
-      pending_instance_errors: z
-        .array(z.lazy(() => unmarshalPendingInstanceErrorSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      pendingInstanceErrors: d.pending_instance_errors,
-    }));
+export const unmarshalInstancePoolStatusSchema: z.ZodType<InstancePoolStatus> = z
+  .object({
+    pending_instance_errors: z.array(z.lazy(() => unmarshalPendingInstanceErrorSchema)).optional(),
+  })
+  .transform(d => ({
+    pendingInstanceErrors: d.pending_instance_errors,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListInstancePools_ResponseSchema: z.ZodType<ListInstancePools_Response> =
-  z
-    .object({
-      instance_pools: z
-        .array(z.lazy(() => unmarshalInstancePoolAndStatsSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      instancePools: d.instance_pools,
-    }));
+export const unmarshalListInstancePools_ResponseSchema: z.ZodType<ListInstancePools_Response> = z
+  .object({
+    instance_pools: z.array(z.lazy(() => unmarshalInstancePoolAndStatsSchema)).optional(),
+  })
+  .transform(d => ({
+    instancePools: d.instance_pools,
+  }));
 
-export const unmarshalNodeTypeFlexibilitySchema: z.ZodType<NodeTypeFlexibility> =
-  z
-    .object({
-      alternate_node_type_ids: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      alternateNodeTypeIds: d.alternate_node_type_ids,
-    }));
+export const unmarshalNodeTypeFlexibilitySchema: z.ZodType<NodeTypeFlexibility> = z
+  .object({
+    alternate_node_type_ids: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    alternateNodeTypeIds: d.alternate_node_type_ids,
+  }));
 
-export const unmarshalPendingInstanceErrorSchema: z.ZodType<PendingInstanceError> =
-  z
-    .object({
-      instance_id: z.string().optional(),
-      message: z.string().optional(),
-    })
-    .transform(d => ({
-      instanceId: d.instance_id,
-      message: d.message,
-    }));
+export const unmarshalPendingInstanceErrorSchema: z.ZodType<PendingInstanceError> = z
+  .object({
+    instance_id: z.string().optional(),
+    message: z.string().optional(),
+  })
+  .transform(d => ({
+    instanceId: d.instance_id,
+    message: d.message,
+  }));
 
 export const marshalCreateInstancePoolSchema: z.ZodType = z
   .object({
     instancePoolName: z.string().optional(),
     minIdleInstances: z.number().optional(),
     maxCapacity: z.number().optional(),
-    awsAttributes: z
-      .lazy(() => marshalInstancePoolAwsAttributesSchema)
-      .optional(),
+    awsAttributes: z.lazy(() => marshalInstancePoolAwsAttributesSchema).optional(),
     nodeTypeId: z.string().optional(),
     customTags: z.record(z.string(), z.string()).optional(),
     idleInstanceAutoterminationMinutes: z.number().optional(),
     enableElasticDisk: z.boolean().optional(),
     diskSpec: z.lazy(() => marshalDiskSpecSchema).optional(),
-    preloadedDockerImages: z
-      .array(z.lazy(() => marshalDockerImageSchema))
-      .optional(),
+    preloadedDockerImages: z.array(z.lazy(() => marshalDockerImageSchema)).optional(),
     preloadedSparkVersions: z.array(z.string()).optional(),
-    azureAttributes: z
-      .lazy(() => marshalInstancePoolAzureAttributesSchema)
-      .optional(),
-    gcpAttributes: z
-      .lazy(() => marshalInstancePoolGcpAttributesSchema)
-      .optional(),
-    nodeTypeFlexibility: z
-      .lazy(() => marshalNodeTypeFlexibilitySchema)
-      .optional(),
+    azureAttributes: z.lazy(() => marshalInstancePoolAzureAttributesSchema).optional(),
+    gcpAttributes: z.lazy(() => marshalInstancePoolGcpAttributesSchema).optional(),
+    nodeTypeFlexibility: z.lazy(() => marshalNodeTypeFlexibilitySchema).optional(),
     enableAutoAlternateNodeTypes: z.boolean().optional(),
     remoteDiskThroughput: z.number().optional(),
     totalInitialRemoteDiskSize: z.number().optional(),
@@ -1163,27 +1120,17 @@ export const marshalEditInstancePoolSchema: z.ZodType = z
     instancePoolName: z.string().optional(),
     minIdleInstances: z.number().optional(),
     maxCapacity: z.number().optional(),
-    awsAttributes: z
-      .lazy(() => marshalInstancePoolAwsAttributesSchema)
-      .optional(),
+    awsAttributes: z.lazy(() => marshalInstancePoolAwsAttributesSchema).optional(),
     nodeTypeId: z.string().optional(),
     customTags: z.record(z.string(), z.string()).optional(),
     idleInstanceAutoterminationMinutes: z.number().optional(),
     enableElasticDisk: z.boolean().optional(),
     diskSpec: z.lazy(() => marshalDiskSpecSchema).optional(),
-    preloadedDockerImages: z
-      .array(z.lazy(() => marshalDockerImageSchema))
-      .optional(),
+    preloadedDockerImages: z.array(z.lazy(() => marshalDockerImageSchema)).optional(),
     preloadedSparkVersions: z.array(z.string()).optional(),
-    azureAttributes: z
-      .lazy(() => marshalInstancePoolAzureAttributesSchema)
-      .optional(),
-    gcpAttributes: z
-      .lazy(() => marshalInstancePoolGcpAttributesSchema)
-      .optional(),
-    nodeTypeFlexibility: z
-      .lazy(() => marshalNodeTypeFlexibilitySchema)
-      .optional(),
+    azureAttributes: z.lazy(() => marshalInstancePoolAzureAttributesSchema).optional(),
+    gcpAttributes: z.lazy(() => marshalInstancePoolGcpAttributesSchema).optional(),
+    nodeTypeFlexibility: z.lazy(() => marshalNodeTypeFlexibilitySchema).optional(),
     enableAutoAlternateNodeTypes: z.boolean().optional(),
     remoteDiskThroughput: z.number().optional(),
     totalInitialRemoteDiskSize: z.number().optional(),

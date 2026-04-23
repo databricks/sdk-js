@@ -7,12 +7,7 @@ import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {
-  buildHttpRequest,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import type {
   ConnectionInfo,
   CreateConnection,
@@ -47,25 +42,18 @@ export class Client {
 
   /**
    * Creates a new connection
-   *
+   * 
    * Creates a new connection to an external data source. It allows users to specify connection details and
    * configurations for interaction with the external server.
    */
-  async createConnection(
-    signal: AbortSignal | undefined,
-    req: CreateConnection,
-    options?: Options
-  ): Promise<ConnectionInfo> {
+  async createConnection(signal: AbortSignal | undefined, req: CreateConnection, options?: Options): Promise<ConnectionInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/connections`;
     const body = marshalRequest(req, marshalCreateConnectionSchema);
     let resp: ConnectionInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalConnectionInfoSchema);
     };
     await execute(signal, call, options);
@@ -76,20 +64,13 @@ export class Client {
   }
 
   /** Deletes the connection that matches the supplied name. */
-  async deleteConnection(
-    signal: AbortSignal | undefined,
-    req: DeleteConnection,
-    options?: Options
-  ): Promise<DeleteConnection_Response> {
+  async deleteConnection(signal: AbortSignal | undefined, req: DeleteConnection, options?: Options): Promise<DeleteConnection_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/connections/${req.nameArg ?? ''}`;
     let resp: DeleteConnection_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDeleteConnection_ResponseSchema);
     };
     await execute(signal, call, options);
@@ -100,20 +81,13 @@ export class Client {
   }
 
   /** Gets a connection from it's name. */
-  async getConnection(
-    signal: AbortSignal | undefined,
-    req: GetConnection,
-    options?: Options
-  ): Promise<ConnectionInfo> {
+  async getConnection(signal: AbortSignal | undefined, req: GetConnection, options?: Options): Promise<ConnectionInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/connections/${req.nameArg ?? ''}`;
     let resp: ConnectionInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalConnectionInfoSchema);
     };
     await execute(signal, call, options);
@@ -125,17 +99,13 @@ export class Client {
 
   /**
    * List all connections.
-   *
+   * 
    * NOTE: we recommend using max_results=0 to use the paginated version of this API. Unpaginated calls will be deprecated soon.
-   *
+   * 
    * PAGINATION BEHAVIOR: When using pagination (max_results >= 0), a page may contain zero results while still providing a next_page_token.
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
-  async listConnections(
-    signal: AbortSignal | undefined,
-    req: ListConnections,
-    options?: Options
-  ): Promise<ListConnections_Response> {
+  async listConnections(signal: AbortSignal | undefined, req: ListConnections, options?: Options): Promise<ListConnections_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/connections`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -151,12 +121,9 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListConnections_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListConnections_ResponseSchema);
     };
     await execute(signal, call, options);
@@ -166,11 +133,8 @@ export class Client {
     return resp;
   }
 
-  async *listConnectionsIter(
-    signal: AbortSignal | undefined,
-    req: ListConnections,
-    options?: Options
-  ): AsyncGenerator<ConnectionInfo> {
+
+  async *listConnectionsIter(signal: AbortSignal | undefined, req: ListConnections, options?: Options): AsyncGenerator<ConnectionInfo> {
     const pageReq: ListConnections = {...req};
     for (;;) {
       const resp = await this.listConnections(signal, pageReq, options);
@@ -184,22 +148,16 @@ export class Client {
     }
   }
 
+
   /** Updates the connection that matches the supplied name. */
-  async updateConnection(
-    signal: AbortSignal | undefined,
-    req: UpdateConnection,
-    options?: Options
-  ): Promise<ConnectionInfo> {
+  async updateConnection(signal: AbortSignal | undefined, req: UpdateConnection, options?: Options): Promise<ConnectionInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/connections/${req.nameArg ?? ''}`;
     const body = marshalRequest(req, marshalUpdateConnectionSchema);
     let resp: ConnectionInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PATCH', url, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalConnectionInfoSchema);
     };
     await execute(signal, call, options);
