@@ -1,7 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-import {FieldMask} from '@databricks/sdk-core/wkt';
-import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** Using `BINDING_TYPE_` prefix here to avoid conflict with `TableOperation` enum in `credentials_common.proto`. */
@@ -118,19 +116,6 @@ export const unmarshalGetWorkspaceBindings_ResponseSchema: z.ZodType<GetWorkspac
       nextPageToken: d.next_page_token,
     }));
 
-export const unmarshalUpdateCatalogWorkspaceBindingsSchema: z.ZodType<UpdateCatalogWorkspaceBindings> =
-  z
-    .object({
-      catalog_name: z.string().optional(),
-      assign_workspaces: z.array(z.number()).optional(),
-      unassign_workspaces: z.array(z.number()).optional(),
-    })
-    .transform(d => ({
-      catalogName: d.catalog_name,
-      assignWorkspaces: d.assign_workspaces,
-      unassignWorkspaces: d.unassign_workspaces,
-    }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalUpdateCatalogWorkspaceBindings_ResponseSchema: z.ZodType<UpdateCatalogWorkspaceBindings_Response> =
   z
@@ -139,25 +124,6 @@ export const unmarshalUpdateCatalogWorkspaceBindings_ResponseSchema: z.ZodType<U
     })
     .transform(d => ({
       workspaces: d.workspaces,
-    }));
-
-export const unmarshalUpdateWorkspaceBindingsSchema: z.ZodType<UpdateWorkspaceBindings> =
-  z
-    .object({
-      securable_type: z.string().optional(),
-      securable_full_name: z.string().optional(),
-      add: z
-        .array(z.lazy(() => unmarshalWorkspaceBindingInfoSchema))
-        .optional(),
-      remove: z
-        .array(z.lazy(() => unmarshalWorkspaceBindingInfoSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      securableType: d.securable_type,
-      securableFullName: d.securable_full_name,
-      add: d.add,
-      remove: d.remove,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -183,28 +149,6 @@ export const unmarshalWorkspaceBindingInfoSchema: z.ZodType<WorkspaceBindingInfo
       bindingType: d.binding_type,
     }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalGetCatalogWorkspaceBindings_ResponseSchema: z.ZodType = z
-  .object({
-    workspaces: z.array(z.number()).optional(),
-  })
-  .transform(d => ({
-    workspaces: d.workspaces,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalGetWorkspaceBindings_ResponseSchema: z.ZodType = z
-  .object({
-    bindings: z
-      .array(z.lazy(() => marshalWorkspaceBindingInfoSchema))
-      .optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    bindings: d.bindings,
-    next_page_token: d.nextPageToken,
-  }));
-
 export const marshalUpdateCatalogWorkspaceBindingsSchema: z.ZodType = z
   .object({
     catalogName: z.string().optional(),
@@ -215,15 +159,6 @@ export const marshalUpdateCatalogWorkspaceBindingsSchema: z.ZodType = z
     catalog_name: d.catalogName,
     assign_workspaces: d.assignWorkspaces,
     unassign_workspaces: d.unassignWorkspaces,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalUpdateCatalogWorkspaceBindings_ResponseSchema: z.ZodType = z
-  .object({
-    workspaces: z.array(z.number()).optional(),
-  })
-  .transform(d => ({
-    workspaces: d.workspaces,
   }));
 
 export const marshalUpdateWorkspaceBindingsSchema: z.ZodType = z
@@ -240,17 +175,6 @@ export const marshalUpdateWorkspaceBindingsSchema: z.ZodType = z
     remove: d.remove,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalUpdateWorkspaceBindings_ResponseSchema: z.ZodType = z
-  .object({
-    bindings: z
-      .array(z.lazy(() => marshalWorkspaceBindingInfoSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    bindings: d.bindings,
-  }));
-
 export const marshalWorkspaceBindingInfoSchema: z.ZodType = z
   .object({
     workspaceId: z.number().optional(),
@@ -260,139 +184,3 @@ export const marshalWorkspaceBindingInfoSchema: z.ZodType = z
     workspace_id: d.workspaceId,
     binding_type: d.bindingType,
   }));
-
-const getCatalogWorkspaceBindingsFieldMaskSchema: FieldMaskSchema = {
-  catalogName: {wire: 'catalog_name'},
-};
-
-export function getCatalogWorkspaceBindingsFieldMask(
-  ...paths: string[]
-): FieldMask<GetCatalogWorkspaceBindings> {
-  return FieldMask.build<GetCatalogWorkspaceBindings>(
-    paths,
-    getCatalogWorkspaceBindingsFieldMaskSchema
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const getCatalogWorkspaceBindings_ResponseFieldMaskSchema: FieldMaskSchema = {
-  workspaces: {wire: 'workspaces'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function getCatalogWorkspaceBindings_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<GetCatalogWorkspaceBindings_Response> {
-  return FieldMask.build<GetCatalogWorkspaceBindings_Response>(
-    paths,
-    getCatalogWorkspaceBindings_ResponseFieldMaskSchema
-  );
-}
-
-const getWorkspaceBindingsFieldMaskSchema: FieldMaskSchema = {
-  maxResults: {wire: 'max_results'},
-  pageToken: {wire: 'page_token'},
-  securableFullName: {wire: 'securable_full_name'},
-  securableType: {wire: 'securable_type'},
-};
-
-export function getWorkspaceBindingsFieldMask(
-  ...paths: string[]
-): FieldMask<GetWorkspaceBindings> {
-  return FieldMask.build<GetWorkspaceBindings>(
-    paths,
-    getWorkspaceBindingsFieldMaskSchema
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const getWorkspaceBindings_ResponseFieldMaskSchema: FieldMaskSchema = {
-  bindings: {wire: 'bindings'},
-  nextPageToken: {wire: 'next_page_token'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function getWorkspaceBindings_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<GetWorkspaceBindings_Response> {
-  return FieldMask.build<GetWorkspaceBindings_Response>(
-    paths,
-    getWorkspaceBindings_ResponseFieldMaskSchema
-  );
-}
-
-const updateCatalogWorkspaceBindingsFieldMaskSchema: FieldMaskSchema = {
-  assignWorkspaces: {wire: 'assign_workspaces'},
-  catalogName: {wire: 'catalog_name'},
-  unassignWorkspaces: {wire: 'unassign_workspaces'},
-};
-
-export function updateCatalogWorkspaceBindingsFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateCatalogWorkspaceBindings> {
-  return FieldMask.build<UpdateCatalogWorkspaceBindings>(
-    paths,
-    updateCatalogWorkspaceBindingsFieldMaskSchema
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const updateCatalogWorkspaceBindings_ResponseFieldMaskSchema: FieldMaskSchema =
-  {
-    workspaces: {wire: 'workspaces'},
-  };
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function updateCatalogWorkspaceBindings_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateCatalogWorkspaceBindings_Response> {
-  return FieldMask.build<UpdateCatalogWorkspaceBindings_Response>(
-    paths,
-    updateCatalogWorkspaceBindings_ResponseFieldMaskSchema
-  );
-}
-
-const updateWorkspaceBindingsFieldMaskSchema: FieldMaskSchema = {
-  add: {wire: 'add'},
-  remove: {wire: 'remove'},
-  securableFullName: {wire: 'securable_full_name'},
-  securableType: {wire: 'securable_type'},
-};
-
-export function updateWorkspaceBindingsFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateWorkspaceBindings> {
-  return FieldMask.build<UpdateWorkspaceBindings>(
-    paths,
-    updateWorkspaceBindingsFieldMaskSchema
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const updateWorkspaceBindings_ResponseFieldMaskSchema: FieldMaskSchema = {
-  bindings: {wire: 'bindings'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function updateWorkspaceBindings_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateWorkspaceBindings_Response> {
-  return FieldMask.build<UpdateWorkspaceBindings_Response>(
-    paths,
-    updateWorkspaceBindings_ResponseFieldMaskSchema
-  );
-}
-
-const workspaceBindingInfoFieldMaskSchema: FieldMaskSchema = {
-  bindingType: {wire: 'binding_type'},
-  workspaceId: {wire: 'workspace_id'},
-};
-
-export function workspaceBindingInfoFieldMask(
-  ...paths: string[]
-): FieldMask<WorkspaceBindingInfo> {
-  return FieldMask.build<WorkspaceBindingInfo>(
-    paths,
-    workspaceBindingInfoFieldMaskSchema
-  );
-}

@@ -196,7 +196,7 @@ export class Client {
     const url = `${this.host}/api/2.0/feature-store/feature-tables/${req.tableName ?? ''}/features/${req.featureName ?? ''}/tags/${req.featureTag?.key ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
-      params.append('update_mask', req.updateMask);
+      params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;

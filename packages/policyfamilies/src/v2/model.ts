@@ -1,7 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-import {FieldMask} from '@databricks/sdk-core/wkt';
-import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** Returns the details of a policy family at a specific version */
@@ -66,85 +64,3 @@ export const unmarshalPolicyFamilySchema: z.ZodType<PolicyFamily> = z
     description: d.description,
     definition: d.definition,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalListPolicyFamilies_ResponseSchema: z.ZodType = z
-  .object({
-    policyFamilies: z.array(z.lazy(() => marshalPolicyFamilySchema)).optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    policy_families: d.policyFamilies,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalPolicyFamilySchema: z.ZodType = z
-  .object({
-    policyFamilyId: z.string().optional(),
-    name: z.string().optional(),
-    description: z.string().optional(),
-    definition: z.string().optional(),
-  })
-  .transform(d => ({
-    policy_family_id: d.policyFamilyId,
-    name: d.name,
-    description: d.description,
-    definition: d.definition,
-  }));
-
-const getPolicyFamilyFieldMaskSchema: FieldMaskSchema = {
-  policyFamilyId: {wire: 'policy_family_id'},
-  version: {wire: 'version'},
-};
-
-export function getPolicyFamilyFieldMask(
-  ...paths: string[]
-): FieldMask<GetPolicyFamily> {
-  return FieldMask.build<GetPolicyFamily>(
-    paths,
-    getPolicyFamilyFieldMaskSchema
-  );
-}
-
-const listPolicyFamiliesFieldMaskSchema: FieldMaskSchema = {
-  maxResults: {wire: 'max_results'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listPolicyFamiliesFieldMask(
-  ...paths: string[]
-): FieldMask<ListPolicyFamilies> {
-  return FieldMask.build<ListPolicyFamilies>(
-    paths,
-    listPolicyFamiliesFieldMaskSchema
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const listPolicyFamilies_ResponseFieldMaskSchema: FieldMaskSchema = {
-  nextPageToken: {wire: 'next_page_token'},
-  policyFamilies: {wire: 'policy_families'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function listPolicyFamilies_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListPolicyFamilies_Response> {
-  return FieldMask.build<ListPolicyFamilies_Response>(
-    paths,
-    listPolicyFamilies_ResponseFieldMaskSchema
-  );
-}
-
-const policyFamilyFieldMaskSchema: FieldMaskSchema = {
-  definition: {wire: 'definition'},
-  description: {wire: 'description'},
-  name: {wire: 'name'},
-  policyFamilyId: {wire: 'policy_family_id'},
-};
-
-export function policyFamilyFieldMask(
-  ...paths: string[]
-): FieldMask<PolicyFamily> {
-  return FieldMask.build<PolicyFamily>(paths, policyFamilyFieldMaskSchema);
-}

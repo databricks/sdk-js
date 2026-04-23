@@ -155,6 +155,9 @@ export class Client {
     if (req.branchId !== undefined) {
       params.append('branch_id', req.branchId);
     }
+    if (req.replaceExisting !== undefined) {
+      params.append('replace_existing', String(req.replaceExisting));
+    }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.branch, marshalBranchSchema);
@@ -278,6 +281,9 @@ export class Client {
     const params = new URLSearchParams();
     if (req.endpointId !== undefined) {
       params.append('endpoint_id', req.endpointId);
+    }
+    if (req.replaceExisting !== undefined) {
+      params.append('replace_existing', String(req.replaceExisting));
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -1539,7 +1545,7 @@ export class Client {
     const url = `${this.host}/api/2.0/postgres/${req.branch?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
-      params.append('update_mask', req.updateMask);
+      params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -1579,7 +1585,7 @@ export class Client {
     const url = `${this.host}/api/2.0/postgres/${req.database?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
-      params.append('update_mask', req.updateMask);
+      params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -1619,7 +1625,7 @@ export class Client {
     const url = `${this.host}/api/2.0/postgres/${req.endpoint?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
-      params.append('update_mask', req.updateMask);
+      params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -1659,7 +1665,7 @@ export class Client {
     const url = `${this.host}/api/2.0/postgres/${req.project?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
-      params.append('update_mask', req.updateMask);
+      params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -1699,7 +1705,7 @@ export class Client {
     const url = `${this.host}/api/2.0/postgres/${req.role?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
-      params.append('update_mask', req.updateMask);
+      params.append('update_mask', req.updateMask.toString());
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;

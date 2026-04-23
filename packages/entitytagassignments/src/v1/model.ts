@@ -84,7 +84,7 @@ export interface ListEntityTagAssignmentsResponse {
 /** Request to update an entity tag assignment */
 export interface UpdateEntityTagAssignmentRequest {
   tagAssignment?: EntityTagAssignment | undefined;
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<EntityTagAssignment> | undefined;
 }
 
 export const unmarshalEntityTagAssignmentSchema: z.ZodType<EntityTagAssignment> =
@@ -151,49 +151,6 @@ export const marshalEntityTagAssignmentSchema: z.ZodType = z
     inherited: d.inherited,
   }));
 
-export const marshalListEntityTagAssignmentsResponseSchema: z.ZodType = z
-  .object({
-    tagAssignments: z
-      .array(z.lazy(() => marshalEntityTagAssignmentSchema))
-      .optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    tag_assignments: d.tagAssignments,
-    next_page_token: d.nextPageToken,
-  }));
-
-const createEntityTagAssignmentRequestFieldMaskSchema: FieldMaskSchema = {
-  tagAssignment: {
-    wire: 'tag_assignment',
-    children: () => entityTagAssignmentFieldMaskSchema,
-  },
-};
-
-export function createEntityTagAssignmentRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateEntityTagAssignmentRequest> {
-  return FieldMask.build<CreateEntityTagAssignmentRequest>(
-    paths,
-    createEntityTagAssignmentRequestFieldMaskSchema
-  );
-}
-
-const deleteEntityTagAssignmentRequestFieldMaskSchema: FieldMaskSchema = {
-  entityName: {wire: 'entity_name'},
-  entityType: {wire: 'entity_type'},
-  tagKey: {wire: 'tag_key'},
-};
-
-export function deleteEntityTagAssignmentRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteEntityTagAssignmentRequest> {
-  return FieldMask.build<DeleteEntityTagAssignmentRequest>(
-    paths,
-    deleteEntityTagAssignmentRequestFieldMaskSchema
-  );
-}
-
 const entityTagAssignmentFieldMaskSchema: FieldMaskSchema = {
   entityName: {wire: 'entity_name'},
   entityType: {wire: 'entity_type'},
@@ -211,69 +168,5 @@ export function entityTagAssignmentFieldMask(
   return FieldMask.build<EntityTagAssignment>(
     paths,
     entityTagAssignmentFieldMaskSchema
-  );
-}
-
-const getEntityTagAssignmentRequestFieldMaskSchema: FieldMaskSchema = {
-  entityName: {wire: 'entity_name'},
-  entityType: {wire: 'entity_type'},
-  includeInherited: {wire: 'include_inherited'},
-  tagKey: {wire: 'tag_key'},
-};
-
-export function getEntityTagAssignmentRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetEntityTagAssignmentRequest> {
-  return FieldMask.build<GetEntityTagAssignmentRequest>(
-    paths,
-    getEntityTagAssignmentRequestFieldMaskSchema
-  );
-}
-
-const listEntityTagAssignmentsRequestFieldMaskSchema: FieldMaskSchema = {
-  entityName: {wire: 'entity_name'},
-  entityType: {wire: 'entity_type'},
-  includeInherited: {wire: 'include_inherited'},
-  maxResults: {wire: 'max_results'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listEntityTagAssignmentsRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListEntityTagAssignmentsRequest> {
-  return FieldMask.build<ListEntityTagAssignmentsRequest>(
-    paths,
-    listEntityTagAssignmentsRequestFieldMaskSchema
-  );
-}
-
-const listEntityTagAssignmentsResponseFieldMaskSchema: FieldMaskSchema = {
-  nextPageToken: {wire: 'next_page_token'},
-  tagAssignments: {wire: 'tag_assignments'},
-};
-
-export function listEntityTagAssignmentsResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListEntityTagAssignmentsResponse> {
-  return FieldMask.build<ListEntityTagAssignmentsResponse>(
-    paths,
-    listEntityTagAssignmentsResponseFieldMaskSchema
-  );
-}
-
-const updateEntityTagAssignmentRequestFieldMaskSchema: FieldMaskSchema = {
-  tagAssignment: {
-    wire: 'tag_assignment',
-    children: () => entityTagAssignmentFieldMaskSchema,
-  },
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateEntityTagAssignmentRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateEntityTagAssignmentRequest> {
-  return FieldMask.build<UpdateEntityTagAssignmentRequest>(
-    paths,
-    updateEntityTagAssignmentRequestFieldMaskSchema
   );
 }

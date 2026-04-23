@@ -529,6 +529,28 @@ export interface OnlineStoreConfig {
   onlineStoreName?: string | undefined;
 }
 
+/**
+ * A Protocol Buffer schema paired with the name of the message within it that describes the
+ * Kafka payload. A .proto file may declare multiple messages; message_name disambiguates.
+ * Fields below are semantically required and enforced server-side. They are marked OPTIONAL
+ * (not REQUIRED) to work around an OpenAPI normalization bug: the tool strips DEVELOPMENT-stage
+ * fields from `properties` but not from `required`, producing invalid specs.
+ */
+export interface ProtoSchemaSpec {
+  /**
+   * The raw .proto file text (proto2 and proto3 syntax supported, see
+   * https://protobuf.dev/programming-guides/proto3/ and https://protobuf.dev/programming-guides/proto2/).
+   */
+  schemaText?: string | undefined;
+  /**
+   * The fully-qualified name of the message within schema_text that describes the Kafka payload
+   * (e.g. "Event" or "com.example.Event" if schema_text declares a package). Identifies which
+   * message is used to decode each Kafka record — a .proto file may declare multiple messages
+   * but only one represents the payload. Must not be empty.
+   */
+  messageName?: string | undefined;
+}
+
 /** A request-time data source whose value is provided at inference time: offline batch scoring or online serving endpoint */
 export interface RequestSource {
   /** A flat schema with scalar-typed fields only. */
@@ -536,8 +558,12 @@ export interface RequestSource {
 }
 
 export interface SchemaConfig {
-  /** Schema of the JSON object in standard IETF JSON schema format (https://json-schema.org/) */
+  /** Schema of the JSON object in standard IETF JSON schema format (https://json-schema.org/). */
   jsonSchema?: string | undefined;
+  /** Avro schema in JSON format (https://avro.apache.org/docs/current/specification/). */
+  avroSchema?: string | undefined;
+  /** Protocol Buffer schema with its payload message name. */
+  protoSchema?: ProtoSchemaSpec | undefined;
 }
 
 export interface SlidingWindow {
@@ -614,14 +640,14 @@ export interface UpdateFeatureRequest {
   /** Feature to update. */
   feature?: Feature | undefined;
   /** The list of fields to update. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<Feature> | undefined;
 }
 
 export interface UpdateKafkaConfigRequest {
   /** The Kafka config to update. */
   kafkaConfig?: KafkaConfig | undefined;
   /** The list of fields to update. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<KafkaConfig> | undefined;
 }
 
 export interface UpdateMaterializedFeatureRequest {
@@ -631,7 +657,7 @@ export interface UpdateMaterializedFeatureRequest {
    * Provide the materialization feature fields which should be updated.
    * Currently, only the pipeline_state field can be updated.
    */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<MaterializedFeature> | undefined;
 }
 
 /** Computes the population variance. */
@@ -735,17 +761,6 @@ export const unmarshalBackfillSourceSchema: z.ZodType<BackfillSource> = z
     deltaTableSource: d.delta_table_source,
   }));
 
-export const unmarshalBatchCreateMaterializedFeaturesRequestSchema: z.ZodType<BatchCreateMaterializedFeaturesRequest> =
-  z
-    .object({
-      requests: z
-        .array(z.lazy(() => unmarshalCreateMaterializedFeatureRequestSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      requests: d.requests,
-    }));
-
 export const unmarshalBatchCreateMaterializedFeaturesResponseSchema: z.ZodType<BatchCreateMaterializedFeaturesResponse> =
   z
     .object({
@@ -796,17 +811,6 @@ export const unmarshalCountFunctionSchema: z.ZodType<CountFunction> = z
   .transform(d => ({
     input: d.input,
   }));
-
-export const unmarshalCreateMaterializedFeatureRequestSchema: z.ZodType<CreateMaterializedFeatureRequest> =
-  z
-    .object({
-      materialized_feature: z
-        .lazy(() => unmarshalMaterializedFeatureSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      materializedFeature: d.materialized_feature,
-    }));
 
 export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
   .object({
@@ -1112,6 +1116,16 @@ export const unmarshalOnlineStoreConfigSchema: z.ZodType<OnlineStoreConfig> = z
     onlineStoreName: d.online_store_name,
   }));
 
+export const unmarshalProtoSchemaSpecSchema: z.ZodType<ProtoSchemaSpec> = z
+  .object({
+    schema_text: z.string().optional(),
+    message_name: z.string().optional(),
+  })
+  .transform(d => ({
+    schemaText: d.schema_text,
+    messageName: d.message_name,
+  }));
+
 export const unmarshalRequestSourceSchema: z.ZodType<RequestSource> = z
   .object({
     flat_schema: z.lazy(() => unmarshalFlatSchemaSchema).optional(),
@@ -1123,9 +1137,13 @@ export const unmarshalRequestSourceSchema: z.ZodType<RequestSource> = z
 export const unmarshalSchemaConfigSchema: z.ZodType<SchemaConfig> = z
   .object({
     json_schema: z.string().optional(),
+    avro_schema: z.string().optional(),
+    proto_schema: z.lazy(() => unmarshalProtoSchemaSpecSchema).optional(),
   })
   .transform(d => ({
     jsonSchema: d.json_schema,
+    avroSchema: d.avro_schema,
+    protoSchema: d.proto_schema,
   }));
 
 export const unmarshalSlidingWindowSchema: z.ZodType<SlidingWindow> = z
@@ -1320,16 +1338,6 @@ export const marshalBatchCreateMaterializedFeaturesRequestSchema: z.ZodType = z
   })
   .transform(d => ({
     requests: d.requests,
-  }));
-
-export const marshalBatchCreateMaterializedFeaturesResponseSchema: z.ZodType = z
-  .object({
-    materializedFeatures: z
-      .array(z.lazy(() => marshalMaterializedFeatureSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    materialized_features: d.materializedFeatures,
   }));
 
 export const marshalColumnIdentifierSchema: z.ZodType = z
@@ -1569,38 +1577,6 @@ export const marshalLineageContextSchema: z.ZodType = z
     job_context: d.jobContext,
   }));
 
-export const marshalListFeaturesResponseSchema: z.ZodType = z
-  .object({
-    features: z.array(z.lazy(() => marshalFeatureSchema)).optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    features: d.features,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListKafkaConfigsResponseSchema: z.ZodType = z
-  .object({
-    kafkaConfigs: z.array(z.lazy(() => marshalKafkaConfigSchema)).optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    kafka_configs: d.kafkaConfigs,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListMaterializedFeaturesResponseSchema: z.ZodType = z
-  .object({
-    materializedFeatures: z
-      .array(z.lazy(() => marshalMaterializedFeatureSchema))
-      .optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    materialized_features: d.materializedFeatures,
-    next_page_token: d.nextPageToken,
-  }));
-
 export const marshalMaterializedFeatureSchema: z.ZodType = z
   .object({
     materializedFeatureId: z.string().optional(),
@@ -1674,6 +1650,16 @@ export const marshalOnlineStoreConfigSchema: z.ZodType = z
     online_store_name: d.onlineStoreName,
   }));
 
+export const marshalProtoSchemaSpecSchema: z.ZodType = z
+  .object({
+    schemaText: z.string().optional(),
+    messageName: z.string().optional(),
+  })
+  .transform(d => ({
+    schema_text: d.schemaText,
+    message_name: d.messageName,
+  }));
+
 export const marshalRequestSourceSchema: z.ZodType = z
   .object({
     flatSchema: z.lazy(() => marshalFlatSchemaSchema).optional(),
@@ -1685,9 +1671,13 @@ export const marshalRequestSourceSchema: z.ZodType = z
 export const marshalSchemaConfigSchema: z.ZodType = z
   .object({
     jsonSchema: z.string().optional(),
+    avroSchema: z.string().optional(),
+    protoSchema: z.lazy(() => marshalProtoSchemaSpecSchema).optional(),
   })
   .transform(d => ({
     json_schema: d.jsonSchema,
+    avro_schema: d.avroSchema,
+    proto_schema: d.protoSchema,
   }));
 
 export const marshalSlidingWindowSchema: z.ZodType = z
@@ -1821,28 +1811,10 @@ const aggregationFunctionFieldMaskSchema: FieldMaskSchema = {
   varSamp: {wire: 'var_samp', children: () => varSampFunctionFieldMaskSchema},
 };
 
-export function aggregationFunctionFieldMask(
-  ...paths: string[]
-): FieldMask<AggregationFunction> {
-  return FieldMask.build<AggregationFunction>(
-    paths,
-    aggregationFunctionFieldMaskSchema
-  );
-}
-
 const approxCountDistinctFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
   relativeSd: {wire: 'relative_sd'},
 };
-
-export function approxCountDistinctFunctionFieldMask(
-  ...paths: string[]
-): FieldMask<ApproxCountDistinctFunction> {
-  return FieldMask.build<ApproxCountDistinctFunction>(
-    paths,
-    approxCountDistinctFunctionFieldMaskSchema
-  );
-}
 
 const approxPercentileFunctionFieldMaskSchema: FieldMaskSchema = {
   accuracy: {wire: 'accuracy'},
@@ -1850,32 +1822,13 @@ const approxPercentileFunctionFieldMaskSchema: FieldMaskSchema = {
   percentile: {wire: 'percentile'},
 };
 
-export function approxPercentileFunctionFieldMask(
-  ...paths: string[]
-): FieldMask<ApproxPercentileFunction> {
-  return FieldMask.build<ApproxPercentileFunction>(
-    paths,
-    approxPercentileFunctionFieldMaskSchema
-  );
-}
-
 const authConfigFieldMaskSchema: FieldMaskSchema = {
   ucServiceCredentialName: {wire: 'uc_service_credential_name'},
 };
 
-export function authConfigFieldMask(...paths: string[]): FieldMask<AuthConfig> {
-  return FieldMask.build<AuthConfig>(paths, authConfigFieldMaskSchema);
-}
-
 const avgFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
-
-export function avgFunctionFieldMask(
-  ...paths: string[]
-): FieldMask<AvgFunction> {
-  return FieldMask.build<AvgFunction>(paths, avgFunctionFieldMaskSchema);
-}
 
 const backfillSourceFieldMaskSchema: FieldMaskSchema = {
   deltaTableSource: {
@@ -1884,133 +1837,22 @@ const backfillSourceFieldMaskSchema: FieldMaskSchema = {
   },
 };
 
-export function backfillSourceFieldMask(
-  ...paths: string[]
-): FieldMask<BackfillSource> {
-  return FieldMask.build<BackfillSource>(paths, backfillSourceFieldMaskSchema);
-}
-
-const batchCreateMaterializedFeaturesRequestFieldMaskSchema: FieldMaskSchema = {
-  requests: {wire: 'requests'},
-};
-
-export function batchCreateMaterializedFeaturesRequestFieldMask(
-  ...paths: string[]
-): FieldMask<BatchCreateMaterializedFeaturesRequest> {
-  return FieldMask.build<BatchCreateMaterializedFeaturesRequest>(
-    paths,
-    batchCreateMaterializedFeaturesRequestFieldMaskSchema
-  );
-}
-
-const batchCreateMaterializedFeaturesResponseFieldMaskSchema: FieldMaskSchema =
-  {
-    materializedFeatures: {wire: 'materialized_features'},
-  };
-
-export function batchCreateMaterializedFeaturesResponseFieldMask(
-  ...paths: string[]
-): FieldMask<BatchCreateMaterializedFeaturesResponse> {
-  return FieldMask.build<BatchCreateMaterializedFeaturesResponse>(
-    paths,
-    batchCreateMaterializedFeaturesResponseFieldMaskSchema
-  );
-}
-
 const columnIdentifierFieldMaskSchema: FieldMaskSchema = {
   variantExprPath: {wire: 'variant_expr_path'},
 };
 
-export function columnIdentifierFieldMask(
-  ...paths: string[]
-): FieldMask<ColumnIdentifier> {
-  return FieldMask.build<ColumnIdentifier>(
-    paths,
-    columnIdentifierFieldMaskSchema
-  );
-}
-
 const columnSelectionFieldMaskSchema: FieldMaskSchema = {
   column: {wire: 'column'},
 };
-
-export function columnSelectionFieldMask(
-  ...paths: string[]
-): FieldMask<ColumnSelection> {
-  return FieldMask.build<ColumnSelection>(
-    paths,
-    columnSelectionFieldMaskSchema
-  );
-}
 
 const continuousWindowFieldMaskSchema: FieldMaskSchema = {
   offset: {wire: 'offset'},
   windowDuration: {wire: 'window_duration'},
 };
 
-export function continuousWindowFieldMask(
-  ...paths: string[]
-): FieldMask<ContinuousWindow> {
-  return FieldMask.build<ContinuousWindow>(
-    paths,
-    continuousWindowFieldMaskSchema
-  );
-}
-
 const countFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
-
-export function countFunctionFieldMask(
-  ...paths: string[]
-): FieldMask<CountFunction> {
-  return FieldMask.build<CountFunction>(paths, countFunctionFieldMaskSchema);
-}
-
-const createFeatureRequestFieldMaskSchema: FieldMaskSchema = {
-  feature: {wire: 'feature', children: () => featureFieldMaskSchema},
-};
-
-export function createFeatureRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateFeatureRequest> {
-  return FieldMask.build<CreateFeatureRequest>(
-    paths,
-    createFeatureRequestFieldMaskSchema
-  );
-}
-
-const createKafkaConfigRequestFieldMaskSchema: FieldMaskSchema = {
-  kafkaConfig: {
-    wire: 'kafka_config',
-    children: () => kafkaConfigFieldMaskSchema,
-  },
-};
-
-export function createKafkaConfigRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateKafkaConfigRequest> {
-  return FieldMask.build<CreateKafkaConfigRequest>(
-    paths,
-    createKafkaConfigRequestFieldMaskSchema
-  );
-}
-
-const createMaterializedFeatureRequestFieldMaskSchema: FieldMaskSchema = {
-  materializedFeature: {
-    wire: 'materialized_feature',
-    children: () => materializedFeatureFieldMaskSchema,
-  },
-};
-
-export function createMaterializedFeatureRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateMaterializedFeatureRequest> {
-  return FieldMask.build<CreateMaterializedFeatureRequest>(
-    paths,
-    createMaterializedFeatureRequestFieldMaskSchema
-  );
-}
 
 const dataSourceFieldMaskSchema: FieldMaskSchema = {
   deltaTableSource: {
@@ -2027,49 +1869,6 @@ const dataSourceFieldMaskSchema: FieldMaskSchema = {
   },
 };
 
-export function dataSourceFieldMask(...paths: string[]): FieldMask<DataSource> {
-  return FieldMask.build<DataSource>(paths, dataSourceFieldMaskSchema);
-}
-
-const deleteFeatureRequestFieldMaskSchema: FieldMaskSchema = {
-  fullName: {wire: 'full_name'},
-};
-
-export function deleteFeatureRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteFeatureRequest> {
-  return FieldMask.build<DeleteFeatureRequest>(
-    paths,
-    deleteFeatureRequestFieldMaskSchema
-  );
-}
-
-const deleteKafkaConfigRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function deleteKafkaConfigRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteKafkaConfigRequest> {
-  return FieldMask.build<DeleteKafkaConfigRequest>(
-    paths,
-    deleteKafkaConfigRequestFieldMaskSchema
-  );
-}
-
-const deleteMaterializedFeatureRequestFieldMaskSchema: FieldMaskSchema = {
-  materializedFeatureId: {wire: 'materialized_feature_id'},
-};
-
-export function deleteMaterializedFeatureRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteMaterializedFeatureRequest> {
-  return FieldMask.build<DeleteMaterializedFeatureRequest>(
-    paths,
-    deleteMaterializedFeatureRequestFieldMaskSchema
-  );
-}
-
 const deltaTableSourceFieldMaskSchema: FieldMaskSchema = {
   dataframeSchema: {wire: 'dataframe_schema'},
   entityColumns: {wire: 'entity_columns'},
@@ -2078,25 +1877,6 @@ const deltaTableSourceFieldMaskSchema: FieldMaskSchema = {
   timeseriesColumn: {wire: 'timeseries_column'},
   transformationSql: {wire: 'transformation_sql'},
 };
-
-export function deltaTableSourceFieldMask(
-  ...paths: string[]
-): FieldMask<DeltaTableSource> {
-  return FieldMask.build<DeltaTableSource>(
-    paths,
-    deltaTableSourceFieldMaskSchema
-  );
-}
-
-const entityColumnFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function entityColumnFieldMask(
-  ...paths: string[]
-): FieldMask<EntityColumn> {
-  return FieldMask.build<EntityColumn>(paths, entityColumnFieldMaskSchema);
-}
 
 const featureFieldMaskSchema: FieldMaskSchema = {
   description: {wire: 'description'},
@@ -2121,37 +1901,13 @@ export function featureFieldMask(...paths: string[]): FieldMask<Feature> {
   return FieldMask.build<Feature>(paths, featureFieldMaskSchema);
 }
 
-const fieldDefinitionFieldMaskSchema: FieldMaskSchema = {
-  dataType: {wire: 'data_type'},
-  name: {wire: 'name'},
-};
-
-export function fieldDefinitionFieldMask(
-  ...paths: string[]
-): FieldMask<FieldDefinition> {
-  return FieldMask.build<FieldDefinition>(
-    paths,
-    fieldDefinitionFieldMaskSchema
-  );
-}
-
 const firstFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
 
-export function firstFunctionFieldMask(
-  ...paths: string[]
-): FieldMask<FirstFunction> {
-  return FieldMask.build<FirstFunction>(paths, firstFunctionFieldMaskSchema);
-}
-
 const flatSchemaFieldMaskSchema: FieldMaskSchema = {
   fields: {wire: 'fields'},
 };
-
-export function flatSchemaFieldMask(...paths: string[]): FieldMask<FlatSchema> {
-  return FieldMask.build<FlatSchema>(paths, flatSchemaFieldMaskSchema);
-}
 
 const functionFieldMaskSchema: FieldMaskSchema = {
   aggregationFunction: {
@@ -2166,73 +1922,10 @@ const functionFieldMaskSchema: FieldMaskSchema = {
   functionType: {wire: 'function_type'},
 };
 
-export function functionFieldMask(...paths: string[]): FieldMask<Function> {
-  return FieldMask.build<Function>(paths, functionFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const function_ExtraParameterFieldMaskSchema: FieldMaskSchema = {
-  key: {wire: 'key'},
-  value: {wire: 'value'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function function_ExtraParameterFieldMask(
-  ...paths: string[]
-): FieldMask<Function_ExtraParameter> {
-  return FieldMask.build<Function_ExtraParameter>(
-    paths,
-    function_ExtraParameterFieldMaskSchema
-  );
-}
-
-const getFeatureRequestFieldMaskSchema: FieldMaskSchema = {
-  fullName: {wire: 'full_name'},
-};
-
-export function getFeatureRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetFeatureRequest> {
-  return FieldMask.build<GetFeatureRequest>(
-    paths,
-    getFeatureRequestFieldMaskSchema
-  );
-}
-
-const getKafkaConfigRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function getKafkaConfigRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetKafkaConfigRequest> {
-  return FieldMask.build<GetKafkaConfigRequest>(
-    paths,
-    getKafkaConfigRequestFieldMaskSchema
-  );
-}
-
-const getMaterializedFeatureRequestFieldMaskSchema: FieldMaskSchema = {
-  materializedFeatureId: {wire: 'materialized_feature_id'},
-};
-
-export function getMaterializedFeatureRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetMaterializedFeatureRequest> {
-  return FieldMask.build<GetMaterializedFeatureRequest>(
-    paths,
-    getMaterializedFeatureRequestFieldMaskSchema
-  );
-}
-
 const jobContextFieldMaskSchema: FieldMaskSchema = {
   jobId: {wire: 'job_id'},
   jobRunId: {wire: 'job_run_id'},
 };
-
-export function jobContextFieldMask(...paths: string[]): FieldMask<JobContext> {
-  return FieldMask.build<JobContext>(paths, jobContextFieldMaskSchema);
-}
 
 const kafkaConfigFieldMaskSchema: FieldMaskSchema = {
   authConfig: {wire: 'auth_config', children: () => authConfigFieldMaskSchema},
@@ -2260,22 +1953,6 @@ export function kafkaConfigFieldMask(
   return FieldMask.build<KafkaConfig>(paths, kafkaConfigFieldMaskSchema);
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const kafkaConfig_ExtraOptionsEntryFieldMaskSchema: FieldMaskSchema = {
-  key: {wire: 'key'},
-  value: {wire: 'value'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function kafkaConfig_ExtraOptionsEntryFieldMask(
-  ...paths: string[]
-): FieldMask<KafkaConfig_ExtraOptionsEntry> {
-  return FieldMask.build<KafkaConfig_ExtraOptionsEntry>(
-    paths,
-    kafkaConfig_ExtraOptionsEntryFieldMaskSchema
-  );
-}
-
 const kafkaSourceFieldMaskSchema: FieldMaskSchema = {
   entityColumnIdentifiers: {wire: 'entity_column_identifiers'},
   filterCondition: {wire: 'filter_condition'},
@@ -2286,117 +1963,14 @@ const kafkaSourceFieldMaskSchema: FieldMaskSchema = {
   },
 };
 
-export function kafkaSourceFieldMask(
-  ...paths: string[]
-): FieldMask<KafkaSource> {
-  return FieldMask.build<KafkaSource>(paths, kafkaSourceFieldMaskSchema);
-}
-
 const lastFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
-
-export function lastFunctionFieldMask(
-  ...paths: string[]
-): FieldMask<LastFunction> {
-  return FieldMask.build<LastFunction>(paths, lastFunctionFieldMaskSchema);
-}
 
 const lineageContextFieldMaskSchema: FieldMaskSchema = {
   jobContext: {wire: 'job_context', children: () => jobContextFieldMaskSchema},
   notebookId: {wire: 'notebook_id'},
 };
-
-export function lineageContextFieldMask(
-  ...paths: string[]
-): FieldMask<LineageContext> {
-  return FieldMask.build<LineageContext>(paths, lineageContextFieldMaskSchema);
-}
-
-const listFeaturesRequestFieldMaskSchema: FieldMaskSchema = {
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listFeaturesRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListFeaturesRequest> {
-  return FieldMask.build<ListFeaturesRequest>(
-    paths,
-    listFeaturesRequestFieldMaskSchema
-  );
-}
-
-const listFeaturesResponseFieldMaskSchema: FieldMaskSchema = {
-  features: {wire: 'features'},
-  nextPageToken: {wire: 'next_page_token'},
-};
-
-export function listFeaturesResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListFeaturesResponse> {
-  return FieldMask.build<ListFeaturesResponse>(
-    paths,
-    listFeaturesResponseFieldMaskSchema
-  );
-}
-
-const listKafkaConfigsRequestFieldMaskSchema: FieldMaskSchema = {
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listKafkaConfigsRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListKafkaConfigsRequest> {
-  return FieldMask.build<ListKafkaConfigsRequest>(
-    paths,
-    listKafkaConfigsRequestFieldMaskSchema
-  );
-}
-
-const listKafkaConfigsResponseFieldMaskSchema: FieldMaskSchema = {
-  kafkaConfigs: {wire: 'kafka_configs'},
-  nextPageToken: {wire: 'next_page_token'},
-};
-
-export function listKafkaConfigsResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListKafkaConfigsResponse> {
-  return FieldMask.build<ListKafkaConfigsResponse>(
-    paths,
-    listKafkaConfigsResponseFieldMaskSchema
-  );
-}
-
-const listMaterializedFeaturesRequestFieldMaskSchema: FieldMaskSchema = {
-  featureName: {wire: 'feature_name'},
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listMaterializedFeaturesRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListMaterializedFeaturesRequest> {
-  return FieldMask.build<ListMaterializedFeaturesRequest>(
-    paths,
-    listMaterializedFeaturesRequestFieldMaskSchema
-  );
-}
-
-const listMaterializedFeaturesResponseFieldMaskSchema: FieldMaskSchema = {
-  materializedFeatures: {wire: 'materialized_features'},
-  nextPageToken: {wire: 'next_page_token'},
-};
-
-export function listMaterializedFeaturesResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListMaterializedFeaturesResponse> {
-  return FieldMask.build<ListMaterializedFeaturesResponse>(
-    paths,
-    listMaterializedFeaturesResponseFieldMaskSchema
-  );
-}
 
 const materializedFeatureFieldMaskSchema: FieldMaskSchema = {
   cronSchedule: {wire: 'cron_schedule'},
@@ -2429,36 +2003,15 @@ const maxFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
 
-export function maxFunctionFieldMask(
-  ...paths: string[]
-): FieldMask<MaxFunction> {
-  return FieldMask.build<MaxFunction>(paths, maxFunctionFieldMaskSchema);
-}
-
 const minFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
-
-export function minFunctionFieldMask(
-  ...paths: string[]
-): FieldMask<MinFunction> {
-  return FieldMask.build<MinFunction>(paths, minFunctionFieldMaskSchema);
-}
 
 const offlineStoreConfigFieldMaskSchema: FieldMaskSchema = {
   catalogName: {wire: 'catalog_name'},
   schemaName: {wire: 'schema_name'},
   tableNamePrefix: {wire: 'table_name_prefix'},
 };
-
-export function offlineStoreConfigFieldMask(
-  ...paths: string[]
-): FieldMask<OfflineStoreConfig> {
-  return FieldMask.build<OfflineStoreConfig>(
-    paths,
-    offlineStoreConfigFieldMaskSchema
-  );
-}
 
 const onlineStoreConfigFieldMaskSchema: FieldMaskSchema = {
   catalogName: {wire: 'catalog_name'},
@@ -2467,71 +2020,36 @@ const onlineStoreConfigFieldMaskSchema: FieldMaskSchema = {
   tableNamePrefix: {wire: 'table_name_prefix'},
 };
 
-export function onlineStoreConfigFieldMask(
-  ...paths: string[]
-): FieldMask<OnlineStoreConfig> {
-  return FieldMask.build<OnlineStoreConfig>(
-    paths,
-    onlineStoreConfigFieldMaskSchema
-  );
-}
+const protoSchemaSpecFieldMaskSchema: FieldMaskSchema = {
+  messageName: {wire: 'message_name'},
+  schemaText: {wire: 'schema_text'},
+};
 
 const requestSourceFieldMaskSchema: FieldMaskSchema = {
   flatSchema: {wire: 'flat_schema', children: () => flatSchemaFieldMaskSchema},
 };
 
-export function requestSourceFieldMask(
-  ...paths: string[]
-): FieldMask<RequestSource> {
-  return FieldMask.build<RequestSource>(paths, requestSourceFieldMaskSchema);
-}
-
 const schemaConfigFieldMaskSchema: FieldMaskSchema = {
+  avroSchema: {wire: 'avro_schema'},
   jsonSchema: {wire: 'json_schema'},
+  protoSchema: {
+    wire: 'proto_schema',
+    children: () => protoSchemaSpecFieldMaskSchema,
+  },
 };
-
-export function schemaConfigFieldMask(
-  ...paths: string[]
-): FieldMask<SchemaConfig> {
-  return FieldMask.build<SchemaConfig>(paths, schemaConfigFieldMaskSchema);
-}
 
 const slidingWindowFieldMaskSchema: FieldMaskSchema = {
   slideDuration: {wire: 'slide_duration'},
   windowDuration: {wire: 'window_duration'},
 };
 
-export function slidingWindowFieldMask(
-  ...paths: string[]
-): FieldMask<SlidingWindow> {
-  return FieldMask.build<SlidingWindow>(paths, slidingWindowFieldMaskSchema);
-}
-
 const stddevPopFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
 
-export function stddevPopFunctionFieldMask(
-  ...paths: string[]
-): FieldMask<StddevPopFunction> {
-  return FieldMask.build<StddevPopFunction>(
-    paths,
-    stddevPopFunctionFieldMaskSchema
-  );
-}
-
 const stddevSampFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
-
-export function stddevSampFunctionFieldMask(
-  ...paths: string[]
-): FieldMask<StddevSampFunction> {
-  return FieldMask.build<StddevSampFunction>(
-    paths,
-    stddevSampFunctionFieldMaskSchema
-  );
-}
 
 const subscriptionModeFieldMaskSchema: FieldMaskSchema = {
   assign: {wire: 'assign'},
@@ -2539,24 +2057,9 @@ const subscriptionModeFieldMaskSchema: FieldMaskSchema = {
   subscribePattern: {wire: 'subscribe_pattern'},
 };
 
-export function subscriptionModeFieldMask(
-  ...paths: string[]
-): FieldMask<SubscriptionMode> {
-  return FieldMask.build<SubscriptionMode>(
-    paths,
-    subscriptionModeFieldMaskSchema
-  );
-}
-
 const sumFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
-
-export function sumFunctionFieldMask(
-  ...paths: string[]
-): FieldMask<SumFunction> {
-  return FieldMask.build<SumFunction>(paths, sumFunctionFieldMaskSchema);
-}
 
 const timeWindowFieldMaskSchema: FieldMaskSchema = {
   continuous: {
@@ -2567,100 +2070,18 @@ const timeWindowFieldMaskSchema: FieldMaskSchema = {
   tumbling: {wire: 'tumbling', children: () => tumblingWindowFieldMaskSchema},
 };
 
-export function timeWindowFieldMask(...paths: string[]): FieldMask<TimeWindow> {
-  return FieldMask.build<TimeWindow>(paths, timeWindowFieldMaskSchema);
-}
-
 const timeseriesColumnFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
 };
-
-export function timeseriesColumnFieldMask(
-  ...paths: string[]
-): FieldMask<TimeseriesColumn> {
-  return FieldMask.build<TimeseriesColumn>(
-    paths,
-    timeseriesColumnFieldMaskSchema
-  );
-}
 
 const tumblingWindowFieldMaskSchema: FieldMaskSchema = {
   windowDuration: {wire: 'window_duration'},
 };
 
-export function tumblingWindowFieldMask(
-  ...paths: string[]
-): FieldMask<TumblingWindow> {
-  return FieldMask.build<TumblingWindow>(paths, tumblingWindowFieldMaskSchema);
-}
-
-const updateFeatureRequestFieldMaskSchema: FieldMaskSchema = {
-  feature: {wire: 'feature', children: () => featureFieldMaskSchema},
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateFeatureRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateFeatureRequest> {
-  return FieldMask.build<UpdateFeatureRequest>(
-    paths,
-    updateFeatureRequestFieldMaskSchema
-  );
-}
-
-const updateKafkaConfigRequestFieldMaskSchema: FieldMaskSchema = {
-  kafkaConfig: {
-    wire: 'kafka_config',
-    children: () => kafkaConfigFieldMaskSchema,
-  },
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateKafkaConfigRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateKafkaConfigRequest> {
-  return FieldMask.build<UpdateKafkaConfigRequest>(
-    paths,
-    updateKafkaConfigRequestFieldMaskSchema
-  );
-}
-
-const updateMaterializedFeatureRequestFieldMaskSchema: FieldMaskSchema = {
-  materializedFeature: {
-    wire: 'materialized_feature',
-    children: () => materializedFeatureFieldMaskSchema,
-  },
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateMaterializedFeatureRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateMaterializedFeatureRequest> {
-  return FieldMask.build<UpdateMaterializedFeatureRequest>(
-    paths,
-    updateMaterializedFeatureRequestFieldMaskSchema
-  );
-}
-
 const varPopFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
 
-export function varPopFunctionFieldMask(
-  ...paths: string[]
-): FieldMask<VarPopFunction> {
-  return FieldMask.build<VarPopFunction>(paths, varPopFunctionFieldMaskSchema);
-}
-
 const varSampFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
-
-export function varSampFunctionFieldMask(
-  ...paths: string[]
-): FieldMask<VarSampFunction> {
-  return FieldMask.build<VarSampFunction>(
-    paths,
-    varSampFunctionFieldMaskSchema
-  );
-}

@@ -56,6 +56,7 @@ export type {
   MinFunction,
   OfflineStoreConfig,
   OnlineStoreConfig,
+  ProtoSchemaSpec,
   RequestSource,
   SchemaConfig,
   SlidingWindow,

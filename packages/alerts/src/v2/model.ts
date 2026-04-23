@@ -211,7 +211,7 @@ export interface TrashAlertRequest {
 
 export interface UpdateAlertRequest {
   alert?: Alert | undefined;
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<Alert> | undefined;
 }
 
 export const unmarshalAlertSchema: z.ZodType<Alert> = z
@@ -530,18 +530,6 @@ export const marshalCronScheduleSchema: z.ZodType = z
     effective_pause_status: d.effectivePauseStatus,
   }));
 
-export const marshalEmptySchema: z.ZodType = z.object({});
-
-export const marshalListAlertsResponseSchema: z.ZodType = z
-  .object({
-    alerts: z.array(z.lazy(() => marshalAlertSchema)).optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    alerts: d.alerts,
-    next_page_token: d.nextPageToken,
-  }));
-
 const alertFieldMaskSchema: FieldMaskSchema = {
   createTime: {wire: 'create_time'},
   customDescription: {wire: 'custom_description'},
@@ -585,40 +573,16 @@ const alertEvaluationFieldMaskSchema: FieldMaskSchema = {
   threshold: {wire: 'threshold', children: () => alertOperandFieldMaskSchema},
 };
 
-export function alertEvaluationFieldMask(
-  ...paths: string[]
-): FieldMask<AlertEvaluation> {
-  return FieldMask.build<AlertEvaluation>(
-    paths,
-    alertEvaluationFieldMaskSchema
-  );
-}
-
 const alertNotificationFieldMaskSchema: FieldMaskSchema = {
   notifyOnOk: {wire: 'notify_on_ok'},
   retriggerSeconds: {wire: 'retrigger_seconds'},
   subscriptions: {wire: 'subscriptions'},
 };
 
-export function alertNotificationFieldMask(
-  ...paths: string[]
-): FieldMask<AlertNotification> {
-  return FieldMask.build<AlertNotification>(
-    paths,
-    alertNotificationFieldMaskSchema
-  );
-}
-
 const alertOperandFieldMaskSchema: FieldMaskSchema = {
   column: {wire: 'column', children: () => alertOperandColumnFieldMaskSchema},
   value: {wire: 'value', children: () => alertOperandValueFieldMaskSchema},
 };
-
-export function alertOperandFieldMask(
-  ...paths: string[]
-): FieldMask<AlertOperand> {
-  return FieldMask.build<AlertOperand>(paths, alertOperandFieldMaskSchema);
-}
 
 const alertOperandColumnFieldMaskSchema: FieldMaskSchema = {
   aggregation: {wire: 'aggregation'},
@@ -626,65 +590,16 @@ const alertOperandColumnFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
 };
 
-export function alertOperandColumnFieldMask(
-  ...paths: string[]
-): FieldMask<AlertOperandColumn> {
-  return FieldMask.build<AlertOperandColumn>(
-    paths,
-    alertOperandColumnFieldMaskSchema
-  );
-}
-
 const alertOperandValueFieldMaskSchema: FieldMaskSchema = {
   boolValue: {wire: 'bool_value'},
   doubleValue: {wire: 'double_value'},
   stringValue: {wire: 'string_value'},
 };
 
-export function alertOperandValueFieldMask(
-  ...paths: string[]
-): FieldMask<AlertOperandValue> {
-  return FieldMask.build<AlertOperandValue>(
-    paths,
-    alertOperandValueFieldMaskSchema
-  );
-}
-
 const alertRunAsFieldMaskSchema: FieldMaskSchema = {
   servicePrincipalName: {wire: 'service_principal_name'},
   userName: {wire: 'user_name'},
 };
-
-export function alertRunAsFieldMask(...paths: string[]): FieldMask<AlertRunAs> {
-  return FieldMask.build<AlertRunAs>(paths, alertRunAsFieldMaskSchema);
-}
-
-const alertSubscriptionFieldMaskSchema: FieldMaskSchema = {
-  destinationId: {wire: 'destination_id'},
-  userEmail: {wire: 'user_email'},
-};
-
-export function alertSubscriptionFieldMask(
-  ...paths: string[]
-): FieldMask<AlertSubscription> {
-  return FieldMask.build<AlertSubscription>(
-    paths,
-    alertSubscriptionFieldMaskSchema
-  );
-}
-
-const createAlertRequestFieldMaskSchema: FieldMaskSchema = {
-  alert: {wire: 'alert', children: () => alertFieldMaskSchema},
-};
-
-export function createAlertRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateAlertRequest> {
-  return FieldMask.build<CreateAlertRequest>(
-    paths,
-    createAlertRequestFieldMaskSchema
-  );
-}
 
 const cronScheduleFieldMaskSchema: FieldMaskSchema = {
   effectivePauseStatus: {wire: 'effective_pause_status'},
@@ -692,84 +607,3 @@ const cronScheduleFieldMaskSchema: FieldMaskSchema = {
   quartzCronSchedule: {wire: 'quartz_cron_schedule'},
   timezoneId: {wire: 'timezone_id'},
 };
-
-export function cronScheduleFieldMask(
-  ...paths: string[]
-): FieldMask<CronSchedule> {
-  return FieldMask.build<CronSchedule>(paths, cronScheduleFieldMaskSchema);
-}
-
-const emptyFieldMaskSchema: FieldMaskSchema = {};
-
-export function emptyFieldMask(...paths: string[]): FieldMask<Empty> {
-  return FieldMask.build<Empty>(paths, emptyFieldMaskSchema);
-}
-
-const getAlertRequestFieldMaskSchema: FieldMaskSchema = {
-  id: {wire: 'id'},
-};
-
-export function getAlertRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetAlertRequest> {
-  return FieldMask.build<GetAlertRequest>(
-    paths,
-    getAlertRequestFieldMaskSchema
-  );
-}
-
-const listAlertsRequestFieldMaskSchema: FieldMaskSchema = {
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listAlertsRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListAlertsRequest> {
-  return FieldMask.build<ListAlertsRequest>(
-    paths,
-    listAlertsRequestFieldMaskSchema
-  );
-}
-
-const listAlertsResponseFieldMaskSchema: FieldMaskSchema = {
-  alerts: {wire: 'alerts'},
-  nextPageToken: {wire: 'next_page_token'},
-};
-
-export function listAlertsResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListAlertsResponse> {
-  return FieldMask.build<ListAlertsResponse>(
-    paths,
-    listAlertsResponseFieldMaskSchema
-  );
-}
-
-const trashAlertRequestFieldMaskSchema: FieldMaskSchema = {
-  id: {wire: 'id'},
-  purge: {wire: 'purge'},
-};
-
-export function trashAlertRequestFieldMask(
-  ...paths: string[]
-): FieldMask<TrashAlertRequest> {
-  return FieldMask.build<TrashAlertRequest>(
-    paths,
-    trashAlertRequestFieldMaskSchema
-  );
-}
-
-const updateAlertRequestFieldMaskSchema: FieldMaskSchema = {
-  alert: {wire: 'alert', children: () => alertFieldMaskSchema},
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateAlertRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateAlertRequest> {
-  return FieldMask.build<UpdateAlertRequest>(
-    paths,
-    updateAlertRequestFieldMaskSchema
-  );
-}

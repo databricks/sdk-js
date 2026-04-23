@@ -56,7 +56,7 @@ export interface TagAssignment {
 
 export interface UpdateTagAssignmentRequest {
   tagAssignment?: TagAssignment | undefined;
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<TagAssignment> | undefined;
 }
 
 export const unmarshalListTagAssignmentsResponseSchema: z.ZodType<ListTagAssignmentsResponse> =
@@ -86,18 +86,6 @@ export const unmarshalTagAssignmentSchema: z.ZodType<TagAssignment> = z
     tagValue: d.tag_value,
   }));
 
-export const marshalListTagAssignmentsResponseSchema: z.ZodType = z
-  .object({
-    tagAssignments: z
-      .array(z.lazy(() => marshalTagAssignmentSchema))
-      .optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    tag_assignments: d.tagAssignments,
-    next_page_token: d.nextPageToken,
-  }));
-
 export const marshalTagAssignmentSchema: z.ZodType = z
   .object({
     entityType: z.string().optional(),
@@ -112,82 +100,6 @@ export const marshalTagAssignmentSchema: z.ZodType = z
     tag_value: d.tagValue,
   }));
 
-const createTagAssignmentRequestFieldMaskSchema: FieldMaskSchema = {
-  tagAssignment: {
-    wire: 'tag_assignment',
-    children: () => tagAssignmentFieldMaskSchema,
-  },
-};
-
-export function createTagAssignmentRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateTagAssignmentRequest> {
-  return FieldMask.build<CreateTagAssignmentRequest>(
-    paths,
-    createTagAssignmentRequestFieldMaskSchema
-  );
-}
-
-const deleteTagAssignmentRequestFieldMaskSchema: FieldMaskSchema = {
-  entityId: {wire: 'entity_id'},
-  entityType: {wire: 'entity_type'},
-  tagKey: {wire: 'tag_key'},
-};
-
-export function deleteTagAssignmentRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteTagAssignmentRequest> {
-  return FieldMask.build<DeleteTagAssignmentRequest>(
-    paths,
-    deleteTagAssignmentRequestFieldMaskSchema
-  );
-}
-
-const getTagAssignmentRequestFieldMaskSchema: FieldMaskSchema = {
-  entityId: {wire: 'entity_id'},
-  entityType: {wire: 'entity_type'},
-  tagKey: {wire: 'tag_key'},
-};
-
-export function getTagAssignmentRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetTagAssignmentRequest> {
-  return FieldMask.build<GetTagAssignmentRequest>(
-    paths,
-    getTagAssignmentRequestFieldMaskSchema
-  );
-}
-
-const listTagAssignmentsRequestFieldMaskSchema: FieldMaskSchema = {
-  entityId: {wire: 'entity_id'},
-  entityType: {wire: 'entity_type'},
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listTagAssignmentsRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListTagAssignmentsRequest> {
-  return FieldMask.build<ListTagAssignmentsRequest>(
-    paths,
-    listTagAssignmentsRequestFieldMaskSchema
-  );
-}
-
-const listTagAssignmentsResponseFieldMaskSchema: FieldMaskSchema = {
-  nextPageToken: {wire: 'next_page_token'},
-  tagAssignments: {wire: 'tag_assignments'},
-};
-
-export function listTagAssignmentsResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListTagAssignmentsResponse> {
-  return FieldMask.build<ListTagAssignmentsResponse>(
-    paths,
-    listTagAssignmentsResponseFieldMaskSchema
-  );
-}
-
 const tagAssignmentFieldMaskSchema: FieldMaskSchema = {
   entityId: {wire: 'entity_id'},
   entityType: {wire: 'entity_type'},
@@ -199,21 +111,4 @@ export function tagAssignmentFieldMask(
   ...paths: string[]
 ): FieldMask<TagAssignment> {
   return FieldMask.build<TagAssignment>(paths, tagAssignmentFieldMaskSchema);
-}
-
-const updateTagAssignmentRequestFieldMaskSchema: FieldMaskSchema = {
-  tagAssignment: {
-    wire: 'tag_assignment',
-    children: () => tagAssignmentFieldMaskSchema,
-  },
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateTagAssignmentRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateTagAssignmentRequest> {
-  return FieldMask.build<UpdateTagAssignmentRequest>(
-    paths,
-    updateTagAssignmentRequestFieldMaskSchema
-  );
 }

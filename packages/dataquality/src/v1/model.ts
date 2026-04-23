@@ -510,7 +510,7 @@ export interface UpdateMonitorRequest {
    * The field mask to specify which fields to update as a comma-separated list.
    * Example value: `data_profiling_config.custom_metrics,data_profiling_config.schedule.quartz_cron_expression`
    */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<Monitor> | undefined;
 }
 
 /** Request to update a refresh. */
@@ -534,7 +534,7 @@ export interface UpdateRefreshRequest {
   /** The refresh to update. */
   refresh?: Refresh | undefined;
   /** The field mask to specify which fields to update. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<Refresh> | undefined;
 }
 
 export interface ValidityCheckConfiguration {
@@ -562,19 +562,6 @@ export const unmarshalAnomalyDetectionConfigSchema: z.ZodType<AnomalyDetectionCo
       jobType: d.job_type,
       excludedTableFullNames: d.excluded_table_full_names,
       validityCheckConfigurations: d.validity_check_configurations,
-    }));
-
-export const unmarshalCancelRefreshRequestSchema: z.ZodType<CancelRefreshRequest> =
-  z
-    .object({
-      object_type: z.string().optional(),
-      object_id: z.string().optional(),
-      refresh_id: z.number().optional(),
-    })
-    .transform(d => ({
-      objectType: d.object_type,
-      objectId: d.object_id,
-      refreshId: d.refresh_id,
     }));
 
 export const unmarshalCancelRefreshResponseSchema: z.ZodType<CancelRefreshResponse> =
@@ -866,14 +853,6 @@ export const marshalCancelRefreshRequestSchema: z.ZodType = z
     refresh_id: d.refreshId,
   }));
 
-export const marshalCancelRefreshResponseSchema: z.ZodType = z
-  .object({
-    refresh: z.lazy(() => marshalRefreshSchema).optional(),
-  })
-  .transform(d => ({
-    refresh: d.refresh,
-  }));
-
 export const marshalCronScheduleSchema: z.ZodType = z
   .object({
     quartzCronExpression: z.string().optional(),
@@ -970,26 +949,6 @@ export const marshalInferenceLogConfigSchema: z.ZodType = z
     label_column: d.labelColumn,
     model_id_column: d.modelIdColumn,
     prediction_probability_column: d.predictionProbabilityColumn,
-  }));
-
-export const marshalListMonitorResponseSchema: z.ZodType = z
-  .object({
-    monitors: z.array(z.lazy(() => marshalMonitorSchema)).optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    monitors: d.monitors,
-    next_page_token: d.nextPageToken,
-  }));
-
-export const marshalListRefreshResponseSchema: z.ZodType = z
-  .object({
-    refreshes: z.array(z.lazy(() => marshalRefreshSchema)).optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    refreshes: d.refreshes,
-    next_page_token: d.nextPageToken,
   }));
 
 export const marshalMonitorSchema: z.ZodType = z
@@ -1118,80 +1077,11 @@ const anomalyDetectionConfigFieldMaskSchema: FieldMaskSchema = {
   validityCheckConfigurations: {wire: 'validity_check_configurations'},
 };
 
-export function anomalyDetectionConfigFieldMask(
-  ...paths: string[]
-): FieldMask<AnomalyDetectionConfig> {
-  return FieldMask.build<AnomalyDetectionConfig>(
-    paths,
-    anomalyDetectionConfigFieldMaskSchema
-  );
-}
-
-const cancelRefreshRequestFieldMaskSchema: FieldMaskSchema = {
-  objectId: {wire: 'object_id'},
-  objectType: {wire: 'object_type'},
-  refreshId: {wire: 'refresh_id'},
-};
-
-export function cancelRefreshRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CancelRefreshRequest> {
-  return FieldMask.build<CancelRefreshRequest>(
-    paths,
-    cancelRefreshRequestFieldMaskSchema
-  );
-}
-
-const cancelRefreshResponseFieldMaskSchema: FieldMaskSchema = {
-  refresh: {wire: 'refresh', children: () => refreshFieldMaskSchema},
-};
-
-export function cancelRefreshResponseFieldMask(
-  ...paths: string[]
-): FieldMask<CancelRefreshResponse> {
-  return FieldMask.build<CancelRefreshResponse>(
-    paths,
-    cancelRefreshResponseFieldMaskSchema
-  );
-}
-
-const createMonitorRequestFieldMaskSchema: FieldMaskSchema = {
-  monitor: {wire: 'monitor', children: () => monitorFieldMaskSchema},
-};
-
-export function createMonitorRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateMonitorRequest> {
-  return FieldMask.build<CreateMonitorRequest>(
-    paths,
-    createMonitorRequestFieldMaskSchema
-  );
-}
-
-const createRefreshRequestFieldMaskSchema: FieldMaskSchema = {
-  refresh: {wire: 'refresh', children: () => refreshFieldMaskSchema},
-};
-
-export function createRefreshRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateRefreshRequest> {
-  return FieldMask.build<CreateRefreshRequest>(
-    paths,
-    createRefreshRequestFieldMaskSchema
-  );
-}
-
 const cronScheduleFieldMaskSchema: FieldMaskSchema = {
   pauseStatus: {wire: 'pause_status'},
   quartzCronExpression: {wire: 'quartz_cron_expression'},
   timezoneId: {wire: 'timezone_id'},
 };
-
-export function cronScheduleFieldMask(
-  ...paths: string[]
-): FieldMask<CronSchedule> {
-  return FieldMask.build<CronSchedule>(paths, cronScheduleFieldMaskSchema);
-}
 
 const dataProfilingConfigFieldMaskSchema: FieldMaskSchema = {
   assetsDir: {wire: 'assets_dir'},
@@ -1225,90 +1115,6 @@ const dataProfilingConfigFieldMaskSchema: FieldMaskSchema = {
   warehouseId: {wire: 'warehouse_id'},
 };
 
-export function dataProfilingConfigFieldMask(
-  ...paths: string[]
-): FieldMask<DataProfilingConfig> {
-  return FieldMask.build<DataProfilingConfig>(
-    paths,
-    dataProfilingConfigFieldMaskSchema
-  );
-}
-
-const dataProfilingCustomMetricFieldMaskSchema: FieldMaskSchema = {
-  definition: {wire: 'definition'},
-  inputColumns: {wire: 'input_columns'},
-  name: {wire: 'name'},
-  outputDataType: {wire: 'output_data_type'},
-  type: {wire: 'type'},
-};
-
-export function dataProfilingCustomMetricFieldMask(
-  ...paths: string[]
-): FieldMask<DataProfilingCustomMetric> {
-  return FieldMask.build<DataProfilingCustomMetric>(
-    paths,
-    dataProfilingCustomMetricFieldMaskSchema
-  );
-}
-
-const deleteMonitorRequestFieldMaskSchema: FieldMaskSchema = {
-  objectId: {wire: 'object_id'},
-  objectType: {wire: 'object_type'},
-};
-
-export function deleteMonitorRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteMonitorRequest> {
-  return FieldMask.build<DeleteMonitorRequest>(
-    paths,
-    deleteMonitorRequestFieldMaskSchema
-  );
-}
-
-const deleteRefreshRequestFieldMaskSchema: FieldMaskSchema = {
-  objectId: {wire: 'object_id'},
-  objectType: {wire: 'object_type'},
-  refreshId: {wire: 'refresh_id'},
-};
-
-export function deleteRefreshRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteRefreshRequest> {
-  return FieldMask.build<DeleteRefreshRequest>(
-    paths,
-    deleteRefreshRequestFieldMaskSchema
-  );
-}
-
-const getMonitorRequestFieldMaskSchema: FieldMaskSchema = {
-  objectId: {wire: 'object_id'},
-  objectType: {wire: 'object_type'},
-};
-
-export function getMonitorRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetMonitorRequest> {
-  return FieldMask.build<GetMonitorRequest>(
-    paths,
-    getMonitorRequestFieldMaskSchema
-  );
-}
-
-const getRefreshRequestFieldMaskSchema: FieldMaskSchema = {
-  objectId: {wire: 'object_id'},
-  objectType: {wire: 'object_type'},
-  refreshId: {wire: 'refresh_id'},
-};
-
-export function getRefreshRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetRefreshRequest> {
-  return FieldMask.build<GetRefreshRequest>(
-    paths,
-    getRefreshRequestFieldMaskSchema
-  );
-}
-
 const inferenceLogConfigFieldMaskSchema: FieldMaskSchema = {
   granularities: {wire: 'granularities'},
   labelColumn: {wire: 'label_column'},
@@ -1318,73 +1124,6 @@ const inferenceLogConfigFieldMaskSchema: FieldMaskSchema = {
   problemType: {wire: 'problem_type'},
   timestampColumn: {wire: 'timestamp_column'},
 };
-
-export function inferenceLogConfigFieldMask(
-  ...paths: string[]
-): FieldMask<InferenceLogConfig> {
-  return FieldMask.build<InferenceLogConfig>(
-    paths,
-    inferenceLogConfigFieldMaskSchema
-  );
-}
-
-const listMonitorRequestFieldMaskSchema: FieldMaskSchema = {
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listMonitorRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListMonitorRequest> {
-  return FieldMask.build<ListMonitorRequest>(
-    paths,
-    listMonitorRequestFieldMaskSchema
-  );
-}
-
-const listMonitorResponseFieldMaskSchema: FieldMaskSchema = {
-  monitors: {wire: 'monitors'},
-  nextPageToken: {wire: 'next_page_token'},
-};
-
-export function listMonitorResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListMonitorResponse> {
-  return FieldMask.build<ListMonitorResponse>(
-    paths,
-    listMonitorResponseFieldMaskSchema
-  );
-}
-
-const listRefreshRequestFieldMaskSchema: FieldMaskSchema = {
-  objectId: {wire: 'object_id'},
-  objectType: {wire: 'object_type'},
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listRefreshRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListRefreshRequest> {
-  return FieldMask.build<ListRefreshRequest>(
-    paths,
-    listRefreshRequestFieldMaskSchema
-  );
-}
-
-const listRefreshResponseFieldMaskSchema: FieldMaskSchema = {
-  nextPageToken: {wire: 'next_page_token'},
-  refreshes: {wire: 'refreshes'},
-};
-
-export function listRefreshResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListRefreshResponse> {
-  return FieldMask.build<ListRefreshResponse>(
-    paths,
-    listRefreshResponseFieldMaskSchema
-  );
-}
 
 const monitorFieldMaskSchema: FieldMaskSchema = {
   anomalyDetectionConfig: {
@@ -1407,59 +1146,12 @@ const notificationDestinationFieldMaskSchema: FieldMaskSchema = {
   emailAddresses: {wire: 'email_addresses'},
 };
 
-export function notificationDestinationFieldMask(
-  ...paths: string[]
-): FieldMask<NotificationDestination> {
-  return FieldMask.build<NotificationDestination>(
-    paths,
-    notificationDestinationFieldMaskSchema
-  );
-}
-
 const notificationSettingsFieldMaskSchema: FieldMaskSchema = {
   onFailure: {
     wire: 'on_failure',
     children: () => notificationDestinationFieldMaskSchema,
   },
 };
-
-export function notificationSettingsFieldMask(
-  ...paths: string[]
-): FieldMask<NotificationSettings> {
-  return FieldMask.build<NotificationSettings>(
-    paths,
-    notificationSettingsFieldMaskSchema
-  );
-}
-
-const percentNullValidityCheckFieldMaskSchema: FieldMaskSchema = {
-  columnNames: {wire: 'column_names'},
-  upperBound: {wire: 'upper_bound'},
-};
-
-export function percentNullValidityCheckFieldMask(
-  ...paths: string[]
-): FieldMask<PercentNullValidityCheck> {
-  return FieldMask.build<PercentNullValidityCheck>(
-    paths,
-    percentNullValidityCheckFieldMaskSchema
-  );
-}
-
-const rangeValidityCheckFieldMaskSchema: FieldMaskSchema = {
-  columnNames: {wire: 'column_names'},
-  lowerBound: {wire: 'lower_bound'},
-  upperBound: {wire: 'upper_bound'},
-};
-
-export function rangeValidityCheckFieldMask(
-  ...paths: string[]
-): FieldMask<RangeValidityCheck> {
-  return FieldMask.build<RangeValidityCheck>(
-    paths,
-    rangeValidityCheckFieldMaskSchema
-  );
-}
 
 const refreshFieldMaskSchema: FieldMaskSchema = {
   endTimeMs: {wire: 'end_time_ms'},
@@ -1478,93 +1170,7 @@ export function refreshFieldMask(...paths: string[]): FieldMask<Refresh> {
 
 const snapshotConfigFieldMaskSchema: FieldMaskSchema = {};
 
-export function snapshotConfigFieldMask(
-  ...paths: string[]
-): FieldMask<SnapshotConfig> {
-  return FieldMask.build<SnapshotConfig>(paths, snapshotConfigFieldMaskSchema);
-}
-
 const timeSeriesConfigFieldMaskSchema: FieldMaskSchema = {
   granularities: {wire: 'granularities'},
   timestampColumn: {wire: 'timestamp_column'},
 };
-
-export function timeSeriesConfigFieldMask(
-  ...paths: string[]
-): FieldMask<TimeSeriesConfig> {
-  return FieldMask.build<TimeSeriesConfig>(
-    paths,
-    timeSeriesConfigFieldMaskSchema
-  );
-}
-
-const uniquenessValidityCheckFieldMaskSchema: FieldMaskSchema = {
-  columnNames: {wire: 'column_names'},
-};
-
-export function uniquenessValidityCheckFieldMask(
-  ...paths: string[]
-): FieldMask<UniquenessValidityCheck> {
-  return FieldMask.build<UniquenessValidityCheck>(
-    paths,
-    uniquenessValidityCheckFieldMaskSchema
-  );
-}
-
-const updateMonitorRequestFieldMaskSchema: FieldMaskSchema = {
-  monitor: {wire: 'monitor', children: () => monitorFieldMaskSchema},
-  objectId: {wire: 'object_id'},
-  objectType: {wire: 'object_type'},
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateMonitorRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateMonitorRequest> {
-  return FieldMask.build<UpdateMonitorRequest>(
-    paths,
-    updateMonitorRequestFieldMaskSchema
-  );
-}
-
-const updateRefreshRequestFieldMaskSchema: FieldMaskSchema = {
-  objectId: {wire: 'object_id'},
-  objectType: {wire: 'object_type'},
-  refresh: {wire: 'refresh', children: () => refreshFieldMaskSchema},
-  refreshId: {wire: 'refresh_id'},
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateRefreshRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateRefreshRequest> {
-  return FieldMask.build<UpdateRefreshRequest>(
-    paths,
-    updateRefreshRequestFieldMaskSchema
-  );
-}
-
-const validityCheckConfigurationFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-  percentNullValidityCheck: {
-    wire: 'percent_null_validity_check',
-    children: () => percentNullValidityCheckFieldMaskSchema,
-  },
-  rangeValidityCheck: {
-    wire: 'range_validity_check',
-    children: () => rangeValidityCheckFieldMaskSchema,
-  },
-  uniquenessValidityCheck: {
-    wire: 'uniqueness_validity_check',
-    children: () => uniquenessValidityCheckFieldMaskSchema,
-  },
-};
-
-export function validityCheckConfigurationFieldMask(
-  ...paths: string[]
-): FieldMask<ValidityCheckConfiguration> {
-  return FieldMask.build<ValidityCheckConfiguration>(
-    paths,
-    validityCheckConfigurationFieldMaskSchema
-  );
-}

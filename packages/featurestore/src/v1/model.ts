@@ -123,7 +123,7 @@ export interface UpdateOnlineStoreRequest {
   /** Online store to update. */
   onlineStore?: OnlineStore | undefined;
   /** The list of fields to update. */
-  updateMask?: string | undefined;
+  updateMask?: FieldMask<OnlineStore> | undefined;
 }
 
 export const unmarshalListOnlineStoresResponseSchema: z.ZodType<ListOnlineStoresResponse> =
@@ -162,29 +162,6 @@ export const unmarshalOnlineStoreSchema: z.ZodType<OnlineStore> = z
     usagePolicyId: d.usage_policy_id,
   }));
 
-export const unmarshalPublishSpecSchema: z.ZodType<PublishSpec> = z
-  .object({
-    online_store: z.string().optional(),
-    online_table_name: z.string().optional(),
-    publish_mode: z.enum(PublishSpec_PublishMode).optional(),
-  })
-  .transform(d => ({
-    onlineStore: d.online_store,
-    onlineTableName: d.online_table_name,
-    publishMode: d.publish_mode,
-  }));
-
-export const unmarshalPublishTableRequestSchema: z.ZodType<PublishTableRequest> =
-  z
-    .object({
-      source_table_name: z.string().optional(),
-      publish_spec: z.lazy(() => unmarshalPublishSpecSchema).optional(),
-    })
-    .transform(d => ({
-      sourceTableName: d.source_table_name,
-      publishSpec: d.publish_spec,
-    }));
-
 export const unmarshalPublishTableResponseSchema: z.ZodType<PublishTableResponse> =
   z
     .object({
@@ -195,16 +172,6 @@ export const unmarshalPublishTableResponseSchema: z.ZodType<PublishTableResponse
       onlineTableName: d.online_table_name,
       pipelineId: d.pipeline_id,
     }));
-
-export const marshalListOnlineStoresResponseSchema: z.ZodType = z
-  .object({
-    onlineStores: z.array(z.lazy(() => marshalOnlineStoreSchema)).optional(),
-    nextPageToken: z.string().optional(),
-  })
-  .transform(d => ({
-    online_stores: d.onlineStores,
-    next_page_token: d.nextPageToken,
-  }));
 
 export const marshalOnlineStoreSchema: z.ZodType = z
   .object({
@@ -251,99 +218,6 @@ export const marshalPublishTableRequestSchema: z.ZodType = z
     publish_spec: d.publishSpec,
   }));
 
-export const marshalPublishTableResponseSchema: z.ZodType = z
-  .object({
-    onlineTableName: z.string().optional(),
-    pipelineId: z.string().optional(),
-  })
-  .transform(d => ({
-    online_table_name: d.onlineTableName,
-    pipeline_id: d.pipelineId,
-  }));
-
-const createOnlineStoreRequestFieldMaskSchema: FieldMaskSchema = {
-  onlineStore: {
-    wire: 'online_store',
-    children: () => onlineStoreFieldMaskSchema,
-  },
-};
-
-export function createOnlineStoreRequestFieldMask(
-  ...paths: string[]
-): FieldMask<CreateOnlineStoreRequest> {
-  return FieldMask.build<CreateOnlineStoreRequest>(
-    paths,
-    createOnlineStoreRequestFieldMaskSchema
-  );
-}
-
-const deleteOnlineStoreRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function deleteOnlineStoreRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteOnlineStoreRequest> {
-  return FieldMask.build<DeleteOnlineStoreRequest>(
-    paths,
-    deleteOnlineStoreRequestFieldMaskSchema
-  );
-}
-
-const deleteOnlineTableRequestFieldMaskSchema: FieldMaskSchema = {
-  onlineTableName: {wire: 'online_table_name'},
-};
-
-export function deleteOnlineTableRequestFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteOnlineTableRequest> {
-  return FieldMask.build<DeleteOnlineTableRequest>(
-    paths,
-    deleteOnlineTableRequestFieldMaskSchema
-  );
-}
-
-const getOnlineStoreRequestFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-export function getOnlineStoreRequestFieldMask(
-  ...paths: string[]
-): FieldMask<GetOnlineStoreRequest> {
-  return FieldMask.build<GetOnlineStoreRequest>(
-    paths,
-    getOnlineStoreRequestFieldMaskSchema
-  );
-}
-
-const listOnlineStoresRequestFieldMaskSchema: FieldMaskSchema = {
-  pageSize: {wire: 'page_size'},
-  pageToken: {wire: 'page_token'},
-};
-
-export function listOnlineStoresRequestFieldMask(
-  ...paths: string[]
-): FieldMask<ListOnlineStoresRequest> {
-  return FieldMask.build<ListOnlineStoresRequest>(
-    paths,
-    listOnlineStoresRequestFieldMaskSchema
-  );
-}
-
-const listOnlineStoresResponseFieldMaskSchema: FieldMaskSchema = {
-  nextPageToken: {wire: 'next_page_token'},
-  onlineStores: {wire: 'online_stores'},
-};
-
-export function listOnlineStoresResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListOnlineStoresResponse> {
-  return FieldMask.build<ListOnlineStoresResponse>(
-    paths,
-    listOnlineStoresResponseFieldMaskSchema
-  );
-}
-
 const onlineStoreFieldMaskSchema: FieldMaskSchema = {
   capacity: {wire: 'capacity'},
   creationTime: {wire: 'creation_time'},
@@ -358,64 +232,4 @@ export function onlineStoreFieldMask(
   ...paths: string[]
 ): FieldMask<OnlineStore> {
   return FieldMask.build<OnlineStore>(paths, onlineStoreFieldMaskSchema);
-}
-
-const publishSpecFieldMaskSchema: FieldMaskSchema = {
-  onlineStore: {wire: 'online_store'},
-  onlineTableName: {wire: 'online_table_name'},
-  publishMode: {wire: 'publish_mode'},
-};
-
-export function publishSpecFieldMask(
-  ...paths: string[]
-): FieldMask<PublishSpec> {
-  return FieldMask.build<PublishSpec>(paths, publishSpecFieldMaskSchema);
-}
-
-const publishTableRequestFieldMaskSchema: FieldMaskSchema = {
-  publishSpec: {
-    wire: 'publish_spec',
-    children: () => publishSpecFieldMaskSchema,
-  },
-  sourceTableName: {wire: 'source_table_name'},
-};
-
-export function publishTableRequestFieldMask(
-  ...paths: string[]
-): FieldMask<PublishTableRequest> {
-  return FieldMask.build<PublishTableRequest>(
-    paths,
-    publishTableRequestFieldMaskSchema
-  );
-}
-
-const publishTableResponseFieldMaskSchema: FieldMaskSchema = {
-  onlineTableName: {wire: 'online_table_name'},
-  pipelineId: {wire: 'pipeline_id'},
-};
-
-export function publishTableResponseFieldMask(
-  ...paths: string[]
-): FieldMask<PublishTableResponse> {
-  return FieldMask.build<PublishTableResponse>(
-    paths,
-    publishTableResponseFieldMaskSchema
-  );
-}
-
-const updateOnlineStoreRequestFieldMaskSchema: FieldMaskSchema = {
-  onlineStore: {
-    wire: 'online_store',
-    children: () => onlineStoreFieldMaskSchema,
-  },
-  updateMask: {wire: 'update_mask'},
-};
-
-export function updateOnlineStoreRequestFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateOnlineStoreRequest> {
-  return FieldMask.build<UpdateOnlineStoreRequest>(
-    paths,
-    updateOnlineStoreRequestFieldMaskSchema
-  );
 }

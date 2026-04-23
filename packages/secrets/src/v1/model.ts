@@ -1,7 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-import {FieldMask} from '@databricks/sdk-core/wkt';
-import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 /** The ACL permission levels for Secret ACLs applied to secret scopes. */
@@ -217,61 +215,17 @@ export const unmarshalAzureKeyVaultSecretScopeMetadataSchema: z.ZodType<AzureKey
       dnsName: d.dns_name,
     }));
 
-export const unmarshalCreateScopeSchema: z.ZodType<CreateScope> = z
-  .object({
-    scope: z.string().optional(),
-    initial_manage_principal: z.string().optional(),
-    scope_backend_type: z.enum(ScopeBackendType).optional(),
-    backend_azure_keyvault: z
-      .lazy(() => unmarshalAzureKeyVaultSecretScopeMetadataSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    scope: d.scope,
-    initialManagePrincipal: d.initial_manage_principal,
-    scopeBackendType: d.scope_backend_type,
-    backendAzureKeyvault: d.backend_azure_keyvault,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalCreateScope_ResponseSchema: z.ZodType<CreateScope_Response> =
   z.object({});
-
-export const unmarshalDeleteAclSchema: z.ZodType<DeleteAcl> = z
-  .object({
-    scope: z.string().optional(),
-    principal: z.string().optional(),
-  })
-  .transform(d => ({
-    scope: d.scope,
-    principal: d.principal,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteAcl_ResponseSchema: z.ZodType<DeleteAcl_Response> =
   z.object({});
 
-export const unmarshalDeleteScopeSchema: z.ZodType<DeleteScope> = z
-  .object({
-    scope: z.string().optional(),
-  })
-  .transform(d => ({
-    scope: d.scope,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteScope_ResponseSchema: z.ZodType<DeleteScope_Response> =
   z.object({});
-
-export const unmarshalDeleteSecretSchema: z.ZodType<DeleteSecret> = z
-  .object({
-    scope: z.string().optional(),
-    key: z.string().optional(),
-  })
-  .transform(d => ({
-    scope: d.scope,
-    key: d.key,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteSecret_ResponseSchema: z.ZodType<DeleteSecret_Response> =
@@ -321,38 +275,9 @@ export const unmarshalListSecrets_ResponseSchema: z.ZodType<ListSecrets_Response
       secrets: d.secrets,
     }));
 
-export const unmarshalPutAclSchema: z.ZodType<PutAcl> = z
-  .object({
-    scope: z.string().optional(),
-    principal: z.string().optional(),
-    permission: z.enum(AclPermission).optional(),
-  })
-  .transform(d => ({
-    scope: d.scope,
-    principal: d.principal,
-    permission: d.permission,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalPutAcl_ResponseSchema: z.ZodType<PutAcl_Response> =
   z.object({});
-
-export const unmarshalPutSecretSchema: z.ZodType<PutSecret> = z
-  .object({
-    scope: z.string().optional(),
-    key: z.string().optional(),
-    string_value: z.string().optional(),
-    bytes_value: z
-      .string()
-      .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
-      .optional(),
-  })
-  .transform(d => ({
-    scope: d.scope,
-    key: d.key,
-    stringValue: d.string_value,
-    bytesValue: d.bytes_value,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalPutSecret_ResponseSchema: z.ZodType<PutSecret_Response> =
@@ -382,16 +307,6 @@ export const unmarshalSecretScopeSchema: z.ZodType<SecretScope> = z
     keyvaultMetadata: d.keyvault_metadata,
   }));
 
-export const marshalAclItemSchema: z.ZodType = z
-  .object({
-    principal: z.string().optional(),
-    permission: z.enum(AclPermission).optional(),
-  })
-  .transform(d => ({
-    principal: d.principal,
-    permission: d.permission,
-  }));
-
 export const marshalAzureKeyVaultSecretScopeMetadataSchema: z.ZodType = z
   .object({
     resourceId: z.string().optional(),
@@ -418,9 +333,6 @@ export const marshalCreateScopeSchema: z.ZodType = z
     backend_azure_keyvault: d.backendAzureKeyvault,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCreateScope_ResponseSchema: z.ZodType = z.object({});
-
 export const marshalDeleteAclSchema: z.ZodType = z
   .object({
     scope: z.string().optional(),
@@ -431,9 +343,6 @@ export const marshalDeleteAclSchema: z.ZodType = z
     principal: d.principal,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeleteAcl_ResponseSchema: z.ZodType = z.object({});
-
 export const marshalDeleteScopeSchema: z.ZodType = z
   .object({
     scope: z.string().optional(),
@@ -441,9 +350,6 @@ export const marshalDeleteScopeSchema: z.ZodType = z
   .transform(d => ({
     scope: d.scope,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeleteScope_ResponseSchema: z.ZodType = z.object({});
 
 export const marshalDeleteSecretSchema: z.ZodType = z
   .object({
@@ -453,52 +359,6 @@ export const marshalDeleteSecretSchema: z.ZodType = z
   .transform(d => ({
     scope: d.scope,
     key: d.key,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalDeleteSecret_ResponseSchema: z.ZodType = z.object({});
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalGetSecret_ResponseSchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    value: z
-      .any()
-      .transform((d: Uint8Array) =>
-        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
-      )
-      .optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalListAcls_ResponseSchema: z.ZodType = z
-  .object({
-    items: z.array(z.lazy(() => marshalAclItemSchema)).optional(),
-  })
-  .transform(d => ({
-    items: d.items,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalListScopes_ResponseSchema: z.ZodType = z
-  .object({
-    scopes: z.array(z.lazy(() => marshalSecretScopeSchema)).optional(),
-  })
-  .transform(d => ({
-    scopes: d.scopes,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalListSecrets_ResponseSchema: z.ZodType = z
-  .object({
-    secrets: z.array(z.lazy(() => marshalSecretMetadataSchema)).optional(),
-  })
-  .transform(d => ({
-    secrets: d.secrets,
   }));
 
 export const marshalPutAclSchema: z.ZodType = z
@@ -512,9 +372,6 @@ export const marshalPutAclSchema: z.ZodType = z
     principal: d.principal,
     permission: d.permission,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalPutAcl_ResponseSchema: z.ZodType = z.object({});
 
 export const marshalPutSecretSchema: z.ZodType = z
   .object({
@@ -534,327 +391,3 @@ export const marshalPutSecretSchema: z.ZodType = z
     string_value: d.stringValue,
     bytes_value: d.bytesValue,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalPutSecret_ResponseSchema: z.ZodType = z.object({});
-
-export const marshalSecretMetadataSchema: z.ZodType = z
-  .object({
-    key: z.string().optional(),
-    lastUpdatedTimestamp: z.number().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    last_updated_timestamp: d.lastUpdatedTimestamp,
-  }));
-
-export const marshalSecretScopeSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    backendType: z.enum(ScopeBackendType).optional(),
-    keyvaultMetadata: z
-      .lazy(() => marshalAzureKeyVaultSecretScopeMetadataSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    backend_type: d.backendType,
-    keyvault_metadata: d.keyvaultMetadata,
-  }));
-
-const aclItemFieldMaskSchema: FieldMaskSchema = {
-  permission: {wire: 'permission'},
-  principal: {wire: 'principal'},
-};
-
-export function aclItemFieldMask(...paths: string[]): FieldMask<AclItem> {
-  return FieldMask.build<AclItem>(paths, aclItemFieldMaskSchema);
-}
-
-const azureKeyVaultSecretScopeMetadataFieldMaskSchema: FieldMaskSchema = {
-  dnsName: {wire: 'dns_name'},
-  resourceId: {wire: 'resource_id'},
-};
-
-export function azureKeyVaultSecretScopeMetadataFieldMask(
-  ...paths: string[]
-): FieldMask<AzureKeyVaultSecretScopeMetadata> {
-  return FieldMask.build<AzureKeyVaultSecretScopeMetadata>(
-    paths,
-    azureKeyVaultSecretScopeMetadataFieldMaskSchema
-  );
-}
-
-const createScopeFieldMaskSchema: FieldMaskSchema = {
-  backendAzureKeyvault: {
-    wire: 'backend_azure_keyvault',
-    children: () => azureKeyVaultSecretScopeMetadataFieldMaskSchema,
-  },
-  initialManagePrincipal: {wire: 'initial_manage_principal'},
-  scope: {wire: 'scope'},
-  scopeBackendType: {wire: 'scope_backend_type'},
-};
-
-export function createScopeFieldMask(
-  ...paths: string[]
-): FieldMask<CreateScope> {
-  return FieldMask.build<CreateScope>(paths, createScopeFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const createScope_ResponseFieldMaskSchema: FieldMaskSchema = {};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function createScope_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<CreateScope_Response> {
-  return FieldMask.build<CreateScope_Response>(
-    paths,
-    createScope_ResponseFieldMaskSchema
-  );
-}
-
-const deleteAclFieldMaskSchema: FieldMaskSchema = {
-  principal: {wire: 'principal'},
-  scope: {wire: 'scope'},
-};
-
-export function deleteAclFieldMask(...paths: string[]): FieldMask<DeleteAcl> {
-  return FieldMask.build<DeleteAcl>(paths, deleteAclFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const deleteAcl_ResponseFieldMaskSchema: FieldMaskSchema = {};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function deleteAcl_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteAcl_Response> {
-  return FieldMask.build<DeleteAcl_Response>(
-    paths,
-    deleteAcl_ResponseFieldMaskSchema
-  );
-}
-
-const deleteScopeFieldMaskSchema: FieldMaskSchema = {
-  scope: {wire: 'scope'},
-};
-
-export function deleteScopeFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteScope> {
-  return FieldMask.build<DeleteScope>(paths, deleteScopeFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const deleteScope_ResponseFieldMaskSchema: FieldMaskSchema = {};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function deleteScope_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteScope_Response> {
-  return FieldMask.build<DeleteScope_Response>(
-    paths,
-    deleteScope_ResponseFieldMaskSchema
-  );
-}
-
-const deleteSecretFieldMaskSchema: FieldMaskSchema = {
-  key: {wire: 'key'},
-  scope: {wire: 'scope'},
-};
-
-export function deleteSecretFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteSecret> {
-  return FieldMask.build<DeleteSecret>(paths, deleteSecretFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const deleteSecret_ResponseFieldMaskSchema: FieldMaskSchema = {};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function deleteSecret_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<DeleteSecret_Response> {
-  return FieldMask.build<DeleteSecret_Response>(
-    paths,
-    deleteSecret_ResponseFieldMaskSchema
-  );
-}
-
-const getAclFieldMaskSchema: FieldMaskSchema = {
-  principal: {wire: 'principal'},
-  scope: {wire: 'scope'},
-};
-
-export function getAclFieldMask(...paths: string[]): FieldMask<GetAcl> {
-  return FieldMask.build<GetAcl>(paths, getAclFieldMaskSchema);
-}
-
-const getSecretFieldMaskSchema: FieldMaskSchema = {
-  key: {wire: 'key'},
-  scope: {wire: 'scope'},
-};
-
-export function getSecretFieldMask(...paths: string[]): FieldMask<GetSecret> {
-  return FieldMask.build<GetSecret>(paths, getSecretFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const getSecret_ResponseFieldMaskSchema: FieldMaskSchema = {
-  key: {wire: 'key'},
-  value: {wire: 'value'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function getSecret_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<GetSecret_Response> {
-  return FieldMask.build<GetSecret_Response>(
-    paths,
-    getSecret_ResponseFieldMaskSchema
-  );
-}
-
-const listAclsFieldMaskSchema: FieldMaskSchema = {
-  scope: {wire: 'scope'},
-};
-
-export function listAclsFieldMask(...paths: string[]): FieldMask<ListAcls> {
-  return FieldMask.build<ListAcls>(paths, listAclsFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const listAcls_ResponseFieldMaskSchema: FieldMaskSchema = {
-  items: {wire: 'items'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function listAcls_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListAcls_Response> {
-  return FieldMask.build<ListAcls_Response>(
-    paths,
-    listAcls_ResponseFieldMaskSchema
-  );
-}
-
-const listScopesFieldMaskSchema: FieldMaskSchema = {};
-
-export function listScopesFieldMask(...paths: string[]): FieldMask<ListScopes> {
-  return FieldMask.build<ListScopes>(paths, listScopesFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const listScopes_ResponseFieldMaskSchema: FieldMaskSchema = {
-  scopes: {wire: 'scopes'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function listScopes_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListScopes_Response> {
-  return FieldMask.build<ListScopes_Response>(
-    paths,
-    listScopes_ResponseFieldMaskSchema
-  );
-}
-
-const listSecretsFieldMaskSchema: FieldMaskSchema = {
-  scope: {wire: 'scope'},
-};
-
-export function listSecretsFieldMask(
-  ...paths: string[]
-): FieldMask<ListSecrets> {
-  return FieldMask.build<ListSecrets>(paths, listSecretsFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const listSecrets_ResponseFieldMaskSchema: FieldMaskSchema = {
-  secrets: {wire: 'secrets'},
-};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function listSecrets_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<ListSecrets_Response> {
-  return FieldMask.build<ListSecrets_Response>(
-    paths,
-    listSecrets_ResponseFieldMaskSchema
-  );
-}
-
-const putAclFieldMaskSchema: FieldMaskSchema = {
-  permission: {wire: 'permission'},
-  principal: {wire: 'principal'},
-  scope: {wire: 'scope'},
-};
-
-export function putAclFieldMask(...paths: string[]): FieldMask<PutAcl> {
-  return FieldMask.build<PutAcl>(paths, putAclFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const putAcl_ResponseFieldMaskSchema: FieldMaskSchema = {};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function putAcl_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<PutAcl_Response> {
-  return FieldMask.build<PutAcl_Response>(
-    paths,
-    putAcl_ResponseFieldMaskSchema
-  );
-}
-
-const putSecretFieldMaskSchema: FieldMaskSchema = {
-  bytesValue: {wire: 'bytes_value'},
-  key: {wire: 'key'},
-  scope: {wire: 'scope'},
-  stringValue: {wire: 'string_value'},
-};
-
-export function putSecretFieldMask(...paths: string[]): FieldMask<PutSecret> {
-  return FieldMask.build<PutSecret>(paths, putSecretFieldMaskSchema);
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const putSecret_ResponseFieldMaskSchema: FieldMaskSchema = {};
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function putSecret_ResponseFieldMask(
-  ...paths: string[]
-): FieldMask<PutSecret_Response> {
-  return FieldMask.build<PutSecret_Response>(
-    paths,
-    putSecret_ResponseFieldMaskSchema
-  );
-}
-
-const secretMetadataFieldMaskSchema: FieldMaskSchema = {
-  key: {wire: 'key'},
-  lastUpdatedTimestamp: {wire: 'last_updated_timestamp'},
-};
-
-export function secretMetadataFieldMask(
-  ...paths: string[]
-): FieldMask<SecretMetadata> {
-  return FieldMask.build<SecretMetadata>(paths, secretMetadataFieldMaskSchema);
-}
-
-const secretScopeFieldMaskSchema: FieldMaskSchema = {
-  backendType: {wire: 'backend_type'},
-  keyvaultMetadata: {
-    wire: 'keyvault_metadata',
-    children: () => azureKeyVaultSecretScopeMetadataFieldMaskSchema,
-  },
-  name: {wire: 'name'},
-};
-
-export function secretScopeFieldMask(
-  ...paths: string[]
-): FieldMask<SecretScope> {
-  return FieldMask.build<SecretScope>(paths, secretScopeFieldMaskSchema);
-}
