@@ -5,6 +5,15 @@
     "rootDir": "./src",
     "noEmit": true
   },
-  "include": ["src"],
-  "references": [{"path": "../databricks"}]
+  "include": [
+    "src"
+  ],
+  "references": [
+    {
+      "path": "../databricks"
+    },
+    {
+      "path": "../core"
+    }
+  ]
 }

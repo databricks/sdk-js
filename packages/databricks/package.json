@@ -10,18 +10,6 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./api": {
-      "types": "./dist/api/index.d.ts",
-      "import": "./dist/api/index.js"
-    },
-    "./apierror": {
-      "types": "./dist/apierror/index.d.ts",
-      "import": "./dist/apierror/index.js"
-    },
-    "./apierror/codes": {
-      "types": "./dist/apierror/codes/index.d.ts",
-      "import": "./dist/apierror/codes/index.js"
-    },
     "./logger": {
       "types": "./dist/logger/index.d.ts",
       "import": "./dist/logger/index.js"
@@ -57,6 +45,7 @@
   },
   "dependencies": {
     "@databricks/sdk-auth": "*",
+    "@databricks/sdk-core": "*",
     "zod": "^4.3.6"
   }
 }

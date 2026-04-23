@@ -13,8 +13,8 @@
  */
 
 import {newPatCredentials} from '@databricks/sdk-auth/credentials';
-import {APIError} from '@databricks/sdk-databricks/apierror';
-import {codeToString} from '@databricks/sdk-databricks/apierror/codes';
+import {APIError} from '@databricks/sdk-core/apierror';
+import {codeToString} from '@databricks/sdk-core/apierror/codes';
 import {LogLevel} from '@databricks/sdk-databricks/logger';
 
 const log = new LogLevel('debug');

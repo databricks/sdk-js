@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@databricks/sdk-auth": "*",
+    "@databricks/sdk-core": "*",
     "@databricks/sdk-databricks": "*"
   },
   "devDependencies": {

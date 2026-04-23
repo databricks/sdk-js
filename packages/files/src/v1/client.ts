@@ -5,10 +5,7 @@
 import type {Logger} from '@databricks/sdk-databricks/logger';
 import {NoOpLogger} from '@databricks/sdk-databricks/logger';
 import type {ClientOptions} from '@databricks/sdk-databricks/options';
-import type {
-  HttpClient,
-  HttpRequest,
-} from '@databricks/sdk-databricks/transport';
+import type {HttpClient, HttpRequest} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 
 import type {UploadRequest} from './model';
