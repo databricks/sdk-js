@@ -55,7 +55,8 @@ export class Client {
     const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.metastoreId ?? ''}/systemschemas/${req.schema ?? ''}`;
     let resp: DisableSystemSchema_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -86,7 +87,8 @@ export class Client {
     const body = marshalRequest(req, marshalEnableSystemSchemaSchema);
     let resp: EnableSystemSchema_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PUT', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -130,7 +132,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListSystemSchemas_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,

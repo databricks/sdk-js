@@ -74,12 +74,10 @@ export async function executeHttpCall(
 export function buildHttpRequest(
   method: string,
   url: string,
+  headers: Headers,
   signal?: AbortSignal,
-  body?: string
+  body?: string | ReadableStream<Uint8Array>
 ): HttpRequest {
-  const headers = new Headers();
-  headers.set('Content-Type', 'application/json');
-
   const req: HttpRequest = {url, method, headers};
   if (body !== undefined) {
     req.body = body;

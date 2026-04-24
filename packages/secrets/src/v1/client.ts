@@ -122,7 +122,8 @@ export class Client {
     const body = marshalRequest(req, marshalCreateScopeSchema);
     let resp: CreateScope_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -164,7 +165,8 @@ export class Client {
     const body = marshalRequest(req, marshalDeleteAclSchema);
     let resp: DeleteAcl_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -203,7 +205,8 @@ export class Client {
     const body = marshalRequest(req, marshalDeleteScopeSchema);
     let resp: DeleteScope_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -244,7 +247,8 @@ export class Client {
     const body = marshalRequest(req, marshalDeleteSecretSchema);
     let resp: DeleteSecret_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -294,7 +298,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: AclItem | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -356,7 +361,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GetSecret_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -407,7 +413,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListAcls_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -449,7 +456,8 @@ export class Client {
     const url = `${this.host}/api/2.0/secrets/scopes/list`;
     let resp: ListScopes_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -505,7 +513,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListSecrets_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -563,7 +572,8 @@ export class Client {
     const body = marshalRequest(req, marshalPutAclSchema);
     let resp: PutAcl_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -619,7 +629,8 @@ export class Client {
     const body = marshalRequest(req, marshalPutSecretSchema);
     let resp: PutSecret_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,

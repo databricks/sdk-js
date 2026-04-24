@@ -1407,7 +1407,10 @@ export interface EndpointSpec {
   endpointType?: EndpointType | undefined;
   /** The minimum number of Compute Units. Minimum value is 0.5. */
   autoscalingLimitMinCu?: number | undefined;
-  /** The maximum number of Compute Units. Minimum value is 0.5. */
+  /**
+   * The maximum number of Compute Units. The maximum value is 64.
+   * The difference between the minimum and maximum Compute Units (max - min) must not exceed 16.
+   */
   autoscalingLimitMaxCu?: number | undefined;
   /**
    * Whether to restrict connections to the compute endpoint.
@@ -1444,7 +1447,10 @@ export interface EndpointStatus {
   lastActiveTime?: Temporal.Instant | undefined;
   /** The minimum number of Compute Units. */
   autoscalingLimitMinCu?: number | undefined;
-  /** The maximum number of Compute Units. */
+  /**
+   * The maximum number of Compute Units. The maximum value is 64.
+   * The difference between the minimum and maximum Compute Units (max - min) must not exceed 16.
+   */
   autoscalingLimitMaxCu?: number | undefined;
   currentState?: EndpointStatus_State | undefined;
   pendingState?: EndpointStatus_State | undefined;
@@ -1673,9 +1679,25 @@ export interface GetTableRequest {
   name?: string | undefined;
 }
 
+/** Configuration for the initial default branch created during project creation. */
+export interface InitialBranchSpec {
+  /** Whether the initial default branch should be protected from deletion. */
+  isProtected?: boolean | undefined;
+}
+
+/** Configuration for the initial Read/Write endpoint created during project creation. */
 export interface InitialEndpointSpec {
-  /** Settings for HA configuration of the endpoint */
+  /** Settings for HA configuration of the endpoint. */
   group?: EndpointGroupSpec | undefined;
+  /** The minimum number of Compute Units for the initial endpoint. */
+  autoscalingLimitMinCu?: number | undefined;
+  /** The maximum number of Compute Units for the initial endpoint. */
+  autoscalingLimitMaxCu?: number | undefined;
+  /**
+   * Duration of inactivity after which the initial endpoint is automatically suspended.
+   * If specified, should be between 60s and 604800s (1 minute to 1 week).
+   */
+  suspendTimeoutDuration?: Temporal.Duration | undefined;
 }
 
 export interface ListBranchesRequest {
@@ -1895,6 +1917,12 @@ export interface Project {
    * Empty if the project is not deleted, otherwise set to a timestamp in the future.
    */
   purgeTime?: Temporal.Instant | undefined;
+  /**
+   * Configuration for the initial default branch created as part of project creation.
+   * Allows overriding branch protection. These settings only apply at creation time
+   * and do not affect resources created after project creation.
+   */
+  initialBranchSpec?: InitialBranchSpec | undefined;
 }
 
 export interface ProjectCustomTag {
@@ -1938,7 +1966,7 @@ export interface ProjectSpec {
   displayName?: string | undefined;
   /** The major Postgres version number. Supported versions are 16 and 17. */
   pgVersion?: number | undefined;
-  /** The number of seconds to retain the shared history for point in time recovery for all branches in this project. Value should be between 172800s (2 days) and 2592000s (30 days). */
+  /** The number of seconds to retain the shared history for point in time recovery for all branches in this project. Value should be between 172800s (2 days) and 3024000s (35 days). */
   historyRetentionDuration?: Temporal.Duration | undefined;
   defaultEndpointSettings?: ProjectDefaultEndpointSettings | undefined;
   /**
@@ -2975,13 +3003,30 @@ export const unmarshalForwardEtlTableMappingSchema: z.ZodType<ForwardEtlTableMap
       enabled: d.enabled,
     }));
 
+export const unmarshalInitialBranchSpecSchema: z.ZodType<InitialBranchSpec> = z
+  .object({
+    is_protected: z.boolean().optional(),
+  })
+  .transform(d => ({
+    isProtected: d.is_protected,
+  }));
+
 export const unmarshalInitialEndpointSpecSchema: z.ZodType<InitialEndpointSpec> =
   z
     .object({
       group: z.lazy(() => unmarshalEndpointGroupSpecSchema).optional(),
+      autoscaling_limit_min_cu: z.number().optional(),
+      autoscaling_limit_max_cu: z.number().optional(),
+      suspend_timeout_duration: z
+        .string()
+        .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+        .optional(),
     })
     .transform(d => ({
       group: d.group,
+      autoscalingLimitMinCu: d.autoscaling_limit_min_cu,
+      autoscalingLimitMaxCu: d.autoscaling_limit_max_cu,
+      suspendTimeoutDuration: d.suspend_timeout_duration,
     }));
 
 export const unmarshalListBranchesResponseSchema: z.ZodType<ListBranchesResponse> =
@@ -3108,6 +3153,9 @@ export const unmarshalProjectSchema: z.ZodType<Project> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
+    initial_branch_spec: z
+      .lazy(() => unmarshalInitialBranchSpecSchema)
+      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3119,6 +3167,7 @@ export const unmarshalProjectSchema: z.ZodType<Project> = z
     initialEndpointSpec: d.initial_endpoint_spec,
     deleteTime: d.delete_time,
     purgeTime: d.purge_time,
+    initialBranchSpec: d.initial_branch_spec,
   }));
 
 export const unmarshalProjectCustomTagSchema: z.ZodType<ProjectCustomTag> = z
@@ -3883,12 +3932,29 @@ export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
     expire_time: d.expireTime,
   }));
 
+export const marshalInitialBranchSpecSchema: z.ZodType = z
+  .object({
+    isProtected: z.boolean().optional(),
+  })
+  .transform(d => ({
+    is_protected: d.isProtected,
+  }));
+
 export const marshalInitialEndpointSpecSchema: z.ZodType = z
   .object({
     group: z.lazy(() => marshalEndpointGroupSpecSchema).optional(),
+    autoscalingLimitMinCu: z.number().optional(),
+    autoscalingLimitMaxCu: z.number().optional(),
+    suspendTimeoutDuration: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
   })
   .transform(d => ({
     group: d.group,
+    autoscaling_limit_min_cu: d.autoscalingLimitMinCu,
+    autoscaling_limit_max_cu: d.autoscalingLimitMaxCu,
+    suspend_timeout_duration: d.suspendTimeoutDuration,
   }));
 
 export const marshalNewPipelineSpecSchema: z.ZodType = z
@@ -3930,6 +3996,7 @@ export const marshalProjectSchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
+    initialBranchSpec: z.lazy(() => marshalInitialBranchSpecSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3941,6 +4008,7 @@ export const marshalProjectSchema: z.ZodType = z
     initial_endpoint_spec: d.initialEndpointSpec,
     delete_time: d.deleteTime,
     purge_time: d.purgeTime,
+    initial_branch_spec: d.initialBranchSpec,
   }));
 
 export const marshalProjectCustomTagSchema: z.ZodType = z
@@ -4476,13 +4544,24 @@ const endpointStatusFieldMaskSchema: FieldMaskSchema = {
   suspendTimeoutDuration: {wire: 'suspend_timeout_duration'},
 };
 
+const initialBranchSpecFieldMaskSchema: FieldMaskSchema = {
+  isProtected: {wire: 'is_protected'},
+};
+
 const initialEndpointSpecFieldMaskSchema: FieldMaskSchema = {
+  autoscalingLimitMaxCu: {wire: 'autoscaling_limit_max_cu'},
+  autoscalingLimitMinCu: {wire: 'autoscaling_limit_min_cu'},
   group: {wire: 'group', children: () => endpointGroupSpecFieldMaskSchema},
+  suspendTimeoutDuration: {wire: 'suspend_timeout_duration'},
 };
 
 const projectFieldMaskSchema: FieldMaskSchema = {
   createTime: {wire: 'create_time'},
   deleteTime: {wire: 'delete_time'},
+  initialBranchSpec: {
+    wire: 'initial_branch_spec',
+    children: () => initialBranchSpecFieldMaskSchema,
+  },
   initialEndpointSpec: {
     wire: 'initial_endpoint_spec',
     children: () => initialEndpointSpecFieldMaskSchema,

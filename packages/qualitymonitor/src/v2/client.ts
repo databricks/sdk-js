@@ -58,7 +58,8 @@ export class Client {
     );
     let resp: QualityMonitor | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -84,7 +85,8 @@ export class Client {
   ): Promise<void> {
     const url = `${this.host}/api/2.0/quality-monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -106,7 +108,8 @@ export class Client {
     const url = `${this.host}/api/2.0/quality-monitors/${req.objectType ?? ''}/${req.objectId ?? ''}`;
     let resp: QualityMonitor | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -142,7 +145,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListQualityMonitorResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -191,7 +195,8 @@ export class Client {
     );
     let resp: QualityMonitor | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PUT', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,

@@ -71,7 +71,8 @@ export class Client {
     const body = marshalRequest(req, marshalCancelRefreshSchema);
     let resp: CancelRefresh_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -110,7 +111,8 @@ export class Client {
     const body = marshalRequest(req, marshalCreateMonitorSchema);
     let resp: DataMonitorInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -150,7 +152,8 @@ export class Client {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullTableNameArg ?? ''}/monitor`;
     let resp: DeleteMonitor_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -189,7 +192,8 @@ export class Client {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullTableNameArg ?? ''}/monitor`;
     let resp: DataMonitorInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -226,7 +230,8 @@ export class Client {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullTableNameArg ?? ''}/monitor/refreshes/${String(req.refreshId ?? '')}`;
     let resp: RefreshInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -263,7 +268,8 @@ export class Client {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullTableNameArg ?? ''}/monitor/refreshes`;
     let resp: ListRefreshes_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -302,7 +308,8 @@ export class Client {
     const body = marshalRequest(req, marshalRegenerateDashboardSchema);
     let resp: RegenerateDashboard_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -344,7 +351,8 @@ export class Client {
     const body = marshalRequest(req, marshalRunRefreshSchema);
     let resp: RefreshInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -385,7 +393,8 @@ export class Client {
     const body = marshalRequest(req, marshalUpdateMonitorSchema);
     let resp: DataMonitorInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PUT', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,

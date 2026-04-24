@@ -64,7 +64,8 @@ export class Client {
     );
     let resp: EntityTagAssignment | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -96,7 +97,8 @@ export class Client {
   ): Promise<void> {
     const url = `${this.host}/api/2.1/unity-catalog/entity-tag-assignments/${req.entityType ?? ''}/${req.entityName ?? ''}/tags/${req.tagKey ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -121,7 +123,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: EntityTagAssignment | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -162,7 +165,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListEntityTagAssignmentsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -230,7 +234,14 @@ export class Client {
     );
     let resp: EntityTagAssignment | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,

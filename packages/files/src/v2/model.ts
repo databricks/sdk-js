@@ -33,6 +33,15 @@ export interface Create_Response {
   handle?: number | undefined;
 }
 
+/** Create a directory */
+export interface CreateDirectoryRequest {
+  /** The absolute path of a directory. */
+  directoryPath?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface CreateDirectoryResponse {}
+
 export interface Delete {
   /** The path of the file or directory to delete. The path should be the absolute DBFS path. */
   path?: string | undefined;
@@ -42,6 +51,64 @@ export interface Delete {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
 export interface Delete_Response {}
+
+/** Delete a directory */
+export interface DeleteDirectoryRequest {
+  /** The absolute path of a directory. */
+  directoryPath?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteDirectoryResponse {}
+
+/** Delete a file */
+export interface DeleteFileRequest {
+  /** The absolute path of the file. */
+  filePath?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DeleteFileResponse {}
+
+export interface DirectoryEntry {
+  /** The length of the file in bytes. This field is omitted for directories. */
+  fileSize?: number | undefined;
+  /** True if the path is a directory. */
+  isDirectory?: boolean | undefined;
+  /** Last modification time of given file in milliseconds since unix epoch. */
+  lastModified?: number | undefined;
+  /** The name of the file or directory. This is the last component of the path. */
+  name?: string | undefined;
+  /** The absolute path of the file or directory. */
+  path?: string | undefined;
+}
+
+/** Download a file */
+export interface DownloadFileRequest {
+  /** The absolute path of the file. */
+  filePath?: string | undefined;
+  /**
+   * The range of bytes to retrieve.
+   * The range is inclusive and zero-based, see
+   * [RFC 9110](https://datatracker.ietf.org/doc/html/rfc9110#name-range) for further details.
+   */
+  range?: string | undefined;
+  /**
+   * Download the file only if it has not been modified since the specified timestamp.
+   * If it has, a 412 Precondition Failed error will be returned.
+   * See [RFC 9110](https://datatracker.ietf.org/doc/html/rfc9110#name-if-unmodified-since) for further details.
+   */
+  ifUnmodifiedSince?: string | undefined;
+}
+
+export interface DownloadFileResponse {
+  /** The length of the HTTP response body in bytes. */
+  contentLength?: number | undefined;
+  contentType?: string | undefined;
+  contents?: ReadableStream | undefined;
+  /** The last modified time of the file in HTTP-date (RFC 7231) format. */
+  lastModified?: string | undefined;
+}
 
 /** Stores the attributes of a file or directory. */
 export interface FileInfo {
@@ -53,6 +120,41 @@ export interface FileInfo {
   fileSize?: number | undefined;
   /** Last modification time of given file in milliseconds since epoch. */
   modificationTime?: number | undefined;
+}
+
+/** Get directory metadata */
+export interface GetDirectoryMetadataRequest {
+  /** The absolute path of a directory. */
+  directoryPath?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface GetDirectoryMetadataResponse {}
+
+/** Get file metadata */
+export interface GetFileMetadataRequest {
+  /** The absolute path of the file. */
+  filePath?: string | undefined;
+  /**
+   * The range of bytes to retrieve.
+   * The range is inclusive and zero-based, see
+   * [RFC 9110](https://datatracker.ietf.org/doc/html/rfc9110#name-range) for further details.
+   */
+  range?: string | undefined;
+  /**
+   * Download the file only if it has not been modified since the specified timestamp.
+   * If it has, a 412 Precondition Failed error will be returned.
+   * See [RFC 9110](https://datatracker.ietf.org/doc/html/rfc9110#name-if-unmodified-since) for further details.
+   */
+  ifUnmodifiedSince?: string | undefined;
+}
+
+export interface GetFileMetadataResponse {
+  /** The length of the HTTP response body in bytes. */
+  contentLength?: number | undefined;
+  contentType?: string | undefined;
+  /** The last modified time of the file in HTTP-date (RFC 7231) format. */
+  lastModified?: string | undefined;
 }
 
 export interface GetStatus {
@@ -70,6 +172,42 @@ export interface GetStatus_Response {
   fileSize?: number | undefined;
   /** Last modification time of given file in milliseconds since epoch. */
   modificationTime?: number | undefined;
+}
+
+/** List directory contents */
+export interface ListDirectoryContentsRequest {
+  /** The absolute path of a directory. */
+  directoryPath?: string | undefined;
+  /**
+   * The maximum number of directory entries to return. The response may contain fewer
+   * entries. If the response contains a `next_page_token`, there may be more entries,
+   * even if fewer than `page_size` entries are in the response.
+   *
+   * We recommend not to set this value unless you are intentionally listing less than
+   * the complete directory contents.
+   *
+   * If unspecified, at most 1000 directory entries will be returned.
+   * The maximum value is 1000. Values above 1000 will be coerced to 1000.
+   */
+  pageSize?: number | undefined;
+  /**
+   * An opaque page token which was the `next_page_token` in the response of the previous
+   * request to list the contents of this directory. Provide this token to retrieve the
+   * next page of directory entries.
+   * When providing a `page_token`, all other parameters provided to the request must match
+   * the previous request.
+   * To list all of the entries in a directory, it is necessary to continue requesting
+   * pages of entries until the response contains no `next_page_token`. Note that the
+   * number of entries returned must not be used to determine when the listing is complete.
+   */
+  pageToken?: string | undefined;
+}
+
+export interface ListDirectoryResponse {
+  /** Array of DirectoryEntry. */
+  contents?: DirectoryEntry[] | undefined;
+  /** A token, which can be sent as `page_token` to retrieve the next page. */
+  nextPageToken?: string | undefined;
 }
 
 export interface ListStatus {
@@ -136,6 +274,18 @@ export interface Read_Response {
   data?: Uint8Array | undefined;
 }
 
+/** Upload a file */
+export interface UploadFileRequest {
+  /** The absolute path of the file. */
+  filePath?: string | undefined;
+  contents?: ReadableStream | undefined;
+  /** If true or unspecified, an existing file will be overwritten. If false, an error will be returned if the path points to an existing file. */
+  overwrite?: boolean | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface UploadFileResponse {}
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalAddBlock_ResponseSchema: z.ZodType<AddBlock_Response> =
   z.object({});
@@ -153,9 +303,34 @@ export const unmarshalCreate_ResponseSchema: z.ZodType<Create_Response> = z
     handle: d.handle,
   }));
 
+export const unmarshalCreateDirectoryResponseSchema: z.ZodType<CreateDirectoryResponse> =
+  z.object({});
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDelete_ResponseSchema: z.ZodType<Delete_Response> =
   z.object({});
+
+export const unmarshalDeleteDirectoryResponseSchema: z.ZodType<DeleteDirectoryResponse> =
+  z.object({});
+
+export const unmarshalDeleteFileResponseSchema: z.ZodType<DeleteFileResponse> =
+  z.object({});
+
+export const unmarshalDirectoryEntrySchema: z.ZodType<DirectoryEntry> = z
+  .object({
+    file_size: z.number().optional(),
+    is_directory: z.boolean().optional(),
+    last_modified: z.number().optional(),
+    name: z.string().optional(),
+    path: z.string().optional(),
+  })
+  .transform(d => ({
+    fileSize: d.file_size,
+    isDirectory: d.is_directory,
+    lastModified: d.last_modified,
+    name: d.name,
+    path: d.path,
+  }));
 
 export const unmarshalFileInfoSchema: z.ZodType<FileInfo> = z
   .object({
@@ -171,6 +346,22 @@ export const unmarshalFileInfoSchema: z.ZodType<FileInfo> = z
     modificationTime: d.modification_time,
   }));
 
+export const unmarshalGetDirectoryMetadataResponseSchema: z.ZodType<GetDirectoryMetadataResponse> =
+  z.object({});
+
+export const unmarshalGetFileMetadataResponseSchema: z.ZodType<GetFileMetadataResponse> =
+  z
+    .object({
+      'content-length': z.number().optional(),
+      'content-type': z.string().optional(),
+      'last-modified': z.string().optional(),
+    })
+    .transform(d => ({
+      contentLength: d['content-length'],
+      contentType: d['content-type'],
+      lastModified: d['last-modified'],
+    }));
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalGetStatus_ResponseSchema: z.ZodType<GetStatus_Response> =
   z
@@ -185,6 +376,17 @@ export const unmarshalGetStatus_ResponseSchema: z.ZodType<GetStatus_Response> =
       isDir: d.is_dir,
       fileSize: d.file_size,
       modificationTime: d.modification_time,
+    }));
+
+export const unmarshalListDirectoryResponseSchema: z.ZodType<ListDirectoryResponse> =
+  z
+    .object({
+      contents: z.array(z.lazy(() => unmarshalDirectoryEntrySchema)).optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      contents: d.contents,
+      nextPageToken: d.next_page_token,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -224,6 +426,9 @@ export const unmarshalRead_ResponseSchema: z.ZodType<Read_Response> = z
     bytesRead: d.bytes_read,
     data: d.data,
   }));
+
+export const unmarshalUploadFileResponseSchema: z.ZodType<UploadFileResponse> =
+  z.object({});
 
 export const marshalAddBlockSchema: z.ZodType = z
   .object({

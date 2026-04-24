@@ -171,7 +171,14 @@ export class Client {
     );
     let resp: AccountAccessIdentityRule | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -194,7 +201,8 @@ export class Client {
   ): Promise<void> {
     const url = `${this.host}/api/2.0/${req.parent ?? ''}/account-access-identity-rules/${req.externalPrincipalId ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -213,7 +221,8 @@ export class Client {
     const url = `${this.host}/api/2.0/${req.parent ?? ''}/account-access-identity-rules/${req.externalPrincipalId ?? ''}`;
     let resp: AccountAccessIdentityRule | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -253,7 +262,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListAccountAccessIdentityRulesResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -290,7 +300,14 @@ export class Client {
     );
     let resp: DirectGroupMember | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -318,7 +335,8 @@ export class Client {
     );
     let resp: DirectGroupMember | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -349,7 +367,14 @@ export class Client {
     const body = marshalRequest(req.group, marshalGroupSchema);
     let resp: Group | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -374,7 +399,8 @@ export class Client {
     const body = marshalRequest(req.group, marshalGroupSchema);
     let resp: Group | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -403,7 +429,8 @@ export class Client {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -421,7 +448,8 @@ export class Client {
   ): Promise<void> {
     const url = `${this.host}/api/2.0/identity/groups/${String(req.groupId ?? '')}/direct-members/${String(req.principalId ?? '')}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -445,7 +473,8 @@ export class Client {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -463,7 +492,8 @@ export class Client {
   ): Promise<void> {
     const url = `${this.host}/api/2.0/identity/groups/${String(req.internalId ?? '')}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -488,7 +518,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: DirectGroupMember | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -512,7 +543,8 @@ export class Client {
     const url = `${this.host}/api/2.0/identity/groups/${String(req.groupId ?? '')}/direct-members/${String(req.principalId ?? '')}`;
     let resp: DirectGroupMember | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -542,7 +574,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: Group | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -566,7 +599,8 @@ export class Client {
     const url = `${this.host}/api/2.0/identity/groups/${String(req.internalId ?? '')}`;
     let resp: Group | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -602,7 +636,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListDirectGroupMembersResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -638,7 +673,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListDirectGroupMembersResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -680,7 +716,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListGroupsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -716,7 +753,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListGroupsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -752,7 +790,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListTransitiveParentGroupsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -788,7 +827,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListTransitiveParentGroupsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -819,7 +859,8 @@ export class Client {
     const body = marshalRequest(req, marshalResolveGroupRequestSchema);
     let resp: ResolveGroupResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -847,7 +888,8 @@ export class Client {
     const body = marshalRequest(req, marshalResolveGroupProxyRequestSchema);
     let resp: ResolveGroupResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -881,7 +923,14 @@ export class Client {
     const body = marshalRequest(req.group, marshalGroupSchema);
     let resp: Group | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -912,7 +961,14 @@ export class Client {
     const body = marshalRequest(req.group, marshalGroupSchema);
     let resp: Group | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -946,7 +1002,14 @@ export class Client {
     );
     let resp: ServicePrincipal | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -974,7 +1037,8 @@ export class Client {
     );
     let resp: ServicePrincipal | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1003,7 +1067,8 @@ export class Client {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1021,7 +1086,8 @@ export class Client {
   ): Promise<void> {
     const url = `${this.host}/api/2.0/identity/servicePrincipals/${String(req.internalId ?? '')}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1046,7 +1112,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ServicePrincipal | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1070,7 +1137,8 @@ export class Client {
     const url = `${this.host}/api/2.0/identity/servicePrincipals/${String(req.internalId ?? '')}`;
     let resp: ServicePrincipal | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1109,7 +1177,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListServicePrincipalsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1148,7 +1217,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListServicePrincipalsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1182,7 +1252,8 @@ export class Client {
     );
     let resp: ResolveServicePrincipalResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1216,7 +1287,8 @@ export class Client {
     );
     let resp: ResolveServicePrincipalResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1256,7 +1328,14 @@ export class Client {
     );
     let resp: ServicePrincipal | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1290,7 +1369,14 @@ export class Client {
     );
     let resp: ServicePrincipal | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1321,7 +1407,14 @@ export class Client {
     const body = marshalRequest(req.user, marshalUserSchema);
     let resp: User | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1346,7 +1439,8 @@ export class Client {
     const body = marshalRequest(req.user, marshalUserSchema);
     let resp: User | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1375,7 +1469,8 @@ export class Client {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1393,7 +1488,8 @@ export class Client {
   ): Promise<void> {
     const url = `${this.host}/api/2.0/identity/users/${String(req.internalId ?? '')}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1418,7 +1514,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: User | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1442,7 +1539,8 @@ export class Client {
     const url = `${this.host}/api/2.0/identity/users/${String(req.internalId ?? '')}`;
     let resp: User | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1481,7 +1579,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListUsersResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1517,7 +1616,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListUsersResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1545,7 +1645,8 @@ export class Client {
     const body = marshalRequest(req, marshalResolveUserRequestSchema);
     let resp: ResolveUserResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1573,7 +1674,8 @@ export class Client {
     const body = marshalRequest(req, marshalResolveUserProxyRequestSchema);
     let resp: ResolveUserResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1607,7 +1709,14 @@ export class Client {
     const body = marshalRequest(req.user, marshalUserSchema);
     let resp: User | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1638,7 +1747,14 @@ export class Client {
     const body = marshalRequest(req.user, marshalUserSchema);
     let resp: User | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1677,7 +1793,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: WorkspaceAccessDetail | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1713,7 +1830,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: WorkspaceAccessDetail | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1749,7 +1867,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListWorkspaceAccessDetailsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1785,7 +1904,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListWorkspaceAccessDetailsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1827,7 +1947,14 @@ export class Client {
     );
     let resp: WorkspaceAssignmentDetail | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1861,7 +1988,8 @@ export class Client {
     );
     let resp: WorkspaceAssignmentDetail | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1895,7 +2023,8 @@ export class Client {
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1918,7 +2047,8 @@ export class Client {
   ): Promise<void> {
     const url = `${this.host}/api/2.0/identity/workspaceAssignmentDetails/${String(req.principalId ?? '')}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1943,7 +2073,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: WorkspaceAssignmentDetail | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1967,7 +2098,8 @@ export class Client {
     const url = `${this.host}/api/2.0/identity/workspaceAssignmentDetails/${String(req.principalId ?? '')}`;
     let resp: WorkspaceAssignmentDetail | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -2003,7 +2135,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListWorkspaceAssignmentDetailsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -2039,7 +2172,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListWorkspaceAssignmentDetailsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -2084,7 +2218,14 @@ export class Client {
     );
     let resp: WorkspaceAssignmentDetail | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -2123,7 +2264,14 @@ export class Client {
     );
     let resp: WorkspaceAssignmentDetail | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -2147,7 +2295,8 @@ export class Client {
     const url = `${this.host}/api/2.0/identity/workspaceIdentityDetails/${String(req.principalId ?? '')}`;
     let resp: WorkspaceIdentityDetail | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -2181,7 +2330,14 @@ export class Client {
     );
     let resp: WorkspaceIdentityDetail | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,

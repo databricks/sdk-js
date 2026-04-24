@@ -163,7 +163,14 @@ export class Client {
     const body = marshalRequest(req.branch, marshalBranchSchema);
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -203,7 +210,14 @@ export class Client {
     const body = marshalRequest(req.catalog, marshalCatalogSchema);
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -247,7 +261,14 @@ export class Client {
     const body = marshalRequest(req.database, marshalDatabaseSchema);
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -290,7 +311,14 @@ export class Client {
     const body = marshalRequest(req.endpoint, marshalEndpointSchema);
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -330,7 +358,14 @@ export class Client {
     const body = marshalRequest(req.project, marshalProjectSchema);
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -370,7 +405,14 @@ export class Client {
     const body = marshalRequest(req.role, marshalRoleSchema);
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -410,7 +452,14 @@ export class Client {
     const body = marshalRequest(req.syncedTable, marshalSyncedTableSchema);
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -444,7 +493,8 @@ export class Client {
     const body = marshalRequest(req.table, marshalTableSchema);
     let resp: Table | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -477,7 +527,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -510,7 +561,8 @@ export class Client {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -543,7 +595,8 @@ export class Client {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -576,7 +629,8 @@ export class Client {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -627,7 +681,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: DeleteForwardEtlConfigurationResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -660,7 +715,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -699,7 +755,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -732,7 +789,8 @@ export class Client {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -764,7 +822,8 @@ export class Client {
   ): Promise<void> {
     const url = `${this.host}/api/2.0/postgres/tables/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -798,7 +857,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: DisableForwardEtlResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('DELETE', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -826,7 +886,8 @@ export class Client {
     );
     let resp: DatabaseCredential | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -850,7 +911,8 @@ export class Client {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Branch | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -874,7 +936,8 @@ export class Client {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Catalog | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -901,7 +964,8 @@ export class Client {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: ComputeInstance | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -925,7 +989,8 @@ export class Client {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Database | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -949,7 +1014,8 @@ export class Client {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Endpoint | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -982,7 +1048,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ForwardEtlMetadata | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1015,7 +1082,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ForwardEtlStatus | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1039,7 +1107,8 @@ export class Client {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1063,7 +1132,8 @@ export class Client {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Project | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1087,7 +1157,8 @@ export class Client {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Role | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1111,7 +1182,8 @@ export class Client {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: SyncedTable | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1135,7 +1207,8 @@ export class Client {
     const url = `${this.host}/api/2.0/postgres/tables/${req.name ?? ''}`;
     let resp: Table | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', url, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1171,7 +1244,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListBranchesResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1225,7 +1299,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListComputeInstancesResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1279,7 +1354,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListDatabasesResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1330,7 +1406,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListEndpointsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1384,7 +1461,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListProjectsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1435,7 +1513,8 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListRolesResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('GET', fullUrl, callSignal);
+      const headers = new Headers();
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1478,7 +1557,8 @@ export class Client {
     const body = marshalRequest(req, marshalUndeleteBranchRequestSchema);
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1512,7 +1592,8 @@ export class Client {
     const body = marshalRequest(req, marshalUndeleteProjectRequestSchema);
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('POST', url, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1552,7 +1633,14 @@ export class Client {
     const body = marshalRequest(req.branch, marshalBranchSchema);
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1592,7 +1680,14 @@ export class Client {
     const body = marshalRequest(req.database, marshalDatabaseSchema);
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1632,7 +1727,14 @@ export class Client {
     const body = marshalRequest(req.endpoint, marshalEndpointSchema);
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1672,7 +1774,14 @@ export class Client {
     const body = marshalRequest(req.project, marshalProjectSchema);
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1712,7 +1821,14 @@ export class Client {
     const body = marshalRequest(req.role, marshalRoleSchema);
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const httpReq = buildHttpRequest('PATCH', fullUrl, callSignal, body);
+      const headers = new Headers({'Content-Type': 'application/json'});
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
