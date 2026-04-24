@@ -74,12 +74,10 @@ export async function executeHttpCall(
 export function buildHttpRequest(
   method: string,
   url: string,
+  headers: Headers,
   signal?: AbortSignal,
-  body?: string
+  body?: string | ReadableStream<Uint8Array>
 ): HttpRequest {
-  const headers = new Headers();
-  headers.set('Content-Type', 'application/json');
-
   const req: HttpRequest = {url, method, headers};
   if (body !== undefined) {
     req.body = body;
@@ -127,4 +125,50 @@ export function flattenQueryParams(
   } else {
     throw new Error(`Unsupported query parameter type: ${typeof value}`);
   }
+}
+
+/**
+ * Encodes a multi-segment path for use in a URL. Each segment is
+ * individually percent-encoded while preserving the "/" separators.
+ */
+export function encodeMultiSegmentPath(path: string): string {
+  return path
+    .split('/')
+    .map(segment => encodeURIComponent(segment))
+    .join('/');
+}
+
+/**
+ * Sends an HTTP request and checks for API errors. On non-2xx responses the
+ * body is buffered and parsed into an APIError. On 2xx the raw HttpResponse
+ * is returned with the body stream untouched.
+ */
+export async function sendAndCheckError(
+  opts: HttpCallOptions
+): Promise<HttpResponse> {
+  opts.logger.debug('HTTP request', {
+    method: opts.request.method,
+    url: opts.request.url,
+  });
+
+  let resp: HttpResponse;
+  try {
+    resp = await opts.httpClient.send(opts.request);
+  } catch (e: unknown) {
+    opts.logger.debug('HTTP request failed');
+    throw e;
+  }
+
+  opts.logger.debug('HTTP response', {statusCode: resp.statusCode});
+
+  if (resp.statusCode < 200 || resp.statusCode >= 300) {
+    const body = await readAll(resp.body);
+    const apiErr = APIError.fromHttpError(resp.statusCode, resp.headers, body);
+    if (apiErr !== undefined) {
+      throw apiErr;
+    }
+    throw new Error(`unexpected HTTP status ${String(resp.statusCode)}`);
+  }
+
+  return resp;
 }

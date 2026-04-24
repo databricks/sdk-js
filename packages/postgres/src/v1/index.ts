@@ -110,6 +110,7 @@ export type {
   GetRoleRequest,
   GetSyncedTableRequest,
   GetTableRequest,
+  InitialBranchSpec,
   InitialEndpointSpec,
   ListBranchesRequest,
   ListBranchesResponse,

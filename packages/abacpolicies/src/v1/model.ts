@@ -91,13 +91,26 @@ export interface DenyOptions {
   privileges?: string[] | undefined;
 }
 
+/**
+ * An expression that is evaluated at query time against per-request context.
+ * New variants (e.g., identity attributes) are added as additional oneof cases.
+ */
+export interface FunctionArgExpression {
+  /** An expression that introspects tags at query time. */
+  tagIntrospection?: TagIntrospectionExpression | undefined;
+}
+
 export interface FunctionArgument {
   /** The alias of a matched column. */
   alias?: string | undefined;
   /** A constant literal. */
   constant?: string | undefined;
-  /** A metadata extraction expression resolved at query time. */
-  metadataExtraction?: MetadataExtractionExpression | undefined;
+  /**
+   * An expression evaluated at query time. Wraps per-request expression variants
+   * (e.g., tag introspection) so new variants can be added without extending the
+   * FunctionArgument oneof.
+   */
+  functionArgExpression?: FunctionArgExpression | undefined;
 }
 
 export interface GetPolicy {
@@ -155,14 +168,6 @@ export interface MatchColumn {
   condition?: string | undefined;
   /** Optional alias of the matched column. */
   alias?: string | undefined;
-}
-
-/** An expression that extracts metadata at query time. */
-export interface MetadataExtractionExpression {
-  /** Extracts the value of a securable-level tag. */
-  tagValue?: TagValueExtraction | undefined;
-  /** Extracts the value of a column-level tag. */
-  columnTagValue?: ColumnTagValueExtraction | undefined;
 }
 
 export interface PolicyInfo {
@@ -267,6 +272,14 @@ export interface RowFilterOptions {
   using?: FunctionArgument[] | undefined;
 }
 
+/** An expression that introspects tags at query time. */
+export interface TagIntrospectionExpression {
+  /** Extracts the value of a securable-level tag. */
+  tagValue?: TagValueExtraction | undefined;
+  /** Extracts the value of a column-level tag. */
+  columnTagValue?: ColumnTagValueExtraction | undefined;
+}
+
 /** Extracts the value of a securable-level tag: get_tag_value("tagKey"). */
 export interface TagValueExtraction {
   /** 1024 matches the max_length on FunctionArgument.constant above. */
@@ -332,18 +345,29 @@ export const unmarshalDenyOptionsSchema: z.ZodType<DenyOptions> = z
     privileges: d.privileges,
   }));
 
+export const unmarshalFunctionArgExpressionSchema: z.ZodType<FunctionArgExpression> =
+  z
+    .object({
+      tag_introspection: z
+        .lazy(() => unmarshalTagIntrospectionExpressionSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      tagIntrospection: d.tag_introspection,
+    }));
+
 export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
   .object({
     alias: z.string().optional(),
     constant: z.string().optional(),
-    metadata_extraction: z
-      .lazy(() => unmarshalMetadataExtractionExpressionSchema)
+    function_arg_expression: z
+      .lazy(() => unmarshalFunctionArgExpressionSchema)
       .optional(),
   })
   .transform(d => ({
     alias: d.alias,
     constant: d.constant,
-    metadataExtraction: d.metadata_extraction,
+    functionArgExpression: d.function_arg_expression,
   }));
 
 export const unmarshalGrantOptionsSchema: z.ZodType<GrantOptions> = z
@@ -375,19 +399,6 @@ export const unmarshalMatchColumnSchema: z.ZodType<MatchColumn> = z
     condition: d.condition,
     alias: d.alias,
   }));
-
-export const unmarshalMetadataExtractionExpressionSchema: z.ZodType<MetadataExtractionExpression> =
-  z
-    .object({
-      tag_value: z.lazy(() => unmarshalTagValueExtractionSchema).optional(),
-      column_tag_value: z
-        .lazy(() => unmarshalColumnTagValueExtractionSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      tagValue: d.tag_value,
-      columnTagValue: d.column_tag_value,
-    }));
 
 export const unmarshalPolicyInfoSchema: z.ZodType<PolicyInfo> = z
   .object({
@@ -445,6 +456,19 @@ export const unmarshalRowFilterOptionsSchema: z.ZodType<RowFilterOptions> = z
     using: d.using,
   }));
 
+export const unmarshalTagIntrospectionExpressionSchema: z.ZodType<TagIntrospectionExpression> =
+  z
+    .object({
+      tag_value: z.lazy(() => unmarshalTagValueExtractionSchema).optional(),
+      column_tag_value: z
+        .lazy(() => unmarshalColumnTagValueExtractionSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      tagValue: d.tag_value,
+      columnTagValue: d.column_tag_value,
+    }));
+
 export const unmarshalTagValueExtractionSchema: z.ZodType<TagValueExtraction> =
   z
     .object({
@@ -484,18 +508,28 @@ export const marshalDenyOptionsSchema: z.ZodType = z
     privileges: d.privileges,
   }));
 
+export const marshalFunctionArgExpressionSchema: z.ZodType = z
+  .object({
+    tagIntrospection: z
+      .lazy(() => marshalTagIntrospectionExpressionSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    tag_introspection: d.tagIntrospection,
+  }));
+
 export const marshalFunctionArgumentSchema: z.ZodType = z
   .object({
     alias: z.string().optional(),
     constant: z.string().optional(),
-    metadataExtraction: z
-      .lazy(() => marshalMetadataExtractionExpressionSchema)
+    functionArgExpression: z
+      .lazy(() => marshalFunctionArgExpressionSchema)
       .optional(),
   })
   .transform(d => ({
     alias: d.alias,
     constant: d.constant,
-    metadata_extraction: d.metadataExtraction,
+    function_arg_expression: d.functionArgExpression,
   }));
 
 export const marshalGrantOptionsSchema: z.ZodType = z
@@ -514,18 +548,6 @@ export const marshalMatchColumnSchema: z.ZodType = z
   .transform(d => ({
     condition: d.condition,
     alias: d.alias,
-  }));
-
-export const marshalMetadataExtractionExpressionSchema: z.ZodType = z
-  .object({
-    tagValue: z.lazy(() => marshalTagValueExtractionSchema).optional(),
-    columnTagValue: z
-      .lazy(() => marshalColumnTagValueExtractionSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    tag_value: d.tagValue,
-    column_tag_value: d.columnTagValue,
   }));
 
 export const marshalPolicyInfoSchema: z.ZodType = z
@@ -582,6 +604,18 @@ export const marshalRowFilterOptionsSchema: z.ZodType = z
   .transform(d => ({
     function_name: d.functionName,
     using: d.using,
+  }));
+
+export const marshalTagIntrospectionExpressionSchema: z.ZodType = z
+  .object({
+    tagValue: z.lazy(() => marshalTagValueExtractionSchema).optional(),
+    columnTagValue: z
+      .lazy(() => marshalColumnTagValueExtractionSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    tag_value: d.tagValue,
+    column_tag_value: d.columnTagValue,
   }));
 
 export const marshalTagValueExtractionSchema: z.ZodType = z
