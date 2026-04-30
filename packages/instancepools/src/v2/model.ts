@@ -249,8 +249,10 @@ export interface DiskSpec {
 
 /** Describes the disk type. */
 export interface DiskType {
-  ebsVolumeType?: EbsVolumeType | undefined;
-  azureDiskVolumeType?: AzureDiskVolumeType | undefined;
+  remoteVolumeType?:
+    | {$case: 'ebsVolumeType'; ebsVolumeType: EbsVolumeType}
+    | {$case: 'azureDiskVolumeType'; azureDiskVolumeType: AzureDiskVolumeType}
+    | undefined;
 }
 
 export interface DockerBasicAuth {
@@ -263,8 +265,13 @@ export interface DockerBasicAuth {
 export interface DockerImage {
   /** URL of the docker image. */
   url?: string | undefined;
-  /** Basic auth with username and password */
-  basicAuth?: DockerBasicAuth | undefined;
+  credsOneof?:
+    | {
+        $case: 'basicAuth';
+        /** Basic auth with username and password */
+        basicAuth: DockerBasicAuth;
+      }
+    | undefined;
 }
 
 export interface EditInstancePool {
@@ -804,8 +811,15 @@ export const unmarshalDiskTypeSchema: z.ZodType<DiskType> = z
     azure_disk_volume_type: z.enum(AzureDiskVolumeType).optional(),
   })
   .transform(d => ({
-    ebsVolumeType: d.ebs_volume_type,
-    azureDiskVolumeType: d.azure_disk_volume_type,
+    remoteVolumeType:
+      d.ebs_volume_type !== undefined
+        ? {$case: 'ebsVolumeType' as const, ebsVolumeType: d.ebs_volume_type}
+        : d.azure_disk_volume_type !== undefined
+          ? {
+              $case: 'azureDiskVolumeType' as const,
+              azureDiskVolumeType: d.azure_disk_volume_type,
+            }
+          : undefined,
   }));
 
 export const unmarshalDockerBasicAuthSchema: z.ZodType<DockerBasicAuth> = z
@@ -825,7 +839,10 @@ export const unmarshalDockerImageSchema: z.ZodType<DockerImage> = z
   })
   .transform(d => ({
     url: d.url,
-    basicAuth: d.basic_auth,
+    credsOneof:
+      d.basic_auth !== undefined
+        ? {$case: 'basicAuth' as const, basicAuth: d.basic_auth}
+        : undefined,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1129,12 +1146,26 @@ export const marshalDiskSpecSchema: z.ZodType = z
 
 export const marshalDiskTypeSchema: z.ZodType = z
   .object({
-    ebsVolumeType: z.enum(EbsVolumeType).optional(),
-    azureDiskVolumeType: z.enum(AzureDiskVolumeType).optional(),
+    remoteVolumeType: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('ebsVolumeType'),
+          ebsVolumeType: z.enum(EbsVolumeType),
+        }),
+        z.object({
+          $case: z.literal('azureDiskVolumeType'),
+          azureDiskVolumeType: z.enum(AzureDiskVolumeType),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    ebs_volume_type: d.ebsVolumeType,
-    azure_disk_volume_type: d.azureDiskVolumeType,
+    ...(d.remoteVolumeType?.$case === 'ebsVolumeType' && {
+      ebs_volume_type: d.remoteVolumeType.ebsVolumeType,
+    }),
+    ...(d.remoteVolumeType?.$case === 'azureDiskVolumeType' && {
+      azure_disk_volume_type: d.remoteVolumeType.azureDiskVolumeType,
+    }),
   }));
 
 export const marshalDockerBasicAuthSchema: z.ZodType = z
@@ -1150,11 +1181,20 @@ export const marshalDockerBasicAuthSchema: z.ZodType = z
 export const marshalDockerImageSchema: z.ZodType = z
   .object({
     url: z.string().optional(),
-    basicAuth: z.lazy(() => marshalDockerBasicAuthSchema).optional(),
+    credsOneof: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('basicAuth'),
+          basicAuth: z.lazy(() => marshalDockerBasicAuthSchema),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
     url: d.url,
-    basic_auth: d.basicAuth,
+    ...(d.credsOneof?.$case === 'basicAuth' && {
+      basic_auth: d.credsOneof.basicAuth,
+    }),
   }));
 
 export const marshalEditInstancePoolSchema: z.ZodType = z

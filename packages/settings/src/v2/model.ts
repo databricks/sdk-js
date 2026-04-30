@@ -297,48 +297,100 @@ export interface RestrictWorkspaceAdminsMessage {
 export interface Setting {
   /** Name of the setting. */
   name?: string | undefined;
-  /** Setting value for boolean type setting. This is the setting value set by consumers, check effective_boolean_val for final setting value. */
-  booleanVal?: BooleanMessage | undefined;
-  /** Setting value for string type setting. This is the setting value set by consumers, check effective_string_val for final setting value. */
-  stringVal?: StringMessage | undefined;
-  /** Setting value for integer type setting. This is the setting value set by consumers, check effective_integer_val for final setting value. */
-  integerVal?: IntegerMessage | undefined;
-  /** Setting value for automatic_cluster_update_workspace setting. This is the setting value set by consumers, check effective_automatic_cluster_update_workspace for final setting value. */
-  automaticClusterUpdateWorkspace?: ClusterAutoRestartMessage | undefined;
-  /** Setting value for aibi_dashboard_embedding_approved_domains setting. This is the setting value set by consumers, check effective_aibi_dashboard_embedding_approved_domains for final setting value. */
-  aibiDashboardEmbeddingApprovedDomains?:
-    | AibiDashboardEmbeddingApprovedDomains
+  /**
+   * New fields should be added before the oneof below - unless it's a new Setting value message,
+   * in that case it needs to be defined in the oneof below.
+   * The user-set value that goes into storage
+   */
+  value?:
+    | {
+        $case: 'booleanVal';
+        /** Setting value for boolean type setting. This is the setting value set by consumers, check effective_boolean_val for final setting value. */
+        booleanVal: BooleanMessage;
+      }
+    | {
+        $case: 'stringVal';
+        /** Setting value for string type setting. This is the setting value set by consumers, check effective_string_val for final setting value. */
+        stringVal: StringMessage;
+      }
+    | {
+        $case: 'integerVal';
+        /** Setting value for integer type setting. This is the setting value set by consumers, check effective_integer_val for final setting value. */
+        integerVal: IntegerMessage;
+      }
+    | {
+        $case: 'automaticClusterUpdateWorkspace';
+        /** Setting value for automatic_cluster_update_workspace setting. This is the setting value set by consumers, check effective_automatic_cluster_update_workspace for final setting value. */
+        automaticClusterUpdateWorkspace: ClusterAutoRestartMessage;
+      }
+    | {
+        $case: 'aibiDashboardEmbeddingApprovedDomains';
+        /** Setting value for aibi_dashboard_embedding_approved_domains setting. This is the setting value set by consumers, check effective_aibi_dashboard_embedding_approved_domains for final setting value. */
+        aibiDashboardEmbeddingApprovedDomains: AibiDashboardEmbeddingApprovedDomains;
+      }
+    | {
+        $case: 'aibiDashboardEmbeddingAccessPolicy';
+        /** Setting value for aibi_dashboard_embedding_access_policy setting. This is the setting value set by consumers, check effective_aibi_dashboard_embedding_access_policy for final setting value. */
+        aibiDashboardEmbeddingAccessPolicy: AibiDashboardEmbeddingAccessPolicy;
+      }
+    | {
+        $case: 'restrictWorkspaceAdmins';
+        /** Setting value for restrict_workspace_admins setting. This is the setting value set by consumers, check effective_restrict_workspace_admins for final setting value. */
+        restrictWorkspaceAdmins: RestrictWorkspaceAdminsMessage;
+      }
+    | {
+        $case: 'personalCompute';
+        /** Setting value for personal_compute setting. This is the setting value set by consumers, check effective_personal_compute for final setting value. */
+        personalCompute: PersonalComputeMessage;
+      }
     | undefined;
-  /** Setting value for aibi_dashboard_embedding_access_policy setting. This is the setting value set by consumers, check effective_aibi_dashboard_embedding_access_policy for final setting value. */
-  aibiDashboardEmbeddingAccessPolicy?:
-    | AibiDashboardEmbeddingAccessPolicy
+  /**
+   * New fields should be added before the oneof below - unless it's a new Setting value message,
+   * in that case it needs to be defined in the oneof below.
+   * The final effective value from server as per the policy evaluation.
+   */
+  effectiveValue?:
+    | {
+        $case: 'effectiveBooleanVal';
+        /** Effective setting value for boolean type setting. This is the final effective value of setting. To set a value use boolean_val. */
+        effectiveBooleanVal: BooleanMessage;
+      }
+    | {
+        $case: 'effectiveStringVal';
+        /** Effective setting value for string type setting. This is the final effective value of setting. To set a value use string_val. */
+        effectiveStringVal: StringMessage;
+      }
+    | {
+        $case: 'effectiveIntegerVal';
+        /** Effective setting value for integer type setting. This is the final effective value of setting. To set a value use integer_val. */
+        effectiveIntegerVal: IntegerMessage;
+      }
+    | {
+        $case: 'effectiveAutomaticClusterUpdateWorkspace';
+        /** Effective setting value for automatic_cluster_update_workspace setting. This is the final effective value of setting. To set a value use automatic_cluster_update_workspace. */
+        effectiveAutomaticClusterUpdateWorkspace: ClusterAutoRestartMessage;
+      }
+    | {
+        $case: 'effectiveAibiDashboardEmbeddingApprovedDomains';
+        /** Effective setting value for aibi_dashboard_embedding_approved_domains setting. This is the final effective value of setting. To set a value use aibi_dashboard_embedding_approved_domains. */
+        effectiveAibiDashboardEmbeddingApprovedDomains: AibiDashboardEmbeddingApprovedDomains;
+      }
+    | {
+        $case: 'effectiveAibiDashboardEmbeddingAccessPolicy';
+        /** Effective setting value for aibi_dashboard_embedding_access_policy setting. This is the final effective value of setting. To set a value use aibi_dashboard_embedding_access_policy. */
+        effectiveAibiDashboardEmbeddingAccessPolicy: AibiDashboardEmbeddingAccessPolicy;
+      }
+    | {
+        $case: 'effectiveRestrictWorkspaceAdmins';
+        /** Effective setting value for restrict_workspace_admins setting. This is the final effective value of setting. To set a value use restrict_workspace_admins. */
+        effectiveRestrictWorkspaceAdmins: RestrictWorkspaceAdminsMessage;
+      }
+    | {
+        $case: 'effectivePersonalCompute';
+        /** Effective setting value for personal_compute setting. This is the final effective value of setting. To set a value use personal_compute. */
+        effectivePersonalCompute: PersonalComputeMessage;
+      }
     | undefined;
-  /** Setting value for restrict_workspace_admins setting. This is the setting value set by consumers, check effective_restrict_workspace_admins for final setting value. */
-  restrictWorkspaceAdmins?: RestrictWorkspaceAdminsMessage | undefined;
-  /** Setting value for personal_compute setting. This is the setting value set by consumers, check effective_personal_compute for final setting value. */
-  personalCompute?: PersonalComputeMessage | undefined;
-  /** Effective setting value for boolean type setting. This is the final effective value of setting. To set a value use boolean_val. */
-  effectiveBooleanVal?: BooleanMessage | undefined;
-  /** Effective setting value for string type setting. This is the final effective value of setting. To set a value use string_val. */
-  effectiveStringVal?: StringMessage | undefined;
-  /** Effective setting value for integer type setting. This is the final effective value of setting. To set a value use integer_val. */
-  effectiveIntegerVal?: IntegerMessage | undefined;
-  /** Effective setting value for automatic_cluster_update_workspace setting. This is the final effective value of setting. To set a value use automatic_cluster_update_workspace. */
-  effectiveAutomaticClusterUpdateWorkspace?:
-    | ClusterAutoRestartMessage
-    | undefined;
-  /** Effective setting value for aibi_dashboard_embedding_approved_domains setting. This is the final effective value of setting. To set a value use aibi_dashboard_embedding_approved_domains. */
-  effectiveAibiDashboardEmbeddingApprovedDomains?:
-    | AibiDashboardEmbeddingApprovedDomains
-    | undefined;
-  /** Effective setting value for aibi_dashboard_embedding_access_policy setting. This is the final effective value of setting. To set a value use aibi_dashboard_embedding_access_policy. */
-  effectiveAibiDashboardEmbeddingAccessPolicy?:
-    | AibiDashboardEmbeddingAccessPolicy
-    | undefined;
-  /** Effective setting value for restrict_workspace_admins setting. This is the final effective value of setting. To set a value use restrict_workspace_admins. */
-  effectiveRestrictWorkspaceAdmins?: RestrictWorkspaceAdminsMessage | undefined;
-  /** Effective setting value for personal_compute setting. This is the final effective value of setting. To set a value use personal_compute. */
-  effectivePersonalCompute?: PersonalComputeMessage | undefined;
 }
 
 export interface SettingsMetadata {
@@ -374,10 +426,24 @@ export interface UserPreference {
   name?: string | undefined;
   /** User ID of the user. */
   userId?: string | undefined;
-  booleanVal?: BooleanMessage | undefined;
-  stringVal?: StringMessage | undefined;
-  effectiveBooleanVal?: BooleanMessage | undefined;
-  effectiveStringVal?: StringMessage | undefined;
+  /**
+   * New fields should be added before the oneof below - unless it's a new Setting value message,
+   * in that case it needs to be defined in the oneof below.
+   * The user-set value that goes into storage.
+   */
+  value?:
+    | {$case: 'booleanVal'; booleanVal: BooleanMessage}
+    | {$case: 'stringVal'; stringVal: StringMessage}
+    | undefined;
+  /**
+   * New fields should be added before the oneof below - unless it's a new User Preference value message,
+   * in that case it needs to be defined in the oneof below.
+   * The final effective value from server as per the policy evaluation.
+   */
+  effectiveValue?:
+    | {$case: 'effectiveBooleanVal'; effectiveBooleanVal: BooleanMessage}
+    | {$case: 'effectiveStringVal'; effectiveStringVal: StringMessage}
+    | undefined;
 }
 
 export const unmarshalAibiDashboardEmbeddingAccessPolicySchema: z.ZodType<AibiDashboardEmbeddingAccessPolicy> =
@@ -608,27 +674,93 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
   })
   .transform(d => ({
     name: d.name,
-    booleanVal: d.boolean_val,
-    stringVal: d.string_val,
-    integerVal: d.integer_val,
-    automaticClusterUpdateWorkspace: d.automatic_cluster_update_workspace,
-    aibiDashboardEmbeddingApprovedDomains:
-      d.aibi_dashboard_embedding_approved_domains,
-    aibiDashboardEmbeddingAccessPolicy:
-      d.aibi_dashboard_embedding_access_policy,
-    restrictWorkspaceAdmins: d.restrict_workspace_admins,
-    personalCompute: d.personal_compute,
-    effectiveBooleanVal: d.effective_boolean_val,
-    effectiveStringVal: d.effective_string_val,
-    effectiveIntegerVal: d.effective_integer_val,
-    effectiveAutomaticClusterUpdateWorkspace:
-      d.effective_automatic_cluster_update_workspace,
-    effectiveAibiDashboardEmbeddingApprovedDomains:
-      d.effective_aibi_dashboard_embedding_approved_domains,
-    effectiveAibiDashboardEmbeddingAccessPolicy:
-      d.effective_aibi_dashboard_embedding_access_policy,
-    effectiveRestrictWorkspaceAdmins: d.effective_restrict_workspace_admins,
-    effectivePersonalCompute: d.effective_personal_compute,
+    value:
+      d.boolean_val !== undefined
+        ? {$case: 'booleanVal' as const, booleanVal: d.boolean_val}
+        : d.string_val !== undefined
+          ? {$case: 'stringVal' as const, stringVal: d.string_val}
+          : d.integer_val !== undefined
+            ? {$case: 'integerVal' as const, integerVal: d.integer_val}
+            : d.automatic_cluster_update_workspace !== undefined
+              ? {
+                  $case: 'automaticClusterUpdateWorkspace' as const,
+                  automaticClusterUpdateWorkspace:
+                    d.automatic_cluster_update_workspace,
+                }
+              : d.aibi_dashboard_embedding_approved_domains !== undefined
+                ? {
+                    $case: 'aibiDashboardEmbeddingApprovedDomains' as const,
+                    aibiDashboardEmbeddingApprovedDomains:
+                      d.aibi_dashboard_embedding_approved_domains,
+                  }
+                : d.aibi_dashboard_embedding_access_policy !== undefined
+                  ? {
+                      $case: 'aibiDashboardEmbeddingAccessPolicy' as const,
+                      aibiDashboardEmbeddingAccessPolicy:
+                        d.aibi_dashboard_embedding_access_policy,
+                    }
+                  : d.restrict_workspace_admins !== undefined
+                    ? {
+                        $case: 'restrictWorkspaceAdmins' as const,
+                        restrictWorkspaceAdmins: d.restrict_workspace_admins,
+                      }
+                    : d.personal_compute !== undefined
+                      ? {
+                          $case: 'personalCompute' as const,
+                          personalCompute: d.personal_compute,
+                        }
+                      : undefined,
+    effectiveValue:
+      d.effective_boolean_val !== undefined
+        ? {
+            $case: 'effectiveBooleanVal' as const,
+            effectiveBooleanVal: d.effective_boolean_val,
+          }
+        : d.effective_string_val !== undefined
+          ? {
+              $case: 'effectiveStringVal' as const,
+              effectiveStringVal: d.effective_string_val,
+            }
+          : d.effective_integer_val !== undefined
+            ? {
+                $case: 'effectiveIntegerVal' as const,
+                effectiveIntegerVal: d.effective_integer_val,
+              }
+            : d.effective_automatic_cluster_update_workspace !== undefined
+              ? {
+                  $case: 'effectiveAutomaticClusterUpdateWorkspace' as const,
+                  effectiveAutomaticClusterUpdateWorkspace:
+                    d.effective_automatic_cluster_update_workspace,
+                }
+              : d.effective_aibi_dashboard_embedding_approved_domains !==
+                  undefined
+                ? {
+                    $case:
+                      'effectiveAibiDashboardEmbeddingApprovedDomains' as const,
+                    effectiveAibiDashboardEmbeddingApprovedDomains:
+                      d.effective_aibi_dashboard_embedding_approved_domains,
+                  }
+                : d.effective_aibi_dashboard_embedding_access_policy !==
+                    undefined
+                  ? {
+                      $case:
+                        'effectiveAibiDashboardEmbeddingAccessPolicy' as const,
+                      effectiveAibiDashboardEmbeddingAccessPolicy:
+                        d.effective_aibi_dashboard_embedding_access_policy,
+                    }
+                  : d.effective_restrict_workspace_admins !== undefined
+                    ? {
+                        $case: 'effectiveRestrictWorkspaceAdmins' as const,
+                        effectiveRestrictWorkspaceAdmins:
+                          d.effective_restrict_workspace_admins,
+                      }
+                    : d.effective_personal_compute !== undefined
+                      ? {
+                          $case: 'effectivePersonalCompute' as const,
+                          effectivePersonalCompute:
+                            d.effective_personal_compute,
+                        }
+                      : undefined,
   }));
 
 export const unmarshalSettingsMetadataSchema: z.ZodType<SettingsMetadata> = z
@@ -671,10 +803,24 @@ export const unmarshalUserPreferenceSchema: z.ZodType<UserPreference> = z
   .transform(d => ({
     name: d.name,
     userId: d.user_id,
-    booleanVal: d.boolean_val,
-    stringVal: d.string_val,
-    effectiveBooleanVal: d.effective_boolean_val,
-    effectiveStringVal: d.effective_string_val,
+    value:
+      d.boolean_val !== undefined
+        ? {$case: 'booleanVal' as const, booleanVal: d.boolean_val}
+        : d.string_val !== undefined
+          ? {$case: 'stringVal' as const, stringVal: d.string_val}
+          : undefined,
+    effectiveValue:
+      d.effective_boolean_val !== undefined
+        ? {
+            $case: 'effectiveBooleanVal' as const,
+            effectiveBooleanVal: d.effective_boolean_val,
+          }
+        : d.effective_string_val !== undefined
+          ? {
+              $case: 'effectiveStringVal' as const,
+              effectiveStringVal: d.effective_string_val,
+            }
+          : undefined,
   }));
 
 export const marshalAibiDashboardEmbeddingAccessPolicySchema: z.ZodType = z
@@ -816,66 +962,151 @@ export const marshalRestrictWorkspaceAdminsMessageSchema: z.ZodType = z
 export const marshalSettingSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    booleanVal: z.lazy(() => marshalBooleanMessageSchema).optional(),
-    stringVal: z.lazy(() => marshalStringMessageSchema).optional(),
-    integerVal: z.lazy(() => marshalIntegerMessageSchema).optional(),
-    automaticClusterUpdateWorkspace: z
-      .lazy(() => marshalClusterAutoRestartMessageSchema)
+    value: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('booleanVal'),
+          booleanVal: z.lazy(() => marshalBooleanMessageSchema),
+        }),
+        z.object({
+          $case: z.literal('stringVal'),
+          stringVal: z.lazy(() => marshalStringMessageSchema),
+        }),
+        z.object({
+          $case: z.literal('integerVal'),
+          integerVal: z.lazy(() => marshalIntegerMessageSchema),
+        }),
+        z.object({
+          $case: z.literal('automaticClusterUpdateWorkspace'),
+          automaticClusterUpdateWorkspace: z.lazy(
+            () => marshalClusterAutoRestartMessageSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('aibiDashboardEmbeddingApprovedDomains'),
+          aibiDashboardEmbeddingApprovedDomains: z.lazy(
+            () => marshalAibiDashboardEmbeddingApprovedDomainsSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('aibiDashboardEmbeddingAccessPolicy'),
+          aibiDashboardEmbeddingAccessPolicy: z.lazy(
+            () => marshalAibiDashboardEmbeddingAccessPolicySchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('restrictWorkspaceAdmins'),
+          restrictWorkspaceAdmins: z.lazy(
+            () => marshalRestrictWorkspaceAdminsMessageSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('personalCompute'),
+          personalCompute: z.lazy(() => marshalPersonalComputeMessageSchema),
+        }),
+      ])
       .optional(),
-    aibiDashboardEmbeddingApprovedDomains: z
-      .lazy(() => marshalAibiDashboardEmbeddingApprovedDomainsSchema)
-      .optional(),
-    aibiDashboardEmbeddingAccessPolicy: z
-      .lazy(() => marshalAibiDashboardEmbeddingAccessPolicySchema)
-      .optional(),
-    restrictWorkspaceAdmins: z
-      .lazy(() => marshalRestrictWorkspaceAdminsMessageSchema)
-      .optional(),
-    personalCompute: z
-      .lazy(() => marshalPersonalComputeMessageSchema)
-      .optional(),
-    effectiveBooleanVal: z.lazy(() => marshalBooleanMessageSchema).optional(),
-    effectiveStringVal: z.lazy(() => marshalStringMessageSchema).optional(),
-    effectiveIntegerVal: z.lazy(() => marshalIntegerMessageSchema).optional(),
-    effectiveAutomaticClusterUpdateWorkspace: z
-      .lazy(() => marshalClusterAutoRestartMessageSchema)
-      .optional(),
-    effectiveAibiDashboardEmbeddingApprovedDomains: z
-      .lazy(() => marshalAibiDashboardEmbeddingApprovedDomainsSchema)
-      .optional(),
-    effectiveAibiDashboardEmbeddingAccessPolicy: z
-      .lazy(() => marshalAibiDashboardEmbeddingAccessPolicySchema)
-      .optional(),
-    effectiveRestrictWorkspaceAdmins: z
-      .lazy(() => marshalRestrictWorkspaceAdminsMessageSchema)
-      .optional(),
-    effectivePersonalCompute: z
-      .lazy(() => marshalPersonalComputeMessageSchema)
+    effectiveValue: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('effectiveBooleanVal'),
+          effectiveBooleanVal: z.lazy(() => marshalBooleanMessageSchema),
+        }),
+        z.object({
+          $case: z.literal('effectiveStringVal'),
+          effectiveStringVal: z.lazy(() => marshalStringMessageSchema),
+        }),
+        z.object({
+          $case: z.literal('effectiveIntegerVal'),
+          effectiveIntegerVal: z.lazy(() => marshalIntegerMessageSchema),
+        }),
+        z.object({
+          $case: z.literal('effectiveAutomaticClusterUpdateWorkspace'),
+          effectiveAutomaticClusterUpdateWorkspace: z.lazy(
+            () => marshalClusterAutoRestartMessageSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('effectiveAibiDashboardEmbeddingApprovedDomains'),
+          effectiveAibiDashboardEmbeddingApprovedDomains: z.lazy(
+            () => marshalAibiDashboardEmbeddingApprovedDomainsSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('effectiveAibiDashboardEmbeddingAccessPolicy'),
+          effectiveAibiDashboardEmbeddingAccessPolicy: z.lazy(
+            () => marshalAibiDashboardEmbeddingAccessPolicySchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('effectiveRestrictWorkspaceAdmins'),
+          effectiveRestrictWorkspaceAdmins: z.lazy(
+            () => marshalRestrictWorkspaceAdminsMessageSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('effectivePersonalCompute'),
+          effectivePersonalCompute: z.lazy(
+            () => marshalPersonalComputeMessageSchema
+          ),
+        }),
+      ])
       .optional(),
   })
   .transform(d => ({
     name: d.name,
-    boolean_val: d.booleanVal,
-    string_val: d.stringVal,
-    integer_val: d.integerVal,
-    automatic_cluster_update_workspace: d.automaticClusterUpdateWorkspace,
-    aibi_dashboard_embedding_approved_domains:
-      d.aibiDashboardEmbeddingApprovedDomains,
-    aibi_dashboard_embedding_access_policy:
-      d.aibiDashboardEmbeddingAccessPolicy,
-    restrict_workspace_admins: d.restrictWorkspaceAdmins,
-    personal_compute: d.personalCompute,
-    effective_boolean_val: d.effectiveBooleanVal,
-    effective_string_val: d.effectiveStringVal,
-    effective_integer_val: d.effectiveIntegerVal,
-    effective_automatic_cluster_update_workspace:
-      d.effectiveAutomaticClusterUpdateWorkspace,
-    effective_aibi_dashboard_embedding_approved_domains:
-      d.effectiveAibiDashboardEmbeddingApprovedDomains,
-    effective_aibi_dashboard_embedding_access_policy:
-      d.effectiveAibiDashboardEmbeddingAccessPolicy,
-    effective_restrict_workspace_admins: d.effectiveRestrictWorkspaceAdmins,
-    effective_personal_compute: d.effectivePersonalCompute,
+    ...(d.value?.$case === 'booleanVal' && {boolean_val: d.value.booleanVal}),
+    ...(d.value?.$case === 'stringVal' && {string_val: d.value.stringVal}),
+    ...(d.value?.$case === 'integerVal' && {integer_val: d.value.integerVal}),
+    ...(d.value?.$case === 'automaticClusterUpdateWorkspace' && {
+      automatic_cluster_update_workspace:
+        d.value.automaticClusterUpdateWorkspace,
+    }),
+    ...(d.value?.$case === 'aibiDashboardEmbeddingApprovedDomains' && {
+      aibi_dashboard_embedding_approved_domains:
+        d.value.aibiDashboardEmbeddingApprovedDomains,
+    }),
+    ...(d.value?.$case === 'aibiDashboardEmbeddingAccessPolicy' && {
+      aibi_dashboard_embedding_access_policy:
+        d.value.aibiDashboardEmbeddingAccessPolicy,
+    }),
+    ...(d.value?.$case === 'restrictWorkspaceAdmins' && {
+      restrict_workspace_admins: d.value.restrictWorkspaceAdmins,
+    }),
+    ...(d.value?.$case === 'personalCompute' && {
+      personal_compute: d.value.personalCompute,
+    }),
+    ...(d.effectiveValue?.$case === 'effectiveBooleanVal' && {
+      effective_boolean_val: d.effectiveValue.effectiveBooleanVal,
+    }),
+    ...(d.effectiveValue?.$case === 'effectiveStringVal' && {
+      effective_string_val: d.effectiveValue.effectiveStringVal,
+    }),
+    ...(d.effectiveValue?.$case === 'effectiveIntegerVal' && {
+      effective_integer_val: d.effectiveValue.effectiveIntegerVal,
+    }),
+    ...(d.effectiveValue?.$case ===
+      'effectiveAutomaticClusterUpdateWorkspace' && {
+      effective_automatic_cluster_update_workspace:
+        d.effectiveValue.effectiveAutomaticClusterUpdateWorkspace,
+    }),
+    ...(d.effectiveValue?.$case ===
+      'effectiveAibiDashboardEmbeddingApprovedDomains' && {
+      effective_aibi_dashboard_embedding_approved_domains:
+        d.effectiveValue.effectiveAibiDashboardEmbeddingApprovedDomains,
+    }),
+    ...(d.effectiveValue?.$case ===
+      'effectiveAibiDashboardEmbeddingAccessPolicy' && {
+      effective_aibi_dashboard_embedding_access_policy:
+        d.effectiveValue.effectiveAibiDashboardEmbeddingAccessPolicy,
+    }),
+    ...(d.effectiveValue?.$case === 'effectiveRestrictWorkspaceAdmins' && {
+      effective_restrict_workspace_admins:
+        d.effectiveValue.effectiveRestrictWorkspaceAdmins,
+    }),
+    ...(d.effectiveValue?.$case === 'effectivePersonalCompute' && {
+      effective_personal_compute: d.effectiveValue.effectivePersonalCompute,
+    }),
   }));
 
 export const marshalStringMessageSchema: z.ZodType = z
@@ -890,16 +1121,40 @@ export const marshalUserPreferenceSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     userId: z.string().optional(),
-    booleanVal: z.lazy(() => marshalBooleanMessageSchema).optional(),
-    stringVal: z.lazy(() => marshalStringMessageSchema).optional(),
-    effectiveBooleanVal: z.lazy(() => marshalBooleanMessageSchema).optional(),
-    effectiveStringVal: z.lazy(() => marshalStringMessageSchema).optional(),
+    value: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('booleanVal'),
+          booleanVal: z.lazy(() => marshalBooleanMessageSchema),
+        }),
+        z.object({
+          $case: z.literal('stringVal'),
+          stringVal: z.lazy(() => marshalStringMessageSchema),
+        }),
+      ])
+      .optional(),
+    effectiveValue: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('effectiveBooleanVal'),
+          effectiveBooleanVal: z.lazy(() => marshalBooleanMessageSchema),
+        }),
+        z.object({
+          $case: z.literal('effectiveStringVal'),
+          effectiveStringVal: z.lazy(() => marshalStringMessageSchema),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
     name: d.name,
     user_id: d.userId,
-    boolean_val: d.booleanVal,
-    string_val: d.stringVal,
-    effective_boolean_val: d.effectiveBooleanVal,
-    effective_string_val: d.effectiveStringVal,
+    ...(d.value?.$case === 'booleanVal' && {boolean_val: d.value.booleanVal}),
+    ...(d.value?.$case === 'stringVal' && {string_val: d.value.stringVal}),
+    ...(d.effectiveValue?.$case === 'effectiveBooleanVal' && {
+      effective_boolean_val: d.effectiveValue.effectiveBooleanVal,
+    }),
+    ...(d.effectiveValue?.$case === 'effectiveStringVal' && {
+      effective_string_val: d.effectiveValue.effectiveStringVal,
+    }),
   }));

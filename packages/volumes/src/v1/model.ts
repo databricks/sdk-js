@@ -61,8 +61,13 @@ export interface DeleteVolume_Response {}
 
 /** Encryption options that apply to clients connecting to cloud storage. */
 export interface EncryptionDetails {
-  /** Server-Side Encryption properties for clients communicating with AWS s3. */
-  sseEncryptionDetails?: SseEncryptionDetails | undefined;
+  encryptionDetailsType?:
+    | {
+        $case: 'sseEncryptionDetails';
+        /** Server-Side Encryption properties for clients communicating with AWS s3. */
+        sseEncryptionDetails: SseEncryptionDetails;
+      }
+    | undefined;
 }
 
 export interface GetVolume {
@@ -207,7 +212,13 @@ export const unmarshalEncryptionDetailsSchema: z.ZodType<EncryptionDetails> = z
       .optional(),
   })
   .transform(d => ({
-    sseEncryptionDetails: d.sse_encryption_details,
+    encryptionDetailsType:
+      d.sse_encryption_details !== undefined
+        ? {
+            $case: 'sseEncryptionDetails' as const,
+            sseEncryptionDetails: d.sse_encryption_details,
+          }
+        : undefined,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -317,12 +328,19 @@ export const marshalCreateVolumeSchema: z.ZodType = z
 
 export const marshalEncryptionDetailsSchema: z.ZodType = z
   .object({
-    sseEncryptionDetails: z
-      .lazy(() => marshalSseEncryptionDetailsSchema)
+    encryptionDetailsType: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('sseEncryptionDetails'),
+          sseEncryptionDetails: z.lazy(() => marshalSseEncryptionDetailsSchema),
+        }),
+      ])
       .optional(),
   })
   .transform(d => ({
-    sse_encryption_details: d.sseEncryptionDetails,
+    ...(d.encryptionDetailsType?.$case === 'sseEncryptionDetails' && {
+      sse_encryption_details: d.encryptionDetailsType.sseEncryptionDetails,
+    }),
   }));
 
 export const marshalSseEncryptionDetailsSchema: z.ZodType = z

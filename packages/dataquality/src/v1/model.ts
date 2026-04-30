@@ -180,12 +180,24 @@ export interface DataProfilingConfig {
    * assets. Normally prepopulated to a default user location via UI and Python APIs.
    */
   assetsDir?: string | undefined;
-  /** `Analysis Configuration` for monitoring inference log tables. */
-  inferenceLog?: InferenceLogConfig | undefined;
-  /** `Analysis Configuration` for monitoring time series tables. */
-  timeSeries?: TimeSeriesConfig | undefined;
-  /** `Analysis Configuration` for monitoring snapshot tables. */
-  snapshot?: SnapshotConfig | undefined;
+  /** (--[Create:REQ Update:REQ]--) Analysis config which is used to determine analysis logic. */
+  analysisConfig?:
+    | {
+        $case: 'inferenceLog';
+        /** `Analysis Configuration` for monitoring inference log tables. */
+        inferenceLog: InferenceLogConfig;
+      }
+    | {
+        $case: 'timeSeries';
+        /** `Analysis Configuration` for monitoring time series tables. */
+        timeSeries: TimeSeriesConfig;
+      }
+    | {
+        $case: 'snapshot';
+        /** `Analysis Configuration` for monitoring snapshot tables. */
+        snapshot: SnapshotConfig;
+      }
+    | undefined;
   /**
    * List of column expressions to slice data with for targeted analysis. The data is grouped by
    * each expression independently, resulting in a separate slice for each predicate and its
@@ -540,9 +552,17 @@ export interface UpdateRefreshRequest {
 export interface ValidityCheckConfiguration {
   /** Can be set by system. Does not need to be user facing. */
   name?: string | undefined;
-  percentNullValidityCheck?: PercentNullValidityCheck | undefined;
-  rangeValidityCheck?: RangeValidityCheck | undefined;
-  uniquenessValidityCheck?: UniquenessValidityCheck | undefined;
+  checkType?:
+    | {
+        $case: 'percentNullValidityCheck';
+        percentNullValidityCheck: PercentNullValidityCheck;
+      }
+    | {$case: 'rangeValidityCheck'; rangeValidityCheck: RangeValidityCheck}
+    | {
+        $case: 'uniquenessValidityCheck';
+        uniquenessValidityCheck: UniquenessValidityCheck;
+      }
+    | undefined;
 }
 
 export const unmarshalAnomalyDetectionConfigSchema: z.ZodType<AnomalyDetectionConfig> =
@@ -616,9 +636,14 @@ export const unmarshalDataProfilingConfigSchema: z.ZodType<DataProfilingConfig> 
     .transform(d => ({
       outputSchemaId: d.output_schema_id,
       assetsDir: d.assets_dir,
-      inferenceLog: d.inference_log,
-      timeSeries: d.time_series,
-      snapshot: d.snapshot,
+      analysisConfig:
+        d.inference_log !== undefined
+          ? {$case: 'inferenceLog' as const, inferenceLog: d.inference_log}
+          : d.time_series !== undefined
+            ? {$case: 'timeSeries' as const, timeSeries: d.time_series}
+            : d.snapshot !== undefined
+              ? {$case: 'snapshot' as const, snapshot: d.snapshot}
+              : undefined,
       slicingExprs: d.slicing_exprs,
       customMetrics: d.custom_metrics,
       baselineTableName: d.baseline_table_name,
@@ -818,9 +843,23 @@ export const unmarshalValidityCheckConfigurationSchema: z.ZodType<ValidityCheckC
     })
     .transform(d => ({
       name: d.name,
-      percentNullValidityCheck: d.percent_null_validity_check,
-      rangeValidityCheck: d.range_validity_check,
-      uniquenessValidityCheck: d.uniqueness_validity_check,
+      checkType:
+        d.percent_null_validity_check !== undefined
+          ? {
+              $case: 'percentNullValidityCheck' as const,
+              percentNullValidityCheck: d.percent_null_validity_check,
+            }
+          : d.range_validity_check !== undefined
+            ? {
+                $case: 'rangeValidityCheck' as const,
+                rangeValidityCheck: d.range_validity_check,
+              }
+            : d.uniqueness_validity_check !== undefined
+              ? {
+                  $case: 'uniquenessValidityCheck' as const,
+                  uniquenessValidityCheck: d.uniqueness_validity_check,
+                }
+              : undefined,
     }));
 
 export const marshalAnomalyDetectionConfigSchema: z.ZodType = z
@@ -869,9 +908,22 @@ export const marshalDataProfilingConfigSchema: z.ZodType = z
   .object({
     outputSchemaId: z.string().optional(),
     assetsDir: z.string().optional(),
-    inferenceLog: z.lazy(() => marshalInferenceLogConfigSchema).optional(),
-    timeSeries: z.lazy(() => marshalTimeSeriesConfigSchema).optional(),
-    snapshot: z.lazy(() => marshalSnapshotConfigSchema).optional(),
+    analysisConfig: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('inferenceLog'),
+          inferenceLog: z.lazy(() => marshalInferenceLogConfigSchema),
+        }),
+        z.object({
+          $case: z.literal('timeSeries'),
+          timeSeries: z.lazy(() => marshalTimeSeriesConfigSchema),
+        }),
+        z.object({
+          $case: z.literal('snapshot'),
+          snapshot: z.lazy(() => marshalSnapshotConfigSchema),
+        }),
+      ])
+      .optional(),
     slicingExprs: z.array(z.string()).optional(),
     customMetrics: z
       .array(z.lazy(() => marshalDataProfilingCustomMetricSchema))
@@ -895,9 +947,15 @@ export const marshalDataProfilingConfigSchema: z.ZodType = z
   .transform(d => ({
     output_schema_id: d.outputSchemaId,
     assets_dir: d.assetsDir,
-    inference_log: d.inferenceLog,
-    time_series: d.timeSeries,
-    snapshot: d.snapshot,
+    ...(d.analysisConfig?.$case === 'inferenceLog' && {
+      inference_log: d.analysisConfig.inferenceLog,
+    }),
+    ...(d.analysisConfig?.$case === 'timeSeries' && {
+      time_series: d.analysisConfig.timeSeries,
+    }),
+    ...(d.analysisConfig?.$case === 'snapshot' && {
+      snapshot: d.analysisConfig.snapshot,
+    }),
     slicing_exprs: d.slicingExprs,
     custom_metrics: d.customMetrics,
     baseline_table_name: d.baselineTableName,
@@ -1052,21 +1110,38 @@ export const marshalUniquenessValidityCheckSchema: z.ZodType = z
 export const marshalValidityCheckConfigurationSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    percentNullValidityCheck: z
-      .lazy(() => marshalPercentNullValidityCheckSchema)
-      .optional(),
-    rangeValidityCheck: z
-      .lazy(() => marshalRangeValidityCheckSchema)
-      .optional(),
-    uniquenessValidityCheck: z
-      .lazy(() => marshalUniquenessValidityCheckSchema)
+    checkType: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('percentNullValidityCheck'),
+          percentNullValidityCheck: z.lazy(
+            () => marshalPercentNullValidityCheckSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('rangeValidityCheck'),
+          rangeValidityCheck: z.lazy(() => marshalRangeValidityCheckSchema),
+        }),
+        z.object({
+          $case: z.literal('uniquenessValidityCheck'),
+          uniquenessValidityCheck: z.lazy(
+            () => marshalUniquenessValidityCheckSchema
+          ),
+        }),
+      ])
       .optional(),
   })
   .transform(d => ({
     name: d.name,
-    percent_null_validity_check: d.percentNullValidityCheck,
-    range_validity_check: d.rangeValidityCheck,
-    uniqueness_validity_check: d.uniquenessValidityCheck,
+    ...(d.checkType?.$case === 'percentNullValidityCheck' && {
+      percent_null_validity_check: d.checkType.percentNullValidityCheck,
+    }),
+    ...(d.checkType?.$case === 'rangeValidityCheck' && {
+      range_validity_check: d.checkType.rangeValidityCheck,
+    }),
+    ...(d.checkType?.$case === 'uniquenessValidityCheck' && {
+      uniqueness_validity_check: d.checkType.uniquenessValidityCheck,
+    }),
   }));
 
 const anomalyDetectionConfigFieldMaskSchema: FieldMaskSchema = {

@@ -29,6 +29,7 @@ export enum ColumnTypeName {
   TIME = 'TIME',
   FILE = 'FILE',
   TABLE_TYPE = 'TABLE_TYPE',
+  TABLEREF_TYPE = 'TABLEREF_TYPE',
 }
 
 export enum FunctionParameterMode {
@@ -164,14 +165,22 @@ export interface DeleteFunction_Response {}
  * __table__, __function__, __connection__, __credential__, __volume__, or __secret__.
  */
 export interface Dependency {
-  table?: TableDependency | undefined;
-  function?: FunctionDependency | undefined;
-  connection?: ConnectionDependency | undefined;
-  credential?: CredentialDependency | undefined;
-  /** A dependency on a Unity Catalog volume. */
-  volume?: VolumeDependency | undefined;
-  /** A dependency on a Unity Catalog secret. */
-  secret?: SecretDependency | undefined;
+  value?:
+    | {$case: 'table'; table: TableDependency}
+    | {$case: 'function'; function: FunctionDependency}
+    | {$case: 'connection'; connection: ConnectionDependency}
+    | {$case: 'credential'; credential: CredentialDependency}
+    | {
+        $case: 'volume';
+        /** A dependency on a Unity Catalog volume. */
+        volume: VolumeDependency;
+      }
+    | {
+        $case: 'secret';
+        /** A dependency on a Unity Catalog secret. */
+        secret: SecretDependency;
+      }
+    | undefined;
 }
 
 /** A list of dependencies. */
@@ -432,12 +441,20 @@ export const unmarshalDependencySchema: z.ZodType<Dependency> = z
     secret: z.lazy(() => unmarshalSecretDependencySchema).optional(),
   })
   .transform(d => ({
-    table: d.table,
-    function: d.function,
-    connection: d.connection,
-    credential: d.credential,
-    volume: d.volume,
-    secret: d.secret,
+    value:
+      d.table !== undefined
+        ? {$case: 'table' as const, table: d.table}
+        : d.function !== undefined
+          ? {$case: 'function' as const, function: d.function}
+          : d.connection !== undefined
+            ? {$case: 'connection' as const, connection: d.connection}
+            : d.credential !== undefined
+              ? {$case: 'credential' as const, credential: d.credential}
+              : d.volume !== undefined
+                ? {$case: 'volume' as const, volume: d.volume}
+                : d.secret !== undefined
+                  ? {$case: 'secret' as const, secret: d.secret}
+                  : undefined,
   }));
 
 export const unmarshalDependencyListSchema: z.ZodType<DependencyList> = z
@@ -699,20 +716,42 @@ export const marshalCredentialDependencySchema: z.ZodType = z
 
 export const marshalDependencySchema: z.ZodType = z
   .object({
-    table: z.lazy(() => marshalTableDependencySchema).optional(),
-    function: z.lazy(() => marshalFunctionDependencySchema).optional(),
-    connection: z.lazy(() => marshalConnectionDependencySchema).optional(),
-    credential: z.lazy(() => marshalCredentialDependencySchema).optional(),
-    volume: z.lazy(() => marshalVolumeDependencySchema).optional(),
-    secret: z.lazy(() => marshalSecretDependencySchema).optional(),
+    value: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('table'),
+          table: z.lazy(() => marshalTableDependencySchema),
+        }),
+        z.object({
+          $case: z.literal('function'),
+          function: z.lazy(() => marshalFunctionDependencySchema),
+        }),
+        z.object({
+          $case: z.literal('connection'),
+          connection: z.lazy(() => marshalConnectionDependencySchema),
+        }),
+        z.object({
+          $case: z.literal('credential'),
+          credential: z.lazy(() => marshalCredentialDependencySchema),
+        }),
+        z.object({
+          $case: z.literal('volume'),
+          volume: z.lazy(() => marshalVolumeDependencySchema),
+        }),
+        z.object({
+          $case: z.literal('secret'),
+          secret: z.lazy(() => marshalSecretDependencySchema),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    table: d.table,
-    function: d.function,
-    connection: d.connection,
-    credential: d.credential,
-    volume: d.volume,
-    secret: d.secret,
+    ...(d.value?.$case === 'table' && {table: d.value.table}),
+    ...(d.value?.$case === 'function' && {function: d.value.function}),
+    ...(d.value?.$case === 'connection' && {connection: d.value.connection}),
+    ...(d.value?.$case === 'credential' && {credential: d.value.credential}),
+    ...(d.value?.$case === 'volume' && {volume: d.value.volume}),
+    ...(d.value?.$case === 'secret' && {secret: d.value.secret}),
   }));
 
 export const marshalDependencyListSchema: z.ZodType = z

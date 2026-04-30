@@ -32,22 +32,44 @@ export enum PermissionLevel {
 }
 
 export interface AccessControlRequest {
-  /** name of the user */
-  userName?: string | undefined;
-  /** name of the group */
-  groupName?: string | undefined;
-  /** application ID of a service principal */
-  servicePrincipalName?: string | undefined;
+  principalName?:
+    | {
+        $case: 'userName';
+        /** name of the user */
+        userName: string;
+      }
+    | {
+        $case: 'groupName';
+        /** name of the group */
+        groupName: string;
+      }
+    | {
+        $case: 'servicePrincipalName';
+        /** application ID of a service principal */
+        servicePrincipalName: string;
+      }
+    | undefined;
   permissionLevel?: PermissionLevel | undefined;
 }
 
 export interface AccessControlResponse {
-  /** name of the user */
-  userName?: string | undefined;
-  /** name of the group */
-  groupName?: string | undefined;
-  /** Name of the service principal. */
-  servicePrincipalName?: string | undefined;
+  principalName?:
+    | {
+        $case: 'userName';
+        /** name of the user */
+        userName: string;
+      }
+    | {
+        $case: 'groupName';
+        /** name of the group */
+        groupName: string;
+      }
+    | {
+        $case: 'servicePrincipalName';
+        /** Name of the service principal. */
+        servicePrincipalName: string;
+      }
+    | undefined;
   /** Display name of the user or service principal. */
   displayName?: string | undefined;
   /** All permissions. */
@@ -118,9 +140,17 @@ export const unmarshalAccessControlResponseSchema: z.ZodType<AccessControlRespon
         .optional(),
     })
     .transform(d => ({
-      userName: d.user_name,
-      groupName: d.group_name,
-      servicePrincipalName: d.service_principal_name,
+      principalName:
+        d.user_name !== undefined
+          ? {$case: 'userName' as const, userName: d.user_name}
+          : d.group_name !== undefined
+            ? {$case: 'groupName' as const, groupName: d.group_name}
+            : d.service_principal_name !== undefined
+              ? {
+                  $case: 'servicePrincipalName' as const,
+                  servicePrincipalName: d.service_principal_name,
+                }
+              : undefined,
       displayName: d.display_name,
       allPermissions: d.all_permissions,
     }));
@@ -177,15 +207,28 @@ export const unmarshalPermissionsResponseSchema: z.ZodType<PermissionsResponse> 
 
 export const marshalAccessControlRequestSchema: z.ZodType = z
   .object({
-    userName: z.string().optional(),
-    groupName: z.string().optional(),
-    servicePrincipalName: z.string().optional(),
+    principalName: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('userName'), userName: z.string()}),
+        z.object({$case: z.literal('groupName'), groupName: z.string()}),
+        z.object({
+          $case: z.literal('servicePrincipalName'),
+          servicePrincipalName: z.string(),
+        }),
+      ])
+      .optional(),
     permissionLevel: z.enum(PermissionLevel).optional(),
   })
   .transform(d => ({
-    user_name: d.userName,
-    group_name: d.groupName,
-    service_principal_name: d.servicePrincipalName,
+    ...(d.principalName?.$case === 'userName' && {
+      user_name: d.principalName.userName,
+    }),
+    ...(d.principalName?.$case === 'groupName' && {
+      group_name: d.principalName.groupName,
+    }),
+    ...(d.principalName?.$case === 'servicePrincipalName' && {
+      service_principal_name: d.principalName.servicePrincipalName,
+    }),
     permission_level: d.permissionLevel,
   }));
 

@@ -119,11 +119,20 @@ export interface CreateMonitor {
    * assets. Normally prepopulated to a default user location via UI and Python APIs.
    */
   assetsDir?: string | undefined;
-  inferenceLog?: InferenceLogAnalysisConfig | undefined;
-  /** Configuration for monitoring time series tables. */
-  timeSeries?: TimeSeriesAnalysisConfig | undefined;
-  /** Configuration for monitoring snapshot tables. */
-  snapshot?: SnapshotAnalysisConfig | undefined;
+  /** [Create:REQ Update:REQ] Analysis config which is used to determine analysis logic. */
+  analysisConfig?:
+    | {$case: 'inferenceLog'; inferenceLog: InferenceLogAnalysisConfig}
+    | {
+        $case: 'timeSeries';
+        /** Configuration for monitoring time series tables. */
+        timeSeries: TimeSeriesAnalysisConfig;
+      }
+    | {
+        $case: 'snapshot';
+        /** Configuration for monitoring snapshot tables. */
+        snapshot: SnapshotAnalysisConfig;
+      }
+    | undefined;
   /**
    * [Create:OPT Update:OPT] List of column expressions to slice data with for targeted analysis. The data is grouped by
    * each expression independently, resulting in a separate slice for each predicate and its
@@ -209,11 +218,20 @@ export interface DataMonitorInfo {
    * assets. Normally prepopulated to a default user location via UI and Python APIs.
    */
   assetsDir?: string | undefined;
-  inferenceLog?: InferenceLogAnalysisConfig | undefined;
-  /** Configuration for monitoring time series tables. */
-  timeSeries?: TimeSeriesAnalysisConfig | undefined;
-  /** Configuration for monitoring snapshot tables. */
-  snapshot?: SnapshotAnalysisConfig | undefined;
+  /** [Create:REQ Update:REQ] Analysis config which is used to determine analysis logic. */
+  analysisConfig?:
+    | {$case: 'inferenceLog'; inferenceLog: InferenceLogAnalysisConfig}
+    | {
+        $case: 'timeSeries';
+        /** Configuration for monitoring time series tables. */
+        timeSeries: TimeSeriesAnalysisConfig;
+      }
+    | {
+        $case: 'snapshot';
+        /** Configuration for monitoring snapshot tables. */
+        snapshot: SnapshotAnalysisConfig;
+      }
+    | undefined;
   /**
    * [Create:OPT Update:OPT] List of column expressions to slice data with for targeted analysis. The data is grouped by
    * each expression independently, resulting in a separate slice for each predicate and its
@@ -410,11 +428,20 @@ export interface UpdateMonitor {
    * assets. Normally prepopulated to a default user location via UI and Python APIs.
    */
   assetsDir?: string | undefined;
-  inferenceLog?: InferenceLogAnalysisConfig | undefined;
-  /** Configuration for monitoring time series tables. */
-  timeSeries?: TimeSeriesAnalysisConfig | undefined;
-  /** Configuration for monitoring snapshot tables. */
-  snapshot?: SnapshotAnalysisConfig | undefined;
+  /** [Create:REQ Update:REQ] Analysis config which is used to determine analysis logic. */
+  analysisConfig?:
+    | {$case: 'inferenceLog'; inferenceLog: InferenceLogAnalysisConfig}
+    | {
+        $case: 'timeSeries';
+        /** Configuration for monitoring time series tables. */
+        timeSeries: TimeSeriesAnalysisConfig;
+      }
+    | {
+        $case: 'snapshot';
+        /** Configuration for monitoring snapshot tables. */
+        snapshot: SnapshotAnalysisConfig;
+      }
+    | undefined;
   /**
    * [Create:OPT Update:OPT] List of column expressions to slice data with for targeted analysis. The data is grouped by
    * each expression independently, resulting in a separate slice for each predicate and its
@@ -522,9 +549,14 @@ export const unmarshalDataMonitorInfoSchema: z.ZodType<DataMonitorInfo> = z
   .transform(d => ({
     outputSchemaName: d.output_schema_name,
     assetsDir: d.assets_dir,
-    inferenceLog: d.inference_log,
-    timeSeries: d.time_series,
-    snapshot: d.snapshot,
+    analysisConfig:
+      d.inference_log !== undefined
+        ? {$case: 'inferenceLog' as const, inferenceLog: d.inference_log}
+        : d.time_series !== undefined
+          ? {$case: 'timeSeries' as const, timeSeries: d.time_series}
+          : d.snapshot !== undefined
+            ? {$case: 'snapshot' as const, snapshot: d.snapshot}
+            : undefined,
     slicingExprs: d.slicing_exprs,
     customMetrics: d.custom_metrics,
     baselineTableName: d.baseline_table_name,
@@ -669,11 +701,22 @@ export const marshalCreateMonitorSchema: z.ZodType = z
     warehouseId: z.string().optional(),
     outputSchemaName: z.string().optional(),
     assetsDir: z.string().optional(),
-    inferenceLog: z
-      .lazy(() => marshalInferenceLogAnalysisConfigSchema)
+    analysisConfig: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('inferenceLog'),
+          inferenceLog: z.lazy(() => marshalInferenceLogAnalysisConfigSchema),
+        }),
+        z.object({
+          $case: z.literal('timeSeries'),
+          timeSeries: z.lazy(() => marshalTimeSeriesAnalysisConfigSchema),
+        }),
+        z.object({
+          $case: z.literal('snapshot'),
+          snapshot: z.lazy(() => marshalSnapshotAnalysisConfigSchema),
+        }),
+      ])
       .optional(),
-    timeSeries: z.lazy(() => marshalTimeSeriesAnalysisConfigSchema).optional(),
-    snapshot: z.lazy(() => marshalSnapshotAnalysisConfigSchema).optional(),
     slicingExprs: z.array(z.string()).optional(),
     customMetrics: z.array(z.lazy(() => marshalCustomMetricSchema)).optional(),
     baselineTableName: z.string().optional(),
@@ -696,9 +739,15 @@ export const marshalCreateMonitorSchema: z.ZodType = z
     warehouse_id: d.warehouseId,
     output_schema_name: d.outputSchemaName,
     assets_dir: d.assetsDir,
-    inference_log: d.inferenceLog,
-    time_series: d.timeSeries,
-    snapshot: d.snapshot,
+    ...(d.analysisConfig?.$case === 'inferenceLog' && {
+      inference_log: d.analysisConfig.inferenceLog,
+    }),
+    ...(d.analysisConfig?.$case === 'timeSeries' && {
+      time_series: d.analysisConfig.timeSeries,
+    }),
+    ...(d.analysisConfig?.$case === 'snapshot' && {
+      snapshot: d.analysisConfig.snapshot,
+    }),
     slicing_exprs: d.slicingExprs,
     custom_metrics: d.customMetrics,
     baseline_table_name: d.baselineTableName,
@@ -825,11 +874,22 @@ export const marshalUpdateMonitorSchema: z.ZodType = z
     fullTableNameArg: z.string().optional(),
     outputSchemaName: z.string().optional(),
     assetsDir: z.string().optional(),
-    inferenceLog: z
-      .lazy(() => marshalInferenceLogAnalysisConfigSchema)
+    analysisConfig: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('inferenceLog'),
+          inferenceLog: z.lazy(() => marshalInferenceLogAnalysisConfigSchema),
+        }),
+        z.object({
+          $case: z.literal('timeSeries'),
+          timeSeries: z.lazy(() => marshalTimeSeriesAnalysisConfigSchema),
+        }),
+        z.object({
+          $case: z.literal('snapshot'),
+          snapshot: z.lazy(() => marshalSnapshotAnalysisConfigSchema),
+        }),
+      ])
       .optional(),
-    timeSeries: z.lazy(() => marshalTimeSeriesAnalysisConfigSchema).optional(),
-    snapshot: z.lazy(() => marshalSnapshotAnalysisConfigSchema).optional(),
     slicingExprs: z.array(z.string()).optional(),
     customMetrics: z.array(z.lazy(() => marshalCustomMetricSchema)).optional(),
     baselineTableName: z.string().optional(),
@@ -850,9 +910,15 @@ export const marshalUpdateMonitorSchema: z.ZodType = z
     full_table_name_arg: d.fullTableNameArg,
     output_schema_name: d.outputSchemaName,
     assets_dir: d.assetsDir,
-    inference_log: d.inferenceLog,
-    time_series: d.timeSeries,
-    snapshot: d.snapshot,
+    ...(d.analysisConfig?.$case === 'inferenceLog' && {
+      inference_log: d.analysisConfig.inferenceLog,
+    }),
+    ...(d.analysisConfig?.$case === 'timeSeries' && {
+      time_series: d.analysisConfig.timeSeries,
+    }),
+    ...(d.analysisConfig?.$case === 'snapshot' && {
+      snapshot: d.analysisConfig.snapshot,
+    }),
     slicing_exprs: d.slicingExprs,
     custom_metrics: d.customMetrics,
     baseline_table_name: d.baselineTableName,

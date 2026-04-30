@@ -103,41 +103,64 @@ export interface GetPolicy {
 }
 
 export interface Library {
-  /**
-   * URI of the JAR library to install. Supported URIs include Workspace paths, Unity Catalog Volumes paths, and S3 URIs.
-   * For example: `{ "jar": "/Workspace/path/to/library.jar" }`, `{ "jar" : "/Volumes/path/to/library.jar" }` or
-   * `{ "jar": "s3://my-bucket/library.jar" }`.
-   * If S3 is used, please make sure the cluster has read access on the library. You may need to
-   * launch the cluster with an IAM role to access the S3 URI.
-   */
-  jar?: string | undefined;
-  /** Deprecated. URI of the egg library to install. Installing Python egg files is deprecated and is not supported in Databricks Runtime 14.0 and above. */
-  egg?: string | undefined;
-  /**
-   * Specification of a PyPi library to be installed. For example:
-   * `{ "package": "simplejson" }`
-   */
-  pypi?: PythonPyPiLibrary | undefined;
-  /**
-   * Specification of a maven library to be installed. For example:
-   * `{ "coordinates": "org.jsoup:jsoup:1.7.2" }`
-   */
-  maven?: MavenLibrary | undefined;
-  /** Specification of a CRAN library to be installed as part of the library */
-  cran?: RCranLibrary | undefined;
-  /**
-   * URI of the wheel library to install. Supported URIs include Workspace paths, Unity Catalog Volumes paths, and S3 URIs.
-   * For example: `{ "whl": "/Workspace/path/to/library.whl" }`, `{ "whl" : "/Volumes/path/to/library.whl" }` or
-   * `{ "whl": "s3://my-bucket/library.whl" }`.
-   * If S3 is used, please make sure the cluster has read access on the library. You may need to
-   * launch the cluster with an IAM role to access the S3 URI.
-   */
-  whl?: string | undefined;
-  /**
-   * URI of the requirements.txt file to install. Only Workspace paths and Unity Catalog Volumes paths are supported.
-   * For example: `{ "requirements": "/Workspace/path/to/requirements.txt" }` or `{ "requirements" : "/Volumes/path/to/requirements.txt" }`
-   */
-  requirements?: string | undefined;
+  lib?:
+    | {
+        $case: 'jar';
+        /**
+         * URI of the JAR library to install. Supported URIs include Workspace paths, Unity Catalog Volumes paths, and S3 URIs.
+         * For example: `{ "jar": "/Workspace/path/to/library.jar" }`, `{ "jar" : "/Volumes/path/to/library.jar" }` or
+         * `{ "jar": "s3://my-bucket/library.jar" }`.
+         * If S3 is used, please make sure the cluster has read access on the library. You may need to
+         * launch the cluster with an IAM role to access the S3 URI.
+         */
+        jar: string;
+      }
+    | {
+        $case: 'egg';
+        /** Deprecated. URI of the egg library to install. Installing Python egg files is deprecated and is not supported in Databricks Runtime 14.0 and above. */
+        egg: string;
+      }
+    | {
+        $case: 'pypi';
+        /**
+         * Specification of a PyPi library to be installed. For example:
+         * `{ "package": "simplejson" }`
+         */
+        pypi: PythonPyPiLibrary;
+      }
+    | {
+        $case: 'maven';
+        /**
+         * Specification of a maven library to be installed. For example:
+         * `{ "coordinates": "org.jsoup:jsoup:1.7.2" }`
+         */
+        maven: MavenLibrary;
+      }
+    | {
+        $case: 'cran';
+        /** Specification of a CRAN library to be installed as part of the library */
+        cran: RCranLibrary;
+      }
+    | {
+        $case: 'whl';
+        /**
+         * URI of the wheel library to install. Supported URIs include Workspace paths, Unity Catalog Volumes paths, and S3 URIs.
+         * For example: `{ "whl": "/Workspace/path/to/library.whl" }`, `{ "whl" : "/Volumes/path/to/library.whl" }` or
+         * `{ "whl": "s3://my-bucket/library.whl" }`.
+         * If S3 is used, please make sure the cluster has read access on the library. You may need to
+         * launch the cluster with an IAM role to access the S3 URI.
+         */
+        whl: string;
+      }
+    | {
+        $case: 'requirements';
+        /**
+         * URI of the requirements.txt file to install. Only Workspace paths and Unity Catalog Volumes paths are supported.
+         * For example: `{ "requirements": "/Workspace/path/to/requirements.txt" }` or `{ "requirements" : "/Volumes/path/to/requirements.txt" }`
+         */
+        requirements: string;
+      }
+    | undefined;
 }
 
 export interface ListPolicies {
@@ -274,13 +297,25 @@ export const unmarshalLibrarySchema: z.ZodType<Library> = z
     requirements: z.string().optional(),
   })
   .transform(d => ({
-    jar: d.jar,
-    egg: d.egg,
-    pypi: d.pypi,
-    maven: d.maven,
-    cran: d.cran,
-    whl: d.whl,
-    requirements: d.requirements,
+    lib:
+      d.jar !== undefined
+        ? {$case: 'jar' as const, jar: d.jar}
+        : d.egg !== undefined
+          ? {$case: 'egg' as const, egg: d.egg}
+          : d.pypi !== undefined
+            ? {$case: 'pypi' as const, pypi: d.pypi}
+            : d.maven !== undefined
+              ? {$case: 'maven' as const, maven: d.maven}
+              : d.cran !== undefined
+                ? {$case: 'cran' as const, cran: d.cran}
+                : d.whl !== undefined
+                  ? {$case: 'whl' as const, whl: d.whl}
+                  : d.requirements !== undefined
+                    ? {
+                        $case: 'requirements' as const,
+                        requirements: d.requirements,
+                      }
+                    : undefined,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -405,22 +440,35 @@ export const marshalEditPolicySchema: z.ZodType = z
 
 export const marshalLibrarySchema: z.ZodType = z
   .object({
-    jar: z.string().optional(),
-    egg: z.string().optional(),
-    pypi: z.lazy(() => marshalPythonPyPiLibrarySchema).optional(),
-    maven: z.lazy(() => marshalMavenLibrarySchema).optional(),
-    cran: z.lazy(() => marshalRCranLibrarySchema).optional(),
-    whl: z.string().optional(),
-    requirements: z.string().optional(),
+    lib: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('jar'), jar: z.string()}),
+        z.object({$case: z.literal('egg'), egg: z.string()}),
+        z.object({
+          $case: z.literal('pypi'),
+          pypi: z.lazy(() => marshalPythonPyPiLibrarySchema),
+        }),
+        z.object({
+          $case: z.literal('maven'),
+          maven: z.lazy(() => marshalMavenLibrarySchema),
+        }),
+        z.object({
+          $case: z.literal('cran'),
+          cran: z.lazy(() => marshalRCranLibrarySchema),
+        }),
+        z.object({$case: z.literal('whl'), whl: z.string()}),
+        z.object({$case: z.literal('requirements'), requirements: z.string()}),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    jar: d.jar,
-    egg: d.egg,
-    pypi: d.pypi,
-    maven: d.maven,
-    cran: d.cran,
-    whl: d.whl,
-    requirements: d.requirements,
+    ...(d.lib?.$case === 'jar' && {jar: d.lib.jar}),
+    ...(d.lib?.$case === 'egg' && {egg: d.lib.egg}),
+    ...(d.lib?.$case === 'pypi' && {pypi: d.lib.pypi}),
+    ...(d.lib?.$case === 'maven' && {maven: d.lib.maven}),
+    ...(d.lib?.$case === 'cran' && {cran: d.lib.cran}),
+    ...(d.lib?.$case === 'whl' && {whl: d.lib.whl}),
+    ...(d.lib?.$case === 'requirements' && {requirements: d.lib.requirements}),
   }));
 
 export const marshalMavenLibrarySchema: z.ZodType = z

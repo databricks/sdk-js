@@ -110,8 +110,13 @@ export interface DeleteExternalLocation_Response {}
 
 /** Encryption options that apply to clients connecting to cloud storage. */
 export interface EncryptionDetails {
-  /** Server-Side Encryption properties for clients communicating with AWS s3. */
-  sseEncryptionDetails?: SseEncryptionDetails | undefined;
+  encryptionDetailsType?:
+    | {
+        $case: 'sseEncryptionDetails';
+        /** Server-Side Encryption properties for clients communicating with AWS s3. */
+        sseEncryptionDetails: SseEncryptionDetails;
+      }
+    | undefined;
 }
 
 export interface ExternalLocationInfo {
@@ -164,12 +169,16 @@ export interface ExternalLocationInfo {
 }
 
 export interface FileEventQueue {
-  providedAqs?: AzureQueueStorage | undefined;
-  providedSqs?: AwsSqsQueue | undefined;
-  providedPubsub?: GcpPubsub | undefined;
-  managedAqs?: AzureQueueStorage | undefined;
-  managedSqs?: AwsSqsQueue | undefined;
-  managedPubsub?: GcpPubsub | undefined;
+  provided?:
+    | {$case: 'providedAqs'; providedAqs: AzureQueueStorage}
+    | {$case: 'providedSqs'; providedSqs: AwsSqsQueue}
+    | {$case: 'providedPubsub'; providedPubsub: GcpPubsub}
+    | undefined;
+  managed?:
+    | {$case: 'managedAqs'; managedAqs: AzureQueueStorage}
+    | {$case: 'managedSqs'; managedSqs: AwsSqsQueue}
+    | {$case: 'managedPubsub'; managedPubsub: GcpPubsub}
+    | undefined;
 }
 
 export interface GcpPubsub {
@@ -323,7 +332,13 @@ export const unmarshalEncryptionDetailsSchema: z.ZodType<EncryptionDetails> = z
       .optional(),
   })
   .transform(d => ({
-    sseEncryptionDetails: d.sse_encryption_details,
+    encryptionDetailsType:
+      d.sse_encryption_details !== undefined
+        ? {
+            $case: 'sseEncryptionDetails' as const,
+            sseEncryptionDetails: d.sse_encryption_details,
+          }
+        : undefined,
   }));
 
 export const unmarshalExternalLocationInfoSchema: z.ZodType<ExternalLocationInfo> =
@@ -387,12 +402,25 @@ export const unmarshalFileEventQueueSchema: z.ZodType<FileEventQueue> = z
     managed_pubsub: z.lazy(() => unmarshalGcpPubsubSchema).optional(),
   })
   .transform(d => ({
-    providedAqs: d.provided_aqs,
-    providedSqs: d.provided_sqs,
-    providedPubsub: d.provided_pubsub,
-    managedAqs: d.managed_aqs,
-    managedSqs: d.managed_sqs,
-    managedPubsub: d.managed_pubsub,
+    provided:
+      d.provided_aqs !== undefined
+        ? {$case: 'providedAqs' as const, providedAqs: d.provided_aqs}
+        : d.provided_sqs !== undefined
+          ? {$case: 'providedSqs' as const, providedSqs: d.provided_sqs}
+          : d.provided_pubsub !== undefined
+            ? {
+                $case: 'providedPubsub' as const,
+                providedPubsub: d.provided_pubsub,
+              }
+            : undefined,
+    managed:
+      d.managed_aqs !== undefined
+        ? {$case: 'managedAqs' as const, managedAqs: d.managed_aqs}
+        : d.managed_sqs !== undefined
+          ? {$case: 'managedSqs' as const, managedSqs: d.managed_sqs}
+          : d.managed_pubsub !== undefined
+            ? {$case: 'managedPubsub' as const, managedPubsub: d.managed_pubsub}
+            : undefined,
   }));
 
 export const unmarshalGcpPubsubSchema: z.ZodType<GcpPubsub> = z
@@ -506,30 +534,75 @@ export const marshalCreateExternalLocationSchema: z.ZodType = z
 
 export const marshalEncryptionDetailsSchema: z.ZodType = z
   .object({
-    sseEncryptionDetails: z
-      .lazy(() => marshalSseEncryptionDetailsSchema)
+    encryptionDetailsType: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('sseEncryptionDetails'),
+          sseEncryptionDetails: z.lazy(() => marshalSseEncryptionDetailsSchema),
+        }),
+      ])
       .optional(),
   })
   .transform(d => ({
-    sse_encryption_details: d.sseEncryptionDetails,
+    ...(d.encryptionDetailsType?.$case === 'sseEncryptionDetails' && {
+      sse_encryption_details: d.encryptionDetailsType.sseEncryptionDetails,
+    }),
   }));
 
 export const marshalFileEventQueueSchema: z.ZodType = z
   .object({
-    providedAqs: z.lazy(() => marshalAzureQueueStorageSchema).optional(),
-    providedSqs: z.lazy(() => marshalAwsSqsQueueSchema).optional(),
-    providedPubsub: z.lazy(() => marshalGcpPubsubSchema).optional(),
-    managedAqs: z.lazy(() => marshalAzureQueueStorageSchema).optional(),
-    managedSqs: z.lazy(() => marshalAwsSqsQueueSchema).optional(),
-    managedPubsub: z.lazy(() => marshalGcpPubsubSchema).optional(),
+    provided: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('providedAqs'),
+          providedAqs: z.lazy(() => marshalAzureQueueStorageSchema),
+        }),
+        z.object({
+          $case: z.literal('providedSqs'),
+          providedSqs: z.lazy(() => marshalAwsSqsQueueSchema),
+        }),
+        z.object({
+          $case: z.literal('providedPubsub'),
+          providedPubsub: z.lazy(() => marshalGcpPubsubSchema),
+        }),
+      ])
+      .optional(),
+    managed: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('managedAqs'),
+          managedAqs: z.lazy(() => marshalAzureQueueStorageSchema),
+        }),
+        z.object({
+          $case: z.literal('managedSqs'),
+          managedSqs: z.lazy(() => marshalAwsSqsQueueSchema),
+        }),
+        z.object({
+          $case: z.literal('managedPubsub'),
+          managedPubsub: z.lazy(() => marshalGcpPubsubSchema),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    provided_aqs: d.providedAqs,
-    provided_sqs: d.providedSqs,
-    provided_pubsub: d.providedPubsub,
-    managed_aqs: d.managedAqs,
-    managed_sqs: d.managedSqs,
-    managed_pubsub: d.managedPubsub,
+    ...(d.provided?.$case === 'providedAqs' && {
+      provided_aqs: d.provided.providedAqs,
+    }),
+    ...(d.provided?.$case === 'providedSqs' && {
+      provided_sqs: d.provided.providedSqs,
+    }),
+    ...(d.provided?.$case === 'providedPubsub' && {
+      provided_pubsub: d.provided.providedPubsub,
+    }),
+    ...(d.managed?.$case === 'managedAqs' && {
+      managed_aqs: d.managed.managedAqs,
+    }),
+    ...(d.managed?.$case === 'managedSqs' && {
+      managed_sqs: d.managed.managedSqs,
+    }),
+    ...(d.managed?.$case === 'managedPubsub' && {
+      managed_pubsub: d.managed.managedPubsub,
+    }),
   }));
 
 export const marshalGcpPubsubSchema: z.ZodType = z

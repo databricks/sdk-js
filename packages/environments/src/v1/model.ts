@@ -666,10 +666,24 @@ export interface Operation {
    * available.
    */
   done?: boolean | undefined;
-  /** The error result of the operation in case of failure or cancellation. */
-  error?: DatabricksServiceExceptionWithDetailsProto | undefined;
-  /** The normal, successful response of the operation. */
-  response?: Record<string, unknown> | undefined;
+  /**
+   * The operation result, which can be either an `error` or a valid `response`.
+   * If `done` == `false`, neither `error` nor `response` is set.
+   * If `done` == `true`, exactly one of `error` or `response` can be set.
+   * Some services might not provide the result.
+   */
+  result?:
+    | {
+        $case: 'error';
+        /** The error result of the operation in case of failure or cancellation. */
+        error: DatabricksServiceExceptionWithDetailsProto;
+      }
+    | {
+        $case: 'response';
+        /** The normal, successful response of the operation. */
+        response: Record<string, unknown>;
+      }
+    | undefined;
 }
 
 /** Request message for RefreshWorkspaceBaseEnvironments. */
@@ -806,8 +820,12 @@ export const unmarshalOperationSchema: z.ZodType<Operation> = z
     name: d.name,
     metadata: d.metadata,
     done: d.done,
-    error: d.error,
-    response: d.response,
+    result:
+      d.error !== undefined
+        ? {$case: 'error' as const, error: d.error}
+        : d.response !== undefined
+          ? {$case: 'response' as const, response: d.response}
+          : undefined,
   }));
 
 export const unmarshalWorkspaceBaseEnvironmentSchema: z.ZodType<WorkspaceBaseEnvironment> =

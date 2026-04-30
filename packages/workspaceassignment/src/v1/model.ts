@@ -68,12 +68,23 @@ export interface PermissionOutput {
 
 /** Information about the principal assigned to the workspace. */
 export interface PrincipalOutput {
-  /** The username of the user. Present only if the principal is a user. */
-  userName?: string | undefined;
-  /** The group name of the group. Present only if the principal is a group. */
-  groupName?: string | undefined;
-  /** The name of the service principal. Present only if the principal is a service principal. */
-  servicePrincipalName?: string | undefined;
+  principalName?:
+    | {
+        $case: 'userName';
+        /** The username of the user. Present only if the principal is a user. */
+        userName: string;
+      }
+    | {
+        $case: 'groupName';
+        /** The group name of the group. Present only if the principal is a group. */
+        groupName: string;
+      }
+    | {
+        $case: 'servicePrincipalName';
+        /** The name of the service principal. Present only if the principal is a service principal. */
+        servicePrincipalName: string;
+      }
+    | undefined;
   /** The unique, opaque id of the principal. */
   principalId?: number | undefined;
   /** The display name of the principal. */
@@ -161,9 +172,17 @@ export const unmarshalPrincipalOutputSchema: z.ZodType<PrincipalOutput> = z
     display_name: z.string().optional(),
   })
   .transform(d => ({
-    userName: d.user_name,
-    groupName: d.group_name,
-    servicePrincipalName: d.service_principal_name,
+    principalName:
+      d.user_name !== undefined
+        ? {$case: 'userName' as const, userName: d.user_name}
+        : d.group_name !== undefined
+          ? {$case: 'groupName' as const, groupName: d.group_name}
+          : d.service_principal_name !== undefined
+            ? {
+                $case: 'servicePrincipalName' as const,
+                servicePrincipalName: d.service_principal_name,
+              }
+            : undefined,
     principalId: d.principal_id,
     displayName: d.display_name,
   }));
