@@ -131,8 +131,11 @@ export interface AlertNotification {
 }
 
 export interface AlertOperand {
-  column?: AlertOperandColumn | undefined;
-  value?: AlertOperandValue | undefined;
+  /** Only one of the following fields may be set, depending on the type of operand/threshold. */
+  operand?:
+    | {$case: 'column'; column: AlertOperandColumn}
+    | {$case: 'value'; value: AlertOperandValue}
+    | undefined;
 }
 
 export interface AlertOperandColumn {
@@ -143,21 +146,34 @@ export interface AlertOperandColumn {
 }
 
 export interface AlertOperandValue {
-  stringValue?: string | undefined;
-  doubleValue?: number | undefined;
-  boolValue?: boolean | undefined;
+  /** Only one of the following fields may be set, depending on the type of threshold value. */
+  value?:
+    | {$case: 'stringValue'; stringValue: string}
+    | {$case: 'doubleValue'; doubleValue: number}
+    | {$case: 'boolValue'; boolValue: boolean}
+    | undefined;
 }
 
 export interface AlertRunAs {
-  /** The email of an active workspace user. Can only set this field to their own email. */
-  userName?: string | undefined;
-  /** Application ID of an active service principal. Setting this field requires the `servicePrincipal/user` role. */
-  servicePrincipalName?: string | undefined;
+  identity?:
+    | {
+        $case: 'userName';
+        /** The email of an active workspace user. Can only set this field to their own email. */
+        userName: string;
+      }
+    | {
+        $case: 'servicePrincipalName';
+        /** Application ID of an active service principal. Setting this field requires the `servicePrincipal/user` role. */
+        servicePrincipalName: string;
+      }
+    | undefined;
 }
 
 export interface AlertSubscription {
-  userEmail?: string | undefined;
-  destinationId?: string | undefined;
+  subscriptionType?:
+    | {$case: 'userEmail'; userEmail: string}
+    | {$case: 'destinationId'; destinationId: string}
+    | undefined;
 }
 
 export interface CreateAlertRequest {
@@ -303,8 +319,12 @@ export const unmarshalAlertOperandSchema: z.ZodType<AlertOperand> = z
     value: z.lazy(() => unmarshalAlertOperandValueSchema).optional(),
   })
   .transform(d => ({
-    column: d.column,
-    value: d.value,
+    operand:
+      d.column !== undefined
+        ? {$case: 'column' as const, column: d.column}
+        : d.value !== undefined
+          ? {$case: 'value' as const, value: d.value}
+          : undefined,
   }));
 
 export const unmarshalAlertOperandColumnSchema: z.ZodType<AlertOperandColumn> =
@@ -327,9 +347,14 @@ export const unmarshalAlertOperandValueSchema: z.ZodType<AlertOperandValue> = z
     bool_value: z.boolean().optional(),
   })
   .transform(d => ({
-    stringValue: d.string_value,
-    doubleValue: d.double_value,
-    boolValue: d.bool_value,
+    value:
+      d.string_value !== undefined
+        ? {$case: 'stringValue' as const, stringValue: d.string_value}
+        : d.double_value !== undefined
+          ? {$case: 'doubleValue' as const, doubleValue: d.double_value}
+          : d.bool_value !== undefined
+            ? {$case: 'boolValue' as const, boolValue: d.bool_value}
+            : undefined,
   }));
 
 export const unmarshalAlertRunAsSchema: z.ZodType<AlertRunAs> = z
@@ -338,8 +363,15 @@ export const unmarshalAlertRunAsSchema: z.ZodType<AlertRunAs> = z
     service_principal_name: z.string().optional(),
   })
   .transform(d => ({
-    userName: d.user_name,
-    servicePrincipalName: d.service_principal_name,
+    identity:
+      d.user_name !== undefined
+        ? {$case: 'userName' as const, userName: d.user_name}
+        : d.service_principal_name !== undefined
+          ? {
+              $case: 'servicePrincipalName' as const,
+              servicePrincipalName: d.service_principal_name,
+            }
+          : undefined,
   }));
 
 export const unmarshalAlertSubscriptionSchema: z.ZodType<AlertSubscription> = z
@@ -348,8 +380,12 @@ export const unmarshalAlertSubscriptionSchema: z.ZodType<AlertSubscription> = z
     destination_id: z.string().optional(),
   })
   .transform(d => ({
-    userEmail: d.user_email,
-    destinationId: d.destination_id,
+    subscriptionType:
+      d.user_email !== undefined
+        ? {$case: 'userEmail' as const, userEmail: d.user_email}
+        : d.destination_id !== undefined
+          ? {$case: 'destinationId' as const, destinationId: d.destination_id}
+          : undefined,
   }));
 
 export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
@@ -464,12 +500,22 @@ export const marshalAlertNotificationSchema: z.ZodType = z
 
 export const marshalAlertOperandSchema: z.ZodType = z
   .object({
-    column: z.lazy(() => marshalAlertOperandColumnSchema).optional(),
-    value: z.lazy(() => marshalAlertOperandValueSchema).optional(),
+    operand: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('column'),
+          column: z.lazy(() => marshalAlertOperandColumnSchema),
+        }),
+        z.object({
+          $case: z.literal('value'),
+          value: z.lazy(() => marshalAlertOperandValueSchema),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    column: d.column,
-    value: d.value,
+    ...(d.operand?.$case === 'column' && {column: d.operand.column}),
+    ...(d.operand?.$case === 'value' && {value: d.operand.value}),
   }));
 
 export const marshalAlertOperandColumnSchema: z.ZodType = z
@@ -486,34 +532,62 @@ export const marshalAlertOperandColumnSchema: z.ZodType = z
 
 export const marshalAlertOperandValueSchema: z.ZodType = z
   .object({
-    stringValue: z.string().optional(),
-    doubleValue: z.number().optional(),
-    boolValue: z.boolean().optional(),
+    value: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('stringValue'), stringValue: z.string()}),
+        z.object({$case: z.literal('doubleValue'), doubleValue: z.number()}),
+        z.object({$case: z.literal('boolValue'), boolValue: z.boolean()}),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    string_value: d.stringValue,
-    double_value: d.doubleValue,
-    bool_value: d.boolValue,
+    ...(d.value?.$case === 'stringValue' && {
+      string_value: d.value.stringValue,
+    }),
+    ...(d.value?.$case === 'doubleValue' && {
+      double_value: d.value.doubleValue,
+    }),
+    ...(d.value?.$case === 'boolValue' && {bool_value: d.value.boolValue}),
   }));
 
 export const marshalAlertRunAsSchema: z.ZodType = z
   .object({
-    userName: z.string().optional(),
-    servicePrincipalName: z.string().optional(),
+    identity: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('userName'), userName: z.string()}),
+        z.object({
+          $case: z.literal('servicePrincipalName'),
+          servicePrincipalName: z.string(),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    user_name: d.userName,
-    service_principal_name: d.servicePrincipalName,
+    ...(d.identity?.$case === 'userName' && {user_name: d.identity.userName}),
+    ...(d.identity?.$case === 'servicePrincipalName' && {
+      service_principal_name: d.identity.servicePrincipalName,
+    }),
   }));
 
 export const marshalAlertSubscriptionSchema: z.ZodType = z
   .object({
-    userEmail: z.string().optional(),
-    destinationId: z.string().optional(),
+    subscriptionType: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('userEmail'), userEmail: z.string()}),
+        z.object({
+          $case: z.literal('destinationId'),
+          destinationId: z.string(),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    user_email: d.userEmail,
-    destination_id: d.destinationId,
+    ...(d.subscriptionType?.$case === 'userEmail' && {
+      user_email: d.subscriptionType.userEmail,
+    }),
+    ...(d.subscriptionType?.$case === 'destinationId' && {
+      destination_id: d.subscriptionType.destinationId,
+    }),
   }));
 
 export const marshalCronScheduleSchema: z.ZodType = z

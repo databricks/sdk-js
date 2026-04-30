@@ -229,10 +229,19 @@ export interface MethodMetadata {
  * call. Multiple requests are required to retrieve the complete dataset.
  */
 export interface Pagination {
-  /** Offset-based pagination settings. */
-  offsetInfo?: Pagination_OffsetInfo | undefined;
-  /** Token-based pagination settings. */
-  tokenInfo?: Pagination_PageTokenInfo | undefined;
+  /** Defines the pagination method used by this API. */
+  paginationInfo?:
+    | {
+        $case: 'offsetInfo';
+        /** Offset-based pagination settings. */
+        offsetInfo: Pagination_OffsetInfo;
+      }
+    | {
+        $case: 'tokenInfo';
+        /** Token-based pagination settings. */
+        tokenInfo: Pagination_PageTokenInfo;
+      }
+    | undefined;
   /**
    * Specifies the name of the `repeated` field in the response message
    * that holds the page's results.
@@ -397,10 +406,18 @@ export interface WaitForState_Binding {
 export interface WaitForState_Binding_BindingPair {
   /** Field name in the method_to_poll operation. */
   pollMethodField?: string | undefined;
-  /** Field name in the annotated method's request. */
-  requestField?: string | undefined;
-  /** Field name in the annotated method's response. */
-  responseField?: string | undefined;
+  originalField?:
+    | {
+        $case: 'requestField';
+        /** Field name in the annotated method's request. */
+        requestField: string;
+      }
+    | {
+        $case: 'responseField';
+        /** Field name in the annotated method's response. */
+        responseField: string;
+      }
+    | undefined;
 }
 
 /** Groups fields used to find and interpret the operation's state. */

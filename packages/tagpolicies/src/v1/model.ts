@@ -7,8 +7,14 @@ import {z} from 'zod';
 
 /** Policy that determines how to resolve conflicts when multiple upstream sources have different tag values. */
 export interface ConflictResolutionPolicy {
-  /** Uses a specified default value to override when conflicts happen. */
-  defaultValueOverride?: DefaultValueOverridePolicy | undefined;
+  /** The conflict resolution strategy to apply. Only one policy type should be specified. */
+  policy?:
+    | {
+        $case: 'defaultValueOverride';
+        /** Uses a specified default value to override when conflicts happen. */
+        defaultValueOverride: DefaultValueOverridePolicy;
+      }
+    | undefined;
 }
 
 export interface CreateTagPolicyRequest {
@@ -85,7 +91,13 @@ export const unmarshalConflictResolutionPolicySchema: z.ZodType<ConflictResoluti
         .optional(),
     })
     .transform(d => ({
-      defaultValueOverride: d.default_value_override,
+      policy:
+        d.default_value_override !== undefined
+          ? {
+              $case: 'defaultValueOverride' as const,
+              defaultValueOverride: d.default_value_override,
+            }
+          : undefined,
     }));
 
 export const unmarshalDefaultValueOverridePolicySchema: z.ZodType<DefaultValueOverridePolicy> =
@@ -160,12 +172,21 @@ export const unmarshalValueSchema: z.ZodType<Value> = z
 
 export const marshalConflictResolutionPolicySchema: z.ZodType = z
   .object({
-    defaultValueOverride: z
-      .lazy(() => marshalDefaultValueOverridePolicySchema)
+    policy: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('defaultValueOverride'),
+          defaultValueOverride: z.lazy(
+            () => marshalDefaultValueOverridePolicySchema
+          ),
+        }),
+      ])
       .optional(),
   })
   .transform(d => ({
-    default_value_override: d.defaultValueOverride,
+    ...(d.policy?.$case === 'defaultValueOverride' && {
+      default_value_override: d.policy.defaultValueOverride,
+    }),
   }));
 
 export const marshalDefaultValueOverridePolicySchema: z.ZodType = z

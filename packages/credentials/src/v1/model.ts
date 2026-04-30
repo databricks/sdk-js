@@ -156,17 +156,38 @@ export interface CreateCredential {
    * credentials within the metastore.
    */
   name?: string | undefined;
-  /** The AWS IAM role configuration. */
-  awsIamRole?: AwsIamRole | undefined;
-  /** The Azure service principal configuration. */
-  azureServicePrincipal?: AzureServicePrincipal | undefined;
-  gcpServiceAccountKey?: GcpServiceAccountKey | undefined;
-  /** The Azure managed identity configuration. */
-  azureManagedIdentity?: AzureManagedIdentity | undefined;
-  /** The <Databricks> managed GCP service account configuration. */
-  databricksGcpServiceAccount?: DatabricksGcpServiceAccount | undefined;
-  /** The Cloudflare API token configuration. */
-  cloudflareApiToken?: CloudflareApiToken | undefined;
+  /** (--[Create:REQ, Update:OPT] The long-lived cloud credential.--) */
+  credential?:
+    | {
+        $case: 'awsIamRole';
+        /** The AWS IAM role configuration. */
+        awsIamRole: AwsIamRole;
+      }
+    | {
+        $case: 'azureServicePrincipal';
+        /** The Azure service principal configuration. */
+        azureServicePrincipal: AzureServicePrincipal;
+      }
+    | {
+        $case: 'gcpServiceAccountKey';
+        gcpServiceAccountKey: GcpServiceAccountKey;
+      }
+    | {
+        $case: 'azureManagedIdentity';
+        /** The Azure managed identity configuration. */
+        azureManagedIdentity: AzureManagedIdentity;
+      }
+    | {
+        $case: 'databricksGcpServiceAccount';
+        /** The <Databricks> managed GCP service account configuration. */
+        databricksGcpServiceAccount: DatabricksGcpServiceAccount;
+      }
+    | {
+        $case: 'cloudflareApiToken';
+        /** The Cloudflare API token configuration. */
+        cloudflareApiToken: CloudflareApiToken;
+      }
+    | undefined;
   /** Comment associated with the credential. */
   comment?: string | undefined;
   /**
@@ -210,17 +231,38 @@ export interface CreateStorageCredential {
    * credentials within the metastore.
    */
   name?: string | undefined;
-  /** The AWS IAM role configuration. */
-  awsIamRole?: AwsIamRole | undefined;
-  /** The Azure service principal configuration. */
-  azureServicePrincipal?: AzureServicePrincipal | undefined;
-  gcpServiceAccountKey?: GcpServiceAccountKey | undefined;
-  /** The Azure managed identity configuration. */
-  azureManagedIdentity?: AzureManagedIdentity | undefined;
-  /** The <Databricks> managed GCP service account configuration. */
-  databricksGcpServiceAccount?: DatabricksGcpServiceAccount | undefined;
-  /** The Cloudflare API token configuration. */
-  cloudflareApiToken?: CloudflareApiToken | undefined;
+  /** (--[Create:REQ, Update:OPT] The long-lived cloud credential.--) */
+  credential?:
+    | {
+        $case: 'awsIamRole';
+        /** The AWS IAM role configuration. */
+        awsIamRole: AwsIamRole;
+      }
+    | {
+        $case: 'azureServicePrincipal';
+        /** The Azure service principal configuration. */
+        azureServicePrincipal: AzureServicePrincipal;
+      }
+    | {
+        $case: 'gcpServiceAccountKey';
+        gcpServiceAccountKey: GcpServiceAccountKey;
+      }
+    | {
+        $case: 'azureManagedIdentity';
+        /** The Azure managed identity configuration. */
+        azureManagedIdentity: AzureManagedIdentity;
+      }
+    | {
+        $case: 'databricksGcpServiceAccount';
+        /** The <Databricks> managed GCP service account configuration. */
+        databricksGcpServiceAccount: DatabricksGcpServiceAccount;
+      }
+    | {
+        $case: 'cloudflareApiToken';
+        /** The Cloudflare API token configuration. */
+        cloudflareApiToken: CloudflareApiToken;
+      }
+    | undefined;
   /** Comment associated with the credential. */
   comment?: string | undefined;
   /**
@@ -262,17 +304,38 @@ export interface CredentialInfo {
    * credentials within the metastore.
    */
   name?: string | undefined;
-  /** The AWS IAM role configuration. */
-  awsIamRole?: AwsIamRole | undefined;
-  /** The Azure service principal configuration. */
-  azureServicePrincipal?: AzureServicePrincipal | undefined;
-  gcpServiceAccountKey?: GcpServiceAccountKey | undefined;
-  /** The Azure managed identity configuration. */
-  azureManagedIdentity?: AzureManagedIdentity | undefined;
-  /** The <Databricks> managed GCP service account configuration. */
-  databricksGcpServiceAccount?: DatabricksGcpServiceAccount | undefined;
-  /** The Cloudflare API token configuration. */
-  cloudflareApiToken?: CloudflareApiToken | undefined;
+  /** (--[Create:REQ, Update:OPT] The long-lived cloud credential.--) */
+  credential?:
+    | {
+        $case: 'awsIamRole';
+        /** The AWS IAM role configuration. */
+        awsIamRole: AwsIamRole;
+      }
+    | {
+        $case: 'azureServicePrincipal';
+        /** The Azure service principal configuration. */
+        azureServicePrincipal: AzureServicePrincipal;
+      }
+    | {
+        $case: 'gcpServiceAccountKey';
+        gcpServiceAccountKey: GcpServiceAccountKey;
+      }
+    | {
+        $case: 'azureManagedIdentity';
+        /** The Azure managed identity configuration. */
+        azureManagedIdentity: AzureManagedIdentity;
+      }
+    | {
+        $case: 'databricksGcpServiceAccount';
+        /** The <Databricks> managed GCP service account configuration. */
+        databricksGcpServiceAccount: DatabricksGcpServiceAccount;
+      }
+    | {
+        $case: 'cloudflareApiToken';
+        /** The Cloudflare API token configuration. */
+        cloudflareApiToken: CloudflareApiToken;
+      }
+    | undefined;
   /** Comment associated with the credential. */
   comment?: string | undefined;
   /**
@@ -385,12 +448,18 @@ export interface GenerateTemporaryPathCredential {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface GenerateTemporaryPathCredential_Response {
-  awsTempCredentials?: AwsCredentials | undefined;
-  azureUserDelegationSas?: AzureUserDelegationSas | undefined;
-  gcpOauthToken?: GcpOauthToken | undefined;
-  azureAad?: AzureActiveDirectoryToken | undefined;
-  r2TempCredentials?: R2Credentials | undefined;
-  ucEncryptedToken?: UcEncryptedToken | undefined;
+  /** The temporary credential. */
+  credentials?:
+    | {$case: 'awsTempCredentials'; awsTempCredentials: AwsCredentials}
+    | {
+        $case: 'azureUserDelegationSas';
+        azureUserDelegationSas: AzureUserDelegationSas;
+      }
+    | {$case: 'gcpOauthToken'; gcpOauthToken: GcpOauthToken}
+    | {$case: 'azureAad'; azureAad: AzureActiveDirectoryToken}
+    | {$case: 'r2TempCredentials'; r2TempCredentials: R2Credentials}
+    | {$case: 'ucEncryptedToken'; ucEncryptedToken: UcEncryptedToken}
+    | undefined;
   /**
    * Server time when the credential will expire, in epoch milliseconds.
    * The API client is advised to cache the credential given this expiration time.
@@ -403,8 +472,16 @@ export interface GenerateTemporaryPathCredential_Response {
 export interface GenerateTemporaryServiceCredential {
   /** The name of the service credential used to generate a temporary credential */
   credentialName?: string | undefined;
-  azureOptions?: GenerateTemporaryServiceCredential_AzureOptions | undefined;
-  gcpOptions?: GenerateTemporaryServiceCredential_GcpOptions | undefined;
+  options?:
+    | {
+        $case: 'azureOptions';
+        azureOptions: GenerateTemporaryServiceCredential_AzureOptions;
+      }
+    | {
+        $case: 'gcpOptions';
+        gcpOptions: GenerateTemporaryServiceCredential_GcpOptions;
+      }
+    | undefined;
 }
 
 /** The Azure cloud options to customize the requested temporary credential */
@@ -440,12 +517,18 @@ export interface GenerateTemporaryTableCredential {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface GenerateTemporaryTableCredential_Response {
-  awsTempCredentials?: AwsCredentials | undefined;
-  azureUserDelegationSas?: AzureUserDelegationSas | undefined;
-  gcpOauthToken?: GcpOauthToken | undefined;
-  azureAad?: AzureActiveDirectoryToken | undefined;
-  r2TempCredentials?: R2Credentials | undefined;
-  ucEncryptedToken?: UcEncryptedToken | undefined;
+  /** The temporary credential. */
+  credentials?:
+    | {$case: 'awsTempCredentials'; awsTempCredentials: AwsCredentials}
+    | {
+        $case: 'azureUserDelegationSas';
+        azureUserDelegationSas: AzureUserDelegationSas;
+      }
+    | {$case: 'gcpOauthToken'; gcpOauthToken: GcpOauthToken}
+    | {$case: 'azureAad'; azureAad: AzureActiveDirectoryToken}
+    | {$case: 'r2TempCredentials'; r2TempCredentials: R2Credentials}
+    | {$case: 'ucEncryptedToken'; ucEncryptedToken: UcEncryptedToken}
+    | undefined;
   /**
    * Server time when the credential will expire, in epoch milliseconds.
    * The API client is advised to cache the credential given this expiration time.
@@ -468,12 +551,18 @@ export interface GenerateTemporaryVolumeCredential {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface GenerateTemporaryVolumeCredential_Response {
-  awsTempCredentials?: AwsCredentials | undefined;
-  azureUserDelegationSas?: AzureUserDelegationSas | undefined;
-  gcpOauthToken?: GcpOauthToken | undefined;
-  azureAad?: AzureActiveDirectoryToken | undefined;
-  r2TempCredentials?: R2Credentials | undefined;
-  ucEncryptedToken?: UcEncryptedToken | undefined;
+  /** The temporary credential. */
+  credentials?:
+    | {$case: 'awsTempCredentials'; awsTempCredentials: AwsCredentials}
+    | {
+        $case: 'azureUserDelegationSas';
+        azureUserDelegationSas: AzureUserDelegationSas;
+      }
+    | {$case: 'gcpOauthToken'; gcpOauthToken: GcpOauthToken}
+    | {$case: 'azureAad'; azureAad: AzureActiveDirectoryToken}
+    | {$case: 'r2TempCredentials'; r2TempCredentials: R2Credentials}
+    | {$case: 'ucEncryptedToken'; ucEncryptedToken: UcEncryptedToken}
+    | undefined;
   /**
    * Server time when the credential will expire, in epoch milliseconds.
    * The API client is advised to cache the credential given this expiration time.
@@ -590,17 +679,38 @@ export interface StorageCredentialInfo {
    * credentials within the metastore.
    */
   name?: string | undefined;
-  /** The AWS IAM role configuration. */
-  awsIamRole?: AwsIamRole | undefined;
-  /** The Azure service principal configuration. */
-  azureServicePrincipal?: AzureServicePrincipal | undefined;
-  gcpServiceAccountKey?: GcpServiceAccountKey | undefined;
-  /** The Azure managed identity configuration. */
-  azureManagedIdentity?: AzureManagedIdentity | undefined;
-  /** The <Databricks> managed GCP service account configuration. */
-  databricksGcpServiceAccount?: DatabricksGcpServiceAccount | undefined;
-  /** The Cloudflare API token configuration. */
-  cloudflareApiToken?: CloudflareApiToken | undefined;
+  /** (--[Create:REQ, Update:OPT] The long-lived cloud credential.--) */
+  credential?:
+    | {
+        $case: 'awsIamRole';
+        /** The AWS IAM role configuration. */
+        awsIamRole: AwsIamRole;
+      }
+    | {
+        $case: 'azureServicePrincipal';
+        /** The Azure service principal configuration. */
+        azureServicePrincipal: AzureServicePrincipal;
+      }
+    | {
+        $case: 'gcpServiceAccountKey';
+        gcpServiceAccountKey: GcpServiceAccountKey;
+      }
+    | {
+        $case: 'azureManagedIdentity';
+        /** The Azure managed identity configuration. */
+        azureManagedIdentity: AzureManagedIdentity;
+      }
+    | {
+        $case: 'databricksGcpServiceAccount';
+        /** The <Databricks> managed GCP service account configuration. */
+        databricksGcpServiceAccount: DatabricksGcpServiceAccount;
+      }
+    | {
+        $case: 'cloudflareApiToken';
+        /** The Cloudflare API token configuration. */
+        cloudflareApiToken: CloudflareApiToken;
+      }
+    | undefined;
   /** Comment associated with the credential. */
   comment?: string | undefined;
   /**
@@ -637,12 +747,18 @@ export interface StorageCredentialInfo {
 }
 
 export interface TemporaryCredentials {
-  awsTempCredentials?: AwsCredentials | undefined;
-  azureUserDelegationSas?: AzureUserDelegationSas | undefined;
-  gcpOauthToken?: GcpOauthToken | undefined;
-  azureAad?: AzureActiveDirectoryToken | undefined;
-  r2TempCredentials?: R2Credentials | undefined;
-  ucEncryptedToken?: UcEncryptedToken | undefined;
+  /** The temporary credential. */
+  credentials?:
+    | {$case: 'awsTempCredentials'; awsTempCredentials: AwsCredentials}
+    | {
+        $case: 'azureUserDelegationSas';
+        azureUserDelegationSas: AzureUserDelegationSas;
+      }
+    | {$case: 'gcpOauthToken'; gcpOauthToken: GcpOauthToken}
+    | {$case: 'azureAad'; azureAad: AzureActiveDirectoryToken}
+    | {$case: 'r2TempCredentials'; r2TempCredentials: R2Credentials}
+    | {$case: 'ucEncryptedToken'; ucEncryptedToken: UcEncryptedToken}
+    | undefined;
   /**
    * Server time when the credential will expire, in epoch milliseconds.
    * The API client is advised to cache the credential given this expiration time.
@@ -679,17 +795,38 @@ export interface UpdateCredential {
    * credentials within the metastore.
    */
   name?: string | undefined;
-  /** The AWS IAM role configuration. */
-  awsIamRole?: AwsIamRole | undefined;
-  /** The Azure service principal configuration. */
-  azureServicePrincipal?: AzureServicePrincipal | undefined;
-  gcpServiceAccountKey?: GcpServiceAccountKey | undefined;
-  /** The Azure managed identity configuration. */
-  azureManagedIdentity?: AzureManagedIdentity | undefined;
-  /** The <Databricks> managed GCP service account configuration. */
-  databricksGcpServiceAccount?: DatabricksGcpServiceAccount | undefined;
-  /** The Cloudflare API token configuration. */
-  cloudflareApiToken?: CloudflareApiToken | undefined;
+  /** (--[Create:REQ, Update:OPT] The long-lived cloud credential.--) */
+  credential?:
+    | {
+        $case: 'awsIamRole';
+        /** The AWS IAM role configuration. */
+        awsIamRole: AwsIamRole;
+      }
+    | {
+        $case: 'azureServicePrincipal';
+        /** The Azure service principal configuration. */
+        azureServicePrincipal: AzureServicePrincipal;
+      }
+    | {
+        $case: 'gcpServiceAccountKey';
+        gcpServiceAccountKey: GcpServiceAccountKey;
+      }
+    | {
+        $case: 'azureManagedIdentity';
+        /** The Azure managed identity configuration. */
+        azureManagedIdentity: AzureManagedIdentity;
+      }
+    | {
+        $case: 'databricksGcpServiceAccount';
+        /** The <Databricks> managed GCP service account configuration. */
+        databricksGcpServiceAccount: DatabricksGcpServiceAccount;
+      }
+    | {
+        $case: 'cloudflareApiToken';
+        /** The Cloudflare API token configuration. */
+        cloudflareApiToken: CloudflareApiToken;
+      }
+    | undefined;
   /** Comment associated with the credential. */
   comment?: string | undefined;
   /**
@@ -742,17 +879,38 @@ export interface UpdateStorageCredential {
    * credentials within the metastore.
    */
   name?: string | undefined;
-  /** The AWS IAM role configuration. */
-  awsIamRole?: AwsIamRole | undefined;
-  /** The Azure service principal configuration. */
-  azureServicePrincipal?: AzureServicePrincipal | undefined;
-  gcpServiceAccountKey?: GcpServiceAccountKey | undefined;
-  /** The Azure managed identity configuration. */
-  azureManagedIdentity?: AzureManagedIdentity | undefined;
-  /** The <Databricks> managed GCP service account configuration. */
-  databricksGcpServiceAccount?: DatabricksGcpServiceAccount | undefined;
-  /** The Cloudflare API token configuration. */
-  cloudflareApiToken?: CloudflareApiToken | undefined;
+  /** (--[Create:REQ, Update:OPT] The long-lived cloud credential.--) */
+  credential?:
+    | {
+        $case: 'awsIamRole';
+        /** The AWS IAM role configuration. */
+        awsIamRole: AwsIamRole;
+      }
+    | {
+        $case: 'azureServicePrincipal';
+        /** The Azure service principal configuration. */
+        azureServicePrincipal: AzureServicePrincipal;
+      }
+    | {
+        $case: 'gcpServiceAccountKey';
+        gcpServiceAccountKey: GcpServiceAccountKey;
+      }
+    | {
+        $case: 'azureManagedIdentity';
+        /** The Azure managed identity configuration. */
+        azureManagedIdentity: AzureManagedIdentity;
+      }
+    | {
+        $case: 'databricksGcpServiceAccount';
+        /** The <Databricks> managed GCP service account configuration. */
+        databricksGcpServiceAccount: DatabricksGcpServiceAccount;
+      }
+    | {
+        $case: 'cloudflareApiToken';
+        /** The Cloudflare API token configuration. */
+        cloudflareApiToken: CloudflareApiToken;
+      }
+    | undefined;
   /** Comment associated with the credential. */
   comment?: string | undefined;
   /**
@@ -790,14 +948,25 @@ export interface UpdateStorageCredential {
 
 /** Next ID: 18 */
 export interface ValidateCredential {
-  /**
-   * Required. The name of an existing credential or long-lived cloud
-   * credential to validate.
-   */
-  credentialName?: string | undefined;
-  awsIamRole?: AwsIamRole | undefined;
-  azureManagedIdentity?: AzureManagedIdentity | undefined;
-  databricksGcpServiceAccount?: DatabricksGcpServiceAccount | undefined;
+  credential?:
+    | {
+        $case: 'credentialName';
+        /**
+         * Required. The name of an existing credential or long-lived cloud
+         * credential to validate.
+         */
+        credentialName: string;
+      }
+    | {$case: 'awsIamRole'; awsIamRole: AwsIamRole}
+    | {
+        $case: 'azureManagedIdentity';
+        azureManagedIdentity: AzureManagedIdentity;
+      }
+    | {
+        $case: 'databricksGcpServiceAccount';
+        databricksGcpServiceAccount: DatabricksGcpServiceAccount;
+      }
+    | undefined;
   /**
    * The name of an existing external location to validate. Only applicable for
    * storage credentials (purpose is
@@ -837,21 +1006,41 @@ export interface ValidateCredential_ValidationResult {
 }
 
 export interface ValidateStorageCredential {
-  /**
-   * Required. The name of an existing credential or long-lived cloud
-   * credential to validate.
-   */
-  storageCredentialName?: string | undefined;
-  /** The AWS IAM role configuration. */
-  awsIamRole?: AwsIamRole | undefined;
-  /** The Azure service principal configuration. */
-  azureServicePrincipal?: AzureServicePrincipal | undefined;
-  /** The Azure managed identity configuration. */
-  azureManagedIdentity?: AzureManagedIdentity | undefined;
-  /** The <Databricks> created GCP service account configuration. */
-  databricksGcpServiceAccount?: DatabricksGcpServiceAccount | undefined;
-  /** The Cloudflare API token configuration. */
-  cloudflareApiToken?: CloudflareApiToken | undefined;
+  credential?:
+    | {
+        $case: 'storageCredentialName';
+        /**
+         * Required. The name of an existing credential or long-lived cloud
+         * credential to validate.
+         */
+        storageCredentialName: string;
+      }
+    | {
+        $case: 'awsIamRole';
+        /** The AWS IAM role configuration. */
+        awsIamRole: AwsIamRole;
+      }
+    | {
+        $case: 'azureServicePrincipal';
+        /** The Azure service principal configuration. */
+        azureServicePrincipal: AzureServicePrincipal;
+      }
+    | {
+        $case: 'azureManagedIdentity';
+        /** The Azure managed identity configuration. */
+        azureManagedIdentity: AzureManagedIdentity;
+      }
+    | {
+        $case: 'databricksGcpServiceAccount';
+        /** The <Databricks> created GCP service account configuration. */
+        databricksGcpServiceAccount: DatabricksGcpServiceAccount;
+      }
+    | {
+        $case: 'cloudflareApiToken';
+        /** The Cloudflare API token configuration. */
+        cloudflareApiToken: CloudflareApiToken;
+      }
+    | undefined;
   /** The name of an existing external location to validate. */
   externalLocationName?: string | undefined;
   /** The external location url to validate. */
@@ -995,12 +1184,36 @@ export const unmarshalCredentialInfoSchema: z.ZodType<CredentialInfo> = z
   })
   .transform(d => ({
     name: d.name,
-    awsIamRole: d.aws_iam_role,
-    azureServicePrincipal: d.azure_service_principal,
-    gcpServiceAccountKey: d.gcp_service_account_key,
-    azureManagedIdentity: d.azure_managed_identity,
-    databricksGcpServiceAccount: d.databricks_gcp_service_account,
-    cloudflareApiToken: d.cloudflare_api_token,
+    credential:
+      d.aws_iam_role !== undefined
+        ? {$case: 'awsIamRole' as const, awsIamRole: d.aws_iam_role}
+        : d.azure_service_principal !== undefined
+          ? {
+              $case: 'azureServicePrincipal' as const,
+              azureServicePrincipal: d.azure_service_principal,
+            }
+          : d.gcp_service_account_key !== undefined
+            ? {
+                $case: 'gcpServiceAccountKey' as const,
+                gcpServiceAccountKey: d.gcp_service_account_key,
+              }
+            : d.azure_managed_identity !== undefined
+              ? {
+                  $case: 'azureManagedIdentity' as const,
+                  azureManagedIdentity: d.azure_managed_identity,
+                }
+              : d.databricks_gcp_service_account !== undefined
+                ? {
+                    $case: 'databricksGcpServiceAccount' as const,
+                    databricksGcpServiceAccount:
+                      d.databricks_gcp_service_account,
+                  }
+                : d.cloudflare_api_token !== undefined
+                  ? {
+                      $case: 'cloudflareApiToken' as const,
+                      cloudflareApiToken: d.cloudflare_api_token,
+                    }
+                  : undefined,
     comment: d.comment,
     readOnly: d.read_only,
     owner: d.owner,
@@ -1081,12 +1294,35 @@ export const unmarshalGenerateTemporaryPathCredential_ResponseSchema: z.ZodType<
       url: z.string().optional(),
     })
     .transform(d => ({
-      awsTempCredentials: d.aws_temp_credentials,
-      azureUserDelegationSas: d.azure_user_delegation_sas,
-      gcpOauthToken: d.gcp_oauth_token,
-      azureAad: d.azure_aad,
-      r2TempCredentials: d.r2_temp_credentials,
-      ucEncryptedToken: d.uc_encrypted_token,
+      credentials:
+        d.aws_temp_credentials !== undefined
+          ? {
+              $case: 'awsTempCredentials' as const,
+              awsTempCredentials: d.aws_temp_credentials,
+            }
+          : d.azure_user_delegation_sas !== undefined
+            ? {
+                $case: 'azureUserDelegationSas' as const,
+                azureUserDelegationSas: d.azure_user_delegation_sas,
+              }
+            : d.gcp_oauth_token !== undefined
+              ? {
+                  $case: 'gcpOauthToken' as const,
+                  gcpOauthToken: d.gcp_oauth_token,
+                }
+              : d.azure_aad !== undefined
+                ? {$case: 'azureAad' as const, azureAad: d.azure_aad}
+                : d.r2_temp_credentials !== undefined
+                  ? {
+                      $case: 'r2TempCredentials' as const,
+                      r2TempCredentials: d.r2_temp_credentials,
+                    }
+                  : d.uc_encrypted_token !== undefined
+                    ? {
+                        $case: 'ucEncryptedToken' as const,
+                        ucEncryptedToken: d.uc_encrypted_token,
+                      }
+                    : undefined,
       expirationTime: d.expiration_time,
       url: d.url,
     }));
@@ -1115,12 +1351,35 @@ export const unmarshalGenerateTemporaryTableCredential_ResponseSchema: z.ZodType
       url: z.string().optional(),
     })
     .transform(d => ({
-      awsTempCredentials: d.aws_temp_credentials,
-      azureUserDelegationSas: d.azure_user_delegation_sas,
-      gcpOauthToken: d.gcp_oauth_token,
-      azureAad: d.azure_aad,
-      r2TempCredentials: d.r2_temp_credentials,
-      ucEncryptedToken: d.uc_encrypted_token,
+      credentials:
+        d.aws_temp_credentials !== undefined
+          ? {
+              $case: 'awsTempCredentials' as const,
+              awsTempCredentials: d.aws_temp_credentials,
+            }
+          : d.azure_user_delegation_sas !== undefined
+            ? {
+                $case: 'azureUserDelegationSas' as const,
+                azureUserDelegationSas: d.azure_user_delegation_sas,
+              }
+            : d.gcp_oauth_token !== undefined
+              ? {
+                  $case: 'gcpOauthToken' as const,
+                  gcpOauthToken: d.gcp_oauth_token,
+                }
+              : d.azure_aad !== undefined
+                ? {$case: 'azureAad' as const, azureAad: d.azure_aad}
+                : d.r2_temp_credentials !== undefined
+                  ? {
+                      $case: 'r2TempCredentials' as const,
+                      r2TempCredentials: d.r2_temp_credentials,
+                    }
+                  : d.uc_encrypted_token !== undefined
+                    ? {
+                        $case: 'ucEncryptedToken' as const,
+                        ucEncryptedToken: d.uc_encrypted_token,
+                      }
+                    : undefined,
       expirationTime: d.expiration_time,
       url: d.url,
     }));
@@ -1149,12 +1408,35 @@ export const unmarshalGenerateTemporaryVolumeCredential_ResponseSchema: z.ZodTyp
       url: z.string().optional(),
     })
     .transform(d => ({
-      awsTempCredentials: d.aws_temp_credentials,
-      azureUserDelegationSas: d.azure_user_delegation_sas,
-      gcpOauthToken: d.gcp_oauth_token,
-      azureAad: d.azure_aad,
-      r2TempCredentials: d.r2_temp_credentials,
-      ucEncryptedToken: d.uc_encrypted_token,
+      credentials:
+        d.aws_temp_credentials !== undefined
+          ? {
+              $case: 'awsTempCredentials' as const,
+              awsTempCredentials: d.aws_temp_credentials,
+            }
+          : d.azure_user_delegation_sas !== undefined
+            ? {
+                $case: 'azureUserDelegationSas' as const,
+                azureUserDelegationSas: d.azure_user_delegation_sas,
+              }
+            : d.gcp_oauth_token !== undefined
+              ? {
+                  $case: 'gcpOauthToken' as const,
+                  gcpOauthToken: d.gcp_oauth_token,
+                }
+              : d.azure_aad !== undefined
+                ? {$case: 'azureAad' as const, azureAad: d.azure_aad}
+                : d.r2_temp_credentials !== undefined
+                  ? {
+                      $case: 'r2TempCredentials' as const,
+                      r2TempCredentials: d.r2_temp_credentials,
+                    }
+                  : d.uc_encrypted_token !== undefined
+                    ? {
+                        $case: 'ucEncryptedToken' as const,
+                        ucEncryptedToken: d.uc_encrypted_token,
+                      }
+                    : undefined,
       expirationTime: d.expiration_time,
       url: d.url,
     }));
@@ -1234,12 +1516,36 @@ export const unmarshalStorageCredentialInfoSchema: z.ZodType<StorageCredentialIn
     })
     .transform(d => ({
       name: d.name,
-      awsIamRole: d.aws_iam_role,
-      azureServicePrincipal: d.azure_service_principal,
-      gcpServiceAccountKey: d.gcp_service_account_key,
-      azureManagedIdentity: d.azure_managed_identity,
-      databricksGcpServiceAccount: d.databricks_gcp_service_account,
-      cloudflareApiToken: d.cloudflare_api_token,
+      credential:
+        d.aws_iam_role !== undefined
+          ? {$case: 'awsIamRole' as const, awsIamRole: d.aws_iam_role}
+          : d.azure_service_principal !== undefined
+            ? {
+                $case: 'azureServicePrincipal' as const,
+                azureServicePrincipal: d.azure_service_principal,
+              }
+            : d.gcp_service_account_key !== undefined
+              ? {
+                  $case: 'gcpServiceAccountKey' as const,
+                  gcpServiceAccountKey: d.gcp_service_account_key,
+                }
+              : d.azure_managed_identity !== undefined
+                ? {
+                    $case: 'azureManagedIdentity' as const,
+                    azureManagedIdentity: d.azure_managed_identity,
+                  }
+                : d.databricks_gcp_service_account !== undefined
+                  ? {
+                      $case: 'databricksGcpServiceAccount' as const,
+                      databricksGcpServiceAccount:
+                        d.databricks_gcp_service_account,
+                    }
+                  : d.cloudflare_api_token !== undefined
+                    ? {
+                        $case: 'cloudflareApiToken' as const,
+                        cloudflareApiToken: d.cloudflare_api_token,
+                      }
+                    : undefined,
       comment: d.comment,
       readOnly: d.read_only,
       owner: d.owner,
@@ -1277,12 +1583,35 @@ export const unmarshalTemporaryCredentialsSchema: z.ZodType<TemporaryCredentials
       url: z.string().optional(),
     })
     .transform(d => ({
-      awsTempCredentials: d.aws_temp_credentials,
-      azureUserDelegationSas: d.azure_user_delegation_sas,
-      gcpOauthToken: d.gcp_oauth_token,
-      azureAad: d.azure_aad,
-      r2TempCredentials: d.r2_temp_credentials,
-      ucEncryptedToken: d.uc_encrypted_token,
+      credentials:
+        d.aws_temp_credentials !== undefined
+          ? {
+              $case: 'awsTempCredentials' as const,
+              awsTempCredentials: d.aws_temp_credentials,
+            }
+          : d.azure_user_delegation_sas !== undefined
+            ? {
+                $case: 'azureUserDelegationSas' as const,
+                azureUserDelegationSas: d.azure_user_delegation_sas,
+              }
+            : d.gcp_oauth_token !== undefined
+              ? {
+                  $case: 'gcpOauthToken' as const,
+                  gcpOauthToken: d.gcp_oauth_token,
+                }
+              : d.azure_aad !== undefined
+                ? {$case: 'azureAad' as const, azureAad: d.azure_aad}
+                : d.r2_temp_credentials !== undefined
+                  ? {
+                      $case: 'r2TempCredentials' as const,
+                      r2TempCredentials: d.r2_temp_credentials,
+                    }
+                  : d.uc_encrypted_token !== undefined
+                    ? {
+                        $case: 'ucEncryptedToken' as const,
+                        ucEncryptedToken: d.uc_encrypted_token,
+                      }
+                    : undefined,
       expirationTime: d.expiration_time,
       url: d.url,
     }));
@@ -1405,21 +1734,37 @@ export const marshalCreateCredentialSchema: z.ZodType = z
   .object({
     skipValidation: z.boolean().optional(),
     name: z.string().optional(),
-    awsIamRole: z.lazy(() => marshalAwsIamRoleSchema).optional(),
-    azureServicePrincipal: z
-      .lazy(() => marshalAzureServicePrincipalSchema)
-      .optional(),
-    gcpServiceAccountKey: z
-      .lazy(() => marshalGcpServiceAccountKeySchema)
-      .optional(),
-    azureManagedIdentity: z
-      .lazy(() => marshalAzureManagedIdentitySchema)
-      .optional(),
-    databricksGcpServiceAccount: z
-      .lazy(() => marshalDatabricksGcpServiceAccountSchema)
-      .optional(),
-    cloudflareApiToken: z
-      .lazy(() => marshalCloudflareApiTokenSchema)
+    credential: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('awsIamRole'),
+          awsIamRole: z.lazy(() => marshalAwsIamRoleSchema),
+        }),
+        z.object({
+          $case: z.literal('azureServicePrincipal'),
+          azureServicePrincipal: z.lazy(
+            () => marshalAzureServicePrincipalSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('gcpServiceAccountKey'),
+          gcpServiceAccountKey: z.lazy(() => marshalGcpServiceAccountKeySchema),
+        }),
+        z.object({
+          $case: z.literal('azureManagedIdentity'),
+          azureManagedIdentity: z.lazy(() => marshalAzureManagedIdentitySchema),
+        }),
+        z.object({
+          $case: z.literal('databricksGcpServiceAccount'),
+          databricksGcpServiceAccount: z.lazy(
+            () => marshalDatabricksGcpServiceAccountSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('cloudflareApiToken'),
+          cloudflareApiToken: z.lazy(() => marshalCloudflareApiTokenSchema),
+        }),
+      ])
       .optional(),
     comment: z.string().optional(),
     readOnly: z.boolean().optional(),
@@ -1437,12 +1782,24 @@ export const marshalCreateCredentialSchema: z.ZodType = z
   .transform(d => ({
     skip_validation: d.skipValidation,
     name: d.name,
-    aws_iam_role: d.awsIamRole,
-    azure_service_principal: d.azureServicePrincipal,
-    gcp_service_account_key: d.gcpServiceAccountKey,
-    azure_managed_identity: d.azureManagedIdentity,
-    databricks_gcp_service_account: d.databricksGcpServiceAccount,
-    cloudflare_api_token: d.cloudflareApiToken,
+    ...(d.credential?.$case === 'awsIamRole' && {
+      aws_iam_role: d.credential.awsIamRole,
+    }),
+    ...(d.credential?.$case === 'azureServicePrincipal' && {
+      azure_service_principal: d.credential.azureServicePrincipal,
+    }),
+    ...(d.credential?.$case === 'gcpServiceAccountKey' && {
+      gcp_service_account_key: d.credential.gcpServiceAccountKey,
+    }),
+    ...(d.credential?.$case === 'azureManagedIdentity' && {
+      azure_managed_identity: d.credential.azureManagedIdentity,
+    }),
+    ...(d.credential?.$case === 'databricksGcpServiceAccount' && {
+      databricks_gcp_service_account: d.credential.databricksGcpServiceAccount,
+    }),
+    ...(d.credential?.$case === 'cloudflareApiToken' && {
+      cloudflare_api_token: d.credential.cloudflareApiToken,
+    }),
     comment: d.comment,
     read_only: d.readOnly,
     owner: d.owner,
@@ -1461,21 +1818,37 @@ export const marshalCreateStorageCredentialSchema: z.ZodType = z
   .object({
     skipValidation: z.boolean().optional(),
     name: z.string().optional(),
-    awsIamRole: z.lazy(() => marshalAwsIamRoleSchema).optional(),
-    azureServicePrincipal: z
-      .lazy(() => marshalAzureServicePrincipalSchema)
-      .optional(),
-    gcpServiceAccountKey: z
-      .lazy(() => marshalGcpServiceAccountKeySchema)
-      .optional(),
-    azureManagedIdentity: z
-      .lazy(() => marshalAzureManagedIdentitySchema)
-      .optional(),
-    databricksGcpServiceAccount: z
-      .lazy(() => marshalDatabricksGcpServiceAccountSchema)
-      .optional(),
-    cloudflareApiToken: z
-      .lazy(() => marshalCloudflareApiTokenSchema)
+    credential: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('awsIamRole'),
+          awsIamRole: z.lazy(() => marshalAwsIamRoleSchema),
+        }),
+        z.object({
+          $case: z.literal('azureServicePrincipal'),
+          azureServicePrincipal: z.lazy(
+            () => marshalAzureServicePrincipalSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('gcpServiceAccountKey'),
+          gcpServiceAccountKey: z.lazy(() => marshalGcpServiceAccountKeySchema),
+        }),
+        z.object({
+          $case: z.literal('azureManagedIdentity'),
+          azureManagedIdentity: z.lazy(() => marshalAzureManagedIdentitySchema),
+        }),
+        z.object({
+          $case: z.literal('databricksGcpServiceAccount'),
+          databricksGcpServiceAccount: z.lazy(
+            () => marshalDatabricksGcpServiceAccountSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('cloudflareApiToken'),
+          cloudflareApiToken: z.lazy(() => marshalCloudflareApiTokenSchema),
+        }),
+      ])
       .optional(),
     comment: z.string().optional(),
     readOnly: z.boolean().optional(),
@@ -1493,12 +1866,24 @@ export const marshalCreateStorageCredentialSchema: z.ZodType = z
   .transform(d => ({
     skip_validation: d.skipValidation,
     name: d.name,
-    aws_iam_role: d.awsIamRole,
-    azure_service_principal: d.azureServicePrincipal,
-    gcp_service_account_key: d.gcpServiceAccountKey,
-    azure_managed_identity: d.azureManagedIdentity,
-    databricks_gcp_service_account: d.databricksGcpServiceAccount,
-    cloudflare_api_token: d.cloudflareApiToken,
+    ...(d.credential?.$case === 'awsIamRole' && {
+      aws_iam_role: d.credential.awsIamRole,
+    }),
+    ...(d.credential?.$case === 'azureServicePrincipal' && {
+      azure_service_principal: d.credential.azureServicePrincipal,
+    }),
+    ...(d.credential?.$case === 'gcpServiceAccountKey' && {
+      gcp_service_account_key: d.credential.gcpServiceAccountKey,
+    }),
+    ...(d.credential?.$case === 'azureManagedIdentity' && {
+      azure_managed_identity: d.credential.azureManagedIdentity,
+    }),
+    ...(d.credential?.$case === 'databricksGcpServiceAccount' && {
+      databricks_gcp_service_account: d.credential.databricksGcpServiceAccount,
+    }),
+    ...(d.credential?.$case === 'cloudflareApiToken' && {
+      cloudflare_api_token: d.credential.cloudflareApiToken,
+    }),
     comment: d.comment,
     read_only: d.readOnly,
     owner: d.owner,
@@ -1552,17 +1937,31 @@ export const marshalGenerateTemporaryPathCredentialSchema: z.ZodType = z
 export const marshalGenerateTemporaryServiceCredentialSchema: z.ZodType = z
   .object({
     credentialName: z.string().optional(),
-    azureOptions: z
-      .lazy(() => marshalGenerateTemporaryServiceCredential_AzureOptionsSchema)
-      .optional(),
-    gcpOptions: z
-      .lazy(() => marshalGenerateTemporaryServiceCredential_GcpOptionsSchema)
+    options: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('azureOptions'),
+          azureOptions: z.lazy(
+            () => marshalGenerateTemporaryServiceCredential_AzureOptionsSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('gcpOptions'),
+          gcpOptions: z.lazy(
+            () => marshalGenerateTemporaryServiceCredential_GcpOptionsSchema
+          ),
+        }),
+      ])
       .optional(),
   })
   .transform(d => ({
     credential_name: d.credentialName,
-    azure_options: d.azureOptions,
-    gcp_options: d.gcpOptions,
+    ...(d.options?.$case === 'azureOptions' && {
+      azure_options: d.options.azureOptions,
+    }),
+    ...(d.options?.$case === 'gcpOptions' && {
+      gcp_options: d.options.gcpOptions,
+    }),
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1612,21 +2011,37 @@ export const marshalUpdateCredentialSchema: z.ZodType = z
     skipValidation: z.boolean().optional(),
     force: z.boolean().optional(),
     name: z.string().optional(),
-    awsIamRole: z.lazy(() => marshalAwsIamRoleSchema).optional(),
-    azureServicePrincipal: z
-      .lazy(() => marshalAzureServicePrincipalSchema)
-      .optional(),
-    gcpServiceAccountKey: z
-      .lazy(() => marshalGcpServiceAccountKeySchema)
-      .optional(),
-    azureManagedIdentity: z
-      .lazy(() => marshalAzureManagedIdentitySchema)
-      .optional(),
-    databricksGcpServiceAccount: z
-      .lazy(() => marshalDatabricksGcpServiceAccountSchema)
-      .optional(),
-    cloudflareApiToken: z
-      .lazy(() => marshalCloudflareApiTokenSchema)
+    credential: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('awsIamRole'),
+          awsIamRole: z.lazy(() => marshalAwsIamRoleSchema),
+        }),
+        z.object({
+          $case: z.literal('azureServicePrincipal'),
+          azureServicePrincipal: z.lazy(
+            () => marshalAzureServicePrincipalSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('gcpServiceAccountKey'),
+          gcpServiceAccountKey: z.lazy(() => marshalGcpServiceAccountKeySchema),
+        }),
+        z.object({
+          $case: z.literal('azureManagedIdentity'),
+          azureManagedIdentity: z.lazy(() => marshalAzureManagedIdentitySchema),
+        }),
+        z.object({
+          $case: z.literal('databricksGcpServiceAccount'),
+          databricksGcpServiceAccount: z.lazy(
+            () => marshalDatabricksGcpServiceAccountSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('cloudflareApiToken'),
+          cloudflareApiToken: z.lazy(() => marshalCloudflareApiTokenSchema),
+        }),
+      ])
       .optional(),
     comment: z.string().optional(),
     readOnly: z.boolean().optional(),
@@ -1647,12 +2062,24 @@ export const marshalUpdateCredentialSchema: z.ZodType = z
     skip_validation: d.skipValidation,
     force: d.force,
     name: d.name,
-    aws_iam_role: d.awsIamRole,
-    azure_service_principal: d.azureServicePrincipal,
-    gcp_service_account_key: d.gcpServiceAccountKey,
-    azure_managed_identity: d.azureManagedIdentity,
-    databricks_gcp_service_account: d.databricksGcpServiceAccount,
-    cloudflare_api_token: d.cloudflareApiToken,
+    ...(d.credential?.$case === 'awsIamRole' && {
+      aws_iam_role: d.credential.awsIamRole,
+    }),
+    ...(d.credential?.$case === 'azureServicePrincipal' && {
+      azure_service_principal: d.credential.azureServicePrincipal,
+    }),
+    ...(d.credential?.$case === 'gcpServiceAccountKey' && {
+      gcp_service_account_key: d.credential.gcpServiceAccountKey,
+    }),
+    ...(d.credential?.$case === 'azureManagedIdentity' && {
+      azure_managed_identity: d.credential.azureManagedIdentity,
+    }),
+    ...(d.credential?.$case === 'databricksGcpServiceAccount' && {
+      databricks_gcp_service_account: d.credential.databricksGcpServiceAccount,
+    }),
+    ...(d.credential?.$case === 'cloudflareApiToken' && {
+      cloudflare_api_token: d.credential.cloudflareApiToken,
+    }),
     comment: d.comment,
     read_only: d.readOnly,
     owner: d.owner,
@@ -1674,21 +2101,37 @@ export const marshalUpdateStorageCredentialSchema: z.ZodType = z
     skipValidation: z.boolean().optional(),
     force: z.boolean().optional(),
     name: z.string().optional(),
-    awsIamRole: z.lazy(() => marshalAwsIamRoleSchema).optional(),
-    azureServicePrincipal: z
-      .lazy(() => marshalAzureServicePrincipalSchema)
-      .optional(),
-    gcpServiceAccountKey: z
-      .lazy(() => marshalGcpServiceAccountKeySchema)
-      .optional(),
-    azureManagedIdentity: z
-      .lazy(() => marshalAzureManagedIdentitySchema)
-      .optional(),
-    databricksGcpServiceAccount: z
-      .lazy(() => marshalDatabricksGcpServiceAccountSchema)
-      .optional(),
-    cloudflareApiToken: z
-      .lazy(() => marshalCloudflareApiTokenSchema)
+    credential: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('awsIamRole'),
+          awsIamRole: z.lazy(() => marshalAwsIamRoleSchema),
+        }),
+        z.object({
+          $case: z.literal('azureServicePrincipal'),
+          azureServicePrincipal: z.lazy(
+            () => marshalAzureServicePrincipalSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('gcpServiceAccountKey'),
+          gcpServiceAccountKey: z.lazy(() => marshalGcpServiceAccountKeySchema),
+        }),
+        z.object({
+          $case: z.literal('azureManagedIdentity'),
+          azureManagedIdentity: z.lazy(() => marshalAzureManagedIdentitySchema),
+        }),
+        z.object({
+          $case: z.literal('databricksGcpServiceAccount'),
+          databricksGcpServiceAccount: z.lazy(
+            () => marshalDatabricksGcpServiceAccountSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('cloudflareApiToken'),
+          cloudflareApiToken: z.lazy(() => marshalCloudflareApiTokenSchema),
+        }),
+      ])
       .optional(),
     comment: z.string().optional(),
     readOnly: z.boolean().optional(),
@@ -1709,12 +2152,24 @@ export const marshalUpdateStorageCredentialSchema: z.ZodType = z
     skip_validation: d.skipValidation,
     force: d.force,
     name: d.name,
-    aws_iam_role: d.awsIamRole,
-    azure_service_principal: d.azureServicePrincipal,
-    gcp_service_account_key: d.gcpServiceAccountKey,
-    azure_managed_identity: d.azureManagedIdentity,
-    databricks_gcp_service_account: d.databricksGcpServiceAccount,
-    cloudflare_api_token: d.cloudflareApiToken,
+    ...(d.credential?.$case === 'awsIamRole' && {
+      aws_iam_role: d.credential.awsIamRole,
+    }),
+    ...(d.credential?.$case === 'azureServicePrincipal' && {
+      azure_service_principal: d.credential.azureServicePrincipal,
+    }),
+    ...(d.credential?.$case === 'gcpServiceAccountKey' && {
+      gcp_service_account_key: d.credential.gcpServiceAccountKey,
+    }),
+    ...(d.credential?.$case === 'azureManagedIdentity' && {
+      azure_managed_identity: d.credential.azureManagedIdentity,
+    }),
+    ...(d.credential?.$case === 'databricksGcpServiceAccount' && {
+      databricks_gcp_service_account: d.credential.databricksGcpServiceAccount,
+    }),
+    ...(d.credential?.$case === 'cloudflareApiToken' && {
+      cloudflare_api_token: d.credential.cloudflareApiToken,
+    }),
     comment: d.comment,
     read_only: d.readOnly,
     owner: d.owner,
@@ -1731,23 +2186,45 @@ export const marshalUpdateStorageCredentialSchema: z.ZodType = z
 
 export const marshalValidateCredentialSchema: z.ZodType = z
   .object({
-    credentialName: z.string().optional(),
-    awsIamRole: z.lazy(() => marshalAwsIamRoleSchema).optional(),
-    azureManagedIdentity: z
-      .lazy(() => marshalAzureManagedIdentitySchema)
-      .optional(),
-    databricksGcpServiceAccount: z
-      .lazy(() => marshalDatabricksGcpServiceAccountSchema)
+    credential: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('credentialName'),
+          credentialName: z.string(),
+        }),
+        z.object({
+          $case: z.literal('awsIamRole'),
+          awsIamRole: z.lazy(() => marshalAwsIamRoleSchema),
+        }),
+        z.object({
+          $case: z.literal('azureManagedIdentity'),
+          azureManagedIdentity: z.lazy(() => marshalAzureManagedIdentitySchema),
+        }),
+        z.object({
+          $case: z.literal('databricksGcpServiceAccount'),
+          databricksGcpServiceAccount: z.lazy(
+            () => marshalDatabricksGcpServiceAccountSchema
+          ),
+        }),
+      ])
       .optional(),
     externalLocationName: z.string().optional(),
     url: z.string().optional(),
     readOnly: z.boolean().optional(),
   })
   .transform(d => ({
-    credential_name: d.credentialName,
-    aws_iam_role: d.awsIamRole,
-    azure_managed_identity: d.azureManagedIdentity,
-    databricks_gcp_service_account: d.databricksGcpServiceAccount,
+    ...(d.credential?.$case === 'credentialName' && {
+      credential_name: d.credential.credentialName,
+    }),
+    ...(d.credential?.$case === 'awsIamRole' && {
+      aws_iam_role: d.credential.awsIamRole,
+    }),
+    ...(d.credential?.$case === 'azureManagedIdentity' && {
+      azure_managed_identity: d.credential.azureManagedIdentity,
+    }),
+    ...(d.credential?.$case === 'databricksGcpServiceAccount' && {
+      databricks_gcp_service_account: d.credential.databricksGcpServiceAccount,
+    }),
     external_location_name: d.externalLocationName,
     url: d.url,
     read_only: d.readOnly,
@@ -1755,31 +2232,61 @@ export const marshalValidateCredentialSchema: z.ZodType = z
 
 export const marshalValidateStorageCredentialSchema: z.ZodType = z
   .object({
-    storageCredentialName: z.string().optional(),
-    awsIamRole: z.lazy(() => marshalAwsIamRoleSchema).optional(),
-    azureServicePrincipal: z
-      .lazy(() => marshalAzureServicePrincipalSchema)
-      .optional(),
-    azureManagedIdentity: z
-      .lazy(() => marshalAzureManagedIdentitySchema)
-      .optional(),
-    databricksGcpServiceAccount: z
-      .lazy(() => marshalDatabricksGcpServiceAccountSchema)
-      .optional(),
-    cloudflareApiToken: z
-      .lazy(() => marshalCloudflareApiTokenSchema)
+    credential: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('storageCredentialName'),
+          storageCredentialName: z.string(),
+        }),
+        z.object({
+          $case: z.literal('awsIamRole'),
+          awsIamRole: z.lazy(() => marshalAwsIamRoleSchema),
+        }),
+        z.object({
+          $case: z.literal('azureServicePrincipal'),
+          azureServicePrincipal: z.lazy(
+            () => marshalAzureServicePrincipalSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('azureManagedIdentity'),
+          azureManagedIdentity: z.lazy(() => marshalAzureManagedIdentitySchema),
+        }),
+        z.object({
+          $case: z.literal('databricksGcpServiceAccount'),
+          databricksGcpServiceAccount: z.lazy(
+            () => marshalDatabricksGcpServiceAccountSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('cloudflareApiToken'),
+          cloudflareApiToken: z.lazy(() => marshalCloudflareApiTokenSchema),
+        }),
+      ])
       .optional(),
     externalLocationName: z.string().optional(),
     url: z.string().optional(),
     readOnly: z.boolean().optional(),
   })
   .transform(d => ({
-    storage_credential_name: d.storageCredentialName,
-    aws_iam_role: d.awsIamRole,
-    azure_service_principal: d.azureServicePrincipal,
-    azure_managed_identity: d.azureManagedIdentity,
-    databricks_gcp_service_account: d.databricksGcpServiceAccount,
-    cloudflare_api_token: d.cloudflareApiToken,
+    ...(d.credential?.$case === 'storageCredentialName' && {
+      storage_credential_name: d.credential.storageCredentialName,
+    }),
+    ...(d.credential?.$case === 'awsIamRole' && {
+      aws_iam_role: d.credential.awsIamRole,
+    }),
+    ...(d.credential?.$case === 'azureServicePrincipal' && {
+      azure_service_principal: d.credential.azureServicePrincipal,
+    }),
+    ...(d.credential?.$case === 'azureManagedIdentity' && {
+      azure_managed_identity: d.credential.azureManagedIdentity,
+    }),
+    ...(d.credential?.$case === 'databricksGcpServiceAccount' && {
+      databricks_gcp_service_account: d.credential.databricksGcpServiceAccount,
+    }),
+    ...(d.credential?.$case === 'cloudflareApiToken' && {
+      cloudflare_api_token: d.credential.cloudflareApiToken,
+    }),
     external_location_name: d.externalLocationName,
     url: d.url,
     read_only: d.readOnly,

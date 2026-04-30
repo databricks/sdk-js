@@ -32,11 +32,16 @@ export interface AutoTaggingConfig {
 export interface CatalogConfig {
   /** Resource name in the format: catalogs/{catalog_name}/config. */
   name?: string | undefined;
-  /**
-   * Schemas to include in the scan. Empty list is not supported as it results in a no-op
-   * scan. If `included_schemas` is not set, all schemas are scanned.
-   */
-  includedSchemas?: CatalogConfig_SchemaNames | undefined;
+  selectedSchemas?:
+    | {
+        $case: 'includedSchemas';
+        /**
+         * Schemas to include in the scan. Empty list is not supported as it results in a no-op
+         * scan. If `included_schemas` is not set, all schemas are scanned.
+         */
+        includedSchemas: CatalogConfig_SchemaNames;
+      }
+    | undefined;
   /**
    * List of auto-tagging configurations for this catalog.
    * Empty list means no auto-tagging is enabled.
@@ -122,7 +127,13 @@ export const unmarshalCatalogConfigSchema: z.ZodType<CatalogConfig> = z
   })
   .transform(d => ({
     name: d.name,
-    includedSchemas: d.included_schemas,
+    selectedSchemas:
+      d.included_schemas !== undefined
+        ? {
+            $case: 'includedSchemas' as const,
+            includedSchemas: d.included_schemas,
+          }
+        : undefined,
     autoTagConfigs: d.auto_tag_configs,
     effectiveAutoTagConfigs: d.effective_auto_tag_configs,
   }));
@@ -150,8 +161,13 @@ export const marshalAutoTaggingConfigSchema: z.ZodType = z
 export const marshalCatalogConfigSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    includedSchemas: z
-      .lazy(() => marshalCatalogConfig_SchemaNamesSchema)
+    selectedSchemas: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('includedSchemas'),
+          includedSchemas: z.lazy(() => marshalCatalogConfig_SchemaNamesSchema),
+        }),
+      ])
       .optional(),
     autoTagConfigs: z
       .array(z.lazy(() => marshalAutoTaggingConfigSchema))
@@ -162,7 +178,9 @@ export const marshalCatalogConfigSchema: z.ZodType = z
   })
   .transform(d => ({
     name: d.name,
-    included_schemas: d.includedSchemas,
+    ...(d.selectedSchemas?.$case === 'includedSchemas' && {
+      included_schemas: d.selectedSchemas.includedSchemas,
+    }),
     auto_tag_configs: d.autoTagConfigs,
     effective_auto_tag_configs: d.effectiveAutoTagConfigs,
   }));

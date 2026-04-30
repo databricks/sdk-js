@@ -29,6 +29,7 @@ export enum ColumnTypeName {
   TIME = 'TIME',
   FILE = 'FILE',
   TABLE_TYPE = 'TABLE_TYPE',
+  TABLEREF_TYPE = 'TABLEREF_TYPE',
 }
 
 /** Error codes returned by Databricks APIs to indicate specific failure conditions. */
@@ -907,15 +908,26 @@ export interface ExternalLink_HttpHeadersEntry {
 
 /** Genie AI Response */
 export interface GenieAttachment {
-  /**
-   * Text Attachment if Genie responds with text
-   * This also contains the final summary when available.
-   */
-  text?: TextAttachment | undefined;
-  /** Query Attachment if Genie responds with a SQL query */
-  query?: GenieQueryAttachment | undefined;
-  /** Follow-up questions suggested by Genie */
-  suggestedQuestions?: GenieSuggestedQuestionsAttachment | undefined;
+  attachment?:
+    | {
+        $case: 'text';
+        /**
+         * Text Attachment if Genie responds with text
+         * This also contains the final summary when available.
+         */
+        text: TextAttachment;
+      }
+    | {
+        $case: 'query';
+        /** Query Attachment if Genie responds with a SQL query */
+        query: GenieQueryAttachment;
+      }
+    | {
+        $case: 'suggestedQuestions';
+        /** Follow-up questions suggested by Genie */
+        suggestedQuestions: GenieSuggestedQuestionsAttachment;
+      }
+    | undefined;
   /** Attachment ID */
   attachmentId?: string | undefined;
 }
@@ -1575,10 +1587,18 @@ export interface MessageStatus {}
  * Distinguishes between column references and literals.
  */
 export interface PolicyFunctionArgument {
-  /** A column reference. */
-  column?: string | undefined;
-  /** A constant literal. */
-  constant?: string | undefined;
+  arg?:
+    | {
+        $case: 'column';
+        /** A column reference. */
+        column: string;
+      }
+    | {
+        $case: 'constant';
+        /** A constant literal. */
+        constant: string;
+      }
+    | undefined;
 }
 
 export interface QueryAttachmentParameter {
@@ -1749,18 +1769,39 @@ export interface Thought {
  * The JSON representation for `Value` is JSON value.
  */
 export interface Value {
-  /** Represents a null value. */
-  nullValue?: NullValue | undefined;
-  /** Represents a double value. */
-  numberValue?: number | undefined;
-  /** Represents a string value. */
-  stringValue?: string | undefined;
-  /** Represents a boolean value. */
-  boolValue?: boolean | undefined;
-  /** Represents a structured value. */
-  structValue?: Struct | undefined;
-  /** Represents a repeated `Value`. */
-  listValue?: ListValue | undefined;
+  /** The kind of value. */
+  kind?:
+    | {
+        $case: 'nullValue';
+        /** Represents a null value. */
+        nullValue: NullValue;
+      }
+    | {
+        $case: 'numberValue';
+        /** Represents a double value. */
+        numberValue: number;
+      }
+    | {
+        $case: 'stringValue';
+        /** Represents a string value. */
+        stringValue: string;
+      }
+    | {
+        $case: 'boolValue';
+        /** Represents a boolean value. */
+        boolValue: boolean;
+      }
+    | {
+        $case: 'structValue';
+        /** Represents a structured value. */
+        structValue: Struct;
+      }
+    | {
+        $case: 'listValue';
+        /** Represents a repeated `Value`. */
+        listValue: ListValue;
+      }
+    | undefined;
 }
 
 /** Metadata for verification phase attachments */
@@ -1879,9 +1920,17 @@ export const unmarshalGenieAttachmentSchema: z.ZodType<GenieAttachment> = z
     attachment_id: z.string().optional(),
   })
   .transform(d => ({
-    text: d.text,
-    query: d.query,
-    suggestedQuestions: d.suggested_questions,
+    attachment:
+      d.text !== undefined
+        ? {$case: 'text' as const, text: d.text}
+        : d.query !== undefined
+          ? {$case: 'query' as const, query: d.query}
+          : d.suggested_questions !== undefined
+            ? {
+                $case: 'suggestedQuestions' as const,
+                suggestedQuestions: d.suggested_questions,
+              }
+            : undefined,
     attachmentId: d.attachment_id,
   }));
 
@@ -2311,8 +2360,12 @@ export const unmarshalPolicyFunctionArgumentSchema: z.ZodType<PolicyFunctionArgu
       constant: z.string().optional(),
     })
     .transform(d => ({
-      column: d.column,
-      constant: d.constant,
+      arg:
+        d.column !== undefined
+          ? {$case: 'column' as const, column: d.column}
+          : d.constant !== undefined
+            ? {$case: 'constant' as const, constant: d.constant}
+            : undefined,
     }));
 
 export const unmarshalQueryAttachmentParameterSchema: z.ZodType<QueryAttachmentParameter> =
@@ -2472,12 +2525,20 @@ export const unmarshalValueSchema: z.ZodType<Value> = z
     list_value: z.lazy(() => unmarshalListValueSchema).optional(),
   })
   .transform(d => ({
-    nullValue: d.null_value,
-    numberValue: d.number_value,
-    stringValue: d.string_value,
-    boolValue: d.bool_value,
-    structValue: d.struct_value,
-    listValue: d.list_value,
+    kind:
+      d.null_value !== undefined
+        ? {$case: 'nullValue' as const, nullValue: d.null_value}
+        : d.number_value !== undefined
+          ? {$case: 'numberValue' as const, numberValue: d.number_value}
+          : d.string_value !== undefined
+            ? {$case: 'stringValue' as const, stringValue: d.string_value}
+            : d.bool_value !== undefined
+              ? {$case: 'boolValue' as const, boolValue: d.bool_value}
+              : d.struct_value !== undefined
+                ? {$case: 'structValue' as const, structValue: d.struct_value}
+                : d.list_value !== undefined
+                  ? {$case: 'listValue' as const, listValue: d.list_value}
+                  : undefined,
   }));
 
 export const unmarshalVerificationMetadataSchema: z.ZodType<VerificationMetadata> =

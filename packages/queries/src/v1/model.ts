@@ -96,20 +96,36 @@ export interface DateRange {
 }
 
 export interface DateRangeValue {
-  /** Dynamic date-time range value based on current date-time. */
-  dynamicDateRangeValue?: DateRangeValue_DynamicDateRange | undefined;
-  /** Manually specified date-time range value. */
-  dateRangeValue?: DateRange | undefined;
+  value?:
+    | {
+        $case: 'dynamicDateRangeValue';
+        /** Dynamic date-time range value based on current date-time. */
+        dynamicDateRangeValue: DateRangeValue_DynamicDateRange;
+      }
+    | {
+        $case: 'dateRangeValue';
+        /** Manually specified date-time range value. */
+        dateRangeValue: DateRange;
+      }
+    | undefined;
   /** Date-time precision to format the value into when the query is run. Defaults to DAY_PRECISION (YYYY-MM-DD). */
   precision?: DatePrecision | undefined;
   startDayOfWeek?: number | undefined;
 }
 
 export interface DateValue {
-  /** Dynamic date-time value based on current date-time. */
-  dynamicDateValue?: DateValue_DynamicDate | undefined;
-  /** Manually specified date-time value. */
-  dateValue?: string | undefined;
+  value?:
+    | {
+        $case: 'dynamicDateValue';
+        /** Dynamic date-time value based on current date-time. */
+        dynamicDateValue: DateValue_DynamicDate;
+      }
+    | {
+        $case: 'dateValue';
+        /** Manually specified date-time value. */
+        dateValue: string;
+      }
+    | undefined;
   /** Date-time precision to format the value into when the query is run. Defaults to DAY_PRECISION (YYYY-MM-DD). */
   precision?: DatePrecision | undefined;
 }
@@ -254,18 +270,39 @@ export interface QueryParameter {
   title?: string | undefined;
   /** Literal parameter marker that appears between double curly braces in the query text. */
   name?: string | undefined;
-  /** Text query parameter value. */
-  textValue?: TextValue | undefined;
-  /** Numeric query parameter value. */
-  numericValue?: NumericValue | undefined;
-  /** Dropdown query parameter value. */
-  enumValue?: EnumValue | undefined;
-  /** Date query parameter value. Can only specify one of `dynamic_date_value` or `date_value`. */
-  dateValue?: DateValue | undefined;
-  /** Date-range query parameter value. Can only specify one of `dynamic_date_range_value` or `date_range_value`. */
-  dateRangeValue?: DateRangeValue | undefined;
-  /** Query-based dropdown query parameter value. */
-  queryBackedValue?: QueryBackedValue | undefined;
+  /** Only one of the following fields may be set, depending on the type of parameter. */
+  parameterValue?:
+    | {
+        $case: 'textValue';
+        /** Text query parameter value. */
+        textValue: TextValue;
+      }
+    | {
+        $case: 'numericValue';
+        /** Numeric query parameter value. */
+        numericValue: NumericValue;
+      }
+    | {
+        $case: 'enumValue';
+        /** Dropdown query parameter value. */
+        enumValue: EnumValue;
+      }
+    | {
+        $case: 'dateValue';
+        /** Date query parameter value. Can only specify one of `dynamic_date_value` or `date_value`. */
+        dateValue: DateValue;
+      }
+    | {
+        $case: 'dateRangeValue';
+        /** Date-range query parameter value. Can only specify one of `dynamic_date_range_value` or `date_range_value`. */
+        dateRangeValue: DateRangeValue;
+      }
+    | {
+        $case: 'queryBackedValue';
+        /** Query-based dropdown query parameter value. */
+        queryBackedValue: QueryBackedValue;
+      }
+    | undefined;
 }
 
 export interface TextValue {
@@ -359,8 +396,18 @@ export const unmarshalDateRangeValueSchema: z.ZodType<DateRangeValue> = z
     start_day_of_week: z.number().optional(),
   })
   .transform(d => ({
-    dynamicDateRangeValue: d.dynamic_date_range_value,
-    dateRangeValue: d.date_range_value,
+    value:
+      d.dynamic_date_range_value !== undefined
+        ? {
+            $case: 'dynamicDateRangeValue' as const,
+            dynamicDateRangeValue: d.dynamic_date_range_value,
+          }
+        : d.date_range_value !== undefined
+          ? {
+              $case: 'dateRangeValue' as const,
+              dateRangeValue: d.date_range_value,
+            }
+          : undefined,
     precision: d.precision,
     startDayOfWeek: d.start_day_of_week,
   }));
@@ -372,8 +419,15 @@ export const unmarshalDateValueSchema: z.ZodType<DateValue> = z
     precision: z.enum(DatePrecision).optional(),
   })
   .transform(d => ({
-    dynamicDateValue: d.dynamic_date_value,
-    dateValue: d.date_value,
+    value:
+      d.dynamic_date_value !== undefined
+        ? {
+            $case: 'dynamicDateValue' as const,
+            dynamicDateValue: d.dynamic_date_value,
+          }
+        : d.date_value !== undefined
+          ? {$case: 'dateValue' as const, dateValue: d.date_value}
+          : undefined,
     precision: d.precision,
   }));
 
@@ -563,12 +617,26 @@ export const unmarshalQueryParameterSchema: z.ZodType<QueryParameter> = z
   .transform(d => ({
     title: d.title,
     name: d.name,
-    textValue: d.text_value,
-    numericValue: d.numeric_value,
-    enumValue: d.enum_value,
-    dateValue: d.date_value,
-    dateRangeValue: d.date_range_value,
-    queryBackedValue: d.query_backed_value,
+    parameterValue:
+      d.text_value !== undefined
+        ? {$case: 'textValue' as const, textValue: d.text_value}
+        : d.numeric_value !== undefined
+          ? {$case: 'numericValue' as const, numericValue: d.numeric_value}
+          : d.enum_value !== undefined
+            ? {$case: 'enumValue' as const, enumValue: d.enum_value}
+            : d.date_value !== undefined
+              ? {$case: 'dateValue' as const, dateValue: d.date_value}
+              : d.date_range_value !== undefined
+                ? {
+                    $case: 'dateRangeValue' as const,
+                    dateRangeValue: d.date_range_value,
+                  }
+                : d.query_backed_value !== undefined
+                  ? {
+                      $case: 'queryBackedValue' as const,
+                      queryBackedValue: d.query_backed_value,
+                    }
+                  : undefined,
   }));
 
 export const unmarshalTextValueSchema: z.ZodType<TextValue> = z
@@ -675,27 +743,50 @@ export const marshalDateRangeSchema: z.ZodType = z
 
 export const marshalDateRangeValueSchema: z.ZodType = z
   .object({
-    dynamicDateRangeValue: z.enum(DateRangeValue_DynamicDateRange).optional(),
-    dateRangeValue: z.lazy(() => marshalDateRangeSchema).optional(),
+    value: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('dynamicDateRangeValue'),
+          dynamicDateRangeValue: z.enum(DateRangeValue_DynamicDateRange),
+        }),
+        z.object({
+          $case: z.literal('dateRangeValue'),
+          dateRangeValue: z.lazy(() => marshalDateRangeSchema),
+        }),
+      ])
+      .optional(),
     precision: z.enum(DatePrecision).optional(),
     startDayOfWeek: z.number().optional(),
   })
   .transform(d => ({
-    dynamic_date_range_value: d.dynamicDateRangeValue,
-    date_range_value: d.dateRangeValue,
+    ...(d.value?.$case === 'dynamicDateRangeValue' && {
+      dynamic_date_range_value: d.value.dynamicDateRangeValue,
+    }),
+    ...(d.value?.$case === 'dateRangeValue' && {
+      date_range_value: d.value.dateRangeValue,
+    }),
     precision: d.precision,
     start_day_of_week: d.startDayOfWeek,
   }));
 
 export const marshalDateValueSchema: z.ZodType = z
   .object({
-    dynamicDateValue: z.enum(DateValue_DynamicDate).optional(),
-    dateValue: z.string().optional(),
+    value: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('dynamicDateValue'),
+          dynamicDateValue: z.enum(DateValue_DynamicDate),
+        }),
+        z.object({$case: z.literal('dateValue'), dateValue: z.string()}),
+      ])
+      .optional(),
     precision: z.enum(DatePrecision).optional(),
   })
   .transform(d => ({
-    dynamic_date_value: d.dynamicDateValue,
-    date_value: d.dateValue,
+    ...(d.value?.$case === 'dynamicDateValue' && {
+      dynamic_date_value: d.value.dynamicDateValue,
+    }),
+    ...(d.value?.$case === 'dateValue' && {date_value: d.value.dateValue}),
     precision: d.precision,
   }));
 
@@ -751,22 +842,56 @@ export const marshalQueryParameterSchema: z.ZodType = z
   .object({
     title: z.string().optional(),
     name: z.string().optional(),
-    textValue: z.lazy(() => marshalTextValueSchema).optional(),
-    numericValue: z.lazy(() => marshalNumericValueSchema).optional(),
-    enumValue: z.lazy(() => marshalEnumValueSchema).optional(),
-    dateValue: z.lazy(() => marshalDateValueSchema).optional(),
-    dateRangeValue: z.lazy(() => marshalDateRangeValueSchema).optional(),
-    queryBackedValue: z.lazy(() => marshalQueryBackedValueSchema).optional(),
+    parameterValue: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('textValue'),
+          textValue: z.lazy(() => marshalTextValueSchema),
+        }),
+        z.object({
+          $case: z.literal('numericValue'),
+          numericValue: z.lazy(() => marshalNumericValueSchema),
+        }),
+        z.object({
+          $case: z.literal('enumValue'),
+          enumValue: z.lazy(() => marshalEnumValueSchema),
+        }),
+        z.object({
+          $case: z.literal('dateValue'),
+          dateValue: z.lazy(() => marshalDateValueSchema),
+        }),
+        z.object({
+          $case: z.literal('dateRangeValue'),
+          dateRangeValue: z.lazy(() => marshalDateRangeValueSchema),
+        }),
+        z.object({
+          $case: z.literal('queryBackedValue'),
+          queryBackedValue: z.lazy(() => marshalQueryBackedValueSchema),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
     title: d.title,
     name: d.name,
-    text_value: d.textValue,
-    numeric_value: d.numericValue,
-    enum_value: d.enumValue,
-    date_value: d.dateValue,
-    date_range_value: d.dateRangeValue,
-    query_backed_value: d.queryBackedValue,
+    ...(d.parameterValue?.$case === 'textValue' && {
+      text_value: d.parameterValue.textValue,
+    }),
+    ...(d.parameterValue?.$case === 'numericValue' && {
+      numeric_value: d.parameterValue.numericValue,
+    }),
+    ...(d.parameterValue?.$case === 'enumValue' && {
+      enum_value: d.parameterValue.enumValue,
+    }),
+    ...(d.parameterValue?.$case === 'dateValue' && {
+      date_value: d.parameterValue.dateValue,
+    }),
+    ...(d.parameterValue?.$case === 'dateRangeValue' && {
+      date_range_value: d.parameterValue.dateRangeValue,
+    }),
+    ...(d.parameterValue?.$case === 'queryBackedValue' && {
+      query_backed_value: d.parameterValue.queryBackedValue,
+    }),
   }));
 
 export const marshalTextValueSchema: z.ZodType = z

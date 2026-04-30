@@ -1904,25 +1904,24 @@ export class CreateBranchOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
 
-      if (op.response === undefined) {
+      if (op.result?.$case !== 'response') {
         throw new Error('operation completed without a response');
       }
 
-      result = z.lazy(() => unmarshalBranchSchema).parse(op.response);
+      result = z.lazy(() => unmarshalBranchSchema).parse(op.result.response);
     };
 
     const retryOptions: Options = {
@@ -2004,25 +2003,24 @@ export class CreateCatalogOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
 
-      if (op.response === undefined) {
+      if (op.result?.$case !== 'response') {
         throw new Error('operation completed without a response');
       }
 
-      result = z.lazy(() => unmarshalCatalogSchema).parse(op.response);
+      result = z.lazy(() => unmarshalCatalogSchema).parse(op.result.response);
     };
 
     const retryOptions: Options = {
@@ -2104,25 +2102,24 @@ export class CreateDatabaseOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
 
-      if (op.response === undefined) {
+      if (op.result?.$case !== 'response') {
         throw new Error('operation completed without a response');
       }
 
-      result = z.lazy(() => unmarshalDatabaseSchema).parse(op.response);
+      result = z.lazy(() => unmarshalDatabaseSchema).parse(op.result.response);
     };
 
     const retryOptions: Options = {
@@ -2204,25 +2201,24 @@ export class CreateEndpointOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
 
-      if (op.response === undefined) {
+      if (op.result?.$case !== 'response') {
         throw new Error('operation completed without a response');
       }
 
-      result = z.lazy(() => unmarshalEndpointSchema).parse(op.response);
+      result = z.lazy(() => unmarshalEndpointSchema).parse(op.result.response);
     };
 
     const retryOptions: Options = {
@@ -2304,25 +2300,24 @@ export class CreateProjectOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
 
-      if (op.response === undefined) {
+      if (op.result?.$case !== 'response') {
         throw new Error('operation completed without a response');
       }
 
-      result = z.lazy(() => unmarshalProjectSchema).parse(op.response);
+      result = z.lazy(() => unmarshalProjectSchema).parse(op.result.response);
     };
 
     const retryOptions: Options = {
@@ -2404,25 +2399,24 @@ export class CreateRoleOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
 
-      if (op.response === undefined) {
+      if (op.result?.$case !== 'response') {
         throw new Error('operation completed without a response');
       }
 
-      result = z.lazy(() => unmarshalRoleSchema).parse(op.response);
+      result = z.lazy(() => unmarshalRoleSchema).parse(op.result.response);
     };
 
     const retryOptions: Options = {
@@ -2504,25 +2498,26 @@ export class CreateSyncedTableOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
 
-      if (op.response === undefined) {
+      if (op.result?.$case !== 'response') {
         throw new Error('operation completed without a response');
       }
 
-      result = z.lazy(() => unmarshalSyncedTableSchema).parse(op.response);
+      result = z
+        .lazy(() => unmarshalSyncedTableSchema)
+        .parse(op.result.response);
     };
 
     const retryOptions: Options = {
@@ -2603,17 +2598,16 @@ export class DeleteBranchOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
     };
@@ -2692,17 +2686,16 @@ export class DeleteCatalogOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
     };
@@ -2781,17 +2774,16 @@ export class DeleteDatabaseOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
     };
@@ -2870,17 +2862,16 @@ export class DeleteEndpointOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
     };
@@ -2959,17 +2950,16 @@ export class DeleteProjectOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
     };
@@ -3048,17 +3038,16 @@ export class DeleteRoleOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
     };
@@ -3137,17 +3126,16 @@ export class DeleteSyncedTableOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
     };
@@ -3226,17 +3214,16 @@ export class UndeleteBranchOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
     };
@@ -3315,17 +3302,16 @@ export class UndeleteProjectOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
     };
@@ -3405,25 +3391,24 @@ export class UpdateBranchOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
 
-      if (op.response === undefined) {
+      if (op.result?.$case !== 'response') {
         throw new Error('operation completed without a response');
       }
 
-      result = z.lazy(() => unmarshalBranchSchema).parse(op.response);
+      result = z.lazy(() => unmarshalBranchSchema).parse(op.result.response);
     };
 
     const retryOptions: Options = {
@@ -3505,25 +3490,24 @@ export class UpdateDatabaseOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
 
-      if (op.response === undefined) {
+      if (op.result?.$case !== 'response') {
         throw new Error('operation completed without a response');
       }
 
-      result = z.lazy(() => unmarshalDatabaseSchema).parse(op.response);
+      result = z.lazy(() => unmarshalDatabaseSchema).parse(op.result.response);
     };
 
     const retryOptions: Options = {
@@ -3605,25 +3589,24 @@ export class UpdateEndpointOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
 
-      if (op.response === undefined) {
+      if (op.result?.$case !== 'response') {
         throw new Error('operation completed without a response');
       }
 
-      result = z.lazy(() => unmarshalEndpointSchema).parse(op.response);
+      result = z.lazy(() => unmarshalEndpointSchema).parse(op.result.response);
     };
 
     const retryOptions: Options = {
@@ -3705,25 +3688,24 @@ export class UpdateProjectOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
 
-      if (op.response === undefined) {
+      if (op.result?.$case !== 'response') {
         throw new Error('operation completed without a response');
       }
 
-      result = z.lazy(() => unmarshalProjectSchema).parse(op.response);
+      result = z.lazy(() => unmarshalProjectSchema).parse(op.result.response);
     };
 
     const retryOptions: Options = {
@@ -3805,25 +3787,24 @@ export class UpdateRoleOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
 
-      if (op.response === undefined) {
+      if (op.result?.$case !== 'response') {
         throw new Error('operation completed without a response');
       }
 
-      result = z.lazy(() => unmarshalRoleSchema).parse(op.response);
+      result = z.lazy(() => unmarshalRoleSchema).parse(op.result.response);
     };
 
     const retryOptions: Options = {

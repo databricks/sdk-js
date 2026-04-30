@@ -71,8 +71,11 @@ export interface AlertCondition {
 }
 
 export interface AlertOperand {
-  value?: AlertOperandValue | undefined;
-  column?: AlertOperandColumn | undefined;
+  /** Only one of the following fields may be set, depending on the type of operand/threshold. */
+  operand?:
+    | {$case: 'value'; value: AlertOperandValue}
+    | {$case: 'column'; column: AlertOperandColumn}
+    | undefined;
 }
 
 export interface AlertOperandColumn {
@@ -80,9 +83,12 @@ export interface AlertOperandColumn {
 }
 
 export interface AlertOperandValue {
-  stringValue?: string | undefined;
-  doubleValue?: number | undefined;
-  boolValue?: boolean | undefined;
+  /** Only one of the following fields may be set, depending on the type of threshold value. */
+  thresholdValue?:
+    | {$case: 'stringValue'; stringValue: string}
+    | {$case: 'doubleValue'; doubleValue: number}
+    | {$case: 'boolValue'; boolValue: boolean}
+    | undefined;
 }
 
 export interface CreateAlertRequest {
@@ -288,8 +294,12 @@ export const unmarshalAlertOperandSchema: z.ZodType<AlertOperand> = z
     column: z.lazy(() => unmarshalAlertOperandColumnSchema).optional(),
   })
   .transform(d => ({
-    value: d.value,
-    column: d.column,
+    operand:
+      d.value !== undefined
+        ? {$case: 'value' as const, value: d.value}
+        : d.column !== undefined
+          ? {$case: 'column' as const, column: d.column}
+          : undefined,
   }));
 
 export const unmarshalAlertOperandColumnSchema: z.ZodType<AlertOperandColumn> =
@@ -308,9 +318,14 @@ export const unmarshalAlertOperandValueSchema: z.ZodType<AlertOperandValue> = z
     bool_value: z.boolean().optional(),
   })
   .transform(d => ({
-    stringValue: d.string_value,
-    doubleValue: d.double_value,
-    boolValue: d.bool_value,
+    thresholdValue:
+      d.string_value !== undefined
+        ? {$case: 'stringValue' as const, stringValue: d.string_value}
+        : d.double_value !== undefined
+          ? {$case: 'doubleValue' as const, doubleValue: d.double_value}
+          : d.bool_value !== undefined
+            ? {$case: 'boolValue' as const, boolValue: d.bool_value}
+            : undefined,
   }));
 
 export const unmarshalEmptySchema: z.ZodType<Empty> = z.object({});
@@ -390,12 +405,22 @@ export const marshalAlertConditionSchema: z.ZodType = z
 
 export const marshalAlertOperandSchema: z.ZodType = z
   .object({
-    value: z.lazy(() => marshalAlertOperandValueSchema).optional(),
-    column: z.lazy(() => marshalAlertOperandColumnSchema).optional(),
+    operand: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('value'),
+          value: z.lazy(() => marshalAlertOperandValueSchema),
+        }),
+        z.object({
+          $case: z.literal('column'),
+          column: z.lazy(() => marshalAlertOperandColumnSchema),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    value: d.value,
-    column: d.column,
+    ...(d.operand?.$case === 'value' && {value: d.operand.value}),
+    ...(d.operand?.$case === 'column' && {column: d.operand.column}),
   }));
 
 export const marshalAlertOperandColumnSchema: z.ZodType = z
@@ -408,14 +433,24 @@ export const marshalAlertOperandColumnSchema: z.ZodType = z
 
 export const marshalAlertOperandValueSchema: z.ZodType = z
   .object({
-    stringValue: z.string().optional(),
-    doubleValue: z.number().optional(),
-    boolValue: z.boolean().optional(),
+    thresholdValue: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('stringValue'), stringValue: z.string()}),
+        z.object({$case: z.literal('doubleValue'), doubleValue: z.number()}),
+        z.object({$case: z.literal('boolValue'), boolValue: z.boolean()}),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    string_value: d.stringValue,
-    double_value: d.doubleValue,
-    bool_value: d.boolValue,
+    ...(d.thresholdValue?.$case === 'stringValue' && {
+      string_value: d.thresholdValue.stringValue,
+    }),
+    ...(d.thresholdValue?.$case === 'doubleValue' && {
+      double_value: d.thresholdValue.doubleValue,
+    }),
+    ...(d.thresholdValue?.$case === 'boolValue' && {
+      bool_value: d.thresholdValue.boolValue,
+    }),
   }));
 
 export const marshalCreateAlertRequestSchema: z.ZodType = z

@@ -11,11 +11,13 @@ export enum DestinationType {
 }
 
 export interface Config {
-  slack?: SlackConfig | undefined;
-  email?: EmailConfig | undefined;
-  genericWebhook?: GenericWebhookConfig | undefined;
-  pagerduty?: PagerdutyConfig | undefined;
-  microsoftTeams?: MicrosoftTeamsConfig | undefined;
+  config?:
+    | {$case: 'slack'; slack: SlackConfig}
+    | {$case: 'email'; email: EmailConfig}
+    | {$case: 'genericWebhook'; genericWebhook: GenericWebhookConfig}
+    | {$case: 'pagerduty'; pagerduty: PagerdutyConfig}
+    | {$case: 'microsoftTeams'; microsoftTeams: MicrosoftTeamsConfig}
+    | undefined;
 }
 
 export interface CreateNotificationDestinationRequest {
@@ -156,11 +158,24 @@ export const unmarshalConfigSchema: z.ZodType<Config> = z
       .optional(),
   })
   .transform(d => ({
-    slack: d.slack,
-    email: d.email,
-    genericWebhook: d.generic_webhook,
-    pagerduty: d.pagerduty,
-    microsoftTeams: d.microsoft_teams,
+    config:
+      d.slack !== undefined
+        ? {$case: 'slack' as const, slack: d.slack}
+        : d.email !== undefined
+          ? {$case: 'email' as const, email: d.email}
+          : d.generic_webhook !== undefined
+            ? {
+                $case: 'genericWebhook' as const,
+                genericWebhook: d.generic_webhook,
+              }
+            : d.pagerduty !== undefined
+              ? {$case: 'pagerduty' as const, pagerduty: d.pagerduty}
+              : d.microsoft_teams !== undefined
+                ? {
+                    $case: 'microsoftTeams' as const,
+                    microsoftTeams: d.microsoft_teams,
+                  }
+                : undefined,
   }));
 
 export const unmarshalEmailConfigSchema: z.ZodType<EmailConfig> = z
@@ -292,18 +307,41 @@ export const unmarshalSlackConfigSchema: z.ZodType<SlackConfig> = z
 
 export const marshalConfigSchema: z.ZodType = z
   .object({
-    slack: z.lazy(() => marshalSlackConfigSchema).optional(),
-    email: z.lazy(() => marshalEmailConfigSchema).optional(),
-    genericWebhook: z.lazy(() => marshalGenericWebhookConfigSchema).optional(),
-    pagerduty: z.lazy(() => marshalPagerdutyConfigSchema).optional(),
-    microsoftTeams: z.lazy(() => marshalMicrosoftTeamsConfigSchema).optional(),
+    config: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('slack'),
+          slack: z.lazy(() => marshalSlackConfigSchema),
+        }),
+        z.object({
+          $case: z.literal('email'),
+          email: z.lazy(() => marshalEmailConfigSchema),
+        }),
+        z.object({
+          $case: z.literal('genericWebhook'),
+          genericWebhook: z.lazy(() => marshalGenericWebhookConfigSchema),
+        }),
+        z.object({
+          $case: z.literal('pagerduty'),
+          pagerduty: z.lazy(() => marshalPagerdutyConfigSchema),
+        }),
+        z.object({
+          $case: z.literal('microsoftTeams'),
+          microsoftTeams: z.lazy(() => marshalMicrosoftTeamsConfigSchema),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    slack: d.slack,
-    email: d.email,
-    generic_webhook: d.genericWebhook,
-    pagerduty: d.pagerduty,
-    microsoft_teams: d.microsoftTeams,
+    ...(d.config?.$case === 'slack' && {slack: d.config.slack}),
+    ...(d.config?.$case === 'email' && {email: d.config.email}),
+    ...(d.config?.$case === 'genericWebhook' && {
+      generic_webhook: d.config.genericWebhook,
+    }),
+    ...(d.config?.$case === 'pagerduty' && {pagerduty: d.config.pagerduty}),
+    ...(d.config?.$case === 'microsoftTeams' && {
+      microsoft_teams: d.config.microsoftTeams,
+    }),
   }));
 
 export const marshalCreateNotificationDestinationRequestSchema: z.ZodType = z

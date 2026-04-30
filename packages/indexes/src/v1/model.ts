@@ -67,10 +67,18 @@ export interface CreateVectorIndexRequest {
   /** Primary key of the index */
   primaryKey?: string | undefined;
   indexType?: VectorIndexType | undefined;
-  /** Specification for Direct Vector Access Index. Required if `index_type` is `DIRECT_ACCESS`. */
-  directAccessIndexSpec?: DirectAccessVectorIndexSpec | undefined;
-  /** Specification for Delta Sync Index. Required if `index_type` is `DELTA_SYNC`. */
-  deltaSyncIndexSpec?: DeltaSyncVectorIndexSpecRequest | undefined;
+  indexSpec?:
+    | {
+        $case: 'directAccessIndexSpec';
+        /** Specification for Direct Vector Access Index. Required if `index_type` is `DIRECT_ACCESS`. */
+        directAccessIndexSpec: DirectAccessVectorIndexSpec;
+      }
+    | {
+        $case: 'deltaSyncIndexSpec';
+        /** Specification for Delta Sync Index. Required if `index_type` is `DELTA_SYNC`. */
+        deltaSyncIndexSpec: DeltaSyncVectorIndexSpecRequest;
+      }
+    | undefined;
   /** The subtype of the index. Use `HYBRID` or `FULL_TEXT`. `VECTOR` is not supported. */
   indexSubtype?: IndexSubtype | undefined;
 }
@@ -170,8 +178,14 @@ export interface DirectAccessVectorIndexSpec {
 export interface EmbeddingSourceColumn {
   /** Name of the column */
   name?: string | undefined;
-  /** Name of the embedding model endpoint, used by default for both ingestion and querying. */
-  embeddingModelEndpointName?: string | undefined;
+  /** TODO: clean up ai gateway related code. It's deprecated on ModelServing side. */
+  embeddingConfig?:
+    | {
+        $case: 'embeddingModelEndpointName';
+        /** Name of the embedding model endpoint, used by default for both ingestion and querying. */
+        embeddingModelEndpointName: string;
+      }
+    | undefined;
   /** Name of the embedding model endpoint which, if specified, is used for querying (not ingestion). */
   modelEndpointNameForQuery?: string | undefined;
 }
@@ -229,8 +243,16 @@ export interface MiniVectorIndex {
   /** Primary key of the index */
   primaryKey?: string | undefined;
   indexType?: VectorIndexType | undefined;
-  directAccessIndexSpec?: DirectAccessVectorIndexSpec | undefined;
-  deltaSyncIndexSpec?: DeltaSyncVectorIndexSpec | undefined;
+  indexSpec?:
+    | {
+        $case: 'directAccessIndexSpec';
+        directAccessIndexSpec: DirectAccessVectorIndexSpec;
+      }
+    | {
+        $case: 'deltaSyncIndexSpec';
+        deltaSyncIndexSpec: DeltaSyncVectorIndexSpec;
+      }
+    | undefined;
   status?: VectorIndexStatus | undefined;
   /** The user who created the index. */
   creator?: string | undefined;
@@ -376,11 +398,14 @@ export interface UpsertDeleteDataResult {
 }
 
 export interface Value {
-  numberValue?: number | undefined;
-  stringValue?: string | undefined;
-  boolValue?: boolean | undefined;
-  structValue?: Struct | undefined;
-  listValue?: ListValue | undefined;
+  /** (--The kind of value.--) */
+  kind?:
+    | {$case: 'numberValue'; numberValue: number}
+    | {$case: 'stringValue'; stringValue: string}
+    | {$case: 'boolValue'; boolValue: boolean}
+    | {$case: 'structValue'; structValue: Struct}
+    | {$case: 'listValue'; listValue: ListValue}
+    | undefined;
 }
 
 export interface VectorIndex {
@@ -391,8 +416,16 @@ export interface VectorIndex {
   /** Primary key of the index */
   primaryKey?: string | undefined;
   indexType?: VectorIndexType | undefined;
-  directAccessIndexSpec?: DirectAccessVectorIndexSpec | undefined;
-  deltaSyncIndexSpec?: DeltaSyncVectorIndexSpec | undefined;
+  indexSpec?:
+    | {
+        $case: 'directAccessIndexSpec';
+        directAccessIndexSpec: DirectAccessVectorIndexSpec;
+      }
+    | {
+        $case: 'deltaSyncIndexSpec';
+        deltaSyncIndexSpec: DeltaSyncVectorIndexSpec;
+      }
+    | undefined;
   status?: VectorIndexStatus | undefined;
   /** The user who created the index. */
   creator?: string | undefined;
@@ -490,7 +523,13 @@ export const unmarshalEmbeddingSourceColumnSchema: z.ZodType<EmbeddingSourceColu
     })
     .transform(d => ({
       name: d.name,
-      embeddingModelEndpointName: d.embedding_model_endpoint_name,
+      embeddingConfig:
+        d.embedding_model_endpoint_name !== undefined
+          ? {
+              $case: 'embeddingModelEndpointName' as const,
+              embeddingModelEndpointName: d.embedding_model_endpoint_name,
+            }
+          : undefined,
       modelEndpointNameForQuery: d.model_endpoint_name_for_query,
     }));
 
@@ -558,8 +597,18 @@ export const unmarshalMiniVectorIndexSchema: z.ZodType<MiniVectorIndex> = z
     endpointName: d.endpoint_name,
     primaryKey: d.primary_key,
     indexType: d.index_type,
-    directAccessIndexSpec: d.direct_access_index_spec,
-    deltaSyncIndexSpec: d.delta_sync_index_spec,
+    indexSpec:
+      d.direct_access_index_spec !== undefined
+        ? {
+            $case: 'directAccessIndexSpec' as const,
+            directAccessIndexSpec: d.direct_access_index_spec,
+          }
+        : d.delta_sync_index_spec !== undefined
+          ? {
+              $case: 'deltaSyncIndexSpec' as const,
+              deltaSyncIndexSpec: d.delta_sync_index_spec,
+            }
+          : undefined,
     status: d.status,
     creator: d.creator,
     indexSubtype: d.index_subtype,
@@ -653,11 +702,18 @@ export const unmarshalValueSchema: z.ZodType<Value> = z
     list_value: z.lazy(() => unmarshalListValueSchema).optional(),
   })
   .transform(d => ({
-    numberValue: d.number_value,
-    stringValue: d.string_value,
-    boolValue: d.bool_value,
-    structValue: d.struct_value,
-    listValue: d.list_value,
+    kind:
+      d.number_value !== undefined
+        ? {$case: 'numberValue' as const, numberValue: d.number_value}
+        : d.string_value !== undefined
+          ? {$case: 'stringValue' as const, stringValue: d.string_value}
+          : d.bool_value !== undefined
+            ? {$case: 'boolValue' as const, boolValue: d.bool_value}
+            : d.struct_value !== undefined
+              ? {$case: 'structValue' as const, structValue: d.struct_value}
+              : d.list_value !== undefined
+                ? {$case: 'listValue' as const, listValue: d.list_value}
+                : undefined,
   }));
 
 export const unmarshalVectorIndexSchema: z.ZodType<VectorIndex> = z
@@ -681,8 +737,18 @@ export const unmarshalVectorIndexSchema: z.ZodType<VectorIndex> = z
     endpointName: d.endpoint_name,
     primaryKey: d.primary_key,
     indexType: d.index_type,
-    directAccessIndexSpec: d.direct_access_index_spec,
-    deltaSyncIndexSpec: d.delta_sync_index_spec,
+    indexSpec:
+      d.direct_access_index_spec !== undefined
+        ? {
+            $case: 'directAccessIndexSpec' as const,
+            directAccessIndexSpec: d.direct_access_index_spec,
+          }
+        : d.delta_sync_index_spec !== undefined
+          ? {
+              $case: 'deltaSyncIndexSpec' as const,
+              deltaSyncIndexSpec: d.delta_sync_index_spec,
+            }
+          : undefined,
     status: d.status,
     creator: d.creator,
     indexSubtype: d.index_subtype,
@@ -708,11 +774,21 @@ export const marshalCreateVectorIndexRequestSchema: z.ZodType = z
     endpointName: z.string().optional(),
     primaryKey: z.string().optional(),
     indexType: z.enum(VectorIndexType).optional(),
-    directAccessIndexSpec: z
-      .lazy(() => marshalDirectAccessVectorIndexSpecSchema)
-      .optional(),
-    deltaSyncIndexSpec: z
-      .lazy(() => marshalDeltaSyncVectorIndexSpecRequestSchema)
+    indexSpec: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('directAccessIndexSpec'),
+          directAccessIndexSpec: z.lazy(
+            () => marshalDirectAccessVectorIndexSpecSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('deltaSyncIndexSpec'),
+          deltaSyncIndexSpec: z.lazy(
+            () => marshalDeltaSyncVectorIndexSpecRequestSchema
+          ),
+        }),
+      ])
       .optional(),
     indexSubtype: z.enum(IndexSubtype).optional(),
   })
@@ -721,8 +797,12 @@ export const marshalCreateVectorIndexRequestSchema: z.ZodType = z
     endpoint_name: d.endpointName,
     primary_key: d.primaryKey,
     index_type: d.indexType,
-    direct_access_index_spec: d.directAccessIndexSpec,
-    delta_sync_index_spec: d.deltaSyncIndexSpec,
+    ...(d.indexSpec?.$case === 'directAccessIndexSpec' && {
+      direct_access_index_spec: d.indexSpec.directAccessIndexSpec,
+    }),
+    ...(d.indexSpec?.$case === 'deltaSyncIndexSpec' && {
+      delta_sync_index_spec: d.indexSpec.deltaSyncIndexSpec,
+    }),
     index_subtype: d.indexSubtype,
   }));
 
@@ -773,12 +853,22 @@ export const marshalDirectAccessVectorIndexSpecSchema: z.ZodType = z
 export const marshalEmbeddingSourceColumnSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    embeddingModelEndpointName: z.string().optional(),
+    embeddingConfig: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('embeddingModelEndpointName'),
+          embeddingModelEndpointName: z.string(),
+        }),
+      ])
+      .optional(),
     modelEndpointNameForQuery: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
-    embedding_model_endpoint_name: d.embeddingModelEndpointName,
+    ...(d.embeddingConfig?.$case === 'embeddingModelEndpointName' && {
+      embedding_model_endpoint_name:
+        d.embeddingConfig.embeddingModelEndpointName,
+    }),
     model_endpoint_name_for_query: d.modelEndpointNameForQuery,
   }));
 

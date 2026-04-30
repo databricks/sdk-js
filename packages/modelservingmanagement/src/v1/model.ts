@@ -214,6 +214,10 @@ export interface ApiKeyAuth {
   valuePlaintext?: string | undefined;
 }
 
+/**
+ * Deprecated: legacy inference table configuration. Please use AI Gateway inference tables instead.
+ * See https://docs.databricks.com/aws/en/ai-gateway/inference-tables.
+ */
 export interface AutoCaptureConfig {
   /** The name of the catalog in Unity Catalog. NOTE: On update, you cannot change the catalog name if the inference table is already enabled. */
   catalogName?: string | undefined;
@@ -378,10 +382,10 @@ export interface EndpointCoreConfig {
   /** The traffic configuration associated with the serving endpoint config. */
   trafficConfig?: TrafficConfig | undefined;
   /**
-   * Configuration for Inference Tables which automatically logs requests and responses to Unity Catalog.
-   * Note: this field is deprecated for creating new provisioned throughput endpoints,
-   * or updating existing provisioned throughput endpoints that never have inference table configured;
-   * in these cases please use AI Gateway to manage inference tables.
+   * Configuration for legacy Inference Tables which automatically log requests and responses to Unity
+   * Catalog.
+   * Deprecated: please use AI Gateway inference tables instead. See
+   * https://docs.databricks.com/aws/en/ai-gateway/inference-tables.
    */
   autoCaptureConfig?: AutoCaptureConfig | undefined;
 }
@@ -396,10 +400,10 @@ export interface EndpointCoreConfigOutput {
   /** The traffic configuration associated with the serving endpoint config. */
   trafficConfig?: TrafficConfig | undefined;
   /**
-   * Configuration for Inference Tables which automatically logs requests and responses to Unity Catalog.
-   * Note: this field is deprecated for creating new provisioned throughput endpoints,
-   * or updating existing provisioned throughput endpoints that never have inference table configured;
-   * in these cases please use AI Gateway to manage inference tables.
+   * Configuration for legacy Inference Tables which automatically log requests and responses to Unity
+   * Catalog.
+   * Deprecated: please use AI Gateway inference tables instead. See
+   * https://docs.databricks.com/aws/en/ai-gateway/inference-tables.
    */
   autoCaptureConfig?: AutoCaptureConfig | undefined;
 }
@@ -452,24 +456,54 @@ export interface ExternalModel {
   name?: string | undefined;
   /** The task type of the external model. */
   task?: string | undefined;
-  /** AI21Labs Config. Only required if the provider is 'ai21labs'. */
-  ai21labsConfig?: Ai21LabsConfig | undefined;
-  /** Anthropic Config. Only required if the provider is 'anthropic'. */
-  anthropicConfig?: AnthropicConfig | undefined;
-  /** Amazon Bedrock Config. Only required if the provider is 'amazon-bedrock'. */
-  amazonBedrockConfig?: AmazonBedrockConfig | undefined;
-  /** Cohere Config. Only required if the provider is 'cohere'. */
-  cohereConfig?: CohereConfig | undefined;
-  /** Google Cloud Vertex AI Config. Only required if the provider is 'google-cloud-vertex-ai'. */
-  googleCloudVertexAiConfig?: GoogleCloudVertexAiConfig | undefined;
-  /** Databricks Model Serving Config. Only required if the provider is 'databricks-model-serving'. */
-  databricksModelServingConfig?: DatabricksModelServingConfig | undefined;
-  /** OpenAI Config. Only required if the provider is 'openai'. */
-  openaiConfig?: OpenAiConfig | undefined;
-  /** PaLM Config. Only required if the provider is 'palm'. */
-  palmConfig?: PaLmConfig | undefined;
-  /** Custom Provider Config. Only required if the provider is 'custom'. */
-  customProviderConfig?: CustomProviderConfig | undefined;
+  /** external model config. The config corresponding to the provider will be used. */
+  config?:
+    | {
+        $case: 'ai21labsConfig';
+        /** AI21Labs Config. Only required if the provider is 'ai21labs'. */
+        ai21labsConfig: Ai21LabsConfig;
+      }
+    | {
+        $case: 'anthropicConfig';
+        /** Anthropic Config. Only required if the provider is 'anthropic'. */
+        anthropicConfig: AnthropicConfig;
+      }
+    | {
+        $case: 'amazonBedrockConfig';
+        /** Amazon Bedrock Config. Only required if the provider is 'amazon-bedrock'. */
+        amazonBedrockConfig: AmazonBedrockConfig;
+      }
+    | {
+        $case: 'cohereConfig';
+        /** Cohere Config. Only required if the provider is 'cohere'. */
+        cohereConfig: CohereConfig;
+      }
+    | {
+        $case: 'googleCloudVertexAiConfig';
+        /** Google Cloud Vertex AI Config. Only required if the provider is 'google-cloud-vertex-ai'. */
+        googleCloudVertexAiConfig: GoogleCloudVertexAiConfig;
+      }
+    | {
+        $case: 'databricksModelServingConfig';
+        /** Databricks Model Serving Config. Only required if the provider is 'databricks-model-serving'. */
+        databricksModelServingConfig: DatabricksModelServingConfig;
+      }
+    | {
+        $case: 'openaiConfig';
+        /** OpenAI Config. Only required if the provider is 'openai'. */
+        openaiConfig: OpenAiConfig;
+      }
+    | {
+        $case: 'palmConfig';
+        /** PaLM Config. Only required if the provider is 'palm'. */
+        palmConfig: PaLmConfig;
+      }
+    | {
+        $case: 'customProviderConfig';
+        /** Custom Provider Config. Only required if the provider is 'custom'. */
+        customProviderConfig: CustomProviderConfig;
+      }
+    | undefined;
 }
 
 export interface FallbackConfig {
@@ -787,10 +821,10 @@ export interface PendingConfig {
   /** The timestamp when the update to the pending config started. */
   startTime?: number | undefined;
   /**
-   * Configuration for Inference Tables which automatically logs requests and responses to Unity Catalog.
-   * Note: this field is deprecated for creating new provisioned throughput endpoints,
-   * or updating existing provisioned throughput endpoints that never have inference table configured;
-   * in these cases please use AI Gateway to manage inference tables.
+   * Configuration for legacy Inference Tables which automatically log requests and responses to Unity
+   * Catalog.
+   * Deprecated: please use AI Gateway inference tables instead. See
+   * https://docs.databricks.com/aws/en/ai-gateway/inference-tables.
    */
   autoCaptureConfig?: AutoCaptureConfig | undefined;
 }
@@ -879,10 +913,10 @@ export interface PutInferenceEndpointConfig {
   /** The traffic configuration associated with the serving endpoint config. */
   trafficConfig?: TrafficConfig | undefined;
   /**
-   * Configuration for Inference Tables which automatically logs requests and responses to Unity Catalog.
-   * Note: this field is deprecated for creating new provisioned throughput endpoints,
-   * or updating existing provisioned throughput endpoints that never have inference table configured;
-   * in these cases please use AI Gateway to manage inference tables.
+   * Configuration for legacy Inference Tables which automatically log requests and responses to Unity
+   * Catalog.
+   * Deprecated: please use AI Gateway inference tables instead. See
+   * https://docs.databricks.com/aws/en/ai-gateway/inference-tables.
    */
   autoCaptureConfig?: AutoCaptureConfig | undefined;
 }
@@ -1309,15 +1343,48 @@ export const unmarshalExternalModelSchema: z.ZodType<ExternalModel> = z
     provider: d.provider,
     name: d.name,
     task: d.task,
-    ai21labsConfig: d.ai21labs_config,
-    anthropicConfig: d.anthropic_config,
-    amazonBedrockConfig: d.amazon_bedrock_config,
-    cohereConfig: d.cohere_config,
-    googleCloudVertexAiConfig: d.google_cloud_vertex_ai_config,
-    databricksModelServingConfig: d.databricks_model_serving_config,
-    openaiConfig: d.openai_config,
-    palmConfig: d.palm_config,
-    customProviderConfig: d.custom_provider_config,
+    config:
+      d.ai21labs_config !== undefined
+        ? {$case: 'ai21labsConfig' as const, ai21labsConfig: d.ai21labs_config}
+        : d.anthropic_config !== undefined
+          ? {
+              $case: 'anthropicConfig' as const,
+              anthropicConfig: d.anthropic_config,
+            }
+          : d.amazon_bedrock_config !== undefined
+            ? {
+                $case: 'amazonBedrockConfig' as const,
+                amazonBedrockConfig: d.amazon_bedrock_config,
+              }
+            : d.cohere_config !== undefined
+              ? {$case: 'cohereConfig' as const, cohereConfig: d.cohere_config}
+              : d.google_cloud_vertex_ai_config !== undefined
+                ? {
+                    $case: 'googleCloudVertexAiConfig' as const,
+                    googleCloudVertexAiConfig: d.google_cloud_vertex_ai_config,
+                  }
+                : d.databricks_model_serving_config !== undefined
+                  ? {
+                      $case: 'databricksModelServingConfig' as const,
+                      databricksModelServingConfig:
+                        d.databricks_model_serving_config,
+                    }
+                  : d.openai_config !== undefined
+                    ? {
+                        $case: 'openaiConfig' as const,
+                        openaiConfig: d.openai_config,
+                      }
+                    : d.palm_config !== undefined
+                      ? {
+                          $case: 'palmConfig' as const,
+                          palmConfig: d.palm_config,
+                        }
+                      : d.custom_provider_config !== undefined
+                        ? {
+                            $case: 'customProviderConfig' as const,
+                            customProviderConfig: d.custom_provider_config,
+                          }
+                        : undefined,
   }));
 
 export const unmarshalFallbackConfigSchema: z.ZodType<FallbackConfig> = z
@@ -2034,37 +2101,80 @@ export const marshalExternalModelSchema: z.ZodType = z
     provider: z.string().optional(),
     name: z.string().optional(),
     task: z.string().optional(),
-    ai21labsConfig: z.lazy(() => marshalAi21LabsConfigSchema).optional(),
-    anthropicConfig: z.lazy(() => marshalAnthropicConfigSchema).optional(),
-    amazonBedrockConfig: z
-      .lazy(() => marshalAmazonBedrockConfigSchema)
-      .optional(),
-    cohereConfig: z.lazy(() => marshalCohereConfigSchema).optional(),
-    googleCloudVertexAiConfig: z
-      .lazy(() => marshalGoogleCloudVertexAiConfigSchema)
-      .optional(),
-    databricksModelServingConfig: z
-      .lazy(() => marshalDatabricksModelServingConfigSchema)
-      .optional(),
-    openaiConfig: z.lazy(() => marshalOpenAiConfigSchema).optional(),
-    palmConfig: z.lazy(() => marshalPaLmConfigSchema).optional(),
-    customProviderConfig: z
-      .lazy(() => marshalCustomProviderConfigSchema)
+    config: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('ai21labsConfig'),
+          ai21labsConfig: z.lazy(() => marshalAi21LabsConfigSchema),
+        }),
+        z.object({
+          $case: z.literal('anthropicConfig'),
+          anthropicConfig: z.lazy(() => marshalAnthropicConfigSchema),
+        }),
+        z.object({
+          $case: z.literal('amazonBedrockConfig'),
+          amazonBedrockConfig: z.lazy(() => marshalAmazonBedrockConfigSchema),
+        }),
+        z.object({
+          $case: z.literal('cohereConfig'),
+          cohereConfig: z.lazy(() => marshalCohereConfigSchema),
+        }),
+        z.object({
+          $case: z.literal('googleCloudVertexAiConfig'),
+          googleCloudVertexAiConfig: z.lazy(
+            () => marshalGoogleCloudVertexAiConfigSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('databricksModelServingConfig'),
+          databricksModelServingConfig: z.lazy(
+            () => marshalDatabricksModelServingConfigSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('openaiConfig'),
+          openaiConfig: z.lazy(() => marshalOpenAiConfigSchema),
+        }),
+        z.object({
+          $case: z.literal('palmConfig'),
+          palmConfig: z.lazy(() => marshalPaLmConfigSchema),
+        }),
+        z.object({
+          $case: z.literal('customProviderConfig'),
+          customProviderConfig: z.lazy(() => marshalCustomProviderConfigSchema),
+        }),
+      ])
       .optional(),
   })
   .transform(d => ({
     provider: d.provider,
     name: d.name,
     task: d.task,
-    ai21labs_config: d.ai21labsConfig,
-    anthropic_config: d.anthropicConfig,
-    amazon_bedrock_config: d.amazonBedrockConfig,
-    cohere_config: d.cohereConfig,
-    google_cloud_vertex_ai_config: d.googleCloudVertexAiConfig,
-    databricks_model_serving_config: d.databricksModelServingConfig,
-    openai_config: d.openaiConfig,
-    palm_config: d.palmConfig,
-    custom_provider_config: d.customProviderConfig,
+    ...(d.config?.$case === 'ai21labsConfig' && {
+      ai21labs_config: d.config.ai21labsConfig,
+    }),
+    ...(d.config?.$case === 'anthropicConfig' && {
+      anthropic_config: d.config.anthropicConfig,
+    }),
+    ...(d.config?.$case === 'amazonBedrockConfig' && {
+      amazon_bedrock_config: d.config.amazonBedrockConfig,
+    }),
+    ...(d.config?.$case === 'cohereConfig' && {
+      cohere_config: d.config.cohereConfig,
+    }),
+    ...(d.config?.$case === 'googleCloudVertexAiConfig' && {
+      google_cloud_vertex_ai_config: d.config.googleCloudVertexAiConfig,
+    }),
+    ...(d.config?.$case === 'databricksModelServingConfig' && {
+      databricks_model_serving_config: d.config.databricksModelServingConfig,
+    }),
+    ...(d.config?.$case === 'openaiConfig' && {
+      openai_config: d.config.openaiConfig,
+    }),
+    ...(d.config?.$case === 'palmConfig' && {palm_config: d.config.palmConfig}),
+    ...(d.config?.$case === 'customProviderConfig' && {
+      custom_provider_config: d.config.customProviderConfig,
+    }),
   }));
 
 export const marshalFallbackConfigSchema: z.ZodType = z

@@ -160,10 +160,18 @@ export interface PutSecret {
   scope?: string | undefined;
   /** A unique name to identify the secret. */
   key?: string | undefined;
-  /** If specified, note that the value will be stored in UTF-8 (MB4) form. */
-  stringValue?: string | undefined;
-  /** If specified, value will be stored as bytes. */
-  bytesValue?: Uint8Array | undefined;
+  value?:
+    | {
+        $case: 'stringValue';
+        /** If specified, note that the value will be stored in UTF-8 (MB4) form. */
+        stringValue: string;
+      }
+    | {
+        $case: 'bytesValue';
+        /** If specified, value will be stored as bytes. */
+        bytesValue: Uint8Array;
+      }
+    | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
@@ -377,17 +385,25 @@ export const marshalPutSecretSchema: z.ZodType = z
   .object({
     scope: z.string().optional(),
     key: z.string().optional(),
-    stringValue: z.string().optional(),
-    bytesValue: z
-      .any()
-      .transform((d: Uint8Array) =>
-        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
-      )
+    value: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('stringValue'), stringValue: z.string()}),
+        z.object({
+          $case: z.literal('bytesValue'),
+          bytesValue: z
+            .any()
+            .transform((d: Uint8Array) =>
+              btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
+            ),
+        }),
+      ])
       .optional(),
   })
   .transform(d => ({
     scope: d.scope,
     key: d.key,
-    string_value: d.stringValue,
-    bytes_value: d.bytesValue,
+    ...(d.value?.$case === 'stringValue' && {
+      string_value: d.value.stringValue,
+    }),
+    ...(d.value?.$case === 'bytesValue' && {bytes_value: d.value.bytesValue}),
   }));

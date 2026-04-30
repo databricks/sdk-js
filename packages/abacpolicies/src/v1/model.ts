@@ -96,21 +96,38 @@ export interface DenyOptions {
  * New variants (e.g., identity attributes) are added as additional oneof cases.
  */
 export interface FunctionArgExpression {
-  /** An expression that introspects tags at query time. */
-  tagIntrospection?: TagIntrospectionExpression | undefined;
+  expr?:
+    | {
+        $case: 'tagIntrospection';
+        /** An expression that introspects tags at query time. */
+        tagIntrospection: TagIntrospectionExpression;
+      }
+    | undefined;
 }
 
 export interface FunctionArgument {
-  /** The alias of a matched column. */
-  alias?: string | undefined;
-  /** A constant literal. */
-  constant?: string | undefined;
-  /**
-   * An expression evaluated at query time. Wraps per-request expression variants
-   * (e.g., tag introspection) so new variants can be added without extending the
-   * FunctionArgument oneof.
-   */
-  functionArgExpression?: FunctionArgExpression | undefined;
+  /** A positional argument pass to a row filter or column mask function. */
+  arg?:
+    | {
+        $case: 'alias';
+        /** The alias of a matched column. */
+        alias: string;
+      }
+    | {
+        $case: 'constant';
+        /** A constant literal. */
+        constant: string;
+      }
+    | {
+        $case: 'functionArgExpression';
+        /**
+         * An expression evaluated at query time. Wraps per-request expression variants
+         * (e.g., tag introspection) so new variants can be added without extending the
+         * FunctionArgument oneof.
+         */
+        functionArgExpression: FunctionArgExpression;
+      }
+    | undefined;
 }
 
 export interface GetPolicy {
@@ -209,29 +226,47 @@ export interface PolicyInfo {
   /** Type of the policy. Required on create. */
   policyType?: PolicyType | undefined;
   /**
-   * Options for row filter policies. Valid only if `policy_type` is `POLICY_TYPE_ROW_FILTER`.
-   * Required on create and optional on update. When specified on update,
-   * the new options will replace the existing options as a whole.
+   * (--[Create:REQ Update:OPT] Type-specific options for the Policy--)
+   * Type-specific options for the policy.
    */
-  rowFilter?: RowFilterOptions | undefined;
-  /**
-   * Options for column mask policies. Valid only if `policy_type` is `POLICY_TYPE_COLUMN_MASK`.
-   * Required on create and optional on update. When specified on update,
-   * the new options will replace the existing options as a whole.
-   */
-  columnMask?: ColumnMaskOptions | undefined;
-  /**
-   * Options for deny policies. Valid only if `policy_type` is `POLICY_TYPE_DENY`.
-   * Required on create and optional on update. When specified on update,
-   * the new options will replace the existing options as a whole.
-   */
-  deny?: DenyOptions | undefined;
-  /**
-   * Options for grant policies. Valid only if `policy_type` is `POLICY_TYPE_GRANT`.
-   * Required on create and optional on update. When specified on update,
-   * the new options will replace the existing options as a whole.
-   */
-  grant?: GrantOptions | undefined;
+  options?:
+    | {
+        $case: 'rowFilter';
+        /**
+         * Options for row filter policies. Valid only if `policy_type` is `POLICY_TYPE_ROW_FILTER`.
+         * Required on create and optional on update. When specified on update,
+         * the new options will replace the existing options as a whole.
+         */
+        rowFilter: RowFilterOptions;
+      }
+    | {
+        $case: 'columnMask';
+        /**
+         * Options for column mask policies. Valid only if `policy_type` is `POLICY_TYPE_COLUMN_MASK`.
+         * Required on create and optional on update. When specified on update,
+         * the new options will replace the existing options as a whole.
+         */
+        columnMask: ColumnMaskOptions;
+      }
+    | {
+        $case: 'deny';
+        /**
+         * Options for deny policies. Valid only if `policy_type` is `POLICY_TYPE_DENY`.
+         * Required on create and optional on update. When specified on update,
+         * the new options will replace the existing options as a whole.
+         */
+        deny: DenyOptions;
+      }
+    | {
+        $case: 'grant';
+        /**
+         * Options for grant policies. Valid only if `policy_type` is `POLICY_TYPE_GRANT`.
+         * Required on create and optional on update. When specified on update,
+         * the new options will replace the existing options as a whole.
+         */
+        grant: GrantOptions;
+      }
+    | undefined;
   /**
    * Optional list of condition expressions used to match table columns.
    * Only valid when `for_securable_type` is `TABLE`.
@@ -274,10 +309,19 @@ export interface RowFilterOptions {
 
 /** An expression that introspects tags at query time. */
 export interface TagIntrospectionExpression {
-  /** Extracts the value of a securable-level tag. */
-  tagValue?: TagValueExtraction | undefined;
-  /** Extracts the value of a column-level tag. */
-  columnTagValue?: ColumnTagValueExtraction | undefined;
+  /** The tag introspection variant to evaluate at query time. */
+  expr?:
+    | {
+        $case: 'tagValue';
+        /** Extracts the value of a securable-level tag. */
+        tagValue: TagValueExtraction;
+      }
+    | {
+        $case: 'columnTagValue';
+        /** Extracts the value of a column-level tag. */
+        columnTagValue: ColumnTagValueExtraction;
+      }
+    | undefined;
 }
 
 /** Extracts the value of a securable-level tag: get_tag_value("tagKey"). */
@@ -353,7 +397,13 @@ export const unmarshalFunctionArgExpressionSchema: z.ZodType<FunctionArgExpressi
         .optional(),
     })
     .transform(d => ({
-      tagIntrospection: d.tag_introspection,
+      expr:
+        d.tag_introspection !== undefined
+          ? {
+              $case: 'tagIntrospection' as const,
+              tagIntrospection: d.tag_introspection,
+            }
+          : undefined,
     }));
 
 export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
@@ -365,9 +415,17 @@ export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
       .optional(),
   })
   .transform(d => ({
-    alias: d.alias,
-    constant: d.constant,
-    functionArgExpression: d.function_arg_expression,
+    arg:
+      d.alias !== undefined
+        ? {$case: 'alias' as const, alias: d.alias}
+        : d.constant !== undefined
+          ? {$case: 'constant' as const, constant: d.constant}
+          : d.function_arg_expression !== undefined
+            ? {
+                $case: 'functionArgExpression' as const,
+                functionArgExpression: d.function_arg_expression,
+              }
+            : undefined,
   }));
 
 export const unmarshalGrantOptionsSchema: z.ZodType<GrantOptions> = z
@@ -434,10 +492,16 @@ export const unmarshalPolicyInfoSchema: z.ZodType<PolicyInfo> = z
     forSecurableType: d.for_securable_type,
     whenCondition: d.when_condition,
     policyType: d.policy_type,
-    rowFilter: d.row_filter,
-    columnMask: d.column_mask,
-    deny: d.deny,
-    grant: d.grant,
+    options:
+      d.row_filter !== undefined
+        ? {$case: 'rowFilter' as const, rowFilter: d.row_filter}
+        : d.column_mask !== undefined
+          ? {$case: 'columnMask' as const, columnMask: d.column_mask}
+          : d.deny !== undefined
+            ? {$case: 'deny' as const, deny: d.deny}
+            : d.grant !== undefined
+              ? {$case: 'grant' as const, grant: d.grant}
+              : undefined,
     matchColumns: d.match_columns,
     createdAt: d.created_at,
     createdBy: d.created_by,
@@ -465,8 +529,15 @@ export const unmarshalTagIntrospectionExpressionSchema: z.ZodType<TagIntrospecti
         .optional(),
     })
     .transform(d => ({
-      tagValue: d.tag_value,
-      columnTagValue: d.column_tag_value,
+      expr:
+        d.tag_value !== undefined
+          ? {$case: 'tagValue' as const, tagValue: d.tag_value}
+          : d.column_tag_value !== undefined
+            ? {
+                $case: 'columnTagValue' as const,
+                columnTagValue: d.column_tag_value,
+              }
+            : undefined,
     }));
 
 export const unmarshalTagValueExtractionSchema: z.ZodType<TagValueExtraction> =
@@ -510,26 +581,44 @@ export const marshalDenyOptionsSchema: z.ZodType = z
 
 export const marshalFunctionArgExpressionSchema: z.ZodType = z
   .object({
-    tagIntrospection: z
-      .lazy(() => marshalTagIntrospectionExpressionSchema)
+    expr: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('tagIntrospection'),
+          tagIntrospection: z.lazy(
+            () => marshalTagIntrospectionExpressionSchema
+          ),
+        }),
+      ])
       .optional(),
   })
   .transform(d => ({
-    tag_introspection: d.tagIntrospection,
+    ...(d.expr?.$case === 'tagIntrospection' && {
+      tag_introspection: d.expr.tagIntrospection,
+    }),
   }));
 
 export const marshalFunctionArgumentSchema: z.ZodType = z
   .object({
-    alias: z.string().optional(),
-    constant: z.string().optional(),
-    functionArgExpression: z
-      .lazy(() => marshalFunctionArgExpressionSchema)
+    arg: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('alias'), alias: z.string()}),
+        z.object({$case: z.literal('constant'), constant: z.string()}),
+        z.object({
+          $case: z.literal('functionArgExpression'),
+          functionArgExpression: z.lazy(
+            () => marshalFunctionArgExpressionSchema
+          ),
+        }),
+      ])
       .optional(),
   })
   .transform(d => ({
-    alias: d.alias,
-    constant: d.constant,
-    function_arg_expression: d.functionArgExpression,
+    ...(d.arg?.$case === 'alias' && {alias: d.arg.alias}),
+    ...(d.arg?.$case === 'constant' && {constant: d.arg.constant}),
+    ...(d.arg?.$case === 'functionArgExpression' && {
+      function_arg_expression: d.arg.functionArgExpression,
+    }),
   }));
 
 export const marshalGrantOptionsSchema: z.ZodType = z
@@ -562,10 +651,26 @@ export const marshalPolicyInfoSchema: z.ZodType = z
     forSecurableType: z.enum(SecurableType).optional(),
     whenCondition: z.string().optional(),
     policyType: z.enum(PolicyType).optional(),
-    rowFilter: z.lazy(() => marshalRowFilterOptionsSchema).optional(),
-    columnMask: z.lazy(() => marshalColumnMaskOptionsSchema).optional(),
-    deny: z.lazy(() => marshalDenyOptionsSchema).optional(),
-    grant: z.lazy(() => marshalGrantOptionsSchema).optional(),
+    options: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('rowFilter'),
+          rowFilter: z.lazy(() => marshalRowFilterOptionsSchema),
+        }),
+        z.object({
+          $case: z.literal('columnMask'),
+          columnMask: z.lazy(() => marshalColumnMaskOptionsSchema),
+        }),
+        z.object({
+          $case: z.literal('deny'),
+          deny: z.lazy(() => marshalDenyOptionsSchema),
+        }),
+        z.object({
+          $case: z.literal('grant'),
+          grant: z.lazy(() => marshalGrantOptionsSchema),
+        }),
+      ])
+      .optional(),
     matchColumns: z.array(z.lazy(() => marshalMatchColumnSchema)).optional(),
     createdAt: z.number().optional(),
     createdBy: z.string().optional(),
@@ -584,10 +689,12 @@ export const marshalPolicyInfoSchema: z.ZodType = z
     for_securable_type: d.forSecurableType,
     when_condition: d.whenCondition,
     policy_type: d.policyType,
-    row_filter: d.rowFilter,
-    column_mask: d.columnMask,
-    deny: d.deny,
-    grant: d.grant,
+    ...(d.options?.$case === 'rowFilter' && {row_filter: d.options.rowFilter}),
+    ...(d.options?.$case === 'columnMask' && {
+      column_mask: d.options.columnMask,
+    }),
+    ...(d.options?.$case === 'deny' && {deny: d.options.deny}),
+    ...(d.options?.$case === 'grant' && {grant: d.options.grant}),
     match_columns: d.matchColumns,
     created_at: d.createdAt,
     created_by: d.createdBy,
@@ -608,14 +715,24 @@ export const marshalRowFilterOptionsSchema: z.ZodType = z
 
 export const marshalTagIntrospectionExpressionSchema: z.ZodType = z
   .object({
-    tagValue: z.lazy(() => marshalTagValueExtractionSchema).optional(),
-    columnTagValue: z
-      .lazy(() => marshalColumnTagValueExtractionSchema)
+    expr: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('tagValue'),
+          tagValue: z.lazy(() => marshalTagValueExtractionSchema),
+        }),
+        z.object({
+          $case: z.literal('columnTagValue'),
+          columnTagValue: z.lazy(() => marshalColumnTagValueExtractionSchema),
+        }),
+      ])
       .optional(),
   })
   .transform(d => ({
-    tag_value: d.tagValue,
-    column_tag_value: d.columnTagValue,
+    ...(d.expr?.$case === 'tagValue' && {tag_value: d.expr.tagValue}),
+    ...(d.expr?.$case === 'columnTagValue' && {
+      column_tag_value: d.expr.columnTagValue,
+    }),
   }));
 
 export const marshalTagValueExtractionSchema: z.ZodType = z

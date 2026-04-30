@@ -52,7 +52,9 @@ export interface CreateQualityMonitorRequest {
 }
 
 export interface CustomCheckConfiguration {
-  scalarCheck?: CustomScalarCheck | undefined;
+  checkType?:
+    | {$case: 'scalarCheck'; scalarCheck: CustomScalarCheck}
+    | undefined;
 }
 
 export interface CustomCheckThresholds {
@@ -145,9 +147,17 @@ export interface UpdateQualityMonitorRequest {
 export interface ValidityCheckConfiguration {
   /** Can be set by system. Does not need to be user facing. */
   name?: string | undefined;
-  percentNullValidityCheck?: PercentNullValidityCheck | undefined;
-  rangeValidityCheck?: RangeValidityCheck | undefined;
-  uniquenessValidityCheck?: UniquenessValidityCheck | undefined;
+  checkType?:
+    | {
+        $case: 'percentNullValidityCheck';
+        percentNullValidityCheck: PercentNullValidityCheck;
+      }
+    | {$case: 'rangeValidityCheck'; rangeValidityCheck: RangeValidityCheck}
+    | {
+        $case: 'uniquenessValidityCheck';
+        uniquenessValidityCheck: UniquenessValidityCheck;
+      }
+    | undefined;
 }
 
 export const unmarshalAnomalyDetectionConfigSchema: z.ZodType<AnomalyDetectionConfig> =
@@ -189,7 +199,10 @@ export const unmarshalCustomCheckConfigurationSchema: z.ZodType<CustomCheckConfi
       scalar_check: z.lazy(() => unmarshalCustomScalarCheckSchema).optional(),
     })
     .transform(d => ({
-      scalarCheck: d.scalar_check,
+      checkType:
+        d.scalar_check !== undefined
+          ? {$case: 'scalarCheck' as const, scalarCheck: d.scalar_check}
+          : undefined,
     }));
 
 export const unmarshalCustomCheckThresholdsSchema: z.ZodType<CustomCheckThresholds> =
@@ -309,9 +322,23 @@ export const unmarshalValidityCheckConfigurationSchema: z.ZodType<ValidityCheckC
     })
     .transform(d => ({
       name: d.name,
-      percentNullValidityCheck: d.percent_null_validity_check,
-      rangeValidityCheck: d.range_validity_check,
-      uniquenessValidityCheck: d.uniqueness_validity_check,
+      checkType:
+        d.percent_null_validity_check !== undefined
+          ? {
+              $case: 'percentNullValidityCheck' as const,
+              percentNullValidityCheck: d.percent_null_validity_check,
+            }
+          : d.range_validity_check !== undefined
+            ? {
+                $case: 'rangeValidityCheck' as const,
+                rangeValidityCheck: d.range_validity_check,
+              }
+            : d.uniqueness_validity_check !== undefined
+              ? {
+                  $case: 'uniquenessValidityCheck' as const,
+                  uniquenessValidityCheck: d.uniqueness_validity_check,
+                }
+              : undefined,
     }));
 
 export const marshalAnomalyDetectionConfigSchema: z.ZodType = z
@@ -348,10 +375,19 @@ export const marshalColumnMatcherSchema: z.ZodType = z
 
 export const marshalCustomCheckConfigurationSchema: z.ZodType = z
   .object({
-    scalarCheck: z.lazy(() => marshalCustomScalarCheckSchema).optional(),
+    checkType: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('scalarCheck'),
+          scalarCheck: z.lazy(() => marshalCustomScalarCheckSchema),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    scalar_check: d.scalarCheck,
+    ...(d.checkType?.$case === 'scalarCheck' && {
+      scalar_check: d.checkType.scalarCheck,
+    }),
   }));
 
 export const marshalCustomCheckThresholdsSchema: z.ZodType = z
@@ -441,19 +477,36 @@ export const marshalUniquenessValidityCheckSchema: z.ZodType = z
 export const marshalValidityCheckConfigurationSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    percentNullValidityCheck: z
-      .lazy(() => marshalPercentNullValidityCheckSchema)
-      .optional(),
-    rangeValidityCheck: z
-      .lazy(() => marshalRangeValidityCheckSchema)
-      .optional(),
-    uniquenessValidityCheck: z
-      .lazy(() => marshalUniquenessValidityCheckSchema)
+    checkType: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('percentNullValidityCheck'),
+          percentNullValidityCheck: z.lazy(
+            () => marshalPercentNullValidityCheckSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('rangeValidityCheck'),
+          rangeValidityCheck: z.lazy(() => marshalRangeValidityCheckSchema),
+        }),
+        z.object({
+          $case: z.literal('uniquenessValidityCheck'),
+          uniquenessValidityCheck: z.lazy(
+            () => marshalUniquenessValidityCheckSchema
+          ),
+        }),
+      ])
       .optional(),
   })
   .transform(d => ({
     name: d.name,
-    percent_null_validity_check: d.percentNullValidityCheck,
-    range_validity_check: d.rangeValidityCheck,
-    uniqueness_validity_check: d.uniquenessValidityCheck,
+    ...(d.checkType?.$case === 'percentNullValidityCheck' && {
+      percent_null_validity_check: d.checkType.percentNullValidityCheck,
+    }),
+    ...(d.checkType?.$case === 'rangeValidityCheck' && {
+      range_validity_check: d.checkType.rangeValidityCheck,
+    }),
+    ...(d.checkType?.$case === 'uniquenessValidityCheck' && {
+      uniqueness_validity_check: d.checkType.uniquenessValidityCheck,
+    }),
   }));

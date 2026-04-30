@@ -29,6 +29,7 @@ export enum ColumnTypeName {
   TIME = 'TIME',
   FILE = 'FILE',
   TABLE_TYPE = 'TABLE_TYPE',
+  TABLEREF_TYPE = 'TABLEREF_TYPE',
 }
 
 /** Data source format */
@@ -76,7 +77,7 @@ export enum DataSourceFormat {
   ICEBERG = 'ICEBERG',
 }
 
-/** Latest kind: TOOLSET_EXTERNAL_MCP = 318; Next id: 319 */
+/** Latest kind: RECIPIENT_EMAIL_DATABRICKS = 325; Next id: 326 */
 export enum SecurableKind {
   TABLE_STANDARD = 'TABLE_STANDARD',
   TABLE_EXTERNAL = 'TABLE_EXTERNAL',
@@ -165,6 +166,12 @@ export enum SecurableKind {
   TABLE_ONLINE_VIEW = 'TABLE_ONLINE_VIEW',
   TABLE_DB_STORAGE = 'TABLE_DB_STORAGE',
   TABLE_MANAGED_POSTGRESQL = 'TABLE_MANAGED_POSTGRESQL',
+  RECIPIENT_EMAIL = 'RECIPIENT_EMAIL',
+  RECIPIENT_EMAIL_TOKEN = 'RECIPIENT_EMAIL_TOKEN',
+  RECIPIENT_EMAIL_DATABRICKS = 'RECIPIENT_EMAIL_DATABRICKS',
+  CONNECTION_COMMUNITY_OAUTH_M2M = 'CONNECTION_COMMUNITY_OAUTH_M2M',
+  CONNECTION_COMMUNITY_OAUTH_U2M = 'CONNECTION_COMMUNITY_OAUTH_U2M',
+  CONNECTION_COMMUNITY_OAUTH_U2M_MAPPING = 'CONNECTION_COMMUNITY_OAUTH_U2M_MAPPING',
   CATALOG_FOREIGN_BIGLAKE = 'CATALOG_FOREIGN_BIGLAKE',
   SCHEMA_FOREIGN_BIGLAKE = 'SCHEMA_FOREIGN_BIGLAKE',
   TABLE_FOREIGN_BIGLAKE = 'TABLE_FOREIGN_BIGLAKE',
@@ -444,14 +451,22 @@ export interface DeltaRuntimePropertiesKvPairs_DeltaRuntimePropertiesEntry {
  * __table__, __function__, __connection__, __credential__, __volume__, or __secret__.
  */
 export interface Dependency {
-  table?: TableDependency | undefined;
-  function?: FunctionDependency | undefined;
-  connection?: ConnectionDependency | undefined;
-  credential?: CredentialDependency | undefined;
-  /** A dependency on a Unity Catalog volume. */
-  volume?: VolumeDependency | undefined;
-  /** A dependency on a Unity Catalog secret. */
-  secret?: SecretDependency | undefined;
+  value?:
+    | {$case: 'table'; table: TableDependency}
+    | {$case: 'function'; function: FunctionDependency}
+    | {$case: 'connection'; connection: ConnectionDependency}
+    | {$case: 'credential'; credential: CredentialDependency}
+    | {
+        $case: 'volume';
+        /** A dependency on a Unity Catalog volume. */
+        volume: VolumeDependency;
+      }
+    | {
+        $case: 'secret';
+        /** A dependency on a Unity Catalog secret. */
+        secret: SecretDependency;
+      }
+    | undefined;
 }
 
 /** A list of dependencies. */
@@ -471,8 +486,13 @@ export interface EffectivePredictiveOptimizationFlag {
 
 /** Encryption options that apply to clients connecting to cloud storage. */
 export interface EncryptionDetails {
-  /** Server-Side Encryption properties for clients communicating with AWS s3. */
-  sseEncryptionDetails?: SseEncryptionDetails | undefined;
+  encryptionDetailsType?:
+    | {
+        $case: 'sseEncryptionDetails';
+        /** Server-Side Encryption properties for clients communicating with AWS s3. */
+        sseEncryptionDetails: SseEncryptionDetails;
+      }
+    | undefined;
 }
 
 export interface ForeignKeyConstraint {
@@ -639,10 +659,18 @@ export interface OptionSpec {
  * Distinguishes between column references and literals.
  */
 export interface PolicyFunctionArgument {
-  /** A column reference. */
-  column?: string | undefined;
-  /** A constant literal. */
-  constant?: string | undefined;
+  arg?:
+    | {
+        $case: 'column';
+        /** A column reference. */
+        column: string;
+      }
+    | {
+        $case: 'constant';
+        /** A constant literal. */
+        constant: string;
+      }
+    | undefined;
 }
 
 export interface PrimaryKeyConstraint {
@@ -708,9 +736,20 @@ export interface SseEncryptionDetails {
  * __primary_key_constraint__, __foreign_key_constraint__, __named_table_constraint__.
  */
 export interface TableConstraint {
-  primaryKeyConstraint?: PrimaryKeyConstraint | undefined;
-  foreignKeyConstraint?: ForeignKeyConstraint | undefined;
-  namedTableConstraint?: NamedTableConstraint | undefined;
+  constraint?:
+    | {
+        $case: 'primaryKeyConstraint';
+        primaryKeyConstraint: PrimaryKeyConstraint;
+      }
+    | {
+        $case: 'foreignKeyConstraint';
+        foreignKeyConstraint: ForeignKeyConstraint;
+      }
+    | {
+        $case: 'namedTableConstraint';
+        namedTableConstraint: NamedTableConstraint;
+      }
+    | undefined;
 }
 
 /** A table that is dependent on a SQL object. */
@@ -1003,12 +1042,20 @@ export const unmarshalDependencySchema: z.ZodType<Dependency> = z
     secret: z.lazy(() => unmarshalSecretDependencySchema).optional(),
   })
   .transform(d => ({
-    table: d.table,
-    function: d.function,
-    connection: d.connection,
-    credential: d.credential,
-    volume: d.volume,
-    secret: d.secret,
+    value:
+      d.table !== undefined
+        ? {$case: 'table' as const, table: d.table}
+        : d.function !== undefined
+          ? {$case: 'function' as const, function: d.function}
+          : d.connection !== undefined
+            ? {$case: 'connection' as const, connection: d.connection}
+            : d.credential !== undefined
+              ? {$case: 'credential' as const, credential: d.credential}
+              : d.volume !== undefined
+                ? {$case: 'volume' as const, volume: d.volume}
+                : d.secret !== undefined
+                  ? {$case: 'secret' as const, secret: d.secret}
+                  : undefined,
   }));
 
 export const unmarshalDependencyListSchema: z.ZodType<DependencyList> = z
@@ -1039,7 +1086,13 @@ export const unmarshalEncryptionDetailsSchema: z.ZodType<EncryptionDetails> = z
       .optional(),
   })
   .transform(d => ({
-    sseEncryptionDetails: d.sse_encryption_details,
+    encryptionDetailsType:
+      d.sse_encryption_details !== undefined
+        ? {
+            $case: 'sseEncryptionDetails' as const,
+            sseEncryptionDetails: d.sse_encryption_details,
+          }
+        : undefined,
   }));
 
 export const unmarshalForeignKeyConstraintSchema: z.ZodType<ForeignKeyConstraint> =
@@ -1146,8 +1199,12 @@ export const unmarshalPolicyFunctionArgumentSchema: z.ZodType<PolicyFunctionArgu
       constant: z.string().optional(),
     })
     .transform(d => ({
-      column: d.column,
-      constant: d.constant,
+      arg:
+        d.column !== undefined
+          ? {$case: 'column' as const, column: d.column}
+          : d.constant !== undefined
+            ? {$case: 'constant' as const, constant: d.constant}
+            : undefined,
     }));
 
 export const unmarshalPrimaryKeyConstraintSchema: z.ZodType<PrimaryKeyConstraint> =
@@ -1228,9 +1285,23 @@ export const unmarshalTableConstraintSchema: z.ZodType<TableConstraint> = z
       .optional(),
   })
   .transform(d => ({
-    primaryKeyConstraint: d.primary_key_constraint,
-    foreignKeyConstraint: d.foreign_key_constraint,
-    namedTableConstraint: d.named_table_constraint,
+    constraint:
+      d.primary_key_constraint !== undefined
+        ? {
+            $case: 'primaryKeyConstraint' as const,
+            primaryKeyConstraint: d.primary_key_constraint,
+          }
+        : d.foreign_key_constraint !== undefined
+          ? {
+              $case: 'foreignKeyConstraint' as const,
+              foreignKeyConstraint: d.foreign_key_constraint,
+            }
+          : d.named_table_constraint !== undefined
+            ? {
+                $case: 'namedTableConstraint' as const,
+                namedTableConstraint: d.named_table_constraint,
+              }
+            : undefined,
   }));
 
 export const unmarshalTableDependencySchema: z.ZodType<TableDependency> = z
@@ -1531,20 +1602,42 @@ export const marshalDeltaRuntimePropertiesKvPairsSchema: z.ZodType = z
 
 export const marshalDependencySchema: z.ZodType = z
   .object({
-    table: z.lazy(() => marshalTableDependencySchema).optional(),
-    function: z.lazy(() => marshalFunctionDependencySchema).optional(),
-    connection: z.lazy(() => marshalConnectionDependencySchema).optional(),
-    credential: z.lazy(() => marshalCredentialDependencySchema).optional(),
-    volume: z.lazy(() => marshalVolumeDependencySchema).optional(),
-    secret: z.lazy(() => marshalSecretDependencySchema).optional(),
+    value: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('table'),
+          table: z.lazy(() => marshalTableDependencySchema),
+        }),
+        z.object({
+          $case: z.literal('function'),
+          function: z.lazy(() => marshalFunctionDependencySchema),
+        }),
+        z.object({
+          $case: z.literal('connection'),
+          connection: z.lazy(() => marshalConnectionDependencySchema),
+        }),
+        z.object({
+          $case: z.literal('credential'),
+          credential: z.lazy(() => marshalCredentialDependencySchema),
+        }),
+        z.object({
+          $case: z.literal('volume'),
+          volume: z.lazy(() => marshalVolumeDependencySchema),
+        }),
+        z.object({
+          $case: z.literal('secret'),
+          secret: z.lazy(() => marshalSecretDependencySchema),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    table: d.table,
-    function: d.function,
-    connection: d.connection,
-    credential: d.credential,
-    volume: d.volume,
-    secret: d.secret,
+    ...(d.value?.$case === 'table' && {table: d.value.table}),
+    ...(d.value?.$case === 'function' && {function: d.value.function}),
+    ...(d.value?.$case === 'connection' && {connection: d.value.connection}),
+    ...(d.value?.$case === 'credential' && {credential: d.value.credential}),
+    ...(d.value?.$case === 'volume' && {volume: d.value.volume}),
+    ...(d.value?.$case === 'secret' && {secret: d.value.secret}),
   }));
 
 export const marshalDependencyListSchema: z.ZodType = z
@@ -1569,12 +1662,19 @@ export const marshalEffectivePredictiveOptimizationFlagSchema: z.ZodType = z
 
 export const marshalEncryptionDetailsSchema: z.ZodType = z
   .object({
-    sseEncryptionDetails: z
-      .lazy(() => marshalSseEncryptionDetailsSchema)
+    encryptionDetailsType: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('sseEncryptionDetails'),
+          sseEncryptionDetails: z.lazy(() => marshalSseEncryptionDetailsSchema),
+        }),
+      ])
       .optional(),
   })
   .transform(d => ({
-    sse_encryption_details: d.sseEncryptionDetails,
+    ...(d.encryptionDetailsType?.$case === 'sseEncryptionDetails' && {
+      sse_encryption_details: d.encryptionDetailsType.sseEncryptionDetails,
+    }),
   }));
 
 export const marshalForeignKeyConstraintSchema: z.ZodType = z
@@ -1649,12 +1749,16 @@ export const marshalOptionSpecSchema: z.ZodType = z
 
 export const marshalPolicyFunctionArgumentSchema: z.ZodType = z
   .object({
-    column: z.string().optional(),
-    constant: z.string().optional(),
+    arg: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('column'), column: z.string()}),
+        z.object({$case: z.literal('constant'), constant: z.string()}),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    column: d.column,
-    constant: d.constant,
+    ...(d.arg?.$case === 'column' && {column: d.arg.column}),
+    ...(d.arg?.$case === 'constant' && {constant: d.arg.constant}),
   }));
 
 export const marshalPrimaryKeyConstraintSchema: z.ZodType = z
@@ -1721,20 +1825,33 @@ export const marshalSseEncryptionDetailsSchema: z.ZodType = z
 
 export const marshalTableConstraintSchema: z.ZodType = z
   .object({
-    primaryKeyConstraint: z
-      .lazy(() => marshalPrimaryKeyConstraintSchema)
-      .optional(),
-    foreignKeyConstraint: z
-      .lazy(() => marshalForeignKeyConstraintSchema)
-      .optional(),
-    namedTableConstraint: z
-      .lazy(() => marshalNamedTableConstraintSchema)
+    constraint: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('primaryKeyConstraint'),
+          primaryKeyConstraint: z.lazy(() => marshalPrimaryKeyConstraintSchema),
+        }),
+        z.object({
+          $case: z.literal('foreignKeyConstraint'),
+          foreignKeyConstraint: z.lazy(() => marshalForeignKeyConstraintSchema),
+        }),
+        z.object({
+          $case: z.literal('namedTableConstraint'),
+          namedTableConstraint: z.lazy(() => marshalNamedTableConstraintSchema),
+        }),
+      ])
       .optional(),
   })
   .transform(d => ({
-    primary_key_constraint: d.primaryKeyConstraint,
-    foreign_key_constraint: d.foreignKeyConstraint,
-    named_table_constraint: d.namedTableConstraint,
+    ...(d.constraint?.$case === 'primaryKeyConstraint' && {
+      primary_key_constraint: d.constraint.primaryKeyConstraint,
+    }),
+    ...(d.constraint?.$case === 'foreignKeyConstraint' && {
+      foreign_key_constraint: d.constraint.foreignKeyConstraint,
+    }),
+    ...(d.constraint?.$case === 'namedTableConstraint' && {
+      named_table_constraint: d.constraint.namedTableConstraint,
+    }),
   }));
 
 export const marshalTableDependencySchema: z.ZodType = z

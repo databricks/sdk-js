@@ -514,7 +514,7 @@ export enum ErrorCode {
   PROVIDER_SHARE_NOT_ACCESSIBLE = 'PROVIDER_SHARE_NOT_ACCESSIBLE',
 }
 
-/** Copied from database_table_statuses.proto to decouple SDK packages. */
+/** The current phase of the data synchronization pipeline. */
 export enum ProvisioningPhase {
   /** The default phase. It should not be reported by any synced tables. */
   PROVISIONING_PHASE_UNSPECIFIED = 'PROVISIONING_PHASE_UNSPECIFIED',
@@ -526,10 +526,7 @@ export enum ProvisioningPhase {
   PROVISIONING_PHASE_INDEX_SORT = 'PROVISIONING_PHASE_INDEX_SORT',
 }
 
-/**
- * The state of a synced table.
- * Copied from database_table_statuses.proto to decouple SDK packages.
- */
+/** The state of a synced table. */
 export enum SyncedTableState {
   /** The default state. It should not be reported by any synced tables. */
   SYNCED_TABLE_STATE_UNSPECIFIED = 'SYNCED_TABLE_STATE_UNSPECIFIED',
@@ -792,15 +789,39 @@ export interface BranchSpec {
   sourceBranchTime?: Temporal.Instant | undefined;
   /** When set to true, protects the branch from deletion and reset. Associated compute endpoints and the project cannot be deleted while the branch is protected. */
   isProtected?: boolean | undefined;
-  /** Absolute expiration timestamp. When set, the branch will expire at this time. */
-  expireTime?: Temporal.Instant | undefined;
-  /** Relative time-to-live duration. When set, the branch will expire at creation_time + ttl. */
-  ttl?: Temporal.Duration | undefined;
   /**
-   * Explicitly disable expiration. When set to true, the branch will not expire.
-   * If set to false, the request is invalid; provide either ttl or expire_time instead.
+   * Expiration configuration for the branch. One of expire_time, ttl, or no_expiry must be provided.
+   * To disable expiration, set no_expiry to true.
+   *
+   * When updating this field, use "spec.expiration" in the update_mask.
    */
-  noExpiry?: boolean | undefined;
+  expiration?:
+    | {
+        $case: 'expireTime';
+        /**
+         * Absolute expiration timestamp. When set, the branch will expire at this time.
+         * Mutually exclusive with `ttl` and `no_expiry`. When updating, use `spec.expiration` in the update_mask.
+         */
+        expireTime: Temporal.Instant;
+      }
+    | {
+        $case: 'ttl';
+        /**
+         * Relative time-to-live duration. When set, the branch will expire at creation_time + ttl.
+         * Mutually exclusive with `expire_time` and `no_expiry`. When updating, use `spec.expiration` in the update_mask.
+         */
+        ttl: Temporal.Duration;
+      }
+    | {
+        $case: 'noExpiry';
+        /**
+         * Explicitly disable expiration. When set to true, the branch will not expire.
+         * If set to false, the request is invalid; provide either ttl or expire_time instead.
+         * Mutually exclusive with `expire_time` and `ttl`. When updating, use `spec.expiration` in the update_mask.
+         */
+        noExpiry: boolean;
+      }
+    | undefined;
 }
 
 export interface BranchStatus {
@@ -1420,15 +1441,31 @@ export interface EndpointSpec {
    */
   disabled?: boolean | undefined;
   /**
-   * Duration of inactivity after which the compute endpoint is automatically suspended.
-   * If specified should be between 60s and 604800s (1 minute to 1 week).
+   * Duration of inactivity after which the compute endpoint is automatically suspended. One of suspend_timeout_duration or no_suspension can be provided.
+   * When not specified default suspension behavior will be used (consult with documentation).
+   *
+   * When updating this field, use "spec.suspension" in the update_mask.
    */
-  suspendTimeoutDuration?: Temporal.Duration | undefined;
-  /**
-   * When set to true, explicitly disables automatic suspension (never suspend).
-   * Should be set to true when provided.
-   */
-  noSuspension?: boolean | undefined;
+  suspension?:
+    | {
+        $case: 'suspendTimeoutDuration';
+        /**
+         * Duration of inactivity after which the compute endpoint is automatically suspended.
+         * If specified should be between 60s and 604800s (1 minute to 1 week).
+         * Mutually exclusive with `no_suspension`. When updating, use `spec.suspension` in the update_mask.
+         */
+        suspendTimeoutDuration: Temporal.Duration;
+      }
+    | {
+        $case: 'noSuspension';
+        /**
+         * When set to true, explicitly disables automatic suspension (never suspend).
+         * Should be set to true when provided.
+         * Mutually exclusive with `suspend_timeout_duration`. When updating, use `spec.suspension` in the update_mask.
+         */
+        noSuspension: boolean;
+      }
+    | undefined;
   settings?: EndpointSettings | undefined;
   /**
    * Settings for optional HA configuration of the endpoint. If unspecified, the endpoint defaults
@@ -1566,15 +1603,28 @@ export interface GenerateDatabaseCredentialRequest {
    */
   groupName?: string | undefined;
   /**
-   * The requested time-to-live for the generated credential token.
-   * Maximum allowed duration is 1 hour.
+   * Expiration information for the credential.
+   * Users can specify either expire_time or ttl.
+   * If unspecified, maximum allowed duration is used.
    */
-  ttl?: Temporal.Duration | undefined;
-  /**
-   * Timestamp in UTC of when this credential should expire.
-   * Expire time should be within 1 hour of the current time.
-   */
-  expireTime?: Temporal.Instant | undefined;
+  expiration?:
+    | {
+        $case: 'ttl';
+        /**
+         * The requested time-to-live for the generated credential token.
+         * Maximum allowed duration is 1 hour.
+         */
+        ttl: Temporal.Duration;
+      }
+    | {
+        $case: 'expireTime';
+        /**
+         * Timestamp in UTC of when this credential should expire.
+         * Expire time should be within 1 hour of the current time.
+         */
+        expireTime: Temporal.Instant;
+      }
+    | undefined;
 }
 
 export interface GetBranchRequest {
@@ -1668,6 +1718,7 @@ export interface GetRoleRequest {
 
 export interface GetSyncedTableRequest {
   /**
+   * The Full resource name of the synced table.
    * Format: "synced_tables/{catalog}.{schema}.{table}",
    * where (catalog, schema, table) are the entity names in the Unity Catalog.
    */
@@ -1685,6 +1736,23 @@ export interface InitialBranchSpec {
   isProtected?: boolean | undefined;
 }
 
+/**
+ * Configuration for the initial Postgres database created inside the initial
+ * branch for a newly created project. If omitted, the initial branch still gets
+ * an initial database with name `databricks_postgres`. The initial database is
+ * always owned by the initial Postgres role (whether caller-provided via
+ * `initial_role_spec` or defaulted to the caller's identity).
+ */
+export interface InitialDatabaseSpec {
+  /**
+   * The name of the Postgres database.
+   *
+   * This expects a valid Postgres identifier as specified in the link below.
+   * https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
+   */
+  postgresDatabase?: string | undefined;
+}
+
 /** Configuration for the initial Read/Write endpoint created during project creation. */
 export interface InitialEndpointSpec {
   /** Settings for HA configuration of the endpoint. */
@@ -1698,6 +1766,64 @@ export interface InitialEndpointSpec {
    * If specified, should be between 60s and 604800s (1 minute to 1 week).
    */
   suspendTimeoutDuration?: Temporal.Duration | undefined;
+}
+
+/**
+ * Configuration for the initial Postgres role created inside the initial branch
+ * for a newly created project. If omitted, the default branch still gets an
+ * initial Postgres role corresponding to the caller of the API endpoint.
+ */
+export interface InitialRoleSpec {
+  /** An enum value for a standard role that this role is a member of. */
+  membershipRoles?: Role_MembershipRole[] | undefined;
+  /**
+   * The type of role.
+   * When specifying a managed-identity, the chosen role_id must be a valid:
+   *
+   * * application ID for SERVICE_PRINCIPAL
+   * * user email for USER
+   * * group name for GROUP
+   */
+  identityType?: Role_IdentityType | undefined;
+  /** The desired API-exposed Postgres role attribute to associate with the role. Optional. */
+  attributes?: Role_Attributes | undefined;
+  /**
+   * Controls how the Postgres role authenticates when a client opens a database
+   * connection. Supported values:
+   *
+   * * LAKEBASE_OAUTH_V1: the role authenticates by presenting a Databricks
+   * OAuth access token derived from the backing managed identity (the
+   * <Databricks> user, service principal, or group named by the role's
+   * `postgres_role`). No static password exists for roles using this method.
+   * * PG_PASSWORD_SCRAM_SHA_256: the role authenticates with a Postgres
+   * password verified server-side using the SCRAM-SHA-256 mechanism.
+   * Lakebase generates a password for the role.
+   * * NO_LOGIN: the role cannot open a Postgres session at all. Useful for
+   * roles that exist only to own objects or to aggregate privileges that
+   * are then granted to other, loginable roles.
+   *
+   * If auth_method is left unspecified, a meaningful authentication method is derived from the identity_type:
+   * * For the managed identities, OAUTH is used.
+   * * For the regular postgres roles, authentication based on postgres passwords is used.
+   *
+   * NOTE: for the <Databricks> identity type GROUP, LAKEBASE_OAUTH_V1
+   * is the default auth method (group can login as well).
+   */
+  authMethod?: Role_AuthMethod | undefined;
+  /**
+   * The name of the Postgres role.
+   *
+   * This expects a valid Postgres identifier as specified in the link below.
+   * https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
+   *
+   * If you wish to create a Postgres Role backed by a managed <Databricks> identity, then postgres_role
+   * must be one of the following:
+   *
+   * 1. user email for IdentityType.USER
+   * 2. app ID for IdentityType.SERVICE_PRINCIPAL
+   * 2. group name for IdentityType.GROUP
+   */
+  postgresRole?: string | undefined;
 }
 
 export interface ListBranchesRequest {
@@ -1878,10 +2004,24 @@ export interface Operation {
    * available.
    */
   done?: boolean | undefined;
-  /** The error result of the operation in case of failure or cancellation. */
-  error?: DatabricksServiceExceptionWithDetailsProto | undefined;
-  /** The normal, successful response of the operation. */
-  response?: Record<string, unknown> | undefined;
+  /**
+   * The operation result, which can be either an `error` or a valid `response`.
+   * If `done` == `false`, neither `error` nor `response` is set.
+   * If `done` == `true`, exactly one of `error` or `response` can be set.
+   * Some services might not provide the result.
+   */
+  result?:
+    | {
+        $case: 'error';
+        /** The error result of the operation in case of failure or cancellation. */
+        error: DatabricksServiceExceptionWithDetailsProto;
+      }
+    | {
+        $case: 'response';
+        /** The normal, successful response of the operation. */
+        response: Record<string, unknown>;
+      }
+    | undefined;
 }
 
 export interface Project {
@@ -1901,7 +2041,7 @@ export interface Project {
   /** The current status of a Project. */
   status?: ProjectStatus | undefined;
   /**
-   * Configuration settings for the initial Read/Write endpoint created inside the default branch for a newly
+   * Configuration settings for the initial Read/Write endpoint created inside the initial branch for a newly
    * created project. If omitted, the initial endpoint created will have default settings, without high availability
    * configured. This field does not apply to any endpoints created after project creation. Use
    * spec.default_endpoint_settings to configure default settings for endpoints created after project creation.
@@ -1923,6 +2063,22 @@ export interface Project {
    * and do not affect resources created after project creation.
    */
   initialBranchSpec?: InitialBranchSpec | undefined;
+  /**
+   * Configuration for the initial Postgres role created inside the initial branch
+   * for this project. If omitted, the initial branch gets an initial role
+   * corresponding to the caller of the API endpoint. This field is input-only;
+   * to change roles after project creation, use the standalone Role API.
+   */
+  initialRoleSpec?: InitialRoleSpec | undefined;
+  /**
+   * Configuration for the initial Postgres database created inside the initial
+   * branch for this project. If omitted, the initial branch still gets an initial
+   * database with name `databricks_postgres`. The initial database is always owned
+   * by the initial role (caller-provided via `initial_role_spec` or defaulted to
+   * the caller's identity). This field is input-only; to change databases after
+   * project creation, use the standalone Database API.
+   */
+  initialDatabaseSpec?: InitialDatabaseSpec | undefined;
 }
 
 export interface ProjectCustomTag {
@@ -1938,16 +2094,26 @@ export interface ProjectDefaultEndpointSettings {
   autoscalingLimitMinCu?: number | undefined;
   /** The maximum number of Compute Units. Minimum value is 0.5. */
   autoscalingLimitMaxCu?: number | undefined;
-  /**
-   * Duration of inactivity after which the compute endpoint is automatically suspended.
-   * If specified should be between 60s and 604800s (1 minute to 1 week).
-   */
-  suspendTimeoutDuration?: Temporal.Duration | undefined;
-  /**
-   * When set to true, explicitly disables automatic suspension (never suspend).
-   * Should be set to true when provided.
-   */
-  noSuspension?: boolean | undefined;
+  suspension?:
+    | {
+        $case: 'suspendTimeoutDuration';
+        /**
+         * Duration of inactivity after which the compute endpoint is automatically suspended.
+         * If specified should be between 60s and 604800s (1 minute to 1 week).
+         * Mutually exclusive with `no_suspension`. When updating, use `spec.project_default_settings.suspension` in the update_mask.
+         */
+        suspendTimeoutDuration: Temporal.Duration;
+      }
+    | {
+        $case: 'noSuspension';
+        /**
+         * When set to true, explicitly disables automatic suspension (never suspend).
+         * Should be set to true when provided.
+         * Mutually exclusive with `suspend_timeout_duration`. When updating, use `spec.project_default_settings.suspension` in the update_mask.
+         */
+        noSuspension: boolean;
+      }
+    | undefined;
   /** A raw representation of Postgres settings. */
   pgSettings?: Record<string, string> | undefined;
 }
@@ -2043,8 +2209,14 @@ export interface RequestedClaims {
 }
 
 export interface RequestedResource {
-  unspecifiedResourceName?: string | undefined;
-  tableName?: string | undefined;
+  resourceName?:
+    | {$case: 'unspecifiedResourceName'; unspecifiedResourceName: string}
+    | {
+        $case: 'tableName';
+        /** The full Unity Catalog table name. */
+        tableName: string;
+      }
+    | undefined;
 }
 
 /** Role represents a Postgres role within a Branch. */
@@ -2096,6 +2268,20 @@ export interface Role_RoleSpec {
   /** The desired API-exposed Postgres role attribute to associate with the role. Optional. */
   attributes?: Role_Attributes | undefined;
   /**
+   * Controls how the Postgres role authenticates when a client opens a database
+   * connection. Supported values:
+   *
+   * * LAKEBASE_OAUTH_V1: the role authenticates by presenting a Databricks
+   * OAuth access token derived from the backing managed identity (the
+   * <Databricks> user, service principal, or group named by the role's
+   * `postgres_role`). No static password exists for roles using this method.
+   * * PG_PASSWORD_SCRAM_SHA_256: the role authenticates with a Postgres
+   * password verified server-side using the SCRAM-SHA-256 mechanism.
+   * Lakebase generates a password for the role.
+   * * NO_LOGIN: the role cannot open a Postgres session at all. Useful for
+   * roles that exist only to own objects or to aggregate privileges that
+   * are then granted to other, loginable roles.
+   *
    * If auth_method is left unspecified, a meaningful authentication method is derived from the identity_type:
    * * For the managed identities, OAUTH is used.
    * * For the regular postgres roles, authentication based on postgres passwords is used.
@@ -2361,7 +2547,10 @@ export interface SyncedTablePosition {
    * This is the time when the data is available in the synced table.
    */
   syncEndTime?: Temporal.Instant | undefined;
-  deltaTableSyncInfo?: DeltaTableSyncInfo | undefined;
+  /** Information about the source system at the time of the last sync. */
+  sourceSyncInfo?:
+    | {$case: 'deltaTableSyncInfo'; deltaTableSyncInfo: DeltaTableSyncInfo}
+    | undefined;
 }
 
 /**
@@ -2518,9 +2707,14 @@ export const unmarshalBranchSpecSchema: z.ZodType<BranchSpec> = z
     sourceBranchLsn: d.source_branch_lsn,
     sourceBranchTime: d.source_branch_time,
     isProtected: d.is_protected,
-    expireTime: d.expire_time,
-    ttl: d.ttl,
-    noExpiry: d.no_expiry,
+    expiration:
+      d.expire_time !== undefined
+        ? {$case: 'expireTime' as const, expireTime: d.expire_time}
+        : d.ttl !== undefined
+          ? {$case: 'ttl' as const, ttl: d.ttl}
+          : d.no_expiry !== undefined
+            ? {$case: 'noExpiry' as const, noExpiry: d.no_expiry}
+            : undefined,
   }));
 
 export const unmarshalBranchStatusSchema: z.ZodType<BranchStatus> = z
@@ -2866,8 +3060,15 @@ export const unmarshalEndpointSpecSchema: z.ZodType<EndpointSpec> = z
     autoscalingLimitMinCu: d.autoscaling_limit_min_cu,
     autoscalingLimitMaxCu: d.autoscaling_limit_max_cu,
     disabled: d.disabled,
-    suspendTimeoutDuration: d.suspend_timeout_duration,
-    noSuspension: d.no_suspension,
+    suspension:
+      d.suspend_timeout_duration !== undefined
+        ? {
+            $case: 'suspendTimeoutDuration' as const,
+            suspendTimeoutDuration: d.suspend_timeout_duration,
+          }
+        : d.no_suspension !== undefined
+          ? {$case: 'noSuspension' as const, noSuspension: d.no_suspension}
+          : undefined,
     settings: d.settings,
     group: d.group,
   }));
@@ -3011,6 +3212,15 @@ export const unmarshalInitialBranchSpecSchema: z.ZodType<InitialBranchSpec> = z
     isProtected: d.is_protected,
   }));
 
+export const unmarshalInitialDatabaseSpecSchema: z.ZodType<InitialDatabaseSpec> =
+  z
+    .object({
+      postgres_database: z.string().optional(),
+    })
+    .transform(d => ({
+      postgresDatabase: d.postgres_database,
+    }));
+
 export const unmarshalInitialEndpointSpecSchema: z.ZodType<InitialEndpointSpec> =
   z
     .object({
@@ -3028,6 +3238,22 @@ export const unmarshalInitialEndpointSpecSchema: z.ZodType<InitialEndpointSpec> 
       autoscalingLimitMaxCu: d.autoscaling_limit_max_cu,
       suspendTimeoutDuration: d.suspend_timeout_duration,
     }));
+
+export const unmarshalInitialRoleSpecSchema: z.ZodType<InitialRoleSpec> = z
+  .object({
+    membership_roles: z.array(z.enum(Role_MembershipRole)).optional(),
+    identity_type: z.enum(Role_IdentityType).optional(),
+    attributes: z.lazy(() => unmarshalRole_AttributesSchema).optional(),
+    auth_method: z.enum(Role_AuthMethod).optional(),
+    postgres_role: z.string().optional(),
+  })
+  .transform(d => ({
+    membershipRoles: d.membership_roles,
+    identityType: d.identity_type,
+    attributes: d.attributes,
+    authMethod: d.auth_method,
+    postgresRole: d.postgres_role,
+  }));
 
 export const unmarshalListBranchesResponseSchema: z.ZodType<ListBranchesResponse> =
   z
@@ -3124,8 +3350,12 @@ export const unmarshalOperationSchema: z.ZodType<Operation> = z
     name: d.name,
     metadata: d.metadata,
     done: d.done,
-    error: d.error,
-    response: d.response,
+    result:
+      d.error !== undefined
+        ? {$case: 'error' as const, error: d.error}
+        : d.response !== undefined
+          ? {$case: 'response' as const, response: d.response}
+          : undefined,
   }));
 
 export const unmarshalProjectSchema: z.ZodType<Project> = z
@@ -3156,6 +3386,10 @@ export const unmarshalProjectSchema: z.ZodType<Project> = z
     initial_branch_spec: z
       .lazy(() => unmarshalInitialBranchSpecSchema)
       .optional(),
+    initial_role_spec: z.lazy(() => unmarshalInitialRoleSpecSchema).optional(),
+    initial_database_spec: z
+      .lazy(() => unmarshalInitialDatabaseSpecSchema)
+      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3168,6 +3402,8 @@ export const unmarshalProjectSchema: z.ZodType<Project> = z
     deleteTime: d.delete_time,
     purgeTime: d.purge_time,
     initialBranchSpec: d.initial_branch_spec,
+    initialRoleSpec: d.initial_role_spec,
+    initialDatabaseSpec: d.initial_database_spec,
   }));
 
 export const unmarshalProjectCustomTagSchema: z.ZodType<ProjectCustomTag> = z
@@ -3195,8 +3431,15 @@ export const unmarshalProjectDefaultEndpointSettingsSchema: z.ZodType<ProjectDef
     .transform(d => ({
       autoscalingLimitMinCu: d.autoscaling_limit_min_cu,
       autoscalingLimitMaxCu: d.autoscaling_limit_max_cu,
-      suspendTimeoutDuration: d.suspend_timeout_duration,
-      noSuspension: d.no_suspension,
+      suspension:
+        d.suspend_timeout_duration !== undefined
+          ? {
+              $case: 'suspendTimeoutDuration' as const,
+              suspendTimeoutDuration: d.suspend_timeout_duration,
+            }
+          : d.no_suspension !== undefined
+            ? {$case: 'noSuspension' as const, noSuspension: d.no_suspension}
+            : undefined,
       pgSettings: d.pg_settings,
     }));
 
@@ -3543,7 +3786,13 @@ export const unmarshalSyncedTablePositionSchema: z.ZodType<SyncedTablePosition> 
     .transform(d => ({
       syncStartTime: d.sync_start_time,
       syncEndTime: d.sync_end_time,
-      deltaTableSyncInfo: d.delta_table_sync_info,
+      sourceSyncInfo:
+        d.delta_table_sync_info !== undefined
+          ? {
+              $case: 'deltaTableSyncInfo' as const,
+              deltaTableSyncInfo: d.delta_table_sync_info,
+            }
+          : undefined,
     }));
 
 export const unmarshalTableSchema: z.ZodType<Table> = z
@@ -3597,24 +3846,36 @@ export const marshalBranchSpecSchema: z.ZodType = z
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
     isProtected: z.boolean().optional(),
-    expireTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
+    expiration: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('expireTime'),
+          expireTime: z.any().transform((d: Temporal.Instant) => d.toString()),
+        }),
+        z.object({
+          $case: z.literal('ttl'),
+          ttl: z
+            .any()
+            .transform((d: Temporal.Duration) =>
+              d.toString().slice(2).toLowerCase()
+            ),
+        }),
+        z.object({$case: z.literal('noExpiry'), noExpiry: z.boolean()}),
+      ])
       .optional(),
-    ttl: z
-      .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
-      .optional(),
-    noExpiry: z.boolean().optional(),
   })
   .transform(d => ({
     source_branch: d.sourceBranch,
     source_branch_lsn: d.sourceBranchLsn,
     source_branch_time: d.sourceBranchTime,
     is_protected: d.isProtected,
-    expire_time: d.expireTime,
-    ttl: d.ttl,
-    no_expiry: d.noExpiry,
+    ...(d.expiration?.$case === 'expireTime' && {
+      expire_time: d.expiration.expireTime,
+    }),
+    ...(d.expiration?.$case === 'ttl' && {ttl: d.expiration.ttl}),
+    ...(d.expiration?.$case === 'noExpiry' && {
+      no_expiry: d.expiration.noExpiry,
+    }),
   }));
 
 export const marshalBranchStatusSchema: z.ZodType = z
@@ -3855,11 +4116,19 @@ export const marshalEndpointSpecSchema: z.ZodType = z
     autoscalingLimitMinCu: z.number().optional(),
     autoscalingLimitMaxCu: z.number().optional(),
     disabled: z.boolean().optional(),
-    suspendTimeoutDuration: z
-      .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+    suspension: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('suspendTimeoutDuration'),
+          suspendTimeoutDuration: z
+            .any()
+            .transform((d: Temporal.Duration) =>
+              d.toString().slice(2).toLowerCase()
+            ),
+        }),
+        z.object({$case: z.literal('noSuspension'), noSuspension: z.boolean()}),
+      ])
       .optional(),
-    noSuspension: z.boolean().optional(),
     settings: z.lazy(() => marshalEndpointSettingsSchema).optional(),
     group: z.lazy(() => marshalEndpointGroupSpecSchema).optional(),
   })
@@ -3868,8 +4137,12 @@ export const marshalEndpointSpecSchema: z.ZodType = z
     autoscaling_limit_min_cu: d.autoscalingLimitMinCu,
     autoscaling_limit_max_cu: d.autoscalingLimitMaxCu,
     disabled: d.disabled,
-    suspend_timeout_duration: d.suspendTimeoutDuration,
-    no_suspension: d.noSuspension,
+    ...(d.suspension?.$case === 'suspendTimeoutDuration' && {
+      suspend_timeout_duration: d.suspension.suspendTimeoutDuration,
+    }),
+    ...(d.suspension?.$case === 'noSuspension' && {
+      no_suspension: d.suspension.noSuspension,
+    }),
     settings: d.settings,
     group: d.group,
   }));
@@ -3915,21 +4188,31 @@ export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
     claims: z.array(z.lazy(() => marshalRequestedClaimsSchema)).optional(),
     endpoint: z.string().optional(),
     groupName: z.string().optional(),
-    ttl: z
-      .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
-      .optional(),
-    expireTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
+    expiration: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('ttl'),
+          ttl: z
+            .any()
+            .transform((d: Temporal.Duration) =>
+              d.toString().slice(2).toLowerCase()
+            ),
+        }),
+        z.object({
+          $case: z.literal('expireTime'),
+          expireTime: z.any().transform((d: Temporal.Instant) => d.toString()),
+        }),
+      ])
       .optional(),
   })
   .transform(d => ({
     claims: d.claims,
     endpoint: d.endpoint,
     group_name: d.groupName,
-    ttl: d.ttl,
-    expire_time: d.expireTime,
+    ...(d.expiration?.$case === 'ttl' && {ttl: d.expiration.ttl}),
+    ...(d.expiration?.$case === 'expireTime' && {
+      expire_time: d.expiration.expireTime,
+    }),
   }));
 
 export const marshalInitialBranchSpecSchema: z.ZodType = z
@@ -3938,6 +4221,14 @@ export const marshalInitialBranchSpecSchema: z.ZodType = z
   })
   .transform(d => ({
     is_protected: d.isProtected,
+  }));
+
+export const marshalInitialDatabaseSpecSchema: z.ZodType = z
+  .object({
+    postgresDatabase: z.string().optional(),
+  })
+  .transform(d => ({
+    postgres_database: d.postgresDatabase,
   }));
 
 export const marshalInitialEndpointSpecSchema: z.ZodType = z
@@ -3955,6 +4246,22 @@ export const marshalInitialEndpointSpecSchema: z.ZodType = z
     autoscaling_limit_min_cu: d.autoscalingLimitMinCu,
     autoscaling_limit_max_cu: d.autoscalingLimitMaxCu,
     suspend_timeout_duration: d.suspendTimeoutDuration,
+  }));
+
+export const marshalInitialRoleSpecSchema: z.ZodType = z
+  .object({
+    membershipRoles: z.array(z.enum(Role_MembershipRole)).optional(),
+    identityType: z.enum(Role_IdentityType).optional(),
+    attributes: z.lazy(() => marshalRole_AttributesSchema).optional(),
+    authMethod: z.enum(Role_AuthMethod).optional(),
+    postgresRole: z.string().optional(),
+  })
+  .transform(d => ({
+    membership_roles: d.membershipRoles,
+    identity_type: d.identityType,
+    attributes: d.attributes,
+    auth_method: d.authMethod,
+    postgres_role: d.postgresRole,
   }));
 
 export const marshalNewPipelineSpecSchema: z.ZodType = z
@@ -3997,6 +4304,10 @@ export const marshalProjectSchema: z.ZodType = z
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
     initialBranchSpec: z.lazy(() => marshalInitialBranchSpecSchema).optional(),
+    initialRoleSpec: z.lazy(() => marshalInitialRoleSpecSchema).optional(),
+    initialDatabaseSpec: z
+      .lazy(() => marshalInitialDatabaseSpecSchema)
+      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -4009,6 +4320,8 @@ export const marshalProjectSchema: z.ZodType = z
     delete_time: d.deleteTime,
     purge_time: d.purgeTime,
     initial_branch_spec: d.initialBranchSpec,
+    initial_role_spec: d.initialRoleSpec,
+    initial_database_spec: d.initialDatabaseSpec,
   }));
 
 export const marshalProjectCustomTagSchema: z.ZodType = z
@@ -4025,18 +4338,30 @@ export const marshalProjectDefaultEndpointSettingsSchema: z.ZodType = z
   .object({
     autoscalingLimitMinCu: z.number().optional(),
     autoscalingLimitMaxCu: z.number().optional(),
-    suspendTimeoutDuration: z
-      .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+    suspension: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('suspendTimeoutDuration'),
+          suspendTimeoutDuration: z
+            .any()
+            .transform((d: Temporal.Duration) =>
+              d.toString().slice(2).toLowerCase()
+            ),
+        }),
+        z.object({$case: z.literal('noSuspension'), noSuspension: z.boolean()}),
+      ])
       .optional(),
-    noSuspension: z.boolean().optional(),
     pgSettings: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
     autoscaling_limit_min_cu: d.autoscalingLimitMinCu,
     autoscaling_limit_max_cu: d.autoscalingLimitMaxCu,
-    suspend_timeout_duration: d.suspendTimeoutDuration,
-    no_suspension: d.noSuspension,
+    ...(d.suspension?.$case === 'suspendTimeoutDuration' && {
+      suspend_timeout_duration: d.suspension.suspendTimeoutDuration,
+    }),
+    ...(d.suspension?.$case === 'noSuspension' && {
+      no_suspension: d.suspension.noSuspension,
+    }),
     pg_settings: d.pgSettings,
   }));
 
@@ -4121,12 +4446,23 @@ export const marshalRequestedClaimsSchema: z.ZodType = z
 
 export const marshalRequestedResourceSchema: z.ZodType = z
   .object({
-    unspecifiedResourceName: z.string().optional(),
-    tableName: z.string().optional(),
+    resourceName: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('unspecifiedResourceName'),
+          unspecifiedResourceName: z.string(),
+        }),
+        z.object({$case: z.literal('tableName'), tableName: z.string()}),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    unspecified_resource_name: d.unspecifiedResourceName,
-    table_name: d.tableName,
+    ...(d.resourceName?.$case === 'unspecifiedResourceName' && {
+      unspecified_resource_name: d.resourceName.unspecifiedResourceName,
+    }),
+    ...(d.resourceName?.$case === 'tableName' && {
+      table_name: d.resourceName.tableName,
+    }),
   }));
 
 export const marshalRoleSchema: z.ZodType = z
@@ -4370,14 +4706,21 @@ export const marshalSyncedTablePositionSchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
-    deltaTableSyncInfo: z
-      .lazy(() => marshalDeltaTableSyncInfoSchema)
+    sourceSyncInfo: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('deltaTableSyncInfo'),
+          deltaTableSyncInfo: z.lazy(() => marshalDeltaTableSyncInfoSchema),
+        }),
+      ])
       .optional(),
   })
   .transform(d => ({
     sync_start_time: d.syncStartTime,
     sync_end_time: d.syncEndTime,
-    delta_table_sync_info: d.deltaTableSyncInfo,
+    ...(d.sourceSyncInfo?.$case === 'deltaTableSyncInfo' && {
+      delta_table_sync_info: d.sourceSyncInfo.deltaTableSyncInfo,
+    }),
   }));
 
 export const marshalTableSchema: z.ZodType = z
@@ -4548,11 +4891,26 @@ const initialBranchSpecFieldMaskSchema: FieldMaskSchema = {
   isProtected: {wire: 'is_protected'},
 };
 
+const initialDatabaseSpecFieldMaskSchema: FieldMaskSchema = {
+  postgresDatabase: {wire: 'postgres_database'},
+};
+
 const initialEndpointSpecFieldMaskSchema: FieldMaskSchema = {
   autoscalingLimitMaxCu: {wire: 'autoscaling_limit_max_cu'},
   autoscalingLimitMinCu: {wire: 'autoscaling_limit_min_cu'},
   group: {wire: 'group', children: () => endpointGroupSpecFieldMaskSchema},
   suspendTimeoutDuration: {wire: 'suspend_timeout_duration'},
+};
+
+const initialRoleSpecFieldMaskSchema: FieldMaskSchema = {
+  attributes: {
+    wire: 'attributes',
+    children: () => role_AttributesFieldMaskSchema,
+  },
+  authMethod: {wire: 'auth_method'},
+  identityType: {wire: 'identity_type'},
+  membershipRoles: {wire: 'membership_roles'},
+  postgresRole: {wire: 'postgres_role'},
 };
 
 const projectFieldMaskSchema: FieldMaskSchema = {
@@ -4562,9 +4920,17 @@ const projectFieldMaskSchema: FieldMaskSchema = {
     wire: 'initial_branch_spec',
     children: () => initialBranchSpecFieldMaskSchema,
   },
+  initialDatabaseSpec: {
+    wire: 'initial_database_spec',
+    children: () => initialDatabaseSpecFieldMaskSchema,
+  },
   initialEndpointSpec: {
     wire: 'initial_endpoint_spec',
     children: () => initialEndpointSpecFieldMaskSchema,
+  },
+  initialRoleSpec: {
+    wire: 'initial_role_spec',
+    children: () => initialRoleSpecFieldMaskSchema,
   },
   name: {wire: 'name'},
   purgeTime: {wire: 'purge_time'},

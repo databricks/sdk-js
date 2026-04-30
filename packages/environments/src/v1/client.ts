@@ -467,27 +467,26 @@ export class CreateWorkspaceBaseEnvironmentOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
 
-      if (op.response === undefined) {
+      if (op.result?.$case !== 'response') {
         throw new Error('operation completed without a response');
       }
 
       result = z
         .lazy(() => unmarshalWorkspaceBaseEnvironmentSchema)
-        .parse(op.response);
+        .parse(op.result.response);
     };
 
     const retryOptions: Options = {
@@ -569,27 +568,26 @@ export class RefreshWorkspaceBaseEnvironmentOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
 
-      if (op.response === undefined) {
+      if (op.result?.$case !== 'response') {
         throw new Error('operation completed without a response');
       }
 
       result = z
         .lazy(() => unmarshalWorkspaceBaseEnvironmentSchema)
-        .parse(op.response);
+        .parse(op.result.response);
     };
 
     const retryOptions: Options = {
@@ -671,27 +669,26 @@ export class UpdateWorkspaceBaseEnvironmentOperation {
         throw errStillRunning;
       }
 
-      if (op.error !== undefined) {
+      if (op.result?.$case === 'error') {
+        const err = op.result.error;
         const msg =
-          op.error.message !== undefined && op.error.message !== ''
-            ? op.error.message
+          err.message !== undefined && err.message !== ''
+            ? err.message
             : 'unknown error';
         const errorMsg =
-          op.error.errorCode !== undefined
-            ? `[${op.error.errorCode}] ${msg}`
-            : msg;
+          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
         throw new Error(`operation failed: ${errorMsg}`, {
-          cause: op.error,
+          cause: err,
         });
       }
 
-      if (op.response === undefined) {
+      if (op.result?.$case !== 'response') {
         throw new Error('operation completed without a response');
       }
 
       result = z
         .lazy(() => unmarshalWorkspaceBaseEnvironmentSchema)
-        .parse(op.response);
+        .parse(op.result.response);
     };
 
     const retryOptions: Options = {

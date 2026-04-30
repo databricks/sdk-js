@@ -57,19 +57,25 @@ export enum MaterializedFeature_PipelineScheduleState {
 
 /** An aggregation function applied over a time window. */
 export interface AggregationFunction {
-  avg?: AvgFunction | undefined;
-  countFunction?: CountFunction | undefined;
-  sum?: SumFunction | undefined;
-  min?: MinFunction | undefined;
-  max?: MaxFunction | undefined;
-  first?: FirstFunction | undefined;
-  last?: LastFunction | undefined;
-  approxCountDistinct?: ApproxCountDistinctFunction | undefined;
-  approxPercentile?: ApproxPercentileFunction | undefined;
-  stddevPop?: StddevPopFunction | undefined;
-  stddevSamp?: StddevSampFunction | undefined;
-  varPop?: VarPopFunction | undefined;
-  varSamp?: VarSampFunction | undefined;
+  /** The type of the aggregation function. */
+  operation?:
+    | {$case: 'avg'; avg: AvgFunction}
+    | {$case: 'countFunction'; countFunction: CountFunction}
+    | {$case: 'sum'; sum: SumFunction}
+    | {$case: 'min'; min: MinFunction}
+    | {$case: 'max'; max: MaxFunction}
+    | {$case: 'first'; first: FirstFunction}
+    | {$case: 'last'; last: LastFunction}
+    | {
+        $case: 'approxCountDistinct';
+        approxCountDistinct: ApproxCountDistinctFunction;
+      }
+    | {$case: 'approxPercentile'; approxPercentile: ApproxPercentileFunction}
+    | {$case: 'stddevPop'; stddevPop: StddevPopFunction}
+    | {$case: 'stddevSamp'; stddevSamp: StddevSampFunction}
+    | {$case: 'varPop'; varPop: VarPopFunction}
+    | {$case: 'varSamp'; varSamp: VarSampFunction}
+    | undefined;
   /** The time window over which the aggregation is computed. */
   timeWindow?: TimeWindow | undefined;
 }
@@ -93,8 +99,13 @@ export interface ApproxPercentileFunction {
 }
 
 export interface AuthConfig {
-  /** Name of the Unity Catalog service credential. This value will be set under the option databricks.serviceCredential */
-  ucServiceCredentialName?: string | undefined;
+  authConfig?:
+    | {
+        $case: 'ucServiceCredentialName';
+        /** Name of the Unity Catalog service credential. This value will be set under the option databricks.serviceCredential */
+        ucServiceCredentialName: string;
+      }
+    | undefined;
 }
 
 /** Computes the average of values. */
@@ -109,11 +120,22 @@ export interface AvgFunction {
 }
 
 export interface BackfillSource {
-  /**
-   * The Delta table source containing the historic data to backfill.
-   * Only the delta table name is used for backfill, the entity columns and timeseries column are ignored as they are defined by the associated KafkaSource.
-   */
-  deltaTableSource?: DeltaTableSource | undefined;
+  backfillSource?:
+    | {
+        $case: 'deltaTableSource';
+        /**
+         * Deprecated: Use delta_table_name instead. Kept for backwards compatibility.
+         * The Delta table source containing the historical data to backfill.
+         * Only the delta table name is used for backfill, other fields are ignored.
+         */
+        deltaTableSource: DeltaTableSource;
+      }
+    | {
+        $case: 'deltaTableName';
+        /** The full three-part name (catalog, schema, name) of the Delta table containing the historical data to backfill. */
+        deltaTableName: string;
+      }
+    | undefined;
 }
 
 export interface BatchCreateMaterializedFeaturesRequest {
@@ -174,12 +196,23 @@ export interface CreateMaterializedFeatureRequest {
 
 /** Specifies the data source backing a feature. Exactly one source type must be set. */
 export interface DataSource {
-  /** A Delta table data source. */
-  deltaTableSource?: DeltaTableSource | undefined;
-  /** A Kafka stream data source. */
-  kafkaSource?: KafkaSource | undefined;
-  /** A request-time data source. */
-  requestSource?: RequestSource | undefined;
+  dataSource?:
+    | {
+        $case: 'deltaTableSource';
+        /** A Delta table data source. */
+        deltaTableSource: DeltaTableSource;
+      }
+    | {
+        $case: 'kafkaSource';
+        /** A Kafka stream data source. */
+        kafkaSource: KafkaSource;
+      }
+    | {
+        $case: 'requestSource';
+        /** A request-time data source. */
+        requestSource: RequestSource;
+      }
+    | undefined;
 }
 
 export interface DeleteFeatureRequest {
@@ -313,10 +346,18 @@ export interface Function {
    * Extra parameters for parameterized functions.
    */
   extraParameters?: Function_ExtraParameter[] | undefined;
-  /** An aggregation function applied over a time window. */
-  aggregationFunction?: AggregationFunction | undefined;
-  /** Selects the latest value of a single column in a data source */
-  columnSelection?: ColumnSelection | undefined;
+  function?:
+    | {
+        $case: 'aggregationFunction';
+        /** An aggregation function applied over a time window. */
+        aggregationFunction: AggregationFunction;
+      }
+    | {
+        $case: 'columnSelection';
+        /** Selects the latest value of a single column in a data source */
+        columnSelection: ColumnSelection;
+      }
+    | undefined;
 }
 
 /**
@@ -400,6 +441,13 @@ export interface KafkaSource {
   timeseriesColumnIdentifier?: ColumnIdentifier | undefined;
   /** The filter condition applied to the source data before aggregation. */
   filterCondition?: string | undefined;
+  /** The pipeline runs these SQL statements immediately after conversion into the schema specified on the KafkaConfig object. */
+  transformationSql?: string | undefined;
+  /**
+   * Schema of the resulting dataframe after transformations, in Spark StructType JSON format (from df.schema.json()).
+   * Any subsequent functions operate against this dataframe.
+   */
+  dataframeSchema?: string | undefined;
 }
 
 /** Returns the last value. */
@@ -466,8 +514,11 @@ export interface MaterializedFeature {
   materializedFeatureId?: string | undefined;
   /** The full name of the feature in Unity Catalog. */
   featureName?: string | undefined;
-  offlineStoreConfig?: OfflineStoreConfig | undefined;
-  onlineStoreConfig?: OnlineStoreConfig | undefined;
+  /** The destination configuration for the materialized feature. Required on create, not returned in responses. */
+  destination?:
+    | {$case: 'offlineStoreConfig'; offlineStoreConfig: OfflineStoreConfig}
+    | {$case: 'onlineStoreConfig'; onlineStoreConfig: OnlineStoreConfig}
+    | undefined;
   /** The fully qualified Unity Catalog path to the table containing the materialized feature (Delta table or Lakebase table). Output only. */
   tableName?: string | undefined;
   /** The schedule state of the materialization pipeline. */
@@ -553,17 +604,34 @@ export interface ProtoSchemaSpec {
 
 /** A request-time data source whose value is provided at inference time: offline batch scoring or online serving endpoint */
 export interface RequestSource {
-  /** A flat schema with scalar-typed fields only. */
-  flatSchema?: FlatSchema | undefined;
+  /** The schema describing the request-time fields. Currently only flat schemas are supported. */
+  schema?:
+    | {
+        $case: 'flatSchema';
+        /** A flat schema with scalar-typed fields only. */
+        flatSchema: FlatSchema;
+      }
+    | undefined;
 }
 
 export interface SchemaConfig {
-  /** Schema of the JSON object in standard IETF JSON schema format (https://json-schema.org/). */
-  jsonSchema?: string | undefined;
-  /** Avro schema in JSON format (https://avro.apache.org/docs/current/specification/). */
-  avroSchema?: string | undefined;
-  /** Protocol Buffer schema with its payload message name. */
-  protoSchema?: ProtoSchemaSpec | undefined;
+  schema?:
+    | {
+        $case: 'jsonSchema';
+        /** Schema of the JSON object in standard IETF JSON schema format (https://json-schema.org/). */
+        jsonSchema: string;
+      }
+    | {
+        $case: 'avroSchema';
+        /** Avro schema in JSON format (https://avro.apache.org/docs/current/specification/). */
+        avroSchema: string;
+      }
+    | {
+        $case: 'protoSchema';
+        /** Protocol Buffer schema with its payload message name. */
+        protoSchema: ProtoSchemaSpec;
+      }
+    | undefined;
 }
 
 export interface SlidingWindow {
@@ -591,15 +659,27 @@ export interface StddevSampFunction {
 }
 
 export interface SubscriptionMode {
-  /**
-   * A JSON string that contains the specific topic-partitions to consume from.
-   * For example, for '{"topicA":[0,1],"topicB":[2,4]}', topicA's 0'th and 1st partitions will be consumed from.
-   */
-  assign?: string | undefined;
-  /** A comma-separated list of Kafka topics to read from. For example, 'topicA,topicB,topicC'. */
-  subscribe?: string | undefined;
-  /** A regular expression matching topics to subscribe to. For example, 'topic.*' will subscribe to all topics starting with 'topic'. */
-  subscribePattern?: string | undefined;
+  /** These match the settings from https://spark.apache.org/docs/latest/streaming/structured-streaming-kafka-integration.html */
+  subscriptionMode?:
+    | {
+        $case: 'assign';
+        /**
+         * A JSON string that contains the specific topic-partitions to consume from.
+         * For example, for '{"topicA":[0,1],"topicB":[2,4]}', topicA's 0'th and 1st partitions will be consumed from.
+         */
+        assign: string;
+      }
+    | {
+        $case: 'subscribe';
+        /** A comma-separated list of Kafka topics to read from. For example, 'topicA,topicB,topicC'. */
+        subscribe: string;
+      }
+    | {
+        $case: 'subscribePattern';
+        /** A regular expression matching topics to subscribe to. For example, 'topic.*' will subscribe to all topics starting with 'topic'. */
+        subscribePattern: string;
+      }
+    | undefined;
 }
 
 /** Computes the sum of values. */
@@ -614,9 +694,11 @@ export interface SumFunction {
 }
 
 export interface TimeWindow {
-  continuous?: ContinuousWindow | undefined;
-  tumbling?: TumblingWindow | undefined;
-  sliding?: SlidingWindow | undefined;
+  windowType?:
+    | {$case: 'continuous'; continuous: ContinuousWindow}
+    | {$case: 'tumbling'; tumbling: TumblingWindow}
+    | {$case: 'sliding'; sliding: SlidingWindow}
+    | undefined;
 }
 
 export interface TimeseriesColumn {
@@ -695,19 +777,49 @@ export const unmarshalAggregationFunctionSchema: z.ZodType<AggregationFunction> 
       time_window: z.lazy(() => unmarshalTimeWindowSchema).optional(),
     })
     .transform(d => ({
-      avg: d.avg,
-      countFunction: d.count_function,
-      sum: d.sum,
-      min: d.min,
-      max: d.max,
-      first: d.first,
-      last: d.last,
-      approxCountDistinct: d.approx_count_distinct,
-      approxPercentile: d.approx_percentile,
-      stddevPop: d.stddev_pop,
-      stddevSamp: d.stddev_samp,
-      varPop: d.var_pop,
-      varSamp: d.var_samp,
+      operation:
+        d.avg !== undefined
+          ? {$case: 'avg' as const, avg: d.avg}
+          : d.count_function !== undefined
+            ? {$case: 'countFunction' as const, countFunction: d.count_function}
+            : d.sum !== undefined
+              ? {$case: 'sum' as const, sum: d.sum}
+              : d.min !== undefined
+                ? {$case: 'min' as const, min: d.min}
+                : d.max !== undefined
+                  ? {$case: 'max' as const, max: d.max}
+                  : d.first !== undefined
+                    ? {$case: 'first' as const, first: d.first}
+                    : d.last !== undefined
+                      ? {$case: 'last' as const, last: d.last}
+                      : d.approx_count_distinct !== undefined
+                        ? {
+                            $case: 'approxCountDistinct' as const,
+                            approxCountDistinct: d.approx_count_distinct,
+                          }
+                        : d.approx_percentile !== undefined
+                          ? {
+                              $case: 'approxPercentile' as const,
+                              approxPercentile: d.approx_percentile,
+                            }
+                          : d.stddev_pop !== undefined
+                            ? {
+                                $case: 'stddevPop' as const,
+                                stddevPop: d.stddev_pop,
+                              }
+                            : d.stddev_samp !== undefined
+                              ? {
+                                  $case: 'stddevSamp' as const,
+                                  stddevSamp: d.stddev_samp,
+                                }
+                              : d.var_pop !== undefined
+                                ? {$case: 'varPop' as const, varPop: d.var_pop}
+                                : d.var_samp !== undefined
+                                  ? {
+                                      $case: 'varSamp' as const,
+                                      varSamp: d.var_samp,
+                                    }
+                                  : undefined,
       timeWindow: d.time_window,
     }));
 
@@ -740,7 +852,13 @@ export const unmarshalAuthConfigSchema: z.ZodType<AuthConfig> = z
     uc_service_credential_name: z.string().optional(),
   })
   .transform(d => ({
-    ucServiceCredentialName: d.uc_service_credential_name,
+    authConfig:
+      d.uc_service_credential_name !== undefined
+        ? {
+            $case: 'ucServiceCredentialName' as const,
+            ucServiceCredentialName: d.uc_service_credential_name,
+          }
+        : undefined,
   }));
 
 export const unmarshalAvgFunctionSchema: z.ZodType<AvgFunction> = z
@@ -756,9 +874,21 @@ export const unmarshalBackfillSourceSchema: z.ZodType<BackfillSource> = z
     delta_table_source: z
       .lazy(() => unmarshalDeltaTableSourceSchema)
       .optional(),
+    delta_table_name: z.string().optional(),
   })
   .transform(d => ({
-    deltaTableSource: d.delta_table_source,
+    backfillSource:
+      d.delta_table_source !== undefined
+        ? {
+            $case: 'deltaTableSource' as const,
+            deltaTableSource: d.delta_table_source,
+          }
+        : d.delta_table_name !== undefined
+          ? {
+              $case: 'deltaTableName' as const,
+              deltaTableName: d.delta_table_name,
+            }
+          : undefined,
   }));
 
 export const unmarshalBatchCreateMaterializedFeaturesResponseSchema: z.ZodType<BatchCreateMaterializedFeaturesResponse> =
@@ -821,9 +951,17 @@ export const unmarshalDataSourceSchema: z.ZodType<DataSource> = z
     request_source: z.lazy(() => unmarshalRequestSourceSchema).optional(),
   })
   .transform(d => ({
-    deltaTableSource: d.delta_table_source,
-    kafkaSource: d.kafka_source,
-    requestSource: d.request_source,
+    dataSource:
+      d.delta_table_source !== undefined
+        ? {
+            $case: 'deltaTableSource' as const,
+            deltaTableSource: d.delta_table_source,
+          }
+        : d.kafka_source !== undefined
+          ? {$case: 'kafkaSource' as const, kafkaSource: d.kafka_source}
+          : d.request_source !== undefined
+            ? {$case: 'requestSource' as const, requestSource: d.request_source}
+            : undefined,
   }));
 
 export const unmarshalDeltaTableSourceSchema: z.ZodType<DeltaTableSource> = z
@@ -918,8 +1056,18 @@ export const unmarshalFunctionSchema: z.ZodType<Function> = z
   .transform(d => ({
     functionType: d.function_type,
     extraParameters: d.extra_parameters,
-    aggregationFunction: d.aggregation_function,
-    columnSelection: d.column_selection,
+    function:
+      d.aggregation_function !== undefined
+        ? {
+            $case: 'aggregationFunction' as const,
+            aggregationFunction: d.aggregation_function,
+          }
+        : d.column_selection !== undefined
+          ? {
+              $case: 'columnSelection' as const,
+              columnSelection: d.column_selection,
+            }
+          : undefined,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -976,12 +1124,16 @@ export const unmarshalKafkaSourceSchema: z.ZodType<KafkaSource> = z
       .lazy(() => unmarshalColumnIdentifierSchema)
       .optional(),
     filter_condition: z.string().optional(),
+    transformation_sql: z.string().optional(),
+    dataframe_schema: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
     entityColumnIdentifiers: d.entity_column_identifiers,
     timeseriesColumnIdentifier: d.timeseries_column_identifier,
     filterCondition: d.filter_condition,
+    transformationSql: d.transformation_sql,
+    dataframeSchema: d.dataframe_schema,
   }));
 
 export const unmarshalLastFunctionSchema: z.ZodType<LastFunction> = z
@@ -1064,8 +1216,18 @@ export const unmarshalMaterializedFeatureSchema: z.ZodType<MaterializedFeature> 
     .transform(d => ({
       materializedFeatureId: d.materialized_feature_id,
       featureName: d.feature_name,
-      offlineStoreConfig: d.offline_store_config,
-      onlineStoreConfig: d.online_store_config,
+      destination:
+        d.offline_store_config !== undefined
+          ? {
+              $case: 'offlineStoreConfig' as const,
+              offlineStoreConfig: d.offline_store_config,
+            }
+          : d.online_store_config !== undefined
+            ? {
+                $case: 'onlineStoreConfig' as const,
+                onlineStoreConfig: d.online_store_config,
+              }
+            : undefined,
       tableName: d.table_name,
       pipelineScheduleState: d.pipeline_schedule_state,
       lastMaterializationTime: d.last_materialization_time,
@@ -1131,7 +1293,10 @@ export const unmarshalRequestSourceSchema: z.ZodType<RequestSource> = z
     flat_schema: z.lazy(() => unmarshalFlatSchemaSchema).optional(),
   })
   .transform(d => ({
-    flatSchema: d.flat_schema,
+    schema:
+      d.flat_schema !== undefined
+        ? {$case: 'flatSchema' as const, flatSchema: d.flat_schema}
+        : undefined,
   }));
 
 export const unmarshalSchemaConfigSchema: z.ZodType<SchemaConfig> = z
@@ -1141,9 +1306,14 @@ export const unmarshalSchemaConfigSchema: z.ZodType<SchemaConfig> = z
     proto_schema: z.lazy(() => unmarshalProtoSchemaSpecSchema).optional(),
   })
   .transform(d => ({
-    jsonSchema: d.json_schema,
-    avroSchema: d.avro_schema,
-    protoSchema: d.proto_schema,
+    schema:
+      d.json_schema !== undefined
+        ? {$case: 'jsonSchema' as const, jsonSchema: d.json_schema}
+        : d.avro_schema !== undefined
+          ? {$case: 'avroSchema' as const, avroSchema: d.avro_schema}
+          : d.proto_schema !== undefined
+            ? {$case: 'protoSchema' as const, protoSchema: d.proto_schema}
+            : undefined,
   }));
 
 export const unmarshalSlidingWindowSchema: z.ZodType<SlidingWindow> = z
@@ -1186,9 +1356,17 @@ export const unmarshalSubscriptionModeSchema: z.ZodType<SubscriptionMode> = z
     subscribe_pattern: z.string().optional(),
   })
   .transform(d => ({
-    assign: d.assign,
-    subscribe: d.subscribe,
-    subscribePattern: d.subscribe_pattern,
+    subscriptionMode:
+      d.assign !== undefined
+        ? {$case: 'assign' as const, assign: d.assign}
+        : d.subscribe !== undefined
+          ? {$case: 'subscribe' as const, subscribe: d.subscribe}
+          : d.subscribe_pattern !== undefined
+            ? {
+                $case: 'subscribePattern' as const,
+                subscribePattern: d.subscribe_pattern,
+              }
+            : undefined,
   }));
 
 export const unmarshalSumFunctionSchema: z.ZodType<SumFunction> = z
@@ -1206,9 +1384,14 @@ export const unmarshalTimeWindowSchema: z.ZodType<TimeWindow> = z
     sliding: z.lazy(() => unmarshalSlidingWindowSchema).optional(),
   })
   .transform(d => ({
-    continuous: d.continuous,
-    tumbling: d.tumbling,
-    sliding: d.sliding,
+    windowType:
+      d.continuous !== undefined
+        ? {$case: 'continuous' as const, continuous: d.continuous}
+        : d.tumbling !== undefined
+          ? {$case: 'tumbling' as const, tumbling: d.tumbling}
+          : d.sliding !== undefined
+            ? {$case: 'sliding' as const, sliding: d.sliding}
+            : undefined,
   }));
 
 export const unmarshalTimeseriesColumnSchema: z.ZodType<TimeseriesColumn> = z
@@ -1248,39 +1431,90 @@ export const unmarshalVarSampFunctionSchema: z.ZodType<VarSampFunction> = z
 
 export const marshalAggregationFunctionSchema: z.ZodType = z
   .object({
-    avg: z.lazy(() => marshalAvgFunctionSchema).optional(),
-    countFunction: z.lazy(() => marshalCountFunctionSchema).optional(),
-    sum: z.lazy(() => marshalSumFunctionSchema).optional(),
-    min: z.lazy(() => marshalMinFunctionSchema).optional(),
-    max: z.lazy(() => marshalMaxFunctionSchema).optional(),
-    first: z.lazy(() => marshalFirstFunctionSchema).optional(),
-    last: z.lazy(() => marshalLastFunctionSchema).optional(),
-    approxCountDistinct: z
-      .lazy(() => marshalApproxCountDistinctFunctionSchema)
+    operation: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('avg'),
+          avg: z.lazy(() => marshalAvgFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('countFunction'),
+          countFunction: z.lazy(() => marshalCountFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('sum'),
+          sum: z.lazy(() => marshalSumFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('min'),
+          min: z.lazy(() => marshalMinFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('max'),
+          max: z.lazy(() => marshalMaxFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('first'),
+          first: z.lazy(() => marshalFirstFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('last'),
+          last: z.lazy(() => marshalLastFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('approxCountDistinct'),
+          approxCountDistinct: z.lazy(
+            () => marshalApproxCountDistinctFunctionSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('approxPercentile'),
+          approxPercentile: z.lazy(() => marshalApproxPercentileFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('stddevPop'),
+          stddevPop: z.lazy(() => marshalStddevPopFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('stddevSamp'),
+          stddevSamp: z.lazy(() => marshalStddevSampFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('varPop'),
+          varPop: z.lazy(() => marshalVarPopFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('varSamp'),
+          varSamp: z.lazy(() => marshalVarSampFunctionSchema),
+        }),
+      ])
       .optional(),
-    approxPercentile: z
-      .lazy(() => marshalApproxPercentileFunctionSchema)
-      .optional(),
-    stddevPop: z.lazy(() => marshalStddevPopFunctionSchema).optional(),
-    stddevSamp: z.lazy(() => marshalStddevSampFunctionSchema).optional(),
-    varPop: z.lazy(() => marshalVarPopFunctionSchema).optional(),
-    varSamp: z.lazy(() => marshalVarSampFunctionSchema).optional(),
     timeWindow: z.lazy(() => marshalTimeWindowSchema).optional(),
   })
   .transform(d => ({
-    avg: d.avg,
-    count_function: d.countFunction,
-    sum: d.sum,
-    min: d.min,
-    max: d.max,
-    first: d.first,
-    last: d.last,
-    approx_count_distinct: d.approxCountDistinct,
-    approx_percentile: d.approxPercentile,
-    stddev_pop: d.stddevPop,
-    stddev_samp: d.stddevSamp,
-    var_pop: d.varPop,
-    var_samp: d.varSamp,
+    ...(d.operation?.$case === 'avg' && {avg: d.operation.avg}),
+    ...(d.operation?.$case === 'countFunction' && {
+      count_function: d.operation.countFunction,
+    }),
+    ...(d.operation?.$case === 'sum' && {sum: d.operation.sum}),
+    ...(d.operation?.$case === 'min' && {min: d.operation.min}),
+    ...(d.operation?.$case === 'max' && {max: d.operation.max}),
+    ...(d.operation?.$case === 'first' && {first: d.operation.first}),
+    ...(d.operation?.$case === 'last' && {last: d.operation.last}),
+    ...(d.operation?.$case === 'approxCountDistinct' && {
+      approx_count_distinct: d.operation.approxCountDistinct,
+    }),
+    ...(d.operation?.$case === 'approxPercentile' && {
+      approx_percentile: d.operation.approxPercentile,
+    }),
+    ...(d.operation?.$case === 'stddevPop' && {
+      stddev_pop: d.operation.stddevPop,
+    }),
+    ...(d.operation?.$case === 'stddevSamp' && {
+      stddev_samp: d.operation.stddevSamp,
+    }),
+    ...(d.operation?.$case === 'varPop' && {var_pop: d.operation.varPop}),
+    ...(d.operation?.$case === 'varSamp' && {var_samp: d.operation.varSamp}),
     time_window: d.timeWindow,
   }));
 
@@ -1308,10 +1542,19 @@ export const marshalApproxPercentileFunctionSchema: z.ZodType = z
 
 export const marshalAuthConfigSchema: z.ZodType = z
   .object({
-    ucServiceCredentialName: z.string().optional(),
+    authConfig: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('ucServiceCredentialName'),
+          ucServiceCredentialName: z.string(),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    uc_service_credential_name: d.ucServiceCredentialName,
+    ...(d.authConfig?.$case === 'ucServiceCredentialName' && {
+      uc_service_credential_name: d.authConfig.ucServiceCredentialName,
+    }),
   }));
 
 export const marshalAvgFunctionSchema: z.ZodType = z
@@ -1324,10 +1567,26 @@ export const marshalAvgFunctionSchema: z.ZodType = z
 
 export const marshalBackfillSourceSchema: z.ZodType = z
   .object({
-    deltaTableSource: z.lazy(() => marshalDeltaTableSourceSchema).optional(),
+    backfillSource: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('deltaTableSource'),
+          deltaTableSource: z.lazy(() => marshalDeltaTableSourceSchema),
+        }),
+        z.object({
+          $case: z.literal('deltaTableName'),
+          deltaTableName: z.string(),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    delta_table_source: d.deltaTableSource,
+    ...(d.backfillSource?.$case === 'deltaTableSource' && {
+      delta_table_source: d.backfillSource.deltaTableSource,
+    }),
+    ...(d.backfillSource?.$case === 'deltaTableName' && {
+      delta_table_name: d.backfillSource.deltaTableName,
+    }),
   }));
 
 export const marshalBatchCreateMaterializedFeaturesRequestSchema: z.ZodType = z
@@ -1392,14 +1651,33 @@ export const marshalCreateMaterializedFeatureRequestSchema: z.ZodType = z
 
 export const marshalDataSourceSchema: z.ZodType = z
   .object({
-    deltaTableSource: z.lazy(() => marshalDeltaTableSourceSchema).optional(),
-    kafkaSource: z.lazy(() => marshalKafkaSourceSchema).optional(),
-    requestSource: z.lazy(() => marshalRequestSourceSchema).optional(),
+    dataSource: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('deltaTableSource'),
+          deltaTableSource: z.lazy(() => marshalDeltaTableSourceSchema),
+        }),
+        z.object({
+          $case: z.literal('kafkaSource'),
+          kafkaSource: z.lazy(() => marshalKafkaSourceSchema),
+        }),
+        z.object({
+          $case: z.literal('requestSource'),
+          requestSource: z.lazy(() => marshalRequestSourceSchema),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    delta_table_source: d.deltaTableSource,
-    kafka_source: d.kafkaSource,
-    request_source: d.requestSource,
+    ...(d.dataSource?.$case === 'deltaTableSource' && {
+      delta_table_source: d.dataSource.deltaTableSource,
+    }),
+    ...(d.dataSource?.$case === 'kafkaSource' && {
+      kafka_source: d.dataSource.kafkaSource,
+    }),
+    ...(d.dataSource?.$case === 'requestSource' && {
+      request_source: d.dataSource.requestSource,
+    }),
   }));
 
 export const marshalDeltaTableSourceSchema: z.ZodType = z
@@ -1486,16 +1764,28 @@ export const marshalFunctionSchema: z.ZodType = z
     extraParameters: z
       .array(z.lazy(() => marshalFunction_ExtraParameterSchema))
       .optional(),
-    aggregationFunction: z
-      .lazy(() => marshalAggregationFunctionSchema)
+    function: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('aggregationFunction'),
+          aggregationFunction: z.lazy(() => marshalAggregationFunctionSchema),
+        }),
+        z.object({
+          $case: z.literal('columnSelection'),
+          columnSelection: z.lazy(() => marshalColumnSelectionSchema),
+        }),
+      ])
       .optional(),
-    columnSelection: z.lazy(() => marshalColumnSelectionSchema).optional(),
   })
   .transform(d => ({
     function_type: d.functionType,
     extra_parameters: d.extraParameters,
-    aggregation_function: d.aggregationFunction,
-    column_selection: d.columnSelection,
+    ...(d.function?.$case === 'aggregationFunction' && {
+      aggregation_function: d.function.aggregationFunction,
+    }),
+    ...(d.function?.$case === 'columnSelection' && {
+      column_selection: d.function.columnSelection,
+    }),
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1551,12 +1841,16 @@ export const marshalKafkaSourceSchema: z.ZodType = z
       .lazy(() => marshalColumnIdentifierSchema)
       .optional(),
     filterCondition: z.string().optional(),
+    transformationSql: z.string().optional(),
+    dataframeSchema: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
     entity_column_identifiers: d.entityColumnIdentifiers,
     timeseries_column_identifier: d.timeseriesColumnIdentifier,
     filter_condition: d.filterCondition,
+    transformation_sql: d.transformationSql,
+    dataframe_schema: d.dataframeSchema,
   }));
 
 export const marshalLastFunctionSchema: z.ZodType = z
@@ -1581,10 +1875,18 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
   .object({
     materializedFeatureId: z.string().optional(),
     featureName: z.string().optional(),
-    offlineStoreConfig: z
-      .lazy(() => marshalOfflineStoreConfigSchema)
+    destination: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('offlineStoreConfig'),
+          offlineStoreConfig: z.lazy(() => marshalOfflineStoreConfigSchema),
+        }),
+        z.object({
+          $case: z.literal('onlineStoreConfig'),
+          onlineStoreConfig: z.lazy(() => marshalOnlineStoreConfigSchema),
+        }),
+      ])
       .optional(),
-    onlineStoreConfig: z.lazy(() => marshalOnlineStoreConfigSchema).optional(),
     tableName: z.string().optional(),
     pipelineScheduleState: z
       .enum(MaterializedFeature_PipelineScheduleState)
@@ -1599,8 +1901,12 @@ export const marshalMaterializedFeatureSchema: z.ZodType = z
   .transform(d => ({
     materialized_feature_id: d.materializedFeatureId,
     feature_name: d.featureName,
-    offline_store_config: d.offlineStoreConfig,
-    online_store_config: d.onlineStoreConfig,
+    ...(d.destination?.$case === 'offlineStoreConfig' && {
+      offline_store_config: d.destination.offlineStoreConfig,
+    }),
+    ...(d.destination?.$case === 'onlineStoreConfig' && {
+      online_store_config: d.destination.onlineStoreConfig,
+    }),
     table_name: d.tableName,
     pipeline_schedule_state: d.pipelineScheduleState,
     last_materialization_time: d.lastMaterializationTime,
@@ -1662,22 +1968,38 @@ export const marshalProtoSchemaSpecSchema: z.ZodType = z
 
 export const marshalRequestSourceSchema: z.ZodType = z
   .object({
-    flatSchema: z.lazy(() => marshalFlatSchemaSchema).optional(),
+    schema: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('flatSchema'),
+          flatSchema: z.lazy(() => marshalFlatSchemaSchema),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    flat_schema: d.flatSchema,
+    ...(d.schema?.$case === 'flatSchema' && {flat_schema: d.schema.flatSchema}),
   }));
 
 export const marshalSchemaConfigSchema: z.ZodType = z
   .object({
-    jsonSchema: z.string().optional(),
-    avroSchema: z.string().optional(),
-    protoSchema: z.lazy(() => marshalProtoSchemaSpecSchema).optional(),
+    schema: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('jsonSchema'), jsonSchema: z.string()}),
+        z.object({$case: z.literal('avroSchema'), avroSchema: z.string()}),
+        z.object({
+          $case: z.literal('protoSchema'),
+          protoSchema: z.lazy(() => marshalProtoSchemaSpecSchema),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    json_schema: d.jsonSchema,
-    avro_schema: d.avroSchema,
-    proto_schema: d.protoSchema,
+    ...(d.schema?.$case === 'jsonSchema' && {json_schema: d.schema.jsonSchema}),
+    ...(d.schema?.$case === 'avroSchema' && {avro_schema: d.schema.avroSchema}),
+    ...(d.schema?.$case === 'protoSchema' && {
+      proto_schema: d.schema.protoSchema,
+    }),
   }));
 
 export const marshalSlidingWindowSchema: z.ZodType = z
@@ -1714,14 +2036,27 @@ export const marshalStddevSampFunctionSchema: z.ZodType = z
 
 export const marshalSubscriptionModeSchema: z.ZodType = z
   .object({
-    assign: z.string().optional(),
-    subscribe: z.string().optional(),
-    subscribePattern: z.string().optional(),
+    subscriptionMode: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('assign'), assign: z.string()}),
+        z.object({$case: z.literal('subscribe'), subscribe: z.string()}),
+        z.object({
+          $case: z.literal('subscribePattern'),
+          subscribePattern: z.string(),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    assign: d.assign,
-    subscribe: d.subscribe,
-    subscribe_pattern: d.subscribePattern,
+    ...(d.subscriptionMode?.$case === 'assign' && {
+      assign: d.subscriptionMode.assign,
+    }),
+    ...(d.subscriptionMode?.$case === 'subscribe' && {
+      subscribe: d.subscriptionMode.subscribe,
+    }),
+    ...(d.subscriptionMode?.$case === 'subscribePattern' && {
+      subscribe_pattern: d.subscriptionMode.subscribePattern,
+    }),
   }));
 
 export const marshalSumFunctionSchema: z.ZodType = z
@@ -1734,14 +2069,31 @@ export const marshalSumFunctionSchema: z.ZodType = z
 
 export const marshalTimeWindowSchema: z.ZodType = z
   .object({
-    continuous: z.lazy(() => marshalContinuousWindowSchema).optional(),
-    tumbling: z.lazy(() => marshalTumblingWindowSchema).optional(),
-    sliding: z.lazy(() => marshalSlidingWindowSchema).optional(),
+    windowType: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('continuous'),
+          continuous: z.lazy(() => marshalContinuousWindowSchema),
+        }),
+        z.object({
+          $case: z.literal('tumbling'),
+          tumbling: z.lazy(() => marshalTumblingWindowSchema),
+        }),
+        z.object({
+          $case: z.literal('sliding'),
+          sliding: z.lazy(() => marshalSlidingWindowSchema),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
-    continuous: d.continuous,
-    tumbling: d.tumbling,
-    sliding: d.sliding,
+    ...(d.windowType?.$case === 'continuous' && {
+      continuous: d.windowType.continuous,
+    }),
+    ...(d.windowType?.$case === 'tumbling' && {
+      tumbling: d.windowType.tumbling,
+    }),
+    ...(d.windowType?.$case === 'sliding' && {sliding: d.windowType.sliding}),
   }));
 
 export const marshalTimeseriesColumnSchema: z.ZodType = z
@@ -1831,6 +2183,7 @@ const avgFunctionFieldMaskSchema: FieldMaskSchema = {
 };
 
 const backfillSourceFieldMaskSchema: FieldMaskSchema = {
+  deltaTableName: {wire: 'delta_table_name'},
   deltaTableSource: {
     wire: 'delta_table_source',
     children: () => deltaTableSourceFieldMaskSchema,
@@ -1954,6 +2307,7 @@ export function kafkaConfigFieldMask(
 }
 
 const kafkaSourceFieldMaskSchema: FieldMaskSchema = {
+  dataframeSchema: {wire: 'dataframe_schema'},
   entityColumnIdentifiers: {wire: 'entity_column_identifiers'},
   filterCondition: {wire: 'filter_condition'},
   name: {wire: 'name'},
@@ -1961,6 +2315,7 @@ const kafkaSourceFieldMaskSchema: FieldMaskSchema = {
     wire: 'timeseries_column_identifier',
     children: () => columnIdentifierFieldMaskSchema,
   },
+  transformationSql: {wire: 'transformation_sql'},
 };
 
 const lastFunctionFieldMaskSchema: FieldMaskSchema = {
