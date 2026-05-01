@@ -73,36 +73,46 @@ export class ClientInfo {
   }
 
   /**
-   * Returns a new {@link ClientInfo} with the given key/value pairs
-   * appended. The original is not modified.
+   * Returns a new {@link ClientInfo} with the given items appended. Accepts
+   * either individual key/value pairs or another {@link ClientInfo} whose
+   * segments are merged in order. The original is not modified; mixing the
+   * two forms in a single call is supported.
    *
-   * Keys and values must contain only alphanumeric characters plus the
-   * characters: underscore ('_'), dot ('.'), plus ('+'), or hyphen ('-').
+   * Keys and values on pair arguments must contain only alphanumeric
+   * characters plus `_`, `.`, `+`, or `-`. Exact key+value duplicates are
+   * silently ignored. On error, an exception is thrown (all-or-nothing).
    *
-   * Exact key+value duplicates are silently ignored. On error, an
-   * exception is thrown (all-or-nothing).
+   * @example
+   * ```ts
+   * base.with({key: 'partner', value: 'acme'});
+   * base.with(pkgClientInfo);
+   * base.with(pkgClientInfo, {key: 'sdk-feature', value: 'pagination'});
+   * ```
    */
-  with(...pairs: {readonly key: string; readonly value: string}[]): ClientInfo {
-    if (pairs.length === 0) {
+  with(...items: (ClientInfo | Segment)[]): ClientInfo {
+    if (items.length === 0) {
       return this;
     }
 
     const newSegments: Segment[] = [...this.segments];
 
-    for (const {key, value} of pairs) {
-      if (!isValidSegment(key)) {
-        throw new ClientInfoError('INVALID_KEY', `Invalid key: ${key}.`);
+    for (const item of items) {
+      const pairs = item instanceof ClientInfo ? item.segments : [item];
+      for (const {key, value} of pairs) {
+        if (!isValidSegment(key)) {
+          throw new ClientInfoError('INVALID_KEY', `Invalid key: ${key}.`);
+        }
+        if (!isValidSegment(value)) {
+          throw new ClientInfoError(
+            'INVALID_VALUE',
+            `Invalid value for "${key}": ${value}.`
+          );
+        }
+        if (newSegments.some(s => s.key === key && s.value === value)) {
+          continue;
+        }
+        newSegments.push({key, value});
       }
-      if (!isValidSegment(value)) {
-        throw new ClientInfoError(
-          'INVALID_VALUE',
-          `Invalid value for "${key}": ${value}.`
-        );
-      }
-      if (newSegments.some(s => s.key === key && s.value === value)) {
-        continue;
-      }
-      newSegments.push({key, value});
     }
 
     return new ClientInfo(newSegments);

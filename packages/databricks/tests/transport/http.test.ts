@@ -201,4 +201,34 @@ describe('newHttpClient', () => {
       vi.unstubAllGlobals();
     }
   });
+
+  it('does not add a User-Agent header by itself', async () => {
+    const mockFetch = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(new Response('', {status: 200}));
+    vi.stubGlobal('fetch', mockFetch);
+
+    try {
+      const credentials: Credentials = {
+        name: () => 'pat',
+        authHeaders: () =>
+          Promise.resolve([{key: 'Authorization', value: 'Bearer token'}]),
+      };
+      const client = newHttpClient({credentials});
+      await client.send({
+        url: 'https://example.com/api',
+        method: 'GET',
+        headers: new Headers(),
+      });
+
+      expect(mockFetch).toHaveBeenCalledOnce();
+      const init = mockFetch.mock.calls[0]?.[1];
+      const headers = new Headers(init?.headers);
+      // The transport layer does not manage User-Agent: generated clients own
+      // that header end-to-end.
+      expect(headers.get('User-Agent')).toBeNull();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
 });

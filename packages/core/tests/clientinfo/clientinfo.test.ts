@@ -155,6 +155,41 @@ describe('ClientInfo', () => {
     base.with({key: 'extra', value: 'value'});
     expect(base.toString()).toBe(want);
   });
+
+  describe('with(ClientInfo) merges segments', () => {
+    it('appends segments from another ClientInfo in order', () => {
+      const base = ClientInfo.EMPTY.with({key: 'app', value: '1.0.0'});
+      const pkg = ClientInfo.EMPTY.with(
+        {key: 'sdk-iam', value: '0.1.0'},
+        {key: 'sdk-feature', value: 'pagination'}
+      );
+      expect(base.with(pkg).toString()).toBe(
+        'app/1.0.0 sdk-iam/0.1.0 sdk-feature/pagination'
+      );
+    });
+
+    it('dedups segments already present in base', () => {
+      const base = ClientInfo.EMPTY.with({key: 'dup', value: 'v1'});
+      const pkg = ClientInfo.EMPTY.with(
+        {key: 'dup', value: 'v1'},
+        {key: 'fresh', value: 'v2'}
+      );
+      expect(base.with(pkg).toString()).toBe('dup/v1 fresh/v2');
+    });
+
+    it('allows mixing a ClientInfo and pairs in a single call', () => {
+      const base = ClientInfo.EMPTY.with({key: 'app', value: '1.0.0'});
+      const pkg = ClientInfo.EMPTY.with({key: 'sdk-iam', value: '0.1.0'});
+      expect(base.with(pkg, {key: 'auth', value: 'pat'}).toString()).toBe(
+        'app/1.0.0 sdk-iam/0.1.0 auth/pat'
+      );
+    });
+
+    it('returns the same value when the merged ClientInfo is empty', () => {
+      const base = ClientInfo.EMPTY.with({key: 'app', value: '1.0.0'});
+      expect(base.with(ClientInfo.EMPTY).toString()).toBe('app/1.0.0');
+    });
+  });
 });
 
 describe('isSemVer', () => {
