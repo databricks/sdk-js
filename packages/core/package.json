@@ -23,8 +23,14 @@
       "import": "./dist/wkt/index.js"
     },
     "./clientinfo": {
-      "types": "./dist/clientinfo/index.d.ts",
-      "import": "./dist/clientinfo/index.js"
+      "browser": {
+        "types": "./dist/clientinfo/index.browser.d.ts",
+        "import": "./dist/clientinfo/index.browser.js"
+      },
+      "default": {
+        "types": "./dist/clientinfo/index.d.ts",
+        "import": "./dist/clientinfo/index.js"
+      }
     },
     "./clientinfo/browser": {
       "types": "./dist/clientinfo/index.browser.d.ts",
