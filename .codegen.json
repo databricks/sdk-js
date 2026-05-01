@@ -2,5 +2,9 @@
     "mode": "sdk-js",
     "version": {
         "package.json": "\"version\": \"$VERSION\""
-    }
+    },
+    "dependency_pattern": {
+        "package.json": "\"$DEPENDENCY\": \">=$VERSION <1.0.0\""
+    },
+    "dependency_name_template": "@databricks/sdk-$PACKAGE"
 }
