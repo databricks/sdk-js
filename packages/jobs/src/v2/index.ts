@@ -193,6 +193,8 @@ export type {
   ResolvedValues_DbtTaskResolvedValues,
   ResolvedValues_NotebookTaskResolvedValues,
   ResolvedValues_NotebookTaskResolvedValues_BaseParametersEntry,
+  ResolvedValues_PipelineTaskResolvedValues,
+  ResolvedValues_PipelineTaskResolvedValues_PipelineTaskParametersEntry,
   ResolvedValues_PythonWheelTaskResolvedValues,
   ResolvedValues_PythonWheelTaskResolvedValues_NamedParametersEntry,
   ResolvedValues_RunJobTaskResolvedValues,

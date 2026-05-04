@@ -1,0 +1,85 @@
+// Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
+
+import {z} from 'zod';
+
+export enum UsageDashboardMajorVersion {
+  USAGE_DASHBOARD_MAJOR_VERSION_UNSPECIFIED = 'USAGE_DASHBOARD_MAJOR_VERSION_UNSPECIFIED',
+  USAGE_DASHBOARD_MAJOR_VERSION_1 = 'USAGE_DASHBOARD_MAJOR_VERSION_1',
+  USAGE_DASHBOARD_MAJOR_VERSION_2 = 'USAGE_DASHBOARD_MAJOR_VERSION_2',
+}
+
+export enum UsageDashboardType {
+  USAGE_DASHBOARD_TYPE_UNSPECIFIED = 'USAGE_DASHBOARD_TYPE_UNSPECIFIED',
+  USAGE_DASHBOARD_TYPE_WORKSPACE = 'USAGE_DASHBOARD_TYPE_WORKSPACE',
+  USAGE_DASHBOARD_TYPE_GLOBAL = 'USAGE_DASHBOARD_TYPE_GLOBAL',
+}
+
+export interface CreateBillingUsageDashboard {
+  /** The workspace ID of the workspace in which the usage dashboard is created. */
+  workspaceId?: number | undefined;
+  /** <Databricks> account ID. */
+  accountId?: string | undefined;
+  /** Workspace level usage dashboard shows usage data for the specified workspace ID. Global level usage dashboard shows usage data for all workspaces in the account. */
+  dashboardType?: UsageDashboardType | undefined;
+  /** The major version of the usage dashboard template to use. Defaults to VERSION_1. */
+  majorVersion?: UsageDashboardMajorVersion | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface CreateBillingUsageDashboard_Response {
+  /** The unique id of the usage dashboard. */
+  dashboardId?: string | undefined;
+}
+
+export interface GetBillingUsageDashboard {
+  /** The workspace ID of the workspace in which the usage dashboard is created. */
+  workspaceId?: number | undefined;
+  /** <Databricks> account ID. */
+  accountId?: string | undefined;
+  /** Workspace level usage dashboard shows usage data for the specified workspace ID. Global level usage dashboard shows usage data for all workspaces in the account. */
+  dashboardType?: UsageDashboardType | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface GetBillingUsageDashboard_Response {
+  /** The unique id of the usage dashboard. */
+  dashboardId?: string | undefined;
+  /** The URL of the usage dashboard. */
+  dashboardUrl?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalCreateBillingUsageDashboard_ResponseSchema: z.ZodType<CreateBillingUsageDashboard_Response> =
+  z
+    .object({
+      dashboard_id: z.string().optional(),
+    })
+    .transform(d => ({
+      dashboardId: d.dashboard_id,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalGetBillingUsageDashboard_ResponseSchema: z.ZodType<GetBillingUsageDashboard_Response> =
+  z
+    .object({
+      dashboard_id: z.string().optional(),
+      dashboard_url: z.string().optional(),
+    })
+    .transform(d => ({
+      dashboardId: d.dashboard_id,
+      dashboardUrl: d.dashboard_url,
+    }));
+
+export const marshalCreateBillingUsageDashboardSchema: z.ZodType = z
+  .object({
+    workspaceId: z.number().optional(),
+    accountId: z.string().optional(),
+    dashboardType: z.enum(UsageDashboardType).optional(),
+    majorVersion: z.enum(UsageDashboardMajorVersion).optional(),
+  })
+  .transform(d => ({
+    workspace_id: d.workspaceId,
+    account_id: d.accountId,
+    dashboard_type: d.dashboardType,
+    major_version: d.majorVersion,
+  }));

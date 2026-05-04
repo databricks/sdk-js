@@ -1,0 +1,1336 @@
+// Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
+
+import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
+import type {Call, Options} from '@databricks/sdk-core/api';
+import {execute} from '@databricks/sdk-core/api';
+import {createDefault} from '@databricks/sdk-core/clientinfo';
+import type {Logger} from '@databricks/sdk-databricks/logger';
+import {NoOpLogger} from '@databricks/sdk-databricks/logger';
+import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {HttpClient} from '@databricks/sdk-core/http';
+import {newHttpClient} from '@databricks/sdk-databricks/transport';
+import {
+  buildHttpRequest,
+  executeHttpCall,
+  marshalRequest,
+  parseResponse,
+  flattenQueryParams,
+} from './utils';
+import pkgJson from '../../package.json' with {type: 'json'};
+import type {
+  AddExchangeForListingRequest,
+  AddExchangeForListingResponse,
+  CreateExchangeFilterRequest,
+  CreateExchangeFilterResponse,
+  CreateExchangeRequest,
+  CreateExchangeResponse,
+  CreateFile,
+  CreateFile_Response,
+  CreateListing,
+  CreateListing_Response,
+  CreateProvider,
+  CreateProviderAnalyticsDashboard,
+  CreateProviderAnalyticsDashboard_Response,
+  CreateProvider_Response,
+  DeleteExchangeFilterRequest,
+  DeleteExchangeFilterResponse,
+  DeleteExchangeRequest,
+  DeleteExchangeResponse,
+  DeleteFile,
+  DeleteFile_Response,
+  DeleteListing,
+  DeleteListing_Response,
+  DeleteProvider,
+  DeleteProvider_Response,
+  Exchange,
+  ExchangeFilter,
+  ExchangeListing,
+  FileInfo,
+  GetExchangeRequest,
+  GetExchangeResponse,
+  GetFile,
+  GetFile_Response,
+  GetLatestVersionProviderAnalyticsDashboard,
+  GetLatestVersionProviderAnalyticsDashboard_Response,
+  GetListing,
+  GetListing_Response,
+  GetListings,
+  GetListings_Response,
+  GetPersonalizationRequestsForProvider,
+  GetPersonalizationRequestsForProvider_Response,
+  GetProvider,
+  GetProvider_Response,
+  ListExchangeFiltersRequest,
+  ListExchangeFiltersResponse,
+  ListExchangesForListingRequest,
+  ListExchangesForListingResponse,
+  ListExchangesRequest,
+  ListExchangesResponse,
+  ListFiles,
+  ListFiles_Response,
+  ListListingsForExchangeRequest,
+  ListListingsForExchangeResponse,
+  ListProviderAnalyticsDashboard,
+  ListProviderAnalyticsDashboard_Response,
+  ListProviders,
+  ListProviders_Response,
+  Listing,
+  PersonalizationRequest,
+  ProviderInfo,
+  RemoveExchangeForListingRequest,
+  RemoveExchangeForListingResponse,
+  UpdateExchangeFilterRequest,
+  UpdateExchangeFilterResponse,
+  UpdateExchangeRequest,
+  UpdateExchangeResponse,
+  UpdateListing,
+  UpdateListing_Response,
+  UpdatePersonalizationRequestStatus,
+  UpdatePersonalizationRequestStatus_Response,
+  UpdateProvider,
+  UpdateProviderAnalyticsDashboard,
+  UpdateProviderAnalyticsDashboard_Response,
+  UpdateProvider_Response,
+} from './model';
+import {
+  marshalAddExchangeForListingRequestSchema,
+  marshalCreateExchangeFilterRequestSchema,
+  marshalCreateExchangeRequestSchema,
+  marshalCreateFileSchema,
+  marshalCreateListingSchema,
+  marshalCreateProviderAnalyticsDashboardSchema,
+  marshalCreateProviderSchema,
+  marshalFileParentSchema,
+  marshalUpdateExchangeFilterRequestSchema,
+  marshalUpdateExchangeRequestSchema,
+  marshalUpdateListingSchema,
+  marshalUpdatePersonalizationRequestStatusSchema,
+  marshalUpdateProviderAnalyticsDashboardSchema,
+  marshalUpdateProviderSchema,
+  unmarshalAddExchangeForListingResponseSchema,
+  unmarshalCreateExchangeFilterResponseSchema,
+  unmarshalCreateExchangeResponseSchema,
+  unmarshalCreateFile_ResponseSchema,
+  unmarshalCreateListing_ResponseSchema,
+  unmarshalCreateProviderAnalyticsDashboard_ResponseSchema,
+  unmarshalCreateProvider_ResponseSchema,
+  unmarshalDeleteExchangeFilterResponseSchema,
+  unmarshalDeleteExchangeResponseSchema,
+  unmarshalDeleteFile_ResponseSchema,
+  unmarshalDeleteListing_ResponseSchema,
+  unmarshalDeleteProvider_ResponseSchema,
+  unmarshalGetExchangeResponseSchema,
+  unmarshalGetFile_ResponseSchema,
+  unmarshalGetLatestVersionProviderAnalyticsDashboard_ResponseSchema,
+  unmarshalGetListing_ResponseSchema,
+  unmarshalGetListings_ResponseSchema,
+  unmarshalGetPersonalizationRequestsForProvider_ResponseSchema,
+  unmarshalGetProvider_ResponseSchema,
+  unmarshalListExchangeFiltersResponseSchema,
+  unmarshalListExchangesForListingResponseSchema,
+  unmarshalListExchangesResponseSchema,
+  unmarshalListFiles_ResponseSchema,
+  unmarshalListListingsForExchangeResponseSchema,
+  unmarshalListProviderAnalyticsDashboard_ResponseSchema,
+  unmarshalListProviders_ResponseSchema,
+  unmarshalRemoveExchangeForListingResponseSchema,
+  unmarshalUpdateExchangeFilterResponseSchema,
+  unmarshalUpdateExchangeResponseSchema,
+  unmarshalUpdateListing_ResponseSchema,
+  unmarshalUpdatePersonalizationRequestStatus_ResponseSchema,
+  unmarshalUpdateProviderAnalyticsDashboard_ResponseSchema,
+  unmarshalUpdateProvider_ResponseSchema,
+} from './model';
+
+// Package identity segment for this client to be used in the User-Agent header.
+const PACKAGE_SEGMENT = {
+  key: pkgJson.name.replace(/^@[^/]+\//, ''),
+  value: pkgJson.version,
+};
+
+export class Client {
+  private readonly host: string;
+  private readonly httpClient: HttpClient;
+  private readonly logger: Logger;
+  // User-Agent header value. Composed once at construction from
+  // createDefault() merged with this package's identity and the active
+  // credential's name.
+  private readonly userAgent: string;
+
+  constructor(options: ClientOptions) {
+    if (options.host === undefined) {
+      throw new Error('Host is required.');
+    }
+    this.host = options.host.replace(/\/$/, '');
+    this.logger = options.logger ?? new NoOpLogger();
+    let info = createDefault().with(PACKAGE_SEGMENT);
+    if (options.credentials !== undefined) {
+      info = info
+        .with({key: 'sdk-auth', value: AUTH_VERSION})
+        .with({key: 'auth', value: options.credentials.name()});
+    }
+    this.userAgent = info.toString();
+    this.httpClient = newHttpClient(options);
+  }
+
+  /** Associate an exchange with a listing */
+  async addExchangeForListing(
+    signal: AbortSignal | undefined,
+    req: AddExchangeForListingRequest,
+    options?: Options
+  ): Promise<AddExchangeForListingResponse> {
+    const url = `${this.host}/api/2.0/marketplace-exchange/exchanges-for-listing`;
+    const body = marshalRequest(req, marshalAddExchangeForListingRequestSchema);
+    let resp: AddExchangeForListingResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalAddExchangeForListingResponseSchema
+      );
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Create an exchange */
+  async createExchange(
+    signal: AbortSignal | undefined,
+    req: CreateExchangeRequest,
+    options?: Options
+  ): Promise<CreateExchangeResponse> {
+    const url = `${this.host}/api/2.0/marketplace-exchange/exchanges`;
+    const body = marshalRequest(req, marshalCreateExchangeRequestSchema);
+    let resp: CreateExchangeResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalCreateExchangeResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Add an exchange filter. */
+  async createExchangeFilter(
+    signal: AbortSignal | undefined,
+    req: CreateExchangeFilterRequest,
+    options?: Options
+  ): Promise<CreateExchangeFilterResponse> {
+    const url = `${this.host}/api/2.0/marketplace-exchange/filters`;
+    const body = marshalRequest(req, marshalCreateExchangeFilterRequestSchema);
+    let resp: CreateExchangeFilterResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalCreateExchangeFilterResponseSchema
+      );
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Create a file. Currently, only provider icons and attached notebooks are supported. */
+  async createFile(
+    signal: AbortSignal | undefined,
+    req: CreateFile,
+    options?: Options
+  ): Promise<CreateFile_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/files`;
+    const body = marshalRequest(req, marshalCreateFileSchema);
+    let resp: CreateFile_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalCreateFile_ResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Create a new listing */
+  async createListing(
+    signal: AbortSignal | undefined,
+    req: CreateListing,
+    options?: Options
+  ): Promise<CreateListing_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/listing`;
+    const body = marshalRequest(req, marshalCreateListingSchema);
+    let resp: CreateListing_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalCreateListing_ResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Create a provider */
+  async createProvider(
+    signal: AbortSignal | undefined,
+    req: CreateProvider,
+    options?: Options
+  ): Promise<CreateProvider_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/provider`;
+    const body = marshalRequest(req, marshalCreateProviderSchema);
+    let resp: CreateProvider_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalCreateProvider_ResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Create provider analytics dashboard. Returns Marketplace specific `id`. Not to be confused with the Lakeview dashboard id. */
+  async createProviderAnalyticsDashboard(
+    signal: AbortSignal | undefined,
+    req: CreateProviderAnalyticsDashboard,
+    options?: Options
+  ): Promise<CreateProviderAnalyticsDashboard_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard`;
+    const body = marshalRequest(
+      req,
+      marshalCreateProviderAnalyticsDashboardSchema
+    );
+    let resp: CreateProviderAnalyticsDashboard_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalCreateProviderAnalyticsDashboard_ResponseSchema
+      );
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** This removes a listing from marketplace. */
+  async deleteExchange(
+    signal: AbortSignal | undefined,
+    req: DeleteExchangeRequest,
+    options?: Options
+  ): Promise<DeleteExchangeResponse> {
+    const url = `${this.host}/api/2.0/marketplace-exchange/exchanges/${req.id ?? ''}`;
+    let resp: DeleteExchangeResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalDeleteExchangeResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Delete an exchange filter */
+  async deleteExchangeFilter(
+    signal: AbortSignal | undefined,
+    req: DeleteExchangeFilterRequest,
+    options?: Options
+  ): Promise<DeleteExchangeFilterResponse> {
+    const url = `${this.host}/api/2.0/marketplace-exchange/filters/${req.id ?? ''}`;
+    let resp: DeleteExchangeFilterResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalDeleteExchangeFilterResponseSchema
+      );
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Delete a file */
+  async deleteFile(
+    signal: AbortSignal | undefined,
+    req: DeleteFile,
+    options?: Options
+  ): Promise<DeleteFile_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/files/${req.fileId ?? ''}`;
+    let resp: DeleteFile_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalDeleteFile_ResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Delete a listing */
+  async deleteListing(
+    signal: AbortSignal | undefined,
+    req: DeleteListing,
+    options?: Options
+  ): Promise<DeleteListing_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
+    let resp: DeleteListing_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalDeleteListing_ResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Delete provider */
+  async deleteProvider(
+    signal: AbortSignal | undefined,
+    req: DeleteProvider,
+    options?: Options
+  ): Promise<DeleteProvider_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
+    let resp: DeleteProvider_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalDeleteProvider_ResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Get an exchange. */
+  async getExchange(
+    signal: AbortSignal | undefined,
+    req: GetExchangeRequest,
+    options?: Options
+  ): Promise<GetExchangeResponse> {
+    const url = `${this.host}/api/2.0/marketplace-exchange/exchanges/${req.id ?? ''}`;
+    let resp: GetExchangeResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalGetExchangeResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Get a file */
+  async getFile(
+    signal: AbortSignal | undefined,
+    req: GetFile,
+    options?: Options
+  ): Promise<GetFile_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/files/${req.fileId ?? ''}`;
+    let resp: GetFile_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalGetFile_ResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Get latest version of provider analytics dashboard. */
+  async getLatestVersionProviderAnalyticsDashboard(
+    signal: AbortSignal | undefined,
+    _req: GetLatestVersionProviderAnalyticsDashboard,
+    options?: Options
+  ): Promise<GetLatestVersionProviderAnalyticsDashboard_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard/latest`;
+    let resp: GetLatestVersionProviderAnalyticsDashboard_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalGetLatestVersionProviderAnalyticsDashboard_ResponseSchema
+      );
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Get a listing */
+  async getListing(
+    signal: AbortSignal | undefined,
+    req: GetListing,
+    options?: Options
+  ): Promise<GetListing_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
+    let resp: GetListing_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalGetListing_ResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** List listings owned by this provider */
+  async getListings(
+    signal: AbortSignal | undefined,
+    req: GetListings,
+    options?: Options
+  ): Promise<GetListings_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/listings`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: GetListings_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalGetListings_ResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *getListingsIter(
+    signal: AbortSignal | undefined,
+    req: GetListings,
+    options?: Options
+  ): AsyncGenerator<Listing> {
+    const pageReq: GetListings = {...req};
+    for (;;) {
+      const resp = await this.getListings(signal, pageReq, options);
+      for (const item of resp.listings ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /**
+   * List personalization requests to this provider.
+   * This will return all personalization requests, regardless of which listing they are for.
+   */
+  async getPersonalizationRequestsForProvider(
+    signal: AbortSignal | undefined,
+    req: GetPersonalizationRequestsForProvider,
+    options?: Options
+  ): Promise<GetPersonalizationRequestsForProvider_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/personalization-requests`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: GetPersonalizationRequestsForProvider_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalGetPersonalizationRequestsForProvider_ResponseSchema
+      );
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *getPersonalizationRequestsForProviderIter(
+    signal: AbortSignal | undefined,
+    req: GetPersonalizationRequestsForProvider,
+    options?: Options
+  ): AsyncGenerator<PersonalizationRequest> {
+    const pageReq: GetPersonalizationRequestsForProvider = {...req};
+    for (;;) {
+      const resp = await this.getPersonalizationRequestsForProvider(
+        signal,
+        pageReq,
+        options
+      );
+      for (const item of resp.personalizationRequests ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** Get provider profile */
+  async getProvider(
+    signal: AbortSignal | undefined,
+    req: GetProvider,
+    options?: Options
+  ): Promise<GetProvider_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
+    let resp: GetProvider_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalGetProvider_ResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** List exchange filter */
+  async listExchangeFilters(
+    signal: AbortSignal | undefined,
+    req: ListExchangeFiltersRequest,
+    options?: Options
+  ): Promise<ListExchangeFiltersResponse> {
+    const url = `${this.host}/api/2.0/marketplace-exchange/filters`;
+    const params = new URLSearchParams();
+    if (req.exchangeId !== undefined) {
+      params.append('exchange_id', req.exchangeId);
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListExchangeFiltersResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListExchangeFiltersResponseSchema
+      );
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listExchangeFiltersIter(
+    signal: AbortSignal | undefined,
+    req: ListExchangeFiltersRequest,
+    options?: Options
+  ): AsyncGenerator<ExchangeFilter> {
+    const pageReq: ListExchangeFiltersRequest = {...req};
+    for (;;) {
+      const resp = await this.listExchangeFilters(signal, pageReq, options);
+      for (const item of resp.filters ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** List exchanges visible to provider */
+  async listExchanges(
+    signal: AbortSignal | undefined,
+    req: ListExchangesRequest,
+    options?: Options
+  ): Promise<ListExchangesResponse> {
+    const url = `${this.host}/api/2.0/marketplace-exchange/exchanges`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListExchangesResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalListExchangesResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listExchangesIter(
+    signal: AbortSignal | undefined,
+    req: ListExchangesRequest,
+    options?: Options
+  ): AsyncGenerator<Exchange> {
+    const pageReq: ListExchangesRequest = {...req};
+    for (;;) {
+      const resp = await this.listExchanges(signal, pageReq, options);
+      for (const item of resp.exchanges ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** List exchanges associated with a listing */
+  async listExchangesForListing(
+    signal: AbortSignal | undefined,
+    req: ListExchangesForListingRequest,
+    options?: Options
+  ): Promise<ListExchangesForListingResponse> {
+    const url = `${this.host}/api/2.0/marketplace-exchange/exchanges-for-listing`;
+    const params = new URLSearchParams();
+    if (req.listingId !== undefined) {
+      params.append('listing_id', req.listingId);
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListExchangesForListingResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListExchangesForListingResponseSchema
+      );
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listExchangesForListingIter(
+    signal: AbortSignal | undefined,
+    req: ListExchangesForListingRequest,
+    options?: Options
+  ): AsyncGenerator<ExchangeListing> {
+    const pageReq: ListExchangesForListingRequest = {...req};
+    for (;;) {
+      const resp = await this.listExchangesForListing(signal, pageReq, options);
+      for (const item of resp.exchangeListing ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** List files attached to a parent entity. */
+  async listFiles(
+    signal: AbortSignal | undefined,
+    req: ListFiles,
+    options?: Options
+  ): Promise<ListFiles_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/files`;
+    const params = new URLSearchParams();
+    if (req.fileParent !== undefined) {
+      flattenQueryParams(
+        'file_parent',
+        marshalFileParentSchema.parse(req.fileParent),
+        params
+      );
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListFiles_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalListFiles_ResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listFilesIter(
+    signal: AbortSignal | undefined,
+    req: ListFiles,
+    options?: Options
+  ): AsyncGenerator<FileInfo> {
+    const pageReq: ListFiles = {...req};
+    for (;;) {
+      const resp = await this.listFiles(signal, pageReq, options);
+      for (const item of resp.fileInfos ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** List listings associated with an exchange */
+  async listListingsForExchange(
+    signal: AbortSignal | undefined,
+    req: ListListingsForExchangeRequest,
+    options?: Options
+  ): Promise<ListListingsForExchangeResponse> {
+    const url = `${this.host}/api/2.0/marketplace-exchange/listings-for-exchange`;
+    const params = new URLSearchParams();
+    if (req.exchangeId !== undefined) {
+      params.append('exchange_id', req.exchangeId);
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListListingsForExchangeResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListListingsForExchangeResponseSchema
+      );
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listListingsForExchangeIter(
+    signal: AbortSignal | undefined,
+    req: ListListingsForExchangeRequest,
+    options?: Options
+  ): AsyncGenerator<ExchangeListing> {
+    const pageReq: ListListingsForExchangeRequest = {...req};
+    for (;;) {
+      const resp = await this.listListingsForExchange(signal, pageReq, options);
+      for (const item of resp.exchangeListings ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** Get provider analytics dashboard. */
+  async listProviderAnalyticsDashboard(
+    signal: AbortSignal | undefined,
+    _req: ListProviderAnalyticsDashboard,
+    options?: Options
+  ): Promise<ListProviderAnalyticsDashboard_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard`;
+    let resp: ListProviderAnalyticsDashboard_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListProviderAnalyticsDashboard_ResponseSchema
+      );
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** List provider profiles for account. */
+  async listProviders(
+    signal: AbortSignal | undefined,
+    req: ListProviders,
+    options?: Options
+  ): Promise<ListProviders_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/providers`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListProviders_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalListProviders_ResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listProvidersIter(
+    signal: AbortSignal | undefined,
+    req: ListProviders,
+    options?: Options
+  ): AsyncGenerator<ProviderInfo> {
+    const pageReq: ListProviders = {...req};
+    for (;;) {
+      const resp = await this.listProviders(signal, pageReq, options);
+      for (const item of resp.providers ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** Disassociate an exchange with a listing */
+  async removeExchangeForListing(
+    signal: AbortSignal | undefined,
+    req: RemoveExchangeForListingRequest,
+    options?: Options
+  ): Promise<RemoveExchangeForListingResponse> {
+    const url = `${this.host}/api/2.0/marketplace-exchange/exchanges-for-listing/${req.id ?? ''}`;
+    let resp: RemoveExchangeForListingResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalRemoveExchangeForListingResponseSchema
+      );
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Update an exchange */
+  async updateExchange(
+    signal: AbortSignal | undefined,
+    req: UpdateExchangeRequest,
+    options?: Options
+  ): Promise<UpdateExchangeResponse> {
+    const url = `${this.host}/api/2.0/marketplace-exchange/exchanges/${req.id ?? ''}`;
+    const body = marshalRequest(req, marshalUpdateExchangeRequestSchema);
+    let resp: UpdateExchangeResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalUpdateExchangeResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Update an exchange filter. */
+  async updateExchangeFilter(
+    signal: AbortSignal | undefined,
+    req: UpdateExchangeFilterRequest,
+    options?: Options
+  ): Promise<UpdateExchangeFilterResponse> {
+    const url = `${this.host}/api/2.0/marketplace-exchange/filters/${req.id ?? ''}`;
+    const body = marshalRequest(req, marshalUpdateExchangeFilterRequestSchema);
+    let resp: UpdateExchangeFilterResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalUpdateExchangeFilterResponseSchema
+      );
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Update a listing */
+  async updateListing(
+    signal: AbortSignal | undefined,
+    req: UpdateListing,
+    options?: Options
+  ): Promise<UpdateListing_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
+    const body = marshalRequest(req, marshalUpdateListingSchema);
+    let resp: UpdateListing_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalUpdateListing_ResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Update personalization request. This method only permits updating the status of the request. */
+  async updatePersonalizationRequestStatus(
+    signal: AbortSignal | undefined,
+    req: UpdatePersonalizationRequestStatus,
+    options?: Options
+  ): Promise<UpdatePersonalizationRequestStatus_Response> {
+    const url = `${this.host}/api/marketplace-provider/listings/${req.listingId ?? ''}/personalization-requests/${req.requestId ?? ''}/request-status`;
+    const body = marshalRequest(
+      req,
+      marshalUpdatePersonalizationRequestStatusSchema
+    );
+    let resp: UpdatePersonalizationRequestStatus_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalUpdatePersonalizationRequestStatus_ResponseSchema
+      );
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Update provider profile */
+  async updateProvider(
+    signal: AbortSignal | undefined,
+    req: UpdateProvider,
+    options?: Options
+  ): Promise<UpdateProvider_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
+    const body = marshalRequest(req, marshalUpdateProviderSchema);
+    let resp: UpdateProvider_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalUpdateProvider_ResponseSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Update provider analytics dashboard. */
+  async updateProviderAnalyticsDashboard(
+    signal: AbortSignal | undefined,
+    req: UpdateProviderAnalyticsDashboard,
+    options?: Options
+  ): Promise<UpdateProviderAnalyticsDashboard_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard/${req.id ?? ''}`;
+    const body = marshalRequest(
+      req,
+      marshalUpdateProviderAnalyticsDashboardSchema
+    );
+    let resp: UpdateProviderAnalyticsDashboard_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalUpdateProviderAnalyticsDashboard_ResponseSchema
+      );
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+}

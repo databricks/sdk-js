@@ -739,6 +739,12 @@ export enum TerminationCode {
    * This is a client error caused by customer IAM role misconfiguration.
    */
   SECRET_CREATION_ACCESS_DENIED = 'SECRET_CREATION_ACCESS_DENIED',
+  /**
+   * The cluster was terminated proactively by the control plane because it was using old
+   * TLS certificates, which are set to expire soon. New launches will use the rotated cert
+   * set automatically.
+   */
+  CERT_ROTATION = 'CERT_ROTATION',
 }
 
 /** type of the termination */
