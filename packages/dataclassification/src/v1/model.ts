@@ -18,10 +18,18 @@ export enum AutoTaggingConfig_AutoTaggingMode {
  * tags.
  */
 export interface AutoTaggingConfig {
-  /** The Classification Tag (e.g., "class.name", "class.location") */
+  /**
+   * The Classification Tag. For built-in classes this is a system tag (e.g., "class.name",
+   * "class.location"); for custom classes it is a user-defined governance tag key.
+   */
   classificationTag?: string | undefined;
   /** Whether auto-tagging is enabled or disabled for this classification tag. */
   autoTaggingMode?: AutoTaggingConfig_AutoTaggingMode | undefined;
+  /**
+   * Governance tag value paired with `classification_tag` for a custom class. Omit this field
+   * for built-in classes, which use only the system tag key.
+   */
+  classificationTagValue?: string | undefined;
 }
 
 /**
@@ -106,10 +114,12 @@ export const unmarshalAutoTaggingConfigSchema: z.ZodType<AutoTaggingConfig> = z
   .object({
     classification_tag: z.string().optional(),
     auto_tagging_mode: z.enum(AutoTaggingConfig_AutoTaggingMode).optional(),
+    classification_tag_value: z.string().optional(),
   })
   .transform(d => ({
     classificationTag: d.classification_tag,
     autoTaggingMode: d.auto_tagging_mode,
+    classificationTagValue: d.classification_tag_value,
   }));
 
 export const unmarshalCatalogConfigSchema: z.ZodType<CatalogConfig> = z
@@ -152,10 +162,12 @@ export const marshalAutoTaggingConfigSchema: z.ZodType = z
   .object({
     classificationTag: z.string().optional(),
     autoTaggingMode: z.enum(AutoTaggingConfig_AutoTaggingMode).optional(),
+    classificationTagValue: z.string().optional(),
   })
   .transform(d => ({
     classification_tag: d.classificationTag,
     auto_tagging_mode: d.autoTaggingMode,
+    classification_tag_value: d.classificationTagValue,
   }));
 
 export const marshalCatalogConfigSchema: z.ZodType = z

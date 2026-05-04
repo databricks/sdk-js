@@ -2973,7 +2973,8 @@ export interface PipelineTask {
   pipelineId?: string | undefined;
   /**
    * Key/value-map of parameters to pass to the pipeline execution.
-   * Limited to 10k characters in total.
+   * Limited to 10k characters in total. Each key must be non-empty and
+   * at most 100 characters long.
    */
   pipelineTaskParameters?: Record<string, string> | undefined;
   /** If true, triggers a full refresh on the spark declarative pipeline. */
@@ -3295,6 +3296,10 @@ export interface ResolvedValues {
         $case: 'simulationTask';
         simulationTask: ResolvedValues_SimulationTaskResolvedValues;
       }
+    | {
+        $case: 'pipelineTask';
+        pipelineTask: ResolvedValues_PipelineTaskResolvedValues;
+      }
     | undefined;
 }
 
@@ -3318,6 +3323,21 @@ export interface ResolvedValues_NotebookTaskResolvedValues {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ResolvedValues_NotebookTaskResolvedValues_BaseParametersEntry {
   /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
+  key?: string | undefined;
+  value?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ResolvedValues_PipelineTaskResolvedValues {
+  /**
+   * Key/value-map of parameters passed to the pipeline execution.
+   * Limited to 10k characters in total.
+   */
+  pipelineTaskParameters?: Record<string, string> | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ResolvedValues_PipelineTaskResolvedValues_PipelineTaskParametersEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
@@ -6741,6 +6761,9 @@ export const unmarshalResolvedValuesSchema: z.ZodType<ResolvedValues> = z
     simulation_task: z
       .lazy(() => unmarshalResolvedValues_SimulationTaskResolvedValuesSchema)
       .optional(),
+    pipeline_task: z
+      .lazy(() => unmarshalResolvedValues_PipelineTaskResolvedValuesSchema)
+      .optional(),
   })
   .transform(d => ({
     resolved:
@@ -6782,7 +6805,12 @@ export const unmarshalResolvedValuesSchema: z.ZodType<ResolvedValues> = z
                               $case: 'simulationTask' as const,
                               simulationTask: d.simulation_task,
                             }
-                          : undefined,
+                          : d.pipeline_task !== undefined
+                            ? {
+                                $case: 'pipelineTask' as const,
+                                pipelineTask: d.pipeline_task,
+                              }
+                            : undefined,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -6815,6 +6843,16 @@ export const unmarshalResolvedValues_NotebookTaskResolvedValuesSchema: z.ZodType
     })
     .transform(d => ({
       baseParameters: d.base_parameters,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalResolvedValues_PipelineTaskResolvedValuesSchema: z.ZodType<ResolvedValues_PipelineTaskResolvedValues> =
+  z
+    .object({
+      parameters: z.record(z.string(), z.string()).optional(),
+    })
+    .transform(d => ({
+      pipelineTaskParameters: d.parameters,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

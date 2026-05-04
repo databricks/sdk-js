@@ -1,0 +1,220 @@
+// Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
+
+import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
+import type {Call, Options} from '@databricks/sdk-core/api';
+import {execute} from '@databricks/sdk-core/api';
+import {createDefault} from '@databricks/sdk-core/clientinfo';
+import type {Logger} from '@databricks/sdk-databricks/logger';
+import {NoOpLogger} from '@databricks/sdk-databricks/logger';
+import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {HttpClient} from '@databricks/sdk-core/http';
+import {newHttpClient} from '@databricks/sdk-databricks/transport';
+import {
+  buildHttpRequest,
+  executeHttpCall,
+  marshalRequest,
+  parseResponse,
+} from './utils';
+import pkgJson from '../../package.json' with {type: 'json'};
+import type {
+  CancelCustomLlmOptimizationRunRequest,
+  CreateCustomLlmRequest,
+  CustomLlm,
+  DeleteCustomLlmRequest,
+  GetCustomLlmRequest,
+  StartCustomLlmOptimizationRunRequest,
+  UpdateCustomLlmRequest,
+} from './model';
+import {
+  marshalCancelCustomLlmOptimizationRunRequestSchema,
+  marshalCreateCustomLlmRequestSchema,
+  marshalStartCustomLlmOptimizationRunRequestSchema,
+  marshalUpdateCustomLlmRequestSchema,
+  unmarshalCustomLlmSchema,
+} from './model';
+
+// Package identity segment for this client to be used in the User-Agent header.
+const PACKAGE_SEGMENT = {
+  key: pkgJson.name.replace(/^@[^/]+\//, ''),
+  value: pkgJson.version,
+};
+
+export class Client {
+  private readonly host: string;
+  private readonly httpClient: HttpClient;
+  private readonly logger: Logger;
+  // User-Agent header value. Composed once at construction from
+  // createDefault() merged with this package's identity and the active
+  // credential's name.
+  private readonly userAgent: string;
+
+  constructor(options: ClientOptions) {
+    if (options.host === undefined) {
+      throw new Error('Host is required.');
+    }
+    this.host = options.host.replace(/\/$/, '');
+    this.logger = options.logger ?? new NoOpLogger();
+    let info = createDefault().with(PACKAGE_SEGMENT);
+    if (options.credentials !== undefined) {
+      info = info
+        .with({key: 'sdk-auth', value: AUTH_VERSION})
+        .with({key: 'auth', value: options.credentials.name()});
+    }
+    this.userAgent = info.toString();
+    this.httpClient = newHttpClient(options);
+  }
+
+  /** Cancel a Custom LLM Optimization Run. */
+  async cancelCustomLlmOptimizationRun(
+    signal: AbortSignal | undefined,
+    req: CancelCustomLlmOptimizationRunRequest,
+    options?: Options
+  ): Promise<void> {
+    const url = `${this.host}/api/2.0/custom-llms/${req.id ?? ''}/optimize/cancel`;
+    const body = marshalRequest(
+      req,
+      marshalCancelCustomLlmOptimizationRunRequestSchema
+    );
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+    };
+    await execute(signal, call, options);
+  }
+
+  /** Create a Custom LLM. */
+  async createCustomLlm(
+    signal: AbortSignal | undefined,
+    req: CreateCustomLlmRequest,
+    options?: Options
+  ): Promise<CustomLlm> {
+    const url = `${this.host}/api/2.0/custom-llms`;
+    const body = marshalRequest(req, marshalCreateCustomLlmRequestSchema);
+    let resp: CustomLlm | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalCustomLlmSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Delete a Custom LLM. */
+  async deleteCustomLlm(
+    signal: AbortSignal | undefined,
+    req: DeleteCustomLlmRequest,
+    options?: Options
+  ): Promise<void> {
+    const url = `${this.host}/api/2.0/custom-llms/${req.id ?? ''}`;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+    };
+    await execute(signal, call, options);
+  }
+
+  /** Get a Custom LLM. */
+  async getCustomLlm(
+    signal: AbortSignal | undefined,
+    req: GetCustomLlmRequest,
+    options?: Options
+  ): Promise<CustomLlm> {
+    const url = `${this.host}/api/2.0/custom-llms/${req.id ?? ''}`;
+    let resp: CustomLlm | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalCustomLlmSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Start a Custom LLM Optimization Run. */
+  async startCustomLlmOptimizationRun(
+    signal: AbortSignal | undefined,
+    req: StartCustomLlmOptimizationRunRequest,
+    options?: Options
+  ): Promise<CustomLlm> {
+    const url = `${this.host}/api/2.0/custom-llms/${req.id ?? ''}/optimize`;
+    const body = marshalRequest(
+      req,
+      marshalStartCustomLlmOptimizationRunRequestSchema
+    );
+    let resp: CustomLlm | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalCustomLlmSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Update a Custom LLM. */
+  async updateCustomLlm(
+    signal: AbortSignal | undefined,
+    req: UpdateCustomLlmRequest,
+    options?: Options
+  ): Promise<CustomLlm> {
+    const url = `${this.host}/api/2.0/custom-llms/${req.id ?? ''}`;
+    const body = marshalRequest(req, marshalUpdateCustomLlmRequestSchema);
+    let resp: CustomLlm | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalCustomLlmSchema);
+    };
+    await execute(signal, call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+}
