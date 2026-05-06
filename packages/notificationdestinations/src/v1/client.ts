@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -70,7 +71,7 @@ export class Client {
   async createNotificationDestination(
     signal: AbortSignal | undefined,
     req: CreateNotificationDestinationRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<NotificationDestination> {
     const url = `${this.host}/api/2.0/notification-destinations`;
     const body = marshalRequest(
@@ -89,7 +90,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalNotificationDestinationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -100,7 +101,7 @@ export class Client {
   async deleteNotificationDestination(
     signal: AbortSignal | undefined,
     req: DeleteNotificationDestinationRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Empty> {
     const url = `${this.host}/api/2.0/notification-destinations/${req.id ?? ''}`;
     let resp: Empty | undefined;
@@ -115,7 +116,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEmptySchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -126,7 +127,7 @@ export class Client {
   async getNotificationDestination(
     signal: AbortSignal | undefined,
     req: GetNotificationDestinationRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<NotificationDestination> {
     const url = `${this.host}/api/2.0/notification-destinations/${req.id ?? ''}`;
     let resp: NotificationDestination | undefined;
@@ -141,7 +142,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalNotificationDestinationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -152,7 +153,7 @@ export class Client {
   async listNotificationDestinations(
     signal: AbortSignal | undefined,
     req: ListNotificationDestinationsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListNotificationDestinationsResponse> {
     const url = `${this.host}/api/2.0/notification-destinations`;
     const params = new URLSearchParams();
@@ -179,7 +180,7 @@ export class Client {
         unmarshalListNotificationDestinationsResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -189,7 +190,7 @@ export class Client {
   async *listNotificationDestinationsIter(
     signal: AbortSignal | undefined,
     req: ListNotificationDestinationsRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<ListNotificationDestinationsResult> {
     const pageReq: ListNotificationDestinationsRequest = {...req};
     for (;;) {
@@ -212,7 +213,7 @@ export class Client {
   async updateNotificationDestination(
     signal: AbortSignal | undefined,
     req: UpdateNotificationDestinationRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<NotificationDestination> {
     const url = `${this.host}/api/2.0/notification-destinations/${req.id ?? ''}`;
     const body = marshalRequest(
@@ -231,7 +232,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalNotificationDestinationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

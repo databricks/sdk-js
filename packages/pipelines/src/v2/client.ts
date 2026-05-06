@@ -1,16 +1,18 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute, retryOn} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -111,7 +113,7 @@ export class Client {
   async applyEnvironment(
     signal: AbortSignal | undefined,
     req: ApplyEnvironmentRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ApplyEnvironmentRequest_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}/environment/apply`;
     const body = marshalRequest(req, marshalApplyEnvironmentRequestSchema);
@@ -130,7 +132,7 @@ export class Client {
         unmarshalApplyEnvironmentRequest_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -145,7 +147,7 @@ export class Client {
   async clone(
     signal: AbortSignal | undefined,
     req: ClonePipeline,
-    options?: Options
+    options?: CallOptions
   ): Promise<ClonePipeline_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}/clone`;
     const body = marshalRequest(req, marshalClonePipelineSchema);
@@ -161,7 +163,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalClonePipeline_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -175,7 +177,7 @@ export class Client {
   async create(
     signal: AbortSignal | undefined,
     req: CreatePipeline,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreatePipeline_Response> {
     const url = `${this.host}/api/2.0/pipelines`;
     const body = marshalRequest(req, marshalCreatePipelineSchema);
@@ -191,7 +193,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreatePipeline_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -205,7 +207,7 @@ export class Client {
   async delete(
     signal: AbortSignal | undefined,
     req: DeletePipeline,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeletePipeline_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}`;
     const params = new URLSearchParams();
@@ -232,7 +234,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeletePipeline_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -243,7 +245,7 @@ export class Client {
   async edit(
     signal: AbortSignal | undefined,
     req: EditPipeline,
-    options?: Options
+    options?: CallOptions
   ): Promise<EditPipeline_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}`;
     const body = marshalRequest(req, marshalEditPipelineSchema);
@@ -259,7 +261,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEditPipeline_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -270,7 +272,7 @@ export class Client {
   async events(
     signal: AbortSignal | undefined,
     req: ListPipelineEvents,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListPipelineEvents_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}/events`;
     const params = new URLSearchParams();
@@ -303,7 +305,7 @@ export class Client {
         unmarshalListPipelineEvents_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -313,7 +315,7 @@ export class Client {
   async *eventsIter(
     signal: AbortSignal | undefined,
     req: ListPipelineEvents,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<PipelineEvent> {
     const pageReq: ListPipelineEvents = {...req};
     for (;;) {
@@ -332,7 +334,7 @@ export class Client {
   async get(
     signal: AbortSignal | undefined,
     req: GetPipeline,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetPipeline_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}`;
     let resp: GetPipeline_Response | undefined;
@@ -347,7 +349,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetPipeline_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -358,7 +360,7 @@ export class Client {
   async getUpdate(
     signal: AbortSignal | undefined,
     req: GetUpdate,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetUpdate_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}/updates/${req.updateId ?? ''}`;
     let resp: GetUpdate_Response | undefined;
@@ -373,7 +375,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetUpdate_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -384,7 +386,7 @@ export class Client {
   async list(
     signal: AbortSignal | undefined,
     req: ListPipelines,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListPipelines_Response> {
     const url = `${this.host}/api/2.0/pipelines`;
     const params = new URLSearchParams();
@@ -414,7 +416,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListPipelines_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -424,7 +426,7 @@ export class Client {
   async *listIter(
     signal: AbortSignal | undefined,
     req: ListPipelines,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<PipelineStateInfo> {
     const pageReq: ListPipelines = {...req};
     for (;;) {
@@ -443,7 +445,7 @@ export class Client {
   async listUpdates(
     signal: AbortSignal | undefined,
     req: ListUpdates,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListUpdates_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}/updates`;
     const params = new URLSearchParams();
@@ -470,7 +472,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListUpdates_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -485,7 +487,7 @@ export class Client {
   async restorePipeline(
     signal: AbortSignal | undefined,
     req: RestorePipelineRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<RestorePipelineRequest_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}/restore`;
     const body = marshalRequest(req, marshalRestorePipelineRequestSchema);
@@ -504,7 +506,7 @@ export class Client {
         unmarshalRestorePipelineRequest_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -515,7 +517,7 @@ export class Client {
   async start(
     signal: AbortSignal | undefined,
     req: StartUpdate,
-    options?: Options
+    options?: CallOptions
   ): Promise<StartUpdate_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}/updates`;
     const body = marshalRequest(req, marshalStartUpdateSchema);
@@ -531,7 +533,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStartUpdate_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -542,7 +544,7 @@ export class Client {
   async stop(
     signal: AbortSignal | undefined,
     req: StopPipeline,
-    options?: Options
+    options?: CallOptions
   ): Promise<StopPipeline_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}/stop`;
     const body = marshalRequest(req, marshalStopPipelineSchema);
@@ -558,7 +560,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStopPipeline_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -568,7 +570,7 @@ export class Client {
   async stopWaiter(
     signal: AbortSignal | undefined,
     req: StopPipeline,
-    options?: Options
+    options?: CallOptions
   ): Promise<StopWaiter> {
     await this.stop(signal, req, options);
     if (req.pipelineId === undefined) {
@@ -593,7 +595,7 @@ export class StopWaiter {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetPipeline_Response> {
     let result: GetPipeline_Response | undefined;
 
@@ -624,13 +626,13 @@ export class StopWaiter {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -640,7 +642,7 @@ export class StopWaiter {
   /** Checks whether the operation has reached a terminal state. */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean> {
     const pollResp = await this.client.get(
       signal,

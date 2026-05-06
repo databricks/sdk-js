@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -94,7 +95,7 @@ export class Client {
   async createCustomOAuthAppIntegration(
     signal: AbortSignal | undefined,
     req: CreateCustomOAuthAppIntegration,
-    options?: Options
+    options?: CallOptions
   ): Promise<CustomOAuthAppIntegrationSecret> {
     const url = `${this.host}/api/2.0/accounts/{account_id}/oauth2/custom-app-integrations`;
     const body = marshalRequest(
@@ -116,7 +117,7 @@ export class Client {
         unmarshalCustomOAuthAppIntegrationSecretSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -131,7 +132,7 @@ export class Client {
   async createPublishedOAuthAppIntegration(
     signal: AbortSignal | undefined,
     req: CreatePublishedOAuthAppIntegration,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreatePublishedOAuthAppIntegration_Response> {
     const url = `${this.host}/api/2.0/accounts/{account_id}/oauth2/published-app-integrations`;
     const body = marshalRequest(
@@ -153,7 +154,7 @@ export class Client {
         unmarshalCreatePublishedOAuthAppIntegration_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -167,7 +168,7 @@ export class Client {
   async deleteCustomOAuthAppIntegration(
     signal: AbortSignal | undefined,
     req: DeleteCustomOAuthAppIntegration,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteCustomOAuthAppIntegration_Response> {
     const url = `${this.host}/api/2.0/accounts//oauth2/custom-app-integrations/${req.integrationId ?? ''}`;
     const params = new URLSearchParams();
@@ -191,7 +192,7 @@ export class Client {
         unmarshalDeleteCustomOAuthAppIntegration_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -205,7 +206,7 @@ export class Client {
   async deletePublishedOAuthAppIntegration(
     signal: AbortSignal | undefined,
     req: DeletePublishedOAuthAppIntegration,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeletePublishedOAuthAppIntegration_Response> {
     const url = `${this.host}/api/2.0/accounts//oauth2/published-app-integrations/${req.integrationId ?? ''}`;
     const params = new URLSearchParams();
@@ -229,7 +230,7 @@ export class Client {
         unmarshalDeletePublishedOAuthAppIntegration_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -240,7 +241,7 @@ export class Client {
   async getCustomOAuthAppIntegration(
     signal: AbortSignal | undefined,
     req: GetCustomOAuthAppIntegration,
-    options?: Options
+    options?: CallOptions
   ): Promise<CustomOAuthAppIntegration> {
     const url = `${this.host}/api/2.0/accounts//oauth2/custom-app-integrations/${req.integrationId ?? ''}`;
     const params = new URLSearchParams();
@@ -261,7 +262,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCustomOAuthAppIntegrationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -272,7 +273,7 @@ export class Client {
   async getPublishedOAuthAppIntegration(
     signal: AbortSignal | undefined,
     req: GetPublishedOAuthAppIntegration,
-    options?: Options
+    options?: CallOptions
   ): Promise<PublishedOAuthAppIntegration> {
     const url = `${this.host}/api/2.0/accounts//oauth2/published-app-integrations/${req.integrationId ?? ''}`;
     const params = new URLSearchParams();
@@ -296,7 +297,7 @@ export class Client {
         unmarshalPublishedOAuthAppIntegrationSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -307,7 +308,7 @@ export class Client {
   async listCustomOAuthAppIntegrations(
     signal: AbortSignal | undefined,
     req: ListCustomOAuthAppIntegrations,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListCustomOAuthAppIntegrations_Response> {
     const url = `${this.host}/api/2.0/accounts/{account_id}/oauth2/custom-app-integrations`;
     const params = new URLSearchParams();
@@ -343,7 +344,7 @@ export class Client {
         unmarshalListCustomOAuthAppIntegrations_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -353,7 +354,7 @@ export class Client {
   async *listCustomOAuthAppIntegrationsIter(
     signal: AbortSignal | undefined,
     req: ListCustomOAuthAppIntegrations,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<CustomOAuthAppIntegration> {
     const pageReq: ListCustomOAuthAppIntegrations = {...req};
     for (;;) {
@@ -376,7 +377,7 @@ export class Client {
   async listPublishedOAuthAppIntegrations(
     signal: AbortSignal | undefined,
     req: ListPublishedOAuthAppIntegrations,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListPublishedOAuthAppIntegrations_Response> {
     const url = `${this.host}/api/2.0/accounts/{account_id}/oauth2/published-app-integrations`;
     const params = new URLSearchParams();
@@ -406,7 +407,7 @@ export class Client {
         unmarshalListPublishedOAuthAppIntegrations_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -416,7 +417,7 @@ export class Client {
   async *listPublishedOAuthAppIntegrationsIter(
     signal: AbortSignal | undefined,
     req: ListPublishedOAuthAppIntegrations,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<PublishedOAuthAppIntegration> {
     const pageReq: ListPublishedOAuthAppIntegrations = {...req};
     for (;;) {
@@ -442,7 +443,7 @@ export class Client {
   async updateCustomOAuthAppIntegration(
     signal: AbortSignal | undefined,
     req: UpdateCustomOAuthAppIntegration,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateCustomOAuthAppIntegration_Response> {
     const url = `${this.host}/api/2.0/accounts//oauth2/custom-app-integrations/${req.integrationId ?? ''}`;
     const body = marshalRequest(
@@ -464,7 +465,7 @@ export class Client {
         unmarshalUpdateCustomOAuthAppIntegration_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -478,7 +479,7 @@ export class Client {
   async updatePublishedOAuthAppIntegration(
     signal: AbortSignal | undefined,
     req: UpdatePublishedOAuthAppIntegration,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdatePublishedOAuthAppIntegration_Response> {
     const url = `${this.host}/api/2.0/accounts//oauth2/published-app-integrations/${req.integrationId ?? ''}`;
     const body = marshalRequest(
@@ -500,7 +501,7 @@ export class Client {
         unmarshalUpdatePublishedOAuthAppIntegration_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

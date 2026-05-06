@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -78,7 +79,7 @@ export class Client {
   async getPublicAccountSetting(
     signal: AbortSignal | undefined,
     req: GetPublicAccountSettingRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Setting> {
     const url = `${this.host}/api/2.1/accounts//settings/${req.name ?? ''}`;
     const params = new URLSearchParams();
@@ -99,7 +100,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSettingSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -114,7 +115,7 @@ export class Client {
   async getPublicAccountUserPreference(
     signal: AbortSignal | undefined,
     req: GetPublicAccountUserPreferenceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<UserPreference> {
     const url = `${this.host}/api/2.1/accounts//users/${req.userId ?? ''}/settings/${req.name ?? ''}`;
     const params = new URLSearchParams();
@@ -135,7 +136,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUserPreferenceSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -146,7 +147,7 @@ export class Client {
   async getPublicWorkspaceSetting(
     signal: AbortSignal | undefined,
     req: GetPublicWorkspaceSettingRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Setting> {
     const url = `${this.host}/api/2.1/settings/${req.name ?? ''}`;
     let resp: Setting | undefined;
@@ -161,7 +162,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSettingSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -176,7 +177,7 @@ export class Client {
   async listAccountSettingsMetadata(
     signal: AbortSignal | undefined,
     req: ListAccountSettingsMetadataRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListAccountSettingsMetadataResponse> {
     const url = `${this.host}/api/2.1/accounts/{account_id}/settings-metadata`;
     const params = new URLSearchParams();
@@ -206,7 +207,7 @@ export class Client {
         unmarshalListAccountSettingsMetadataResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -216,7 +217,7 @@ export class Client {
   async *listAccountSettingsMetadataIter(
     signal: AbortSignal | undefined,
     req: ListAccountSettingsMetadataRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<SettingsMetadata> {
     const pageReq: ListAccountSettingsMetadataRequest = {...req};
     for (;;) {
@@ -245,7 +246,7 @@ export class Client {
   async listAccountUserPreferencesMetadata(
     signal: AbortSignal | undefined,
     req: ListAccountUserPreferencesMetadataRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListAccountUserPreferencesMetadataResponse> {
     const url = `${this.host}/api/2.1/accounts//users/${req.userId ?? ''}/settings-metadata`;
     const params = new URLSearchParams();
@@ -275,7 +276,7 @@ export class Client {
         unmarshalListAccountUserPreferencesMetadataResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -285,7 +286,7 @@ export class Client {
   async *listAccountUserPreferencesMetadataIter(
     signal: AbortSignal | undefined,
     req: ListAccountUserPreferencesMetadataRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<SettingsMetadata> {
     const pageReq: ListAccountUserPreferencesMetadataRequest = {...req};
     for (;;) {
@@ -312,7 +313,7 @@ export class Client {
   async listWorkspaceSettingsMetadata(
     signal: AbortSignal | undefined,
     req: ListWorkspaceSettingsMetadataRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListWorkspaceSettingsMetadataResponse> {
     const url = `${this.host}/api/2.1/settings-metadata`;
     const params = new URLSearchParams();
@@ -339,7 +340,7 @@ export class Client {
         unmarshalListWorkspaceSettingsMetadataResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -349,7 +350,7 @@ export class Client {
   async *listWorkspaceSettingsMetadataIter(
     signal: AbortSignal | undefined,
     req: ListWorkspaceSettingsMetadataRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<SettingsMetadata> {
     const pageReq: ListWorkspaceSettingsMetadataRequest = {...req};
     for (;;) {
@@ -377,7 +378,7 @@ export class Client {
   async patchPublicAccountSetting(
     signal: AbortSignal | undefined,
     req: PatchPublicAccountSettingRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Setting> {
     const url = `${this.host}/api/2.1/accounts//settings/${req.name ?? ''}`;
     const params = new URLSearchParams();
@@ -405,7 +406,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSettingSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -422,7 +423,7 @@ export class Client {
   async patchPublicAccountUserPreference(
     signal: AbortSignal | undefined,
     req: PatchPublicAccountUserPreferenceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<UserPreference> {
     const url = `${this.host}/api/2.1/accounts//users/${req.userId ?? ''}/settings/${req.name ?? ''}`;
     const params = new URLSearchParams();
@@ -450,7 +451,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUserPreferenceSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -466,7 +467,7 @@ export class Client {
   async patchPublicWorkspaceSetting(
     signal: AbortSignal | undefined,
     req: PatchPublicWorkspaceSettingRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Setting> {
     const url = `${this.host}/api/2.1/settings/${req.name ?? ''}`;
     const body = marshalRequest(req.setting, marshalSettingSchema);
@@ -482,7 +483,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSettingSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

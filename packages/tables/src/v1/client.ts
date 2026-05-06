@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -110,7 +111,7 @@ export class Client {
   async createTable(
     signal: AbortSignal | undefined,
     req: CreateTable,
-    options?: Options
+    options?: CallOptions
   ): Promise<TableInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/tables`;
     const body = marshalRequest(req, marshalCreateTableSchema);
@@ -126,7 +127,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTableInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -147,7 +148,7 @@ export class Client {
   async createTableConstraint(
     signal: AbortSignal | undefined,
     req: CreateTableConstraint,
-    options?: Options
+    options?: CallOptions
   ): Promise<TableConstraint> {
     const url = `${this.host}/api/2.1/unity-catalog/constraints`;
     const body = marshalRequest(req, marshalCreateTableConstraintSchema);
@@ -163,7 +164,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTableConstraintSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -178,7 +179,7 @@ export class Client {
   async deleteTable(
     signal: AbortSignal | undefined,
     req: DeleteTable,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteTable_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullNameArg ?? ''}`;
     let resp: DeleteTable_Response | undefined;
@@ -193,7 +194,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteTable_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -214,7 +215,7 @@ export class Client {
   async deleteTableConstraint(
     signal: AbortSignal | undefined,
     req: DeleteTableConstraint,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteTableConstraint_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/constraints/${req.fullNameArg ?? ''}`;
     const params = new URLSearchParams();
@@ -241,7 +242,7 @@ export class Client {
         unmarshalDeleteTableConstraint_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -260,7 +261,7 @@ export class Client {
   async getTable(
     signal: AbortSignal | undefined,
     req: GetTable,
-    options?: Options
+    options?: CallOptions
   ): Promise<TableInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullNameArg ?? ''}`;
     const params = new URLSearchParams();
@@ -290,7 +291,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTableInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -313,7 +314,7 @@ export class Client {
   async listTableSummaries(
     signal: AbortSignal | undefined,
     req: ListTableSummaries,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListTableSummaries_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/table-summaries`;
     const params = new URLSearchParams();
@@ -355,7 +356,7 @@ export class Client {
         unmarshalListTableSummaries_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -365,7 +366,7 @@ export class Client {
   async *listTableSummariesIter(
     signal: AbortSignal | undefined,
     req: ListTableSummaries,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<TableSummary> {
     const pageReq: ListTableSummaries = {...req};
     for (;;) {
@@ -396,7 +397,7 @@ export class Client {
   async listTables(
     signal: AbortSignal | undefined,
     req: ListTables,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListTables_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/tables`;
     const params = new URLSearchParams();
@@ -444,7 +445,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListTables_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -454,7 +455,7 @@ export class Client {
   async *listTablesIter(
     signal: AbortSignal | undefined,
     req: ListTables,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<TableInfo> {
     const pageReq: ListTables = {...req};
     for (;;) {
@@ -483,7 +484,7 @@ export class Client {
   async tableExists(
     signal: AbortSignal | undefined,
     req: TableExists,
-    options?: Options
+    options?: CallOptions
   ): Promise<TableExists_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullNameArg ?? ''}/exists`;
     let resp: TableExists_Response | undefined;
@@ -498,7 +499,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTableExists_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -513,7 +514,7 @@ export class Client {
   async updateTable(
     signal: AbortSignal | undefined,
     req: UpdateTable,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateTable_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullNameArg ?? ''}`;
     const body = marshalRequest(req, marshalUpdateTableSchema);
@@ -529,7 +530,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdateTable_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

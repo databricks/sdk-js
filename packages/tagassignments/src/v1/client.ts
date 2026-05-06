@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -66,7 +67,7 @@ export class Client {
   async createTagAssignment(
     signal: AbortSignal | undefined,
     req: CreateTagAssignmentRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<TagAssignment> {
     const url = `${this.host}/api/2.0/entity-tag-assignments`;
     const body = marshalRequest(req.tagAssignment, marshalTagAssignmentSchema);
@@ -82,7 +83,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTagAssignmentSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -93,7 +94,7 @@ export class Client {
   async deleteTagAssignment(
     signal: AbortSignal | undefined,
     req: DeleteTagAssignmentRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/entity-tag-assignments/${req.entityType ?? ''}/${req.entityId ?? ''}/tags/${req.tagKey ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -106,14 +107,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Get a tag assignment */
   async getTagAssignment(
     signal: AbortSignal | undefined,
     req: GetTagAssignmentRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<TagAssignment> {
     const url = `${this.host}/api/2.0/entity-tag-assignments/${req.entityType ?? ''}/${req.entityId ?? ''}/tags/${req.tagKey ?? ''}`;
     let resp: TagAssignment | undefined;
@@ -128,7 +129,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTagAssignmentSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -139,7 +140,7 @@ export class Client {
   async listTagAssignments(
     signal: AbortSignal | undefined,
     req: ListTagAssignmentsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListTagAssignmentsResponse> {
     const url = `${this.host}/api/2.0/entity-tag-assignments/${req.entityType ?? ''}/${req.entityId ?? ''}/tags`;
     const params = new URLSearchParams();
@@ -163,7 +164,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListTagAssignmentsResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -173,7 +174,7 @@ export class Client {
   async *listTagAssignmentsIter(
     signal: AbortSignal | undefined,
     req: ListTagAssignmentsRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<TagAssignment> {
     const pageReq: ListTagAssignmentsRequest = {...req};
     for (;;) {
@@ -192,7 +193,7 @@ export class Client {
   async updateTagAssignment(
     signal: AbortSignal | undefined,
     req: UpdateTagAssignmentRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<TagAssignment> {
     const url = `${this.host}/api/2.0/entity-tag-assignments/${req.tagAssignment?.entityType ?? ''}/${req.tagAssignment?.entityId ?? ''}/tags/${req.tagAssignment?.tagKey ?? ''}`;
     const params = new URLSearchParams();
@@ -220,7 +221,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTagAssignmentSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

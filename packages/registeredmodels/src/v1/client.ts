@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -100,7 +101,7 @@ export class Client {
   async createRegisteredModel(
     signal: AbortSignal | undefined,
     req: CreateRegisteredModel,
-    options?: Options
+    options?: CallOptions
   ): Promise<RegisteredModelInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/models`;
     const body = marshalRequest(req, marshalCreateRegisteredModelSchema);
@@ -116,7 +117,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRegisteredModelInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -134,7 +135,7 @@ export class Client {
   async deleteModelVersion(
     signal: AbortSignal | undefined,
     req: DeleteModelVersion,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteModelVersion_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}/versions/${String(req.versionArg ?? '')}`;
     let resp: DeleteModelVersion_Response | undefined;
@@ -152,7 +153,7 @@ export class Client {
         unmarshalDeleteModelVersion_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -169,7 +170,7 @@ export class Client {
   async deleteRegisteredModel(
     signal: AbortSignal | undefined,
     req: DeleteRegisteredModel,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteRegisteredModel_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}`;
     let resp: DeleteRegisteredModel_Response | undefined;
@@ -187,7 +188,7 @@ export class Client {
         unmarshalDeleteRegisteredModel_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -204,7 +205,7 @@ export class Client {
   async deleteRegisteredModelAlias(
     signal: AbortSignal | undefined,
     req: DeleteRegisteredModelAlias,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteRegisteredModelAlias_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}/aliases/${req.aliasArg ?? ''}`;
     let resp: DeleteRegisteredModelAlias_Response | undefined;
@@ -222,7 +223,7 @@ export class Client {
         unmarshalDeleteRegisteredModelAlias_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -240,7 +241,7 @@ export class Client {
   async getModelVersion(
     signal: AbortSignal | undefined,
     req: GetModelVersion,
-    options?: Options
+    options?: CallOptions
   ): Promise<ModelVersionInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}/versions/${String(req.versionArg ?? '')}`;
     const params = new URLSearchParams();
@@ -264,7 +265,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalModelVersionInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -282,7 +283,7 @@ export class Client {
   async getModelVersionByAlias(
     signal: AbortSignal | undefined,
     req: GetModelVersionByAlias,
-    options?: Options
+    options?: CallOptions
   ): Promise<ModelVersionInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}/aliases/${req.aliasArg ?? ''}`;
     const params = new URLSearchParams();
@@ -303,7 +304,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalModelVersionInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -321,7 +322,7 @@ export class Client {
   async getRegisteredModel(
     signal: AbortSignal | undefined,
     req: GetRegisteredModel,
-    options?: Options
+    options?: CallOptions
   ): Promise<RegisteredModelInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}`;
     const params = new URLSearchParams();
@@ -345,7 +346,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRegisteredModelInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -372,7 +373,7 @@ export class Client {
   async listModelVersions(
     signal: AbortSignal | undefined,
     req: ListModelVersions,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListModelVersions_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}/versions`;
     const params = new URLSearchParams();
@@ -399,7 +400,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListModelVersions_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -409,7 +410,7 @@ export class Client {
   async *listModelVersionsIter(
     signal: AbortSignal | undefined,
     req: ListModelVersions,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<ModelVersionInfo> {
     const pageReq: ListModelVersions = {...req};
     for (;;) {
@@ -443,7 +444,7 @@ export class Client {
   async listRegisteredModels(
     signal: AbortSignal | undefined,
     req: ListRegisteredModels,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListRegisteredModels_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/models`;
     const params = new URLSearchParams();
@@ -479,7 +480,7 @@ export class Client {
         unmarshalListRegisteredModels_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -489,7 +490,7 @@ export class Client {
   async *listRegisteredModelsIter(
     signal: AbortSignal | undefined,
     req: ListRegisteredModels,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<RegisteredModelInfo> {
     const pageReq: ListRegisteredModels = {...req};
     for (;;) {
@@ -514,7 +515,7 @@ export class Client {
   async setRegisteredModelAlias(
     signal: AbortSignal | undefined,
     req: SetRegisteredModelAlias,
-    options?: Options
+    options?: CallOptions
   ): Promise<RegisteredModelAliasInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}/aliases/${req.aliasArg ?? ''}`;
     const body = marshalRequest(req, marshalSetRegisteredModelAliasSchema);
@@ -530,7 +531,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRegisteredModelAliasInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -549,7 +550,7 @@ export class Client {
   async updateModelVersion(
     signal: AbortSignal | undefined,
     req: UpdateModelVersion,
-    options?: Options
+    options?: CallOptions
   ): Promise<ModelVersionInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}/versions/${String(req.versionArg ?? '')}`;
     const body = marshalRequest(req, marshalUpdateModelVersionSchema);
@@ -565,7 +566,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalModelVersionInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -584,7 +585,7 @@ export class Client {
   async updateRegisteredModel(
     signal: AbortSignal | undefined,
     req: UpdateRegisteredModel,
-    options?: Options
+    options?: CallOptions
   ): Promise<RegisteredModelInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/models/${req.fullNameArg ?? ''}`;
     const body = marshalRequest(req, marshalUpdateRegisteredModelSchema);
@@ -600,7 +601,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRegisteredModelInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

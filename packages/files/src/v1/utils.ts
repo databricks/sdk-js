@@ -3,7 +3,7 @@
  */
 
 import {APIError} from '@databricks/sdk-core/apierror';
-import type {Logger} from '@databricks/sdk-databricks/logger';
+import type {Logger} from '@databricks/sdk-core/logger';
 import type {
   HttpClient,
   HttpRequest,

@@ -5,8 +5,7 @@ import type {
   HttpResponse,
 } from '@databricks/sdk-core/http';
 import {newFetchHttpClient} from '@databricks/sdk-core/http';
-
-import type {ClientOptions} from '../options/options';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 
 /** Creates a new HTTP client with the given options. */
 export function newHttpClient(options?: ClientOptions): HttpClient {

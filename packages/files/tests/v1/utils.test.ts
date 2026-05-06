@@ -1,7 +1,7 @@
 import {describe, expect, it} from 'vitest';
 
 import {APIError} from '@databricks/sdk-core/apierror';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {HttpClient, HttpResponse} from '@databricks/sdk-core/http';
 
 import {encodeFilePath, readAll, sendAndCheckError} from '../../src/v1/utils';

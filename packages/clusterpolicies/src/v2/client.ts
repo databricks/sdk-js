@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -74,7 +75,7 @@ export class Client {
   async createPolicy(
     signal: AbortSignal | undefined,
     req: CreatePolicy,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreatePolicy_Response> {
     const url = `${this.host}/api/2.0/policies/clusters/create`;
     const body = marshalRequest(req, marshalCreatePolicySchema);
@@ -90,7 +91,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreatePolicy_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -101,7 +102,7 @@ export class Client {
   async deletePolicy(
     signal: AbortSignal | undefined,
     req: DeletePolicy,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeletePolicy_Response> {
     const url = `${this.host}/api/2.0/policies/clusters/delete`;
     const body = marshalRequest(req, marshalDeletePolicySchema);
@@ -117,7 +118,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeletePolicy_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -128,7 +129,7 @@ export class Client {
   async editPolicy(
     signal: AbortSignal | undefined,
     req: EditPolicy,
-    options?: Options
+    options?: CallOptions
   ): Promise<EditPolicy_Response> {
     const url = `${this.host}/api/2.0/policies/clusters/edit`;
     const body = marshalRequest(req, marshalEditPolicySchema);
@@ -144,7 +145,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEditPolicy_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -155,7 +156,7 @@ export class Client {
   async getPolicy(
     signal: AbortSignal | undefined,
     req: GetPolicy,
-    options?: Options
+    options?: CallOptions
   ): Promise<Policy> {
     const url = `${this.host}/api/2.0/policies/clusters/get`;
     const params = new URLSearchParams();
@@ -176,7 +177,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPolicySchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -187,7 +188,7 @@ export class Client {
   async listPolicies(
     signal: AbortSignal | undefined,
     req: ListPolicies,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListPolicies_Response> {
     const url = `${this.host}/api/2.0/policies/clusters/list`;
     const params = new URLSearchParams();
@@ -211,7 +212,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListPolicies_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

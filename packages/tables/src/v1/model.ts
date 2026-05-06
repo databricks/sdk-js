@@ -77,7 +77,7 @@ export enum DataSourceFormat {
   ICEBERG = 'ICEBERG',
 }
 
-/** Latest kind: CONNECTION_RABBITMQ = 326; Next id: 327 */
+/** Latest kind: MODEL_SERVICE_STANDARD = 327; Next id: 328 */
 export enum SecurableKind {
   TABLE_STANDARD = 'TABLE_STANDARD',
   TABLE_EXTERNAL = 'TABLE_EXTERNAL',

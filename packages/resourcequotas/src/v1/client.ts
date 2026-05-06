@@ -1,15 +1,20 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {buildHttpRequest, executeHttpCall, parseResponse} from './utils';
+import {
+  buildHttpRequest,
+  executeCall,
+  executeHttpCall,
+  parseResponse,
+} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   GetQuota,
@@ -62,7 +67,7 @@ export class Client {
   async getQuota(
     signal: AbortSignal | undefined,
     req: GetQuota,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetQuota_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/resource-quotas/${req.parentSecurableType ?? ''}/${req.parentFullName ?? ''}/${req.quotaName ?? ''}`;
     let resp: GetQuota_Response | undefined;
@@ -77,7 +82,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetQuota_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -94,7 +99,7 @@ export class Client {
   async listQuota(
     signal: AbortSignal | undefined,
     req: ListQuotas,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListQuotas_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/resource-quotas/all-resource-quotas`;
     const params = new URLSearchParams();
@@ -118,7 +123,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListQuotas_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -128,7 +133,7 @@ export class Client {
   async *listQuotaIter(
     signal: AbortSignal | undefined,
     req: ListQuotas,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<QuotaInfo> {
     const pageReq: ListQuotas = {...req};
     for (;;) {

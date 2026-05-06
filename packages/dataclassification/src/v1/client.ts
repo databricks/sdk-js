@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -69,7 +70,7 @@ export class Client {
   async createCatalogConfig(
     signal: AbortSignal | undefined,
     req: CreateCatalogConfigRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CatalogConfig> {
     const url = `${this.host}/api/data-classification/v1/${req.parent ?? ''}/config`;
     const body = marshalRequest(req.catalogConfig, marshalCatalogConfigSchema);
@@ -85,7 +86,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCatalogConfigSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -96,7 +97,7 @@ export class Client {
   async deleteCatalogConfig(
     signal: AbortSignal | undefined,
     req: DeleteCatalogConfigRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/data-classification/v1/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -109,14 +110,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Get the Data Classification configuration for a catalog. */
   async getCatalogConfig(
     signal: AbortSignal | undefined,
     req: GetCatalogConfigRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CatalogConfig> {
     const url = `${this.host}/api/data-classification/v1/${req.name ?? ''}`;
     let resp: CatalogConfig | undefined;
@@ -131,7 +132,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCatalogConfigSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -146,7 +147,7 @@ export class Client {
   async updateCatalogConfig(
     signal: AbortSignal | undefined,
     req: UpdateCatalogConfigRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CatalogConfig> {
     const url = `${this.host}/api/data-classification/v1/${req.catalogConfig?.name ?? ''}`;
     const params = new URLSearchParams();
@@ -174,7 +175,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCatalogConfigSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

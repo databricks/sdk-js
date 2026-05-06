@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -83,7 +84,7 @@ export class Client {
   async delete(
     signal: AbortSignal | undefined,
     req: Delete,
-    options?: Options
+    options?: CallOptions
   ): Promise<Delete_Response> {
     const url = `${this.host}/api/2.0/workspace/delete`;
     const body = marshalRequest(req, marshalDeleteSchema);
@@ -99,7 +100,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDelete_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -117,7 +118,7 @@ export class Client {
   async export(
     signal: AbortSignal | undefined,
     req: Export,
-    options?: Options
+    options?: CallOptions
   ): Promise<Export_Response> {
     const url = `${this.host}/api/2.0/workspace/export`;
     const params = new URLSearchParams();
@@ -147,7 +148,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalExport_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -161,7 +162,7 @@ export class Client {
   async getStatus(
     signal: AbortSignal | undefined,
     req: GetStatus,
-    options?: Options
+    options?: CallOptions
   ): Promise<ObjectInfo> {
     const url = `${this.host}/api/2.0/workspace/get-status`;
     const params = new URLSearchParams();
@@ -182,7 +183,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalObjectInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -199,7 +200,7 @@ export class Client {
   async import(
     signal: AbortSignal | undefined,
     req: Import,
-    options?: Options
+    options?: CallOptions
   ): Promise<Import_Response> {
     const url = `${this.host}/api/2.0/workspace/import`;
     const body = marshalRequest(req, marshalImportSchema);
@@ -215,7 +216,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalImport_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -229,7 +230,7 @@ export class Client {
   async list(
     signal: AbortSignal | undefined,
     req: List,
-    options?: Options
+    options?: CallOptions
   ): Promise<List_Response> {
     const url = `${this.host}/api/2.0/workspace/list`;
     const params = new URLSearchParams();
@@ -256,7 +257,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalList_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -273,7 +274,7 @@ export class Client {
   async mkdirs(
     signal: AbortSignal | undefined,
     req: Mkdirs,
-    options?: Options
+    options?: CallOptions
   ): Promise<Mkdirs_Response> {
     const url = `${this.host}/api/2.0/workspace/mkdirs`;
     const body = marshalRequest(req, marshalMkdirsSchema);
@@ -289,7 +290,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMkdirs_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

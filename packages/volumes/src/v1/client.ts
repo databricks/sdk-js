@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -88,7 +89,7 @@ export class Client {
   async createVolume(
     signal: AbortSignal | undefined,
     req: CreateVolume,
-    options?: Options
+    options?: CallOptions
   ): Promise<VolumeInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/volumes`;
     const body = marshalRequest(req, marshalCreateVolumeSchema);
@@ -104,7 +105,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalVolumeInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -121,7 +122,7 @@ export class Client {
   async deleteVolume(
     signal: AbortSignal | undefined,
     req: DeleteVolume,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteVolume_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/volumes/${req.fullNameArg ?? ''}`;
     let resp: DeleteVolume_Response | undefined;
@@ -136,7 +137,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteVolume_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -154,7 +155,7 @@ export class Client {
   async getVolume(
     signal: AbortSignal | undefined,
     req: GetVolume,
-    options?: Options
+    options?: CallOptions
   ): Promise<VolumeInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/volumes/${req.fullNameArg ?? ''}`;
     const params = new URLSearchParams();
@@ -175,7 +176,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalVolumeInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -201,7 +202,7 @@ export class Client {
   async listVolumes(
     signal: AbortSignal | undefined,
     req: ListVolumes,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListVolumes_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/volumes`;
     const params = new URLSearchParams();
@@ -234,7 +235,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListVolumes_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -244,7 +245,7 @@ export class Client {
   async *listVolumesIter(
     signal: AbortSignal | undefined,
     req: ListVolumes,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<VolumeInfo> {
     const pageReq: ListVolumes = {...req};
     for (;;) {
@@ -271,7 +272,7 @@ export class Client {
   async updateVolume(
     signal: AbortSignal | undefined,
     req: UpdateVolume,
-    options?: Options
+    options?: CallOptions
   ): Promise<VolumeInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/volumes/${req.fullNameArg ?? ''}`;
     const body = marshalRequest(req, marshalUpdateVolumeSchema);
@@ -287,7 +288,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalVolumeInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

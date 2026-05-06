@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -176,7 +177,7 @@ export class Client {
   async createAccountAccessIdentityRule(
     signal: AbortSignal | undefined,
     req: CreateAccountAccessIdentityRuleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<AccountAccessIdentityRule> {
     const url = `${this.host}/api/2.0/${req.parent ?? ''}/account-access-identity-rules`;
     const params = new URLSearchParams();
@@ -207,7 +208,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAccountAccessIdentityRuleSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -218,7 +219,7 @@ export class Client {
   async deleteAccountAccessIdentityRule(
     signal: AbortSignal | undefined,
     req: DeleteAccountAccessIdentityRuleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/${req.parent ?? ''}/account-access-identity-rules/${req.externalPrincipalId ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -231,14 +232,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Gets an account access identity rule for a given principal. */
   async getAccountAccessIdentityRule(
     signal: AbortSignal | undefined,
     req: GetAccountAccessIdentityRuleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<AccountAccessIdentityRule> {
     const url = `${this.host}/api/2.0/${req.parent ?? ''}/account-access-identity-rules/${req.externalPrincipalId ?? ''}`;
     let resp: AccountAccessIdentityRule | undefined;
@@ -253,7 +254,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAccountAccessIdentityRuleSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -268,7 +269,7 @@ export class Client {
   async listAccountAccessIdentityRules(
     signal: AbortSignal | undefined,
     req: ListAccountAccessIdentityRulesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListAccountAccessIdentityRulesResponse> {
     const url = `${this.host}/api/2.0/${req.parent ?? ''}/account-access-identity-rules`;
     const params = new URLSearchParams();
@@ -298,7 +299,7 @@ export class Client {
         unmarshalListAccountAccessIdentityRulesResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -309,7 +310,7 @@ export class Client {
   async createDirectGroupMember(
     signal: AbortSignal | undefined,
     req: CreateDirectGroupMemberRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DirectGroupMember> {
     const url = `${this.host}/api/2.0/identity/accounts//groups/${String(req.groupId ?? '')}/direct-members`;
     const params = new URLSearchParams();
@@ -340,7 +341,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDirectGroupMemberSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -351,7 +352,7 @@ export class Client {
   async createDirectGroupMemberProxy(
     signal: AbortSignal | undefined,
     req: CreateDirectGroupMemberProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DirectGroupMember> {
     const url = `${this.host}/api/2.0/identity/groups/${String(req.groupId ?? '')}/direct-members`;
     const body = marshalRequest(
@@ -370,7 +371,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDirectGroupMemberSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -381,7 +382,7 @@ export class Client {
   async createGroup(
     signal: AbortSignal | undefined,
     req: CreateGroupRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Group> {
     const url = `${this.host}/api/2.0/identity/accounts/{account_id}/groups`;
     const params = new URLSearchParams();
@@ -409,7 +410,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGroupSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -420,7 +421,7 @@ export class Client {
   async createGroupProxy(
     signal: AbortSignal | undefined,
     req: CreateGroupProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Group> {
     const url = `${this.host}/api/2.0/identity/groups`;
     const body = marshalRequest(req.group, marshalGroupSchema);
@@ -436,7 +437,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGroupSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -447,7 +448,7 @@ export class Client {
   async deleteDirectGroupMember(
     signal: AbortSignal | undefined,
     req: DeleteDirectGroupMemberRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/identity/accounts//groups/${String(req.groupId ?? '')}/direct-members/${String(req.principalId ?? '')}`;
     const params = new URLSearchParams();
@@ -466,14 +467,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Deletes a group membership (unassigns a principal from a group). */
   async deleteDirectGroupMemberProxy(
     signal: AbortSignal | undefined,
     req: DeleteDirectGroupMemberProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/identity/groups/${String(req.groupId ?? '')}/direct-members/${String(req.principalId ?? '')}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -486,14 +487,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** TODO: Write description later when this method is implemented */
   async deleteGroup(
     signal: AbortSignal | undefined,
     req: DeleteGroupRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/identity/accounts//groups/${String(req.internalId ?? '')}`;
     const params = new URLSearchParams();
@@ -512,14 +513,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** TODO: Write description later when this method is implemented */
   async deleteGroupProxy(
     signal: AbortSignal | undefined,
     req: DeleteGroupProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/identity/groups/${String(req.internalId ?? '')}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -532,14 +533,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Gets a provisioned direct member of a group. */
   async getDirectGroupMember(
     signal: AbortSignal | undefined,
     req: GetDirectGroupMemberRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DirectGroupMember> {
     const url = `${this.host}/api/2.0/identity/accounts//groups/${String(req.groupId ?? '')}/direct-members/${String(req.principalId ?? '')}`;
     const params = new URLSearchParams();
@@ -560,7 +561,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDirectGroupMemberSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -571,7 +572,7 @@ export class Client {
   async getDirectGroupMemberProxy(
     signal: AbortSignal | undefined,
     req: GetDirectGroupMemberProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DirectGroupMember> {
     const url = `${this.host}/api/2.0/identity/groups/${String(req.groupId ?? '')}/direct-members/${String(req.principalId ?? '')}`;
     let resp: DirectGroupMember | undefined;
@@ -586,7 +587,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDirectGroupMemberSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -597,7 +598,7 @@ export class Client {
   async getGroup(
     signal: AbortSignal | undefined,
     req: GetGroupRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Group> {
     const url = `${this.host}/api/2.0/identity/accounts//groups/${String(req.internalId ?? '')}`;
     const params = new URLSearchParams();
@@ -618,7 +619,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGroupSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -629,7 +630,7 @@ export class Client {
   async getGroupProxy(
     signal: AbortSignal | undefined,
     req: GetGroupProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Group> {
     const url = `${this.host}/api/2.0/identity/groups/${String(req.internalId ?? '')}`;
     let resp: Group | undefined;
@@ -644,7 +645,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGroupSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -655,7 +656,7 @@ export class Client {
   async listDirectGroupMembers(
     signal: AbortSignal | undefined,
     req: ListDirectGroupMembersRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListDirectGroupMembersResponse> {
     const url = `${this.host}/api/2.0/identity/accounts//groups/${String(req.groupId ?? '')}/direct-members`;
     const params = new URLSearchParams();
@@ -685,7 +686,7 @@ export class Client {
         unmarshalListDirectGroupMembersResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -696,7 +697,7 @@ export class Client {
   async listDirectGroupMembersProxy(
     signal: AbortSignal | undefined,
     req: ListDirectGroupMembersProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListDirectGroupMembersResponse> {
     const url = `${this.host}/api/2.0/identity/groups/${String(req.groupId ?? '')}/direct-members`;
     const params = new URLSearchParams();
@@ -723,7 +724,7 @@ export class Client {
         unmarshalListDirectGroupMembersResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -734,7 +735,7 @@ export class Client {
   async listGroups(
     signal: AbortSignal | undefined,
     req: ListGroupsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListGroupsResponse> {
     const url = `${this.host}/api/2.0/identity/accounts/{account_id}/groups`;
     const params = new URLSearchParams();
@@ -764,7 +765,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListGroupsResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -775,7 +776,7 @@ export class Client {
   async listGroupsProxy(
     signal: AbortSignal | undefined,
     req: ListGroupsProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListGroupsResponse> {
     const url = `${this.host}/api/2.0/identity/groups`;
     const params = new URLSearchParams();
@@ -802,7 +803,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListGroupsResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -813,7 +814,7 @@ export class Client {
   async listTransitiveParentGroups(
     signal: AbortSignal | undefined,
     req: ListTransitiveParentGroupsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListTransitiveParentGroupsResponse> {
     const url = `${this.host}/api/2.0/identity/accounts//principals/${String(req.principalId ?? '')}/transitive-parent-groups`;
     const params = new URLSearchParams();
@@ -843,7 +844,7 @@ export class Client {
         unmarshalListTransitiveParentGroupsResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -854,7 +855,7 @@ export class Client {
   async listTransitiveParentGroupsProxy(
     signal: AbortSignal | undefined,
     req: ListTransitiveParentGroupsProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListTransitiveParentGroupsResponse> {
     const url = `${this.host}/api/2.0/identity/principals/${String(req.principalId ?? '')}/transitive-parent-groups`;
     const params = new URLSearchParams();
@@ -881,7 +882,7 @@ export class Client {
         unmarshalListTransitiveParentGroupsResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -895,7 +896,7 @@ export class Client {
   async resolveGroup(
     signal: AbortSignal | undefined,
     req: ResolveGroupRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ResolveGroupResponse> {
     const url = `${this.host}/api/2.0/identity/accounts/{account_id}/groups/resolveByExternalId`;
     const body = marshalRequest(req, marshalResolveGroupRequestSchema);
@@ -911,7 +912,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalResolveGroupResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -925,7 +926,7 @@ export class Client {
   async resolveGroupProxy(
     signal: AbortSignal | undefined,
     req: ResolveGroupProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ResolveGroupResponse> {
     const url = `${this.host}/api/2.0/identity/groups/resolveByExternalId`;
     const body = marshalRequest(req, marshalResolveGroupProxyRequestSchema);
@@ -941,7 +942,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalResolveGroupResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -952,7 +953,7 @@ export class Client {
   async updateGroup(
     signal: AbortSignal | undefined,
     req: UpdateGroupRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Group> {
     const url = `${this.host}/api/2.0/identity/accounts//groups/${String(req.internalId ?? '')}`;
     const params = new URLSearchParams();
@@ -983,7 +984,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGroupSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -994,7 +995,7 @@ export class Client {
   async updateGroupProxy(
     signal: AbortSignal | undefined,
     req: UpdateGroupProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Group> {
     const url = `${this.host}/api/2.0/identity/groups/${String(req.internalId ?? '')}`;
     const params = new URLSearchParams();
@@ -1022,7 +1023,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGroupSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1033,7 +1034,7 @@ export class Client {
   async createServicePrincipal(
     signal: AbortSignal | undefined,
     req: CreateServicePrincipalRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ServicePrincipal> {
     const url = `${this.host}/api/2.0/identity/accounts/{account_id}/servicePrincipals`;
     const params = new URLSearchParams();
@@ -1064,7 +1065,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalServicePrincipalSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1075,7 +1076,7 @@ export class Client {
   async createServicePrincipalProxy(
     signal: AbortSignal | undefined,
     req: CreateServicePrincipalProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ServicePrincipal> {
     const url = `${this.host}/api/2.0/identity/servicePrincipals`;
     const body = marshalRequest(
@@ -1094,7 +1095,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalServicePrincipalSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1105,7 +1106,7 @@ export class Client {
   async deleteServicePrincipal(
     signal: AbortSignal | undefined,
     req: DeleteServicePrincipalRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/identity/accounts//servicePrincipals/${String(req.internalId ?? '')}`;
     const params = new URLSearchParams();
@@ -1124,14 +1125,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** TODO: Write description later when this method is implemented */
   async deleteServicePrincipalProxy(
     signal: AbortSignal | undefined,
     req: DeleteServicePrincipalProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/identity/servicePrincipals/${String(req.internalId ?? '')}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1144,14 +1145,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** TODO: Write description later when this method is implemented */
   async getServicePrincipal(
     signal: AbortSignal | undefined,
     req: GetServicePrincipalRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ServicePrincipal> {
     const url = `${this.host}/api/2.0/identity/accounts//servicePrincipals/${String(req.internalId ?? '')}`;
     const params = new URLSearchParams();
@@ -1172,7 +1173,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalServicePrincipalSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1183,7 +1184,7 @@ export class Client {
   async getServicePrincipalProxy(
     signal: AbortSignal | undefined,
     req: GetServicePrincipalProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ServicePrincipal> {
     const url = `${this.host}/api/2.0/identity/servicePrincipals/${String(req.internalId ?? '')}`;
     let resp: ServicePrincipal | undefined;
@@ -1198,7 +1199,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalServicePrincipalSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1209,7 +1210,7 @@ export class Client {
   async listServicePrincipals(
     signal: AbortSignal | undefined,
     req: ListServicePrincipalsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListServicePrincipalsResponse> {
     const url = `${this.host}/api/2.0/identity/accounts/{account_id}/servicePrincipals`;
     const params = new URLSearchParams();
@@ -1242,7 +1243,7 @@ export class Client {
         unmarshalListServicePrincipalsResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1253,7 +1254,7 @@ export class Client {
   async listServicePrincipalsProxy(
     signal: AbortSignal | undefined,
     req: ListServicePrincipalsProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListServicePrincipalsResponse> {
     const url = `${this.host}/api/2.0/identity/servicePrincipals`;
     const params = new URLSearchParams();
@@ -1283,7 +1284,7 @@ export class Client {
         unmarshalListServicePrincipalsResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1297,7 +1298,7 @@ export class Client {
   async resolveServicePrincipal(
     signal: AbortSignal | undefined,
     req: ResolveServicePrincipalRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ResolveServicePrincipalResponse> {
     const url = `${this.host}/api/2.0/identity/accounts/{account_id}/servicePrincipals/resolveByExternalId`;
     const body = marshalRequest(
@@ -1319,7 +1320,7 @@ export class Client {
         unmarshalResolveServicePrincipalResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1333,7 +1334,7 @@ export class Client {
   async resolveServicePrincipalProxy(
     signal: AbortSignal | undefined,
     req: ResolveServicePrincipalProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ResolveServicePrincipalResponse> {
     const url = `${this.host}/api/2.0/identity/servicePrincipals/resolveByExternalId`;
     const body = marshalRequest(
@@ -1355,7 +1356,7 @@ export class Client {
         unmarshalResolveServicePrincipalResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1366,7 +1367,7 @@ export class Client {
   async updateServicePrincipal(
     signal: AbortSignal | undefined,
     req: UpdateServicePrincipalRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ServicePrincipal> {
     const url = `${this.host}/api/2.0/identity/accounts//servicePrincipals/${String(req.internalId ?? '')}`;
     const params = new URLSearchParams();
@@ -1400,7 +1401,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalServicePrincipalSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1411,7 +1412,7 @@ export class Client {
   async updateServicePrincipalProxy(
     signal: AbortSignal | undefined,
     req: UpdateServicePrincipalProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ServicePrincipal> {
     const url = `${this.host}/api/2.0/identity/servicePrincipals/${String(req.internalId ?? '')}`;
     const params = new URLSearchParams();
@@ -1442,7 +1443,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalServicePrincipalSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1453,7 +1454,7 @@ export class Client {
   async createUser(
     signal: AbortSignal | undefined,
     req: CreateUserRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<User> {
     const url = `${this.host}/api/2.0/identity/accounts/{account_id}/users`;
     const params = new URLSearchParams();
@@ -1481,7 +1482,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUserSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1492,7 +1493,7 @@ export class Client {
   async createUserProxy(
     signal: AbortSignal | undefined,
     req: CreateUserProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<User> {
     const url = `${this.host}/api/2.0/identity/users`;
     const body = marshalRequest(req.user, marshalUserSchema);
@@ -1508,7 +1509,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUserSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1519,7 +1520,7 @@ export class Client {
   async deleteUser(
     signal: AbortSignal | undefined,
     req: DeleteUserRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/identity/accounts//users/${String(req.internalId ?? '')}`;
     const params = new URLSearchParams();
@@ -1538,14 +1539,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** TODO: Write description later when this method is implemented */
   async deleteUserProxy(
     signal: AbortSignal | undefined,
     req: DeleteUserProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/identity/users/${String(req.internalId ?? '')}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1558,14 +1559,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** TODO: Write description later when this method is implemented */
   async getUser(
     signal: AbortSignal | undefined,
     req: GetUserRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<User> {
     const url = `${this.host}/api/2.0/identity/accounts//users/${String(req.internalId ?? '')}`;
     const params = new URLSearchParams();
@@ -1586,7 +1587,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUserSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1597,7 +1598,7 @@ export class Client {
   async getUserProxy(
     signal: AbortSignal | undefined,
     req: GetUserProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<User> {
     const url = `${this.host}/api/2.0/identity/users/${String(req.internalId ?? '')}`;
     let resp: User | undefined;
@@ -1612,7 +1613,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUserSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1623,7 +1624,7 @@ export class Client {
   async listUsers(
     signal: AbortSignal | undefined,
     req: ListUsersRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListUsersResponse> {
     const url = `${this.host}/api/2.0/identity/accounts/{account_id}/users`;
     const params = new URLSearchParams();
@@ -1653,7 +1654,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListUsersResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1664,7 +1665,7 @@ export class Client {
   async listUsersProxy(
     signal: AbortSignal | undefined,
     req: ListUsersProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListUsersResponse> {
     const url = `${this.host}/api/2.0/identity/users`;
     const params = new URLSearchParams();
@@ -1691,7 +1692,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListUsersResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1705,7 +1706,7 @@ export class Client {
   async resolveUser(
     signal: AbortSignal | undefined,
     req: ResolveUserRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ResolveUserResponse> {
     const url = `${this.host}/api/2.0/identity/accounts/{account_id}/users/resolveByExternalId`;
     const body = marshalRequest(req, marshalResolveUserRequestSchema);
@@ -1721,7 +1722,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalResolveUserResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1735,7 +1736,7 @@ export class Client {
   async resolveUserProxy(
     signal: AbortSignal | undefined,
     req: ResolveUserProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ResolveUserResponse> {
     const url = `${this.host}/api/2.0/identity/users/resolveByExternalId`;
     const body = marshalRequest(req, marshalResolveUserProxyRequestSchema);
@@ -1751,7 +1752,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalResolveUserResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1762,7 +1763,7 @@ export class Client {
   async updateUser(
     signal: AbortSignal | undefined,
     req: UpdateUserRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<User> {
     const url = `${this.host}/api/2.0/identity/accounts//users/${String(req.internalId ?? '')}`;
     const params = new URLSearchParams();
@@ -1793,7 +1794,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUserSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1804,7 +1805,7 @@ export class Client {
   async updateUserProxy(
     signal: AbortSignal | undefined,
     req: UpdateUserProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<User> {
     const url = `${this.host}/api/2.0/identity/users/${String(req.internalId ?? '')}`;
     const params = new URLSearchParams();
@@ -1832,7 +1833,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUserSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1849,7 +1850,7 @@ export class Client {
   async getWorkspaceAccessDetail(
     signal: AbortSignal | undefined,
     req: GetWorkspaceAccessDetailRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<WorkspaceAccessDetail> {
     const url = `${this.host}/api/2.0/identity/accounts//workspaces/${String(req.workspaceId ?? '')}/workspaceAccessDetails/${String(req.principalId ?? '')}`;
     const params = new URLSearchParams();
@@ -1873,7 +1874,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceAccessDetailSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1890,7 +1891,7 @@ export class Client {
   async getWorkspaceAccessDetailLocal(
     signal: AbortSignal | undefined,
     req: GetWorkspaceAccessDetailLocalRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<WorkspaceAccessDetail> {
     const url = `${this.host}/api/2.0/identity/workspaceAccessDetails/${String(req.principalId ?? '')}`;
     const params = new URLSearchParams();
@@ -1911,7 +1912,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceAccessDetailSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1922,7 +1923,7 @@ export class Client {
   async listWorkspaceAccessDetails(
     signal: AbortSignal | undefined,
     req: ListWorkspaceAccessDetailsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListWorkspaceAccessDetailsResponse> {
     const url = `${this.host}/api/2.0/identity/accounts//workspaces/${String(req.workspaceId ?? '')}/workspaceAccessDetails`;
     const params = new URLSearchParams();
@@ -1952,7 +1953,7 @@ export class Client {
         unmarshalListWorkspaceAccessDetailsResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1963,7 +1964,7 @@ export class Client {
   async listWorkspaceAccessDetailsLocal(
     signal: AbortSignal | undefined,
     req: ListWorkspaceAccessDetailsLocalRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListWorkspaceAccessDetailsResponse> {
     const url = `${this.host}/api/2.0/identity/workspaceAccessDetails`;
     const params = new URLSearchParams();
@@ -1990,7 +1991,7 @@ export class Client {
         unmarshalListWorkspaceAccessDetailsResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2006,7 +2007,7 @@ export class Client {
   async createWorkspaceAssignmentDetail(
     signal: AbortSignal | undefined,
     req: CreateWorkspaceAssignmentDetailRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<WorkspaceAssignmentDetail> {
     const url = `${this.host}/api/2.0/identity/accounts//workspaces/${String(req.workspaceId ?? '')}/workspaceAssignmentDetails`;
     const params = new URLSearchParams();
@@ -2037,7 +2038,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceAssignmentDetailSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2054,7 +2055,7 @@ export class Client {
   async createWorkspaceAssignmentDetailProxy(
     signal: AbortSignal | undefined,
     req: CreateWorkspaceAssignmentDetailProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<WorkspaceAssignmentDetail> {
     const url = `${this.host}/api/2.0/identity/workspaceAssignmentDetails`;
     const body = marshalRequest(
@@ -2073,7 +2074,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceAssignmentDetailSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2089,7 +2090,7 @@ export class Client {
   async deleteWorkspaceAssignmentDetail(
     signal: AbortSignal | undefined,
     req: DeleteWorkspaceAssignmentDetailRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/identity/accounts//workspaces/${String(req.workspaceId ?? '')}/workspaceAssignmentDetails/${String(req.principalId ?? '')}`;
     const params = new URLSearchParams();
@@ -2108,7 +2109,7 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /**
@@ -2120,7 +2121,7 @@ export class Client {
   async deleteWorkspaceAssignmentDetailProxy(
     signal: AbortSignal | undefined,
     req: DeleteWorkspaceAssignmentDetailProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/identity/workspaceAssignmentDetails/${String(req.principalId ?? '')}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -2133,14 +2134,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Returns the assignment details for a principal in a workspace. */
   async getWorkspaceAssignmentDetail(
     signal: AbortSignal | undefined,
     req: GetWorkspaceAssignmentDetailRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<WorkspaceAssignmentDetail> {
     const url = `${this.host}/api/2.0/identity/accounts//workspaces/${String(req.workspaceId ?? '')}/workspaceAssignmentDetails/${String(req.principalId ?? '')}`;
     const params = new URLSearchParams();
@@ -2161,7 +2162,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceAssignmentDetailSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2172,7 +2173,7 @@ export class Client {
   async getWorkspaceAssignmentDetailProxy(
     signal: AbortSignal | undefined,
     req: GetWorkspaceAssignmentDetailProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<WorkspaceAssignmentDetail> {
     const url = `${this.host}/api/2.0/identity/workspaceAssignmentDetails/${String(req.principalId ?? '')}`;
     let resp: WorkspaceAssignmentDetail | undefined;
@@ -2187,7 +2188,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceAssignmentDetailSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2198,7 +2199,7 @@ export class Client {
   async listWorkspaceAssignmentDetails(
     signal: AbortSignal | undefined,
     req: ListWorkspaceAssignmentDetailsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListWorkspaceAssignmentDetailsResponse> {
     const url = `${this.host}/api/2.0/identity/accounts//workspaces/${String(req.workspaceId ?? '')}/workspaceAssignmentDetails`;
     const params = new URLSearchParams();
@@ -2228,7 +2229,7 @@ export class Client {
         unmarshalListWorkspaceAssignmentDetailsResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2239,7 +2240,7 @@ export class Client {
   async listWorkspaceAssignmentDetailsProxy(
     signal: AbortSignal | undefined,
     req: ListWorkspaceAssignmentDetailsProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListWorkspaceAssignmentDetailsResponse> {
     const url = `${this.host}/api/2.0/identity/workspaceAssignmentDetails`;
     const params = new URLSearchParams();
@@ -2266,7 +2267,7 @@ export class Client {
         unmarshalListWorkspaceAssignmentDetailsResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2282,7 +2283,7 @@ export class Client {
   async updateWorkspaceAssignmentDetail(
     signal: AbortSignal | undefined,
     req: UpdateWorkspaceAssignmentDetailRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<WorkspaceAssignmentDetail> {
     const url = `${this.host}/api/2.0/identity/accounts//workspaces/${String(req.workspaceId ?? '')}/workspaceAssignmentDetails/${String(req.principalId ?? '')}`;
     const params = new URLSearchParams();
@@ -2316,7 +2317,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceAssignmentDetailSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2332,7 +2333,7 @@ export class Client {
   async updateWorkspaceAssignmentDetailProxy(
     signal: AbortSignal | undefined,
     req: UpdateWorkspaceAssignmentDetailProxyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<WorkspaceAssignmentDetail> {
     const url = `${this.host}/api/2.0/identity/workspaceAssignmentDetails/${String(req.principalId ?? '')}`;
     const params = new URLSearchParams();
@@ -2363,7 +2364,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceAssignmentDetailSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2374,7 +2375,7 @@ export class Client {
   async getWorkspaceIdentityDetail(
     signal: AbortSignal | undefined,
     req: GetWorkspaceIdentityDetailRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<WorkspaceIdentityDetail> {
     const url = `${this.host}/api/2.0/identity/workspaceIdentityDetails/${String(req.principalId ?? '')}`;
     let resp: WorkspaceIdentityDetail | undefined;
@@ -2389,7 +2390,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceIdentityDetailSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2400,7 +2401,7 @@ export class Client {
   async updateWorkspaceIdentityDetail(
     signal: AbortSignal | undefined,
     req: UpdateWorkspaceIdentityDetailRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<WorkspaceIdentityDetail> {
     const url = `${this.host}/api/2.0/identity/workspaceIdentityDetails/${String(req.principalId ?? '')}`;
     const params = new URLSearchParams();
@@ -2431,7 +2432,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceIdentityDetailSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

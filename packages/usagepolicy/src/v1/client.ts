@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -71,7 +72,7 @@ export class Client {
   async createUsagePolicy(
     signal: AbortSignal | undefined,
     req: CreateUsagePolicyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<UsagePolicy> {
     const url = `${this.host}/api/2.1/accounts/{account_id}/usage-policies`;
     const body = marshalRequest(req, marshalCreateUsagePolicyRequestSchema);
@@ -87,7 +88,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUsagePolicySchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -98,7 +99,7 @@ export class Client {
   async deleteUsagePolicy(
     signal: AbortSignal | undefined,
     req: DeleteUsagePolicyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.1/accounts//usage-policies/${req.policyId ?? ''}`;
     const params = new URLSearchParams();
@@ -117,14 +118,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Retrieves a usage policy by it's ID. */
   async getUsagePolicy(
     signal: AbortSignal | undefined,
     req: GetUsagePolicyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<UsagePolicy> {
     const url = `${this.host}/api/2.1/accounts//usage-policies/${req.policyId ?? ''}`;
     const params = new URLSearchParams();
@@ -145,7 +146,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUsagePolicySchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -156,7 +157,7 @@ export class Client {
   async listUsagePolicies(
     signal: AbortSignal | undefined,
     req: ListUsagePoliciesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListUsagePoliciesResponse> {
     const url = `${this.host}/api/2.1/accounts/{account_id}/usage-policies`;
     const params = new URLSearchParams();
@@ -197,7 +198,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListUsagePoliciesResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -207,7 +208,7 @@ export class Client {
   async *listUsagePoliciesIter(
     signal: AbortSignal | undefined,
     req: ListUsagePoliciesRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<UsagePolicy> {
     const pageReq: ListUsagePoliciesRequest = {...req};
     for (;;) {
@@ -226,7 +227,7 @@ export class Client {
   async updateUsagePolicy(
     signal: AbortSignal | undefined,
     req: UpdateUsagePolicyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<UsagePolicy> {
     const url = `${this.host}/api/2.1/accounts//usage-policies/${req.policy?.policyId ?? ''}`;
     const params = new URLSearchParams();
@@ -261,7 +262,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUsagePolicySchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

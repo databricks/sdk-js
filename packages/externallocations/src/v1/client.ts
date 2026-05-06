@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -72,7 +73,7 @@ export class Client {
   async createExternalLocation(
     signal: AbortSignal | undefined,
     req: CreateExternalLocation,
-    options?: Options
+    options?: CallOptions
   ): Promise<ExternalLocationInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/external-locations`;
     const body = marshalRequest(req, marshalCreateExternalLocationSchema);
@@ -88,7 +89,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalExternalLocationInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -99,7 +100,7 @@ export class Client {
   async deleteExternalLocation(
     signal: AbortSignal | undefined,
     req: DeleteExternalLocation,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteExternalLocation_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/external-locations/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
@@ -123,7 +124,7 @@ export class Client {
         unmarshalDeleteExternalLocation_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -137,7 +138,7 @@ export class Client {
   async getExternalLocation(
     signal: AbortSignal | undefined,
     req: GetExternalLocation,
-    options?: Options
+    options?: CallOptions
   ): Promise<ExternalLocationInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/external-locations/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
@@ -158,7 +159,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalExternalLocationInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -178,7 +179,7 @@ export class Client {
   async listExternalLocations(
     signal: AbortSignal | undefined,
     req: ListExternalLocations,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListExternalLocations_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/external-locations`;
     const params = new URLSearchParams();
@@ -211,7 +212,7 @@ export class Client {
         unmarshalListExternalLocations_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -221,7 +222,7 @@ export class Client {
   async *listExternalLocationsIter(
     signal: AbortSignal | undefined,
     req: ListExternalLocations,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<ExternalLocationInfo> {
     const pageReq: ListExternalLocations = {...req};
     for (;;) {
@@ -243,7 +244,7 @@ export class Client {
   async updateExternalLocation(
     signal: AbortSignal | undefined,
     req: UpdateExternalLocation,
-    options?: Options
+    options?: CallOptions
   ): Promise<ExternalLocationInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/external-locations/${req.nameArg ?? ''}`;
     const body = marshalRequest(req, marshalUpdateExternalLocationSchema);
@@ -259,7 +260,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalExternalLocationInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

@@ -1,15 +1,15 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
-import {buildHttpRequest, sendAndCheckError} from './utils';
+import {buildHttpRequest, executeCall, sendAndCheckError} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {DownloadRequest, DownloadResponse} from './model';
 
@@ -61,7 +61,7 @@ export class Client {
   async download(
     signal: AbortSignal | undefined,
     req: DownloadRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DownloadResponse> {
     const url = `${this.host}/api/2.0/accounts/{account_id}/usage/download`;
     const params = new URLSearchParams();
@@ -93,7 +93,7 @@ export class Client {
         contents: httpResp.body ?? undefined,
       };
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

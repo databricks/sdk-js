@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -82,7 +83,7 @@ export class Client {
   async createCleanRoomAsset(
     signal: AbortSignal | undefined,
     req: CreateCleanRoomAssetRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CleanRoomAsset> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.asset?.cleanRoomName ?? ''}/assets`;
     const body = marshalRequest(req.asset, marshalCleanRoomAssetSchema);
@@ -98,7 +99,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCleanRoomAssetSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -109,7 +110,7 @@ export class Client {
   async createCleanRoomAssetReview(
     signal: AbortSignal | undefined,
     req: CreateCleanRoomAssetReviewRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateCleanRoomAssetReviewResponse> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}/reviews`;
     const body = marshalRequest(
@@ -131,7 +132,7 @@ export class Client {
         unmarshalCreateCleanRoomAssetReviewResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -142,7 +143,7 @@ export class Client {
   async deleteCleanRoomAsset(
     signal: AbortSignal | undefined,
     req: DeleteCleanRoomAssetRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteCleanRoomAssetResponse> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}`;
     let resp: DeleteCleanRoomAssetResponse | undefined;
@@ -160,7 +161,7 @@ export class Client {
         unmarshalDeleteCleanRoomAssetResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -171,7 +172,7 @@ export class Client {
   async getCleanRoomAsset(
     signal: AbortSignal | undefined,
     req: GetCleanRoomAssetRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CleanRoomAsset> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}`;
     let resp: CleanRoomAsset | undefined;
@@ -186,7 +187,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCleanRoomAssetSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -197,7 +198,7 @@ export class Client {
   async getCleanRoomAssetRevision(
     signal: AbortSignal | undefined,
     req: GetCleanRoomAssetRevisionRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CleanRoomAsset> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}/revisions/${req.etag ?? ''}`;
     let resp: CleanRoomAsset | undefined;
@@ -212,7 +213,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCleanRoomAssetSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -223,7 +224,7 @@ export class Client {
   async listCleanRoomAssetRevisions(
     signal: AbortSignal | undefined,
     req: ListCleanRoomAssetRevisionsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListCleanRoomAssetRevisionsResponse> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}/revisions`;
     const params = new URLSearchParams();
@@ -250,7 +251,7 @@ export class Client {
         unmarshalListCleanRoomAssetRevisionsResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -260,7 +261,7 @@ export class Client {
   async *listCleanRoomAssetRevisionsIter(
     signal: AbortSignal | undefined,
     req: ListCleanRoomAssetRevisionsRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<CleanRoomAsset> {
     const pageReq: ListCleanRoomAssetRevisionsRequest = {...req};
     for (;;) {
@@ -283,7 +284,7 @@ export class Client {
   async listCleanRoomAssets(
     signal: AbortSignal | undefined,
     req: ListCleanRoomAssetsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListCleanRoomAssetsResponse> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets`;
     const params = new URLSearchParams();
@@ -307,7 +308,7 @@ export class Client {
         unmarshalListCleanRoomAssetsResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -317,7 +318,7 @@ export class Client {
   async *listCleanRoomAssetsIter(
     signal: AbortSignal | undefined,
     req: ListCleanRoomAssetsRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<CleanRoomAsset> {
     const pageReq: ListCleanRoomAssetsRequest = {...req};
     for (;;) {
@@ -339,7 +340,7 @@ export class Client {
   async updateCleanRoomAsset(
     signal: AbortSignal | undefined,
     req: UpdateCleanRoomAssetRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CleanRoomAsset> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.asset?.assetType ?? ''}/${req.asset?.name ?? ''}`;
     const body = marshalRequest(req.asset, marshalCleanRoomAssetSchema);
@@ -355,7 +356,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCleanRoomAssetSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

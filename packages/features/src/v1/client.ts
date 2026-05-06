@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -90,7 +91,7 @@ export class Client {
   async batchCreateMaterializedFeatures(
     signal: AbortSignal | undefined,
     req: BatchCreateMaterializedFeaturesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<BatchCreateMaterializedFeaturesResponse> {
     const url = `${this.host}/api/2.0/feature-engineering/materialized-features:batchCreate`;
     const body = marshalRequest(
@@ -112,7 +113,7 @@ export class Client {
         unmarshalBatchCreateMaterializedFeaturesResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -123,7 +124,7 @@ export class Client {
   async createFeature(
     signal: AbortSignal | undefined,
     req: CreateFeatureRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Feature> {
     const url = `${this.host}/api/2.0/feature-engineering/features`;
     const body = marshalRequest(req.feature, marshalFeatureSchema);
@@ -139,7 +140,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalFeatureSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -154,7 +155,7 @@ export class Client {
   async createKafkaConfig(
     signal: AbortSignal | undefined,
     req: CreateKafkaConfigRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<KafkaConfig> {
     const url = `${this.host}/api/2.0/feature-engineering/features/kafka-configs`;
     const body = marshalRequest(req.kafkaConfig, marshalKafkaConfigSchema);
@@ -170,7 +171,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalKafkaConfigSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -181,7 +182,7 @@ export class Client {
   async createMaterializedFeature(
     signal: AbortSignal | undefined,
     req: CreateMaterializedFeatureRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<MaterializedFeature> {
     const url = `${this.host}/api/2.0/feature-engineering/materialized-features`;
     const body = marshalRequest(
@@ -200,7 +201,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMaterializedFeatureSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -211,7 +212,7 @@ export class Client {
   async deleteFeature(
     signal: AbortSignal | undefined,
     req: DeleteFeatureRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/feature-engineering/features/${req.fullName ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -224,7 +225,7 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /**
@@ -235,7 +236,7 @@ export class Client {
   async deleteKafkaConfig(
     signal: AbortSignal | undefined,
     req: DeleteKafkaConfigRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/feature-engineering/features/kafka-configs/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -248,14 +249,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Delete a materialized feature. */
   async deleteMaterializedFeature(
     signal: AbortSignal | undefined,
     req: DeleteMaterializedFeatureRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/feature-engineering/materialized-features/${req.materializedFeatureId ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -268,14 +269,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Get a Feature. */
   async getFeature(
     signal: AbortSignal | undefined,
     req: GetFeatureRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Feature> {
     const url = `${this.host}/api/2.0/feature-engineering/features/${req.fullName ?? ''}`;
     let resp: Feature | undefined;
@@ -290,7 +291,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalFeatureSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -305,7 +306,7 @@ export class Client {
   async getKafkaConfig(
     signal: AbortSignal | undefined,
     req: GetKafkaConfigRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<KafkaConfig> {
     const url = `${this.host}/api/2.0/feature-engineering/features/kafka-configs/${req.name ?? ''}`;
     let resp: KafkaConfig | undefined;
@@ -320,7 +321,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalKafkaConfigSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -331,7 +332,7 @@ export class Client {
   async getMaterializedFeature(
     signal: AbortSignal | undefined,
     req: GetMaterializedFeatureRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<MaterializedFeature> {
     const url = `${this.host}/api/2.0/feature-engineering/materialized-features/${req.materializedFeatureId ?? ''}`;
     let resp: MaterializedFeature | undefined;
@@ -346,7 +347,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMaterializedFeatureSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -357,7 +358,7 @@ export class Client {
   async listFeatures(
     signal: AbortSignal | undefined,
     req: ListFeaturesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListFeaturesResponse> {
     const url = `${this.host}/api/2.0/feature-engineering/features`;
     const params = new URLSearchParams();
@@ -381,7 +382,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListFeaturesResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -391,7 +392,7 @@ export class Client {
   async *listFeaturesIter(
     signal: AbortSignal | undefined,
     req: ListFeaturesRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<Feature> {
     const pageReq: ListFeaturesRequest = {...req};
     for (;;) {
@@ -414,7 +415,7 @@ export class Client {
   async listKafkaConfigs(
     signal: AbortSignal | undefined,
     req: ListKafkaConfigsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListKafkaConfigsResponse> {
     const url = `${this.host}/api/2.0/feature-engineering/features/kafka-configs`;
     const params = new URLSearchParams();
@@ -438,7 +439,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListKafkaConfigsResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -448,7 +449,7 @@ export class Client {
   async *listKafkaConfigsIter(
     signal: AbortSignal | undefined,
     req: ListKafkaConfigsRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<KafkaConfig> {
     const pageReq: ListKafkaConfigsRequest = {...req};
     for (;;) {
@@ -467,7 +468,7 @@ export class Client {
   async listMaterializedFeatures(
     signal: AbortSignal | undefined,
     req: ListMaterializedFeaturesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListMaterializedFeaturesResponse> {
     const url = `${this.host}/api/2.0/feature-engineering/materialized-features`;
     const params = new URLSearchParams();
@@ -497,7 +498,7 @@ export class Client {
         unmarshalListMaterializedFeaturesResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -507,7 +508,7 @@ export class Client {
   async *listMaterializedFeaturesIter(
     signal: AbortSignal | undefined,
     req: ListMaterializedFeaturesRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<MaterializedFeature> {
     const pageReq: ListMaterializedFeaturesRequest = {...req};
     for (;;) {
@@ -530,7 +531,7 @@ export class Client {
   async updateFeature(
     signal: AbortSignal | undefined,
     req: UpdateFeatureRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Feature> {
     const url = `${this.host}/api/2.0/feature-engineering/features/${req.feature?.fullName ?? ''}`;
     const params = new URLSearchParams();
@@ -558,7 +559,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalFeatureSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -573,7 +574,7 @@ export class Client {
   async updateKafkaConfig(
     signal: AbortSignal | undefined,
     req: UpdateKafkaConfigRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<KafkaConfig> {
     const url = `${this.host}/api/2.0/feature-engineering/features/kafka-configs/${req.kafkaConfig?.name ?? ''}`;
     const params = new URLSearchParams();
@@ -601,7 +602,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalKafkaConfigSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -612,7 +613,7 @@ export class Client {
   async updateMaterializedFeature(
     signal: AbortSignal | undefined,
     req: UpdateMaterializedFeatureRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<MaterializedFeature> {
     const url = `${this.host}/api/2.0/feature-engineering/materialized-features/${req.materializedFeature?.materializedFeatureId ?? ''}`;
     const params = new URLSearchParams();
@@ -643,7 +644,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMaterializedFeatureSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
