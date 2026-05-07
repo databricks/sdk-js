@@ -70,7 +70,6 @@ export class Client {
 
   /** Create an Online Feature Store. */
   async createOnlineStore(
-    signal: AbortSignal | undefined,
     req: CreateOnlineStoreRequest,
     options?: CallOptions
   ): Promise<OnlineStore> {
@@ -88,7 +87,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOnlineStoreSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -97,7 +96,6 @@ export class Client {
 
   /** Delete an Online Feature Store. */
   async deleteOnlineStore(
-    signal: AbortSignal | undefined,
     req: DeleteOnlineStoreRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -112,12 +110,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Delete online table. */
   async deleteOnlineTable(
-    signal: AbortSignal | undefined,
     req: DeleteOnlineTableRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -132,12 +129,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Get an Online Feature Store. */
   async getOnlineStore(
-    signal: AbortSignal | undefined,
     req: GetOnlineStoreRequest,
     options?: CallOptions
   ): Promise<OnlineStore> {
@@ -154,7 +150,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOnlineStoreSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -163,7 +159,6 @@ export class Client {
 
   /** List Online Feature Stores. */
   async listOnlineStores(
-    signal: AbortSignal | undefined,
     req: ListOnlineStoresRequest,
     options?: CallOptions
   ): Promise<ListOnlineStoresResponse> {
@@ -189,7 +184,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListOnlineStoresResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -197,13 +192,12 @@ export class Client {
   }
 
   async *listOnlineStoresIter(
-    signal: AbortSignal | undefined,
     req: ListOnlineStoresRequest,
     options?: CallOptions
   ): AsyncGenerator<OnlineStore> {
     const pageReq: ListOnlineStoresRequest = {...req};
     for (;;) {
-      const resp = await this.listOnlineStores(signal, pageReq, options);
+      const resp = await this.listOnlineStores(pageReq, options);
       for (const item of resp.onlineStores ?? []) {
         yield item;
       }
@@ -216,7 +210,6 @@ export class Client {
 
   /** Publish features. */
   async publishTable(
-    signal: AbortSignal | undefined,
     req: PublishTableRequest,
     options?: CallOptions
   ): Promise<PublishTableResponse> {
@@ -234,7 +227,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPublishTableResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -243,7 +236,6 @@ export class Client {
 
   /** Update an Online Feature Store. */
   async updateOnlineStore(
-    signal: AbortSignal | undefined,
     req: UpdateOnlineStoreRequest,
     options?: CallOptions
   ): Promise<OnlineStore> {
@@ -273,7 +265,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOnlineStoreSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

@@ -59,7 +59,6 @@ export class Client {
    * by calling the API with narrower date ranges.
    */
   async download(
-    signal: AbortSignal | undefined,
     req: DownloadRequest,
     options?: CallOptions
   ): Promise<DownloadResponse> {
@@ -93,7 +92,7 @@ export class Client {
         contents: httpResp.body ?? undefined,
       };
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

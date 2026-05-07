@@ -56,7 +56,6 @@ export class Client {
 
   /** List all the historical notebook task runs in a clean room. */
   async listCleanRoomNotebookTaskRunsHandler(
-    signal: AbortSignal | undefined,
     req: ListCleanRoomNotebookTaskRunsRequest,
     options?: CallOptions
   ): Promise<ListCleanRoomNotebookTaskRunsResponse> {
@@ -88,7 +87,7 @@ export class Client {
         unmarshalListCleanRoomNotebookTaskRunsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -96,14 +95,12 @@ export class Client {
   }
 
   async *listCleanRoomNotebookTaskRunsHandlerIter(
-    signal: AbortSignal | undefined,
     req: ListCleanRoomNotebookTaskRunsRequest,
     options?: CallOptions
   ): AsyncGenerator<CleanRoomNotebookTaskRun> {
     const pageReq: ListCleanRoomNotebookTaskRunsRequest = {...req};
     for (;;) {
       const resp = await this.listCleanRoomNotebookTaskRunsHandler(
-        signal,
         pageReq,
         options
       );

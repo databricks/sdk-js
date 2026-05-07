@@ -64,7 +64,6 @@ export class Client {
    * on the metastore.
    */
   async getArtifactAllowlist(
-    signal: AbortSignal | undefined,
     req: GetArtifactAllowlist,
     options?: CallOptions
   ): Promise<ArtifactAllowlistInfo> {
@@ -81,7 +80,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalArtifactAllowlistInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -95,7 +94,6 @@ export class Client {
    * on the metastore.
    */
   async setArtifactAllowlist(
-    signal: AbortSignal | undefined,
     req: SetArtifactAllowlist,
     options?: CallOptions
   ): Promise<ArtifactAllowlistInfo> {
@@ -113,7 +111,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalArtifactAllowlistInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

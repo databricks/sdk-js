@@ -5,8 +5,10 @@ import {z} from 'zod';
 export interface CreateCredentials {
   /**
    * Git provider. This field is case-insensitive. The available Git providers are `gitHub`,
-   * `bitbucketCloud`, `gitLab`, `azureDevOpsServices`, `gitHubEnterprise`, `bitbucketServer`,
-   * `gitLabEnterpriseEdition` and `awsCodeCommit`.
+   * `bitbucketCloud`, `gitLab`, `azureDevOpsServices` (Azure DevOps Services, including
+   * Microsoft Entra ID authentication), `gitHubEnterprise`, `bitbucketServer` (Bitbucket
+   * Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and `awsCodeCommit`
+   * (deprecated by AWS, not accepting new customers).
    */
   gitProvider?: string | undefined;
   /**
@@ -66,7 +68,12 @@ export interface CreateCredentials_Response {
 export interface Credential {
   /** ID of the credential object in the workspace. */
   credentialId?: number | undefined;
-  /** The Git provider associated with the credential. */
+  /**
+   * The Git provider associated with the credential. One of `gitHub`, `bitbucketCloud`,
+   * `gitLab`, `azureDevOpsServices` (Azure DevOps Services, including Microsoft Entra ID
+   * authentication), `gitHubEnterprise`, `bitbucketServer` (Bitbucket Data Center),
+   * `gitLabEnterpriseEdition` (GitLab Self-Managed), or `awsCodeCommit` (deprecated).
+   */
   gitProvider?: string | undefined;
   /**
    * The username provided with your Git provider account and associated with the
@@ -153,8 +160,10 @@ export interface UpdateCredentials {
   personalAccessToken?: string | undefined;
   /**
    * Git provider. This field is case-insensitive. The available Git providers are `gitHub`,
-   * `bitbucketCloud`, `gitLab`, `azureDevOpsServices`, `gitHubEnterprise`, `bitbucketServer`,
-   * `gitLabEnterpriseEdition` and `awsCodeCommit`.
+   * `bitbucketCloud`, `gitLab`, `azureDevOpsServices` (Azure DevOps Services, including
+   * Microsoft Entra ID authentication), `gitHubEnterprise`, `bitbucketServer` (Bitbucket
+   * Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and `awsCodeCommit`
+   * (deprecated by AWS, not accepting new customers).
    */
   gitProvider?: string | undefined;
   /**

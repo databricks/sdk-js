@@ -52,7 +52,7 @@ describe('Client.upload', () => {
       httpClient: client,
     });
 
-    await files.upload(undefined, {
+    await files.upload({
       filePath: '/file.txt',
       contents,
     });

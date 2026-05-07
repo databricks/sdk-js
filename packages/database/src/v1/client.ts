@@ -113,7 +113,6 @@ export class Client {
 
   /** Create a Database Catalog. */
   async createDatabaseCatalog(
-    signal: AbortSignal | undefined,
     req: CreateDatabaseCatalogRequest,
     options?: CallOptions
   ): Promise<DatabaseCatalog> {
@@ -131,7 +130,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseCatalogSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -140,7 +139,6 @@ export class Client {
 
   /** Create a Database Instance. */
   async createDatabaseInstance(
-    signal: AbortSignal | undefined,
     req: CreateDatabaseInstanceRequest,
     options?: CallOptions
   ): Promise<DatabaseInstance> {
@@ -161,7 +159,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -169,11 +167,10 @@ export class Client {
   }
 
   async createDatabaseInstanceWaiter(
-    signal: AbortSignal | undefined,
     req: CreateDatabaseInstanceRequest,
     options?: CallOptions
   ): Promise<CreateDatabaseInstanceWaiter> {
-    const resp = await this.createDatabaseInstance(signal, req, options);
+    const resp = await this.createDatabaseInstance(req, options);
     if (resp.name === undefined) {
       throw new Error('response field name required for polling is missing');
     }
@@ -182,7 +179,6 @@ export class Client {
 
   /** Create a role for a Database Instance. */
   async createDatabaseInstanceRole(
-    signal: AbortSignal | undefined,
     req: CreateDatabaseInstanceRoleRequest,
     options?: CallOptions
   ): Promise<DatabaseInstanceRole> {
@@ -215,7 +211,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceRoleSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -227,7 +223,6 @@ export class Client {
    * See CreateSyncedDatabaseTable for creating synced tables in PG from a source table in UC.
    */
   async createDatabaseTable(
-    signal: AbortSignal | undefined,
     req: CreateDatabaseTableRequest,
     options?: CallOptions
   ): Promise<DatabaseTable> {
@@ -245,7 +240,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseTableSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -254,7 +249,6 @@ export class Client {
 
   /** Create a Synced Database Table. */
   async createSyncedDatabaseTable(
-    signal: AbortSignal | undefined,
     req: CreateSyncedDatabaseTableRequest,
     options?: CallOptions
   ): Promise<SyncedDatabaseTable> {
@@ -275,7 +269,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSyncedDatabaseTableSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -284,7 +278,6 @@ export class Client {
 
   /** Delete a Database Catalog. */
   async deleteDatabaseCatalog(
-    signal: AbortSignal | undefined,
     req: DeleteDatabaseCatalogRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -299,12 +292,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Delete a Database Instance. */
   async deleteDatabaseInstance(
-    signal: AbortSignal | undefined,
     req: DeleteDatabaseInstanceRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -328,12 +320,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Deletes a role for a Database Instance. */
   async deleteDatabaseInstanceRole(
-    signal: AbortSignal | undefined,
     req: DeleteDatabaseInstanceRoleRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -357,12 +348,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Delete a Database Table. */
   async deleteDatabaseTable(
-    signal: AbortSignal | undefined,
     req: DeleteDatabaseTableRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -377,12 +367,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Delete a Synced Database Table. */
   async deleteSyncedDatabaseTable(
-    signal: AbortSignal | undefined,
     req: DeleteSyncedDatabaseTableRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -403,12 +392,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Failover the primary node of a Database Instance to a secondary. */
   async failoverDatabaseInstance(
-    signal: AbortSignal | undefined,
     req: FailoverDatabaseInstanceRequest,
     options?: CallOptions
   ): Promise<DatabaseInstance> {
@@ -429,7 +417,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -438,7 +426,6 @@ export class Client {
 
   /** Find a Database Instance by uid. */
   async findDatabaseInstanceByUid(
-    signal: AbortSignal | undefined,
     req: FindDatabaseInstanceByUidRequest,
     options?: CallOptions
   ): Promise<DatabaseInstance> {
@@ -461,7 +448,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -470,7 +457,6 @@ export class Client {
 
   /** Generates a credential that can be used to access database instances. */
   async generateDatabaseCredential(
-    signal: AbortSignal | undefined,
     req: GenerateDatabaseCredentialRequest,
     options?: CallOptions
   ): Promise<DatabaseCredential> {
@@ -491,7 +477,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseCredentialSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -500,7 +486,6 @@ export class Client {
 
   /** Get a Database Catalog. */
   async getDatabaseCatalog(
-    signal: AbortSignal | undefined,
     req: GetDatabaseCatalogRequest,
     options?: CallOptions
   ): Promise<DatabaseCatalog> {
@@ -517,7 +502,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseCatalogSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -526,7 +511,6 @@ export class Client {
 
   /** Get a Database Instance. */
   async getDatabaseInstance(
-    signal: AbortSignal | undefined,
     req: GetDatabaseInstanceRequest,
     options?: CallOptions
   ): Promise<DatabaseInstance> {
@@ -543,7 +527,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -552,7 +536,6 @@ export class Client {
 
   /** Gets a role for a Database Instance. */
   async getDatabaseInstanceRole(
-    signal: AbortSignal | undefined,
     req: GetDatabaseInstanceRoleRequest,
     options?: CallOptions
   ): Promise<DatabaseInstanceRole> {
@@ -569,7 +552,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceRoleSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -578,7 +561,6 @@ export class Client {
 
   /** Get a Database Table. */
   async getDatabaseTable(
-    signal: AbortSignal | undefined,
     req: GetDatabaseTableRequest,
     options?: CallOptions
   ): Promise<DatabaseTable> {
@@ -595,7 +577,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseTableSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -604,7 +586,6 @@ export class Client {
 
   /** Get a Synced Database Table. */
   async getSyncedDatabaseTable(
-    signal: AbortSignal | undefined,
     req: GetSyncedDatabaseTableRequest,
     options?: CallOptions
   ): Promise<SyncedDatabaseTable> {
@@ -621,7 +602,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSyncedDatabaseTableSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -630,7 +611,6 @@ export class Client {
 
   /** This API is currently unimplemented, but exposed for Terraform support. */
   async listDatabaseCatalogs(
-    signal: AbortSignal | undefined,
     req: ListDatabaseCatalogsRequest,
     options?: CallOptions
   ): Promise<ListDatabaseCatalogsResponse> {
@@ -659,7 +639,7 @@ export class Client {
         unmarshalListDatabaseCatalogsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -667,13 +647,12 @@ export class Client {
   }
 
   async *listDatabaseCatalogsIter(
-    signal: AbortSignal | undefined,
     req: ListDatabaseCatalogsRequest,
     options?: CallOptions
   ): AsyncGenerator<DatabaseCatalog> {
     const pageReq: ListDatabaseCatalogsRequest = {...req};
     for (;;) {
-      const resp = await this.listDatabaseCatalogs(signal, pageReq, options);
+      const resp = await this.listDatabaseCatalogs(pageReq, options);
       for (const item of resp.databaseCatalogs ?? []) {
         yield item;
       }
@@ -691,7 +670,6 @@ export class Client {
    * new public roles API as part of V2 PuPr.
    */
   async listDatabaseInstanceRoles(
-    signal: AbortSignal | undefined,
     req: ListDatabaseInstanceRolesRequest,
     options?: CallOptions
   ): Promise<ListDatabaseInstanceRolesResponse> {
@@ -720,7 +698,7 @@ export class Client {
         unmarshalListDatabaseInstanceRolesResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -728,17 +706,12 @@ export class Client {
   }
 
   async *listDatabaseInstanceRolesIter(
-    signal: AbortSignal | undefined,
     req: ListDatabaseInstanceRolesRequest,
     options?: CallOptions
   ): AsyncGenerator<DatabaseInstanceRole> {
     const pageReq: ListDatabaseInstanceRolesRequest = {...req};
     for (;;) {
-      const resp = await this.listDatabaseInstanceRoles(
-        signal,
-        pageReq,
-        options
-      );
+      const resp = await this.listDatabaseInstanceRoles(pageReq, options);
       for (const item of resp.databaseInstanceRoles ?? []) {
         yield item;
       }
@@ -751,7 +724,6 @@ export class Client {
 
   /** List Database Instances. */
   async listDatabaseInstances(
-    signal: AbortSignal | undefined,
     req: ListDatabaseInstancesRequest,
     options?: CallOptions
   ): Promise<ListDatabaseInstancesResponse> {
@@ -780,7 +752,7 @@ export class Client {
         unmarshalListDatabaseInstancesResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -788,13 +760,12 @@ export class Client {
   }
 
   async *listDatabaseInstancesIter(
-    signal: AbortSignal | undefined,
     req: ListDatabaseInstancesRequest,
     options?: CallOptions
   ): AsyncGenerator<DatabaseInstance> {
     const pageReq: ListDatabaseInstancesRequest = {...req};
     for (;;) {
-      const resp = await this.listDatabaseInstances(signal, pageReq, options);
+      const resp = await this.listDatabaseInstances(pageReq, options);
       for (const item of resp.databaseInstances ?? []) {
         yield item;
       }
@@ -807,7 +778,6 @@ export class Client {
 
   /** This API is currently unimplemented, but exposed for Terraform support. */
   async listSyncedDatabaseTables(
-    signal: AbortSignal | undefined,
     req: ListSyncedDatabaseTablesRequest,
     options?: CallOptions
   ): Promise<ListSyncedDatabaseTablesResponse> {
@@ -836,7 +806,7 @@ export class Client {
         unmarshalListSyncedDatabaseTablesResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -844,17 +814,12 @@ export class Client {
   }
 
   async *listSyncedDatabaseTablesIter(
-    signal: AbortSignal | undefined,
     req: ListSyncedDatabaseTablesRequest,
     options?: CallOptions
   ): AsyncGenerator<SyncedDatabaseTable> {
     const pageReq: ListSyncedDatabaseTablesRequest = {...req};
     for (;;) {
-      const resp = await this.listSyncedDatabaseTables(
-        signal,
-        pageReq,
-        options
-      );
+      const resp = await this.listSyncedDatabaseTables(pageReq, options);
       for (const item of resp.syncedTables ?? []) {
         yield item;
       }
@@ -867,7 +832,6 @@ export class Client {
 
   /** This API is currently unimplemented, but exposed for Terraform support. */
   async updateDatabaseCatalog(
-    signal: AbortSignal | undefined,
     req: UpdateDatabaseCatalogRequest,
     options?: CallOptions
   ): Promise<DatabaseCatalog> {
@@ -900,7 +864,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseCatalogSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -909,7 +873,6 @@ export class Client {
 
   /** Update a Database Instance. */
   async updateDatabaseInstance(
-    signal: AbortSignal | undefined,
     req: UpdateDatabaseInstanceRequest,
     options?: CallOptions
   ): Promise<DatabaseInstance> {
@@ -942,7 +905,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -951,7 +914,6 @@ export class Client {
 
   /** Update a role for a Database Instance. */
   async updateDatabaseInstanceRole(
-    signal: AbortSignal | undefined,
     req: UpdateDatabaseInstanceRoleRequest,
     options?: CallOptions
   ): Promise<DatabaseInstanceRole> {
@@ -984,7 +946,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceRoleSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -993,7 +955,6 @@ export class Client {
 
   /** This API is currently unimplemented, but exposed for Terraform support. */
   async updateSyncedDatabaseTable(
-    signal: AbortSignal | undefined,
     req: UpdateSyncedDatabaseTableRequest,
     options?: CallOptions
   ): Promise<SyncedDatabaseTable> {
@@ -1026,7 +987,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSyncedDatabaseTableSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1035,7 +996,6 @@ export class Client {
 
   /** Upgrade a Database Instance to Autoscaling. */
   async upgradeInstanceToAutoscaling(
-    signal: AbortSignal | undefined,
     req: UpgradeInstanceToAutoscalingRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -1050,7 +1010,7 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 }
 
@@ -1065,19 +1025,15 @@ export class CreateDatabaseInstanceWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<DatabaseInstance> {
+  async wait(options?: CallOptions): Promise<DatabaseInstance> {
     let result: DatabaseInstance | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getDatabaseInstance(
-        callSignal,
         {
           name: this.name,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state;
@@ -1095,12 +1051,13 @@ export class CreateDatabaseInstanceWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1108,12 +1065,8 @@ export class CreateDatabaseInstanceWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getDatabaseInstance(
-      signal,
       {
         name: this.name,
       },

@@ -69,7 +69,6 @@ export class Client {
    * The caller must be an account admin or a metastore admin.
    */
   async disableSystemSchema(
-    signal: AbortSignal | undefined,
     req: DisableSystemSchema,
     options?: CallOptions
   ): Promise<DisableSystemSchema_Response> {
@@ -89,7 +88,7 @@ export class Client {
         unmarshalDisableSystemSchema_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -101,7 +100,6 @@ export class Client {
    * The caller must be an account admin or a metastore admin.
    */
   async enableSystemSchema(
-    signal: AbortSignal | undefined,
     req: EnableSystemSchema,
     options?: CallOptions
   ): Promise<EnableSystemSchema_Response> {
@@ -122,7 +120,7 @@ export class Client {
         unmarshalEnableSystemSchema_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -139,7 +137,6 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listSystemSchemas(
-    signal: AbortSignal | undefined,
     req: ListSystemSchemas,
     options?: CallOptions
   ): Promise<ListSystemSchemas_Response> {
@@ -165,7 +162,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListSystemSchemas_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -173,13 +170,12 @@ export class Client {
   }
 
   async *listSystemSchemasIter(
-    signal: AbortSignal | undefined,
     req: ListSystemSchemas,
     options?: CallOptions
   ): AsyncGenerator<SystemSchemaInfo> {
     const pageReq: ListSystemSchemas = {...req};
     for (;;) {
-      const resp = await this.listSystemSchemas(signal, pageReq, options);
+      const resp = await this.listSystemSchemas(pageReq, options);
       for (const item of resp.schemas ?? []) {
         yield item;
       }

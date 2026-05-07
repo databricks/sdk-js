@@ -72,7 +72,6 @@ export class Client {
 
   /** Creates a new global init script in this workspace. */
   async createGlobalInitScript(
-    signal: AbortSignal | undefined,
     req: CreateGlobalInitScript,
     options?: CallOptions
   ): Promise<CreateGlobalInitScript_Response> {
@@ -93,7 +92,7 @@ export class Client {
         unmarshalCreateGlobalInitScript_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -102,7 +101,6 @@ export class Client {
 
   /** Deletes a global init script. */
   async deleteGlobalInitScript(
-    signal: AbortSignal | undefined,
     req: DeleteGlobalInitScript,
     options?: CallOptions
   ): Promise<DeleteGlobalInitScript_Response> {
@@ -122,7 +120,7 @@ export class Client {
         unmarshalDeleteGlobalInitScript_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -131,7 +129,6 @@ export class Client {
 
   /** Gets all the details of a script, including its Base64-encoded contents. */
   async getGlobalInitScript(
-    signal: AbortSignal | undefined,
     req: GetGlobalInitScript,
     options?: CallOptions
   ): Promise<GlobalInitScriptDetails> {
@@ -148,7 +145,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGlobalInitScriptDetailsSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -160,7 +157,6 @@ export class Client {
    * To retrieve the contents of a script, use the [get a global init script](:method:globalinitscripts/get) operation.
    */
   async listGlobalInitScripts(
-    signal: AbortSignal | undefined,
     _req: ListGlobalInitScripts,
     options?: CallOptions
   ): Promise<ListGlobalInitScripts_Response> {
@@ -180,7 +176,7 @@ export class Client {
         unmarshalListGlobalInitScripts_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -192,7 +188,6 @@ export class Client {
    * Unspecified fields retain their current value.
    */
   async updateGlobalInitScript(
-    signal: AbortSignal | undefined,
     req: UpdateGlobalInitScript,
     options?: CallOptions
   ): Promise<UpdateGlobalInitScript_Response> {
@@ -213,7 +208,7 @@ export class Client {
         unmarshalUpdateGlobalInitScript_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

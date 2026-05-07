@@ -65,7 +65,6 @@ export class Client {
 
   /** Create a tag assignment */
   async createTagAssignment(
-    signal: AbortSignal | undefined,
     req: CreateTagAssignmentRequest,
     options?: CallOptions
   ): Promise<TagAssignment> {
@@ -83,7 +82,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTagAssignmentSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -92,7 +91,6 @@ export class Client {
 
   /** Delete a tag assignment */
   async deleteTagAssignment(
-    signal: AbortSignal | undefined,
     req: DeleteTagAssignmentRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -107,12 +105,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Get a tag assignment */
   async getTagAssignment(
-    signal: AbortSignal | undefined,
     req: GetTagAssignmentRequest,
     options?: CallOptions
   ): Promise<TagAssignment> {
@@ -129,7 +126,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTagAssignmentSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -138,7 +135,6 @@ export class Client {
 
   /** List the tag assignments for an entity */
   async listTagAssignments(
-    signal: AbortSignal | undefined,
     req: ListTagAssignmentsRequest,
     options?: CallOptions
   ): Promise<ListTagAssignmentsResponse> {
@@ -164,7 +160,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListTagAssignmentsResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -172,13 +168,12 @@ export class Client {
   }
 
   async *listTagAssignmentsIter(
-    signal: AbortSignal | undefined,
     req: ListTagAssignmentsRequest,
     options?: CallOptions
   ): AsyncGenerator<TagAssignment> {
     const pageReq: ListTagAssignmentsRequest = {...req};
     for (;;) {
-      const resp = await this.listTagAssignments(signal, pageReq, options);
+      const resp = await this.listTagAssignments(pageReq, options);
       for (const item of resp.tagAssignments ?? []) {
         yield item;
       }
@@ -191,7 +186,6 @@ export class Client {
 
   /** Update a tag assignment */
   async updateTagAssignment(
-    signal: AbortSignal | undefined,
     req: UpdateTagAssignmentRequest,
     options?: CallOptions
   ): Promise<TagAssignment> {
@@ -221,7 +215,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTagAssignmentSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

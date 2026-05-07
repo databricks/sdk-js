@@ -72,7 +72,6 @@ export class Client {
 
   /** Creates a token on behalf of a service principal. */
   async createOnBehalfOfToken(
-    signal: AbortSignal | undefined,
     req: CreateOnBehalfOfToken,
     options?: CallOptions
   ): Promise<CreateOnBehalfOfToken_Response> {
@@ -93,7 +92,7 @@ export class Client {
         unmarshalCreateOnBehalfOfToken_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -102,7 +101,6 @@ export class Client {
 
   /** Deletes a token, specified by its ID. */
   async deleteToken(
-    signal: AbortSignal | undefined,
     req: RevokeToken,
     options?: CallOptions
   ): Promise<RevokeToken_Response> {
@@ -119,7 +117,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRevokeToken_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -128,7 +126,6 @@ export class Client {
 
   /** Gets information about a token, specified by its ID. */
   async getToken(
-    signal: AbortSignal | undefined,
     req: GetToken,
     options?: CallOptions
   ): Promise<GetToken_Response> {
@@ -145,7 +142,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetToken_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -154,7 +151,6 @@ export class Client {
 
   /** Lists all tokens associated with the specified workspace or user. */
   async listTokens(
-    signal: AbortSignal | undefined,
     req: ListTokens,
     options?: CallOptions
   ): Promise<ListTokens_Response> {
@@ -180,7 +176,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListTokens_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -189,7 +185,6 @@ export class Client {
 
   /** Updates a token, specified by its ID. */
   async updateToken(
-    signal: AbortSignal | undefined,
     req: UpdateToken,
     options?: CallOptions
   ): Promise<AdminTokenInfo> {
@@ -207,7 +202,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAdminTokenInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

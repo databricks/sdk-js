@@ -68,7 +68,6 @@ export class Client {
    * - The config must not already exist for the catalog.
    */
   async createCatalogConfig(
-    signal: AbortSignal | undefined,
     req: CreateCatalogConfigRequest,
     options?: CallOptions
   ): Promise<CatalogConfig> {
@@ -86,7 +85,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCatalogConfigSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -95,7 +94,6 @@ export class Client {
 
   /** Delete Data Classification configuration for a catalog. */
   async deleteCatalogConfig(
-    signal: AbortSignal | undefined,
     req: DeleteCatalogConfigRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -110,12 +108,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Get the Data Classification configuration for a catalog. */
   async getCatalogConfig(
-    signal: AbortSignal | undefined,
     req: GetCatalogConfigRequest,
     options?: CallOptions
   ): Promise<CatalogConfig> {
@@ -132,7 +129,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCatalogConfigSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -145,7 +142,6 @@ export class Client {
    * - Updates fields specified in the update_mask.  Use update_mask field to perform partial updates of the configuration.
    */
   async updateCatalogConfig(
-    signal: AbortSignal | undefined,
     req: UpdateCatalogConfigRequest,
     options?: CallOptions
   ): Promise<CatalogConfig> {
@@ -175,7 +171,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCatalogConfigSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

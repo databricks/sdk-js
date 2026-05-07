@@ -84,7 +84,6 @@ export class Client {
    * successfully generated or has failed.
    */
   async createWorkspaceBaseEnvironment(
-    signal: AbortSignal | undefined,
     req: CreateWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -123,7 +122,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -131,11 +130,10 @@ export class Client {
   }
 
   async createWorkspaceBaseEnvironmentOperation(
-    signal: AbortSignal | undefined,
     req: CreateWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<CreateWorkspaceBaseEnvironmentOperation> {
-    const op = await this.createWorkspaceBaseEnvironment(signal, req, options);
+    const op = await this.createWorkspaceBaseEnvironment(req, options);
     return new CreateWorkspaceBaseEnvironmentOperation(this, op);
   }
 
@@ -145,7 +143,6 @@ export class Client {
    * This operation is irreversible and should be performed only when you are certain the environment is no longer needed.
    */
   async deleteWorkspaceBaseEnvironment(
-    signal: AbortSignal | undefined,
     req: DeleteWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -160,7 +157,7 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /**
@@ -168,7 +165,6 @@ export class Client {
    * Returns the current default base environment settings for both CPU and GPU compute.
    */
   async getDefaultWorkspaceBaseEnvironment(
-    signal: AbortSignal | undefined,
     req: GetDefaultWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<DefaultWorkspaceBaseEnvironment> {
@@ -188,7 +184,7 @@ export class Client {
         unmarshalDefaultWorkspaceBaseEnvironmentSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -200,7 +196,6 @@ export class Client {
    * Clients can use this method to poll the operation result.
    */
   async getOperation(
-    signal: AbortSignal | undefined,
     req: GetOperationRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -217,7 +212,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -226,7 +221,6 @@ export class Client {
 
   /** Retrieves a WorkspaceBaseEnvironment by its name. */
   async getWorkspaceBaseEnvironment(
-    signal: AbortSignal | undefined,
     req: GetWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<WorkspaceBaseEnvironment> {
@@ -243,7 +237,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceBaseEnvironmentSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -252,7 +246,6 @@ export class Client {
 
   /** Lists all WorkspaceBaseEnvironments in the workspace. */
   async listWorkspaceBaseEnvironments(
-    signal: AbortSignal | undefined,
     req: ListWorkspaceBaseEnvironmentsRequest,
     options?: CallOptions
   ): Promise<ListWorkspaceBaseEnvironmentsResponse> {
@@ -281,7 +274,7 @@ export class Client {
         unmarshalListWorkspaceBaseEnvironmentsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -289,17 +282,12 @@ export class Client {
   }
 
   async *listWorkspaceBaseEnvironmentsIter(
-    signal: AbortSignal | undefined,
     req: ListWorkspaceBaseEnvironmentsRequest,
     options?: CallOptions
   ): AsyncGenerator<WorkspaceBaseEnvironment> {
     const pageReq: ListWorkspaceBaseEnvironmentsRequest = {...req};
     for (;;) {
-      const resp = await this.listWorkspaceBaseEnvironments(
-        signal,
-        pageReq,
-        options
-      );
+      const resp = await this.listWorkspaceBaseEnvironments(pageReq, options);
       for (const item of resp.workspaceBaseEnvironments ?? []) {
         yield item;
       }
@@ -317,7 +305,6 @@ export class Client {
    * The existing materialized environment remains available until it expires.
    */
   async refreshWorkspaceBaseEnvironment(
-    signal: AbortSignal | undefined,
     req: RefreshWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -338,7 +325,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -346,11 +333,10 @@ export class Client {
   }
 
   async refreshWorkspaceBaseEnvironmentOperation(
-    signal: AbortSignal | undefined,
     req: RefreshWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<RefreshWorkspaceBaseEnvironmentOperation> {
-    const op = await this.refreshWorkspaceBaseEnvironment(signal, req, options);
+    const op = await this.refreshWorkspaceBaseEnvironment(req, options);
     return new RefreshWorkspaceBaseEnvironmentOperation(this, op);
   }
 
@@ -359,7 +345,6 @@ export class Client {
    * Sets the specified base environments as the workspace defaults for CPU and/or GPU compute.
    */
   async updateDefaultWorkspaceBaseEnvironment(
-    signal: AbortSignal | undefined,
     req: UpdateDefaultWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<DefaultWorkspaceBaseEnvironment> {
@@ -395,7 +380,7 @@ export class Client {
         unmarshalDefaultWorkspaceBaseEnvironmentSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -409,7 +394,6 @@ export class Client {
    * The existing materialized environment remains available until it expires.
    */
   async updateWorkspaceBaseEnvironment(
-    signal: AbortSignal | undefined,
     req: UpdateWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -430,7 +414,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -438,11 +422,10 @@ export class Client {
   }
 
   async updateWorkspaceBaseEnvironmentOperation(
-    signal: AbortSignal | undefined,
     req: UpdateWorkspaceBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<UpdateWorkspaceBaseEnvironmentOperation> {
-    const op = await this.updateWorkspaceBaseEnvironment(signal, req, options);
+    const op = await this.updateWorkspaceBaseEnvironment(req, options);
     return new UpdateWorkspaceBaseEnvironmentOperation(this, op);
   }
 }
@@ -475,20 +458,16 @@ export class CreateWorkspaceBaseEnvironmentOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<WorkspaceBaseEnvironment> {
+  async wait(options?: CallOptions): Promise<WorkspaceBaseEnvironment> {
     const errStillRunning = new Error('operation still in progress');
     let result: WorkspaceBaseEnvironment | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
-        callSignal,
         {
           name: this.operation.name,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
       this.operation = op;
       if (op.done === undefined) {
@@ -521,12 +500,13 @@ export class CreateWorkspaceBaseEnvironmentOperation {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -534,12 +514,8 @@ export class CreateWorkspaceBaseEnvironmentOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
-      signal,
       {name: this.operation.name},
       options
     );
@@ -576,20 +552,16 @@ export class RefreshWorkspaceBaseEnvironmentOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<WorkspaceBaseEnvironment> {
+  async wait(options?: CallOptions): Promise<WorkspaceBaseEnvironment> {
     const errStillRunning = new Error('operation still in progress');
     let result: WorkspaceBaseEnvironment | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
-        callSignal,
         {
           name: this.operation.name,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
       this.operation = op;
       if (op.done === undefined) {
@@ -622,12 +594,13 @@ export class RefreshWorkspaceBaseEnvironmentOperation {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -635,12 +608,8 @@ export class RefreshWorkspaceBaseEnvironmentOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
-      signal,
       {name: this.operation.name},
       options
     );
@@ -677,20 +646,16 @@ export class UpdateWorkspaceBaseEnvironmentOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<WorkspaceBaseEnvironment> {
+  async wait(options?: CallOptions): Promise<WorkspaceBaseEnvironment> {
     const errStillRunning = new Error('operation still in progress');
     let result: WorkspaceBaseEnvironment | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getOperation(
-        callSignal,
         {
           name: this.operation.name,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
       this.operation = op;
       if (op.done === undefined) {
@@ -723,12 +688,13 @@ export class UpdateWorkspaceBaseEnvironmentOperation {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -736,12 +702,8 @@ export class UpdateWorkspaceBaseEnvironmentOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
-      signal,
       {name: this.operation.name},
       options
     );

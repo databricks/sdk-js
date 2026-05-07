@@ -110,7 +110,6 @@ export class Client {
    * credentials, or **CREATE_SERVICE_CREDENTIAL** for service credentials.
    */
   async createCredential(
-    signal: AbortSignal | undefined,
     req: CreateCredential,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
@@ -128,7 +127,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStorageCredentialInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -141,7 +140,6 @@ export class Client {
    * The caller must be a metastore admin or have the **CREATE_STORAGE_CREDENTIAL** privilege on the metastore.
    */
   async createStorageCredential(
-    signal: AbortSignal | undefined,
     req: CreateStorageCredential,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
@@ -159,7 +157,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStorageCredentialInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -168,7 +166,6 @@ export class Client {
 
   /** Deletes a service or storage credential from the metastore. The caller must be an owner of the credential. */
   async deleteCredential(
-    signal: AbortSignal | undefined,
     req: DeleteCredential,
     options?: CallOptions
   ): Promise<DeleteCredential_Response> {
@@ -191,7 +188,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteCredential_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -200,7 +197,6 @@ export class Client {
 
   /** Deletes a storage credential from the metastore. The caller must be an owner of the storage credential. */
   async deleteStorageCredential(
-    signal: AbortSignal | undefined,
     req: DeleteStorageCredential,
     options?: CallOptions
   ): Promise<DeleteStorageCredential_Response> {
@@ -226,7 +222,7 @@ export class Client {
         unmarshalDeleteStorageCredential_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -244,7 +240,6 @@ export class Client {
    * this privilege can only be granted by catalog owners.
    */
   async generateTemporaryPathCredential(
-    signal: AbortSignal | undefined,
     req: GenerateTemporaryPathCredential,
     options?: CallOptions
   ): Promise<GenerateTemporaryPathCredential_Response> {
@@ -268,7 +263,7 @@ export class Client {
         unmarshalGenerateTemporaryPathCredential_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -280,7 +275,6 @@ export class Client {
    * The caller must be a metastore admin or have the metastore privilege **ACCESS** on the service credential.
    */
   async generateTemporaryServiceCredential(
-    signal: AbortSignal | undefined,
     req: GenerateTemporaryServiceCredential,
     options?: CallOptions
   ): Promise<TemporaryCredentials> {
@@ -301,7 +295,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTemporaryCredentialsSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -315,7 +309,6 @@ export class Client {
    * by catalog owners.
    */
   async generateTemporaryTableCredential(
-    signal: AbortSignal | undefined,
     req: GenerateTemporaryTableCredential,
     options?: CallOptions
   ): Promise<GenerateTemporaryTableCredential_Response> {
@@ -339,7 +332,7 @@ export class Client {
         unmarshalGenerateTemporaryTableCredential_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -353,7 +346,6 @@ export class Client {
    * by catalog owners.
    */
   async generateTemporaryVolumeCredential(
-    signal: AbortSignal | undefined,
     req: GenerateTemporaryVolumeCredential,
     options?: CallOptions
   ): Promise<GenerateTemporaryVolumeCredential_Response> {
@@ -377,7 +369,7 @@ export class Client {
         unmarshalGenerateTemporaryVolumeCredential_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -389,7 +381,6 @@ export class Client {
    * The caller must be a metastore admin, the owner of the credential, or have any permission on the credential.
    */
   async getCredential(
-    signal: AbortSignal | undefined,
     req: GetCredential,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
@@ -406,7 +397,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStorageCredentialInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -418,7 +409,6 @@ export class Client {
    * The caller must be a metastore admin, the owner of the storage credential, or have some permission on the storage credential.
    */
   async getStorageCredential(
-    signal: AbortSignal | undefined,
     req: GetStorageCredential,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
@@ -435,7 +425,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStorageCredentialInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -453,7 +443,6 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listCredentials(
-    signal: AbortSignal | undefined,
     req: ListCredentials,
     options?: CallOptions
   ): Promise<ListCredentials_Response> {
@@ -482,7 +471,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListCredentials_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -490,13 +479,12 @@ export class Client {
   }
 
   async *listCredentialsIter(
-    signal: AbortSignal | undefined,
     req: ListCredentials,
     options?: CallOptions
   ): AsyncGenerator<CredentialInfo> {
     const pageReq: ListCredentials = {...req};
     for (;;) {
-      const resp = await this.listCredentials(signal, pageReq, options);
+      const resp = await this.listCredentials(pageReq, options);
       for (const item of resp.credentials ?? []) {
         yield item;
       }
@@ -519,7 +507,6 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listStorageCredentials(
-    signal: AbortSignal | undefined,
     req: ListStorageCredentials,
     options?: CallOptions
   ): Promise<ListStorageCredentials_Response> {
@@ -551,7 +538,7 @@ export class Client {
         unmarshalListStorageCredentials_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -559,13 +546,12 @@ export class Client {
   }
 
   async *listStorageCredentialsIter(
-    signal: AbortSignal | undefined,
     req: ListStorageCredentials,
     options?: CallOptions
   ): AsyncGenerator<StorageCredentialInfo> {
     const pageReq: ListStorageCredentials = {...req};
     for (;;) {
-      const resp = await this.listStorageCredentials(signal, pageReq, options);
+      const resp = await this.listStorageCredentials(pageReq, options);
       for (const item of resp.storageCredentials ?? []) {
         yield item;
       }
@@ -583,7 +569,6 @@ export class Client {
    * a metastore admin, only the __owner__ field can be changed.
    */
   async updateCredential(
-    signal: AbortSignal | undefined,
     req: UpdateCredential,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
@@ -601,7 +586,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStorageCredentialInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -615,7 +600,6 @@ export class Client {
    * If the caller is a metastore admin, only the **owner** field can be changed.
    */
   async updateStorageCredential(
-    signal: AbortSignal | undefined,
     req: UpdateStorageCredential,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
@@ -633,7 +617,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStorageCredentialInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -655,7 +639,6 @@ export class Client {
    * the credential (e.g., **CREATE_EXTERNAL_LOCATION** when purpose is **STORAGE**).
    */
   async validateCredential(
-    signal: AbortSignal | undefined,
     req: ValidateCredential,
     options?: CallOptions
   ): Promise<ValidateCredential_Response> {
@@ -676,7 +659,7 @@ export class Client {
         unmarshalValidateCredential_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -695,7 +678,6 @@ export class Client {
    * have the **CREATE_EXTERNAL_LOCATION** privilege on the metastore and the storage credential.
    */
   async validateStorageCredential(
-    signal: AbortSignal | undefined,
     req: ValidateStorageCredential,
     options?: CallOptions
   ): Promise<ValidateStorageCredential_Response> {
@@ -716,7 +698,7 @@ export class Client {
         unmarshalValidateStorageCredential_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

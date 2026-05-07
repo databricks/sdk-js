@@ -106,7 +106,6 @@ export class Client {
 
   /** Create a draft dashboard. */
   async createDashboard(
-    signal: AbortSignal | undefined,
     req: CreateDashboardRequest,
     options?: CallOptions
   ): Promise<Dashboard> {
@@ -139,7 +138,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDashboardSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -148,7 +147,6 @@ export class Client {
 
   /** Create dashboard schedule. */
   async createSchedule(
-    signal: AbortSignal | undefined,
     req: CreateScheduleRequest,
     options?: CallOptions
   ): Promise<Schedule> {
@@ -166,7 +164,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalScheduleSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -175,7 +173,6 @@ export class Client {
 
   /** Create schedule subscription. */
   async createSubscription(
-    signal: AbortSignal | undefined,
     req: CreateSubscriptionRequest,
     options?: CallOptions
   ): Promise<Subscription> {
@@ -193,7 +190,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSubscriptionSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -202,7 +199,6 @@ export class Client {
 
   /** Delete dashboard schedule. */
   async deleteSchedule(
-    signal: AbortSignal | undefined,
     req: DeleteScheduleRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -223,12 +219,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Delete schedule subscription. */
   async deleteSubscription(
-    signal: AbortSignal | undefined,
     req: DeleteSubscriptionRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -249,12 +244,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Get a draft dashboard. */
   async getDashboard(
-    signal: AbortSignal | undefined,
     req: GetDashboardRequest,
     options?: CallOptions
   ): Promise<Dashboard> {
@@ -271,7 +265,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDashboardSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -280,7 +274,6 @@ export class Client {
 
   /** Get the current published dashboard. */
   async getPublishedDashboard(
-    signal: AbortSignal | undefined,
     req: GetPublishedDashboardRequest,
     options?: CallOptions
   ): Promise<PublishedDashboard> {
@@ -297,7 +290,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPublishedDashboardSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -306,7 +299,6 @@ export class Client {
 
   /** Get the current published dashboard within an embedded context. */
   async getPublishedDashboardEmbedded(
-    signal: AbortSignal | undefined,
     req: GetPublishedDashboardEmbeddedRequest,
     options?: CallOptions
   ): Promise<GetPublishedDashboardEmbeddedResponse> {
@@ -326,7 +318,7 @@ export class Client {
         unmarshalGetPublishedDashboardEmbeddedResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -335,7 +327,6 @@ export class Client {
 
   /** Get a required authorization details and scopes of a published dashboard to mint an OAuth token. */
   async getPublishedDashboardTokenInfo(
-    signal: AbortSignal | undefined,
     req: GetPublishedDashboardTokenInfoRequest,
     options?: CallOptions
   ): Promise<GetPublishedDashboardTokenInfoResponse> {
@@ -364,7 +355,7 @@ export class Client {
         unmarshalGetPublishedDashboardTokenInfoResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -373,7 +364,6 @@ export class Client {
 
   /** Get dashboard schedule. */
   async getSchedule(
-    signal: AbortSignal | undefined,
     req: GetScheduleRequest,
     options?: CallOptions
   ): Promise<Schedule> {
@@ -390,7 +380,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalScheduleSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -399,7 +389,6 @@ export class Client {
 
   /** Get schedule subscription. */
   async getSubscription(
-    signal: AbortSignal | undefined,
     req: GetSubscriptionRequest,
     options?: CallOptions
   ): Promise<Subscription> {
@@ -416,7 +405,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSubscriptionSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -425,7 +414,6 @@ export class Client {
 
   /** List dashboards. */
   async listDashboards(
-    signal: AbortSignal | undefined,
     req: ListDashboardsRequest,
     options?: CallOptions
   ): Promise<ListDashboardsResponse> {
@@ -457,7 +445,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListDashboardsResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -465,13 +453,12 @@ export class Client {
   }
 
   async *listDashboardsIter(
-    signal: AbortSignal | undefined,
     req: ListDashboardsRequest,
     options?: CallOptions
   ): AsyncGenerator<Dashboard> {
     const pageReq: ListDashboardsRequest = {...req};
     for (;;) {
-      const resp = await this.listDashboards(signal, pageReq, options);
+      const resp = await this.listDashboards(pageReq, options);
       for (const item of resp.dashboards ?? []) {
         yield item;
       }
@@ -484,7 +471,6 @@ export class Client {
 
   /** List dashboard schedules. */
   async listSchedules(
-    signal: AbortSignal | undefined,
     req: ListSchedulesRequest,
     options?: CallOptions
   ): Promise<ListSchedulesResponse> {
@@ -510,7 +496,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListSchedulesResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -518,13 +504,12 @@ export class Client {
   }
 
   async *listSchedulesIter(
-    signal: AbortSignal | undefined,
     req: ListSchedulesRequest,
     options?: CallOptions
   ): AsyncGenerator<Schedule> {
     const pageReq: ListSchedulesRequest = {...req};
     for (;;) {
-      const resp = await this.listSchedules(signal, pageReq, options);
+      const resp = await this.listSchedules(pageReq, options);
       for (const item of resp.schedules ?? []) {
         yield item;
       }
@@ -537,7 +522,6 @@ export class Client {
 
   /** List schedule subscriptions. */
   async listSubscriptions(
-    signal: AbortSignal | undefined,
     req: ListSubscriptionsRequest,
     options?: CallOptions
   ): Promise<ListSubscriptionsResponse> {
@@ -563,7 +547,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListSubscriptionsResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -571,13 +555,12 @@ export class Client {
   }
 
   async *listSubscriptionsIter(
-    signal: AbortSignal | undefined,
     req: ListSubscriptionsRequest,
     options?: CallOptions
   ): AsyncGenerator<Subscription> {
     const pageReq: ListSubscriptionsRequest = {...req};
     for (;;) {
-      const resp = await this.listSubscriptions(signal, pageReq, options);
+      const resp = await this.listSubscriptions(pageReq, options);
       for (const item of resp.subscriptions ?? []) {
         yield item;
       }
@@ -590,7 +573,6 @@ export class Client {
 
   /** Migrates a classic SQL dashboard to Lakeview. */
   async migrateDashboard(
-    signal: AbortSignal | undefined,
     req: MigrateDashboardRequest,
     options?: CallOptions
   ): Promise<Dashboard> {
@@ -608,7 +590,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDashboardSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -617,7 +599,6 @@ export class Client {
 
   /** Publish the current draft dashboard. */
   async publishDashboard(
-    signal: AbortSignal | undefined,
     req: PublishDashboardRequest,
     options?: CallOptions
   ): Promise<PublishedDashboard> {
@@ -635,7 +616,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPublishedDashboardSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -644,7 +625,6 @@ export class Client {
 
   /** Revert a dashboard draft to its last published state. */
   async revertDashboard(
-    signal: AbortSignal | undefined,
     req: RevertDashboardRequest,
     options?: CallOptions
   ): Promise<RevertDashboardResponse> {
@@ -662,7 +642,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRevertDashboardResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -671,7 +651,6 @@ export class Client {
 
   /** Trash a dashboard. */
   async trashDashboard(
-    signal: AbortSignal | undefined,
     req: TrashDashboardRequest,
     options?: CallOptions
   ): Promise<TrashDashboardResponse> {
@@ -688,7 +667,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTrashDashboardResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -697,7 +676,6 @@ export class Client {
 
   /** Unpublish the dashboard. */
   async unpublishDashboard(
-    signal: AbortSignal | undefined,
     req: UnpublishDashboardRequest,
     options?: CallOptions
   ): Promise<UnpublishDashboardResponse> {
@@ -714,7 +692,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUnpublishDashboardResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -723,7 +701,6 @@ export class Client {
 
   /** Update a draft dashboard. */
   async updateDashboard(
-    signal: AbortSignal | undefined,
     req: UpdateDashboardRequest,
     options?: CallOptions
   ): Promise<Dashboard> {
@@ -756,7 +733,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDashboardSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -765,7 +742,6 @@ export class Client {
 
   /** Update dashboard schedule. */
   async updateSchedule(
-    signal: AbortSignal | undefined,
     req: UpdateScheduleRequest,
     options?: CallOptions
   ): Promise<Schedule> {
@@ -783,7 +759,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalScheduleSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

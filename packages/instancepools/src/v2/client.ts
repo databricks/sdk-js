@@ -73,7 +73,6 @@ export class Client {
 
   /** Creates a new instance pool using idle and ready-to-use cloud instances. */
   async createInstancePool(
-    signal: AbortSignal | undefined,
     req: CreateInstancePool,
     options?: CallOptions
   ): Promise<CreateInstancePool_Response> {
@@ -94,7 +93,7 @@ export class Client {
         unmarshalCreateInstancePool_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -103,7 +102,6 @@ export class Client {
 
   /** Deletes the instance pool permanently. The idle instances in the pool are terminated asynchronously. */
   async deleteInstancePool(
-    signal: AbortSignal | undefined,
     req: DeleteInstancePool,
     options?: CallOptions
   ): Promise<DeleteInstancePool_Response> {
@@ -124,7 +122,7 @@ export class Client {
         unmarshalDeleteInstancePool_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -133,7 +131,6 @@ export class Client {
 
   /** Modifies the configuration of an existing instance pool. */
   async editInstancePool(
-    signal: AbortSignal | undefined,
     req: EditInstancePool,
     options?: CallOptions
   ): Promise<EditInstancePool_Response> {
@@ -151,7 +148,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEditInstancePool_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -160,7 +157,6 @@ export class Client {
 
   /** Retrieve the information for an instance pool based on its identifier. */
   async getInstancePool(
-    signal: AbortSignal | undefined,
     req: GetInstancePool,
     options?: CallOptions
   ): Promise<GetInstancePool_Response> {
@@ -183,7 +179,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetInstancePool_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -192,7 +188,6 @@ export class Client {
 
   /** Gets a list of instance pools with their statistics. */
   async listInstancePools(
-    signal: AbortSignal | undefined,
     _req: ListInstancePools,
     options?: CallOptions
   ): Promise<ListInstancePools_Response> {
@@ -209,7 +204,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListInstancePools_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

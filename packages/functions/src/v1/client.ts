@@ -76,7 +76,6 @@ export class Client {
    * - **USE_SCHEMA** and **CREATE_FUNCTION** on the function's parent schema
    */
   async createFunction(
-    signal: AbortSignal | undefined,
     req: CreateFunctionRequest,
     options?: CallOptions
   ): Promise<FunctionInfo> {
@@ -94,7 +93,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalFunctionInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -109,7 +108,6 @@ export class Client {
    * - Is the owner of the function itself and have both the **USE_CATALOG** privilege on its parent catalog and the **USE_SCHEMA** privilege on its parent schema
    */
   async deleteFunction(
-    signal: AbortSignal | undefined,
     req: DeleteFunction,
     options?: CallOptions
   ): Promise<DeleteFunction_Response> {
@@ -132,7 +130,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteFunction_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -148,7 +146,6 @@ export class Client {
    * - Have the **USE_CATALOG** privilege on the function's parent catalog, the **USE_SCHEMA** privilege on the function's parent schema, and the **EXECUTE** privilege on the function itself
    */
   async getFunction(
-    signal: AbortSignal | undefined,
     req: GetFunction,
     options?: CallOptions
   ): Promise<FunctionInfo> {
@@ -171,7 +168,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalFunctionInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -190,7 +187,6 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listFunctions(
-    signal: AbortSignal | undefined,
     req: ListFunctions,
     options?: CallOptions
   ): Promise<ListFunctions_Response> {
@@ -225,7 +221,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListFunctions_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -233,13 +229,12 @@ export class Client {
   }
 
   async *listFunctionsIter(
-    signal: AbortSignal | undefined,
     req: ListFunctions,
     options?: CallOptions
   ): AsyncGenerator<FunctionInfo> {
     const pageReq: ListFunctions = {...req};
     for (;;) {
-      const resp = await this.listFunctions(signal, pageReq, options);
+      const resp = await this.listFunctions(pageReq, options);
       for (const item of resp.functions ?? []) {
         yield item;
       }
@@ -259,7 +254,6 @@ export class Client {
    * - Is the owner of the function itself and has the **USE_CATALOG** privilege on its parent catalog as well as the **USE_SCHEMA** privilege on the function's parent schema.
    */
   async updateFunction(
-    signal: AbortSignal | undefined,
     req: UpdateFunction,
     options?: CallOptions
   ): Promise<FunctionInfo> {
@@ -277,7 +271,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalFunctionInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

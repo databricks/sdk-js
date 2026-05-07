@@ -83,7 +83,6 @@ export class Client {
    * metastore.
    */
   async createCleanRoom(
-    signal: AbortSignal | undefined,
     req: CreateCleanRoomRequest,
     options?: CallOptions
   ): Promise<CleanRoom> {
@@ -101,7 +100,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCleanRoomSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -109,11 +108,10 @@ export class Client {
   }
 
   async createCleanRoomWaiter(
-    signal: AbortSignal | undefined,
     req: CreateCleanRoomRequest,
     options?: CallOptions
   ): Promise<CreateCleanRoomWaiter> {
-    const resp = await this.createCleanRoom(signal, req, options);
+    const resp = await this.createCleanRoom(req, options);
     if (resp.name === undefined) {
       throw new Error('response field name required for polling is missing');
     }
@@ -122,7 +120,6 @@ export class Client {
 
   /** Create the output catalog of the clean room. */
   async createCleanRoomOutputCatalog(
-    signal: AbortSignal | undefined,
     req: CreateCleanRoomOutputCatalogRequest,
     options?: CallOptions
   ): Promise<CreateCleanRoomOutputCatalogResponse> {
@@ -146,7 +143,7 @@ export class Client {
         unmarshalCreateCleanRoomOutputCatalogResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -160,7 +157,6 @@ export class Client {
    * and no operations other than deletion can be performed on it.
    */
   async deleteCleanRoom(
-    signal: AbortSignal | undefined,
     req: DeleteCleanRoomRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -175,12 +171,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Get the details of a clean room given its name. */
   async getCleanRoom(
-    signal: AbortSignal | undefined,
     req: GetCleanRoomRequest,
     options?: CallOptions
   ): Promise<CleanRoom> {
@@ -197,7 +192,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCleanRoomSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -209,7 +204,6 @@ export class Client {
    * the caller has access to are returned.
    */
   async listCleanRooms(
-    signal: AbortSignal | undefined,
     req: ListCleanRoomsRequest,
     options?: CallOptions
   ): Promise<ListCleanRoomsResponse> {
@@ -235,7 +229,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListCleanRoomsResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -243,13 +237,12 @@ export class Client {
   }
 
   async *listCleanRoomsIter(
-    signal: AbortSignal | undefined,
     req: ListCleanRoomsRequest,
     options?: CallOptions
   ): AsyncGenerator<CleanRoom> {
     const pageReq: ListCleanRoomsRequest = {...req};
     for (;;) {
-      const resp = await this.listCleanRooms(signal, pageReq, options);
+      const resp = await this.listCleanRooms(pageReq, options);
       for (const item of resp.cleanRooms ?? []) {
         yield item;
       }
@@ -268,7 +261,6 @@ export class Client {
    * When the caller is a metastore admin, only the __owner__ field can be updated.
    */
   async updateCleanRoom(
-    signal: AbortSignal | undefined,
     req: UpdateCleanRoomRequest,
     options?: CallOptions
   ): Promise<CleanRoom> {
@@ -286,7 +278,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCleanRoomSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -305,19 +297,15 @@ export class CreateCleanRoomWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<CleanRoom> {
+  async wait(options?: CallOptions): Promise<CleanRoom> {
     let result: CleanRoom | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getCleanRoom(
-        callSignal,
         {
           name: this.name,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.status;
@@ -335,12 +323,13 @@ export class CreateCleanRoomWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -348,12 +337,8 @@ export class CreateCleanRoomWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getCleanRoom(
-      signal,
       {
         name: this.name,
       },

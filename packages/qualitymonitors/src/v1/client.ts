@@ -84,7 +84,6 @@ export class Client {
    * Cancels an already-initiated refresh job.
    */
   async cancelRefresh(
-    signal: AbortSignal | undefined,
     req: CancelRefresh,
     options?: CallOptions
   ): Promise<CancelRefresh_Response> {
@@ -102,7 +101,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCancelRefresh_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -125,7 +124,6 @@ export class Client {
    * this call was made.
    */
   async createMonitor(
-    signal: AbortSignal | undefined,
     req: CreateMonitor,
     options?: CallOptions
   ): Promise<DataMonitorInfo> {
@@ -143,7 +141,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDataMonitorInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -168,7 +166,6 @@ export class Client {
    * assets must be manually cleaned up (if desired).
    */
   async deleteMonitor(
-    signal: AbortSignal | undefined,
     req: DeleteMonitor,
     options?: CallOptions
   ): Promise<DeleteMonitor_Response> {
@@ -185,7 +182,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteMonitor_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -209,7 +206,6 @@ export class Client {
    * if the caller is in a different workspace than where the monitor was created.
    */
   async getMonitor(
-    signal: AbortSignal | undefined,
     req: GetMonitor,
     options?: CallOptions
   ): Promise<DataMonitorInfo> {
@@ -226,7 +222,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDataMonitorInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -248,7 +244,6 @@ export class Client {
    * Additionally, the call must be made from the workspace where the monitor was created.
    */
   async getRefresh(
-    signal: AbortSignal | undefined,
     req: GetRefresh,
     options?: CallOptions
   ): Promise<RefreshInfo> {
@@ -265,7 +260,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRefreshInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -287,7 +282,6 @@ export class Client {
    * Additionally, the call must be made from the workspace where the monitor was created.
    */
   async listRefreshes(
-    signal: AbortSignal | undefined,
     req: ListRefreshes,
     options?: CallOptions
   ): Promise<ListRefreshes_Response> {
@@ -304,7 +298,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListRefreshes_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -327,7 +321,6 @@ export class Client {
    * the assets directory that was specified when the monitor was created.
    */
   async regenerateDashboard(
-    signal: AbortSignal | undefined,
     req: RegenerateDashboard,
     options?: CallOptions
   ): Promise<RegenerateDashboard_Response> {
@@ -348,7 +341,7 @@ export class Client {
         unmarshalRegenerateDashboard_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -371,7 +364,6 @@ export class Client {
    * Additionally, the call must be made from the workspace where the monitor was created.
    */
   async runRefresh(
-    signal: AbortSignal | undefined,
     req: RunRefresh,
     options?: CallOptions
   ): Promise<RefreshInfo> {
@@ -389,7 +381,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRefreshInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -414,7 +406,6 @@ export class Client {
    * Certain configuration fields, such as output asset identifiers, cannot be updated.
    */
   async updateMonitor(
-    signal: AbortSignal | undefined,
     req: UpdateMonitor,
     options?: CallOptions
   ): Promise<DataMonitorInfo> {
@@ -432,7 +423,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDataMonitorInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

@@ -68,7 +68,6 @@ export class Client {
 
   /** Deletes the workspace permissions assignment in a given account and workspace for the specified principal. */
   async deleteWorkspacePermissionAssignment(
-    signal: AbortSignal | undefined,
     req: DeleteWorkspacePermissionAssignment,
     options?: CallOptions
   ): Promise<DeleteWorkspacePermissionAssignment_Response> {
@@ -94,7 +93,7 @@ export class Client {
         unmarshalDeleteWorkspacePermissionAssignment_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -103,7 +102,6 @@ export class Client {
 
   /** Get the permission assignments for the specified <Account> and <Workspace>. */
   async getWorkspacePermissionAssignments(
-    signal: AbortSignal | undefined,
     req: GetWorkspacePermissionAssignments,
     options?: CallOptions
   ): Promise<GetWorkspacePermissionAssignments_Response> {
@@ -138,7 +136,7 @@ export class Client {
         unmarshalGetWorkspacePermissionAssignments_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -147,7 +145,6 @@ export class Client {
 
   /** Get an array of workspace permissions for the specified account and workspace. */
   async listWorkspacePermissions(
-    signal: AbortSignal | undefined,
     req: ListWorkspacePermissions,
     options?: CallOptions
   ): Promise<ListWorkspacePermissions_Response> {
@@ -173,7 +170,7 @@ export class Client {
         unmarshalListWorkspacePermissions_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -182,7 +179,6 @@ export class Client {
 
   /** Creates or updates the workspace permissions assignment in a given account and workspace for the specified principal. */
   async updateWorkspacePermissionAssignment(
-    signal: AbortSignal | undefined,
     req: UpdateWorkspacePermissionAssignment,
     options?: CallOptions
   ): Promise<WorkspacePermissionAssignmentOutput> {
@@ -206,7 +202,7 @@ export class Client {
         unmarshalWorkspacePermissionAssignmentOutputSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

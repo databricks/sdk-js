@@ -81,7 +81,6 @@ export class Client {
    * Typically, you should use a group as the clean room owner.
    */
   async createCleanRoomAsset(
-    signal: AbortSignal | undefined,
     req: CreateCleanRoomAssetRequest,
     options?: CallOptions
   ): Promise<CleanRoomAsset> {
@@ -99,7 +98,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCleanRoomAssetSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -108,7 +107,6 @@ export class Client {
 
   /** Submit an asset review */
   async createCleanRoomAssetReview(
-    signal: AbortSignal | undefined,
     req: CreateCleanRoomAssetReviewRequest,
     options?: CallOptions
   ): Promise<CreateCleanRoomAssetReviewResponse> {
@@ -132,7 +130,7 @@ export class Client {
         unmarshalCreateCleanRoomAssetReviewResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -141,7 +139,6 @@ export class Client {
 
   /** Delete a clean room asset - unshare/remove the asset from the clean room */
   async deleteCleanRoomAsset(
-    signal: AbortSignal | undefined,
     req: DeleteCleanRoomAssetRequest,
     options?: CallOptions
   ): Promise<DeleteCleanRoomAssetResponse> {
@@ -161,7 +158,7 @@ export class Client {
         unmarshalDeleteCleanRoomAssetResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -170,7 +167,6 @@ export class Client {
 
   /** Get the details of a clean room asset by its type and full name. */
   async getCleanRoomAsset(
-    signal: AbortSignal | undefined,
     req: GetCleanRoomAssetRequest,
     options?: CallOptions
   ): Promise<CleanRoomAsset> {
@@ -187,7 +183,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCleanRoomAssetSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -196,7 +192,6 @@ export class Client {
 
   /** Get a specific revision of an asset */
   async getCleanRoomAssetRevision(
-    signal: AbortSignal | undefined,
     req: GetCleanRoomAssetRevisionRequest,
     options?: CallOptions
   ): Promise<CleanRoomAsset> {
@@ -213,7 +208,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCleanRoomAssetSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -222,7 +217,6 @@ export class Client {
 
   /** List revisions for an asset */
   async listCleanRoomAssetRevisions(
-    signal: AbortSignal | undefined,
     req: ListCleanRoomAssetRevisionsRequest,
     options?: CallOptions
   ): Promise<ListCleanRoomAssetRevisionsResponse> {
@@ -251,7 +245,7 @@ export class Client {
         unmarshalListCleanRoomAssetRevisionsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -259,17 +253,12 @@ export class Client {
   }
 
   async *listCleanRoomAssetRevisionsIter(
-    signal: AbortSignal | undefined,
     req: ListCleanRoomAssetRevisionsRequest,
     options?: CallOptions
   ): AsyncGenerator<CleanRoomAsset> {
     const pageReq: ListCleanRoomAssetRevisionsRequest = {...req};
     for (;;) {
-      const resp = await this.listCleanRoomAssetRevisions(
-        signal,
-        pageReq,
-        options
-      );
+      const resp = await this.listCleanRoomAssetRevisions(pageReq, options);
       for (const item of resp.revisions ?? []) {
         yield item;
       }
@@ -282,7 +271,6 @@ export class Client {
 
   /** List assets. */
   async listCleanRoomAssets(
-    signal: AbortSignal | undefined,
     req: ListCleanRoomAssetsRequest,
     options?: CallOptions
   ): Promise<ListCleanRoomAssetsResponse> {
@@ -308,7 +296,7 @@ export class Client {
         unmarshalListCleanRoomAssetsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -316,13 +304,12 @@ export class Client {
   }
 
   async *listCleanRoomAssetsIter(
-    signal: AbortSignal | undefined,
     req: ListCleanRoomAssetsRequest,
     options?: CallOptions
   ): AsyncGenerator<CleanRoomAsset> {
     const pageReq: ListCleanRoomAssetsRequest = {...req};
     for (;;) {
-      const resp = await this.listCleanRoomAssets(signal, pageReq, options);
+      const resp = await this.listCleanRoomAssets(pageReq, options);
       for (const item of resp.assets ?? []) {
         yield item;
       }
@@ -338,7 +325,6 @@ export class Client {
    * changing the shared partitions of a table; etc.
    */
   async updateCleanRoomAsset(
-    signal: AbortSignal | undefined,
     req: UpdateCleanRoomAssetRequest,
     options?: CallOptions
   ): Promise<CleanRoomAsset> {
@@ -356,7 +342,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCleanRoomAssetSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

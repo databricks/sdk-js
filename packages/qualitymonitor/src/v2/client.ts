@@ -68,7 +68,6 @@ export class Client {
    * Create a quality monitor on UC object.
    */
   async createQualityMonitor(
-    signal: AbortSignal | undefined,
     req: CreateQualityMonitorRequest,
     options?: CallOptions
   ): Promise<QualityMonitor> {
@@ -89,7 +88,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalQualityMonitorSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -101,7 +100,6 @@ export class Client {
    * Delete a quality monitor on UC object.
    */
   async deleteQualityMonitor(
-    signal: AbortSignal | undefined,
     req: DeleteQualityMonitorRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -116,7 +114,7 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /**
@@ -124,7 +122,6 @@ export class Client {
    * Read a quality monitor on UC object.
    */
   async getQualityMonitor(
-    signal: AbortSignal | undefined,
     req: GetQualityMonitorRequest,
     options?: CallOptions
   ): Promise<QualityMonitor> {
@@ -141,7 +138,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalQualityMonitorSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -153,7 +150,6 @@ export class Client {
    * (Unimplemented) List quality monitors.
    */
   async listQualityMonitor(
-    signal: AbortSignal | undefined,
     req: ListQualityMonitorRequest,
     options?: CallOptions
   ): Promise<ListQualityMonitorResponse> {
@@ -179,7 +175,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListQualityMonitorResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -187,13 +183,12 @@ export class Client {
   }
 
   async *listQualityMonitorIter(
-    signal: AbortSignal | undefined,
     req: ListQualityMonitorRequest,
     options?: CallOptions
   ): AsyncGenerator<QualityMonitor> {
     const pageReq: ListQualityMonitorRequest = {...req};
     for (;;) {
-      const resp = await this.listQualityMonitor(signal, pageReq, options);
+      const resp = await this.listQualityMonitor(pageReq, options);
       for (const item of resp.qualityMonitors ?? []) {
         yield item;
       }
@@ -209,7 +204,6 @@ export class Client {
    * (Unimplemented) Update a quality monitor on UC object.
    */
   async updateQualityMonitor(
-    signal: AbortSignal | undefined,
     req: UpdateQualityMonitorRequest,
     options?: CallOptions
   ): Promise<QualityMonitor> {
@@ -230,7 +224,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalQualityMonitorSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

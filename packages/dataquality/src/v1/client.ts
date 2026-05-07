@@ -87,7 +87,6 @@ export class Client {
    * 3. **USE_CATALOG** on the table's parent catalog, **USE_SCHEMA** on the table's parent schema, and **MANAGE** on the table.
    */
   async cancelRefresh(
-    signal: AbortSignal | undefined,
     req: CancelRefreshRequest,
     options?: CallOptions
   ): Promise<CancelRefreshResponse> {
@@ -105,7 +104,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCancelRefreshResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -127,7 +126,6 @@ export class Client {
    * 2. **USE_CATALOG** on the schema's parent catalog, and **MANAGE** and **USE_SCHEMA** on the schema.
    */
   async createMonitor(
-    signal: AbortSignal | undefined,
     req: CreateMonitorRequest,
     options?: CallOptions
   ): Promise<Monitor> {
@@ -145,7 +143,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMonitorSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -162,7 +160,6 @@ export class Client {
    * 3. **USE_CATALOG** on the table's parent catalog, **USE_SCHEMA** on the table's parent schema, and **MANAGE** on the table.
    */
   async createRefresh(
-    signal: AbortSignal | undefined,
     req: CreateRefreshRequest,
     options?: CallOptions
   ): Promise<Refresh> {
@@ -180,7 +177,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRefreshSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -203,7 +200,6 @@ export class Client {
    * 2. **USE_CATALOG** on the schema's parent catalog, and **MANAGE** and **USE_SCHEMA** on the schema.
    */
   async deleteMonitor(
-    signal: AbortSignal | undefined,
     req: DeleteMonitorRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -218,12 +214,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** (Unimplemented) Delete a refresh */
   async deleteRefresh(
-    signal: AbortSignal | undefined,
     req: DeleteRefreshRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -238,7 +233,7 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /**
@@ -258,7 +253,6 @@ export class Client {
    * if the caller is in a different workspace than where the monitor was created.
    */
   async getMonitor(
-    signal: AbortSignal | undefined,
     req: GetMonitorRequest,
     options?: CallOptions
   ): Promise<Monitor> {
@@ -275,7 +269,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMonitorSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -295,7 +289,6 @@ export class Client {
    * 2. **USE_CATALOG** on the schema's parent catalog, and **USE_SCHEMA** on the schema.
    */
   async getRefresh(
-    signal: AbortSignal | undefined,
     req: GetRefreshRequest,
     options?: CallOptions
   ): Promise<Refresh> {
@@ -312,7 +305,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRefreshSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -321,7 +314,6 @@ export class Client {
 
   /** (Unimplemented) List data quality monitors. */
   async listMonitor(
-    signal: AbortSignal | undefined,
     req: ListMonitorRequest,
     options?: CallOptions
   ): Promise<ListMonitorResponse> {
@@ -347,7 +339,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListMonitorResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -355,13 +347,12 @@ export class Client {
   }
 
   async *listMonitorIter(
-    signal: AbortSignal | undefined,
     req: ListMonitorRequest,
     options?: CallOptions
   ): AsyncGenerator<Monitor> {
     const pageReq: ListMonitorRequest = {...req};
     for (;;) {
-      const resp = await this.listMonitor(signal, pageReq, options);
+      const resp = await this.listMonitor(pageReq, options);
       for (const item of resp.monitors ?? []) {
         yield item;
       }
@@ -385,7 +376,6 @@ export class Client {
    * 2. **USE_CATALOG** on the schema's parent catalog, and **USE_SCHEMA** on the schema.
    */
   async listRefresh(
-    signal: AbortSignal | undefined,
     req: ListRefreshRequest,
     options?: CallOptions
   ): Promise<ListRefreshResponse> {
@@ -411,7 +401,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListRefreshResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -419,13 +409,12 @@ export class Client {
   }
 
   async *listRefreshIter(
-    signal: AbortSignal | undefined,
     req: ListRefreshRequest,
     options?: CallOptions
   ): AsyncGenerator<Refresh> {
     const pageReq: ListRefreshRequest = {...req};
     for (;;) {
-      const resp = await this.listRefresh(signal, pageReq, options);
+      const resp = await this.listRefresh(pageReq, options);
       for (const item of resp.refreshes ?? []) {
         yield item;
       }
@@ -449,7 +438,6 @@ export class Client {
    * 2. **USE_CATALOG** on the schema's parent catalog, and **MANAGE** and **USE_SCHEMA** on the schema.
    */
   async updateMonitor(
-    signal: AbortSignal | undefined,
     req: UpdateMonitorRequest,
     options?: CallOptions
   ): Promise<Monitor> {
@@ -479,7 +467,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMonitorSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -488,7 +476,6 @@ export class Client {
 
   /** (Unimplemented) Update a refresh */
   async updateRefresh(
-    signal: AbortSignal | undefined,
     req: UpdateRefreshRequest,
     options?: CallOptions
   ): Promise<Refresh> {
@@ -518,7 +505,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRefreshSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

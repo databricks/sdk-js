@@ -73,7 +73,6 @@ export class Client {
    * The caller must be a metastore admin or an owner of the catalog.
    */
   async getCatalogWorkspaceBindings(
-    signal: AbortSignal | undefined,
     req: GetCatalogWorkspaceBindings,
     options?: CallOptions
   ): Promise<GetCatalogWorkspaceBindings_Response> {
@@ -93,7 +92,7 @@ export class Client {
         unmarshalGetCatalogWorkspaceBindings_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -110,7 +109,6 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async getWorkspaceBindings(
-    signal: AbortSignal | undefined,
     req: GetWorkspaceBindings,
     options?: CallOptions
   ): Promise<GetWorkspaceBindings_Response> {
@@ -139,7 +137,7 @@ export class Client {
         unmarshalGetWorkspaceBindings_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -147,13 +145,12 @@ export class Client {
   }
 
   async *getWorkspaceBindingsIter(
-    signal: AbortSignal | undefined,
     req: GetWorkspaceBindings,
     options?: CallOptions
   ): AsyncGenerator<WorkspaceBindingInfo> {
     const pageReq: GetWorkspaceBindings = {...req};
     for (;;) {
-      const resp = await this.getWorkspaceBindings(signal, pageReq, options);
+      const resp = await this.getWorkspaceBindings(pageReq, options);
       for (const item of resp.bindings ?? []) {
         yield item;
       }
@@ -169,7 +166,6 @@ export class Client {
    * The caller must be a metastore admin or an owner of the catalog.
    */
   async updateCatalogWorkspaceBindings(
-    signal: AbortSignal | undefined,
     req: UpdateCatalogWorkspaceBindings,
     options?: CallOptions
   ): Promise<UpdateCatalogWorkspaceBindings_Response> {
@@ -193,7 +189,7 @@ export class Client {
         unmarshalUpdateCatalogWorkspaceBindings_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -205,7 +201,6 @@ export class Client {
    * The caller must be a metastore admin or an owner of the securable.
    */
   async updateWorkspaceBindings(
-    signal: AbortSignal | undefined,
     req: UpdateWorkspaceBindings,
     options?: CallOptions
   ): Promise<UpdateWorkspaceBindings_Response> {
@@ -226,7 +221,7 @@ export class Client {
         unmarshalUpdateWorkspaceBindings_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

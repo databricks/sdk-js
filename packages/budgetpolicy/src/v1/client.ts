@@ -70,7 +70,6 @@ export class Client {
 
   /** Creates a new policy. */
   async createBudgetPolicy(
-    signal: AbortSignal | undefined,
     req: CreateBudgetPolicyRequest,
     options?: CallOptions
   ): Promise<BudgetPolicy> {
@@ -88,7 +87,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalBudgetPolicySchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -97,7 +96,6 @@ export class Client {
 
   /** Deletes a policy */
   async deleteBudgetPolicy(
-    signal: AbortSignal | undefined,
     req: DeleteBudgetPolicyRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -118,12 +116,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Retrieves a policy by it's ID. */
   async getBudgetPolicy(
-    signal: AbortSignal | undefined,
     req: GetBudgetPolicyRequest,
     options?: CallOptions
   ): Promise<BudgetPolicy> {
@@ -146,7 +143,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalBudgetPolicySchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -155,7 +152,6 @@ export class Client {
 
   /** Lists all policies. Policies are returned in the alphabetically ascending order of their names. */
   async listBudgetPolicies(
-    signal: AbortSignal | undefined,
     req: ListBudgetPoliciesRequest,
     options?: CallOptions
   ): Promise<ListBudgetPoliciesResponse> {
@@ -198,7 +194,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListBudgetPoliciesResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -206,13 +202,12 @@ export class Client {
   }
 
   async *listBudgetPoliciesIter(
-    signal: AbortSignal | undefined,
     req: ListBudgetPoliciesRequest,
     options?: CallOptions
   ): AsyncGenerator<BudgetPolicy> {
     const pageReq: ListBudgetPoliciesRequest = {...req};
     for (;;) {
-      const resp = await this.listBudgetPolicies(signal, pageReq, options);
+      const resp = await this.listBudgetPolicies(pageReq, options);
       for (const item of resp.policies ?? []) {
         yield item;
       }
@@ -225,7 +220,6 @@ export class Client {
 
   /** Updates a policy */
   async updateBudgetPolicy(
-    signal: AbortSignal | undefined,
     req: UpdateBudgetPolicyRequest,
     options?: CallOptions
   ): Promise<BudgetPolicy> {
@@ -265,7 +259,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalBudgetPolicySchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

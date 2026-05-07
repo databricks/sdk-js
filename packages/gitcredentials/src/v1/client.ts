@@ -76,7 +76,6 @@ export class Client {
    * delete existing credentials.
    */
   async createCredentials(
-    signal: AbortSignal | undefined,
     req: CreateCredentials,
     options?: CallOptions
   ): Promise<CreateCredentials_Response> {
@@ -94,7 +93,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateCredentials_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -103,7 +102,6 @@ export class Client {
 
   /** Deletes the specified Git credential. */
   async deleteCredentials(
-    signal: AbortSignal | undefined,
     req: DeleteCredentials,
     options?: CallOptions
   ): Promise<DeleteCredentials_Response> {
@@ -126,7 +124,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteCredentials_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -135,7 +133,6 @@ export class Client {
 
   /** Gets the Git credential with the specified credential ID. */
   async getCredentials(
-    signal: AbortSignal | undefined,
     req: GetCredentials,
     options?: CallOptions
   ): Promise<GetCredentials_Response> {
@@ -158,7 +155,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetCredentials_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -167,7 +164,6 @@ export class Client {
 
   /** Lists the calling user's Git credentials. */
   async listCredentials(
-    signal: AbortSignal | undefined,
     req: ListCredentials,
     options?: CallOptions
   ): Promise<ListCredentials_Response> {
@@ -190,7 +186,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListCredentials_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -199,7 +195,6 @@ export class Client {
 
   /** Updates the specified Git credential. */
   async updateCredentials(
-    signal: AbortSignal | undefined,
     req: UpdateCredentials,
     options?: CallOptions
   ): Promise<UpdateCredentials_Response> {
@@ -217,7 +212,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdateCredentials_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

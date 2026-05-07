@@ -66,7 +66,6 @@ export class Client {
 
   /** Creates a serverless forecasting experiment. Returns the experiment ID. */
   async createForecastingExperiment(
-    signal: AbortSignal | undefined,
     req: CreateForecastingExperimentRequest,
     options?: CallOptions
   ): Promise<CreateForecastingExperimentResponse> {
@@ -90,7 +89,7 @@ export class Client {
         unmarshalCreateForecastingExperimentResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -98,11 +97,10 @@ export class Client {
   }
 
   async createForecastingExperimentWaiter(
-    signal: AbortSignal | undefined,
     req: CreateForecastingExperimentRequest,
     options?: CallOptions
   ): Promise<CreateForecastingExperimentWaiter> {
-    const resp = await this.createForecastingExperiment(signal, req, options);
+    const resp = await this.createForecastingExperiment(req, options);
     if (resp.experimentId === undefined) {
       throw new Error(
         'response field experimentId required for polling is missing'
@@ -113,7 +111,6 @@ export class Client {
 
   /** Public RPC to get forecasting experiment */
   async getForecastingExperiment(
-    signal: AbortSignal | undefined,
     req: GetForecastingExperimentRequest,
     options?: CallOptions
   ): Promise<ForecastingExperiment> {
@@ -130,7 +127,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalForecastingExperimentSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -149,19 +146,15 @@ export class CreateForecastingExperimentWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<ForecastingExperiment> {
+  async wait(options?: CallOptions): Promise<ForecastingExperiment> {
     let result: ForecastingExperiment | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getForecastingExperiment(
-        callSignal,
         {
           experimentId: this.experimentId,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state;
@@ -184,12 +177,13 @@ export class CreateForecastingExperimentWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -197,12 +191,8 @@ export class CreateForecastingExperimentWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getForecastingExperiment(
-      signal,
       {
         experimentId: this.experimentId,
       },

@@ -77,7 +77,6 @@ export class Client {
 
   /** Get a setting value at account level. See :method:settingsv2/listaccountsettingsmetadata for list of setting available via public APIs at account level. */
   async getPublicAccountSetting(
-    signal: AbortSignal | undefined,
     req: GetPublicAccountSettingRequest,
     options?: CallOptions
   ): Promise<Setting> {
@@ -100,7 +99,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSettingSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -113,7 +112,6 @@ export class Client {
    * See :method:settingsv2/listaccountuserpreferencesmetadata for list of user preferences available via public APIs.
    */
   async getPublicAccountUserPreference(
-    signal: AbortSignal | undefined,
     req: GetPublicAccountUserPreferenceRequest,
     options?: CallOptions
   ): Promise<UserPreference> {
@@ -136,7 +134,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUserPreferenceSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -145,7 +143,6 @@ export class Client {
 
   /** Get a setting value at workspace level. See :method:settingsv2/listworkspacesettingsmetadata for list of setting available via public APIs. */
   async getPublicWorkspaceSetting(
-    signal: AbortSignal | undefined,
     req: GetPublicWorkspaceSettingRequest,
     options?: CallOptions
   ): Promise<Setting> {
@@ -162,7 +159,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSettingSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -175,7 +172,6 @@ export class Client {
    * PATCH :method:settingsv2/patchpublicaccountsetting APIs
    */
   async listAccountSettingsMetadata(
-    signal: AbortSignal | undefined,
     req: ListAccountSettingsMetadataRequest,
     options?: CallOptions
   ): Promise<ListAccountSettingsMetadataResponse> {
@@ -207,7 +203,7 @@ export class Client {
         unmarshalListAccountSettingsMetadataResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -215,17 +211,12 @@ export class Client {
   }
 
   async *listAccountSettingsMetadataIter(
-    signal: AbortSignal | undefined,
     req: ListAccountSettingsMetadataRequest,
     options?: CallOptions
   ): AsyncGenerator<SettingsMetadata> {
     const pageReq: ListAccountSettingsMetadataRequest = {...req};
     for (;;) {
-      const resp = await this.listAccountSettingsMetadata(
-        signal,
-        pageReq,
-        options
-      );
+      const resp = await this.listAccountSettingsMetadata(pageReq, options);
       for (const item of resp.settingsMetadata ?? []) {
         yield item;
       }
@@ -244,7 +235,6 @@ export class Client {
    * PATCH :method:settingsv2/patchpublicaccountuserpreference APIs
    */
   async listAccountUserPreferencesMetadata(
-    signal: AbortSignal | undefined,
     req: ListAccountUserPreferencesMetadataRequest,
     options?: CallOptions
   ): Promise<ListAccountUserPreferencesMetadataResponse> {
@@ -276,7 +266,7 @@ export class Client {
         unmarshalListAccountUserPreferencesMetadataResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -284,14 +274,12 @@ export class Client {
   }
 
   async *listAccountUserPreferencesMetadataIter(
-    signal: AbortSignal | undefined,
     req: ListAccountUserPreferencesMetadataRequest,
     options?: CallOptions
   ): AsyncGenerator<SettingsMetadata> {
     const pageReq: ListAccountUserPreferencesMetadataRequest = {...req};
     for (;;) {
       const resp = await this.listAccountUserPreferencesMetadata(
-        signal,
         pageReq,
         options
       );
@@ -311,7 +299,6 @@ export class Client {
    * PATCH :method:settingsv2/patchpublicworkspacesetting APIs
    */
   async listWorkspaceSettingsMetadata(
-    signal: AbortSignal | undefined,
     req: ListWorkspaceSettingsMetadataRequest,
     options?: CallOptions
   ): Promise<ListWorkspaceSettingsMetadataResponse> {
@@ -340,7 +327,7 @@ export class Client {
         unmarshalListWorkspaceSettingsMetadataResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -348,17 +335,12 @@ export class Client {
   }
 
   async *listWorkspaceSettingsMetadataIter(
-    signal: AbortSignal | undefined,
     req: ListWorkspaceSettingsMetadataRequest,
     options?: CallOptions
   ): AsyncGenerator<SettingsMetadata> {
     const pageReq: ListWorkspaceSettingsMetadataRequest = {...req};
     for (;;) {
-      const resp = await this.listWorkspaceSettingsMetadata(
-        signal,
-        pageReq,
-        options
-      );
+      const resp = await this.listWorkspaceSettingsMetadata(pageReq, options);
       for (const item of resp.settingsMetadata ?? []) {
         yield item;
       }
@@ -376,7 +358,6 @@ export class Client {
    * Note: Page refresh is required for changes to take effect in UI.
    */
   async patchPublicAccountSetting(
-    signal: AbortSignal | undefined,
     req: PatchPublicAccountSettingRequest,
     options?: CallOptions
   ): Promise<Setting> {
@@ -406,7 +387,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSettingSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -421,7 +402,6 @@ export class Client {
    * Note: Page refresh is required for changes to take effect in UI.
    */
   async patchPublicAccountUserPreference(
-    signal: AbortSignal | undefined,
     req: PatchPublicAccountUserPreferenceRequest,
     options?: CallOptions
   ): Promise<UserPreference> {
@@ -451,7 +431,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUserPreferenceSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -465,7 +445,6 @@ export class Client {
    * Note: Page refresh is required for changes to take effect in UI.
    */
   async patchPublicWorkspaceSetting(
-    signal: AbortSignal | undefined,
     req: PatchPublicWorkspaceSettingRequest,
     options?: CallOptions
   ): Promise<Setting> {
@@ -483,7 +462,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSettingSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

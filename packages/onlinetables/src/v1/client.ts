@@ -65,7 +65,6 @@ export class Client {
 
   /** Create a new Online Table. */
   async createOnlineTable(
-    signal: AbortSignal | undefined,
     req: CreateOnlineTableRequest,
     options?: CallOptions
   ): Promise<OnlineTable> {
@@ -83,7 +82,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOnlineTableSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -91,11 +90,10 @@ export class Client {
   }
 
   async createOnlineTableWaiter(
-    signal: AbortSignal | undefined,
     req: CreateOnlineTableRequest,
     options?: CallOptions
   ): Promise<CreateOnlineTableWaiter> {
-    const resp = await this.createOnlineTable(signal, req, options);
+    const resp = await this.createOnlineTable(req, options);
     if (resp.name === undefined) {
       throw new Error('response field name required for polling is missing');
     }
@@ -108,7 +106,6 @@ export class Client {
    * deleted or modified since this Online Table was created, this will lose the data forever!
    */
   async deleteOnlineTable(
-    signal: AbortSignal | undefined,
     req: DeleteOnlineTableRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -123,12 +120,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Get information about an existing online table and its status. */
   async getOnlineTable(
-    signal: AbortSignal | undefined,
     req: GetOnlineTableRequest,
     options?: CallOptions
   ): Promise<OnlineTable> {
@@ -145,7 +141,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOnlineTableSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -164,19 +160,15 @@ export class CreateOnlineTableWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<OnlineTable> {
+  async wait(options?: CallOptions): Promise<OnlineTable> {
     let result: OnlineTable | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getOnlineTable(
-        callSignal,
         {
           name: this.name,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.unityCatalogProvisioningState;
@@ -198,12 +190,13 @@ export class CreateOnlineTableWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -211,12 +204,8 @@ export class CreateOnlineTableWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getOnlineTable(
-      signal,
       {
         name: this.name,
       },

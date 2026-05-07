@@ -63,7 +63,6 @@ export class Client {
 
   /** Retrieves the metrics associated with the provided serving endpoint in either Prometheus or OpenMetrics exposition format. */
   async getExportEndpointMetrics(
-    signal: AbortSignal | undefined,
     req: GetExportEndpointMetrics,
     options?: CallOptions
   ): Promise<ExportMetricsResponse> {
@@ -82,7 +81,7 @@ export class Client {
         contents: httpResp.body ?? undefined,
       };
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -91,7 +90,6 @@ export class Client {
 
   /** Retrieves the build logs associated with the provided served model. */
   async getServedModelBuildLogs(
-    signal: AbortSignal | undefined,
     req: GetServedModelBuildLogs,
     options?: CallOptions
   ): Promise<GetServedModelBuildLogs_Response> {
@@ -111,7 +109,7 @@ export class Client {
         unmarshalGetServedModelBuildLogs_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -120,7 +118,6 @@ export class Client {
 
   /** Retrieves the service logs associated with the provided served model. */
   async getServedModelLogs(
-    signal: AbortSignal | undefined,
     req: GetServedModelLogs,
     options?: CallOptions
   ): Promise<GetServedModelLogs_Response> {
@@ -140,7 +137,7 @@ export class Client {
         unmarshalGetServedModelLogs_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

@@ -56,7 +56,6 @@ export class Client {
 
   /** Get all the available published OAuth apps in <Databricks>. */
   async listPublishedOAuthApps(
-    signal: AbortSignal | undefined,
     req: ListPublishedOAuthApps,
     options?: CallOptions
   ): Promise<ListPublishedOAuthApps_Response> {
@@ -88,7 +87,7 @@ export class Client {
         unmarshalListPublishedOAuthApps_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -96,13 +95,12 @@ export class Client {
   }
 
   async *listPublishedOAuthAppsIter(
-    signal: AbortSignal | undefined,
     req: ListPublishedOAuthApps,
     options?: CallOptions
   ): AsyncGenerator<PublishedOAuthApp> {
     const pageReq: ListPublishedOAuthApps = {...req};
     for (;;) {
-      const resp = await this.listPublishedOAuthApps(signal, pageReq, options);
+      const resp = await this.listPublishedOAuthApps(pageReq, options);
       for (const item of resp.apps ?? []) {
         yield item;
       }

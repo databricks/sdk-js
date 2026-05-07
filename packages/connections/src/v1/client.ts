@@ -73,7 +73,6 @@ export class Client {
    * configurations for interaction with the external server.
    */
   async createConnection(
-    signal: AbortSignal | undefined,
     req: CreateConnection,
     options?: CallOptions
   ): Promise<ConnectionInfo> {
@@ -91,7 +90,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalConnectionInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -100,7 +99,6 @@ export class Client {
 
   /** Deletes the connection that matches the supplied name. */
   async deleteConnection(
-    signal: AbortSignal | undefined,
     req: DeleteConnection,
     options?: CallOptions
   ): Promise<DeleteConnection_Response> {
@@ -117,7 +115,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteConnection_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -126,7 +124,6 @@ export class Client {
 
   /** Gets a connection from it's name. */
   async getConnection(
-    signal: AbortSignal | undefined,
     req: GetConnection,
     options?: CallOptions
   ): Promise<ConnectionInfo> {
@@ -143,7 +140,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalConnectionInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -159,7 +156,6 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listConnections(
-    signal: AbortSignal | undefined,
     req: ListConnections,
     options?: CallOptions
   ): Promise<ListConnections_Response> {
@@ -188,7 +184,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListConnections_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -196,13 +192,12 @@ export class Client {
   }
 
   async *listConnectionsIter(
-    signal: AbortSignal | undefined,
     req: ListConnections,
     options?: CallOptions
   ): AsyncGenerator<ConnectionInfo> {
     const pageReq: ListConnections = {...req};
     for (;;) {
-      const resp = await this.listConnections(signal, pageReq, options);
+      const resp = await this.listConnections(pageReq, options);
       for (const item of resp.connections ?? []) {
         yield item;
       }
@@ -215,7 +210,6 @@ export class Client {
 
   /** Updates the connection that matches the supplied name. */
   async updateConnection(
-    signal: AbortSignal | undefined,
     req: UpdateConnection,
     options?: CallOptions
   ): Promise<ConnectionInfo> {
@@ -233,7 +227,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalConnectionInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

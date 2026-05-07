@@ -135,7 +135,6 @@ export class Client {
    * Throws ``UNAUTHENTICATED`` if unable to verify user access permission on Azure KeyVault
    */
   async createScope(
-    signal: AbortSignal | undefined,
     req: CreateScope,
     options?: CallOptions
   ): Promise<CreateScope_Response> {
@@ -153,7 +152,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateScope_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -179,7 +178,6 @@ export class Client {
    * Throws ``INVALID_PARAMETER_VALUE`` if the permission or principal is invalid.
    */
   async deleteAcl(
-    signal: AbortSignal | undefined,
     req: DeleteAcl,
     options?: CallOptions
   ): Promise<DeleteAcl_Response> {
@@ -197,7 +195,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteAcl_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -220,7 +218,6 @@ export class Client {
    * Throws ``BAD_REQUEST`` if system user attempts to delete internal secret scope.
    */
   async deleteScope(
-    signal: AbortSignal | undefined,
     req: DeleteScope,
     options?: CallOptions
   ): Promise<DeleteScope_Response> {
@@ -238,7 +235,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteScope_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -263,7 +260,6 @@ export class Client {
    * Throws ``BAD_REQUEST`` if system user attempts to delete an internal secret, or request is made against Azure KeyVault backed scope.
    */
   async deleteSecret(
-    signal: AbortSignal | undefined,
     req: DeleteSecret,
     options?: CallOptions
   ): Promise<DeleteSecret_Response> {
@@ -281,7 +277,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteSecret_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -306,11 +302,7 @@ export class Client {
    * Throws ``PERMISSION_DENIED`` if the user does not have permission to make this API call.
    * Throws ``INVALID_PARAMETER_VALUE`` if the permission or principal is invalid.
    */
-  async getAcl(
-    signal: AbortSignal | undefined,
-    req: GetAcl,
-    options?: CallOptions
-  ): Promise<AclItem> {
+  async getAcl(req: GetAcl, options?: CallOptions): Promise<AclItem> {
     const url = `${this.host}/api/2.0/secrets/acls/get`;
     const params = new URLSearchParams();
     if (req.scope !== undefined) {
@@ -333,7 +325,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAclItemSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -371,7 +363,6 @@ export class Client {
    * Throws ``MALFORMED_REQUEST`` if secret manager cannot access AKV with any other 4xx error
    */
   async getSecret(
-    signal: AbortSignal | undefined,
     req: GetSecret,
     options?: CallOptions
   ): Promise<GetSecret_Response> {
@@ -397,7 +388,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetSecret_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -427,7 +418,6 @@ export class Client {
    * Throws ``PERMISSION_DENIED`` if the user does not have permission to make this API call.
    */
   async listAcls(
-    signal: AbortSignal | undefined,
     req: ListAcls,
     options?: CallOptions
   ): Promise<ListAcls_Response> {
@@ -450,7 +440,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListAcls_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -477,7 +467,6 @@ export class Client {
    * Throws ``PERMISSION_DENIED`` if the user does not have permission to make this API call.
    */
   async listScopes(
-    signal: AbortSignal | undefined,
     _req: ListScopes,
     options?: CallOptions
   ): Promise<ListScopes_Response> {
@@ -494,7 +483,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListScopes_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -529,7 +518,6 @@ export class Client {
    * Throws ``PERMISSION_DENIED`` if the user does not have permission to make this API call.
    */
   async listSecrets(
-    signal: AbortSignal | undefined,
     req: ListSecrets,
     options?: CallOptions
   ): Promise<ListSecrets_Response> {
@@ -552,7 +540,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListSecrets_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -593,11 +581,7 @@ export class Client {
    * Throws ``INVALID_PARAMETER_VALUE`` if the permission or principal is invalid.
    * Throws ``PERMISSION_DENIED`` if the user does not have permission to make this API call.
    */
-  async putAcl(
-    signal: AbortSignal | undefined,
-    req: PutAcl,
-    options?: CallOptions
-  ): Promise<PutAcl_Response> {
+  async putAcl(req: PutAcl, options?: CallOptions): Promise<PutAcl_Response> {
     const url = `${this.host}/api/2.0/secrets/acls/put`;
     const body = marshalRequest(req, marshalPutAclSchema);
     let resp: PutAcl_Response | undefined;
@@ -612,7 +596,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPutAcl_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -652,7 +636,6 @@ export class Client {
    * Throws ``BAD_REQUEST`` if request is made against Azure KeyVault backed scope.
    */
   async putSecret(
-    signal: AbortSignal | undefined,
     req: PutSecret,
     options?: CallOptions
   ): Promise<PutSecret_Response> {
@@ -670,7 +653,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPutSecret_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

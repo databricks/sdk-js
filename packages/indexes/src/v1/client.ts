@@ -88,7 +88,6 @@ export class Client {
 
   /** Create a new index. */
   async createVectorIndex(
-    signal: AbortSignal | undefined,
     req: CreateVectorIndexRequest,
     options?: CallOptions
   ): Promise<VectorIndex> {
@@ -106,7 +105,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalVectorIndexSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -115,7 +114,6 @@ export class Client {
 
   /** Handles the deletion of data from a specified vector index. */
   async deleteDataVectorIndex(
-    signal: AbortSignal | undefined,
     req: DeleteDataVectorIndexRequest,
     options?: CallOptions
   ): Promise<DeleteDataVectorIndexResponse> {
@@ -141,7 +139,7 @@ export class Client {
         unmarshalDeleteDataVectorIndexResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -150,7 +148,6 @@ export class Client {
 
   /** Delete an index. */
   async deleteVectorIndex(
-    signal: AbortSignal | undefined,
     req: DeleteVectorIndexRequest,
     options?: CallOptions
   ): Promise<DeleteVectorIndexResponse> {
@@ -167,7 +164,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteVectorIndexResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -176,7 +173,6 @@ export class Client {
 
   /** Get an index. */
   async getVectorIndex(
-    signal: AbortSignal | undefined,
     req: GetVectorIndexRequest,
     options?: CallOptions
   ): Promise<VectorIndex> {
@@ -202,7 +198,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalVectorIndexSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -211,7 +207,6 @@ export class Client {
 
   /** List all indexes in the given endpoint. */
   async listVectorIndex(
-    signal: AbortSignal | undefined,
     req: ListVectorIndexRequest,
     options?: CallOptions
   ): Promise<ListVectorIndexResponse> {
@@ -237,7 +232,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListVectorIndexResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -245,13 +240,12 @@ export class Client {
   }
 
   async *listVectorIndexIter(
-    signal: AbortSignal | undefined,
     req: ListVectorIndexRequest,
     options?: CallOptions
   ): AsyncGenerator<MiniVectorIndex> {
     const pageReq: ListVectorIndexRequest = {...req};
     for (;;) {
-      const resp = await this.listVectorIndex(signal, pageReq, options);
+      const resp = await this.listVectorIndex(pageReq, options);
       for (const item of resp.vectorIndexes ?? []) {
         yield item;
       }
@@ -264,7 +258,6 @@ export class Client {
 
   /** Query the specified vector index. */
   async queryVectorIndex(
-    signal: AbortSignal | undefined,
     req: QueryVectorIndexRequest,
     options?: CallOptions
   ): Promise<QueryVectorIndexResponse> {
@@ -282,7 +275,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalQueryVectorIndexResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -291,7 +284,6 @@ export class Client {
 
   /** Use `next_page_token` returned from previous `QueryVectorIndex` or `QueryVectorIndexNextPage` request to fetch next page of results. */
   async queryVectorIndexNextPage(
-    signal: AbortSignal | undefined,
     req: QueryVectorIndexNextPageRequest,
     options?: CallOptions
   ): Promise<QueryVectorIndexResponse> {
@@ -312,7 +304,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalQueryVectorIndexResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -321,7 +313,6 @@ export class Client {
 
   /** Scan the specified vector index and return the first `num_results` entries after the exclusive `primary_key`. */
   async scanVectorIndex(
-    signal: AbortSignal | undefined,
     req: ScanVectorIndexRequest,
     options?: CallOptions
   ): Promise<ScanVectorIndexResponse> {
@@ -339,7 +330,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalScanVectorIndexResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -348,7 +339,6 @@ export class Client {
 
   /** Triggers a synchronization process for a specified vector index. */
   async syncVectorIndex(
-    signal: AbortSignal | undefined,
     req: SyncVectorIndexRequest,
     options?: CallOptions
   ): Promise<SyncVectorIndexResponse> {
@@ -366,7 +356,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSyncVectorIndexResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -375,7 +365,6 @@ export class Client {
 
   /** Handles the upserting of data into a specified vector index. */
   async upsertDataVectorIndex(
-    signal: AbortSignal | undefined,
     req: UpsertDataVectorIndexRequest,
     options?: CallOptions
   ): Promise<UpsertDataVectorIndexResponse> {
@@ -396,7 +385,7 @@ export class Client {
         unmarshalUpsertDataVectorIndexResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

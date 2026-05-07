@@ -67,7 +67,6 @@ export class Client {
 
   /** Create Alert */
   async createAlert(
-    signal: AbortSignal | undefined,
     req: CreateAlertRequest,
     options?: CallOptions
   ): Promise<Alert> {
@@ -85,7 +84,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAlertSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -93,11 +92,7 @@ export class Client {
   }
 
   /** Gets an alert. */
-  async getAlert(
-    signal: AbortSignal | undefined,
-    req: GetAlertRequest,
-    options?: CallOptions
-  ): Promise<Alert> {
+  async getAlert(req: GetAlertRequest, options?: CallOptions): Promise<Alert> {
     const url = `${this.host}/api/2.0/alerts/${req.id ?? ''}`;
     let resp: Alert | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -111,7 +106,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAlertSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -120,7 +115,6 @@ export class Client {
 
   /** Gets a list of alerts accessible to the user, ordered by creation time. */
   async listAlerts(
-    signal: AbortSignal | undefined,
     req: ListAlertsRequest,
     options?: CallOptions
   ): Promise<ListAlertsResponse> {
@@ -146,7 +140,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListAlertsResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -154,13 +148,12 @@ export class Client {
   }
 
   async *listAlertsIter(
-    signal: AbortSignal | undefined,
     req: ListAlertsRequest,
     options?: CallOptions
   ): AsyncGenerator<Alert> {
     const pageReq: ListAlertsRequest = {...req};
     for (;;) {
-      const resp = await this.listAlerts(signal, pageReq, options);
+      const resp = await this.listAlerts(pageReq, options);
       for (const item of resp.alerts ?? []) {
         yield item;
       }
@@ -173,7 +166,6 @@ export class Client {
 
   /** Moves an alert to the trash. Trashed alerts immediately disappear from list views, and can no longer trigger. You can restore a trashed alert through the UI. A trashed alert is permanently deleted after 30 days. */
   async trashAlert(
-    signal: AbortSignal | undefined,
     req: TrashAlertRequest,
     options?: CallOptions
   ): Promise<Empty> {
@@ -196,7 +188,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEmptySchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -205,7 +197,6 @@ export class Client {
 
   /** Update alert */
   async updateAlert(
-    signal: AbortSignal | undefined,
     req: UpdateAlertRequest,
     options?: CallOptions
   ): Promise<Alert> {
@@ -235,7 +226,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAlertSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

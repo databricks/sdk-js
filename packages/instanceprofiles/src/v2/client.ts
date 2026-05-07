@@ -75,7 +75,6 @@ export class Client {
    * This API is only available to admin users.
    */
   async addInstanceProfile(
-    signal: AbortSignal | undefined,
     req: AddInstanceProfile,
     options?: CallOptions
   ): Promise<AddInstanceProfile_Response> {
@@ -96,7 +95,7 @@ export class Client {
         unmarshalAddInstanceProfile_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -118,7 +117,6 @@ export class Client {
    * This API is only available to admin users.
    */
   async editInstanceProfile(
-    signal: AbortSignal | undefined,
     req: EditInstanceProfile,
     options?: CallOptions
   ): Promise<EditInstanceProfile_Response> {
@@ -139,7 +137,7 @@ export class Client {
         unmarshalEditInstanceProfile_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -152,7 +150,6 @@ export class Client {
    * This API is available to all users.
    */
   async listInstanceProfiles(
-    signal: AbortSignal | undefined,
     _req: ListInstanceProfiles,
     options?: CallOptions
   ): Promise<ListInstanceProfiles_Response> {
@@ -172,7 +169,7 @@ export class Client {
         unmarshalListInstanceProfiles_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -186,7 +183,6 @@ export class Client {
    * This API is only accessible to admin users.
    */
   async removeInstanceProfile(
-    signal: AbortSignal | undefined,
     req: RemoveInstanceProfile,
     options?: CallOptions
   ): Promise<RemoveInstanceProfile_Response> {
@@ -207,7 +203,7 @@ export class Client {
         unmarshalRemoveInstanceProfile_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

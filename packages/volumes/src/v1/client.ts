@@ -87,7 +87,6 @@ export class Client {
    * or catalogs or schemas.
    */
   async createVolume(
-    signal: AbortSignal | undefined,
     req: CreateVolume,
     options?: CallOptions
   ): Promise<VolumeInfo> {
@@ -105,7 +104,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalVolumeInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -120,7 +119,6 @@ export class Client {
    * privilege on the parent catalog and the **USE_SCHEMA** privilege on the parent schema.
    */
   async deleteVolume(
-    signal: AbortSignal | undefined,
     req: DeleteVolume,
     options?: CallOptions
   ): Promise<DeleteVolume_Response> {
@@ -137,7 +135,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteVolume_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -152,11 +150,7 @@ export class Client {
    * For the latter case, the caller must also be the owner or have the **USE_CATALOG**
    * privilege on the parent catalog and the **USE_SCHEMA** privilege on the parent schema.
    */
-  async getVolume(
-    signal: AbortSignal | undefined,
-    req: GetVolume,
-    options?: CallOptions
-  ): Promise<VolumeInfo> {
+  async getVolume(req: GetVolume, options?: CallOptions): Promise<VolumeInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/volumes/${req.fullNameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.includeBrowse !== undefined) {
@@ -176,7 +170,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalVolumeInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -200,7 +194,6 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listVolumes(
-    signal: AbortSignal | undefined,
     req: ListVolumes,
     options?: CallOptions
   ): Promise<ListVolumes_Response> {
@@ -235,7 +228,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListVolumes_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -243,13 +236,12 @@ export class Client {
   }
 
   async *listVolumesIter(
-    signal: AbortSignal | undefined,
     req: ListVolumes,
     options?: CallOptions
   ): AsyncGenerator<VolumeInfo> {
     const pageReq: ListVolumes = {...req};
     for (;;) {
-      const resp = await this.listVolumes(signal, pageReq, options);
+      const resp = await this.listVolumes(pageReq, options);
       for (const item of resp.volumes ?? []) {
         yield item;
       }
@@ -270,7 +262,6 @@ export class Client {
    * Currently only the name, the owner or the comment of the volume could be updated.
    */
   async updateVolume(
-    signal: AbortSignal | undefined,
     req: UpdateVolume,
     options?: CallOptions
   ): Promise<VolumeInfo> {
@@ -288,7 +279,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalVolumeInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

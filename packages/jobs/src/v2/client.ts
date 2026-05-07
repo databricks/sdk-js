@@ -122,7 +122,6 @@ export class Client {
    * prevent new runs from being started.
    */
   async cancelAllRuns(
-    signal: AbortSignal | undefined,
     req: CancelAllRuns,
     options?: CallOptions
   ): Promise<CancelAllRuns_Response> {
@@ -140,7 +139,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCancelAllRuns_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -152,7 +151,6 @@ export class Client {
    * this request completes.
    */
   async cancelRun(
-    signal: AbortSignal | undefined,
     req: CancelRun,
     options?: CallOptions
   ): Promise<CancelRun_Response> {
@@ -170,7 +168,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCancelRun_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -178,11 +176,10 @@ export class Client {
   }
 
   async cancelRunWaiter(
-    signal: AbortSignal | undefined,
     req: CancelRun,
     options?: CallOptions
   ): Promise<CancelRunWaiter> {
-    await this.cancelRun(signal, req, options);
+    await this.cancelRun(req, options);
     if (req.runId === undefined) {
       throw new Error('request field runId required for polling is missing');
     }
@@ -191,7 +188,6 @@ export class Client {
 
   /** Create a new job. */
   async createJob(
-    signal: AbortSignal | undefined,
     req: CreateJob,
     options?: CallOptions
   ): Promise<CreateJob_Response> {
@@ -209,7 +205,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateJob_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -218,7 +214,6 @@ export class Client {
 
   /** Deletes a job. */
   async deleteJob(
-    signal: AbortSignal | undefined,
     req: DeleteJob,
     options?: CallOptions
   ): Promise<DeleteJob_Response> {
@@ -236,7 +231,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteJob_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -245,7 +240,6 @@ export class Client {
 
   /** Deletes a non-active run. Returns an error if the run is active. */
   async deleteRun(
-    signal: AbortSignal | undefined,
     req: DeleteRun,
     options?: CallOptions
   ): Promise<DeleteRun_Response> {
@@ -263,7 +257,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteRun_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -272,7 +266,6 @@ export class Client {
 
   /** Export and retrieve the job run task. */
   async exportRun(
-    signal: AbortSignal | undefined,
     req: ExportRun,
     options?: CallOptions
   ): Promise<ExportRun_Response> {
@@ -298,7 +291,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalExportRun_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -313,11 +306,7 @@ export class Client {
    * Use the `next_page_token` field to check for more results and pass its value as the `page_token` in subsequent requests.
    * If any array properties have more than 100 elements, additional results will be returned on subsequent requests. Arrays without additional results will be empty on later pages.
    */
-  async getJob(
-    signal: AbortSignal | undefined,
-    req: GetJob,
-    options?: CallOptions
-  ): Promise<GetJob_Response> {
+  async getJob(req: GetJob, options?: CallOptions): Promise<GetJob_Response> {
     const url = `${this.host}/api/2.2/jobs/get`;
     const params = new URLSearchParams();
     if (req.jobId !== undefined) {
@@ -340,7 +329,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetJob_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -355,11 +344,7 @@ export class Client {
    * Use the next_page_token field to check for more results and pass its value as the page_token in subsequent requests.
    * If any array properties have more than 100 elements, additional results will be returned on subsequent requests. Arrays without additional results will be empty on later pages.
    */
-  async getRun(
-    signal: AbortSignal | undefined,
-    req: GetRun,
-    options?: CallOptions
-  ): Promise<GetRun_Response> {
+  async getRun(req: GetRun, options?: CallOptions): Promise<GetRun_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/get`;
     const params = new URLSearchParams();
     if (req.runId !== undefined) {
@@ -391,7 +376,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetRun_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -410,7 +395,6 @@ export class Client {
    * before they expire.
    */
   async getRunOutput(
-    signal: AbortSignal | undefined,
     req: GetRunOutput,
     options?: CallOptions
   ): Promise<GetRunOutput_Response> {
@@ -433,7 +417,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetRunOutput_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -442,7 +426,6 @@ export class Client {
 
   /** Retrieves a list of jobs. */
   async listJobs(
-    signal: AbortSignal | undefined,
     req: ListJobs,
     options?: CallOptions
   ): Promise<ListJobs_Response> {
@@ -477,7 +460,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListJobs_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -485,13 +468,12 @@ export class Client {
   }
 
   async *listJobsIter(
-    signal: AbortSignal | undefined,
     req: ListJobs,
     options?: CallOptions
   ): AsyncGenerator<BaseJob> {
     const pageReq: ListJobs = {...req};
     for (;;) {
-      const resp = await this.listJobs(signal, pageReq, options);
+      const resp = await this.listJobs(pageReq, options);
       for (const item of resp.jobs ?? []) {
         yield item;
       }
@@ -504,7 +486,6 @@ export class Client {
 
   /** List runs in descending order by start time. */
   async listRuns(
-    signal: AbortSignal | undefined,
     req: ListRuns,
     options?: CallOptions
   ): Promise<ListRuns_Response> {
@@ -557,7 +538,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListRuns_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -565,13 +546,12 @@ export class Client {
   }
 
   async *listRunsIter(
-    signal: AbortSignal | undefined,
     req: ListRuns,
     options?: CallOptions
   ): AsyncGenerator<BaseRun> {
     const pageReq: ListRuns = {...req};
     for (;;) {
-      const resp = await this.listRuns(signal, pageReq, options);
+      const resp = await this.listRuns(pageReq, options);
       for (const item of resp.runs ?? []) {
         yield item;
       }
@@ -588,7 +568,6 @@ export class Client {
    * original job run.
    */
   async repair(
-    signal: AbortSignal | undefined,
     req: RepairRun,
     options?: CallOptions
   ): Promise<RepairRun_Response> {
@@ -606,7 +585,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRepairRun_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -614,11 +593,10 @@ export class Client {
   }
 
   async repairWaiter(
-    signal: AbortSignal | undefined,
     req: RepairRun,
     options?: CallOptions
   ): Promise<RepairWaiter> {
-    await this.repair(signal, req, options);
+    await this.repair(req, options);
     if (req.runId === undefined) {
       throw new Error('request field runId required for polling is missing');
     }
@@ -627,7 +605,6 @@ export class Client {
 
   /** Overwrite all settings for the given job. Use the [_Update_ endpoint](:method:jobs/update) to update job settings partially. */
   async resetJob(
-    signal: AbortSignal | undefined,
     req: ResetJob,
     options?: CallOptions
   ): Promise<ResetJob_Response> {
@@ -645,7 +622,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalResetJob_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -653,11 +630,7 @@ export class Client {
   }
 
   /** Run a job and return the `run_id` of the triggered run. */
-  async runNow(
-    signal: AbortSignal | undefined,
-    req: RunNow,
-    options?: CallOptions
-  ): Promise<RunNow_Response> {
+  async runNow(req: RunNow, options?: CallOptions): Promise<RunNow_Response> {
     const url = `${this.host}/api/2.2/jobs/run-now`;
     const body = marshalRequest(req, marshalRunNowSchema);
     let resp: RunNow_Response | undefined;
@@ -672,7 +645,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRunNow_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -680,11 +653,10 @@ export class Client {
   }
 
   async runNowWaiter(
-    signal: AbortSignal | undefined,
     req: RunNow,
     options?: CallOptions
   ): Promise<RunNowWaiter> {
-    const resp = await this.runNow(signal, req, options);
+    const resp = await this.runNow(req, options);
     if (resp.runId === undefined) {
       throw new Error('response field runId required for polling is missing');
     }
@@ -705,7 +677,6 @@ export class Client {
    * `POST /jobs/run-now` endpoints to create and run a saved job.
    */
   async submitRun(
-    signal: AbortSignal | undefined,
     req: SubmitRun,
     options?: CallOptions
   ): Promise<SubmitRun_Response> {
@@ -723,7 +694,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSubmitRun_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -731,11 +702,10 @@ export class Client {
   }
 
   async submitRunWaiter(
-    signal: AbortSignal | undefined,
     req: SubmitRun,
     options?: CallOptions
   ): Promise<SubmitRunWaiter> {
-    const resp = await this.submitRun(signal, req, options);
+    const resp = await this.submitRun(req, options);
     if (resp.runId === undefined) {
       throw new Error('response field runId required for polling is missing');
     }
@@ -744,7 +714,6 @@ export class Client {
 
   /** Add, update, or remove specific settings of an existing job. Use the [_Reset_ endpoint](:method:jobs/reset) to overwrite all job settings. */
   async updateJob(
-    signal: AbortSignal | undefined,
     req: UpdateJob,
     options?: CallOptions
   ): Promise<UpdateJob_Response> {
@@ -762,7 +731,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdateJob_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -781,19 +750,15 @@ export class CancelRunWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<GetRun_Response> {
+  async wait(options?: CallOptions): Promise<GetRun_Response> {
     let result: GetRun_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getRun(
-        callSignal,
         {
           runId: this.runId,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state?.lifeCycleState;
@@ -816,12 +781,13 @@ export class CancelRunWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -829,12 +795,8 @@ export class CancelRunWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getRun(
-      signal,
       {
         runId: this.runId,
       },
@@ -868,19 +830,15 @@ export class RepairWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<GetRun_Response> {
+  async wait(options?: CallOptions): Promise<GetRun_Response> {
     let result: GetRun_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getRun(
-        callSignal,
         {
           runId: this.runId,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state?.lifeCycleState;
@@ -903,12 +861,13 @@ export class RepairWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -916,12 +875,8 @@ export class RepairWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getRun(
-      signal,
       {
         runId: this.runId,
       },
@@ -955,19 +910,15 @@ export class RunNowWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<GetRun_Response> {
+  async wait(options?: CallOptions): Promise<GetRun_Response> {
     let result: GetRun_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getRun(
-        callSignal,
         {
           runId: this.runId,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state?.lifeCycleState;
@@ -990,12 +941,13 @@ export class RunNowWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1003,12 +955,8 @@ export class RunNowWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getRun(
-      signal,
       {
         runId: this.runId,
       },
@@ -1042,19 +990,15 @@ export class SubmitRunWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<GetRun_Response> {
+  async wait(options?: CallOptions): Promise<GetRun_Response> {
     let result: GetRun_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getRun(
-        callSignal,
         {
           runId: this.runId,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state?.lifeCycleState;
@@ -1077,12 +1021,13 @@ export class SubmitRunWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1090,12 +1035,8 @@ export class SubmitRunWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getRun(
-      signal,
       {
         runId: this.runId,
       },

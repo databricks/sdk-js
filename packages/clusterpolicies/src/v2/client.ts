@@ -73,7 +73,6 @@ export class Client {
 
   /** Creates a new policy with prescribed settings. */
   async createPolicy(
-    signal: AbortSignal | undefined,
     req: CreatePolicy,
     options?: CallOptions
   ): Promise<CreatePolicy_Response> {
@@ -91,7 +90,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreatePolicy_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -100,7 +99,6 @@ export class Client {
 
   /** Delete a policy for a cluster. Clusters governed by this policy can still run, but cannot be edited. */
   async deletePolicy(
-    signal: AbortSignal | undefined,
     req: DeletePolicy,
     options?: CallOptions
   ): Promise<DeletePolicy_Response> {
@@ -118,7 +116,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeletePolicy_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -127,7 +125,6 @@ export class Client {
 
   /** Update an existing policy for cluster. This operation may make some clusters governed by the previous policy invalid. */
   async editPolicy(
-    signal: AbortSignal | undefined,
     req: EditPolicy,
     options?: CallOptions
   ): Promise<EditPolicy_Response> {
@@ -145,7 +142,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEditPolicy_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -153,11 +150,7 @@ export class Client {
   }
 
   /** Get a cluster policy entity. Creation and editing is available to admins only. */
-  async getPolicy(
-    signal: AbortSignal | undefined,
-    req: GetPolicy,
-    options?: CallOptions
-  ): Promise<Policy> {
+  async getPolicy(req: GetPolicy, options?: CallOptions): Promise<Policy> {
     const url = `${this.host}/api/2.0/policies/clusters/get`;
     const params = new URLSearchParams();
     if (req.policyId !== undefined) {
@@ -177,7 +170,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPolicySchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -186,7 +179,6 @@ export class Client {
 
   /** Returns a list of policies accessible by the requesting user. */
   async listPolicies(
-    signal: AbortSignal | undefined,
     req: ListPolicies,
     options?: CallOptions
   ): Promise<ListPolicies_Response> {
@@ -212,7 +204,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListPolicies_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

@@ -66,7 +66,6 @@ export class Client {
    * resource can contain an access rule of the role.
    */
   async getAssignableRolesForResource(
-    signal: AbortSignal | undefined,
     req: GetAssignableRolesForResourceRequest,
     options?: CallOptions
   ): Promise<GetAssignableRolesForResourceResponse> {
@@ -95,7 +94,7 @@ export class Client {
         unmarshalGetAssignableRolesForResourceResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -107,7 +106,6 @@ export class Client {
    * said resource. Currently only a default rule set for each resource is supported.
    */
   async getRuleSet(
-    signal: AbortSignal | undefined,
     req: GetRuleSetRequest,
     options?: CallOptions
   ): Promise<RuleSet> {
@@ -136,7 +134,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRuleSetSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -148,7 +146,6 @@ export class Client {
    * This pattern helps prevent conflicts between concurrent updates.
    */
   async updateRuleSet(
-    signal: AbortSignal | undefined,
     req: UpdateRuleSetRequest,
     options?: CallOptions
   ): Promise<RuleSet> {
@@ -166,7 +163,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRuleSetSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

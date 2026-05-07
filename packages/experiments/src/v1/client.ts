@@ -200,7 +200,6 @@ export class Client {
    * Throws `RESOURCE_ALREADY_EXISTS` if an experiment with the given name exists.
    */
   async createExperiment(
-    signal: AbortSignal | undefined,
     req: CreateExperiment,
     options?: CallOptions
   ): Promise<CreateExperiment_Response> {
@@ -218,7 +217,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateExperiment_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -227,7 +226,6 @@ export class Client {
 
   /** Create a logged model. */
   async createLoggedModel(
-    signal: AbortSignal | undefined,
     req: CreateLoggedModel,
     options?: CallOptions
   ): Promise<CreateLoggedModel_Response> {
@@ -245,7 +243,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateLoggedModel_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -258,7 +256,6 @@ export class Client {
    * `mlflowMetric`, and `mlflowRunTag` associated with a single execution.
    */
   async createRun(
-    signal: AbortSignal | undefined,
     req: CreateRun,
     options?: CallOptions
   ): Promise<CreateRun_Response> {
@@ -276,7 +273,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateRun_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -288,7 +285,6 @@ export class Client {
    * If the experiment uses FileStore, artifacts associated with the experiment are also deleted.
    */
   async deleteExperiment(
-    signal: AbortSignal | undefined,
     req: DeleteExperiment,
     options?: CallOptions
   ): Promise<DeleteExperiment_Response> {
@@ -306,7 +302,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteExperiment_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -315,7 +311,6 @@ export class Client {
 
   /** Delete a logged model. */
   async deleteLoggedModel(
-    signal: AbortSignal | undefined,
     req: DeleteLoggedModel,
     options?: CallOptions
   ): Promise<DeleteLoggedModel_Response> {
@@ -332,7 +327,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteLoggedModel_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -341,7 +336,6 @@ export class Client {
 
   /** Delete a tag on a logged model. */
   async deleteLoggedModelTag(
-    signal: AbortSignal | undefined,
     req: DeleteLoggedModelTag,
     options?: CallOptions
   ): Promise<DeleteLoggedModelTag_Response> {
@@ -361,7 +355,7 @@ export class Client {
         unmarshalDeleteLoggedModelTag_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -370,7 +364,6 @@ export class Client {
 
   /** Marks a run for deletion. */
   async deleteRun(
-    signal: AbortSignal | undefined,
     req: DeleteRun,
     options?: CallOptions
   ): Promise<DeleteRun_Response> {
@@ -388,7 +381,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteRun_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -400,7 +393,6 @@ export class Client {
    * max_runs per request. To call this API from a Databricks Notebook in Python, you can use the client code snippet on
    */
   async deleteRuns(
-    signal: AbortSignal | undefined,
     req: DeleteRuns,
     options?: CallOptions
   ): Promise<DeleteRuns_Response> {
@@ -418,7 +410,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteRuns_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -430,7 +422,6 @@ export class Client {
    * a run completes.
    */
   async deleteTag(
-    signal: AbortSignal | undefined,
     req: DeleteTag,
     options?: CallOptions
   ): Promise<DeleteTag_Response> {
@@ -448,7 +439,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteTag_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -457,7 +448,6 @@ export class Client {
 
   /** Finalize a logged model. */
   async finalizeLoggedModel(
-    signal: AbortSignal | undefined,
     req: FinalizeLoggedModel,
     options?: CallOptions
   ): Promise<FinalizeLoggedModel_Response> {
@@ -478,7 +468,7 @@ export class Client {
         unmarshalFinalizeLoggedModel_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -487,7 +477,6 @@ export class Client {
 
   /** Gets metadata for an experiment. This method works on deleted experiments. */
   async getExperiment(
-    signal: AbortSignal | undefined,
     req: GetExperiment,
     options?: CallOptions
   ): Promise<GetExperiment_Response> {
@@ -510,7 +499,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetExperiment_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -527,7 +516,6 @@ export class Client {
    * Throws `RESOURCE_DOES_NOT_EXIST` if no experiment with the specified name exists.
    */
   async getExperimentByName(
-    signal: AbortSignal | undefined,
     req: GetExperimentByName,
     options?: CallOptions
   ): Promise<GetExperimentByName_Response> {
@@ -553,7 +541,7 @@ export class Client {
         unmarshalGetExperimentByName_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -562,7 +550,6 @@ export class Client {
 
   /** Get a logged model. */
   async getLoggedModel(
-    signal: AbortSignal | undefined,
     req: GetLoggedModel,
     options?: CallOptions
   ): Promise<GetLoggedModel_Response> {
@@ -579,7 +566,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetLoggedModel_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -588,7 +575,6 @@ export class Client {
 
   /** Batch endpoint for getting logged models from a list of model IDs */
   async getLoggedModels(
-    signal: AbortSignal | undefined,
     req: GetLoggedModelsRequest,
     options?: CallOptions
   ): Promise<GetLoggedModelsRequest_Response> {
@@ -614,7 +600,7 @@ export class Client {
         unmarshalGetLoggedModelsRequest_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -623,7 +609,6 @@ export class Client {
 
   /** Gets a list of all values for the specified metric for a given run. */
   async getMetricHistory(
-    signal: AbortSignal | undefined,
     req: GetMetricHistory,
     options?: CallOptions
   ): Promise<GetMetricHistory_Response> {
@@ -658,7 +643,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetMetricHistory_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -666,13 +651,12 @@ export class Client {
   }
 
   async *getMetricHistoryIter(
-    signal: AbortSignal | undefined,
     req: GetMetricHistory,
     options?: CallOptions
   ): AsyncGenerator<Metric> {
     const pageReq: GetMetricHistory = {...req};
     for (;;) {
-      const resp = await this.getMetricHistory(signal, pageReq, options);
+      const resp = await this.getMetricHistory(pageReq, options);
       for (const item of resp.metrics ?? []) {
         yield item;
       }
@@ -689,11 +673,7 @@ export class Client {
    *
    * If there are multiple values with the latest timestamp, return the maximum of these values.
    */
-  async getRun(
-    signal: AbortSignal | undefined,
-    req: GetRun,
-    options?: CallOptions
-  ): Promise<GetRun_Response> {
+  async getRun(req: GetRun, options?: CallOptions): Promise<GetRun_Response> {
     const url = `${this.host}/api/2.0/mlflow/runs/get`;
     const params = new URLSearchParams();
     if (req.runId !== undefined) {
@@ -716,7 +696,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetRun_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -731,7 +711,6 @@ export class Client {
    * directory contents | Files API](/api/workspace/files/listdirectorycontents).
    */
   async listArtifacts(
-    signal: AbortSignal | undefined,
     req: ListArtifacts,
     options?: CallOptions
   ): Promise<ListArtifacts_Response> {
@@ -763,7 +742,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListArtifacts_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -771,13 +750,12 @@ export class Client {
   }
 
   async *listArtifactsIter(
-    signal: AbortSignal | undefined,
     req: ListArtifacts,
     options?: CallOptions
   ): AsyncGenerator<FileInfo> {
     const pageReq: ListArtifacts = {...req};
     for (;;) {
-      const resp = await this.listArtifacts(signal, pageReq, options);
+      const resp = await this.listArtifacts(pageReq, options);
       for (const item of resp.files ?? []) {
         yield item;
       }
@@ -790,7 +768,6 @@ export class Client {
 
   /** Gets a list of all experiments. */
   async listExperiments(
-    signal: AbortSignal | undefined,
     req: ListExperiments,
     options?: CallOptions
   ): Promise<ListExperiments_Response> {
@@ -819,7 +796,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListExperiments_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -827,13 +804,12 @@ export class Client {
   }
 
   async *listExperimentsIter(
-    signal: AbortSignal | undefined,
     req: ListExperiments,
     options?: CallOptions
   ): AsyncGenerator<Experiment> {
     const pageReq: ListExperiments = {...req};
     for (;;) {
-      const resp = await this.listExperiments(signal, pageReq, options);
+      const resp = await this.listExperiments(pageReq, options);
       for (const item of resp.experiments ?? []) {
         yield item;
       }
@@ -887,7 +863,6 @@ export class Client {
    * * Parameter and tag values can be up to 250 characters in length
    */
   async logBatch(
-    signal: AbortSignal | undefined,
     req: LogBatch,
     options?: CallOptions
   ): Promise<LogBatch_Response> {
@@ -905,7 +880,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalLogBatch_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -914,7 +889,6 @@ export class Client {
 
   /** Logs inputs, such as datasets and models, to an MLflow Run. */
   async logInputs(
-    signal: AbortSignal | undefined,
     req: LogInputs,
     options?: CallOptions
   ): Promise<LogInputs_Response> {
@@ -932,7 +906,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalLogInputs_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -945,7 +919,6 @@ export class Client {
    * attempting to overwrite an existing param with a different value will result in an error
    */
   async logLoggedModelParams(
-    signal: AbortSignal | undefined,
     req: LogLoggedModelParamsRequest,
     options?: CallOptions
   ): Promise<LogLoggedModelParamsRequest_Response> {
@@ -966,7 +939,7 @@ export class Client {
         unmarshalLogLoggedModelParamsRequest_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -979,7 +952,6 @@ export class Client {
    * A metric can be logged multiple times.
    */
   async logMetric(
-    signal: AbortSignal | undefined,
     req: LogMetric,
     options?: CallOptions
   ): Promise<LogMetric_Response> {
@@ -997,7 +969,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalLogMetric_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1010,7 +982,6 @@ export class Client {
    * Log a model to an MLflow Run.
    */
   async logModel(
-    signal: AbortSignal | undefined,
     req: LogModel,
     options?: CallOptions
   ): Promise<LogModel_Response> {
@@ -1028,7 +999,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalLogModel_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1037,7 +1008,6 @@ export class Client {
 
   /** Logs outputs, such as models, from an MLflow Run. */
   async logOutputs(
-    signal: AbortSignal | undefined,
     req: LogOutputs,
     options?: CallOptions
   ): Promise<LogOutputs_Response> {
@@ -1055,7 +1025,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalLogOutputs_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1068,7 +1038,6 @@ export class Client {
    * constant dates and values used in an ETL pipeline. A param can be logged only once for a run.
    */
   async logParam(
-    signal: AbortSignal | undefined,
     req: LogParam,
     options?: CallOptions
   ): Promise<LogParam_Response> {
@@ -1086,7 +1055,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalLogParam_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1101,7 +1070,6 @@ export class Client {
    * Throws `RESOURCE_DOES_NOT_EXIST` if experiment was never created or was permanently deleted.
    */
   async restoreExperiment(
-    signal: AbortSignal | undefined,
     req: RestoreExperiment,
     options?: CallOptions
   ): Promise<RestoreExperiment_Response> {
@@ -1119,7 +1087,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRestoreExperiment_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1132,7 +1100,6 @@ export class Client {
    * Throws `RESOURCE_DOES_NOT_EXIST` if the run was never created or was permanently deleted.
    */
   async restoreRun(
-    signal: AbortSignal | undefined,
     req: RestoreRun,
     options?: CallOptions
   ): Promise<RestoreRun_Response> {
@@ -1150,7 +1117,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRestoreRun_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1162,7 +1129,6 @@ export class Client {
    * max_runs per request. To call this API from a Databricks Notebook in Python, you can use the client code snippet on
    */
   async restoreRuns(
-    signal: AbortSignal | undefined,
     req: RestoreRuns,
     options?: CallOptions
   ): Promise<RestoreRuns_Response> {
@@ -1180,7 +1146,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRestoreRuns_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1189,7 +1155,6 @@ export class Client {
 
   /** Searches for experiments that satisfy specified search criteria. */
   async searchExperiments(
-    signal: AbortSignal | undefined,
     req: SearchExperiments,
     options?: CallOptions
   ): Promise<SearchExperiments_Response> {
@@ -1207,7 +1172,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSearchExperiments_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1215,13 +1180,12 @@ export class Client {
   }
 
   async *searchExperimentsIter(
-    signal: AbortSignal | undefined,
     req: SearchExperiments,
     options?: CallOptions
   ): AsyncGenerator<Experiment> {
     const pageReq: SearchExperiments = {...req};
     for (;;) {
-      const resp = await this.searchExperiments(signal, pageReq, options);
+      const resp = await this.searchExperiments(pageReq, options);
       for (const item of resp.experiments ?? []) {
         yield item;
       }
@@ -1234,7 +1198,6 @@ export class Client {
 
   /** Search for Logged Models that satisfy specified search criteria. */
   async searchLoggedModels(
-    signal: AbortSignal | undefined,
     req: SearchLoggedModels,
     options?: CallOptions
   ): Promise<SearchLoggedModels_Response> {
@@ -1255,7 +1218,7 @@ export class Client {
         unmarshalSearchLoggedModels_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1268,7 +1231,6 @@ export class Client {
    * Search expressions can use `mlflowMetric` and `mlflowParam` keys.
    */
   async searchRuns(
-    signal: AbortSignal | undefined,
     req: SearchRuns,
     options?: CallOptions
   ): Promise<SearchRuns_Response> {
@@ -1286,7 +1248,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSearchRuns_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1294,13 +1256,12 @@ export class Client {
   }
 
   async *searchRunsIter(
-    signal: AbortSignal | undefined,
     req: SearchRuns,
     options?: CallOptions
   ): AsyncGenerator<Run> {
     const pageReq: SearchRuns = {...req};
     for (;;) {
-      const resp = await this.searchRuns(signal, pageReq, options);
+      const resp = await this.searchRuns(pageReq, options);
       for (const item of resp.runs ?? []) {
         yield item;
       }
@@ -1313,7 +1274,6 @@ export class Client {
 
   /** Sets a tag on an experiment. Experiment tags are metadata that can be updated. */
   async setExperimentTag(
-    signal: AbortSignal | undefined,
     req: SetExperimentTag,
     options?: CallOptions
   ): Promise<SetExperimentTag_Response> {
@@ -1331,7 +1291,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSetExperimentTag_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1340,7 +1300,6 @@ export class Client {
 
   /** Set tags for a logged model. */
   async setLoggedModelTags(
-    signal: AbortSignal | undefined,
     req: SetLoggedModelTags,
     options?: CallOptions
   ): Promise<SetLoggedModelTags_Response> {
@@ -1361,7 +1320,7 @@ export class Client {
         unmarshalSetLoggedModelTags_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1372,11 +1331,7 @@ export class Client {
    * Sets a tag on a run. Tags are run metadata that can be updated during a run and after
    * a run completes.
    */
-  async setTag(
-    signal: AbortSignal | undefined,
-    req: SetTag,
-    options?: CallOptions
-  ): Promise<SetTag_Response> {
+  async setTag(req: SetTag, options?: CallOptions): Promise<SetTag_Response> {
     const url = `${this.host}/api/2.0/mlflow/runs/set-tag`;
     const body = marshalRequest(req, marshalSetTagSchema);
     let resp: SetTag_Response | undefined;
@@ -1391,7 +1346,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSetTag_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1400,7 +1355,6 @@ export class Client {
 
   /** Updates experiment metadata. */
   async updateExperiment(
-    signal: AbortSignal | undefined,
     req: UpdateExperiment,
     options?: CallOptions
   ): Promise<UpdateExperiment_Response> {
@@ -1418,7 +1372,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdateExperiment_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1427,7 +1381,6 @@ export class Client {
 
   /** Updates run metadata. */
   async updateRun(
-    signal: AbortSignal | undefined,
     req: UpdateRun,
     options?: CallOptions
   ): Promise<UpdateRun_Response> {
@@ -1445,7 +1398,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdateRun_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

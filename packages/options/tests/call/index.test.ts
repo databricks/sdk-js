@@ -13,13 +13,16 @@ describe('CallOptions', () => {
     const rateLimiter: Limiter = {
       wait: () => Promise.resolve(),
     };
+    const signal = new AbortController().signal;
 
     const opts: CallOptions = {
+      signal,
       retrier: provider,
       rateLimiter,
       timeout: 3_000,
     };
 
+    expect(opts.signal).toBe(signal);
     expect(opts.retrier).toBe(provider);
     expect(opts.rateLimiter).toBe(rateLimiter);
     expect(opts.timeout).toBe(3_000);
@@ -28,6 +31,7 @@ describe('CallOptions', () => {
   it('defaults to an empty object', () => {
     const opts: CallOptions = {};
 
+    expect(opts.signal).toBeUndefined();
     expect(opts.retrier).toBeUndefined();
     expect(opts.rateLimiter).toBeUndefined();
     expect(opts.timeout).toBeUndefined();

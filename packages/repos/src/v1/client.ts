@@ -77,7 +77,6 @@ export class Client {
    * created in the browser.
    */
   async createRepo(
-    signal: AbortSignal | undefined,
     req: CreateRepo,
     options?: CallOptions
   ): Promise<CreateRepo_Response> {
@@ -95,7 +94,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateRepo_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -104,7 +103,6 @@ export class Client {
 
   /** Deletes the specified repo. */
   async deleteProject(
-    signal: AbortSignal | undefined,
     req: DeleteProject,
     options?: CallOptions
   ): Promise<DeleteProject_Response> {
@@ -121,7 +119,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteProject_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -130,7 +128,6 @@ export class Client {
 
   /** Returns the repo with the given repo ID. */
   async getRepo(
-    signal: AbortSignal | undefined,
     req: GetRepo,
     options?: CallOptions
   ): Promise<GetRepo_Response> {
@@ -147,7 +144,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetRepo_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -159,7 +156,6 @@ export class Client {
    * Use `next_page_token` to iterate through additional pages.
    */
   async listRepos(
-    signal: AbortSignal | undefined,
     req: ListRepos,
     options?: CallOptions
   ): Promise<ListRepos_Response> {
@@ -185,7 +181,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListRepos_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -193,13 +189,12 @@ export class Client {
   }
 
   async *listReposIter(
-    signal: AbortSignal | undefined,
     req: ListRepos,
     options?: CallOptions
   ): AsyncGenerator<RepoInfo> {
     const pageReq: ListRepos = {...req};
     for (;;) {
-      const resp = await this.listRepos(signal, pageReq, options);
+      const resp = await this.listRepos(pageReq, options);
       for (const item of resp.repos ?? []) {
         yield item;
       }
@@ -215,7 +210,6 @@ export class Client {
    * the same branch.
    */
   async updateRepo(
-    signal: AbortSignal | undefined,
     req: UpdateRepo,
     options?: CallOptions
   ): Promise<UpdateRepo_Response> {
@@ -233,7 +227,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdateRepo_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

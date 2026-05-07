@@ -65,7 +65,6 @@ export class Client {
    * Refreshes are triggered asynchronously. The updated count might not be returned in the first call.
    */
   async getQuota(
-    signal: AbortSignal | undefined,
     req: GetQuota,
     options?: CallOptions
   ): Promise<GetQuota_Response> {
@@ -82,7 +81,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetQuota_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -97,7 +96,6 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listQuota(
-    signal: AbortSignal | undefined,
     req: ListQuotas,
     options?: CallOptions
   ): Promise<ListQuotas_Response> {
@@ -123,7 +121,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListQuotas_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -131,13 +129,12 @@ export class Client {
   }
 
   async *listQuotaIter(
-    signal: AbortSignal | undefined,
     req: ListQuotas,
     options?: CallOptions
   ): AsyncGenerator<QuotaInfo> {
     const pageReq: ListQuotas = {...req};
     for (;;) {
-      const resp = await this.listQuota(signal, pageReq, options);
+      const resp = await this.listQuota(pageReq, options);
       for (const item of resp.quotas ?? []) {
         yield item;
       }

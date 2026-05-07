@@ -87,7 +87,6 @@ export class Client {
 
   /** Creates an example for a Knowledge Assistant. */
   async createExample(
-    signal: AbortSignal | undefined,
     req: CreateExampleRequest,
     options?: CallOptions
   ): Promise<Example> {
@@ -105,7 +104,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalExampleSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -114,7 +113,6 @@ export class Client {
 
   /** Creates a Knowledge Assistant. */
   async createKnowledgeAssistant(
-    signal: AbortSignal | undefined,
     req: CreateKnowledgeAssistantRequest,
     options?: CallOptions
   ): Promise<KnowledgeAssistant> {
@@ -135,7 +133,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalKnowledgeAssistantSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -144,7 +142,6 @@ export class Client {
 
   /** Creates a Knowledge Source under a Knowledge Assistant. */
   async createKnowledgeSource(
-    signal: AbortSignal | undefined,
     req: CreateKnowledgeSourceRequest,
     options?: CallOptions
   ): Promise<KnowledgeSource> {
@@ -165,7 +162,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalKnowledgeSourceSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -174,7 +171,6 @@ export class Client {
 
   /** Deletes an example from a Knowledge Assistant. */
   async deleteExample(
-    signal: AbortSignal | undefined,
     req: DeleteExampleRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -189,12 +185,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Deletes a Knowledge Assistant. */
   async deleteKnowledgeAssistant(
-    signal: AbortSignal | undefined,
     req: DeleteKnowledgeAssistantRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -209,12 +204,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Deletes a Knowledge Source. */
   async deleteKnowledgeSource(
-    signal: AbortSignal | undefined,
     req: DeleteKnowledgeSourceRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -229,12 +223,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Gets an example from a Knowledge Assistant. */
   async getExample(
-    signal: AbortSignal | undefined,
     req: GetExampleRequest,
     options?: CallOptions
   ): Promise<Example> {
@@ -251,7 +244,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalExampleSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -260,7 +253,6 @@ export class Client {
 
   /** Gets a Knowledge Assistant. */
   async getKnowledgeAssistant(
-    signal: AbortSignal | undefined,
     req: GetKnowledgeAssistantRequest,
     options?: CallOptions
   ): Promise<KnowledgeAssistant> {
@@ -277,7 +269,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalKnowledgeAssistantSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -286,7 +278,6 @@ export class Client {
 
   /** Gets a Knowledge Source. */
   async getKnowledgeSource(
-    signal: AbortSignal | undefined,
     req: GetKnowledgeSourceRequest,
     options?: CallOptions
   ): Promise<KnowledgeSource> {
@@ -303,7 +294,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalKnowledgeSourceSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -312,7 +303,6 @@ export class Client {
 
   /** Lists examples under a Knowledge Assistant. */
   async listExamples(
-    signal: AbortSignal | undefined,
     req: ListExamplesRequest,
     options?: CallOptions
   ): Promise<ListExamplesResponse> {
@@ -338,7 +328,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListExamplesResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -346,13 +336,12 @@ export class Client {
   }
 
   async *listExamplesIter(
-    signal: AbortSignal | undefined,
     req: ListExamplesRequest,
     options?: CallOptions
   ): AsyncGenerator<Example> {
     const pageReq: ListExamplesRequest = {...req};
     for (;;) {
-      const resp = await this.listExamples(signal, pageReq, options);
+      const resp = await this.listExamples(pageReq, options);
       for (const item of resp.examples ?? []) {
         yield item;
       }
@@ -365,7 +354,6 @@ export class Client {
 
   /** List Knowledge Assistants */
   async listKnowledgeAssistants(
-    signal: AbortSignal | undefined,
     req: ListKnowledgeAssistantsRequest,
     options?: CallOptions
   ): Promise<ListKnowledgeAssistantsResponse> {
@@ -394,7 +382,7 @@ export class Client {
         unmarshalListKnowledgeAssistantsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -402,13 +390,12 @@ export class Client {
   }
 
   async *listKnowledgeAssistantsIter(
-    signal: AbortSignal | undefined,
     req: ListKnowledgeAssistantsRequest,
     options?: CallOptions
   ): AsyncGenerator<KnowledgeAssistant> {
     const pageReq: ListKnowledgeAssistantsRequest = {...req};
     for (;;) {
-      const resp = await this.listKnowledgeAssistants(signal, pageReq, options);
+      const resp = await this.listKnowledgeAssistants(pageReq, options);
       for (const item of resp.knowledgeAssistants ?? []) {
         yield item;
       }
@@ -421,7 +408,6 @@ export class Client {
 
   /** Lists Knowledge Sources under a Knowledge Assistant. */
   async listKnowledgeSources(
-    signal: AbortSignal | undefined,
     req: ListKnowledgeSourcesRequest,
     options?: CallOptions
   ): Promise<ListKnowledgeSourcesResponse> {
@@ -450,7 +436,7 @@ export class Client {
         unmarshalListKnowledgeSourcesResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -458,13 +444,12 @@ export class Client {
   }
 
   async *listKnowledgeSourcesIter(
-    signal: AbortSignal | undefined,
     req: ListKnowledgeSourcesRequest,
     options?: CallOptions
   ): AsyncGenerator<KnowledgeSource> {
     const pageReq: ListKnowledgeSourcesRequest = {...req};
     for (;;) {
-      const resp = await this.listKnowledgeSources(signal, pageReq, options);
+      const resp = await this.listKnowledgeSources(pageReq, options);
       for (const item of resp.knowledgeSources ?? []) {
         yield item;
       }
@@ -477,7 +462,6 @@ export class Client {
 
   /** Sync all non-index Knowledge Sources for a Knowledge Assistant (index sources do not require sync) */
   async syncKnowledgeSources(
-    signal: AbortSignal | undefined,
     req: SyncKnowledgeSourcesRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -493,12 +477,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Updates an example in a Knowledge Assistant. */
   async updateExample(
-    signal: AbortSignal | undefined,
     req: UpdateExampleRequest,
     options?: CallOptions
   ): Promise<Example> {
@@ -528,7 +511,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalExampleSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -537,7 +520,6 @@ export class Client {
 
   /** Updates a Knowledge Assistant. */
   async updateKnowledgeAssistant(
-    signal: AbortSignal | undefined,
     req: UpdateKnowledgeAssistantRequest,
     options?: CallOptions
   ): Promise<KnowledgeAssistant> {
@@ -570,7 +552,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalKnowledgeAssistantSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -579,7 +561,6 @@ export class Client {
 
   /** Updates a Knowledge Source. */
   async updateKnowledgeSource(
-    signal: AbortSignal | undefined,
     req: UpdateKnowledgeSourceRequest,
     options?: CallOptions
   ): Promise<KnowledgeSource> {
@@ -612,7 +593,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalKnowledgeSourceSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

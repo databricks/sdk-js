@@ -62,7 +62,6 @@ export class Client {
    * The pagination token returned in response can be used to list subsequent query statuses.
    */
   async listQueries(
-    signal: AbortSignal | undefined,
     req: ListQueries,
     options?: CallOptions
   ): Promise<ListQueries_Response> {
@@ -98,7 +97,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListQueries_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
