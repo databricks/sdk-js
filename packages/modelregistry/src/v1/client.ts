@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -172,7 +173,7 @@ export class Client {
   async approveTransitionRequest(
     signal: AbortSignal | undefined,
     req: ApproveTransitionRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ApproveTransitionRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/transition-requests/approve`;
     const body = marshalRequest(req, marshalApproveTransitionRequestSchema);
@@ -191,7 +192,7 @@ export class Client {
         unmarshalApproveTransitionRequest_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -205,7 +206,7 @@ export class Client {
   async createComment(
     signal: AbortSignal | undefined,
     req: CreateComment,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateComment_Response> {
     const url = `${this.host}/api/2.0/mlflow/comments/create`;
     const body = marshalRequest(req, marshalCreateCommentSchema);
@@ -221,7 +222,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateComment_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -235,7 +236,7 @@ export class Client {
   async createRegistryWebhook(
     signal: AbortSignal | undefined,
     req: CreateRegistryWebhook,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateRegistryWebhook_Response> {
     const url = `${this.host}/api/2.0/mlflow/registry-webhooks/create`;
     const body = marshalRequest(req, marshalCreateRegistryWebhookSchema);
@@ -254,7 +255,7 @@ export class Client {
         unmarshalCreateRegistryWebhook_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -265,7 +266,7 @@ export class Client {
   async createTransitionRequest(
     signal: AbortSignal | undefined,
     req: CreateTransitionRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateTransitionRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/transition-requests/create`;
     const body = marshalRequest(req, marshalCreateTransitionRequestSchema);
@@ -284,7 +285,7 @@ export class Client {
         unmarshalCreateTransitionRequest_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -295,7 +296,7 @@ export class Client {
   async deleteComment(
     signal: AbortSignal | undefined,
     req: DeleteComment,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteComment_Response> {
     const url = `${this.host}/api/2.0/mlflow/comments/delete`;
     const params = new URLSearchParams();
@@ -316,7 +317,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteComment_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -330,7 +331,7 @@ export class Client {
   async deleteRegistryWebhook(
     signal: AbortSignal | undefined,
     req: DeleteRegistryWebhook,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteRegistryWebhook_Response> {
     const url = `${this.host}/api/2.0/mlflow/registry-webhooks/delete`;
     const params = new URLSearchParams();
@@ -354,7 +355,7 @@ export class Client {
         unmarshalDeleteRegistryWebhook_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -365,7 +366,7 @@ export class Client {
   async deleteTransitionRequest(
     signal: AbortSignal | undefined,
     req: DeleteTransitionRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteTransitionRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/transition-requests/delete`;
     const params = new URLSearchParams();
@@ -401,7 +402,7 @@ export class Client {
         unmarshalDeleteTransitionRequest_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -416,7 +417,7 @@ export class Client {
   async getRegisteredModelDatabricks(
     signal: AbortSignal | undefined,
     req: GetRegisteredModelDatabricks,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetRegisteredModelDatabricks_Response> {
     const url = `${this.host}/api/2.0/mlflow/databricks/registered-models/get`;
     const params = new URLSearchParams();
@@ -440,7 +441,7 @@ export class Client {
         unmarshalGetRegisteredModelDatabricks_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -454,7 +455,7 @@ export class Client {
   async listRegistryWebhooks(
     signal: AbortSignal | undefined,
     req: ListRegistryWebhooks,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListRegistryWebhooks_Response> {
     const url = `${this.host}/api/2.0/mlflow/registry-webhooks/list`;
     const params = new URLSearchParams();
@@ -487,7 +488,7 @@ export class Client {
         unmarshalListRegistryWebhooks_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -497,7 +498,7 @@ export class Client {
   async *listRegistryWebhooksIter(
     signal: AbortSignal | undefined,
     req: ListRegistryWebhooks,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<RegistryWebhook> {
     const pageReq: ListRegistryWebhooks = {...req};
     for (;;) {
@@ -516,7 +517,7 @@ export class Client {
   async listTransitionsRequest(
     signal: AbortSignal | undefined,
     req: ListTransitionRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListTransitionRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/transition-requests/list`;
     const params = new URLSearchParams();
@@ -543,7 +544,7 @@ export class Client {
         unmarshalListTransitionRequest_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -554,7 +555,7 @@ export class Client {
   async rejectTransitionRequest(
     signal: AbortSignal | undefined,
     req: RejectTransitionRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<RejectTransitionRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/transition-requests/reject`;
     const body = marshalRequest(req, marshalRejectTransitionRequestSchema);
@@ -573,7 +574,7 @@ export class Client {
         unmarshalRejectTransitionRequest_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -587,7 +588,7 @@ export class Client {
   async testRegistryWebhook(
     signal: AbortSignal | undefined,
     req: TestRegistryWebhook,
-    options?: Options
+    options?: CallOptions
   ): Promise<TestRegistryWebhook_Response> {
     const url = `${this.host}/api/2.0/mlflow/registry-webhooks/test`;
     const body = marshalRequest(req, marshalTestRegistryWebhookSchema);
@@ -606,7 +607,7 @@ export class Client {
         unmarshalTestRegistryWebhook_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -621,7 +622,7 @@ export class Client {
   async transitionModelVersionStageDatabricks(
     signal: AbortSignal | undefined,
     req: TransitionModelVersionStageDatabricks,
-    options?: Options
+    options?: CallOptions
   ): Promise<TransitionModelVersionStageDatabricks_Response> {
     const url = `${this.host}/api/2.0/mlflow/databricks/model-versions/transition-stage`;
     const body = marshalRequest(
@@ -643,7 +644,7 @@ export class Client {
         unmarshalTransitionModelVersionStageDatabricks_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -654,7 +655,7 @@ export class Client {
   async updateComment(
     signal: AbortSignal | undefined,
     req: UpdateComment,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateComment_Response> {
     const url = `${this.host}/api/2.0/mlflow/comments/update`;
     const body = marshalRequest(req, marshalUpdateCommentSchema);
@@ -670,7 +671,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdateComment_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -684,7 +685,7 @@ export class Client {
   async updateRegistryWebhook(
     signal: AbortSignal | undefined,
     req: UpdateRegistryWebhook,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateRegistryWebhook_Response> {
     const url = `${this.host}/api/2.0/mlflow/registry-webhooks/update`;
     const body = marshalRequest(req, marshalUpdateRegistryWebhookSchema);
@@ -703,7 +704,7 @@ export class Client {
         unmarshalUpdateRegistryWebhook_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -714,7 +715,7 @@ export class Client {
   async createModelVersion(
     signal: AbortSignal | undefined,
     req: CreateModelVersion,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateModelVersion_Response> {
     const url = `${this.host}/api/2.0/mlflow/model-versions/create`;
     const body = marshalRequest(req, marshalCreateModelVersionSchema);
@@ -733,7 +734,7 @@ export class Client {
         unmarshalCreateModelVersion_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -747,7 +748,7 @@ export class Client {
   async createRegisteredModel(
     signal: AbortSignal | undefined,
     req: CreateRegisteredModel,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateRegisteredModel_Response> {
     const url = `${this.host}/api/2.0/mlflow/registered-models/create`;
     const body = marshalRequest(req, marshalCreateRegisteredModelSchema);
@@ -766,7 +767,7 @@ export class Client {
         unmarshalCreateRegisteredModel_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -777,7 +778,7 @@ export class Client {
   async deleteModelVersion(
     signal: AbortSignal | undefined,
     req: DeleteModelVersion,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteModelVersion_Response> {
     const url = `${this.host}/api/2.0/mlflow/model-versions/delete`;
     const params = new URLSearchParams();
@@ -804,7 +805,7 @@ export class Client {
         unmarshalDeleteModelVersion_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -815,7 +816,7 @@ export class Client {
   async deleteModelVersionTag(
     signal: AbortSignal | undefined,
     req: DeleteModelVersionTag,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteModelVersionTag_Response> {
     const url = `${this.host}/api/2.0/mlflow/model-versions/delete-tag`;
     const params = new URLSearchParams();
@@ -845,7 +846,7 @@ export class Client {
         unmarshalDeleteModelVersionTag_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -856,7 +857,7 @@ export class Client {
   async deleteRegisteredModel(
     signal: AbortSignal | undefined,
     req: DeleteRegisteredModel,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteRegisteredModel_Response> {
     const url = `${this.host}/api/2.0/mlflow/registered-models/delete`;
     const params = new URLSearchParams();
@@ -880,7 +881,7 @@ export class Client {
         unmarshalDeleteRegisteredModel_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -891,7 +892,7 @@ export class Client {
   async deleteRegisteredModelTag(
     signal: AbortSignal | undefined,
     req: DeleteRegisteredModelTag,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteRegisteredModelTag_Response> {
     const url = `${this.host}/api/2.0/mlflow/registered-models/delete-tag`;
     const params = new URLSearchParams();
@@ -918,7 +919,7 @@ export class Client {
         unmarshalDeleteRegisteredModelTag_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -929,7 +930,7 @@ export class Client {
   async getLatestVersions(
     signal: AbortSignal | undefined,
     req: GetLatestVersions,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetLatestVersions_Response> {
     const url = `${this.host}/api/2.0/mlflow/registered-models/get-latest-versions`;
     const body = marshalRequest(req, marshalGetLatestVersionsSchema);
@@ -945,7 +946,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetLatestVersions_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -956,7 +957,7 @@ export class Client {
   async getModelVersion(
     signal: AbortSignal | undefined,
     req: GetModelVersion,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetModelVersion_Response> {
     const url = `${this.host}/api/2.0/mlflow/model-versions/get`;
     const params = new URLSearchParams();
@@ -980,7 +981,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetModelVersion_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -991,7 +992,7 @@ export class Client {
   async getModelVersionDownloadUri(
     signal: AbortSignal | undefined,
     req: GetModelVersionDownloadUri,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetModelVersionDownloadUri_Response> {
     const url = `${this.host}/api/2.0/mlflow/model-versions/get-download-uri`;
     const params = new URLSearchParams();
@@ -1018,7 +1019,7 @@ export class Client {
         unmarshalGetModelVersionDownloadUri_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1029,7 +1030,7 @@ export class Client {
   async listRegisteredModels(
     signal: AbortSignal | undefined,
     req: ListRegisteredModels,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListRegisteredModels_Response> {
     const url = `${this.host}/api/2.0/mlflow/registered-models/list`;
     const params = new URLSearchParams();
@@ -1056,7 +1057,7 @@ export class Client {
         unmarshalListRegisteredModels_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1066,7 +1067,7 @@ export class Client {
   async *listRegisteredModelsIter(
     signal: AbortSignal | undefined,
     req: ListRegisteredModels,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<RegisteredModel> {
     const pageReq: ListRegisteredModels = {...req};
     for (;;) {
@@ -1085,7 +1086,7 @@ export class Client {
   async renameRegisteredModel(
     signal: AbortSignal | undefined,
     req: RenameRegisteredModel,
-    options?: Options
+    options?: CallOptions
   ): Promise<RenameRegisteredModel_Response> {
     const url = `${this.host}/api/2.0/mlflow/registered-models/rename`;
     const body = marshalRequest(req, marshalRenameRegisteredModelSchema);
@@ -1104,7 +1105,7 @@ export class Client {
         unmarshalRenameRegisteredModel_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1115,7 +1116,7 @@ export class Client {
   async searchModelVersions(
     signal: AbortSignal | undefined,
     req: SearchModelVersions,
-    options?: Options
+    options?: CallOptions
   ): Promise<SearchModelVersions_Response> {
     const url = `${this.host}/api/2.0/mlflow/model-versions/search`;
     const params = new URLSearchParams();
@@ -1148,7 +1149,7 @@ export class Client {
         unmarshalSearchModelVersions_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1158,7 +1159,7 @@ export class Client {
   async *searchModelVersionsIter(
     signal: AbortSignal | undefined,
     req: SearchModelVersions,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<ModelVersion> {
     const pageReq: SearchModelVersions = {...req};
     for (;;) {
@@ -1177,7 +1178,7 @@ export class Client {
   async searchRegisteredModels(
     signal: AbortSignal | undefined,
     req: SearchRegisteredModels,
-    options?: Options
+    options?: CallOptions
   ): Promise<SearchRegisteredModels_Response> {
     const url = `${this.host}/api/2.0/mlflow/registered-models/search`;
     const params = new URLSearchParams();
@@ -1210,7 +1211,7 @@ export class Client {
         unmarshalSearchRegisteredModels_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1220,7 +1221,7 @@ export class Client {
   async *searchRegisteredModelsIter(
     signal: AbortSignal | undefined,
     req: SearchRegisteredModels,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<RegisteredModel> {
     const pageReq: SearchRegisteredModels = {...req};
     for (;;) {
@@ -1239,7 +1240,7 @@ export class Client {
   async setModelVersionTag(
     signal: AbortSignal | undefined,
     req: SetModelVersionTag,
-    options?: Options
+    options?: CallOptions
   ): Promise<SetModelVersionTag_Response> {
     const url = `${this.host}/api/2.0/mlflow/model-versions/set-tag`;
     const body = marshalRequest(req, marshalSetModelVersionTagSchema);
@@ -1258,7 +1259,7 @@ export class Client {
         unmarshalSetModelVersionTag_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1269,7 +1270,7 @@ export class Client {
   async setRegisteredModelTag(
     signal: AbortSignal | undefined,
     req: SetRegisteredModelTag,
-    options?: Options
+    options?: CallOptions
   ): Promise<SetRegisteredModelTag_Response> {
     const url = `${this.host}/api/2.0/mlflow/registered-models/set-tag`;
     const body = marshalRequest(req, marshalSetRegisteredModelTagSchema);
@@ -1288,7 +1289,7 @@ export class Client {
         unmarshalSetRegisteredModelTag_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1299,7 +1300,7 @@ export class Client {
   async updateModelVersion(
     signal: AbortSignal | undefined,
     req: UpdateModelVersion,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateModelVersion_Response> {
     const url = `${this.host}/api/2.0/mlflow/model-versions/update`;
     const body = marshalRequest(req, marshalUpdateModelVersionSchema);
@@ -1318,7 +1319,7 @@ export class Client {
         unmarshalUpdateModelVersion_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1329,7 +1330,7 @@ export class Client {
   async updateRegisteredModel(
     signal: AbortSignal | undefined,
     req: UpdateRegisteredModel,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateRegisteredModel_Response> {
     const url = `${this.host}/api/2.0/mlflow/registered-models/update`;
     const body = marshalRequest(req, marshalUpdateRegisteredModelSchema);
@@ -1348,7 +1349,7 @@ export class Client {
         unmarshalUpdateRegisteredModel_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

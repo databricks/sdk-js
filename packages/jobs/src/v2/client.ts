@@ -1,16 +1,18 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute, retryOn} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -122,7 +124,7 @@ export class Client {
   async cancelAllRuns(
     signal: AbortSignal | undefined,
     req: CancelAllRuns,
-    options?: Options
+    options?: CallOptions
   ): Promise<CancelAllRuns_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/cancel-all`;
     const body = marshalRequest(req, marshalCancelAllRunsSchema);
@@ -138,7 +140,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCancelAllRuns_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -152,7 +154,7 @@ export class Client {
   async cancelRun(
     signal: AbortSignal | undefined,
     req: CancelRun,
-    options?: Options
+    options?: CallOptions
   ): Promise<CancelRun_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/cancel`;
     const body = marshalRequest(req, marshalCancelRunSchema);
@@ -168,7 +170,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCancelRun_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -178,7 +180,7 @@ export class Client {
   async cancelRunWaiter(
     signal: AbortSignal | undefined,
     req: CancelRun,
-    options?: Options
+    options?: CallOptions
   ): Promise<CancelRunWaiter> {
     await this.cancelRun(signal, req, options);
     if (req.runId === undefined) {
@@ -191,7 +193,7 @@ export class Client {
   async createJob(
     signal: AbortSignal | undefined,
     req: CreateJob,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateJob_Response> {
     const url = `${this.host}/api/2.2/jobs/create`;
     const body = marshalRequest(req, marshalCreateJobSchema);
@@ -207,7 +209,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateJob_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -218,7 +220,7 @@ export class Client {
   async deleteJob(
     signal: AbortSignal | undefined,
     req: DeleteJob,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteJob_Response> {
     const url = `${this.host}/api/2.2/jobs/delete`;
     const body = marshalRequest(req, marshalDeleteJobSchema);
@@ -234,7 +236,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteJob_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -245,7 +247,7 @@ export class Client {
   async deleteRun(
     signal: AbortSignal | undefined,
     req: DeleteRun,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteRun_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/delete`;
     const body = marshalRequest(req, marshalDeleteRunSchema);
@@ -261,7 +263,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteRun_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -272,7 +274,7 @@ export class Client {
   async exportRun(
     signal: AbortSignal | undefined,
     req: ExportRun,
-    options?: Options
+    options?: CallOptions
   ): Promise<ExportRun_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/export`;
     const params = new URLSearchParams();
@@ -296,7 +298,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalExportRun_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -314,7 +316,7 @@ export class Client {
   async getJob(
     signal: AbortSignal | undefined,
     req: GetJob,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetJob_Response> {
     const url = `${this.host}/api/2.2/jobs/get`;
     const params = new URLSearchParams();
@@ -338,7 +340,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetJob_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -356,7 +358,7 @@ export class Client {
   async getRun(
     signal: AbortSignal | undefined,
     req: GetRun,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetRun_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/get`;
     const params = new URLSearchParams();
@@ -389,7 +391,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetRun_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -410,7 +412,7 @@ export class Client {
   async getRunOutput(
     signal: AbortSignal | undefined,
     req: GetRunOutput,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetRunOutput_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/get-output`;
     const params = new URLSearchParams();
@@ -431,7 +433,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetRunOutput_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -442,7 +444,7 @@ export class Client {
   async listJobs(
     signal: AbortSignal | undefined,
     req: ListJobs,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListJobs_Response> {
     const url = `${this.host}/api/2.2/jobs/list`;
     const params = new URLSearchParams();
@@ -475,7 +477,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListJobs_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -485,7 +487,7 @@ export class Client {
   async *listJobsIter(
     signal: AbortSignal | undefined,
     req: ListJobs,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<BaseJob> {
     const pageReq: ListJobs = {...req};
     for (;;) {
@@ -504,7 +506,7 @@ export class Client {
   async listRuns(
     signal: AbortSignal | undefined,
     req: ListRuns,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListRuns_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/list`;
     const params = new URLSearchParams();
@@ -555,7 +557,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListRuns_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -565,7 +567,7 @@ export class Client {
   async *listRunsIter(
     signal: AbortSignal | undefined,
     req: ListRuns,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<BaseRun> {
     const pageReq: ListRuns = {...req};
     for (;;) {
@@ -588,7 +590,7 @@ export class Client {
   async repair(
     signal: AbortSignal | undefined,
     req: RepairRun,
-    options?: Options
+    options?: CallOptions
   ): Promise<RepairRun_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/repair`;
     const body = marshalRequest(req, marshalRepairRunSchema);
@@ -604,7 +606,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRepairRun_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -614,7 +616,7 @@ export class Client {
   async repairWaiter(
     signal: AbortSignal | undefined,
     req: RepairRun,
-    options?: Options
+    options?: CallOptions
   ): Promise<RepairWaiter> {
     await this.repair(signal, req, options);
     if (req.runId === undefined) {
@@ -627,7 +629,7 @@ export class Client {
   async resetJob(
     signal: AbortSignal | undefined,
     req: ResetJob,
-    options?: Options
+    options?: CallOptions
   ): Promise<ResetJob_Response> {
     const url = `${this.host}/api/2.2/jobs/reset`;
     const body = marshalRequest(req, marshalResetJobSchema);
@@ -643,7 +645,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalResetJob_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -654,7 +656,7 @@ export class Client {
   async runNow(
     signal: AbortSignal | undefined,
     req: RunNow,
-    options?: Options
+    options?: CallOptions
   ): Promise<RunNow_Response> {
     const url = `${this.host}/api/2.2/jobs/run-now`;
     const body = marshalRequest(req, marshalRunNowSchema);
@@ -670,7 +672,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRunNow_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -680,7 +682,7 @@ export class Client {
   async runNowWaiter(
     signal: AbortSignal | undefined,
     req: RunNow,
-    options?: Options
+    options?: CallOptions
   ): Promise<RunNowWaiter> {
     const resp = await this.runNow(signal, req, options);
     if (resp.runId === undefined) {
@@ -705,7 +707,7 @@ export class Client {
   async submitRun(
     signal: AbortSignal | undefined,
     req: SubmitRun,
-    options?: Options
+    options?: CallOptions
   ): Promise<SubmitRun_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/submit`;
     const body = marshalRequest(req, marshalSubmitRunSchema);
@@ -721,7 +723,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSubmitRun_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -731,7 +733,7 @@ export class Client {
   async submitRunWaiter(
     signal: AbortSignal | undefined,
     req: SubmitRun,
-    options?: Options
+    options?: CallOptions
   ): Promise<SubmitRunWaiter> {
     const resp = await this.submitRun(signal, req, options);
     if (resp.runId === undefined) {
@@ -744,7 +746,7 @@ export class Client {
   async updateJob(
     signal: AbortSignal | undefined,
     req: UpdateJob,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateJob_Response> {
     const url = `${this.host}/api/2.2/jobs/update`;
     const body = marshalRequest(req, marshalUpdateJobSchema);
@@ -760,7 +762,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdateJob_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -781,7 +783,7 @@ export class CancelRunWaiter {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetRun_Response> {
     let result: GetRun_Response | undefined;
 
@@ -813,13 +815,13 @@ export class CancelRunWaiter {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -829,7 +831,7 @@ export class CancelRunWaiter {
   /** Checks whether the operation has reached a terminal state. */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean> {
     const pollResp = await this.client.getRun(
       signal,
@@ -868,7 +870,7 @@ export class RepairWaiter {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetRun_Response> {
     let result: GetRun_Response | undefined;
 
@@ -900,13 +902,13 @@ export class RepairWaiter {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -916,7 +918,7 @@ export class RepairWaiter {
   /** Checks whether the operation has reached a terminal state. */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean> {
     const pollResp = await this.client.getRun(
       signal,
@@ -955,7 +957,7 @@ export class RunNowWaiter {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetRun_Response> {
     let result: GetRun_Response | undefined;
 
@@ -987,13 +989,13 @@ export class RunNowWaiter {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1003,7 +1005,7 @@ export class RunNowWaiter {
   /** Checks whether the operation has reached a terminal state. */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean> {
     const pollResp = await this.client.getRun(
       signal,
@@ -1042,7 +1044,7 @@ export class SubmitRunWaiter {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetRun_Response> {
     let result: GetRun_Response | undefined;
 
@@ -1074,13 +1076,13 @@ export class SubmitRunWaiter {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1090,7 +1092,7 @@ export class SubmitRunWaiter {
   /** Checks whether the operation has reached a terminal state. */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean> {
     const pollResp = await this.client.getRun(
       signal,

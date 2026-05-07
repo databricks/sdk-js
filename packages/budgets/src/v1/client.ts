@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -74,7 +75,7 @@ export class Client {
   async createBudgetConfiguration(
     signal: AbortSignal | undefined,
     req: CreateBudgetConfiguration,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateBudgetConfiguration_Response> {
     const url = `${this.host}/api/2.1/accounts/${req.budget?.accountId ?? ''}/budgets`;
     const body = marshalRequest(req, marshalCreateBudgetConfigurationSchema);
@@ -93,7 +94,7 @@ export class Client {
         unmarshalCreateBudgetConfiguration_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -104,7 +105,7 @@ export class Client {
   async deleteBudgetConfiguration(
     signal: AbortSignal | undefined,
     req: DeleteBudgetConfiguration,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteBudgetConfiguration_Response> {
     const url = `${this.host}/api/2.1/accounts//budgets/${req.budgetId ?? ''}`;
     const params = new URLSearchParams();
@@ -128,7 +129,7 @@ export class Client {
         unmarshalDeleteBudgetConfiguration_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -139,7 +140,7 @@ export class Client {
   async getBudgetConfiguration(
     signal: AbortSignal | undefined,
     req: GetBudgetConfiguration,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetBudgetConfiguration_Response> {
     const url = `${this.host}/api/2.1/accounts//budgets/${req.budgetId ?? ''}`;
     const params = new URLSearchParams();
@@ -166,7 +167,7 @@ export class Client {
         unmarshalGetBudgetConfiguration_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -177,7 +178,7 @@ export class Client {
   async listBudgetConfigurations(
     signal: AbortSignal | undefined,
     req: ListBudgetConfigurations,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListBudgetConfigurations_Response> {
     const url = `${this.host}/api/2.1/accounts/{account_id}/budgets`;
     const params = new URLSearchParams();
@@ -207,7 +208,7 @@ export class Client {
         unmarshalListBudgetConfigurations_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -217,7 +218,7 @@ export class Client {
   async *listBudgetConfigurationsIter(
     signal: AbortSignal | undefined,
     req: ListBudgetConfigurations,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<BudgetConfiguration> {
     const pageReq: ListBudgetConfigurations = {...req};
     for (;;) {
@@ -240,7 +241,7 @@ export class Client {
   async updateBudgetConfiguration(
     signal: AbortSignal | undefined,
     req: UpdateBudgetConfiguration,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateBudgetConfiguration_Response> {
     const url = `${this.host}/api/2.1/accounts/${req.budget?.accountId ?? ''}/budgets/${req.budgetId ?? ''}`;
     const body = marshalRequest(req, marshalUpdateBudgetConfigurationSchema);
@@ -259,7 +260,7 @@ export class Client {
         unmarshalUpdateBudgetConfiguration_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -68,7 +69,7 @@ export class Client {
   async cancelCustomLlmOptimizationRun(
     signal: AbortSignal | undefined,
     req: CancelCustomLlmOptimizationRunRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/custom-llms/${req.id ?? ''}/optimize/cancel`;
     const body = marshalRequest(
@@ -85,14 +86,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Create a Custom LLM. */
   async createCustomLlm(
     signal: AbortSignal | undefined,
     req: CreateCustomLlmRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CustomLlm> {
     const url = `${this.host}/api/2.0/custom-llms`;
     const body = marshalRequest(req, marshalCreateCustomLlmRequestSchema);
@@ -108,7 +109,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCustomLlmSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -119,7 +120,7 @@ export class Client {
   async deleteCustomLlm(
     signal: AbortSignal | undefined,
     req: DeleteCustomLlmRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/custom-llms/${req.id ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -132,14 +133,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Get a Custom LLM. */
   async getCustomLlm(
     signal: AbortSignal | undefined,
     req: GetCustomLlmRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CustomLlm> {
     const url = `${this.host}/api/2.0/custom-llms/${req.id ?? ''}`;
     let resp: CustomLlm | undefined;
@@ -154,7 +155,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCustomLlmSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -165,7 +166,7 @@ export class Client {
   async startCustomLlmOptimizationRun(
     signal: AbortSignal | undefined,
     req: StartCustomLlmOptimizationRunRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CustomLlm> {
     const url = `${this.host}/api/2.0/custom-llms/${req.id ?? ''}/optimize`;
     const body = marshalRequest(
@@ -184,7 +185,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCustomLlmSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -195,7 +196,7 @@ export class Client {
   async updateCustomLlm(
     signal: AbortSignal | undefined,
     req: UpdateCustomLlmRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CustomLlm> {
     const url = `${this.host}/api/2.0/custom-llms/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateCustomLlmRequestSchema);
@@ -211,7 +212,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCustomLlmSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

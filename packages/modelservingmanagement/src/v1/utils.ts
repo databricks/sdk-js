@@ -1,18 +1,41 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import type {Call, Options} from '@databricks/sdk-core/api';
+import {execute} from '@databricks/sdk-core/api';
 import {APIError} from '@databricks/sdk-core/apierror';
-import type {Logger} from '@databricks/sdk-databricks/logger';
 import type {
   HttpClient,
   HttpRequest,
   HttpResponse,
 } from '@databricks/sdk-core/http';
+import type {Logger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
 import type {z} from 'zod';
 
 export interface HttpCallOptions {
   readonly request: HttpRequest;
   readonly httpClient: HttpClient;
   readonly logger: Logger;
+}
+
+/**
+ * Translates public CallOptions to the internal Options shape accepted by
+ * execute(). Even though the shapes match today, this isolates the public
+ * API from the executor's internal type so they can diverge.
+ */
+export async function executeCall(
+  signal: AbortSignal | undefined,
+  call: Call,
+  options?: CallOptions
+): Promise<void> {
+  const opts: Options = {
+    ...(options?.retrier !== undefined && {retrier: options.retrier}),
+    ...(options?.rateLimiter !== undefined && {
+      rateLimiter: options.rateLimiter,
+    }),
+    ...(options?.timeout !== undefined && {timeout: options.timeout}),
+  };
+  return execute(signal, call, opts);
 }
 
 async function readAll(

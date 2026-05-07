@@ -1,16 +1,18 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute, retryOn} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -113,7 +115,7 @@ export class Client {
   async createDatabaseCatalog(
     signal: AbortSignal | undefined,
     req: CreateDatabaseCatalogRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DatabaseCatalog> {
     const url = `${this.host}/api/2.0/database/catalogs`;
     const body = marshalRequest(req.catalog, marshalDatabaseCatalogSchema);
@@ -129,7 +131,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseCatalogSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -140,7 +142,7 @@ export class Client {
   async createDatabaseInstance(
     signal: AbortSignal | undefined,
     req: CreateDatabaseInstanceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DatabaseInstance> {
     const url = `${this.host}/api/2.0/database/instances`;
     const body = marshalRequest(
@@ -159,7 +161,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -169,7 +171,7 @@ export class Client {
   async createDatabaseInstanceWaiter(
     signal: AbortSignal | undefined,
     req: CreateDatabaseInstanceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateDatabaseInstanceWaiter> {
     const resp = await this.createDatabaseInstance(signal, req, options);
     if (resp.name === undefined) {
@@ -182,7 +184,7 @@ export class Client {
   async createDatabaseInstanceRole(
     signal: AbortSignal | undefined,
     req: CreateDatabaseInstanceRoleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DatabaseInstanceRole> {
     const url = `${this.host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles`;
     const params = new URLSearchParams();
@@ -213,7 +215,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceRoleSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -227,7 +229,7 @@ export class Client {
   async createDatabaseTable(
     signal: AbortSignal | undefined,
     req: CreateDatabaseTableRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DatabaseTable> {
     const url = `${this.host}/api/2.0/database/tables`;
     const body = marshalRequest(req.table, marshalDatabaseTableSchema);
@@ -243,7 +245,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseTableSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -254,7 +256,7 @@ export class Client {
   async createSyncedDatabaseTable(
     signal: AbortSignal | undefined,
     req: CreateSyncedDatabaseTableRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<SyncedDatabaseTable> {
     const url = `${this.host}/api/2.0/database/synced_tables`;
     const body = marshalRequest(
@@ -273,7 +275,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSyncedDatabaseTableSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -284,7 +286,7 @@ export class Client {
   async deleteDatabaseCatalog(
     signal: AbortSignal | undefined,
     req: DeleteDatabaseCatalogRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/database/catalogs/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -297,14 +299,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Delete a Database Instance. */
   async deleteDatabaseInstance(
     signal: AbortSignal | undefined,
     req: DeleteDatabaseInstanceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/database/instances/${req.name ?? ''}`;
     const params = new URLSearchParams();
@@ -326,14 +328,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Deletes a role for a Database Instance. */
   async deleteDatabaseInstanceRole(
     signal: AbortSignal | undefined,
     req: DeleteDatabaseInstanceRoleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles/${req.name ?? ''}`;
     const params = new URLSearchParams();
@@ -355,14 +357,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Delete a Database Table. */
   async deleteDatabaseTable(
     signal: AbortSignal | undefined,
     req: DeleteDatabaseTableRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/database/tables/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -375,14 +377,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Delete a Synced Database Table. */
   async deleteSyncedDatabaseTable(
     signal: AbortSignal | undefined,
     req: DeleteSyncedDatabaseTableRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/database/synced_tables/${req.name ?? ''}`;
     const params = new URLSearchParams();
@@ -401,14 +403,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Failover the primary node of a Database Instance to a secondary. */
   async failoverDatabaseInstance(
     signal: AbortSignal | undefined,
     req: FailoverDatabaseInstanceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DatabaseInstance> {
     const url = `${this.host}/api/2.0/database/instances/${req.name ?? ''}/failover`;
     const body = marshalRequest(
@@ -427,7 +429,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -438,7 +440,7 @@ export class Client {
   async findDatabaseInstanceByUid(
     signal: AbortSignal | undefined,
     req: FindDatabaseInstanceByUidRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DatabaseInstance> {
     const url = `${this.host}/api/2.0/database/instances:findByUid`;
     const params = new URLSearchParams();
@@ -459,7 +461,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -470,7 +472,7 @@ export class Client {
   async generateDatabaseCredential(
     signal: AbortSignal | undefined,
     req: GenerateDatabaseCredentialRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DatabaseCredential> {
     const url = `${this.host}/api/2.0/database/credentials`;
     const body = marshalRequest(
@@ -489,7 +491,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseCredentialSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -500,7 +502,7 @@ export class Client {
   async getDatabaseCatalog(
     signal: AbortSignal | undefined,
     req: GetDatabaseCatalogRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DatabaseCatalog> {
     const url = `${this.host}/api/2.0/database/catalogs/${req.name ?? ''}`;
     let resp: DatabaseCatalog | undefined;
@@ -515,7 +517,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseCatalogSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -526,7 +528,7 @@ export class Client {
   async getDatabaseInstance(
     signal: AbortSignal | undefined,
     req: GetDatabaseInstanceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DatabaseInstance> {
     const url = `${this.host}/api/2.0/database/instances/${req.name ?? ''}`;
     let resp: DatabaseInstance | undefined;
@@ -541,7 +543,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -552,7 +554,7 @@ export class Client {
   async getDatabaseInstanceRole(
     signal: AbortSignal | undefined,
     req: GetDatabaseInstanceRoleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DatabaseInstanceRole> {
     const url = `${this.host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles/${req.name ?? ''}`;
     let resp: DatabaseInstanceRole | undefined;
@@ -567,7 +569,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceRoleSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -578,7 +580,7 @@ export class Client {
   async getDatabaseTable(
     signal: AbortSignal | undefined,
     req: GetDatabaseTableRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DatabaseTable> {
     const url = `${this.host}/api/2.0/database/tables/${req.name ?? ''}`;
     let resp: DatabaseTable | undefined;
@@ -593,7 +595,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseTableSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -604,7 +606,7 @@ export class Client {
   async getSyncedDatabaseTable(
     signal: AbortSignal | undefined,
     req: GetSyncedDatabaseTableRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<SyncedDatabaseTable> {
     const url = `${this.host}/api/2.0/database/synced_tables/${req.name ?? ''}`;
     let resp: SyncedDatabaseTable | undefined;
@@ -619,7 +621,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSyncedDatabaseTableSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -630,7 +632,7 @@ export class Client {
   async listDatabaseCatalogs(
     signal: AbortSignal | undefined,
     req: ListDatabaseCatalogsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListDatabaseCatalogsResponse> {
     const url = `${this.host}/api/2.0/database/instances/${req.instanceName ?? ''}/catalogs`;
     const params = new URLSearchParams();
@@ -657,7 +659,7 @@ export class Client {
         unmarshalListDatabaseCatalogsResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -667,7 +669,7 @@ export class Client {
   async *listDatabaseCatalogsIter(
     signal: AbortSignal | undefined,
     req: ListDatabaseCatalogsRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<DatabaseCatalog> {
     const pageReq: ListDatabaseCatalogsRequest = {...req};
     for (;;) {
@@ -691,7 +693,7 @@ export class Client {
   async listDatabaseInstanceRoles(
     signal: AbortSignal | undefined,
     req: ListDatabaseInstanceRolesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListDatabaseInstanceRolesResponse> {
     const url = `${this.host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles`;
     const params = new URLSearchParams();
@@ -718,7 +720,7 @@ export class Client {
         unmarshalListDatabaseInstanceRolesResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -728,7 +730,7 @@ export class Client {
   async *listDatabaseInstanceRolesIter(
     signal: AbortSignal | undefined,
     req: ListDatabaseInstanceRolesRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<DatabaseInstanceRole> {
     const pageReq: ListDatabaseInstanceRolesRequest = {...req};
     for (;;) {
@@ -751,7 +753,7 @@ export class Client {
   async listDatabaseInstances(
     signal: AbortSignal | undefined,
     req: ListDatabaseInstancesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListDatabaseInstancesResponse> {
     const url = `${this.host}/api/2.0/database/instances`;
     const params = new URLSearchParams();
@@ -778,7 +780,7 @@ export class Client {
         unmarshalListDatabaseInstancesResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -788,7 +790,7 @@ export class Client {
   async *listDatabaseInstancesIter(
     signal: AbortSignal | undefined,
     req: ListDatabaseInstancesRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<DatabaseInstance> {
     const pageReq: ListDatabaseInstancesRequest = {...req};
     for (;;) {
@@ -807,7 +809,7 @@ export class Client {
   async listSyncedDatabaseTables(
     signal: AbortSignal | undefined,
     req: ListSyncedDatabaseTablesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListSyncedDatabaseTablesResponse> {
     const url = `${this.host}/api/2.0/database/instances/${req.instanceName ?? ''}/synced_tables`;
     const params = new URLSearchParams();
@@ -834,7 +836,7 @@ export class Client {
         unmarshalListSyncedDatabaseTablesResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -844,7 +846,7 @@ export class Client {
   async *listSyncedDatabaseTablesIter(
     signal: AbortSignal | undefined,
     req: ListSyncedDatabaseTablesRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<SyncedDatabaseTable> {
     const pageReq: ListSyncedDatabaseTablesRequest = {...req};
     for (;;) {
@@ -867,7 +869,7 @@ export class Client {
   async updateDatabaseCatalog(
     signal: AbortSignal | undefined,
     req: UpdateDatabaseCatalogRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DatabaseCatalog> {
     const url = `${this.host}/api/2.0/database/catalogs/${req.databaseCatalog?.name ?? ''}`;
     const params = new URLSearchParams();
@@ -898,7 +900,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseCatalogSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -909,7 +911,7 @@ export class Client {
   async updateDatabaseInstance(
     signal: AbortSignal | undefined,
     req: UpdateDatabaseInstanceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DatabaseInstance> {
     const url = `${this.host}/api/2.0/database/instances/${req.databaseInstance?.name ?? ''}`;
     const params = new URLSearchParams();
@@ -940,7 +942,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -951,7 +953,7 @@ export class Client {
   async updateDatabaseInstanceRole(
     signal: AbortSignal | undefined,
     req: UpdateDatabaseInstanceRoleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DatabaseInstanceRole> {
     const url = `${this.host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles/${req.databaseInstanceRole?.name ?? ''}`;
     const params = new URLSearchParams();
@@ -982,7 +984,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseInstanceRoleSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -993,7 +995,7 @@ export class Client {
   async updateSyncedDatabaseTable(
     signal: AbortSignal | undefined,
     req: UpdateSyncedDatabaseTableRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<SyncedDatabaseTable> {
     const url = `${this.host}/api/2.0/database/synced_tables/${req.syncedTable?.name ?? ''}`;
     const params = new URLSearchParams();
@@ -1024,7 +1026,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSyncedDatabaseTableSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1035,7 +1037,7 @@ export class Client {
   async upgradeInstanceToAutoscaling(
     signal: AbortSignal | undefined,
     req: UpgradeInstanceToAutoscalingRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/database/instances/${req.name ?? ''}/upgrade`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1048,7 +1050,7 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 }
 
@@ -1065,7 +1067,7 @@ export class CreateDatabaseInstanceWaiter {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<DatabaseInstance> {
     let result: DatabaseInstance | undefined;
 
@@ -1092,13 +1094,13 @@ export class CreateDatabaseInstanceWaiter {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1108,7 +1110,7 @@ export class CreateDatabaseInstanceWaiter {
   /** Checks whether the operation has reached a terminal state. */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean> {
     const pollResp = await this.client.getDatabaseInstance(
       signal,

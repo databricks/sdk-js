@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -85,7 +86,7 @@ export class Client {
   async cancelRefresh(
     signal: AbortSignal | undefined,
     req: CancelRefresh,
-    options?: Options
+    options?: CallOptions
   ): Promise<CancelRefresh_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullTableNameArg ?? ''}/monitor/refreshes/${String(req.refreshId ?? '')}/cancel`;
     const body = marshalRequest(req, marshalCancelRefreshSchema);
@@ -101,7 +102,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCancelRefresh_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -126,7 +127,7 @@ export class Client {
   async createMonitor(
     signal: AbortSignal | undefined,
     req: CreateMonitor,
-    options?: Options
+    options?: CallOptions
   ): Promise<DataMonitorInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullTableNameArg ?? ''}/monitor`;
     const body = marshalRequest(req, marshalCreateMonitorSchema);
@@ -142,7 +143,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDataMonitorInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -169,7 +170,7 @@ export class Client {
   async deleteMonitor(
     signal: AbortSignal | undefined,
     req: DeleteMonitor,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteMonitor_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullTableNameArg ?? ''}/monitor`;
     let resp: DeleteMonitor_Response | undefined;
@@ -184,7 +185,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteMonitor_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -210,7 +211,7 @@ export class Client {
   async getMonitor(
     signal: AbortSignal | undefined,
     req: GetMonitor,
-    options?: Options
+    options?: CallOptions
   ): Promise<DataMonitorInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullTableNameArg ?? ''}/monitor`;
     let resp: DataMonitorInfo | undefined;
@@ -225,7 +226,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDataMonitorInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -249,7 +250,7 @@ export class Client {
   async getRefresh(
     signal: AbortSignal | undefined,
     req: GetRefresh,
-    options?: Options
+    options?: CallOptions
   ): Promise<RefreshInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullTableNameArg ?? ''}/monitor/refreshes/${String(req.refreshId ?? '')}`;
     let resp: RefreshInfo | undefined;
@@ -264,7 +265,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRefreshInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -288,7 +289,7 @@ export class Client {
   async listRefreshes(
     signal: AbortSignal | undefined,
     req: ListRefreshes,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListRefreshes_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullTableNameArg ?? ''}/monitor/refreshes`;
     let resp: ListRefreshes_Response | undefined;
@@ -303,7 +304,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListRefreshes_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -328,7 +329,7 @@ export class Client {
   async regenerateDashboard(
     signal: AbortSignal | undefined,
     req: RegenerateDashboard,
-    options?: Options
+    options?: CallOptions
   ): Promise<RegenerateDashboard_Response> {
     const url = `${this.host}/api/2.1/quality-monitoring/tables/${req.fullTableNameArg ?? ''}/monitor/dashboard`;
     const body = marshalRequest(req, marshalRegenerateDashboardSchema);
@@ -347,7 +348,7 @@ export class Client {
         unmarshalRegenerateDashboard_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -372,7 +373,7 @@ export class Client {
   async runRefresh(
     signal: AbortSignal | undefined,
     req: RunRefresh,
-    options?: Options
+    options?: CallOptions
   ): Promise<RefreshInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullTableNameArg ?? ''}/monitor/refreshes`;
     const body = marshalRequest(req, marshalRunRefreshSchema);
@@ -388,7 +389,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRefreshInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -415,7 +416,7 @@ export class Client {
   async updateMonitor(
     signal: AbortSignal | undefined,
     req: UpdateMonitor,
-    options?: Options
+    options?: CallOptions
   ): Promise<DataMonitorInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullTableNameArg ?? ''}/monitor`;
     const body = marshalRequest(req, marshalUpdateMonitorSchema);
@@ -431,7 +432,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDataMonitorInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

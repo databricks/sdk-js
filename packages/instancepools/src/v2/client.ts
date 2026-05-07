@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -74,7 +75,7 @@ export class Client {
   async createInstancePool(
     signal: AbortSignal | undefined,
     req: CreateInstancePool,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateInstancePool_Response> {
     const url = `${this.host}/api/2.0/instance-pools/create`;
     const body = marshalRequest(req, marshalCreateInstancePoolSchema);
@@ -93,7 +94,7 @@ export class Client {
         unmarshalCreateInstancePool_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -104,7 +105,7 @@ export class Client {
   async deleteInstancePool(
     signal: AbortSignal | undefined,
     req: DeleteInstancePool,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteInstancePool_Response> {
     const url = `${this.host}/api/2.0/instance-pools/delete`;
     const body = marshalRequest(req, marshalDeleteInstancePoolSchema);
@@ -123,7 +124,7 @@ export class Client {
         unmarshalDeleteInstancePool_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -134,7 +135,7 @@ export class Client {
   async editInstancePool(
     signal: AbortSignal | undefined,
     req: EditInstancePool,
-    options?: Options
+    options?: CallOptions
   ): Promise<EditInstancePool_Response> {
     const url = `${this.host}/api/2.0/instance-pools/edit`;
     const body = marshalRequest(req, marshalEditInstancePoolSchema);
@@ -150,7 +151,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEditInstancePool_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -161,7 +162,7 @@ export class Client {
   async getInstancePool(
     signal: AbortSignal | undefined,
     req: GetInstancePool,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetInstancePool_Response> {
     const url = `${this.host}/api/2.0/instance-pools/get`;
     const params = new URLSearchParams();
@@ -182,7 +183,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetInstancePool_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -193,7 +194,7 @@ export class Client {
   async listInstancePools(
     signal: AbortSignal | undefined,
     _req: ListInstancePools,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListInstancePools_Response> {
     const url = `${this.host}/api/2.0/instance-pools/list`;
     let resp: ListInstancePools_Response | undefined;
@@ -208,7 +209,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListInstancePools_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

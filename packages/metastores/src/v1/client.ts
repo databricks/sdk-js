@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -91,7 +92,7 @@ export class Client {
   async createMetastore(
     signal: AbortSignal | undefined,
     req: CreateMetastore,
-    options?: Options
+    options?: CallOptions
   ): Promise<MetastoreInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores`;
     const body = marshalRequest(req, marshalCreateMetastoreSchema);
@@ -107,7 +108,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMetastoreInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -122,7 +123,7 @@ export class Client {
   async createMetastoreAssignment(
     signal: AbortSignal | undefined,
     req: CreateMetastoreAssignment,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateMetastoreAssignment_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/workspaces/${String(req.workspaceId ?? '')}/metastore`;
     const body = marshalRequest(req, marshalCreateMetastoreAssignmentSchema);
@@ -141,7 +142,7 @@ export class Client {
         unmarshalCreateMetastoreAssignment_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -152,7 +153,7 @@ export class Client {
   async deleteMetastore(
     signal: AbortSignal | undefined,
     req: DeleteMetastore,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteMetastore_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.id ?? ''}`;
     const params = new URLSearchParams();
@@ -173,7 +174,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteMetastore_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -184,7 +185,7 @@ export class Client {
   async deleteMetastoreAssignment(
     signal: AbortSignal | undefined,
     req: DeleteMetastoreAssignment,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteMetastoreAssignment_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/workspaces/${String(req.workspaceId ?? '')}/metastore`;
     const params = new URLSearchParams();
@@ -208,7 +209,7 @@ export class Client {
         unmarshalDeleteMetastoreAssignment_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -219,7 +220,7 @@ export class Client {
   async getCurrentMetastoreAssignment(
     signal: AbortSignal | undefined,
     _req: GetCurrentMetastoreAssignment,
-    options?: Options
+    options?: CallOptions
   ): Promise<MetastoreAssignment> {
     const url = `${this.host}/api/2.1/unity-catalog/current-metastore-assignment`;
     let resp: MetastoreAssignment | undefined;
@@ -234,7 +235,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMetastoreAssignmentSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -245,7 +246,7 @@ export class Client {
   async getMetastore(
     signal: AbortSignal | undefined,
     req: GetMetastore,
-    options?: Options
+    options?: CallOptions
   ): Promise<MetastoreInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.id ?? ''}`;
     let resp: MetastoreInfo | undefined;
@@ -260,7 +261,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMetastoreInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -274,7 +275,7 @@ export class Client {
   async getMetastoreSummary(
     signal: AbortSignal | undefined,
     _req: GetMetastoreSummary,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetMetastoreSummary_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/metastore_summary`;
     let resp: GetMetastoreSummary_Response | undefined;
@@ -292,7 +293,7 @@ export class Client {
         unmarshalGetMetastoreSummary_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -311,7 +312,7 @@ export class Client {
   async listMetastores(
     signal: AbortSignal | undefined,
     req: ListMetastores,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListMetastores_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores`;
     const params = new URLSearchParams();
@@ -335,7 +336,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListMetastores_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -345,7 +346,7 @@ export class Client {
   async *listMetastoresIter(
     signal: AbortSignal | undefined,
     req: ListMetastores,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<MetastoreInfo> {
     const pageReq: ListMetastores = {...req};
     for (;;) {
@@ -368,7 +369,7 @@ export class Client {
   async updateMetastore(
     signal: AbortSignal | undefined,
     req: UpdateMetastore,
-    options?: Options
+    options?: CallOptions
   ): Promise<MetastoreInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateMetastoreSchema);
@@ -384,7 +385,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMetastoreInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -399,7 +400,7 @@ export class Client {
   async updateMetastoreAssignment(
     signal: AbortSignal | undefined,
     req: UpdateMetastoreAssignment,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateMetastoreAssignment_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/workspaces/${String(req.workspaceId ?? '')}/metastore`;
     const body = marshalRequest(req, marshalUpdateMetastoreAssignmentSchema);
@@ -418,7 +419,7 @@ export class Client {
         unmarshalUpdateMetastoreAssignment_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

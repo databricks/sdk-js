@@ -1,16 +1,18 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute, retryOn} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -105,7 +107,7 @@ export class Client {
   async createDefaultWarehouseOverride(
     signal: AbortSignal | undefined,
     req: CreateDefaultWarehouseOverrideRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DefaultWarehouseOverride> {
     const url = `${this.host}/api/warehouses/v1/default-warehouse-overrides`;
     const params = new URLSearchParams();
@@ -139,7 +141,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDefaultWarehouseOverrideSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -150,7 +152,7 @@ export class Client {
   async createWarehouse(
     signal: AbortSignal | undefined,
     req: CreateWarehouse,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateWarehouse_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses`;
     const body = marshalRequest(req, marshalCreateWarehouseSchema);
@@ -166,7 +168,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateWarehouse_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -176,7 +178,7 @@ export class Client {
   async createWarehouseWaiter(
     signal: AbortSignal | undefined,
     req: CreateWarehouse,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateWarehouseWaiter> {
     const resp = await this.createWarehouse(signal, req, options);
     if (resp.id === undefined) {
@@ -193,7 +195,7 @@ export class Client {
   async deleteDefaultWarehouseOverride(
     signal: AbortSignal | undefined,
     req: DeleteDefaultWarehouseOverrideRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/warehouses/v1/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -206,14 +208,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Deletes a SQL warehouse. */
   async deleteWarehouse(
     signal: AbortSignal | undefined,
     req: DeleteWarehouseRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteWarehouseRequest_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}`;
     let resp: DeleteWarehouseRequest_Response | undefined;
@@ -231,7 +233,7 @@ export class Client {
         unmarshalDeleteWarehouseRequest_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -242,7 +244,7 @@ export class Client {
   async editWarehouse(
     signal: AbortSignal | undefined,
     req: EditWarehouseRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<EditWarehouseRequest_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}/edit`;
     const body = marshalRequest(req, marshalEditWarehouseRequestSchema);
@@ -261,7 +263,7 @@ export class Client {
         unmarshalEditWarehouseRequest_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -271,7 +273,7 @@ export class Client {
   async editWarehouseWaiter(
     signal: AbortSignal | undefined,
     req: EditWarehouseRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<EditWarehouseWaiter> {
     await this.editWarehouse(signal, req, options);
     if (req.id === undefined) {
@@ -288,7 +290,7 @@ export class Client {
   async getDefaultWarehouseOverride(
     signal: AbortSignal | undefined,
     req: GetDefaultWarehouseOverrideRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DefaultWarehouseOverride> {
     const url = `${this.host}/api/warehouses/v1/${req.name ?? ''}`;
     let resp: DefaultWarehouseOverride | undefined;
@@ -303,7 +305,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDefaultWarehouseOverrideSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -314,7 +316,7 @@ export class Client {
   async getWarehouse(
     signal: AbortSignal | undefined,
     req: GetWarehouse,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetWarehouse_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}`;
     let resp: GetWarehouse_Response | undefined;
@@ -329,7 +331,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetWarehouse_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -340,7 +342,7 @@ export class Client {
   async getWorkspaceWarehouseConfig(
     signal: AbortSignal | undefined,
     _req: GetWorkspaceWarehouseConfigRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetWorkspaceWarehouseConfigRequest_Response> {
     const url = `${this.host}/api/2.0/sql/config/warehouses`;
     let resp: GetWorkspaceWarehouseConfigRequest_Response | undefined;
@@ -358,7 +360,7 @@ export class Client {
         unmarshalGetWorkspaceWarehouseConfigRequest_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -372,7 +374,7 @@ export class Client {
   async listDefaultWarehouseOverrides(
     signal: AbortSignal | undefined,
     req: ListDefaultWarehouseOverridesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListDefaultWarehouseOverridesResponse> {
     const url = `${this.host}/api/warehouses/v1/default-warehouse-overrides`;
     const params = new URLSearchParams();
@@ -399,7 +401,7 @@ export class Client {
         unmarshalListDefaultWarehouseOverridesResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -409,7 +411,7 @@ export class Client {
   async *listDefaultWarehouseOverridesIter(
     signal: AbortSignal | undefined,
     req: ListDefaultWarehouseOverridesRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<DefaultWarehouseOverride> {
     const pageReq: ListDefaultWarehouseOverridesRequest = {...req};
     for (;;) {
@@ -432,7 +434,7 @@ export class Client {
   async listWarehouses(
     signal: AbortSignal | undefined,
     req: ListWarehousesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListWarehousesRequest_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses`;
     const params = new URLSearchParams();
@@ -462,7 +464,7 @@ export class Client {
         unmarshalListWarehousesRequest_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -472,7 +474,7 @@ export class Client {
   async *listWarehousesIter(
     signal: AbortSignal | undefined,
     req: ListWarehousesRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<EndpointInfo> {
     const pageReq: ListWarehousesRequest = {...req};
     for (;;) {
@@ -491,7 +493,7 @@ export class Client {
   async setWorkspaceWarehouseConfig(
     signal: AbortSignal | undefined,
     req: SetWorkspaceWarehouseConfigRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<SetWorkspaceWarehouseConfigRequest_Response> {
     const url = `${this.host}/api/2.0/sql/config/warehouses`;
     const body = marshalRequest(
@@ -513,7 +515,7 @@ export class Client {
         unmarshalSetWorkspaceWarehouseConfigRequest_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -524,7 +526,7 @@ export class Client {
   async startWarehouse(
     signal: AbortSignal | undefined,
     req: StartRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<StartRequest_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}/start`;
     const body = marshalRequest(req, marshalStartRequestSchema);
@@ -540,7 +542,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStartRequest_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -550,7 +552,7 @@ export class Client {
   async startWarehouseWaiter(
     signal: AbortSignal | undefined,
     req: StartRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<StartWarehouseWaiter> {
     await this.startWarehouse(signal, req, options);
     if (req.id === undefined) {
@@ -563,7 +565,7 @@ export class Client {
   async stopWarehouse(
     signal: AbortSignal | undefined,
     req: StopRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<StopRequest_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}/stop`;
     const body = marshalRequest(req, marshalStopRequestSchema);
@@ -579,7 +581,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStopRequest_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -589,7 +591,7 @@ export class Client {
   async stopWarehouseWaiter(
     signal: AbortSignal | undefined,
     req: StopRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<StopWarehouseWaiter> {
     await this.stopWarehouse(signal, req, options);
     if (req.id === undefined) {
@@ -605,7 +607,7 @@ export class Client {
   async updateDefaultWarehouseOverride(
     signal: AbortSignal | undefined,
     req: UpdateDefaultWarehouseOverrideRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DefaultWarehouseOverride> {
     const url = `${this.host}/api/warehouses/v1/${req.defaultWarehouseOverride?.name ?? ''}`;
     const params = new URLSearchParams();
@@ -639,7 +641,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDefaultWarehouseOverrideSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -660,7 +662,7 @@ export class CreateWarehouseWaiter {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetWarehouse_Response> {
     let result: GetWarehouse_Response | undefined;
 
@@ -692,13 +694,13 @@ export class CreateWarehouseWaiter {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -708,7 +710,7 @@ export class CreateWarehouseWaiter {
   /** Checks whether the operation has reached a terminal state. */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean> {
     const pollResp = await this.client.getWarehouse(
       signal,
@@ -747,7 +749,7 @@ export class EditWarehouseWaiter {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetWarehouse_Response> {
     let result: GetWarehouse_Response | undefined;
 
@@ -779,13 +781,13 @@ export class EditWarehouseWaiter {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -795,7 +797,7 @@ export class EditWarehouseWaiter {
   /** Checks whether the operation has reached a terminal state. */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean> {
     const pollResp = await this.client.getWarehouse(
       signal,
@@ -834,7 +836,7 @@ export class StartWarehouseWaiter {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetWarehouse_Response> {
     let result: GetWarehouse_Response | undefined;
 
@@ -866,13 +868,13 @@ export class StartWarehouseWaiter {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -882,7 +884,7 @@ export class StartWarehouseWaiter {
   /** Checks whether the operation has reached a terminal state. */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean> {
     const pollResp = await this.client.getWarehouse(
       signal,
@@ -921,7 +923,7 @@ export class StopWarehouseWaiter {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetWarehouse_Response> {
     let result: GetWarehouse_Response | undefined;
 
@@ -948,13 +950,13 @@ export class StopWarehouseWaiter {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -964,7 +966,7 @@ export class StopWarehouseWaiter {
   /** Checks whether the operation has reached a terminal state. */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean> {
     const pollResp = await this.client.getWarehouse(
       signal,

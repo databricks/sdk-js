@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -75,7 +76,7 @@ export class Client {
   async createToken(
     signal: AbortSignal | undefined,
     req: CreateToken,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateToken_Response> {
     const url = `${this.host}/api/2.0/token/create`;
     const body = marshalRequest(req, marshalCreateTokenSchema);
@@ -91,7 +92,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateToken_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -102,7 +103,7 @@ export class Client {
   async listTokens(
     signal: AbortSignal | undefined,
     _req: ListTokens,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListTokens_Response> {
     const url = `${this.host}/api/2.0/token/list`;
     let resp: ListTokens_Response | undefined;
@@ -117,7 +118,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListTokens_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -132,7 +133,7 @@ export class Client {
   async revokeToken(
     signal: AbortSignal | undefined,
     req: RevokeToken,
-    options?: Options
+    options?: CallOptions
   ): Promise<RevokeToken_Response> {
     const url = `${this.host}/api/2.0/token/delete`;
     const body = marshalRequest(req, marshalRevokeTokenSchema);
@@ -148,7 +149,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRevokeToken_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -163,7 +164,7 @@ export class Client {
   async updateToken(
     signal: AbortSignal | undefined,
     req: UpdateToken,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateTokenResponse> {
     const url = `${this.host}/api/2.0/token/${req.tokenId ?? ''}`;
     const body = marshalRequest(req, marshalUpdateTokenSchema);
@@ -179,7 +180,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdateTokenResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

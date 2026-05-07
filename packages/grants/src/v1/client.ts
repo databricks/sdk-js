@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -81,7 +82,7 @@ export class Client {
   async getEffectivePermissions(
     signal: AbortSignal | undefined,
     req: GetEffectivePermissions,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetEffectivePermissions_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/effective-permissions/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
     const params = new URLSearchParams();
@@ -111,7 +112,7 @@ export class Client {
         unmarshalGetEffectivePermissions_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -129,7 +130,7 @@ export class Client {
   async getPermissions(
     signal: AbortSignal | undefined,
     req: GetPermissions,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetPermissions_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/permissions/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
     const params = new URLSearchParams();
@@ -162,7 +163,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetPermissions_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -176,7 +177,7 @@ export class Client {
   async listEffectivePrivilegeAssignments(
     signal: AbortSignal | undefined,
     req: ListEffectivePrivilegeAssignmentsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListEffectivePrivilegeAssignmentsResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/effective-privilege-assignments/${req.securableType ?? ''}/${req.fullName ?? ''}`;
     const params = new URLSearchParams();
@@ -212,7 +213,7 @@ export class Client {
         unmarshalListEffectivePrivilegeAssignmentsResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -222,7 +223,7 @@ export class Client {
   async *listEffectivePrivilegeAssignmentsIter(
     signal: AbortSignal | undefined,
     req: ListEffectivePrivilegeAssignmentsRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<EffectivePrivilegeAssignment> {
     const pageReq: ListEffectivePrivilegeAssignmentsRequest = {...req};
     for (;;) {
@@ -248,7 +249,7 @@ export class Client {
   async listPrivilegeAssignments(
     signal: AbortSignal | undefined,
     req: ListPrivilegeAssignmentsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListPrivilegeAssignmentsResponse> {
     const url = `${this.host}/api/2.1/unity-catalog/privilege-assignments/${req.securableType ?? ''}/${req.fullName ?? ''}`;
     const params = new URLSearchParams();
@@ -284,7 +285,7 @@ export class Client {
         unmarshalListPrivilegeAssignmentsResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -294,7 +295,7 @@ export class Client {
   async *listPrivilegeAssignmentsIter(
     signal: AbortSignal | undefined,
     req: ListPrivilegeAssignmentsRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<PrivilegeAssignment> {
     const pageReq: ListPrivilegeAssignmentsRequest = {...req};
     for (;;) {
@@ -317,7 +318,7 @@ export class Client {
   async updatePermissions(
     signal: AbortSignal | undefined,
     req: UpdatePermissions,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdatePermissions_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/permissions/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
     const body = marshalRequest(req, marshalUpdatePermissionsSchema);
@@ -333,7 +334,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdatePermissions_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

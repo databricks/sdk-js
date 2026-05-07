@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -85,7 +86,7 @@ export class Client {
   async createLogDeliveryConfiguration(
     signal: AbortSignal | undefined,
     req: CreateLogDeliveryConfiguration,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateLogDeliveryConfiguration_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.logDeliveryConfiguration?.accountId ?? ''}/log-delivery`;
     const body = marshalRequest(
@@ -107,7 +108,7 @@ export class Client {
         unmarshalCreateLogDeliveryConfiguration_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -118,7 +119,7 @@ export class Client {
   async getLogDeliveryConfiguration(
     signal: AbortSignal | undefined,
     req: GetLogDeliveryConfiguration,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetLogDeliveryConfiguration_Response> {
     const url = `${this.host}/api/2.0/accounts//log-delivery/${req.configId ?? ''}`;
     const params = new URLSearchParams();
@@ -142,7 +143,7 @@ export class Client {
         unmarshalGetLogDeliveryConfiguration_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -153,7 +154,7 @@ export class Client {
   async listLogDeliveryConfiguration(
     signal: AbortSignal | undefined,
     req: ListLogDeliveryConfiguration,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListLogDeliveryConfiguration_Response> {
     const url = `${this.host}/api/2.0/accounts/{account_id}/log-delivery`;
     const params = new URLSearchParams();
@@ -189,7 +190,7 @@ export class Client {
         unmarshalListLogDeliveryConfiguration_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -199,7 +200,7 @@ export class Client {
   async *listLogDeliveryConfigurationIter(
     signal: AbortSignal | undefined,
     req: ListLogDeliveryConfiguration,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<LogDeliveryConfiguration> {
     const pageReq: ListLogDeliveryConfiguration = {...req};
     for (;;) {
@@ -226,7 +227,7 @@ export class Client {
   async updateLogDeliveryConfiguration(
     signal: AbortSignal | undefined,
     req: UpdateLogDeliveryConfiguration,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateLogDeliveryConfiguration_Response> {
     const url = `${this.host}/api/2.0/accounts//log-delivery/${req.configId ?? ''}`;
     const body = marshalRequest(
@@ -248,7 +249,7 @@ export class Client {
         unmarshalUpdateLogDeliveryConfiguration_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

@@ -1,16 +1,18 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute, retryOn} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -80,7 +82,7 @@ export class Client {
   async createEndpoint(
     signal: AbortSignal | undefined,
     req: CreateEndpointRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Endpoint> {
     const url = `${this.host}/api/2.0/vector-search/endpoints`;
     const body = marshalRequest(req, marshalCreateEndpointRequestSchema);
@@ -96,7 +98,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEndpointSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -106,7 +108,7 @@ export class Client {
   async createEndpointWaiter(
     signal: AbortSignal | undefined,
     req: CreateEndpointRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateEndpointWaiter> {
     const resp = await this.createEndpoint(signal, req, options);
     if (resp.name === undefined) {
@@ -119,7 +121,7 @@ export class Client {
   async deleteEndpoint(
     signal: AbortSignal | undefined,
     req: DeleteEndpointRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteEndpointResponse> {
     const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
     let resp: DeleteEndpointResponse | undefined;
@@ -134,7 +136,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteEndpointResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -145,7 +147,7 @@ export class Client {
   async getEndpoint(
     signal: AbortSignal | undefined,
     req: GetEndpointRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Endpoint> {
     const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
     let resp: Endpoint | undefined;
@@ -160,7 +162,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEndpointSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -171,7 +173,7 @@ export class Client {
   async listEndpoint(
     signal: AbortSignal | undefined,
     req: ListEndpointRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListEndpointResponse> {
     const url = `${this.host}/api/2.0/vector-search/endpoints`;
     const params = new URLSearchParams();
@@ -192,7 +194,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListEndpointResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -202,7 +204,7 @@ export class Client {
   async *listEndpointIter(
     signal: AbortSignal | undefined,
     req: ListEndpointRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<Endpoint> {
     const pageReq: ListEndpointRequest = {...req};
     for (;;) {
@@ -221,7 +223,7 @@ export class Client {
   async patchEndpoint(
     signal: AbortSignal | undefined,
     req: PatchEndpointRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Endpoint> {
     const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
     const body = marshalRequest(req, marshalPatchEndpointRequestSchema);
@@ -237,7 +239,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEndpointSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -248,7 +250,7 @@ export class Client {
   async patchEndpointBudgetPolicy(
     signal: AbortSignal | undefined,
     req: PatchEndpointBudgetPolicyRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<PatchEndpointBudgetPolicyResponse> {
     const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/budget-policy`;
     const body = marshalRequest(
@@ -270,7 +272,7 @@ export class Client {
         unmarshalPatchEndpointBudgetPolicyResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -281,7 +283,7 @@ export class Client {
   async patchEndpointThroughput(
     signal: AbortSignal | undefined,
     req: PatchEndpointThroughputRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<PatchEndpointThroughputResponse> {
     const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/throughput`;
     const body = marshalRequest(
@@ -303,7 +305,7 @@ export class Client {
         unmarshalPatchEndpointThroughputResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -324,7 +326,7 @@ export class CreateEndpointWaiter {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<Endpoint> {
     let result: Endpoint | undefined;
 
@@ -355,13 +357,13 @@ export class CreateEndpointWaiter {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -371,7 +373,7 @@ export class CreateEndpointWaiter {
   /** Checks whether the operation has reached a terminal state. */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean> {
     const pollResp = await this.client.getEndpoint(
       signal,

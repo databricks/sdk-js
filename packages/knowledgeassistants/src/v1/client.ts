@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -88,7 +89,7 @@ export class Client {
   async createExample(
     signal: AbortSignal | undefined,
     req: CreateExampleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Example> {
     const url = `${this.host}/api/2.1/${req.parent ?? ''}/examples`;
     const body = marshalRequest(req.example, marshalExampleSchema);
@@ -104,7 +105,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalExampleSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -115,7 +116,7 @@ export class Client {
   async createKnowledgeAssistant(
     signal: AbortSignal | undefined,
     req: CreateKnowledgeAssistantRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<KnowledgeAssistant> {
     const url = `${this.host}/api/2.1/knowledge-assistants`;
     const body = marshalRequest(
@@ -134,7 +135,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalKnowledgeAssistantSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -145,7 +146,7 @@ export class Client {
   async createKnowledgeSource(
     signal: AbortSignal | undefined,
     req: CreateKnowledgeSourceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<KnowledgeSource> {
     const url = `${this.host}/api/2.1/${req.parent ?? ''}/knowledge-sources`;
     const body = marshalRequest(
@@ -164,7 +165,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalKnowledgeSourceSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -175,7 +176,7 @@ export class Client {
   async deleteExample(
     signal: AbortSignal | undefined,
     req: DeleteExampleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -188,14 +189,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Deletes a Knowledge Assistant. */
   async deleteKnowledgeAssistant(
     signal: AbortSignal | undefined,
     req: DeleteKnowledgeAssistantRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -208,14 +209,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Deletes a Knowledge Source. */
   async deleteKnowledgeSource(
     signal: AbortSignal | undefined,
     req: DeleteKnowledgeSourceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -228,14 +229,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Gets an example from a Knowledge Assistant. */
   async getExample(
     signal: AbortSignal | undefined,
     req: GetExampleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Example> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     let resp: Example | undefined;
@@ -250,7 +251,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalExampleSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -261,7 +262,7 @@ export class Client {
   async getKnowledgeAssistant(
     signal: AbortSignal | undefined,
     req: GetKnowledgeAssistantRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<KnowledgeAssistant> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     let resp: KnowledgeAssistant | undefined;
@@ -276,7 +277,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalKnowledgeAssistantSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -287,7 +288,7 @@ export class Client {
   async getKnowledgeSource(
     signal: AbortSignal | undefined,
     req: GetKnowledgeSourceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<KnowledgeSource> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     let resp: KnowledgeSource | undefined;
@@ -302,7 +303,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalKnowledgeSourceSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -313,7 +314,7 @@ export class Client {
   async listExamples(
     signal: AbortSignal | undefined,
     req: ListExamplesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListExamplesResponse> {
     const url = `${this.host}/api/2.1/${req.parent ?? ''}/examples`;
     const params = new URLSearchParams();
@@ -337,7 +338,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListExamplesResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -347,7 +348,7 @@ export class Client {
   async *listExamplesIter(
     signal: AbortSignal | undefined,
     req: ListExamplesRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<Example> {
     const pageReq: ListExamplesRequest = {...req};
     for (;;) {
@@ -366,7 +367,7 @@ export class Client {
   async listKnowledgeAssistants(
     signal: AbortSignal | undefined,
     req: ListKnowledgeAssistantsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListKnowledgeAssistantsResponse> {
     const url = `${this.host}/api/2.1/knowledge-assistants`;
     const params = new URLSearchParams();
@@ -393,7 +394,7 @@ export class Client {
         unmarshalListKnowledgeAssistantsResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -403,7 +404,7 @@ export class Client {
   async *listKnowledgeAssistantsIter(
     signal: AbortSignal | undefined,
     req: ListKnowledgeAssistantsRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<KnowledgeAssistant> {
     const pageReq: ListKnowledgeAssistantsRequest = {...req};
     for (;;) {
@@ -422,7 +423,7 @@ export class Client {
   async listKnowledgeSources(
     signal: AbortSignal | undefined,
     req: ListKnowledgeSourcesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListKnowledgeSourcesResponse> {
     const url = `${this.host}/api/2.1/${req.parent ?? ''}/knowledge-sources`;
     const params = new URLSearchParams();
@@ -449,7 +450,7 @@ export class Client {
         unmarshalListKnowledgeSourcesResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -459,7 +460,7 @@ export class Client {
   async *listKnowledgeSourcesIter(
     signal: AbortSignal | undefined,
     req: ListKnowledgeSourcesRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<KnowledgeSource> {
     const pageReq: ListKnowledgeSourcesRequest = {...req};
     for (;;) {
@@ -478,7 +479,7 @@ export class Client {
   async syncKnowledgeSources(
     signal: AbortSignal | undefined,
     req: SyncKnowledgeSourcesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}/knowledge-sources:sync`;
     const body = marshalRequest(req, marshalSyncKnowledgeSourcesRequestSchema);
@@ -492,14 +493,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Updates an example in a Knowledge Assistant. */
   async updateExample(
     signal: AbortSignal | undefined,
     req: UpdateExampleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Example> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     const params = new URLSearchParams();
@@ -527,7 +528,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalExampleSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -538,7 +539,7 @@ export class Client {
   async updateKnowledgeAssistant(
     signal: AbortSignal | undefined,
     req: UpdateKnowledgeAssistantRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<KnowledgeAssistant> {
     const url = `${this.host}/api/2.1/${req.knowledgeAssistant?.name ?? ''}`;
     const params = new URLSearchParams();
@@ -569,7 +570,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalKnowledgeAssistantSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -580,7 +581,7 @@ export class Client {
   async updateKnowledgeSource(
     signal: AbortSignal | undefined,
     req: UpdateKnowledgeSourceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<KnowledgeSource> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     const params = new URLSearchParams();
@@ -611,7 +612,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalKnowledgeSourceSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

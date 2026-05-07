@@ -1,16 +1,18 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute, retryOn} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -83,7 +85,7 @@ export class Client {
   async createCleanRoom(
     signal: AbortSignal | undefined,
     req: CreateCleanRoomRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CleanRoom> {
     const url = `${this.host}/api/2.0/clean-rooms`;
     const body = marshalRequest(req.cleanRoom, marshalCleanRoomSchema);
@@ -99,7 +101,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCleanRoomSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -109,7 +111,7 @@ export class Client {
   async createCleanRoomWaiter(
     signal: AbortSignal | undefined,
     req: CreateCleanRoomRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateCleanRoomWaiter> {
     const resp = await this.createCleanRoom(signal, req, options);
     if (resp.name === undefined) {
@@ -122,7 +124,7 @@ export class Client {
   async createCleanRoomOutputCatalog(
     signal: AbortSignal | undefined,
     req: CreateCleanRoomOutputCatalogRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateCleanRoomOutputCatalogResponse> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/output-catalogs`;
     const body = marshalRequest(
@@ -144,7 +146,7 @@ export class Client {
         unmarshalCreateCleanRoomOutputCatalogResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -160,7 +162,7 @@ export class Client {
   async deleteCleanRoom(
     signal: AbortSignal | undefined,
     req: DeleteCleanRoomRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -173,14 +175,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Get the details of a clean room given its name. */
   async getCleanRoom(
     signal: AbortSignal | undefined,
     req: GetCleanRoomRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CleanRoom> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.name ?? ''}`;
     let resp: CleanRoom | undefined;
@@ -195,7 +197,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCleanRoomSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -209,7 +211,7 @@ export class Client {
   async listCleanRooms(
     signal: AbortSignal | undefined,
     req: ListCleanRoomsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListCleanRoomsResponse> {
     const url = `${this.host}/api/2.0/clean-rooms`;
     const params = new URLSearchParams();
@@ -233,7 +235,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListCleanRoomsResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -243,7 +245,7 @@ export class Client {
   async *listCleanRoomsIter(
     signal: AbortSignal | undefined,
     req: ListCleanRoomsRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<CleanRoom> {
     const pageReq: ListCleanRoomsRequest = {...req};
     for (;;) {
@@ -268,7 +270,7 @@ export class Client {
   async updateCleanRoom(
     signal: AbortSignal | undefined,
     req: UpdateCleanRoomRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CleanRoom> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.name ?? ''}`;
     const body = marshalRequest(req, marshalUpdateCleanRoomRequestSchema);
@@ -284,7 +286,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCleanRoomSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -305,7 +307,7 @@ export class CreateCleanRoomWaiter {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<CleanRoom> {
     let result: CleanRoom | undefined;
 
@@ -332,13 +334,13 @@ export class CreateCleanRoomWaiter {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -348,7 +350,7 @@ export class CreateCleanRoomWaiter {
   /** Checks whether the operation has reached a terminal state. */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean> {
     const pollResp = await this.client.getCleanRoom(
       signal,

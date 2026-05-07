@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -136,7 +137,7 @@ export class Client {
   async createScope(
     signal: AbortSignal | undefined,
     req: CreateScope,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateScope_Response> {
     const url = `${this.host}/api/2.0/secrets/scopes/create`;
     const body = marshalRequest(req, marshalCreateScopeSchema);
@@ -152,7 +153,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateScope_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -180,7 +181,7 @@ export class Client {
   async deleteAcl(
     signal: AbortSignal | undefined,
     req: DeleteAcl,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteAcl_Response> {
     const url = `${this.host}/api/2.0/secrets/acls/delete`;
     const body = marshalRequest(req, marshalDeleteAclSchema);
@@ -196,7 +197,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteAcl_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -221,7 +222,7 @@ export class Client {
   async deleteScope(
     signal: AbortSignal | undefined,
     req: DeleteScope,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteScope_Response> {
     const url = `${this.host}/api/2.0/secrets/scopes/delete`;
     const body = marshalRequest(req, marshalDeleteScopeSchema);
@@ -237,7 +238,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteScope_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -264,7 +265,7 @@ export class Client {
   async deleteSecret(
     signal: AbortSignal | undefined,
     req: DeleteSecret,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteSecret_Response> {
     const url = `${this.host}/api/2.0/secrets/delete`;
     const body = marshalRequest(req, marshalDeleteSecretSchema);
@@ -280,7 +281,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteSecret_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -308,7 +309,7 @@ export class Client {
   async getAcl(
     signal: AbortSignal | undefined,
     req: GetAcl,
-    options?: Options
+    options?: CallOptions
   ): Promise<AclItem> {
     const url = `${this.host}/api/2.0/secrets/acls/get`;
     const params = new URLSearchParams();
@@ -332,7 +333,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAclItemSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -372,7 +373,7 @@ export class Client {
   async getSecret(
     signal: AbortSignal | undefined,
     req: GetSecret,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetSecret_Response> {
     const url = `${this.host}/api/2.0/secrets/get`;
     const params = new URLSearchParams();
@@ -396,7 +397,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetSecret_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -428,7 +429,7 @@ export class Client {
   async listAcls(
     signal: AbortSignal | undefined,
     req: ListAcls,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListAcls_Response> {
     const url = `${this.host}/api/2.0/secrets/acls/list`;
     const params = new URLSearchParams();
@@ -449,7 +450,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListAcls_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -478,7 +479,7 @@ export class Client {
   async listScopes(
     signal: AbortSignal | undefined,
     _req: ListScopes,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListScopes_Response> {
     const url = `${this.host}/api/2.0/secrets/scopes/list`;
     let resp: ListScopes_Response | undefined;
@@ -493,7 +494,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListScopes_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -530,7 +531,7 @@ export class Client {
   async listSecrets(
     signal: AbortSignal | undefined,
     req: ListSecrets,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListSecrets_Response> {
     const url = `${this.host}/api/2.0/secrets/list`;
     const params = new URLSearchParams();
@@ -551,7 +552,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListSecrets_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -595,7 +596,7 @@ export class Client {
   async putAcl(
     signal: AbortSignal | undefined,
     req: PutAcl,
-    options?: Options
+    options?: CallOptions
   ): Promise<PutAcl_Response> {
     const url = `${this.host}/api/2.0/secrets/acls/put`;
     const body = marshalRequest(req, marshalPutAclSchema);
@@ -611,7 +612,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPutAcl_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -653,7 +654,7 @@ export class Client {
   async putSecret(
     signal: AbortSignal | undefined,
     req: PutSecret,
-    options?: Options
+    options?: CallOptions
   ): Promise<PutSecret_Response> {
     const url = `${this.host}/api/2.0/secrets/put`;
     const body = marshalRequest(req, marshalPutSecretSchema);
@@ -669,7 +670,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPutSecret_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

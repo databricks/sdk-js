@@ -1,16 +1,18 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute, retryOn} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -119,7 +121,7 @@ export class Client {
   async asyncUpdateApp(
     signal: AbortSignal | undefined,
     req: AsyncUpdateAppRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<AppUpdate> {
     const url = `${this.host}/api/2.0/apps/${req.appName ?? ''}/update`;
     const body = marshalRequest(req, marshalAsyncUpdateAppRequestSchema);
@@ -135,7 +137,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppUpdateSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -145,7 +147,7 @@ export class Client {
   async asyncUpdateAppWaiter(
     signal: AbortSignal | undefined,
     req: AsyncUpdateAppRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<AsyncUpdateAppWaiter> {
     await this.asyncUpdateApp(signal, req, options);
     if (req.appName === undefined) {
@@ -158,7 +160,7 @@ export class Client {
   async createApp(
     signal: AbortSignal | undefined,
     req: CreateAppRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<App> {
     const url = `${this.host}/api/2.0/apps`;
     const params = new URLSearchParams();
@@ -186,7 +188,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -196,7 +198,7 @@ export class Client {
   async createAppWaiter(
     signal: AbortSignal | undefined,
     req: CreateAppRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateAppWaiter> {
     const resp = await this.createApp(signal, req, options);
     if (resp.name === undefined) {
@@ -209,7 +211,7 @@ export class Client {
   async createAppDeployment(
     signal: AbortSignal | undefined,
     req: CreateAppDeploymentRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<AppDeployment> {
     const url = `${this.host}/api/2.0/apps/${req.appName ?? ''}/deployments`;
     const params = new URLSearchParams();
@@ -237,7 +239,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppDeploymentSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -247,7 +249,7 @@ export class Client {
   async createAppDeploymentWaiter(
     signal: AbortSignal | undefined,
     req: CreateAppDeploymentRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateAppDeploymentWaiter> {
     const resp = await this.createAppDeployment(signal, req, options);
     if (resp.deploymentId === undefined) {
@@ -265,7 +267,7 @@ export class Client {
   async createCustomTemplate(
     signal: AbortSignal | undefined,
     req: CreateCustomTemplateRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CustomTemplate> {
     const url = `${this.host}/api/2.0/apps-settings/templates`;
     const body = marshalRequest(req.template, marshalCustomTemplateSchema);
@@ -281,7 +283,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCustomTemplateSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -292,7 +294,7 @@ export class Client {
   async createSpace(
     signal: AbortSignal | undefined,
     req: CreateSpaceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/app-spaces`;
     const body = marshalRequest(req.space, marshalSpaceSchema);
@@ -308,7 +310,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -318,7 +320,7 @@ export class Client {
   async createSpaceOperation(
     signal: AbortSignal | undefined,
     req: CreateSpaceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateSpaceOperation> {
     const op = await this.createSpace(signal, req, options);
     return new CreateSpaceOperation(this, op);
@@ -328,7 +330,7 @@ export class Client {
   async deleteApp(
     signal: AbortSignal | undefined,
     req: DeleteAppRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<App> {
     const url = `${this.host}/api/2.0/apps/${req.name ?? ''}`;
     let resp: App | undefined;
@@ -343,7 +345,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -354,7 +356,7 @@ export class Client {
   async deleteAppThumbnail(
     signal: AbortSignal | undefined,
     req: DeleteAppThumbnailRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/apps/${req.name ?? ''}/thumbnail`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -367,14 +369,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Deletes the custom template with the specified name. */
   async deleteCustomTemplate(
     signal: AbortSignal | undefined,
     req: DeleteCustomTemplateRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CustomTemplate> {
     const url = `${this.host}/api/2.0/apps-settings/templates/${req.name ?? ''}`;
     let resp: CustomTemplate | undefined;
@@ -389,7 +391,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCustomTemplateSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -400,7 +402,7 @@ export class Client {
   async deleteSpace(
     signal: AbortSignal | undefined,
     req: DeleteSpaceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/app-spaces/${req.name ?? ''}`;
     let resp: Operation | undefined;
@@ -415,7 +417,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -425,7 +427,7 @@ export class Client {
   async deleteSpaceOperation(
     signal: AbortSignal | undefined,
     req: DeleteSpaceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteSpaceOperation> {
     const op = await this.deleteSpace(signal, req, options);
     return new DeleteSpaceOperation(this, op);
@@ -435,7 +437,7 @@ export class Client {
   async getApp(
     signal: AbortSignal | undefined,
     req: GetAppRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<App> {
     const url = `${this.host}/api/2.0/apps/${req.name ?? ''}`;
     let resp: App | undefined;
@@ -450,7 +452,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -461,7 +463,7 @@ export class Client {
   async getAppDeployment(
     signal: AbortSignal | undefined,
     req: GetAppDeploymentRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<AppDeployment> {
     const url = `${this.host}/api/2.0/apps/${req.appName ?? ''}/deployments/${req.deploymentId ?? ''}`;
     let resp: AppDeployment | undefined;
@@ -476,7 +478,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppDeploymentSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -487,7 +489,7 @@ export class Client {
   async getAppUpdate(
     signal: AbortSignal | undefined,
     req: GetAppUpdateRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<AppUpdate> {
     const url = `${this.host}/api/2.0/apps/${req.appName ?? ''}/update`;
     let resp: AppUpdate | undefined;
@@ -502,7 +504,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppUpdateSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -513,7 +515,7 @@ export class Client {
   async getCustomTemplate(
     signal: AbortSignal | undefined,
     req: GetCustomTemplateRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CustomTemplate> {
     const url = `${this.host}/api/2.0/apps-settings/templates/${req.name ?? ''}`;
     let resp: CustomTemplate | undefined;
@@ -528,7 +530,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCustomTemplateSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -539,7 +541,7 @@ export class Client {
   async getSpace(
     signal: AbortSignal | undefined,
     req: GetSpaceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Space> {
     const url = `${this.host}/api/2.0/app-spaces/${req.name ?? ''}`;
     let resp: Space | undefined;
@@ -554,7 +556,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSpaceSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -565,7 +567,7 @@ export class Client {
   async getSpaceOperation(
     signal: AbortSignal | undefined,
     req: GetOperationRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/app-spaces/${req.name ?? ''}/operation`;
     let resp: Operation | undefined;
@@ -580,7 +582,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -591,7 +593,7 @@ export class Client {
   async listAppDeployments(
     signal: AbortSignal | undefined,
     req: ListAppDeploymentsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListAppDeploymentsResponse> {
     const url = `${this.host}/api/2.0/apps/${req.appName ?? ''}/deployments`;
     const params = new URLSearchParams();
@@ -615,7 +617,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListAppDeploymentsResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -625,7 +627,7 @@ export class Client {
   async *listAppDeploymentsIter(
     signal: AbortSignal | undefined,
     req: ListAppDeploymentsRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<AppDeployment> {
     const pageReq: ListAppDeploymentsRequest = {...req};
     for (;;) {
@@ -644,7 +646,7 @@ export class Client {
   async listApps(
     signal: AbortSignal | undefined,
     req: ListAppsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListAppsResponse> {
     const url = `${this.host}/api/2.0/apps`;
     const params = new URLSearchParams();
@@ -671,7 +673,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListAppsResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -681,7 +683,7 @@ export class Client {
   async *listAppsIter(
     signal: AbortSignal | undefined,
     req: ListAppsRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<App> {
     const pageReq: ListAppsRequest = {...req};
     for (;;) {
@@ -700,7 +702,7 @@ export class Client {
   async listCustomTemplates(
     signal: AbortSignal | undefined,
     req: ListCustomTemplatesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListCustomTemplatesResponse> {
     const url = `${this.host}/api/2.0/apps-settings/templates`;
     const params = new URLSearchParams();
@@ -727,7 +729,7 @@ export class Client {
         unmarshalListCustomTemplatesResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -737,7 +739,7 @@ export class Client {
   async *listCustomTemplatesIter(
     signal: AbortSignal | undefined,
     req: ListCustomTemplatesRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<CustomTemplate> {
     const pageReq: ListCustomTemplatesRequest = {...req};
     for (;;) {
@@ -756,7 +758,7 @@ export class Client {
   async listSpaces(
     signal: AbortSignal | undefined,
     req: ListSpacesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListSpacesResponse> {
     const url = `${this.host}/api/2.0/app-spaces`;
     const params = new URLSearchParams();
@@ -780,7 +782,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListSpacesResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -790,7 +792,7 @@ export class Client {
   async *listSpacesIter(
     signal: AbortSignal | undefined,
     req: ListSpacesRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<Space> {
     const pageReq: ListSpacesRequest = {...req};
     for (;;) {
@@ -809,7 +811,7 @@ export class Client {
   async startApp(
     signal: AbortSignal | undefined,
     req: StartAppRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<App> {
     const url = `${this.host}/api/2.0/apps/${req.name ?? ''}/start`;
     const body = marshalRequest(req, marshalStartAppRequestSchema);
@@ -825,7 +827,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -835,7 +837,7 @@ export class Client {
   async startAppWaiter(
     signal: AbortSignal | undefined,
     req: StartAppRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<StartAppWaiter> {
     await this.startApp(signal, req, options);
     if (req.name === undefined) {
@@ -848,7 +850,7 @@ export class Client {
   async stopApp(
     signal: AbortSignal | undefined,
     req: StopAppRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<App> {
     const url = `${this.host}/api/2.0/apps/${req.name ?? ''}/stop`;
     const body = marshalRequest(req, marshalStopAppRequestSchema);
@@ -864,7 +866,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -874,7 +876,7 @@ export class Client {
   async stopAppWaiter(
     signal: AbortSignal | undefined,
     req: StopAppRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<StopAppWaiter> {
     await this.stopApp(signal, req, options);
     if (req.name === undefined) {
@@ -887,7 +889,7 @@ export class Client {
   async updateApp(
     signal: AbortSignal | undefined,
     req: UpdateAppRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<App> {
     const url = `${this.host}/api/2.0/apps/${req.app?.name ?? ''}`;
     const body = marshalRequest(req.app, marshalAppSchema);
@@ -903,7 +905,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -914,7 +916,7 @@ export class Client {
   async updateAppThumbnail(
     signal: AbortSignal | undefined,
     req: UpdateAppThumbnailRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<AppThumbnail> {
     const url = `${this.host}/api/2.0/apps/${req.name ?? ''}/thumbnail`;
     const body = marshalRequest(req, marshalUpdateAppThumbnailRequestSchema);
@@ -930,7 +932,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppThumbnailSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -941,7 +943,7 @@ export class Client {
   async updateCustomTemplate(
     signal: AbortSignal | undefined,
     req: UpdateCustomTemplateRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CustomTemplate> {
     const url = `${this.host}/api/2.0/apps-settings/templates/${req.template?.name ?? ''}`;
     const body = marshalRequest(req.template, marshalCustomTemplateSchema);
@@ -957,7 +959,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCustomTemplateSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -968,7 +970,7 @@ export class Client {
   async updateSpace(
     signal: AbortSignal | undefined,
     req: UpdateSpaceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/app-spaces/${req.space?.name ?? ''}`;
     const params = new URLSearchParams();
@@ -996,7 +998,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1006,7 +1008,7 @@ export class Client {
   async updateSpaceOperation(
     signal: AbortSignal | undefined,
     req: UpdateSpaceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateSpaceOperation> {
     const op = await this.updateSpace(signal, req, options);
     return new UpdateSpaceOperation(this, op);
@@ -1041,7 +1043,7 @@ export class CreateSpaceOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<Space> {
     const errStillRunning = new Error('operation still in progress');
     let result: Space | undefined;
@@ -1082,13 +1084,13 @@ export class CreateSpaceOperation {
       result = z.lazy(() => unmarshalSpaceSchema).parse(op.result.response);
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1098,7 +1100,7 @@ export class CreateSpaceOperation {
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getSpaceOperation(
       signal,
@@ -1138,7 +1140,7 @@ export class DeleteSpaceOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
@@ -1172,19 +1174,19 @@ export class DeleteSpaceOperation {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
   }
 
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getSpaceOperation(
       signal,
@@ -1224,7 +1226,7 @@ export class UpdateSpaceOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<Space> {
     const errStillRunning = new Error('operation still in progress');
     let result: Space | undefined;
@@ -1265,13 +1267,13 @@ export class UpdateSpaceOperation {
       result = z.lazy(() => unmarshalSpaceSchema).parse(op.result.response);
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1281,7 +1283,7 @@ export class UpdateSpaceOperation {
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getSpaceOperation(
       signal,
@@ -1306,7 +1308,7 @@ export class AsyncUpdateAppWaiter {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<AppUpdate> {
     let result: AppUpdate | undefined;
 
@@ -1337,13 +1339,13 @@ export class AsyncUpdateAppWaiter {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1353,7 +1355,7 @@ export class AsyncUpdateAppWaiter {
   /** Checks whether the operation has reached a terminal state. */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean> {
     const pollResp = await this.client.getAppUpdate(
       signal,
@@ -1389,7 +1391,10 @@ export class CreateAppWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(signal: AbortSignal | undefined, options?: Options): Promise<App> {
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: CallOptions
+  ): Promise<App> {
     let result: App | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1420,13 +1425,13 @@ export class CreateAppWaiter {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1436,7 +1441,7 @@ export class CreateAppWaiter {
   /** Checks whether the operation has reached a terminal state. */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean> {
     const pollResp = await this.client.getApp(
       signal,
@@ -1476,7 +1481,7 @@ export class CreateAppDeploymentWaiter {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<AppDeployment> {
     let result: AppDeployment | undefined;
 
@@ -1508,13 +1513,13 @@ export class CreateAppDeploymentWaiter {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1524,7 +1529,7 @@ export class CreateAppDeploymentWaiter {
   /** Checks whether the operation has reached a terminal state. */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean> {
     const pollResp = await this.client.getAppDeployment(
       signal,
@@ -1561,7 +1566,10 @@ export class StartAppWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(signal: AbortSignal | undefined, options?: Options): Promise<App> {
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: CallOptions
+  ): Promise<App> {
     let result: App | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1592,13 +1600,13 @@ export class StartAppWaiter {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1608,7 +1616,7 @@ export class StartAppWaiter {
   /** Checks whether the operation has reached a terminal state. */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean> {
     const pollResp = await this.client.getApp(
       signal,
@@ -1645,7 +1653,10 @@ export class StopAppWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(signal: AbortSignal | undefined, options?: Options): Promise<App> {
+  async wait(
+    signal: AbortSignal | undefined,
+    options?: CallOptions
+  ): Promise<App> {
     let result: App | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1675,13 +1686,13 @@ export class StopAppWaiter {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1691,7 +1702,7 @@ export class StopAppWaiter {
   /** Checks whether the operation has reached a terminal state. */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean> {
     const pollResp = await this.client.getApp(
       signal,

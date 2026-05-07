@@ -1,16 +1,18 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute, retryOn} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -65,7 +67,7 @@ export class Client {
   async createOnlineTable(
     signal: AbortSignal | undefined,
     req: CreateOnlineTableRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<OnlineTable> {
     const url = `${this.host}/api/2.0/online-tables`;
     const body = marshalRequest(req.table, marshalOnlineTableSchema);
@@ -81,7 +83,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOnlineTableSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -91,7 +93,7 @@ export class Client {
   async createOnlineTableWaiter(
     signal: AbortSignal | undefined,
     req: CreateOnlineTableRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateOnlineTableWaiter> {
     const resp = await this.createOnlineTable(signal, req, options);
     if (resp.name === undefined) {
@@ -108,7 +110,7 @@ export class Client {
   async deleteOnlineTable(
     signal: AbortSignal | undefined,
     req: DeleteOnlineTableRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/online-tables/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -121,14 +123,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Get information about an existing online table and its status. */
   async getOnlineTable(
     signal: AbortSignal | undefined,
     req: GetOnlineTableRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<OnlineTable> {
     const url = `${this.host}/api/2.0/online-tables/${req.name ?? ''}`;
     let resp: OnlineTable | undefined;
@@ -143,7 +145,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOnlineTableSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -164,7 +166,7 @@ export class CreateOnlineTableWaiter {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<OnlineTable> {
     let result: OnlineTable | undefined;
 
@@ -195,13 +197,13 @@ export class CreateOnlineTableWaiter {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -211,7 +213,7 @@ export class CreateOnlineTableWaiter {
   /** Checks whether the operation has reached a terminal state. */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean> {
     const pollResp = await this.client.getOnlineTable(
       signal,

@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -76,7 +77,7 @@ export class Client {
   async addInstanceProfile(
     signal: AbortSignal | undefined,
     req: AddInstanceProfile,
-    options?: Options
+    options?: CallOptions
   ): Promise<AddInstanceProfile_Response> {
     const url = `${this.host}/api/2.0/instance-profiles/add`;
     const body = marshalRequest(req, marshalAddInstanceProfileSchema);
@@ -95,7 +96,7 @@ export class Client {
         unmarshalAddInstanceProfile_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -119,7 +120,7 @@ export class Client {
   async editInstanceProfile(
     signal: AbortSignal | undefined,
     req: EditInstanceProfile,
-    options?: Options
+    options?: CallOptions
   ): Promise<EditInstanceProfile_Response> {
     const url = `${this.host}/api/2.0/instance-profiles/edit`;
     const body = marshalRequest(req, marshalEditInstanceProfileSchema);
@@ -138,7 +139,7 @@ export class Client {
         unmarshalEditInstanceProfile_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -153,7 +154,7 @@ export class Client {
   async listInstanceProfiles(
     signal: AbortSignal | undefined,
     _req: ListInstanceProfiles,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListInstanceProfiles_Response> {
     const url = `${this.host}/api/2.0/instance-profiles/list`;
     let resp: ListInstanceProfiles_Response | undefined;
@@ -171,7 +172,7 @@ export class Client {
         unmarshalListInstanceProfiles_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -187,7 +188,7 @@ export class Client {
   async removeInstanceProfile(
     signal: AbortSignal | undefined,
     req: RemoveInstanceProfile,
-    options?: Options
+    options?: CallOptions
   ): Promise<RemoveInstanceProfile_Response> {
     const url = `${this.host}/api/2.0/instance-profiles/remove`;
     const body = marshalRequest(req, marshalRemoveInstanceProfileSchema);
@@ -206,7 +207,7 @@ export class Client {
         unmarshalRemoveInstanceProfile_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

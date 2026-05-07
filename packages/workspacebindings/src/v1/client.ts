@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -74,7 +75,7 @@ export class Client {
   async getCatalogWorkspaceBindings(
     signal: AbortSignal | undefined,
     req: GetCatalogWorkspaceBindings,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetCatalogWorkspaceBindings_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/workspace-bindings/catalogs/${req.catalogName ?? ''}`;
     let resp: GetCatalogWorkspaceBindings_Response | undefined;
@@ -92,7 +93,7 @@ export class Client {
         unmarshalGetCatalogWorkspaceBindings_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -111,7 +112,7 @@ export class Client {
   async getWorkspaceBindings(
     signal: AbortSignal | undefined,
     req: GetWorkspaceBindings,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetWorkspaceBindings_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/bindings/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
     const params = new URLSearchParams();
@@ -138,7 +139,7 @@ export class Client {
         unmarshalGetWorkspaceBindings_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -148,7 +149,7 @@ export class Client {
   async *getWorkspaceBindingsIter(
     signal: AbortSignal | undefined,
     req: GetWorkspaceBindings,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<WorkspaceBindingInfo> {
     const pageReq: GetWorkspaceBindings = {...req};
     for (;;) {
@@ -170,7 +171,7 @@ export class Client {
   async updateCatalogWorkspaceBindings(
     signal: AbortSignal | undefined,
     req: UpdateCatalogWorkspaceBindings,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateCatalogWorkspaceBindings_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/workspace-bindings/catalogs/${req.catalogName ?? ''}`;
     const body = marshalRequest(
@@ -192,7 +193,7 @@ export class Client {
         unmarshalUpdateCatalogWorkspaceBindings_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -206,7 +207,7 @@ export class Client {
   async updateWorkspaceBindings(
     signal: AbortSignal | undefined,
     req: UpdateWorkspaceBindings,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateWorkspaceBindings_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/bindings/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
     const body = marshalRequest(req, marshalUpdateWorkspaceBindingsSchema);
@@ -225,7 +226,7 @@ export class Client {
         unmarshalUpdateWorkspaceBindings_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

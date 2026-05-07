@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -177,7 +178,7 @@ export class Client {
   async addExchangeForListing(
     signal: AbortSignal | undefined,
     req: AddExchangeForListingRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<AddExchangeForListingResponse> {
     const url = `${this.host}/api/2.0/marketplace-exchange/exchanges-for-listing`;
     const body = marshalRequest(req, marshalAddExchangeForListingRequestSchema);
@@ -196,7 +197,7 @@ export class Client {
         unmarshalAddExchangeForListingResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -207,7 +208,7 @@ export class Client {
   async createExchange(
     signal: AbortSignal | undefined,
     req: CreateExchangeRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateExchangeResponse> {
     const url = `${this.host}/api/2.0/marketplace-exchange/exchanges`;
     const body = marshalRequest(req, marshalCreateExchangeRequestSchema);
@@ -223,7 +224,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateExchangeResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -234,7 +235,7 @@ export class Client {
   async createExchangeFilter(
     signal: AbortSignal | undefined,
     req: CreateExchangeFilterRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateExchangeFilterResponse> {
     const url = `${this.host}/api/2.0/marketplace-exchange/filters`;
     const body = marshalRequest(req, marshalCreateExchangeFilterRequestSchema);
@@ -253,7 +254,7 @@ export class Client {
         unmarshalCreateExchangeFilterResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -264,7 +265,7 @@ export class Client {
   async createFile(
     signal: AbortSignal | undefined,
     req: CreateFile,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateFile_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/files`;
     const body = marshalRequest(req, marshalCreateFileSchema);
@@ -280,7 +281,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateFile_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -291,7 +292,7 @@ export class Client {
   async createListing(
     signal: AbortSignal | undefined,
     req: CreateListing,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateListing_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/listing`;
     const body = marshalRequest(req, marshalCreateListingSchema);
@@ -307,7 +308,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateListing_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -318,7 +319,7 @@ export class Client {
   async createProvider(
     signal: AbortSignal | undefined,
     req: CreateProvider,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateProvider_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/provider`;
     const body = marshalRequest(req, marshalCreateProviderSchema);
@@ -334,7 +335,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateProvider_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -345,7 +346,7 @@ export class Client {
   async createProviderAnalyticsDashboard(
     signal: AbortSignal | undefined,
     req: CreateProviderAnalyticsDashboard,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateProviderAnalyticsDashboard_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard`;
     const body = marshalRequest(
@@ -367,7 +368,7 @@ export class Client {
         unmarshalCreateProviderAnalyticsDashboard_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -378,7 +379,7 @@ export class Client {
   async deleteExchange(
     signal: AbortSignal | undefined,
     req: DeleteExchangeRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteExchangeResponse> {
     const url = `${this.host}/api/2.0/marketplace-exchange/exchanges/${req.id ?? ''}`;
     let resp: DeleteExchangeResponse | undefined;
@@ -393,7 +394,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteExchangeResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -404,7 +405,7 @@ export class Client {
   async deleteExchangeFilter(
     signal: AbortSignal | undefined,
     req: DeleteExchangeFilterRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteExchangeFilterResponse> {
     const url = `${this.host}/api/2.0/marketplace-exchange/filters/${req.id ?? ''}`;
     let resp: DeleteExchangeFilterResponse | undefined;
@@ -422,7 +423,7 @@ export class Client {
         unmarshalDeleteExchangeFilterResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -433,7 +434,7 @@ export class Client {
   async deleteFile(
     signal: AbortSignal | undefined,
     req: DeleteFile,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteFile_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/files/${req.fileId ?? ''}`;
     let resp: DeleteFile_Response | undefined;
@@ -448,7 +449,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteFile_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -459,7 +460,7 @@ export class Client {
   async deleteListing(
     signal: AbortSignal | undefined,
     req: DeleteListing,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteListing_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
     let resp: DeleteListing_Response | undefined;
@@ -474,7 +475,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteListing_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -485,7 +486,7 @@ export class Client {
   async deleteProvider(
     signal: AbortSignal | undefined,
     req: DeleteProvider,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteProvider_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
     let resp: DeleteProvider_Response | undefined;
@@ -500,7 +501,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteProvider_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -511,7 +512,7 @@ export class Client {
   async getExchange(
     signal: AbortSignal | undefined,
     req: GetExchangeRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetExchangeResponse> {
     const url = `${this.host}/api/2.0/marketplace-exchange/exchanges/${req.id ?? ''}`;
     let resp: GetExchangeResponse | undefined;
@@ -526,7 +527,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetExchangeResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -537,7 +538,7 @@ export class Client {
   async getFile(
     signal: AbortSignal | undefined,
     req: GetFile,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetFile_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/files/${req.fileId ?? ''}`;
     let resp: GetFile_Response | undefined;
@@ -552,7 +553,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetFile_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -563,7 +564,7 @@ export class Client {
   async getLatestVersionProviderAnalyticsDashboard(
     signal: AbortSignal | undefined,
     _req: GetLatestVersionProviderAnalyticsDashboard,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetLatestVersionProviderAnalyticsDashboard_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard/latest`;
     let resp: GetLatestVersionProviderAnalyticsDashboard_Response | undefined;
@@ -581,7 +582,7 @@ export class Client {
         unmarshalGetLatestVersionProviderAnalyticsDashboard_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -592,7 +593,7 @@ export class Client {
   async getListing(
     signal: AbortSignal | undefined,
     req: GetListing,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetListing_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
     let resp: GetListing_Response | undefined;
@@ -607,7 +608,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetListing_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -618,7 +619,7 @@ export class Client {
   async getListings(
     signal: AbortSignal | undefined,
     req: GetListings,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetListings_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/listings`;
     const params = new URLSearchParams();
@@ -642,7 +643,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetListings_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -652,7 +653,7 @@ export class Client {
   async *getListingsIter(
     signal: AbortSignal | undefined,
     req: GetListings,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<Listing> {
     const pageReq: GetListings = {...req};
     for (;;) {
@@ -674,7 +675,7 @@ export class Client {
   async getPersonalizationRequestsForProvider(
     signal: AbortSignal | undefined,
     req: GetPersonalizationRequestsForProvider,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetPersonalizationRequestsForProvider_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/personalization-requests`;
     const params = new URLSearchParams();
@@ -701,7 +702,7 @@ export class Client {
         unmarshalGetPersonalizationRequestsForProvider_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -711,7 +712,7 @@ export class Client {
   async *getPersonalizationRequestsForProviderIter(
     signal: AbortSignal | undefined,
     req: GetPersonalizationRequestsForProvider,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<PersonalizationRequest> {
     const pageReq: GetPersonalizationRequestsForProvider = {...req};
     for (;;) {
@@ -734,7 +735,7 @@ export class Client {
   async getProvider(
     signal: AbortSignal | undefined,
     req: GetProvider,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetProvider_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
     let resp: GetProvider_Response | undefined;
@@ -749,7 +750,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetProvider_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -760,7 +761,7 @@ export class Client {
   async listExchangeFilters(
     signal: AbortSignal | undefined,
     req: ListExchangeFiltersRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListExchangeFiltersResponse> {
     const url = `${this.host}/api/2.0/marketplace-exchange/filters`;
     const params = new URLSearchParams();
@@ -790,7 +791,7 @@ export class Client {
         unmarshalListExchangeFiltersResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -800,7 +801,7 @@ export class Client {
   async *listExchangeFiltersIter(
     signal: AbortSignal | undefined,
     req: ListExchangeFiltersRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<ExchangeFilter> {
     const pageReq: ListExchangeFiltersRequest = {...req};
     for (;;) {
@@ -819,7 +820,7 @@ export class Client {
   async listExchanges(
     signal: AbortSignal | undefined,
     req: ListExchangesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListExchangesResponse> {
     const url = `${this.host}/api/2.0/marketplace-exchange/exchanges`;
     const params = new URLSearchParams();
@@ -843,7 +844,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListExchangesResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -853,7 +854,7 @@ export class Client {
   async *listExchangesIter(
     signal: AbortSignal | undefined,
     req: ListExchangesRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<Exchange> {
     const pageReq: ListExchangesRequest = {...req};
     for (;;) {
@@ -872,7 +873,7 @@ export class Client {
   async listExchangesForListing(
     signal: AbortSignal | undefined,
     req: ListExchangesForListingRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListExchangesForListingResponse> {
     const url = `${this.host}/api/2.0/marketplace-exchange/exchanges-for-listing`;
     const params = new URLSearchParams();
@@ -902,7 +903,7 @@ export class Client {
         unmarshalListExchangesForListingResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -912,7 +913,7 @@ export class Client {
   async *listExchangesForListingIter(
     signal: AbortSignal | undefined,
     req: ListExchangesForListingRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<ExchangeListing> {
     const pageReq: ListExchangesForListingRequest = {...req};
     for (;;) {
@@ -931,7 +932,7 @@ export class Client {
   async listFiles(
     signal: AbortSignal | undefined,
     req: ListFiles,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListFiles_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/files`;
     const params = new URLSearchParams();
@@ -962,7 +963,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListFiles_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -972,7 +973,7 @@ export class Client {
   async *listFilesIter(
     signal: AbortSignal | undefined,
     req: ListFiles,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<FileInfo> {
     const pageReq: ListFiles = {...req};
     for (;;) {
@@ -991,7 +992,7 @@ export class Client {
   async listListingsForExchange(
     signal: AbortSignal | undefined,
     req: ListListingsForExchangeRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListListingsForExchangeResponse> {
     const url = `${this.host}/api/2.0/marketplace-exchange/listings-for-exchange`;
     const params = new URLSearchParams();
@@ -1021,7 +1022,7 @@ export class Client {
         unmarshalListListingsForExchangeResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1031,7 +1032,7 @@ export class Client {
   async *listListingsForExchangeIter(
     signal: AbortSignal | undefined,
     req: ListListingsForExchangeRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<ExchangeListing> {
     const pageReq: ListListingsForExchangeRequest = {...req};
     for (;;) {
@@ -1050,7 +1051,7 @@ export class Client {
   async listProviderAnalyticsDashboard(
     signal: AbortSignal | undefined,
     _req: ListProviderAnalyticsDashboard,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListProviderAnalyticsDashboard_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard`;
     let resp: ListProviderAnalyticsDashboard_Response | undefined;
@@ -1068,7 +1069,7 @@ export class Client {
         unmarshalListProviderAnalyticsDashboard_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1079,7 +1080,7 @@ export class Client {
   async listProviders(
     signal: AbortSignal | undefined,
     req: ListProviders,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListProviders_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/providers`;
     const params = new URLSearchParams();
@@ -1103,7 +1104,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListProviders_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1113,7 +1114,7 @@ export class Client {
   async *listProvidersIter(
     signal: AbortSignal | undefined,
     req: ListProviders,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<ProviderInfo> {
     const pageReq: ListProviders = {...req};
     for (;;) {
@@ -1132,7 +1133,7 @@ export class Client {
   async removeExchangeForListing(
     signal: AbortSignal | undefined,
     req: RemoveExchangeForListingRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<RemoveExchangeForListingResponse> {
     const url = `${this.host}/api/2.0/marketplace-exchange/exchanges-for-listing/${req.id ?? ''}`;
     let resp: RemoveExchangeForListingResponse | undefined;
@@ -1150,7 +1151,7 @@ export class Client {
         unmarshalRemoveExchangeForListingResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1161,7 +1162,7 @@ export class Client {
   async updateExchange(
     signal: AbortSignal | undefined,
     req: UpdateExchangeRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateExchangeResponse> {
     const url = `${this.host}/api/2.0/marketplace-exchange/exchanges/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateExchangeRequestSchema);
@@ -1177,7 +1178,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdateExchangeResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1188,7 +1189,7 @@ export class Client {
   async updateExchangeFilter(
     signal: AbortSignal | undefined,
     req: UpdateExchangeFilterRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateExchangeFilterResponse> {
     const url = `${this.host}/api/2.0/marketplace-exchange/filters/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateExchangeFilterRequestSchema);
@@ -1207,7 +1208,7 @@ export class Client {
         unmarshalUpdateExchangeFilterResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1218,7 +1219,7 @@ export class Client {
   async updateListing(
     signal: AbortSignal | undefined,
     req: UpdateListing,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateListing_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateListingSchema);
@@ -1234,7 +1235,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdateListing_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1245,7 +1246,7 @@ export class Client {
   async updatePersonalizationRequestStatus(
     signal: AbortSignal | undefined,
     req: UpdatePersonalizationRequestStatus,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdatePersonalizationRequestStatus_Response> {
     const url = `${this.host}/api/marketplace-provider/listings/${req.listingId ?? ''}/personalization-requests/${req.requestId ?? ''}/request-status`;
     const body = marshalRequest(
@@ -1267,7 +1268,7 @@ export class Client {
         unmarshalUpdatePersonalizationRequestStatus_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1278,7 +1279,7 @@ export class Client {
   async updateProvider(
     signal: AbortSignal | undefined,
     req: UpdateProvider,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateProvider_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateProviderSchema);
@@ -1294,7 +1295,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdateProvider_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1305,7 +1306,7 @@ export class Client {
   async updateProviderAnalyticsDashboard(
     signal: AbortSignal | undefined,
     req: UpdateProviderAnalyticsDashboard,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateProviderAnalyticsDashboard_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard/${req.id ?? ''}`;
     const body = marshalRequest(
@@ -1327,7 +1328,7 @@ export class Client {
         unmarshalUpdateProviderAnalyticsDashboard_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -89,7 +90,7 @@ export class Client {
   async createVectorIndex(
     signal: AbortSignal | undefined,
     req: CreateVectorIndexRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<VectorIndex> {
     const url = `${this.host}/api/2.0/vector-search/indexes`;
     const body = marshalRequest(req, marshalCreateVectorIndexRequestSchema);
@@ -105,7 +106,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalVectorIndexSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -116,7 +117,7 @@ export class Client {
   async deleteDataVectorIndex(
     signal: AbortSignal | undefined,
     req: DeleteDataVectorIndexRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteDataVectorIndexResponse> {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/delete-data`;
     const params = new URLSearchParams();
@@ -140,7 +141,7 @@ export class Client {
         unmarshalDeleteDataVectorIndexResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -151,7 +152,7 @@ export class Client {
   async deleteVectorIndex(
     signal: AbortSignal | undefined,
     req: DeleteVectorIndexRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteVectorIndexResponse> {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}`;
     let resp: DeleteVectorIndexResponse | undefined;
@@ -166,7 +167,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteVectorIndexResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -177,7 +178,7 @@ export class Client {
   async getVectorIndex(
     signal: AbortSignal | undefined,
     req: GetVectorIndexRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<VectorIndex> {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}`;
     const params = new URLSearchParams();
@@ -201,7 +202,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalVectorIndexSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -212,7 +213,7 @@ export class Client {
   async listVectorIndex(
     signal: AbortSignal | undefined,
     req: ListVectorIndexRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListVectorIndexResponse> {
     const url = `${this.host}/api/2.0/vector-search/indexes`;
     const params = new URLSearchParams();
@@ -236,7 +237,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListVectorIndexResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -246,7 +247,7 @@ export class Client {
   async *listVectorIndexIter(
     signal: AbortSignal | undefined,
     req: ListVectorIndexRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<MiniVectorIndex> {
     const pageReq: ListVectorIndexRequest = {...req};
     for (;;) {
@@ -265,7 +266,7 @@ export class Client {
   async queryVectorIndex(
     signal: AbortSignal | undefined,
     req: QueryVectorIndexRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<QueryVectorIndexResponse> {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/query`;
     const body = marshalRequest(req, marshalQueryVectorIndexRequestSchema);
@@ -281,7 +282,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalQueryVectorIndexResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -292,7 +293,7 @@ export class Client {
   async queryVectorIndexNextPage(
     signal: AbortSignal | undefined,
     req: QueryVectorIndexNextPageRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<QueryVectorIndexResponse> {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/query-next-page`;
     const body = marshalRequest(
@@ -311,7 +312,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalQueryVectorIndexResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -322,7 +323,7 @@ export class Client {
   async scanVectorIndex(
     signal: AbortSignal | undefined,
     req: ScanVectorIndexRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ScanVectorIndexResponse> {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/scan`;
     const body = marshalRequest(req, marshalScanVectorIndexRequestSchema);
@@ -338,7 +339,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalScanVectorIndexResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -349,7 +350,7 @@ export class Client {
   async syncVectorIndex(
     signal: AbortSignal | undefined,
     req: SyncVectorIndexRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<SyncVectorIndexResponse> {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/sync`;
     const body = marshalRequest(req, marshalSyncVectorIndexRequestSchema);
@@ -365,7 +366,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSyncVectorIndexResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -376,7 +377,7 @@ export class Client {
   async upsertDataVectorIndex(
     signal: AbortSignal | undefined,
     req: UpsertDataVectorIndexRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpsertDataVectorIndexResponse> {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/upsert-data`;
     const body = marshalRequest(req, marshalUpsertDataVectorIndexRequestSchema);
@@ -395,7 +396,7 @@ export class Client {
         unmarshalUpsertDataVectorIndexResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

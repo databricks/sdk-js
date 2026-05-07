@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -90,7 +91,7 @@ export class Client {
   async allClusterStatuses(
     signal: AbortSignal | undefined,
     _req: ListAllClusterLibraryStatuses,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListAllClusterLibraryStatuses_Response> {
     const url = `${this.host}/api/2.0/libraries/all-cluster-statuses`;
     let resp: ListAllClusterLibraryStatuses_Response | undefined;
@@ -108,7 +109,7 @@ export class Client {
         unmarshalListAllClusterLibraryStatuses_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -127,7 +128,7 @@ export class Client {
   async clusterStatus(
     signal: AbortSignal | undefined,
     req: ClusterStatus,
-    options?: Options
+    options?: CallOptions
   ): Promise<ClusterLibraryStatuses> {
     const url = `${this.host}/api/2.0/libraries/cluster-status`;
     const params = new URLSearchParams();
@@ -148,7 +149,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalClusterLibraryStatusesSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -163,7 +164,7 @@ export class Client {
   async createDefaultBaseEnvironment(
     signal: AbortSignal | undefined,
     req: CreateDefaultBaseEnvironmentRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DefaultBaseEnvironment> {
     const url = `${this.host}/api/2.0/default-base-environments`;
     const body = marshalRequest(
@@ -182,7 +183,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDefaultBaseEnvironmentSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -196,7 +197,7 @@ export class Client {
   async deleteDefaultBaseEnvironment(
     signal: AbortSignal | undefined,
     req: DeleteDefaultBaseEnvironmentRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/default-base-environments/${req.id ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -209,14 +210,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Return the default base environment details for a given ID. */
   async getDefaultBaseEnvironment(
     signal: AbortSignal | undefined,
     req: GetDefaultBaseEnvironmentRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DefaultBaseEnvironment> {
     const url = `${this.host}/api/2.0/default-base-environments:getDefaultBaseEnvironment`;
     const params = new URLSearchParams();
@@ -240,7 +241,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDefaultBaseEnvironmentSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -254,7 +255,7 @@ export class Client {
   async installLibraries(
     signal: AbortSignal | undefined,
     req: InstallLibraries,
-    options?: Options
+    options?: CallOptions
   ): Promise<InstallLibraries_Response> {
     const url = `${this.host}/api/2.0/libraries/install`;
     const body = marshalRequest(req, marshalInstallLibrariesSchema);
@@ -270,7 +271,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalInstallLibraries_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -281,7 +282,7 @@ export class Client {
   async listDefaultBaseEnvironments(
     signal: AbortSignal | undefined,
     req: ListDefaultBaseEnvironmentsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListDefaultBaseEnvironmentsResponse> {
     const url = `${this.host}/api/2.0/default-base-environments`;
     const params = new URLSearchParams();
@@ -308,7 +309,7 @@ export class Client {
         unmarshalListDefaultBaseEnvironmentsResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -318,7 +319,7 @@ export class Client {
   async *listDefaultBaseEnvironmentsIter(
     signal: AbortSignal | undefined,
     req: ListDefaultBaseEnvironmentsRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<DefaultBaseEnvironment> {
     const pageReq: ListDefaultBaseEnvironmentsRequest = {...req};
     for (;;) {
@@ -344,7 +345,7 @@ export class Client {
   async refreshDefaultBaseEnvironments(
     signal: AbortSignal | undefined,
     req: RefreshDefaultBaseEnvironmentsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<RefreshDefaultBaseEnvironmentsResponse> {
     const url = `${this.host}/api/2.0/default-base-environments/refresh`;
     const body = marshalRequest(
@@ -366,7 +367,7 @@ export class Client {
         unmarshalRefreshDefaultBaseEnvironmentsResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -380,7 +381,7 @@ export class Client {
   async uninstallLibraries(
     signal: AbortSignal | undefined,
     req: UninstallLibraries,
-    options?: Options
+    options?: CallOptions
   ): Promise<UninstallLibraries_Response> {
     const url = `${this.host}/api/2.0/libraries/uninstall`;
     const body = marshalRequest(req, marshalUninstallLibrariesSchema);
@@ -399,7 +400,7 @@ export class Client {
         unmarshalUninstallLibraries_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -413,7 +414,7 @@ export class Client {
   async updateDefaultBaseEnvironment(
     signal: AbortSignal | undefined,
     req: UpdateDefaultBaseEnvironmentRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DefaultBaseEnvironment> {
     const url = `${this.host}/api/2.0/default-base-environments/${req.id ?? ''}`;
     const body = marshalRequest(
@@ -432,7 +433,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDefaultBaseEnvironmentSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -443,7 +444,7 @@ export class Client {
   async updateDefaultDefaultBaseEnvironment(
     signal: AbortSignal | undefined,
     req: UpdateDefaultDefaultBaseEnvironmentRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DefaultBaseEnvironment> {
     const url = `${this.host}/api/2.0/default-base-environments:setDefault`;
     const body = marshalRequest(
@@ -462,7 +463,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDefaultBaseEnvironmentSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

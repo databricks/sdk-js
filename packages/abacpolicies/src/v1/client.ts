@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -71,7 +72,7 @@ export class Client {
   async createPolicy(
     signal: AbortSignal | undefined,
     req: CreatePolicy,
-    options?: Options
+    options?: CallOptions
   ): Promise<PolicyInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/policies`;
     const body = marshalRequest(req.policyInfo, marshalPolicyInfoSchema);
@@ -87,7 +88,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPolicyInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -98,7 +99,7 @@ export class Client {
   async deletePolicy(
     signal: AbortSignal | undefined,
     req: DeletePolicy,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeletePolicy_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}/${req.name ?? ''}`;
     let resp: DeletePolicy_Response | undefined;
@@ -113,7 +114,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeletePolicy_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -124,7 +125,7 @@ export class Client {
   async getPolicy(
     signal: AbortSignal | undefined,
     req: GetPolicy,
-    options?: Options
+    options?: CallOptions
   ): Promise<PolicyInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}/${req.name ?? ''}`;
     let resp: PolicyInfo | undefined;
@@ -139,7 +140,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPolicyInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -156,7 +157,7 @@ export class Client {
   async listPolicies(
     signal: AbortSignal | undefined,
     req: ListPolicies,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListPolicies_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}`;
     const params = new URLSearchParams();
@@ -183,7 +184,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListPolicies_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -193,7 +194,7 @@ export class Client {
   async *listPoliciesIter(
     signal: AbortSignal | undefined,
     req: ListPolicies,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<PolicyInfo> {
     const pageReq: ListPolicies = {...req};
     for (;;) {
@@ -212,7 +213,7 @@ export class Client {
   async updatePolicy(
     signal: AbortSignal | undefined,
     req: UpdatePolicy,
-    options?: Options
+    options?: CallOptions
   ): Promise<PolicyInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}/${req.name ?? ''}`;
     const params = new URLSearchParams();
@@ -240,7 +241,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPolicyInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

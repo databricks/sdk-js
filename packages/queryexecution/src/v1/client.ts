@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -66,7 +67,7 @@ export class Client {
   async cancelPublishedQueryExecution(
     signal: AbortSignal | undefined,
     req: CancelPublishedQueryExecutionRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CancelQueryExecutionResponse> {
     const url = `${this.host}/api/2.0/lakeview-query/query/published`;
     const params = new URLSearchParams();
@@ -96,7 +97,7 @@ export class Client {
         unmarshalCancelQueryExecutionResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -107,7 +108,7 @@ export class Client {
   async executePublishedDashboardQuery(
     signal: AbortSignal | undefined,
     req: ExecutePublishedDashboardQueryRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ExecuteQueryResponse> {
     const url = `${this.host}/api/2.0/lakeview-query/query/published`;
     const body = marshalRequest(
@@ -126,7 +127,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalExecuteQueryResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -140,7 +141,7 @@ export class Client {
   async pollPublishedQueryStatus(
     signal: AbortSignal | undefined,
     req: PollPublishedQueryStatusRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<PollQueryStatusResponse> {
     const url = `${this.host}/api/2.0/lakeview-query/query/published`;
     const params = new URLSearchParams();
@@ -167,7 +168,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPollQueryStatusResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

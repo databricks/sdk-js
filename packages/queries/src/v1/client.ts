@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -74,7 +75,7 @@ export class Client {
   async createQuery(
     signal: AbortSignal | undefined,
     req: CreateQueryRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Query> {
     const url = `${this.host}/api/2.0/sql/queries`;
     const body = marshalRequest(req, marshalCreateQueryRequestSchema);
@@ -90,7 +91,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalQuerySchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -101,7 +102,7 @@ export class Client {
   async getQuery(
     signal: AbortSignal | undefined,
     req: GetQueryRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Query> {
     const url = `${this.host}/api/2.0/sql/queries/${req.id ?? ''}`;
     let resp: Query | undefined;
@@ -116,7 +117,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalQuerySchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -127,7 +128,7 @@ export class Client {
   async listQueries(
     signal: AbortSignal | undefined,
     req: ListQueriesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListQueriesResponse> {
     const url = `${this.host}/api/2.0/sql/queries`;
     const params = new URLSearchParams();
@@ -151,7 +152,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListQueriesResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -161,7 +162,7 @@ export class Client {
   async *listQueriesIter(
     signal: AbortSignal | undefined,
     req: ListQueriesRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<ListQueryObjectsResponseQuery> {
     const pageReq: ListQueriesRequest = {...req};
     for (;;) {
@@ -180,7 +181,7 @@ export class Client {
   async listVisualizationsForQuery(
     signal: AbortSignal | undefined,
     req: ListVisualizationsForQueryRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListVisualizationsForQueryResponse> {
     const url = `${this.host}/api/2.0/sql/queries/${req.id ?? ''}/visualizations`;
     const params = new URLSearchParams();
@@ -207,7 +208,7 @@ export class Client {
         unmarshalListVisualizationsForQueryResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -217,7 +218,7 @@ export class Client {
   async *listVisualizationsForQueryIter(
     signal: AbortSignal | undefined,
     req: ListVisualizationsForQueryRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<Visualization> {
     const pageReq: ListVisualizationsForQueryRequest = {...req};
     for (;;) {
@@ -240,7 +241,7 @@ export class Client {
   async trashQuery(
     signal: AbortSignal | undefined,
     req: TrashQueryRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Empty> {
     const url = `${this.host}/api/2.0/sql/queries/${req.id ?? ''}`;
     let resp: Empty | undefined;
@@ -255,7 +256,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEmptySchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -266,7 +267,7 @@ export class Client {
   async updateQuery(
     signal: AbortSignal | undefined,
     req: UpdateQueryRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Query> {
     const url = `${this.host}/api/2.0/sql/queries/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateQueryRequestSchema);
@@ -282,7 +283,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalQuerySchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

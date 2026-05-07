@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -78,7 +79,7 @@ export class Client {
   async createRepo(
     signal: AbortSignal | undefined,
     req: CreateRepo,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateRepo_Response> {
     const url = `${this.host}/api/2.0/repos`;
     const body = marshalRequest(req, marshalCreateRepoSchema);
@@ -94,7 +95,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateRepo_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -105,7 +106,7 @@ export class Client {
   async deleteProject(
     signal: AbortSignal | undefined,
     req: DeleteProject,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteProject_Response> {
     const url = `${this.host}/api/2.0/repos/${String(req.id ?? '')}`;
     let resp: DeleteProject_Response | undefined;
@@ -120,7 +121,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteProject_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -131,7 +132,7 @@ export class Client {
   async getRepo(
     signal: AbortSignal | undefined,
     req: GetRepo,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetRepo_Response> {
     const url = `${this.host}/api/2.0/repos/${String(req.id ?? '')}`;
     let resp: GetRepo_Response | undefined;
@@ -146,7 +147,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetRepo_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -160,7 +161,7 @@ export class Client {
   async listRepos(
     signal: AbortSignal | undefined,
     req: ListRepos,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListRepos_Response> {
     const url = `${this.host}/api/2.0/repos`;
     const params = new URLSearchParams();
@@ -184,7 +185,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListRepos_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -194,7 +195,7 @@ export class Client {
   async *listReposIter(
     signal: AbortSignal | undefined,
     req: ListRepos,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<RepoInfo> {
     const pageReq: ListRepos = {...req};
     for (;;) {
@@ -216,7 +217,7 @@ export class Client {
   async updateRepo(
     signal: AbortSignal | undefined,
     req: UpdateRepo,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateRepo_Response> {
     const url = `${this.host}/api/2.0/repos/${String(req.id ?? '')}`;
     const body = marshalRequest(req, marshalUpdateRepoSchema);
@@ -232,7 +233,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdateRepo_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

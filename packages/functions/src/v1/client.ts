@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -77,7 +78,7 @@ export class Client {
   async createFunction(
     signal: AbortSignal | undefined,
     req: CreateFunctionRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<FunctionInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/functions`;
     const body = marshalRequest(req, marshalCreateFunctionRequestSchema);
@@ -93,7 +94,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalFunctionInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -110,7 +111,7 @@ export class Client {
   async deleteFunction(
     signal: AbortSignal | undefined,
     req: DeleteFunction,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteFunction_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/functions/${req.fullNameArg ?? ''}`;
     const params = new URLSearchParams();
@@ -131,7 +132,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteFunction_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -149,7 +150,7 @@ export class Client {
   async getFunction(
     signal: AbortSignal | undefined,
     req: GetFunction,
-    options?: Options
+    options?: CallOptions
   ): Promise<FunctionInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/functions/${req.fullNameArg ?? ''}`;
     const params = new URLSearchParams();
@@ -170,7 +171,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalFunctionInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -191,7 +192,7 @@ export class Client {
   async listFunctions(
     signal: AbortSignal | undefined,
     req: ListFunctions,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListFunctions_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/functions`;
     const params = new URLSearchParams();
@@ -224,7 +225,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListFunctions_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -234,7 +235,7 @@ export class Client {
   async *listFunctionsIter(
     signal: AbortSignal | undefined,
     req: ListFunctions,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<FunctionInfo> {
     const pageReq: ListFunctions = {...req};
     for (;;) {
@@ -260,7 +261,7 @@ export class Client {
   async updateFunction(
     signal: AbortSignal | undefined,
     req: UpdateFunction,
-    options?: Options
+    options?: CallOptions
   ): Promise<FunctionInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/functions/${req.fullNameArg ?? ''}`;
     const body = marshalRequest(req, marshalUpdateFunctionSchema);
@@ -276,7 +277,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalFunctionInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

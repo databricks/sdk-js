@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -111,7 +112,7 @@ export class Client {
   async createCredential(
     signal: AbortSignal | undefined,
     req: CreateCredential,
-    options?: Options
+    options?: CallOptions
   ): Promise<StorageCredentialInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/credentials`;
     const body = marshalRequest(req, marshalCreateCredentialSchema);
@@ -127,7 +128,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStorageCredentialInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -142,7 +143,7 @@ export class Client {
   async createStorageCredential(
     signal: AbortSignal | undefined,
     req: CreateStorageCredential,
-    options?: Options
+    options?: CallOptions
   ): Promise<StorageCredentialInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/storage-credentials`;
     const body = marshalRequest(req, marshalCreateStorageCredentialSchema);
@@ -158,7 +159,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStorageCredentialInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -169,7 +170,7 @@ export class Client {
   async deleteCredential(
     signal: AbortSignal | undefined,
     req: DeleteCredential,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteCredential_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/credentials/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
@@ -190,7 +191,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteCredential_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -201,7 +202,7 @@ export class Client {
   async deleteStorageCredential(
     signal: AbortSignal | undefined,
     req: DeleteStorageCredential,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteStorageCredential_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/storage-credentials/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
@@ -225,7 +226,7 @@ export class Client {
         unmarshalDeleteStorageCredential_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -245,7 +246,7 @@ export class Client {
   async generateTemporaryPathCredential(
     signal: AbortSignal | undefined,
     req: GenerateTemporaryPathCredential,
-    options?: Options
+    options?: CallOptions
   ): Promise<GenerateTemporaryPathCredential_Response> {
     const url = `${this.host}/api/2.0/unity-catalog/temporary-path-credentials`;
     const body = marshalRequest(
@@ -267,7 +268,7 @@ export class Client {
         unmarshalGenerateTemporaryPathCredential_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -281,7 +282,7 @@ export class Client {
   async generateTemporaryServiceCredential(
     signal: AbortSignal | undefined,
     req: GenerateTemporaryServiceCredential,
-    options?: Options
+    options?: CallOptions
   ): Promise<TemporaryCredentials> {
     const url = `${this.host}/api/2.1/unity-catalog/temporary-service-credentials`;
     const body = marshalRequest(
@@ -300,7 +301,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTemporaryCredentialsSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -316,7 +317,7 @@ export class Client {
   async generateTemporaryTableCredential(
     signal: AbortSignal | undefined,
     req: GenerateTemporaryTableCredential,
-    options?: Options
+    options?: CallOptions
   ): Promise<GenerateTemporaryTableCredential_Response> {
     const url = `${this.host}/api/2.0/unity-catalog/temporary-table-credentials`;
     const body = marshalRequest(
@@ -338,7 +339,7 @@ export class Client {
         unmarshalGenerateTemporaryTableCredential_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -354,7 +355,7 @@ export class Client {
   async generateTemporaryVolumeCredential(
     signal: AbortSignal | undefined,
     req: GenerateTemporaryVolumeCredential,
-    options?: Options
+    options?: CallOptions
   ): Promise<GenerateTemporaryVolumeCredential_Response> {
     const url = `${this.host}/api/2.0/unity-catalog/temporary-volume-credentials`;
     const body = marshalRequest(
@@ -376,7 +377,7 @@ export class Client {
         unmarshalGenerateTemporaryVolumeCredential_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -390,7 +391,7 @@ export class Client {
   async getCredential(
     signal: AbortSignal | undefined,
     req: GetCredential,
-    options?: Options
+    options?: CallOptions
   ): Promise<StorageCredentialInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/credentials/${req.nameArg ?? ''}`;
     let resp: StorageCredentialInfo | undefined;
@@ -405,7 +406,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStorageCredentialInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -419,7 +420,7 @@ export class Client {
   async getStorageCredential(
     signal: AbortSignal | undefined,
     req: GetStorageCredential,
-    options?: Options
+    options?: CallOptions
   ): Promise<StorageCredentialInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/storage-credentials/${req.nameArg ?? ''}`;
     let resp: StorageCredentialInfo | undefined;
@@ -434,7 +435,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStorageCredentialInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -454,7 +455,7 @@ export class Client {
   async listCredentials(
     signal: AbortSignal | undefined,
     req: ListCredentials,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListCredentials_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/credentials`;
     const params = new URLSearchParams();
@@ -481,7 +482,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListCredentials_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -491,7 +492,7 @@ export class Client {
   async *listCredentialsIter(
     signal: AbortSignal | undefined,
     req: ListCredentials,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<CredentialInfo> {
     const pageReq: ListCredentials = {...req};
     for (;;) {
@@ -520,7 +521,7 @@ export class Client {
   async listStorageCredentials(
     signal: AbortSignal | undefined,
     req: ListStorageCredentials,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListStorageCredentials_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/storage-credentials`;
     const params = new URLSearchParams();
@@ -550,7 +551,7 @@ export class Client {
         unmarshalListStorageCredentials_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -560,7 +561,7 @@ export class Client {
   async *listStorageCredentialsIter(
     signal: AbortSignal | undefined,
     req: ListStorageCredentials,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<StorageCredentialInfo> {
     const pageReq: ListStorageCredentials = {...req};
     for (;;) {
@@ -584,7 +585,7 @@ export class Client {
   async updateCredential(
     signal: AbortSignal | undefined,
     req: UpdateCredential,
-    options?: Options
+    options?: CallOptions
   ): Promise<StorageCredentialInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/credentials/${req.nameArg ?? ''}`;
     const body = marshalRequest(req, marshalUpdateCredentialSchema);
@@ -600,7 +601,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStorageCredentialInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -616,7 +617,7 @@ export class Client {
   async updateStorageCredential(
     signal: AbortSignal | undefined,
     req: UpdateStorageCredential,
-    options?: Options
+    options?: CallOptions
   ): Promise<StorageCredentialInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/storage-credentials/${req.nameArg ?? ''}`;
     const body = marshalRequest(req, marshalUpdateStorageCredentialSchema);
@@ -632,7 +633,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStorageCredentialInfoSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -656,7 +657,7 @@ export class Client {
   async validateCredential(
     signal: AbortSignal | undefined,
     req: ValidateCredential,
-    options?: Options
+    options?: CallOptions
   ): Promise<ValidateCredential_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/validate-credentials`;
     const body = marshalRequest(req, marshalValidateCredentialSchema);
@@ -675,7 +676,7 @@ export class Client {
         unmarshalValidateCredential_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -696,7 +697,7 @@ export class Client {
   async validateStorageCredential(
     signal: AbortSignal | undefined,
     req: ValidateStorageCredential,
-    options?: Options
+    options?: CallOptions
   ): Promise<ValidateStorageCredential_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/validate-storage-credentials`;
     const body = marshalRequest(req, marshalValidateStorageCredentialSchema);
@@ -715,7 +716,7 @@ export class Client {
         unmarshalValidateStorageCredential_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

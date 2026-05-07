@@ -1,16 +1,18 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute, retryOn} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -168,7 +170,7 @@ export class Client {
   async createBranch(
     signal: AbortSignal | undefined,
     req: CreateBranchRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/branches`;
     const params = new URLSearchParams();
@@ -199,7 +201,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -209,7 +211,7 @@ export class Client {
   async createBranchOperation(
     signal: AbortSignal | undefined,
     req: CreateBranchRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateBranchOperation> {
     const op = await this.createBranch(signal, req, options);
     return new CreateBranchOperation(this, op);
@@ -219,7 +221,7 @@ export class Client {
   async createCatalog(
     signal: AbortSignal | undefined,
     req: CreateCatalogRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/catalogs`;
     const params = new URLSearchParams();
@@ -247,7 +249,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -257,7 +259,7 @@ export class Client {
   async createCatalogOperation(
     signal: AbortSignal | undefined,
     req: CreateCatalogRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateCatalogOperation> {
     const op = await this.createCatalog(signal, req, options);
     return new CreateCatalogOperation(this, op);
@@ -271,7 +273,7 @@ export class Client {
   async createDatabase(
     signal: AbortSignal | undefined,
     req: CreateDatabaseRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/databases`;
     const params = new URLSearchParams();
@@ -299,7 +301,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -309,7 +311,7 @@ export class Client {
   async createDatabaseOperation(
     signal: AbortSignal | undefined,
     req: CreateDatabaseRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateDatabaseOperation> {
     const op = await this.createDatabase(signal, req, options);
     return new CreateDatabaseOperation(this, op);
@@ -319,7 +321,7 @@ export class Client {
   async createEndpoint(
     signal: AbortSignal | undefined,
     req: CreateEndpointRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/endpoints`;
     const params = new URLSearchParams();
@@ -350,7 +352,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -360,7 +362,7 @@ export class Client {
   async createEndpointOperation(
     signal: AbortSignal | undefined,
     req: CreateEndpointRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateEndpointOperation> {
     const op = await this.createEndpoint(signal, req, options);
     return new CreateEndpointOperation(this, op);
@@ -370,7 +372,7 @@ export class Client {
   async createProject(
     signal: AbortSignal | undefined,
     req: CreateProjectRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/projects`;
     const params = new URLSearchParams();
@@ -398,7 +400,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -408,7 +410,7 @@ export class Client {
   async createProjectOperation(
     signal: AbortSignal | undefined,
     req: CreateProjectRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateProjectOperation> {
     const op = await this.createProject(signal, req, options);
     return new CreateProjectOperation(this, op);
@@ -418,7 +420,7 @@ export class Client {
   async createRole(
     signal: AbortSignal | undefined,
     req: CreateRoleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/roles`;
     const params = new URLSearchParams();
@@ -446,7 +448,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -456,7 +458,7 @@ export class Client {
   async createRoleOperation(
     signal: AbortSignal | undefined,
     req: CreateRoleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateRoleOperation> {
     const op = await this.createRole(signal, req, options);
     return new CreateRoleOperation(this, op);
@@ -466,7 +468,7 @@ export class Client {
   async createSyncedTable(
     signal: AbortSignal | undefined,
     req: CreateSyncedTableRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/synced_tables`;
     const params = new URLSearchParams();
@@ -494,7 +496,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -504,7 +506,7 @@ export class Client {
   async createSyncedTableOperation(
     signal: AbortSignal | undefined,
     req: CreateSyncedTableRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateSyncedTableOperation> {
     const op = await this.createSyncedTable(signal, req, options);
     return new CreateSyncedTableOperation(this, op);
@@ -514,7 +516,7 @@ export class Client {
   async createTable(
     signal: AbortSignal | undefined,
     req: CreateTableRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Table> {
     const url = `${this.host}/api/2.0/postgres/tables`;
     const body = marshalRequest(req.table, marshalTableSchema);
@@ -530,7 +532,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTableSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -541,7 +543,7 @@ export class Client {
   async deleteBranch(
     signal: AbortSignal | undefined,
     req: DeleteBranchRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     const params = new URLSearchParams();
@@ -565,7 +567,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -575,7 +577,7 @@ export class Client {
   async deleteBranchOperation(
     signal: AbortSignal | undefined,
     req: DeleteBranchRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteBranchOperation> {
     const op = await this.deleteBranch(signal, req, options);
     return new DeleteBranchOperation(this, op);
@@ -585,7 +587,7 @@ export class Client {
   async deleteCatalog(
     signal: AbortSignal | undefined,
     req: DeleteCatalogRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Operation | undefined;
@@ -600,7 +602,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -610,7 +612,7 @@ export class Client {
   async deleteCatalogOperation(
     signal: AbortSignal | undefined,
     req: DeleteCatalogRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteCatalogOperation> {
     const op = await this.deleteCatalog(signal, req, options);
     return new DeleteCatalogOperation(this, op);
@@ -620,7 +622,7 @@ export class Client {
   async deleteDatabase(
     signal: AbortSignal | undefined,
     req: DeleteDatabaseRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Operation | undefined;
@@ -635,7 +637,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -645,7 +647,7 @@ export class Client {
   async deleteDatabaseOperation(
     signal: AbortSignal | undefined,
     req: DeleteDatabaseRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteDatabaseOperation> {
     const op = await this.deleteDatabase(signal, req, options);
     return new DeleteDatabaseOperation(this, op);
@@ -655,7 +657,7 @@ export class Client {
   async deleteEndpoint(
     signal: AbortSignal | undefined,
     req: DeleteEndpointRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Operation | undefined;
@@ -670,7 +672,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -680,7 +682,7 @@ export class Client {
   async deleteEndpointOperation(
     signal: AbortSignal | undefined,
     req: DeleteEndpointRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteEndpointOperation> {
     const op = await this.deleteEndpoint(signal, req, options);
     return new DeleteEndpointOperation(this, op);
@@ -693,7 +695,7 @@ export class Client {
   async deleteForwardEtlConfiguration(
     signal: AbortSignal | undefined,
     req: DeleteForwardEtlConfigurationRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteForwardEtlConfigurationResponse> {
     const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/forward-etl/configuration`;
     const params = new URLSearchParams();
@@ -726,7 +728,7 @@ export class Client {
         unmarshalDeleteForwardEtlConfigurationResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -737,7 +739,7 @@ export class Client {
   async deleteProject(
     signal: AbortSignal | undefined,
     req: DeleteProjectRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     const params = new URLSearchParams();
@@ -758,7 +760,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -768,7 +770,7 @@ export class Client {
   async deleteProjectOperation(
     signal: AbortSignal | undefined,
     req: DeleteProjectRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteProjectOperation> {
     const op = await this.deleteProject(signal, req, options);
     return new DeleteProjectOperation(this, op);
@@ -778,7 +780,7 @@ export class Client {
   async deleteRole(
     signal: AbortSignal | undefined,
     req: DeleteRoleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     const params = new URLSearchParams();
@@ -799,7 +801,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -809,7 +811,7 @@ export class Client {
   async deleteRoleOperation(
     signal: AbortSignal | undefined,
     req: DeleteRoleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteRoleOperation> {
     const op = await this.deleteRole(signal, req, options);
     return new DeleteRoleOperation(this, op);
@@ -819,7 +821,7 @@ export class Client {
   async deleteSyncedTable(
     signal: AbortSignal | undefined,
     req: DeleteSyncedTableRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Operation | undefined;
@@ -834,7 +836,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -844,7 +846,7 @@ export class Client {
   async deleteSyncedTableOperation(
     signal: AbortSignal | undefined,
     req: DeleteSyncedTableRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteSyncedTableOperation> {
     const op = await this.deleteSyncedTable(signal, req, options);
     return new DeleteSyncedTableOperation(this, op);
@@ -854,7 +856,7 @@ export class Client {
   async deleteTable(
     signal: AbortSignal | undefined,
     req: DeleteTableRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/postgres/tables/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -867,14 +869,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Disable Forward ETL for a branch. */
   async disableForwardEtl(
     signal: AbortSignal | undefined,
     req: DisableForwardEtlRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DisableForwardEtlResponse> {
     const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/forward-etl`;
     const params = new URLSearchParams();
@@ -904,7 +906,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDisableForwardEtlResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -915,7 +917,7 @@ export class Client {
   async generateDatabaseCredential(
     signal: AbortSignal | undefined,
     req: GenerateDatabaseCredentialRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<DatabaseCredential> {
     const url = `${this.host}/api/2.0/postgres/credentials`;
     const body = marshalRequest(
@@ -934,7 +936,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseCredentialSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -945,7 +947,7 @@ export class Client {
   async getBranch(
     signal: AbortSignal | undefined,
     req: GetBranchRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Branch> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Branch | undefined;
@@ -960,7 +962,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalBranchSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -971,7 +973,7 @@ export class Client {
   async getCatalog(
     signal: AbortSignal | undefined,
     req: GetCatalogRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Catalog> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Catalog | undefined;
@@ -986,7 +988,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCatalogSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1000,7 +1002,7 @@ export class Client {
   async getComputeInstance(
     signal: AbortSignal | undefined,
     req: GetComputeInstanceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ComputeInstance> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: ComputeInstance | undefined;
@@ -1015,7 +1017,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalComputeInstanceSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1026,7 +1028,7 @@ export class Client {
   async getDatabase(
     signal: AbortSignal | undefined,
     req: GetDatabaseRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Database> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Database | undefined;
@@ -1041,7 +1043,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDatabaseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1052,7 +1054,7 @@ export class Client {
   async getEndpoint(
     signal: AbortSignal | undefined,
     req: GetEndpointRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Endpoint> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Endpoint | undefined;
@@ -1067,7 +1069,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEndpointSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1078,7 +1080,7 @@ export class Client {
   async getForwardEtlMetadata(
     signal: AbortSignal | undefined,
     req: GetForwardEtlMetadataRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ForwardEtlMetadata> {
     const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/forward-etl/metadata`;
     const params = new URLSearchParams();
@@ -1102,7 +1104,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalForwardEtlMetadataSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1113,7 +1115,7 @@ export class Client {
   async getForwardEtlStatus(
     signal: AbortSignal | undefined,
     req: GetForwardEtlStatusRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ForwardEtlStatus> {
     const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/forward-etl`;
     const params = new URLSearchParams();
@@ -1137,7 +1139,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalForwardEtlStatusSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1148,7 +1150,7 @@ export class Client {
   async getOperation(
     signal: AbortSignal | undefined,
     req: GetOperationRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Operation | undefined;
@@ -1163,7 +1165,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1174,7 +1176,7 @@ export class Client {
   async getProject(
     signal: AbortSignal | undefined,
     req: GetProjectRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Project> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Project | undefined;
@@ -1189,7 +1191,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalProjectSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1200,7 +1202,7 @@ export class Client {
   async getRole(
     signal: AbortSignal | undefined,
     req: GetRoleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Role> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: Role | undefined;
@@ -1215,7 +1217,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRoleSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1226,7 +1228,7 @@ export class Client {
   async getSyncedTable(
     signal: AbortSignal | undefined,
     req: GetSyncedTableRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<SyncedTable> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
     let resp: SyncedTable | undefined;
@@ -1241,7 +1243,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSyncedTableSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1252,7 +1254,7 @@ export class Client {
   async getTable(
     signal: AbortSignal | undefined,
     req: GetTableRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Table> {
     const url = `${this.host}/api/2.0/postgres/tables/${req.name ?? ''}`;
     let resp: Table | undefined;
@@ -1267,7 +1269,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTableSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1278,7 +1280,7 @@ export class Client {
   async listBranches(
     signal: AbortSignal | undefined,
     req: ListBranchesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListBranchesResponse> {
     const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/branches`;
     const params = new URLSearchParams();
@@ -1305,7 +1307,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListBranchesResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1315,7 +1317,7 @@ export class Client {
   async *listBranchesIter(
     signal: AbortSignal | undefined,
     req: ListBranchesRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<Branch> {
     const pageReq: ListBranchesRequest = {...req};
     for (;;) {
@@ -1337,7 +1339,7 @@ export class Client {
   async listComputeInstances(
     signal: AbortSignal | undefined,
     req: ListComputeInstancesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListComputeInstancesResponse> {
     const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/compute-instances`;
     const params = new URLSearchParams();
@@ -1364,7 +1366,7 @@ export class Client {
         unmarshalListComputeInstancesResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1374,7 +1376,7 @@ export class Client {
   async *listComputeInstancesIter(
     signal: AbortSignal | undefined,
     req: ListComputeInstancesRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<ComputeInstance> {
     const pageReq: ListComputeInstancesRequest = {...req};
     for (;;) {
@@ -1393,7 +1395,7 @@ export class Client {
   async listDatabases(
     signal: AbortSignal | undefined,
     req: ListDatabasesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListDatabasesResponse> {
     const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/databases`;
     const params = new URLSearchParams();
@@ -1417,7 +1419,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListDatabasesResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1427,7 +1429,7 @@ export class Client {
   async *listDatabasesIter(
     signal: AbortSignal | undefined,
     req: ListDatabasesRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<Database> {
     const pageReq: ListDatabasesRequest = {...req};
     for (;;) {
@@ -1446,7 +1448,7 @@ export class Client {
   async listEndpoints(
     signal: AbortSignal | undefined,
     req: ListEndpointsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListEndpointsResponse> {
     const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/endpoints`;
     const params = new URLSearchParams();
@@ -1470,7 +1472,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListEndpointsResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1480,7 +1482,7 @@ export class Client {
   async *listEndpointsIter(
     signal: AbortSignal | undefined,
     req: ListEndpointsRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<Endpoint> {
     const pageReq: ListEndpointsRequest = {...req};
     for (;;) {
@@ -1499,7 +1501,7 @@ export class Client {
   async listProjects(
     signal: AbortSignal | undefined,
     req: ListProjectsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListProjectsResponse> {
     const url = `${this.host}/api/2.0/postgres/projects`;
     const params = new URLSearchParams();
@@ -1526,7 +1528,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListProjectsResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1536,7 +1538,7 @@ export class Client {
   async *listProjectsIter(
     signal: AbortSignal | undefined,
     req: ListProjectsRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<Project> {
     const pageReq: ListProjectsRequest = {...req};
     for (;;) {
@@ -1555,7 +1557,7 @@ export class Client {
   async listRoles(
     signal: AbortSignal | undefined,
     req: ListRolesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListRolesResponse> {
     const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/roles`;
     const params = new URLSearchParams();
@@ -1579,7 +1581,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListRolesResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1589,7 +1591,7 @@ export class Client {
   async *listRolesIter(
     signal: AbortSignal | undefined,
     req: ListRolesRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<Role> {
     const pageReq: ListRolesRequest = {...req};
     for (;;) {
@@ -1608,7 +1610,7 @@ export class Client {
   async undeleteBranch(
     signal: AbortSignal | undefined,
     req: UndeleteBranchRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}/undelete`;
     const body = marshalRequest(req, marshalUndeleteBranchRequestSchema);
@@ -1624,7 +1626,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1634,7 +1636,7 @@ export class Client {
   async undeleteBranchOperation(
     signal: AbortSignal | undefined,
     req: UndeleteBranchRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<UndeleteBranchOperation> {
     const op = await this.undeleteBranch(signal, req, options);
     return new UndeleteBranchOperation(this, op);
@@ -1644,7 +1646,7 @@ export class Client {
   async undeleteProject(
     signal: AbortSignal | undefined,
     req: UndeleteProjectRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}/undelete`;
     const body = marshalRequest(req, marshalUndeleteProjectRequestSchema);
@@ -1660,7 +1662,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1670,7 +1672,7 @@ export class Client {
   async undeleteProjectOperation(
     signal: AbortSignal | undefined,
     req: UndeleteProjectRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<UndeleteProjectOperation> {
     const op = await this.undeleteProject(signal, req, options);
     return new UndeleteProjectOperation(this, op);
@@ -1680,7 +1682,7 @@ export class Client {
   async updateBranch(
     signal: AbortSignal | undefined,
     req: UpdateBranchRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.branch?.name ?? ''}`;
     const params = new URLSearchParams();
@@ -1708,7 +1710,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1718,7 +1720,7 @@ export class Client {
   async updateBranchOperation(
     signal: AbortSignal | undefined,
     req: UpdateBranchRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateBranchOperation> {
     const op = await this.updateBranch(signal, req, options);
     return new UpdateBranchOperation(this, op);
@@ -1728,7 +1730,7 @@ export class Client {
   async updateDatabase(
     signal: AbortSignal | undefined,
     req: UpdateDatabaseRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.database?.name ?? ''}`;
     const params = new URLSearchParams();
@@ -1756,7 +1758,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1766,7 +1768,7 @@ export class Client {
   async updateDatabaseOperation(
     signal: AbortSignal | undefined,
     req: UpdateDatabaseRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateDatabaseOperation> {
     const op = await this.updateDatabase(signal, req, options);
     return new UpdateDatabaseOperation(this, op);
@@ -1776,7 +1778,7 @@ export class Client {
   async updateEndpoint(
     signal: AbortSignal | undefined,
     req: UpdateEndpointRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.endpoint?.name ?? ''}`;
     const params = new URLSearchParams();
@@ -1804,7 +1806,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1814,7 +1816,7 @@ export class Client {
   async updateEndpointOperation(
     signal: AbortSignal | undefined,
     req: UpdateEndpointRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateEndpointOperation> {
     const op = await this.updateEndpoint(signal, req, options);
     return new UpdateEndpointOperation(this, op);
@@ -1824,7 +1826,7 @@ export class Client {
   async updateProject(
     signal: AbortSignal | undefined,
     req: UpdateProjectRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.project?.name ?? ''}`;
     const params = new URLSearchParams();
@@ -1852,7 +1854,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1862,7 +1864,7 @@ export class Client {
   async updateProjectOperation(
     signal: AbortSignal | undefined,
     req: UpdateProjectRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateProjectOperation> {
     const op = await this.updateProject(signal, req, options);
     return new UpdateProjectOperation(this, op);
@@ -1872,7 +1874,7 @@ export class Client {
   async updateRole(
     signal: AbortSignal | undefined,
     req: UpdateRoleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.role?.name ?? ''}`;
     const params = new URLSearchParams();
@@ -1900,7 +1902,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1910,7 +1912,7 @@ export class Client {
   async updateRoleOperation(
     signal: AbortSignal | undefined,
     req: UpdateRoleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateRoleOperation> {
     const op = await this.updateRole(signal, req, options);
     return new UpdateRoleOperation(this, op);
@@ -1947,7 +1949,7 @@ export class CreateBranchOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<Branch> {
     const errStillRunning = new Error('operation still in progress');
     let result: Branch | undefined;
@@ -1988,13 +1990,13 @@ export class CreateBranchOperation {
       result = z.lazy(() => unmarshalBranchSchema).parse(op.result.response);
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2004,7 +2006,7 @@ export class CreateBranchOperation {
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,
@@ -2046,7 +2048,7 @@ export class CreateCatalogOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<Catalog> {
     const errStillRunning = new Error('operation still in progress');
     let result: Catalog | undefined;
@@ -2087,13 +2089,13 @@ export class CreateCatalogOperation {
       result = z.lazy(() => unmarshalCatalogSchema).parse(op.result.response);
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2103,7 +2105,7 @@ export class CreateCatalogOperation {
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,
@@ -2145,7 +2147,7 @@ export class CreateDatabaseOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<Database> {
     const errStillRunning = new Error('operation still in progress');
     let result: Database | undefined;
@@ -2186,13 +2188,13 @@ export class CreateDatabaseOperation {
       result = z.lazy(() => unmarshalDatabaseSchema).parse(op.result.response);
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2202,7 +2204,7 @@ export class CreateDatabaseOperation {
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,
@@ -2244,7 +2246,7 @@ export class CreateEndpointOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<Endpoint> {
     const errStillRunning = new Error('operation still in progress');
     let result: Endpoint | undefined;
@@ -2285,13 +2287,13 @@ export class CreateEndpointOperation {
       result = z.lazy(() => unmarshalEndpointSchema).parse(op.result.response);
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2301,7 +2303,7 @@ export class CreateEndpointOperation {
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,
@@ -2343,7 +2345,7 @@ export class CreateProjectOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<Project> {
     const errStillRunning = new Error('operation still in progress');
     let result: Project | undefined;
@@ -2384,13 +2386,13 @@ export class CreateProjectOperation {
       result = z.lazy(() => unmarshalProjectSchema).parse(op.result.response);
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2400,7 +2402,7 @@ export class CreateProjectOperation {
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,
@@ -2442,7 +2444,7 @@ export class CreateRoleOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<Role> {
     const errStillRunning = new Error('operation still in progress');
     let result: Role | undefined;
@@ -2483,13 +2485,13 @@ export class CreateRoleOperation {
       result = z.lazy(() => unmarshalRoleSchema).parse(op.result.response);
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2499,7 +2501,7 @@ export class CreateRoleOperation {
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,
@@ -2541,7 +2543,7 @@ export class CreateSyncedTableOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<SyncedTable> {
     const errStillRunning = new Error('operation still in progress');
     let result: SyncedTable | undefined;
@@ -2584,13 +2586,13 @@ export class CreateSyncedTableOperation {
         .parse(op.result.response);
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2600,7 +2602,7 @@ export class CreateSyncedTableOperation {
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,
@@ -2642,7 +2644,7 @@ export class DeleteBranchOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
@@ -2676,19 +2678,19 @@ export class DeleteBranchOperation {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
   }
 
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,
@@ -2730,7 +2732,7 @@ export class DeleteCatalogOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
@@ -2764,19 +2766,19 @@ export class DeleteCatalogOperation {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
   }
 
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,
@@ -2818,7 +2820,7 @@ export class DeleteDatabaseOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
@@ -2852,19 +2854,19 @@ export class DeleteDatabaseOperation {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
   }
 
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,
@@ -2906,7 +2908,7 @@ export class DeleteEndpointOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
@@ -2940,19 +2942,19 @@ export class DeleteEndpointOperation {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
   }
 
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,
@@ -2994,7 +2996,7 @@ export class DeleteProjectOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
@@ -3028,19 +3030,19 @@ export class DeleteProjectOperation {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
   }
 
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,
@@ -3082,7 +3084,7 @@ export class DeleteRoleOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
@@ -3116,19 +3118,19 @@ export class DeleteRoleOperation {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
   }
 
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,
@@ -3170,7 +3172,7 @@ export class DeleteSyncedTableOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
@@ -3204,19 +3206,19 @@ export class DeleteSyncedTableOperation {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
   }
 
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,
@@ -3258,7 +3260,7 @@ export class UndeleteBranchOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
@@ -3292,19 +3294,19 @@ export class UndeleteBranchOperation {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
   }
 
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,
@@ -3346,7 +3348,7 @@ export class UndeleteProjectOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
@@ -3380,19 +3382,19 @@ export class UndeleteProjectOperation {
       }
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
   }
 
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,
@@ -3434,7 +3436,7 @@ export class UpdateBranchOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<Branch> {
     const errStillRunning = new Error('operation still in progress');
     let result: Branch | undefined;
@@ -3475,13 +3477,13 @@ export class UpdateBranchOperation {
       result = z.lazy(() => unmarshalBranchSchema).parse(op.result.response);
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -3491,7 +3493,7 @@ export class UpdateBranchOperation {
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,
@@ -3533,7 +3535,7 @@ export class UpdateDatabaseOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<Database> {
     const errStillRunning = new Error('operation still in progress');
     let result: Database | undefined;
@@ -3574,13 +3576,13 @@ export class UpdateDatabaseOperation {
       result = z.lazy(() => unmarshalDatabaseSchema).parse(op.result.response);
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -3590,7 +3592,7 @@ export class UpdateDatabaseOperation {
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,
@@ -3632,7 +3634,7 @@ export class UpdateEndpointOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<Endpoint> {
     const errStillRunning = new Error('operation still in progress');
     let result: Endpoint | undefined;
@@ -3673,13 +3675,13 @@ export class UpdateEndpointOperation {
       result = z.lazy(() => unmarshalEndpointSchema).parse(op.result.response);
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -3689,7 +3691,7 @@ export class UpdateEndpointOperation {
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,
@@ -3731,7 +3733,7 @@ export class UpdateProjectOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<Project> {
     const errStillRunning = new Error('operation still in progress');
     let result: Project | undefined;
@@ -3772,13 +3774,13 @@ export class UpdateProjectOperation {
       result = z.lazy(() => unmarshalProjectSchema).parse(op.result.response);
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -3788,7 +3790,7 @@ export class UpdateProjectOperation {
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,
@@ -3830,7 +3832,7 @@ export class UpdateRoleOperation {
    */
   async wait(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<Role> {
     const errStillRunning = new Error('operation still in progress');
     let result: Role | undefined;
@@ -3871,13 +3873,13 @@ export class UpdateRoleOperation {
       result = z.lazy(() => unmarshalRoleSchema).parse(op.result.response);
     };
 
-    const retryOptions: Options = {
+    const retryOptions: CallOptions = {
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await execute(signal, call, retryOptions);
+    await executeCall(signal, call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -3887,7 +3889,7 @@ export class UpdateRoleOperation {
   /** Checks whether the operation has completed */
   async done(
     signal: AbortSignal | undefined,
-    options?: Options
+    options?: CallOptions
   ): Promise<boolean | undefined> {
     const op = await this.client.getOperation(
       signal,

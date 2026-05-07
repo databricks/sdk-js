@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -107,7 +108,7 @@ export class Client {
   async createDashboard(
     signal: AbortSignal | undefined,
     req: CreateDashboardRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Dashboard> {
     const url = `${this.host}/api/2.0/lakeview/dashboards`;
     const params = new URLSearchParams();
@@ -138,7 +139,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDashboardSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -149,7 +150,7 @@ export class Client {
   async createSchedule(
     signal: AbortSignal | undefined,
     req: CreateScheduleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Schedule> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.schedule?.dashboardId ?? ''}/schedules`;
     const body = marshalRequest(req.schedule, marshalScheduleSchema);
@@ -165,7 +166,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalScheduleSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -176,7 +177,7 @@ export class Client {
   async createSubscription(
     signal: AbortSignal | undefined,
     req: CreateSubscriptionRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Subscription> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.subscription?.dashboardId ?? ''}/schedules/${req.subscription?.scheduleId ?? ''}/subscriptions`;
     const body = marshalRequest(req.subscription, marshalSubscriptionSchema);
@@ -192,7 +193,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSubscriptionSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -203,7 +204,7 @@ export class Client {
   async deleteSchedule(
     signal: AbortSignal | undefined,
     req: DeleteScheduleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/schedules/${req.scheduleId ?? ''}`;
     const params = new URLSearchParams();
@@ -222,14 +223,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Delete schedule subscription. */
   async deleteSubscription(
     signal: AbortSignal | undefined,
     req: DeleteSubscriptionRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/schedules/${req.scheduleId ?? ''}/subscriptions/${req.subscriptionId ?? ''}`;
     const params = new URLSearchParams();
@@ -248,14 +249,14 @@ export class Client {
         logger: this.logger,
       });
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
   }
 
   /** Get a draft dashboard. */
   async getDashboard(
     signal: AbortSignal | undefined,
     req: GetDashboardRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Dashboard> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}`;
     let resp: Dashboard | undefined;
@@ -270,7 +271,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDashboardSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -281,7 +282,7 @@ export class Client {
   async getPublishedDashboard(
     signal: AbortSignal | undefined,
     req: GetPublishedDashboardRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<PublishedDashboard> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/published`;
     let resp: PublishedDashboard | undefined;
@@ -296,7 +297,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPublishedDashboardSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -307,7 +308,7 @@ export class Client {
   async getPublishedDashboardEmbedded(
     signal: AbortSignal | undefined,
     req: GetPublishedDashboardEmbeddedRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetPublishedDashboardEmbeddedResponse> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/published/embedded`;
     let resp: GetPublishedDashboardEmbeddedResponse | undefined;
@@ -325,7 +326,7 @@ export class Client {
         unmarshalGetPublishedDashboardEmbeddedResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -336,7 +337,7 @@ export class Client {
   async getPublishedDashboardTokenInfo(
     signal: AbortSignal | undefined,
     req: GetPublishedDashboardTokenInfoRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetPublishedDashboardTokenInfoResponse> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/published/tokeninfo`;
     const params = new URLSearchParams();
@@ -363,7 +364,7 @@ export class Client {
         unmarshalGetPublishedDashboardTokenInfoResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -374,7 +375,7 @@ export class Client {
   async getSchedule(
     signal: AbortSignal | undefined,
     req: GetScheduleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Schedule> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/schedules/${req.scheduleId ?? ''}`;
     let resp: Schedule | undefined;
@@ -389,7 +390,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalScheduleSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -400,7 +401,7 @@ export class Client {
   async getSubscription(
     signal: AbortSignal | undefined,
     req: GetSubscriptionRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Subscription> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/schedules/${req.scheduleId ?? ''}/subscriptions/${req.subscriptionId ?? ''}`;
     let resp: Subscription | undefined;
@@ -415,7 +416,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSubscriptionSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -426,7 +427,7 @@ export class Client {
   async listDashboards(
     signal: AbortSignal | undefined,
     req: ListDashboardsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListDashboardsResponse> {
     const url = `${this.host}/api/2.0/lakeview/dashboards`;
     const params = new URLSearchParams();
@@ -456,7 +457,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListDashboardsResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -466,7 +467,7 @@ export class Client {
   async *listDashboardsIter(
     signal: AbortSignal | undefined,
     req: ListDashboardsRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<Dashboard> {
     const pageReq: ListDashboardsRequest = {...req};
     for (;;) {
@@ -485,7 +486,7 @@ export class Client {
   async listSchedules(
     signal: AbortSignal | undefined,
     req: ListSchedulesRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListSchedulesResponse> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/schedules`;
     const params = new URLSearchParams();
@@ -509,7 +510,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListSchedulesResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -519,7 +520,7 @@ export class Client {
   async *listSchedulesIter(
     signal: AbortSignal | undefined,
     req: ListSchedulesRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<Schedule> {
     const pageReq: ListSchedulesRequest = {...req};
     for (;;) {
@@ -538,7 +539,7 @@ export class Client {
   async listSubscriptions(
     signal: AbortSignal | undefined,
     req: ListSubscriptionsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListSubscriptionsResponse> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/schedules/${req.scheduleId ?? ''}/subscriptions`;
     const params = new URLSearchParams();
@@ -562,7 +563,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListSubscriptionsResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -572,7 +573,7 @@ export class Client {
   async *listSubscriptionsIter(
     signal: AbortSignal | undefined,
     req: ListSubscriptionsRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<Subscription> {
     const pageReq: ListSubscriptionsRequest = {...req};
     for (;;) {
@@ -591,7 +592,7 @@ export class Client {
   async migrateDashboard(
     signal: AbortSignal | undefined,
     req: MigrateDashboardRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Dashboard> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/migrate`;
     const body = marshalRequest(req, marshalMigrateDashboardRequestSchema);
@@ -607,7 +608,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDashboardSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -618,7 +619,7 @@ export class Client {
   async publishDashboard(
     signal: AbortSignal | undefined,
     req: PublishDashboardRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<PublishedDashboard> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/published`;
     const body = marshalRequest(req, marshalPublishDashboardRequestSchema);
@@ -634,7 +635,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPublishedDashboardSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -645,7 +646,7 @@ export class Client {
   async revertDashboard(
     signal: AbortSignal | undefined,
     req: RevertDashboardRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<RevertDashboardResponse> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/revert`;
     const body = marshalRequest(req, marshalRevertDashboardRequestSchema);
@@ -661,7 +662,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRevertDashboardResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -672,7 +673,7 @@ export class Client {
   async trashDashboard(
     signal: AbortSignal | undefined,
     req: TrashDashboardRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<TrashDashboardResponse> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}`;
     let resp: TrashDashboardResponse | undefined;
@@ -687,7 +688,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTrashDashboardResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -698,7 +699,7 @@ export class Client {
   async unpublishDashboard(
     signal: AbortSignal | undefined,
     req: UnpublishDashboardRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<UnpublishDashboardResponse> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/published`;
     let resp: UnpublishDashboardResponse | undefined;
@@ -713,7 +714,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUnpublishDashboardResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -724,7 +725,7 @@ export class Client {
   async updateDashboard(
     signal: AbortSignal | undefined,
     req: UpdateDashboardRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Dashboard> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboard?.dashboardId ?? ''}`;
     const params = new URLSearchParams();
@@ -755,7 +756,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDashboardSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -766,7 +767,7 @@ export class Client {
   async updateSchedule(
     signal: AbortSignal | undefined,
     req: UpdateScheduleRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Schedule> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.schedule?.dashboardId ?? ''}/schedules/${req.schedule?.scheduleId ?? ''}`;
     const body = marshalRequest(req.schedule, marshalScheduleSchema);
@@ -782,7 +783,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalScheduleSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

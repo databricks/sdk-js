@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -201,7 +202,7 @@ export class Client {
   async createExperiment(
     signal: AbortSignal | undefined,
     req: CreateExperiment,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateExperiment_Response> {
     const url = `${this.host}/api/2.0/mlflow/experiments/create`;
     const body = marshalRequest(req, marshalCreateExperimentSchema);
@@ -217,7 +218,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateExperiment_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -228,7 +229,7 @@ export class Client {
   async createLoggedModel(
     signal: AbortSignal | undefined,
     req: CreateLoggedModel,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateLoggedModel_Response> {
     const url = `${this.host}/api/2.0/mlflow/logged-models`;
     const body = marshalRequest(req, marshalCreateLoggedModelSchema);
@@ -244,7 +245,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateLoggedModel_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -259,7 +260,7 @@ export class Client {
   async createRun(
     signal: AbortSignal | undefined,
     req: CreateRun,
-    options?: Options
+    options?: CallOptions
   ): Promise<CreateRun_Response> {
     const url = `${this.host}/api/2.0/mlflow/runs/create`;
     const body = marshalRequest(req, marshalCreateRunSchema);
@@ -275,7 +276,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateRun_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -289,7 +290,7 @@ export class Client {
   async deleteExperiment(
     signal: AbortSignal | undefined,
     req: DeleteExperiment,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteExperiment_Response> {
     const url = `${this.host}/api/2.0/mlflow/experiments/delete`;
     const body = marshalRequest(req, marshalDeleteExperimentSchema);
@@ -305,7 +306,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteExperiment_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -316,7 +317,7 @@ export class Client {
   async deleteLoggedModel(
     signal: AbortSignal | undefined,
     req: DeleteLoggedModel,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteLoggedModel_Response> {
     const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}`;
     let resp: DeleteLoggedModel_Response | undefined;
@@ -331,7 +332,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteLoggedModel_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -342,7 +343,7 @@ export class Client {
   async deleteLoggedModelTag(
     signal: AbortSignal | undefined,
     req: DeleteLoggedModelTag,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteLoggedModelTag_Response> {
     const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}/tags/${req.tagKey ?? ''}`;
     let resp: DeleteLoggedModelTag_Response | undefined;
@@ -360,7 +361,7 @@ export class Client {
         unmarshalDeleteLoggedModelTag_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -371,7 +372,7 @@ export class Client {
   async deleteRun(
     signal: AbortSignal | undefined,
     req: DeleteRun,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteRun_Response> {
     const url = `${this.host}/api/2.0/mlflow/runs/delete`;
     const body = marshalRequest(req, marshalDeleteRunSchema);
@@ -387,7 +388,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteRun_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -401,7 +402,7 @@ export class Client {
   async deleteRuns(
     signal: AbortSignal | undefined,
     req: DeleteRuns,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteRuns_Response> {
     const url = `${this.host}/api/2.0/mlflow/databricks/runs/delete-runs`;
     const body = marshalRequest(req, marshalDeleteRunsSchema);
@@ -417,7 +418,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteRuns_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -431,7 +432,7 @@ export class Client {
   async deleteTag(
     signal: AbortSignal | undefined,
     req: DeleteTag,
-    options?: Options
+    options?: CallOptions
   ): Promise<DeleteTag_Response> {
     const url = `${this.host}/api/2.0/mlflow/runs/delete-tag`;
     const body = marshalRequest(req, marshalDeleteTagSchema);
@@ -447,7 +448,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteTag_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -458,7 +459,7 @@ export class Client {
   async finalizeLoggedModel(
     signal: AbortSignal | undefined,
     req: FinalizeLoggedModel,
-    options?: Options
+    options?: CallOptions
   ): Promise<FinalizeLoggedModel_Response> {
     const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}`;
     const body = marshalRequest(req, marshalFinalizeLoggedModelSchema);
@@ -477,7 +478,7 @@ export class Client {
         unmarshalFinalizeLoggedModel_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -488,7 +489,7 @@ export class Client {
   async getExperiment(
     signal: AbortSignal | undefined,
     req: GetExperiment,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetExperiment_Response> {
     const url = `${this.host}/api/2.0/mlflow/experiments/get`;
     const params = new URLSearchParams();
@@ -509,7 +510,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetExperiment_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -528,7 +529,7 @@ export class Client {
   async getExperimentByName(
     signal: AbortSignal | undefined,
     req: GetExperimentByName,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetExperimentByName_Response> {
     const url = `${this.host}/api/2.0/mlflow/experiments/get-by-name`;
     const params = new URLSearchParams();
@@ -552,7 +553,7 @@ export class Client {
         unmarshalGetExperimentByName_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -563,7 +564,7 @@ export class Client {
   async getLoggedModel(
     signal: AbortSignal | undefined,
     req: GetLoggedModel,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetLoggedModel_Response> {
     const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}`;
     let resp: GetLoggedModel_Response | undefined;
@@ -578,7 +579,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetLoggedModel_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -589,7 +590,7 @@ export class Client {
   async getLoggedModels(
     signal: AbortSignal | undefined,
     req: GetLoggedModelsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetLoggedModelsRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/logged-models:batchGet`;
     const params = new URLSearchParams();
@@ -613,7 +614,7 @@ export class Client {
         unmarshalGetLoggedModelsRequest_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -624,7 +625,7 @@ export class Client {
   async getMetricHistory(
     signal: AbortSignal | undefined,
     req: GetMetricHistory,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetMetricHistory_Response> {
     const url = `${this.host}/api/2.0/mlflow/metrics/get-history`;
     const params = new URLSearchParams();
@@ -657,7 +658,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetMetricHistory_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -667,7 +668,7 @@ export class Client {
   async *getMetricHistoryIter(
     signal: AbortSignal | undefined,
     req: GetMetricHistory,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<Metric> {
     const pageReq: GetMetricHistory = {...req};
     for (;;) {
@@ -691,7 +692,7 @@ export class Client {
   async getRun(
     signal: AbortSignal | undefined,
     req: GetRun,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetRun_Response> {
     const url = `${this.host}/api/2.0/mlflow/runs/get`;
     const params = new URLSearchParams();
@@ -715,7 +716,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetRun_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -732,7 +733,7 @@ export class Client {
   async listArtifacts(
     signal: AbortSignal | undefined,
     req: ListArtifacts,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListArtifacts_Response> {
     const url = `${this.host}/api/2.0/mlflow/artifacts/list`;
     const params = new URLSearchParams();
@@ -762,7 +763,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListArtifacts_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -772,7 +773,7 @@ export class Client {
   async *listArtifactsIter(
     signal: AbortSignal | undefined,
     req: ListArtifacts,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<FileInfo> {
     const pageReq: ListArtifacts = {...req};
     for (;;) {
@@ -791,7 +792,7 @@ export class Client {
   async listExperiments(
     signal: AbortSignal | undefined,
     req: ListExperiments,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListExperiments_Response> {
     const url = `${this.host}/api/2.0/mlflow/experiments/list`;
     const params = new URLSearchParams();
@@ -818,7 +819,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListExperiments_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -828,7 +829,7 @@ export class Client {
   async *listExperimentsIter(
     signal: AbortSignal | undefined,
     req: ListExperiments,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<Experiment> {
     const pageReq: ListExperiments = {...req};
     for (;;) {
@@ -888,7 +889,7 @@ export class Client {
   async logBatch(
     signal: AbortSignal | undefined,
     req: LogBatch,
-    options?: Options
+    options?: CallOptions
   ): Promise<LogBatch_Response> {
     const url = `${this.host}/api/2.0/mlflow/runs/log-batch`;
     const body = marshalRequest(req, marshalLogBatchSchema);
@@ -904,7 +905,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalLogBatch_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -915,7 +916,7 @@ export class Client {
   async logInputs(
     signal: AbortSignal | undefined,
     req: LogInputs,
-    options?: Options
+    options?: CallOptions
   ): Promise<LogInputs_Response> {
     const url = `${this.host}/api/2.0/mlflow/runs/log-inputs`;
     const body = marshalRequest(req, marshalLogInputsSchema);
@@ -931,7 +932,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalLogInputs_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -946,7 +947,7 @@ export class Client {
   async logLoggedModelParams(
     signal: AbortSignal | undefined,
     req: LogLoggedModelParamsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<LogLoggedModelParamsRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}/params`;
     const body = marshalRequest(req, marshalLogLoggedModelParamsRequestSchema);
@@ -965,7 +966,7 @@ export class Client {
         unmarshalLogLoggedModelParamsRequest_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -980,7 +981,7 @@ export class Client {
   async logMetric(
     signal: AbortSignal | undefined,
     req: LogMetric,
-    options?: Options
+    options?: CallOptions
   ): Promise<LogMetric_Response> {
     const url = `${this.host}/api/2.0/mlflow/runs/log-metric`;
     const body = marshalRequest(req, marshalLogMetricSchema);
@@ -996,7 +997,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalLogMetric_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1011,7 +1012,7 @@ export class Client {
   async logModel(
     signal: AbortSignal | undefined,
     req: LogModel,
-    options?: Options
+    options?: CallOptions
   ): Promise<LogModel_Response> {
     const url = `${this.host}/api/2.0/mlflow/runs/log-model`;
     const body = marshalRequest(req, marshalLogModelSchema);
@@ -1027,7 +1028,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalLogModel_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1038,7 +1039,7 @@ export class Client {
   async logOutputs(
     signal: AbortSignal | undefined,
     req: LogOutputs,
-    options?: Options
+    options?: CallOptions
   ): Promise<LogOutputs_Response> {
     const url = `${this.host}/api/2.0/mlflow/runs/outputs`;
     const body = marshalRequest(req, marshalLogOutputsSchema);
@@ -1054,7 +1055,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalLogOutputs_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1069,7 +1070,7 @@ export class Client {
   async logParam(
     signal: AbortSignal | undefined,
     req: LogParam,
-    options?: Options
+    options?: CallOptions
   ): Promise<LogParam_Response> {
     const url = `${this.host}/api/2.0/mlflow/runs/log-parameter`;
     const body = marshalRequest(req, marshalLogParamSchema);
@@ -1085,7 +1086,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalLogParam_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1102,7 +1103,7 @@ export class Client {
   async restoreExperiment(
     signal: AbortSignal | undefined,
     req: RestoreExperiment,
-    options?: Options
+    options?: CallOptions
   ): Promise<RestoreExperiment_Response> {
     const url = `${this.host}/api/2.0/mlflow/experiments/restore`;
     const body = marshalRequest(req, marshalRestoreExperimentSchema);
@@ -1118,7 +1119,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRestoreExperiment_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1133,7 +1134,7 @@ export class Client {
   async restoreRun(
     signal: AbortSignal | undefined,
     req: RestoreRun,
-    options?: Options
+    options?: CallOptions
   ): Promise<RestoreRun_Response> {
     const url = `${this.host}/api/2.0/mlflow/runs/restore`;
     const body = marshalRequest(req, marshalRestoreRunSchema);
@@ -1149,7 +1150,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRestoreRun_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1163,7 +1164,7 @@ export class Client {
   async restoreRuns(
     signal: AbortSignal | undefined,
     req: RestoreRuns,
-    options?: Options
+    options?: CallOptions
   ): Promise<RestoreRuns_Response> {
     const url = `${this.host}/api/2.0/mlflow/databricks/runs/restore-runs`;
     const body = marshalRequest(req, marshalRestoreRunsSchema);
@@ -1179,7 +1180,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRestoreRuns_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1190,7 +1191,7 @@ export class Client {
   async searchExperiments(
     signal: AbortSignal | undefined,
     req: SearchExperiments,
-    options?: Options
+    options?: CallOptions
   ): Promise<SearchExperiments_Response> {
     const url = `${this.host}/api/2.0/mlflow/experiments/search`;
     const body = marshalRequest(req, marshalSearchExperimentsSchema);
@@ -1206,7 +1207,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSearchExperiments_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1216,7 +1217,7 @@ export class Client {
   async *searchExperimentsIter(
     signal: AbortSignal | undefined,
     req: SearchExperiments,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<Experiment> {
     const pageReq: SearchExperiments = {...req};
     for (;;) {
@@ -1235,7 +1236,7 @@ export class Client {
   async searchLoggedModels(
     signal: AbortSignal | undefined,
     req: SearchLoggedModels,
-    options?: Options
+    options?: CallOptions
   ): Promise<SearchLoggedModels_Response> {
     const url = `${this.host}/api/2.0/mlflow/logged-models/search`;
     const body = marshalRequest(req, marshalSearchLoggedModelsSchema);
@@ -1254,7 +1255,7 @@ export class Client {
         unmarshalSearchLoggedModels_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1269,7 +1270,7 @@ export class Client {
   async searchRuns(
     signal: AbortSignal | undefined,
     req: SearchRuns,
-    options?: Options
+    options?: CallOptions
   ): Promise<SearchRuns_Response> {
     const url = `${this.host}/api/2.0/mlflow/runs/search`;
     const body = marshalRequest(req, marshalSearchRunsSchema);
@@ -1285,7 +1286,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSearchRuns_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1295,7 +1296,7 @@ export class Client {
   async *searchRunsIter(
     signal: AbortSignal | undefined,
     req: SearchRuns,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<Run> {
     const pageReq: SearchRuns = {...req};
     for (;;) {
@@ -1314,7 +1315,7 @@ export class Client {
   async setExperimentTag(
     signal: AbortSignal | undefined,
     req: SetExperimentTag,
-    options?: Options
+    options?: CallOptions
   ): Promise<SetExperimentTag_Response> {
     const url = `${this.host}/api/2.0/mlflow/experiments/set-experiment-tag`;
     const body = marshalRequest(req, marshalSetExperimentTagSchema);
@@ -1330,7 +1331,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSetExperimentTag_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1341,7 +1342,7 @@ export class Client {
   async setLoggedModelTags(
     signal: AbortSignal | undefined,
     req: SetLoggedModelTags,
-    options?: Options
+    options?: CallOptions
   ): Promise<SetLoggedModelTags_Response> {
     const url = `${this.host}/api/2.0/mlflow/logged-models/${req.modelId ?? ''}/tags`;
     const body = marshalRequest(req, marshalSetLoggedModelTagsSchema);
@@ -1360,7 +1361,7 @@ export class Client {
         unmarshalSetLoggedModelTags_ResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1374,7 +1375,7 @@ export class Client {
   async setTag(
     signal: AbortSignal | undefined,
     req: SetTag,
-    options?: Options
+    options?: CallOptions
   ): Promise<SetTag_Response> {
     const url = `${this.host}/api/2.0/mlflow/runs/set-tag`;
     const body = marshalRequest(req, marshalSetTagSchema);
@@ -1390,7 +1391,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSetTag_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1401,7 +1402,7 @@ export class Client {
   async updateExperiment(
     signal: AbortSignal | undefined,
     req: UpdateExperiment,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateExperiment_Response> {
     const url = `${this.host}/api/2.0/mlflow/experiments/update`;
     const body = marshalRequest(req, marshalUpdateExperimentSchema);
@@ -1417,7 +1418,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdateExperiment_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1428,7 +1429,7 @@ export class Client {
   async updateRun(
     signal: AbortSignal | undefined,
     req: UpdateRun,
-    options?: Options
+    options?: CallOptions
   ): Promise<UpdateRun_Response> {
     const url = `${this.host}/api/2.0/mlflow/runs/update`;
     const body = marshalRequest(req, marshalUpdateRunSchema);
@@ -1444,7 +1445,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdateRun_ResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

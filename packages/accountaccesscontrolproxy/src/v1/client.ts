@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -67,7 +68,7 @@ export class Client {
   async getAssignableRolesForResource(
     signal: AbortSignal | undefined,
     req: GetAssignableRolesForResourceRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<GetAssignableRolesForResourceResponse> {
     const url = `${this.host}/api/2.0/preview/accounts/{account_id}/access-control/assignable-roles`;
     const params = new URLSearchParams();
@@ -94,7 +95,7 @@ export class Client {
         unmarshalGetAssignableRolesForResourceResponseSchema
       );
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -108,7 +109,7 @@ export class Client {
   async getRuleSet(
     signal: AbortSignal | undefined,
     req: GetRuleSetRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<RuleSet> {
     const url = `${this.host}/api/2.0/preview/accounts/{account_id}/access-control/rule-sets`;
     const params = new URLSearchParams();
@@ -135,7 +136,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRuleSetSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -149,7 +150,7 @@ export class Client {
   async updateRuleSet(
     signal: AbortSignal | undefined,
     req: UpdateRuleSetRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<RuleSet> {
     const url = `${this.host}/api/2.0/preview/accounts/{account_id}/access-control/rule-sets`;
     const body = marshalRequest(req, marshalUpdateRuleSetRequestSchema);
@@ -165,7 +166,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRuleSetSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

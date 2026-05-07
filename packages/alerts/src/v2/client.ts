@@ -1,16 +1,17 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
-import type {Call, Options} from '@databricks/sdk-core/api';
-import {execute} from '@databricks/sdk-core/api';
+import type {Call} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
-import type {Logger} from '@databricks/sdk-databricks/logger';
-import {NoOpLogger} from '@databricks/sdk-databricks/logger';
-import type {ClientOptions} from '@databricks/sdk-databricks/options';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
 import {
   buildHttpRequest,
+  executeCall,
   executeHttpCall,
   marshalRequest,
   parseResponse,
@@ -68,7 +69,7 @@ export class Client {
   async createAlert(
     signal: AbortSignal | undefined,
     req: CreateAlertRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Alert> {
     const url = `${this.host}/api/2.0/alerts`;
     const body = marshalRequest(req.alert, marshalAlertSchema);
@@ -84,7 +85,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAlertSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -95,7 +96,7 @@ export class Client {
   async getAlert(
     signal: AbortSignal | undefined,
     req: GetAlertRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Alert> {
     const url = `${this.host}/api/2.0/alerts/${req.id ?? ''}`;
     let resp: Alert | undefined;
@@ -110,7 +111,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAlertSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -121,7 +122,7 @@ export class Client {
   async listAlerts(
     signal: AbortSignal | undefined,
     req: ListAlertsRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<ListAlertsResponse> {
     const url = `${this.host}/api/2.0/alerts`;
     const params = new URLSearchParams();
@@ -145,7 +146,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListAlertsResponseSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -155,7 +156,7 @@ export class Client {
   async *listAlertsIter(
     signal: AbortSignal | undefined,
     req: ListAlertsRequest,
-    options?: Options
+    options?: CallOptions
   ): AsyncGenerator<Alert> {
     const pageReq: ListAlertsRequest = {...req};
     for (;;) {
@@ -174,7 +175,7 @@ export class Client {
   async trashAlert(
     signal: AbortSignal | undefined,
     req: TrashAlertRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Empty> {
     const url = `${this.host}/api/2.0/alerts/${req.id ?? ''}`;
     const params = new URLSearchParams();
@@ -195,7 +196,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEmptySchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -206,7 +207,7 @@ export class Client {
   async updateAlert(
     signal: AbortSignal | undefined,
     req: UpdateAlertRequest,
-    options?: Options
+    options?: CallOptions
   ): Promise<Alert> {
     const url = `${this.host}/api/2.0/alerts/${req.alert?.id ?? ''}`;
     const params = new URLSearchParams();
@@ -234,7 +235,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAlertSchema);
     };
-    await execute(signal, call, options);
+    await executeCall(signal, call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
