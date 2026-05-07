@@ -69,7 +69,6 @@ export class Client {
 
   /** Creates a notification destination. Requires workspace admin permissions. */
   async createNotificationDestination(
-    signal: AbortSignal | undefined,
     req: CreateNotificationDestinationRequest,
     options?: CallOptions
   ): Promise<NotificationDestination> {
@@ -90,7 +89,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalNotificationDestinationSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -99,7 +98,6 @@ export class Client {
 
   /** Deletes a notification destination. Requires workspace admin permissions. */
   async deleteNotificationDestination(
-    signal: AbortSignal | undefined,
     req: DeleteNotificationDestinationRequest,
     options?: CallOptions
   ): Promise<Empty> {
@@ -116,7 +114,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEmptySchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -125,7 +123,6 @@ export class Client {
 
   /** Gets a notification destination. */
   async getNotificationDestination(
-    signal: AbortSignal | undefined,
     req: GetNotificationDestinationRequest,
     options?: CallOptions
   ): Promise<NotificationDestination> {
@@ -142,7 +139,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalNotificationDestinationSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -151,7 +148,6 @@ export class Client {
 
   /** Lists notification destinations. */
   async listNotificationDestinations(
-    signal: AbortSignal | undefined,
     req: ListNotificationDestinationsRequest,
     options?: CallOptions
   ): Promise<ListNotificationDestinationsResponse> {
@@ -180,7 +176,7 @@ export class Client {
         unmarshalListNotificationDestinationsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -188,17 +184,12 @@ export class Client {
   }
 
   async *listNotificationDestinationsIter(
-    signal: AbortSignal | undefined,
     req: ListNotificationDestinationsRequest,
     options?: CallOptions
   ): AsyncGenerator<ListNotificationDestinationsResult> {
     const pageReq: ListNotificationDestinationsRequest = {...req};
     for (;;) {
-      const resp = await this.listNotificationDestinations(
-        signal,
-        pageReq,
-        options
-      );
+      const resp = await this.listNotificationDestinations(pageReq, options);
       for (const item of resp.results ?? []) {
         yield item;
       }
@@ -211,7 +202,6 @@ export class Client {
 
   /** Updates a notification destination. Requires workspace admin permissions. At least one field is required in the request body. */
   async updateNotificationDestination(
-    signal: AbortSignal | undefined,
     req: UpdateNotificationDestinationRequest,
     options?: CallOptions
   ): Promise<NotificationDestination> {
@@ -232,7 +222,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalNotificationDestinationSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

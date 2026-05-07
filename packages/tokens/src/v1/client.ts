@@ -74,7 +74,6 @@ export class Client {
    * returns an error **QUOTA_EXCEEDED**.
    */
   async createToken(
-    signal: AbortSignal | undefined,
     req: CreateToken,
     options?: CallOptions
   ): Promise<CreateToken_Response> {
@@ -92,7 +91,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateToken_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -101,7 +100,6 @@ export class Client {
 
   /** Lists all the valid tokens for a user-workspace pair. */
   async listTokens(
-    signal: AbortSignal | undefined,
     _req: ListTokens,
     options?: CallOptions
   ): Promise<ListTokens_Response> {
@@ -118,7 +116,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListTokens_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -131,7 +129,6 @@ export class Client {
    * If a token with the specified ID is not valid, this call returns an error **RESOURCE_DOES_NOT_EXIST**.
    */
   async revokeToken(
-    signal: AbortSignal | undefined,
     req: RevokeToken,
     options?: CallOptions
   ): Promise<RevokeToken_Response> {
@@ -149,7 +146,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRevokeToken_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -162,7 +159,6 @@ export class Client {
    * If a token with the specified ID is not valid, this call returns an error **RESOURCE_DOES_NOT_EXIST**.
    */
   async updateToken(
-    signal: AbortSignal | undefined,
     req: UpdateToken,
     options?: CallOptions
   ): Promise<UpdateTokenResponse> {
@@ -180,7 +176,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdateTokenResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

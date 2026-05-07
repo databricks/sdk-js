@@ -65,7 +65,6 @@ export class Client {
 
   /** Gets the permissions of an object. Objects can inherit permissions from their parent objects or root object. */
   async getObjectPermissions(
-    signal: AbortSignal | undefined,
     req: GetObjectPermissions,
     options?: CallOptions
   ): Promise<PermissionsResponse> {
@@ -82,7 +81,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPermissionsResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -91,7 +90,6 @@ export class Client {
 
   /** Gets the permission levels that a user can have on an object. */
   async getPermissionLevels(
-    signal: AbortSignal | undefined,
     req: GetPermissionLevels,
     options?: CallOptions
   ): Promise<GetPermissionLevels_Response> {
@@ -111,7 +109,7 @@ export class Client {
         unmarshalGetPermissionLevels_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -120,7 +118,6 @@ export class Client {
 
   /** Sets permissions on an object, replacing existing permissions if they exist. Deletes all direct permissions if none are specified. Objects can inherit permissions from their parent objects or root object. */
   async setObjectPermissions(
-    signal: AbortSignal | undefined,
     req: SetObjectPermissions,
     options?: CallOptions
   ): Promise<PermissionsResponse> {
@@ -138,7 +135,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPermissionsResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -147,7 +144,6 @@ export class Client {
 
   /** Updates the permissions on an object. Objects can inherit permissions from their parent objects or root object. */
   async updateObjectPermissions(
-    signal: AbortSignal | undefined,
     req: UpdateObjectPermissions,
     options?: CallOptions
   ): Promise<PermissionsResponse> {
@@ -165,7 +161,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPermissionsResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

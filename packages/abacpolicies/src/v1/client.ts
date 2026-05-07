@@ -70,7 +70,6 @@ export class Client {
    * The new policy applies to the securable and all its descendants.
    */
   async createPolicy(
-    signal: AbortSignal | undefined,
     req: CreatePolicy,
     options?: CallOptions
   ): Promise<PolicyInfo> {
@@ -88,7 +87,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPolicyInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -97,7 +96,6 @@ export class Client {
 
   /** Delete an ABAC policy defined on a securable. */
   async deletePolicy(
-    signal: AbortSignal | undefined,
     req: DeletePolicy,
     options?: CallOptions
   ): Promise<DeletePolicy_Response> {
@@ -114,7 +112,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeletePolicy_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -122,11 +120,7 @@ export class Client {
   }
 
   /** Get the policy definition on a securable */
-  async getPolicy(
-    signal: AbortSignal | undefined,
-    req: GetPolicy,
-    options?: CallOptions
-  ): Promise<PolicyInfo> {
+  async getPolicy(req: GetPolicy, options?: CallOptions): Promise<PolicyInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}/${req.name ?? ''}`;
     let resp: PolicyInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -140,7 +134,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPolicyInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -155,7 +149,6 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listPolicies(
-    signal: AbortSignal | undefined,
     req: ListPolicies,
     options?: CallOptions
   ): Promise<ListPolicies_Response> {
@@ -184,7 +177,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListPolicies_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -192,13 +185,12 @@ export class Client {
   }
 
   async *listPoliciesIter(
-    signal: AbortSignal | undefined,
     req: ListPolicies,
     options?: CallOptions
   ): AsyncGenerator<PolicyInfo> {
     const pageReq: ListPolicies = {...req};
     for (;;) {
-      const resp = await this.listPolicies(signal, pageReq, options);
+      const resp = await this.listPolicies(pageReq, options);
       for (const item of resp.policies ?? []) {
         yield item;
       }
@@ -211,7 +203,6 @@ export class Client {
 
   /** Update an ABAC policy on a securable. */
   async updatePolicy(
-    signal: AbortSignal | undefined,
     req: UpdatePolicy,
     options?: CallOptions
   ): Promise<PolicyInfo> {
@@ -241,7 +232,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPolicyInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

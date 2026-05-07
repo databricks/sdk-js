@@ -66,7 +66,6 @@ export class Client {
 
   /** Create a secret for the given service principal. */
   async createServicePrincipalSecret(
-    signal: AbortSignal | undefined,
     req: CreateServicePrincipalSecret,
     options?: CallOptions
   ): Promise<CreateServicePrincipalSecretResponse> {
@@ -87,7 +86,7 @@ export class Client {
         unmarshalCreateServicePrincipalSecretResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -96,7 +95,6 @@ export class Client {
 
   /** Delete a secret from the given service principal. */
   async deleteServicePrincipalSecret(
-    signal: AbortSignal | undefined,
     req: DeleteServicePrincipalSecret,
     options?: CallOptions
   ): Promise<DeleteServicePrincipalSecret_Response> {
@@ -122,7 +120,7 @@ export class Client {
         unmarshalDeleteServicePrincipalSecret_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -131,7 +129,6 @@ export class Client {
 
   /** List all secrets associated with the given service principal. This operation only returns information about the secrets themselves and does not include the secret values. */
   async listServicePrincipalSecrets(
-    signal: AbortSignal | undefined,
     req: ListServicePrincipalSecrets,
     options?: CallOptions
   ): Promise<ListServicePrincipalSecrets_Response> {
@@ -163,7 +160,7 @@ export class Client {
         unmarshalListServicePrincipalSecrets_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -171,17 +168,12 @@ export class Client {
   }
 
   async *listServicePrincipalSecretsIter(
-    signal: AbortSignal | undefined,
     req: ListServicePrincipalSecrets,
     options?: CallOptions
   ): AsyncGenerator<ServicePrincipalSecret> {
     const pageReq: ListServicePrincipalSecrets = {...req};
     for (;;) {
-      const resp = await this.listServicePrincipalSecrets(
-        signal,
-        pageReq,
-        options
-      );
+      const resp = await this.listServicePrincipalSecrets(pageReq, options);
       for (const item of resp.secrets ?? []) {
         yield item;
       }

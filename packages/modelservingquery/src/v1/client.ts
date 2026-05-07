@@ -56,7 +56,6 @@ export class Client {
 
   /** Query a serving endpoint */
   async query(
-    signal: AbortSignal | undefined,
     req: QueryEndpointInput,
     options?: CallOptions
   ): Promise<QueryEndpointResponse> {
@@ -74,7 +73,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalQueryEndpointResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

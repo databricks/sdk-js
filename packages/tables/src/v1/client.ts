@@ -109,7 +109,6 @@ export class Client {
    * are not supported when creating tables through this API.
    */
   async createTable(
-    signal: AbortSignal | undefined,
     req: CreateTable,
     options?: CallOptions
   ): Promise<TableInfo> {
@@ -127,7 +126,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTableInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -146,7 +145,6 @@ export class Client {
    * and be the owner of the referenced parent table.
    */
   async createTableConstraint(
-    signal: AbortSignal | undefined,
     req: CreateTableConstraint,
     options?: CallOptions
   ): Promise<TableConstraint> {
@@ -164,7 +162,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTableConstraintSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -177,7 +175,6 @@ export class Client {
    * or be the owner of the table and have the **USE_CATALOG** privilege on the parent catalog and the **USE_SCHEMA** privilege on the parent schema.
    */
   async deleteTable(
-    signal: AbortSignal | undefined,
     req: DeleteTable,
     options?: CallOptions
   ): Promise<DeleteTable_Response> {
@@ -194,7 +191,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteTable_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -213,7 +210,6 @@ export class Client {
    * and be the owner of the table.
    */
   async deleteTableConstraint(
-    signal: AbortSignal | undefined,
     req: DeleteTableConstraint,
     options?: CallOptions
   ): Promise<DeleteTableConstraint_Response> {
@@ -242,7 +238,7 @@ export class Client {
         unmarshalDeleteTableConstraint_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -258,11 +254,7 @@ export class Client {
    * * Have the **USE_CATALOG** privilege on the parent catalog and the **USE_SCHEMA** privilege on the parent schema,
    * and either be the table owner or have the **SELECT** privilege on the table.
    */
-  async getTable(
-    signal: AbortSignal | undefined,
-    req: GetTable,
-    options?: CallOptions
-  ): Promise<TableInfo> {
+  async getTable(req: GetTable, options?: CallOptions): Promise<TableInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullNameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.includeDeltaMetadata !== undefined) {
@@ -291,7 +283,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTableInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -312,7 +304,6 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listTableSummaries(
-    signal: AbortSignal | undefined,
     req: ListTableSummaries,
     options?: CallOptions
   ): Promise<ListTableSummaries_Response> {
@@ -356,7 +347,7 @@ export class Client {
         unmarshalListTableSummaries_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -364,13 +355,12 @@ export class Client {
   }
 
   async *listTableSummariesIter(
-    signal: AbortSignal | undefined,
     req: ListTableSummaries,
     options?: CallOptions
   ): AsyncGenerator<TableSummary> {
     const pageReq: ListTableSummaries = {...req};
     for (;;) {
-      const resp = await this.listTableSummaries(signal, pageReq, options);
+      const resp = await this.listTableSummaries(pageReq, options);
       for (const item of resp.tables ?? []) {
         yield item;
       }
@@ -395,7 +385,6 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listTables(
-    signal: AbortSignal | undefined,
     req: ListTables,
     options?: CallOptions
   ): Promise<ListTables_Response> {
@@ -445,7 +434,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListTables_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -453,13 +442,12 @@ export class Client {
   }
 
   async *listTablesIter(
-    signal: AbortSignal | undefined,
     req: ListTables,
     options?: CallOptions
   ): AsyncGenerator<TableInfo> {
     const pageReq: ListTables = {...req};
     for (;;) {
-      const resp = await this.listTables(signal, pageReq, options);
+      const resp = await this.listTables(pageReq, options);
       for (const item of resp.tables ?? []) {
         yield item;
       }
@@ -482,7 +470,6 @@ export class Client {
    * * Have **BROWSE** privilege on the parent schema
    */
   async tableExists(
-    signal: AbortSignal | undefined,
     req: TableExists,
     options?: CallOptions
   ): Promise<TableExists_Response> {
@@ -499,7 +486,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTableExists_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -512,7 +499,6 @@ export class Client {
    * or be the owner of the table and have the **USE_CATALOG** privilege on the parent catalog and the **USE_SCHEMA** privilege on the parent schema.
    */
   async updateTable(
-    signal: AbortSignal | undefined,
     req: UpdateTable,
     options?: CallOptions
   ): Promise<UpdateTable_Response> {
@@ -530,7 +516,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdateTable_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

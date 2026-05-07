@@ -73,7 +73,6 @@ export class Client {
 
   /** Creates a query. */
   async createQuery(
-    signal: AbortSignal | undefined,
     req: CreateQueryRequest,
     options?: CallOptions
   ): Promise<Query> {
@@ -91,7 +90,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalQuerySchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -99,11 +98,7 @@ export class Client {
   }
 
   /** Gets a query. */
-  async getQuery(
-    signal: AbortSignal | undefined,
-    req: GetQueryRequest,
-    options?: CallOptions
-  ): Promise<Query> {
+  async getQuery(req: GetQueryRequest, options?: CallOptions): Promise<Query> {
     const url = `${this.host}/api/2.0/sql/queries/${req.id ?? ''}`;
     let resp: Query | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -117,7 +112,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalQuerySchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -126,7 +121,6 @@ export class Client {
 
   /** Gets a list of queries accessible to the user, ordered by creation time. **Warning:** Calling this API concurrently 10 or more times could result in throttling, service degradation, or a temporary ban. */
   async listQueries(
-    signal: AbortSignal | undefined,
     req: ListQueriesRequest,
     options?: CallOptions
   ): Promise<ListQueriesResponse> {
@@ -152,7 +146,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListQueriesResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -160,13 +154,12 @@ export class Client {
   }
 
   async *listQueriesIter(
-    signal: AbortSignal | undefined,
     req: ListQueriesRequest,
     options?: CallOptions
   ): AsyncGenerator<ListQueryObjectsResponseQuery> {
     const pageReq: ListQueriesRequest = {...req};
     for (;;) {
-      const resp = await this.listQueries(signal, pageReq, options);
+      const resp = await this.listQueries(pageReq, options);
       for (const item of resp.results ?? []) {
         yield item;
       }
@@ -179,7 +172,6 @@ export class Client {
 
   /** Gets a list of visualizations on a query. */
   async listVisualizationsForQuery(
-    signal: AbortSignal | undefined,
     req: ListVisualizationsForQueryRequest,
     options?: CallOptions
   ): Promise<ListVisualizationsForQueryResponse> {
@@ -208,7 +200,7 @@ export class Client {
         unmarshalListVisualizationsForQueryResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -216,17 +208,12 @@ export class Client {
   }
 
   async *listVisualizationsForQueryIter(
-    signal: AbortSignal | undefined,
     req: ListVisualizationsForQueryRequest,
     options?: CallOptions
   ): AsyncGenerator<Visualization> {
     const pageReq: ListVisualizationsForQueryRequest = {...req};
     for (;;) {
-      const resp = await this.listVisualizationsForQuery(
-        signal,
-        pageReq,
-        options
-      );
+      const resp = await this.listVisualizationsForQuery(pageReq, options);
       for (const item of resp.results ?? []) {
         yield item;
       }
@@ -239,7 +226,6 @@ export class Client {
 
   /** Moves a query to the trash. Trashed queries immediately disappear from searches and list views, and cannot be used for alerts. You can restore a trashed query through the UI. A trashed query is permanently deleted after 30 days. */
   async trashQuery(
-    signal: AbortSignal | undefined,
     req: TrashQueryRequest,
     options?: CallOptions
   ): Promise<Empty> {
@@ -256,7 +242,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEmptySchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -265,7 +251,6 @@ export class Client {
 
   /** Updates a query. */
   async updateQuery(
-    signal: AbortSignal | undefined,
     req: UpdateQueryRequest,
     options?: CallOptions
   ): Promise<Query> {
@@ -283,7 +268,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalQuerySchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

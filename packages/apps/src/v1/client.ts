@@ -119,7 +119,6 @@ export class Client {
 
   /** Creates an app update and starts the update process. The update process is asynchronous and the status of the update can be checked with the GetAppUpdate method. */
   async asyncUpdateApp(
-    signal: AbortSignal | undefined,
     req: AsyncUpdateAppRequest,
     options?: CallOptions
   ): Promise<AppUpdate> {
@@ -137,7 +136,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppUpdateSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -145,11 +144,10 @@ export class Client {
   }
 
   async asyncUpdateAppWaiter(
-    signal: AbortSignal | undefined,
     req: AsyncUpdateAppRequest,
     options?: CallOptions
   ): Promise<AsyncUpdateAppWaiter> {
-    await this.asyncUpdateApp(signal, req, options);
+    await this.asyncUpdateApp(req, options);
     if (req.appName === undefined) {
       throw new Error('request field appName required for polling is missing');
     }
@@ -157,11 +155,7 @@ export class Client {
   }
 
   /** Creates a new app. */
-  async createApp(
-    signal: AbortSignal | undefined,
-    req: CreateAppRequest,
-    options?: CallOptions
-  ): Promise<App> {
+  async createApp(req: CreateAppRequest, options?: CallOptions): Promise<App> {
     const url = `${this.host}/api/2.0/apps`;
     const params = new URLSearchParams();
     if (req.noCompute !== undefined) {
@@ -188,7 +182,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -196,11 +190,10 @@ export class Client {
   }
 
   async createAppWaiter(
-    signal: AbortSignal | undefined,
     req: CreateAppRequest,
     options?: CallOptions
   ): Promise<CreateAppWaiter> {
-    const resp = await this.createApp(signal, req, options);
+    const resp = await this.createApp(req, options);
     if (resp.name === undefined) {
       throw new Error('response field name required for polling is missing');
     }
@@ -209,7 +202,6 @@ export class Client {
 
   /** Creates an app deployment for the app with the supplied name. */
   async createAppDeployment(
-    signal: AbortSignal | undefined,
     req: CreateAppDeploymentRequest,
     options?: CallOptions
   ): Promise<AppDeployment> {
@@ -239,7 +231,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppDeploymentSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -247,11 +239,10 @@ export class Client {
   }
 
   async createAppDeploymentWaiter(
-    signal: AbortSignal | undefined,
     req: CreateAppDeploymentRequest,
     options?: CallOptions
   ): Promise<CreateAppDeploymentWaiter> {
-    const resp = await this.createAppDeployment(signal, req, options);
+    const resp = await this.createAppDeployment(req, options);
     if (resp.deploymentId === undefined) {
       throw new Error(
         'response field deploymentId required for polling is missing'
@@ -265,7 +256,6 @@ export class Client {
 
   /** Creates a custom template. */
   async createCustomTemplate(
-    signal: AbortSignal | undefined,
     req: CreateCustomTemplateRequest,
     options?: CallOptions
   ): Promise<CustomTemplate> {
@@ -283,7 +273,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCustomTemplateSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -292,7 +282,6 @@ export class Client {
 
   /** Creates a new app space. */
   async createSpace(
-    signal: AbortSignal | undefined,
     req: CreateSpaceRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -310,7 +299,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -318,20 +307,15 @@ export class Client {
   }
 
   async createSpaceOperation(
-    signal: AbortSignal | undefined,
     req: CreateSpaceRequest,
     options?: CallOptions
   ): Promise<CreateSpaceOperation> {
-    const op = await this.createSpace(signal, req, options);
+    const op = await this.createSpace(req, options);
     return new CreateSpaceOperation(this, op);
   }
 
   /** Deletes an app. */
-  async deleteApp(
-    signal: AbortSignal | undefined,
-    req: DeleteAppRequest,
-    options?: CallOptions
-  ): Promise<App> {
+  async deleteApp(req: DeleteAppRequest, options?: CallOptions): Promise<App> {
     const url = `${this.host}/api/2.0/apps/${req.name ?? ''}`;
     let resp: App | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -345,7 +329,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -354,7 +338,6 @@ export class Client {
 
   /** Deletes the thumbnail for an app. */
   async deleteAppThumbnail(
-    signal: AbortSignal | undefined,
     req: DeleteAppThumbnailRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -369,12 +352,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Deletes the custom template with the specified name. */
   async deleteCustomTemplate(
-    signal: AbortSignal | undefined,
     req: DeleteCustomTemplateRequest,
     options?: CallOptions
   ): Promise<CustomTemplate> {
@@ -391,7 +373,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCustomTemplateSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -400,7 +382,6 @@ export class Client {
 
   /** Deletes an app space. */
   async deleteSpace(
-    signal: AbortSignal | undefined,
     req: DeleteSpaceRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -417,7 +398,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -425,20 +406,15 @@ export class Client {
   }
 
   async deleteSpaceOperation(
-    signal: AbortSignal | undefined,
     req: DeleteSpaceRequest,
     options?: CallOptions
   ): Promise<DeleteSpaceOperation> {
-    const op = await this.deleteSpace(signal, req, options);
+    const op = await this.deleteSpace(req, options);
     return new DeleteSpaceOperation(this, op);
   }
 
   /** Retrieves information for the app with the supplied name. */
-  async getApp(
-    signal: AbortSignal | undefined,
-    req: GetAppRequest,
-    options?: CallOptions
-  ): Promise<App> {
+  async getApp(req: GetAppRequest, options?: CallOptions): Promise<App> {
     const url = `${this.host}/api/2.0/apps/${req.name ?? ''}`;
     let resp: App | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -452,7 +428,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -461,7 +437,6 @@ export class Client {
 
   /** Retrieves information for the app deployment with the supplied name and deployment id. */
   async getAppDeployment(
-    signal: AbortSignal | undefined,
     req: GetAppDeploymentRequest,
     options?: CallOptions
   ): Promise<AppDeployment> {
@@ -478,7 +453,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppDeploymentSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -487,7 +462,6 @@ export class Client {
 
   /** Gets the status of an app update. */
   async getAppUpdate(
-    signal: AbortSignal | undefined,
     req: GetAppUpdateRequest,
     options?: CallOptions
   ): Promise<AppUpdate> {
@@ -504,7 +478,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppUpdateSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -513,7 +487,6 @@ export class Client {
 
   /** Gets the custom template with the specified name. */
   async getCustomTemplate(
-    signal: AbortSignal | undefined,
     req: GetCustomTemplateRequest,
     options?: CallOptions
   ): Promise<CustomTemplate> {
@@ -530,7 +503,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCustomTemplateSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -538,11 +511,7 @@ export class Client {
   }
 
   /** Retrieves information for the app space with the supplied name. */
-  async getSpace(
-    signal: AbortSignal | undefined,
-    req: GetSpaceRequest,
-    options?: CallOptions
-  ): Promise<Space> {
+  async getSpace(req: GetSpaceRequest, options?: CallOptions): Promise<Space> {
     const url = `${this.host}/api/2.0/app-spaces/${req.name ?? ''}`;
     let resp: Space | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -556,7 +525,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSpaceSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -565,7 +534,6 @@ export class Client {
 
   /** Gets the status of an app space update operation. */
   async getSpaceOperation(
-    signal: AbortSignal | undefined,
     req: GetOperationRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -582,7 +550,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -591,7 +559,6 @@ export class Client {
 
   /** Lists all app deployments for the app with the supplied name. */
   async listAppDeployments(
-    signal: AbortSignal | undefined,
     req: ListAppDeploymentsRequest,
     options?: CallOptions
   ): Promise<ListAppDeploymentsResponse> {
@@ -617,7 +584,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListAppDeploymentsResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -625,13 +592,12 @@ export class Client {
   }
 
   async *listAppDeploymentsIter(
-    signal: AbortSignal | undefined,
     req: ListAppDeploymentsRequest,
     options?: CallOptions
   ): AsyncGenerator<AppDeployment> {
     const pageReq: ListAppDeploymentsRequest = {...req};
     for (;;) {
-      const resp = await this.listAppDeployments(signal, pageReq, options);
+      const resp = await this.listAppDeployments(pageReq, options);
       for (const item of resp.appDeployments ?? []) {
         yield item;
       }
@@ -644,7 +610,6 @@ export class Client {
 
   /** Lists all apps in the workspace. */
   async listApps(
-    signal: AbortSignal | undefined,
     req: ListAppsRequest,
     options?: CallOptions
   ): Promise<ListAppsResponse> {
@@ -673,7 +638,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListAppsResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -681,13 +646,12 @@ export class Client {
   }
 
   async *listAppsIter(
-    signal: AbortSignal | undefined,
     req: ListAppsRequest,
     options?: CallOptions
   ): AsyncGenerator<App> {
     const pageReq: ListAppsRequest = {...req};
     for (;;) {
-      const resp = await this.listApps(signal, pageReq, options);
+      const resp = await this.listApps(pageReq, options);
       for (const item of resp.apps ?? []) {
         yield item;
       }
@@ -700,7 +664,6 @@ export class Client {
 
   /** Lists all custom templates in the workspace. */
   async listCustomTemplates(
-    signal: AbortSignal | undefined,
     req: ListCustomTemplatesRequest,
     options?: CallOptions
   ): Promise<ListCustomTemplatesResponse> {
@@ -729,7 +692,7 @@ export class Client {
         unmarshalListCustomTemplatesResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -737,13 +700,12 @@ export class Client {
   }
 
   async *listCustomTemplatesIter(
-    signal: AbortSignal | undefined,
     req: ListCustomTemplatesRequest,
     options?: CallOptions
   ): AsyncGenerator<CustomTemplate> {
     const pageReq: ListCustomTemplatesRequest = {...req};
     for (;;) {
-      const resp = await this.listCustomTemplates(signal, pageReq, options);
+      const resp = await this.listCustomTemplates(pageReq, options);
       for (const item of resp.templates ?? []) {
         yield item;
       }
@@ -756,7 +718,6 @@ export class Client {
 
   /** Lists all app spaces in the workspace. */
   async listSpaces(
-    signal: AbortSignal | undefined,
     req: ListSpacesRequest,
     options?: CallOptions
   ): Promise<ListSpacesResponse> {
@@ -782,7 +743,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListSpacesResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -790,13 +751,12 @@ export class Client {
   }
 
   async *listSpacesIter(
-    signal: AbortSignal | undefined,
     req: ListSpacesRequest,
     options?: CallOptions
   ): AsyncGenerator<Space> {
     const pageReq: ListSpacesRequest = {...req};
     for (;;) {
-      const resp = await this.listSpaces(signal, pageReq, options);
+      const resp = await this.listSpaces(pageReq, options);
       for (const item of resp.spaces ?? []) {
         yield item;
       }
@@ -808,11 +768,7 @@ export class Client {
   }
 
   /** Start the last active deployment of the app in the workspace. */
-  async startApp(
-    signal: AbortSignal | undefined,
-    req: StartAppRequest,
-    options?: CallOptions
-  ): Promise<App> {
+  async startApp(req: StartAppRequest, options?: CallOptions): Promise<App> {
     const url = `${this.host}/api/2.0/apps/${req.name ?? ''}/start`;
     const body = marshalRequest(req, marshalStartAppRequestSchema);
     let resp: App | undefined;
@@ -827,7 +783,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -835,11 +791,10 @@ export class Client {
   }
 
   async startAppWaiter(
-    signal: AbortSignal | undefined,
     req: StartAppRequest,
     options?: CallOptions
   ): Promise<StartAppWaiter> {
-    await this.startApp(signal, req, options);
+    await this.startApp(req, options);
     if (req.name === undefined) {
       throw new Error('request field name required for polling is missing');
     }
@@ -847,11 +802,7 @@ export class Client {
   }
 
   /** Stops the active deployment of the app in the workspace. */
-  async stopApp(
-    signal: AbortSignal | undefined,
-    req: StopAppRequest,
-    options?: CallOptions
-  ): Promise<App> {
+  async stopApp(req: StopAppRequest, options?: CallOptions): Promise<App> {
     const url = `${this.host}/api/2.0/apps/${req.name ?? ''}/stop`;
     const body = marshalRequest(req, marshalStopAppRequestSchema);
     let resp: App | undefined;
@@ -866,7 +817,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -874,11 +825,10 @@ export class Client {
   }
 
   async stopAppWaiter(
-    signal: AbortSignal | undefined,
     req: StopAppRequest,
     options?: CallOptions
   ): Promise<StopAppWaiter> {
-    await this.stopApp(signal, req, options);
+    await this.stopApp(req, options);
     if (req.name === undefined) {
       throw new Error('request field name required for polling is missing');
     }
@@ -886,11 +836,7 @@ export class Client {
   }
 
   /** Updates the app with the supplied name. */
-  async updateApp(
-    signal: AbortSignal | undefined,
-    req: UpdateAppRequest,
-    options?: CallOptions
-  ): Promise<App> {
+  async updateApp(req: UpdateAppRequest, options?: CallOptions): Promise<App> {
     const url = `${this.host}/api/2.0/apps/${req.app?.name ?? ''}`;
     const body = marshalRequest(req.app, marshalAppSchema);
     let resp: App | undefined;
@@ -905,7 +851,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -914,7 +860,6 @@ export class Client {
 
   /** Updates the thumbnail for an app. */
   async updateAppThumbnail(
-    signal: AbortSignal | undefined,
     req: UpdateAppThumbnailRequest,
     options?: CallOptions
   ): Promise<AppThumbnail> {
@@ -932,7 +877,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAppThumbnailSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -941,7 +886,6 @@ export class Client {
 
   /** Updates the custom template with the specified name. Note that the template name cannot be updated. */
   async updateCustomTemplate(
-    signal: AbortSignal | undefined,
     req: UpdateCustomTemplateRequest,
     options?: CallOptions
   ): Promise<CustomTemplate> {
@@ -959,7 +903,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCustomTemplateSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -968,7 +912,6 @@ export class Client {
 
   /** Updates an app space. The update process is asynchronous and the status of the update can be checked with the GetSpaceOperation method. */
   async updateSpace(
-    signal: AbortSignal | undefined,
     req: UpdateSpaceRequest,
     options?: CallOptions
   ): Promise<Operation> {
@@ -998,7 +941,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalOperationSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1006,11 +949,10 @@ export class Client {
   }
 
   async updateSpaceOperation(
-    signal: AbortSignal | undefined,
     req: UpdateSpaceRequest,
     options?: CallOptions
   ): Promise<UpdateSpaceOperation> {
-    const op = await this.updateSpace(signal, req, options);
+    const op = await this.updateSpace(req, options);
     return new UpdateSpaceOperation(this, op);
   }
 }
@@ -1041,20 +983,16 @@ export class CreateSpaceOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<Space> {
+  async wait(options?: CallOptions): Promise<Space> {
     const errStillRunning = new Error('operation still in progress');
     let result: Space | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getSpaceOperation(
-        callSignal,
         {
           name: this.operation.name,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
       this.operation = op;
       if (op.done === undefined) {
@@ -1085,12 +1023,13 @@ export class CreateSpaceOperation {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1098,12 +1037,8 @@ export class CreateSpaceOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean | undefined> {
     const op = await this.client.getSpaceOperation(
-      signal,
       {name: this.operation.name},
       options
     );
@@ -1138,19 +1073,15 @@ export class DeleteSpaceOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<void> {
+  async wait(options?: CallOptions): Promise<void> {
     const errStillRunning = new Error('operation still in progress');
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getSpaceOperation(
-        callSignal,
         {
           name: this.operation.name,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
       this.operation = op;
       if (op.done === undefined) {
@@ -1175,21 +1106,18 @@ export class DeleteSpaceOperation {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
   }
 
   /** Checks whether the operation has completed */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean | undefined> {
     const op = await this.client.getSpaceOperation(
-      signal,
       {name: this.operation.name},
       options
     );
@@ -1224,20 +1152,16 @@ export class UpdateSpaceOperation {
    *
    * Throws if the operation failed.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<Space> {
+  async wait(options?: CallOptions): Promise<Space> {
     const errStillRunning = new Error('operation still in progress');
     let result: Space | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const op = await this.client.getSpaceOperation(
-        callSignal,
         {
           name: this.operation.name,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
       this.operation = op;
       if (op.done === undefined) {
@@ -1268,12 +1192,13 @@ export class UpdateSpaceOperation {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err.message.includes('operation still in progress');
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1281,12 +1206,8 @@ export class UpdateSpaceOperation {
   }
 
   /** Checks whether the operation has completed */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean | undefined> {
+  async done(options?: CallOptions): Promise<boolean | undefined> {
     const op = await this.client.getSpaceOperation(
-      signal,
       {name: this.operation.name},
       options
     );
@@ -1306,19 +1227,15 @@ export class AsyncUpdateAppWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<AppUpdate> {
+  async wait(options?: CallOptions): Promise<AppUpdate> {
     let result: AppUpdate | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getAppUpdate(
-        callSignal,
         {
           appName: this.appName,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.status?.state;
@@ -1340,12 +1257,13 @@ export class AsyncUpdateAppWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1353,12 +1271,8 @@ export class AsyncUpdateAppWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getAppUpdate(
-      signal,
       {
         appName: this.appName,
       },
@@ -1391,19 +1305,15 @@ export class CreateAppWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<App> {
+  async wait(options?: CallOptions): Promise<App> {
     let result: App | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getApp(
-        callSignal,
         {
           name: this.name,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.computeStatus?.state;
@@ -1426,12 +1336,13 @@ export class CreateAppWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1439,12 +1350,8 @@ export class CreateAppWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getApp(
-      signal,
       {
         name: this.name,
       },
@@ -1479,20 +1386,16 @@ export class CreateAppDeploymentWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<AppDeployment> {
+  async wait(options?: CallOptions): Promise<AppDeployment> {
     let result: AppDeployment | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getAppDeployment(
-        callSignal,
         {
           deploymentId: this.deploymentId,
           appName: this.appName,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.status?.state;
@@ -1514,12 +1417,13 @@ export class CreateAppDeploymentWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1527,12 +1431,8 @@ export class CreateAppDeploymentWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getAppDeployment(
-      signal,
       {
         deploymentId: this.deploymentId,
         appName: this.appName,
@@ -1566,19 +1466,15 @@ export class StartAppWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<App> {
+  async wait(options?: CallOptions): Promise<App> {
     let result: App | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getApp(
-        callSignal,
         {
           name: this.name,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.computeStatus?.state;
@@ -1601,12 +1497,13 @@ export class StartAppWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1614,12 +1511,8 @@ export class StartAppWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getApp(
-      signal,
       {
         name: this.name,
       },
@@ -1653,19 +1546,15 @@ export class StopAppWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<App> {
+  async wait(options?: CallOptions): Promise<App> {
     let result: App | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getApp(
-        callSignal,
         {
           name: this.name,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.computeStatus?.state;
@@ -1687,12 +1576,13 @@ export class StopAppWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1700,12 +1590,8 @@ export class StopAppWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getApp(
-      signal,
       {
         name: this.name,
       },

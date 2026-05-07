@@ -4,6 +4,7 @@
 
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient, HttpRequest} from '@databricks/sdk-core/http';
 import {newHttpClient} from '@databricks/sdk-databricks/transport';
@@ -32,10 +33,7 @@ export class Client {
    * once, this method does not retry on failure. If the upload fails the
    * caller must construct a new ReadableStream and call upload again.
    */
-  async upload(
-    signal: AbortSignal | undefined,
-    req: UploadRequest
-  ): Promise<void> {
+  async upload(req: UploadRequest, options?: CallOptions): Promise<void> {
     const encodedPath = encodeFilePath(req.filePath);
     const url = new URL(`${this.host}/api/2.0/fs/files${encodedPath}`);
     if (req.overwrite === true) {
@@ -50,7 +48,7 @@ export class Client {
       method: 'PUT',
       headers,
       body: req.contents,
-      ...(signal !== undefined && {signal}),
+      ...(options?.signal !== undefined && {signal: options.signal}),
     };
 
     await sendAndCheckError({

@@ -123,7 +123,6 @@ export class Client {
    * If the block of data exceeds 1 MB, this call will throw an exception with ``MAX_BLOCK_SIZE_EXCEEDED``.
    */
   async addBlock(
-    signal: AbortSignal | undefined,
     req: AddBlock,
     options?: CallOptions
   ): Promise<AddBlock_Response> {
@@ -141,7 +140,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAddBlock_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -152,11 +151,7 @@ export class Client {
    * Closes the stream specified by the input handle. If the handle does not exist, this call
    * throws an exception with ``RESOURCE_DOES_NOT_EXIST``.
    */
-  async close(
-    signal: AbortSignal | undefined,
-    req: Close,
-    options?: CallOptions
-  ): Promise<Close_Response> {
+  async close(req: Close, options?: CallOptions): Promise<Close_Response> {
     const url = `${this.host}/api/2.0/dbfs/close`;
     const body = marshalRequest(req, marshalCloseSchema);
     let resp: Close_Response | undefined;
@@ -171,7 +166,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalClose_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -189,11 +184,7 @@ export class Client {
    * 2. Issue one or more ``add-block`` calls with the handle you have.
    * 3. Issue a ``close`` call with the handle you have.
    */
-  async create(
-    signal: AbortSignal | undefined,
-    req: Create,
-    options?: CallOptions
-  ): Promise<Create_Response> {
+  async create(req: Create, options?: CallOptions): Promise<Create_Response> {
     const url = `${this.host}/api/2.0/dbfs/create`;
     const body = marshalRequest(req, marshalCreateSchema);
     let resp: Create_Response | undefined;
@@ -208,7 +199,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreate_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -231,11 +222,7 @@ export class Client {
    * provides better control and manageability, such as selective deletes, and the possibility to automate periodic
    * delete jobs.
    */
-  async delete(
-    signal: AbortSignal | undefined,
-    req: Delete,
-    options?: CallOptions
-  ): Promise<Delete_Response> {
+  async delete(req: Delete, options?: CallOptions): Promise<Delete_Response> {
     const url = `${this.host}/api/2.0/dbfs/delete`;
     const body = marshalRequest(req, marshalDeleteSchema);
     let resp: Delete_Response | undefined;
@@ -250,7 +237,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDelete_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -262,7 +249,6 @@ export class Client {
    * If the file or directory does not exist, this call throws an exception with `RESOURCE_DOES_NOT_EXIST`.
    */
   async getStatus(
-    signal: AbortSignal | undefined,
     req: GetStatus,
     options?: CallOptions
   ): Promise<GetStatus_Response> {
@@ -285,7 +271,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetStatus_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -304,7 +290,6 @@ export class Client {
    * functionality without timing out.
    */
   async list(
-    signal: AbortSignal | undefined,
     req: ListStatus,
     options?: CallOptions
   ): Promise<ListStatus_Response> {
@@ -327,7 +312,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListStatus_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -339,11 +324,7 @@ export class Client {
    * If a file (not a directory) exists at any prefix of the input path, this call throws an exception with `RESOURCE_ALREADY_EXISTS`.
    * **Note**: If this operation fails, it might have succeeded in creating some of the necessary parent directories.
    */
-  async mkdirs(
-    signal: AbortSignal | undefined,
-    req: MkDirs,
-    options?: CallOptions
-  ): Promise<MkDirs_Response> {
+  async mkdirs(req: MkDirs, options?: CallOptions): Promise<MkDirs_Response> {
     const url = `${this.host}/api/2.0/dbfs/mkdirs`;
     const body = marshalRequest(req, marshalMkDirsSchema);
     let resp: MkDirs_Response | undefined;
@@ -358,7 +339,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMkDirs_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -371,11 +352,7 @@ export class Client {
    * If a file already exists in the destination path, this call throws an exception with `RESOURCE_ALREADY_EXISTS`.
    * If the given source path is a directory, this call always recursively moves all files.
    */
-  async move(
-    signal: AbortSignal | undefined,
-    req: Move,
-    options?: CallOptions
-  ): Promise<Move_Response> {
+  async move(req: Move, options?: CallOptions): Promise<Move_Response> {
     const url = `${this.host}/api/2.0/dbfs/move`;
     const body = marshalRequest(req, marshalMoveSchema);
     let resp: Move_Response | undefined;
@@ -390,7 +367,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMove_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -409,11 +386,7 @@ export class Client {
    * If you want to upload large files, use the streaming upload. For details, see :method:dbfs/create,
    * :method:dbfs/addBlock, :method:dbfs/close.
    */
-  async put(
-    signal: AbortSignal | undefined,
-    req: Put,
-    options?: CallOptions
-  ): Promise<Put_Response> {
+  async put(req: Put, options?: CallOptions): Promise<Put_Response> {
     const url = `${this.host}/api/2.0/dbfs/put`;
     const body = marshalRequest(req, marshalPutSchema);
     let resp: Put_Response | undefined;
@@ -428,7 +401,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPut_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -443,11 +416,7 @@ export class Client {
    *
    * If `offset + length` exceeds the number of bytes in a file, it reads the contents until the end of file.
    */
-  async read(
-    signal: AbortSignal | undefined,
-    req: Read,
-    options?: CallOptions
-  ): Promise<Read_Response> {
+  async read(req: Read, options?: CallOptions): Promise<Read_Response> {
     const url = `${this.host}/api/2.0/dbfs/read`;
     const params = new URLSearchParams();
     if (req.path !== undefined) {
@@ -473,7 +442,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRead_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -487,7 +456,6 @@ export class Client {
    * exists).
    */
   async createDirectory(
-    signal: AbortSignal | undefined,
     req: CreateDirectoryRequest,
     options?: CallOptions
   ): Promise<CreateDirectoryResponse> {
@@ -504,7 +472,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateDirectoryResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -518,7 +486,6 @@ export class Client {
    * by listing the directory contents and deleting each file and subdirectory recursively.
    */
   async deleteDirectory(
-    signal: AbortSignal | undefined,
     req: DeleteDirectoryRequest,
     options?: CallOptions
   ): Promise<DeleteDirectoryResponse> {
@@ -535,7 +502,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteDirectoryResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -544,7 +511,6 @@ export class Client {
 
   /** Deletes a file. If the request is successful, there is no response body. */
   async deleteFile(
-    signal: AbortSignal | undefined,
     req: DeleteFileRequest,
     options?: CallOptions
   ): Promise<DeleteFileResponse> {
@@ -561,7 +527,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteFileResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -574,7 +540,6 @@ export class Client {
    * Range and If-Unmodified-Since HTTP headers.
    */
   async downloadFile(
-    signal: AbortSignal | undefined,
     req: DownloadFileRequest,
     options?: CallOptions
   ): Promise<DownloadFileResponse> {
@@ -606,7 +571,7 @@ export class Client {
         contents: httpResp.body ?? undefined,
       };
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -624,7 +589,6 @@ export class Client {
    * already exists).
    */
   async getDirectoryMetadata(
-    signal: AbortSignal | undefined,
     req: GetDirectoryMetadataRequest,
     options?: CallOptions
   ): Promise<GetDirectoryMetadataResponse> {
@@ -644,7 +608,7 @@ export class Client {
         unmarshalGetDirectoryMetadataResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -656,7 +620,6 @@ export class Client {
    * response body.
    */
   async getFileMetadata(
-    signal: AbortSignal | undefined,
     req: GetFileMetadataRequest,
     options?: CallOptions
   ): Promise<GetFileMetadataResponse> {
@@ -679,7 +642,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetFileMetadataResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -691,7 +654,6 @@ export class Client {
    * If there is no directory at the specified path, the API returns a HTTP 404 error.
    */
   async listDirectoryContents(
-    signal: AbortSignal | undefined,
     req: ListDirectoryContentsRequest,
     options?: CallOptions
   ): Promise<ListDirectoryResponse> {
@@ -717,7 +679,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListDirectoryResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -725,13 +687,12 @@ export class Client {
   }
 
   async *listDirectoryContentsIter(
-    signal: AbortSignal | undefined,
     req: ListDirectoryContentsRequest,
     options?: CallOptions
   ): AsyncGenerator<DirectoryEntry> {
     const pageReq: ListDirectoryContentsRequest = {...req};
     for (;;) {
-      const resp = await this.listDirectoryContents(signal, pageReq, options);
+      const resp = await this.listDirectoryContents(pageReq, options);
       for (const item of resp.contents ?? []) {
         yield item;
       }
@@ -749,8 +710,8 @@ export class Client {
    * If the request is successful, there is no response body.
    */
   async uploadFile(
-    signal: AbortSignal | undefined,
-    req: UploadFileRequest
+    req: UploadFileRequest,
+    options?: CallOptions
   ): Promise<UploadFileResponse> {
     const url = `${this.host}/api/2.0/fs/files${encodeMultiSegmentPath(req.filePath ?? '')}`;
     const params = new URLSearchParams();
@@ -765,7 +726,7 @@ export class Client {
       'PUT',
       fullUrl,
       headers,
-      signal,
+      options?.signal,
       req.contents
     );
     const respBody = await executeHttpCall({

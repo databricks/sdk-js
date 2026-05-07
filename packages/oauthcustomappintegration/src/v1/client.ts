@@ -93,7 +93,6 @@ export class Client {
    * You can retrieve the custom OAuth app integration via :method:CustomAppIntegration/get.
    */
   async createCustomOAuthAppIntegration(
-    signal: AbortSignal | undefined,
     req: CreateCustomOAuthAppIntegration,
     options?: CallOptions
   ): Promise<CustomOAuthAppIntegrationSecret> {
@@ -117,7 +116,7 @@ export class Client {
         unmarshalCustomOAuthAppIntegrationSecretSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -130,7 +129,6 @@ export class Client {
    * You can retrieve the published OAuth app integration via :method:PublishedAppIntegration/get.
    */
   async createPublishedOAuthAppIntegration(
-    signal: AbortSignal | undefined,
     req: CreatePublishedOAuthAppIntegration,
     options?: CallOptions
   ): Promise<CreatePublishedOAuthAppIntegration_Response> {
@@ -154,7 +152,7 @@ export class Client {
         unmarshalCreatePublishedOAuthAppIntegration_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -166,7 +164,6 @@ export class Client {
    * You can retrieve the custom OAuth app integration via :method:CustomAppIntegration/get.
    */
   async deleteCustomOAuthAppIntegration(
-    signal: AbortSignal | undefined,
     req: DeleteCustomOAuthAppIntegration,
     options?: CallOptions
   ): Promise<DeleteCustomOAuthAppIntegration_Response> {
@@ -192,7 +189,7 @@ export class Client {
         unmarshalDeleteCustomOAuthAppIntegration_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -204,7 +201,6 @@ export class Client {
    * You can retrieve the published OAuth app integration via :method:PublishedAppIntegration/get.
    */
   async deletePublishedOAuthAppIntegration(
-    signal: AbortSignal | undefined,
     req: DeletePublishedOAuthAppIntegration,
     options?: CallOptions
   ): Promise<DeletePublishedOAuthAppIntegration_Response> {
@@ -230,7 +226,7 @@ export class Client {
         unmarshalDeletePublishedOAuthAppIntegration_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -239,7 +235,6 @@ export class Client {
 
   /** Gets the Custom OAuth App Integration for the given integration id. */
   async getCustomOAuthAppIntegration(
-    signal: AbortSignal | undefined,
     req: GetCustomOAuthAppIntegration,
     options?: CallOptions
   ): Promise<CustomOAuthAppIntegration> {
@@ -262,7 +257,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCustomOAuthAppIntegrationSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -271,7 +266,6 @@ export class Client {
 
   /** Gets the Published OAuth App Integration for the given integration id. */
   async getPublishedOAuthAppIntegration(
-    signal: AbortSignal | undefined,
     req: GetPublishedOAuthAppIntegration,
     options?: CallOptions
   ): Promise<PublishedOAuthAppIntegration> {
@@ -297,7 +291,7 @@ export class Client {
         unmarshalPublishedOAuthAppIntegrationSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -306,7 +300,6 @@ export class Client {
 
   /** Get the list of custom OAuth app integrations for the specified <Account> */
   async listCustomOAuthAppIntegrations(
-    signal: AbortSignal | undefined,
     req: ListCustomOAuthAppIntegrations,
     options?: CallOptions
   ): Promise<ListCustomOAuthAppIntegrations_Response> {
@@ -344,7 +337,7 @@ export class Client {
         unmarshalListCustomOAuthAppIntegrations_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -352,17 +345,12 @@ export class Client {
   }
 
   async *listCustomOAuthAppIntegrationsIter(
-    signal: AbortSignal | undefined,
     req: ListCustomOAuthAppIntegrations,
     options?: CallOptions
   ): AsyncGenerator<CustomOAuthAppIntegration> {
     const pageReq: ListCustomOAuthAppIntegrations = {...req};
     for (;;) {
-      const resp = await this.listCustomOAuthAppIntegrations(
-        signal,
-        pageReq,
-        options
-      );
+      const resp = await this.listCustomOAuthAppIntegrations(pageReq, options);
       for (const item of resp.apps ?? []) {
         yield item;
       }
@@ -375,7 +363,6 @@ export class Client {
 
   /** Get the list of published OAuth app integrations for the specified <Account> */
   async listPublishedOAuthAppIntegrations(
-    signal: AbortSignal | undefined,
     req: ListPublishedOAuthAppIntegrations,
     options?: CallOptions
   ): Promise<ListPublishedOAuthAppIntegrations_Response> {
@@ -407,7 +394,7 @@ export class Client {
         unmarshalListPublishedOAuthAppIntegrations_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -415,14 +402,12 @@ export class Client {
   }
 
   async *listPublishedOAuthAppIntegrationsIter(
-    signal: AbortSignal | undefined,
     req: ListPublishedOAuthAppIntegrations,
     options?: CallOptions
   ): AsyncGenerator<PublishedOAuthAppIntegration> {
     const pageReq: ListPublishedOAuthAppIntegrations = {...req};
     for (;;) {
       const resp = await this.listPublishedOAuthAppIntegrations(
-        signal,
         pageReq,
         options
       );
@@ -441,7 +426,6 @@ export class Client {
    * You can retrieve the custom OAuth app integration via :method:CustomAppIntegration/get.
    */
   async updateCustomOAuthAppIntegration(
-    signal: AbortSignal | undefined,
     req: UpdateCustomOAuthAppIntegration,
     options?: CallOptions
   ): Promise<UpdateCustomOAuthAppIntegration_Response> {
@@ -465,7 +449,7 @@ export class Client {
         unmarshalUpdateCustomOAuthAppIntegration_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -477,7 +461,6 @@ export class Client {
    * You can retrieve the published OAuth app integration via :method:PublishedAppIntegration/get.
    */
   async updatePublishedOAuthAppIntegration(
-    signal: AbortSignal | undefined,
     req: UpdatePublishedOAuthAppIntegration,
     options?: CallOptions
   ): Promise<UpdatePublishedOAuthAppIntegration_Response> {
@@ -501,7 +484,7 @@ export class Client {
         unmarshalUpdatePublishedOAuthAppIntegration_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

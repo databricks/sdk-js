@@ -73,7 +73,6 @@ export class Client {
 
   /** Create a new budget configuration for an account. For full details, see https://docs.databricks.com/en/admin/account-settings/budgets.html. */
   async createBudgetConfiguration(
-    signal: AbortSignal | undefined,
     req: CreateBudgetConfiguration,
     options?: CallOptions
   ): Promise<CreateBudgetConfiguration_Response> {
@@ -94,7 +93,7 @@ export class Client {
         unmarshalCreateBudgetConfiguration_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -103,7 +102,6 @@ export class Client {
 
   /** Deletes a budget configuration for an account. Both account and budget configuration are specified by ID. This cannot be undone. */
   async deleteBudgetConfiguration(
-    signal: AbortSignal | undefined,
     req: DeleteBudgetConfiguration,
     options?: CallOptions
   ): Promise<DeleteBudgetConfiguration_Response> {
@@ -129,7 +127,7 @@ export class Client {
         unmarshalDeleteBudgetConfiguration_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -138,7 +136,6 @@ export class Client {
 
   /** Gets a budget configuration for an account. Both account and budget configuration are specified by ID. */
   async getBudgetConfiguration(
-    signal: AbortSignal | undefined,
     req: GetBudgetConfiguration,
     options?: CallOptions
   ): Promise<GetBudgetConfiguration_Response> {
@@ -167,7 +164,7 @@ export class Client {
         unmarshalGetBudgetConfiguration_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -176,7 +173,6 @@ export class Client {
 
   /** Gets all budgets associated with this account. */
   async listBudgetConfigurations(
-    signal: AbortSignal | undefined,
     req: ListBudgetConfigurations,
     options?: CallOptions
   ): Promise<ListBudgetConfigurations_Response> {
@@ -190,6 +186,12 @@ export class Client {
     }
     if (req.includeSpendStatus !== undefined) {
       params.append('include_spend_status', String(req.includeSpendStatus));
+    }
+    if (req.includeWorkspaceBudgets !== undefined) {
+      params.append(
+        'include_workspace_budgets',
+        String(req.includeWorkspaceBudgets)
+      );
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -208,7 +210,7 @@ export class Client {
         unmarshalListBudgetConfigurations_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -216,17 +218,12 @@ export class Client {
   }
 
   async *listBudgetConfigurationsIter(
-    signal: AbortSignal | undefined,
     req: ListBudgetConfigurations,
     options?: CallOptions
   ): AsyncGenerator<BudgetConfiguration> {
     const pageReq: ListBudgetConfigurations = {...req};
     for (;;) {
-      const resp = await this.listBudgetConfigurations(
-        signal,
-        pageReq,
-        options
-      );
+      const resp = await this.listBudgetConfigurations(pageReq, options);
       for (const item of resp.budgets ?? []) {
         yield item;
       }
@@ -239,7 +236,6 @@ export class Client {
 
   /** Updates a budget configuration for an account. Both account and budget configuration are specified by ID. */
   async updateBudgetConfiguration(
-    signal: AbortSignal | undefined,
     req: UpdateBudgetConfiguration,
     options?: CallOptions
   ): Promise<UpdateBudgetConfiguration_Response> {
@@ -260,7 +256,7 @@ export class Client {
         unmarshalUpdateBudgetConfiguration_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

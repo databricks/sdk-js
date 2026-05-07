@@ -60,7 +60,6 @@ export class Client {
 
   /** Retrieve the information for an policy family based on its identifier and version */
   async getPolicyFamily(
-    signal: AbortSignal | undefined,
     req: GetPolicyFamily,
     options?: CallOptions
   ): Promise<PolicyFamily> {
@@ -83,7 +82,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPolicyFamilySchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -92,7 +91,6 @@ export class Client {
 
   /** Returns the list of policy definition types available to use at their latest version. This API is paginated. */
   async listPolicyFamilies(
-    signal: AbortSignal | undefined,
     req: ListPolicyFamilies,
     options?: CallOptions
   ): Promise<ListPolicyFamilies_Response> {
@@ -121,7 +119,7 @@ export class Client {
         unmarshalListPolicyFamilies_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -129,13 +127,12 @@ export class Client {
   }
 
   async *listPolicyFamiliesIter(
-    signal: AbortSignal | undefined,
     req: ListPolicyFamilies,
     options?: CallOptions
   ): AsyncGenerator<PolicyFamily> {
     const pageReq: ListPolicyFamilies = {...req};
     for (;;) {
-      const resp = await this.listPolicyFamilies(signal, pageReq, options);
+      const resp = await this.listPolicyFamilies(pageReq, options);
       for (const item of resp.policyFamilies ?? []) {
         yield item;
       }

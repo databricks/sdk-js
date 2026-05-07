@@ -89,7 +89,6 @@ export class Client {
 
   /** Batch create materialized features. */
   async batchCreateMaterializedFeatures(
-    signal: AbortSignal | undefined,
     req: BatchCreateMaterializedFeaturesRequest,
     options?: CallOptions
   ): Promise<BatchCreateMaterializedFeaturesResponse> {
@@ -113,7 +112,7 @@ export class Client {
         unmarshalBatchCreateMaterializedFeaturesResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -122,7 +121,6 @@ export class Client {
 
   /** Create a Feature. */
   async createFeature(
-    signal: AbortSignal | undefined,
     req: CreateFeatureRequest,
     options?: CallOptions
   ): Promise<Feature> {
@@ -140,7 +138,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalFeatureSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -153,7 +151,6 @@ export class Client {
    * Only the creator of the Kafka config can delete it.
    */
   async createKafkaConfig(
-    signal: AbortSignal | undefined,
     req: CreateKafkaConfigRequest,
     options?: CallOptions
   ): Promise<KafkaConfig> {
@@ -171,7 +168,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalKafkaConfigSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -180,7 +177,6 @@ export class Client {
 
   /** Create a materialized feature. */
   async createMaterializedFeature(
-    signal: AbortSignal | undefined,
     req: CreateMaterializedFeatureRequest,
     options?: CallOptions
   ): Promise<MaterializedFeature> {
@@ -201,7 +197,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMaterializedFeatureSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -210,7 +206,6 @@ export class Client {
 
   /** Delete a Feature. */
   async deleteFeature(
-    signal: AbortSignal | undefined,
     req: DeleteFeatureRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -225,7 +220,7 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /**
@@ -234,7 +229,6 @@ export class Client {
    * Only the creator of the Kafka config can delete it.
    */
   async deleteKafkaConfig(
-    signal: AbortSignal | undefined,
     req: DeleteKafkaConfigRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -249,12 +243,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Delete a materialized feature. */
   async deleteMaterializedFeature(
-    signal: AbortSignal | undefined,
     req: DeleteMaterializedFeatureRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -269,12 +262,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Get a Feature. */
   async getFeature(
-    signal: AbortSignal | undefined,
     req: GetFeatureRequest,
     options?: CallOptions
   ): Promise<Feature> {
@@ -291,7 +283,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalFeatureSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -304,7 +296,6 @@ export class Client {
    * Only the creator of the Kafka config can delete it.
    */
   async getKafkaConfig(
-    signal: AbortSignal | undefined,
     req: GetKafkaConfigRequest,
     options?: CallOptions
   ): Promise<KafkaConfig> {
@@ -321,7 +312,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalKafkaConfigSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -330,7 +321,6 @@ export class Client {
 
   /** Get a materialized feature. */
   async getMaterializedFeature(
-    signal: AbortSignal | undefined,
     req: GetMaterializedFeatureRequest,
     options?: CallOptions
   ): Promise<MaterializedFeature> {
@@ -347,7 +337,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMaterializedFeatureSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -356,7 +346,6 @@ export class Client {
 
   /** List Features. */
   async listFeatures(
-    signal: AbortSignal | undefined,
     req: ListFeaturesRequest,
     options?: CallOptions
   ): Promise<ListFeaturesResponse> {
@@ -382,7 +371,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListFeaturesResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -390,13 +379,12 @@ export class Client {
   }
 
   async *listFeaturesIter(
-    signal: AbortSignal | undefined,
     req: ListFeaturesRequest,
     options?: CallOptions
   ): AsyncGenerator<Feature> {
     const pageReq: ListFeaturesRequest = {...req};
     for (;;) {
-      const resp = await this.listFeatures(signal, pageReq, options);
+      const resp = await this.listFeatures(pageReq, options);
       for (const item of resp.features ?? []) {
         yield item;
       }
@@ -413,7 +401,6 @@ export class Client {
    * Only the creator of the Kafka config can delete it.
    */
   async listKafkaConfigs(
-    signal: AbortSignal | undefined,
     req: ListKafkaConfigsRequest,
     options?: CallOptions
   ): Promise<ListKafkaConfigsResponse> {
@@ -439,7 +426,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListKafkaConfigsResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -447,13 +434,12 @@ export class Client {
   }
 
   async *listKafkaConfigsIter(
-    signal: AbortSignal | undefined,
     req: ListKafkaConfigsRequest,
     options?: CallOptions
   ): AsyncGenerator<KafkaConfig> {
     const pageReq: ListKafkaConfigsRequest = {...req};
     for (;;) {
-      const resp = await this.listKafkaConfigs(signal, pageReq, options);
+      const resp = await this.listKafkaConfigs(pageReq, options);
       for (const item of resp.kafkaConfigs ?? []) {
         yield item;
       }
@@ -466,7 +452,6 @@ export class Client {
 
   /** List materialized features. */
   async listMaterializedFeatures(
-    signal: AbortSignal | undefined,
     req: ListMaterializedFeaturesRequest,
     options?: CallOptions
   ): Promise<ListMaterializedFeaturesResponse> {
@@ -498,7 +483,7 @@ export class Client {
         unmarshalListMaterializedFeaturesResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -506,17 +491,12 @@ export class Client {
   }
 
   async *listMaterializedFeaturesIter(
-    signal: AbortSignal | undefined,
     req: ListMaterializedFeaturesRequest,
     options?: CallOptions
   ): AsyncGenerator<MaterializedFeature> {
     const pageReq: ListMaterializedFeaturesRequest = {...req};
     for (;;) {
-      const resp = await this.listMaterializedFeatures(
-        signal,
-        pageReq,
-        options
-      );
+      const resp = await this.listMaterializedFeatures(pageReq, options);
       for (const item of resp.materializedFeatures ?? []) {
         yield item;
       }
@@ -529,7 +509,6 @@ export class Client {
 
   /** Update a Feature. */
   async updateFeature(
-    signal: AbortSignal | undefined,
     req: UpdateFeatureRequest,
     options?: CallOptions
   ): Promise<Feature> {
@@ -559,7 +538,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalFeatureSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -572,7 +551,6 @@ export class Client {
    * Only the creator of the Kafka config can delete it.
    */
   async updateKafkaConfig(
-    signal: AbortSignal | undefined,
     req: UpdateKafkaConfigRequest,
     options?: CallOptions
   ): Promise<KafkaConfig> {
@@ -602,7 +580,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalKafkaConfigSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -611,7 +589,6 @@ export class Client {
 
   /** Update a materialized feature (pause/resume). */
   async updateMaterializedFeature(
-    signal: AbortSignal | undefined,
     req: UpdateMaterializedFeatureRequest,
     options?: CallOptions
   ): Promise<MaterializedFeature> {
@@ -644,7 +621,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMaterializedFeatureSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

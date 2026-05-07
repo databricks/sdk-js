@@ -65,7 +65,6 @@ export class Client {
 
   /** Cancel the results for the a query for a published, embedded dashboard. */
   async cancelPublishedQueryExecution(
-    signal: AbortSignal | undefined,
     req: CancelPublishedQueryExecutionRequest,
     options?: CallOptions
   ): Promise<CancelQueryExecutionResponse> {
@@ -97,7 +96,7 @@ export class Client {
         unmarshalCancelQueryExecutionResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -106,7 +105,6 @@ export class Client {
 
   /** Execute a query for a published dashboard. */
   async executePublishedDashboardQuery(
-    signal: AbortSignal | undefined,
     req: ExecutePublishedDashboardQueryRequest,
     options?: CallOptions
   ): Promise<ExecuteQueryResponse> {
@@ -127,7 +125,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalExecuteQueryResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -139,7 +137,6 @@ export class Client {
    * Supports both GET and POST methods. POST is recommended for polling many tokens to avoid URL length limitations.
    */
   async pollPublishedQueryStatus(
-    signal: AbortSignal | undefined,
     req: PollPublishedQueryStatusRequest,
     options?: CallOptions
   ): Promise<PollQueryStatusResponse> {
@@ -168,7 +165,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPollQueryStatusResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

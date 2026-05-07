@@ -129,7 +129,6 @@ export class Client {
 
   /** Change the owner of the cluster. You must be an admin and the cluster must be terminated to perform this operation. The service principal application ID can be supplied as an argument to `owner_username`. */
   async changeClusterOwner(
-    signal: AbortSignal | undefined,
     req: ChangeClusterOwner,
     options?: CallOptions
   ): Promise<ChangeClusterOwner_Response> {
@@ -150,7 +149,7 @@ export class Client {
         unmarshalChangeClusterOwner_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -172,7 +171,6 @@ export class Client {
    * [create compute UI](/compute/configure.html) and then copying the generated JSON definition from the UI.
    */
   async createCluster(
-    signal: AbortSignal | undefined,
     req: CreateCluster,
     options?: CallOptions
   ): Promise<CreateCluster_Response> {
@@ -190,7 +188,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateCluster_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -198,11 +196,10 @@ export class Client {
   }
 
   async createClusterWaiter(
-    signal: AbortSignal | undefined,
     req: CreateCluster,
     options?: CallOptions
   ): Promise<CreateClusterWaiter> {
-    const resp = await this.createCluster(signal, req, options);
+    const resp = await this.createCluster(req, options);
     if (resp.clusterId === undefined) {
       throw new Error(
         'response field clusterId required for polling is missing'
@@ -217,7 +214,6 @@ export class Client {
    * If the cluster is already in a `TERMINATING` or `TERMINATED` state, nothing will happen.
    */
   async deleteCluster(
-    signal: AbortSignal | undefined,
     req: DeleteCluster,
     options?: CallOptions
   ): Promise<DeleteCluster_Response> {
@@ -235,7 +231,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteCluster_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -243,11 +239,10 @@ export class Client {
   }
 
   async deleteClusterWaiter(
-    signal: AbortSignal | undefined,
     req: DeleteCluster,
     options?: CallOptions
   ): Promise<DeleteClusterWaiter> {
-    await this.deleteCluster(signal, req, options);
+    await this.deleteCluster(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
@@ -269,7 +264,6 @@ export class Client {
    * Clusters created by the Databricks Jobs service cannot be edited.
    */
   async editCluster(
-    signal: AbortSignal | undefined,
     req: EditCluster,
     options?: CallOptions
   ): Promise<EditCluster_Response> {
@@ -287,7 +281,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEditCluster_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -295,11 +289,10 @@ export class Client {
   }
 
   async editClusterWaiter(
-    signal: AbortSignal | undefined,
     req: EditCluster,
     options?: CallOptions
   ): Promise<EditClusterWaiter> {
-    await this.editCluster(signal, req, options);
+    await this.editCluster(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
@@ -313,7 +306,6 @@ export class Client {
    * Clusters can be described while they are running, or up to 60 days after they are terminated.
    */
   async getCluster(
-    signal: AbortSignal | undefined,
     req: GetCluster,
     options?: CallOptions
   ): Promise<ClusterInfo> {
@@ -336,7 +328,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalClusterInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -348,7 +340,6 @@ export class Client {
    * These zones can be used to launch a cluster.
    */
   async listAvailableZones(
-    signal: AbortSignal | undefined,
     _req: ListAvailableZones,
     options?: CallOptions
   ): Promise<ListAvailableZones_Response> {
@@ -368,7 +359,7 @@ export class Client {
         unmarshalListAvailableZones_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -377,7 +368,6 @@ export class Client {
 
   /** Return information about all pinned and active clusters, and all clusters terminated within the last 30 days. Clusters terminated prior to this period are not included. */
   async listClusters(
-    signal: AbortSignal | undefined,
     req: ListClusters,
     options?: CallOptions
   ): Promise<ListClusters_Response> {
@@ -403,7 +393,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListClusters_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -411,13 +401,12 @@ export class Client {
   }
 
   async *listClustersIter(
-    signal: AbortSignal | undefined,
     req: ListClusters,
     options?: CallOptions
   ): AsyncGenerator<ClusterInfo> {
     const pageReq: ListClusters = {...req};
     for (;;) {
-      const resp = await this.listClusters(signal, pageReq, options);
+      const resp = await this.listClusters(pageReq, options);
       for (const item of resp.clusters ?? []) {
         yield item;
       }
@@ -430,7 +419,6 @@ export class Client {
 
   /** Returns a list of supported Spark node types. These node types can be used to launch a cluster. */
   async listNodeTypes(
-    signal: AbortSignal | undefined,
     _req: ListNodeTypes,
     options?: CallOptions
   ): Promise<ListNodeTypes_Response> {
@@ -447,7 +435,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListNodeTypes_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -456,7 +444,6 @@ export class Client {
 
   /** Returns the list of available Spark versions. These versions can be used to launch a cluster. */
   async listSparkVersions(
-    signal: AbortSignal | undefined,
     _req: GetSparkVersions,
     options?: CallOptions
   ): Promise<GetSparkVersions_Response> {
@@ -473,7 +460,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetSparkVersions_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -487,7 +474,6 @@ export class Client {
    * perform any action on permanently deleted clusters.
    */
   async permanentDeleteCluster(
-    signal: AbortSignal | undefined,
     req: PermanentDeleteCluster,
     options?: CallOptions
   ): Promise<PermanentDeleteCluster_Response> {
@@ -508,7 +494,7 @@ export class Client {
         unmarshalPermanentDeleteCluster_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -521,7 +507,6 @@ export class Client {
    * This API can only be called by workspace admins.
    */
   async pinCluster(
-    signal: AbortSignal | undefined,
     req: PinCluster,
     options?: CallOptions
   ): Promise<PinCluster_Response> {
@@ -539,7 +524,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalPinCluster_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -548,7 +533,6 @@ export class Client {
 
   /** Resizes a cluster to have a desired number of workers. This will fail unless the cluster is in a `RUNNING` state. */
   async resizeCluster(
-    signal: AbortSignal | undefined,
     req: ResizeCluster,
     options?: CallOptions
   ): Promise<ResizeCluster_Response> {
@@ -566,7 +550,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalResizeCluster_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -574,11 +558,10 @@ export class Client {
   }
 
   async resizeClusterWaiter(
-    signal: AbortSignal | undefined,
     req: ResizeCluster,
     options?: CallOptions
   ): Promise<ResizeClusterWaiter> {
-    await this.resizeCluster(signal, req, options);
+    await this.resizeCluster(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
@@ -589,7 +572,6 @@ export class Client {
 
   /** Restarts a Spark cluster with the supplied ID. If the cluster is not currently in a `RUNNING` state, nothing will happen. */
   async restartCluster(
-    signal: AbortSignal | undefined,
     req: RestartCluster,
     options?: CallOptions
   ): Promise<RestartCluster_Response> {
@@ -607,7 +589,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRestartCluster_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -615,11 +597,10 @@ export class Client {
   }
 
   async restartClusterWaiter(
-    signal: AbortSignal | undefined,
     req: RestartCluster,
     options?: CallOptions
   ): Promise<RestartClusterWaiter> {
-    await this.restartCluster(signal, req, options);
+    await this.restartCluster(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
@@ -638,7 +619,6 @@ export class Client {
    * - Clusters launched to run a job cannot be started.
    */
   async startCluster(
-    signal: AbortSignal | undefined,
     req: StartCluster,
     options?: CallOptions
   ): Promise<StartCluster_Response> {
@@ -656,7 +636,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStartCluster_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -664,11 +644,10 @@ export class Client {
   }
 
   async startClusterWaiter(
-    signal: AbortSignal | undefined,
     req: StartCluster,
     options?: CallOptions
   ): Promise<StartClusterWaiter> {
-    await this.startCluster(signal, req, options);
+    await this.startCluster(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
@@ -683,7 +662,6 @@ export class Client {
    * This API can only be called by workspace admins.
    */
   async unpinCluster(
-    signal: AbortSignal | undefined,
     req: UnpinCluster,
     options?: CallOptions
   ): Promise<UnpinCluster_Response> {
@@ -701,7 +679,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUnpinCluster_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -719,7 +697,6 @@ export class Client {
    * Clusters created by the Databricks Jobs service cannot be updated.
    */
   async updateCluster(
-    signal: AbortSignal | undefined,
     req: UpdateCluster,
     options?: CallOptions
   ): Promise<UpdateCluster_Response> {
@@ -737,7 +714,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdateCluster_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -745,11 +722,10 @@ export class Client {
   }
 
   async updateClusterWaiter(
-    signal: AbortSignal | undefined,
     req: UpdateCluster,
     options?: CallOptions
   ): Promise<UpdateClusterWaiter> {
-    await this.updateCluster(signal, req, options);
+    await this.updateCluster(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
@@ -771,7 +747,6 @@ export class Client {
    * Instead, use the "Enforce job policy compliance" API to enforce policy compliance on jobs.
    */
   async enforcePolicyComplianceForCluster(
-    signal: AbortSignal | undefined,
     req: EnforcePolicyComplianceForCluster,
     options?: CallOptions
   ): Promise<EnforcePolicyComplianceForCluster_Response> {
@@ -795,7 +770,7 @@ export class Client {
         unmarshalEnforcePolicyComplianceForCluster_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -807,7 +782,6 @@ export class Client {
    * of compliance if their policy was updated after the cluster was last edited.
    */
   async getPolicyComplianceForCluster(
-    signal: AbortSignal | undefined,
     req: GetPolicyComplianceForCluster,
     options?: CallOptions
   ): Promise<GetPolicyComplianceForCluster_Response> {
@@ -833,7 +807,7 @@ export class Client {
         unmarshalGetPolicyComplianceForCluster_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -846,7 +820,6 @@ export class Client {
    * updated after the cluster was last edited.
    */
   async listClusterComplianceForPolicy(
-    signal: AbortSignal | undefined,
     req: ListClusterComplianceForPolicy,
     options?: CallOptions
   ): Promise<ListClusterComplianceForPolicy_Response> {
@@ -878,7 +851,7 @@ export class Client {
         unmarshalListClusterComplianceForPolicy_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -886,17 +859,12 @@ export class Client {
   }
 
   async *listClusterComplianceForPolicyIter(
-    signal: AbortSignal | undefined,
     req: ListClusterComplianceForPolicy,
     options?: CallOptions
   ): AsyncGenerator<ClusterCompliance> {
     const pageReq: ListClusterComplianceForPolicy = {...req};
     for (;;) {
-      const resp = await this.listClusterComplianceForPolicy(
-        signal,
-        pageReq,
-        options
-      );
+      const resp = await this.listClusterComplianceForPolicy(pageReq, options);
       for (const item of resp.clusters ?? []) {
         yield item;
       }
@@ -919,19 +887,15 @@ export class CreateClusterWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<ClusterInfo> {
+  async wait(options?: CallOptions): Promise<ClusterInfo> {
     let result: ClusterInfo | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getCluster(
-        callSignal,
         {
           clusterId: this.clusterId,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state;
@@ -954,12 +918,13 @@ export class CreateClusterWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -967,12 +932,8 @@ export class CreateClusterWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getCluster(
-      signal,
       {
         clusterId: this.clusterId,
       },
@@ -1006,19 +967,15 @@ export class DeleteClusterWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<ClusterInfo> {
+  async wait(options?: CallOptions): Promise<ClusterInfo> {
     let result: ClusterInfo | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getCluster(
-        callSignal,
         {
           clusterId: this.clusterId,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state;
@@ -1040,12 +997,13 @@ export class DeleteClusterWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1053,12 +1011,8 @@ export class DeleteClusterWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getCluster(
-      signal,
       {
         clusterId: this.clusterId,
       },
@@ -1091,19 +1045,15 @@ export class EditClusterWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<ClusterInfo> {
+  async wait(options?: CallOptions): Promise<ClusterInfo> {
     let result: ClusterInfo | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getCluster(
-        callSignal,
         {
           clusterId: this.clusterId,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state;
@@ -1126,12 +1076,13 @@ export class EditClusterWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1139,12 +1090,8 @@ export class EditClusterWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getCluster(
-      signal,
       {
         clusterId: this.clusterId,
       },
@@ -1178,19 +1125,15 @@ export class ResizeClusterWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<ClusterInfo> {
+  async wait(options?: CallOptions): Promise<ClusterInfo> {
     let result: ClusterInfo | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getCluster(
-        callSignal,
         {
           clusterId: this.clusterId,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state;
@@ -1213,12 +1156,13 @@ export class ResizeClusterWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1226,12 +1170,8 @@ export class ResizeClusterWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getCluster(
-      signal,
       {
         clusterId: this.clusterId,
       },
@@ -1265,19 +1205,15 @@ export class RestartClusterWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<ClusterInfo> {
+  async wait(options?: CallOptions): Promise<ClusterInfo> {
     let result: ClusterInfo | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getCluster(
-        callSignal,
         {
           clusterId: this.clusterId,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state;
@@ -1300,12 +1236,13 @@ export class RestartClusterWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1313,12 +1250,8 @@ export class RestartClusterWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getCluster(
-      signal,
       {
         clusterId: this.clusterId,
       },
@@ -1352,19 +1285,15 @@ export class StartClusterWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<ClusterInfo> {
+  async wait(options?: CallOptions): Promise<ClusterInfo> {
     let result: ClusterInfo | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getCluster(
-        callSignal,
         {
           clusterId: this.clusterId,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state;
@@ -1387,12 +1316,13 @@ export class StartClusterWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1400,12 +1330,8 @@ export class StartClusterWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getCluster(
-      signal,
       {
         clusterId: this.clusterId,
       },
@@ -1439,19 +1365,15 @@ export class UpdateClusterWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<ClusterInfo> {
+  async wait(options?: CallOptions): Promise<ClusterInfo> {
     let result: ClusterInfo | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getCluster(
-        callSignal,
         {
           clusterId: this.clusterId,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state;
@@ -1474,12 +1396,13 @@ export class UpdateClusterWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1487,12 +1410,8 @@ export class UpdateClusterWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getCluster(
-      signal,
       {
         clusterId: this.clusterId,
       },

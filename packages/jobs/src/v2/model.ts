@@ -2973,8 +2973,8 @@ export interface PipelineTask {
   pipelineId?: string | undefined;
   /**
    * Key/value-map of parameters to pass to the pipeline execution.
-   * Limited to 10k characters in total. Each key must be non-empty and
-   * at most 100 characters long.
+   * Limited to 10k characters in total. Each key must be 1-100 characters
+   * long and composed of letters, digits, underscores, and dashes.
    */
   pipelineTaskParameters?: Record<string, string> | undefined;
   /** If true, triggers a full refresh on the spark declarative pipeline. */

@@ -129,7 +129,6 @@ export class Client {
 
   /** Creates a Genie space from a serialized payload. */
   async createSpace(
-    signal: AbortSignal | undefined,
     req: GenieCreateSpaceRequest,
     options?: CallOptions
   ): Promise<GenieSpace> {
@@ -147,7 +146,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGenieSpaceSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -159,7 +158,6 @@ export class Client {
    * The AI response uses all previously created messages in the conversation to respond.
    */
   async genieCreateConversationMessage(
-    signal: AbortSignal | undefined,
     req: GenieCreateConversationMessageRequest,
     options?: CallOptions
   ): Promise<GenieMessage> {
@@ -180,7 +178,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGenieMessageSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -188,15 +186,10 @@ export class Client {
   }
 
   async genieCreateConversationMessageWaiter(
-    signal: AbortSignal | undefined,
     req: GenieCreateConversationMessageRequest,
     options?: CallOptions
   ): Promise<GenieCreateConversationMessageWaiter> {
-    const resp = await this.genieCreateConversationMessage(
-      signal,
-      req,
-      options
-    );
+    const resp = await this.genieCreateConversationMessage(req, options);
     if (resp.messageId === undefined) {
       throw new Error(
         'response field messageId required for polling is missing'
@@ -220,7 +213,6 @@ export class Client {
 
   /** Create and run evaluations for multiple benchmark questions in a Genie space. */
   async genieCreateEvalRun(
-    signal: AbortSignal | undefined,
     req: GenieCreateEvalRunRequest,
     options?: CallOptions
   ): Promise<GenieEvalRunResponse> {
@@ -238,7 +230,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGenieEvalRunResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -247,7 +239,6 @@ export class Client {
 
   /** Create a comment on a conversation message. */
   async genieCreateMessageComment(
-    signal: AbortSignal | undefined,
     req: GenieCreateMessageCommentRequest,
     options?: CallOptions
   ): Promise<GenieMessageComment> {
@@ -268,7 +259,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGenieMessageCommentSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -277,7 +268,6 @@ export class Client {
 
   /** Delete a conversation. */
   async genieDeleteConversation(
-    signal: AbortSignal | undefined,
     req: GenieDeleteConversationRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -292,12 +282,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Delete a conversation message. */
   async genieDeleteConversationMessage(
-    signal: AbortSignal | undefined,
     req: GenieDeleteConversationMessageRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -312,12 +301,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Execute the SQL for a message query attachment. Use this API when the query attachment has expired and needs to be re-executed. */
   async genieExecuteMessageAttachmentQuery(
-    signal: AbortSignal | undefined,
     req: GenieExecuteMessageAttachmentQueryRequest,
     options?: CallOptions
   ): Promise<GenieGetMessageQueryResultResponse> {
@@ -341,7 +329,7 @@ export class Client {
         unmarshalGenieGetMessageQueryResultResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -350,7 +338,6 @@ export class Client {
 
   /** DEPRECATED: Use [Execute Message Attachment Query](:method:genie/executemessageattachmentquery) instead. */
   async genieExecuteMessageQuery(
-    signal: AbortSignal | undefined,
     req: GenieExecuteMessageQueryRequest,
     options?: CallOptions
   ): Promise<GenieGetMessageQueryResultResponse> {
@@ -374,7 +361,7 @@ export class Client {
         unmarshalGenieGetMessageQueryResultResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -407,7 +394,6 @@ export class Client {
    * ----
    */
   async genieGenerateDownloadFullQueryResult(
-    signal: AbortSignal | undefined,
     req: GenieGenerateDownloadFullQueryResultRequest,
     options?: CallOptions
   ): Promise<GenieGenerateDownloadFullQueryResultResponse> {
@@ -431,7 +417,7 @@ export class Client {
         unmarshalGenieGenerateDownloadFullQueryResultResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -440,7 +426,6 @@ export class Client {
 
   /** Get message from conversation. */
   async genieGetConversationMessage(
-    signal: AbortSignal | undefined,
     req: GenieGetConversationMessageRequest,
     options?: CallOptions
   ): Promise<GenieMessage> {
@@ -457,7 +442,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGenieMessageSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -490,7 +475,6 @@ export class Client {
    * ----
    */
   async genieGetDownloadFullQueryResult(
-    signal: AbortSignal | undefined,
     req: GenieGetDownloadFullQueryResultRequest,
     options?: CallOptions
   ): Promise<GenieGetDownloadFullQueryResultResponse> {
@@ -516,7 +500,7 @@ export class Client {
         unmarshalGenieGetDownloadFullQueryResultResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -525,7 +509,6 @@ export class Client {
 
   /** Get details for evaluation results. */
   async genieGetEvalResultDetails(
-    signal: AbortSignal | undefined,
     req: GenieGetEvalResultDetailsRequest,
     options?: CallOptions
   ): Promise<GenieEvalResultDetails> {
@@ -542,7 +525,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGenieEvalResultDetailsSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -551,7 +534,6 @@ export class Client {
 
   /** Get evaluation run details. */
   async genieGetEvalRun(
-    signal: AbortSignal | undefined,
     req: GenieGetEvalRunRequest,
     options?: CallOptions
   ): Promise<GenieEvalRunResponse> {
@@ -568,7 +550,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGenieEvalRunResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -580,7 +562,6 @@ export class Client {
    * This is only available if a message has a query attachment and the message status is `EXECUTING_QUERY` OR `COMPLETED`.
    */
   async genieGetMessageAttachmentQueryResult(
-    signal: AbortSignal | undefined,
     req: GenieGetMessageAttachmentQueryResultRequest,
     options?: CallOptions
   ): Promise<GenieGetMessageQueryResultResponse> {
@@ -600,7 +581,7 @@ export class Client {
         unmarshalGenieGetMessageQueryResultResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -609,7 +590,6 @@ export class Client {
 
   /** DEPRECATED: Use [Get Message Attachment Query Result](:method:genie/getmessageattachmentqueryresult) instead. */
   async genieGetMessageQueryResult(
-    signal: AbortSignal | undefined,
     req: GenieGetMessageQueryResultRequest,
     options?: CallOptions
   ): Promise<GenieGetMessageQueryResultResponse> {
@@ -629,7 +609,7 @@ export class Client {
         unmarshalGenieGetMessageQueryResultResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -638,7 +618,6 @@ export class Client {
 
   /** DEPRECATED: Use [Get Message Attachment Query Result](:method:genie/getmessageattachmentqueryresult) instead. */
   async genieGetQueryResultByAttachment(
-    signal: AbortSignal | undefined,
     req: GenieGetQueryResultByAttachmentRequest,
     options?: CallOptions
   ): Promise<GenieGetMessageQueryResultResponse> {
@@ -658,7 +637,7 @@ export class Client {
         unmarshalGenieGetMessageQueryResultResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -667,7 +646,6 @@ export class Client {
 
   /** Get details of a Genie Space. */
   async genieGetSpace(
-    signal: AbortSignal | undefined,
     req: GenieGetSpaceRequest,
     options?: CallOptions
   ): Promise<GenieSpace> {
@@ -693,7 +671,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGenieSpaceSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -702,7 +680,6 @@ export class Client {
 
   /** List all comments across all messages in a conversation. */
   async genieListConversationComments(
-    signal: AbortSignal | undefined,
     req: GenieListConversationCommentsRequest,
     options?: CallOptions
   ): Promise<GenieListConversationCommentsResponse> {
@@ -731,7 +708,7 @@ export class Client {
         unmarshalGenieListConversationCommentsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -740,7 +717,6 @@ export class Client {
 
   /** List messages in a conversation */
   async genieListConversationMessages(
-    signal: AbortSignal | undefined,
     req: GenieListConversationMessagesRequest,
     options?: CallOptions
   ): Promise<GenieListConversationMessagesResponse> {
@@ -769,7 +745,7 @@ export class Client {
         unmarshalGenieListConversationMessagesResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -778,7 +754,6 @@ export class Client {
 
   /** Get a list of conversations in a Genie Space. */
   async genieListConversations(
-    signal: AbortSignal | undefined,
     req: GenieListConversationsRequest,
     options?: CallOptions
   ): Promise<GenieListConversationsResponse> {
@@ -810,7 +785,7 @@ export class Client {
         unmarshalGenieListConversationsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -819,7 +794,6 @@ export class Client {
 
   /** List evaluation results for a specific evaluation run. */
   async genieListEvalResults(
-    signal: AbortSignal | undefined,
     req: GenieListEvalResultsRequest,
     options?: CallOptions
   ): Promise<GenieListEvalResultsResponse> {
@@ -848,7 +822,7 @@ export class Client {
         unmarshalGenieListEvalResultsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -857,7 +831,6 @@ export class Client {
 
   /** Lists all evaluation runs in a space. */
   async genieListEvalRuns(
-    signal: AbortSignal | undefined,
     req: GenieListEvalRunsRequest,
     options?: CallOptions
   ): Promise<GenieListEvalRunsResponse> {
@@ -883,7 +856,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGenieListEvalRunsResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -892,7 +865,6 @@ export class Client {
 
   /** List comments on a specific conversation message. */
   async genieListMessageComments(
-    signal: AbortSignal | undefined,
     req: GenieListMessageCommentsRequest,
     options?: CallOptions
   ): Promise<GenieListMessageCommentsResponse> {
@@ -921,7 +893,7 @@ export class Client {
         unmarshalGenieListMessageCommentsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -930,7 +902,6 @@ export class Client {
 
   /** Get list of Genie Spaces. */
   async genieListSpaces(
-    signal: AbortSignal | undefined,
     req: GenieListSpacesRequest,
     options?: CallOptions
   ): Promise<GenieListSpacesResponse> {
@@ -956,7 +927,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGenieListSpacesResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -965,7 +936,6 @@ export class Client {
 
   /** Send feedback for a message. */
   async genieSendMessageFeedback(
-    signal: AbortSignal | undefined,
     req: GenieSendMessageFeedbackRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -984,12 +954,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Start a new conversation. */
   async genieStartConversation(
-    signal: AbortSignal | undefined,
     req: GenieStartConversationMessageRequest,
     options?: CallOptions
   ): Promise<GenieStartConversationResponse> {
@@ -1013,7 +982,7 @@ export class Client {
         unmarshalGenieStartConversationResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1021,11 +990,10 @@ export class Client {
   }
 
   async genieStartConversationWaiter(
-    signal: AbortSignal | undefined,
     req: GenieStartConversationMessageRequest,
     options?: CallOptions
   ): Promise<GenieStartConversationWaiter> {
-    const resp = await this.genieStartConversation(signal, req, options);
+    const resp = await this.genieStartConversation(req, options);
     if (resp.messageId === undefined) {
       throw new Error(
         'response field messageId required for polling is missing'
@@ -1049,7 +1017,6 @@ export class Client {
 
   /** Move a Genie Space to the trash. */
   async genieTrashSpace(
-    signal: AbortSignal | undefined,
     req: GenieTrashSpaceRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -1064,12 +1031,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Updates a Genie space with a serialized payload. */
   async updateSpace(
-    signal: AbortSignal | undefined,
     req: GenieUpdateSpaceRequest,
     options?: CallOptions
   ): Promise<GenieSpace> {
@@ -1087,7 +1053,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGenieSpaceSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1108,21 +1074,17 @@ export class GenieCreateConversationMessageWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<GenieMessage> {
+  async wait(options?: CallOptions): Promise<GenieMessage> {
     let result: GenieMessage | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.genieGetConversationMessage(
-        callSignal,
         {
           messageId: this.messageId,
           conversationId: this.conversationId,
           spaceId: this.spaceId,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.status;
@@ -1144,12 +1106,13 @@ export class GenieCreateConversationMessageWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1157,12 +1120,8 @@ export class GenieCreateConversationMessageWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.genieGetConversationMessage(
-      signal,
       {
         messageId: this.messageId,
         conversationId: this.conversationId,
@@ -1199,21 +1158,17 @@ export class GenieStartConversationWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<GenieMessage> {
+  async wait(options?: CallOptions): Promise<GenieMessage> {
     let result: GenieMessage | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.genieGetConversationMessage(
-        callSignal,
         {
           messageId: this.messageId,
           conversationId: this.conversationId,
           spaceId: this.spaceId,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.status;
@@ -1235,12 +1190,13 @@ export class GenieStartConversationWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1248,12 +1204,8 @@ export class GenieStartConversationWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.genieGetConversationMessage(
-      signal,
       {
         messageId: this.messageId,
         conversationId: this.conversationId,

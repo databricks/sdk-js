@@ -68,7 +68,6 @@ export class Client {
 
   /** Creates a new catalog instance in the parent metastore if the caller is a metastore admin or has the **CREATE_CATALOG** privilege. */
   async createCatalog(
-    signal: AbortSignal | undefined,
     req: CreateCatalog,
     options?: CallOptions
   ): Promise<CatalogInfo> {
@@ -86,7 +85,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCatalogInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -95,7 +94,6 @@ export class Client {
 
   /** Deletes the catalog that matches the supplied name. The caller must be a metastore admin or the owner of the catalog. */
   async deleteCatalog(
-    signal: AbortSignal | undefined,
     req: DeleteCatalog,
     options?: CallOptions
   ): Promise<DeleteCatalog_Response> {
@@ -118,7 +116,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteCatalog_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -130,7 +128,6 @@ export class Client {
    * The caller must be a metastore admin, the owner of the catalog, or a user that has the **USE_CATALOG** privilege set for their account.
    */
   async getCatalog(
-    signal: AbortSignal | undefined,
     req: GetCatalog,
     options?: CallOptions
   ): Promise<CatalogInfo> {
@@ -153,7 +150,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCatalogInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -172,7 +169,6 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listCatalogs(
-    signal: AbortSignal | undefined,
     req: ListCatalogs,
     options?: CallOptions
   ): Promise<ListCatalogs_Response> {
@@ -204,7 +200,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListCatalogs_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -212,13 +208,12 @@ export class Client {
   }
 
   async *listCatalogsIter(
-    signal: AbortSignal | undefined,
     req: ListCatalogs,
     options?: CallOptions
   ): AsyncGenerator<CatalogInfo> {
     const pageReq: ListCatalogs = {...req};
     for (;;) {
-      const resp = await this.listCatalogs(signal, pageReq, options);
+      const resp = await this.listCatalogs(pageReq, options);
       for (const item of resp.catalogs ?? []) {
         yield item;
       }
@@ -234,7 +229,6 @@ export class Client {
    * The caller must be either the owner of the catalog, or a metastore admin (when changing the owner field of the catalog).
    */
   async updateCatalog(
-    signal: AbortSignal | undefined,
     req: UpdateCatalog,
     options?: CallOptions
   ): Promise<CatalogInfo> {
@@ -252,7 +246,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCatalogInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

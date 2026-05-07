@@ -70,7 +70,6 @@ export class Client {
 
   /** Creates a new usage policy. */
   async createUsagePolicy(
-    signal: AbortSignal | undefined,
     req: CreateUsagePolicyRequest,
     options?: CallOptions
   ): Promise<UsagePolicy> {
@@ -88,7 +87,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUsagePolicySchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -97,7 +96,6 @@ export class Client {
 
   /** Deletes a usage policy */
   async deleteUsagePolicy(
-    signal: AbortSignal | undefined,
     req: DeleteUsagePolicyRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -118,12 +116,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Retrieves a usage policy by it's ID. */
   async getUsagePolicy(
-    signal: AbortSignal | undefined,
     req: GetUsagePolicyRequest,
     options?: CallOptions
   ): Promise<UsagePolicy> {
@@ -146,7 +143,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUsagePolicySchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -155,7 +152,6 @@ export class Client {
 
   /** Lists all usage policies. Policies are returned in the alphabetically ascending order of their names. */
   async listUsagePolicies(
-    signal: AbortSignal | undefined,
     req: ListUsagePoliciesRequest,
     options?: CallOptions
   ): Promise<ListUsagePoliciesResponse> {
@@ -198,7 +194,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListUsagePoliciesResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -206,13 +202,12 @@ export class Client {
   }
 
   async *listUsagePoliciesIter(
-    signal: AbortSignal | undefined,
     req: ListUsagePoliciesRequest,
     options?: CallOptions
   ): AsyncGenerator<UsagePolicy> {
     const pageReq: ListUsagePoliciesRequest = {...req};
     for (;;) {
-      const resp = await this.listUsagePolicies(signal, pageReq, options);
+      const resp = await this.listUsagePolicies(pageReq, options);
       for (const item of resp.policies ?? []) {
         yield item;
       }
@@ -225,7 +220,6 @@ export class Client {
 
   /** Updates a usage policy */
   async updateUsagePolicy(
-    signal: AbortSignal | undefined,
     req: UpdateUsagePolicyRequest,
     options?: CallOptions
   ): Promise<UsagePolicy> {
@@ -262,7 +256,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUsagePolicySchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

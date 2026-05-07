@@ -66,7 +66,6 @@ export class Client {
 
   /** Create an auto-approval rule */
   async createCleanRoomAutoApprovalRule(
-    signal: AbortSignal | undefined,
     req: CreateCleanRoomAutoApprovalRuleRequest,
     options?: CallOptions
   ): Promise<CleanRoomAutoApprovalRule> {
@@ -87,7 +86,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCleanRoomAutoApprovalRuleSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -96,7 +95,6 @@ export class Client {
 
   /** Delete a auto-approval rule by rule ID */
   async deleteCleanRoomAutoApprovalRule(
-    signal: AbortSignal | undefined,
     req: DeleteCleanRoomAutoApprovalRuleRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -111,12 +109,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Get a auto-approval rule by rule ID */
   async getCleanRoomAutoApprovalRule(
-    signal: AbortSignal | undefined,
     req: GetCleanRoomAutoApprovalRuleRequest,
     options?: CallOptions
   ): Promise<CleanRoomAutoApprovalRule> {
@@ -133,7 +130,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCleanRoomAutoApprovalRuleSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -142,7 +139,6 @@ export class Client {
 
   /** List all auto-approval rules for the caller */
   async listCleanRoomAutoApprovalRules(
-    signal: AbortSignal | undefined,
     req: ListCleanRoomAutoApprovalRulesRequest,
     options?: CallOptions
   ): Promise<ListCleanRoomAutoApprovalRulesResponse> {
@@ -171,7 +167,7 @@ export class Client {
         unmarshalListCleanRoomAutoApprovalRulesResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -179,17 +175,12 @@ export class Client {
   }
 
   async *listCleanRoomAutoApprovalRulesIter(
-    signal: AbortSignal | undefined,
     req: ListCleanRoomAutoApprovalRulesRequest,
     options?: CallOptions
   ): AsyncGenerator<CleanRoomAutoApprovalRule> {
     const pageReq: ListCleanRoomAutoApprovalRulesRequest = {...req};
     for (;;) {
-      const resp = await this.listCleanRoomAutoApprovalRules(
-        signal,
-        pageReq,
-        options
-      );
+      const resp = await this.listCleanRoomAutoApprovalRules(pageReq, options);
       for (const item of resp.rules ?? []) {
         yield item;
       }
@@ -202,7 +193,6 @@ export class Client {
 
   /** Update a auto-approval rule by rule ID */
   async updateCleanRoomAutoApprovalRule(
-    signal: AbortSignal | undefined,
     req: UpdateCleanRoomAutoApprovalRuleRequest,
     options?: CallOptions
   ): Promise<CleanRoomAutoApprovalRule> {
@@ -223,7 +213,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCleanRoomAutoApprovalRuleSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

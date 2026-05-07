@@ -81,11 +81,7 @@ export class Client {
    *
    * Object deletion cannot be undone and deleting a directory recursively is not atomic.
    */
-  async delete(
-    signal: AbortSignal | undefined,
-    req: Delete,
-    options?: CallOptions
-  ): Promise<Delete_Response> {
+  async delete(req: Delete, options?: CallOptions): Promise<Delete_Response> {
     const url = `${this.host}/api/2.0/workspace/delete`;
     const body = marshalRequest(req, marshalDeleteSchema);
     let resp: Delete_Response | undefined;
@@ -100,7 +96,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDelete_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -115,11 +111,7 @@ export class Client {
    * If the exported data would exceed size limit, this call returns `MAX_NOTEBOOK_SIZE_EXCEEDED`.
    * Currently, this API does not support exporting a library.
    */
-  async export(
-    signal: AbortSignal | undefined,
-    req: Export,
-    options?: CallOptions
-  ): Promise<Export_Response> {
+  async export(req: Export, options?: CallOptions): Promise<Export_Response> {
     const url = `${this.host}/api/2.0/workspace/export`;
     const params = new URLSearchParams();
     if (req.path !== undefined) {
@@ -148,7 +140,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalExport_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -159,11 +151,7 @@ export class Client {
    * Gets the status of an object or a directory.
    * If `path` does not exist, this call returns an error `RESOURCE_DOES_NOT_EXIST`.
    */
-  async getStatus(
-    signal: AbortSignal | undefined,
-    req: GetStatus,
-    options?: CallOptions
-  ): Promise<ObjectInfo> {
+  async getStatus(req: GetStatus, options?: CallOptions): Promise<ObjectInfo> {
     const url = `${this.host}/api/2.0/workspace/get-status`;
     const params = new URLSearchParams();
     if (req.path !== undefined) {
@@ -183,7 +171,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalObjectInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -197,11 +185,7 @@ export class Client {
    * To import a single file as `SOURCE`, you must set the `language` field.
    * Zip files within directories are not supported.
    */
-  async import(
-    signal: AbortSignal | undefined,
-    req: Import,
-    options?: CallOptions
-  ): Promise<Import_Response> {
+  async import(req: Import, options?: CallOptions): Promise<Import_Response> {
     const url = `${this.host}/api/2.0/workspace/import`;
     const body = marshalRequest(req, marshalImportSchema);
     let resp: Import_Response | undefined;
@@ -216,7 +200,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalImport_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -227,11 +211,7 @@ export class Client {
    * Lists the contents of a directory, or the object if it is not a directory.
    * If the input path does not exist, this call returns an error `RESOURCE_DOES_NOT_EXIST`.
    */
-  async list(
-    signal: AbortSignal | undefined,
-    req: List,
-    options?: CallOptions
-  ): Promise<List_Response> {
+  async list(req: List, options?: CallOptions): Promise<List_Response> {
     const url = `${this.host}/api/2.0/workspace/list`;
     const params = new URLSearchParams();
     if (req.path !== undefined) {
@@ -257,7 +237,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalList_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -271,11 +251,7 @@ export class Client {
    *
    * Note that if this operation fails it may have succeeded in creating some of the necessary parent directories.
    */
-  async mkdirs(
-    signal: AbortSignal | undefined,
-    req: Mkdirs,
-    options?: CallOptions
-  ): Promise<Mkdirs_Response> {
+  async mkdirs(req: Mkdirs, options?: CallOptions): Promise<Mkdirs_Response> {
     const url = `${this.host}/api/2.0/workspace/mkdirs`;
     const body = marshalRequest(req, marshalMkdirsSchema);
     let resp: Mkdirs_Response | undefined;
@@ -290,7 +266,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMkdirs_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

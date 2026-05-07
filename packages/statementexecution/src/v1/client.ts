@@ -70,7 +70,6 @@ export class Client {
    * terminal state. Cancel response is empty; receiving response indicates successful receipt.
    */
   async cancelStatement(
-    signal: AbortSignal | undefined,
     req: CancelStatementRequest,
     options?: CallOptions
   ): Promise<CancelStatementResponse> {
@@ -88,7 +87,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCancelStatementResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -147,7 +146,6 @@ export class Client {
    * response). Details of the error can be found at `status.error` in case of execution failures.
    */
   async executeStatement(
-    signal: AbortSignal | undefined,
     req: ExecuteStatementRequest,
     options?: CallOptions
   ): Promise<StatementResponse> {
@@ -165,7 +163,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStatementResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -183,7 +181,6 @@ export class Client {
    * data either inline, or as links.
    */
   async getResultData(
-    signal: AbortSignal | undefined,
     req: GetResultDataRequest,
     options?: CallOptions
   ): Promise<ResultData> {
@@ -200,7 +197,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalResultDataSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -220,7 +217,6 @@ export class Client {
    * This call currently might take up to 5 seconds to get the latest status and result.
    */
   async getStatementResult(
-    signal: AbortSignal | undefined,
     req: GetStatementResultRequest,
     options?: CallOptions
   ): Promise<StatementResponse> {
@@ -237,7 +233,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStatementResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

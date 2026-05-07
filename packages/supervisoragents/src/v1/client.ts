@@ -1,0 +1,586 @@
+// Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
+
+import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
+import type {Call} from '@databricks/sdk-core/api';
+import {createDefault} from '@databricks/sdk-core/clientinfo';
+import type {Logger} from '@databricks/sdk-core/logger';
+import {NoOpLogger} from '@databricks/sdk-core/logger';
+import type {CallOptions} from '@databricks/sdk-options/call';
+import type {ClientOptions} from '@databricks/sdk-options/client';
+import type {HttpClient} from '@databricks/sdk-core/http';
+import {newHttpClient} from '@databricks/sdk-databricks/transport';
+import {
+  buildHttpRequest,
+  executeCall,
+  executeHttpCall,
+  marshalRequest,
+  parseResponse,
+} from './utils';
+import pkgJson from '../../package.json' with {type: 'json'};
+import type {
+  CreateExampleRequest,
+  CreateSupervisorAgentRequest,
+  CreateToolRequest,
+  DeleteExampleRequest,
+  DeleteSupervisorAgentRequest,
+  DeleteToolRequest,
+  Example,
+  GetExampleRequest,
+  GetSupervisorAgentRequest,
+  GetToolRequest,
+  ListExamplesRequest,
+  ListExamplesResponse,
+  ListSupervisorAgentsRequest,
+  ListSupervisorAgentsResponse,
+  ListToolsRequest,
+  ListToolsResponse,
+  SupervisorAgent,
+  Tool,
+  UpdateExampleRequest,
+  UpdateSupervisorAgentRequest,
+  UpdateToolRequest,
+} from './model';
+import {
+  marshalExampleSchema,
+  marshalSupervisorAgentSchema,
+  marshalToolSchema,
+  unmarshalExampleSchema,
+  unmarshalListExamplesResponseSchema,
+  unmarshalListSupervisorAgentsResponseSchema,
+  unmarshalListToolsResponseSchema,
+  unmarshalSupervisorAgentSchema,
+  unmarshalToolSchema,
+} from './model';
+
+// Package identity segment for this client to be used in the User-Agent header.
+const PACKAGE_SEGMENT = {
+  key: pkgJson.name.replace(/^@[^/]+\//, ''),
+  value: pkgJson.version,
+};
+
+export class Client {
+  private readonly host: string;
+  private readonly httpClient: HttpClient;
+  private readonly logger: Logger;
+  // User-Agent header value. Composed once at construction from
+  // createDefault() merged with this package's identity and the active
+  // credential's name.
+  private readonly userAgent: string;
+
+  constructor(options: ClientOptions) {
+    if (options.host === undefined) {
+      throw new Error('Host is required.');
+    }
+    this.host = options.host.replace(/\/$/, '');
+    this.logger = options.logger ?? new NoOpLogger();
+    let info = createDefault().with(PACKAGE_SEGMENT);
+    if (options.credentials !== undefined) {
+      info = info
+        .with({key: 'sdk-auth', value: AUTH_VERSION})
+        .with({key: 'auth', value: options.credentials.name()});
+    }
+    this.userAgent = info.toString();
+    this.httpClient = newHttpClient(options);
+  }
+
+  /** Creates an example for a Supervisor Agent. */
+  async createExample(
+    req: CreateExampleRequest,
+    options?: CallOptions
+  ): Promise<Example> {
+    const url = `${this.host}/api/2.1/${req.parent ?? ''}/examples`;
+    const body = marshalRequest(req.example, marshalExampleSchema);
+    let resp: Example | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalExampleSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Creates a new Supervisor Agent. */
+  async createSupervisorAgent(
+    req: CreateSupervisorAgentRequest,
+    options?: CallOptions
+  ): Promise<SupervisorAgent> {
+    const url = `${this.host}/api/2.1/supervisor-agents`;
+    const body = marshalRequest(
+      req.supervisorAgent,
+      marshalSupervisorAgentSchema
+    );
+    let resp: SupervisorAgent | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalSupervisorAgentSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Creates a Tool under a Supervisor Agent. Specify one of "genie_space", "knowledge_assistant", "uc_function", "uc_connection", "app", "volume", "lakeview_dashboard", "uc_table", "vector_search_index", "catalog", "schema", "supervisor_agent", "web_search" in the request body. */
+  async createTool(
+    req: CreateToolRequest,
+    options?: CallOptions
+  ): Promise<Tool> {
+    const url = `${this.host}/api/2.1/${req.parent ?? ''}/tools`;
+    const params = new URLSearchParams();
+    if (req.toolId !== undefined) {
+      params.append('tool_id', req.toolId);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(req.tool, marshalToolSchema);
+    let resp: Tool | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'POST',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalToolSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Deletes an example from a Supervisor Agent. */
+  async deleteExample(
+    req: DeleteExampleRequest,
+    options?: CallOptions
+  ): Promise<void> {
+    const url = `${this.host}/api/2.1/${req.name ?? ''}`;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+    };
+    await executeCall(call, options);
+  }
+
+  /** Deletes a Supervisor Agent. */
+  async deleteSupervisorAgent(
+    req: DeleteSupervisorAgentRequest,
+    options?: CallOptions
+  ): Promise<void> {
+    const url = `${this.host}/api/2.1/${req.name ?? ''}`;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+    };
+    await executeCall(call, options);
+  }
+
+  /** Deletes a Tool. */
+  async deleteTool(
+    req: DeleteToolRequest,
+    options?: CallOptions
+  ): Promise<void> {
+    const url = `${this.host}/api/2.1/${req.name ?? ''}`;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+    };
+    await executeCall(call, options);
+  }
+
+  /** Gets an example from a Supervisor Agent. */
+  async getExample(
+    req: GetExampleRequest,
+    options?: CallOptions
+  ): Promise<Example> {
+    const url = `${this.host}/api/2.1/${req.name ?? ''}`;
+    let resp: Example | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalExampleSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Gets a Supervisor Agent. */
+  async getSupervisorAgent(
+    req: GetSupervisorAgentRequest,
+    options?: CallOptions
+  ): Promise<SupervisorAgent> {
+    const url = `${this.host}/api/2.1/${req.name ?? ''}`;
+    let resp: SupervisorAgent | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalSupervisorAgentSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Gets a Tool. */
+  async getTool(req: GetToolRequest, options?: CallOptions): Promise<Tool> {
+    const url = `${this.host}/api/2.1/${req.name ?? ''}`;
+    let resp: Tool | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalToolSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Lists examples under a Supervisor Agent. */
+  async listExamples(
+    req: ListExamplesRequest,
+    options?: CallOptions
+  ): Promise<ListExamplesResponse> {
+    const url = `${this.host}/api/2.1/${req.parent ?? ''}/examples`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListExamplesResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalListExamplesResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listExamplesIter(
+    req: ListExamplesRequest,
+    options?: CallOptions
+  ): AsyncGenerator<Example> {
+    const pageReq: ListExamplesRequest = {...req};
+    for (;;) {
+      const resp = await this.listExamples(pageReq, options);
+      for (const item of resp.examples ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** Lists Supervisor Agents. */
+  async listSupervisorAgents(
+    req: ListSupervisorAgentsRequest,
+    options?: CallOptions
+  ): Promise<ListSupervisorAgentsResponse> {
+    const url = `${this.host}/api/2.1/supervisor-agents`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListSupervisorAgentsResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListSupervisorAgentsResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listSupervisorAgentsIter(
+    req: ListSupervisorAgentsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<SupervisorAgent> {
+    const pageReq: ListSupervisorAgentsRequest = {...req};
+    for (;;) {
+      const resp = await this.listSupervisorAgents(pageReq, options);
+      for (const item of resp.supervisorAgents ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** Lists Tools under a Supervisor Agent. */
+  async listTools(
+    req: ListToolsRequest,
+    options?: CallOptions
+  ): Promise<ListToolsResponse> {
+    const url = `${this.host}/api/2.1/${req.parent ?? ''}/tools`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListToolsResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalListToolsResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listToolsIter(
+    req: ListToolsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<Tool> {
+    const pageReq: ListToolsRequest = {...req};
+    for (;;) {
+      const resp = await this.listTools(pageReq, options);
+      for (const item of resp.tools ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** Updates an example in a Supervisor Agent. */
+  async updateExample(
+    req: UpdateExampleRequest,
+    options?: CallOptions
+  ): Promise<Example> {
+    const url = `${this.host}/api/2.1/${req.name ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.updateMask !== undefined) {
+      params.append('update_mask', req.updateMask.toString());
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(req.example, marshalExampleSchema);
+    let resp: Example | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalExampleSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Updates a Supervisor Agent. The fields that are required depend on the paths specified in `update_mask`.
+   * Only fields included in the mask will be updated.
+   */
+  async updateSupervisorAgent(
+    req: UpdateSupervisorAgentRequest,
+    options?: CallOptions
+  ): Promise<SupervisorAgent> {
+    const url = `${this.host}/api/2.1/${req.supervisorAgent?.name ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.updateMask !== undefined) {
+      params.append('update_mask', req.updateMask.toString());
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(
+      req.supervisorAgent,
+      marshalSupervisorAgentSchema
+    );
+    let resp: SupervisorAgent | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalSupervisorAgentSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Updates a Tool. Only the `description` field can be updated.
+   * To change immutable fields such as tool type, spec, or tool ID, delete the tool and recreate it.
+   */
+  async updateTool(
+    req: UpdateToolRequest,
+    options?: CallOptions
+  ): Promise<Tool> {
+    const url = `${this.host}/api/2.1/${req.tool?.name ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.updateMask !== undefined) {
+      params.append('update_mask', req.updateMask.toString());
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(req.tool, marshalToolSchema);
+    let resp: Tool | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalToolSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+}

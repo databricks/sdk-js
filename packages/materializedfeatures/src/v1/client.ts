@@ -68,7 +68,6 @@ export class Client {
 
   /** Creates a FeatureTag. */
   async createFeatureTag(
-    signal: AbortSignal | undefined,
     req: CreateFeatureTagRequest,
     options?: CallOptions
   ): Promise<FeatureTag> {
@@ -86,7 +85,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalFeatureTagSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -95,7 +94,6 @@ export class Client {
 
   /** Deletes a FeatureTag. */
   async deleteFeatureTag(
-    signal: AbortSignal | undefined,
     req: DeleteFeatureTagRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -110,12 +108,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Get Feature Lineage. */
   async getFeatureLineage(
-    signal: AbortSignal | undefined,
     req: GetFeatureLineageRequest,
     options?: CallOptions
   ): Promise<FeatureLineage> {
@@ -132,7 +129,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalFeatureLineageSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -141,7 +138,6 @@ export class Client {
 
   /** Gets a FeatureTag. */
   async getFeatureTag(
-    signal: AbortSignal | undefined,
     req: GetFeatureTagRequest,
     options?: CallOptions
   ): Promise<FeatureTag> {
@@ -158,7 +154,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalFeatureTagSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -167,7 +163,6 @@ export class Client {
 
   /** Lists FeatureTags. */
   async listFeatureTags(
-    signal: AbortSignal | undefined,
     req: ListFeatureTagsRequest,
     options?: CallOptions
   ): Promise<ListFeatureTagsResponse> {
@@ -193,7 +188,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListFeatureTagsResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -201,13 +196,12 @@ export class Client {
   }
 
   async *listFeatureTagsIter(
-    signal: AbortSignal | undefined,
     req: ListFeatureTagsRequest,
     options?: CallOptions
   ): AsyncGenerator<FeatureTag> {
     const pageReq: ListFeatureTagsRequest = {...req};
     for (;;) {
-      const resp = await this.listFeatureTags(signal, pageReq, options);
+      const resp = await this.listFeatureTags(pageReq, options);
       for (const item of resp.featureTags ?? []) {
         yield item;
       }
@@ -220,7 +214,6 @@ export class Client {
 
   /** Updates a FeatureTag. */
   async updateFeatureTag(
-    signal: AbortSignal | undefined,
     req: UpdateFeatureTagRequest,
     options?: CallOptions
   ): Promise<FeatureTag> {
@@ -250,7 +243,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalFeatureTagSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

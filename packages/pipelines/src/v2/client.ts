@@ -111,7 +111,6 @@ export class Client {
    * dev-mode updates.
    */
   async applyEnvironment(
-    signal: AbortSignal | undefined,
     req: ApplyEnvironmentRequest,
     options?: CallOptions
   ): Promise<ApplyEnvironmentRequest_Response> {
@@ -132,7 +131,7 @@ export class Client {
         unmarshalApplyEnvironmentRequest_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -145,7 +144,6 @@ export class Client {
    * Additionally, this method starts an update for the newly created pipeline.
    */
   async clone(
-    signal: AbortSignal | undefined,
     req: ClonePipeline,
     options?: CallOptions
   ): Promise<ClonePipeline_Response> {
@@ -163,7 +161,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalClonePipeline_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -175,7 +173,6 @@ export class Client {
    * the ID of the new pipeline.
    */
   async create(
-    signal: AbortSignal | undefined,
     req: CreatePipeline,
     options?: CallOptions
   ): Promise<CreatePipeline_Response> {
@@ -193,7 +190,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreatePipeline_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -205,7 +202,6 @@ export class Client {
    * all pipeline tables. Please reach out to <Databricks> support for assistance to undo this action.
    */
   async delete(
-    signal: AbortSignal | undefined,
     req: DeletePipeline,
     options?: CallOptions
   ): Promise<DeletePipeline_Response> {
@@ -234,7 +230,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeletePipeline_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -243,7 +239,6 @@ export class Client {
 
   /** Updates a pipeline with the supplied configuration. */
   async edit(
-    signal: AbortSignal | undefined,
     req: EditPipeline,
     options?: CallOptions
   ): Promise<EditPipeline_Response> {
@@ -261,7 +256,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEditPipeline_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -270,7 +265,6 @@ export class Client {
 
   /** Retrieves events for a pipeline. */
   async events(
-    signal: AbortSignal | undefined,
     req: ListPipelineEvents,
     options?: CallOptions
   ): Promise<ListPipelineEvents_Response> {
@@ -305,7 +299,7 @@ export class Client {
         unmarshalListPipelineEvents_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -313,13 +307,12 @@ export class Client {
   }
 
   async *eventsIter(
-    signal: AbortSignal | undefined,
     req: ListPipelineEvents,
     options?: CallOptions
   ): AsyncGenerator<PipelineEvent> {
     const pageReq: ListPipelineEvents = {...req};
     for (;;) {
-      const resp = await this.events(signal, pageReq, options);
+      const resp = await this.events(pageReq, options);
       for (const item of resp.events ?? []) {
         yield item;
       }
@@ -332,7 +325,6 @@ export class Client {
 
   /** Get a pipeline. */
   async get(
-    signal: AbortSignal | undefined,
     req: GetPipeline,
     options?: CallOptions
   ): Promise<GetPipeline_Response> {
@@ -349,7 +341,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetPipeline_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -358,7 +350,6 @@ export class Client {
 
   /** Gets an update from an active pipeline. */
   async getUpdate(
-    signal: AbortSignal | undefined,
     req: GetUpdate,
     options?: CallOptions
   ): Promise<GetUpdate_Response> {
@@ -375,7 +366,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetUpdate_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -384,7 +375,6 @@ export class Client {
 
   /** Lists pipelines defined in the Spark Declarative Pipelines system. */
   async list(
-    signal: AbortSignal | undefined,
     req: ListPipelines,
     options?: CallOptions
   ): Promise<ListPipelines_Response> {
@@ -416,7 +406,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListPipelines_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -424,13 +414,12 @@ export class Client {
   }
 
   async *listIter(
-    signal: AbortSignal | undefined,
     req: ListPipelines,
     options?: CallOptions
   ): AsyncGenerator<PipelineStateInfo> {
     const pageReq: ListPipelines = {...req};
     for (;;) {
-      const resp = await this.list(signal, pageReq, options);
+      const resp = await this.list(pageReq, options);
       for (const item of resp.statuses ?? []) {
         yield item;
       }
@@ -443,7 +432,6 @@ export class Client {
 
   /** List updates for an active pipeline. */
   async listUpdates(
-    signal: AbortSignal | undefined,
     req: ListUpdates,
     options?: CallOptions
   ): Promise<ListUpdates_Response> {
@@ -472,7 +460,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListUpdates_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -485,7 +473,6 @@ export class Client {
    * All tables deleted at pipeline deletion will be undropped as well.
    */
   async restorePipeline(
-    signal: AbortSignal | undefined,
     req: RestorePipelineRequest,
     options?: CallOptions
   ): Promise<RestorePipelineRequest_Response> {
@@ -506,7 +493,7 @@ export class Client {
         unmarshalRestorePipelineRequest_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -515,7 +502,6 @@ export class Client {
 
   /** Starts a new update for the pipeline. If there is already an active update for the pipeline, the request will fail and the active update will remain running. */
   async start(
-    signal: AbortSignal | undefined,
     req: StartUpdate,
     options?: CallOptions
   ): Promise<StartUpdate_Response> {
@@ -533,7 +519,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStartUpdate_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -542,7 +528,6 @@ export class Client {
 
   /** Stops the pipeline by canceling the active update. If there is no active update for the pipeline, this request is a no-op. */
   async stop(
-    signal: AbortSignal | undefined,
     req: StopPipeline,
     options?: CallOptions
   ): Promise<StopPipeline_Response> {
@@ -560,7 +545,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStopPipeline_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -568,11 +553,10 @@ export class Client {
   }
 
   async stopWaiter(
-    signal: AbortSignal | undefined,
     req: StopPipeline,
     options?: CallOptions
   ): Promise<StopWaiter> {
-    await this.stop(signal, req, options);
+    await this.stop(req, options);
     if (req.pipelineId === undefined) {
       throw new Error(
         'request field pipelineId required for polling is missing'
@@ -593,19 +577,15 @@ export class StopWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<GetPipeline_Response> {
+  async wait(options?: CallOptions): Promise<GetPipeline_Response> {
     let result: GetPipeline_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.get(
-        callSignal,
         {
           pipelineId: this.pipelineId,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state;
@@ -627,12 +607,13 @@ export class StopWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -640,12 +621,8 @@ export class StopWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.get(
-      signal,
       {
         pipelineId: this.pipelineId,
       },

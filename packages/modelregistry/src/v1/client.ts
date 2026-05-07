@@ -171,7 +171,6 @@ export class Client {
 
   /** Approves a model version stage transition request. */
   async approveTransitionRequest(
-    signal: AbortSignal | undefined,
     req: ApproveTransitionRequest,
     options?: CallOptions
   ): Promise<ApproveTransitionRequest_Response> {
@@ -192,7 +191,7 @@ export class Client {
         unmarshalApproveTransitionRequest_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -204,7 +203,6 @@ export class Client {
    * relevant information about the model. For example, test results or deployment errors.
    */
   async createComment(
-    signal: AbortSignal | undefined,
     req: CreateComment,
     options?: CallOptions
   ): Promise<CreateComment_Response> {
@@ -222,7 +220,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateComment_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -234,7 +232,6 @@ export class Client {
    * Creates a registry webhook.
    */
   async createRegistryWebhook(
-    signal: AbortSignal | undefined,
     req: CreateRegistryWebhook,
     options?: CallOptions
   ): Promise<CreateRegistryWebhook_Response> {
@@ -255,7 +252,7 @@ export class Client {
         unmarshalCreateRegistryWebhook_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -264,7 +261,6 @@ export class Client {
 
   /** Creates a model version stage transition request. */
   async createTransitionRequest(
-    signal: AbortSignal | undefined,
     req: CreateTransitionRequest,
     options?: CallOptions
   ): Promise<CreateTransitionRequest_Response> {
@@ -285,7 +281,7 @@ export class Client {
         unmarshalCreateTransitionRequest_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -294,7 +290,6 @@ export class Client {
 
   /** Deletes a comment on a model version. */
   async deleteComment(
-    signal: AbortSignal | undefined,
     req: DeleteComment,
     options?: CallOptions
   ): Promise<DeleteComment_Response> {
@@ -317,7 +312,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteComment_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -329,7 +324,6 @@ export class Client {
    * Deletes a registry webhook.
    */
   async deleteRegistryWebhook(
-    signal: AbortSignal | undefined,
     req: DeleteRegistryWebhook,
     options?: CallOptions
   ): Promise<DeleteRegistryWebhook_Response> {
@@ -355,7 +349,7 @@ export class Client {
         unmarshalDeleteRegistryWebhook_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -364,7 +358,6 @@ export class Client {
 
   /** Cancels a model version stage transition request. */
   async deleteTransitionRequest(
-    signal: AbortSignal | undefined,
     req: DeleteTransitionRequest,
     options?: CallOptions
   ): Promise<DeleteTransitionRequest_Response> {
@@ -402,7 +395,7 @@ export class Client {
         unmarshalDeleteTransitionRequest_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -415,7 +408,6 @@ export class Client {
    * that also returns the model's <Databricks> workspace ID and the permission level of the requesting user on the model.
    */
   async getRegisteredModelDatabricks(
-    signal: AbortSignal | undefined,
     req: GetRegisteredModelDatabricks,
     options?: CallOptions
   ): Promise<GetRegisteredModelDatabricks_Response> {
@@ -441,7 +433,7 @@ export class Client {
         unmarshalGetRegisteredModelDatabricks_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -453,7 +445,6 @@ export class Client {
    * Lists all registry webhooks.
    */
   async listRegistryWebhooks(
-    signal: AbortSignal | undefined,
     req: ListRegistryWebhooks,
     options?: CallOptions
   ): Promise<ListRegistryWebhooks_Response> {
@@ -488,7 +479,7 @@ export class Client {
         unmarshalListRegistryWebhooks_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -496,13 +487,12 @@ export class Client {
   }
 
   async *listRegistryWebhooksIter(
-    signal: AbortSignal | undefined,
     req: ListRegistryWebhooks,
     options?: CallOptions
   ): AsyncGenerator<RegistryWebhook> {
     const pageReq: ListRegistryWebhooks = {...req};
     for (;;) {
-      const resp = await this.listRegistryWebhooks(signal, pageReq, options);
+      const resp = await this.listRegistryWebhooks(pageReq, options);
       for (const item of resp.webhooks ?? []) {
         yield item;
       }
@@ -515,7 +505,6 @@ export class Client {
 
   /** Gets a list of all open stage transition requests for the model version. */
   async listTransitionsRequest(
-    signal: AbortSignal | undefined,
     req: ListTransitionRequest,
     options?: CallOptions
   ): Promise<ListTransitionRequest_Response> {
@@ -544,7 +533,7 @@ export class Client {
         unmarshalListTransitionRequest_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -553,7 +542,6 @@ export class Client {
 
   /** Rejects a model version stage transition request. */
   async rejectTransitionRequest(
-    signal: AbortSignal | undefined,
     req: RejectTransitionRequest,
     options?: CallOptions
   ): Promise<RejectTransitionRequest_Response> {
@@ -574,7 +562,7 @@ export class Client {
         unmarshalRejectTransitionRequest_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -586,7 +574,6 @@ export class Client {
    * Tests a registry webhook.
    */
   async testRegistryWebhook(
-    signal: AbortSignal | undefined,
     req: TestRegistryWebhook,
     options?: CallOptions
   ): Promise<TestRegistryWebhook_Response> {
@@ -607,7 +594,7 @@ export class Client {
         unmarshalTestRegistryWebhook_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -620,7 +607,6 @@ export class Client {
    * that also accepts a comment associated with the transition to be recorded.
    */
   async transitionModelVersionStageDatabricks(
-    signal: AbortSignal | undefined,
     req: TransitionModelVersionStageDatabricks,
     options?: CallOptions
   ): Promise<TransitionModelVersionStageDatabricks_Response> {
@@ -644,7 +630,7 @@ export class Client {
         unmarshalTransitionModelVersionStageDatabricks_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -653,7 +639,6 @@ export class Client {
 
   /** Post an edit to a comment on a model version. */
   async updateComment(
-    signal: AbortSignal | undefined,
     req: UpdateComment,
     options?: CallOptions
   ): Promise<UpdateComment_Response> {
@@ -671,7 +656,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdateComment_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -683,7 +668,6 @@ export class Client {
    * Updates a registry webhook.
    */
   async updateRegistryWebhook(
-    signal: AbortSignal | undefined,
     req: UpdateRegistryWebhook,
     options?: CallOptions
   ): Promise<UpdateRegistryWebhook_Response> {
@@ -704,7 +688,7 @@ export class Client {
         unmarshalUpdateRegistryWebhook_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -713,7 +697,6 @@ export class Client {
 
   /** Creates a model version. */
   async createModelVersion(
-    signal: AbortSignal | undefined,
     req: CreateModelVersion,
     options?: CallOptions
   ): Promise<CreateModelVersion_Response> {
@@ -734,7 +717,7 @@ export class Client {
         unmarshalCreateModelVersion_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -746,7 +729,6 @@ export class Client {
    * Throws `RESOURCE_ALREADY_EXISTS` if a registered model with the given name exists.
    */
   async createRegisteredModel(
-    signal: AbortSignal | undefined,
     req: CreateRegisteredModel,
     options?: CallOptions
   ): Promise<CreateRegisteredModel_Response> {
@@ -767,7 +749,7 @@ export class Client {
         unmarshalCreateRegisteredModel_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -776,7 +758,6 @@ export class Client {
 
   /** Deletes a model version. */
   async deleteModelVersion(
-    signal: AbortSignal | undefined,
     req: DeleteModelVersion,
     options?: CallOptions
   ): Promise<DeleteModelVersion_Response> {
@@ -805,7 +786,7 @@ export class Client {
         unmarshalDeleteModelVersion_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -814,7 +795,6 @@ export class Client {
 
   /** Deletes a model version tag. */
   async deleteModelVersionTag(
-    signal: AbortSignal | undefined,
     req: DeleteModelVersionTag,
     options?: CallOptions
   ): Promise<DeleteModelVersionTag_Response> {
@@ -846,7 +826,7 @@ export class Client {
         unmarshalDeleteModelVersionTag_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -855,7 +835,6 @@ export class Client {
 
   /** Deletes a registered model. */
   async deleteRegisteredModel(
-    signal: AbortSignal | undefined,
     req: DeleteRegisteredModel,
     options?: CallOptions
   ): Promise<DeleteRegisteredModel_Response> {
@@ -881,7 +860,7 @@ export class Client {
         unmarshalDeleteRegisteredModel_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -890,7 +869,6 @@ export class Client {
 
   /** Deletes the tag for a registered model. */
   async deleteRegisteredModelTag(
-    signal: AbortSignal | undefined,
     req: DeleteRegisteredModelTag,
     options?: CallOptions
   ): Promise<DeleteRegisteredModelTag_Response> {
@@ -919,7 +897,7 @@ export class Client {
         unmarshalDeleteRegisteredModelTag_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -928,7 +906,6 @@ export class Client {
 
   /** Gets the latest version of a registered model. */
   async getLatestVersions(
-    signal: AbortSignal | undefined,
     req: GetLatestVersions,
     options?: CallOptions
   ): Promise<GetLatestVersions_Response> {
@@ -946,7 +923,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetLatestVersions_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -955,7 +932,6 @@ export class Client {
 
   /** Get a model version. */
   async getModelVersion(
-    signal: AbortSignal | undefined,
     req: GetModelVersion,
     options?: CallOptions
   ): Promise<GetModelVersion_Response> {
@@ -981,7 +957,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetModelVersion_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -990,7 +966,6 @@ export class Client {
 
   /** Gets a URI to download the model version. */
   async getModelVersionDownloadUri(
-    signal: AbortSignal | undefined,
     req: GetModelVersionDownloadUri,
     options?: CallOptions
   ): Promise<GetModelVersionDownloadUri_Response> {
@@ -1019,7 +994,7 @@ export class Client {
         unmarshalGetModelVersionDownloadUri_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1028,7 +1003,6 @@ export class Client {
 
   /** Lists all available registered models, up to the limit specified in __max_results__. */
   async listRegisteredModels(
-    signal: AbortSignal | undefined,
     req: ListRegisteredModels,
     options?: CallOptions
   ): Promise<ListRegisteredModels_Response> {
@@ -1057,7 +1031,7 @@ export class Client {
         unmarshalListRegisteredModels_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1065,13 +1039,12 @@ export class Client {
   }
 
   async *listRegisteredModelsIter(
-    signal: AbortSignal | undefined,
     req: ListRegisteredModels,
     options?: CallOptions
   ): AsyncGenerator<RegisteredModel> {
     const pageReq: ListRegisteredModels = {...req};
     for (;;) {
-      const resp = await this.listRegisteredModels(signal, pageReq, options);
+      const resp = await this.listRegisteredModels(pageReq, options);
       for (const item of resp.registeredModels ?? []) {
         yield item;
       }
@@ -1084,7 +1057,6 @@ export class Client {
 
   /** Renames a registered model. */
   async renameRegisteredModel(
-    signal: AbortSignal | undefined,
     req: RenameRegisteredModel,
     options?: CallOptions
   ): Promise<RenameRegisteredModel_Response> {
@@ -1105,7 +1077,7 @@ export class Client {
         unmarshalRenameRegisteredModel_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1114,7 +1086,6 @@ export class Client {
 
   /** Searches for specific model versions based on the supplied __filter__. */
   async searchModelVersions(
-    signal: AbortSignal | undefined,
     req: SearchModelVersions,
     options?: CallOptions
   ): Promise<SearchModelVersions_Response> {
@@ -1149,7 +1120,7 @@ export class Client {
         unmarshalSearchModelVersions_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1157,13 +1128,12 @@ export class Client {
   }
 
   async *searchModelVersionsIter(
-    signal: AbortSignal | undefined,
     req: SearchModelVersions,
     options?: CallOptions
   ): AsyncGenerator<ModelVersion> {
     const pageReq: SearchModelVersions = {...req};
     for (;;) {
-      const resp = await this.searchModelVersions(signal, pageReq, options);
+      const resp = await this.searchModelVersions(pageReq, options);
       for (const item of resp.modelVersions ?? []) {
         yield item;
       }
@@ -1176,7 +1146,6 @@ export class Client {
 
   /** Search for registered models based on the specified __filter__. */
   async searchRegisteredModels(
-    signal: AbortSignal | undefined,
     req: SearchRegisteredModels,
     options?: CallOptions
   ): Promise<SearchRegisteredModels_Response> {
@@ -1211,7 +1180,7 @@ export class Client {
         unmarshalSearchRegisteredModels_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1219,13 +1188,12 @@ export class Client {
   }
 
   async *searchRegisteredModelsIter(
-    signal: AbortSignal | undefined,
     req: SearchRegisteredModels,
     options?: CallOptions
   ): AsyncGenerator<RegisteredModel> {
     const pageReq: SearchRegisteredModels = {...req};
     for (;;) {
-      const resp = await this.searchRegisteredModels(signal, pageReq, options);
+      const resp = await this.searchRegisteredModels(pageReq, options);
       for (const item of resp.registeredModels ?? []) {
         yield item;
       }
@@ -1238,7 +1206,6 @@ export class Client {
 
   /** Sets a model version tag. */
   async setModelVersionTag(
-    signal: AbortSignal | undefined,
     req: SetModelVersionTag,
     options?: CallOptions
   ): Promise<SetModelVersionTag_Response> {
@@ -1259,7 +1226,7 @@ export class Client {
         unmarshalSetModelVersionTag_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1268,7 +1235,6 @@ export class Client {
 
   /** Sets a tag on a registered model. */
   async setRegisteredModelTag(
-    signal: AbortSignal | undefined,
     req: SetRegisteredModelTag,
     options?: CallOptions
   ): Promise<SetRegisteredModelTag_Response> {
@@ -1289,7 +1255,7 @@ export class Client {
         unmarshalSetRegisteredModelTag_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1298,7 +1264,6 @@ export class Client {
 
   /** Updates the model version. */
   async updateModelVersion(
-    signal: AbortSignal | undefined,
     req: UpdateModelVersion,
     options?: CallOptions
   ): Promise<UpdateModelVersion_Response> {
@@ -1319,7 +1284,7 @@ export class Client {
         unmarshalUpdateModelVersion_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1328,7 +1293,6 @@ export class Client {
 
   /** Updates a registered model. */
   async updateRegisteredModel(
-    signal: AbortSignal | undefined,
     req: UpdateRegisteredModel,
     options?: CallOptions
   ): Promise<UpdateRegisteredModel_Response> {
@@ -1349,7 +1313,7 @@ export class Client {
         unmarshalUpdateRegisteredModel_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

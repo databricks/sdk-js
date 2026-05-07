@@ -56,7 +56,6 @@ export class Client {
 
   /** Gets the configuration status for a workspace. */
   async getWorkspaceConf(
-    signal: AbortSignal | undefined,
     req: GetWorkspaceConfRequest,
     options?: CallOptions
   ): Promise<WorkspaceConf> {
@@ -79,7 +78,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceConfSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -88,7 +87,6 @@ export class Client {
 
   /** Sets the configuration status for a workspace, including enabling or disabling it. */
   async updateWorkspaceConf(
-    signal: AbortSignal | undefined,
     req: WorkspaceConf,
     options?: CallOptions
   ): Promise<void> {
@@ -104,6 +102,6 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 }

@@ -67,7 +67,6 @@ export class Client {
 
   /** Cancel a Custom LLM Optimization Run. */
   async cancelCustomLlmOptimizationRun(
-    signal: AbortSignal | undefined,
     req: CancelCustomLlmOptimizationRunRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -86,12 +85,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Create a Custom LLM. */
   async createCustomLlm(
-    signal: AbortSignal | undefined,
     req: CreateCustomLlmRequest,
     options?: CallOptions
   ): Promise<CustomLlm> {
@@ -109,7 +107,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCustomLlmSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -118,7 +116,6 @@ export class Client {
 
   /** Delete a Custom LLM. */
   async deleteCustomLlm(
-    signal: AbortSignal | undefined,
     req: DeleteCustomLlmRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -133,12 +130,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Get a Custom LLM. */
   async getCustomLlm(
-    signal: AbortSignal | undefined,
     req: GetCustomLlmRequest,
     options?: CallOptions
   ): Promise<CustomLlm> {
@@ -155,7 +151,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCustomLlmSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -164,7 +160,6 @@ export class Client {
 
   /** Start a Custom LLM Optimization Run. */
   async startCustomLlmOptimizationRun(
-    signal: AbortSignal | undefined,
     req: StartCustomLlmOptimizationRunRequest,
     options?: CallOptions
   ): Promise<CustomLlm> {
@@ -185,7 +180,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCustomLlmSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -194,7 +189,6 @@ export class Client {
 
   /** Update a Custom LLM. */
   async updateCustomLlm(
-    signal: AbortSignal | undefined,
     req: UpdateCustomLlmRequest,
     options?: CallOptions
   ): Promise<CustomLlm> {
@@ -212,7 +206,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCustomLlmSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

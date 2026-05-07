@@ -65,7 +65,6 @@ export class Client {
 
   /** Creates a new tag policy, making the associated tag key governed. For Terraform usage, see the [Tag Policy Terraform documentation](https://registry.terraform.io/providers/databricks/databricks/latest/docs/resources/tag_policy). To manage permissions for tag policies, use the [Account Access Control Proxy API](https://docs.databricks.com/api/workspace/accountaccesscontrolproxy). */
   async createTagPolicy(
-    signal: AbortSignal | undefined,
     req: CreateTagPolicyRequest,
     options?: CallOptions
   ): Promise<TagPolicy> {
@@ -83,7 +82,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTagPolicySchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -92,7 +91,6 @@ export class Client {
 
   /** Deletes a tag policy by its associated governed tag's key, leaving that tag key ungoverned. For Terraform usage, see the [Tag Policy Terraform documentation](https://registry.terraform.io/providers/databricks/databricks/latest/docs/resources/tag_policy). */
   async deleteTagPolicy(
-    signal: AbortSignal | undefined,
     req: DeleteTagPolicyRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -107,12 +105,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Gets a single tag policy by its associated governed tag's key. For Terraform usage, see the [Tag Policy Terraform documentation](https://registry.terraform.io/providers/databricks/databricks/latest/docs/data-sources/tag_policy). To list granted permissions for tag policies, use the [Account Access Control Proxy API](https://docs.databricks.com/api/workspace/accountaccesscontrolproxy). */
   async getTagPolicy(
-    signal: AbortSignal | undefined,
     req: GetTagPolicyRequest,
     options?: CallOptions
   ): Promise<TagPolicy> {
@@ -129,7 +126,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTagPolicySchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -138,7 +135,6 @@ export class Client {
 
   /** Lists the tag policies for all governed tags in the account. For Terraform usage, see the [Tag Policy Terraform documentation](https://registry.terraform.io/providers/databricks/databricks/latest/docs/data-sources/tag_policies). To list granted permissions for tag policies, use the [Account Access Control Proxy API](https://docs.databricks.com/api/workspace/accountaccesscontrolproxy). */
   async listTagPolicies(
-    signal: AbortSignal | undefined,
     req: ListTagPoliciesRequest,
     options?: CallOptions
   ): Promise<ListTagPoliciesResponse> {
@@ -164,7 +160,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListTagPoliciesResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -172,13 +168,12 @@ export class Client {
   }
 
   async *listTagPoliciesIter(
-    signal: AbortSignal | undefined,
     req: ListTagPoliciesRequest,
     options?: CallOptions
   ): AsyncGenerator<TagPolicy> {
     const pageReq: ListTagPoliciesRequest = {...req};
     for (;;) {
-      const resp = await this.listTagPolicies(signal, pageReq, options);
+      const resp = await this.listTagPolicies(pageReq, options);
       for (const item of resp.tagPolicies ?? []) {
         yield item;
       }
@@ -191,7 +186,6 @@ export class Client {
 
   /** Updates an existing tag policy for a single governed tag. For Terraform usage, see the [Tag Policy Terraform documentation](https://registry.terraform.io/providers/databricks/databricks/latest/docs/resources/tag_policy). To manage permissions for tag policies, use the [Account Access Control Proxy API](https://docs.databricks.com/api/workspace/accountaccesscontrolproxy). */
   async updateTagPolicy(
-    signal: AbortSignal | undefined,
     req: UpdateTagPolicyRequest,
     options?: CallOptions
   ): Promise<TagPolicy> {
@@ -221,7 +215,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalTagPolicySchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

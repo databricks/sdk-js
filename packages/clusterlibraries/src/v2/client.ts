@@ -89,7 +89,6 @@ export class Client {
    * via the API or the libraries UI.
    */
   async allClusterStatuses(
-    signal: AbortSignal | undefined,
     _req: ListAllClusterLibraryStatuses,
     options?: CallOptions
   ): Promise<ListAllClusterLibraryStatuses_Response> {
@@ -109,7 +108,7 @@ export class Client {
         unmarshalListAllClusterLibraryStatuses_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -126,7 +125,6 @@ export class Client {
    * but are now marked for removal, in no particular order, are returned last.
    */
   async clusterStatus(
-    signal: AbortSignal | undefined,
     req: ClusterStatus,
     options?: CallOptions
   ): Promise<ClusterLibraryStatuses> {
@@ -149,7 +147,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalClusterLibraryStatusesSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -162,7 +160,6 @@ export class Client {
    * optimize dependency resolution.
    */
   async createDefaultBaseEnvironment(
-    signal: AbortSignal | undefined,
     req: CreateDefaultBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<DefaultBaseEnvironment> {
@@ -183,7 +180,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDefaultBaseEnvironmentSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -195,7 +192,6 @@ export class Client {
    * Please ensure that the deletion is intentional.
    */
   async deleteDefaultBaseEnvironment(
-    signal: AbortSignal | undefined,
     req: DeleteDefaultBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -210,12 +206,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Return the default base environment details for a given ID. */
   async getDefaultBaseEnvironment(
-    signal: AbortSignal | undefined,
     req: GetDefaultBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<DefaultBaseEnvironment> {
@@ -241,7 +236,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDefaultBaseEnvironmentSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -253,7 +248,6 @@ export class Client {
    * the background after the completion of this request.
    */
   async installLibraries(
-    signal: AbortSignal | undefined,
     req: InstallLibraries,
     options?: CallOptions
   ): Promise<InstallLibraries_Response> {
@@ -271,7 +265,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalInstallLibraries_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -280,7 +274,6 @@ export class Client {
 
   /** List default base environments defined in the workspaces for the requested user. */
   async listDefaultBaseEnvironments(
-    signal: AbortSignal | undefined,
     req: ListDefaultBaseEnvironmentsRequest,
     options?: CallOptions
   ): Promise<ListDefaultBaseEnvironmentsResponse> {
@@ -309,7 +302,7 @@ export class Client {
         unmarshalListDefaultBaseEnvironmentsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -317,17 +310,12 @@ export class Client {
   }
 
   async *listDefaultBaseEnvironmentsIter(
-    signal: AbortSignal | undefined,
     req: ListDefaultBaseEnvironmentsRequest,
     options?: CallOptions
   ): AsyncGenerator<DefaultBaseEnvironment> {
     const pageReq: ListDefaultBaseEnvironmentsRequest = {...req};
     for (;;) {
-      const resp = await this.listDefaultBaseEnvironments(
-        signal,
-        pageReq,
-        options
-      );
+      const resp = await this.listDefaultBaseEnvironments(pageReq, options);
       for (const item of resp.defaultBaseEnvironments ?? []) {
         yield item;
       }
@@ -343,7 +331,6 @@ export class Client {
    * The existing caches remains available until it expires.
    */
   async refreshDefaultBaseEnvironments(
-    signal: AbortSignal | undefined,
     req: RefreshDefaultBaseEnvironmentsRequest,
     options?: CallOptions
   ): Promise<RefreshDefaultBaseEnvironmentsResponse> {
@@ -367,7 +354,7 @@ export class Client {
         unmarshalRefreshDefaultBaseEnvironmentsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -379,7 +366,6 @@ export class Client {
    * the cluster is restarted. A request to uninstall a library that is not currently installed is ignored.
    */
   async uninstallLibraries(
-    signal: AbortSignal | undefined,
     req: UninstallLibraries,
     options?: CallOptions
   ): Promise<UninstallLibraries_Response> {
@@ -400,7 +386,7 @@ export class Client {
         unmarshalUninstallLibraries_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -412,7 +398,6 @@ export class Client {
    * The existing cache remains available until it expires.
    */
   async updateDefaultBaseEnvironment(
-    signal: AbortSignal | undefined,
     req: UpdateDefaultBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<DefaultBaseEnvironment> {
@@ -433,7 +418,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDefaultBaseEnvironmentSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -442,7 +427,6 @@ export class Client {
 
   /** Set the default base environment for the workspace. This marks the specified DBE as the workspace default. */
   async updateDefaultDefaultBaseEnvironment(
-    signal: AbortSignal | undefined,
     req: UpdateDefaultDefaultBaseEnvironmentRequest,
     options?: CallOptions
   ): Promise<DefaultBaseEnvironment> {
@@ -463,7 +447,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDefaultBaseEnvironmentSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

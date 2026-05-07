@@ -71,7 +71,6 @@ export class Client {
    * The caller must be a metastore admin, or have the **CREATE_SCHEMA** privilege in the parent catalog.
    */
   async createSchema(
-    signal: AbortSignal | undefined,
     req: CreateSchema,
     options?: CallOptions
   ): Promise<SchemaInfo> {
@@ -89,7 +88,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSchemaInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -101,7 +100,6 @@ export class Client {
    * The caller must be the owner of the schema or an owner of the parent catalog.
    */
   async deleteSchema(
-    signal: AbortSignal | undefined,
     req: DeleteSchema,
     options?: CallOptions
   ): Promise<DeleteSchema_Response> {
@@ -124,7 +122,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteSchema_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -135,11 +133,7 @@ export class Client {
    * Gets the specified schema within the metastore.
    * The caller must be a metastore admin, the owner of the schema, or a user that has the **USE_SCHEMA** privilege on the schema.
    */
-  async getSchema(
-    signal: AbortSignal | undefined,
-    req: GetSchema,
-    options?: CallOptions
-  ): Promise<SchemaInfo> {
+  async getSchema(req: GetSchema, options?: CallOptions): Promise<SchemaInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/schemas/${req.fullNameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.includeBrowse !== undefined) {
@@ -159,7 +153,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSchemaInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -178,7 +172,6 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listSchemas(
-    signal: AbortSignal | undefined,
     req: ListSchemas,
     options?: CallOptions
   ): Promise<ListSchemas_Response> {
@@ -210,7 +203,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListSchemas_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -218,13 +211,12 @@ export class Client {
   }
 
   async *listSchemasIter(
-    signal: AbortSignal | undefined,
     req: ListSchemas,
     options?: CallOptions
   ): AsyncGenerator<SchemaInfo> {
     const pageReq: ListSchemas = {...req};
     for (;;) {
-      const resp = await this.listSchemas(signal, pageReq, options);
+      const resp = await this.listSchemas(pageReq, options);
       for (const item of resp.schemas ?? []) {
         yield item;
       }
@@ -241,7 +233,6 @@ export class Client {
    * If the __name__ field must be updated, the caller must be a metastore admin or have the **CREATE_SCHEMA** privilege on the parent catalog.
    */
   async updateSchema(
-    signal: AbortSignal | undefined,
     req: UpdateSchema,
     options?: CallOptions
   ): Promise<SchemaInfo> {
@@ -259,7 +250,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalSchemaInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

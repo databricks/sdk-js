@@ -162,6 +162,7 @@ export interface ListBudgetConfigurations {
    */
   pageToken?: string | undefined;
   includeSpendStatus?: boolean | undefined;
+  includeWorkspaceBudgets?: boolean | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

@@ -7,8 +7,10 @@ export interface CreateRepo {
   url?: string | undefined;
   /**
    * Git provider. This field is case-insensitive. The available Git providers are `gitHub`,
-   * `bitbucketCloud`, `gitLab`, `azureDevOpsServices`, `gitHubEnterprise`, `bitbucketServer`,
-   * `gitLabEnterpriseEdition` and `awsCodeCommit`.
+   * `bitbucketCloud`, `gitLab`, `azureDevOpsServices` (Azure DevOps Services, including
+   * Microsoft Entra ID authentication), `gitHubEnterprise`, `bitbucketServer` (Bitbucket
+   * Data Center), `gitLabEnterpriseEdition` (GitLab Self-Managed), and `awsCodeCommit`
+   * (deprecated by AWS, not accepting new customers).
    */
   provider?: string | undefined;
   /**
@@ -31,7 +33,11 @@ export interface CreateRepo_Response {
   path?: string | undefined;
   /** URL of the linked Git repository. */
   url?: string | undefined;
-  /** Git provider of the linked Git repository. */
+  /**
+   * Git provider of the linked Git repository, e.g. `gitHub`, `azureDevOpsServices`,
+   * `bitbucketServer` (Bitbucket Data Center), `gitLabEnterpriseEdition` (GitLab
+   * Self-Managed), or `awsCodeCommit` (deprecated).
+   */
   provider?: string | undefined;
   /** Branch that the Git folder (repo) is checked out to. */
   branch?: string | undefined;
@@ -62,7 +68,11 @@ export interface GetRepo_Response {
   path?: string | undefined;
   /** URL of the linked Git repository. */
   url?: string | undefined;
-  /** Git provider of the linked Git repository. */
+  /**
+   * Git provider of the linked Git repository, e.g. `gitHub`, `azureDevOpsServices`,
+   * `bitbucketServer` (Bitbucket Data Center), `gitLabEnterpriseEdition` (GitLab
+   * Self-Managed), or `awsCodeCommit` (deprecated).
+   */
   provider?: string | undefined;
   /** Branch that the local version of the repo is checked out to. */
   branch?: string | undefined;
@@ -105,7 +115,11 @@ export interface RepoInfo {
   path?: string | undefined;
   /** URL of the remote git repository. */
   url?: string | undefined;
-  /** Git provider of the remote git repository, e.g. `gitHub`. */
+  /**
+   * Git provider of the remote git repository, e.g. `gitHub`, `azureDevOpsServices`,
+   * `bitbucketServer` (Bitbucket Data Center), `gitLabEnterpriseEdition` (GitLab
+   * Self-Managed), or `awsCodeCommit` (deprecated).
+   */
   provider?: string | undefined;
   /** Name of the current git branch of the git folder (repo). */
   branch?: string | undefined;

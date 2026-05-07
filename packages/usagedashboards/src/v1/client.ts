@@ -62,7 +62,6 @@ export class Client {
 
   /** Create a usage dashboard specified by workspaceId, accountId, and dashboard type. */
   async createBillingUsageDashboard(
-    signal: AbortSignal | undefined,
     req: CreateBillingUsageDashboard,
     options?: CallOptions
   ): Promise<CreateBillingUsageDashboard_Response> {
@@ -83,7 +82,7 @@ export class Client {
         unmarshalCreateBillingUsageDashboard_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -92,7 +91,6 @@ export class Client {
 
   /** Get a usage dashboard specified by workspaceId, accountId, and dashboard type. */
   async getBillingUsageDashboard(
-    signal: AbortSignal | undefined,
     req: GetBillingUsageDashboard,
     options?: CallOptions
   ): Promise<GetBillingUsageDashboard_Response> {
@@ -124,7 +122,7 @@ export class Client {
         unmarshalGetBillingUsageDashboard_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

@@ -116,6 +116,13 @@ export enum MarketplaceFileType {
   EMBEDDED_NOTEBOOK = 'EMBEDDED_NOTEBOOK',
   APP = 'APP',
   EMBEDDED_MARKDOWN = 'EMBEDDED_MARKDOWN',
+  /**
+   * Consumer-attached supporting document (e.g., PDF) for a commit drawdown
+   * request. Stored under `staging/COMMIT_DRAWDOWN_REQUEST_ATTACHMENT/` (the
+   * entity stays in FILE_STATUS_STAGING permanently — no sanitization) with
+   * 14-day expiration; not served via the general presigned-GET path.
+   */
+  COMMIT_DRAWDOWN_REQUEST_ATTACHMENT = 'COMMIT_DRAWDOWN_REQUEST_ATTACHMENT',
 }
 
 export enum PersonalizationRequestStatus {

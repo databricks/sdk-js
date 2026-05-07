@@ -84,7 +84,6 @@ export class Client {
    * The command ID is obtained from a prior successful call to __execute__.
    */
   async cancel(
-    signal: AbortSignal | undefined,
     req: CancelCommandRequest,
     options?: CallOptions
   ): Promise<CancelResponse> {
@@ -102,7 +101,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCancelResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -110,11 +109,10 @@ export class Client {
   }
 
   async cancelWaiter(
-    signal: AbortSignal | undefined,
     req: CancelCommandRequest,
     options?: CallOptions
   ): Promise<CancelWaiter> {
-    await this.cancel(signal, req, options);
+    await this.cancel(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
@@ -139,7 +137,6 @@ export class Client {
    * The command ID is obtained from a prior successful call to __execute__.
    */
   async commandStatus(
-    signal: AbortSignal | undefined,
     req: GetCommandStatusRequest,
     options?: CallOptions
   ): Promise<GetCommandStatusResponse> {
@@ -168,7 +165,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetCommandStatusResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -177,7 +174,6 @@ export class Client {
 
   /** Gets the status for an execution context. */
   async contextStatus(
-    signal: AbortSignal | undefined,
     req: GetContextStatusRequest,
     options?: CallOptions
   ): Promise<GetContextStatusResponse> {
@@ -203,7 +199,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetContextStatusResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -216,7 +212,6 @@ export class Client {
    * If successful, this method returns the ID of the new execution context.
    */
   async create(
-    signal: AbortSignal | undefined,
     req: CreateContextRequest,
     options?: CallOptions
   ): Promise<CreateResponse> {
@@ -234,7 +229,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -242,11 +237,10 @@ export class Client {
   }
 
   async createWaiter(
-    signal: AbortSignal | undefined,
     req: CreateContextRequest,
     options?: CallOptions
   ): Promise<CreateWaiter> {
-    const resp = await this.create(signal, req, options);
+    const resp = await this.create(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
@@ -260,7 +254,6 @@ export class Client {
 
   /** Deletes an execution context. */
   async destroy(
-    signal: AbortSignal | undefined,
     req: DestroyContextRequest,
     options?: CallOptions
   ): Promise<DestroyResponse> {
@@ -278,7 +271,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDestroyResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -291,7 +284,6 @@ export class Client {
    * If successful, it returns an ID for tracking the status of the command's execution.
    */
   async execute(
-    signal: AbortSignal | undefined,
     req: ExecuteCommandRequest,
     options?: CallOptions
   ): Promise<CreateResponse> {
@@ -309,7 +301,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -317,11 +309,10 @@ export class Client {
   }
 
   async executeWaiter(
-    signal: AbortSignal | undefined,
     req: ExecuteCommandRequest,
     options?: CallOptions
   ): Promise<ExecuteWaiter> {
-    const resp = await this.execute(signal, req, options);
+    const resp = await this.execute(req, options);
     if (req.clusterId === undefined) {
       throw new Error(
         'request field clusterId required for polling is missing'
@@ -352,21 +343,17 @@ export class CancelWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<GetCommandStatusResponse> {
+  async wait(options?: CallOptions): Promise<GetCommandStatusResponse> {
     let result: GetCommandStatusResponse | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.commandStatus(
-        callSignal,
         {
           clusterId: this.clusterId,
           contextId: this.contextId,
           commandId: this.commandId,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.status;
@@ -388,12 +375,13 @@ export class CancelWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -401,12 +389,8 @@ export class CancelWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.commandStatus(
-      signal,
       {
         clusterId: this.clusterId,
         contextId: this.contextId,
@@ -442,20 +426,16 @@ export class CreateWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<GetContextStatusResponse> {
+  async wait(options?: CallOptions): Promise<GetContextStatusResponse> {
     let result: GetContextStatusResponse | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.contextStatus(
-        callSignal,
         {
           clusterId: this.clusterId,
           contextId: this.contextId,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.status;
@@ -477,12 +457,13 @@ export class CreateWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -490,12 +471,8 @@ export class CreateWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.contextStatus(
-      signal,
       {
         clusterId: this.clusterId,
         contextId: this.contextId,
@@ -531,21 +508,17 @@ export class ExecuteWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<GetCommandStatusResponse> {
+  async wait(options?: CallOptions): Promise<GetCommandStatusResponse> {
     let result: GetCommandStatusResponse | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.commandStatus(
-        callSignal,
         {
           clusterId: this.clusterId,
           contextId: this.contextId,
           commandId: this.commandId,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.status;
@@ -569,12 +542,13 @@ export class ExecuteWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -582,12 +556,8 @@ export class ExecuteWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.commandStatus(
-      signal,
       {
         clusterId: this.clusterId,
         contextId: this.contextId,

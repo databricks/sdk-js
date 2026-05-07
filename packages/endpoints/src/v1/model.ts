@@ -57,9 +57,9 @@ export enum EndpointStatus_State {
   RED_STATE = 'RED_STATE',
   YELLOW_STATE = 'YELLOW_STATE',
   /**
-   * DELETED: The endpoint is being deleted or has been deleted.
-   * K8s resources are being cleaned up. Once K8s cleanup completes,
-   * the endpoint entity will be removed from the entity store.
+   * The endpoint is being deleted or has been deleted. Associated resources
+   * are being cleaned up; once cleanup completes the endpoint will no longer
+   * be retrievable.
    */
   DELETED = 'DELETED',
 }
@@ -86,17 +86,9 @@ export interface CreateEndpointRequest {
   /** Initial number of replicas for the endpoint. If not specified, defaults to 1. */
   numReplicas?: number | undefined;
   /**
-   * Deprecated: use target_qps. Min QPS for the endpoint. Mutually exclusive with num_replicas.
-   * Kept at PUBLIC_BETA with deprecated = true so generated SDK surfaces keep the field
-   * with a deprecation marker; hiding completely is a follow-up PR.
-   */
-  minQps?: number | undefined;
-  /**
    * Target QPS for the endpoint. Mutually exclusive with num_replicas.
    * The actual replica count is calculated at index creation/sync time based on this value.
    * Best-effort target; the system does not guarantee this QPS will be achieved.
-   * Enters at stage: DEVELOPMENT per go/api-stage-rollout; promoted to PUBLIC_BETA in a
-   * follow-up PR after a bake window.
    */
   targetQps?: number | undefined;
 }
@@ -135,11 +127,7 @@ export interface Endpoint {
   endpointStatus?: EndpointStatus | undefined;
   /** Number of indexes on the endpoint */
   numIndexes?: number | undefined;
-  /**
-   * Discussed here: https://databricks.atlassian.net/wiki/x/OQDlCQE
-   * Additional documentation: https://aip.dev.databricks.com/129
-   * the user selected budget policy id for the endpoint (client-side)
-   */
+  /** The user-selected budget policy id for the endpoint. */
   budgetPolicyId?: string | undefined;
   /** The budget policy id applied to the endpoint */
   effectiveBudgetPolicyId?: string | undefined;
@@ -152,21 +140,11 @@ export interface Endpoint {
 }
 
 export interface EndpointScalingInfo {
-  /**
-   * Deprecated: use requested_target_qps. Kept at PUBLIC_BETA with deprecated = true so
-   * generated SDK surfaces (Go, Java, TypeScript, Terraform) keep exposing the field with
-   * a deprecation marker rather than losing it on next regeneration. Hiding completely
-   * (visibility = PUBLIC_UNDOCUMENTED) is a follow-up PR once downstream consumers have
-   * migrated.
-   */
-  requestedMinQps?: number | undefined;
   /** The current state of the scaling change request. */
   state?: ScalingChangeState | undefined;
   /**
    * The requested QPS target for the endpoint. Best-effort; the system does not
    * guarantee this QPS will be achieved.
-   * Enters at stage: DEVELOPMENT per go/api-stage-rollout; promoted to PUBLIC_BETA in a
-   * follow-up PR after a bake window.
    */
   requestedTargetQps?: number | undefined;
 }
@@ -235,13 +213,6 @@ export interface PatchEndpointRequest {
   /** Name of the vector search endpoint */
   name?: string | undefined;
   /**
-   * Deprecated: use target_qps. Min QPS for the endpoint. Positive integer sets QPS target;
-   * -1 resets to default scaling behavior. Kept at PUBLIC_BETA with deprecated = true so
-   * generated SDK surfaces keep the field with a deprecation marker; hiding completely is
-   * a follow-up PR.
-   */
-  minQps?: number | undefined;
-  /**
    * OpenSearch replication factor. Directly sets userThroughputSettings.replicationFactor.
    * Mutually exclusive with target_qps (and the deprecated min_qps alias). Must be
    * non-negative (0 = no replication).
@@ -252,10 +223,8 @@ export interface PatchEndpointRequest {
    */
   replicationFactor?: number | undefined;
   /**
-   * Target QPS for the endpoint. Positive integer sets QPS target; -1 resets to default scaling behavior.
-   * Best-effort target; the system does not guarantee this QPS will be achieved.
-   * Enters at stage: DEVELOPMENT per go/api-stage-rollout; promoted to PUBLIC_BETA in a
-   * follow-up PR after a bake window.
+   * Target QPS for the endpoint. Best-effort; the system does not guarantee this QPS
+   * will be achieved.
    */
   targetQps?: number | undefined;
 }
@@ -360,12 +329,10 @@ export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
 export const unmarshalEndpointScalingInfoSchema: z.ZodType<EndpointScalingInfo> =
   z
     .object({
-      requested_min_qps: z.number().optional(),
       state: z.enum(ScalingChangeState).optional(),
       requested_target_qps: z.number().optional(),
     })
     .transform(d => ({
-      requestedMinQps: d.requested_min_qps,
       state: d.state,
       requestedTargetQps: d.requested_target_qps,
     }));
@@ -450,7 +417,6 @@ export const marshalCreateEndpointRequestSchema: z.ZodType = z
     budgetPolicyId: z.string().optional(),
     usagePolicyId: z.string().optional(),
     numReplicas: z.number().optional(),
-    minQps: z.number().optional(),
     targetQps: z.number().optional(),
   })
   .transform(d => ({
@@ -459,7 +425,6 @@ export const marshalCreateEndpointRequestSchema: z.ZodType = z
     budget_policy_id: d.budgetPolicyId,
     usage_policy_id: d.usagePolicyId,
     num_replicas: d.numReplicas,
-    min_qps: d.minQps,
     target_qps: d.targetQps,
   }));
 
@@ -476,13 +441,11 @@ export const marshalPatchEndpointBudgetPolicyRequestSchema: z.ZodType = z
 export const marshalPatchEndpointRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    minQps: z.number().optional(),
     replicationFactor: z.number().optional(),
     targetQps: z.number().optional(),
   })
   .transform(d => ({
     name: d.name,
-    min_qps: d.minQps,
     replication_factor: d.replicationFactor,
     target_qps: d.targetQps,
   }));

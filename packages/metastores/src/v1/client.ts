@@ -90,7 +90,6 @@ export class Client {
    * assigned to the System User instead.
    */
   async createMetastore(
-    signal: AbortSignal | undefined,
     req: CreateMetastore,
     options?: CallOptions
   ): Promise<MetastoreInfo> {
@@ -108,7 +107,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMetastoreInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -121,7 +120,6 @@ export class Client {
    * __default_catalog_name__. The caller must be an account admin.
    */
   async createMetastoreAssignment(
-    signal: AbortSignal | undefined,
     req: CreateMetastoreAssignment,
     options?: CallOptions
   ): Promise<CreateMetastoreAssignment_Response> {
@@ -142,7 +140,7 @@ export class Client {
         unmarshalCreateMetastoreAssignment_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -151,7 +149,6 @@ export class Client {
 
   /** Deletes a metastore. The caller must be a metastore admin. */
   async deleteMetastore(
-    signal: AbortSignal | undefined,
     req: DeleteMetastore,
     options?: CallOptions
   ): Promise<DeleteMetastore_Response> {
@@ -174,7 +171,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteMetastore_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -183,7 +180,6 @@ export class Client {
 
   /** Deletes a metastore assignment. The caller must be an account administrator. */
   async deleteMetastoreAssignment(
-    signal: AbortSignal | undefined,
     req: DeleteMetastoreAssignment,
     options?: CallOptions
   ): Promise<DeleteMetastoreAssignment_Response> {
@@ -209,7 +205,7 @@ export class Client {
         unmarshalDeleteMetastoreAssignment_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -218,7 +214,6 @@ export class Client {
 
   /** Gets the metastore assignment for the workspace being accessed. */
   async getCurrentMetastoreAssignment(
-    signal: AbortSignal | undefined,
     _req: GetCurrentMetastoreAssignment,
     options?: CallOptions
   ): Promise<MetastoreAssignment> {
@@ -235,7 +230,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMetastoreAssignmentSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -244,7 +239,6 @@ export class Client {
 
   /** Gets a metastore that matches the supplied ID. The caller must be a metastore admin to retrieve this info. */
   async getMetastore(
-    signal: AbortSignal | undefined,
     req: GetMetastore,
     options?: CallOptions
   ): Promise<MetastoreInfo> {
@@ -261,7 +255,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMetastoreInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -273,7 +267,6 @@ export class Client {
    * This summary includes the storage credential, the cloud vendor, the cloud region, and the global metastore ID.
    */
   async getMetastoreSummary(
-    signal: AbortSignal | undefined,
     _req: GetMetastoreSummary,
     options?: CallOptions
   ): Promise<GetMetastoreSummary_Response> {
@@ -293,7 +286,7 @@ export class Client {
         unmarshalGetMetastoreSummary_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -310,7 +303,6 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listMetastores(
-    signal: AbortSignal | undefined,
     req: ListMetastores,
     options?: CallOptions
   ): Promise<ListMetastores_Response> {
@@ -336,7 +328,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListMetastores_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -344,13 +336,12 @@ export class Client {
   }
 
   async *listMetastoresIter(
-    signal: AbortSignal | undefined,
     req: ListMetastores,
     options?: CallOptions
   ): AsyncGenerator<MetastoreInfo> {
     const pageReq: ListMetastores = {...req};
     for (;;) {
-      const resp = await this.listMetastores(signal, pageReq, options);
+      const resp = await this.listMetastores(pageReq, options);
       for (const item of resp.metastores ?? []) {
         yield item;
       }
@@ -367,7 +358,6 @@ export class Client {
    * to the System User.
    */
   async updateMetastore(
-    signal: AbortSignal | undefined,
     req: UpdateMetastore,
     options?: CallOptions
   ): Promise<MetastoreInfo> {
@@ -385,7 +375,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalMetastoreInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -398,7 +388,6 @@ export class Client {
    * The caller must be an account admin to update __metastore_id__; otherwise, the caller can be a Workspace admin.
    */
   async updateMetastoreAssignment(
-    signal: AbortSignal | undefined,
     req: UpdateMetastoreAssignment,
     options?: CallOptions
   ): Promise<UpdateMetastoreAssignment_Response> {
@@ -419,7 +408,7 @@ export class Client {
         unmarshalUpdateMetastoreAssignment_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

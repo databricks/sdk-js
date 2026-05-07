@@ -80,7 +80,6 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async getEffectivePermissions(
-    signal: AbortSignal | undefined,
     req: GetEffectivePermissions,
     options?: CallOptions
   ): Promise<GetEffectivePermissions_Response> {
@@ -112,7 +111,7 @@ export class Client {
         unmarshalGetEffectivePermissions_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -128,7 +127,6 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async getPermissions(
-    signal: AbortSignal | undefined,
     req: GetPermissions,
     options?: CallOptions
   ): Promise<GetPermissions_Response> {
@@ -163,7 +161,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetPermissions_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -175,7 +173,6 @@ export class Client {
    * Paginated version of Get Effective Permissions API.
    */
   async listEffectivePrivilegeAssignments(
-    signal: AbortSignal | undefined,
     req: ListEffectivePrivilegeAssignmentsRequest,
     options?: CallOptions
   ): Promise<ListEffectivePrivilegeAssignmentsResponse> {
@@ -213,7 +210,7 @@ export class Client {
         unmarshalListEffectivePrivilegeAssignmentsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -221,14 +218,12 @@ export class Client {
   }
 
   async *listEffectivePrivilegeAssignmentsIter(
-    signal: AbortSignal | undefined,
     req: ListEffectivePrivilegeAssignmentsRequest,
     options?: CallOptions
   ): AsyncGenerator<EffectivePrivilegeAssignment> {
     const pageReq: ListEffectivePrivilegeAssignmentsRequest = {...req};
     for (;;) {
       const resp = await this.listEffectivePrivilegeAssignments(
-        signal,
         pageReq,
         options
       );
@@ -247,7 +242,6 @@ export class Client {
    * Paginated version of Get Permissions API.
    */
   async listPrivilegeAssignments(
-    signal: AbortSignal | undefined,
     req: ListPrivilegeAssignmentsRequest,
     options?: CallOptions
   ): Promise<ListPrivilegeAssignmentsResponse> {
@@ -285,7 +279,7 @@ export class Client {
         unmarshalListPrivilegeAssignmentsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -293,17 +287,12 @@ export class Client {
   }
 
   async *listPrivilegeAssignmentsIter(
-    signal: AbortSignal | undefined,
     req: ListPrivilegeAssignmentsRequest,
     options?: CallOptions
   ): AsyncGenerator<PrivilegeAssignment> {
     const pageReq: ListPrivilegeAssignmentsRequest = {...req};
     for (;;) {
-      const resp = await this.listPrivilegeAssignments(
-        signal,
-        pageReq,
-        options
-      );
+      const resp = await this.listPrivilegeAssignments(pageReq, options);
       for (const item of resp.privilegeAssignments ?? []) {
         yield item;
       }
@@ -316,7 +305,6 @@ export class Client {
 
   /** Updates the permissions for a securable. */
   async updatePermissions(
-    signal: AbortSignal | undefined,
     req: UpdatePermissions,
     options?: CallOptions
   ): Promise<UpdatePermissions_Response> {
@@ -334,7 +322,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUpdatePermissions_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

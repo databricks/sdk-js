@@ -71,7 +71,6 @@ export class Client {
    * The caller must be a metastore admin or have the **CREATE_EXTERNAL_LOCATION** privilege on both the metastore and the associated storage credential.
    */
   async createExternalLocation(
-    signal: AbortSignal | undefined,
     req: CreateExternalLocation,
     options?: CallOptions
   ): Promise<ExternalLocationInfo> {
@@ -89,7 +88,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalExternalLocationInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -98,7 +97,6 @@ export class Client {
 
   /** Deletes the specified external location from the metastore. The caller must be the owner of the external location. */
   async deleteExternalLocation(
-    signal: AbortSignal | undefined,
     req: DeleteExternalLocation,
     options?: CallOptions
   ): Promise<DeleteExternalLocation_Response> {
@@ -124,7 +122,7 @@ export class Client {
         unmarshalDeleteExternalLocation_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -136,7 +134,6 @@ export class Client {
    * The caller must be either a metastore admin, the owner of the external location, or a user that has some privilege on the external location.
    */
   async getExternalLocation(
-    signal: AbortSignal | undefined,
     req: GetExternalLocation,
     options?: CallOptions
   ): Promise<ExternalLocationInfo> {
@@ -159,7 +156,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalExternalLocationInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -177,7 +174,6 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listExternalLocations(
-    signal: AbortSignal | undefined,
     req: ListExternalLocations,
     options?: CallOptions
   ): Promise<ListExternalLocations_Response> {
@@ -212,7 +208,7 @@ export class Client {
         unmarshalListExternalLocations_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -220,13 +216,12 @@ export class Client {
   }
 
   async *listExternalLocationsIter(
-    signal: AbortSignal | undefined,
     req: ListExternalLocations,
     options?: CallOptions
   ): AsyncGenerator<ExternalLocationInfo> {
     const pageReq: ListExternalLocations = {...req};
     for (;;) {
-      const resp = await this.listExternalLocations(signal, pageReq, options);
+      const resp = await this.listExternalLocations(pageReq, options);
       for (const item of resp.externalLocations ?? []) {
         yield item;
       }
@@ -242,7 +237,6 @@ export class Client {
    * In the second case, the admin can only update the name of the external location.
    */
   async updateExternalLocation(
-    signal: AbortSignal | undefined,
     req: UpdateExternalLocation,
     options?: CallOptions
   ): Promise<ExternalLocationInfo> {
@@ -260,7 +254,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalExternalLocationInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

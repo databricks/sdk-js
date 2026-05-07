@@ -99,7 +99,6 @@ export class Client {
    * - The caller must have the **CREATE MODEL** or **CREATE FUNCTION** privilege on the parent schema.
    */
   async createRegisteredModel(
-    signal: AbortSignal | undefined,
     req: CreateRegisteredModel,
     options?: CallOptions
   ): Promise<RegisteredModelInfo> {
@@ -117,7 +116,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRegisteredModelInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -133,7 +132,6 @@ export class Client {
    * privilege on the parent catalog and the **USE_SCHEMA** privilege on the parent schema.
    */
   async deleteModelVersion(
-    signal: AbortSignal | undefined,
     req: DeleteModelVersion,
     options?: CallOptions
   ): Promise<DeleteModelVersion_Response> {
@@ -153,7 +151,7 @@ export class Client {
         unmarshalDeleteModelVersion_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -168,7 +166,6 @@ export class Client {
    * privilege on the parent catalog and the **USE_SCHEMA** privilege on the parent schema.
    */
   async deleteRegisteredModel(
-    signal: AbortSignal | undefined,
     req: DeleteRegisteredModel,
     options?: CallOptions
   ): Promise<DeleteRegisteredModel_Response> {
@@ -188,7 +185,7 @@ export class Client {
         unmarshalDeleteRegisteredModel_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -203,7 +200,6 @@ export class Client {
    * privilege on the parent catalog and the **USE_SCHEMA** privilege on the parent schema.
    */
   async deleteRegisteredModelAlias(
-    signal: AbortSignal | undefined,
     req: DeleteRegisteredModelAlias,
     options?: CallOptions
   ): Promise<DeleteRegisteredModelAlias_Response> {
@@ -223,7 +219,7 @@ export class Client {
         unmarshalDeleteRegisteredModelAlias_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -239,7 +235,6 @@ export class Client {
    * on the parent schema.
    */
   async getModelVersion(
-    signal: AbortSignal | undefined,
     req: GetModelVersion,
     options?: CallOptions
   ): Promise<ModelVersionInfo> {
@@ -265,7 +260,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalModelVersionInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -281,7 +276,6 @@ export class Client {
    * on the parent schema.
    */
   async getModelVersionByAlias(
-    signal: AbortSignal | undefined,
     req: GetModelVersionByAlias,
     options?: CallOptions
   ): Promise<ModelVersionInfo> {
@@ -304,7 +298,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalModelVersionInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -320,7 +314,6 @@ export class Client {
    * on the parent schema.
    */
   async getRegisteredModel(
-    signal: AbortSignal | undefined,
     req: GetRegisteredModel,
     options?: CallOptions
   ): Promise<RegisteredModelInfo> {
@@ -346,7 +339,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRegisteredModelInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -371,7 +364,6 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listModelVersions(
-    signal: AbortSignal | undefined,
     req: ListModelVersions,
     options?: CallOptions
   ): Promise<ListModelVersions_Response> {
@@ -400,7 +392,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListModelVersions_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -408,13 +400,12 @@ export class Client {
   }
 
   async *listModelVersionsIter(
-    signal: AbortSignal | undefined,
     req: ListModelVersions,
     options?: CallOptions
   ): AsyncGenerator<ModelVersionInfo> {
     const pageReq: ListModelVersions = {...req};
     for (;;) {
-      const resp = await this.listModelVersions(signal, pageReq, options);
+      const resp = await this.listModelVersions(pageReq, options);
       for (const item of resp.modelVersions ?? []) {
         yield item;
       }
@@ -442,7 +433,6 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listRegisteredModels(
-    signal: AbortSignal | undefined,
     req: ListRegisteredModels,
     options?: CallOptions
   ): Promise<ListRegisteredModels_Response> {
@@ -480,7 +470,7 @@ export class Client {
         unmarshalListRegisteredModels_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -488,13 +478,12 @@ export class Client {
   }
 
   async *listRegisteredModelsIter(
-    signal: AbortSignal | undefined,
     req: ListRegisteredModels,
     options?: CallOptions
   ): AsyncGenerator<RegisteredModelInfo> {
     const pageReq: ListRegisteredModels = {...req};
     for (;;) {
-      const resp = await this.listRegisteredModels(signal, pageReq, options);
+      const resp = await this.listRegisteredModels(pageReq, options);
       for (const item of resp.registeredModels ?? []) {
         yield item;
       }
@@ -513,7 +502,6 @@ export class Client {
    * privilege on the parent catalog and the **USE_SCHEMA** privilege on the parent schema.
    */
   async setRegisteredModelAlias(
-    signal: AbortSignal | undefined,
     req: SetRegisteredModelAlias,
     options?: CallOptions
   ): Promise<RegisteredModelAliasInfo> {
@@ -531,7 +519,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRegisteredModelAliasInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -548,7 +536,6 @@ export class Client {
    * Currently only the comment of the model version can be updated.
    */
   async updateModelVersion(
-    signal: AbortSignal | undefined,
     req: UpdateModelVersion,
     options?: CallOptions
   ): Promise<ModelVersionInfo> {
@@ -566,7 +553,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalModelVersionInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -583,7 +570,6 @@ export class Client {
    * Currently only the name, the owner or the comment of the registered model can be updated.
    */
   async updateRegisteredModel(
-    signal: AbortSignal | undefined,
     req: UpdateRegisteredModel,
     options?: CallOptions
   ): Promise<RegisteredModelInfo> {
@@ -601,7 +587,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalRegisteredModelInfoSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

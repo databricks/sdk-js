@@ -98,7 +98,6 @@ export class Client {
 
   /** Create a new serving endpoint. */
   async createInferenceEndpoint(
-    signal: AbortSignal | undefined,
     req: CreateInferenceEndpoint,
     options?: CallOptions
   ): Promise<InferenceEndpointDetailed> {
@@ -116,7 +115,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalInferenceEndpointDetailedSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -124,11 +123,10 @@ export class Client {
   }
 
   async createInferenceEndpointWaiter(
-    signal: AbortSignal | undefined,
     req: CreateInferenceEndpoint,
     options?: CallOptions
   ): Promise<CreateInferenceEndpointWaiter> {
-    await this.createInferenceEndpoint(signal, req, options);
+    await this.createInferenceEndpoint(req, options);
     if (req.name === undefined) {
       throw new Error('request field name required for polling is missing');
     }
@@ -137,7 +135,6 @@ export class Client {
 
   /** Create a new PT serving endpoint. */
   async createProvisionedThroughputInferenceEndpoint(
-    signal: AbortSignal | undefined,
     req: CreatePtEndpoint,
     options?: CallOptions
   ): Promise<InferenceEndpointDetailed> {
@@ -155,7 +152,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalInferenceEndpointDetailedSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -163,15 +160,10 @@ export class Client {
   }
 
   async createProvisionedThroughputInferenceEndpointWaiter(
-    signal: AbortSignal | undefined,
     req: CreatePtEndpoint,
     options?: CallOptions
   ): Promise<CreateProvisionedThroughputInferenceEndpointWaiter> {
-    await this.createProvisionedThroughputInferenceEndpoint(
-      signal,
-      req,
-      options
-    );
+    await this.createProvisionedThroughputInferenceEndpoint(req, options);
     if (req.name === undefined) {
       throw new Error('request field name required for polling is missing');
     }
@@ -183,7 +175,6 @@ export class Client {
 
   /** Delete a serving endpoint. */
   async deleteInferenceEndpoint(
-    signal: AbortSignal | undefined,
     req: DeleteInferenceEndpoint,
     options?: CallOptions
   ): Promise<DeleteInferenceEndpoint_Response> {
@@ -203,7 +194,7 @@ export class Client {
         unmarshalDeleteInferenceEndpoint_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -212,7 +203,6 @@ export class Client {
 
   /** Retrieves the details for a single serving endpoint. */
   async getInferenceEndpoint(
-    signal: AbortSignal | undefined,
     req: GetInferenceEndpoint,
     options?: CallOptions
   ): Promise<InferenceEndpointDetailed> {
@@ -229,7 +219,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalInferenceEndpointDetailedSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -238,7 +228,6 @@ export class Client {
 
   /** Get the query schema of the serving endpoint in OpenAPI format. The schema contains information for the supported paths, input and output format and datatypes. */
   async getInferenceEndpointSchema(
-    signal: AbortSignal | undefined,
     req: GetInferenceEndpointSchema,
     options?: CallOptions
   ): Promise<GetOpenApiResponse> {
@@ -257,7 +246,7 @@ export class Client {
         contents: httpResp.body ?? undefined,
       };
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -266,7 +255,6 @@ export class Client {
 
   /** Get all serving endpoints. */
   async listInferenceEndpoints(
-    signal: AbortSignal | undefined,
     _req: ListInferenceEndpoints,
     options?: CallOptions
   ): Promise<ListInferenceEndpoints_Response> {
@@ -286,7 +274,7 @@ export class Client {
         unmarshalListInferenceEndpoints_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -295,7 +283,6 @@ export class Client {
 
   /** Used to batch add and delete tags from a serving endpoint with a single API call. */
   async patchInferenceEndpointTags(
-    signal: AbortSignal | undefined,
     req: PatchInferenceEndpointTags,
     options?: CallOptions
   ): Promise<PatchInferenceEndpointTags_Response> {
@@ -316,7 +303,7 @@ export class Client {
         unmarshalPatchInferenceEndpointTags_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -325,7 +312,6 @@ export class Client {
 
   /** Used to update the AI Gateway of a serving endpoint. NOTE: External model, provisioned throughput, and pay-per-token endpoints are fully supported; agent endpoints currently only support inference tables. */
   async putInferenceEndpointAiGateway(
-    signal: AbortSignal | undefined,
     req: PutInferenceEndpointAiGateway,
     options?: CallOptions
   ): Promise<PutInferenceEndpointAiGateway_Response> {
@@ -349,7 +335,7 @@ export class Client {
         unmarshalPutInferenceEndpointAiGateway_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -358,7 +344,6 @@ export class Client {
 
   /** Updates any combination of the serving endpoint's served entities, the compute configuration of those served entities, and the endpoint's traffic config. An endpoint that already has an update in progress can not be updated until the current update completes or fails. */
   async putInferenceEndpointConfig(
-    signal: AbortSignal | undefined,
     req: PutInferenceEndpointConfig,
     options?: CallOptions
   ): Promise<InferenceEndpointDetailed> {
@@ -376,7 +361,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalInferenceEndpointDetailedSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -384,11 +369,10 @@ export class Client {
   }
 
   async putInferenceEndpointConfigWaiter(
-    signal: AbortSignal | undefined,
     req: PutInferenceEndpointConfig,
     options?: CallOptions
   ): Promise<PutInferenceEndpointConfigWaiter> {
-    await this.putInferenceEndpointConfig(signal, req, options);
+    await this.putInferenceEndpointConfig(req, options);
     if (req.name === undefined) {
       throw new Error('request field name required for polling is missing');
     }
@@ -397,7 +381,6 @@ export class Client {
 
   /** Deprecated: Please use AI Gateway to manage rate limits instead. */
   async putInferenceEndpointRateLimits(
-    signal: AbortSignal | undefined,
     req: PutInferenceEndpointRateLimits,
     options?: CallOptions
   ): Promise<PutInferenceEndpointRateLimits_Response> {
@@ -421,7 +404,7 @@ export class Client {
         unmarshalPutInferenceEndpointRateLimits_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -430,7 +413,6 @@ export class Client {
 
   /** Updates any combination of the pt endpoint's served entities, the compute configuration of those served entities, and the endpoint's traffic config. Updates are instantaneous and endpoint should be updated instantly */
   async putProvisionedThroughputInferenceEndpointConfig(
-    signal: AbortSignal | undefined,
     req: PutPtEndpointConfig,
     options?: CallOptions
   ): Promise<InferenceEndpointDetailed> {
@@ -448,7 +430,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalInferenceEndpointDetailedSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -456,15 +438,10 @@ export class Client {
   }
 
   async putProvisionedThroughputInferenceEndpointConfigWaiter(
-    signal: AbortSignal | undefined,
     req: PutPtEndpointConfig,
     options?: CallOptions
   ): Promise<PutProvisionedThroughputInferenceEndpointConfigWaiter> {
-    await this.putProvisionedThroughputInferenceEndpointConfig(
-      signal,
-      req,
-      options
-    );
+    await this.putProvisionedThroughputInferenceEndpointConfig(req, options);
     if (req.name === undefined) {
       throw new Error('request field name required for polling is missing');
     }
@@ -476,7 +453,6 @@ export class Client {
 
   /** Updates the email and webhook notification settings for an endpoint. */
   async updateInferenceEndpointNotifications(
-    signal: AbortSignal | undefined,
     req: UpdateInferenceEndpointNotifications,
     options?: CallOptions
   ): Promise<UpdateInferenceEndpointNotifications_Response> {
@@ -500,7 +476,7 @@ export class Client {
         unmarshalUpdateInferenceEndpointNotifications_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -509,7 +485,6 @@ export class Client {
 
   /** Make external services call using the credentials stored in UC Connection. */
   async httpRequest(
-    signal: AbortSignal | undefined,
     req: ExternalFunctionRequest,
     options?: CallOptions
   ): Promise<ExternalFunctionResponse> {
@@ -529,7 +504,7 @@ export class Client {
         contents: httpResp.body ?? undefined,
       };
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -548,19 +523,15 @@ export class CreateInferenceEndpointWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<InferenceEndpointDetailed> {
+  async wait(options?: CallOptions): Promise<InferenceEndpointDetailed> {
     let result: InferenceEndpointDetailed | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getInferenceEndpoint(
-        callSignal,
         {
           name: this.name,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state?.configUpdate;
@@ -583,12 +554,13 @@ export class CreateInferenceEndpointWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -596,12 +568,8 @@ export class CreateInferenceEndpointWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getInferenceEndpoint(
-      signal,
       {
         name: this.name,
       },
@@ -635,19 +603,15 @@ export class CreateProvisionedThroughputInferenceEndpointWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<InferenceEndpointDetailed> {
+  async wait(options?: CallOptions): Promise<InferenceEndpointDetailed> {
     let result: InferenceEndpointDetailed | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getInferenceEndpoint(
-        callSignal,
         {
           name: this.name,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state?.configUpdate;
@@ -670,12 +634,13 @@ export class CreateProvisionedThroughputInferenceEndpointWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -683,12 +648,8 @@ export class CreateProvisionedThroughputInferenceEndpointWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getInferenceEndpoint(
-      signal,
       {
         name: this.name,
       },
@@ -722,19 +683,15 @@ export class PutInferenceEndpointConfigWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<InferenceEndpointDetailed> {
+  async wait(options?: CallOptions): Promise<InferenceEndpointDetailed> {
     let result: InferenceEndpointDetailed | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getInferenceEndpoint(
-        callSignal,
         {
           name: this.name,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state?.configUpdate;
@@ -757,12 +714,13 @@ export class PutInferenceEndpointConfigWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -770,12 +728,8 @@ export class PutInferenceEndpointConfigWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getInferenceEndpoint(
-      signal,
       {
         name: this.name,
       },
@@ -809,19 +763,15 @@ export class PutProvisionedThroughputInferenceEndpointConfigWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<InferenceEndpointDetailed> {
+  async wait(options?: CallOptions): Promise<InferenceEndpointDetailed> {
     let result: InferenceEndpointDetailed | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getInferenceEndpoint(
-        callSignal,
         {
           name: this.name,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state?.configUpdate;
@@ -844,12 +794,13 @@ export class PutProvisionedThroughputInferenceEndpointConfigWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -857,12 +808,8 @@ export class PutProvisionedThroughputInferenceEndpointConfigWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getInferenceEndpoint(
-      signal,
       {
         name: this.name,
       },

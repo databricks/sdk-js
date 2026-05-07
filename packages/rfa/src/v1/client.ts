@@ -72,7 +72,6 @@ export class Client {
    * "external_location", "connection", "credential", "function", "registered_model", and "volume".
    */
   async batchCreateAccessRequests(
-    signal: AbortSignal | undefined,
     req: BatchCreateAccessRequestsRequest,
     options?: CallOptions
   ): Promise<BatchCreateAccessRequestsResponse> {
@@ -96,7 +95,7 @@ export class Client {
         unmarshalBatchCreateAccessRequestsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -112,7 +111,6 @@ export class Client {
    * "external_location", "connection", "credential", "function", "registered_model", and "volume".
    */
   async getAccessRequestDestinations(
-    signal: AbortSignal | undefined,
     req: GetAccessRequestDestinationsRequest,
     options?: CallOptions
   ): Promise<AccessRequestDestinations> {
@@ -129,7 +127,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAccessRequestDestinationsSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -147,7 +145,6 @@ export class Client {
    * "external_location", "connection", "credential", "function", "registered_model", and "volume".
    */
   async updateAccessRequestDestinations(
-    signal: AbortSignal | undefined,
     req: UpdateAccessRequestDestinationsRequest,
     options?: CallOptions
   ): Promise<AccessRequestDestinations> {
@@ -180,7 +177,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAccessRequestDestinationsSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

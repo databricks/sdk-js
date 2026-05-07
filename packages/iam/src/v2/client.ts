@@ -175,7 +175,6 @@ export class Client {
    * This allows administrators to explicitly allow or deny specific principals from accessing the account.
    */
   async createAccountAccessIdentityRule(
-    signal: AbortSignal | undefined,
     req: CreateAccountAccessIdentityRuleRequest,
     options?: CallOptions
   ): Promise<AccountAccessIdentityRule> {
@@ -208,7 +207,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAccountAccessIdentityRuleSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -217,7 +216,6 @@ export class Client {
 
   /** Deletes an account access identity rule for a given principal. */
   async deleteAccountAccessIdentityRule(
-    signal: AbortSignal | undefined,
     req: DeleteAccountAccessIdentityRuleRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -232,12 +230,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Gets an account access identity rule for a given principal. */
   async getAccountAccessIdentityRule(
-    signal: AbortSignal | undefined,
     req: GetAccountAccessIdentityRuleRequest,
     options?: CallOptions
   ): Promise<AccountAccessIdentityRule> {
@@ -254,7 +251,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalAccountAccessIdentityRuleSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -267,7 +264,6 @@ export class Client {
    * are allowed or denied access to the <Databricks> account.
    */
   async listAccountAccessIdentityRules(
-    signal: AbortSignal | undefined,
     req: ListAccountAccessIdentityRulesRequest,
     options?: CallOptions
   ): Promise<ListAccountAccessIdentityRulesResponse> {
@@ -299,7 +295,7 @@ export class Client {
         unmarshalListAccountAccessIdentityRulesResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -308,7 +304,6 @@ export class Client {
 
   /** Creates a group membership (assigns a principal to a group). */
   async createDirectGroupMember(
-    signal: AbortSignal | undefined,
     req: CreateDirectGroupMemberRequest,
     options?: CallOptions
   ): Promise<DirectGroupMember> {
@@ -341,7 +336,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDirectGroupMemberSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -350,7 +345,6 @@ export class Client {
 
   /** Creates a group membership (assigns a principal to a group). */
   async createDirectGroupMemberProxy(
-    signal: AbortSignal | undefined,
     req: CreateDirectGroupMemberProxyRequest,
     options?: CallOptions
   ): Promise<DirectGroupMember> {
@@ -371,7 +365,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDirectGroupMemberSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -380,7 +374,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async createGroup(
-    signal: AbortSignal | undefined,
     req: CreateGroupRequest,
     options?: CallOptions
   ): Promise<Group> {
@@ -410,7 +403,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGroupSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -419,7 +412,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async createGroupProxy(
-    signal: AbortSignal | undefined,
     req: CreateGroupProxyRequest,
     options?: CallOptions
   ): Promise<Group> {
@@ -437,7 +429,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGroupSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -446,7 +438,6 @@ export class Client {
 
   /** Deletes a group membership (unassigns a principal from a group). */
   async deleteDirectGroupMember(
-    signal: AbortSignal | undefined,
     req: DeleteDirectGroupMemberRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -467,12 +458,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Deletes a group membership (unassigns a principal from a group). */
   async deleteDirectGroupMemberProxy(
-    signal: AbortSignal | undefined,
     req: DeleteDirectGroupMemberProxyRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -487,12 +477,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** TODO: Write description later when this method is implemented */
   async deleteGroup(
-    signal: AbortSignal | undefined,
     req: DeleteGroupRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -513,12 +502,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** TODO: Write description later when this method is implemented */
   async deleteGroupProxy(
-    signal: AbortSignal | undefined,
     req: DeleteGroupProxyRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -533,12 +521,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Gets a provisioned direct member of a group. */
   async getDirectGroupMember(
-    signal: AbortSignal | undefined,
     req: GetDirectGroupMemberRequest,
     options?: CallOptions
   ): Promise<DirectGroupMember> {
@@ -561,7 +548,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDirectGroupMemberSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -570,7 +557,6 @@ export class Client {
 
   /** Gets a provisioned direct member of a group. */
   async getDirectGroupMemberProxy(
-    signal: AbortSignal | undefined,
     req: GetDirectGroupMemberProxyRequest,
     options?: CallOptions
   ): Promise<DirectGroupMember> {
@@ -587,7 +573,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDirectGroupMemberSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -595,11 +581,7 @@ export class Client {
   }
 
   /** TODO: Write description later when this method is implemented */
-  async getGroup(
-    signal: AbortSignal | undefined,
-    req: GetGroupRequest,
-    options?: CallOptions
-  ): Promise<Group> {
+  async getGroup(req: GetGroupRequest, options?: CallOptions): Promise<Group> {
     const url = `${this.host}/api/2.0/identity/accounts//groups/${String(req.internalId ?? '')}`;
     const params = new URLSearchParams();
     if (req.accountId !== undefined) {
@@ -619,7 +601,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGroupSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -628,7 +610,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async getGroupProxy(
-    signal: AbortSignal | undefined,
     req: GetGroupProxyRequest,
     options?: CallOptions
   ): Promise<Group> {
@@ -645,7 +626,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGroupSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -654,7 +635,6 @@ export class Client {
 
   /** Lists provisioned direct members of a group with their membership source (internal or from identity provider). */
   async listDirectGroupMembers(
-    signal: AbortSignal | undefined,
     req: ListDirectGroupMembersRequest,
     options?: CallOptions
   ): Promise<ListDirectGroupMembersResponse> {
@@ -686,7 +666,7 @@ export class Client {
         unmarshalListDirectGroupMembersResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -695,7 +675,6 @@ export class Client {
 
   /** Lists provisioned direct members of a group with their membership source (internal or from identity provider). */
   async listDirectGroupMembersProxy(
-    signal: AbortSignal | undefined,
     req: ListDirectGroupMembersProxyRequest,
     options?: CallOptions
   ): Promise<ListDirectGroupMembersResponse> {
@@ -724,7 +703,7 @@ export class Client {
         unmarshalListDirectGroupMembersResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -733,7 +712,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async listGroups(
-    signal: AbortSignal | undefined,
     req: ListGroupsRequest,
     options?: CallOptions
   ): Promise<ListGroupsResponse> {
@@ -765,7 +743,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListGroupsResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -774,7 +752,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async listGroupsProxy(
-    signal: AbortSignal | undefined,
     req: ListGroupsProxyRequest,
     options?: CallOptions
   ): Promise<ListGroupsResponse> {
@@ -803,7 +780,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListGroupsResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -812,7 +789,6 @@ export class Client {
 
   /** Lists all transitive parent groups of a principal. */
   async listTransitiveParentGroups(
-    signal: AbortSignal | undefined,
     req: ListTransitiveParentGroupsRequest,
     options?: CallOptions
   ): Promise<ListTransitiveParentGroupsResponse> {
@@ -844,7 +820,7 @@ export class Client {
         unmarshalListTransitiveParentGroupsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -853,7 +829,6 @@ export class Client {
 
   /** Lists all transitive parent groups of a principal. */
   async listTransitiveParentGroupsProxy(
-    signal: AbortSignal | undefined,
     req: ListTransitiveParentGroupsProxyRequest,
     options?: CallOptions
   ): Promise<ListTransitiveParentGroupsResponse> {
@@ -882,7 +857,7 @@ export class Client {
         unmarshalListTransitiveParentGroupsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -894,7 +869,6 @@ export class Client {
    * If the customer is not onboarded onto Automatic Identity Management (AIM), this will return an error.
    */
   async resolveGroup(
-    signal: AbortSignal | undefined,
     req: ResolveGroupRequest,
     options?: CallOptions
   ): Promise<ResolveGroupResponse> {
@@ -912,7 +886,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalResolveGroupResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -924,7 +898,6 @@ export class Client {
    * If the customer is not onboarded onto Automatic Identity Management (AIM), this will return an error.
    */
   async resolveGroupProxy(
-    signal: AbortSignal | undefined,
     req: ResolveGroupProxyRequest,
     options?: CallOptions
   ): Promise<ResolveGroupResponse> {
@@ -942,7 +915,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalResolveGroupResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -951,7 +924,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async updateGroup(
-    signal: AbortSignal | undefined,
     req: UpdateGroupRequest,
     options?: CallOptions
   ): Promise<Group> {
@@ -984,7 +956,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGroupSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -993,7 +965,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async updateGroupProxy(
-    signal: AbortSignal | undefined,
     req: UpdateGroupProxyRequest,
     options?: CallOptions
   ): Promise<Group> {
@@ -1023,7 +994,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGroupSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1032,7 +1003,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async createServicePrincipal(
-    signal: AbortSignal | undefined,
     req: CreateServicePrincipalRequest,
     options?: CallOptions
   ): Promise<ServicePrincipal> {
@@ -1065,7 +1035,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalServicePrincipalSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1074,7 +1044,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async createServicePrincipalProxy(
-    signal: AbortSignal | undefined,
     req: CreateServicePrincipalProxyRequest,
     options?: CallOptions
   ): Promise<ServicePrincipal> {
@@ -1095,7 +1064,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalServicePrincipalSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1104,7 +1073,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async deleteServicePrincipal(
-    signal: AbortSignal | undefined,
     req: DeleteServicePrincipalRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -1125,12 +1093,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** TODO: Write description later when this method is implemented */
   async deleteServicePrincipalProxy(
-    signal: AbortSignal | undefined,
     req: DeleteServicePrincipalProxyRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -1145,12 +1112,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** TODO: Write description later when this method is implemented */
   async getServicePrincipal(
-    signal: AbortSignal | undefined,
     req: GetServicePrincipalRequest,
     options?: CallOptions
   ): Promise<ServicePrincipal> {
@@ -1173,7 +1139,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalServicePrincipalSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1182,7 +1148,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async getServicePrincipalProxy(
-    signal: AbortSignal | undefined,
     req: GetServicePrincipalProxyRequest,
     options?: CallOptions
   ): Promise<ServicePrincipal> {
@@ -1199,7 +1164,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalServicePrincipalSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1208,7 +1173,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async listServicePrincipals(
-    signal: AbortSignal | undefined,
     req: ListServicePrincipalsRequest,
     options?: CallOptions
   ): Promise<ListServicePrincipalsResponse> {
@@ -1243,7 +1207,7 @@ export class Client {
         unmarshalListServicePrincipalsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1252,7 +1216,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async listServicePrincipalsProxy(
-    signal: AbortSignal | undefined,
     req: ListServicePrincipalsProxyRequest,
     options?: CallOptions
   ): Promise<ListServicePrincipalsResponse> {
@@ -1284,7 +1247,7 @@ export class Client {
         unmarshalListServicePrincipalsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1296,7 +1259,6 @@ export class Client {
    * If the customer is not onboarded onto Automatic Identity Management (AIM), this will return an error.
    */
   async resolveServicePrincipal(
-    signal: AbortSignal | undefined,
     req: ResolveServicePrincipalRequest,
     options?: CallOptions
   ): Promise<ResolveServicePrincipalResponse> {
@@ -1320,7 +1282,7 @@ export class Client {
         unmarshalResolveServicePrincipalResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1332,7 +1294,6 @@ export class Client {
    * If the customer is not onboarded onto Automatic Identity Management (AIM), this will return an error.
    */
   async resolveServicePrincipalProxy(
-    signal: AbortSignal | undefined,
     req: ResolveServicePrincipalProxyRequest,
     options?: CallOptions
   ): Promise<ResolveServicePrincipalResponse> {
@@ -1356,7 +1317,7 @@ export class Client {
         unmarshalResolveServicePrincipalResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1365,7 +1326,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async updateServicePrincipal(
-    signal: AbortSignal | undefined,
     req: UpdateServicePrincipalRequest,
     options?: CallOptions
   ): Promise<ServicePrincipal> {
@@ -1401,7 +1361,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalServicePrincipalSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1410,7 +1370,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async updateServicePrincipalProxy(
-    signal: AbortSignal | undefined,
     req: UpdateServicePrincipalProxyRequest,
     options?: CallOptions
   ): Promise<ServicePrincipal> {
@@ -1443,7 +1402,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalServicePrincipalSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1452,7 +1411,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async createUser(
-    signal: AbortSignal | undefined,
     req: CreateUserRequest,
     options?: CallOptions
   ): Promise<User> {
@@ -1482,7 +1440,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUserSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1491,7 +1449,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async createUserProxy(
-    signal: AbortSignal | undefined,
     req: CreateUserProxyRequest,
     options?: CallOptions
   ): Promise<User> {
@@ -1509,7 +1466,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUserSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1518,7 +1475,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async deleteUser(
-    signal: AbortSignal | undefined,
     req: DeleteUserRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -1539,12 +1495,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** TODO: Write description later when this method is implemented */
   async deleteUserProxy(
-    signal: AbortSignal | undefined,
     req: DeleteUserProxyRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -1559,15 +1514,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** TODO: Write description later when this method is implemented */
-  async getUser(
-    signal: AbortSignal | undefined,
-    req: GetUserRequest,
-    options?: CallOptions
-  ): Promise<User> {
+  async getUser(req: GetUserRequest, options?: CallOptions): Promise<User> {
     const url = `${this.host}/api/2.0/identity/accounts//users/${String(req.internalId ?? '')}`;
     const params = new URLSearchParams();
     if (req.accountId !== undefined) {
@@ -1587,7 +1538,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUserSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1596,7 +1547,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async getUserProxy(
-    signal: AbortSignal | undefined,
     req: GetUserProxyRequest,
     options?: CallOptions
   ): Promise<User> {
@@ -1613,7 +1563,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUserSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1622,7 +1572,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async listUsers(
-    signal: AbortSignal | undefined,
     req: ListUsersRequest,
     options?: CallOptions
   ): Promise<ListUsersResponse> {
@@ -1654,7 +1603,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListUsersResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1663,7 +1612,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async listUsersProxy(
-    signal: AbortSignal | undefined,
     req: ListUsersProxyRequest,
     options?: CallOptions
   ): Promise<ListUsersResponse> {
@@ -1692,7 +1640,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListUsersResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1704,7 +1652,6 @@ export class Client {
    * If the customer is not onboarded onto Automatic Identity Management (AIM), this will return an error.
    */
   async resolveUser(
-    signal: AbortSignal | undefined,
     req: ResolveUserRequest,
     options?: CallOptions
   ): Promise<ResolveUserResponse> {
@@ -1722,7 +1669,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalResolveUserResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1734,7 +1681,6 @@ export class Client {
    * If the customer is not onboarded onto Automatic Identity Management (AIM), this will return an error.
    */
   async resolveUserProxy(
-    signal: AbortSignal | undefined,
     req: ResolveUserProxyRequest,
     options?: CallOptions
   ): Promise<ResolveUserResponse> {
@@ -1752,7 +1698,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalResolveUserResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1761,7 +1707,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async updateUser(
-    signal: AbortSignal | undefined,
     req: UpdateUserRequest,
     options?: CallOptions
   ): Promise<User> {
@@ -1794,7 +1739,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUserSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1803,7 +1748,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async updateUserProxy(
-    signal: AbortSignal | undefined,
     req: UpdateUserProxyRequest,
     options?: CallOptions
   ): Promise<User> {
@@ -1833,7 +1777,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalUserSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1848,7 +1792,6 @@ export class Client {
    * Allows for passing in a "view" parameter to control what fields are returned (BASIC by default or FULL).
    */
   async getWorkspaceAccessDetail(
-    signal: AbortSignal | undefined,
     req: GetWorkspaceAccessDetailRequest,
     options?: CallOptions
   ): Promise<WorkspaceAccessDetail> {
@@ -1874,7 +1817,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceAccessDetailSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1889,7 +1832,6 @@ export class Client {
    * Allows for passing in a "view" parameter to control what fields are returned (BASIC by default or FULL).
    */
   async getWorkspaceAccessDetailLocal(
-    signal: AbortSignal | undefined,
     req: GetWorkspaceAccessDetailLocalRequest,
     options?: CallOptions
   ): Promise<WorkspaceAccessDetail> {
@@ -1912,7 +1854,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceAccessDetailSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1921,7 +1863,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async listWorkspaceAccessDetails(
-    signal: AbortSignal | undefined,
     req: ListWorkspaceAccessDetailsRequest,
     options?: CallOptions
   ): Promise<ListWorkspaceAccessDetailsResponse> {
@@ -1953,7 +1894,7 @@ export class Client {
         unmarshalListWorkspaceAccessDetailsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -1962,7 +1903,6 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async listWorkspaceAccessDetailsLocal(
-    signal: AbortSignal | undefined,
     req: ListWorkspaceAccessDetailsLocalRequest,
     options?: CallOptions
   ): Promise<ListWorkspaceAccessDetailsResponse> {
@@ -1991,7 +1931,7 @@ export class Client {
         unmarshalListWorkspaceAccessDetailsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2005,7 +1945,6 @@ export class Client {
    * GetWorkspaceAssignmentDetail to confirm which entitlements were successfully granted.
    */
   async createWorkspaceAssignmentDetail(
-    signal: AbortSignal | undefined,
     req: CreateWorkspaceAssignmentDetailRequest,
     options?: CallOptions
   ): Promise<WorkspaceAssignmentDetail> {
@@ -2038,7 +1977,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceAssignmentDetailSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2053,7 +1992,6 @@ export class Client {
    * granted.
    */
   async createWorkspaceAssignmentDetailProxy(
-    signal: AbortSignal | undefined,
     req: CreateWorkspaceAssignmentDetailProxyRequest,
     options?: CallOptions
   ): Promise<WorkspaceAssignmentDetail> {
@@ -2074,7 +2012,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceAssignmentDetailSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2088,7 +2026,6 @@ export class Client {
    * and the operation is safe to retry.
    */
   async deleteWorkspaceAssignmentDetail(
-    signal: AbortSignal | undefined,
     req: DeleteWorkspaceAssignmentDetailRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -2109,7 +2046,7 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /**
@@ -2119,7 +2056,6 @@ export class Client {
    * original entitlements, and the operation is safe to retry.
    */
   async deleteWorkspaceAssignmentDetailProxy(
-    signal: AbortSignal | undefined,
     req: DeleteWorkspaceAssignmentDetailProxyRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -2134,12 +2070,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Returns the assignment details for a principal in a workspace. */
   async getWorkspaceAssignmentDetail(
-    signal: AbortSignal | undefined,
     req: GetWorkspaceAssignmentDetailRequest,
     options?: CallOptions
   ): Promise<WorkspaceAssignmentDetail> {
@@ -2162,7 +2097,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceAssignmentDetailSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2171,7 +2106,6 @@ export class Client {
 
   /** Returns the assignment details for a principal in a workspace (workspace-level proxy). */
   async getWorkspaceAssignmentDetailProxy(
-    signal: AbortSignal | undefined,
     req: GetWorkspaceAssignmentDetailProxyRequest,
     options?: CallOptions
   ): Promise<WorkspaceAssignmentDetail> {
@@ -2188,7 +2122,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceAssignmentDetailSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2197,7 +2131,6 @@ export class Client {
 
   /** Lists workspace assignment details for a workspace. */
   async listWorkspaceAssignmentDetails(
-    signal: AbortSignal | undefined,
     req: ListWorkspaceAssignmentDetailsRequest,
     options?: CallOptions
   ): Promise<ListWorkspaceAssignmentDetailsResponse> {
@@ -2229,7 +2162,7 @@ export class Client {
         unmarshalListWorkspaceAssignmentDetailsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2238,7 +2171,6 @@ export class Client {
 
   /** Lists workspace assignment details for a workspace (workspace-level proxy). */
   async listWorkspaceAssignmentDetailsProxy(
-    signal: AbortSignal | undefined,
     req: ListWorkspaceAssignmentDetailsProxyRequest,
     options?: CallOptions
   ): Promise<ListWorkspaceAssignmentDetailsResponse> {
@@ -2267,7 +2199,7 @@ export class Client {
         unmarshalListWorkspaceAssignmentDetailsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2281,7 +2213,6 @@ export class Client {
    * confirm the final state.
    */
   async updateWorkspaceAssignmentDetail(
-    signal: AbortSignal | undefined,
     req: UpdateWorkspaceAssignmentDetailRequest,
     options?: CallOptions
   ): Promise<WorkspaceAssignmentDetail> {
@@ -2317,7 +2248,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceAssignmentDetailSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2331,7 +2262,6 @@ export class Client {
    * GetWorkspaceAssignmentDetail to confirm the final state.
    */
   async updateWorkspaceAssignmentDetailProxy(
-    signal: AbortSignal | undefined,
     req: UpdateWorkspaceAssignmentDetailProxyRequest,
     options?: CallOptions
   ): Promise<WorkspaceAssignmentDetail> {
@@ -2364,7 +2294,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceAssignmentDetailSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2373,7 +2303,6 @@ export class Client {
 
   /** Returns the identity details for a principal in a workspace. */
   async getWorkspaceIdentityDetail(
-    signal: AbortSignal | undefined,
     req: GetWorkspaceIdentityDetailRequest,
     options?: CallOptions
   ): Promise<WorkspaceIdentityDetail> {
@@ -2390,7 +2319,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceIdentityDetailSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -2399,7 +2328,6 @@ export class Client {
 
   /** Updates a workspace identity detail for a principal. */
   async updateWorkspaceIdentityDetail(
-    signal: AbortSignal | undefined,
     req: UpdateWorkspaceIdentityDetailRequest,
     options?: CallOptions
   ): Promise<WorkspaceIdentityDetail> {
@@ -2432,7 +2360,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalWorkspaceIdentityDetailSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

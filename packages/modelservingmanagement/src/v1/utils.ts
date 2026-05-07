@@ -24,7 +24,6 @@ export interface HttpCallOptions {
  * API from the executor's internal type so they can diverge.
  */
 export async function executeCall(
-  signal: AbortSignal | undefined,
   call: Call,
   options?: CallOptions
 ): Promise<void> {
@@ -35,7 +34,7 @@ export async function executeCall(
     }),
     ...(options?.timeout !== undefined && {timeout: options.timeout}),
   };
-  return execute(signal, call, opts);
+  return execute(options?.signal, call, opts);
 }
 
 async function readAll(

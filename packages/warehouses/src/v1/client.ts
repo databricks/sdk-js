@@ -105,7 +105,6 @@ export class Client {
    * Users can create their own override. Admins can create overrides for any user.
    */
   async createDefaultWarehouseOverride(
-    signal: AbortSignal | undefined,
     req: CreateDefaultWarehouseOverrideRequest,
     options?: CallOptions
   ): Promise<DefaultWarehouseOverride> {
@@ -141,7 +140,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDefaultWarehouseOverrideSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -150,7 +149,6 @@ export class Client {
 
   /** Creates a new SQL warehouse. */
   async createWarehouse(
-    signal: AbortSignal | undefined,
     req: CreateWarehouse,
     options?: CallOptions
   ): Promise<CreateWarehouse_Response> {
@@ -168,7 +166,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalCreateWarehouse_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -176,11 +174,10 @@ export class Client {
   }
 
   async createWarehouseWaiter(
-    signal: AbortSignal | undefined,
     req: CreateWarehouse,
     options?: CallOptions
   ): Promise<CreateWarehouseWaiter> {
-    const resp = await this.createWarehouse(signal, req, options);
+    const resp = await this.createWarehouse(req, options);
     if (resp.id === undefined) {
       throw new Error('response field id required for polling is missing');
     }
@@ -193,7 +190,6 @@ export class Client {
    * After deletion, the workspace default warehouse will be used.
    */
   async deleteDefaultWarehouseOverride(
-    signal: AbortSignal | undefined,
     req: DeleteDefaultWarehouseOverrideRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -208,12 +204,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Deletes a SQL warehouse. */
   async deleteWarehouse(
-    signal: AbortSignal | undefined,
     req: DeleteWarehouseRequest,
     options?: CallOptions
   ): Promise<DeleteWarehouseRequest_Response> {
@@ -233,7 +228,7 @@ export class Client {
         unmarshalDeleteWarehouseRequest_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -242,7 +237,6 @@ export class Client {
 
   /** Updates the configuration for a SQL warehouse. */
   async editWarehouse(
-    signal: AbortSignal | undefined,
     req: EditWarehouseRequest,
     options?: CallOptions
   ): Promise<EditWarehouseRequest_Response> {
@@ -263,7 +257,7 @@ export class Client {
         unmarshalEditWarehouseRequest_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -271,11 +265,10 @@ export class Client {
   }
 
   async editWarehouseWaiter(
-    signal: AbortSignal | undefined,
     req: EditWarehouseRequest,
     options?: CallOptions
   ): Promise<EditWarehouseWaiter> {
-    await this.editWarehouse(signal, req, options);
+    await this.editWarehouse(req, options);
     if (req.id === undefined) {
       throw new Error('request field id required for polling is missing');
     }
@@ -288,7 +281,6 @@ export class Client {
    * If no override exists, the UI will fallback to the workspace default warehouse.
    */
   async getDefaultWarehouseOverride(
-    signal: AbortSignal | undefined,
     req: GetDefaultWarehouseOverrideRequest,
     options?: CallOptions
   ): Promise<DefaultWarehouseOverride> {
@@ -305,7 +297,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDefaultWarehouseOverrideSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -314,7 +306,6 @@ export class Client {
 
   /** Gets the information for a single SQL warehouse. */
   async getWarehouse(
-    signal: AbortSignal | undefined,
     req: GetWarehouse,
     options?: CallOptions
   ): Promise<GetWarehouse_Response> {
@@ -331,7 +322,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalGetWarehouse_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -340,7 +331,6 @@ export class Client {
 
   /** Gets the workspace level configuration that is shared by all SQL warehouses in a workspace. */
   async getWorkspaceWarehouseConfig(
-    signal: AbortSignal | undefined,
     _req: GetWorkspaceWarehouseConfigRequest,
     options?: CallOptions
   ): Promise<GetWorkspaceWarehouseConfigRequest_Response> {
@@ -360,7 +350,7 @@ export class Client {
         unmarshalGetWorkspaceWarehouseConfigRequest_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -372,7 +362,6 @@ export class Client {
    * Only workspace administrators can list all overrides.
    */
   async listDefaultWarehouseOverrides(
-    signal: AbortSignal | undefined,
     req: ListDefaultWarehouseOverridesRequest,
     options?: CallOptions
   ): Promise<ListDefaultWarehouseOverridesResponse> {
@@ -401,7 +390,7 @@ export class Client {
         unmarshalListDefaultWarehouseOverridesResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -409,17 +398,12 @@ export class Client {
   }
 
   async *listDefaultWarehouseOverridesIter(
-    signal: AbortSignal | undefined,
     req: ListDefaultWarehouseOverridesRequest,
     options?: CallOptions
   ): AsyncGenerator<DefaultWarehouseOverride> {
     const pageReq: ListDefaultWarehouseOverridesRequest = {...req};
     for (;;) {
-      const resp = await this.listDefaultWarehouseOverrides(
-        signal,
-        pageReq,
-        options
-      );
+      const resp = await this.listDefaultWarehouseOverrides(pageReq, options);
       for (const item of resp.defaultWarehouseOverrides ?? []) {
         yield item;
       }
@@ -432,7 +416,6 @@ export class Client {
 
   /** Lists all SQL warehouses that a user has access to. */
   async listWarehouses(
-    signal: AbortSignal | undefined,
     req: ListWarehousesRequest,
     options?: CallOptions
   ): Promise<ListWarehousesRequest_Response> {
@@ -464,7 +447,7 @@ export class Client {
         unmarshalListWarehousesRequest_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -472,13 +455,12 @@ export class Client {
   }
 
   async *listWarehousesIter(
-    signal: AbortSignal | undefined,
     req: ListWarehousesRequest,
     options?: CallOptions
   ): AsyncGenerator<EndpointInfo> {
     const pageReq: ListWarehousesRequest = {...req};
     for (;;) {
-      const resp = await this.listWarehouses(signal, pageReq, options);
+      const resp = await this.listWarehouses(pageReq, options);
       for (const item of resp.warehouses ?? []) {
         yield item;
       }
@@ -491,7 +473,6 @@ export class Client {
 
   /** Sets the workspace level configuration that is shared by all SQL warehouses in a workspace. */
   async setWorkspaceWarehouseConfig(
-    signal: AbortSignal | undefined,
     req: SetWorkspaceWarehouseConfigRequest,
     options?: CallOptions
   ): Promise<SetWorkspaceWarehouseConfigRequest_Response> {
@@ -515,7 +496,7 @@ export class Client {
         unmarshalSetWorkspaceWarehouseConfigRequest_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -524,7 +505,6 @@ export class Client {
 
   /** Starts a SQL warehouse. */
   async startWarehouse(
-    signal: AbortSignal | undefined,
     req: StartRequest,
     options?: CallOptions
   ): Promise<StartRequest_Response> {
@@ -542,7 +522,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStartRequest_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -550,11 +530,10 @@ export class Client {
   }
 
   async startWarehouseWaiter(
-    signal: AbortSignal | undefined,
     req: StartRequest,
     options?: CallOptions
   ): Promise<StartWarehouseWaiter> {
-    await this.startWarehouse(signal, req, options);
+    await this.startWarehouse(req, options);
     if (req.id === undefined) {
       throw new Error('request field id required for polling is missing');
     }
@@ -563,7 +542,6 @@ export class Client {
 
   /** Stops a SQL warehouse. */
   async stopWarehouse(
-    signal: AbortSignal | undefined,
     req: StopRequest,
     options?: CallOptions
   ): Promise<StopRequest_Response> {
@@ -581,7 +559,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalStopRequest_ResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -589,11 +567,10 @@ export class Client {
   }
 
   async stopWarehouseWaiter(
-    signal: AbortSignal | undefined,
     req: StopRequest,
     options?: CallOptions
   ): Promise<StopWarehouseWaiter> {
-    await this.stopWarehouse(signal, req, options);
+    await this.stopWarehouse(req, options);
     if (req.id === undefined) {
       throw new Error('request field id required for polling is missing');
     }
@@ -605,7 +582,6 @@ export class Client {
    * Users can update their own override. Admins can update overrides for any user.
    */
   async updateDefaultWarehouseOverride(
-    signal: AbortSignal | undefined,
     req: UpdateDefaultWarehouseOverrideRequest,
     options?: CallOptions
   ): Promise<DefaultWarehouseOverride> {
@@ -641,7 +617,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDefaultWarehouseOverrideSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -660,19 +636,15 @@ export class CreateWarehouseWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<GetWarehouse_Response> {
+  async wait(options?: CallOptions): Promise<GetWarehouse_Response> {
     let result: GetWarehouse_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getWarehouse(
-        callSignal,
         {
           id: this.id,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state;
@@ -695,12 +667,13 @@ export class CreateWarehouseWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -708,12 +681,8 @@ export class CreateWarehouseWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getWarehouse(
-      signal,
       {
         id: this.id,
       },
@@ -747,19 +716,15 @@ export class EditWarehouseWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<GetWarehouse_Response> {
+  async wait(options?: CallOptions): Promise<GetWarehouse_Response> {
     let result: GetWarehouse_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getWarehouse(
-        callSignal,
         {
           id: this.id,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state;
@@ -782,12 +747,13 @@ export class EditWarehouseWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -795,12 +761,8 @@ export class EditWarehouseWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getWarehouse(
-      signal,
       {
         id: this.id,
       },
@@ -834,19 +796,15 @@ export class StartWarehouseWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<GetWarehouse_Response> {
+  async wait(options?: CallOptions): Promise<GetWarehouse_Response> {
     let result: GetWarehouse_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getWarehouse(
-        callSignal,
         {
           id: this.id,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state;
@@ -869,12 +827,13 @@ export class StartWarehouseWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -882,12 +841,8 @@ export class StartWarehouseWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getWarehouse(
-      signal,
       {
         id: this.id,
       },
@@ -921,19 +876,15 @@ export class StopWarehouseWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<GetWarehouse_Response> {
+  async wait(options?: CallOptions): Promise<GetWarehouse_Response> {
     let result: GetWarehouse_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getWarehouse(
-        callSignal,
         {
           id: this.id,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.state;
@@ -951,12 +902,13 @@ export class StopWarehouseWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -964,12 +916,8 @@ export class StopWarehouseWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getWarehouse(
-      signal,
       {
         id: this.id,
       },

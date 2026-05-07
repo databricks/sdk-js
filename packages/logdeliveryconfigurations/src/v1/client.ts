@@ -84,7 +84,6 @@ export class Client {
    * You cannot delete a log delivery configuration, but you can disable it (see [Enable or disable log delivery configuration](:method:LogDelivery/PatchStatus)).
    */
   async createLogDeliveryConfiguration(
-    signal: AbortSignal | undefined,
     req: CreateLogDeliveryConfiguration,
     options?: CallOptions
   ): Promise<CreateLogDeliveryConfiguration_Response> {
@@ -108,7 +107,7 @@ export class Client {
         unmarshalCreateLogDeliveryConfiguration_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -117,7 +116,6 @@ export class Client {
 
   /** Gets a <Databricks> log delivery configuration object for an account, both specified by ID. */
   async getLogDeliveryConfiguration(
-    signal: AbortSignal | undefined,
     req: GetLogDeliveryConfiguration,
     options?: CallOptions
   ): Promise<GetLogDeliveryConfiguration_Response> {
@@ -143,7 +141,7 @@ export class Client {
         unmarshalGetLogDeliveryConfiguration_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -152,7 +150,6 @@ export class Client {
 
   /** Gets all <Databricks> log delivery configurations associated with an account specified by ID. */
   async listLogDeliveryConfiguration(
-    signal: AbortSignal | undefined,
     req: ListLogDeliveryConfiguration,
     options?: CallOptions
   ): Promise<ListLogDeliveryConfiguration_Response> {
@@ -190,7 +187,7 @@ export class Client {
         unmarshalListLogDeliveryConfiguration_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -198,17 +195,12 @@ export class Client {
   }
 
   async *listLogDeliveryConfigurationIter(
-    signal: AbortSignal | undefined,
     req: ListLogDeliveryConfiguration,
     options?: CallOptions
   ): AsyncGenerator<LogDeliveryConfiguration> {
     const pageReq: ListLogDeliveryConfiguration = {...req};
     for (;;) {
-      const resp = await this.listLogDeliveryConfiguration(
-        signal,
-        pageReq,
-        options
-      );
+      const resp = await this.listLogDeliveryConfiguration(pageReq, options);
       for (const item of resp.logDeliveryConfigurations ?? []) {
         yield item;
       }
@@ -225,7 +217,6 @@ export class Client {
    * Note that you can't re-enable a delivery configuration if this would violate the delivery configuration limits described under [Create log delivery](:method:LogDelivery/Create).
    */
   async updateLogDeliveryConfiguration(
-    signal: AbortSignal | undefined,
     req: UpdateLogDeliveryConfiguration,
     options?: CallOptions
   ): Promise<UpdateLogDeliveryConfiguration_Response> {
@@ -249,7 +240,7 @@ export class Client {
         unmarshalUpdateLogDeliveryConfiguration_ResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }

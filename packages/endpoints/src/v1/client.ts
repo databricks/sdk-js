@@ -80,7 +80,6 @@ export class Client {
 
   /** Create a new endpoint. */
   async createEndpoint(
-    signal: AbortSignal | undefined,
     req: CreateEndpointRequest,
     options?: CallOptions
   ): Promise<Endpoint> {
@@ -98,7 +97,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEndpointSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -106,11 +105,10 @@ export class Client {
   }
 
   async createEndpointWaiter(
-    signal: AbortSignal | undefined,
     req: CreateEndpointRequest,
     options?: CallOptions
   ): Promise<CreateEndpointWaiter> {
-    const resp = await this.createEndpoint(signal, req, options);
+    const resp = await this.createEndpoint(req, options);
     if (resp.name === undefined) {
       throw new Error('response field name required for polling is missing');
     }
@@ -119,7 +117,6 @@ export class Client {
 
   /** Delete a vector search endpoint. */
   async deleteEndpoint(
-    signal: AbortSignal | undefined,
     req: DeleteEndpointRequest,
     options?: CallOptions
   ): Promise<DeleteEndpointResponse> {
@@ -136,7 +133,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalDeleteEndpointResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -145,7 +142,6 @@ export class Client {
 
   /** Get details for a single vector search endpoint. */
   async getEndpoint(
-    signal: AbortSignal | undefined,
     req: GetEndpointRequest,
     options?: CallOptions
   ): Promise<Endpoint> {
@@ -162,7 +158,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEndpointSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -171,7 +167,6 @@ export class Client {
 
   /** List all vector search endpoints in the workspace. */
   async listEndpoint(
-    signal: AbortSignal | undefined,
     req: ListEndpointRequest,
     options?: CallOptions
   ): Promise<ListEndpointResponse> {
@@ -194,7 +189,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalListEndpointResponseSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -202,13 +197,12 @@ export class Client {
   }
 
   async *listEndpointIter(
-    signal: AbortSignal | undefined,
     req: ListEndpointRequest,
     options?: CallOptions
   ): AsyncGenerator<Endpoint> {
     const pageReq: ListEndpointRequest = {...req};
     for (;;) {
-      const resp = await this.listEndpoint(signal, pageReq, options);
+      const resp = await this.listEndpoint(pageReq, options);
       for (const item of resp.endpoints ?? []) {
         yield item;
       }
@@ -221,7 +215,6 @@ export class Client {
 
   /** Update an endpoint */
   async patchEndpoint(
-    signal: AbortSignal | undefined,
     req: PatchEndpointRequest,
     options?: CallOptions
   ): Promise<Endpoint> {
@@ -239,7 +232,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEndpointSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -248,7 +241,6 @@ export class Client {
 
   /** Update the budget policy of an endpoint */
   async patchEndpointBudgetPolicy(
-    signal: AbortSignal | undefined,
     req: PatchEndpointBudgetPolicyRequest,
     options?: CallOptions
   ): Promise<PatchEndpointBudgetPolicyResponse> {
@@ -272,7 +264,7 @@ export class Client {
         unmarshalPatchEndpointBudgetPolicyResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -281,7 +273,6 @@ export class Client {
 
   /** Update the throughput (concurrency) of an endpoint */
   async patchEndpointThroughput(
-    signal: AbortSignal | undefined,
     req: PatchEndpointThroughputRequest,
     options?: CallOptions
   ): Promise<PatchEndpointThroughputResponse> {
@@ -305,7 +296,7 @@ export class Client {
         unmarshalPatchEndpointThroughputResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -324,19 +315,15 @@ export class CreateEndpointWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<Endpoint> {
+  async wait(options?: CallOptions): Promise<Endpoint> {
     let result: Endpoint | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getEndpoint(
-        callSignal,
         {
           name: this.name,
         },
-        options
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
       );
 
       const status = pollResp.endpointStatus?.state;
@@ -358,12 +345,13 @@ export class CreateEndpointWaiter {
     };
 
     const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
       retrier: () =>
         retryOn({}, (err: Error) => {
           return err instanceof StillRunningError;
         }),
     };
-    await executeCall(signal, call, retryOptions);
+    await executeCall(call, retryOptions);
     if (result === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -371,12 +359,8 @@ export class CreateEndpointWaiter {
   }
 
   /** Checks whether the operation has reached a terminal state. */
-  async done(
-    signal: AbortSignal | undefined,
-    options?: CallOptions
-  ): Promise<boolean> {
+  async done(options?: CallOptions): Promise<boolean> {
     const pollResp = await this.client.getEndpoint(
-      signal,
       {
         name: this.name,
       },

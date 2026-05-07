@@ -132,6 +132,13 @@ export interface DeltaSyncVectorIndexSpec {
   /** The budget policy id applied to the vector search index */
   effectiveBudgetPolicyId?: string | undefined;
   effectiveUsagePolicyId?: string | undefined;
+  /**
+   * [Optional] Alias for columns_to_sync. Select the columns to include in the vector index.
+   * If you leave this field blank, all columns from the source table are included.
+   * The primary key column and embedding source column or embedding vector column are always included.
+   * Only one of columns_to_sync or columns_to_index may be specified.
+   */
+  columnsToIndex?: string[] | undefined;
 }
 
 export interface DeltaSyncVectorIndexSpecRequest {
@@ -160,6 +167,13 @@ export interface DeltaSyncVectorIndexSpecRequest {
   /** The budget policy id applied to the vector search index */
   effectiveBudgetPolicyId?: string | undefined;
   effectiveUsagePolicyId?: string | undefined;
+  /**
+   * [Optional] Alias for columns_to_sync. Select the columns to include in the vector index.
+   * If you leave this field blank, all columns from the source table are included.
+   * The primary key column and embedding source column or embedding vector column are always included.
+   * Only one of columns_to_sync or columns_to_index may be specified.
+   */
+  columnsToIndex?: string[] | undefined;
 }
 
 export interface DirectAccessVectorIndexSpec {
@@ -484,6 +498,7 @@ export const unmarshalDeltaSyncVectorIndexSpecSchema: z.ZodType<DeltaSyncVectorI
       columns_to_sync: z.array(z.string()).optional(),
       effective_budget_policy_id: z.string().optional(),
       effective_usage_policy_id: z.string().optional(),
+      columns_to_index: z.array(z.string()).optional(),
     })
     .transform(d => ({
       sourceTable: d.source_table,
@@ -495,6 +510,7 @@ export const unmarshalDeltaSyncVectorIndexSpecSchema: z.ZodType<DeltaSyncVectorI
       columnsToSync: d.columns_to_sync,
       effectiveBudgetPolicyId: d.effective_budget_policy_id,
       effectiveUsagePolicyId: d.effective_usage_policy_id,
+      columnsToIndex: d.columns_to_index,
     }));
 
 export const unmarshalDirectAccessVectorIndexSpecSchema: z.ZodType<DirectAccessVectorIndexSpec> =
@@ -821,6 +837,7 @@ export const marshalDeltaSyncVectorIndexSpecRequestSchema: z.ZodType = z
     columnsToSync: z.array(z.string()).optional(),
     effectiveBudgetPolicyId: z.string().optional(),
     effectiveUsagePolicyId: z.string().optional(),
+    columnsToIndex: z.array(z.string()).optional(),
   })
   .transform(d => ({
     source_table: d.sourceTable,
@@ -832,6 +849,7 @@ export const marshalDeltaSyncVectorIndexSpecRequestSchema: z.ZodType = z
     columns_to_sync: d.columnsToSync,
     effective_budget_policy_id: d.effectiveBudgetPolicyId,
     effective_usage_policy_id: d.effectiveUsagePolicyId,
+    columns_to_index: d.columnsToIndex,
   }));
 
 export const marshalDirectAccessVectorIndexSpecSchema: z.ZodType = z

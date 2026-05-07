@@ -74,7 +74,6 @@ export class Client {
    * To add a governed tag to Unity Catalog entities, you must also have the **ASSIGN** or **MANAGE** permission on the tag policy. See [Manage tag policy permissions](https://docs.databricks.com/aws/en/admin/tag-policies/manage-permissions).
    */
   async createEntityTagAssignment(
-    signal: AbortSignal | undefined,
     req: CreateEntityTagAssignmentRequest,
     options?: CallOptions
   ): Promise<EntityTagAssignment> {
@@ -95,7 +94,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEntityTagAssignmentSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -113,7 +112,6 @@ export class Client {
    * To delete a governed tag from Unity Catalog entities, you must also have the **ASSIGN** or **MANAGE** permission on the tag policy. See [Manage tag policy permissions](https://docs.databricks.com/aws/en/admin/tag-policies/manage-permissions).
    */
   async deleteEntityTagAssignment(
-    signal: AbortSignal | undefined,
     req: DeleteEntityTagAssignmentRequest,
     options?: CallOptions
   ): Promise<void> {
@@ -128,12 +126,11 @@ export class Client {
         logger: this.logger,
       });
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
   }
 
   /** Gets a tag assignment for an Unity Catalog entity by tag key. */
   async getEntityTagAssignment(
-    signal: AbortSignal | undefined,
     req: GetEntityTagAssignmentRequest,
     options?: CallOptions
   ): Promise<EntityTagAssignment> {
@@ -156,7 +153,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEntityTagAssignmentSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -170,7 +167,6 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listEntityTagAssignments(
-    signal: AbortSignal | undefined,
     req: ListEntityTagAssignmentsRequest,
     options?: CallOptions
   ): Promise<ListEntityTagAssignmentsResponse> {
@@ -202,7 +198,7 @@ export class Client {
         unmarshalListEntityTagAssignmentsResponseSchema
       );
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
@@ -210,17 +206,12 @@ export class Client {
   }
 
   async *listEntityTagAssignmentsIter(
-    signal: AbortSignal | undefined,
     req: ListEntityTagAssignmentsRequest,
     options?: CallOptions
   ): AsyncGenerator<EntityTagAssignment> {
     const pageReq: ListEntityTagAssignmentsRequest = {...req};
     for (;;) {
-      const resp = await this.listEntityTagAssignments(
-        signal,
-        pageReq,
-        options
-      );
+      const resp = await this.listEntityTagAssignments(pageReq, options);
       for (const item of resp.tagAssignments ?? []) {
         yield item;
       }
@@ -242,7 +233,6 @@ export class Client {
    * To update a governed tag to Unity Catalog entities, you must also have the **ASSIGN** or **MANAGE** permission on the tag policy. See [Manage tag policy permissions](https://docs.databricks.com/aws/en/admin/tag-policies/manage-permissions).
    */
   async updateEntityTagAssignment(
-    signal: AbortSignal | undefined,
     req: UpdateEntityTagAssignmentRequest,
     options?: CallOptions
   ): Promise<EntityTagAssignment> {
@@ -275,7 +265,7 @@ export class Client {
       });
       resp = parseResponse(respBody, unmarshalEntityTagAssignmentSchema);
     };
-    await executeCall(signal, call, options);
+    await executeCall(call, options);
     if (resp === undefined) {
       throw new Error('API call completed without a result.');
     }
