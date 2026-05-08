@@ -147,6 +147,9 @@ const PACKAGE_SEGMENT = {
 
 export class Client {
   private readonly host: string;
+  // Fallback for endpoints whose path contains {account_id}. If the request
+  // already carries an accountId, that value wins.
+  private readonly accountId: string | undefined;
   private readonly httpClient: HttpClient;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
@@ -159,6 +162,7 @@ export class Client {
       throw new Error('Host is required.');
     }
     this.host = options.host.replace(/\/$/, '');
+    this.accountId = options.accountId;
     this.logger = options.logger ?? new NoOpLogger();
     let info = createDefault().with(PACKAGE_SEGMENT);
     if (options.credentials !== undefined) {
@@ -307,13 +311,7 @@ export class Client {
     req: CreateDirectGroupMemberRequest,
     options?: CallOptions
   ): Promise<DirectGroupMember> {
-    const url = `${this.host}/api/2.0/identity/accounts//groups/${String(req.groupId ?? '')}/direct-members`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/groups/${String(req.groupId ?? '')}/direct-members`;
     const body = marshalRequest(
       req.directGroupMember,
       marshalDirectGroupMemberSchema
@@ -322,13 +320,7 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'POST',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -377,25 +369,13 @@ export class Client {
     req: CreateGroupRequest,
     options?: CallOptions
   ): Promise<Group> {
-    const url = `${this.host}/api/2.0/identity/accounts/{account_id}/groups`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/groups`;
     const body = marshalRequest(req.group, marshalGroupSchema);
     let resp: Group | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'POST',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -441,17 +421,11 @@ export class Client {
     req: DeleteDirectGroupMemberRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/identity/accounts//groups/${String(req.groupId ?? '')}/direct-members/${String(req.principalId ?? '')}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/groups/${String(req.groupId ?? '')}/direct-members/${String(req.principalId ?? '')}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -485,17 +459,11 @@ export class Client {
     req: DeleteGroupRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/identity/accounts//groups/${String(req.internalId ?? '')}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/groups/${String(req.internalId ?? '')}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -529,18 +497,12 @@ export class Client {
     req: GetDirectGroupMemberRequest,
     options?: CallOptions
   ): Promise<DirectGroupMember> {
-    const url = `${this.host}/api/2.0/identity/accounts//groups/${String(req.groupId ?? '')}/direct-members/${String(req.principalId ?? '')}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/groups/${String(req.groupId ?? '')}/direct-members/${String(req.principalId ?? '')}`;
     let resp: DirectGroupMember | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -582,18 +544,12 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async getGroup(req: GetGroupRequest, options?: CallOptions): Promise<Group> {
-    const url = `${this.host}/api/2.0/identity/accounts//groups/${String(req.internalId ?? '')}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/groups/${String(req.internalId ?? '')}`;
     let resp: Group | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -638,11 +594,8 @@ export class Client {
     req: ListDirectGroupMembersRequest,
     options?: CallOptions
   ): Promise<ListDirectGroupMembersResponse> {
-    const url = `${this.host}/api/2.0/identity/accounts//groups/${String(req.groupId ?? '')}/direct-members`;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/groups/${String(req.groupId ?? '')}/direct-members`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
     }
@@ -715,11 +668,8 @@ export class Client {
     req: ListGroupsRequest,
     options?: CallOptions
   ): Promise<ListGroupsResponse> {
-    const url = `${this.host}/api/2.0/identity/accounts/{account_id}/groups`;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/groups`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
     }
@@ -792,11 +742,8 @@ export class Client {
     req: ListTransitiveParentGroupsRequest,
     options?: CallOptions
   ): Promise<ListTransitiveParentGroupsResponse> {
-    const url = `${this.host}/api/2.0/identity/accounts//principals/${String(req.principalId ?? '')}/transitive-parent-groups`;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/principals/${String(req.principalId ?? '')}/transitive-parent-groups`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
     }
@@ -872,7 +819,7 @@ export class Client {
     req: ResolveGroupRequest,
     options?: CallOptions
   ): Promise<ResolveGroupResponse> {
-    const url = `${this.host}/api/2.0/identity/accounts/{account_id}/groups/resolveByExternalId`;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/groups/resolveByExternalId`;
     const body = marshalRequest(req, marshalResolveGroupRequestSchema);
     let resp: ResolveGroupResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -927,11 +874,8 @@ export class Client {
     req: UpdateGroupRequest,
     options?: CallOptions
   ): Promise<Group> {
-    const url = `${this.host}/api/2.0/identity/accounts//groups/${String(req.internalId ?? '')}`;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/groups/${String(req.internalId ?? '')}`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
@@ -1006,13 +950,7 @@ export class Client {
     req: CreateServicePrincipalRequest,
     options?: CallOptions
   ): Promise<ServicePrincipal> {
-    const url = `${this.host}/api/2.0/identity/accounts/{account_id}/servicePrincipals`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals`;
     const body = marshalRequest(
       req.servicePrincipal,
       marshalServicePrincipalSchema
@@ -1021,13 +959,7 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'POST',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1076,17 +1008,11 @@ export class Client {
     req: DeleteServicePrincipalRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/identity/accounts//servicePrincipals/${String(req.internalId ?? '')}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${String(req.internalId ?? '')}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1120,18 +1046,12 @@ export class Client {
     req: GetServicePrincipalRequest,
     options?: CallOptions
   ): Promise<ServicePrincipal> {
-    const url = `${this.host}/api/2.0/identity/accounts//servicePrincipals/${String(req.internalId ?? '')}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${String(req.internalId ?? '')}`;
     let resp: ServicePrincipal | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1176,11 +1096,8 @@ export class Client {
     req: ListServicePrincipalsRequest,
     options?: CallOptions
   ): Promise<ListServicePrincipalsResponse> {
-    const url = `${this.host}/api/2.0/identity/accounts/{account_id}/servicePrincipals`;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
     }
@@ -1262,7 +1179,7 @@ export class Client {
     req: ResolveServicePrincipalRequest,
     options?: CallOptions
   ): Promise<ResolveServicePrincipalResponse> {
-    const url = `${this.host}/api/2.0/identity/accounts/{account_id}/servicePrincipals/resolveByExternalId`;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/resolveByExternalId`;
     const body = marshalRequest(
       req,
       marshalResolveServicePrincipalRequestSchema
@@ -1329,11 +1246,8 @@ export class Client {
     req: UpdateServicePrincipalRequest,
     options?: CallOptions
   ): Promise<ServicePrincipal> {
-    const url = `${this.host}/api/2.0/identity/accounts//servicePrincipals/${String(req.internalId ?? '')}`;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${String(req.internalId ?? '')}`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
@@ -1414,25 +1328,13 @@ export class Client {
     req: CreateUserRequest,
     options?: CallOptions
   ): Promise<User> {
-    const url = `${this.host}/api/2.0/identity/accounts/{account_id}/users`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/users`;
     const body = marshalRequest(req.user, marshalUserSchema);
     let resp: User | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'POST',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1478,17 +1380,11 @@ export class Client {
     req: DeleteUserRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/identity/accounts//users/${String(req.internalId ?? '')}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/users/${String(req.internalId ?? '')}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1519,18 +1415,12 @@ export class Client {
 
   /** TODO: Write description later when this method is implemented */
   async getUser(req: GetUserRequest, options?: CallOptions): Promise<User> {
-    const url = `${this.host}/api/2.0/identity/accounts//users/${String(req.internalId ?? '')}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/users/${String(req.internalId ?? '')}`;
     let resp: User | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -1575,11 +1465,8 @@ export class Client {
     req: ListUsersRequest,
     options?: CallOptions
   ): Promise<ListUsersResponse> {
-    const url = `${this.host}/api/2.0/identity/accounts/{account_id}/users`;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/users`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
     }
@@ -1655,7 +1542,7 @@ export class Client {
     req: ResolveUserRequest,
     options?: CallOptions
   ): Promise<ResolveUserResponse> {
-    const url = `${this.host}/api/2.0/identity/accounts/{account_id}/users/resolveByExternalId`;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/users/resolveByExternalId`;
     const body = marshalRequest(req, marshalResolveUserRequestSchema);
     let resp: ResolveUserResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1710,11 +1597,8 @@ export class Client {
     req: UpdateUserRequest,
     options?: CallOptions
   ): Promise<User> {
-    const url = `${this.host}/api/2.0/identity/accounts//users/${String(req.internalId ?? '')}`;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/users/${String(req.internalId ?? '')}`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }
@@ -1795,11 +1679,8 @@ export class Client {
     req: GetWorkspaceAccessDetailRequest,
     options?: CallOptions
   ): Promise<WorkspaceAccessDetail> {
-    const url = `${this.host}/api/2.0/identity/accounts//workspaces/${String(req.workspaceId ?? '')}/workspaceAccessDetails/${String(req.principalId ?? '')}`;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/workspaceAccessDetails/${String(req.principalId ?? '')}`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.view !== undefined) {
       params.append('view', req.view);
     }
@@ -1866,11 +1747,8 @@ export class Client {
     req: ListWorkspaceAccessDetailsRequest,
     options?: CallOptions
   ): Promise<ListWorkspaceAccessDetailsResponse> {
-    const url = `${this.host}/api/2.0/identity/accounts//workspaces/${String(req.workspaceId ?? '')}/workspaceAccessDetails`;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/workspaceAccessDetails`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
     }
@@ -1948,13 +1826,7 @@ export class Client {
     req: CreateWorkspaceAssignmentDetailRequest,
     options?: CallOptions
   ): Promise<WorkspaceAssignmentDetail> {
-    const url = `${this.host}/api/2.0/identity/accounts//workspaces/${String(req.workspaceId ?? '')}/workspaceAssignmentDetails`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/workspaceAssignmentDetails`;
     const body = marshalRequest(
       req.workspaceAssignmentDetail,
       marshalWorkspaceAssignmentDetailSchema
@@ -1963,13 +1835,7 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'POST',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -2029,17 +1895,11 @@ export class Client {
     req: DeleteWorkspaceAssignmentDetailRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/identity/accounts//workspaces/${String(req.workspaceId ?? '')}/workspaceAssignmentDetails/${String(req.principalId ?? '')}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/workspaceAssignmentDetails/${String(req.principalId ?? '')}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -2078,18 +1938,12 @@ export class Client {
     req: GetWorkspaceAssignmentDetailRequest,
     options?: CallOptions
   ): Promise<WorkspaceAssignmentDetail> {
-    const url = `${this.host}/api/2.0/identity/accounts//workspaces/${String(req.workspaceId ?? '')}/workspaceAssignmentDetails/${String(req.principalId ?? '')}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/workspaceAssignmentDetails/${String(req.principalId ?? '')}`;
     let resp: WorkspaceAssignmentDetail | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -2134,11 +1988,8 @@ export class Client {
     req: ListWorkspaceAssignmentDetailsRequest,
     options?: CallOptions
   ): Promise<ListWorkspaceAssignmentDetailsResponse> {
-    const url = `${this.host}/api/2.0/identity/accounts//workspaces/${String(req.workspaceId ?? '')}/workspaceAssignmentDetails`;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/workspaceAssignmentDetails`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
     }
@@ -2216,11 +2067,8 @@ export class Client {
     req: UpdateWorkspaceAssignmentDetailRequest,
     options?: CallOptions
   ): Promise<WorkspaceAssignmentDetail> {
-    const url = `${this.host}/api/2.0/identity/accounts//workspaces/${String(req.workspaceId ?? '')}/workspaceAssignmentDetails/${String(req.principalId ?? '')}`;
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/workspaceAssignmentDetails/${String(req.principalId ?? '')}`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
     }

@@ -17,6 +17,7 @@ export type {
   GetExternalLocation,
   ListExternalLocations,
   ListExternalLocations_Response,
+  OneLakeEventQueue,
   SseEncryptionDetails,
   UpdateExternalLocation,
 } from './model';

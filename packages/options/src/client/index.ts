@@ -14,6 +14,14 @@ export interface ClientOptions {
   host?: string;
 
   /**
+   * Default Databricks account ID for account-level API paths that contain
+   * an `{account_id}` segment. The request's own `accountId` field takes
+   * precedence; this option is only consulted when the request leaves it
+   * unset.
+   */
+  accountId?: string;
+
+  /**
    * A pre-configured HTTP client to use when making HTTP requests.
    *
    * Important: When set, this option ignores all other options.

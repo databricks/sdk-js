@@ -45,6 +45,9 @@ const PACKAGE_SEGMENT = {
 
 export class Client {
   private readonly host: string;
+  // Fallback for endpoints whose path contains {account_id}. If the request
+  // already carries an accountId, that value wins.
+  private readonly accountId: string | undefined;
   private readonly httpClient: HttpClient;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
@@ -57,6 +60,7 @@ export class Client {
       throw new Error('Host is required.');
     }
     this.host = options.host.replace(/\/$/, '');
+    this.accountId = options.accountId;
     this.logger = options.logger ?? new NoOpLogger();
     let info = createDefault().with(PACKAGE_SEGMENT);
     if (options.credentials !== undefined) {
@@ -119,18 +123,12 @@ export class Client {
     req: GetLogDeliveryConfiguration,
     options?: CallOptions
   ): Promise<GetLogDeliveryConfiguration_Response> {
-    const url = `${this.host}/api/2.0/accounts//log-delivery/${req.configId ?? ''}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/log-delivery/${req.configId ?? ''}`;
     let resp: GetLogDeliveryConfiguration_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -153,11 +151,8 @@ export class Client {
     req: ListLogDeliveryConfiguration,
     options?: CallOptions
   ): Promise<ListLogDeliveryConfiguration_Response> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/log-delivery`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/log-delivery`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.credentialsId !== undefined) {
       params.append('credentials_id', req.credentialsId);
     }
@@ -220,7 +215,7 @@ export class Client {
     req: UpdateLogDeliveryConfiguration,
     options?: CallOptions
   ): Promise<UpdateLogDeliveryConfiguration_Response> {
-    const url = `${this.host}/api/2.0/accounts//log-delivery/${req.configId ?? ''}`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/log-delivery/${req.configId ?? ''}`;
     const body = marshalRequest(
       req,
       marshalUpdateLogDeliveryConfigurationSchema

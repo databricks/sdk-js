@@ -52,6 +52,9 @@ const PACKAGE_SEGMENT = {
 
 export class Client {
   private readonly host: string;
+  // Fallback for endpoints whose path contains {account_id}. If the request
+  // already carries an accountId, that value wins.
+  private readonly accountId: string | undefined;
   private readonly httpClient: HttpClient;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
@@ -64,6 +67,7 @@ export class Client {
       throw new Error('Host is required.');
     }
     this.host = options.host.replace(/\/$/, '');
+    this.accountId = options.accountId;
     this.logger = options.logger ?? new NoOpLogger();
     let info = createDefault().with(PACKAGE_SEGMENT);
     if (options.credentials !== undefined) {
@@ -80,18 +84,12 @@ export class Client {
     req: GetPublicAccountSettingRequest,
     options?: CallOptions
   ): Promise<Setting> {
-    const url = `${this.host}/api/2.1/accounts//settings/${req.name ?? ''}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.1/accounts/${req.accountId ?? this.accountId ?? ''}/settings/${req.name ?? ''}`;
     let resp: Setting | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -115,18 +113,12 @@ export class Client {
     req: GetPublicAccountUserPreferenceRequest,
     options?: CallOptions
   ): Promise<UserPreference> {
-    const url = `${this.host}/api/2.1/accounts//users/${req.userId ?? ''}/settings/${req.name ?? ''}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.1/accounts/${req.accountId ?? this.accountId ?? ''}/users/${req.userId ?? ''}/settings/${req.name ?? ''}`;
     let resp: UserPreference | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -175,11 +167,8 @@ export class Client {
     req: ListAccountSettingsMetadataRequest,
     options?: CallOptions
   ): Promise<ListAccountSettingsMetadataResponse> {
-    const url = `${this.host}/api/2.1/accounts/{account_id}/settings-metadata`;
+    const url = `${this.host}/api/2.1/accounts/${req.accountId ?? this.accountId ?? ''}/settings-metadata`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
     }
@@ -238,11 +227,8 @@ export class Client {
     req: ListAccountUserPreferencesMetadataRequest,
     options?: CallOptions
   ): Promise<ListAccountUserPreferencesMetadataResponse> {
-    const url = `${this.host}/api/2.1/accounts//users/${req.userId ?? ''}/settings-metadata`;
+    const url = `${this.host}/api/2.1/accounts/${req.accountId ?? this.accountId ?? ''}/users/${req.userId ?? ''}/settings-metadata`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
     }
@@ -361,25 +347,13 @@ export class Client {
     req: PatchPublicAccountSettingRequest,
     options?: CallOptions
   ): Promise<Setting> {
-    const url = `${this.host}/api/2.1/accounts//settings/${req.name ?? ''}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.1/accounts/${req.accountId ?? this.accountId ?? ''}/settings/${req.name ?? ''}`;
     const body = marshalRequest(req.setting, marshalSettingSchema);
     let resp: Setting | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
+      const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -405,25 +379,13 @@ export class Client {
     req: PatchPublicAccountUserPreferenceRequest,
     options?: CallOptions
   ): Promise<UserPreference> {
-    const url = `${this.host}/api/2.1/accounts//users/${req.userId ?? ''}/settings/${req.name ?? ''}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.1/accounts/${req.accountId ?? this.accountId ?? ''}/users/${req.userId ?? ''}/settings/${req.name ?? ''}`;
     const body = marshalRequest(req.setting, marshalUserPreferenceSchema);
     let resp: UserPreference | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
+      const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,

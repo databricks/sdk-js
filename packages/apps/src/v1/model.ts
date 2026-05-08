@@ -788,6 +788,10 @@ export interface App {
   lastDeploymentId?: string | undefined;
   /** The ID of the app space this app belongs to. None if app does not belong to a space. */
   spaceId?: string | undefined;
+  deploymentSource?:
+    | {$case: 'sourceCodePath'; sourceCodePath: string}
+    | {$case: 'gitSource'; gitSource: GitSource}
+    | undefined;
 }
 
 export interface AppDeployment {
@@ -1206,6 +1210,11 @@ export interface GitRepository {
   provider?: string | undefined;
   /** Whether automatic deployment is enabled when changes are pushed to the repository. */
   autoDeploy?: boolean | undefined;
+  /**
+   * ID of a personal access token Git credential owned by the caller, used to
+   * grant the app's service principal access to this repository.
+   */
+  callerCredentialId?: number | undefined;
 }
 
 /** Complete git source specification including repository location and reference. */
@@ -1494,6 +1503,8 @@ export const unmarshalAppSchema: z.ZodType<App> = z
     space: z.string().optional(),
     last_deployment_id: z.string().optional(),
     space_id: z.string().optional(),
+    source_code_path: z.string().optional(),
+    git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1529,6 +1540,12 @@ export const unmarshalAppSchema: z.ZodType<App> = z
     space: d.space,
     lastDeploymentId: d.last_deployment_id,
     spaceId: d.space_id,
+    deploymentSource:
+      d.source_code_path !== undefined
+        ? {$case: 'sourceCodePath' as const, sourceCodePath: d.source_code_path}
+        : d.git_source !== undefined
+          ? {$case: 'gitSource' as const, gitSource: d.git_source}
+          : undefined,
   }));
 
 export const unmarshalAppDeploymentSchema: z.ZodType<AppDeployment> = z
@@ -2081,11 +2098,13 @@ export const unmarshalGitRepositorySchema: z.ZodType<GitRepository> = z
     url: z.string().optional(),
     provider: z.string().optional(),
     auto_deploy: z.boolean().optional(),
+    caller_credential_id: z.number().optional(),
   })
   .transform(d => ({
     url: d.url,
     provider: d.provider,
     autoDeploy: d.auto_deploy,
+    callerCredentialId: d.caller_credential_id,
   }));
 
 export const unmarshalGitSourceSchema: z.ZodType<GitSource> = z
@@ -2327,6 +2346,18 @@ export const marshalAppSchema: z.ZodType = z
     space: z.string().optional(),
     lastDeploymentId: z.string().optional(),
     spaceId: z.string().optional(),
+    deploymentSource: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('sourceCodePath'),
+          sourceCodePath: z.string(),
+        }),
+        z.object({
+          $case: z.literal('gitSource'),
+          gitSource: z.lazy(() => marshalGitSourceSchema),
+        }),
+      ])
+      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2362,6 +2393,12 @@ export const marshalAppSchema: z.ZodType = z
     space: d.space,
     last_deployment_id: d.lastDeploymentId,
     space_id: d.spaceId,
+    ...(d.deploymentSource?.$case === 'sourceCodePath' && {
+      source_code_path: d.deploymentSource.sourceCodePath,
+    }),
+    ...(d.deploymentSource?.$case === 'gitSource' && {
+      git_source: d.deploymentSource.gitSource,
+    }),
   }));
 
 export const marshalAppDeploymentSchema: z.ZodType = z
@@ -2895,11 +2932,13 @@ export const marshalGitRepositorySchema: z.ZodType = z
     url: z.string().optional(),
     provider: z.string().optional(),
     autoDeploy: z.boolean().optional(),
+    callerCredentialId: z.number().optional(),
   })
   .transform(d => ({
     url: d.url,
     provider: d.provider,
     auto_deploy: d.autoDeploy,
+    caller_credential_id: d.callerCredentialId,
   }));
 
 export const marshalGitSourceSchema: z.ZodType = z
@@ -3063,6 +3102,7 @@ const appFieldMaskSchema: FieldMaskSchema = {
     wire: 'git_repository',
     children: () => gitRepositoryFieldMaskSchema,
   },
+  gitSource: {wire: 'git_source', children: () => gitSourceFieldMaskSchema},
   id: {wire: 'id'},
   lastDeploymentId: {wire: 'last_deployment_id'},
   name: {wire: 'name'},
@@ -3076,6 +3116,7 @@ const appFieldMaskSchema: FieldMaskSchema = {
   servicePrincipalClientId: {wire: 'service_principal_client_id'},
   servicePrincipalId: {wire: 'service_principal_id'},
   servicePrincipalName: {wire: 'service_principal_name'},
+  sourceCodePath: {wire: 'source_code_path'},
   space: {wire: 'space'},
   spaceId: {wire: 'space_id'},
   telemetryExportDestinations: {wire: 'telemetry_export_destinations'},
@@ -3131,6 +3172,7 @@ const computeStatusFieldMaskSchema: FieldMaskSchema = {
 
 const gitRepositoryFieldMaskSchema: FieldMaskSchema = {
   autoDeploy: {wire: 'auto_deploy'},
+  callerCredentialId: {wire: 'caller_credential_id'},
   provider: {wire: 'provider'},
   url: {wire: 'url'},
 };

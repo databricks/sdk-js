@@ -37,6 +37,9 @@ const PACKAGE_SEGMENT = {
 
 export class Client {
   private readonly host: string;
+  // Fallback for endpoints whose path contains {account_id}. If the request
+  // already carries an accountId, that value wins.
+  private readonly accountId: string | undefined;
   private readonly httpClient: HttpClient;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
@@ -49,6 +52,7 @@ export class Client {
       throw new Error('Host is required.');
     }
     this.host = options.host.replace(/\/$/, '');
+    this.accountId = options.accountId;
     this.logger = options.logger ?? new NoOpLogger();
     let info = createDefault().with(PACKAGE_SEGMENT);
     if (options.credentials !== undefined) {
@@ -65,7 +69,7 @@ export class Client {
     req: CreateBillingUsageDashboard,
     options?: CallOptions
   ): Promise<CreateBillingUsageDashboard_Response> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/dashboard`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/dashboard`;
     const body = marshalRequest(req, marshalCreateBillingUsageDashboardSchema);
     let resp: CreateBillingUsageDashboard_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -94,13 +98,10 @@ export class Client {
     req: GetBillingUsageDashboard,
     options?: CallOptions
   ): Promise<GetBillingUsageDashboard_Response> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/dashboard`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/dashboard`;
     const params = new URLSearchParams();
     if (req.workspaceId !== undefined) {
       params.append('workspace_id', String(req.workspaceId));
-    }
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
     }
     if (req.dashboardType !== undefined) {
       params.append('dashboard_type', req.dashboardType);

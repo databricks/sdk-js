@@ -74,6 +74,9 @@ const PACKAGE_SEGMENT = {
 
 export class Client {
   private readonly host: string;
+  // Fallback for endpoints whose path contains {account_id}. If the request
+  // already carries an accountId, that value wins.
+  private readonly accountId: string | undefined;
   private readonly httpClient: HttpClient;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
@@ -86,6 +89,7 @@ export class Client {
       throw new Error('Host is required.');
     }
     this.host = options.host.replace(/\/$/, '');
+    this.accountId = options.accountId;
     this.logger = options.logger ?? new NoOpLogger();
     let info = createDefault().with(PACKAGE_SEGMENT);
     if (options.credentials !== undefined) {
@@ -102,11 +106,8 @@ export class Client {
     req: DeleteAccountIpAccessEnableRequest,
     options?: CallOptions
   ): Promise<DeleteAccountIpAccessEnableResponse> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/settings/types/acct_ip_acl_enable/names/default`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/settings/types/acct_ip_acl_enable/names/default`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.settingTypeName !== undefined) {
       params.append('setting_type_name', req.settingTypeName);
     }
@@ -145,11 +146,8 @@ export class Client {
     req: DeleteDisableLegacyFeaturesRequest,
     options?: CallOptions
   ): Promise<DeleteDisableLegacyFeaturesResponse> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/settings/types/disable_legacy_features/names/default`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/settings/types/disable_legacy_features/names/default`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.settingTypeName !== undefined) {
       params.append('setting_type_name', req.settingTypeName);
     }
@@ -188,11 +186,8 @@ export class Client {
     req: DeletePersonalComputeSettingRequest,
     options?: CallOptions
   ): Promise<DeletePersonalComputeSettingResponse> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/settings/types/dcp_acct_enable/names/default`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/settings/types/dcp_acct_enable/names/default`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.settingTypeName !== undefined) {
       params.append('setting_type_name', req.settingTypeName);
     }
@@ -231,11 +226,8 @@ export class Client {
     req: GetAccountIpAccessEnableRequest,
     options?: CallOptions
   ): Promise<AccountIpAccessEnable> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/settings/types/acct_ip_acl_enable/names/default`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/settings/types/acct_ip_acl_enable/names/default`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.settingTypeName !== undefined) {
       params.append('setting_type_name', req.settingTypeName);
     }
@@ -271,11 +263,8 @@ export class Client {
     req: GetCspEnablementAccountSettingRequest,
     options?: CallOptions
   ): Promise<CspEnablementAccountSetting> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/settings/types/shield_csp_enablement_ac/names/default`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/settings/types/shield_csp_enablement_ac/names/default`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.settingTypeName !== undefined) {
       params.append('setting_type_name', req.settingTypeName);
     }
@@ -314,11 +303,8 @@ export class Client {
     req: GetDisableLegacyFeaturesRequest,
     options?: CallOptions
   ): Promise<DisableLegacyFeatures> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/settings/types/disable_legacy_features/names/default`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/settings/types/disable_legacy_features/names/default`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.settingTypeName !== undefined) {
       params.append('setting_type_name', req.settingTypeName);
     }
@@ -354,11 +340,8 @@ export class Client {
     req: GetEsmEnablementAccountSettingRequest,
     options?: CallOptions
   ): Promise<EsmEnablementAccountSetting> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/settings/types/shield_esm_enablement_ac/names/default`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/settings/types/shield_esm_enablement_ac/names/default`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.settingTypeName !== undefined) {
       params.append('setting_type_name', req.settingTypeName);
     }
@@ -397,11 +380,8 @@ export class Client {
     req: GetLlmProxyPartnerPoweredAccountRequest,
     options?: CallOptions
   ): Promise<LlmProxyPartnerPoweredAccount> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/settings/types/llm_proxy_partner_powered/names/default`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/settings/types/llm_proxy_partner_powered/names/default`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.settingTypeName !== undefined) {
       params.append('setting_type_name', req.settingTypeName);
     }
@@ -440,11 +420,8 @@ export class Client {
     req: GetLlmProxyPartnerPoweredEnforceRequest,
     options?: CallOptions
   ): Promise<LlmProxyPartnerPoweredEnforce> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/settings/types/llm_proxy_partner_powered_enforce/names/default`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/settings/types/llm_proxy_partner_powered_enforce/names/default`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.settingTypeName !== undefined) {
       params.append('setting_type_name', req.settingTypeName);
     }
@@ -483,11 +460,8 @@ export class Client {
     req: GetPersonalComputeSettingRequest,
     options?: CallOptions
   ): Promise<PersonalComputeSetting> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/settings/types/dcp_acct_enable/names/default`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/settings/types/dcp_acct_enable/names/default`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.settingTypeName !== undefined) {
       params.append('setting_type_name', req.settingTypeName);
     }
@@ -523,7 +497,7 @@ export class Client {
     req: UpdateAccountIpAccessEnableRequest,
     options?: CallOptions
   ): Promise<AccountIpAccessEnable> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/settings/types/acct_ip_acl_enable/names/default`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/settings/types/acct_ip_acl_enable/names/default`;
     const body = marshalRequest(
       req,
       marshalUpdateAccountIpAccessEnableRequestSchema
@@ -552,7 +526,7 @@ export class Client {
     req: UpdateCspEnablementAccountSettingRequest,
     options?: CallOptions
   ): Promise<CspEnablementAccountSetting> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/settings/types/shield_csp_enablement_ac/names/default`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/settings/types/shield_csp_enablement_ac/names/default`;
     const body = marshalRequest(
       req,
       marshalUpdateCspEnablementAccountSettingRequestSchema
@@ -584,7 +558,7 @@ export class Client {
     req: UpdateDisableLegacyFeaturesRequest,
     options?: CallOptions
   ): Promise<DisableLegacyFeatures> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/settings/types/disable_legacy_features/names/default`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/settings/types/disable_legacy_features/names/default`;
     const body = marshalRequest(
       req,
       marshalUpdateDisableLegacyFeaturesRequestSchema
@@ -613,7 +587,7 @@ export class Client {
     req: UpdateEsmEnablementAccountSettingRequest,
     options?: CallOptions
   ): Promise<EsmEnablementAccountSetting> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/settings/types/shield_esm_enablement_ac/names/default`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/settings/types/shield_esm_enablement_ac/names/default`;
     const body = marshalRequest(
       req,
       marshalUpdateEsmEnablementAccountSettingRequestSchema
@@ -645,7 +619,7 @@ export class Client {
     req: UpdateLlmProxyPartnerPoweredAccountRequest,
     options?: CallOptions
   ): Promise<LlmProxyPartnerPoweredAccount> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/settings/types/llm_proxy_partner_powered/names/default`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/settings/types/llm_proxy_partner_powered/names/default`;
     const body = marshalRequest(
       req,
       marshalUpdateLlmProxyPartnerPoweredAccountRequestSchema
@@ -677,7 +651,7 @@ export class Client {
     req: UpdateLlmProxyPartnerPoweredEnforceRequest,
     options?: CallOptions
   ): Promise<LlmProxyPartnerPoweredEnforce> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/settings/types/llm_proxy_partner_powered_enforce/names/default`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/settings/types/llm_proxy_partner_powered_enforce/names/default`;
     const body = marshalRequest(
       req,
       marshalUpdateLlmProxyPartnerPoweredEnforceRequestSchema
@@ -709,7 +683,7 @@ export class Client {
     req: UpdatePersonalComputeSettingRequest,
     options?: CallOptions
   ): Promise<PersonalComputeSetting> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/settings/types/dcp_acct_enable/names/default`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/settings/types/dcp_acct_enable/names/default`;
     const body = marshalRequest(
       req,
       marshalUpdatePersonalComputeSettingRequestSchema

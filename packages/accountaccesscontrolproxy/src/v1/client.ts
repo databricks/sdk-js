@@ -38,6 +38,9 @@ const PACKAGE_SEGMENT = {
 
 export class Client {
   private readonly host: string;
+  // Fallback for endpoints whose path contains {account_id}. If the request
+  // already carries an accountId, that value wins.
+  private readonly accountId: string | undefined;
   private readonly httpClient: HttpClient;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
@@ -50,6 +53,7 @@ export class Client {
       throw new Error('Host is required.');
     }
     this.host = options.host.replace(/\/$/, '');
+    this.accountId = options.accountId;
     this.logger = options.logger ?? new NoOpLogger();
     let info = createDefault().with(PACKAGE_SEGMENT);
     if (options.credentials !== undefined) {
@@ -69,11 +73,8 @@ export class Client {
     req: GetAssignableRolesForResourceRequest,
     options?: CallOptions
   ): Promise<GetAssignableRolesForResourceResponse> {
-    const url = `${this.host}/api/2.0/preview/accounts/{account_id}/access-control/assignable-roles`;
+    const url = `${this.host}/api/2.0/preview/accounts/${req.accountId ?? this.accountId ?? ''}/access-control/assignable-roles`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.resource !== undefined) {
       params.append('resource', req.resource);
     }
@@ -109,11 +110,8 @@ export class Client {
     req: GetRuleSetRequest,
     options?: CallOptions
   ): Promise<RuleSet> {
-    const url = `${this.host}/api/2.0/preview/accounts/{account_id}/access-control/rule-sets`;
+    const url = `${this.host}/api/2.0/preview/accounts/${req.accountId ?? this.accountId ?? ''}/access-control/rule-sets`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.name !== undefined) {
       params.append('name', req.name);
     }
@@ -149,7 +147,7 @@ export class Client {
     req: UpdateRuleSetRequest,
     options?: CallOptions
   ): Promise<RuleSet> {
-    const url = `${this.host}/api/2.0/preview/accounts/{account_id}/access-control/rule-sets`;
+    const url = `${this.host}/api/2.0/preview/accounts/${req.accountId ?? this.accountId ?? ''}/access-control/rule-sets`;
     const body = marshalRequest(req, marshalUpdateRuleSetRequestSchema);
     let resp: RuleSet | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {

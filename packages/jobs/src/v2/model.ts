@@ -1594,8 +1594,6 @@ export interface CreateJob {
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
    */
   performanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
-  /** Path of the job parent folder in workspace file tree. If absent, the job doesn't have a workspace object. */
-  parentPath?: string | undefined;
   /** An optional maximum number of times to retry an unsuccessful run. A run is considered to be unsuccessful if it completes with the `FAILED` result_state or `INTERNAL_ERROR` `life_cycle_state`. The value `-1` means to retry indefinitely and the value `0` means to never retry. */
   maxRetries?: number | undefined;
   /** An optional minimal interval in milliseconds between the start of the failed run and the subsequent retry run. The default behavior is that unsuccessful runs are immediately retried. */
@@ -2596,8 +2594,6 @@ export interface JobSettings {
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
    */
   performanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
-  /** Path of the job parent folder in workspace file tree. If absent, the job doesn't have a workspace object. */
-  parentPath?: string | undefined;
   /** An optional maximum number of times to retry an unsuccessful run. A run is considered to be unsuccessful if it completes with the `FAILED` result_state or `INTERNAL_ERROR` `life_cycle_state`. The value `-1` means to retry indefinitely and the value `0` means to never retry. */
   maxRetries?: number | undefined;
   /** An optional minimal interval in milliseconds between the start of the failed run and the subsequent retry run. The default behavior is that unsuccessful runs are immediately retried. */
@@ -6295,7 +6291,6 @@ export const unmarshalJobSettingsSchema: z.ZodType<JobSettings> = z
     budget_policy_id: z.string().optional(),
     usage_policy_id: z.string().optional(),
     performance_target: z.enum(PerformanceTarget_PerformanceTarget).optional(),
-    parent_path: z.string().optional(),
     max_retries: z.number().optional(),
     min_retry_interval_millis: z.number().optional(),
     retry_on_timeout: z.boolean().optional(),
@@ -6327,7 +6322,6 @@ export const unmarshalJobSettingsSchema: z.ZodType<JobSettings> = z
     budgetPolicyId: d.budget_policy_id,
     usagePolicyId: d.usage_policy_id,
     performanceTarget: d.performance_target,
-    parentPath: d.parent_path,
     maxRetries: d.max_retries,
     minRetryIntervalMillis: d.min_retry_interval_millis,
     retryOnTimeout: d.retry_on_timeout,
@@ -8452,7 +8446,6 @@ export const marshalCreateJobSchema: z.ZodType = z
     budgetPolicyId: z.string().optional(),
     usagePolicyId: z.string().optional(),
     performanceTarget: z.enum(PerformanceTarget_PerformanceTarget).optional(),
-    parentPath: z.string().optional(),
     maxRetries: z.number().optional(),
     minRetryIntervalMillis: z.number().optional(),
     retryOnTimeout: z.boolean().optional(),
@@ -8485,7 +8478,6 @@ export const marshalCreateJobSchema: z.ZodType = z
     budget_policy_id: d.budgetPolicyId,
     usage_policy_id: d.usagePolicyId,
     performance_target: d.performanceTarget,
-    parent_path: d.parentPath,
     max_retries: d.maxRetries,
     min_retry_interval_millis: d.minRetryIntervalMillis,
     retry_on_timeout: d.retryOnTimeout,
@@ -8937,7 +8929,6 @@ export const marshalJobSettingsSchema: z.ZodType = z
     budgetPolicyId: z.string().optional(),
     usagePolicyId: z.string().optional(),
     performanceTarget: z.enum(PerformanceTarget_PerformanceTarget).optional(),
-    parentPath: z.string().optional(),
     maxRetries: z.number().optional(),
     minRetryIntervalMillis: z.number().optional(),
     retryOnTimeout: z.boolean().optional(),
@@ -8969,7 +8960,6 @@ export const marshalJobSettingsSchema: z.ZodType = z
     budget_policy_id: d.budgetPolicyId,
     usage_policy_id: d.usagePolicyId,
     performance_target: d.performanceTarget,
-    parent_path: d.parentPath,
     max_retries: d.maxRetries,
     min_retry_interval_millis: d.minRetryIntervalMillis,
     retry_on_timeout: d.retryOnTimeout,
