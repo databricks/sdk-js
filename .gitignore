@@ -10,3 +10,6 @@ dist/
 
 # Vitest browser + Playwright failure captures
 __screenshots__/
+
+# Development Environment
+.claude/scheduled_tasks.lock
