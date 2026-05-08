@@ -41,6 +41,9 @@ const PACKAGE_SEGMENT = {
 
 export class Client {
   private readonly host: string;
+  // Fallback for endpoints whose path contains {account_id}. If the request
+  // already carries an accountId, that value wins.
+  private readonly accountId: string | undefined;
   private readonly httpClient: HttpClient;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
@@ -53,6 +56,7 @@ export class Client {
       throw new Error('Host is required.');
     }
     this.host = options.host.replace(/\/$/, '');
+    this.accountId = options.accountId;
     this.logger = options.logger ?? new NoOpLogger();
     let info = createDefault().with(PACKAGE_SEGMENT);
     if (options.credentials !== undefined) {
@@ -69,7 +73,7 @@ export class Client {
     req: CreateServicePrincipalSecret,
     options?: CallOptions
   ): Promise<CreateServicePrincipalSecretResponse> {
-    const url = `${this.host}/api/2.0/accounts//servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
     const body = marshalRequest(req, marshalCreateServicePrincipalSecretSchema);
     let resp: CreateServicePrincipalSecretResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -98,18 +102,12 @@ export class Client {
     req: DeleteServicePrincipalSecret,
     options?: CallOptions
   ): Promise<DeleteServicePrincipalSecret_Response> {
-    const url = `${this.host}/api/2.0/accounts//servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets/${req.secretId ?? ''}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets/${req.secretId ?? ''}`;
     let resp: DeleteServicePrincipalSecret_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -132,11 +130,8 @@ export class Client {
     req: ListServicePrincipalSecrets,
     options?: CallOptions
   ): Promise<ListServicePrincipalSecrets_Response> {
-    const url = `${this.host}/api/2.0/accounts//servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
     }

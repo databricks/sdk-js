@@ -45,6 +45,9 @@ const PACKAGE_SEGMENT = {
 
 export class Client {
   private readonly host: string;
+  // Fallback for endpoints whose path contains {account_id}. If the request
+  // already carries an accountId, that value wins.
+  private readonly accountId: string | undefined;
   private readonly httpClient: HttpClient;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
@@ -57,6 +60,7 @@ export class Client {
       throw new Error('Host is required.');
     }
     this.host = options.host.replace(/\/$/, '');
+    this.accountId = options.accountId;
     this.logger = options.logger ?? new NoOpLogger();
     let info = createDefault().with(PACKAGE_SEGMENT);
     if (options.credentials !== undefined) {
@@ -73,7 +77,7 @@ export class Client {
     req: CreateBudgetPolicyRequest,
     options?: CallOptions
   ): Promise<BudgetPolicy> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/budget-policies`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/budget-policies`;
     const body = marshalRequest(req, marshalCreateBudgetPolicyRequestSchema);
     let resp: BudgetPolicy | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -99,17 +103,11 @@ export class Client {
     req: DeleteBudgetPolicyRequest,
     options?: CallOptions
   ): Promise<void> {
-    const url = `${this.host}/api/2.0/accounts//budget-policies/${req.policyId ?? ''}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/budget-policies/${req.policyId ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -124,18 +122,12 @@ export class Client {
     req: GetBudgetPolicyRequest,
     options?: CallOptions
   ): Promise<BudgetPolicy> {
-    const url = `${this.host}/api/2.0/accounts//budget-policies/${req.policyId ?? ''}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/budget-policies/${req.policyId ?? ''}`;
     let resp: BudgetPolicy | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -155,7 +147,7 @@ export class Client {
     req: ListBudgetPoliciesRequest,
     options?: CallOptions
   ): Promise<ListBudgetPoliciesResponse> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/budget-policies`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/budget-policies`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
@@ -176,9 +168,6 @@ export class Client {
         marshalSortSpecSchema.parse(req.sortSpec),
         params
       );
-    }
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -223,13 +212,10 @@ export class Client {
     req: UpdateBudgetPolicyRequest,
     options?: CallOptions
   ): Promise<BudgetPolicy> {
-    const url = `${this.host}/api/2.0/accounts//budget-policies/${req.policy?.policyId ?? ''}`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/budget-policies/${req.policy?.policyId ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
       params.append('update_mask', req.updateMask.toString());
-    }
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
     }
     if (req.limitConfig !== undefined) {
       flattenQueryParams(

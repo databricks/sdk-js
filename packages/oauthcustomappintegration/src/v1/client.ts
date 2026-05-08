@@ -64,6 +64,9 @@ const PACKAGE_SEGMENT = {
 
 export class Client {
   private readonly host: string;
+  // Fallback for endpoints whose path contains {account_id}. If the request
+  // already carries an accountId, that value wins.
+  private readonly accountId: string | undefined;
   private readonly httpClient: HttpClient;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
@@ -76,6 +79,7 @@ export class Client {
       throw new Error('Host is required.');
     }
     this.host = options.host.replace(/\/$/, '');
+    this.accountId = options.accountId;
     this.logger = options.logger ?? new NoOpLogger();
     let info = createDefault().with(PACKAGE_SEGMENT);
     if (options.credentials !== undefined) {
@@ -96,7 +100,7 @@ export class Client {
     req: CreateCustomOAuthAppIntegration,
     options?: CallOptions
   ): Promise<CustomOAuthAppIntegrationSecret> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/oauth2/custom-app-integrations`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/custom-app-integrations`;
     const body = marshalRequest(
       req,
       marshalCreateCustomOAuthAppIntegrationSchema
@@ -132,7 +136,7 @@ export class Client {
     req: CreatePublishedOAuthAppIntegration,
     options?: CallOptions
   ): Promise<CreatePublishedOAuthAppIntegration_Response> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/oauth2/published-app-integrations`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/published-app-integrations`;
     const body = marshalRequest(
       req,
       marshalCreatePublishedOAuthAppIntegrationSchema
@@ -167,18 +171,12 @@ export class Client {
     req: DeleteCustomOAuthAppIntegration,
     options?: CallOptions
   ): Promise<DeleteCustomOAuthAppIntegration_Response> {
-    const url = `${this.host}/api/2.0/accounts//oauth2/custom-app-integrations/${req.integrationId ?? ''}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/custom-app-integrations/${req.integrationId ?? ''}`;
     let resp: DeleteCustomOAuthAppIntegration_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -204,18 +202,12 @@ export class Client {
     req: DeletePublishedOAuthAppIntegration,
     options?: CallOptions
   ): Promise<DeletePublishedOAuthAppIntegration_Response> {
-    const url = `${this.host}/api/2.0/accounts//oauth2/published-app-integrations/${req.integrationId ?? ''}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/published-app-integrations/${req.integrationId ?? ''}`;
     let resp: DeletePublishedOAuthAppIntegration_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -238,18 +230,12 @@ export class Client {
     req: GetCustomOAuthAppIntegration,
     options?: CallOptions
   ): Promise<CustomOAuthAppIntegration> {
-    const url = `${this.host}/api/2.0/accounts//oauth2/custom-app-integrations/${req.integrationId ?? ''}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/custom-app-integrations/${req.integrationId ?? ''}`;
     let resp: CustomOAuthAppIntegration | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -269,18 +255,12 @@ export class Client {
     req: GetPublishedOAuthAppIntegration,
     options?: CallOptions
   ): Promise<PublishedOAuthAppIntegration> {
-    const url = `${this.host}/api/2.0/accounts//oauth2/published-app-integrations/${req.integrationId ?? ''}`;
-    const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/published-app-integrations/${req.integrationId ?? ''}`;
     let resp: PublishedOAuthAppIntegration | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -303,11 +283,8 @@ export class Client {
     req: ListCustomOAuthAppIntegrations,
     options?: CallOptions
   ): Promise<ListCustomOAuthAppIntegrations_Response> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/oauth2/custom-app-integrations`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/custom-app-integrations`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
     }
@@ -366,11 +343,8 @@ export class Client {
     req: ListPublishedOAuthAppIntegrations,
     options?: CallOptions
   ): Promise<ListPublishedOAuthAppIntegrations_Response> {
-    const url = `${this.host}/api/2.0/accounts/{account_id}/oauth2/published-app-integrations`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/published-app-integrations`;
     const params = new URLSearchParams();
-    if (req.accountId !== undefined) {
-      params.append('account_id', req.accountId);
-    }
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
     }
@@ -429,7 +403,7 @@ export class Client {
     req: UpdateCustomOAuthAppIntegration,
     options?: CallOptions
   ): Promise<UpdateCustomOAuthAppIntegration_Response> {
-    const url = `${this.host}/api/2.0/accounts//oauth2/custom-app-integrations/${req.integrationId ?? ''}`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/custom-app-integrations/${req.integrationId ?? ''}`;
     const body = marshalRequest(
       req,
       marshalUpdateCustomOAuthAppIntegrationSchema
@@ -464,7 +438,7 @@ export class Client {
     req: UpdatePublishedOAuthAppIntegration,
     options?: CallOptions
   ): Promise<UpdatePublishedOAuthAppIntegration_Response> {
-    const url = `${this.host}/api/2.0/accounts//oauth2/published-app-integrations/${req.integrationId ?? ''}`;
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/published-app-integrations/${req.integrationId ?? ''}`;
     const body = marshalRequest(
       req,
       marshalUpdatePublishedOAuthAppIntegrationSchema
