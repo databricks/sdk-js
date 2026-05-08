@@ -9,6 +9,10 @@ export default defineConfig({
       headless: true,
     },
     include: ['tests/**/*.test.ts'],
-    exclude: ['tests/credentials/u2m.test.ts'],
+    exclude: [
+      'tests/credentials/u2m.test.ts',
+      'tests/oidc/env.test.ts',
+      'tests/oidc/file.test.ts',
+    ],
   },
 });

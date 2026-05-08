@@ -17,6 +17,14 @@
     "./credentials/browser": {
       "types": "./dist/credentials/index.browser.d.ts",
       "import": "./dist/credentials/index.browser.js"
+    },
+    "./oidc": {
+      "types": "./dist/oidc/index.d.ts",
+      "import": "./dist/oidc/index.js"
+    },
+    "./oidc/browser": {
+      "types": "./dist/oidc/index.browser.d.ts",
+      "import": "./dist/oidc/index.browser.js"
     }
   },
   "files": [
