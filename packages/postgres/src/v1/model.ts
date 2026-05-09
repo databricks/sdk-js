@@ -1982,6 +1982,20 @@ export interface NewPipelineSpec {
 }
 
 /**
+ * Observability-related project settings that flow into LBM's lakebase_metadata.o11y.
+ * Add future Genie / telemetry / audit-related per-project fields here so they land
+ * together rather than as flat top-level fields.
+ */
+export interface ObservabilitySettings {
+  /**
+   * Workspace path of the Markdown file used as the per-project Lakebase Genie agent
+   * context. The file's content is appended to the agent's system prompt every turn.
+   * Empty string clears the value when paired with an explicit update_mask path.
+   */
+  genieContextPath?: string | undefined;
+}
+
+/**
  * This resource represents a long-running operation that is the result of a
  * network API call.
  */
@@ -2161,6 +2175,13 @@ export interface ProjectSpec {
    * Format: projects/{project_id}/branches/{branch_id}
    */
   defaultBranch?: string | undefined;
+  /**
+   * Observability-related project settings. Currently exposes Genie agent context.
+   * To update inner fields, use a granular update_mask path
+   * (e.g. "spec.observability.genie_context_path"); per-field merge semantics mirror
+   * top-level fields like budget_policy_id (nil = preserve, non-nil = set/clear).
+   */
+  observability?: ObservabilitySettings | undefined;
 }
 
 export interface ProjectStatus {
@@ -2197,6 +2218,11 @@ export interface ProjectStatus {
    * which follows the `projects/{project_id}` format and is not user-friendly.
    */
   projectId?: string | undefined;
+  /**
+   * The currently-effective observability-related project settings. Empty/absent means
+   * no observability fields are set.
+   */
+  observability?: ObservabilitySettings | undefined;
 }
 
 /** The provisioning state of a resource in Unity Catalog. */
@@ -3336,6 +3362,15 @@ export const unmarshalNewPipelineSpecSchema: z.ZodType<NewPipelineSpec> = z
     pipelineChannel: d.pipeline_channel,
   }));
 
+export const unmarshalObservabilitySettingsSchema: z.ZodType<ObservabilitySettings> =
+  z
+    .object({
+      genie_context_path: z.string().optional(),
+    })
+    .transform(d => ({
+      genieContextPath: d.genie_context_path,
+    }));
+
 export const unmarshalOperationSchema: z.ZodType<Operation> = z
   .object({
     name: z.string().optional(),
@@ -3464,6 +3499,9 @@ export const unmarshalProjectSpecSchema: z.ZodType<ProjectSpec> = z
     workspace_key_encrypted: z.boolean().optional(),
     enable_pg_native_login: z.boolean().optional(),
     default_branch: z.string().optional(),
+    observability: z
+      .lazy(() => unmarshalObservabilitySettingsSchema)
+      .optional(),
   })
   .transform(d => ({
     displayName: d.display_name,
@@ -3475,6 +3513,7 @@ export const unmarshalProjectSpecSchema: z.ZodType<ProjectSpec> = z
     workspaceKeyEncrypted: d.workspace_key_encrypted,
     enablePgNativeLogin: d.enable_pg_native_login,
     defaultBranch: d.default_branch,
+    observability: d.observability,
   }));
 
 export const unmarshalProjectStatusSchema: z.ZodType<ProjectStatus> = z
@@ -3502,6 +3541,9 @@ export const unmarshalProjectStatusSchema: z.ZodType<ProjectStatus> = z
     enable_pg_native_login: z.boolean().optional(),
     default_branch: z.string().optional(),
     project_id: z.string().optional(),
+    observability: z
+      .lazy(() => unmarshalObservabilitySettingsSchema)
+      .optional(),
   })
   .transform(d => ({
     displayName: d.display_name,
@@ -3517,6 +3559,7 @@ export const unmarshalProjectStatusSchema: z.ZodType<ProjectStatus> = z
     enablePgNativeLogin: d.enable_pg_native_login,
     defaultBranch: d.default_branch,
     projectId: d.project_id,
+    observability: d.observability,
   }));
 
 export const unmarshalRoleSchema: z.ZodType<Role> = z
@@ -4278,6 +4321,14 @@ export const marshalNewPipelineSpecSchema: z.ZodType = z
     pipeline_channel: d.pipelineChannel,
   }));
 
+export const marshalObservabilitySettingsSchema: z.ZodType = z
+  .object({
+    genieContextPath: z.string().optional(),
+  })
+  .transform(d => ({
+    genie_context_path: d.genieContextPath,
+  }));
+
 export const marshalProjectSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -4381,6 +4432,7 @@ export const marshalProjectSpecSchema: z.ZodType = z
     workspaceKeyEncrypted: z.boolean().optional(),
     enablePgNativeLogin: z.boolean().optional(),
     defaultBranch: z.string().optional(),
+    observability: z.lazy(() => marshalObservabilitySettingsSchema).optional(),
   })
   .transform(d => ({
     display_name: d.displayName,
@@ -4392,6 +4444,7 @@ export const marshalProjectSpecSchema: z.ZodType = z
     workspace_key_encrypted: d.workspaceKeyEncrypted,
     enable_pg_native_login: d.enablePgNativeLogin,
     default_branch: d.defaultBranch,
+    observability: d.observability,
   }));
 
 export const marshalProjectStatusSchema: z.ZodType = z
@@ -4417,6 +4470,7 @@ export const marshalProjectStatusSchema: z.ZodType = z
     enablePgNativeLogin: z.boolean().optional(),
     defaultBranch: z.string().optional(),
     projectId: z.string().optional(),
+    observability: z.lazy(() => marshalObservabilitySettingsSchema).optional(),
   })
   .transform(d => ({
     display_name: d.displayName,
@@ -4432,6 +4486,7 @@ export const marshalProjectStatusSchema: z.ZodType = z
     enable_pg_native_login: d.enablePgNativeLogin,
     default_branch: d.defaultBranch,
     project_id: d.projectId,
+    observability: d.observability,
   }));
 
 export const marshalRequestedClaimsSchema: z.ZodType = z
@@ -4913,6 +4968,10 @@ const initialRoleSpecFieldMaskSchema: FieldMaskSchema = {
   postgresRole: {wire: 'postgres_role'},
 };
 
+const observabilitySettingsFieldMaskSchema: FieldMaskSchema = {
+  genieContextPath: {wire: 'genie_context_path'},
+};
+
 const projectFieldMaskSchema: FieldMaskSchema = {
   createTime: {wire: 'create_time'},
   deleteTime: {wire: 'delete_time'},
@@ -4963,6 +5022,10 @@ const projectSpecFieldMaskSchema: FieldMaskSchema = {
   displayName: {wire: 'display_name'},
   enablePgNativeLogin: {wire: 'enable_pg_native_login'},
   historyRetentionDuration: {wire: 'history_retention_duration'},
+  observability: {
+    wire: 'observability',
+    children: () => observabilitySettingsFieldMaskSchema,
+  },
   pgVersion: {wire: 'pg_version'},
   workspaceKeyEncrypted: {wire: 'workspace_key_encrypted'},
 };
@@ -4980,6 +5043,10 @@ const projectStatusFieldMaskSchema: FieldMaskSchema = {
   displayName: {wire: 'display_name'},
   enablePgNativeLogin: {wire: 'enable_pg_native_login'},
   historyRetentionDuration: {wire: 'history_retention_duration'},
+  observability: {
+    wire: 'observability',
+    children: () => observabilitySettingsFieldMaskSchema,
+  },
   owner: {wire: 'owner'},
   pgVersion: {wire: 'pg_version'},
   projectId: {wire: 'project_id'},
