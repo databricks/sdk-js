@@ -127,6 +127,7 @@ export type {
   ListRolesRequest,
   ListRolesResponse,
   NewPipelineSpec,
+  ObservabilitySettings,
   Operation,
   Project,
   ProjectCustomTag,

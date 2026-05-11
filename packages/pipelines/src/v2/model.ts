@@ -344,6 +344,7 @@ export enum FileIngestionOptions_FileFormat {
   PARQUET = 'PARQUET',
   AVRO = 'AVRO',
   ORC = 'ORC',
+  FILE = 'FILE',
 }
 
 /** Based on https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/schema#how-does-auto-loader-schema-evolution-work */
@@ -363,6 +364,8 @@ export enum GoogleDriveOptions_GoogleDriveEntityType {
   FILE = 'FILE',
   FILE_METADATA = 'FILE_METADATA',
   PERMISSION = 'PERMISSION',
+  FILE_PERMISSION = 'FILE_PERMISSION',
+  GROUP_MEMBERSHIP = 'GROUP_MEMBERSHIP',
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -427,6 +430,8 @@ export enum SharepointOptions_SharepointEntityType {
   FILE_METADATA = 'FILE_METADATA',
   PERMISSION = 'PERMISSION',
   LIST = 'LIST',
+  FILE_PERMISSION = 'FILE_PERMISSION',
+  GROUP_MEMBERSHIP = 'GROUP_MEMBERSHIP',
 }
 
 /** Data level for TikTok Ads report aggregation. */
@@ -2630,8 +2635,17 @@ export interface RewindDatasetSpec {
 
 /** Information about a rewind being requested for this pipeline or some of the datasets in it. */
 export interface RewindSpec {
-  /** The base timestamp to rewind to. Must be specified. */
+  /**
+   * The base timestamp to rewind to. Exactly one of rewind_timestamp or rewind_point_id must be
+   * specified.
+   */
   rewindTimestamp?: string | undefined;
+  /**
+   * The ID of a previously generated rewind point to rewind to (same as the
+   * originating event log ID). Exactly one of rewind_timestamp or
+   * rewind_point_id must be specified.
+   */
+  rewindPointId?: string | undefined;
   /** If true, this is a dry run and we should emit the RewindSummary but not perform the rewind. */
   dryRun?: boolean | undefined;
   /**
@@ -6013,11 +6027,13 @@ export const marshalRewindDatasetSpecSchema: z.ZodType = z
 export const marshalRewindSpecSchema: z.ZodType = z
   .object({
     rewindTimestamp: z.string().optional(),
+    rewindPointId: z.string().optional(),
     dryRun: z.boolean().optional(),
     datasets: z.array(z.lazy(() => marshalRewindDatasetSpecSchema)).optional(),
   })
   .transform(d => ({
     rewind_timestamp: d.rewindTimestamp,
+    rewind_point_id: d.rewindPointId,
     dry_run: d.dryRun,
     datasets: d.datasets,
   }));
