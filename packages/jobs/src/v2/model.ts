@@ -48,7 +48,6 @@ export enum AzureAvailability {
  * Clusters with `kind = CLASSIC_PREVIEW` support the following fields, whereas clusters with no specified `kind` do not.
  * * [is_single_node](/api/workspace/clusters/create#is_single_node)
  * * [use_ml_runtime](/api/workspace/clusters/create#use_ml_runtime)
- * * [data_security_mode](/api/workspace/clusters/create#data_security_mode) set to `DATA_SECURITY_MODE_AUTO`, `DATA_SECURITY_MODE_DEDICATED`, or `DATA_SECURITY_MODE_STANDARD`
  *
  * By using the [simple form](https://docs.databricks.com/compute/simple-form.html), your clusters are automatically using `kind = CLASSIC_PREVIEW`.
  */
@@ -73,15 +72,14 @@ export enum ConfidentialComputeType {
  * Data security mode decides what data governance model to use when accessing data
  * from a cluster.
  *
- * The following modes can only be used when `kind = CLASSIC_PREVIEW`.
  * * `DATA_SECURITY_MODE_AUTO`: <Databricks> will choose the most appropriate access mode depending on your compute configuration.
- * * `DATA_SECURITY_MODE_STANDARD`: Alias for `USER_ISOLATION`.
- * * `DATA_SECURITY_MODE_DEDICATED`: Alias for `SINGLE_USER`.
+ * * `DATA_SECURITY_MODE_STANDARD`: A secure cluster that can be shared by multiple users. Cluster users are fully isolated so that they cannot see each other’s data and credentials. Most data governance features are supported in this mode. But programming languages and cluster features might be limited.
+ * * `DATA_SECURITY_MODE_DEDICATED`: A secure cluster that can only be exclusively used by a single user specified in `single_user_name`. Most programming languages, cluster features and data governance features are available in this mode.
  *
- * The following modes can be used regardless of `kind`.
- * * `NONE`: No security isolation for multiple users sharing the cluster. Data governance features are not available in this mode.
- * * `SINGLE_USER`: A secure cluster that can only be exclusively used by a single user specified in `single_user_name`. Most programming languages, cluster features and data governance features are available in this mode.
- * * `USER_ISOLATION`: A secure cluster that can be shared by multiple users. Cluster users are fully isolated so that they cannot see each other's data and credentials. Most data governance features are supported in this mode. But programming languages and cluster features might be limited.
+ * The following modes are legacy aliases for the above modes:
+ *
+ * * `USER_ISOLATION`: Legacy alias for `DATA_SECURITY_MODE_STANDARD`.
+ * * `SINGLE_USER`: Legacy alias for `DATA_SECURITY_MODE_DEDICATED`.
  *
  * The following modes are deprecated starting with Databricks Runtime 15.0 and
  * will be removed for future Databricks Runtime versions:
@@ -97,17 +95,9 @@ export enum DataSecurityMode {
    * are not available in this mode.
    */
   NONE = 'NONE',
-  /**
-   * A secure cluster that can only be exclusively used by a single user specified in
-   * `single_user_name`. Most programming languages, cluster features and data governance
-   * features are available in this mode.
-   */
+  /** Legacy alias for `DATA_SECURITY_MODE_DEDICATED`. */
   SINGLE_USER = 'SINGLE_USER',
-  /**
-   * A secure cluster that can be shared by multiple users. Cluster users are fully isolated
-   * so that they cannot see each other's data and credentials. Most data governance features
-   * are supported in this mode. But programming languages and cluster features might be limited.
-   */
+  /** Legacy alias for `DATA_SECURITY_MODE_STANDARD`. */
   USER_ISOLATION = 'USER_ISOLATION',
   /** This mode is for users migrating from legacy Table ACL clusters. */
   LEGACY_TABLE_ACL = 'LEGACY_TABLE_ACL',
@@ -117,11 +107,22 @@ export enum DataSecurityMode {
   LEGACY_SINGLE_USER = 'LEGACY_SINGLE_USER',
   /** This is mode where single user is enforced but no actual security feature enabled. */
   LEGACY_SINGLE_USER_STANDARD = 'LEGACY_SINGLE_USER_STANDARD',
-  /** This is mapped to USER_ISOLATION */
+  /**
+   * A secure cluster that can be shared by multiple users. Cluster users are fully isolated
+   * so that they cannot see each other's data and credentials. Most data governance features
+   * are supported in this mode. But programming languages and cluster features might be limited.
+   */
   DATA_SECURITY_MODE_STANDARD = 'DATA_SECURITY_MODE_STANDARD',
-  /** This is mapped to SINGLE_USER */
+  /**
+   * A secure cluster that can only be exclusively used by a single user specified in
+   * `single_user_name`. Most programming languages, cluster features and data governance
+   * features are available in this mode.
+   */
   DATA_SECURITY_MODE_DEDICATED = 'DATA_SECURITY_MODE_DEDICATED',
-  /** This is mapped to USER_ISOALTION or SINGLE_USER based on cluster configuration */
+  /**
+   * Databricks will choose `DATA_SECURITY_MODE_STANDARD` or `DATA_SECURITY_MODE_DEDICATED`
+   * depending on the compute configuration.
+   */
   DATA_SECURITY_MODE_AUTO = 'DATA_SECURITY_MODE_AUTO',
 }
 
@@ -2025,6 +2026,12 @@ export interface GenAiComputeTask {
    * (e.g. `/Workspace/Users/...`) or volume; `dbfs:/` is not supported.
    */
   requirementsYamlPath?: string | undefined;
+  /**
+   * Optional name to assign to the MLflow run created for this task. If unset,
+   * MLflow auto-generates a name. Used alongside `mlflow_experiment_name` to
+   * identify the run in the MLflow UI.
+   */
+  mlflowRunName?: string | undefined;
 }
 
 /** Retrieves information about a single job. */
@@ -5867,6 +5874,7 @@ export const unmarshalGenAiComputeTaskSchema: z.ZodType<GenAiComputeTask> = z
     client_version: z.string().optional(),
     code_source_tar_path: z.string().optional(),
     requirements_yaml_path: z.string().optional(),
+    mlflow_run_name: z.string().optional(),
   })
   .transform(d => ({
     dlRuntimeImage: d.dl_runtime_image,
@@ -5881,6 +5889,7 @@ export const unmarshalGenAiComputeTaskSchema: z.ZodType<GenAiComputeTask> = z
     clientVersion: d.client_version,
     codeSourceTarPath: d.code_source_tar_path,
     requirementsYamlPath: d.requirements_yaml_path,
+    mlflowRunName: d.mlflow_run_name,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -8691,6 +8700,7 @@ export const marshalGenAiComputeTaskSchema: z.ZodType = z
     clientVersion: z.string().optional(),
     codeSourceTarPath: z.string().optional(),
     requirementsYamlPath: z.string().optional(),
+    mlflowRunName: z.string().optional(),
   })
   .transform(d => ({
     dl_runtime_image: d.dlRuntimeImage,
@@ -8705,6 +8715,7 @@ export const marshalGenAiComputeTaskSchema: z.ZodType = z
     client_version: d.clientVersion,
     code_source_tar_path: d.codeSourceTarPath,
     requirements_yaml_path: d.requirementsYamlPath,
+    mlflow_run_name: d.mlflowRunName,
   }));
 
 export const marshalGitMetadataSnapshotSchema: z.ZodType = z

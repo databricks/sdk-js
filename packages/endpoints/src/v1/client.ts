@@ -115,7 +115,7 @@ export class Client {
     return new CreateEndpointWaiter(this, resp.name);
   }
 
-  /** Delete a vector search endpoint. */
+  /** Delete an AI Search endpoint. */
   async deleteEndpoint(
     req: DeleteEndpointRequest,
     options?: CallOptions
@@ -140,7 +140,7 @@ export class Client {
     return resp;
   }
 
-  /** Get details for a single vector search endpoint. */
+  /** Get details for a single AI Search endpoint. */
   async getEndpoint(
     req: GetEndpointRequest,
     options?: CallOptions
@@ -165,7 +165,7 @@ export class Client {
     return resp;
   }
 
-  /** List all vector search endpoints in the workspace. */
+  /** List all AI Search endpoints in the workspace. */
   async listEndpoint(
     req: ListEndpointRequest,
     options?: CallOptions

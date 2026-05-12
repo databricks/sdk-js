@@ -75,7 +75,7 @@ export interface AdjustedThroughputRequest {
 }
 
 export interface CreateEndpointRequest {
-  /** Name of the vector search endpoint */
+  /** Name of the AI Search endpoint */
   name?: string | undefined;
   /** Type of endpoint */
   endpointType?: EndpointType | undefined;
@@ -94,14 +94,14 @@ export interface CreateEndpointRequest {
 }
 
 export interface CustomTag {
-  /** Key field for a vector search endpoint tag. */
+  /** Key field for an AI Search endpoint tag. */
   key?: string | undefined;
-  /** [Optional] Value field for a vector search endpoint tag. */
+  /** [Optional] Value field for an AI Search endpoint tag. */
   value?: string | undefined;
 }
 
 export interface DeleteEndpointRequest {
-  /** Name of the vector search endpoint */
+  /** Name of the AI Search endpoint */
   name?: string | undefined;
 }
 
@@ -109,7 +109,7 @@ export interface DeleteEndpointRequest {
 export interface DeleteEndpointResponse {}
 
 export interface Endpoint {
-  /** Name of the vector search endpoint */
+  /** Name of the AI Search endpoint */
   name?: string | undefined;
   /** Creator of the endpoint */
   creator?: string | undefined;
@@ -197,7 +197,7 @@ export interface ListEndpointResponse {
 }
 
 export interface PatchEndpointBudgetPolicyRequest {
-  /** Name of the vector search endpoint */
+  /** Name of the AI Search endpoint */
   name?: string | undefined;
   /** The budget policy id to be applied */
   budgetPolicyId?: string | undefined;
@@ -205,12 +205,12 @@ export interface PatchEndpointBudgetPolicyRequest {
 
 export interface PatchEndpointBudgetPolicyResponse {
   budgetPolicyId?: string | undefined;
-  /** The budget policy applied to the vector search endpoint. */
+  /** The budget policy applied to the AI Search endpoint. */
   effectiveBudgetPolicyId?: string | undefined;
 }
 
 export interface PatchEndpointRequest {
-  /** Name of the vector search endpoint */
+  /** Name of the AI Search endpoint */
   name?: string | undefined;
   /**
    * OpenSearch replication factor. Directly sets userThroughputSettings.replicationFactor.
@@ -230,7 +230,7 @@ export interface PatchEndpointRequest {
 }
 
 export interface PatchEndpointThroughputRequest {
-  /** Name of the vector search endpoint */
+  /** Name of the AI Search endpoint */
   name?: string | undefined;
   /** Requested concurrency (total CPU) for the endpoint. If not specified, the current concurrency is maintained. */
   concurrency?: number | undefined;

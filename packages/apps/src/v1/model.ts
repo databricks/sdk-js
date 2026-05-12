@@ -1043,6 +1043,7 @@ export interface AppUpdate {
   computeSize?: ComputeSize | undefined;
   usagePolicyId?: string | undefined;
   gitRepository?: GitRepository | undefined;
+  telemetryExportDestinations?: TelemetryExportDestination[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1994,6 +1995,9 @@ export const unmarshalAppUpdateSchema: z.ZodType<AppUpdate> = z
     compute_size: z.enum(ComputeSize).optional(),
     usage_policy_id: z.string().optional(),
     git_repository: z.lazy(() => unmarshalGitRepositorySchema).optional(),
+    telemetry_export_destinations: z
+      .array(z.lazy(() => unmarshalTelemetryExportDestinationSchema))
+      .optional(),
   })
   .transform(d => ({
     status: d.status,
@@ -2004,6 +2008,7 @@ export const unmarshalAppUpdateSchema: z.ZodType<AppUpdate> = z
     computeSize: d.compute_size,
     usagePolicyId: d.usage_policy_id,
     gitRepository: d.git_repository,
+    telemetryExportDestinations: d.telemetry_export_destinations,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

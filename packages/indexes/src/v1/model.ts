@@ -15,7 +15,7 @@ const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
 );
 
 /**
- * The subtype of the vector search index, determining the indexing and retrieval strategy.
+ * The subtype of the AI Search index, determining the indexing and retrieval strategy.
  * - `VECTOR`: Not supported. Use `HYBRID` instead.
  * - `FULL_TEXT`: An index that uses full-text search without vector embeddings.
  * - `HYBRID`: An index that uses vector embeddings for similarity search and hybrid search.
@@ -43,7 +43,7 @@ export enum UpsertDeleteDataStatus {
 }
 
 /**
- * There are 2 types of Vector Search indexes:
+ * There are 2 types of AI Search indexes:
  * - `DELTA_SYNC`: An index that automatically syncs with a source Delta Table, automatically and incrementally updating the index as the underlying data in the Delta Table changes.
  * - `DIRECT_ACCESS`: An index that supports direct read and write of vectors and metadata through our REST and SDK APIs. With this model, the user manages index updates.
  */
@@ -129,7 +129,7 @@ export interface DeltaSyncVectorIndexSpec {
    * embedding vector column are always synced.
    */
   columnsToSync?: string[] | undefined;
-  /** The budget policy id applied to the vector search index */
+  /** The budget policy id applied to the AI Search index */
   effectiveBudgetPolicyId?: string | undefined;
   effectiveUsagePolicyId?: string | undefined;
   /**
@@ -164,7 +164,7 @@ export interface DeltaSyncVectorIndexSpecRequest {
    * embedding vector column are always synced.
    */
   columnsToSync?: string[] | undefined;
-  /** The budget policy id applied to the vector search index */
+  /** The budget policy id applied to the AI Search index */
   effectiveBudgetPolicyId?: string | undefined;
   effectiveUsagePolicyId?: string | undefined;
   /**
