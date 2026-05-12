@@ -647,6 +647,51 @@ Do not add comments that merely restate the code.
 const count = 0;
 ```
 
+### 10.6 Module-level Documentation
+
+Module-level documentation (a JSDoc block describing the module as a whole,
+not a specific exported symbol) belongs **only** in the module's entry file —
+typically `index.ts`. Do not place module-level JSDoc on leaf files: a comment
+at the top of `oidc.ts` saying "Package oidc provides ..." refers to nothing
+in `oidc.ts` itself and confuses the reader.
+
+Module-level JSDoc on an entry file **must** be tagged with
+`@packageDocumentation`. This is a TSDoc tag (consumed by TypeDoc / API
+Extractor) that marks the block as describing the module rather than the
+next declaration below it. The tag has no effect on tsserver/IDE hovers, but
+it makes the intent unambiguous to readers and keeps the codebase consistent
+with the existing `index.ts` files (see `packages/core/src/index.ts`,
+`packages/auth/src/index.ts`, etc.).
+
+```typescript
+// Bad — packages/auth/src/oidc/oidc.ts
+/**
+ * OIDC ID token utilities. This package is experimental and subject to
+ * change.
+ */
+
+/**
+ * IDToken represents an OIDC ID token ...
+ */
+export interface IDToken { ... }
+```
+
+```typescript
+// Good — packages/auth/src/oidc/index.ts
+/**
+ * OIDC ID token utilities. This package is experimental and subject to
+ * change.
+ *
+ * @packageDocumentation
+ */
+
+export type {IDToken, IDTokenProvider} from './oidc';
+export {idTokenProviderFn} from './oidc';
+```
+
+This is a hard rule for ported code as well: see `porting.mdc` § Documentation
+Comments for how Go's `// Package ...` block maps to this convention.
+
 ---
 
 ## 11. Formatting

@@ -22,8 +22,11 @@ explanations and examples.
 
 **Do not add documentation beyond what the Go SDK has.** If a Go type or
 function has no doc comment, the TypeScript version should not have one either.
-Do not invent explanations, add `@packageDocumentation` summaries, or expand
-on what Go provides.
+Do not invent explanations or expand on what Go provides.
+
+Go's `// Package <name> ...` block (the comment above `package <name>`) maps
+to module-level documentation in TypeScript. Place it on the module's
+`index.ts`, not on a leaf file — see `typescript.mdc` §10.6.
 
 ```go
 // OutOfRange means the operation was attempted past the valid range.
