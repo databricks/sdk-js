@@ -26,10 +26,7 @@ export enum ColumnTypeName {
   VARIANT = 'VARIANT',
   GEOMETRY = 'GEOMETRY',
   GEOGRAPHY = 'GEOGRAPHY',
-  TIME = 'TIME',
-  FILE = 'FILE',
   TABLE_TYPE = 'TABLE_TYPE',
-  TABLEREF_TYPE = 'TABLEREF_TYPE',
 }
 
 export enum FunctionParameterMode {
@@ -170,16 +167,6 @@ export interface Dependency {
     | {$case: 'function'; function: FunctionDependency}
     | {$case: 'connection'; connection: ConnectionDependency}
     | {$case: 'credential'; credential: CredentialDependency}
-    | {
-        $case: 'volume';
-        /** A dependency on a Unity Catalog volume. */
-        volume: VolumeDependency;
-      }
-    | {
-        $case: 'secret';
-        /** A dependency on a Unity Catalog secret. */
-        secret: SecretDependency;
-      }
     | undefined;
 }
 
@@ -326,12 +313,6 @@ export interface ListFunctions_Response {
   nextPageToken?: string | undefined;
 }
 
-/** A secret that is dependent on a SQL object. */
-export interface SecretDependency {
-  /** Full name of the dependent secret, in the form of __catalog_name__.__schema_name__.__secret_name__. */
-  secretFullName?: string | undefined;
-}
-
 /** A table that is dependent on a SQL object. */
 export interface TableDependency {
   /** Full name of the dependent table, in the form of __catalog_name__.__schema_name__.__table_name__. */
@@ -403,12 +384,6 @@ export interface UpdateFunction {
   browseOnly?: boolean | undefined;
 }
 
-/** A volume that is dependent on a SQL object. */
-export interface VolumeDependency {
-  /** Full name of the dependent volume, in the form of __catalog_name__.__schema_name__.__volume_name__. */
-  volumeFullName?: string | undefined;
-}
-
 export const unmarshalConnectionDependencySchema: z.ZodType<ConnectionDependency> =
   z
     .object({
@@ -437,8 +412,6 @@ export const unmarshalDependencySchema: z.ZodType<Dependency> = z
     function: z.lazy(() => unmarshalFunctionDependencySchema).optional(),
     connection: z.lazy(() => unmarshalConnectionDependencySchema).optional(),
     credential: z.lazy(() => unmarshalCredentialDependencySchema).optional(),
-    volume: z.lazy(() => unmarshalVolumeDependencySchema).optional(),
-    secret: z.lazy(() => unmarshalSecretDependencySchema).optional(),
   })
   .transform(d => ({
     value:
@@ -450,11 +423,7 @@ export const unmarshalDependencySchema: z.ZodType<Dependency> = z
             ? {$case: 'connection' as const, connection: d.connection}
             : d.credential !== undefined
               ? {$case: 'credential' as const, credential: d.credential}
-              : d.volume !== undefined
-                ? {$case: 'volume' as const, volume: d.volume}
-                : d.secret !== undefined
-                  ? {$case: 'secret' as const, secret: d.secret}
-                  : undefined,
+              : undefined,
   }));
 
 export const unmarshalDependencyListSchema: z.ZodType<DependencyList> = z
@@ -600,28 +569,12 @@ export const unmarshalListFunctions_ResponseSchema: z.ZodType<ListFunctions_Resp
       nextPageToken: d.next_page_token,
     }));
 
-export const unmarshalSecretDependencySchema: z.ZodType<SecretDependency> = z
-  .object({
-    secret_full_name: z.string().optional(),
-  })
-  .transform(d => ({
-    secretFullName: d.secret_full_name,
-  }));
-
 export const unmarshalTableDependencySchema: z.ZodType<TableDependency> = z
   .object({
     table_full_name: z.string().optional(),
   })
   .transform(d => ({
     tableFullName: d.table_full_name,
-  }));
-
-export const unmarshalVolumeDependencySchema: z.ZodType<VolumeDependency> = z
-  .object({
-    volume_full_name: z.string().optional(),
-  })
-  .transform(d => ({
-    volumeFullName: d.volume_full_name,
   }));
 
 export const marshalConnectionDependencySchema: z.ZodType = z
@@ -734,14 +687,6 @@ export const marshalDependencySchema: z.ZodType = z
           $case: z.literal('credential'),
           credential: z.lazy(() => marshalCredentialDependencySchema),
         }),
-        z.object({
-          $case: z.literal('volume'),
-          volume: z.lazy(() => marshalVolumeDependencySchema),
-        }),
-        z.object({
-          $case: z.literal('secret'),
-          secret: z.lazy(() => marshalSecretDependencySchema),
-        }),
       ])
       .optional(),
   })
@@ -750,8 +695,6 @@ export const marshalDependencySchema: z.ZodType = z
     ...(d.value?.$case === 'function' && {function: d.value.function}),
     ...(d.value?.$case === 'connection' && {connection: d.value.connection}),
     ...(d.value?.$case === 'credential' && {credential: d.value.credential}),
-    ...(d.value?.$case === 'volume' && {volume: d.value.volume}),
-    ...(d.value?.$case === 'secret' && {secret: d.value.secret}),
   }));
 
 export const marshalDependencyListSchema: z.ZodType = z
@@ -808,14 +751,6 @@ export const marshalFunctionParameterInfosSchema: z.ZodType = z
   })
   .transform(d => ({
     parameters: d.parameters,
-  }));
-
-export const marshalSecretDependencySchema: z.ZodType = z
-  .object({
-    secretFullName: z.string().optional(),
-  })
-  .transform(d => ({
-    secret_full_name: d.secretFullName,
   }));
 
 export const marshalTableDependencySchema: z.ZodType = z
@@ -892,12 +827,4 @@ export const marshalUpdateFunctionSchema: z.ZodType = z
     updated_by: d.updatedBy,
     function_id: d.functionId,
     browse_only: d.browseOnly,
-  }));
-
-export const marshalVolumeDependencySchema: z.ZodType = z
-  .object({
-    volumeFullName: z.string().optional(),
-  })
-  .transform(d => ({
-    volume_full_name: d.volumeFullName,
   }));

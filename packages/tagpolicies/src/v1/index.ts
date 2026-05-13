@@ -5,14 +5,11 @@ export {Client} from './client';
 export {} from './model';
 
 export type {
-  ConflictResolutionPolicy,
   CreateTagPolicyRequest,
-  DefaultValueOverridePolicy,
   DeleteTagPolicyRequest,
   GetTagPolicyRequest,
   ListTagPoliciesRequest,
   ListTagPoliciesResponse,
-  PropagationConfig,
   TagPolicy,
   UpdateTagPolicyRequest,
   Value,

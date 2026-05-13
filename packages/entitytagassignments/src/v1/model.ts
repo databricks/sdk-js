@@ -44,8 +44,6 @@ export interface EntityTagAssignment {
   updatedBy?: string | undefined;
   /** The source type of the tag assignment, e.g., user-assigned or system-assigned */
   sourceType?: TagAssignmentSourceType | undefined;
-  /** Boolean which indicates whether this tag is inherited. */
-  inherited?: boolean | undefined;
 }
 
 /** Request to get an entity tag assignment */
@@ -56,8 +54,6 @@ export interface GetEntityTagAssignmentRequest {
   tagKey?: string | undefined;
   /** The type of the entity to which the tag is assigned. */
   entityType?: string | undefined;
-  /** Boolean which indicates whether this tag is inherited. */
-  includeInherited?: boolean | undefined;
 }
 
 /** Request to list entity tag assignments */
@@ -70,8 +66,6 @@ export interface ListEntityTagAssignmentsRequest {
   pageToken?: string | undefined;
   /** The type of the entity to which the tag is assigned. */
   entityType?: string | undefined;
-  /** Boolean which indicates whether this tag is inherited. */
-  includeInherited?: boolean | undefined;
 }
 
 export interface ListEntityTagAssignmentsResponse {
@@ -100,7 +94,6 @@ export const unmarshalEntityTagAssignmentSchema: z.ZodType<EntityTagAssignment> 
         .optional(),
       updated_by: z.string().optional(),
       source_type: z.enum(TagAssignmentSourceType).optional(),
-      inherited: z.boolean().optional(),
     })
     .transform(d => ({
       entityName: d.entity_name,
@@ -110,7 +103,6 @@ export const unmarshalEntityTagAssignmentSchema: z.ZodType<EntityTagAssignment> 
       updateTime: d.update_time,
       updatedBy: d.updated_by,
       sourceType: d.source_type,
-      inherited: d.inherited,
     }));
 
 export const unmarshalListEntityTagAssignmentsResponseSchema: z.ZodType<ListEntityTagAssignmentsResponse> =
@@ -138,7 +130,6 @@ export const marshalEntityTagAssignmentSchema: z.ZodType = z
       .optional(),
     updatedBy: z.string().optional(),
     sourceType: z.enum(TagAssignmentSourceType).optional(),
-    inherited: z.boolean().optional(),
   })
   .transform(d => ({
     entity_name: d.entityName,
@@ -148,13 +139,11 @@ export const marshalEntityTagAssignmentSchema: z.ZodType = z
     update_time: d.updateTime,
     updated_by: d.updatedBy,
     source_type: d.sourceType,
-    inherited: d.inherited,
   }));
 
 const entityTagAssignmentFieldMaskSchema: FieldMaskSchema = {
   entityName: {wire: 'entity_name'},
   entityType: {wire: 'entity_type'},
-  inherited: {wire: 'inherited'},
   sourceType: {wire: 'source_type'},
   tagKey: {wire: 'tag_key'},
   tagValue: {wire: 'tag_value'},

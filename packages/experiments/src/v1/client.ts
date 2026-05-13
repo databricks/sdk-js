@@ -46,8 +46,6 @@ import type {
   GetExperiment_Response,
   GetLoggedModel,
   GetLoggedModel_Response,
-  GetLoggedModelsRequest,
-  GetLoggedModelsRequest_Response,
   GetMetricHistory,
   GetMetricHistory_Response,
   GetRun,
@@ -135,7 +133,6 @@ import {
   unmarshalGetExperimentByName_ResponseSchema,
   unmarshalGetExperiment_ResponseSchema,
   unmarshalGetLoggedModel_ResponseSchema,
-  unmarshalGetLoggedModelsRequest_ResponseSchema,
   unmarshalGetMetricHistory_ResponseSchema,
   unmarshalGetRun_ResponseSchema,
   unmarshalListArtifacts_ResponseSchema,
@@ -567,40 +564,6 @@ export class Client {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalGetLoggedModel_ResponseSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  /** Batch endpoint for getting logged models from a list of model IDs */
-  async getLoggedModels(
-    req: GetLoggedModelsRequest,
-    options?: CallOptions
-  ): Promise<GetLoggedModelsRequest_Response> {
-    const url = `${this.host}/api/2.0/mlflow/logged-models:batchGet`;
-    const params = new URLSearchParams();
-    if (req.modelIds !== undefined) {
-      params.append('model_ids', String(req.modelIds));
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetLoggedModelsRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetLoggedModelsRequest_ResponseSchema
-      );
     };
     await executeCall(call, options);
     if (resp === undefined) {

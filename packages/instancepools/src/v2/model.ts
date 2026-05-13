@@ -158,13 +158,6 @@ export interface CreateInstancePool {
   gcpAttributes?: InstancePoolGcpAttributes | undefined;
   /** Flexible node type configuration for the pool. */
   nodeTypeFlexibility?: NodeTypeFlexibility | undefined;
-  /**
-   * For pools with node type flexibility (Fleet-V2), whether auto generated alternate node type ids
-   * are enabled. This field should not be true if node_type_flexibility is set.
-   * DEPRECATED: This field was deprecated before entering PuPr and should no longer be used.
-   * TODO(CJ-71514): Remove this field after sufficient time has passed for all clients to migrate.
-   */
-  enableAutoAlternateNodeTypes?: boolean | undefined;
   /** If set, what the configurable throughput (in Mb/s) for the remote disk is. Currently only supported for GCP HYPERDISK_BALANCED types. */
   remoteDiskThroughput?: number | undefined;
   /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED types. */
@@ -347,13 +340,6 @@ export interface EditInstancePool {
   gcpAttributes?: InstancePoolGcpAttributes | undefined;
   /** Flexible node type configuration for the pool. */
   nodeTypeFlexibility?: NodeTypeFlexibility | undefined;
-  /**
-   * For pools with node type flexibility (Fleet-V2), whether auto generated alternate node type ids
-   * are enabled. This field should not be true if node_type_flexibility is set.
-   * DEPRECATED: This field was deprecated before entering PuPr and should no longer be used.
-   * TODO(CJ-71514): Remove this field after sufficient time has passed for all clients to migrate.
-   */
-  enableAutoAlternateNodeTypes?: boolean | undefined;
   /** If set, what the configurable throughput (in Mb/s) for the remote disk is. Currently only supported for GCP HYPERDISK_BALANCED types. */
   remoteDiskThroughput?: number | undefined;
   /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED types. */
@@ -476,13 +462,6 @@ export interface GetInstancePool_Response {
   gcpAttributes?: InstancePoolGcpAttributes | undefined;
   /** Flexible node type configuration for the pool. */
   nodeTypeFlexibility?: NodeTypeFlexibility | undefined;
-  /**
-   * For pools with node type flexibility (Fleet-V2), whether auto generated alternate node type ids
-   * are enabled. This field should not be true if node_type_flexibility is set.
-   * DEPRECATED: This field was deprecated before entering PuPr and should no longer be used.
-   * TODO(CJ-71514): Remove this field after sufficient time has passed for all clients to migrate.
-   */
-  enableAutoAlternateNodeTypes?: boolean | undefined;
   /** If set, what the configurable throughput (in Mb/s) for the remote disk is. Currently only supported for GCP HYPERDISK_BALANCED types. */
   remoteDiskThroughput?: number | undefined;
   /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED types. */
@@ -612,13 +591,6 @@ export interface InstancePoolAndStats {
   gcpAttributes?: InstancePoolGcpAttributes | undefined;
   /** Flexible node type configuration for the pool. */
   nodeTypeFlexibility?: NodeTypeFlexibility | undefined;
-  /**
-   * For pools with node type flexibility (Fleet-V2), whether auto generated alternate node type ids
-   * are enabled. This field should not be true if node_type_flexibility is set.
-   * DEPRECATED: This field was deprecated before entering PuPr and should no longer be used.
-   * TODO(CJ-71514): Remove this field after sufficient time has passed for all clients to migrate.
-   */
-  enableAutoAlternateNodeTypes?: boolean | undefined;
   /** If set, what the configurable throughput (in Mb/s) for the remote disk is. Currently only supported for GCP HYPERDISK_BALANCED types. */
   remoteDiskThroughput?: number | undefined;
   /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED types. */
@@ -882,7 +854,6 @@ export const unmarshalGetInstancePool_ResponseSchema: z.ZodType<GetInstancePool_
       node_type_flexibility: z
         .lazy(() => unmarshalNodeTypeFlexibilitySchema)
         .optional(),
-      enable_auto_alternate_node_types: z.boolean().optional(),
       remote_disk_throughput: z.number().optional(),
       total_initial_remote_disk_size: z.number().optional(),
     })
@@ -907,7 +878,6 @@ export const unmarshalGetInstancePool_ResponseSchema: z.ZodType<GetInstancePool_
       azureAttributes: d.azure_attributes,
       gcpAttributes: d.gcp_attributes,
       nodeTypeFlexibility: d.node_type_flexibility,
-      enableAutoAlternateNodeTypes: d.enable_auto_alternate_node_types,
       remoteDiskThroughput: d.remote_disk_throughput,
       totalInitialRemoteDiskSize: d.total_initial_remote_disk_size,
     }));
@@ -944,7 +914,6 @@ export const unmarshalInstancePoolAndStatsSchema: z.ZodType<InstancePoolAndStats
       node_type_flexibility: z
         .lazy(() => unmarshalNodeTypeFlexibilitySchema)
         .optional(),
-      enable_auto_alternate_node_types: z.boolean().optional(),
       remote_disk_throughput: z.number().optional(),
       total_initial_remote_disk_size: z.number().optional(),
     })
@@ -969,7 +938,6 @@ export const unmarshalInstancePoolAndStatsSchema: z.ZodType<InstancePoolAndStats
       azureAttributes: d.azure_attributes,
       gcpAttributes: d.gcp_attributes,
       nodeTypeFlexibility: d.node_type_flexibility,
-      enableAutoAlternateNodeTypes: d.enable_auto_alternate_node_types,
       remoteDiskThroughput: d.remote_disk_throughput,
       totalInitialRemoteDiskSize: d.total_initial_remote_disk_size,
     }));
@@ -1096,7 +1064,6 @@ export const marshalCreateInstancePoolSchema: z.ZodType = z
     nodeTypeFlexibility: z
       .lazy(() => marshalNodeTypeFlexibilitySchema)
       .optional(),
-    enableAutoAlternateNodeTypes: z.boolean().optional(),
     remoteDiskThroughput: z.number().optional(),
     totalInitialRemoteDiskSize: z.number().optional(),
   })
@@ -1115,7 +1082,6 @@ export const marshalCreateInstancePoolSchema: z.ZodType = z
     azure_attributes: d.azureAttributes,
     gcp_attributes: d.gcpAttributes,
     node_type_flexibility: d.nodeTypeFlexibility,
-    enable_auto_alternate_node_types: d.enableAutoAlternateNodeTypes,
     remote_disk_throughput: d.remoteDiskThroughput,
     total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
   }));
@@ -1224,7 +1190,6 @@ export const marshalEditInstancePoolSchema: z.ZodType = z
     nodeTypeFlexibility: z
       .lazy(() => marshalNodeTypeFlexibilitySchema)
       .optional(),
-    enableAutoAlternateNodeTypes: z.boolean().optional(),
     remoteDiskThroughput: z.number().optional(),
     totalInitialRemoteDiskSize: z.number().optional(),
   })
@@ -1244,7 +1209,6 @@ export const marshalEditInstancePoolSchema: z.ZodType = z
     azure_attributes: d.azureAttributes,
     gcp_attributes: d.gcpAttributes,
     node_type_flexibility: d.nodeTypeFlexibility,
-    enable_auto_alternate_node_types: d.enableAutoAlternateNodeTypes,
     remote_disk_throughput: d.remoteDiskThroughput,
     total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
   }));

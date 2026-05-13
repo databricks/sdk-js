@@ -59,7 +59,6 @@ export type {
   R2Credentials,
   StorageCredentialInfo,
   TemporaryCredentials,
-  UcEncryptedToken,
   UpdateAccountsStorageCredential,
   UpdateCredential,
   UpdateStorageCredential,

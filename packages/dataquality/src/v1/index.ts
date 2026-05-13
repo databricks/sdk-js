@@ -4,7 +4,6 @@ export {Client} from './client';
 
 export {
   AggregationGranularity,
-  AnomalyDetectionJobType,
   CronSchedulePauseStatus,
   DataProfilingCustomMetricType,
   DataProfilingStatus,
@@ -34,13 +33,9 @@ export type {
   Monitor,
   NotificationDestination,
   NotificationSettings,
-  PercentNullValidityCheck,
-  RangeValidityCheck,
   Refresh,
   SnapshotConfig,
   TimeSeriesConfig,
-  UniquenessValidityCheck,
   UpdateMonitorRequest,
   UpdateRefreshRequest,
-  ValidityCheckConfiguration,
 } from './model';

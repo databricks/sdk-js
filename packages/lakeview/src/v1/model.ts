@@ -166,14 +166,6 @@ export interface GetDashboardRequest {
   dashboardId?: string | undefined;
 }
 
-export interface GetPublishedDashboardEmbeddedRequest {
-  /** UUID identifying the published dashboard. */
-  dashboardId?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface GetPublishedDashboardEmbeddedResponse {}
-
 export interface GetPublishedDashboardRequest {
   /** UUID identifying the published dashboard. */
   dashboardId?: string | undefined;
@@ -329,24 +321,6 @@ export interface PublishedDashboard {
   embedCredentials?: boolean | undefined;
   /** The timestamp of when the published dashboard was last revised. */
   revisionCreateTime?: Temporal.Instant | undefined;
-}
-
-/** Request to revert a dashboard draft to its last published state. */
-export interface RevertDashboardRequest {
-  /** UUID identifying the dashboard. */
-  dashboardId?: string | undefined;
-  /**
-   * The etag for the dashboard. Optionally, it can be provided to verify that the dashboard
-   * has not been modified from its last retrieval.
-   * TODO(TSE-3937): update to new non-CMK-encrypted label when available
-   */
-  etag?: string | undefined;
-}
-
-/** Response to revert a dashboard draft to its last published state. */
-export interface RevertDashboardResponse {
-  /** The reverted dashboard. */
-  dashboard?: Dashboard | undefined;
 }
 
 export interface Schedule {
@@ -532,9 +506,6 @@ export const unmarshalDashboardSchema: z.ZodType<Dashboard> = z
     parentPath: d.parent_path,
   }));
 
-export const unmarshalGetPublishedDashboardEmbeddedResponseSchema: z.ZodType<GetPublishedDashboardEmbeddedResponse> =
-  z.object({});
-
 export const unmarshalGetPublishedDashboardTokenInfoResponseSchema: z.ZodType<GetPublishedDashboardTokenInfoResponse> =
   z
     .object({
@@ -601,15 +572,6 @@ export const unmarshalPublishedDashboardSchema: z.ZodType<PublishedDashboard> =
       warehouseId: d.warehouse_id,
       embedCredentials: d.embed_credentials,
       revisionCreateTime: d.revision_create_time,
-    }));
-
-export const unmarshalRevertDashboardResponseSchema: z.ZodType<RevertDashboardResponse> =
-  z
-    .object({
-      dashboard: z.lazy(() => unmarshalDashboardSchema).optional(),
-    })
-    .transform(d => ({
-      dashboard: d.dashboard,
     }));
 
 export const unmarshalScheduleSchema: z.ZodType<Schedule> = z
@@ -780,16 +742,6 @@ export const marshalPublishDashboardRequestSchema: z.ZodType = z
     dashboard_id: d.dashboardId,
     embed_credentials: d.embedCredentials,
     warehouse_id: d.warehouseId,
-  }));
-
-export const marshalRevertDashboardRequestSchema: z.ZodType = z
-  .object({
-    dashboardId: z.string().optional(),
-    etag: z.string().optional(),
-  })
-  .transform(d => ({
-    dashboard_id: d.dashboardId,
-    etag: d.etag,
   }));
 
 export const marshalScheduleSchema: z.ZodType = z

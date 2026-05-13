@@ -15,11 +15,9 @@ export {
   GenieEvalResponseType,
   GenieFeedbackRating,
   NullValue,
-  ResponsePhase,
   ScoreReason,
   TextAttachmentPurpose,
   ThoughtType,
-  VerificationSection,
   MessageError_Type,
   MessageStatus_MessageStatus,
   StatementStatus_State,
@@ -101,5 +99,4 @@ export type {
   TextAttachment,
   Thought,
   Value,
-  VerificationMetadata,
 } from './model';

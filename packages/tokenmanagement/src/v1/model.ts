@@ -1,24 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-import {FieldMask} from '@databricks/sdk-core/wkt';
-import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
-
-/**
- * State of inferred scope collection (autoscope) for an external PAT.
- * Mirrored in databricks.identity.AutoscopeState in common/principal-context/api/proto/tokendetails.proto.
- * Token store and token management proto can depend on this.
- * Principal context proto should NOT depend on this proto definitions because too many services depend on the principal context proto.
- */
-export enum AutoscopeState {
-  AUTOSCOPE_STATE_UNSPECIFIED = 'AUTOSCOPE_STATE_UNSPECIFIED',
-  AUTOSCOPE_STATE_DISABLED = 'AUTOSCOPE_STATE_DISABLED',
-  AUTOSCOPE_STATE_RUNNING = 'AUTOSCOPE_STATE_RUNNING',
-  AUTOSCOPE_STATE_COMPLETED = 'AUTOSCOPE_STATE_COMPLETED',
-  AUTOSCOPE_STATE_BACKFILLED = 'AUTOSCOPE_STATE_BACKFILLED',
-  AUTOSCOPE_STATE_USER_SELECTED = 'AUTOSCOPE_STATE_USER_SELECTED',
-  AUTOSCOPE_STATE_API_NOT_COVERED = 'AUTOSCOPE_STATE_API_NOT_COVERED',
-}
 
 export interface AdminTokenInfo {
   /** ID of the token. */
@@ -39,10 +21,6 @@ export interface AdminTokenInfo {
   workspaceId?: number | undefined;
   /** Approximate timestamp for the day the token was last used. Accurate up to 1 day. */
   lastUsedDay?: number | undefined;
-  /** Scope of the token was created with, if applicable. */
-  scopes?: string[] | undefined;
-  /** Output only. The autoscope state of this token. */
-  autoscopeState?: AutoscopeState | undefined;
 }
 
 /** Configuration details for creating on-behalf tokens. */
@@ -54,8 +32,6 @@ export interface CreateOnBehalfOfToken {
   /** Comment that describes the purpose of the token. */
   comment?: string | undefined;
   scopes?: string[] | undefined;
-  /** Whether to enable autoscoping for this token. */
-  autoscopeEnabled?: boolean | undefined;
 }
 
 /** An on-behalf token was successfully created for the service principal. */
@@ -115,12 +91,6 @@ export interface RevokeToken {
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
 export interface RevokeToken_Response {}
 
-export interface UpdateToken {
-  token?: AdminTokenInfo | undefined;
-  /** A list of field name under AdminTokenInfo, For example in request use {"update_mask": "comment,scopes"} */
-  updateMask?: FieldMask<AdminTokenInfo> | undefined;
-}
-
 export const unmarshalAdminTokenInfoSchema: z.ZodType<AdminTokenInfo> = z
   .object({
     token_id: z.string().optional(),
@@ -132,8 +102,6 @@ export const unmarshalAdminTokenInfoSchema: z.ZodType<AdminTokenInfo> = z
     owner_id: z.number().optional(),
     workspace_id: z.number().optional(),
     last_used_day: z.number().optional(),
-    scopes: z.array(z.string()).optional(),
-    autoscope_state: z.enum(AutoscopeState).optional(),
   })
   .transform(d => ({
     tokenId: d.token_id,
@@ -145,8 +113,6 @@ export const unmarshalAdminTokenInfoSchema: z.ZodType<AdminTokenInfo> = z
     ownerId: d.owner_id,
     workspaceId: d.workspace_id,
     lastUsedDay: d.last_used_day,
-    scopes: d.scopes,
-    autoscopeState: d.autoscope_state,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -186,79 +152,16 @@ export const unmarshalListTokens_ResponseSchema: z.ZodType<ListTokens_Response> 
 export const unmarshalRevokeToken_ResponseSchema: z.ZodType<RevokeToken_Response> =
   z.object({});
 
-export const marshalAdminTokenInfoSchema: z.ZodType = z
-  .object({
-    tokenId: z.string().optional(),
-    creationTime: z.number().optional(),
-    expiryTime: z.number().optional(),
-    comment: z.string().optional(),
-    createdById: z.number().optional(),
-    createdByUsername: z.string().optional(),
-    ownerId: z.number().optional(),
-    workspaceId: z.number().optional(),
-    lastUsedDay: z.number().optional(),
-    scopes: z.array(z.string()).optional(),
-    autoscopeState: z.enum(AutoscopeState).optional(),
-  })
-  .transform(d => ({
-    token_id: d.tokenId,
-    creation_time: d.creationTime,
-    expiry_time: d.expiryTime,
-    comment: d.comment,
-    created_by_id: d.createdById,
-    created_by_username: d.createdByUsername,
-    owner_id: d.ownerId,
-    workspace_id: d.workspaceId,
-    last_used_day: d.lastUsedDay,
-    scopes: d.scopes,
-    autoscope_state: d.autoscopeState,
-  }));
-
 export const marshalCreateOnBehalfOfTokenSchema: z.ZodType = z
   .object({
     applicationId: z.string().optional(),
     lifetimeSeconds: z.number().optional(),
     comment: z.string().optional(),
     scopes: z.array(z.string()).optional(),
-    autoscopeEnabled: z.boolean().optional(),
   })
   .transform(d => ({
     application_id: d.applicationId,
     lifetime_seconds: d.lifetimeSeconds,
     comment: d.comment,
     scopes: d.scopes,
-    autoscope_enabled: d.autoscopeEnabled,
   }));
-
-export const marshalUpdateTokenSchema: z.ZodType = z
-  .object({
-    token: z.lazy(() => marshalAdminTokenInfoSchema).optional(),
-    updateMask: z
-      .any()
-      .transform((m: FieldMask) => m.toString())
-      .optional(),
-  })
-  .transform(d => ({
-    token: d.token,
-    update_mask: d.updateMask,
-  }));
-
-const adminTokenInfoFieldMaskSchema: FieldMaskSchema = {
-  autoscopeState: {wire: 'autoscope_state'},
-  comment: {wire: 'comment'},
-  createdById: {wire: 'created_by_id'},
-  createdByUsername: {wire: 'created_by_username'},
-  creationTime: {wire: 'creation_time'},
-  expiryTime: {wire: 'expiry_time'},
-  lastUsedDay: {wire: 'last_used_day'},
-  ownerId: {wire: 'owner_id'},
-  scopes: {wire: 'scopes'},
-  tokenId: {wire: 'token_id'},
-  workspaceId: {wire: 'workspace_id'},
-};
-
-export function adminTokenInfoFieldMask(
-  ...paths: string[]
-): FieldMask<AdminTokenInfo> {
-  return FieldMask.build<AdminTokenInfo>(paths, adminTokenInfoFieldMaskSchema);
-}

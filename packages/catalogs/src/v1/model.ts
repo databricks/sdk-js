@@ -5,7 +5,6 @@ import {z} from 'zod';
 export enum CatalogIsolationMode {
   OPEN = 'OPEN',
   ISOLATED = 'ISOLATED',
-  OPEN_IN_ACCOUNT = 'OPEN_IN_ACCOUNT',
 }
 
 /** The type of the catalog. */
@@ -16,12 +15,6 @@ export enum CatalogType {
   INTERNAL_CATALOG = 'INTERNAL_CATALOG',
   FOREIGN_CATALOG = 'FOREIGN_CATALOG',
   MANAGED_ONLINE_CATALOG = 'MANAGED_ONLINE_CATALOG',
-}
-
-export enum DrReplicationStatus {
-  DR_REPLICATION_STATUS_UNSPECIFIED = 'DR_REPLICATION_STATUS_UNSPECIFIED',
-  DR_REPLICATION_STATUS_PRIMARY = 'DR_REPLICATION_STATUS_PRIMARY',
-  DR_REPLICATION_STATUS_SECONDARY = 'DR_REPLICATION_STATUS_SECONDARY',
 }
 
 /** The type of Unity Catalog securable. */
@@ -44,13 +37,6 @@ export enum SecurableType {
   EXTERNAL_METADATA = 'EXTERNAL_METADATA',
   /** TODO: [UC-2980] Staging tables aren't full-fleged securables yet. */
   STAGING_TABLE = 'STAGING_TABLE',
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ConversionInfo_State {
-  STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -115,10 +101,6 @@ export interface CatalogInfo {
   /** The full name of the catalog. Corresponds with the name field. */
   fullName?: string | undefined;
   securableType?: SecurableType | undefined;
-  /** Status of conversion of FOREIGN catalog to UC Native catalog. */
-  conversionInfo?: ConversionInfo | undefined;
-  /** Disaster Recovery replication state snapshot. */
-  drReplicationInfo?: DrReplicationInfo | undefined;
   /** Control CMK encryption for managed catalog data */
   managedEncryptionSettings?: EncryptionSettings | undefined;
   /** A map of key-value properties attached to the securable. */
@@ -137,12 +119,6 @@ export interface CatalogInfo_OptionsEntry {
 export interface CatalogInfo_PropertiesEntry {
   key?: string | undefined;
   value?: string | undefined;
-}
-
-/** Status of conversion of FOREIGN entity into UC Native entity. */
-export interface ConversionInfo {
-  /** The conversion state of the resource. */
-  state?: ConversionInfo_State | undefined;
 }
 
 export interface CreateCatalog {
@@ -190,10 +166,6 @@ export interface CreateCatalog {
   /** The full name of the catalog. Corresponds with the name field. */
   fullName?: string | undefined;
   securableType?: SecurableType | undefined;
-  /** Status of conversion of FOREIGN catalog to UC Native catalog. */
-  conversionInfo?: ConversionInfo | undefined;
-  /** Disaster Recovery replication state snapshot. */
-  drReplicationInfo?: DrReplicationInfo | undefined;
   /** Control CMK encryption for managed catalog data */
   managedEncryptionSettings?: EncryptionSettings | undefined;
   /** A map of key-value properties attached to the securable. */
@@ -223,19 +195,6 @@ export interface DeleteCatalog {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
 export interface DeleteCatalog_Response {}
-
-/** Metadata related to Disaster Recovery. */
-export interface DrReplicationInfo {
-  status?: DrReplicationStatus | undefined;
-  /** See https://docs.google.com/document/d/1X0A_3hMhzuS2V1E3zB0x5wxPsFx70bVYK5rHep2AjW8. */
-  replicatedEntities?: Uint8Array | undefined;
-  /**
-   * Wall-clock epoch milliseconds when this catalog was last promoted to primary
-   * via failover or failback. Set by DR Manager. Used by Predictive Optimization
-   * to suppress operations until sufficient workload history accumulates.
-   */
-  lastFailoverTimeMs?: number | undefined;
-}
 
 export interface EffectivePredictiveOptimizationFlag {
   /** Whether predictive optimization should be enabled for this object and objects under it. */
@@ -354,10 +313,6 @@ export interface UpdateCatalog {
   /** The full name of the catalog. Corresponds with the name field. */
   fullName?: string | undefined;
   securableType?: SecurableType | undefined;
-  /** Status of conversion of FOREIGN catalog to UC Native catalog. */
-  conversionInfo?: ConversionInfo | undefined;
-  /** Disaster Recovery replication state snapshot. */
-  drReplicationInfo?: DrReplicationInfo | undefined;
   /** Control CMK encryption for managed catalog data */
   managedEncryptionSettings?: EncryptionSettings | undefined;
   /** A map of key-value properties attached to the securable. */
@@ -416,10 +371,6 @@ export const unmarshalCatalogInfoSchema: z.ZodType<CatalogInfo> = z
     provisioning_info: z.lazy(() => unmarshalProvisioningInfoSchema).optional(),
     full_name: z.string().optional(),
     securable_type: z.enum(SecurableType).optional(),
-    conversion_info: z.lazy(() => unmarshalConversionInfoSchema).optional(),
-    dr_replication_info: z
-      .lazy(() => unmarshalDrReplicationInfoSchema)
-      .optional(),
     managed_encryption_settings: z
       .lazy(() => unmarshalEncryptionSettingsSchema)
       .optional(),
@@ -449,39 +400,14 @@ export const unmarshalCatalogInfoSchema: z.ZodType<CatalogInfo> = z
     provisioningInfo: d.provisioning_info,
     fullName: d.full_name,
     securableType: d.securable_type,
-    conversionInfo: d.conversion_info,
-    drReplicationInfo: d.dr_replication_info,
     managedEncryptionSettings: d.managed_encryption_settings,
     properties: d.properties,
     options: d.options,
   }));
 
-export const unmarshalConversionInfoSchema: z.ZodType<ConversionInfo> = z
-  .object({
-    state: z.enum(ConversionInfo_State).optional(),
-  })
-  .transform(d => ({
-    state: d.state,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteCatalog_ResponseSchema: z.ZodType<DeleteCatalog_Response> =
   z.object({});
-
-export const unmarshalDrReplicationInfoSchema: z.ZodType<DrReplicationInfo> = z
-  .object({
-    status: z.enum(DrReplicationStatus).optional(),
-    replicated_entities: z
-      .string()
-      .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
-      .optional(),
-    last_failover_time_ms: z.number().optional(),
-  })
-  .transform(d => ({
-    status: d.status,
-    replicatedEntities: d.replicated_entities,
-    lastFailoverTimeMs: d.last_failover_time_ms,
-  }));
 
 export const unmarshalEffectivePredictiveOptimizationFlagSchema: z.ZodType<EffectivePredictiveOptimizationFlag> =
   z
@@ -543,14 +469,6 @@ export const marshalAzureEncryptionSettingsSchema: z.ZodType = z
     azure_cmk_managed_identity_id: d.azureCmkManagedIdentityId,
   }));
 
-export const marshalConversionInfoSchema: z.ZodType = z
-  .object({
-    state: z.enum(ConversionInfo_State).optional(),
-  })
-  .transform(d => ({
-    state: d.state,
-  }));
-
 export const marshalCreateCatalogSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -576,8 +494,6 @@ export const marshalCreateCatalogSchema: z.ZodType = z
     provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
     fullName: z.string().optional(),
     securableType: z.enum(SecurableType).optional(),
-    conversionInfo: z.lazy(() => marshalConversionInfoSchema).optional(),
-    drReplicationInfo: z.lazy(() => marshalDrReplicationInfoSchema).optional(),
     managedEncryptionSettings: z
       .lazy(() => marshalEncryptionSettingsSchema)
       .optional(),
@@ -607,28 +523,9 @@ export const marshalCreateCatalogSchema: z.ZodType = z
     provisioning_info: d.provisioningInfo,
     full_name: d.fullName,
     securable_type: d.securableType,
-    conversion_info: d.conversionInfo,
-    dr_replication_info: d.drReplicationInfo,
     managed_encryption_settings: d.managedEncryptionSettings,
     properties: d.properties,
     options: d.options,
-  }));
-
-export const marshalDrReplicationInfoSchema: z.ZodType = z
-  .object({
-    status: z.enum(DrReplicationStatus).optional(),
-    replicatedEntities: z
-      .any()
-      .transform((d: Uint8Array) =>
-        btoa(Array.from(d, b => String.fromCharCode(b)).join(''))
-      )
-      .optional(),
-    lastFailoverTimeMs: z.number().optional(),
-  })
-  .transform(d => ({
-    status: d.status,
-    replicated_entities: d.replicatedEntities,
-    last_failover_time_ms: d.lastFailoverTimeMs,
   }));
 
 export const marshalEffectivePredictiveOptimizationFlagSchema: z.ZodType = z
@@ -692,8 +589,6 @@ export const marshalUpdateCatalogSchema: z.ZodType = z
     provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
     fullName: z.string().optional(),
     securableType: z.enum(SecurableType).optional(),
-    conversionInfo: z.lazy(() => marshalConversionInfoSchema).optional(),
-    drReplicationInfo: z.lazy(() => marshalDrReplicationInfoSchema).optional(),
     managedEncryptionSettings: z
       .lazy(() => marshalEncryptionSettingsSchema)
       .optional(),
@@ -725,8 +620,6 @@ export const marshalUpdateCatalogSchema: z.ZodType = z
     provisioning_info: d.provisioningInfo,
     full_name: d.fullName,
     securable_type: d.securableType,
-    conversion_info: d.conversionInfo,
-    dr_replication_info: d.drReplicationInfo,
     managed_encryption_settings: d.managedEncryptionSettings,
     properties: d.properties,
     options: d.options,

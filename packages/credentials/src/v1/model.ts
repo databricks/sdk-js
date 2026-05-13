@@ -6,7 +6,6 @@ export enum IsolationMode {
   ISOLATION_MODE_UNSPECIFIED = 'ISOLATION_MODE_UNSPECIFIED',
   ISOLATION_MODE_OPEN = 'ISOLATION_MODE_OPEN',
   ISOLATION_MODE_ISOLATED = 'ISOLATION_MODE_ISOLATED',
-  ISOLATION_MODE_OPEN_IN_ACCOUNT = 'ISOLATION_MODE_OPEN_IN_ACCOUNT',
 }
 
 export enum PathOperation {
@@ -615,7 +614,6 @@ export interface GenerateTemporaryPathCredential_Response {
     | {$case: 'gcpOauthToken'; gcpOauthToken: GcpOauthToken}
     | {$case: 'azureAad'; azureAad: AzureActiveDirectoryToken}
     | {$case: 'r2TempCredentials'; r2TempCredentials: R2Credentials}
-    | {$case: 'ucEncryptedToken'; ucEncryptedToken: UcEncryptedToken}
     | undefined;
   /**
    * Server time when the credential will expire, in epoch milliseconds.
@@ -684,7 +682,6 @@ export interface GenerateTemporaryTableCredential_Response {
     | {$case: 'gcpOauthToken'; gcpOauthToken: GcpOauthToken}
     | {$case: 'azureAad'; azureAad: AzureActiveDirectoryToken}
     | {$case: 'r2TempCredentials'; r2TempCredentials: R2Credentials}
-    | {$case: 'ucEncryptedToken'; ucEncryptedToken: UcEncryptedToken}
     | undefined;
   /**
    * Server time when the credential will expire, in epoch milliseconds.
@@ -718,7 +715,6 @@ export interface GenerateTemporaryVolumeCredential_Response {
     | {$case: 'gcpOauthToken'; gcpOauthToken: GcpOauthToken}
     | {$case: 'azureAad'; azureAad: AzureActiveDirectoryToken}
     | {$case: 'r2TempCredentials'; r2TempCredentials: R2Credentials}
-    | {$case: 'ucEncryptedToken'; ucEncryptedToken: UcEncryptedToken}
     | undefined;
   /**
    * Server time when the credential will expire, in epoch milliseconds.
@@ -914,7 +910,6 @@ export interface TemporaryCredentials {
     | {$case: 'gcpOauthToken'; gcpOauthToken: GcpOauthToken}
     | {$case: 'azureAad'; azureAad: AzureActiveDirectoryToken}
     | {$case: 'r2TempCredentials'; r2TempCredentials: R2Credentials}
-    | {$case: 'ucEncryptedToken'; ucEncryptedToken: UcEncryptedToken}
     | undefined;
   /**
    * Server time when the credential will expire, in epoch milliseconds.
@@ -923,15 +918,6 @@ export interface TemporaryCredentials {
   expirationTime?: number | undefined;
   /** The URL of the storage path accessible by the temporary credential. */
   url?: string | undefined;
-}
-
-/**
- * Encrypted token used when we cannot downscope the cloud provider token appropriately
- * See: https://docs.google.com/document/d/1hEKDnSckuU5PIS798CtfqBElrMR6OJuR2wgz_BjhMSY
- */
-export interface UcEncryptedToken {
-  /** Stores encrypted ScopedCloudToken as a base64-encoded string */
-  encryptedPayload?: string | undefined;
 }
 
 export interface UpdateAccountsStorageCredential {
@@ -1569,9 +1555,6 @@ export const unmarshalGenerateTemporaryPathCredential_ResponseSchema: z.ZodType<
       r2_temp_credentials: z
         .lazy(() => unmarshalR2CredentialsSchema)
         .optional(),
-      uc_encrypted_token: z
-        .lazy(() => unmarshalUcEncryptedTokenSchema)
-        .optional(),
       expiration_time: z.number().optional(),
       url: z.string().optional(),
     })
@@ -1599,12 +1582,7 @@ export const unmarshalGenerateTemporaryPathCredential_ResponseSchema: z.ZodType<
                       $case: 'r2TempCredentials' as const,
                       r2TempCredentials: d.r2_temp_credentials,
                     }
-                  : d.uc_encrypted_token !== undefined
-                    ? {
-                        $case: 'ucEncryptedToken' as const,
-                        ucEncryptedToken: d.uc_encrypted_token,
-                      }
-                    : undefined,
+                  : undefined,
       expirationTime: d.expiration_time,
       url: d.url,
     }));
@@ -1626,9 +1604,6 @@ export const unmarshalGenerateTemporaryTableCredential_ResponseSchema: z.ZodType
       r2_temp_credentials: z
         .lazy(() => unmarshalR2CredentialsSchema)
         .optional(),
-      uc_encrypted_token: z
-        .lazy(() => unmarshalUcEncryptedTokenSchema)
-        .optional(),
       expiration_time: z.number().optional(),
       url: z.string().optional(),
     })
@@ -1656,12 +1631,7 @@ export const unmarshalGenerateTemporaryTableCredential_ResponseSchema: z.ZodType
                       $case: 'r2TempCredentials' as const,
                       r2TempCredentials: d.r2_temp_credentials,
                     }
-                  : d.uc_encrypted_token !== undefined
-                    ? {
-                        $case: 'ucEncryptedToken' as const,
-                        ucEncryptedToken: d.uc_encrypted_token,
-                      }
-                    : undefined,
+                  : undefined,
       expirationTime: d.expiration_time,
       url: d.url,
     }));
@@ -1683,9 +1653,6 @@ export const unmarshalGenerateTemporaryVolumeCredential_ResponseSchema: z.ZodTyp
       r2_temp_credentials: z
         .lazy(() => unmarshalR2CredentialsSchema)
         .optional(),
-      uc_encrypted_token: z
-        .lazy(() => unmarshalUcEncryptedTokenSchema)
-        .optional(),
       expiration_time: z.number().optional(),
       url: z.string().optional(),
     })
@@ -1713,12 +1680,7 @@ export const unmarshalGenerateTemporaryVolumeCredential_ResponseSchema: z.ZodTyp
                       $case: 'r2TempCredentials' as const,
                       r2TempCredentials: d.r2_temp_credentials,
                     }
-                  : d.uc_encrypted_token !== undefined
-                    ? {
-                        $case: 'ucEncryptedToken' as const,
-                        ucEncryptedToken: d.uc_encrypted_token,
-                      }
-                    : undefined,
+                  : undefined,
       expirationTime: d.expiration_time,
       url: d.url,
     }));
@@ -1858,9 +1820,6 @@ export const unmarshalTemporaryCredentialsSchema: z.ZodType<TemporaryCredentials
       r2_temp_credentials: z
         .lazy(() => unmarshalR2CredentialsSchema)
         .optional(),
-      uc_encrypted_token: z
-        .lazy(() => unmarshalUcEncryptedTokenSchema)
-        .optional(),
       expiration_time: z.number().optional(),
       url: z.string().optional(),
     })
@@ -1888,23 +1847,10 @@ export const unmarshalTemporaryCredentialsSchema: z.ZodType<TemporaryCredentials
                       $case: 'r2TempCredentials' as const,
                       r2TempCredentials: d.r2_temp_credentials,
                     }
-                  : d.uc_encrypted_token !== undefined
-                    ? {
-                        $case: 'ucEncryptedToken' as const,
-                        ucEncryptedToken: d.uc_encrypted_token,
-                      }
-                    : undefined,
+                  : undefined,
       expirationTime: d.expiration_time,
       url: d.url,
     }));
-
-export const unmarshalUcEncryptedTokenSchema: z.ZodType<UcEncryptedToken> = z
-  .object({
-    encrypted_payload: z.string().optional(),
-  })
-  .transform(d => ({
-    encryptedPayload: d.encrypted_payload,
-  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalValidateCredential_ResponseSchema: z.ZodType<ValidateCredential_Response> =

@@ -21,7 +21,6 @@ export enum ConnectionType {
   SALESFORCE_DATA_CLOUD = 'SALESFORCE_DATA_CLOUD',
   GLUE = 'GLUE',
   ORACLE = 'ORACLE',
-  PALANTIR = 'PALANTIR',
   TERADATA = 'TERADATA',
   HTTP = 'HTTP',
   POWER_BI = 'POWER_BI',
@@ -32,55 +31,6 @@ export enum ConnectionType {
   GITHUB = 'GITHUB',
   OUTLOOK = 'OUTLOOK',
   SMARTSHEET = 'SMARTSHEET',
-  BIGLAKE = 'BIGLAKE',
-  GOOGLE_CLOUD_LAKEHOUSE = 'GOOGLE_CLOUD_LAKEHOUSE',
-  SLACK_ACCESS_AND_INTEGRATION_LOGS = 'SLACK_ACCESS_AND_INTEGRATION_LOGS',
-  PENDO = 'PENDO',
-  ORACLE_FUSION_CLOUD = 'ORACLE_FUSION_CLOUD',
-  GOOGLE_ANALYTICS = 'GOOGLE_ANALYTICS',
-  AMPLITUDE = 'AMPLITUDE',
-  NOTION = 'NOTION',
-  ADP_WORKFORCE_NOW = 'ADP_WORKFORCE_NOW',
-  SAS = 'SAS',
-  GONG = 'GONG',
-  SALESLOFT = 'SALESLOFT',
-  GOOGLE_WORKSPACE = 'GOOGLE_WORKSPACE',
-  SHOPIFY = 'SHOPIFY',
-  ORACLE_ELOQUA = 'ORACLE_ELOQUA',
-  EPIC_CLARITY = 'EPIC_CLARITY',
-  LINEAR = 'LINEAR',
-  APPLE_APP_STORE = 'APPLE_APP_STORE',
-  SPLUNK = 'SPLUNK',
-  GITLAB = 'GITLAB',
-  ZOOM_LOGS = 'ZOOM_LOGS',
-  MONDAY_COM = 'MONDAY_COM',
-  AIRTABLE = 'AIRTABLE',
-  MICROSOFT_ENTRA_ID = 'MICROSOFT_ENTRA_ID',
-  PAGERDUTY = 'PAGERDUTY',
-  AHA = 'AHA',
-  NETSKOPE_LOGS = 'NETSKOPE_LOGS',
-  APPFIGURES = 'APPFIGURES',
-  ADOBE_COMMERCE = 'ADOBE_COMMERCE',
-  QUICKBOOKS = 'QUICKBOOKS',
-  SQUARE = 'SQUARE',
-  ZOHO_BOOKS = 'ZOHO_BOOKS',
-  SNAPCHAT_ADS = 'SNAPCHAT_ADS',
-  GENESYS = 'GENESYS',
-  SAP_SUCCESSFACTORS = 'SAP_SUCCESSFACTORS',
-  YOUTUBE_ANALYTICS = 'YOUTUBE_ANALYTICS',
-  CERIDIAN_DAYFORCE = 'CERIDIAN_DAYFORCE',
-  FRESHSERVICE = 'FRESHSERVICE',
-  SENDGRID = 'SENDGRID',
-  AZURE_MONITOR_LOGS = 'AZURE_MONITOR_LOGS',
-  ATLASSIAN_ORGANIZATION = 'ATLASSIAN_ORGANIZATION',
-  HIBOB = 'HIBOB',
-  APPLE_SEARCH_ADS = 'APPLE_SEARCH_ADS',
-  AWIN = 'AWIN',
-  DELIGHTED = 'DELIGHTED',
-  FRONT = 'FRONT',
-  GURU = 'GURU',
-  PARTNERSTACK = 'PARTNERSTACK',
-  MARKETO = 'MARKETO',
 }
 
 /** Next Id: 18 */
@@ -101,8 +51,6 @@ export enum CredentialType {
   OAUTH_MTLS = 'OAUTH_MTLS',
   SSWS_TOKEN = 'SSWS_TOKEN',
   EDGEGRID_AKAMAI = 'EDGEGRID_AKAMAI',
-  OAUTH_GOOGLE_SERVICE_ACCOUNT = 'OAUTH_GOOGLE_SERVICE_ACCOUNT',
-  OAUTH_DCR = 'OAUTH_DCR',
 }
 
 /** The type of Unity Catalog securable. */
@@ -149,8 +97,6 @@ export interface ConnectionInfo {
   readOnly?: boolean | undefined;
   /** User-provided free-form text description. */
   comment?: string | undefined;
-  /** [Create,Update:OPT] Connection environment settings as EnvironmentSettings object. */
-  environmentSettings?: EnvironmentSettings | undefined;
   /** Full name of connection. */
   fullName?: string | undefined;
   /** URL of the remote data source, extracted from options. */
@@ -173,11 +119,6 @@ export interface ConnectionInfo {
   provisioningInfo?: ProvisioningInfo | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
-  /**
-   * A map of option names to UC Secret references. Keys are connection option names
-   * (same as in OptionsKVPairs) and values are UC Secret fully qualified names.
-   */
-  secrets?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string> | undefined;
 }
@@ -194,18 +135,7 @@ export interface ConnectionInfo_PropertiesEntry {
   value?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ConnectionInfo_SecretsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface CreateConnection {
-  /**
-   * Parent schema for schema-level connections, in format "schemas/{catalog}.{schema}".
-   * Absent for metastore-level (L1) connections.
-   */
-  parent?: string | undefined;
   /** Name of the connection. */
   name?: string | undefined;
   /** The type of connection. */
@@ -216,8 +146,6 @@ export interface CreateConnection {
   readOnly?: boolean | undefined;
   /** User-provided free-form text description. */
   comment?: string | undefined;
-  /** [Create,Update:OPT] Connection environment settings as EnvironmentSettings object. */
-  environmentSettings?: EnvironmentSettings | undefined;
   /** Full name of connection. */
   fullName?: string | undefined;
   /** URL of the remote data source, extracted from options. */
@@ -240,11 +168,6 @@ export interface CreateConnection {
   provisioningInfo?: ProvisioningInfo | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
-  /**
-   * A map of option names to UC Secret references. Keys are connection option names
-   * (same as in OptionsKVPairs) and values are UC Secret fully qualified names.
-   */
-  secrets?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string> | undefined;
 }
@@ -261,12 +184,6 @@ export interface CreateConnection_PropertiesEntry {
   value?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateConnection_SecretsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export interface DeleteConnection {
   /** The name of the connection to be deleted. */
   nameArg?: string | undefined;
@@ -274,11 +191,6 @@ export interface DeleteConnection {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
 export interface DeleteConnection_Response {}
-
-export interface EnvironmentSettings {
-  javaDependencies?: string[] | undefined;
-  environmentVersion?: string | undefined;
-}
 
 export interface GetConnection {
   /** Name of the connection. */
@@ -296,8 +208,6 @@ export interface ListConnections {
   maxResults?: number | undefined;
   /** Opaque pagination token to go to next page based on previous query. */
   pageToken?: string | undefined;
-  /** Optional. Parent schema filter for listing schema-level connections, in format "schemas/{catalog}.{schema}". */
-  parent?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -332,8 +242,6 @@ export interface UpdateConnection {
   readOnly?: boolean | undefined;
   /** User-provided free-form text description. */
   comment?: string | undefined;
-  /** [Create,Update:OPT] Connection environment settings as EnvironmentSettings object. */
-  environmentSettings?: EnvironmentSettings | undefined;
   /** Full name of connection. */
   fullName?: string | undefined;
   /** URL of the remote data source, extracted from options. */
@@ -356,11 +264,6 @@ export interface UpdateConnection {
   provisioningInfo?: ProvisioningInfo | undefined;
   /** A map of key-value properties attached to the securable. */
   options?: Record<string, string> | undefined;
-  /**
-   * A map of option names to UC Secret references. Keys are connection option names
-   * (same as in OptionsKVPairs) and values are UC Secret fully qualified names.
-   */
-  secrets?: Record<string, string> | undefined;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string> | undefined;
 }
@@ -377,12 +280,6 @@ export interface UpdateConnection_PropertiesEntry {
   value?: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateConnection_SecretsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
   .object({
     name: z.string().optional(),
@@ -390,9 +287,6 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
     owner: z.string().optional(),
     read_only: z.boolean().optional(),
     comment: z.string().optional(),
-    environment_settings: z
-      .lazy(() => unmarshalEnvironmentSettingsSchema)
-      .optional(),
     full_name: z.string().optional(),
     url: z.string().optional(),
     credential_type: z.enum(CredentialType).optional(),
@@ -405,7 +299,6 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
     securable_type: z.enum(SecurableType).optional(),
     provisioning_info: z.lazy(() => unmarshalProvisioningInfoSchema).optional(),
     options: z.record(z.string(), z.string()).optional(),
-    secrets: z.record(z.string(), z.string()).optional(),
     properties: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
@@ -414,7 +307,6 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
     owner: d.owner,
     readOnly: d.read_only,
     comment: d.comment,
-    environmentSettings: d.environment_settings,
     fullName: d.full_name,
     url: d.url,
     credentialType: d.credential_type,
@@ -427,24 +319,12 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
     securableType: d.securable_type,
     provisioningInfo: d.provisioning_info,
     options: d.options,
-    secrets: d.secrets,
     properties: d.properties,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeleteConnection_ResponseSchema: z.ZodType<DeleteConnection_Response> =
   z.object({});
-
-export const unmarshalEnvironmentSettingsSchema: z.ZodType<EnvironmentSettings> =
-  z
-    .object({
-      java_dependencies: z.array(z.string()).optional(),
-      environment_version: z.string().optional(),
-    })
-    .transform(d => ({
-      javaDependencies: d.java_dependencies,
-      environmentVersion: d.environment_version,
-    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListConnections_ResponseSchema: z.ZodType<ListConnections_Response> =
@@ -470,15 +350,11 @@ export const unmarshalProvisioningInfoSchema: z.ZodType<ProvisioningInfo> = z
 
 export const marshalCreateConnectionSchema: z.ZodType = z
   .object({
-    parent: z.string().optional(),
     name: z.string().optional(),
     connectionType: z.enum(ConnectionType).optional(),
     owner: z.string().optional(),
     readOnly: z.boolean().optional(),
     comment: z.string().optional(),
-    environmentSettings: z
-      .lazy(() => marshalEnvironmentSettingsSchema)
-      .optional(),
     fullName: z.string().optional(),
     url: z.string().optional(),
     credentialType: z.enum(CredentialType).optional(),
@@ -491,17 +367,14 @@ export const marshalCreateConnectionSchema: z.ZodType = z
     securableType: z.enum(SecurableType).optional(),
     provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
     options: z.record(z.string(), z.string()).optional(),
-    secrets: z.record(z.string(), z.string()).optional(),
     properties: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
-    parent: d.parent,
     name: d.name,
     connection_type: d.connectionType,
     owner: d.owner,
     read_only: d.readOnly,
     comment: d.comment,
-    environment_settings: d.environmentSettings,
     full_name: d.fullName,
     url: d.url,
     credential_type: d.credentialType,
@@ -514,18 +387,7 @@ export const marshalCreateConnectionSchema: z.ZodType = z
     securable_type: d.securableType,
     provisioning_info: d.provisioningInfo,
     options: d.options,
-    secrets: d.secrets,
     properties: d.properties,
-  }));
-
-export const marshalEnvironmentSettingsSchema: z.ZodType = z
-  .object({
-    javaDependencies: z.array(z.string()).optional(),
-    environmentVersion: z.string().optional(),
-  })
-  .transform(d => ({
-    java_dependencies: d.javaDependencies,
-    environment_version: d.environmentVersion,
   }));
 
 export const marshalProvisioningInfoSchema: z.ZodType = z
@@ -545,9 +407,6 @@ export const marshalUpdateConnectionSchema: z.ZodType = z
     owner: z.string().optional(),
     readOnly: z.boolean().optional(),
     comment: z.string().optional(),
-    environmentSettings: z
-      .lazy(() => marshalEnvironmentSettingsSchema)
-      .optional(),
     fullName: z.string().optional(),
     url: z.string().optional(),
     credentialType: z.enum(CredentialType).optional(),
@@ -560,7 +419,6 @@ export const marshalUpdateConnectionSchema: z.ZodType = z
     securableType: z.enum(SecurableType).optional(),
     provisioningInfo: z.lazy(() => marshalProvisioningInfoSchema).optional(),
     options: z.record(z.string(), z.string()).optional(),
-    secrets: z.record(z.string(), z.string()).optional(),
     properties: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
@@ -571,7 +429,6 @@ export const marshalUpdateConnectionSchema: z.ZodType = z
     owner: d.owner,
     read_only: d.readOnly,
     comment: d.comment,
-    environment_settings: d.environmentSettings,
     full_name: d.fullName,
     url: d.url,
     credential_type: d.credentialType,
@@ -584,6 +441,5 @@ export const marshalUpdateConnectionSchema: z.ZodType = z
     securable_type: d.securableType,
     provisioning_info: d.provisioningInfo,
     options: d.options,
-    secrets: d.secrets,
     properties: d.properties,
   }));

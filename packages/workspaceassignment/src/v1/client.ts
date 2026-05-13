@@ -104,23 +104,11 @@ export class Client {
     options?: CallOptions
   ): Promise<GetWorkspacePermissionAssignments_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments`;
-    const params = new URLSearchParams();
-    if (req.pageToken !== undefined) {
-      params.append('page_token', req.pageToken);
-    }
-    if (req.maxResults !== undefined) {
-      params.append('max_results', String(req.maxResults));
-    }
-    if (req.filter !== undefined) {
-      params.append('filter', req.filter);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GetWorkspacePermissionAssignments_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,

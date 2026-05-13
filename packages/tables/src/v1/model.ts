@@ -26,10 +26,7 @@ export enum ColumnTypeName {
   VARIANT = 'VARIANT',
   GEOMETRY = 'GEOMETRY',
   GEOGRAPHY = 'GEOGRAPHY',
-  TIME = 'TIME',
-  FILE = 'FILE',
   TABLE_TYPE = 'TABLE_TYPE',
-  TABLEREF_TYPE = 'TABLEREF_TYPE',
 }
 
 /** Data source format */
@@ -94,12 +91,6 @@ export enum SecurableKind {
   TABLE_FOREIGN_DELTASHARING = 'TABLE_FOREIGN_DELTASHARING',
   TABLE_DELTA_ICEBERG_DELTASHARING = 'TABLE_DELTA_ICEBERG_DELTASHARING',
   TABLE_DELTASHARING_OPEN_DIR_BASED = 'TABLE_DELTASHARING_OPEN_DIR_BASED',
-  /**
-   * This is the delta sharing version of foreign delta tables.
-   * Unlike TABLE_FOREIGN_DELTASHARING which represents a generic foreign table,
-   * this specifically represents a foreign delta table shared via Delta Sharing.
-   */
-  TABLE_FOREIGN_DELTA_DELTASHARING = 'TABLE_FOREIGN_DELTA_DELTASHARING',
   /** TABLE_FEATURE_STORE and TABLE_FEATURE_STORE_EXTERNAL are deprecated. */
   TABLE_FEATURE_STORE = 'TABLE_FEATURE_STORE',
   TABLE_FEATURE_STORE_EXTERNAL = 'TABLE_FEATURE_STORE_EXTERNAL',
@@ -111,7 +102,6 @@ export enum SecurableKind {
   TABLE_FOREIGN_BIGQUERY = 'TABLE_FOREIGN_BIGQUERY',
   TABLE_FOREIGN_MYSQL = 'TABLE_FOREIGN_MYSQL',
   TABLE_FOREIGN_ORACLE = 'TABLE_FOREIGN_ORACLE',
-  TABLE_FOREIGN_PALANTIR = 'TABLE_FOREIGN_PALANTIR',
   TABLE_FOREIGN_POSTGRESQL = 'TABLE_FOREIGN_POSTGRESQL',
   TABLE_FOREIGN_SQLDW = 'TABLE_FOREIGN_SQLDW',
   TABLE_FOREIGN_REDSHIFT = 'TABLE_FOREIGN_REDSHIFT',
@@ -166,16 +156,6 @@ export enum SecurableKind {
   TABLE_ONLINE_VIEW = 'TABLE_ONLINE_VIEW',
   TABLE_DB_STORAGE = 'TABLE_DB_STORAGE',
   TABLE_MANAGED_POSTGRESQL = 'TABLE_MANAGED_POSTGRESQL',
-  RECIPIENT_EMAIL = 'RECIPIENT_EMAIL',
-  RECIPIENT_EMAIL_TOKEN = 'RECIPIENT_EMAIL_TOKEN',
-  RECIPIENT_EMAIL_DATABRICKS = 'RECIPIENT_EMAIL_DATABRICKS',
-  CONNECTION_COMMUNITY_OAUTH_M2M = 'CONNECTION_COMMUNITY_OAUTH_M2M',
-  CONNECTION_COMMUNITY_OAUTH_U2M = 'CONNECTION_COMMUNITY_OAUTH_U2M',
-  CONNECTION_COMMUNITY_OAUTH_U2M_MAPPING = 'CONNECTION_COMMUNITY_OAUTH_U2M_MAPPING',
-  CATALOG_FOREIGN_BIGLAKE = 'CATALOG_FOREIGN_BIGLAKE',
-  SCHEMA_FOREIGN_BIGLAKE = 'SCHEMA_FOREIGN_BIGLAKE',
-  TABLE_FOREIGN_BIGLAKE = 'TABLE_FOREIGN_BIGLAKE',
-  CONNECTION_BIGLAKE_SERVICE_ACCOUNT = 'CONNECTION_BIGLAKE_SERVICE_ACCOUNT',
 }
 
 /** The type of Unity Catalog securable. */
@@ -248,7 +228,6 @@ export enum OptionSpec_OptionType {
   OPTION_ENUM = 'OPTION_ENUM',
   OPTION_SERVICE_CREDENTIAL = 'OPTION_SERVICE_CREDENTIAL',
   OPTION_MULTILINE_STRING = 'OPTION_MULTILINE_STRING',
-  OPTION_STORAGE_CREDENTIAL = 'OPTION_STORAGE_CREDENTIAL',
 }
 
 export interface ColumnInfo {
@@ -291,26 +270,6 @@ export interface ColumnMask {
    * carries information about the types (alias or constant) of the arguments to the mask function.
    */
   usingArguments?: PolicyFunctionArgument[] | undefined;
-}
-
-/**
- * Defines when an option should be hidden based on another option's value.
- * For example, for pre-created OAuth connections, some options are conditionally hidden.
- * This field works in conjunction with OptionSpec.is_hidden:
- * - If OptionSpec.is_hidden is true, the option is always hidden regardless of ConditionalDisplay.
- * - If OptionSpec.is_hidden is false (or unset), ConditionalDisplay determines visibility:
- * - If depends_on_option matches any value in hidden_when_values, hide this option.
- * - Otherwise, show this option.
- */
-export interface ConditionalDisplay {
-  /** The name of the option whose value determines visibility of this option. */
-  dependsOnOption?: string | undefined;
-  /**
-   * The values of the depends_on_option that will hide this option.
-   * If empty or not set, this option follows default visibility (shown unless is_hidden is true).
-   * If depends_on_option has any of these values, this option is hidden.
-   */
-  hiddenWhenValues?: string[] | undefined;
 }
 
 /** A connection that is dependent on a SQL object. */
@@ -456,16 +415,6 @@ export interface Dependency {
     | {$case: 'function'; function: FunctionDependency}
     | {$case: 'connection'; connection: ConnectionDependency}
     | {$case: 'credential'; credential: CredentialDependency}
-    | {
-        $case: 'volume';
-        /** A dependency on a Unity Catalog volume. */
-        volume: VolumeDependency;
-      }
-    | {
-        $case: 'secret';
-        /** A dependency on a Unity Catalog secret. */
-        secret: SecretDependency;
-      }
     | undefined;
 }
 
@@ -647,11 +596,6 @@ export interface OptionSpec {
   isCreatable?: boolean | undefined;
   /** Indicates whether an option should be displayed with copy button on the UI. */
   isCopiable?: boolean | undefined;
-  /**
-   * Conditional display configuration.
-   * Specifies when this option should be hidden based on another option's value.
-   */
-  conditionalDisplay?: ConditionalDisplay | undefined;
 }
 
 /**
@@ -698,12 +642,6 @@ export interface RowFilter {
    * carries information about the types (alias or constant) of the arguments to the filter function.
    */
   inputArguments?: PolicyFunctionArgument[] | undefined;
-}
-
-/** A secret that is dependent on a SQL object. */
-export interface SecretDependency {
-  /** Full name of the dependent secret, in the form of __catalog_name__.__schema_name__.__secret_name__. */
-  secretFullName?: string | undefined;
 }
 
 /** Manifest of a specific securable kind. */
@@ -936,12 +874,6 @@ export interface UpdateTable_PropertiesEntry {
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
 export interface UpdateTable_Response {}
 
-/** A volume that is dependent on a SQL object. */
-export interface VolumeDependency {
-  /** Full name of the dependent volume, in the form of __catalog_name__.__schema_name__.__volume_name__. */
-  volumeFullName?: string | undefined;
-}
-
 export const unmarshalColumnInfoSchema: z.ZodType<ColumnInfo> = z
   .object({
     name: z.string().optional(),
@@ -986,17 +918,6 @@ export const unmarshalColumnMaskSchema: z.ZodType<ColumnMask> = z
     usingArguments: d.using_arguments,
   }));
 
-export const unmarshalConditionalDisplaySchema: z.ZodType<ConditionalDisplay> =
-  z
-    .object({
-      depends_on_option: z.string().optional(),
-      hidden_when_values: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      dependsOnOption: d.depends_on_option,
-      hiddenWhenValues: d.hidden_when_values,
-    }));
-
 export const unmarshalConnectionDependencySchema: z.ZodType<ConnectionDependency> =
   z
     .object({
@@ -1038,8 +959,6 @@ export const unmarshalDependencySchema: z.ZodType<Dependency> = z
     function: z.lazy(() => unmarshalFunctionDependencySchema).optional(),
     connection: z.lazy(() => unmarshalConnectionDependencySchema).optional(),
     credential: z.lazy(() => unmarshalCredentialDependencySchema).optional(),
-    volume: z.lazy(() => unmarshalVolumeDependencySchema).optional(),
-    secret: z.lazy(() => unmarshalSecretDependencySchema).optional(),
   })
   .transform(d => ({
     value:
@@ -1051,11 +970,7 @@ export const unmarshalDependencySchema: z.ZodType<Dependency> = z
             ? {$case: 'connection' as const, connection: d.connection}
             : d.credential !== undefined
               ? {$case: 'credential' as const, credential: d.credential}
-              : d.volume !== undefined
-                ? {$case: 'volume' as const, volume: d.volume}
-                : d.secret !== undefined
-                  ? {$case: 'secret' as const, secret: d.secret}
-                  : undefined,
+              : undefined,
   }));
 
 export const unmarshalDependencyListSchema: z.ZodType<DependencyList> = z
@@ -1170,9 +1085,6 @@ export const unmarshalOptionSpecSchema: z.ZodType<OptionSpec> = z
     is_loggable: z.boolean().optional(),
     is_creatable: z.boolean().optional(),
     is_copiable: z.boolean().optional(),
-    conditional_display: z
-      .lazy(() => unmarshalConditionalDisplaySchema)
-      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1189,7 +1101,6 @@ export const unmarshalOptionSpecSchema: z.ZodType<OptionSpec> = z
     isLoggable: d.is_loggable,
     isCreatable: d.is_creatable,
     isCopiable: d.is_copiable,
-    conditionalDisplay: d.conditional_display,
   }));
 
 export const unmarshalPolicyFunctionArgumentSchema: z.ZodType<PolicyFunctionArgument> =
@@ -1234,14 +1145,6 @@ export const unmarshalRowFilterSchema: z.ZodType<RowFilter> = z
     functionName: d.function_name,
     inputColumnNames: d.input_column_names,
     inputArguments: d.input_arguments,
-  }));
-
-export const unmarshalSecretDependencySchema: z.ZodType<SecretDependency> = z
-  .object({
-    secret_full_name: z.string().optional(),
-  })
-  .transform(d => ({
-    secretFullName: d.secret_full_name,
   }));
 
 export const unmarshalSecurableKindManifestSchema: z.ZodType<SecurableKindManifest> =
@@ -1423,14 +1326,6 @@ export const unmarshalTableSummarySchema: z.ZodType<TableSummary> = z
 export const unmarshalUpdateTable_ResponseSchema: z.ZodType<UpdateTable_Response> =
   z.object({});
 
-export const unmarshalVolumeDependencySchema: z.ZodType<VolumeDependency> = z
-  .object({
-    volume_full_name: z.string().optional(),
-  })
-  .transform(d => ({
-    volumeFullName: d.volume_full_name,
-  }));
-
 export const marshalColumnInfoSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -1473,16 +1368,6 @@ export const marshalColumnMaskSchema: z.ZodType = z
     function_name: d.functionName,
     using_column_names: d.usingColumnNames,
     using_arguments: d.usingArguments,
-  }));
-
-export const marshalConditionalDisplaySchema: z.ZodType = z
-  .object({
-    dependsOnOption: z.string().optional(),
-    hiddenWhenValues: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    depends_on_option: d.dependsOnOption,
-    hidden_when_values: d.hiddenWhenValues,
   }));
 
 export const marshalConnectionDependencySchema: z.ZodType = z
@@ -1620,14 +1505,6 @@ export const marshalDependencySchema: z.ZodType = z
           $case: z.literal('credential'),
           credential: z.lazy(() => marshalCredentialDependencySchema),
         }),
-        z.object({
-          $case: z.literal('volume'),
-          volume: z.lazy(() => marshalVolumeDependencySchema),
-        }),
-        z.object({
-          $case: z.literal('secret'),
-          secret: z.lazy(() => marshalSecretDependencySchema),
-        }),
       ])
       .optional(),
   })
@@ -1636,8 +1513,6 @@ export const marshalDependencySchema: z.ZodType = z
     ...(d.value?.$case === 'function' && {function: d.value.function}),
     ...(d.value?.$case === 'connection' && {connection: d.value.connection}),
     ...(d.value?.$case === 'credential' && {credential: d.value.credential}),
-    ...(d.value?.$case === 'volume' && {volume: d.value.volume}),
-    ...(d.value?.$case === 'secret' && {secret: d.value.secret}),
   }));
 
 export const marshalDependencyListSchema: z.ZodType = z
@@ -1725,9 +1600,6 @@ export const marshalOptionSpecSchema: z.ZodType = z
     isLoggable: z.boolean().optional(),
     isCreatable: z.boolean().optional(),
     isCopiable: z.boolean().optional(),
-    conditionalDisplay: z
-      .lazy(() => marshalConditionalDisplaySchema)
-      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1744,7 +1616,6 @@ export const marshalOptionSpecSchema: z.ZodType = z
     is_loggable: d.isLoggable,
     is_creatable: d.isCreatable,
     is_copiable: d.isCopiable,
-    conditional_display: d.conditionalDisplay,
   }));
 
 export const marshalPolicyFunctionArgumentSchema: z.ZodType = z
@@ -1787,14 +1658,6 @@ export const marshalRowFilterSchema: z.ZodType = z
     function_name: d.functionName,
     input_column_names: d.inputColumnNames,
     input_arguments: d.inputArguments,
-  }));
-
-export const marshalSecretDependencySchema: z.ZodType = z
-  .object({
-    secretFullName: z.string().optional(),
-  })
-  .transform(d => ({
-    secret_full_name: d.secretFullName,
   }));
 
 export const marshalSecurableKindManifestSchema: z.ZodType = z
@@ -1943,12 +1806,4 @@ export const marshalUpdateTableSchema: z.ZodType = z
     securable_kind_manifest: d.securableKindManifest,
     columns: d.columns,
     properties: d.properties,
-  }));
-
-export const marshalVolumeDependencySchema: z.ZodType = z
-  .object({
-    volumeFullName: z.string().optional(),
-  })
-  .transform(d => ({
-    volume_full_name: d.volumeFullName,
   }));
