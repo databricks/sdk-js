@@ -1,0 +1,342 @@
+# Naming Audit: dataquality
+
+**Path:** `packages/dataquality/src/v1/`
+**Versions audited:** v1
+**Inferred domain:** Data Quality monitoring on Unity Catalog schemas and tables. The package models two flavours of "Monitor" (Anomaly Detection for schemas, Data Profiling for tables), Refresh runs of the underlying monitoring pipeline, cron-style scheduling, baseline-vs-monitored drift metrics, custom metric definitions, validity checks (`PercentNull`, `Range`, `Uniqueness`), and notification routing on failure.
+**Total weird names flagged:** 52
+
+## Summary
+| Severity | Count |
+| --- | --- |
+| High | 14 |
+| Medium | 20 |
+| Low | 13 |
+| Observation | 5 |
+
+## High severity
+
+### 1. `ListMonitorRequest` / `ListMonitorResponse` / `listMonitor` / `listMonitorIter` — `src/v1/model.ts:366,372`, `src/v1/client.ts:316,349`
+- **Why weird:** Singular noun on a list operation. A list returns many monitors but the type and method names use the singular `Monitor`. The wire path is `/api/data-quality/v1/monitors` (plural), the response holds `monitors?: Monitor[]`, and the paginator yields a single `Monitor` — every concrete signal says plural; only the type/method name disagrees.
+- **Category:** 9 (singular/plural mismatch).
+- **Suggested name:** `ListMonitorsRequest` / `ListMonitorsResponse` / `listMonitors` / `listMonitorsIter`.
+- **Rationale:** REST conventions, the package's own field naming (`monitors`, `refreshes`), and the URL path all use plural. The singular form here is generator template noise, not intent. Same fix applies to refreshes (#2).
+
+### 2. `ListRefreshRequest` / `ListRefreshResponse` / `listRefresh` / `listRefreshIter` — `src/v1/model.ts:378,398`, `src/v1/client.ts:378,411`
+- **Why weird:** Same singular-on-list problem as #1. The wire path is `/refreshes` and the response holds `refreshes?: Refresh[]`.
+- **Category:** 9 (singular/plural mismatch).
+- **Suggested name:** `ListRefreshesRequest` / `ListRefreshesResponse` / `listRefreshes` / `listRefreshesIter`.
+- **Rationale:** Internal consistency: every other place in this file uses the plural `refreshes`. Only the type and method name break the pattern.
+
+### 3. `RefreshState` enum members `MONITOR_REFRESH_STATE_*` — `src/v1/model.ts:80-90`
+- **Why weird:** Enum is called `RefreshState`, but every member is prefixed `MONITOR_REFRESH_STATE_` — three levels of redundancy in one token (the enum name says it, the type appears as `state?: RefreshState`, and the value is fully namespaced as `RefreshState.MONITOR_REFRESH_STATE_RUNNING`). Members also include `MONITOR_REFRESH_STATE_UNKNOWN` while every other enum in this file uses `_UNSPECIFIED` — inconsistent sentinel naming.
+- **Category:** 2 (redundant enum prefixes), 14 (proto/Go-style names), 17 (inconsistent sentinel — `UNKNOWN` vs `UNSPECIFIED` in sibling enums), 18 (overly long enum values).
+- **Suggested name:** `RefreshState.{Pending, Running, Success, Failed, Canceled}` and drop the unset sentinel (rely on `state?: RefreshState | undefined`). At minimum, normalise to `REFRESH_STATE_*` (drop `MONITOR_`).
+- **Rationale:** The TS enum already namespaces values (`RefreshState.RUNNING`). `MONITOR_` is doubly redundant because the enum is only ever reached from `Refresh.state`, which is owned by a `Monitor`. The `UNKNOWN`/`UNSPECIFIED` inconsistency with `RefreshTrigger.MONITOR_REFRESH_TRIGGER_UNKNOWN` vs `AnomalyDetectionJobType.ANOMALY_DETECTION_JOB_TYPE_UNSPECIFIED` will trip API users who write `===` checks.
+
+### 4. `RefreshTrigger` enum members `MONITOR_REFRESH_TRIGGER_*` — `src/v1/model.ts:94-101`
+- **Why weird:** Same shape as #3. Six-token names (`MONITOR_REFRESH_TRIGGER_DATA_CHANGE`) where two tokens (`DataChange`) would suffice. Also uses `_UNKNOWN` rather than the more common `_UNSPECIFIED`.
+- **Category:** 2 (redundant enum prefix), 14 (proto-style), 17 (sentinel inconsistency), 18 (long enum values).
+- **Suggested name:** `RefreshTrigger.{Manual, Schedule, DataChange}`.
+- **Rationale:** Same as #3.
+
+### 5. `AggregationGranularity` enum members `AGGREGATION_GRANULARITY_N_*` — `src/v1/model.ts:8-30`
+- **Why weird:** Every value re-states the enum name and then mixes digits with words (`AGGREGATION_GRANULARITY_5_MINUTES`, `AGGREGATION_GRANULARITY_2_WEEKS`). The digit-then-unit form does not map to any TS identifier convention. `_UNSPECIFIED` is the bottom value, so a user must read past it to see `_5_MINUTES` is the smallest real granularity.
+- **Category:** 2 (redundant enum prefix), 14 (proto-style), 18 (overly long enum values).
+- **Suggested name:** `AggregationGranularity.{FiveMinutes, ThirtyMinutes, OneHour, OneDay, OneWeek, TwoWeeks, ThreeWeeks, FourWeeks, OneMonth, OneYear}` — or, better, drop the numeric quantum entirely and use an ISO-8601 duration string (`PT5M`, `P1D`) so the enum is open to new granularities without code changes.
+- **Rationale:** TS enums forbid leading digits in member names, which is why this enum carries the `AGGREGATION_GRANULARITY_` prefix — to make `_5_MINUTES` syntactically legal. That's a tell that the names are working around a language limit. Rename to spelled-out words.
+
+### 6. `DataProfilingCustomMetricType` enum members — `src/v1/model.ts:49-57`
+- **Why weird:** Six tokens per member (`DATA_PROFILING_CUSTOM_METRIC_TYPE_AGGREGATE`). The enum itself is `DataProfilingCustomMetricType` — at the field site you'd write `DataProfilingCustomMetricType.DATA_PROFILING_CUSTOM_METRIC_TYPE_AGGREGATE`, six redundant tokens visible at the call site.
+- **Category:** 2 (redundant enum prefix), 14 (proto-style), 18 (long enum values).
+- **Suggested name:** `DataProfilingCustomMetricType.{Aggregate, Derived, Drift}`.
+- **Rationale:** Same as #3-#5.
+
+### 7. `CronSchedulePauseStatus` enum + `pauseStatus` field — `src/v1/model.ts:40-46,171`
+- **Why weird:** A two-state on/off concept (`UNPAUSED` vs `PAUSED`) modelled as a five-token enum. Also: `pauseStatus` field on `CronSchedule` is read-only (per JSDoc), but nothing in the type marks it as such. The enum's name suggests it answers "what is the pause status?"; a boolean `paused: boolean` would model the same thing in one byte of cognitive load.
+- **Category:** 2 (redundant enum prefix), 11 (trivially-enum where boolean suffices), 18 (long enum values), 6 (misleading: field is read-only but typing does not enforce).
+- **Suggested name:** Collapse to `paused?: boolean` (output-only). Or rename enum to `PauseStatus.{Paused, Unpaused}`.
+- **Rationale:** "Paused" is binary. The five-value `CRON_SCHEDULE_PAUSE_STATUS_*` enum is a protobuf-grade modelling that adds no information over a boolean. Sister packages (`jobs`, `alerts`) already use boolean `paused` fields.
+
+### 8. `Monitor.objectType` + `Monitor.objectId` (and every request type that copies them) — `src/v1/model.ts:404-426,406,418` and 6 other request types
+- **Why weird:** `objectType` is a free-form `string` typed as the values `"schema"` or `"table"`. The discriminator is implicit in a `string`. The companion `objectId` is a `string` whose actual content depends on what `objectType` says ("It is `schema_id` for `schema`, and `table_id` for `table`"). This is a stringly-typed sum type. Every single request and response in the package copies these two fields verbatim with copy-pasted JSDoc (43 lines of the same boilerplate per type, 6+ types).
+- **Category:** 1 (vague — `objectType` could be anything), 6 (misleading — stringly-typed sum), 15 (generic field name losing meaning), 19 (underspecified ID — `objectId` shape depends on a sibling field's value).
+- **Suggested name:** Model as a discriminated union: `target: {kind: 'schema', schemaId: string} | {kind: 'table', tableId: string}`. Or at minimum, type `objectType: 'schema' | 'table'`.
+- **Rationale:** TypeScript's strength is exhaustive discriminated unions. Leaving these as `string` defeats the type system and forces every caller to read the JSDoc. The current copy-paste of the same 40-line doc across `CancelRefreshRequest`, `DeleteMonitorRequest`, `DeleteRefreshRequest`, `GetMonitorRequest`, `GetRefreshRequest`, `ListRefreshRequest`, `Refresh`, `UpdateMonitorRequest`, `UpdateRefreshRequest` is a smoking gun for missing abstraction.
+
+### 9. `Client` class — `src/v1/client.ts:55`
+- **Why weird:** A class literally named `Client` at the top of the package's public surface. A user importing two SDK packages (e.g., `@databricks/sdk-dataquality` and `@databricks/sdk-dataclassification`) cannot import both as `Client`. The package name is already in the import path, but in IDE go-to-symbol the name appears unqualified.
+- **Category:** 1 (vague — `Client` is the most generic possible name), 15 (generic name).
+- **Suggested name:** `DataQualityClient`.
+- **Rationale:** Cross-package import collisions force users to alias. Generator-wide concern but worth flagging.
+
+### 10. `DataProfilingConfig.analysisConfig` discriminated-union — `src/v1/model.ts:184-200`
+- **Why weird:** A field called `analysisConfig` is a three-arm union of `InferenceLogConfig` / `TimeSeriesConfig` / `SnapshotConfig`. The outer name (`analysisConfig`) and one arm's type (`SnapshotConfig`) end in the same suffix; the discriminator `$case` values are `inferenceLog` / `timeSeries` / `snapshot` — three different naming bases for three different concepts (`InferenceLog`, `TimeSeries`, `Snapshot`). The arm payloads are also `inferenceLog: InferenceLogConfig` (camelCase) — collision-prone with the discriminator string.
+- **Category:** 1 (vague — "analysis" vs "config" is the wrong abstraction), 12 (duplicate concept — `Config` appears twice), 17 (inconsistent verb tense — `InferenceLog` is a noun, `TimeSeries` is a noun, but the type name reads `Inference` + `Log` + `Config`).
+- **Suggested name:** Field: `analysis`. Type: keep `InferenceLogConfig` etc., or rename to `InferenceLogAnalysis`/`TimeSeriesAnalysis`/`SnapshotAnalysis` and call the field `analysis`. The TS-level discriminator should follow the type name: `kind: 'inferenceLog' | 'timeSeries' | 'snapshot'`.
+- **Rationale:** The current pattern forces callers to write `{analysisConfig: {$case: 'inferenceLog', inferenceLog: {...}}}` — three names for one nesting level. Discriminated unions read better when the discriminator value matches the arm payload's key precisely.
+
+### 11. `DataProfilingConfig.skipBuiltinDashboard` — `src/v1/model.ts:223`
+- **Why weird:** Negative boolean field name. Reading `skipBuiltinDashboard: true` requires a mental NOT-flip. Positive form is clearer: `builtinDashboard: false` or `enableBuiltinDashboard: false`. Also: the verb `skip` (sound only on a transient action) does not capture that this is a persistent configuration.
+- **Category:** 6 (misleading — looks like a transient flag, is configuration), 13 (verb-tense — `skip` is action, but the field is state).
+- **Suggested name:** `disableBuiltinDashboard` (matches the existing negative semantics with a clearer verb), or invert to `createBuiltinDashboard: boolean` (default true).
+- **Rationale:** Boolean fields should be named in their positive form unless the negative form is the natural English phrasing. The "skip" prefix is a tell from migrating Go SDK semantics directly.
+
+### 12. `DataProfilingConfig.assetsDir` — `src/v1/model.ts:182`
+- **Why weird:** `assets` is generic and undefined in this context (which assets? the monitor's? the dashboard's? the metric tables'?). `Dir` is an abbreviation. The JSDoc says "absolute path to a custom directory to store data-monitoring assets" — the type should advertise that.
+- **Category:** 1 (vague — `assets` of what?), 5 (cryptic abbreviation — `Dir` for `Directory`).
+- **Suggested name:** `assetsDirectory`, or better, `dataMonitoringAssetsPath`.
+- **Rationale:** Fields holding an absolute path should call out either "path" or "directory" without abbreviation. `assets` alone is too generic for a top-level field on a config that already has `monitoredTableName`, `profileMetricsTableName`, `driftMetricsTableName`, etc.
+
+### 13. `Refresh.startTimeMs` / `Refresh.endTimeMs` — `src/v1/model.ts:479,481`
+- **Why weird:** `Ms` suffix to indicate "milliseconds since epoch", but it ignores the local convention of `Date` and `bigint` for UTC timestamps in modern TS. The field is `number` — JavaScript numbers lose precision beyond 2^53, but milliseconds-since-epoch fits, so the type itself is fine. The `Ms` suffix tells the reader to do arithmetic with `new Date(x)`; meanwhile `creation_time` / `last_updated` elsewhere in the SDK uses `bigint` with explicit precision. Inconsistent unit handling across the SDK.
+- **Category:** 5 (cryptic abbreviation — `Ms`), 14 (Go-style suffix — Go SDK uses `int64` with `Ms` everywhere; TS would use `Date`).
+- **Suggested name:** Leave on the wire as `start_time_ms` but on the TS side use `startedAt: Date` / `endedAt: Date` (transformed in unmarshal).
+- **Rationale:** Idiomatic TS uses `Date` for UTC instants. Forcing every caller to write `new Date(refresh.startTimeMs)` to display a timestamp is a paper cut. Other Databricks SDK packages have moved to this. (Generator-wide concern.)
+
+### 14. `PercentNullValidityCheck` / `RangeValidityCheck` / `UniquenessValidityCheck` / `ValidityCheckConfiguration` — `src/v1/model.ts:440-501,552`
+- **Why weird:** Four sibling types all carry the `ValidityCheck` suffix, but the wrapping discriminated-union container type is `ValidityCheckConfiguration` — adding yet another `Configuration` suffix on top. The wire-style discriminator names (`percentNullValidityCheck`, etc.) re-state the `ValidityCheck` suffix again, four times. Combined, the path `validityCheckConfigurations[0].checkType.$case === 'percentNullValidityCheck'` repeats "validity-check" three times within nine identifier-positions.
+- **Category:** 8 (redundant suffix), 20 (type-suffix tautology), 18 (effectively-long enum-like discriminator strings).
+- **Suggested name:** Drop `ValidityCheck` from each arm type → `PercentNullCheck` / `RangeCheck` / `UniquenessCheck`. Drop `Configuration` from container → `ValidityCheck` (the container). Discriminator: `kind: 'percentNull' | 'range' | 'uniqueness'`.
+- **Rationale:** A `ValidityCheck.kind === 'range'` reads cleanly; the current form is "validity check configuration that has a check type whose case is range validity check" — five repetitions of "check".
+
+## Medium severity
+
+### 15. `CancelRefreshResponse.refresh` JSDoc says "The refresh to cancel" — `src/v1/model.ts:144`
+- **Why weird:** JSDoc on `CancelRefreshResponse.refresh` says "The refresh to cancel" but this is the response (the refresh that *was* cancelled). The doc verb tense contradicts the type name. Listed as naming because the field's contextual meaning is shaped by stale request-side docs.
+- **Category:** 13 (verb tense — "to cancel" is forward-looking; "cancelled" / "the cancelled refresh" is past-tense).
+- **Suggested name:** Field stays `refresh`; doc should read "The cancelled refresh."
+- **Rationale:** Documentation accuracy. The current text implies user intent rather than response state.
+
+### 16. `DeleteRefreshRequest` doc-block typo "Request to delete a ronitor." — `src/v1/model.ts:289`
+- **Why weird:** Doc string typo "ronitor" (should be "monitor" or "refresh"). Affects discoverability via IDE tooltip search. Plus, the doc text says "monitor" but the type's purpose is deleting a refresh — meta-error.
+- **Category:** 6 (misleading — typo invites confusion about the type's purpose).
+- **Suggested name:** Doc should read "Request to delete a refresh."
+- **Rationale:** Generator-emitted typo. Listed because the doc is the first thing IDE users see.
+
+### 17. `marshalCancelRefreshRequestSchema` exists but no `marshalCancelRefreshResponseSchema` (and conversely no `unmarshalCancelRefreshRequestSchema`) — `src/v1/model.ts:587,883`
+- **Why weird:** Asymmetric coverage: requests get `marshal*` (outbound), responses get `unmarshal*` (inbound). That's correct for HTTP, but the import in `client.ts:38-47` reads as if both directions exist; readers have to mentally fill in the asymmetry. The naming `marshal*Schema` for *one* side and `unmarshal*Schema` for the *other* is not self-documenting unless you already know the convention.
+- **Category:** 17 (inconsistent verb pairing — marshal/unmarshal across DTOs).
+- **Suggested name:** N/A (rename to `encode*` / `decode*` would help — sister packages have the same problem).
+- **Rationale:** Generator-level concern. Listed here because the dataquality package has the largest number of marshal/unmarshal pairs in this audit batch (10 each).
+
+### 18. `AnomalyDetectionConfig.anomalyDetectionWorkflowId` — `src/v1/model.ts:111`
+- **Why weird:** Three repetitions of "anomaly detection" in one field path: `monitor.anomalyDetectionConfig.anomalyDetectionWorkflowId`. The outer type already says "anomaly detection". Inside it, the `workflowId` field could be just `workflowId`.
+- **Category:** 7 (overly verbose), 8 (redundant suffix — `anomaly_detection_` inside `AnomalyDetectionConfig`).
+- **Suggested name:** `workflowId`.
+- **Rationale:** Repeating the parent type name in the field is a Go SDK habit (Go does not have struct-prefix scoping the way nested TS access does).
+
+### 19. `AnomalyDetectionConfig.excludedTableFullNames` — `src/v1/model.ts:117`
+- **Why weird:** "Full names" is jargon; the JSDoc says "fully qualified table names". The shorter form drops the qualifying word that gives the name its meaning ("full" alone is ambiguous — full path? full description?). Other Databricks SDK packages use `fullName` consistently for UC three-part names.
+- **Category:** 1 (vague — "full" alone is generic), 5 (abbreviated jargon).
+- **Suggested name:** `excludedTables` (since the values are by definition UC fully-qualified table names), or `excludedTableFullyQualifiedNames` for absolute clarity.
+- **Rationale:** Across the SDK, `fullName` is well-known UC vocabulary, so the proposal is the *minor* rename to `excludedTables` since the type (string[]) plus parent context (anomaly detection on UC objects) already implies fully-qualified.
+
+### 20. `DataProfilingConfig.outputSchemaId` vs `monitoredTableName` vs `dashboardId` vs `warehouseId` — `src/v1/model.ts:177,229,243,228`
+- **Why weird:** Identifier fields mix three reference styles in one type: `Id` (UC UUIDs: schema, dashboard, warehouse), `FullName` (table), and bare `Name` (output schema is by ID, but `assetsDir` is a path). The user reading `DataProfilingConfig` must remember that to set the *target* of the monitor you use `monitoredTableName` (a three-part name) but to set the *destination* of the metric tables you use `outputSchemaId` (a UUID). The pattern is wire-driven, not user-led.
+- **Category:** 17 (inconsistent reference styles), 19 (underspecified IDs — `outputSchemaId` is a UUID but `monitoredTableName` is a three-part qualified name).
+- **Suggested name:** Document both clearly in the JSDoc; consider a normalised pair `outputSchema: {id?: string, fullName?: string}` and `monitoredTable: {fullName: string}`. Or rename `monitoredTableName` to `monitoredTableFullName` (matches the JSDoc).
+- **Rationale:** UC has a stable convention: `*FullName` for three-part references, `*Id` for UUIDs. Following that convention everywhere reduces caller errors.
+
+### 21. `DataProfilingConfig.warehouseId` and `DataProfilingConfig.effectiveWarehouseId` — `src/v1/model.ts:228,251`
+- **Why weird:** Two parallel fields: user-provided `warehouseId` (optional input — falls back to "the first running warehouse" per doc) and `effectiveWarehouseId` (the warehouse actually used). Same shape as `dataclassification.autoTagConfigs` vs `effectiveAutoTagConfigs` (audited finding #6 in that package). The "effective" prefix is not marked output-only; a caller can set `effectiveWarehouseId` thinking it overrides `warehouseId`. Also: `effectiveWarehouseId` has no JSDoc trailer period ("The warehouse for dashboard creation" — missing period).
+- **Category:** 1 (vague — "effective" undermarked), 6 (misleading — output-only not enforced by typing), and (style nit) missing period.
+- **Suggested name:** Mark with JSDoc `@readonly`; or rename to `resolvedWarehouseId`. The minor doc-style miss (no period) is a CLAUDE.md rule violation: "Comments should always be proper sentences ending with a period."
+- **Rationale:** Same pattern as the `effective*` audit findings in other packages. Output-only state should be visually distinct from input state.
+
+### 22. `DataProfilingConfig.monitoredTableName` — `src/v1/model.ts:230`
+- **Why weird:** Half-redundant. `DataProfilingConfig` is a per-table config; the table being configured is "the monitored table". JSDoc says "Format: `catalog.schema.table_name`" — confirming this is a UC three-part name. Calling it `monitoredTableName` is fine, but it's the only "monitored" field on the type, so the prefix gives little signal. Compare with `Monitor.objectId` which holds the same data conceptually.
+- **Category:** 1 (vague modifier — `monitored` adds nothing), 7 (overly verbose).
+- **Suggested name:** `tableFullName` (or rely on `Monitor.objectId` and remove the duplicate field entirely).
+- **Rationale:** The package already carries the target identity on `Monitor.objectId`. Duplicating it inside the config is a wire artifact, not a TS-level design choice.
+
+### 23. `DataProfilingConfig.latestMonitorFailureMessage` — `src/v1/model.ts:234`
+- **Why weird:** Five-word field name on a type whose name is `DataProfilingConfig` — "latest" + "monitor" + "failure" + "message" + field is on `Monitor`. "Monitor" appears in the path: `monitor.dataProfilingConfig.latestMonitorFailureMessage`.
+- **Category:** 7 (overly verbose), 8 (redundant suffix — `Monitor` is in the access path).
+- **Suggested name:** `latestFailureMessage`.
+- **Rationale:** Field path already gives the Monitor context; the field's own name should drop it.
+
+### 24. `DataProfilingConfig.profileMetricsTableName` / `driftMetricsTableName` — `src/v1/model.ts:236,238`
+- **Why weird:** A pair where one is "profile metrics" and the other is "drift metrics", but the JSDoc is identical down to the punctuation ("Table that stores [profile|drift] metrics data. Format: `catalog.schema.table_name`."). The only diff between the field names is the leading noun, but the type name `DataProfilingConfig` already says "profiling" — so `profileMetricsTableName` reads slightly redundant.
+- **Category:** 7 (overly verbose), 17 (inconsistent — drop "profile" prefix to match `driftMetricsTableName` shape, or add a profile/drift prefix universally).
+- **Suggested name:** `profileMetricsTable` + `driftMetricsTable` (drop `Name` since wire is the same, and the type itself names a wire reference).
+- **Rationale:** Consistent prefixing within a paired feature. Listed medium because the rename is risky for back-compat reasons.
+
+### 25. `DataProfilingConfig.slicingExprs` — `src/v1/model.ts:209`
+- **Why weird:** `Exprs` abbreviation. The JSDoc is 8 lines explaining what `slicing_exprs` does; the field name reduces "expressions" to four characters of cryptic shorthand. Mixed-case: would be `slicingExprs` in TS but the wire field is `slicing_exprs` (Python-style).
+- **Category:** 5 (cryptic abbreviation — `Exprs` for `Expressions`).
+- **Suggested name:** `slicingExpressions` (or, given the doc explains they are "column expressions", `columnSlicingExpressions`).
+- **Rationale:** Length is rarely an issue in TS — modern IDEs autocomplete. Cryptic abbreviation, however, costs readability forever.
+
+### 26. `DataProfilingConfig.customMetrics: DataProfilingCustomMetric[]` — `src/v1/model.ts:211`
+- **Why weird:** Type name `DataProfilingCustomMetric` repeats the parent type's prefix (`DataProfiling`). Same field/type-name asymmetry called out in `dataclassification` (autoTag vs AutoTagging). Field `customMetrics` is fine; the type's prefix is the noise.
+- **Category:** 7 (overly verbose), 8 (redundant suffix).
+- **Suggested name:** `CustomMetric` (drop the `DataProfiling` prefix) — namespace via TS module if needed.
+- **Rationale:** Inside the `dataquality` package, "custom metric" can only mean one thing (a profiling metric definition). The `DataProfiling` prefix is dead context.
+
+### 27. `DataProfilingCustomMetric.outputDataType: string` — `src/v1/model.ts:266`
+- **Why weird:** Field name is `outputDataType` and JSDoc says "The output type of the custom metric." — the JSDoc drops `Data`. Field is typed `string`, no enum. Compare with `type: DataProfilingCustomMetricType` which is enum and is the *kind* of metric, not its *data type*. The reader must parse two `type` fields on the same type.
+- **Category:** 1 (vague — `outputDataType` vs `type`), 12 (duplicate concept — two `type`s), 17 (inconsistent — one is enum, one is string).
+- **Suggested name:** `outputSqlType` (since the value is a SQL type like `DOUBLE`), or `outputColumnType`.
+- **Rationale:** Two `type`-like fields on the same struct is a code-smell; making one specifically `Sql` or `Column` removes the ambiguity.
+
+### 28. `DataProfilingStatus.DATA_PROFILING_STATUS_DELETE_PENDING` — `src/v1/model.ts:64`
+- **Why weird:** Five-word enum value with the order "DELETE PENDING" (verb-then-state) — most languages would write `PENDING_DELETE` (state-modified-by-action). Also: this enum has six values (`UNSPECIFIED`, `ACTIVE`, `PENDING`, `DELETE_PENDING`, `ERROR`, `FAILED`) — `ERROR` and `FAILED` likely mean the same thing in practice but are modelled separately.
+- **Category:** 2 (redundant prefix), 12 (duplicate concept — `ERROR` and `FAILED`), 18 (long enum values).
+- **Suggested name:** Members: `DataProfilingStatus.{Active, Pending, PendingDelete, Error, Failed}`. Or, if `ERROR`/`FAILED` are truly distinct, document the difference.
+- **Rationale:** Sentinel naming conventions and the implicit duplicate of `ERROR`/`FAILED` both make this enum harder to reason about than it should be.
+
+### 29. `Monitor.anomalyDetectionConfig` and `Monitor.dataProfilingConfig` — `src/v1/model.ts:420,425`
+- **Why weird:** Two top-level fields, exactly one of which must be populated based on `objectType`. The relationship is documented in JSDoc but not in the type. This is the second un-modelled discriminated union in the package (the first being `objectType` itself, #8). A user reading the type sees two optional fields and has no idea both could be set at once (or neither).
+- **Category:** 6 (misleading — type says both optional, semantics say exactly one), 11 (missing union — should be discriminated).
+- **Suggested name:** Model as: `configuration: {kind: 'schema', anomalyDetection: AnomalyDetectionConfig} | {kind: 'table', dataProfiling: DataProfilingConfig}`. Then drop `objectType` (the discriminator becomes implicit).
+- **Rationale:** This is the same anti-pattern as `objectType` — using the type system to model business rules instead of relying on doc strings.
+
+### 30. `CronSchedule.quartzCronExpression` and `CronSchedule.timezoneId` — `src/v1/model.ts:163,169`
+- **Why weird:** Field is qualified with `Quartz` (the scheduling library) leaking implementation detail; users do not need to know the schedule is parsed by Quartz on the server side. `timezoneId` collides with the IANA tz database vocabulary ("timezone ID" is not standard; "IANA timezone name" or just "timezone" is).
+- **Category:** 14 (implementation-detail leak — `Quartz` is a Java library reference), 5 (jargon — `timezoneId` vs the JS-standard `timeZone`).
+- **Suggested name:** `cronExpression` + `timezone`.
+- **Rationale:** The doc already says "Java timezone id"; the field name should be neutral.
+
+### 31. `unmarshalListMonitorResponseSchema` — `src/v1/model.ts:702`
+- **Why weird:** Compound: List + Monitor (singular) + Response + Schema, 35 characters before the equals sign, mirroring the underlying singular-on-list bug from #1. Once #1 is fixed, this becomes `unmarshalListMonitorsResponseSchema`.
+- **Category:** 9 (singular/plural mismatch), 7 (overly verbose Zod schema name).
+- **Suggested name:** Fix at #1.
+- **Rationale:** Compounds amplify the underlying bug.
+
+### 32. `unmarshalListRefreshResponseSchema` — `src/v1/model.ts:713`
+- **Why weird:** Same as #31 for refreshes.
+- **Category:** 9 (singular/plural mismatch).
+- **Suggested name:** Fix at #2.
+- **Rationale:** Compound name surfaces underlying singular/plural mismatch.
+
+### 33. `NotificationSettings.onFailure: NotificationDestination` — `src/v1/model.ts:437`
+- **Why weird:** Field name `onFailure` with type `NotificationDestination` — `Notification` repeated in both parent type and the destination type. Same pattern as `AnomalyDetectionConfig.anomalyDetectionWorkflowId` (#18). The JSDoc says "Destinations to send notifications on failure/timeout." — failure *and* timeout, but the field name only says failure.
+- **Category:** 1 (vague — name says `failure`, doc says `failure/timeout`), 8 (redundant prefix in the type).
+- **Suggested name:** Field: `onFailureOrTimeout` (matches doc), or `onFailure` (matches name; update doc). Type: `Destination` (drop the `Notification` prefix since the type is only used here).
+- **Rationale:** Field name and JSDoc should agree on whether timeouts are included.
+
+### 34. `Refresh.message` — `src/v1/model.ts:477`
+- **Why weird:** `message` is the most generic possible name on a `Refresh` object. JSDoc clarifies: "An optional message to give insight into the current state of the refresh (e.g. FAILURE messages)" — so this is really an error message or status message, not just any message.
+- **Category:** 1 (vague — `message` could be anything), 15 (generic field name).
+- **Suggested name:** `statusMessage` or `stateMessage`.
+- **Rationale:** Field on a typed object should be self-describing.
+
+## Low severity
+
+### 35. `flattenQueryParams` exported but unused — `src/v1/utils.ts:123`
+- **Why weird:** Exported helper that is never called from `client.ts`. The package's two list endpoints handle pagination params (`pageToken`, `pageSize`) inline rather than via `flattenQueryParams`. Dead exported surface.
+- **Category:** 6 (misleading — looks like it's used; isn't).
+- **Suggested name:** N/A — should be unexported (or moved to a shared utils package — generator-wide concern).
+- **Rationale:** Same as `dataclassification` finding #19.
+
+### 36. `executeCall` vs `executeHttpCall` — `src/v1/utils.ts:26,65`
+- **Why weird:** Layering not visible from names; identical to `dataclassification` finding #15.
+- **Category:** 1, 12, 17.
+- **Suggested name:** `runWithRetry` (outer) + `sendHttpRequest` (inner).
+- **Rationale:** Layering should be readable from the names without opening the source.
+
+### 37. `buildHttpRequest` — `src/v1/utils.ts:96`
+- **Why weird:** Same as `dataclassification` finding #16; "build" suggests builder pattern, the function spreads literals.
+- **Category:** 1, 6.
+- **Suggested name:** `makeHttpRequest`.
+- **Rationale:** "Make" matches the simpler reality.
+
+### 38. `marshalRequest` and `parseResponse` — `src/v1/utils.ts:113,119`
+- **Why weird:** Names imply request/response but the functions work on any payload + schema; identical to `dataclassification` findings #17 and #18.
+- **Category:** 1, 6.
+- **Suggested name:** `encodeToJson` / `decodeFromJson`.
+- **Rationale:** Symmetric verb pair removes the "Request"/"Response" mis-promise.
+
+### 39. `readAll` — `src/v1/utils.ts:40`
+- **Why weird:** Identical to `dataclassification` finding #20; "readAll" does not say "drain a stream".
+- **Category:** 1, 5.
+- **Suggested name:** `drainStream`.
+- **Rationale:** Self-describing name for stream draining.
+
+### 40. `HttpCallOptions` — `src/v1/utils.ts:15`
+- **Why weird:** Same as `dataclassification` finding #21; internal context bag called `Options`.
+- **Category:** 1, 8.
+- **Suggested name:** `HttpCallContext`.
+- **Rationale:** Reserve `Options` for user-tunable knobs.
+
+### 41. `PACKAGE_SEGMENT` — `src/v1/client.ts:50`
+- **Why weird:** Same as `dataclassification` finding #22; unspecific noun for a User-Agent identity object.
+- **Category:** 1.
+- **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
+- **Rationale:** Add the missing domain word.
+
+### 42. `Call` type + `call` variable — `src/v1/client.ts:96, 135, 169, 207, 226, 261, 297, 331, 393, 453, 491`
+- **Why weird:** Same as `dataclassification` finding #24; variable named `call` of type `Call` repeated 11 times across the client.
+- **Category:** 1, 12.
+- **Suggested name:** `request` (variable) — reserve `Call` for the type.
+- **Rationale:** Type/variable collision is common in Go idioms; TS prefers distinct names.
+
+### 43. `req.objectId ?? ''` / `req.objectType ?? ''` URL composition — `src/v1/client.ts:93, 166, 206, 225, 259, 295, 382, 444, 482`
+- **Why weird:** Same as `dataclassification` finding #25 — `objectType`/`objectId` typed optional but required in practice. Silently substitutes empty string producing malformed URLs like `/api/data-quality/v1/monitors//`.
+- **Category:** 6.
+- **Suggested name:** Make `objectType` and `objectId` non-optional on every request type that constructs a URL from them.
+- **Rationale:** Type shape should match runtime requirement.
+
+### 44. `respBody` vs `resp` — `src/v1/client.ts:101-111, 139-150, 173-184, 220-237, 266-276, 302-312, 335-346, 397-408, 463-474, 501-512`
+- **Why weird:** Same as `dataclassification` finding #26; two variables differ by `Body` only.
+- **Category:** 5, 17.
+- **Suggested name:** `rawBody` + `result`.
+- **Rationale:** Distinguish by meaningful nouns.
+
+### 45. `httpReq` local — `src/v1/client.ts:99, 138, 172, 210, 229, 264, 300, 334, 396, 456, 494`
+- **Why weird:** Same as `dataclassification` finding #27.
+- **Category:** 5, 12.
+- **Suggested name:** `httpRequest` (no abbreviation).
+- **Rationale:** Avoid two `req`-rooted identifiers in the same scope.
+
+### 46. `pageReq` local in `listMonitorIter` / `listRefreshIter` — `src/v1/client.ts:353, 415`
+- **Why weird:** Yet another `req` variant in a scope that already has `req: ListMonitorRequest` as the outer parameter, plus `pageReq: ListMonitorRequest` for the mutable copy used per-page. Three layers of `req` (the user's, the per-page mutation, and inside each call the `httpReq`) in one method.
+- **Category:** 5 (abbreviated), 12 (duplicate concept).
+- **Suggested name:** `pageRequest` (full word), or restructure so only one `req` exists per scope.
+- **Rationale:** Pagination wrappers compound abbreviation noise.
+
+### 47. `marshalAnomalyDetectionConfigSchema` and 18 other `marshal*Schema` / `unmarshal*Schema` names — `src/v1/model.ts:568-863, 865-1146`
+- **Why weird:** Generator-emitted Zod schemas all carry the awkward double-`Schema` suffix at the call site (`z.lazy(() => unmarshalRefreshSchema)`) — "lazy unmarshal Refresh Schema" reads as three nouns and an adjective. Same as `dataclassification` finding #13.
+- **Category:** 14 (Go-style), 17 (verb-naming mismatch with Zod's own `parse`).
+- **Suggested name:** `encodeAnomalyDetectionConfig` / `decodeAnomalyDetectionConfig`.
+- **Rationale:** Generator-wide.
+
+## Observations
+
+### 48. Heavy boilerplate dominates the file
+`model.ts` is 1252 lines for ~16 user-facing types; 575 lines (~46%) are `marshal*` / `unmarshal*` / `*FieldMaskSchema` scaffolding. Same shape as every audited package.
+
+### 49. Action verbs in `Client`
+The client uses `Create`/`Get`/`Update`/`Delete`/`List`/`Cancel` for monitor and refresh operations. Verbs are consistent within the package. (Listed per rule 17 to note the absence of inconsistency.)
+
+### 50. Acronym casing
+Mixed conventions, all generator-emitted: `Id` (PascalCase-capital-then-lower in `objectId`, `refreshId`), `Ms` (capital-then-lower in `startTimeMs`), `Http` (capital-then-lower in `HttpClient`, `HttpRequest`), `URL`-style ALLCAPS only via the imported web standard `URLSearchParams`. No within-package collisions.
+- **Category:** 3 (acronym casing).
+
+### 51. Tense / nominalisation drift in enum naming
+`AnomalyDetection` (gerund), `DataProfiling` (gerund), `DataClassification` (noun) — at the package boundary the gerund/noun choice tracks the API team's preference. Within `dataquality` the choice is consistent (both gerunds), good.
+
+### 52. `dataquality` lowercase package name vs `data-quality` wire path vs `DataQuality` types
+Same shape as the `dataclassification` casing observation (#32 in that package): directory is one collapsed word, types are PascalCase compounded, wire path is kebab. SDK-wide convention question, not local.
+- **Category:** 3 (casing inconsistency).
+
+## Domain glossary
+- `uc` / Unity Catalog — implicit across the package (the monitored resource is a UC schema or UC table).
+- `wkt` — Well-Known Types (import path `@databricks/sdk-core/wkt`, used for `FieldMask<Monitor>` and `FieldMask<Refresh>`).
+- `quartz` — Apache Quartz Scheduler (Java library) — the cron expression dialect used server-side; surfaces as `quartzCronExpression`.
+- `inference log` — predictions + labels + (optional) probabilities for a deployed ML model, used to compute drift on inputs and accuracy on outputs.
+- `time series` — analysis configuration where rows have a timestamp column and are bucketed by `AggregationGranularity`.
+- `snapshot` — analysis configuration with no time dimension; the table is treated as a single snapshot.
+- `validity check` — an input-data constraint check (null %, range, uniqueness) applied during anomaly detection.
+- `refresh` — a single run of the data-monitoring pipeline; produces metric rows in `profileMetricsTableName` / `driftMetricsTableName`.
+- `monitor` — the long-lived configuration entity (one per UC schema or table); contains either an `anomalyDetectionConfig` or a `dataProfilingConfig`.
+- `baseline table` — a separate table whose statistics drift is computed against (per `baselineTableName`).
+- `profile metrics` / `drift metrics` — two distinct output tables; profile = per-window distribution stats, drift = same stats compared against baseline or the previous window.
+- `effective` — server-resolved value of an input field (e.g. `effectiveWarehouseId` is the warehouse chosen when the user left `warehouseId` blank).
+- `oss`, `m2m`/`u2m`/`pat`, `iam`, `abac` — not encountered in this package.
+
+## File coverage
+- `src/v1/model.ts` (1252 lines): read fully.
+- `src/v1/client.ts` (515 lines): read fully.
+- `src/v1/utils.ts` (151 lines): read fully.
+- `src/v1/index.ts` (47 lines): read fully.

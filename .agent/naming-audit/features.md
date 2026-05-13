@@ -1,0 +1,562 @@
+# Naming Audit: features
+
+**Path:** `packages/features/src/v1/`
+**Versions audited:** v1
+**Package name:** `@databricks/sdk-features` — collides semantically with two
+sibling packages (`@databricks/sdk-featurestore` and
+`@databricks/sdk-materializedfeatures`), all three of which are part of the
+Feature Engineering surface. The bare word "feature" is also overloaded with
+the unrelated common-English sense ("product feature" / "preview feature")
+that appears throughout the SDK in flags, settings, and previews.
+**Inferred domain:** Databricks Feature Engineering — defines **Feature**
+(the abstract definition: source + transformation + aggregation), Kafka
+streaming config, and **MaterializedFeature** (a concrete pipeline that
+computes a feature on a schedule and writes results to an offline or online
+store). Feature transformations are a discriminated union over 13 aggregation
+functions and 3 data sources (Delta, Kafka, request-time), composed under
+three flavors of time window (continuous, tumbling, sliding).
+**Total weird names flagged:** 50
+
+---
+
+## Summary table
+
+| # | Name | File | Kind | Severity | Category | Issue (one-liner) |
+|---|------|------|------|----------|----------|-------------------|
+| 1 | package `features` / module `@databricks/sdk-features` | (package) | package | High | 1 Vague/generic, 12 Duplicate concepts | The bare term "features" is ambiguous: (a) ML features (this package), (b) Databricks product features / feature flags (settings/previews), (c) "features" of a billing plan (billing). A reader cannot disambiguate from the import path. Rename to `@databricks/sdk-feature-engineering`, `@databricks/sdk-ml-features`, or `@databricks/sdk-feature-definitions`. |
+| 2 | three sibling packages: `features` / `featurestore` / `materializedfeatures` | (across packages) | package set | High | 12 Duplicate concepts | The Feature Engineering surface is split across three top-level packages whose names overlap at the prefix. Boundaries: `features` defines feature *definitions* (this package); `materializedfeatures` is **misnamed** — it actually owns feature **lineage and tags** (`FeatureLineage`, `FeatureTag`), not materialized features (which live here); `featurestore` owns **online stores**. The names do not align with their contents. Either rename `materializedfeatures` to `featuremetadata` / `featurelineage`, or move `MaterializedFeature` and its client methods out of this package into the (misnamed) `materializedfeatures` package. |
+| 3 | `Feature` interface | model.ts:279 | interface | High | 1 Vague/generic | The unqualified noun `Feature` is the single most overloaded word in Databricks vocabulary. As a TS-imported type, `import {Feature}` from `@databricks/sdk-features/v1` collides conceptually with: (a) feature flags, (b) preview features, (c) workspace "feature settings". Rename to `FeatureDefinition`, `MLFeature`, or `FeatureEngineeringFeature` to scope the noun. |
+| 4 | `Client` | client.ts:65 | class | Medium | 1 Vague/generic, 12 Duplicate concepts | Unqualified `Client` — once imported it shadows every other package's `Client`. `FeaturesClient` or `FeatureEngineeringClient` would self-identify and disambiguate from `featurestore.Client` and `materializedfeatures.Client`. |
+| 5 | `Client.createFeature` / `getFeature` / `updateFeature` / `deleteFeature` / `listFeatures` / `listFeaturesIter` plus `Client.create/get/update/delete/list/listIterKafkaConfig*` plus `Client.batchCreate/create/get/update/delete/list/listIterMaterializedFeatures*` (3 resource families on one client) | client.ts:91-628 | method set | Medium | 12 Duplicate concepts | One `Client` class owns three distinct resource families: `Feature`, `KafkaConfig`, and `MaterializedFeature` (21 methods total). The class is 631 lines and reads as three sub-clients merged. A `FeaturesClient` (feature defs only) + `KafkaConfigsClient` + `MaterializedFeaturesClient` split would let each Client be ≤ 250 lines and would clarify the URL groupings (`/api/2.0/feature-engineering/features`, `/.../kafka-configs`, `/.../materialized-features`). |
+| 6 | `ScalarDataType.SCALAR_DATA_TYPE_UNSPECIFIED` and 11 sibling values | model.ts:13-24 | enum values | High | 2 Redundant enum prefixes, 18 Long enum values | Only one value (`SCALAR_DATA_TYPE_UNSPECIFIED`) stutters the enum name; the other eleven (`INTEGER`, `FLOAT`, `BOOLEAN`, etc.) are reasonable. Just remove the sentinel or rename to `Unspecified`. The wire format is dictated by the API; TS keys can be Pascal-cased via the zod transform. |
+| 7 | `ScalarDataType.SCALAR_DATA_TYPE_UNSPECIFIED` (sentinel) | model.ts:13 | enum value | Medium | 6 Misleading names, 18 Long enum values | Proto-style "Unspecified" sentinel. The field is already `dataType?: ScalarDataType \| undefined` (FieldDefinition:325) — omitting the field communicates "unspecified" naturally. Sentinel is dead in TS. |
+| 8 | `Function_FunctionType` enum name | model.ts:29 | enum | High | 4 Underscores in TS identifiers, 8 Redundant suffixes, 20 Type-suffix tautology | `Function_FunctionType` is a proto-nested-message-encoded-as-underscore name and is internally tautological (`Function`+`FunctionType`). It also requires an inline `// eslint-disable-next-line @typescript-eslint/naming-convention`. The TS idiom would be `FunctionKind` or `AggregationKind`, nested as `Function.Kind` under a namespace. |
+| 9 | `Function_FunctionType.FUNCTION_TYPE_UNSPECIFIED` and 12 sibling values | model.ts:30-43 | enum values | High | 2 Redundant enum prefixes, 18 Long enum values | `FUNCTION_TYPE_UNSPECIFIED` stutters; the others (`AVG`, `COUNT`, `SUM`, `MIN`, `MAX`, `FIRST`, `LAST`, `APPROX_COUNT_DISTINCT`, `APPROX_PERCENTILE`, `STDDEV_POP`, `STDDEV_SAMP`, `VAR_POP`, `VAR_SAMP`) are fine SQL idioms. Drop only the sentinel. |
+| 10 | `Function_FunctionType` (whole enum) — *deprecated per JSDoc* | model.ts:27-44 | enum | High | 12 Duplicate concepts | JSDoc says "Deprecated: Use the function-specific messages in AggregationFunction.function_type oneof instead." So this enum *and* the 13 sibling `*Function` interfaces (`AvgFunction`, `CountFunction`, etc.) coexist as parallel ways to express the same thing. Mark `@deprecated` in TS-side JSDoc; currently the import re-exports it without warning (index.ts:7). |
+| 11 | `MaterializedFeature_PipelineScheduleState` | model.ts:47 | enum | High | 4 Underscores in TS identifiers, 7 Overly verbose | Proto-style nested name (eslint-disabled at line 46). 41 chars. TS idiom would be a top-level `PipelineScheduleState` or a namespaced `MaterializedFeature.ScheduleState`. The pipeline schedule is also not unique to materialized features; if the same concept appears elsewhere, a shared top-level enum is better. |
+| 12 | `Function_ExtraParameter` | model.ts:373 | interface | High | 4 Underscores in TS identifiers, 6 Misleading names | Proto-nested encoded as underscore (eslint-disabled at line 372). JSDoc says "Deprecated"; consumers should never construct one. |
+| 13 | 13 `*Function` interfaces (`AvgFunction`, `CountFunction`, `SumFunction`, `MinFunction`, `MaxFunction`, `FirstFunction`, `LastFunction`, `ApproxCountDistinctFunction`, `ApproxPercentileFunction`, `StddevPopFunction`, `StddevSampFunction`, `VarPopFunction`, `VarSampFunction`) | model.ts:117, 178, 751, 549, 543, 329, 459, 84, 92, 710, 721, 811, 817 | interface set | High | 8 Redundant suffixes, 12 Duplicate concepts, 20 Type-suffix tautology | 13 interfaces named `<Name>Function` where only `<Name>` would suffice. The `AggregationFunction.operation` discriminated union groups them with `$case` values that already encode "this is the average operation" — `avg` (not `avgFunction`). The `Function` suffix on the type name is redundant. Worse: 11 of 13 of these interfaces are **identical** — `{input?: string \| undefined}`. They could be one shared `SingleColumnFunction` type or a parametric alias. The two that differ are `ApproxCountDistinctFunction` (adds `relativeSd`) and `ApproxPercentileFunction` (adds `percentile`, `accuracy`). |
+| 14 | `AggregationFunction.operation` discriminator field | model.ts:61 | field | Medium | 1 Vague/generic, 15 Generic field names | The outer interface is `AggregationFunction`; the field holding the function variant is named `operation`. So `aggFn.operation.$case === 'avg'` reads okay, but in JSDoc comments and call sites the relationship is unclear: "operation" is a generic word; the value is *the function itself*. Could be `function` (matching the parent type's role in `Function.aggregationFunction.operation`) or `kind`. |
+| 15 | `Function_FunctionType` on `Function.functionType` | model.ts:348 | field | High | 12 Duplicate concepts, 15 Generic field names | The deprecated field `Function.functionType` carries a value typed `Function_FunctionType`. Three uses of "function" in eight characters. Both the field and type are deprecated; mark them and they will disappear from typical call sites. |
+| 16 | `TimeWindow.windowType` field | model.ts:762 | field | Low | (none) | Not stuttery; the union variants are `continuous`/`tumbling`/`sliding` so `windowType` is a reasonable discriminator label. (Listing for completeness.) |
+| 17 | `MaterializedFeature.destination` field | model.ts:523 | field | Medium | 1 Vague/generic, 15 Generic field names | Carries `offlineStoreConfig` or `onlineStoreConfig`. "Destination" is okay but ambiguous (could be a table name, a URL, a cluster). `store` or `target` would be more domain-specific; `storageDestination` would also work. |
+| 18 | `Feature.source` vs `Feature.entities` vs `Feature.timeseriesColumn` (singular column vs plural columns) | model.ts:283, 312, 314 | field set | Low | 9 Singular/plural mismatches | `entities: EntityColumn[]` (plural, list of columns acting as keys) and `timeseriesColumn: TimeseriesColumn` (singular, one time column). Naming difference is intentional and matches the underlying types — fine. |
+| 19 | `Feature.inputs` (deprecated `string[]`) vs `Feature.entities: EntityColumn[]` | model.ts:288, 312 | field pair | Medium | 12 Duplicate concepts | `inputs` is deprecated (JSDoc says use `AggregationFunction.inputs` — but that field doesn't exist either; see #46). It's a `string[]`, while the modern `entities` is `EntityColumn[]`. The two fields coexist on the same interface; the deprecation tag is not surfaced in TS JSDoc as `@deprecated`. |
+| 20 | `Feature.filterCondition` (deprecated) vs `DeltaTableSource.filterCondition` vs `KafkaSource.filterCondition` | model.ts:302, 252, 447 | field set | Medium | 12 Duplicate concepts | Same field name on three types with the same meaning ("SQL WHERE clause"). The one on `Feature` is deprecated in favor of the per-source ones (per JSDoc). The other two are duplicates of each other across data-source flavors — fine. Just mark the deprecated copy `@deprecated`. |
+| 21 | `Feature.timeWindow` (deprecated, top-level) vs `AggregationFunction.timeWindow` (canonical, nested) | model.ts:295, 80 | field pair | Medium | 12 Duplicate concepts | Two `timeWindow` fields at different positions in the same record. The Feature-level one is deprecated. JSDoc says so, no `@deprecated` tag. |
+| 22 | `DeltaTableSource.entityColumns` (deprecated `string[]`) vs `Feature.entities` (`EntityColumn[]`) | model.ts:245, 312 | field pair | Medium | 12 Duplicate concepts | Same data ("which columns are entities for this feature") expressed two ways: a `string[]` on the source (deprecated) and an `EntityColumn[]` on the parent. Pick one. The deprecation note ("Use Feature.entity instead") refers to a non-existent field name (`entity` singular vs `entities` plural — typo in the spec). |
+| 23 | `DeltaTableSource.timeseriesColumn` (deprecated `string`) vs `Feature.timeseriesColumn` (canonical `TimeseriesColumn`) | model.ts:250, 314 | field pair | Medium | 12 Duplicate concepts | Same pattern as #22. Two `timeseriesColumn` fields, one deprecated string, one canonical object. |
+| 24 | `KafkaSource.entityColumnIdentifiers` vs `Feature.entities` vs `DeltaTableSource.entityColumns` (three names for one concept) | model.ts:441, 312, 245 | field set | High | 12 Duplicate concepts, 17 Inconsistent action verbs | Three names for the same domain notion ("entity columns of a source"): `entityColumnIdentifiers` (Kafka source, `ColumnIdentifier[]`), `entityColumns` (Delta source, `string[]`), `entities` (Feature top-level, `EntityColumn[]`). The element types are even three different shapes. |
+| 25 | `KafkaSource.timeseriesColumnIdentifier` vs `Feature.timeseriesColumn` vs `DeltaTableSource.timeseriesColumn` | model.ts:446, 314, 250 | field set | High | 12 Duplicate concepts | Same as #24 but for the timeseries column. Three names, three types (`ColumnIdentifier`, `TimeseriesColumn`, `string`) for one concept. |
+| 26 | `ColumnIdentifier` vs `EntityColumn` vs `TimeseriesColumn` (three "column reference" types) | model.ts:156, 267, 769 | interface set | High | 12 Duplicate concepts, 1 Vague/generic | Three interfaces that all describe "a reference to a column" (each carries a string name field). `ColumnIdentifier.variantExprPath`, `EntityColumn.name`, `TimeseriesColumn.name`. The field names also differ (`variantExprPath` vs `name`). One `ColumnRef` type with a `path` field would consolidate. |
+| 27 | `ColumnIdentifier.variantExprPath` | model.ts:161 | field | High | 5 Cryptic abbreviations, 6 Misleading names | "variantExprPath" — short for "variant expression path". The JSDoc clarifies it is a dot-prefixed column path (e.g., `value.trip_details.pickup_zip`). The `variantExpr` prefix is meaningless to a TS reader; the path is not a "variant expression" in any TS sense. Rename `path` or `columnPath`. |
+| 28 | `ColumnSelection` interface | model.ts:165 | interface | Medium | 1 Vague/generic | The name `ColumnSelection` is generic enough to read as "the selection of a column" in any context, but the JSDoc says it represents "equivalent to the LAST() record of an entity over a lifetime ContinuousWindow" — i.e., a very specific semantic. `LatestColumnValue` or `LifetimeLastValue` would fit the semantic. |
+| 29 | `Function.function.$case === 'columnSelection'` discriminator | model.ts:362 | field | Low | (none) | Within the `function` union, `columnSelection` sits next to `aggregationFunction`. Consistent. |
+| 30 | `MaterializedFeature.materializedFeatureId` field (stutter) | model.ts:519 | field | High | 12 Duplicate concepts, 15 Generic field names, 19 Underspecified IDs | Reads `mf.materializedFeatureId` — the type prefix duplicates. TS idiom: just `id`. Path interpolations elsewhere look like `${req.materializedFeatureId ?? ''}` (client.ts:254, 327) — verbose. |
+| 31 | `MaterializedFeature.featureName` (full Unity Catalog name) vs `MaterializedFeature.tableName` (full UC table name) | model.ts:521, 528 | field pair | Medium | 6 Misleading names, 19 Underspecified IDs | Both are "full names". JSDoc says `featureName` is "The full name of the feature in Unity Catalog" (i.e., three-part `catalog.schema.name`) and `tableName` is "The fully qualified Unity Catalog path to the table". They look the same shape but reference different objects. `featureFullName` / `tableFullName` would type themselves. Compare to `Feature.fullName` (model.ts:281) where the type name is the disambiguator. |
+| 32 | `Feature.fullName` (the feature's three-part name) | model.ts:281 | field | Medium | 6 Misleading names, 19 Underspecified IDs | "fullName" without context is ambiguous (full as opposed to what?). The JSDoc says "three-part name (catalog, schema, name)". A `name: string` carrying a fully-qualified identifier is a common UC pattern; `qualifiedName` or `threePartName` would be self-describing. Same critique applies to `DeleteFeatureRequest.fullName` (path), `GetFeatureRequest.fullName`, `DeltaTableSource.fullName`. |
+| 33 | `DeleteFeatureRequest.fullName` vs `DeleteMaterializedFeatureRequest.materializedFeatureId` vs `DeleteKafkaConfigRequest.name` | model.ts:225, 235, 230 | field set | Medium | 17 Inconsistent action verbs, 19 Underspecified IDs | Three sibling delete requests use three different name conventions for "which thing to delete": `fullName`, `materializedFeatureId`, `name`. Three patterns in one file. Caller has to remember which name field each resource uses. |
+| 34 | `KafkaConfig.bootstrapServers` | model.ts:409 | field | Low | (none) | Standard Kafka term. Fine. |
+| 35 | `SubscriptionMode.$case === 'assign'` | model.ts:730 | field | Low | 1 Vague/generic | "assign" is the Kafka idiom for "specifically assign these topic-partitions". Fine for Kafka users; opaque otherwise. |
+| 36 | `SubscriptionMode.$case === 'subscribePattern'` | model.ts:743 | field | Low | (none) | Fine, matches Kafka SDK. |
+| 37 | `extraOptions` field (`Record<string, string>`) | model.ts:419 | field | Medium | 1 Vague/generic | "Extra" is meaningless — extras compared to what? The JSDoc says it's "Catch-all for miscellaneous options". Rename `kafkaOptions` or `additionalOptions`. Fine if you accept "extra" as conventional escape-hatch idiom. |
+| 38 | `disableHostnameVerification` flag on `MtlsConfig` | model.ts:600 | field | Low | (none) | Boolean named in the affirmative-by-disabling style. Documented carefully in JSDoc. Fine. |
+| 39 | `MtlsConfig.keystorePasswordRef` / `keyPasswordRef` / `truststorePasswordRef` (`Ref` suffix) | model.ts:575, 581, 589 | field set | Low | 5 Cryptic abbreviations | "Ref" abbreviates "Reference". The element type is `SecretScopeReference` so the suffix is informative — fine, consistent across three fields. |
+| 40 | `MaterializedFeature.isOnline` vs `MaterializedFeature.destination` (redundant) | model.ts:539, 523 | field pair | High | 12 Duplicate concepts | `isOnline = true` ⟺ `destination.$case === 'onlineStoreConfig'`. Two ways to ask the same question. The JSDoc on `isOnline` confirms: "True if this is an online materialized feature. False if it is an offline materialized feature." But `destination` already discriminates the two. Drop `isOnline` or make it a server-side derived flag with an `@readonly` note. |
+| 41 | `Feature.lineageContext` field (per JSDoc "internal use") | model.ts:310 | field | High | 6 Misleading names | The field is documented as "primarily intended for internal use by <Databricks> systems and is automatically populated... Users should not manually set this field as incorrect values may lead to inaccurate lineage tracking or unexpected behavior." Yet it is `lineageContext?: LineageContext \| undefined` on a public type with no `@internal` JSDoc tag. A consumer can construct it and shoot themselves in the foot. Mark `@internal` or remove from the public type. |
+| 42 | `LineageContext.notebookId` (number) vs `JobContext.jobId` (number) — both "id"s typed as `number` | model.ts:467, 397 | field pair | Medium | 19 Underspecified IDs, 16 Field contradicting type domain | Databricks resource IDs are 64-bit integers that exceed JS `Number.MAX_SAFE_INTEGER` (~2^53). Typing them as `number` is unsafe; the rest of the SDK uses `bigint` or `string` for IDs. Compare to e.g. `MaterializedFeature.materializedFeatureId: string`. |
+| 43 | `LineageContext` interface name | model.ts:465 | interface | Low | 1 Vague/generic | "LineageContext" is reasonable in a lineage-tracking context. Fine. |
+| 44 | `JobContext.jobId` JSDoc typo | model.ts:397 | field | Low | (none) | JSDoc reads "The job ID where this API invoked." (missing "was"). Pure typo; flag for completeness. |
+| 45 | `JobContext.jobRunId` | model.ts:399 | field | Low | (none) | Fine. |
+| 46 | `AggregationFunction.inputs` field referenced in JSDoc but not present | model.ts:285-288 | (missing) | High | 6 Misleading names | The JSDoc on `Feature.inputs` says "Deprecated: Use AggregationFunction.inputs instead." But `AggregationFunction` has no `inputs` field. The intended successor is per-function `input?` (singular, on each of `AvgFunction`, `SumFunction`, etc.). Doc is stale. |
+| 47 | `Feature.entities` JSDoc references missing `Feature.entity` | model.ts:241-245 | (missing) | High | 6 Misleading names | `DeltaTableSource.entityColumns` JSDoc says "Use Feature.entity instead." The actual field is `Feature.entities` (plural). Stale or pluralized inconsistently. |
+| 48 | `Feature.timeseries_column` (snake_case in JSDoc) | model.ts:243 | doc | Low | 4 Underscores | JSDoc references "Feature.timeseries_column" — wire-format name in user-facing TS docs. Should be `Feature.timeseriesColumn`. (Multiple occurrences across model.ts JSDoc texts.) |
+| 49 | `unmarshalAggregationFunctionSchema` `$case === 'countFunction'` vs all others (`avg`, `sum`, ...) | model.ts:849 | const | High | 12 Duplicate concepts, 17 Inconsistent action verbs | The 13-case discriminated union for `AggregationFunction.operation` uses `$case` strings that mostly correspond to the math operation (`avg`, `sum`, `min`, `max`, `first`, `last`, `approxCountDistinct`, `approxPercentile`, `stddevPop`, `stddevSamp`, `varPop`, `varSamp`) — *except* for `countFunction`, which retains the `Function` suffix. The wire string is `count_function` while the wire strings for the others are `avg`, `sum`, etc. The asymmetry comes from the spec ("count" is a reserved word in some surfaces) but reads as a bug in TS code. |
+| 50 | `marshal*Schema` / `unmarshal*Schema` const naming | model.ts:822-2274 | const set | Low | 14 Go/Java-style names, 20 Type-suffix tautology | `marshal`/`unmarshal` are Go-idioms; `Schema` is tautological with `z.ZodType<T>`. TS idiom is `encode`/`decode`. Generator-wide pattern, no per-package fix. |
+| 51 | `executeCall` vs `executeHttpCall` | utils.ts:26, 65 | function pair | Medium | 17 Inconsistent action verbs | Two `execute*` functions with overlapping vocabulary. One translates options + dispatches retries, the other does one HTTP roundtrip. Same pattern as sibling-package audits. |
+| 52 | `parseResponse` vs `marshalRequest` | utils.ts:113, 119 | function pair | Low | 17 Inconsistent action verbs | Mixing `parse`/`marshal`. Either `parse`/`format` or `marshal`/`unmarshal`. Sibling-package pattern. |
+| 53 | `PACKAGE_SEGMENT` | client.ts:60 | const | Low | 1 Vague/generic | Could be `USER_AGENT_PACKAGE_SEGMENT`. Sibling-package pattern. |
+| 54 | `featureFieldMask` / `kafkaConfigFieldMask` / `materializedFeatureFieldMask` | model.ts:2396, 2446, 2491 | function set | Low | (none) | Three helper builders. Standard generator pattern. Consistent across resources. Listing for completeness. |
+| 55 | `ContinuousWindow` / `SlidingWindow` / `TumblingWindow` (Spark windowing) | model.ts:170, 702, 781 | interface set | Low | (none) | Standard Spark Structured Streaming idioms. Fine. |
+
+---
+
+## High severity (must fix)
+
+### H1. Three sibling packages, blurry boundaries
+
+The Feature Engineering surface is split across three top-level packages:
+
+- `features` (this package) — owns `Feature`, `KafkaConfig`,
+  `MaterializedFeature`, and 21 client methods spanning all three.
+- `materializedfeatures` — **does not** own `MaterializedFeature`. It owns
+  `FeatureLineage` and `FeatureTag` (see
+  `packages/materializedfeatures/src/v1/index.ts`).
+- `featurestore` — owns `OnlineStore` and `PublishTable` (see
+  `packages/featurestore/src/v1/index.ts`).
+
+The boundaries do not match the package names. A new reader walking the
+package list will assume `MaterializedFeature` lives in `materializedfeatures`
+— it doesn't. They will assume `KafkaConfig` lives in `featurestore` (the
+"store" for features) — it doesn't.
+
+Recommendations (pick one):
+
+- **Rename to match contents:**
+  - this package → `feature-definitions` or `feature-engineering` (it owns
+    definitions + materialization + Kafka).
+  - `materializedfeatures` → `feature-lineage` or `feature-metadata`.
+  - `featurestore` → `feature-online-stores`.
+- **Move types to match names:**
+  - Move `MaterializedFeature` + `materializedFeatures*` client methods out of
+    `features` and into `materializedfeatures`.
+  - Move `KafkaConfig` + `kafkaConfigs*` client methods out of `features` into
+    a new `feature-streaming-sources` package or keep in `features` if it
+    becomes "feature definitions only".
+
+Either way, the current state misleads consumers.
+
+### H2. Package name `features` is vague
+
+Bare "features" overlaps with at least three unrelated Databricks concepts:
+
+1. ML features (this package).
+2. Product / preview features (in `settings`, `previews`).
+3. Billing-plan features (in pricing surfaces).
+
+A TS reader who writes `import {Feature} from '@databricks/sdk-features/v1'`
+has no signal that this is the ML kind. Recommend
+`@databricks/sdk-feature-engineering` to match the URL path
+(`/api/2.0/feature-engineering/...`).
+
+### H3. The `Feature` type name is overloaded
+
+The unqualified noun `Feature` is the central type of this package
+(model.ts:279) and is re-exported from `index.ts`. Once it lands in a
+consumer's namespace it shadows the common-English sense of the word.
+
+```ts
+import {Feature} from '@databricks/sdk-features/v1';
+import {Feature as PreviewFeature} from '@databricks/sdk-previews/v1';
+```
+
+Rename `MLFeature`, `FeatureDefinition`, or
+`FeatureEngineeringFeature` (the latter is verbose but unambiguous and matches
+the URL).
+
+### H4. `MaterializedFeature` is misplaced
+
+The package `materializedfeatures/` exists at `packages/materializedfeatures/`
+but does not contain `MaterializedFeature` (it contains `FeatureLineage` /
+`FeatureTag` instead). `MaterializedFeature` lives in this package. The
+package naming and module organization are out of sync.
+
+This is the most surprising thing in this audit. A reader who searches the
+codebase for `MaterializedFeature` will find it in `features/`, not
+`materializedfeatures/`. Moving it (or renaming the empty-shelled package)
+should be a P1 fix.
+
+### H5. Three names for "column reference of a source"
+
+- `ColumnIdentifier { variantExprPath?: string }` — used by `KafkaSource`.
+- `EntityColumn { name?: string }` — used by `Feature`.
+- `TimeseriesColumn { name?: string }` — used by `Feature`.
+- `string` — used by deprecated `DeltaTableSource.entityColumns`,
+  `DeltaTableSource.timeseriesColumn`.
+
+Four representations for the same domain notion. Three of them carry a single
+field, two with different field names (`variantExprPath` vs `name`). The
+simplest fix is one shared `ColumnRef { path: string }` plus a tag on the
+parent context (e.g., `entities: ColumnRef[]`, `timeseries: ColumnRef`).
+
+### H6. Underscore-encoded TS identifiers
+
+Three types use proto-style underscore-encoded nested names, each requiring an
+inline `// eslint-disable-next-line @typescript-eslint/naming-convention`:
+
+- `Function_FunctionType` (enum) — model.ts:29
+- `Function_ExtraParameter` (interface) — model.ts:373
+- `MaterializedFeature_PipelineScheduleState` (enum) — model.ts:47
+
+And the corresponding `unmarshal*` / `marshal*` constants below. The
+existence of those eslint-disable comments is the loudest possible signal
+that the names violate the codebase's own conventions.
+
+Standard TS idiom: lift to top-level (`FunctionType`,
+`PipelineScheduleState`, `ExtraParameter`) or nest under a namespace
+(`Function.Type`, `MaterializedFeature.ScheduleState`).
+
+### H7. `Function_FunctionType` and `Feature.functionType` are deprecated but not marked
+
+The deprecation note ("Deprecated: Use the function-specific messages in
+AggregationFunction.function_type oneof instead") lives in the JSDoc *text*
+but neither the type, nor the field, nor the enum carries a `@deprecated` tag.
+TS callers' IDEs will not flag use. Same for:
+
+- `Function.functionType` — model.ts:347
+- `Function.extraParameters` — model.ts:351
+- `Feature.inputs` — model.ts:288
+- `Feature.timeWindow` — model.ts:295
+- `Feature.filterCondition` — model.ts:302
+- `BackfillSource.$case === 'deltaTableSource'` — model.ts:131
+- `DeltaTableSource.entityColumns` — model.ts:245
+- `DeltaTableSource.timeseriesColumn` — model.ts:250
+- `KafkaSource.entityColumnIdentifiers` — model.ts:441
+- `KafkaSource.timeseriesColumnIdentifier` — model.ts:446
+
+Ten deprecated fields with no `@deprecated` tag. Add the tag.
+
+### H8. `Feature.lineageContext` is internal but exposed as public
+
+JSDoc explicitly says: "WARNING: This field is primarily intended for internal
+use by <Databricks> systems and is automatically populated... Users should not
+manually set this field as incorrect values may lead to inaccurate lineage
+tracking or unexpected behavior. This field will be set by feature-engineering
+client and should be left unset by SDK and terraform users."
+
+Yet it sits on the public `Feature` interface, with no `@internal` JSDoc tag,
+no runtime guardrail, no separate "internal feature creation" path. A TS
+consumer constructing a `Feature` literal can fill in any value.
+
+Fix: mark `@internal` (or remove from public type and have the server inject
+it).
+
+### H9. `isOnline` redundancy with `destination`
+
+`MaterializedFeature.isOnline` is `true` iff `destination.$case === 'onlineStoreConfig'`.
+Two booleans for one fact. A consumer who reads one and not the other can
+misinterpret the record's state. Either:
+
+- Drop `isOnline` and require consumers to inspect `destination`.
+- Make `isOnline` a server-derived read-only flag and forbid setting it on
+  create/update (it does *not* appear in the field-mask schema — model.ts:2476
+  — but the JSDoc doesn't say it's read-only).
+
+### H10. Path-parameter IDs typed as `number`
+
+`LineageContext.notebookId` and `JobContext.jobId`, `JobContext.jobRunId` are
+typed as `number`. Databricks IDs are 64-bit. The other ID field on the same
+file (`MaterializedFeature.materializedFeatureId`) is `string`. Inconsistent
+within the file *and* potentially unsafe at the `2^53` boundary.
+
+---
+
+## Medium severity (worth pushing back on)
+
+### M1. One `Client` owning three resource families
+
+The `Client` class is 631 lines and exposes 21 methods over three resource
+families:
+
+- `Feature` (5 RPCs + 1 iterator): create, get, list, listIter, update, delete.
+- `KafkaConfig` (5 RPCs + 1 iterator): create, get, list, listIter, update,
+  delete.
+- `MaterializedFeature` (5 RPCs + 1 iterator + 1 batch): batchCreate, create,
+  get, list, listIter, update, delete.
+
+The URL groupings hint that they are distinct sub-resources:
+
+- `/api/2.0/feature-engineering/features`
+- `/api/2.0/feature-engineering/features/kafka-configs`
+- `/api/2.0/feature-engineering/materialized-features`
+
+Splitting to three sub-clients (or three packages) would let each Client read
+as a single focused surface.
+
+### M2. `*Function` interface proliferation
+
+Thirteen single-field interfaces (`AvgFunction`, `CountFunction`, etc.), eleven
+of which are field-for-field identical (`{input?: string}`):
+
+```ts
+export interface AvgFunction    { input?: string | undefined }
+export interface CountFunction  { input?: string | undefined }
+export interface SumFunction    { input?: string | undefined }
+export interface MinFunction    { input?: string | undefined }
+export interface MaxFunction    { input?: string | undefined }
+export interface FirstFunction  { input?: string | undefined }
+export interface LastFunction   { input?: string | undefined }
+export interface StddevPopFunction  { input?: string | undefined }
+export interface StddevSampFunction { input?: string | undefined }
+export interface VarPopFunction     { input?: string | undefined }
+export interface VarSampFunction    { input?: string | undefined }
+```
+
+Plus two that add fields:
+
+```ts
+export interface ApproxCountDistinctFunction { input?, relativeSd?  }
+export interface ApproxPercentileFunction    { input?, percentile?, accuracy? }
+```
+
+One shared `SingleInputFunction` + two specific extras would reduce the
+interface count from 13 to 3. The discriminated union in `AggregationFunction.operation`
+already encodes the function kind via `$case`. The type per case is
+redundant.
+
+(This may be a deliberate code-generation pattern from the proto spec to
+preserve forward extensibility — e.g., to let `SumFunction` later add fields
+without affecting `AvgFunction`. Worth pushing back on.)
+
+### M3. `IsolationMode`-style enum sentinels
+
+`ScalarDataType.SCALAR_DATA_TYPE_UNSPECIFIED`,
+`Function_FunctionType.FUNCTION_TYPE_UNSPECIFIED`, and
+`MaterializedFeature_PipelineScheduleState.PIPELINE_SCHEDULE_STATE_UNSPECIFIED`
+are proto-style sentinels for "no value set". The fields they live in are
+already `T | undefined` in TS. The sentinels are dead and create
+ambiguity (does `undefined` mean "not set" or "set to UNSPECIFIED"?).
+
+### M4. Field-name pluralization mismatches the type
+
+- `Feature.entities: EntityColumn[]` — plural field, singular element. Fine.
+- `KafkaSource.entityColumnIdentifiers: ColumnIdentifier[]` — plural field,
+  singular element. Fine in isolation but `entities` (the modern version on
+  Feature) is much shorter.
+- `DeltaTableSource.entityColumns: string[]` — plural field, primitive
+  element. Deprecated. Three plural conventions for the same notion.
+
+### M5. Three names for one notion (`entities` / `entityColumns` / `entityColumnIdentifiers`)
+
+See H5. The three names also differ in element type (`EntityColumn`, `string`,
+`ColumnIdentifier`). Cf. T3 in cross-cutting observations below.
+
+### M6. `_FunctionType` and `_PipelineScheduleState` carry the wrong granularity
+
+`Function_FunctionType` (model.ts:29) lists *13 functions* in one enum, but
+the modern API surfaces one interface per function (`AvgFunction`,
+`SumFunction`, etc.). The enum is the legacy "all in one" view; the interfaces
+are the new "one each" view. Both coexist.
+
+`MaterializedFeature_PipelineScheduleState` is correctly bounded (only the
+three values `SNAPSHOT`, `ACTIVE`, `PAUSED` plus the `UNSPECIFIED` sentinel).
+Pipelines, however, are a concept that may appear in other packages
+(`pipelines/`, `jobs/`); a shared `PipelineState` would generalize.
+
+### M7. `ColumnSelection` interface is too generic
+
+JSDoc says `ColumnSelection` represents "equivalent to the LAST() record of an
+entity over a lifetime ContinuousWindow". The name gives no domain hint.
+`LatestColumnValue` would name the behavior. (Same critique as `Credential` in
+the credentials audit.)
+
+### M8. `MaterializedFeature.destination` is a generic word
+
+Carries an `OfflineStoreConfig | OnlineStoreConfig` union. The English word
+"destination" suggests a URL or path. Domain word: `target`, `store`, or
+`storage`.
+
+### M9. JSDoc references stale field names
+
+- "Use Feature.entity instead" (model.ts:243) — actual field is `entities`.
+- "Use Feature.entity instead" (model.ts:438) — same typo.
+- "Use AggregationFunction.inputs instead" (model.ts:286) — field doesn't
+  exist; modern shape is per-function `input?`.
+- "Use Function.aggregation_function.time_window" (model.ts:292) — references
+  snake_case wire name in TS-facing JSDoc.
+
+### M10. `executeCall` vs `executeHttpCall`
+
+Same as sibling packages. Two `execute*` verbs.
+
+---
+
+## Low severity (nits)
+
+### L1. `ScalarDataType` is one of the few "good" enums
+
+Eleven of its twelve values (`INTEGER`, `FLOAT`, `BOOLEAN`, `STRING`, `DOUBLE`,
+`LONG`, `TIMESTAMP`, `DATE`, `SHORT`, `BINARY`, `DECIMAL`) are concise SQL
+types. Only the sentinel `SCALAR_DATA_TYPE_UNSPECIFIED` is a problem.
+
+### L2. `PACKAGE_SEGMENT` undescriptive
+
+Sibling-package pattern.
+
+### L3. `parseResponse` vs `marshalRequest` verb mix
+
+Sibling-package pattern.
+
+### L4. `MtlsConfig.disableHostnameVerification` reasonable
+
+Boolean named in negative ("disable") to match the underlying Kafka option
+(`kafka.ssl.endpoint.identification.algorithm`). JSDoc warns about security
+implications. Fine.
+
+### L5. `bootstrapServers` is conventional Kafka
+
+Fine.
+
+### L6. `cronSchedule` field on `MaterializedFeature`
+
+`MaterializedFeature.cronSchedule: string` is a Quartz cron expression. The
+field name is fine; the type could be a branded `CronExpression` for stronger
+typing, but flagging only for completeness.
+
+### L7. `req` parameter naming in client methods
+
+Standard SDK-wide convention. Fine.
+
+### L8. `marshal`/`unmarshal` are Go-idioms
+
+Generator-wide. Cf. credentials audit L7.
+
+### L9. `Function_FunctionType` enum values use SQL-conventional uppercase
+
+`AVG`, `COUNT`, `SUM`, etc. Match SQL/Spark idioms. Fine for the wire format;
+TS keys could be PascalCase.
+
+### L10. `ContinuousWindow.offset` allows non-positive
+
+Note in JSDoc: "must be non-positive" — i.e., 0 or negative duration. The
+type is `Temporal.Duration` which doesn't constrain sign. Documentation-only
+constraint; not enforced. Same critique as `SlidingWindow.slideDuration`
+("must be positive and less than duration").
+
+### L11. `ProtoSchemaSpec.schemaText` carries the entire `.proto` file text
+
+A `string` containing potentially many KB of source text. Naming is fine; the
+data shape is the design choice. Listing for completeness.
+
+### L12. JSDoc typo on `JobContext.jobId`
+
+"The job ID where this API invoked." → "where this API was invoked." Minor.
+
+### L13. `SecretScopeReference { scope, key }`
+
+Two-field reference to a Databricks secret. Standard. Fine.
+
+### L14. `TimeWindow`, `ContinuousWindow`, `TumblingWindow`, `SlidingWindow`
+
+Four Spark Structured Streaming idioms. Standard. Fine.
+
+### L15. `featureFieldMask` / `kafkaConfigFieldMask` / `materializedFeatureFieldMask`
+
+Three field-mask builders. Standard generator pattern. Fine.
+
+### L16. `req.featureName` query parameter on `ListMaterializedFeaturesRequest`
+
+The list endpoint filters by feature name (full UC name). Field is
+`featureName?: string` — fine. Distinguishes from `MaterializedFeature.featureName`
+in the response, which is the same value.
+
+---
+
+## Cross-cutting observations (not flags)
+
+### T1. Generator marker
+
+Every file begins with `// Code generated from API definition by Databricks
+SDK Generator. DO NOT EDIT.` All issues here must be fixed upstream.
+
+### T2. ESLint disables document the violations
+
+Four `// eslint-disable-next-line @typescript-eslint/naming-convention --
+Proto-style nested *name.` comments (lines 28, 46, 372, 428, 1141, 1901).
+Each one marks a name that breaks the project's own conventions. The
+generator already "knows" — it just emits the eslint disable rather than
+fixing the name.
+
+### T3. Three packages, three different concepts of "what is a feature"
+
+| Package | What it owns | Where it lives |
+|---------|--------------|----------------|
+| `features` | `Feature` definitions, `KafkaConfig`, `MaterializedFeature` | this audit |
+| `materializedfeatures` | `FeatureLineage`, `FeatureTag` (mismatched name) | `packages/materializedfeatures/` |
+| `featurestore` | `OnlineStore`, `PublishTable` | `packages/featurestore/` |
+
+Domain-wise these are all *one product* (Databricks Feature Engineering /
+Feature Store). They are split across three packages whose names suggest a
+different breakdown than the contents.
+
+### T4. Optionality model
+
+Every field is `T | undefined`. Matches the rest of the SDK
+(`exactOptionalPropertyTypes`).
+
+### T5. `index.ts` re-export style
+
+Class re-exported with `export {Client}`; enums (runtime values) re-exported
+with `export {ScalarDataType, Function_FunctionType, MaterializedFeature_PipelineScheduleState}`;
+interfaces (type-only) re-exported with `export type {...}`. Correct for
+`verbatimModuleSyntax`.
+
+### T6. No reserved-word collisions
+
+No `delete`, `class`, `new`, `default`, `interface` as identifier names.
+`Function` is a *built-in* TS global (the `Function` constructor type) — see
+the next note.
+
+### T7. `Function` shadows the global `Function` type
+
+`export interface Function` (model.ts:343) shadows the TypeScript global
+`Function` type (the constructor signature `Function`). Inside any module
+that imports `Function` from this package, the global is unreachable except
+via `globalThis.Function`. Most ESLint configs (including this repo's, see
+`no-shadow-restricted-names` and the `globals` rule) flag this. The
+underscore-encoded `Function_FunctionType` and `Function_ExtraParameter`
+inherit the shadowing.
+
+Rename `AggregationFnDefinition` or `FeatureFunction` to clear the shadow.
+
+### T8. No tests
+
+No `tests/` directory for this package (matches sibling Feature Engineering
+packages).
+
+### T9. Versioning
+
+Only `v1` exists; nothing to compare.
+
+### T10. Acronym casing
+
+| Acronym | Code form | JSDoc text | Consistent? |
+|---------|-----------|-----------|-------------|
+| UC (Unity Catalog) | `unityCatalog*` (e.g., `ucServiceCredentialName`) — *not used here*; appears in `AuthConfig.$case === 'ucServiceCredentialName'` (model.ts:104) | "Unity Catalog" spelled out | Mixed (cf. credentials audit M7) |
+| SQL | `transformationSql` field, `sql` lowercase | "SQL" all-caps | Field uses `Sql` (PascalCase-first-letter). Fine. |
+| TLS / mTLS | `MtlsConfig`, `mtlsConfig` | "Mutual-TLS (mTLS)" mixed | Code `Mtls` (PascalCase-first-letter). Diverges from RFC convention "mTLS". |
+| TLS / SSL | `disableHostnameVerification` (no acronym) | "SSL" / "TLS" all-caps | N/A |
+| IETF | `jsonSchema`, "IETF JSON schema" in JSDoc | N/A | N/A |
+| JKS | "JKS files" in JSDoc | N/A | N/A |
+
+### T11. Streaming-specific vocabulary
+
+`SubscriptionMode.assign` / `subscribe` / `subscribePattern` directly mirror
+Spark Structured Streaming Kafka options. Documented inline. Fine for users
+who know the upstream API; opaque otherwise.
+
+---
+
+## Domain glossary (as inferred from this code)
+
+| Term | Meaning in this package |
+|------|-------------------------|
+| **Feature** | A UC-registered feature definition: full three-part name + data source + aggregation function + time window. Reached via `/api/2.0/feature-engineering/features`. |
+| **Materialized Feature** | A scheduled pipeline that computes a feature's values and writes them to an offline UC Delta table or an online Lakebase table. Reached via `/api/2.0/feature-engineering/materialized-features`. |
+| **Kafka Config** | A reusable Kafka cluster + topic-subscription + schema bundle. Referenced by `KafkaSource.name` from `Feature.source`. |
+| **Pipeline Schedule State** | The state of the underlying DLT pipeline driving the materialization. One of `SNAPSHOT` (one-shot), `ACTIVE` (running), `PAUSED`. |
+| **Aggregation Function** | One of 13 SQL aggregations (`avg`, `count`, `sum`, `min`, `max`, `first`, `last`, `approxCountDistinct`, `approxPercentile`, `stddevPop`, `stddevSamp`, `varPop`, `varSamp`) applied over a time window. |
+| **Column Selection** | The non-aggregation alternative to `AggregationFunction` — picks the latest value of a single column over a lifetime continuous window. Semantic equivalent of SQL `LAST()`. |
+| **Data Source** | One of three: Delta table (batch), Kafka stream (streaming), Request-time (inference-time scoring). |
+| **Backfill Source** | A user-provided historical-data table used when constructing training sets from streaming features. |
+| **Time Window** | One of three Spark windowing variants: continuous, tumbling (non-overlapping fixed-duration), sliding (overlapping). |
+| **Subscription Mode** | Kafka topic-selection mode: explicit topic-partition `assign`, comma-separated `subscribe`, regex `subscribePattern`. |
+| **Auth Config** | One of two Kafka auth flavors: Unity-Catalog service credential, or mTLS keystores/truststores. |
+| **Lineage Context** | Internal-only field linking a feature to the notebook/job that created it. Auto-populated by the feature-engineering client. |
+| **Entity Column** | Column(s) used as the lookup key for the feature at query time. Aggregation keys. |
+| **Timeseries Column** | The event-time column on the source data. Used for point-in-time joins, backfills, and aggregation windowing. |
+| **Online Store** | A Lakebase logical database + schema serving low-latency feature lookups. |
+| **Offline Store** | A Delta table serving batch-scoring/training feature lookups. |
+
+---
+
+## File coverage
+
+| File | Lines | Exports counted | Audited |
+|------|-------|-----------------|---------|
+| `src/v1/model.ts` | 2499 | 3 enums, 50 interfaces, 60 zod consts (30 unmarshal + 30 marshal), 3 field-mask helpers | yes |
+| `src/v1/client.ts` | 631 | 1 class, 21 public methods (15 RPCs + 3 paging iterators + 1 batch) | yes |
+| `src/v1/utils.ts` | 151 | 1 interface, 5 functions | yes |
+| `src/v1/index.ts` | 78 | 1 class re-export, 3 enum re-exports, 60 type re-exports | yes |
+
+Every type, field, enum value, and method enumerated above is accounted for.
