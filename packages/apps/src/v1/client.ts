@@ -206,24 +206,12 @@ export class Client {
     options?: CallOptions
   ): Promise<AppDeployment> {
     const url = `${this.host}/api/2.0/apps/${req.appName ?? ''}/deployments`;
-    const params = new URLSearchParams();
-    if (req.autoDeploy !== undefined) {
-      params.append('auto_deploy', String(req.autoDeploy));
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(req.appDeployment, marshalAppDeploymentSchema);
     let resp: AppDeployment | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'POST',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,

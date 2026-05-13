@@ -54,6 +54,90 @@ export enum ValidateStorageCredential_Result {
   SKIP = 'SKIP',
 }
 
+export interface AccountsCreateStorageCredentialPublic {
+  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
+  accountId?: string | undefined;
+  /** Unity Catalog metastore ID */
+  metastoreId?: string | undefined;
+  credentialInfo?: CreateAccountsStorageCredential | undefined;
+  /**
+   * Optional, default false.
+   * Supplying true to this argument skips validation of the created set of credentials.
+   */
+  skipValidation?: boolean | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface AccountsCreateStorageCredentialPublic_Response {
+  credentialInfo?: StorageCredentialInfo | undefined;
+}
+
+/** Deletes a storage credential for an account */
+export interface AccountsDeleteStorageCredentialPublic {
+  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
+  accountId?: string | undefined;
+  /** Unity Catalog metastore ID */
+  metastoreId?: string | undefined;
+  /** Name of the storage credential. */
+  nameArg?: string | undefined;
+  /** Force deletion even if the Storage Credential is not empty. Default is false. */
+  force?: boolean | undefined;
+}
+
+/** The storage credential was successfully deleted. */
+// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
+export interface AccountsDeleteStorageCredentialPublic_Response {}
+
+/** Retrieves a single storage credential */
+export interface AccountsGetStorageCredentialPublic {
+  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
+  accountId?: string | undefined;
+  /** Unity Catalog metastore ID */
+  metastoreId?: string | undefined;
+  /** Required. Name of the storage credential. */
+  nameArg?: string | undefined;
+}
+
+/** The storage credential was successfully retrieved. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface AccountsGetStorageCredentialPublic_Response {
+  credentialInfo?: StorageCredentialInfo | undefined;
+}
+
+/** Lists all storage credentials for the given account and metastore */
+export interface AccountsListStorageCredentialsPublic {
+  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
+  accountId?: string | undefined;
+  /** Unity Catalog metastore ID */
+  metastoreId?: string | undefined;
+}
+
+/** The metastore storage credentials were successfully returned. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface AccountsListStorageCredentialsPublic_Response {
+  /** An array of metastore storage credentials. */
+  storageCredentials?: StorageCredentialInfo[] | undefined;
+}
+
+/** The storage credential to update. */
+export interface AccountsUpdateStorageCredentialPublic {
+  /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
+  accountId?: string | undefined;
+  /** Unity Catalog metastore ID */
+  metastoreId?: string | undefined;
+  /** Name of the storage credential. */
+  nameArg?: string | undefined;
+  credentialInfo?: UpdateAccountsStorageCredential | undefined;
+  /** Optional. Supplying true to this argument skips validation of the updated set of credentials. */
+  skipValidation?: boolean | undefined;
+}
+
+/** The storage credential was successfully updated. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface AccountsUpdateStorageCredentialPublic_Response {
+  credentialInfo?: StorageCredentialInfo | undefined;
+}
+
 /**
  * AWS temporary credentials for API authentication.
  * Read more at https://docs.aws.amazon.com/STS/latest/APIReference/API_Credentials.html.
@@ -143,6 +227,79 @@ export interface CloudflareApiToken {
   secretAccessKey?: string | undefined;
   /** The ID of the account associated with the API token. */
   accountId?: string | undefined;
+}
+
+export interface CreateAccountsStorageCredential {
+  /**
+   * The credential name. The name must be unique among storage and service
+   * credentials within the metastore.
+   */
+  name?: string | undefined;
+  /** (--[Create:REQ, Update:OPT] The long-lived cloud credential.--) */
+  credential?:
+    | {
+        $case: 'awsIamRole';
+        /** The AWS IAM role configuration. */
+        awsIamRole: AwsIamRole;
+      }
+    | {
+        $case: 'azureServicePrincipal';
+        /** The Azure service principal configuration. */
+        azureServicePrincipal: AzureServicePrincipal;
+      }
+    | {
+        $case: 'gcpServiceAccountKey';
+        gcpServiceAccountKey: GcpServiceAccountKey;
+      }
+    | {
+        $case: 'azureManagedIdentity';
+        /** The Azure managed identity configuration. */
+        azureManagedIdentity: AzureManagedIdentity;
+      }
+    | {
+        $case: 'databricksGcpServiceAccount';
+        /** The <Databricks> managed GCP service account configuration. */
+        databricksGcpServiceAccount: DatabricksGcpServiceAccount;
+      }
+    | {
+        $case: 'cloudflareApiToken';
+        /** The Cloudflare API token configuration. */
+        cloudflareApiToken: CloudflareApiToken;
+      }
+    | undefined;
+  /** Comment associated with the credential. */
+  comment?: string | undefined;
+  /**
+   * Whether the credential is usable only for read operations. Only applicable
+   * when purpose is **STORAGE**.
+   */
+  readOnly?: boolean | undefined;
+  /** Username of current owner of credential. */
+  owner?: string | undefined;
+  /** The unique identifier of the credential. */
+  id?: string | undefined;
+  /** Unique identifier of the parent metastore. */
+  metastoreId?: string | undefined;
+  /** Time at which this credential was created, in epoch milliseconds. */
+  createdAt?: number | undefined;
+  /** Username of credential creator. */
+  createdBy?: string | undefined;
+  /** Time at which this credential was last modified, in epoch milliseconds. */
+  updatedAt?: number | undefined;
+  /** Username of user who last modified the credential. */
+  updatedBy?: string | undefined;
+  /**
+   * Whether this credential is the current metastore's root storage credential.
+   * Only applicable when purpose is **STORAGE**.
+   */
+  usedForManagedStorage?: boolean | undefined;
+  /** The full name of the credential. */
+  fullName?: string | undefined;
+  /**
+   * Whether the current securable is accessible from all workspaces or a
+   * specific set of workspaces.
+   */
+  isolationMode?: IsolationMode | undefined;
 }
 
 export interface CreateCredential {
@@ -777,6 +934,79 @@ export interface UcEncryptedToken {
   encryptedPayload?: string | undefined;
 }
 
+export interface UpdateAccountsStorageCredential {
+  /**
+   * The credential name. The name must be unique among storage and service
+   * credentials within the metastore.
+   */
+  name?: string | undefined;
+  /** (--[Create:REQ, Update:OPT] The long-lived cloud credential.--) */
+  credential?:
+    | {
+        $case: 'awsIamRole';
+        /** The AWS IAM role configuration. */
+        awsIamRole: AwsIamRole;
+      }
+    | {
+        $case: 'azureServicePrincipal';
+        /** The Azure service principal configuration. */
+        azureServicePrincipal: AzureServicePrincipal;
+      }
+    | {
+        $case: 'gcpServiceAccountKey';
+        gcpServiceAccountKey: GcpServiceAccountKey;
+      }
+    | {
+        $case: 'azureManagedIdentity';
+        /** The Azure managed identity configuration. */
+        azureManagedIdentity: AzureManagedIdentity;
+      }
+    | {
+        $case: 'databricksGcpServiceAccount';
+        /** The <Databricks> managed GCP service account configuration. */
+        databricksGcpServiceAccount: DatabricksGcpServiceAccount;
+      }
+    | {
+        $case: 'cloudflareApiToken';
+        /** The Cloudflare API token configuration. */
+        cloudflareApiToken: CloudflareApiToken;
+      }
+    | undefined;
+  /** Comment associated with the credential. */
+  comment?: string | undefined;
+  /**
+   * Whether the credential is usable only for read operations. Only applicable
+   * when purpose is **STORAGE**.
+   */
+  readOnly?: boolean | undefined;
+  /** Username of current owner of credential. */
+  owner?: string | undefined;
+  /** The unique identifier of the credential. */
+  id?: string | undefined;
+  /** Unique identifier of the parent metastore. */
+  metastoreId?: string | undefined;
+  /** Time at which this credential was created, in epoch milliseconds. */
+  createdAt?: number | undefined;
+  /** Username of credential creator. */
+  createdBy?: string | undefined;
+  /** Time at which this credential was last modified, in epoch milliseconds. */
+  updatedAt?: number | undefined;
+  /** Username of user who last modified the credential. */
+  updatedBy?: string | undefined;
+  /**
+   * Whether this credential is the current metastore's root storage credential.
+   * Only applicable when purpose is **STORAGE**.
+   */
+  usedForManagedStorage?: boolean | undefined;
+  /** The full name of the credential. */
+  fullName?: string | undefined;
+  /**
+   * Whether the current securable is accessible from all workspaces or a
+   * specific set of workspaces.
+   */
+  isolationMode?: IsolationMode | undefined;
+}
+
 export interface UpdateCredential {
   /** Name of the credential. */
   nameArg?: string | undefined;
@@ -1066,6 +1296,58 @@ export interface ValidateStorageCredential_ValidationResult {
   /** Error message would exist when the result does not equal to **PASS**. */
   message?: string | undefined;
 }
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalAccountsCreateStorageCredentialPublic_ResponseSchema: z.ZodType<AccountsCreateStorageCredentialPublic_Response> =
+  z
+    .object({
+      credential_info: z
+        .lazy(() => unmarshalStorageCredentialInfoSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      credentialInfo: d.credential_info,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalAccountsDeleteStorageCredentialPublic_ResponseSchema: z.ZodType<AccountsDeleteStorageCredentialPublic_Response> =
+  z.object({});
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalAccountsGetStorageCredentialPublic_ResponseSchema: z.ZodType<AccountsGetStorageCredentialPublic_Response> =
+  z
+    .object({
+      credential_info: z
+        .lazy(() => unmarshalStorageCredentialInfoSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      credentialInfo: d.credential_info,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalAccountsListStorageCredentialsPublic_ResponseSchema: z.ZodType<AccountsListStorageCredentialsPublic_Response> =
+  z
+    .object({
+      storage_credentials: z
+        .array(z.lazy(() => unmarshalStorageCredentialInfoSchema))
+        .optional(),
+    })
+    .transform(d => ({
+      storageCredentials: d.storage_credentials,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalAccountsUpdateStorageCredentialPublic_ResponseSchema: z.ZodType<AccountsUpdateStorageCredentialPublic_Response> =
+  z
+    .object({
+      credential_info: z
+        .lazy(() => unmarshalStorageCredentialInfoSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      credentialInfo: d.credential_info,
+    }));
 
 export const unmarshalAwsCredentialsSchema: z.ZodType<AwsCredentials> = z
   .object({
@@ -1682,6 +1964,40 @@ export const unmarshalValidateStorageCredential_ValidationResultSchema: z.ZodTyp
       message: d.message,
     }));
 
+export const marshalAccountsCreateStorageCredentialPublicSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    metastoreId: z.string().optional(),
+    credentialInfo: z
+      .lazy(() => marshalCreateAccountsStorageCredentialSchema)
+      .optional(),
+    skipValidation: z.boolean().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    metastore_id: d.metastoreId,
+    credential_info: d.credentialInfo,
+    skip_validation: d.skipValidation,
+  }));
+
+export const marshalAccountsUpdateStorageCredentialPublicSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    metastoreId: z.string().optional(),
+    nameArg: z.string().optional(),
+    credentialInfo: z
+      .lazy(() => marshalUpdateAccountsStorageCredentialSchema)
+      .optional(),
+    skipValidation: z.boolean().optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    metastore_id: d.metastoreId,
+    name_arg: d.nameArg,
+    credential_info: d.credentialInfo,
+    skip_validation: d.skipValidation,
+  }));
+
 export const marshalAwsIamRoleSchema: z.ZodType = z
   .object({
     roleArn: z.string().optional(),
@@ -1728,6 +2044,88 @@ export const marshalCloudflareApiTokenSchema: z.ZodType = z
     access_key_id: d.accessKeyId,
     secret_access_key: d.secretAccessKey,
     account_id: d.accountId,
+  }));
+
+export const marshalCreateAccountsStorageCredentialSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    credential: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('awsIamRole'),
+          awsIamRole: z.lazy(() => marshalAwsIamRoleSchema),
+        }),
+        z.object({
+          $case: z.literal('azureServicePrincipal'),
+          azureServicePrincipal: z.lazy(
+            () => marshalAzureServicePrincipalSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('gcpServiceAccountKey'),
+          gcpServiceAccountKey: z.lazy(() => marshalGcpServiceAccountKeySchema),
+        }),
+        z.object({
+          $case: z.literal('azureManagedIdentity'),
+          azureManagedIdentity: z.lazy(() => marshalAzureManagedIdentitySchema),
+        }),
+        z.object({
+          $case: z.literal('databricksGcpServiceAccount'),
+          databricksGcpServiceAccount: z.lazy(
+            () => marshalDatabricksGcpServiceAccountSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('cloudflareApiToken'),
+          cloudflareApiToken: z.lazy(() => marshalCloudflareApiTokenSchema),
+        }),
+      ])
+      .optional(),
+    comment: z.string().optional(),
+    readOnly: z.boolean().optional(),
+    owner: z.string().optional(),
+    id: z.string().optional(),
+    metastoreId: z.string().optional(),
+    createdAt: z.number().optional(),
+    createdBy: z.string().optional(),
+    updatedAt: z.number().optional(),
+    updatedBy: z.string().optional(),
+    usedForManagedStorage: z.boolean().optional(),
+    fullName: z.string().optional(),
+    isolationMode: z.enum(IsolationMode).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    ...(d.credential?.$case === 'awsIamRole' && {
+      aws_iam_role: d.credential.awsIamRole,
+    }),
+    ...(d.credential?.$case === 'azureServicePrincipal' && {
+      azure_service_principal: d.credential.azureServicePrincipal,
+    }),
+    ...(d.credential?.$case === 'gcpServiceAccountKey' && {
+      gcp_service_account_key: d.credential.gcpServiceAccountKey,
+    }),
+    ...(d.credential?.$case === 'azureManagedIdentity' && {
+      azure_managed_identity: d.credential.azureManagedIdentity,
+    }),
+    ...(d.credential?.$case === 'databricksGcpServiceAccount' && {
+      databricks_gcp_service_account: d.credential.databricksGcpServiceAccount,
+    }),
+    ...(d.credential?.$case === 'cloudflareApiToken' && {
+      cloudflare_api_token: d.credential.cloudflareApiToken,
+    }),
+    comment: d.comment,
+    read_only: d.readOnly,
+    owner: d.owner,
+    id: d.id,
+    metastore_id: d.metastoreId,
+    created_at: d.createdAt,
+    created_by: d.createdBy,
+    updated_at: d.updatedAt,
+    updated_by: d.updatedBy,
+    used_for_managed_storage: d.usedForManagedStorage,
+    full_name: d.fullName,
+    isolation_mode: d.isolationMode,
   }));
 
 export const marshalCreateCredentialSchema: z.ZodType = z
@@ -2002,6 +2400,88 @@ export const marshalGenerateTemporaryVolumeCredentialSchema: z.ZodType = z
   .transform(d => ({
     volume_id: d.volumeId,
     operation: d.operation,
+  }));
+
+export const marshalUpdateAccountsStorageCredentialSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    credential: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('awsIamRole'),
+          awsIamRole: z.lazy(() => marshalAwsIamRoleSchema),
+        }),
+        z.object({
+          $case: z.literal('azureServicePrincipal'),
+          azureServicePrincipal: z.lazy(
+            () => marshalAzureServicePrincipalSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('gcpServiceAccountKey'),
+          gcpServiceAccountKey: z.lazy(() => marshalGcpServiceAccountKeySchema),
+        }),
+        z.object({
+          $case: z.literal('azureManagedIdentity'),
+          azureManagedIdentity: z.lazy(() => marshalAzureManagedIdentitySchema),
+        }),
+        z.object({
+          $case: z.literal('databricksGcpServiceAccount'),
+          databricksGcpServiceAccount: z.lazy(
+            () => marshalDatabricksGcpServiceAccountSchema
+          ),
+        }),
+        z.object({
+          $case: z.literal('cloudflareApiToken'),
+          cloudflareApiToken: z.lazy(() => marshalCloudflareApiTokenSchema),
+        }),
+      ])
+      .optional(),
+    comment: z.string().optional(),
+    readOnly: z.boolean().optional(),
+    owner: z.string().optional(),
+    id: z.string().optional(),
+    metastoreId: z.string().optional(),
+    createdAt: z.number().optional(),
+    createdBy: z.string().optional(),
+    updatedAt: z.number().optional(),
+    updatedBy: z.string().optional(),
+    usedForManagedStorage: z.boolean().optional(),
+    fullName: z.string().optional(),
+    isolationMode: z.enum(IsolationMode).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    ...(d.credential?.$case === 'awsIamRole' && {
+      aws_iam_role: d.credential.awsIamRole,
+    }),
+    ...(d.credential?.$case === 'azureServicePrincipal' && {
+      azure_service_principal: d.credential.azureServicePrincipal,
+    }),
+    ...(d.credential?.$case === 'gcpServiceAccountKey' && {
+      gcp_service_account_key: d.credential.gcpServiceAccountKey,
+    }),
+    ...(d.credential?.$case === 'azureManagedIdentity' && {
+      azure_managed_identity: d.credential.azureManagedIdentity,
+    }),
+    ...(d.credential?.$case === 'databricksGcpServiceAccount' && {
+      databricks_gcp_service_account: d.credential.databricksGcpServiceAccount,
+    }),
+    ...(d.credential?.$case === 'cloudflareApiToken' && {
+      cloudflare_api_token: d.credential.cloudflareApiToken,
+    }),
+    comment: d.comment,
+    read_only: d.readOnly,
+    owner: d.owner,
+    id: d.id,
+    metastore_id: d.metastoreId,
+    created_at: d.createdAt,
+    created_by: d.createdBy,
+    updated_at: d.updatedAt,
+    updated_by: d.updatedBy,
+    used_for_managed_storage: d.usedForManagedStorage,
+    full_name: d.fullName,
+    isolation_mode: d.isolationMode,
   }));
 
 export const marshalUpdateCredentialSchema: z.ZodType = z

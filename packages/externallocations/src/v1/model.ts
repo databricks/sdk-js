@@ -240,11 +240,29 @@ export interface ListExternalLocations_Response {
 export interface OneLakeEventQueue {
   /**
    * The Event Hub URL in the format https://{namespace}.servicebus.windows.net/{event_hub_name}.
-   * Only required for provided_onelake.
+   * Deprecated: use fully_qualified_namespace + event_hub_name instead.
    */
   eventHubUrl?: string | undefined;
-  /** Unique identifier included in the name of the file events managed Fabric Eventstream. */
+  /** Unique identifier included in the name of the file events managed resources. */
   managedResourceId?: string | undefined;
+  /**
+   * The fully qualified domain name of the Event Hubs namespace, e.g.
+   * {yournamespace}.servicebus.windows.net.
+   * Only required for provided_onelake.
+   */
+  fullyQualifiedNamespace?: string | undefined;
+  /**
+   * Event Hub entity name within the namespace.
+   * Only required for provided_onelake.
+   */
+  eventHubName?: string | undefined;
+  /**
+   * Event Hubs consumer group used to consume file events. Defaults to "$Default"
+   * when unset. Recommended for provided_onelake: create a dedicated consumer
+   * group on the Event Hub for file events to avoid contending with the customer's
+   * other consumers.
+   */
+  consumerGroup?: string | undefined;
 }
 
 /** Server-Side Encryption properties for clients communicating with AWS s3. */
@@ -481,10 +499,16 @@ export const unmarshalOneLakeEventQueueSchema: z.ZodType<OneLakeEventQueue> = z
   .object({
     event_hub_url: z.string().optional(),
     managed_resource_id: z.string().optional(),
+    fully_qualified_namespace: z.string().optional(),
+    event_hub_name: z.string().optional(),
+    consumer_group: z.string().optional(),
   })
   .transform(d => ({
     eventHubUrl: d.event_hub_url,
     managedResourceId: d.managed_resource_id,
+    fullyQualifiedNamespace: d.fully_qualified_namespace,
+    eventHubName: d.event_hub_name,
+    consumerGroup: d.consumer_group,
   }));
 
 export const unmarshalSseEncryptionDetailsSchema: z.ZodType<SseEncryptionDetails> =
@@ -673,10 +697,16 @@ export const marshalOneLakeEventQueueSchema: z.ZodType = z
   .object({
     eventHubUrl: z.string().optional(),
     managedResourceId: z.string().optional(),
+    fullyQualifiedNamespace: z.string().optional(),
+    eventHubName: z.string().optional(),
+    consumerGroup: z.string().optional(),
   })
   .transform(d => ({
     event_hub_url: d.eventHubUrl,
     managed_resource_id: d.managedResourceId,
+    fully_qualified_namespace: d.fullyQualifiedNamespace,
+    event_hub_name: d.eventHubName,
+    consumer_group: d.consumerGroup,
   }));
 
 export const marshalSseEncryptionDetailsSchema: z.ZodType = z

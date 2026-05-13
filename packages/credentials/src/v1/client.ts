@@ -18,6 +18,16 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
+  AccountsCreateStorageCredentialPublic,
+  AccountsCreateStorageCredentialPublic_Response,
+  AccountsDeleteStorageCredentialPublic,
+  AccountsDeleteStorageCredentialPublic_Response,
+  AccountsGetStorageCredentialPublic,
+  AccountsGetStorageCredentialPublic_Response,
+  AccountsListStorageCredentialsPublic,
+  AccountsListStorageCredentialsPublic_Response,
+  AccountsUpdateStorageCredentialPublic,
+  AccountsUpdateStorageCredentialPublic_Response,
   CreateCredential,
   CreateStorageCredential,
   CredentialInfo,
@@ -48,6 +58,8 @@ import type {
   ValidateStorageCredential_Response,
 } from './model';
 import {
+  marshalAccountsCreateStorageCredentialPublicSchema,
+  marshalAccountsUpdateStorageCredentialPublicSchema,
   marshalCreateCredentialSchema,
   marshalCreateStorageCredentialSchema,
   marshalGenerateTemporaryPathCredentialSchema,
@@ -58,6 +70,11 @@ import {
   marshalUpdateStorageCredentialSchema,
   marshalValidateCredentialSchema,
   marshalValidateStorageCredentialSchema,
+  unmarshalAccountsCreateStorageCredentialPublic_ResponseSchema,
+  unmarshalAccountsDeleteStorageCredentialPublic_ResponseSchema,
+  unmarshalAccountsGetStorageCredentialPublic_ResponseSchema,
+  unmarshalAccountsListStorageCredentialsPublic_ResponseSchema,
+  unmarshalAccountsUpdateStorageCredentialPublic_ResponseSchema,
   unmarshalDeleteCredential_ResponseSchema,
   unmarshalDeleteStorageCredential_ResponseSchema,
   unmarshalGenerateTemporaryPathCredential_ResponseSchema,
@@ -79,6 +96,9 @@ const PACKAGE_SEGMENT = {
 
 export class Client {
   private readonly host: string;
+  // Fallback for endpoints whose path contains {account_id}. If the request
+  // already carries an accountId, that value wins.
+  private readonly accountId: string | undefined;
   private readonly httpClient: HttpClient;
   private readonly logger: Logger;
   // User-Agent header value. Composed once at construction from
@@ -91,6 +111,7 @@ export class Client {
       throw new Error('Host is required.');
     }
     this.host = options.host.replace(/\/$/, '');
+    this.accountId = options.accountId;
     this.logger = options.logger ?? new NoOpLogger();
     let info = createDefault().with(PACKAGE_SEGMENT);
     if (options.credentials !== undefined) {
@@ -100,6 +121,173 @@ export class Client {
     }
     this.userAgent = info.toString();
     this.httpClient = newHttpClient(options);
+  }
+
+  /**
+   * Creates a new storage credential. The request object is specific to the cloud:
+   * - **AwsIamRole** for AWS credentials
+   * - **AzureServicePrincipal** for Azure credentials
+   * - **GcpServiceAccountKey** for GCP credentials
+   *
+   * The caller must be a metastore admin and have the `CREATE_STORAGE_CREDENTIAL` privilege on the metastore.
+   */
+  async createAccountsStorageCredential(
+    req: AccountsCreateStorageCredentialPublic,
+    options?: CallOptions
+  ): Promise<AccountsCreateStorageCredentialPublic_Response> {
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials`;
+    const body = marshalRequest(
+      req,
+      marshalAccountsCreateStorageCredentialPublicSchema
+    );
+    let resp: AccountsCreateStorageCredentialPublic_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalAccountsCreateStorageCredentialPublic_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Deletes a storage credential from the metastore. The caller must be an owner of the storage credential. */
+  async deleteAccountsStorageCredential(
+    req: AccountsDeleteStorageCredentialPublic,
+    options?: CallOptions
+  ): Promise<AccountsDeleteStorageCredentialPublic_Response> {
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.force !== undefined) {
+      params.append('force', String(req.force));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: AccountsDeleteStorageCredentialPublic_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalAccountsDeleteStorageCredentialPublic_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Gets a storage credential from the metastore. The caller must be a metastore admin, the owner of the
+   * storage credential, or have a level of privilege on the storage credential.
+   */
+  async getAccountsStorageCredential(
+    req: AccountsGetStorageCredentialPublic,
+    options?: CallOptions
+  ): Promise<AccountsGetStorageCredentialPublic_Response> {
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
+    let resp: AccountsGetStorageCredentialPublic_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalAccountsGetStorageCredentialPublic_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Gets a list of all storage credentials that have been assigned to given metastore. */
+  async listAccountsStorageCredentials(
+    req: AccountsListStorageCredentialsPublic,
+    options?: CallOptions
+  ): Promise<AccountsListStorageCredentialsPublic_Response> {
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials`;
+    let resp: AccountsListStorageCredentialsPublic_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalAccountsListStorageCredentialsPublic_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Updates a storage credential on the metastore. The caller must be the owner of the storage credential.
+   * If the caller is a metastore admin, only the **owner** credential can be changed.
+   */
+  async updateAccountsStorageCredential(
+    req: AccountsUpdateStorageCredentialPublic,
+    options?: CallOptions
+  ): Promise<AccountsUpdateStorageCredentialPublic_Response> {
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
+    const body = marshalRequest(
+      req,
+      marshalAccountsUpdateStorageCredentialPublicSchema
+    );
+    let resp: AccountsUpdateStorageCredentialPublic_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalAccountsUpdateStorageCredentialPublic_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
   }
 
   /**

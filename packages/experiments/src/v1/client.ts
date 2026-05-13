@@ -198,6 +198,8 @@ export class Client {
    *
    *
    * Throws `RESOURCE_ALREADY_EXISTS` if an experiment with the given name exists.
+   * Note: In some contexts, this error may be remapped to `ALREADY_EXISTS`.
+   * To be safe, clients should check for both error codes.
    */
   async createExperiment(
     req: CreateExperiment,

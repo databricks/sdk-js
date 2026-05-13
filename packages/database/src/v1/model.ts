@@ -117,8 +117,8 @@ export enum DatabaseInstance_State {
   UPDATING = 'UPDATING',
   /** The instance is failing over. */
   FAILING_OVER = 'FAILING_OVER',
-  /** The instance is being migrated. */
-  MIGRATING = 'MIGRATING',
+  /** The instance is being upgraded to autoscaling. */
+  UPGRADING = 'UPGRADING',
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.

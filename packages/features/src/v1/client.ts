@@ -357,6 +357,12 @@ export class Client {
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
     }
+    if (req.catalogName !== undefined) {
+      params.append('catalog_name', req.catalogName);
+    }
+    if (req.schemaName !== undefined) {
+      params.append('schema_name', req.schemaName);
+    }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListFeaturesResponse | undefined;

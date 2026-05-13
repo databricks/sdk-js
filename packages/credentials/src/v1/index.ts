@@ -13,6 +13,16 @@ export {
 } from './model';
 
 export type {
+  AccountsCreateStorageCredentialPublic,
+  AccountsCreateStorageCredentialPublic_Response,
+  AccountsDeleteStorageCredentialPublic,
+  AccountsDeleteStorageCredentialPublic_Response,
+  AccountsGetStorageCredentialPublic,
+  AccountsGetStorageCredentialPublic_Response,
+  AccountsListStorageCredentialsPublic,
+  AccountsListStorageCredentialsPublic_Response,
+  AccountsUpdateStorageCredentialPublic,
+  AccountsUpdateStorageCredentialPublic_Response,
   AwsCredentials,
   AwsIamRole,
   AzureActiveDirectoryToken,
@@ -20,6 +30,7 @@ export type {
   AzureServicePrincipal,
   AzureUserDelegationSas,
   CloudflareApiToken,
+  CreateAccountsStorageCredential,
   CreateCredential,
   CreateStorageCredential,
   CredentialInfo,
@@ -49,6 +60,7 @@ export type {
   StorageCredentialInfo,
   TemporaryCredentials,
   UcEncryptedToken,
+  UpdateAccountsStorageCredential,
   UpdateCredential,
   UpdateStorageCredential,
   ValidateCredential,

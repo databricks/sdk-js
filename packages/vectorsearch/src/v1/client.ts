@@ -2,6 +2,7 @@
 
 import {VERSION as AUTH_VERSION} from '@databricks/sdk-auth';
 import type {Call} from '@databricks/sdk-core/api';
+import {retryOn} from '@databricks/sdk-core/api';
 import {createDefault} from '@databricks/sdk-core/clientinfo';
 import type {Logger} from '@databricks/sdk-core/logger';
 import {NoOpLogger} from '@databricks/sdk-core/logger';
@@ -18,15 +19,27 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
+  CreateEndpointRequest,
   CreateVectorIndexRequest,
   DeleteDataVectorIndexRequest,
   DeleteDataVectorIndexResponse,
+  DeleteEndpointRequest,
+  DeleteEndpointResponse,
   DeleteVectorIndexRequest,
   DeleteVectorIndexResponse,
+  Endpoint,
+  GetEndpointRequest,
   GetVectorIndexRequest,
+  ListEndpointRequest,
+  ListEndpointResponse,
   ListVectorIndexRequest,
   ListVectorIndexResponse,
   MiniVectorIndex,
+  PatchEndpointBudgetPolicyRequest,
+  PatchEndpointBudgetPolicyResponse,
+  PatchEndpointRequest,
+  PatchEndpointThroughputRequest,
+  PatchEndpointThroughputResponse,
   QueryVectorIndexNextPageRequest,
   QueryVectorIndexRequest,
   QueryVectorIndexResponse,
@@ -39,15 +52,25 @@ import type {
   VectorIndex,
 } from './model';
 import {
+  EndpointStatus_State,
+  marshalCreateEndpointRequestSchema,
   marshalCreateVectorIndexRequestSchema,
+  marshalPatchEndpointBudgetPolicyRequestSchema,
+  marshalPatchEndpointRequestSchema,
+  marshalPatchEndpointThroughputRequestSchema,
   marshalQueryVectorIndexNextPageRequestSchema,
   marshalQueryVectorIndexRequestSchema,
   marshalScanVectorIndexRequestSchema,
   marshalSyncVectorIndexRequestSchema,
   marshalUpsertDataVectorIndexRequestSchema,
   unmarshalDeleteDataVectorIndexResponseSchema,
+  unmarshalDeleteEndpointResponseSchema,
   unmarshalDeleteVectorIndexResponseSchema,
+  unmarshalEndpointSchema,
+  unmarshalListEndpointResponseSchema,
   unmarshalListVectorIndexResponseSchema,
+  unmarshalPatchEndpointBudgetPolicyResponseSchema,
+  unmarshalPatchEndpointThroughputResponseSchema,
   unmarshalQueryVectorIndexResponseSchema,
   unmarshalScanVectorIndexResponseSchema,
   unmarshalSyncVectorIndexResponseSchema,
@@ -60,6 +83,8 @@ const PACKAGE_SEGMENT = {
   key: pkgJson.name.replace(/^@[^/]+\//, ''),
   value: pkgJson.version,
 };
+
+class StillRunningError extends Error {}
 
 export class Client {
   private readonly host: string;
@@ -84,6 +109,43 @@ export class Client {
     }
     this.userAgent = info.toString();
     this.httpClient = newHttpClient(options);
+  }
+
+  /** Create a new endpoint. */
+  async createEndpoint(
+    req: CreateEndpointRequest,
+    options?: CallOptions
+  ): Promise<Endpoint> {
+    const url = `${this.host}/api/2.0/vector-search/endpoints`;
+    const body = marshalRequest(req, marshalCreateEndpointRequestSchema);
+    let resp: Endpoint | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalEndpointSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async createEndpointWaiter(
+    req: CreateEndpointRequest,
+    options?: CallOptions
+  ): Promise<CreateEndpointWaiter> {
+    const resp = await this.createEndpoint(req, options);
+    if (resp.name === undefined) {
+      throw new Error('response field name required for polling is missing');
+    }
+    return new CreateEndpointWaiter(this, resp.name);
   }
 
   /** Create a new index. */
@@ -146,6 +208,31 @@ export class Client {
     return resp;
   }
 
+  /** Delete an AI Search endpoint. */
+  async deleteEndpoint(
+    req: DeleteEndpointRequest,
+    options?: CallOptions
+  ): Promise<DeleteEndpointResponse> {
+    const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
+    let resp: DeleteEndpointResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalDeleteEndpointResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
   /** Delete an index. */
   async deleteVectorIndex(
     req: DeleteVectorIndexRequest,
@@ -163,6 +250,31 @@ export class Client {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalDeleteVectorIndexResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Get details for a single AI Search endpoint. */
+  async getEndpoint(
+    req: GetEndpointRequest,
+    options?: CallOptions
+  ): Promise<Endpoint> {
+    const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
+    let resp: Endpoint | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalEndpointSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -203,6 +315,54 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  /** List all AI Search endpoints in the workspace. */
+  async listEndpoint(
+    req: ListEndpointRequest,
+    options?: CallOptions
+  ): Promise<ListEndpointResponse> {
+    const url = `${this.host}/api/2.0/vector-search/endpoints`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListEndpointResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalListEndpointResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listEndpointIter(
+    req: ListEndpointRequest,
+    options?: CallOptions
+  ): AsyncGenerator<Endpoint> {
+    const pageReq: ListEndpointRequest = {...req};
+    for (;;) {
+      const resp = await this.listEndpoint(pageReq, options);
+      for (const item of resp.endpoints ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
   }
 
   /** List all indexes in the given endpoint. */
@@ -254,6 +414,96 @@ export class Client {
       }
       pageReq.pageToken = resp.nextPageToken;
     }
+  }
+
+  /** Update an endpoint */
+  async patchEndpoint(
+    req: PatchEndpointRequest,
+    options?: CallOptions
+  ): Promise<Endpoint> {
+    const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
+    const body = marshalRequest(req, marshalPatchEndpointRequestSchema);
+    let resp: Endpoint | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalEndpointSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Update the budget policy of an endpoint */
+  async patchEndpointBudgetPolicy(
+    req: PatchEndpointBudgetPolicyRequest,
+    options?: CallOptions
+  ): Promise<PatchEndpointBudgetPolicyResponse> {
+    const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/budget-policy`;
+    const body = marshalRequest(
+      req,
+      marshalPatchEndpointBudgetPolicyRequestSchema
+    );
+    let resp: PatchEndpointBudgetPolicyResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalPatchEndpointBudgetPolicyResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Update the throughput (concurrency) of an endpoint */
+  async patchEndpointThroughput(
+    req: PatchEndpointThroughputRequest,
+    options?: CallOptions
+  ): Promise<PatchEndpointThroughputResponse> {
+    const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/throughput`;
+    const body = marshalRequest(
+      req,
+      marshalPatchEndpointThroughputRequestSchema
+    );
+    let resp: PatchEndpointThroughputResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalPatchEndpointThroughputResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
   }
 
   /** Query the specified vector index. */
@@ -390,5 +640,83 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+}
+
+export class CreateEndpointWaiter {
+  constructor(
+    private readonly client: Client,
+    readonly name: string
+  ) {}
+
+  /**
+   * Polls until the operation reaches a terminal state.
+   *
+   * Throws if a failure state is reached.
+   */
+  async wait(options?: CallOptions): Promise<Endpoint> {
+    let result: Endpoint | undefined;
+
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const pollResp = await this.client.getEndpoint(
+        {
+          name: this.name,
+        },
+        {...options, ...(callSignal !== undefined && {signal: callSignal})}
+      );
+
+      const status = pollResp.endpointStatus?.state;
+      if (status === undefined) {
+        throw new Error('response missing required status field');
+      }
+
+      switch (status) {
+        case EndpointStatus_State.ONLINE:
+          result = pollResp;
+          return;
+        case EndpointStatus_State.OFFLINE: {
+          const msg = pollResp.endpointStatus?.message ?? '(no message)';
+          throw new Error(`terminal state ${status}: ${msg}`);
+        }
+        default:
+          throw new StillRunningError();
+      }
+    };
+
+    const retryOptions: CallOptions = {
+      ...(options?.signal !== undefined && {signal: options.signal}),
+      retrier: () =>
+        retryOn({}, (err: Error) => {
+          return err instanceof StillRunningError;
+        }),
+    };
+    await executeCall(call, retryOptions);
+    if (result === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return result;
+  }
+
+  /** Checks whether the operation has reached a terminal state. */
+  async done(options?: CallOptions): Promise<boolean> {
+    const pollResp = await this.client.getEndpoint(
+      {
+        name: this.name,
+      },
+      options
+    );
+
+    const status = pollResp.endpointStatus?.state;
+    if (status === undefined) {
+      throw new Error('response missing required status field');
+    }
+
+    switch (status) {
+      case EndpointStatus_State.ONLINE:
+      case EndpointStatus_State.OFFLINE:
+        return true;
+      default:
+        return false;
+    }
   }
 }

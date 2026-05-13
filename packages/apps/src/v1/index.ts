@@ -75,6 +75,7 @@ export type {
   AppUpdate_UpdateStatus,
   ApplicationStatus,
   AsyncUpdateAppRequest,
+  AutoDeployGitSource,
   ComputeStatus,
   CreateAppDeploymentRequest,
   CreateAppRequest,
