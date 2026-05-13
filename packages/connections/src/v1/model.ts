@@ -2,7 +2,7 @@
 
 import {z} from 'zod';
 
-/** Next Id: 124 */
+/** Next Id: 125 */
 export enum ConnectionType {
   UNKNOWN_CONNECTION_TYPE = 'UNKNOWN_CONNECTION_TYPE',
   MYSQL = 'MYSQL',

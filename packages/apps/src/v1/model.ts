@@ -1043,6 +1043,7 @@ export interface AppUpdate {
   computeSize?: ComputeSize | undefined;
   usagePolicyId?: string | undefined;
   gitRepository?: GitRepository | undefined;
+  telemetryExportDestinations?: TelemetryExportDestination[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1066,6 +1067,17 @@ export interface AsyncUpdateAppRequest {
   appName?: string | undefined;
 }
 
+/** Git source configuration for automatic deployment on push events. */
+export interface AutoDeployGitSource {
+  /** The branch to watch for push events. */
+  branch?: string | undefined;
+  /**
+   * Relative path to the app source code within the Git repository. If not specified, the root
+   * of the repository is used.
+   */
+  sourceCodePath?: string | undefined;
+}
+
 export interface ComputeStatus {
   /** State of the app compute. */
   state?: ComputeStatus_ComputeState | undefined;
@@ -1084,8 +1096,6 @@ export interface CreateAppDeploymentRequest {
   appName?: string | undefined;
   /** The app deployment configuration. */
   appDeployment?: AppDeployment | undefined;
-  /** Whether to enable automatic deployments on push events to the git repository. */
-  autoDeploy?: boolean | undefined;
 }
 
 export interface CreateAppRequest {
@@ -1208,8 +1218,11 @@ export interface GitRepository {
    * bitbucketServer, azureDevOpsServices, gitLab, gitLabEnterpriseEdition, awsCodeCommit.
    */
   provider?: string | undefined;
-  /** Whether automatic deployment is enabled when changes are pushed to the repository. */
-  autoDeploy?: boolean | undefined;
+  /**
+   * Auto deploy configuration. When set, enables automatic deployment on push events
+   * to the specified branch.
+   */
+  autoDeploy?: AutoDeployGitSource | undefined;
   /**
    * ID of a personal access token Git credential owned by the caller, used to
    * grant the app's service principal access to this repository.
@@ -1994,6 +2007,9 @@ export const unmarshalAppUpdateSchema: z.ZodType<AppUpdate> = z
     compute_size: z.enum(ComputeSize).optional(),
     usage_policy_id: z.string().optional(),
     git_repository: z.lazy(() => unmarshalGitRepositorySchema).optional(),
+    telemetry_export_destinations: z
+      .array(z.lazy(() => unmarshalTelemetryExportDestinationSchema))
+      .optional(),
   })
   .transform(d => ({
     status: d.status,
@@ -2004,6 +2020,7 @@ export const unmarshalAppUpdateSchema: z.ZodType<AppUpdate> = z
     computeSize: d.compute_size,
     usagePolicyId: d.usage_policy_id,
     gitRepository: d.git_repository,
+    telemetryExportDestinations: d.telemetry_export_destinations,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2029,6 +2046,17 @@ export const unmarshalApplicationStatusSchema: z.ZodType<ApplicationStatus> = z
     message: d.message,
     runningInstances: d.running_instances,
   }));
+
+export const unmarshalAutoDeployGitSourceSchema: z.ZodType<AutoDeployGitSource> =
+  z
+    .object({
+      branch: z.string().optional(),
+      source_code_path: z.string().optional(),
+    })
+    .transform(d => ({
+      branch: d.branch,
+      sourceCodePath: d.source_code_path,
+    }));
 
 export const unmarshalComputeStatusSchema: z.ZodType<ComputeStatus> = z
   .object({
@@ -2097,7 +2125,7 @@ export const unmarshalGitRepositorySchema: z.ZodType<GitRepository> = z
   .object({
     url: z.string().optional(),
     provider: z.string().optional(),
-    auto_deploy: z.boolean().optional(),
+    auto_deploy: z.lazy(() => unmarshalAutoDeployGitSourceSchema).optional(),
     caller_credential_id: z.number().optional(),
   })
   .transform(d => ({
@@ -2879,6 +2907,16 @@ export const marshalAsyncUpdateAppRequestSchema: z.ZodType = z
     app_name: d.appName,
   }));
 
+export const marshalAutoDeployGitSourceSchema: z.ZodType = z
+  .object({
+    branch: z.string().optional(),
+    sourceCodePath: z.string().optional(),
+  })
+  .transform(d => ({
+    branch: d.branch,
+    source_code_path: d.sourceCodePath,
+  }));
+
 export const marshalComputeStatusSchema: z.ZodType = z
   .object({
     state: z.enum(ComputeStatus_ComputeState).optional(),
@@ -2931,7 +2969,7 @@ export const marshalGitRepositorySchema: z.ZodType = z
   .object({
     url: z.string().optional(),
     provider: z.string().optional(),
-    autoDeploy: z.boolean().optional(),
+    autoDeploy: z.lazy(() => marshalAutoDeployGitSourceSchema).optional(),
     callerCredentialId: z.number().optional(),
   })
   .transform(d => ({
@@ -3164,6 +3202,11 @@ const applicationStatusFieldMaskSchema: FieldMaskSchema = {
   state: {wire: 'state'},
 };
 
+const autoDeployGitSourceFieldMaskSchema: FieldMaskSchema = {
+  branch: {wire: 'branch'},
+  sourceCodePath: {wire: 'source_code_path'},
+};
+
 const computeStatusFieldMaskSchema: FieldMaskSchema = {
   activeInstances: {wire: 'active_instances'},
   message: {wire: 'message'},
@@ -3171,7 +3214,10 @@ const computeStatusFieldMaskSchema: FieldMaskSchema = {
 };
 
 const gitRepositoryFieldMaskSchema: FieldMaskSchema = {
-  autoDeploy: {wire: 'auto_deploy'},
+  autoDeploy: {
+    wire: 'auto_deploy',
+    children: () => autoDeployGitSourceFieldMaskSchema,
+  },
   callerCredentialId: {wire: 'caller_credential_id'},
   provider: {wire: 'provider'},
   url: {wire: 'url'},

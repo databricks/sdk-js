@@ -1,19 +1,29 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {Client} from './client';
+export {Client, CreateEndpointWaiter} from './client';
 
 export {
+  EndpointType,
   IndexSubtype,
   PipelineType,
+  ScalingChangeState,
+  ThroughputChangeRequestState,
+  ThroughputPatchStatus,
   UpsertDeleteDataStatus,
   VectorIndexType,
+  EndpointStatus_State,
 } from './model';
 
 export type {
+  AdjustedThroughputRequest,
   ColumnInfo,
+  CreateEndpointRequest,
   CreateVectorIndexRequest,
+  CustomTag,
   DeleteDataVectorIndexRequest,
   DeleteDataVectorIndexResponse,
+  DeleteEndpointRequest,
+  DeleteEndpointResponse,
   DeleteVectorIndexRequest,
   DeleteVectorIndexResponse,
   DeltaSyncVectorIndexSpec,
@@ -21,12 +31,24 @@ export type {
   DirectAccessVectorIndexSpec,
   EmbeddingSourceColumn,
   EmbeddingVectorColumn,
+  Endpoint,
+  EndpointScalingInfo,
+  EndpointStatus,
+  EndpointThroughputInfo,
+  GetEndpointRequest,
   GetVectorIndexRequest,
+  ListEndpointRequest,
+  ListEndpointResponse,
   ListValue,
   ListVectorIndexRequest,
   ListVectorIndexResponse,
   MapStringValueEntry,
   MiniVectorIndex,
+  PatchEndpointBudgetPolicyRequest,
+  PatchEndpointBudgetPolicyResponse,
+  PatchEndpointRequest,
+  PatchEndpointThroughputRequest,
+  PatchEndpointThroughputResponse,
   QueryVectorIndexNextPageRequest,
   QueryVectorIndexRequest,
   QueryVectorIndexResponse,

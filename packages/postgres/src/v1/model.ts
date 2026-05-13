@@ -1592,8 +1592,7 @@ export interface GenerateDatabaseCredentialRequest {
   /** The returned token will be scoped to UC tables with the specified permissions. */
   claims?: RequestedClaims[] | undefined;
   /**
-   * This field is not yet supported.
-   * The endpoint for which this credential will be generated.
+   * The endpoint resource name for which this credential will be generated.
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
    */
   endpoint?: string | undefined;
@@ -1605,14 +1604,14 @@ export interface GenerateDatabaseCredentialRequest {
   /**
    * Expiration information for the credential.
    * Users can specify either expire_time or ttl.
-   * If unspecified, maximum allowed duration is used.
+   * If unspecified, maximum allowed duration (1 hour) is used.
    */
   expiration?:
     | {
         $case: 'ttl';
         /**
          * The requested time-to-live for the generated credential token.
-         * Maximum allowed duration is 1 hour.
+         * Must be at least 300 seconds (5 minutes) and at most 3600 seconds (1 hour).
          */
         ttl: Temporal.Duration;
       }
@@ -1620,7 +1619,7 @@ export interface GenerateDatabaseCredentialRequest {
         $case: 'expireTime';
         /**
          * Timestamp in UTC of when this credential should expire.
-         * Expire time should be within 1 hour of the current time.
+         * Must be at least 300 seconds (5 minutes) and at most 1 hour from the current time.
          */
         expireTime: Temporal.Instant;
       }
@@ -1761,11 +1760,26 @@ export interface InitialEndpointSpec {
   autoscalingLimitMinCu?: number | undefined;
   /** The maximum number of Compute Units for the initial endpoint. */
   autoscalingLimitMaxCu?: number | undefined;
-  /**
-   * Duration of inactivity after which the initial endpoint is automatically suspended.
-   * If specified, should be between 60s and 604800s (1 minute to 1 week).
-   */
-  suspendTimeoutDuration?: Temporal.Duration | undefined;
+  suspension?:
+    | {
+        $case: 'suspendTimeoutDuration';
+        /**
+         * Duration of inactivity after which the initial endpoint is automatically suspended.
+         * If specified, should be between 60s and 604800s (1 minute to 1 week).
+         * Mutually exclusive with `no_suspension`.
+         */
+        suspendTimeoutDuration: Temporal.Duration;
+      }
+    | {
+        $case: 'noSuspension';
+        /**
+         * When set to true, explicitly disables automatic suspension (never suspend).
+         * Should be set to true when provided.
+         * Mutually exclusive with `suspend_timeout_duration`.
+         */
+        noSuspension: boolean;
+      }
+    | undefined;
 }
 
 /**
@@ -2236,7 +2250,6 @@ export interface RequestedClaims {
 
 export interface RequestedResource {
   resourceName?:
-    | {$case: 'unspecifiedResourceName'; unspecifiedResourceName: string}
     | {
         $case: 'tableName';
         /** The full Unity Catalog table name. */
@@ -3257,12 +3270,21 @@ export const unmarshalInitialEndpointSpecSchema: z.ZodType<InitialEndpointSpec> 
         .string()
         .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
         .optional(),
+      no_suspension: z.boolean().optional(),
     })
     .transform(d => ({
       group: d.group,
       autoscalingLimitMinCu: d.autoscaling_limit_min_cu,
       autoscalingLimitMaxCu: d.autoscaling_limit_max_cu,
-      suspendTimeoutDuration: d.suspend_timeout_duration,
+      suspension:
+        d.suspend_timeout_duration !== undefined
+          ? {
+              $case: 'suspendTimeoutDuration' as const,
+              suspendTimeoutDuration: d.suspend_timeout_duration,
+            }
+          : d.no_suspension !== undefined
+            ? {$case: 'noSuspension' as const, noSuspension: d.no_suspension}
+            : undefined,
     }));
 
 export const unmarshalInitialRoleSpecSchema: z.ZodType<InitialRoleSpec> = z
@@ -4279,16 +4301,30 @@ export const marshalInitialEndpointSpecSchema: z.ZodType = z
     group: z.lazy(() => marshalEndpointGroupSpecSchema).optional(),
     autoscalingLimitMinCu: z.number().optional(),
     autoscalingLimitMaxCu: z.number().optional(),
-    suspendTimeoutDuration: z
-      .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+    suspension: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('suspendTimeoutDuration'),
+          suspendTimeoutDuration: z
+            .any()
+            .transform((d: Temporal.Duration) =>
+              d.toString().slice(2).toLowerCase()
+            ),
+        }),
+        z.object({$case: z.literal('noSuspension'), noSuspension: z.boolean()}),
+      ])
       .optional(),
   })
   .transform(d => ({
     group: d.group,
     autoscaling_limit_min_cu: d.autoscalingLimitMinCu,
     autoscaling_limit_max_cu: d.autoscalingLimitMaxCu,
-    suspend_timeout_duration: d.suspendTimeoutDuration,
+    ...(d.suspension?.$case === 'suspendTimeoutDuration' && {
+      suspend_timeout_duration: d.suspension.suspendTimeoutDuration,
+    }),
+    ...(d.suspension?.$case === 'noSuspension' && {
+      no_suspension: d.suspension.noSuspension,
+    }),
   }));
 
 export const marshalInitialRoleSpecSchema: z.ZodType = z
@@ -4503,18 +4539,11 @@ export const marshalRequestedResourceSchema: z.ZodType = z
   .object({
     resourceName: z
       .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('unspecifiedResourceName'),
-          unspecifiedResourceName: z.string(),
-        }),
         z.object({$case: z.literal('tableName'), tableName: z.string()}),
       ])
       .optional(),
   })
   .transform(d => ({
-    ...(d.resourceName?.$case === 'unspecifiedResourceName' && {
-      unspecified_resource_name: d.resourceName.unspecifiedResourceName,
-    }),
     ...(d.resourceName?.$case === 'tableName' && {
       table_name: d.resourceName.tableName,
     }),
@@ -4954,6 +4983,7 @@ const initialEndpointSpecFieldMaskSchema: FieldMaskSchema = {
   autoscalingLimitMaxCu: {wire: 'autoscaling_limit_max_cu'},
   autoscalingLimitMinCu: {wire: 'autoscaling_limit_min_cu'},
   group: {wire: 'group', children: () => endpointGroupSpecFieldMaskSchema},
+  noSuspension: {wire: 'no_suspension'},
   suspendTimeoutDuration: {wire: 'suspend_timeout_duration'},
 };
 

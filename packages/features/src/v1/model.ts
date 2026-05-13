@@ -277,7 +277,11 @@ export interface EntityColumn {
 }
 
 export interface Feature {
-  /** The full three-part name (catalog, schema, name) of the feature. */
+  /**
+   * The full three-part name (catalog, schema, name) of the feature. This is the
+   * feature's resource identifier; the catalog_name, schema_name, and name fields
+   * below are OUTPUT_ONLY decomposed views of this value.
+   */
   fullName?: string | undefined;
   /** The data source of the feature. */
   source?: DataSource | undefined;
@@ -312,6 +316,16 @@ export interface Feature {
   entities?: EntityColumn[] | undefined;
   /** Column recording time, used for point-in-time joins, backfills, and aggregations. */
   timeseriesColumn?: TimeseriesColumn | undefined;
+  /** Name of parent catalog. */
+  catalogName?: string | undefined;
+  /** Name of parent schema relative to its parent catalog. */
+  schemaName?: string | undefined;
+  /** Name of the feature, extracted from the full three-part name (catalog.schema.name). */
+  name?: string | undefined;
+  /** Time at which this feature was created. */
+  createdAt?: Temporal.Instant | undefined;
+  /** Username of the feature creator. */
+  createdBy?: string | undefined;
 }
 
 /**
@@ -469,11 +483,19 @@ export interface LineageContext {
   jobContext?: JobContext | undefined;
 }
 
+/**
+ * Request to list features. Listing is always scoped to a single catalog and schema;
+ * catalog_name and schema_name are required.
+ */
 export interface ListFeaturesRequest {
   /** Pagination token to go to the next page based on a previous query. */
   pageToken?: string | undefined;
   /** The maximum number of results to return. */
   pageSize?: number | undefined;
+  /** Name of parent catalog for features of interest. */
+  catalogName?: string | undefined;
+  /** Name of parent schema relative to its parent catalog. */
+  schemaName?: string | undefined;
 }
 
 export interface ListFeaturesResponse {
@@ -1070,6 +1092,14 @@ export const unmarshalFeatureSchema: z.ZodType<Feature> = z
     lineage_context: z.lazy(() => unmarshalLineageContextSchema).optional(),
     entities: z.array(z.lazy(() => unmarshalEntityColumnSchema)).optional(),
     timeseries_column: z.lazy(() => unmarshalTimeseriesColumnSchema).optional(),
+    catalog_name: z.string().optional(),
+    schema_name: z.string().optional(),
+    name: z.string().optional(),
+    created_at: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    created_by: z.string().optional(),
   })
   .transform(d => ({
     fullName: d.full_name,
@@ -1082,6 +1112,11 @@ export const unmarshalFeatureSchema: z.ZodType<Feature> = z
     lineageContext: d.lineage_context,
     entities: d.entities,
     timeseriesColumn: d.timeseries_column,
+    catalogName: d.catalog_name,
+    schemaName: d.schema_name,
+    name: d.name,
+    createdAt: d.created_at,
+    createdBy: d.created_by,
   }));
 
 export const unmarshalFieldDefinitionSchema: z.ZodType<FieldDefinition> = z
@@ -1828,6 +1863,14 @@ export const marshalFeatureSchema: z.ZodType = z
     lineageContext: z.lazy(() => marshalLineageContextSchema).optional(),
     entities: z.array(z.lazy(() => marshalEntityColumnSchema)).optional(),
     timeseriesColumn: z.lazy(() => marshalTimeseriesColumnSchema).optional(),
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+    name: z.string().optional(),
+    createdAt: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    createdBy: z.string().optional(),
   })
   .transform(d => ({
     full_name: d.fullName,
@@ -1840,6 +1883,11 @@ export const marshalFeatureSchema: z.ZodType = z
     lineage_context: d.lineageContext,
     entities: d.entities,
     timeseries_column: d.timeseriesColumn,
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    name: d.name,
+    created_at: d.createdAt,
+    created_by: d.createdBy,
   }));
 
 export const marshalFieldDefinitionSchema: z.ZodType = z
@@ -2375,6 +2423,9 @@ const deltaTableSourceFieldMaskSchema: FieldMaskSchema = {
 };
 
 const featureFieldMaskSchema: FieldMaskSchema = {
+  catalogName: {wire: 'catalog_name'},
+  createdAt: {wire: 'created_at'},
+  createdBy: {wire: 'created_by'},
   description: {wire: 'description'},
   entities: {wire: 'entities'},
   filterCondition: {wire: 'filter_condition'},
@@ -2385,6 +2436,8 @@ const featureFieldMaskSchema: FieldMaskSchema = {
     wire: 'lineage_context',
     children: () => lineageContextFieldMaskSchema,
   },
+  name: {wire: 'name'},
+  schemaName: {wire: 'schema_name'},
   source: {wire: 'source', children: () => dataSourceFieldMaskSchema},
   timeWindow: {wire: 'time_window', children: () => timeWindowFieldMaskSchema},
   timeseriesColumn: {
