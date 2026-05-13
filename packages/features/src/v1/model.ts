@@ -105,11 +105,6 @@ export interface AuthConfig {
         /** Name of the Unity Catalog service credential. This value will be set under the option databricks.serviceCredential */
         ucServiceCredentialName: string;
       }
-    | {
-        $case: 'mtlsConfig';
-        /** Mutual-TLS authentication. See MtlsConfig. */
-        mtlsConfig: MtlsConfig;
-      }
     | undefined;
 }
 
@@ -460,13 +455,6 @@ export interface KafkaSource {
   timeseriesColumnIdentifier?: ColumnIdentifier | undefined;
   /** The filter condition applied to the source data before aggregation. */
   filterCondition?: string | undefined;
-  /** The pipeline runs these SQL statements immediately after conversion into the schema specified on the KafkaConfig object. */
-  transformationSql?: string | undefined;
-  /**
-   * Schema of the resulting dataframe after transformations, in Spark StructType JSON format (from df.schema.json()).
-   * Any subsequent functions operate against this dataframe.
-   */
-  dataframeSchema?: string | undefined;
 }
 
 /** Returns the last value. */
@@ -573,55 +561,6 @@ export interface MinFunction {
   input?: string | undefined;
 }
 
-/**
- * Mutual-TLS (mTLS) authentication configuration. The keystore (client certificate +
- * private key) and truststore (CAs trusted to verify the broker) live as JKS files on
- * Unity Catalog volumes, with their passwords stored in <Databricks> secret scopes. This
- * matches the SSL setup pattern documented at
- * https://docs.databricks.com/en/connect/streaming/kafka/authentication#use-ssl-to-connect-databricks-to-kafka.
- *
- * At materialization time, the generated PySpark code passes the JKS file paths and
- * resolved passwords through to the Kafka SSL options (kafka.ssl.keystore.location,
- * kafka.ssl.keystore.password, kafka.ssl.key.password, kafka.ssl.truststore.location,
- * kafka.ssl.truststore.password). Passwords are resolved on the Spark cluster via
- * dbutils.secrets.get; this message stores only references, never password values.
- */
-export interface MtlsConfig {
-  /**
-   * Unity Catalog volume path to the JKS keystore file containing the client certificate
-   * and private key. e.g. "/Volumes/<catalog>/<schema>/<volume>/client.jks". The
-   * materialization compute must have read permission on this volume.
-   */
-  keystoreLocation?: string | undefined;
-  /** Secret-scope reference for the JKS keystore password. */
-  keystorePasswordRef?: SecretScopeReference | undefined;
-  /**
-   * Secret-scope reference for the private key password. Often the same value as the
-   * keystore password (keytool's default), but provided as a separate field because
-   * Apache Kafka requires it as a distinct option (kafka.ssl.key.password).
-   */
-  keyPasswordRef?: SecretScopeReference | undefined;
-  /**
-   * Unity Catalog volume path to the JKS truststore file containing the CA certificate(s)
-   * trusted to verify the Kafka broker's server certificate.
-   * e.g. "/Volumes/<catalog>/<schema>/<volume>/truststore.jks".
-   */
-  truststoreLocation?: string | undefined;
-  /** Secret-scope reference for the JKS truststore password. */
-  truststorePasswordRef?: SecretScopeReference | undefined;
-  /**
-   * Set to true only when the broker certificate's SAN intentionally does not match
-   * the connection endpoint — for example when reaching the cluster through a
-   * PrivateLink endpoint whose DNS name is not in the broker certificate. Skipping
-   * the hostname check removes a defense against man-in-the-middle attacks; do not
-   * enable casually. mTLS client authentication is unaffected by this option.
-   *
-   * See the Apache Kafka SSL security guide for background on this check:
-   * https://kafka.apache.org/42/security/encryption-and-authentication-using-ssl/#host-name-verification
-   */
-  disableHostnameVerification?: boolean | undefined;
-}
-
 /** Configuration for offline store destination. */
 export interface OfflineStoreConfig {
   /** The Unity Catalog catalog name. */
@@ -656,28 +595,6 @@ export interface OnlineStoreConfig {
   onlineStoreName?: string | undefined;
 }
 
-/**
- * A Protocol Buffer schema paired with the name of the message within it that describes the
- * Kafka payload. A .proto file may declare multiple messages; message_name disambiguates.
- * Fields below are semantically required and enforced server-side. They are marked OPTIONAL
- * (not REQUIRED) to work around an OpenAPI normalization bug: the tool strips DEVELOPMENT-stage
- * fields from `properties` but not from `required`, producing invalid specs.
- */
-export interface ProtoSchemaSpec {
-  /**
-   * The raw .proto file text (proto2 and proto3 syntax supported, see
-   * https://protobuf.dev/programming-guides/proto3/ and https://protobuf.dev/programming-guides/proto2/).
-   */
-  schemaText?: string | undefined;
-  /**
-   * The fully-qualified name of the message within schema_text that describes the Kafka payload
-   * (e.g. "Event" or "com.example.Event" if schema_text declares a package). Identifies which
-   * message is used to decode each Kafka record — a .proto file may declare multiple messages
-   * but only one represents the payload. Must not be empty.
-   */
-  messageName?: string | undefined;
-}
-
 /** A request-time data source whose value is provided at inference time: offline batch scoring or online serving endpoint */
 export interface RequestSource {
   /** The schema describing the request-time fields. Currently only flat schemas are supported. */
@@ -697,28 +614,7 @@ export interface SchemaConfig {
         /** Schema of the JSON object in standard IETF JSON schema format (https://json-schema.org/). */
         jsonSchema: string;
       }
-    | {
-        $case: 'avroSchema';
-        /** Avro schema in JSON format (https://avro.apache.org/docs/current/specification/). */
-        avroSchema: string;
-      }
-    | {
-        $case: 'protoSchema';
-        /** Protocol Buffer schema with its payload message name. */
-        protoSchema: ProtoSchemaSpec;
-      }
     | undefined;
-}
-
-/**
- * Reference to an entry in a <Databricks> secret scope. The referenced value is fetched
- * on the Spark cluster at materialization time via dbutils.secrets.get(scope, key).
- */
-export interface SecretScopeReference {
-  /** The <Databricks> secret scope name. */
-  scope?: string | undefined;
-  /** The key within the scope. */
-  key?: string | undefined;
 }
 
 export interface SlidingWindow {
@@ -937,7 +833,6 @@ export const unmarshalApproxPercentileFunctionSchema: z.ZodType<ApproxPercentile
 export const unmarshalAuthConfigSchema: z.ZodType<AuthConfig> = z
   .object({
     uc_service_credential_name: z.string().optional(),
-    mtls_config: z.lazy(() => unmarshalMtlsConfigSchema).optional(),
   })
   .transform(d => ({
     authConfig:
@@ -946,9 +841,7 @@ export const unmarshalAuthConfigSchema: z.ZodType<AuthConfig> = z
             $case: 'ucServiceCredentialName' as const,
             ucServiceCredentialName: d.uc_service_credential_name,
           }
-        : d.mtls_config !== undefined
-          ? {$case: 'mtlsConfig' as const, mtlsConfig: d.mtls_config}
-          : undefined,
+        : undefined,
   }));
 
 export const unmarshalAvgFunctionSchema: z.ZodType<AvgFunction> = z
@@ -1227,16 +1120,12 @@ export const unmarshalKafkaSourceSchema: z.ZodType<KafkaSource> = z
       .lazy(() => unmarshalColumnIdentifierSchema)
       .optional(),
     filter_condition: z.string().optional(),
-    transformation_sql: z.string().optional(),
-    dataframe_schema: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
     entityColumnIdentifiers: d.entity_column_identifiers,
     timeseriesColumnIdentifier: d.timeseries_column_identifier,
     filterCondition: d.filter_condition,
-    transformationSql: d.transformation_sql,
-    dataframeSchema: d.dataframe_schema,
   }));
 
 export const unmarshalLastFunctionSchema: z.ZodType<LastFunction> = z
@@ -1354,30 +1243,6 @@ export const unmarshalMinFunctionSchema: z.ZodType<MinFunction> = z
     input: d.input,
   }));
 
-export const unmarshalMtlsConfigSchema: z.ZodType<MtlsConfig> = z
-  .object({
-    keystore_location: z.string().optional(),
-    keystore_password_ref: z
-      .lazy(() => unmarshalSecretScopeReferenceSchema)
-      .optional(),
-    key_password_ref: z
-      .lazy(() => unmarshalSecretScopeReferenceSchema)
-      .optional(),
-    truststore_location: z.string().optional(),
-    truststore_password_ref: z
-      .lazy(() => unmarshalSecretScopeReferenceSchema)
-      .optional(),
-    disable_hostname_verification: z.boolean().optional(),
-  })
-  .transform(d => ({
-    keystoreLocation: d.keystore_location,
-    keystorePasswordRef: d.keystore_password_ref,
-    keyPasswordRef: d.key_password_ref,
-    truststoreLocation: d.truststore_location,
-    truststorePasswordRef: d.truststore_password_ref,
-    disableHostnameVerification: d.disable_hostname_verification,
-  }));
-
 export const unmarshalOfflineStoreConfigSchema: z.ZodType<OfflineStoreConfig> =
   z
     .object({
@@ -1405,16 +1270,6 @@ export const unmarshalOnlineStoreConfigSchema: z.ZodType<OnlineStoreConfig> = z
     onlineStoreName: d.online_store_name,
   }));
 
-export const unmarshalProtoSchemaSpecSchema: z.ZodType<ProtoSchemaSpec> = z
-  .object({
-    schema_text: z.string().optional(),
-    message_name: z.string().optional(),
-  })
-  .transform(d => ({
-    schemaText: d.schema_text,
-    messageName: d.message_name,
-  }));
-
 export const unmarshalRequestSourceSchema: z.ZodType<RequestSource> = z
   .object({
     flat_schema: z.lazy(() => unmarshalFlatSchemaSchema).optional(),
@@ -1429,30 +1284,13 @@ export const unmarshalRequestSourceSchema: z.ZodType<RequestSource> = z
 export const unmarshalSchemaConfigSchema: z.ZodType<SchemaConfig> = z
   .object({
     json_schema: z.string().optional(),
-    avro_schema: z.string().optional(),
-    proto_schema: z.lazy(() => unmarshalProtoSchemaSpecSchema).optional(),
   })
   .transform(d => ({
     schema:
       d.json_schema !== undefined
         ? {$case: 'jsonSchema' as const, jsonSchema: d.json_schema}
-        : d.avro_schema !== undefined
-          ? {$case: 'avroSchema' as const, avroSchema: d.avro_schema}
-          : d.proto_schema !== undefined
-            ? {$case: 'protoSchema' as const, protoSchema: d.proto_schema}
-            : undefined,
+        : undefined,
   }));
-
-export const unmarshalSecretScopeReferenceSchema: z.ZodType<SecretScopeReference> =
-  z
-    .object({
-      scope: z.string().optional(),
-      key: z.string().optional(),
-    })
-    .transform(d => ({
-      scope: d.scope,
-      key: d.key,
-    }));
 
 export const unmarshalSlidingWindowSchema: z.ZodType<SlidingWindow> = z
   .object({
@@ -1686,19 +1524,12 @@ export const marshalAuthConfigSchema: z.ZodType = z
           $case: z.literal('ucServiceCredentialName'),
           ucServiceCredentialName: z.string(),
         }),
-        z.object({
-          $case: z.literal('mtlsConfig'),
-          mtlsConfig: z.lazy(() => marshalMtlsConfigSchema),
-        }),
       ])
       .optional(),
   })
   .transform(d => ({
     ...(d.authConfig?.$case === 'ucServiceCredentialName' && {
       uc_service_credential_name: d.authConfig.ucServiceCredentialName,
-    }),
-    ...(d.authConfig?.$case === 'mtlsConfig' && {
-      mtls_config: d.authConfig.mtlsConfig,
     }),
   }));
 
@@ -1999,16 +1830,12 @@ export const marshalKafkaSourceSchema: z.ZodType = z
       .lazy(() => marshalColumnIdentifierSchema)
       .optional(),
     filterCondition: z.string().optional(),
-    transformationSql: z.string().optional(),
-    dataframeSchema: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
     entity_column_identifiers: d.entityColumnIdentifiers,
     timeseries_column_identifier: d.timeseriesColumnIdentifier,
     filter_condition: d.filterCondition,
-    transformation_sql: d.transformationSql,
-    dataframe_schema: d.dataframeSchema,
   }));
 
 export const marshalLastFunctionSchema: z.ZodType = z
@@ -2088,28 +1915,6 @@ export const marshalMinFunctionSchema: z.ZodType = z
     input: d.input,
   }));
 
-export const marshalMtlsConfigSchema: z.ZodType = z
-  .object({
-    keystoreLocation: z.string().optional(),
-    keystorePasswordRef: z
-      .lazy(() => marshalSecretScopeReferenceSchema)
-      .optional(),
-    keyPasswordRef: z.lazy(() => marshalSecretScopeReferenceSchema).optional(),
-    truststoreLocation: z.string().optional(),
-    truststorePasswordRef: z
-      .lazy(() => marshalSecretScopeReferenceSchema)
-      .optional(),
-    disableHostnameVerification: z.boolean().optional(),
-  })
-  .transform(d => ({
-    keystore_location: d.keystoreLocation,
-    keystore_password_ref: d.keystorePasswordRef,
-    key_password_ref: d.keyPasswordRef,
-    truststore_location: d.truststoreLocation,
-    truststore_password_ref: d.truststorePasswordRef,
-    disable_hostname_verification: d.disableHostnameVerification,
-  }));
-
 export const marshalOfflineStoreConfigSchema: z.ZodType = z
   .object({
     catalogName: z.string().optional(),
@@ -2136,16 +1941,6 @@ export const marshalOnlineStoreConfigSchema: z.ZodType = z
     online_store_name: d.onlineStoreName,
   }));
 
-export const marshalProtoSchemaSpecSchema: z.ZodType = z
-  .object({
-    schemaText: z.string().optional(),
-    messageName: z.string().optional(),
-  })
-  .transform(d => ({
-    schema_text: d.schemaText,
-    message_name: d.messageName,
-  }));
-
 export const marshalRequestSourceSchema: z.ZodType = z
   .object({
     schema: z
@@ -2166,30 +1961,11 @@ export const marshalSchemaConfigSchema: z.ZodType = z
     schema: z
       .discriminatedUnion('$case', [
         z.object({$case: z.literal('jsonSchema'), jsonSchema: z.string()}),
-        z.object({$case: z.literal('avroSchema'), avroSchema: z.string()}),
-        z.object({
-          $case: z.literal('protoSchema'),
-          protoSchema: z.lazy(() => marshalProtoSchemaSpecSchema),
-        }),
       ])
       .optional(),
   })
   .transform(d => ({
     ...(d.schema?.$case === 'jsonSchema' && {json_schema: d.schema.jsonSchema}),
-    ...(d.schema?.$case === 'avroSchema' && {avro_schema: d.schema.avroSchema}),
-    ...(d.schema?.$case === 'protoSchema' && {
-      proto_schema: d.schema.protoSchema,
-    }),
-  }));
-
-export const marshalSecretScopeReferenceSchema: z.ZodType = z
-  .object({
-    scope: z.string().optional(),
-    key: z.string().optional(),
-  })
-  .transform(d => ({
-    scope: d.scope,
-    key: d.key,
   }));
 
 export const marshalSlidingWindowSchema: z.ZodType = z
@@ -2365,7 +2141,6 @@ const approxPercentileFunctionFieldMaskSchema: FieldMaskSchema = {
 };
 
 const authConfigFieldMaskSchema: FieldMaskSchema = {
-  mtlsConfig: {wire: 'mtls_config', children: () => mtlsConfigFieldMaskSchema},
   ucServiceCredentialName: {wire: 'uc_service_credential_name'},
 };
 
@@ -2503,7 +2278,6 @@ export function kafkaConfigFieldMask(
 }
 
 const kafkaSourceFieldMaskSchema: FieldMaskSchema = {
-  dataframeSchema: {wire: 'dataframe_schema'},
   entityColumnIdentifiers: {wire: 'entity_column_identifiers'},
   filterCondition: {wire: 'filter_condition'},
   name: {wire: 'name'},
@@ -2511,7 +2285,6 @@ const kafkaSourceFieldMaskSchema: FieldMaskSchema = {
     wire: 'timeseries_column_identifier',
     children: () => columnIdentifierFieldMaskSchema,
   },
-  transformationSql: {wire: 'transformation_sql'},
 };
 
 const lastFunctionFieldMaskSchema: FieldMaskSchema = {
@@ -2558,24 +2331,6 @@ const minFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
 
-const mtlsConfigFieldMaskSchema: FieldMaskSchema = {
-  disableHostnameVerification: {wire: 'disable_hostname_verification'},
-  keyPasswordRef: {
-    wire: 'key_password_ref',
-    children: () => secretScopeReferenceFieldMaskSchema,
-  },
-  keystoreLocation: {wire: 'keystore_location'},
-  keystorePasswordRef: {
-    wire: 'keystore_password_ref',
-    children: () => secretScopeReferenceFieldMaskSchema,
-  },
-  truststoreLocation: {wire: 'truststore_location'},
-  truststorePasswordRef: {
-    wire: 'truststore_password_ref',
-    children: () => secretScopeReferenceFieldMaskSchema,
-  },
-};
-
 const offlineStoreConfigFieldMaskSchema: FieldMaskSchema = {
   catalogName: {wire: 'catalog_name'},
   schemaName: {wire: 'schema_name'},
@@ -2589,27 +2344,12 @@ const onlineStoreConfigFieldMaskSchema: FieldMaskSchema = {
   tableNamePrefix: {wire: 'table_name_prefix'},
 };
 
-const protoSchemaSpecFieldMaskSchema: FieldMaskSchema = {
-  messageName: {wire: 'message_name'},
-  schemaText: {wire: 'schema_text'},
-};
-
 const requestSourceFieldMaskSchema: FieldMaskSchema = {
   flatSchema: {wire: 'flat_schema', children: () => flatSchemaFieldMaskSchema},
 };
 
 const schemaConfigFieldMaskSchema: FieldMaskSchema = {
-  avroSchema: {wire: 'avro_schema'},
   jsonSchema: {wire: 'json_schema'},
-  protoSchema: {
-    wire: 'proto_schema',
-    children: () => protoSchemaSpecFieldMaskSchema,
-  },
-};
-
-const secretScopeReferenceFieldMaskSchema: FieldMaskSchema = {
-  key: {wire: 'key'},
-  scope: {wire: 'scope'},
 };
 
 const slidingWindowFieldMaskSchema: FieldMaskSchema = {

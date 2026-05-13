@@ -29,13 +29,6 @@ export enum AggregationGranularity {
   AGGREGATION_GRANULARITY_1_YEAR = 'AGGREGATION_GRANULARITY_1_YEAR',
 }
 
-/** Anomaly Detection job type. */
-export enum AnomalyDetectionJobType {
-  ANOMALY_DETECTION_JOB_TYPE_UNSPECIFIED = 'ANOMALY_DETECTION_JOB_TYPE_UNSPECIFIED',
-  ANOMALY_DETECTION_JOB_TYPE_NORMAL = 'ANOMALY_DETECTION_JOB_TYPE_NORMAL',
-  ANOMALY_DETECTION_JOB_TYPE_INTERNAL_HIDDEN = 'ANOMALY_DETECTION_JOB_TYPE_INTERNAL_HIDDEN',
-}
-
 /** The data quality monitoring workflow cron schedule pause status. */
 export enum CronSchedulePauseStatus {
   CRON_SCHEDULE_PAUSE_STATUS_UNSPECIFIED = 'CRON_SCHEDULE_PAUSE_STATUS_UNSPECIFIED',
@@ -103,20 +96,8 @@ export enum RefreshTrigger {
 
 /** Anomaly Detection Configurations. */
 export interface AnomalyDetectionConfig {
-  /**
-   * The id of the workflow that detects the anomaly.
-   * This field will only be returned in the Get/Update response, if the request comes from
-   * the workspace where this anomaly detection job is created.
-   */
-  anomalyDetectionWorkflowId?: number | undefined;
-  /** If the health indicator should be shown. */
-  publishHealthIndicator?: boolean | undefined;
-  /** The type of the last run of the workflow. */
-  jobType?: AnomalyDetectionJobType | undefined;
   /** List of fully qualified table names to exclude from anomaly detection. */
   excludedTableFullNames?: string[] | undefined;
-  /** Validity check configurations for anomaly detection. */
-  validityCheckConfigurations?: ValidityCheckConfiguration[] | undefined;
 }
 
 /** Request to cancel a refresh. */
@@ -358,8 +339,6 @@ export interface InferenceLogConfig {
   labelColumn?: string | undefined;
   /** Column for the model identifier. */
   modelIdColumn?: string | undefined;
-  /** Column for prediction probabilities */
-  predictionProbabilityColumn?: string | undefined;
 }
 
 /** Request to list Monitors. */
@@ -437,22 +416,6 @@ export interface NotificationSettings {
   onFailure?: NotificationDestination | undefined;
 }
 
-export interface PercentNullValidityCheck {
-  /** List of column names to check for null percentage */
-  columnNames?: string[] | undefined;
-  /** Optional upper bound; we should use auto determined bounds for now */
-  upperBound?: number | undefined;
-}
-
-export interface RangeValidityCheck {
-  /** List of column names to check for range validity */
-  columnNames?: string[] | undefined;
-  /** Lower bound for the range */
-  lowerBound?: number | undefined;
-  /** Upper bound for the range */
-  upperBound?: number | undefined;
-}
-
 /** The Refresh object gives information on a refresh of the data quality monitoring pipeline. */
 export interface Refresh {
   /** The type of the monitored object. Can be one of the following: `schema`or `table`. */
@@ -493,11 +456,6 @@ export interface TimeSeriesConfig {
   timestampColumn?: string | undefined;
   /** List of granularities to use when aggregating data into time windows based on their timestamp. */
   granularities?: AggregationGranularity[] | undefined;
-}
-
-export interface UniquenessValidityCheck {
-  /** List of column names to check for uniqueness */
-  columnNames?: string[] | undefined;
 }
 
 /** Request to update a Monitor. */
@@ -549,39 +507,13 @@ export interface UpdateRefreshRequest {
   updateMask?: FieldMask<Refresh> | undefined;
 }
 
-export interface ValidityCheckConfiguration {
-  /** Can be set by system. Does not need to be user facing. */
-  name?: string | undefined;
-  checkType?:
-    | {
-        $case: 'percentNullValidityCheck';
-        percentNullValidityCheck: PercentNullValidityCheck;
-      }
-    | {$case: 'rangeValidityCheck'; rangeValidityCheck: RangeValidityCheck}
-    | {
-        $case: 'uniquenessValidityCheck';
-        uniquenessValidityCheck: UniquenessValidityCheck;
-      }
-    | undefined;
-}
-
 export const unmarshalAnomalyDetectionConfigSchema: z.ZodType<AnomalyDetectionConfig> =
   z
     .object({
-      anomaly_detection_workflow_id: z.number().optional(),
-      publish_health_indicator: z.boolean().optional(),
-      job_type: z.enum(AnomalyDetectionJobType).optional(),
       excluded_table_full_names: z.array(z.string()).optional(),
-      validity_check_configurations: z
-        .array(z.lazy(() => unmarshalValidityCheckConfigurationSchema))
-        .optional(),
     })
     .transform(d => ({
-      anomalyDetectionWorkflowId: d.anomaly_detection_workflow_id,
-      publishHealthIndicator: d.publish_health_indicator,
-      jobType: d.job_type,
       excludedTableFullNames: d.excluded_table_full_names,
-      validityCheckConfigurations: d.validity_check_configurations,
     }));
 
 export const unmarshalCancelRefreshResponseSchema: z.ZodType<CancelRefreshResponse> =
@@ -687,7 +619,6 @@ export const unmarshalInferenceLogConfigSchema: z.ZodType<InferenceLogConfig> =
       prediction_column: z.string().optional(),
       label_column: z.string().optional(),
       model_id_column: z.string().optional(),
-      prediction_probability_column: z.string().optional(),
     })
     .transform(d => ({
       problemType: d.problem_type,
@@ -696,7 +627,6 @@ export const unmarshalInferenceLogConfigSchema: z.ZodType<InferenceLogConfig> =
       predictionColumn: d.prediction_column,
       labelColumn: d.label_column,
       modelIdColumn: d.model_id_column,
-      predictionProbabilityColumn: d.prediction_probability_column,
     }));
 
 export const unmarshalListMonitorResponseSchema: z.ZodType<ListMonitorResponse> =
@@ -759,30 +689,6 @@ export const unmarshalNotificationSettingsSchema: z.ZodType<NotificationSettings
       onFailure: d.on_failure,
     }));
 
-export const unmarshalPercentNullValidityCheckSchema: z.ZodType<PercentNullValidityCheck> =
-  z
-    .object({
-      column_names: z.array(z.string()).optional(),
-      upper_bound: z.number().optional(),
-    })
-    .transform(d => ({
-      columnNames: d.column_names,
-      upperBound: d.upper_bound,
-    }));
-
-export const unmarshalRangeValidityCheckSchema: z.ZodType<RangeValidityCheck> =
-  z
-    .object({
-      column_names: z.array(z.string()).optional(),
-      lower_bound: z.number().optional(),
-      upper_bound: z.number().optional(),
-    })
-    .transform(d => ({
-      columnNames: d.column_names,
-      lowerBound: d.lower_bound,
-      upperBound: d.upper_bound,
-    }));
-
 export const unmarshalRefreshSchema: z.ZodType<Refresh> = z
   .object({
     object_type: z.string().optional(),
@@ -818,66 +724,12 @@ export const unmarshalTimeSeriesConfigSchema: z.ZodType<TimeSeriesConfig> = z
     granularities: d.granularities,
   }));
 
-export const unmarshalUniquenessValidityCheckSchema: z.ZodType<UniquenessValidityCheck> =
-  z
-    .object({
-      column_names: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      columnNames: d.column_names,
-    }));
-
-export const unmarshalValidityCheckConfigurationSchema: z.ZodType<ValidityCheckConfiguration> =
-  z
-    .object({
-      name: z.string().optional(),
-      percent_null_validity_check: z
-        .lazy(() => unmarshalPercentNullValidityCheckSchema)
-        .optional(),
-      range_validity_check: z
-        .lazy(() => unmarshalRangeValidityCheckSchema)
-        .optional(),
-      uniqueness_validity_check: z
-        .lazy(() => unmarshalUniquenessValidityCheckSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      checkType:
-        d.percent_null_validity_check !== undefined
-          ? {
-              $case: 'percentNullValidityCheck' as const,
-              percentNullValidityCheck: d.percent_null_validity_check,
-            }
-          : d.range_validity_check !== undefined
-            ? {
-                $case: 'rangeValidityCheck' as const,
-                rangeValidityCheck: d.range_validity_check,
-              }
-            : d.uniqueness_validity_check !== undefined
-              ? {
-                  $case: 'uniquenessValidityCheck' as const,
-                  uniquenessValidityCheck: d.uniqueness_validity_check,
-                }
-              : undefined,
-    }));
-
 export const marshalAnomalyDetectionConfigSchema: z.ZodType = z
   .object({
-    anomalyDetectionWorkflowId: z.number().optional(),
-    publishHealthIndicator: z.boolean().optional(),
-    jobType: z.enum(AnomalyDetectionJobType).optional(),
     excludedTableFullNames: z.array(z.string()).optional(),
-    validityCheckConfigurations: z
-      .array(z.lazy(() => marshalValidityCheckConfigurationSchema))
-      .optional(),
   })
   .transform(d => ({
-    anomaly_detection_workflow_id: d.anomalyDetectionWorkflowId,
-    publish_health_indicator: d.publishHealthIndicator,
-    job_type: d.jobType,
     excluded_table_full_names: d.excludedTableFullNames,
-    validity_check_configurations: d.validityCheckConfigurations,
   }));
 
 export const marshalCancelRefreshRequestSchema: z.ZodType = z
@@ -997,7 +849,6 @@ export const marshalInferenceLogConfigSchema: z.ZodType = z
     predictionColumn: z.string().optional(),
     labelColumn: z.string().optional(),
     modelIdColumn: z.string().optional(),
-    predictionProbabilityColumn: z.string().optional(),
   })
   .transform(d => ({
     problem_type: d.problemType,
@@ -1006,7 +857,6 @@ export const marshalInferenceLogConfigSchema: z.ZodType = z
     prediction_column: d.predictionColumn,
     label_column: d.labelColumn,
     model_id_column: d.modelIdColumn,
-    prediction_probability_column: d.predictionProbabilityColumn,
   }));
 
 export const marshalMonitorSchema: z.ZodType = z
@@ -1043,28 +893,6 @@ export const marshalNotificationSettingsSchema: z.ZodType = z
     on_failure: d.onFailure,
   }));
 
-export const marshalPercentNullValidityCheckSchema: z.ZodType = z
-  .object({
-    columnNames: z.array(z.string()).optional(),
-    upperBound: z.number().optional(),
-  })
-  .transform(d => ({
-    column_names: d.columnNames,
-    upper_bound: d.upperBound,
-  }));
-
-export const marshalRangeValidityCheckSchema: z.ZodType = z
-  .object({
-    columnNames: z.array(z.string()).optional(),
-    lowerBound: z.number().optional(),
-    upperBound: z.number().optional(),
-  })
-  .transform(d => ({
-    column_names: d.columnNames,
-    lower_bound: d.lowerBound,
-    upper_bound: d.upperBound,
-  }));
-
 export const marshalRefreshSchema: z.ZodType = z
   .object({
     objectType: z.string().optional(),
@@ -1099,57 +927,8 @@ export const marshalTimeSeriesConfigSchema: z.ZodType = z
     granularities: d.granularities,
   }));
 
-export const marshalUniquenessValidityCheckSchema: z.ZodType = z
-  .object({
-    columnNames: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    column_names: d.columnNames,
-  }));
-
-export const marshalValidityCheckConfigurationSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    checkType: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('percentNullValidityCheck'),
-          percentNullValidityCheck: z.lazy(
-            () => marshalPercentNullValidityCheckSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('rangeValidityCheck'),
-          rangeValidityCheck: z.lazy(() => marshalRangeValidityCheckSchema),
-        }),
-        z.object({
-          $case: z.literal('uniquenessValidityCheck'),
-          uniquenessValidityCheck: z.lazy(
-            () => marshalUniquenessValidityCheckSchema
-          ),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    ...(d.checkType?.$case === 'percentNullValidityCheck' && {
-      percent_null_validity_check: d.checkType.percentNullValidityCheck,
-    }),
-    ...(d.checkType?.$case === 'rangeValidityCheck' && {
-      range_validity_check: d.checkType.rangeValidityCheck,
-    }),
-    ...(d.checkType?.$case === 'uniquenessValidityCheck' && {
-      uniqueness_validity_check: d.checkType.uniquenessValidityCheck,
-    }),
-  }));
-
 const anomalyDetectionConfigFieldMaskSchema: FieldMaskSchema = {
-  anomalyDetectionWorkflowId: {wire: 'anomaly_detection_workflow_id'},
   excludedTableFullNames: {wire: 'excluded_table_full_names'},
-  jobType: {wire: 'job_type'},
-  publishHealthIndicator: {wire: 'publish_health_indicator'},
-  validityCheckConfigurations: {wire: 'validity_check_configurations'},
 };
 
 const cronScheduleFieldMaskSchema: FieldMaskSchema = {
@@ -1195,7 +974,6 @@ const inferenceLogConfigFieldMaskSchema: FieldMaskSchema = {
   labelColumn: {wire: 'label_column'},
   modelIdColumn: {wire: 'model_id_column'},
   predictionColumn: {wire: 'prediction_column'},
-  predictionProbabilityColumn: {wire: 'prediction_probability_column'},
   problemType: {wire: 'problem_type'},
   timestampColumn: {wire: 'timestamp_column'},
 };

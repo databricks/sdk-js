@@ -34,7 +34,6 @@ import type {
   DeleteDatabaseInstanceRoleRequest,
   DeleteDatabaseTableRequest,
   DeleteSyncedDatabaseTableRequest,
-  FailoverDatabaseInstanceRequest,
   FindDatabaseInstanceByUidRequest,
   GenerateDatabaseCredentialRequest,
   GetDatabaseCatalogRequest,
@@ -53,9 +52,7 @@ import type {
   SyncedDatabaseTable,
   UpdateDatabaseCatalogRequest,
   UpdateDatabaseInstanceRequest,
-  UpdateDatabaseInstanceRoleRequest,
   UpdateSyncedDatabaseTableRequest,
-  UpgradeInstanceToAutoscalingRequest,
 } from './model';
 import {
   DatabaseInstance_State,
@@ -63,7 +60,6 @@ import {
   marshalDatabaseInstanceRoleSchema,
   marshalDatabaseInstanceSchema,
   marshalDatabaseTableSchema,
-  marshalFailoverDatabaseInstanceRequestSchema,
   marshalGenerateDatabaseCredentialRequestSchema,
   marshalSyncedDatabaseTableSchema,
   unmarshalDatabaseCatalogSchema,
@@ -393,35 +389,6 @@ export class Client {
       });
     };
     await executeCall(call, options);
-  }
-
-  /** Failover the primary node of a Database Instance to a secondary. */
-  async failoverDatabaseInstance(
-    req: FailoverDatabaseInstanceRequest,
-    options?: CallOptions
-  ): Promise<DatabaseInstance> {
-    const url = `${this.host}/api/2.0/database/instances/${req.name ?? ''}/failover`;
-    const body = marshalRequest(
-      req,
-      marshalFailoverDatabaseInstanceRequestSchema
-    );
-    let resp: DatabaseInstance | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers({'Content-Type': 'application/json'});
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalDatabaseInstanceSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
   }
 
   /** Find a Database Instance by uid. */
@@ -912,47 +879,6 @@ export class Client {
     return resp;
   }
 
-  /** Update a role for a Database Instance. */
-  async updateDatabaseInstanceRole(
-    req: UpdateDatabaseInstanceRoleRequest,
-    options?: CallOptions
-  ): Promise<DatabaseInstanceRole> {
-    const url = `${this.host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles/${req.databaseInstanceRole?.name ?? ''}`;
-    const params = new URLSearchParams();
-    if (req.databaseInstanceName !== undefined) {
-      params.append('database_instance_name', req.databaseInstanceName);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.databaseInstanceRole,
-      marshalDatabaseInstanceRoleSchema
-    );
-    let resp: DatabaseInstanceRole | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers({'Content-Type': 'application/json'});
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalDatabaseInstanceRoleSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
   /** This API is currently unimplemented, but exposed for Terraform support. */
   async updateSyncedDatabaseTable(
     req: UpdateSyncedDatabaseTableRequest,
@@ -992,25 +918,6 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
-  }
-
-  /** Upgrade a Database Instance to Autoscaling. */
-  async upgradeInstanceToAutoscaling(
-    req: UpgradeInstanceToAutoscalingRequest,
-    options?: CallOptions
-  ): Promise<void> {
-    const url = `${this.host}/api/2.0/database/instances/${req.name ?? ''}/upgrade`;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('PATCH', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-    };
-    await executeCall(call, options);
   }
 }
 

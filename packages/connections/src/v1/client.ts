@@ -167,9 +167,6 @@ export class Client {
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
     }
-    if (req.parent !== undefined) {
-      params.append('parent', req.parent);
-    }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: ListConnections_Response | undefined;

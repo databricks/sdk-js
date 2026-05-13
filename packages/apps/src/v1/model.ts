@@ -8,7 +8,6 @@ import {z} from 'zod';
 export enum ComputeSize {
   MEDIUM = 'MEDIUM',
   LARGE = 'LARGE',
-  LIQUID = 'LIQUID',
 }
 
 /** Error codes returned by Databricks APIs to indicate specific failure conditions. */
@@ -537,11 +536,6 @@ export enum AppDeployment_State {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppManifest_AppResourceAppSpec_AppPermission {
-  CAN_USE = 'CAN_USE',
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum AppManifest_AppResourceExperimentSpec_ExperimentPermission {
   CAN_MANAGE = 'CAN_MANAGE',
   CAN_EDIT = 'CAN_EDIT',
@@ -554,11 +548,6 @@ export enum AppManifest_AppResourceJobSpec_JobPermission {
   IS_OWNER = 'IS_OWNER',
   CAN_MANAGE_RUN = 'CAN_MANAGE_RUN',
   CAN_VIEW = 'CAN_VIEW',
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum AppManifest_AppResourcePostgresSpec_PostgresPermission {
-  CAN_CONNECT_AND_CREATE = 'CAN_CONNECT_AND_CREATE',
 }
 
 /** Permission to grant on the secret scope. Supported permissions are: "READ", "WRITE", "MANAGE". */
@@ -591,7 +580,6 @@ export enum AppManifest_AppResourceUcSecurableSpec_UcSecurablePermission {
   SELECT = 'SELECT',
   EXECUTE = 'EXECUTE',
   USE_CONNECTION = 'USE_CONNECTION',
-  MODIFY = 'MODIFY',
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -760,7 +748,6 @@ export interface App {
    * created. This field tracks the workspace source code path of the last active deployment.
    */
   defaultSourceCodePath?: string | undefined;
-  defaultGitSource?: GitSource | undefined;
   budgetPolicyId?: string | undefined;
   effectiveBudgetPolicyId?: string | undefined;
   servicePrincipalClientId?: string | undefined;
@@ -784,14 +771,6 @@ export interface App {
   thumbnailUrl?: string | undefined;
   /** Name of the space this app belongs to. */
   space?: string | undefined;
-  /** The ID of the last deployment created for this app. */
-  lastDeploymentId?: string | undefined;
-  /** The ID of the app space this app belongs to. None if app does not belong to a space. */
-  spaceId?: string | undefined;
-  deploymentSource?:
-    | {$case: 'sourceCodePath'; sourceCodePath: string}
-    | {$case: 'gitSource'; gitSource: GitSource}
-    | undefined;
 }
 
 export interface AppDeployment {
@@ -848,14 +827,6 @@ export interface AppManifest {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface AppManifest_AppResourceAppSpec {
-  /** Name of the target app to grant access to. */
-  name?: string | undefined;
-  /** Permission to grant on the app. Supported permission: "CAN_USE". */
-  permission?: AppManifest_AppResourceAppSpec_AppPermission | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface AppManifest_AppResourceExperimentSpec {
   permission?:
     | AppManifest_AppResourceExperimentSpec_ExperimentPermission
@@ -866,15 +837,6 @@ export interface AppManifest_AppResourceExperimentSpec {
 export interface AppManifest_AppResourceJobSpec {
   /** Permissions to grant on the Job. Supported permissions are: "CAN_MANAGE", "IS_OWNER", "CAN_MANAGE_RUN", "CAN_VIEW". */
   permission?: AppManifest_AppResourceJobSpec_JobPermission | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface AppManifest_AppResourcePostgresSpec {
-  branch?: string | undefined;
-  database?: string | undefined;
-  permission?:
-    | AppManifest_AppResourcePostgresSpec_PostgresPermission
-    | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -917,8 +879,6 @@ export interface AppManifest_AppResourceSpec {
         $case: 'experimentSpec';
         experimentSpec: AppManifest_AppResourceExperimentSpec;
       }
-    | {$case: 'appSpec'; appSpec: AppManifest_AppResourceAppSpec}
-    | {$case: 'postgresSpec'; postgresSpec: AppManifest_AppResourcePostgresSpec}
     | undefined;
 }
 
@@ -1043,7 +1003,6 @@ export interface AppUpdate {
   computeSize?: ComputeSize | undefined;
   usagePolicyId?: string | undefined;
   gitRepository?: GitRepository | undefined;
-  telemetryExportDestinations?: TelemetryExportDestination[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1057,25 +1016,12 @@ export interface ApplicationStatus {
   state?: ApplicationStatus_ApplicationState | undefined;
   /** Application status message */
   message?: string | undefined;
-  /** The number of running instances of this application. */
-  runningInstances?: number | undefined;
 }
 
 export interface AsyncUpdateAppRequest {
   app?: App | undefined;
   updateMask?: FieldMask<App> | undefined;
   appName?: string | undefined;
-}
-
-/** Git source configuration for automatic deployment on push events. */
-export interface AutoDeployGitSource {
-  /** The branch to watch for push events. */
-  branch?: string | undefined;
-  /**
-   * Relative path to the app source code within the Git repository. If not specified, the root
-   * of the repository is used.
-   */
-  sourceCodePath?: string | undefined;
 }
 
 export interface ComputeStatus {
@@ -1218,16 +1164,6 @@ export interface GitRepository {
    * bitbucketServer, azureDevOpsServices, gitLab, gitLabEnterpriseEdition, awsCodeCommit.
    */
   provider?: string | undefined;
-  /**
-   * Auto deploy configuration. When set, enables automatic deployment on push events
-   * to the specified branch.
-   */
-  autoDeploy?: AutoDeployGitSource | undefined;
-  /**
-   * ID of a personal access token Git credential owned by the caller, used to
-   * grant the app's service principal access to this repository.
-   */
-  callerCredentialId?: number | undefined;
 }
 
 /** Complete git source specification including repository location and reference. */
@@ -1496,7 +1432,6 @@ export const unmarshalAppSchema: z.ZodType<App> = z
     service_principal_id: z.number().optional(),
     service_principal_name: z.string().optional(),
     default_source_code_path: z.string().optional(),
-    default_git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
     budget_policy_id: z.string().optional(),
     effective_budget_policy_id: z.string().optional(),
     service_principal_client_id: z.string().optional(),
@@ -1514,10 +1449,6 @@ export const unmarshalAppSchema: z.ZodType<App> = z
       .optional(),
     thumbnail_url: z.string().optional(),
     space: z.string().optional(),
-    last_deployment_id: z.string().optional(),
-    space_id: z.string().optional(),
-    source_code_path: z.string().optional(),
-    git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1535,7 +1466,6 @@ export const unmarshalAppSchema: z.ZodType<App> = z
     servicePrincipalId: d.service_principal_id,
     servicePrincipalName: d.service_principal_name,
     defaultSourceCodePath: d.default_source_code_path,
-    defaultGitSource: d.default_git_source,
     budgetPolicyId: d.budget_policy_id,
     effectiveBudgetPolicyId: d.effective_budget_policy_id,
     servicePrincipalClientId: d.service_principal_client_id,
@@ -1551,14 +1481,6 @@ export const unmarshalAppSchema: z.ZodType<App> = z
     telemetryExportDestinations: d.telemetry_export_destinations,
     thumbnailUrl: d.thumbnail_url,
     space: d.space,
-    lastDeploymentId: d.last_deployment_id,
-    spaceId: d.space_id,
-    deploymentSource:
-      d.source_code_path !== undefined
-        ? {$case: 'sourceCodePath' as const, sourceCodePath: d.source_code_path}
-        : d.git_source !== undefined
-          ? {$case: 'gitSource' as const, gitSource: d.git_source}
-          : undefined,
   }));
 
 export const unmarshalAppDeploymentSchema: z.ZodType<AppDeployment> = z
@@ -1634,20 +1556,6 @@ export const unmarshalAppManifestSchema: z.ZodType<AppManifest> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAppManifest_AppResourceAppSpecSchema: z.ZodType<AppManifest_AppResourceAppSpec> =
-  z
-    .object({
-      name: z.string().optional(),
-      permission: z
-        .enum(AppManifest_AppResourceAppSpec_AppPermission)
-        .optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      permission: d.permission,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalAppManifest_AppResourceExperimentSpecSchema: z.ZodType<AppManifest_AppResourceExperimentSpec> =
   z
     .object({
@@ -1668,22 +1576,6 @@ export const unmarshalAppManifest_AppResourceJobSpecSchema: z.ZodType<AppManifes
         .optional(),
     })
     .transform(d => ({
-      permission: d.permission,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAppManifest_AppResourcePostgresSpecSchema: z.ZodType<AppManifest_AppResourcePostgresSpec> =
-  z
-    .object({
-      branch: z.string().optional(),
-      database: z.string().optional(),
-      permission: z
-        .enum(AppManifest_AppResourcePostgresSpec_PostgresPermission)
-        .optional(),
-    })
-    .transform(d => ({
-      branch: d.branch,
-      database: d.database,
       permission: d.permission,
     }));
 
@@ -1737,12 +1629,6 @@ export const unmarshalAppManifest_AppResourceSpecSchema: z.ZodType<AppManifest_A
       experiment_spec: z
         .lazy(() => unmarshalAppManifest_AppResourceExperimentSpecSchema)
         .optional(),
-      app_spec: z
-        .lazy(() => unmarshalAppManifest_AppResourceAppSpecSchema)
-        .optional(),
-      postgres_spec: z
-        .lazy(() => unmarshalAppManifest_AppResourcePostgresSpecSchema)
-        .optional(),
     })
     .transform(d => ({
       name: d.name,
@@ -1772,14 +1658,7 @@ export const unmarshalAppManifest_AppResourceSpecSchema: z.ZodType<AppManifest_A
                         $case: 'experimentSpec' as const,
                         experimentSpec: d.experiment_spec,
                       }
-                    : d.app_spec !== undefined
-                      ? {$case: 'appSpec' as const, appSpec: d.app_spec}
-                      : d.postgres_spec !== undefined
-                        ? {
-                            $case: 'postgresSpec' as const,
-                            postgresSpec: d.postgres_spec,
-                          }
-                        : undefined,
+                    : undefined,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2007,9 +1886,6 @@ export const unmarshalAppUpdateSchema: z.ZodType<AppUpdate> = z
     compute_size: z.enum(ComputeSize).optional(),
     usage_policy_id: z.string().optional(),
     git_repository: z.lazy(() => unmarshalGitRepositorySchema).optional(),
-    telemetry_export_destinations: z
-      .array(z.lazy(() => unmarshalTelemetryExportDestinationSchema))
-      .optional(),
   })
   .transform(d => ({
     status: d.status,
@@ -2020,7 +1896,6 @@ export const unmarshalAppUpdateSchema: z.ZodType<AppUpdate> = z
     computeSize: d.compute_size,
     usagePolicyId: d.usage_policy_id,
     gitRepository: d.git_repository,
-    telemetryExportDestinations: d.telemetry_export_destinations,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2039,24 +1914,11 @@ export const unmarshalApplicationStatusSchema: z.ZodType<ApplicationStatus> = z
   .object({
     state: z.enum(ApplicationStatus_ApplicationState).optional(),
     message: z.string().optional(),
-    running_instances: z.number().optional(),
   })
   .transform(d => ({
     state: d.state,
     message: d.message,
-    runningInstances: d.running_instances,
   }));
-
-export const unmarshalAutoDeployGitSourceSchema: z.ZodType<AutoDeployGitSource> =
-  z
-    .object({
-      branch: z.string().optional(),
-      source_code_path: z.string().optional(),
-    })
-    .transform(d => ({
-      branch: d.branch,
-      sourceCodePath: d.source_code_path,
-    }));
 
 export const unmarshalComputeStatusSchema: z.ZodType<ComputeStatus> = z
   .object({
@@ -2125,14 +1987,10 @@ export const unmarshalGitRepositorySchema: z.ZodType<GitRepository> = z
   .object({
     url: z.string().optional(),
     provider: z.string().optional(),
-    auto_deploy: z.lazy(() => unmarshalAutoDeployGitSourceSchema).optional(),
-    caller_credential_id: z.number().optional(),
   })
   .transform(d => ({
     url: d.url,
     provider: d.provider,
-    autoDeploy: d.auto_deploy,
-    callerCredentialId: d.caller_credential_id,
   }));
 
 export const unmarshalGitSourceSchema: z.ZodType<GitSource> = z
@@ -2354,7 +2212,6 @@ export const marshalAppSchema: z.ZodType = z
     servicePrincipalId: z.number().optional(),
     servicePrincipalName: z.string().optional(),
     defaultSourceCodePath: z.string().optional(),
-    defaultGitSource: z.lazy(() => marshalGitSourceSchema).optional(),
     budgetPolicyId: z.string().optional(),
     effectiveBudgetPolicyId: z.string().optional(),
     servicePrincipalClientId: z.string().optional(),
@@ -2372,20 +2229,6 @@ export const marshalAppSchema: z.ZodType = z
       .optional(),
     thumbnailUrl: z.string().optional(),
     space: z.string().optional(),
-    lastDeploymentId: z.string().optional(),
-    spaceId: z.string().optional(),
-    deploymentSource: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('sourceCodePath'),
-          sourceCodePath: z.string(),
-        }),
-        z.object({
-          $case: z.literal('gitSource'),
-          gitSource: z.lazy(() => marshalGitSourceSchema),
-        }),
-      ])
-      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2403,7 +2246,6 @@ export const marshalAppSchema: z.ZodType = z
     service_principal_id: d.servicePrincipalId,
     service_principal_name: d.servicePrincipalName,
     default_source_code_path: d.defaultSourceCodePath,
-    default_git_source: d.defaultGitSource,
     budget_policy_id: d.budgetPolicyId,
     effective_budget_policy_id: d.effectiveBudgetPolicyId,
     service_principal_client_id: d.servicePrincipalClientId,
@@ -2419,14 +2261,6 @@ export const marshalAppSchema: z.ZodType = z
     telemetry_export_destinations: d.telemetryExportDestinations,
     thumbnail_url: d.thumbnailUrl,
     space: d.space,
-    last_deployment_id: d.lastDeploymentId,
-    space_id: d.spaceId,
-    ...(d.deploymentSource?.$case === 'sourceCodePath' && {
-      source_code_path: d.deploymentSource.sourceCodePath,
-    }),
-    ...(d.deploymentSource?.$case === 'gitSource' && {
-      git_source: d.deploymentSource.gitSource,
-    }),
   }));
 
 export const marshalAppDeploymentSchema: z.ZodType = z
@@ -2500,17 +2334,6 @@ export const marshalAppManifestSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalAppManifest_AppResourceAppSpecSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    permission: z.enum(AppManifest_AppResourceAppSpec_AppPermission).optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    permission: d.permission,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalAppManifest_AppResourceExperimentSpecSchema: z.ZodType = z
   .object({
     permission: z
@@ -2527,21 +2350,6 @@ export const marshalAppManifest_AppResourceJobSpecSchema: z.ZodType = z
     permission: z.enum(AppManifest_AppResourceJobSpec_JobPermission).optional(),
   })
   .transform(d => ({
-    permission: d.permission,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalAppManifest_AppResourcePostgresSpecSchema: z.ZodType = z
-  .object({
-    branch: z.string().optional(),
-    database: z.string().optional(),
-    permission: z
-      .enum(AppManifest_AppResourcePostgresSpec_PostgresPermission)
-      .optional(),
-  })
-  .transform(d => ({
-    branch: d.branch,
-    database: d.database,
     permission: d.permission,
   }));
 
@@ -2611,16 +2419,6 @@ export const marshalAppManifest_AppResourceSpecSchema: z.ZodType = z
             () => marshalAppManifest_AppResourceExperimentSpecSchema
           ),
         }),
-        z.object({
-          $case: z.literal('appSpec'),
-          appSpec: z.lazy(() => marshalAppManifest_AppResourceAppSpecSchema),
-        }),
-        z.object({
-          $case: z.literal('postgresSpec'),
-          postgresSpec: z.lazy(
-            () => marshalAppManifest_AppResourcePostgresSpecSchema
-          ),
-        }),
       ])
       .optional(),
   })
@@ -2642,10 +2440,6 @@ export const marshalAppManifest_AppResourceSpecSchema: z.ZodType = z
     }),
     ...(d.resource?.$case === 'experimentSpec' && {
       experiment_spec: d.resource.experimentSpec,
-    }),
-    ...(d.resource?.$case === 'appSpec' && {app_spec: d.resource.appSpec}),
-    ...(d.resource?.$case === 'postgresSpec' && {
-      postgres_spec: d.resource.postgresSpec,
     }),
   }));
 
@@ -2884,12 +2678,10 @@ export const marshalApplicationStatusSchema: z.ZodType = z
   .object({
     state: z.enum(ApplicationStatus_ApplicationState).optional(),
     message: z.string().optional(),
-    runningInstances: z.number().optional(),
   })
   .transform(d => ({
     state: d.state,
     message: d.message,
-    running_instances: d.runningInstances,
   }));
 
 export const marshalAsyncUpdateAppRequestSchema: z.ZodType = z
@@ -2905,16 +2697,6 @@ export const marshalAsyncUpdateAppRequestSchema: z.ZodType = z
     app: d.app,
     update_mask: d.updateMask,
     app_name: d.appName,
-  }));
-
-export const marshalAutoDeployGitSourceSchema: z.ZodType = z
-  .object({
-    branch: z.string().optional(),
-    sourceCodePath: z.string().optional(),
-  })
-  .transform(d => ({
-    branch: d.branch,
-    source_code_path: d.sourceCodePath,
   }));
 
 export const marshalComputeStatusSchema: z.ZodType = z
@@ -2969,14 +2751,10 @@ export const marshalGitRepositorySchema: z.ZodType = z
   .object({
     url: z.string().optional(),
     provider: z.string().optional(),
-    autoDeploy: z.lazy(() => marshalAutoDeployGitSourceSchema).optional(),
-    callerCredentialId: z.number().optional(),
   })
   .transform(d => ({
     url: d.url,
     provider: d.provider,
-    auto_deploy: d.autoDeploy,
-    caller_credential_id: d.callerCredentialId,
   }));
 
 export const marshalGitSourceSchema: z.ZodType = z
@@ -3127,10 +2905,6 @@ const appFieldMaskSchema: FieldMaskSchema = {
   },
   createTime: {wire: 'create_time'},
   creator: {wire: 'creator'},
-  defaultGitSource: {
-    wire: 'default_git_source',
-    children: () => gitSourceFieldMaskSchema,
-  },
   defaultSourceCodePath: {wire: 'default_source_code_path'},
   description: {wire: 'description'},
   effectiveBudgetPolicyId: {wire: 'effective_budget_policy_id'},
@@ -3140,9 +2914,7 @@ const appFieldMaskSchema: FieldMaskSchema = {
     wire: 'git_repository',
     children: () => gitRepositoryFieldMaskSchema,
   },
-  gitSource: {wire: 'git_source', children: () => gitSourceFieldMaskSchema},
   id: {wire: 'id'},
-  lastDeploymentId: {wire: 'last_deployment_id'},
   name: {wire: 'name'},
   oauth2AppClientId: {wire: 'oauth2_app_client_id'},
   oauth2AppIntegrationId: {wire: 'oauth2_app_integration_id'},
@@ -3154,9 +2926,7 @@ const appFieldMaskSchema: FieldMaskSchema = {
   servicePrincipalClientId: {wire: 'service_principal_client_id'},
   servicePrincipalId: {wire: 'service_principal_id'},
   servicePrincipalName: {wire: 'service_principal_name'},
-  sourceCodePath: {wire: 'source_code_path'},
   space: {wire: 'space'},
-  spaceId: {wire: 'space_id'},
   telemetryExportDestinations: {wire: 'telemetry_export_destinations'},
   thumbnailUrl: {wire: 'thumbnail_url'},
   updateTime: {wire: 'update_time'},
@@ -3198,13 +2968,7 @@ const appDeploymentStatusFieldMaskSchema: FieldMaskSchema = {
 
 const applicationStatusFieldMaskSchema: FieldMaskSchema = {
   message: {wire: 'message'},
-  runningInstances: {wire: 'running_instances'},
   state: {wire: 'state'},
-};
-
-const autoDeployGitSourceFieldMaskSchema: FieldMaskSchema = {
-  branch: {wire: 'branch'},
-  sourceCodePath: {wire: 'source_code_path'},
 };
 
 const computeStatusFieldMaskSchema: FieldMaskSchema = {
@@ -3214,11 +2978,6 @@ const computeStatusFieldMaskSchema: FieldMaskSchema = {
 };
 
 const gitRepositoryFieldMaskSchema: FieldMaskSchema = {
-  autoDeploy: {
-    wire: 'auto_deploy',
-    children: () => autoDeployGitSourceFieldMaskSchema,
-  },
-  callerCredentialId: {wire: 'caller_credential_id'},
   provider: {wire: 'provider'},
   url: {wire: 'url'},
 };

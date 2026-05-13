@@ -27,10 +27,8 @@ export type {
   ModelVersionInfo,
   RegisteredModelAliasInfo,
   RegisteredModelInfo,
-  SecretDependency,
   SetRegisteredModelAlias,
   TableDependency,
   UpdateModelVersion,
   UpdateRegisteredModel,
-  VolumeDependency,
 } from './model';

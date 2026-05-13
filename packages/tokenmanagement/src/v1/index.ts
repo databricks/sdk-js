@@ -2,7 +2,7 @@
 
 export {Client} from './client';
 
-export {AutoscopeState} from './model';
+export {} from './model';
 
 export type {
   AdminTokenInfo,
@@ -14,5 +14,4 @@ export type {
   ListTokens_Response,
   RevokeToken,
   RevokeToken_Response,
-  UpdateToken,
 } from './model';

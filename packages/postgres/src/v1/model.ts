@@ -591,36 +591,6 @@ export enum BranchStatus_State {
   READY = 'READY',
   /** The branch is stored in cost-effective archival storage. Expect slow query response times. */
   ARCHIVED = 'ARCHIVED',
-  /** The branch is deleted and is not available for querying, but can be undeleted. */
-  DELETED = 'DELETED',
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ComputeInstance_ComputeState {
-  COMPUTE_STATE_UNSPECIFIED = 'COMPUTE_STATE_UNSPECIFIED',
-  INIT = 'INIT',
-  IDLE = 'IDLE',
-  ACTIVE = 'ACTIVE',
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ComputeInstance_ComputeType {
-  COMPUTE_TYPE_UNSPECIFIED = 'COMPUTE_TYPE_UNSPECIFIED',
-  /**
-   * Indicates the compute is serving read-write traffic as part of a read-write endpoint. There will only be 1
-   * Read-Write compute per endpoint.
-   */
-  READ_WRITE = 'READ_WRITE',
-  /**
-   * Indicates the compute is serving read-only traffic; either as part of a read-only endpoint, or as a read-replica
-   * of a read-write endpoint. There can be multiple read-only computes per endpoint.
-   */
-  READ_ONLY = 'READ_ONLY',
-  /**
-   * Indicates the compute is a hot standby for a read-write endpoint, ready to be promoted to read-write if needed.
-   * There can be multiple hot standbys per read-write endpoint and they do not serve traffic unless promoted.
-   */
-  HOT_STANDBY = 'HOT_STANDBY',
 }
 
 /** The state of the compute endpoint. */
@@ -632,22 +602,6 @@ export enum EndpointStatus_State {
   ACTIVE = 'ACTIVE',
   IDLE = 'IDLE',
   DEGRADED = 'DEGRADED',
-}
-
-/**
- * Release channel of the underlying pipeline's runtime.
- * PREVIEW provides early access to the latest features but may be less stable.
- * Some source table configurations (e.g., read-time CDF) require PREVIEW.
- * Defaults to CURRENT if not specified.
- */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum NewPipelineSpec_PipelineChannel {
-  /** Default value; the pipeline channel is not specified and defaults to CURRENT. */
-  PIPELINE_CHANNEL_UNSPECIFIED = 'PIPELINE_CHANNEL_UNSPECIFIED',
-  /** Uses the stable, generally available runtime. */
-  CURRENT = 'CURRENT',
-  /** Uses the latest preview runtime. Required for Auto CDF (read-time CDF) sources. */
-  PREVIEW = 'PREVIEW',
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -705,24 +659,6 @@ export enum Role_MembershipRole {
   MEMBERSHIP_ROLE_UNSPECIFIED = 'MEMBERSHIP_ROLE_UNSPECIFIED',
   /** Indicates membership in DATABRICKS_SUPERUSER, the highest set of privileges exposed to customers. */
   DATABRICKS_SUPERUSER = 'DATABRICKS_SUPERUSER',
-}
-
-/** PostgreSQL-specific target types that can override the default Delta-to-PG mapping. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum SyncedTable_SyncedTableSpec_PgSpecificType {
-  /** Default value. Indicates that no type override was selected. */
-  PG_SPECIFIC_TYPE_UNSPECIFIED = 'PG_SPECIFIC_TYPE_UNSPECIFIED',
-  /** Maps the column to the pgvector vector type. */
-  PG_SPECIFIC_TYPE_VECTOR = 'PG_SPECIFIC_TYPE_VECTOR',
-}
-
-/** Controls when the index is created relative to the initial data load. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum SyncedTable_SyncedTableSpec_SecondaryIndex_CreationPoint {
-  /** Default value. Index is created before data load and built incrementally during COPY. */
-  CREATION_POINT_UNSPECIFIED = 'CREATION_POINT_UNSPECIFIED',
-  /** Index is created after all data is loaded. */
-  CREATION_POINT_AFTER_DATA_LOAD = 'CREATION_POINT_AFTER_DATA_LOAD',
 }
 
 /** Scheduling policy of the synced table's underlying pipeline. */
@@ -857,16 +793,6 @@ export interface BranchStatus {
    * which follows the `projects/{project_id}/branches/{branch_id}` format and is not user-friendly.
    */
   branchId?: string | undefined;
-  /**
-   * A timestamp indicating when the branch was deleted.
-   * Empty if the branch is not deleted.
-   */
-  deleteTime?: Temporal.Instant | undefined;
-  /**
-   * A timestamp indicating when the branch is scheduled to be purged.
-   * Empty if the branch is not deleted, otherwise set to a timestamp in the future.
-   */
-  purgeTime?: Temporal.Instant | undefined;
 }
 
 export interface Catalog {
@@ -954,28 +880,6 @@ export interface Catalog_CatalogStatus {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface CatalogOperationMetadata {}
-
-export interface ComputeInstance {
-  /**
-   * The fully qualified name for this compute instance.
-   * Format: projects/\*\/branches/\*\/endpoints/\*\/compute-instances/\*
-   */
-  name?: string | undefined;
-  /** The unique ID for this compute. */
-  computeInstanceId?: string | undefined;
-  /** The current state of the compute. */
-  currentState?: ComputeInstance_ComputeState | undefined;
-  /** The desired pending state of the compute, if a state transition is in progress. */
-  pendingState?: ComputeInstance_ComputeState | undefined;
-  /** The role of this compute within the endpoint. */
-  role?: ComputeInstance_ComputeType | undefined;
-  /** A host scoped directly to the enclosing compute. This host is guaranteed to resolve to the specific compute instance. */
-  computeHost?: string | undefined;
-  /** A timestamp indicating when the compute was last started. */
-  startTime?: Temporal.Instant | undefined;
-  /** A timestamp indicating when the compute was last suspended. */
-  suspendTime?: Temporal.Instant | undefined;
-}
 
 export interface CreateBranchRequest {
   /**
@@ -1093,10 +997,6 @@ export interface CreateSyncedTableRequest {
   syncedTable?: SyncedTable | undefined;
 }
 
-export interface CreateTableRequest {
-  table?: Table | undefined;
-}
-
 /** Database represents a Postgres database within a Branch. */
 export interface Database {
   /**
@@ -1188,16 +1088,6 @@ export interface DeleteBranchRequest {
    * Format: projects/{project_id}/branches/{branch_id}
    */
   name?: string | undefined;
-  /**
-   * If true, permanently delete the branch; if false, soft delete.
-   * Soft deletion (purge=false) is not supported yet.
-   */
-  purge?: boolean | undefined;
-  /**
-   * If true, if branch does not exists, the request will succeed and no action will be taken.
-   * If false (default value) and branch does not exists, the request will fail with NOT_FOUND error.
-   */
-  allowMissing?: boolean | undefined;
 }
 
 export interface DeleteCatalogRequest {
@@ -1223,31 +1113,6 @@ export interface DeleteEndpointRequest {
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
    */
   name?: string | undefined;
-}
-
-/** Request to hard delete a Forward ETL configuration and all associated table mappings. */
-export interface DeleteForwardEtlConfigurationRequest {
-  /**
-   * The Branch to delete Forward ETL configuration for.
-   * Format: projects/{project_id}/branches/{branch_id}
-   */
-  parent?: string | undefined;
-  /** Tenant ID (dashless UUID format). */
-  tenantId?: string | undefined;
-  /** Timeline ID (dashless UUID format). */
-  timelineId?: string | undefined;
-  /** PostgreSQL database OID to delete configuration for. */
-  pgDatabaseOid?: number | undefined;
-  /** PostgreSQL schema OID to delete configuration for. */
-  pgSchemaOid?: number | undefined;
-}
-
-/** Response to delete Forward ETL configuration. */
-export interface DeleteForwardEtlConfigurationResponse {
-  /** Number of configuration rows deleted (0 or 1). */
-  deletedConfigs?: number | undefined;
-  /** Number of table mapping rows deleted. */
-  deletedMappings?: number | undefined;
 }
 
 export interface DeleteProjectRequest {
@@ -1287,11 +1152,6 @@ export interface DeleteSyncedTableRequest {
   name?: string | undefined;
 }
 
-export interface DeleteTableRequest {
-  /** Full three-part (catalog, schema, table) name of the table. */
-  name?: string | undefined;
-}
-
 export interface DeltaTableSyncInfo {
   /** The Delta Lake commit version that was last successfully synced. */
   deltaCommitVersion?: number | undefined;
@@ -1300,29 +1160,6 @@ export interface DeltaTableSyncInfo {
    * Note: This is the Delta commit time, not the time the data was written to the synced table.
    */
   deltaCommitTime?: Temporal.Instant | undefined;
-}
-
-/** Request to disable Forward ETL */
-export interface DisableForwardEtlRequest {
-  /**
-   * The Branch to disable Forward ETL for.
-   * Format: projects/{project_id}/branches/{branch_id}
-   */
-  parent?: string | undefined;
-  /** Tenant ID (dashless UUID format). */
-  tenantId?: string | undefined;
-  /** Timeline ID (dashless UUID format). */
-  timelineId?: string | undefined;
-  /** PostgreSQL database OID to disable. */
-  pgDatabaseOid?: number | undefined;
-  /** PostgreSQL schema OID to disable. */
-  pgSchemaOid?: number | undefined;
-}
-
-/** Response to disable Forward ETL */
-export interface DisableForwardEtlResponse {
-  /** Whether Forward ETL was successfully disabled. */
-  disabled?: boolean | undefined;
 }
 
 export interface Endpoint {
@@ -1399,13 +1236,6 @@ export interface EndpointHosts {
    * if the enclosing endpoint is a group with greater than 1 computes configured, and has readable secondaries enabled.
    */
   readOnlyHost?: string | undefined;
-  /** The read-write hostname of the compute endpoint, with pooling. This attribute is only defined for read-write endpoints. */
-  readWritePooledHost?: string | undefined;
-  /**
-   * The read-only hostname of the compute endpoint, with pooling. This attribute is always defined for read-only endpoints,
-   * and may be defined for read-write endpoints if configured with read replicas and allow read-only connections.
-   */
-  readOnlyPooledHost?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -1480,8 +1310,6 @@ export interface EndpointStatus {
   endpointType?: EndpointType | undefined;
   /** Contains host information for connecting to the endpoint. */
   hosts?: EndpointHosts | undefined;
-  /** A timestamp indicating when the compute endpoint was last active. */
-  lastActiveTime?: Temporal.Instant | undefined;
   /** The minimum number of Compute Units. */
   autoscalingLimitMinCu?: number | undefined;
   /**
@@ -1516,78 +1344,6 @@ export interface EndpointStatus {
   endpointId?: string | undefined;
 }
 
-/** Forward ETL configuration */
-export interface ForwardEtlConfig {
-  /** Workspace ID. */
-  workspaceId?: number | undefined;
-  /** Tenant ID (dashless UUID format). */
-  tenantId?: string | undefined;
-  /** Timeline ID (dashless UUID format). */
-  timelineId?: string | undefined;
-  /** PostgreSQL database OID. */
-  pgDatabaseOid?: number | undefined;
-  /** PostgreSQL schema OID. */
-  pgSchemaOid?: number | undefined;
-  /** Unity Catalog catalog ID. */
-  ucCatalogId?: string | undefined;
-  /** Unity Catalog schema ID. */
-  ucSchemaId?: string | undefined;
-  /** Whether Forward ETL is enabled. */
-  enabled?: boolean | undefined;
-  /** Configuration creation timestamp in milliseconds since epoch. */
-  createTimeMillis?: number | undefined;
-  /** Configuration last update timestamp in milliseconds since epoch. */
-  updateTimeMillis?: number | undefined;
-}
-
-/** Database metadata */
-export interface ForwardEtlDatabase {
-  /** Database name. */
-  name?: string | undefined;
-  /** PostgreSQL database OID. */
-  oid?: number | undefined;
-}
-
-/** Forward ETL metadata response */
-export interface ForwardEtlMetadata {
-  /** List of databases with their PostgreSQL OIDs. */
-  databases?: ForwardEtlDatabase[] | undefined;
-  /** List of schemas with their PostgreSQL OIDs. */
-  schemas?: ForwardEtlSchema[] | undefined;
-}
-
-/** Schema metadata */
-export interface ForwardEtlSchema {
-  /** Schema name. */
-  name?: string | undefined;
-  /** PostgreSQL schema OID. */
-  oid?: number | undefined;
-}
-
-/** Forward ETL status response */
-export interface ForwardEtlStatus {
-  /** List of Forward ETL configurations. */
-  configurations?: ForwardEtlConfig[] | undefined;
-  /** Per-table replication mappings. */
-  tableMappings?: ForwardEtlTableMapping[] | undefined;
-}
-
-/** Per-table replication mapping */
-export interface ForwardEtlTableMapping {
-  /** PostgreSQL table OID. */
-  pgTableOid?: number | undefined;
-  /** Unity Catalog table ID. */
-  ucTableId?: string | undefined;
-  /** Last synced LSN (Log Sequence Number) for this table. */
-  lastSyncedLsn?: string | undefined;
-  /** PostgreSQL table name. */
-  pgTableName?: string | undefined;
-  /** Unity Catalog table name. */
-  ucTableName?: string | undefined;
-  /** Whether replication is enabled for this table. */
-  enabled?: boolean | undefined;
-}
-
 export interface GenerateDatabaseCredentialRequest {
   /** The returned token will be scoped to UC tables with the specified permissions. */
   claims?: RequestedClaims[] | undefined;
@@ -1596,34 +1352,6 @@ export interface GenerateDatabaseCredentialRequest {
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
    */
   endpoint?: string | undefined;
-  /**
-   * <Databricks> workspace group name. When provided, credentials are generated
-   * with permissions scoped to this group.
-   */
-  groupName?: string | undefined;
-  /**
-   * Expiration information for the credential.
-   * Users can specify either expire_time or ttl.
-   * If unspecified, maximum allowed duration (1 hour) is used.
-   */
-  expiration?:
-    | {
-        $case: 'ttl';
-        /**
-         * The requested time-to-live for the generated credential token.
-         * Must be at least 300 seconds (5 minutes) and at most 3600 seconds (1 hour).
-         */
-        ttl: Temporal.Duration;
-      }
-    | {
-        $case: 'expireTime';
-        /**
-         * Timestamp in UTC of when this credential should expire.
-         * Must be at least 300 seconds (5 minutes) and at most 1 hour from the current time.
-         */
-        expireTime: Temporal.Instant;
-      }
-    | undefined;
 }
 
 export interface GetBranchRequest {
@@ -1643,14 +1371,6 @@ export interface GetCatalogRequest {
   name?: string | undefined;
 }
 
-export interface GetComputeInstanceRequest {
-  /**
-   * The full resource path of the compute instance to retrieve.
-   * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}/compute-instances/{compute_instance_id}
-   */
-  name?: string | undefined;
-}
-
 export interface GetDatabaseRequest {
   /**
    * The name of the Database to retrieve.
@@ -1665,32 +1385,6 @@ export interface GetEndpointRequest {
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
    */
   name?: string | undefined;
-}
-
-/** Request to get Forward ETL metadata */
-export interface GetForwardEtlMetadataRequest {
-  /**
-   * The Branch to get metadata for.
-   * Format: projects/{project_id}/branches/{branch_id}
-   */
-  parent?: string | undefined;
-  /** Tenant ID (dashless UUID format). */
-  tenantId?: string | undefined;
-  /** Timeline ID (dashless UUID format). */
-  timelineId?: string | undefined;
-}
-
-/** Request to get Forward ETL status */
-export interface GetForwardEtlStatusRequest {
-  /**
-   * The Branch to get Forward ETL status for.
-   * Format: projects/{project_id}/branches/{branch_id}
-   */
-  parent?: string | undefined;
-  /** Tenant ID (dashless UUID format). */
-  tenantId?: string | undefined;
-  /** Timeline ID (dashless UUID format). */
-  timelineId?: string | undefined;
 }
 
 /** The request message for `GetOperation` method. */
@@ -1724,120 +1418,10 @@ export interface GetSyncedTableRequest {
   name?: string | undefined;
 }
 
-export interface GetTableRequest {
-  /** Full three-part (catalog, schema, table) name of the table. */
-  name?: string | undefined;
-}
-
-/** Configuration for the initial default branch created during project creation. */
-export interface InitialBranchSpec {
-  /** Whether the initial default branch should be protected from deletion. */
-  isProtected?: boolean | undefined;
-}
-
-/**
- * Configuration for the initial Postgres database created inside the initial
- * branch for a newly created project. If omitted, the initial branch still gets
- * an initial database with name `databricks_postgres`. The initial database is
- * always owned by the initial Postgres role (whether caller-provided via
- * `initial_role_spec` or defaulted to the caller's identity).
- */
-export interface InitialDatabaseSpec {
-  /**
-   * The name of the Postgres database.
-   *
-   * This expects a valid Postgres identifier as specified in the link below.
-   * https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
-   */
-  postgresDatabase?: string | undefined;
-}
-
 /** Configuration for the initial Read/Write endpoint created during project creation. */
 export interface InitialEndpointSpec {
   /** Settings for HA configuration of the endpoint. */
   group?: EndpointGroupSpec | undefined;
-  /** The minimum number of Compute Units for the initial endpoint. */
-  autoscalingLimitMinCu?: number | undefined;
-  /** The maximum number of Compute Units for the initial endpoint. */
-  autoscalingLimitMaxCu?: number | undefined;
-  suspension?:
-    | {
-        $case: 'suspendTimeoutDuration';
-        /**
-         * Duration of inactivity after which the initial endpoint is automatically suspended.
-         * If specified, should be between 60s and 604800s (1 minute to 1 week).
-         * Mutually exclusive with `no_suspension`.
-         */
-        suspendTimeoutDuration: Temporal.Duration;
-      }
-    | {
-        $case: 'noSuspension';
-        /**
-         * When set to true, explicitly disables automatic suspension (never suspend).
-         * Should be set to true when provided.
-         * Mutually exclusive with `suspend_timeout_duration`.
-         */
-        noSuspension: boolean;
-      }
-    | undefined;
-}
-
-/**
- * Configuration for the initial Postgres role created inside the initial branch
- * for a newly created project. If omitted, the default branch still gets an
- * initial Postgres role corresponding to the caller of the API endpoint.
- */
-export interface InitialRoleSpec {
-  /** An enum value for a standard role that this role is a member of. */
-  membershipRoles?: Role_MembershipRole[] | undefined;
-  /**
-   * The type of role.
-   * When specifying a managed-identity, the chosen role_id must be a valid:
-   *
-   * * application ID for SERVICE_PRINCIPAL
-   * * user email for USER
-   * * group name for GROUP
-   */
-  identityType?: Role_IdentityType | undefined;
-  /** The desired API-exposed Postgres role attribute to associate with the role. Optional. */
-  attributes?: Role_Attributes | undefined;
-  /**
-   * Controls how the Postgres role authenticates when a client opens a database
-   * connection. Supported values:
-   *
-   * * LAKEBASE_OAUTH_V1: the role authenticates by presenting a Databricks
-   * OAuth access token derived from the backing managed identity (the
-   * <Databricks> user, service principal, or group named by the role's
-   * `postgres_role`). No static password exists for roles using this method.
-   * * PG_PASSWORD_SCRAM_SHA_256: the role authenticates with a Postgres
-   * password verified server-side using the SCRAM-SHA-256 mechanism.
-   * Lakebase generates a password for the role.
-   * * NO_LOGIN: the role cannot open a Postgres session at all. Useful for
-   * roles that exist only to own objects or to aggregate privileges that
-   * are then granted to other, loginable roles.
-   *
-   * If auth_method is left unspecified, a meaningful authentication method is derived from the identity_type:
-   * * For the managed identities, OAUTH is used.
-   * * For the regular postgres roles, authentication based on postgres passwords is used.
-   *
-   * NOTE: for the <Databricks> identity type GROUP, LAKEBASE_OAUTH_V1
-   * is the default auth method (group can login as well).
-   */
-  authMethod?: Role_AuthMethod | undefined;
-  /**
-   * The name of the Postgres role.
-   *
-   * This expects a valid Postgres identifier as specified in the link below.
-   * https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
-   *
-   * If you wish to create a Postgres Role backed by a managed <Databricks> identity, then postgres_role
-   * must be one of the following:
-   *
-   * 1. user email for IdentityType.USER
-   * 2. app ID for IdentityType.SERVICE_PRINCIPAL
-   * 2. group name for IdentityType.GROUP
-   */
-  postgresRole?: string | undefined;
 }
 
 export interface ListBranchesRequest {
@@ -1850,49 +1434,12 @@ export interface ListBranchesRequest {
   pageToken?: string | undefined;
   /** Upper bound for items returned. Cannot be negative. */
   pageSize?: number | undefined;
-  /**
-   * Whether to include soft-deleted branches in the response.
-   * When true, deleted branches are included alongside active branches.
-   * Purged branches are never returned.
-   */
-  showDeleted?: boolean | undefined;
 }
 
 export interface ListBranchesResponse {
   /** List of branches in the project. */
   branches?: Branch[] | undefined;
   /** Token to request the next page of branches. */
-  nextPageToken?: string | undefined;
-}
-
-export interface ListComputeInstancesRequest {
-  /** The parent, which owns the compute instances. */
-  parent?: string | undefined;
-  /**
-   * The maximum number of compute instances to return. The service may
-   * return fewer than this value.
-   *
-   * If unspecified, at most 50 compute instances will be returned.
-   * The maximum value is 1000; values above 1000 will be coerced to 1000.
-   */
-  pageSize?: number | undefined;
-  /**
-   * A page token, received from a previous `ListInstances` call.
-   * Provide this to retrieve the subsequent page.
-   *
-   * When paginating, all other parameters provided to `ListInstances` must
-   * match the call that provided the page token.
-   */
-  pageToken?: string | undefined;
-}
-
-export interface ListComputeInstancesResponse {
-  /** The compute instances from the specified endpoint. */
-  computeInstances?: ComputeInstance[] | undefined;
-  /**
-   * A token, which can be sent as `page_token` to retrieve the next page.
-   * If this field is omitted, there are no subsequent pages.
-   */
   nextPageToken?: string | undefined;
 }
 
@@ -1987,26 +1534,6 @@ export interface NewPipelineSpec {
   storageSchema?: string | undefined;
   /** Budget policy to set on the newly created pipeline. */
   budgetPolicyId?: string | undefined;
-  /**
-   * Release channel of the underlying pipeline's runtime.
-   * Some source table configurations (e.g., read-time CDF) require PREVIEW.
-   * Defaults to CURRENT if not specified.
-   */
-  pipelineChannel?: NewPipelineSpec_PipelineChannel | undefined;
-}
-
-/**
- * Observability-related project settings that flow into LBM's lakebase_metadata.o11y.
- * Add future Genie / telemetry / audit-related per-project fields here so they land
- * together rather than as flat top-level fields.
- */
-export interface ObservabilitySettings {
-  /**
-   * Workspace path of the Markdown file used as the per-project Lakebase Genie agent
-   * context. The file's content is appended to the agent's system prompt every turn.
-   * Empty string clears the value when paired with an explicit update_mask path.
-   */
-  genieContextPath?: string | undefined;
 }
 
 /**
@@ -2085,28 +1612,6 @@ export interface Project {
    * Empty if the project is not deleted, otherwise set to a timestamp in the future.
    */
   purgeTime?: Temporal.Instant | undefined;
-  /**
-   * Configuration for the initial default branch created as part of project creation.
-   * Allows overriding branch protection. These settings only apply at creation time
-   * and do not affect resources created after project creation.
-   */
-  initialBranchSpec?: InitialBranchSpec | undefined;
-  /**
-   * Configuration for the initial Postgres role created inside the initial branch
-   * for this project. If omitted, the initial branch gets an initial role
-   * corresponding to the caller of the API endpoint. This field is input-only;
-   * to change roles after project creation, use the standalone Role API.
-   */
-  initialRoleSpec?: InitialRoleSpec | undefined;
-  /**
-   * Configuration for the initial Postgres database created inside the initial
-   * branch for this project. If omitted, the initial branch still gets an initial
-   * database with name `databricks_postgres`. The initial database is always owned
-   * by the initial role (caller-provided via `initial_role_spec` or defaulted to
-   * the caller's identity). This field is input-only; to change databases after
-   * project creation, use the standalone Database API.
-   */
-  initialDatabaseSpec?: InitialDatabaseSpec | undefined;
 }
 
 export interface ProjectCustomTag {
@@ -2175,13 +1680,6 @@ export interface ProjectSpec {
    * To preserve existing tags, omit this field from the update_mask (or use wildcard "*" which auto-excludes empty tags).
    */
   customTags?: ProjectCustomTag[] | undefined;
-  /**
-   * Indicates if this project should be created with workspace-scoped customer managed key (CMK) encryption enabled.
-   * Since we need to do an end to end perf bench using BSS API to A/B test the performance impact of CMK encryption,
-   * we need to be able to control this flag in the API. This flag will be removed once we find a better way to
-   * separate the tenants or enforce workspace-level CMK encryption or migrate everyone to CMK.
-   */
-  workspaceKeyEncrypted?: boolean | undefined;
   /** Whether to enable PG native password login on all endpoints in this project. Defaults to true. */
   enablePgNativeLogin?: boolean | undefined;
   /**
@@ -2189,13 +1687,6 @@ export interface ProjectSpec {
    * Format: projects/{project_id}/branches/{branch_id}
    */
   defaultBranch?: string | undefined;
-  /**
-   * Observability-related project settings. Currently exposes Genie agent context.
-   * To update inner fields, use a granular update_mask path
-   * (e.g. "spec.observability.genie_context_path"); per-field merge semantics mirror
-   * top-level fields like budget_policy_id (nil = preserve, non-nil = set/clear).
-   */
-  observability?: ObservabilitySettings | undefined;
 }
 
 export interface ProjectStatus {
@@ -2211,8 +1702,6 @@ export interface ProjectStatus {
   branchLogicalSizeLimitBytes?: number | undefined;
   /** The current space occupied by the project in storage. */
   syntheticStorageSizeBytes?: number | undefined;
-  /** The most recent time when any endpoint of this project was active. */
-  computeLastActiveTime?: Temporal.Instant | undefined;
   /** The budget policy that is applied to the project. */
   budgetPolicyId?: string | undefined;
   /** The effective custom tags associated with the project. */
@@ -2232,11 +1721,6 @@ export interface ProjectStatus {
    * which follows the `projects/{project_id}` format and is not user-friendly.
    */
   projectId?: string | undefined;
-  /**
-   * The currently-effective observability-related project settings. Empty/absent means
-   * no observability fields are set.
-   */
-  observability?: ObservabilitySettings | undefined;
 }
 
 /** The provisioning state of a resource in Unity Catalog. */
@@ -2452,74 +1936,6 @@ export interface SyncedTable_SyncedTableSpec {
    * The pipeline used for the synced table is returned via the top level pipeline_id attribute.
    */
   newPipelineSpec?: NewPipelineSpec | undefined;
-  /**
-   * When true, enables accelerated sync mode for the initial data load.
-   * This significantly improves performance for large tables.
-   * Requires workspace-level enablement through Lakebase Accelerated Sync preview.
-   */
-  acceleratedSync?: boolean | undefined;
-  /**
-   * Override the default Delta->PG type mapping for specific columns.
-   * A TypeOverride with PG_SPECIFIC_TYPE_UNSPECIFIED is rejected; a valid pg_type must be set.
-   */
-  typeOverrides?: SyncedTable_SyncedTableSpec_TypeOverride[] | undefined;
-  /** Secondary indexes to create on the synced table. */
-  extraIndexDefinitions?:
-    | SyncedTable_SyncedTableSpec_SecondaryIndex[]
-    | undefined;
-  /** Extra PostgreSQL-only columns to add to the synced table. */
-  extraColumnDefinitions?:
-    | SyncedTable_SyncedTableSpec_ExtraColumnDefinition[]
-    | undefined;
-}
-
-/**
- * Definition of an additional PostgreSQL-only column to add to the synced table.
- * Wrapped in a message for forward compatibility.
- */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface SyncedTable_SyncedTableSpec_ExtraColumnDefinition {
-  /**
-   * The column name. Used by alterColumnsToMatch to preserve extra columns
-   * during full refresh, and for cross-referencing with index definitions.
-   * Must match the column name in the definition string.
-   */
-  columnName?: string | undefined;
-  /**
-   * SQL column definition that includes a DEFAULT clause or a GENERATED ALWAYS clause.
-   * For example: tsv tsvector GENERATED ALWAYS AS (to_tsvector(content)) STORED.
-   */
-  definition?: string | undefined;
-}
-
-/** Definition of a secondary index to create on the synced table. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface SyncedTable_SyncedTableSpec_SecondaryIndex {
-  /** Name of the index as it will appear in PostgreSQL. */
-  name?: string | undefined;
-  /**
-   * The definition portion of a CREATE INDEX statement, placed after ON table_name.
-   * For example: USING hnsw (embedding vector_cosine_ops) WITH (m = 16, ef_construction = 64).
-   */
-  definition?: string | undefined;
-  /** When the index should be created relative to the initial data load. */
-  creationPoint?:
-    | SyncedTable_SyncedTableSpec_SecondaryIndex_CreationPoint
-    | undefined;
-}
-
-/** Overrides the default Delta-to-PostgreSQL type mapping for a single column. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface SyncedTable_SyncedTableSpec_TypeOverride {
-  /** Name of the source column whose target PostgreSQL type should be overridden. */
-  columnName?: string | undefined;
-  /** PostgreSQL-specific target type to use for the column. */
-  pgType?: SyncedTable_SyncedTableSpec_PgSpecificType | undefined;
-  /**
-   * Size parameter for the target type. Required when pg_type is PG_SPECIFIC_TYPE_VECTOR
-   * (specifies the vector dimension, e.g., 1024).
-   */
-  size?: number | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -2590,35 +2006,6 @@ export interface SyncedTablePosition {
   sourceSyncInfo?:
     | {$case: 'deltaTableSyncInfo'; deltaTableSyncInfo: DeltaTableSyncInfo}
     | undefined;
-}
-
-/**
- * Table represents a non-synced database table in a Lakebase project.
- * Unlike SyncedTable, this does not have a data synchronization pipeline.
- */
-export interface Table {
-  /** Full three-part (catalog, schema, table) name of the table. */
-  name?: string | undefined;
-  /**
-   * The project and branch scoped database to which this table belongs. Of the format:
-   * projects/{project_id}/branches/{branch_id}/databases/{database_id}
-   * where database_id is the name of the logical database in Postgres.
-   */
-  database?: string | undefined;
-  /** The id of the database project associated with the table. Of the format projects/{project_id}. */
-  project?: string | undefined;
-  /** The id of the database branch associated with the table. Of the format projects/{project_id}/branches/{branch_id}. */
-  branch?: string | undefined;
-  /** REST API URL for serving data from this table. */
-  tableServingUrl?: string | undefined;
-}
-
-export interface UndeleteBranchRequest {
-  /**
-   * The full resource path of the branch to undelete.
-   * Format: projects/{project_id}/branches/{branch_id}
-   */
-  name?: string | undefined;
 }
 
 /** Request to restore a soft-deleted project within its retention period. */
@@ -2778,14 +2165,6 @@ export const unmarshalBranchStatusSchema: z.ZodType<BranchStatus> = z
       .transform(s => Temporal.Instant.from(s))
       .optional(),
     branch_id: z.string().optional(),
-    delete_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    purge_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
   })
   .transform(d => ({
     sourceBranch: d.source_branch,
@@ -2799,8 +2178,6 @@ export const unmarshalBranchStatusSchema: z.ZodType<BranchStatus> = z
     logicalSizeBytes: d.logical_size_bytes,
     expireTime: d.expire_time,
     branchId: d.branch_id,
-    deleteTime: d.delete_time,
-    purgeTime: d.purge_time,
   }));
 
 export const unmarshalCatalogSchema: z.ZodType<Catalog> = z
@@ -2859,34 +2236,6 @@ export const unmarshalCatalog_CatalogStatusSchema: z.ZodType<Catalog_CatalogStat
 
 export const unmarshalCatalogOperationMetadataSchema: z.ZodType<CatalogOperationMetadata> =
   z.object({});
-
-export const unmarshalComputeInstanceSchema: z.ZodType<ComputeInstance> = z
-  .object({
-    name: z.string().optional(),
-    compute_instance_id: z.string().optional(),
-    current_state: z.enum(ComputeInstance_ComputeState).optional(),
-    pending_state: z.enum(ComputeInstance_ComputeState).optional(),
-    role: z.enum(ComputeInstance_ComputeType).optional(),
-    compute_host: z.string().optional(),
-    start_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    suspend_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    computeInstanceId: d.compute_instance_id,
-    currentState: d.current_state,
-    pendingState: d.pending_state,
-    role: d.role,
-    computeHost: d.compute_host,
-    startTime: d.start_time,
-    suspendTime: d.suspend_time,
-  }));
 
 export const unmarshalDatabaseSchema: z.ZodType<Database> = z
   .object({
@@ -2970,17 +2319,6 @@ export const unmarshalDatabricksServiceExceptionWithDetailsProtoSchema: z.ZodTyp
       details: d.details,
     }));
 
-export const unmarshalDeleteForwardEtlConfigurationResponseSchema: z.ZodType<DeleteForwardEtlConfigurationResponse> =
-  z
-    .object({
-      deleted_configs: z.number().optional(),
-      deleted_mappings: z.number().optional(),
-    })
-    .transform(d => ({
-      deletedConfigs: d.deleted_configs,
-      deletedMappings: d.deleted_mappings,
-    }));
-
 export const unmarshalDeltaTableSyncInfoSchema: z.ZodType<DeltaTableSyncInfo> =
   z
     .object({
@@ -2993,15 +2331,6 @@ export const unmarshalDeltaTableSyncInfoSchema: z.ZodType<DeltaTableSyncInfo> =
     .transform(d => ({
       deltaCommitVersion: d.delta_commit_version,
       deltaCommitTime: d.delta_commit_time,
-    }));
-
-export const unmarshalDisableForwardEtlResponseSchema: z.ZodType<DisableForwardEtlResponse> =
-  z
-    .object({
-      disabled: z.boolean().optional(),
-    })
-    .transform(d => ({
-      disabled: d.disabled,
     }));
 
 export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
@@ -3059,14 +2388,10 @@ export const unmarshalEndpointHostsSchema: z.ZodType<EndpointHosts> = z
   .object({
     host: z.string().optional(),
     read_only_host: z.string().optional(),
-    read_write_pooled_host: z.string().optional(),
-    read_only_pooled_host: z.string().optional(),
   })
   .transform(d => ({
     host: d.host,
     readOnlyHost: d.read_only_host,
-    readWritePooledHost: d.read_write_pooled_host,
-    readOnlyPooledHost: d.read_only_pooled_host,
   }));
 
 export const unmarshalEndpointOperationMetadataSchema: z.ZodType<EndpointOperationMetadata> =
@@ -3116,10 +2441,6 @@ export const unmarshalEndpointStatusSchema: z.ZodType<EndpointStatus> = z
   .object({
     endpoint_type: z.enum(EndpointType).optional(),
     hosts: z.lazy(() => unmarshalEndpointHostsSchema).optional(),
-    last_active_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
     autoscaling_limit_min_cu: z.number().optional(),
     autoscaling_limit_max_cu: z.number().optional(),
     current_state: z.enum(EndpointStatus_State).optional(),
@@ -3136,7 +2457,6 @@ export const unmarshalEndpointStatusSchema: z.ZodType<EndpointStatus> = z
   .transform(d => ({
     endpointType: d.endpoint_type,
     hosts: d.hosts,
-    lastActiveTime: d.last_active_time,
     autoscalingLimitMinCu: d.autoscaling_limit_min_cu,
     autoscalingLimitMaxCu: d.autoscaling_limit_max_cu,
     currentState: d.current_state,
@@ -3148,160 +2468,14 @@ export const unmarshalEndpointStatusSchema: z.ZodType<EndpointStatus> = z
     endpointId: d.endpoint_id,
   }));
 
-export const unmarshalForwardEtlConfigSchema: z.ZodType<ForwardEtlConfig> = z
-  .object({
-    workspace_id: z.number().optional(),
-    tenant_id: z.string().optional(),
-    timeline_id: z.string().optional(),
-    pg_database_oid: z.number().optional(),
-    pg_schema_oid: z.number().optional(),
-    uc_catalog_id: z.string().optional(),
-    uc_schema_id: z.string().optional(),
-    enabled: z.boolean().optional(),
-    create_time_millis: z.number().optional(),
-    update_time_millis: z.number().optional(),
-  })
-  .transform(d => ({
-    workspaceId: d.workspace_id,
-    tenantId: d.tenant_id,
-    timelineId: d.timeline_id,
-    pgDatabaseOid: d.pg_database_oid,
-    pgSchemaOid: d.pg_schema_oid,
-    ucCatalogId: d.uc_catalog_id,
-    ucSchemaId: d.uc_schema_id,
-    enabled: d.enabled,
-    createTimeMillis: d.create_time_millis,
-    updateTimeMillis: d.update_time_millis,
-  }));
-
-export const unmarshalForwardEtlDatabaseSchema: z.ZodType<ForwardEtlDatabase> =
-  z
-    .object({
-      name: z.string().optional(),
-      oid: z.number().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      oid: d.oid,
-    }));
-
-export const unmarshalForwardEtlMetadataSchema: z.ZodType<ForwardEtlMetadata> =
-  z
-    .object({
-      databases: z
-        .array(z.lazy(() => unmarshalForwardEtlDatabaseSchema))
-        .optional(),
-      schemas: z
-        .array(z.lazy(() => unmarshalForwardEtlSchemaSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      databases: d.databases,
-      schemas: d.schemas,
-    }));
-
-export const unmarshalForwardEtlSchemaSchema: z.ZodType<ForwardEtlSchema> = z
-  .object({
-    name: z.string().optional(),
-    oid: z.number().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    oid: d.oid,
-  }));
-
-export const unmarshalForwardEtlStatusSchema: z.ZodType<ForwardEtlStatus> = z
-  .object({
-    configurations: z
-      .array(z.lazy(() => unmarshalForwardEtlConfigSchema))
-      .optional(),
-    table_mappings: z
-      .array(z.lazy(() => unmarshalForwardEtlTableMappingSchema))
-      .optional(),
-  })
-  .transform(d => ({
-    configurations: d.configurations,
-    tableMappings: d.table_mappings,
-  }));
-
-export const unmarshalForwardEtlTableMappingSchema: z.ZodType<ForwardEtlTableMapping> =
-  z
-    .object({
-      pg_table_oid: z.number().optional(),
-      uc_table_id: z.string().optional(),
-      last_synced_lsn: z.string().optional(),
-      pg_table_name: z.string().optional(),
-      uc_table_name: z.string().optional(),
-      enabled: z.boolean().optional(),
-    })
-    .transform(d => ({
-      pgTableOid: d.pg_table_oid,
-      ucTableId: d.uc_table_id,
-      lastSyncedLsn: d.last_synced_lsn,
-      pgTableName: d.pg_table_name,
-      ucTableName: d.uc_table_name,
-      enabled: d.enabled,
-    }));
-
-export const unmarshalInitialBranchSpecSchema: z.ZodType<InitialBranchSpec> = z
-  .object({
-    is_protected: z.boolean().optional(),
-  })
-  .transform(d => ({
-    isProtected: d.is_protected,
-  }));
-
-export const unmarshalInitialDatabaseSpecSchema: z.ZodType<InitialDatabaseSpec> =
-  z
-    .object({
-      postgres_database: z.string().optional(),
-    })
-    .transform(d => ({
-      postgresDatabase: d.postgres_database,
-    }));
-
 export const unmarshalInitialEndpointSpecSchema: z.ZodType<InitialEndpointSpec> =
   z
     .object({
       group: z.lazy(() => unmarshalEndpointGroupSpecSchema).optional(),
-      autoscaling_limit_min_cu: z.number().optional(),
-      autoscaling_limit_max_cu: z.number().optional(),
-      suspend_timeout_duration: z
-        .string()
-        .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-        .optional(),
-      no_suspension: z.boolean().optional(),
     })
     .transform(d => ({
       group: d.group,
-      autoscalingLimitMinCu: d.autoscaling_limit_min_cu,
-      autoscalingLimitMaxCu: d.autoscaling_limit_max_cu,
-      suspension:
-        d.suspend_timeout_duration !== undefined
-          ? {
-              $case: 'suspendTimeoutDuration' as const,
-              suspendTimeoutDuration: d.suspend_timeout_duration,
-            }
-          : d.no_suspension !== undefined
-            ? {$case: 'noSuspension' as const, noSuspension: d.no_suspension}
-            : undefined,
     }));
-
-export const unmarshalInitialRoleSpecSchema: z.ZodType<InitialRoleSpec> = z
-  .object({
-    membership_roles: z.array(z.enum(Role_MembershipRole)).optional(),
-    identity_type: z.enum(Role_IdentityType).optional(),
-    attributes: z.lazy(() => unmarshalRole_AttributesSchema).optional(),
-    auth_method: z.enum(Role_AuthMethod).optional(),
-    postgres_role: z.string().optional(),
-  })
-  .transform(d => ({
-    membershipRoles: d.membership_roles,
-    identityType: d.identity_type,
-    attributes: d.attributes,
-    authMethod: d.auth_method,
-    postgresRole: d.postgres_role,
-  }));
 
 export const unmarshalListBranchesResponseSchema: z.ZodType<ListBranchesResponse> =
   z
@@ -3311,19 +2485,6 @@ export const unmarshalListBranchesResponseSchema: z.ZodType<ListBranchesResponse
     })
     .transform(d => ({
       branches: d.branches,
-      nextPageToken: d.next_page_token,
-    }));
-
-export const unmarshalListComputeInstancesResponseSchema: z.ZodType<ListComputeInstancesResponse> =
-  z
-    .object({
-      compute_instances: z
-        .array(z.lazy(() => unmarshalComputeInstanceSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      computeInstances: d.compute_instances,
       nextPageToken: d.next_page_token,
     }));
 
@@ -3375,23 +2536,12 @@ export const unmarshalNewPipelineSpecSchema: z.ZodType<NewPipelineSpec> = z
     storage_catalog: z.string().optional(),
     storage_schema: z.string().optional(),
     budget_policy_id: z.string().optional(),
-    pipeline_channel: z.enum(NewPipelineSpec_PipelineChannel).optional(),
   })
   .transform(d => ({
     storageCatalog: d.storage_catalog,
     storageSchema: d.storage_schema,
     budgetPolicyId: d.budget_policy_id,
-    pipelineChannel: d.pipeline_channel,
   }));
-
-export const unmarshalObservabilitySettingsSchema: z.ZodType<ObservabilitySettings> =
-  z
-    .object({
-      genie_context_path: z.string().optional(),
-    })
-    .transform(d => ({
-      genieContextPath: d.genie_context_path,
-    }));
 
 export const unmarshalOperationSchema: z.ZodType<Operation> = z
   .object({
@@ -3440,13 +2590,6 @@ export const unmarshalProjectSchema: z.ZodType<Project> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
-    initial_branch_spec: z
-      .lazy(() => unmarshalInitialBranchSpecSchema)
-      .optional(),
-    initial_role_spec: z.lazy(() => unmarshalInitialRoleSpecSchema).optional(),
-    initial_database_spec: z
-      .lazy(() => unmarshalInitialDatabaseSpecSchema)
-      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3458,9 +2601,6 @@ export const unmarshalProjectSchema: z.ZodType<Project> = z
     initialEndpointSpec: d.initial_endpoint_spec,
     deleteTime: d.delete_time,
     purgeTime: d.purge_time,
-    initialBranchSpec: d.initial_branch_spec,
-    initialRoleSpec: d.initial_role_spec,
-    initialDatabaseSpec: d.initial_database_spec,
   }));
 
 export const unmarshalProjectCustomTagSchema: z.ZodType<ProjectCustomTag> = z
@@ -3518,12 +2658,8 @@ export const unmarshalProjectSpecSchema: z.ZodType<ProjectSpec> = z
     custom_tags: z
       .array(z.lazy(() => unmarshalProjectCustomTagSchema))
       .optional(),
-    workspace_key_encrypted: z.boolean().optional(),
     enable_pg_native_login: z.boolean().optional(),
     default_branch: z.string().optional(),
-    observability: z
-      .lazy(() => unmarshalObservabilitySettingsSchema)
-      .optional(),
   })
   .transform(d => ({
     displayName: d.display_name,
@@ -3532,10 +2668,8 @@ export const unmarshalProjectSpecSchema: z.ZodType<ProjectSpec> = z
     defaultEndpointSettings: d.default_endpoint_settings,
     budgetPolicyId: d.budget_policy_id,
     customTags: d.custom_tags,
-    workspaceKeyEncrypted: d.workspace_key_encrypted,
     enablePgNativeLogin: d.enable_pg_native_login,
     defaultBranch: d.default_branch,
-    observability: d.observability,
   }));
 
 export const unmarshalProjectStatusSchema: z.ZodType<ProjectStatus> = z
@@ -3551,10 +2685,6 @@ export const unmarshalProjectStatusSchema: z.ZodType<ProjectStatus> = z
       .optional(),
     branch_logical_size_limit_bytes: z.number().optional(),
     synthetic_storage_size_bytes: z.number().optional(),
-    compute_last_active_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
     budget_policy_id: z.string().optional(),
     custom_tags: z
       .array(z.lazy(() => unmarshalProjectCustomTagSchema))
@@ -3563,9 +2693,6 @@ export const unmarshalProjectStatusSchema: z.ZodType<ProjectStatus> = z
     enable_pg_native_login: z.boolean().optional(),
     default_branch: z.string().optional(),
     project_id: z.string().optional(),
-    observability: z
-      .lazy(() => unmarshalObservabilitySettingsSchema)
-      .optional(),
   })
   .transform(d => ({
     displayName: d.display_name,
@@ -3574,14 +2701,12 @@ export const unmarshalProjectStatusSchema: z.ZodType<ProjectStatus> = z
     defaultEndpointSettings: d.default_endpoint_settings,
     branchLogicalSizeLimitBytes: d.branch_logical_size_limit_bytes,
     syntheticStorageSizeBytes: d.synthetic_storage_size_bytes,
-    computeLastActiveTime: d.compute_last_active_time,
     budgetPolicyId: d.budget_policy_id,
     customTags: d.custom_tags,
     owner: d.owner,
     enablePgNativeLogin: d.enable_pg_native_login,
     defaultBranch: d.default_branch,
     projectId: d.project_id,
-    observability: d.observability,
   }));
 
 export const unmarshalRoleSchema: z.ZodType<Role> = z
@@ -3698,27 +2823,6 @@ export const unmarshalSyncedTable_SyncedTableSpecSchema: z.ZodType<SyncedTable_S
       new_pipeline_spec: z
         .lazy(() => unmarshalNewPipelineSpecSchema)
         .optional(),
-      accelerated_sync: z.boolean().optional(),
-      type_overrides: z
-        .array(
-          z.lazy(() => unmarshalSyncedTable_SyncedTableSpec_TypeOverrideSchema)
-        )
-        .optional(),
-      extra_index_definitions: z
-        .array(
-          z.lazy(
-            () => unmarshalSyncedTable_SyncedTableSpec_SecondaryIndexSchema
-          )
-        )
-        .optional(),
-      extra_column_definitions: z
-        .array(
-          z.lazy(
-            () =>
-              unmarshalSyncedTable_SyncedTableSpec_ExtraColumnDefinitionSchema
-          )
-        )
-        .optional(),
     })
     .transform(d => ({
       postgresDatabase: d.postgres_database,
@@ -3730,52 +2834,6 @@ export const unmarshalSyncedTable_SyncedTableSpecSchema: z.ZodType<SyncedTable_S
       existingPipelineId: d.existing_pipeline_id,
       createDatabaseObjectsIfMissing: d.create_database_objects_if_missing,
       newPipelineSpec: d.new_pipeline_spec,
-      acceleratedSync: d.accelerated_sync,
-      typeOverrides: d.type_overrides,
-      extraIndexDefinitions: d.extra_index_definitions,
-      extraColumnDefinitions: d.extra_column_definitions,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSyncedTable_SyncedTableSpec_ExtraColumnDefinitionSchema: z.ZodType<SyncedTable_SyncedTableSpec_ExtraColumnDefinition> =
-  z
-    .object({
-      column_name: z.string().optional(),
-      definition: z.string().optional(),
-    })
-    .transform(d => ({
-      columnName: d.column_name,
-      definition: d.definition,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSyncedTable_SyncedTableSpec_SecondaryIndexSchema: z.ZodType<SyncedTable_SyncedTableSpec_SecondaryIndex> =
-  z
-    .object({
-      name: z.string().optional(),
-      definition: z.string().optional(),
-      creation_point: z
-        .enum(SyncedTable_SyncedTableSpec_SecondaryIndex_CreationPoint)
-        .optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      definition: d.definition,
-      creationPoint: d.creation_point,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSyncedTable_SyncedTableSpec_TypeOverrideSchema: z.ZodType<SyncedTable_SyncedTableSpec_TypeOverride> =
-  z
-    .object({
-      column_name: z.string().optional(),
-      pg_type: z.enum(SyncedTable_SyncedTableSpec_PgSpecificType).optional(),
-      size: z.number().optional(),
-    })
-    .transform(d => ({
-      columnName: d.column_name,
-      pgType: d.pg_type,
-      size: d.size,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3859,22 +2917,6 @@ export const unmarshalSyncedTablePositionSchema: z.ZodType<SyncedTablePosition> 
             }
           : undefined,
     }));
-
-export const unmarshalTableSchema: z.ZodType<Table> = z
-  .object({
-    name: z.string().optional(),
-    database: z.string().optional(),
-    project: z.string().optional(),
-    branch: z.string().optional(),
-    table_serving_url: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    database: d.database,
-    project: d.project,
-    branch: d.branch,
-    tableServingUrl: d.table_serving_url,
-  }));
 
 export const marshalBranchSchema: z.ZodType = z
   .object({
@@ -3965,14 +3007,6 @@ export const marshalBranchStatusSchema: z.ZodType = z
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
     branchId: z.string().optional(),
-    deleteTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    purgeTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
   })
   .transform(d => ({
     source_branch: d.sourceBranch,
@@ -3986,8 +3020,6 @@ export const marshalBranchStatusSchema: z.ZodType = z
     logical_size_bytes: d.logicalSizeBytes,
     expire_time: d.expireTime,
     branch_id: d.branchId,
-    delete_time: d.deleteTime,
-    purge_time: d.purgeTime,
   }));
 
 export const marshalCatalogSchema: z.ZodType = z
@@ -4157,14 +3189,10 @@ export const marshalEndpointHostsSchema: z.ZodType = z
   .object({
     host: z.string().optional(),
     readOnlyHost: z.string().optional(),
-    readWritePooledHost: z.string().optional(),
-    readOnlyPooledHost: z.string().optional(),
   })
   .transform(d => ({
     host: d.host,
     read_only_host: d.readOnlyHost,
-    read_write_pooled_host: d.readWritePooledHost,
-    read_only_pooled_host: d.readOnlyPooledHost,
   }));
 
 export const marshalEndpointSettingsSchema: z.ZodType = z
@@ -4216,10 +3244,6 @@ export const marshalEndpointStatusSchema: z.ZodType = z
   .object({
     endpointType: z.enum(EndpointType).optional(),
     hosts: z.lazy(() => marshalEndpointHostsSchema).optional(),
-    lastActiveTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
     autoscalingLimitMinCu: z.number().optional(),
     autoscalingLimitMaxCu: z.number().optional(),
     currentState: z.enum(EndpointStatus_State).optional(),
@@ -4236,7 +3260,6 @@ export const marshalEndpointStatusSchema: z.ZodType = z
   .transform(d => ({
     endpoint_type: d.endpointType,
     hosts: d.hosts,
-    last_active_time: d.lastActiveTime,
     autoscaling_limit_min_cu: d.autoscalingLimitMinCu,
     autoscaling_limit_max_cu: d.autoscalingLimitMaxCu,
     current_state: d.currentState,
@@ -4252,95 +3275,18 @@ export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
   .object({
     claims: z.array(z.lazy(() => marshalRequestedClaimsSchema)).optional(),
     endpoint: z.string().optional(),
-    groupName: z.string().optional(),
-    expiration: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('ttl'),
-          ttl: z
-            .any()
-            .transform((d: Temporal.Duration) =>
-              d.toString().slice(2).toLowerCase()
-            ),
-        }),
-        z.object({
-          $case: z.literal('expireTime'),
-          expireTime: z.any().transform((d: Temporal.Instant) => d.toString()),
-        }),
-      ])
-      .optional(),
   })
   .transform(d => ({
     claims: d.claims,
     endpoint: d.endpoint,
-    group_name: d.groupName,
-    ...(d.expiration?.$case === 'ttl' && {ttl: d.expiration.ttl}),
-    ...(d.expiration?.$case === 'expireTime' && {
-      expire_time: d.expiration.expireTime,
-    }),
-  }));
-
-export const marshalInitialBranchSpecSchema: z.ZodType = z
-  .object({
-    isProtected: z.boolean().optional(),
-  })
-  .transform(d => ({
-    is_protected: d.isProtected,
-  }));
-
-export const marshalInitialDatabaseSpecSchema: z.ZodType = z
-  .object({
-    postgresDatabase: z.string().optional(),
-  })
-  .transform(d => ({
-    postgres_database: d.postgresDatabase,
   }));
 
 export const marshalInitialEndpointSpecSchema: z.ZodType = z
   .object({
     group: z.lazy(() => marshalEndpointGroupSpecSchema).optional(),
-    autoscalingLimitMinCu: z.number().optional(),
-    autoscalingLimitMaxCu: z.number().optional(),
-    suspension: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('suspendTimeoutDuration'),
-          suspendTimeoutDuration: z
-            .any()
-            .transform((d: Temporal.Duration) =>
-              d.toString().slice(2).toLowerCase()
-            ),
-        }),
-        z.object({$case: z.literal('noSuspension'), noSuspension: z.boolean()}),
-      ])
-      .optional(),
   })
   .transform(d => ({
     group: d.group,
-    autoscaling_limit_min_cu: d.autoscalingLimitMinCu,
-    autoscaling_limit_max_cu: d.autoscalingLimitMaxCu,
-    ...(d.suspension?.$case === 'suspendTimeoutDuration' && {
-      suspend_timeout_duration: d.suspension.suspendTimeoutDuration,
-    }),
-    ...(d.suspension?.$case === 'noSuspension' && {
-      no_suspension: d.suspension.noSuspension,
-    }),
-  }));
-
-export const marshalInitialRoleSpecSchema: z.ZodType = z
-  .object({
-    membershipRoles: z.array(z.enum(Role_MembershipRole)).optional(),
-    identityType: z.enum(Role_IdentityType).optional(),
-    attributes: z.lazy(() => marshalRole_AttributesSchema).optional(),
-    authMethod: z.enum(Role_AuthMethod).optional(),
-    postgresRole: z.string().optional(),
-  })
-  .transform(d => ({
-    membership_roles: d.membershipRoles,
-    identity_type: d.identityType,
-    attributes: d.attributes,
-    auth_method: d.authMethod,
-    postgres_role: d.postgresRole,
   }));
 
 export const marshalNewPipelineSpecSchema: z.ZodType = z
@@ -4348,21 +3294,11 @@ export const marshalNewPipelineSpecSchema: z.ZodType = z
     storageCatalog: z.string().optional(),
     storageSchema: z.string().optional(),
     budgetPolicyId: z.string().optional(),
-    pipelineChannel: z.enum(NewPipelineSpec_PipelineChannel).optional(),
   })
   .transform(d => ({
     storage_catalog: d.storageCatalog,
     storage_schema: d.storageSchema,
     budget_policy_id: d.budgetPolicyId,
-    pipeline_channel: d.pipelineChannel,
-  }));
-
-export const marshalObservabilitySettingsSchema: z.ZodType = z
-  .object({
-    genieContextPath: z.string().optional(),
-  })
-  .transform(d => ({
-    genie_context_path: d.genieContextPath,
   }));
 
 export const marshalProjectSchema: z.ZodType = z
@@ -4390,11 +3326,6 @@ export const marshalProjectSchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
-    initialBranchSpec: z.lazy(() => marshalInitialBranchSpecSchema).optional(),
-    initialRoleSpec: z.lazy(() => marshalInitialRoleSpecSchema).optional(),
-    initialDatabaseSpec: z
-      .lazy(() => marshalInitialDatabaseSpecSchema)
-      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -4406,9 +3337,6 @@ export const marshalProjectSchema: z.ZodType = z
     initial_endpoint_spec: d.initialEndpointSpec,
     delete_time: d.deleteTime,
     purge_time: d.purgeTime,
-    initial_branch_spec: d.initialBranchSpec,
-    initial_role_spec: d.initialRoleSpec,
-    initial_database_spec: d.initialDatabaseSpec,
   }));
 
 export const marshalProjectCustomTagSchema: z.ZodType = z
@@ -4465,10 +3393,8 @@ export const marshalProjectSpecSchema: z.ZodType = z
       .optional(),
     budgetPolicyId: z.string().optional(),
     customTags: z.array(z.lazy(() => marshalProjectCustomTagSchema)).optional(),
-    workspaceKeyEncrypted: z.boolean().optional(),
     enablePgNativeLogin: z.boolean().optional(),
     defaultBranch: z.string().optional(),
-    observability: z.lazy(() => marshalObservabilitySettingsSchema).optional(),
   })
   .transform(d => ({
     display_name: d.displayName,
@@ -4477,10 +3403,8 @@ export const marshalProjectSpecSchema: z.ZodType = z
     default_endpoint_settings: d.defaultEndpointSettings,
     budget_policy_id: d.budgetPolicyId,
     custom_tags: d.customTags,
-    workspace_key_encrypted: d.workspaceKeyEncrypted,
     enable_pg_native_login: d.enablePgNativeLogin,
     default_branch: d.defaultBranch,
-    observability: d.observability,
   }));
 
 export const marshalProjectStatusSchema: z.ZodType = z
@@ -4496,17 +3420,12 @@ export const marshalProjectStatusSchema: z.ZodType = z
       .optional(),
     branchLogicalSizeLimitBytes: z.number().optional(),
     syntheticStorageSizeBytes: z.number().optional(),
-    computeLastActiveTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
     budgetPolicyId: z.string().optional(),
     customTags: z.array(z.lazy(() => marshalProjectCustomTagSchema)).optional(),
     owner: z.string().optional(),
     enablePgNativeLogin: z.boolean().optional(),
     defaultBranch: z.string().optional(),
     projectId: z.string().optional(),
-    observability: z.lazy(() => marshalObservabilitySettingsSchema).optional(),
   })
   .transform(d => ({
     display_name: d.displayName,
@@ -4515,14 +3434,12 @@ export const marshalProjectStatusSchema: z.ZodType = z
     default_endpoint_settings: d.defaultEndpointSettings,
     branch_logical_size_limit_bytes: d.branchLogicalSizeLimitBytes,
     synthetic_storage_size_bytes: d.syntheticStorageSizeBytes,
-    compute_last_active_time: d.computeLastActiveTime,
     budget_policy_id: d.budgetPolicyId,
     custom_tags: d.customTags,
     owner: d.owner,
     enable_pg_native_login: d.enablePgNativeLogin,
     default_branch: d.defaultBranch,
     project_id: d.projectId,
-    observability: d.observability,
   }));
 
 export const marshalRequestedClaimsSchema: z.ZodType = z
@@ -4655,24 +3572,6 @@ export const marshalSyncedTable_SyncedTableSpecSchema: z.ZodType = z
     existingPipelineId: z.string().optional(),
     createDatabaseObjectsIfMissing: z.boolean().optional(),
     newPipelineSpec: z.lazy(() => marshalNewPipelineSpecSchema).optional(),
-    acceleratedSync: z.boolean().optional(),
-    typeOverrides: z
-      .array(
-        z.lazy(() => marshalSyncedTable_SyncedTableSpec_TypeOverrideSchema)
-      )
-      .optional(),
-    extraIndexDefinitions: z
-      .array(
-        z.lazy(() => marshalSyncedTable_SyncedTableSpec_SecondaryIndexSchema)
-      )
-      .optional(),
-    extraColumnDefinitions: z
-      .array(
-        z.lazy(
-          () => marshalSyncedTable_SyncedTableSpec_ExtraColumnDefinitionSchema
-        )
-      )
-      .optional(),
   })
   .transform(d => ({
     postgres_database: d.postgresDatabase,
@@ -4684,53 +3583,7 @@ export const marshalSyncedTable_SyncedTableSpecSchema: z.ZodType = z
     existing_pipeline_id: d.existingPipelineId,
     create_database_objects_if_missing: d.createDatabaseObjectsIfMissing,
     new_pipeline_spec: d.newPipelineSpec,
-    accelerated_sync: d.acceleratedSync,
-    type_overrides: d.typeOverrides,
-    extra_index_definitions: d.extraIndexDefinitions,
-    extra_column_definitions: d.extraColumnDefinitions,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSyncedTable_SyncedTableSpec_ExtraColumnDefinitionSchema: z.ZodType =
-  z
-    .object({
-      columnName: z.string().optional(),
-      definition: z.string().optional(),
-    })
-    .transform(d => ({
-      column_name: d.columnName,
-      definition: d.definition,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSyncedTable_SyncedTableSpec_SecondaryIndexSchema: z.ZodType =
-  z
-    .object({
-      name: z.string().optional(),
-      definition: z.string().optional(),
-      creationPoint: z
-        .enum(SyncedTable_SyncedTableSpec_SecondaryIndex_CreationPoint)
-        .optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      definition: d.definition,
-      creation_point: d.creationPoint,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSyncedTable_SyncedTableSpec_TypeOverrideSchema: z.ZodType =
-  z
-    .object({
-      columnName: z.string().optional(),
-      pgType: z.enum(SyncedTable_SyncedTableSpec_PgSpecificType).optional(),
-      size: z.number().optional(),
-    })
-    .transform(d => ({
-      column_name: d.columnName,
-      pg_type: d.pgType,
-      size: d.size,
-    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalSyncedTable_SyncedTableStatusSchema: z.ZodType = z
@@ -4807,30 +3660,6 @@ export const marshalSyncedTablePositionSchema: z.ZodType = z
     }),
   }));
 
-export const marshalTableSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    database: z.string().optional(),
-    project: z.string().optional(),
-    branch: z.string().optional(),
-    tableServingUrl: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    database: d.database,
-    project: d.project,
-    branch: d.branch,
-    table_serving_url: d.tableServingUrl,
-  }));
-
-export const marshalUndeleteBranchRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
 export const marshalUndeleteProjectRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -4867,12 +3696,10 @@ const branchStatusFieldMaskSchema: FieldMaskSchema = {
   branchId: {wire: 'branch_id'},
   currentState: {wire: 'current_state'},
   default: {wire: 'default'},
-  deleteTime: {wire: 'delete_time'},
   expireTime: {wire: 'expire_time'},
   isProtected: {wire: 'is_protected'},
   logicalSizeBytes: {wire: 'logical_size_bytes'},
   pendingState: {wire: 'pending_state'},
-  purgeTime: {wire: 'purge_time'},
   sourceBranch: {wire: 'source_branch'},
   sourceBranchLsn: {wire: 'source_branch_lsn'},
   sourceBranchTime: {wire: 'source_branch_time'},
@@ -4937,8 +3764,6 @@ const endpointGroupStatusFieldMaskSchema: FieldMaskSchema = {
 const endpointHostsFieldMaskSchema: FieldMaskSchema = {
   host: {wire: 'host'},
   readOnlyHost: {wire: 'read_only_host'},
-  readOnlyPooledHost: {wire: 'read_only_pooled_host'},
-  readWritePooledHost: {wire: 'read_write_pooled_host'},
 };
 
 const endpointSettingsFieldMaskSchema: FieldMaskSchema = {
@@ -4965,61 +3790,21 @@ const endpointStatusFieldMaskSchema: FieldMaskSchema = {
   endpointType: {wire: 'endpoint_type'},
   group: {wire: 'group', children: () => endpointGroupStatusFieldMaskSchema},
   hosts: {wire: 'hosts', children: () => endpointHostsFieldMaskSchema},
-  lastActiveTime: {wire: 'last_active_time'},
   pendingState: {wire: 'pending_state'},
   settings: {wire: 'settings', children: () => endpointSettingsFieldMaskSchema},
   suspendTimeoutDuration: {wire: 'suspend_timeout_duration'},
 };
 
-const initialBranchSpecFieldMaskSchema: FieldMaskSchema = {
-  isProtected: {wire: 'is_protected'},
-};
-
-const initialDatabaseSpecFieldMaskSchema: FieldMaskSchema = {
-  postgresDatabase: {wire: 'postgres_database'},
-};
-
 const initialEndpointSpecFieldMaskSchema: FieldMaskSchema = {
-  autoscalingLimitMaxCu: {wire: 'autoscaling_limit_max_cu'},
-  autoscalingLimitMinCu: {wire: 'autoscaling_limit_min_cu'},
   group: {wire: 'group', children: () => endpointGroupSpecFieldMaskSchema},
-  noSuspension: {wire: 'no_suspension'},
-  suspendTimeoutDuration: {wire: 'suspend_timeout_duration'},
-};
-
-const initialRoleSpecFieldMaskSchema: FieldMaskSchema = {
-  attributes: {
-    wire: 'attributes',
-    children: () => role_AttributesFieldMaskSchema,
-  },
-  authMethod: {wire: 'auth_method'},
-  identityType: {wire: 'identity_type'},
-  membershipRoles: {wire: 'membership_roles'},
-  postgresRole: {wire: 'postgres_role'},
-};
-
-const observabilitySettingsFieldMaskSchema: FieldMaskSchema = {
-  genieContextPath: {wire: 'genie_context_path'},
 };
 
 const projectFieldMaskSchema: FieldMaskSchema = {
   createTime: {wire: 'create_time'},
   deleteTime: {wire: 'delete_time'},
-  initialBranchSpec: {
-    wire: 'initial_branch_spec',
-    children: () => initialBranchSpecFieldMaskSchema,
-  },
-  initialDatabaseSpec: {
-    wire: 'initial_database_spec',
-    children: () => initialDatabaseSpecFieldMaskSchema,
-  },
   initialEndpointSpec: {
     wire: 'initial_endpoint_spec',
     children: () => initialEndpointSpecFieldMaskSchema,
-  },
-  initialRoleSpec: {
-    wire: 'initial_role_spec',
-    children: () => initialRoleSpecFieldMaskSchema,
   },
   name: {wire: 'name'},
   purgeTime: {wire: 'purge_time'},
@@ -5052,18 +3837,12 @@ const projectSpecFieldMaskSchema: FieldMaskSchema = {
   displayName: {wire: 'display_name'},
   enablePgNativeLogin: {wire: 'enable_pg_native_login'},
   historyRetentionDuration: {wire: 'history_retention_duration'},
-  observability: {
-    wire: 'observability',
-    children: () => observabilitySettingsFieldMaskSchema,
-  },
   pgVersion: {wire: 'pg_version'},
-  workspaceKeyEncrypted: {wire: 'workspace_key_encrypted'},
 };
 
 const projectStatusFieldMaskSchema: FieldMaskSchema = {
   branchLogicalSizeLimitBytes: {wire: 'branch_logical_size_limit_bytes'},
   budgetPolicyId: {wire: 'budget_policy_id'},
-  computeLastActiveTime: {wire: 'compute_last_active_time'},
   customTags: {wire: 'custom_tags'},
   defaultBranch: {wire: 'default_branch'},
   defaultEndpointSettings: {
@@ -5073,10 +3852,6 @@ const projectStatusFieldMaskSchema: FieldMaskSchema = {
   displayName: {wire: 'display_name'},
   enablePgNativeLogin: {wire: 'enable_pg_native_login'},
   historyRetentionDuration: {wire: 'history_retention_duration'},
-  observability: {
-    wire: 'observability',
-    children: () => observabilitySettingsFieldMaskSchema,
-  },
   owner: {wire: 'owner'},
   pgVersion: {wire: 'pg_version'},
   projectId: {wire: 'project_id'},

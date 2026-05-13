@@ -5,21 +5,6 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
-/**
- * Release channel of the underlying pipeline's runtime.
- * PREVIEW provides early access to the latest features but may be less stable.
- * Some source table configurations (e.g., read-time CDF) require PREVIEW.
- * Defaults to CURRENT if not specified.
- */
-export enum PipelineChannel {
-  /** Default value; the pipeline channel is not specified and defaults to CURRENT. */
-  PIPELINE_CHANNEL_UNSPECIFIED = 'PIPELINE_CHANNEL_UNSPECIFIED',
-  /** Uses the stable, generally available runtime. */
-  CURRENT = 'CURRENT',
-  /** Uses the latest preview runtime. Required for Auto CDF (read-time CDF) sources. */
-  PREVIEW = 'PREVIEW',
-}
-
 export enum ProvisioningPhase {
   /** The default phase. It should not be reported by any synced tables. */
   PROVISIONING_PHASE_UNSPECIFIED = 'PROVISIONING_PHASE_UNSPECIFIED',
@@ -117,8 +102,6 @@ export enum DatabaseInstance_State {
   UPDATING = 'UPDATING',
   /** The instance is failing over. */
   FAILING_OVER = 'FAILING_OVER',
-  /** The instance is being upgraded to autoscaling. */
-  UPGRADING = 'UPGRADING',
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -162,24 +145,6 @@ export enum RequestedClaims_PermissionSet {
   READ_ONLY = 'READ_ONLY',
 }
 
-/** PostgreSQL-specific target types that can override the default Delta-to-PG mapping. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum SyncedTableSpec_PgSpecificType {
-  /** Default value. Indicates that no type override was selected. */
-  PG_SPECIFIC_TYPE_UNSPECIFIED = 'PG_SPECIFIC_TYPE_UNSPECIFIED',
-  /** Maps the column to the pgvector vector type. */
-  PG_SPECIFIC_TYPE_VECTOR = 'PG_SPECIFIC_TYPE_VECTOR',
-}
-
-/** Controls when the index is created relative to the initial data load. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum SyncedTableSpec_SecondaryIndex_CreationPoint {
-  /** Default value. Index is created before data load and built incrementally during COPY. */
-  CREATION_POINT_UNSPECIFIED = 'CREATION_POINT_UNSPECIFIED',
-  /** Index is created after all data is loaded. */
-  CREATION_POINT_AFTER_DATA_LOAD = 'CREATION_POINT_AFTER_DATA_LOAD',
-}
-
 export interface CreateDatabaseCatalogRequest {
   catalog?: DatabaseCatalog | undefined;
 }
@@ -215,10 +180,6 @@ export interface DatabaseCatalog {
   name?: string | undefined;
   /** The name of the DatabaseInstance housing the database. */
   databaseInstanceName?: string | undefined;
-  /** The project_id of the database project associated with the catalog. */
-  databaseProjectId?: string | undefined;
-  /** The branch_id of the database branch associated with the catalog. */
-  databaseBranchId?: string | undefined;
   /** The name of the database (in a instance) associated with the catalog. */
   databaseName?: string | undefined;
   uid?: string | undefined;
@@ -433,8 +394,6 @@ export interface DatabaseTable {
    * Registration of database tables via /database/tables is currently only supported in standard catalogs.
    */
   logicalDatabaseName?: string | undefined;
-  /** Data serving REST API URL for this table */
-  tableServingUrl?: string | undefined;
 }
 
 export interface DeleteDatabaseCatalogRequest {
@@ -482,12 +441,6 @@ export interface DeltaTableSyncInfo {
    * Note: This is the Delta commit time, not the time the data was written to the synced table.
    */
   deltaCommitTimestamp?: Temporal.Instant | undefined;
-}
-
-export interface FailoverDatabaseInstanceRequest {
-  /** Name of the instance to failover. */
-  name?: string | undefined;
-  failoverTargetDatabaseInstanceName?: string | undefined;
 }
 
 export interface FindDatabaseInstanceByUidRequest {
@@ -612,12 +565,6 @@ export interface NewPipelineSpec {
   storageSchema?: string | undefined;
   /** Budget policy to set on the newly created pipeline. */
   budgetPolicyId?: string | undefined;
-  /**
-   * Release channel of the underlying pipeline's runtime.
-   * Some source table configurations (e.g., read-time CDF) require PREVIEW.
-   * Defaults to CURRENT if not specified.
-   */
-  pipelineChannel?: PipelineChannel | undefined;
 }
 
 /**
@@ -657,22 +604,6 @@ export interface SyncedDatabaseTable {
    * server side defaults. Use the field without the effective_ prefix to set the value.
    */
   effectiveDatabaseInstanceName?: string | undefined;
-  /** The project_id of the database project associated with the table. */
-  databaseProjectId?: string | undefined;
-  /**
-   * The project_id of the database project associated with the table.
-   * This is an output only field that contains the value computed from the input field combined with
-   * server side defaults. Use the field without the effective_ prefix to set the value.
-   */
-  effectiveDatabaseProjectId?: string | undefined;
-  /** The branch_id of the database branch associated with the table. */
-  databaseBranchId?: string | undefined;
-  /**
-   * The branch_id of the database branch associated with the table.
-   * This is an output only field that contains the value computed from the input field combined with
-   * server side defaults. Use the field without the effective_ prefix to set the value.
-   */
-  effectiveDatabaseBranchId?: string | undefined;
   /**
    * Target Postgres database object (logical database) name for this table.
    *
@@ -693,8 +624,6 @@ export interface SyncedDatabaseTable {
    */
   effectiveLogicalDatabaseName?: string | undefined;
   spec?: SyncedTableSpec | undefined;
-  /** Data serving REST API URL for this table */
-  tableServingUrl?: string | undefined;
   /**
    * The provisioning state of the synced table entity in Unity Catalog. This is distinct from the
    * state of the data synchronization pipeline (i.e. the table may be in "ACTIVE" but the pipeline
@@ -822,68 +751,6 @@ export interface SyncedTableSpec {
    * only requires read permissions.
    */
   newPipelineSpec?: NewPipelineSpec | undefined;
-  /**
-   * When true, enables accelerated sync mode for the initial data load.
-   * This significantly improves performance for large tables.
-   * Requires workspace-level enablement.
-   */
-  acceleratedSync?: boolean | undefined;
-  /**
-   * Override the default Delta->PG type mapping for specific columns.
-   * A TypeOverride with PG_SPECIFIC_TYPE_UNSPECIFIED is rejected; a valid pg_type must be set.
-   */
-  typeOverrides?: SyncedTableSpec_TypeOverride[] | undefined;
-  /** Secondary indexes to create on the synced table. */
-  extraIndexDefinitions?: SyncedTableSpec_SecondaryIndex[] | undefined;
-  /** Extra PostgreSQL-only columns to add to the synced table. */
-  extraColumnDefinitions?: SyncedTableSpec_ExtraColumnDefinition[] | undefined;
-}
-
-/**
- * Definition of an additional PostgreSQL-only column to add to the synced table.
- * Wrapped in a message for forward compatibility.
- */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface SyncedTableSpec_ExtraColumnDefinition {
-  /**
-   * Name of the extra column. Used to preserve the column across full refresh and to
-   * cross-reference with index definitions. Must match the column name in the
-   * definition string.
-   */
-  columnName?: string | undefined;
-  /**
-   * SQL column definition that includes a DEFAULT clause or a GENERATED ALWAYS clause.
-   * For example: tsv tsvector GENERATED ALWAYS AS (to_tsvector(content)) STORED.
-   */
-  definition?: string | undefined;
-}
-
-/** Definition of a secondary index to create on the synced table. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface SyncedTableSpec_SecondaryIndex {
-  /** Name of the index as it will appear in PostgreSQL. */
-  name?: string | undefined;
-  /**
-   * The definition portion of a CREATE INDEX statement, placed after ON table_name.
-   * For example: USING hnsw (embedding vector_cosine_ops) WITH (m = 16, ef_construction = 64).
-   */
-  definition?: string | undefined;
-  /** When the index should be created relative to the initial data load. */
-  creationPoint?: SyncedTableSpec_SecondaryIndex_CreationPoint | undefined;
-}
-
-/** Overrides the default Delta-to-PostgreSQL type mapping for a single column. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface SyncedTableSpec_TypeOverride {
-  /** Name of the source column whose target PostgreSQL type should be overridden. */
-  columnName?: string | undefined;
-  /** PostgreSQL-specific target type to use for the column. */
-  pgType?: SyncedTableSpec_PgSpecificType | undefined;
-  /**
-   * Size parameter for the target type. Required when pg_type is PG_SPECIFIC_TYPE_VECTOR
-   * (specifies the vector dimension, e.g., 1024).
-   */
-  size?: number | undefined;
 }
 
 /** Status of a synced table. */
@@ -960,22 +827,11 @@ export interface UpdateDatabaseInstanceRequest {
   updateMask?: FieldMask<DatabaseInstance> | undefined;
 }
 
-export interface UpdateDatabaseInstanceRoleRequest {
-  instanceName?: string | undefined;
-  databaseInstanceRole?: DatabaseInstanceRole | undefined;
-  databaseInstanceName?: string | undefined;
-}
-
 export interface UpdateSyncedDatabaseTableRequest {
   /** Note that updating a synced database table is not yet supported. */
   syncedTable?: SyncedDatabaseTable | undefined;
   /** The list of fields to update. Setting this field is not yet supported. */
   updateMask?: FieldMask<SyncedDatabaseTable> | undefined;
-}
-
-export interface UpgradeInstanceToAutoscalingRequest {
-  /** Name of the instance to upgrade. */
-  name?: string | undefined;
 }
 
 export const unmarshalCustomTagSchema: z.ZodType<CustomTag> = z
@@ -992,8 +848,6 @@ export const unmarshalDatabaseCatalogSchema: z.ZodType<DatabaseCatalog> = z
   .object({
     name: z.string().optional(),
     database_instance_name: z.string().optional(),
-    database_project_id: z.string().optional(),
-    database_branch_id: z.string().optional(),
     database_name: z.string().optional(),
     uid: z.string().optional(),
     create_database_if_not_exists: z.boolean().optional(),
@@ -1001,8 +855,6 @@ export const unmarshalDatabaseCatalogSchema: z.ZodType<DatabaseCatalog> = z
   .transform(d => ({
     name: d.name,
     databaseInstanceName: d.database_instance_name,
-    databaseProjectId: d.database_project_id,
-    databaseBranchId: d.database_branch_id,
     databaseName: d.database_name,
     uid: d.uid,
     createDatabaseIfNotExists: d.create_database_if_not_exists,
@@ -1151,13 +1003,11 @@ export const unmarshalDatabaseTableSchema: z.ZodType<DatabaseTable> = z
     name: z.string().optional(),
     database_instance_name: z.string().optional(),
     logical_database_name: z.string().optional(),
-    table_serving_url: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
     databaseInstanceName: d.database_instance_name,
     logicalDatabaseName: d.logical_database_name,
-    tableServingUrl: d.table_serving_url,
   }));
 
 export const unmarshalDeltaTableSyncInfoSchema: z.ZodType<DeltaTableSyncInfo> =
@@ -1231,13 +1081,11 @@ export const unmarshalNewPipelineSpecSchema: z.ZodType<NewPipelineSpec> = z
     storage_catalog: z.string().optional(),
     storage_schema: z.string().optional(),
     budget_policy_id: z.string().optional(),
-    pipeline_channel: z.enum(PipelineChannel).optional(),
   })
   .transform(d => ({
     storageCatalog: d.storage_catalog,
     storageSchema: d.storage_schema,
     budgetPolicyId: d.budget_policy_id,
-    pipelineChannel: d.pipeline_channel,
   }));
 
 export const unmarshalSyncedDatabaseTableSchema: z.ZodType<SyncedDatabaseTable> =
@@ -1246,14 +1094,9 @@ export const unmarshalSyncedDatabaseTableSchema: z.ZodType<SyncedDatabaseTable> 
       name: z.string().optional(),
       database_instance_name: z.string().optional(),
       effective_database_instance_name: z.string().optional(),
-      database_project_id: z.string().optional(),
-      effective_database_project_id: z.string().optional(),
-      database_branch_id: z.string().optional(),
-      effective_database_branch_id: z.string().optional(),
       logical_database_name: z.string().optional(),
       effective_logical_database_name: z.string().optional(),
       spec: z.lazy(() => unmarshalSyncedTableSpecSchema).optional(),
-      table_serving_url: z.string().optional(),
       unity_catalog_provisioning_state: z
         .enum(ProvisioningInfo_State)
         .optional(),
@@ -1265,14 +1108,9 @@ export const unmarshalSyncedDatabaseTableSchema: z.ZodType<SyncedDatabaseTable> 
       name: d.name,
       databaseInstanceName: d.database_instance_name,
       effectiveDatabaseInstanceName: d.effective_database_instance_name,
-      databaseProjectId: d.database_project_id,
-      effectiveDatabaseProjectId: d.effective_database_project_id,
-      databaseBranchId: d.database_branch_id,
-      effectiveDatabaseBranchId: d.effective_database_branch_id,
       logicalDatabaseName: d.logical_database_name,
       effectiveLogicalDatabaseName: d.effective_logical_database_name,
       spec: d.spec,
-      tableServingUrl: d.table_serving_url,
       unityCatalogProvisioningState: d.unity_catalog_provisioning_state,
       dataSynchronizationStatus: d.data_synchronization_status,
     }));
@@ -1375,16 +1213,6 @@ export const unmarshalSyncedTableSpecSchema: z.ZodType<SyncedTableSpec> = z
     existing_pipeline_id: z.string().optional(),
     create_database_objects_if_missing: z.boolean().optional(),
     new_pipeline_spec: z.lazy(() => unmarshalNewPipelineSpecSchema).optional(),
-    accelerated_sync: z.boolean().optional(),
-    type_overrides: z
-      .array(z.lazy(() => unmarshalSyncedTableSpec_TypeOverrideSchema))
-      .optional(),
-    extra_index_definitions: z
-      .array(z.lazy(() => unmarshalSyncedTableSpec_SecondaryIndexSchema))
-      .optional(),
-    extra_column_definitions: z
-      .array(z.lazy(() => unmarshalSyncedTableSpec_ExtraColumnDefinitionSchema))
-      .optional(),
   })
   .transform(d => ({
     schedulingPolicy: d.scheduling_policy,
@@ -1394,53 +1222,7 @@ export const unmarshalSyncedTableSpecSchema: z.ZodType<SyncedTableSpec> = z
     existingPipelineId: d.existing_pipeline_id,
     createDatabaseObjectsIfMissing: d.create_database_objects_if_missing,
     newPipelineSpec: d.new_pipeline_spec,
-    acceleratedSync: d.accelerated_sync,
-    typeOverrides: d.type_overrides,
-    extraIndexDefinitions: d.extra_index_definitions,
-    extraColumnDefinitions: d.extra_column_definitions,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSyncedTableSpec_ExtraColumnDefinitionSchema: z.ZodType<SyncedTableSpec_ExtraColumnDefinition> =
-  z
-    .object({
-      column_name: z.string().optional(),
-      definition: z.string().optional(),
-    })
-    .transform(d => ({
-      columnName: d.column_name,
-      definition: d.definition,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSyncedTableSpec_SecondaryIndexSchema: z.ZodType<SyncedTableSpec_SecondaryIndex> =
-  z
-    .object({
-      name: z.string().optional(),
-      definition: z.string().optional(),
-      creation_point: z
-        .enum(SyncedTableSpec_SecondaryIndex_CreationPoint)
-        .optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      definition: d.definition,
-      creationPoint: d.creation_point,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSyncedTableSpec_TypeOverrideSchema: z.ZodType<SyncedTableSpec_TypeOverride> =
-  z
-    .object({
-      column_name: z.string().optional(),
-      pg_type: z.enum(SyncedTableSpec_PgSpecificType).optional(),
-      size: z.number().optional(),
-    })
-    .transform(d => ({
-      columnName: d.column_name,
-      pgType: d.pg_type,
-      size: d.size,
-    }));
 
 export const unmarshalSyncedTableStatusSchema: z.ZodType<SyncedTableStatus> = z
   .object({
@@ -1519,8 +1301,6 @@ export const marshalDatabaseCatalogSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     databaseInstanceName: z.string().optional(),
-    databaseProjectId: z.string().optional(),
-    databaseBranchId: z.string().optional(),
     databaseName: z.string().optional(),
     uid: z.string().optional(),
     createDatabaseIfNotExists: z.boolean().optional(),
@@ -1528,8 +1308,6 @@ export const marshalDatabaseCatalogSchema: z.ZodType = z
   .transform(d => ({
     name: d.name,
     database_instance_name: d.databaseInstanceName,
-    database_project_id: d.databaseProjectId,
-    database_branch_id: d.databaseBranchId,
     database_name: d.databaseName,
     uid: d.uid,
     create_database_if_not_exists: d.createDatabaseIfNotExists,
@@ -1661,13 +1439,11 @@ export const marshalDatabaseTableSchema: z.ZodType = z
     name: z.string().optional(),
     databaseInstanceName: z.string().optional(),
     logicalDatabaseName: z.string().optional(),
-    tableServingUrl: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
     database_instance_name: d.databaseInstanceName,
     logical_database_name: d.logicalDatabaseName,
-    table_serving_url: d.tableServingUrl,
   }));
 
 export const marshalDeltaTableSyncInfoSchema: z.ZodType = z
@@ -1681,17 +1457,6 @@ export const marshalDeltaTableSyncInfoSchema: z.ZodType = z
   .transform(d => ({
     delta_commit_version: d.deltaCommitVersion,
     delta_commit_timestamp: d.deltaCommitTimestamp,
-  }));
-
-export const marshalFailoverDatabaseInstanceRequestSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    failoverTargetDatabaseInstanceName: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    failover_target_database_instance_name:
-      d.failoverTargetDatabaseInstanceName,
   }));
 
 export const marshalGenerateDatabaseCredentialRequestSchema: z.ZodType = z
@@ -1711,13 +1476,11 @@ export const marshalNewPipelineSpecSchema: z.ZodType = z
     storageCatalog: z.string().optional(),
     storageSchema: z.string().optional(),
     budgetPolicyId: z.string().optional(),
-    pipelineChannel: z.enum(PipelineChannel).optional(),
   })
   .transform(d => ({
     storage_catalog: d.storageCatalog,
     storage_schema: d.storageSchema,
     budget_policy_id: d.budgetPolicyId,
-    pipeline_channel: d.pipelineChannel,
   }));
 
 export const marshalRequestedClaimsSchema: z.ZodType = z
@@ -1756,14 +1519,9 @@ export const marshalSyncedDatabaseTableSchema: z.ZodType = z
     name: z.string().optional(),
     databaseInstanceName: z.string().optional(),
     effectiveDatabaseInstanceName: z.string().optional(),
-    databaseProjectId: z.string().optional(),
-    effectiveDatabaseProjectId: z.string().optional(),
-    databaseBranchId: z.string().optional(),
-    effectiveDatabaseBranchId: z.string().optional(),
     logicalDatabaseName: z.string().optional(),
     effectiveLogicalDatabaseName: z.string().optional(),
     spec: z.lazy(() => marshalSyncedTableSpecSchema).optional(),
-    tableServingUrl: z.string().optional(),
     unityCatalogProvisioningState: z.enum(ProvisioningInfo_State).optional(),
     dataSynchronizationStatus: z
       .lazy(() => marshalSyncedTableStatusSchema)
@@ -1773,14 +1531,9 @@ export const marshalSyncedDatabaseTableSchema: z.ZodType = z
     name: d.name,
     database_instance_name: d.databaseInstanceName,
     effective_database_instance_name: d.effectiveDatabaseInstanceName,
-    database_project_id: d.databaseProjectId,
-    effective_database_project_id: d.effectiveDatabaseProjectId,
-    database_branch_id: d.databaseBranchId,
-    effective_database_branch_id: d.effectiveDatabaseBranchId,
     logical_database_name: d.logicalDatabaseName,
     effective_logical_database_name: d.effectiveLogicalDatabaseName,
     spec: d.spec,
-    table_serving_url: d.tableServingUrl,
     unity_catalog_provisioning_state: d.unityCatalogProvisioningState,
     data_synchronization_status: d.dataSynchronizationStatus,
   }));
@@ -1879,16 +1632,6 @@ export const marshalSyncedTableSpecSchema: z.ZodType = z
     existingPipelineId: z.string().optional(),
     createDatabaseObjectsIfMissing: z.boolean().optional(),
     newPipelineSpec: z.lazy(() => marshalNewPipelineSpecSchema).optional(),
-    acceleratedSync: z.boolean().optional(),
-    typeOverrides: z
-      .array(z.lazy(() => marshalSyncedTableSpec_TypeOverrideSchema))
-      .optional(),
-    extraIndexDefinitions: z
-      .array(z.lazy(() => marshalSyncedTableSpec_SecondaryIndexSchema))
-      .optional(),
-    extraColumnDefinitions: z
-      .array(z.lazy(() => marshalSyncedTableSpec_ExtraColumnDefinitionSchema))
-      .optional(),
   })
   .transform(d => ({
     scheduling_policy: d.schedulingPolicy,
@@ -1898,49 +1641,6 @@ export const marshalSyncedTableSpecSchema: z.ZodType = z
     existing_pipeline_id: d.existingPipelineId,
     create_database_objects_if_missing: d.createDatabaseObjectsIfMissing,
     new_pipeline_spec: d.newPipelineSpec,
-    accelerated_sync: d.acceleratedSync,
-    type_overrides: d.typeOverrides,
-    extra_index_definitions: d.extraIndexDefinitions,
-    extra_column_definitions: d.extraColumnDefinitions,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSyncedTableSpec_ExtraColumnDefinitionSchema: z.ZodType = z
-  .object({
-    columnName: z.string().optional(),
-    definition: z.string().optional(),
-  })
-  .transform(d => ({
-    column_name: d.columnName,
-    definition: d.definition,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSyncedTableSpec_SecondaryIndexSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    definition: z.string().optional(),
-    creationPoint: z
-      .enum(SyncedTableSpec_SecondaryIndex_CreationPoint)
-      .optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    definition: d.definition,
-    creation_point: d.creationPoint,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSyncedTableSpec_TypeOverrideSchema: z.ZodType = z
-  .object({
-    columnName: z.string().optional(),
-    pgType: z.enum(SyncedTableSpec_PgSpecificType).optional(),
-    size: z.number().optional(),
-  })
-  .transform(d => ({
-    column_name: d.columnName,
-    pg_type: d.pgType,
-    size: d.size,
   }));
 
 export const marshalSyncedTableStatusSchema: z.ZodType = z
@@ -2014,10 +1714,8 @@ export const marshalSyncedTableTriggeredUpdateStatusSchema: z.ZodType = z
 
 const databaseCatalogFieldMaskSchema: FieldMaskSchema = {
   createDatabaseIfNotExists: {wire: 'create_database_if_not_exists'},
-  databaseBranchId: {wire: 'database_branch_id'},
   databaseInstanceName: {wire: 'database_instance_name'},
   databaseName: {wire: 'database_name'},
-  databaseProjectId: {wire: 'database_project_id'},
   name: {wire: 'name'},
   uid: {wire: 'uid'},
 };
@@ -2089,7 +1787,6 @@ const deltaTableSyncInfoFieldMaskSchema: FieldMaskSchema = {
 
 const newPipelineSpecFieldMaskSchema: FieldMaskSchema = {
   budgetPolicyId: {wire: 'budget_policy_id'},
-  pipelineChannel: {wire: 'pipeline_channel'},
   storageCatalog: {wire: 'storage_catalog'},
   storageSchema: {wire: 'storage_schema'},
 };
@@ -2099,17 +1796,12 @@ const syncedDatabaseTableFieldMaskSchema: FieldMaskSchema = {
     wire: 'data_synchronization_status',
     children: () => syncedTableStatusFieldMaskSchema,
   },
-  databaseBranchId: {wire: 'database_branch_id'},
   databaseInstanceName: {wire: 'database_instance_name'},
-  databaseProjectId: {wire: 'database_project_id'},
-  effectiveDatabaseBranchId: {wire: 'effective_database_branch_id'},
   effectiveDatabaseInstanceName: {wire: 'effective_database_instance_name'},
-  effectiveDatabaseProjectId: {wire: 'effective_database_project_id'},
   effectiveLogicalDatabaseName: {wire: 'effective_logical_database_name'},
   logicalDatabaseName: {wire: 'logical_database_name'},
   name: {wire: 'name'},
   spec: {wire: 'spec', children: () => syncedTableSpecFieldMaskSchema},
-  tableServingUrl: {wire: 'table_serving_url'},
   unityCatalogProvisioningState: {wire: 'unity_catalog_provisioning_state'},
 };
 
@@ -2164,11 +1856,8 @@ const syncedTableProvisioningStatusFieldMaskSchema: FieldMaskSchema = {
 };
 
 const syncedTableSpecFieldMaskSchema: FieldMaskSchema = {
-  acceleratedSync: {wire: 'accelerated_sync'},
   createDatabaseObjectsIfMissing: {wire: 'create_database_objects_if_missing'},
   existingPipelineId: {wire: 'existing_pipeline_id'},
-  extraColumnDefinitions: {wire: 'extra_column_definitions'},
-  extraIndexDefinitions: {wire: 'extra_index_definitions'},
   newPipelineSpec: {
     wire: 'new_pipeline_spec',
     children: () => newPipelineSpecFieldMaskSchema,
@@ -2177,7 +1866,6 @@ const syncedTableSpecFieldMaskSchema: FieldMaskSchema = {
   schedulingPolicy: {wire: 'scheduling_policy'},
   sourceTableFullName: {wire: 'source_table_full_name'},
   timeseriesKey: {wire: 'timeseries_key'},
-  typeOverrides: {wire: 'type_overrides'},
 };
 
 const syncedTableStatusFieldMaskSchema: FieldMaskSchema = {

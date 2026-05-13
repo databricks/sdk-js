@@ -97,8 +97,6 @@ export interface Alert {
    * permissions and defaults.
    */
   effectiveRunAs?: AlertRunAs | undefined;
-  /** The actual workspace path of the folder containing the alert. This is an output-only field. */
-  effectiveParentPath?: string | undefined;
 }
 
 export interface AlertEvaluation {
@@ -194,8 +192,6 @@ export interface CronSchedule {
   timezoneId?: string | undefined;
   /** Indicate whether this schedule is paused or not. */
   pauseStatus?: SchedulePauseStatus | undefined;
-  /** The actual pause status of the schedule. This is an output-only field. */
-  effectivePauseStatus?: SchedulePauseStatus | undefined;
 }
 
 /**
@@ -254,7 +250,6 @@ export const unmarshalAlertSchema: z.ZodType<Alert> = z
     custom_description: z.string().optional(),
     run_as: z.lazy(() => unmarshalAlertRunAsSchema).optional(),
     effective_run_as: z.lazy(() => unmarshalAlertRunAsSchema).optional(),
-    effective_parent_path: z.string().optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -273,7 +268,6 @@ export const unmarshalAlertSchema: z.ZodType<Alert> = z
     customDescription: d.custom_description,
     runAs: d.run_as,
     effectiveRunAs: d.effective_run_as,
-    effectiveParentPath: d.effective_parent_path,
   }));
 
 export const unmarshalAlertEvaluationSchema: z.ZodType<AlertEvaluation> = z
@@ -393,13 +387,11 @@ export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
     quartz_cron_schedule: z.string().optional(),
     timezone_id: z.string().optional(),
     pause_status: z.enum(SchedulePauseStatus).optional(),
-    effective_pause_status: z.enum(SchedulePauseStatus).optional(),
   })
   .transform(d => ({
     quartzCronSchedule: d.quartz_cron_schedule,
     timezoneId: d.timezone_id,
     pauseStatus: d.pause_status,
-    effectivePauseStatus: d.effective_pause_status,
   }));
 
 export const unmarshalEmptySchema: z.ZodType<Empty> = z.object({});
@@ -439,7 +431,6 @@ export const marshalAlertSchema: z.ZodType = z
     customDescription: z.string().optional(),
     runAs: z.lazy(() => marshalAlertRunAsSchema).optional(),
     effectiveRunAs: z.lazy(() => marshalAlertRunAsSchema).optional(),
-    effectiveParentPath: z.string().optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -458,7 +449,6 @@ export const marshalAlertSchema: z.ZodType = z
     custom_description: d.customDescription,
     run_as: d.runAs,
     effective_run_as: d.effectiveRunAs,
-    effective_parent_path: d.effectiveParentPath,
   }));
 
 export const marshalAlertEvaluationSchema: z.ZodType = z
@@ -595,13 +585,11 @@ export const marshalCronScheduleSchema: z.ZodType = z
     quartzCronSchedule: z.string().optional(),
     timezoneId: z.string().optional(),
     pauseStatus: z.enum(SchedulePauseStatus).optional(),
-    effectivePauseStatus: z.enum(SchedulePauseStatus).optional(),
   })
   .transform(d => ({
     quartz_cron_schedule: d.quartzCronSchedule,
     timezone_id: d.timezoneId,
     pause_status: d.pauseStatus,
-    effective_pause_status: d.effectivePauseStatus,
   }));
 
 const alertFieldMaskSchema: FieldMaskSchema = {
@@ -609,7 +597,6 @@ const alertFieldMaskSchema: FieldMaskSchema = {
   customDescription: {wire: 'custom_description'},
   customSummary: {wire: 'custom_summary'},
   displayName: {wire: 'display_name'},
-  effectiveParentPath: {wire: 'effective_parent_path'},
   effectiveRunAs: {
     wire: 'effective_run_as',
     children: () => alertRunAsFieldMaskSchema,
@@ -676,7 +663,6 @@ const alertRunAsFieldMaskSchema: FieldMaskSchema = {
 };
 
 const cronScheduleFieldMaskSchema: FieldMaskSchema = {
-  effectivePauseStatus: {wire: 'effective_pause_status'},
   pauseStatus: {wire: 'pause_status'},
   quartzCronSchedule: {wire: 'quartz_cron_schedule'},
   timezoneId: {wire: 'timezone_id'},

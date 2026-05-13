@@ -24,13 +24,6 @@ export enum ExportFormat {
   RAW = 'RAW',
 }
 
-export enum ExportOutputs {
-  /** All outputs will be exported */
-  ALL = 'ALL',
-  /** No outputs will be exported */
-  NONE = 'NONE',
-}
-
 /** The language of notebook. */
 export enum Language {
   /** Scala notebook. */
@@ -97,13 +90,6 @@ export interface Export {
    * Otherwise, by default, the response contains content in the form of a base64 encoded string.
    */
   directDownload?: boolean | undefined;
-  /**
-   * This specifies which cell outputs should be included in the export (if the export format allows it).
-   * If not specified, the behavior is determined by the format.
-   * For JUPYTER format, the default is to include all outputs.
-   * This is a public endpoint, but only ALL or NONE is documented publically, DATABRICKS is internal only
-   */
-  outputs?: ExportOutputs | undefined;
 }
 
 /** The request field `direct_download` determines whether a JSON response or binary contents are returned by this endpoint. */

@@ -28,22 +28,12 @@ export interface GetWorkspacePermissionAssignments {
   accountId?: string | undefined;
   /** The workspace ID for the account. */
   workspaceId?: number | undefined;
-  /** Page token returned by previous call to retrieve the next page of results. */
-  pageToken?: string | undefined;
-  /** Maximum number of permission assignments to return. */
-  maxResults?: number | undefined;
-  /** Filter string to search principals. */
-  filter?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface GetWorkspacePermissionAssignments_Response {
   /** Array of permissions assignments defined for a workspace. */
   permissionAssignments?: WorkspacePermissionAssignmentOutput[] | undefined;
-  /** Token to retrieve the next page of results. */
-  nextPageToken?: string | undefined;
-  /** Token to retrieve the previous page of results. */
-  prevPageToken?: string | undefined;
 }
 
 /** List permissions for a workspace, given an account and a workspace. */
@@ -132,13 +122,9 @@ export const unmarshalGetWorkspacePermissionAssignments_ResponseSchema: z.ZodTyp
       permission_assignments: z
         .array(z.lazy(() => unmarshalWorkspacePermissionAssignmentOutputSchema))
         .optional(),
-      next_page_token: z.string().optional(),
-      prev_page_token: z.string().optional(),
     })
     .transform(d => ({
       permissionAssignments: d.permission_assignments,
-      nextPageToken: d.next_page_token,
-      prevPageToken: d.prev_page_token,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

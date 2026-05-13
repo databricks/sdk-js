@@ -1,6 +1,5 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-import {Temporal} from '@js-temporal/polyfill';
 import {z} from 'zod';
 
 export interface CreateCustomOAuthAppIntegration {
@@ -66,8 +65,6 @@ export interface CustomOAuthAppIntegration {
    * Must be a subset of scopes.
    */
   userAuthorizedScopes?: string[] | undefined;
-  /** The principal id of the service principal associated with this OAuth app. */
-  principalId?: number | undefined;
 }
 
 export interface CustomOAuthAppIntegrationSecret {
@@ -80,13 +77,6 @@ export interface CustomOAuthAppIntegrationSecret {
    * If this is a confidential OAuth app client-secret will be generated.
    */
   clientSecret?: string | undefined;
-  /** The principal id of the service principal associated with this OAuth app. */
-  principalId?: number | undefined;
-  /**
-   * The expiration time of the client secret.
-   * If not present, the secret does not expire.
-   */
-  clientSecretExpireTime?: Temporal.Instant | undefined;
 }
 
 export interface DeleteCustomOAuthAppIntegration {
@@ -241,7 +231,6 @@ export const unmarshalCustomOAuthAppIntegrationSchema: z.ZodType<CustomOAuthAppI
       create_time: z.string().optional(),
       creator_username: z.string().optional(),
       user_authorized_scopes: z.array(z.string()).optional(),
-      principal_id: z.number().optional(),
     })
     .transform(d => ({
       integrationId: d.integration_id,
@@ -255,7 +244,6 @@ export const unmarshalCustomOAuthAppIntegrationSchema: z.ZodType<CustomOAuthAppI
       createTime: d.create_time,
       creatorUsername: d.creator_username,
       userAuthorizedScopes: d.user_authorized_scopes,
-      principalId: d.principal_id,
     }));
 
 export const unmarshalCustomOAuthAppIntegrationSecretSchema: z.ZodType<CustomOAuthAppIntegrationSecret> =
@@ -264,18 +252,11 @@ export const unmarshalCustomOAuthAppIntegrationSecretSchema: z.ZodType<CustomOAu
       integration_id: z.string().optional(),
       client_id: z.string().optional(),
       client_secret: z.string().optional(),
-      principal_id: z.number().optional(),
-      client_secret_expire_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
     })
     .transform(d => ({
       integrationId: d.integration_id,
       clientId: d.client_id,
       clientSecret: d.client_secret,
-      principalId: d.principal_id,
-      clientSecretExpireTime: d.client_secret_expire_time,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

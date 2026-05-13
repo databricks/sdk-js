@@ -11,16 +11,6 @@ export interface App {
   name?: string | undefined;
 }
 
-/**
- * UC catalog asset_search scope. One tool authorizes asset_search over one catalog.
- * Multiple catalog tools widen the scope; the backend merges them into a single
- * CATALOG entry in asset_search's scoped_assets.
- */
-export interface Catalog {
-  /** Bare UC catalog name this tool is authorized to search (no `.`). */
-  name?: string | undefined;
-}
-
 /** Create an example. */
 export interface CreateExampleRequest {
   /**
@@ -131,12 +121,6 @@ export interface KnowledgeAssistant {
   knowledgeAssistantId?: string | undefined;
 }
 
-/** Lakeview Dashboard tool scoped to a specific published dashboard. */
-export interface LakeviewDashboard {
-  /** The unique identifier of the Lakeview dashboard. */
-  dashboardId?: string | undefined;
-}
-
 /** List examples. */
 export interface ListExamplesRequest {
   /**
@@ -203,19 +187,6 @@ export interface ListToolsResponse {
   nextPageToken?: string | undefined;
 }
 
-/**
- * UC schema asset_search scope. One tool authorizes asset_search over one schema.
- * Multiple schema tools widen the scope.
- */
-export interface Schema {
-  /** Full UC schema name (catalog.schema) this tool is authorized to search. */
-  name?: string | undefined;
-}
-
-export interface ServingEndpoint {
-  name?: string | undefined;
-}
-
 export interface SupervisorAgent {
   /**
    * The resource name of the SupervisorAgent.
@@ -242,12 +213,6 @@ export interface SupervisorAgent {
   experimentId?: string | undefined;
 }
 
-/** Nested Supervisor Agent tool. */
-export interface SupervisorAgentTool {
-  /** The ID of the supervisor agent (tile ID). */
-  supervisorAgentId?: string | undefined;
-}
-
 export interface Tool {
   /**
    * Full resource name:
@@ -265,35 +230,7 @@ export interface Tool {
     | {$case: 'ucFunction'; ucFunction: UcFunction}
     | {$case: 'app'; app: App}
     | {$case: 'volume'; volume: Volume}
-    | {$case: 'lakeviewDashboard'; lakeviewDashboard: LakeviewDashboard}
-    | {$case: 'servingEndpoint'; servingEndpoint: ServingEndpoint}
-    | {$case: 'ucTable'; ucTable: UcTable}
-    | {
-        $case: 'vectorSearchIndex';
-        /** Configuration for a Vector Search index tool. */
-        vectorSearchIndex: VectorSearchIndex;
-      }
     | {$case: 'ucConnection'; ucConnection: UcConnection}
-    | {
-        $case: 'catalog';
-        /** Configuration for a UC catalog asset_search scope tool. */
-        catalog: Catalog;
-      }
-    | {
-        $case: 'schema';
-        /** Configuration for a UC schema asset_search scope tool. */
-        schema: Schema;
-      }
-    | {$case: 'supervisorAgent'; supervisorAgent: SupervisorAgentTool}
-    | {
-        $case: 'webSearch';
-        /**
-         * Configuration for a public-web search tool. The supervisor collapses
-         * multiple web_search tools on the same agent into a single registered
-         * `web_search` tool at runtime.
-         */
-        webSearch: WebSearch;
-      }
     | undefined;
   /** Description of what this tool does (user-facing). */
   description?: string | undefined;
@@ -308,16 +245,6 @@ export interface UcConnection {
 
 export interface UcFunction {
   /** Full uc function name */
-  name?: string | undefined;
-}
-
-/**
- * Unity Catalog table. One tool represents one authorized table; the backend
- * collapses all uc_table tools on a supervisor agent into a single subagent
- * that can access the union of their tables.
- */
-export interface UcTable {
-  /** Full UC table name (catalog.schema.table) this tool is authorized to access. */
   name?: string | undefined;
 }
 
@@ -353,37 +280,12 @@ export interface UpdateToolRequest {
   updateMask?: FieldMask<Tool> | undefined;
 }
 
-/** Vector Search index tool authorizing access to a single index. */
-export interface VectorSearchIndex {
-  /** Full Vector Search index name (catalog.schema.index). */
-  name?: string | undefined;
-  /** Optional columns to return from the index. If unset, discovered from index schema at query time. */
-  columns?: string[] | undefined;
-}
-
 export interface Volume {
   /** Full uc volume name */
   name?: string | undefined;
 }
 
-/**
- * Public-web search tool. Empty body — backend, model registration, and
- * client_id are not customer-tunable. The display name and description for
- * this tool come from the parent `Tool.name` / `Tool.description` fields.
- * Reserved for future scoping (allowed domains, region overrides).
- */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface WebSearch {}
-
 export const unmarshalAppSchema: z.ZodType<App> = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const unmarshalCatalogSchema: z.ZodType<Catalog> = z
   .object({
     name: z.string().optional(),
   })
@@ -424,14 +326,6 @@ export const unmarshalKnowledgeAssistantSchema: z.ZodType<KnowledgeAssistant> =
       knowledgeAssistantId: d.knowledge_assistant_id,
     }));
 
-export const unmarshalLakeviewDashboardSchema: z.ZodType<LakeviewDashboard> = z
-  .object({
-    dashboard_id: z.string().optional(),
-  })
-  .transform(d => ({
-    dashboardId: d.dashboard_id,
-  }));
-
 export const unmarshalListExamplesResponseSchema: z.ZodType<ListExamplesResponse> =
   z
     .object({
@@ -466,22 +360,6 @@ export const unmarshalListToolsResponseSchema: z.ZodType<ListToolsResponse> = z
     nextPageToken: d.next_page_token,
   }));
 
-export const unmarshalSchemaSchema: z.ZodType<Schema> = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const unmarshalServingEndpointSchema: z.ZodType<ServingEndpoint> = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
 export const unmarshalSupervisorAgentSchema: z.ZodType<SupervisorAgent> = z
   .object({
     name: z.string().optional(),
@@ -511,15 +389,6 @@ export const unmarshalSupervisorAgentSchema: z.ZodType<SupervisorAgent> = z
     experimentId: d.experiment_id,
   }));
 
-export const unmarshalSupervisorAgentToolSchema: z.ZodType<SupervisorAgentTool> =
-  z
-    .object({
-      supervisor_agent_id: z.string().optional(),
-    })
-    .transform(d => ({
-      supervisorAgentId: d.supervisor_agent_id,
-    }));
-
 export const unmarshalToolSchema: z.ZodType<Tool> = z
   .object({
     name: z.string().optional(),
@@ -532,21 +401,7 @@ export const unmarshalToolSchema: z.ZodType<Tool> = z
     uc_function: z.lazy(() => unmarshalUcFunctionSchema).optional(),
     app: z.lazy(() => unmarshalAppSchema).optional(),
     volume: z.lazy(() => unmarshalVolumeSchema).optional(),
-    lakeview_dashboard: z
-      .lazy(() => unmarshalLakeviewDashboardSchema)
-      .optional(),
-    serving_endpoint: z.lazy(() => unmarshalServingEndpointSchema).optional(),
-    uc_table: z.lazy(() => unmarshalUcTableSchema).optional(),
-    vector_search_index: z
-      .lazy(() => unmarshalVectorSearchIndexSchema)
-      .optional(),
     uc_connection: z.lazy(() => unmarshalUcConnectionSchema).optional(),
-    catalog: z.lazy(() => unmarshalCatalogSchema).optional(),
-    schema: z.lazy(() => unmarshalSchemaSchema).optional(),
-    supervisor_agent: z
-      .lazy(() => unmarshalSupervisorAgentToolSchema)
-      .optional(),
-    web_search: z.lazy(() => unmarshalWebSearchSchema).optional(),
     description: z.string().optional(),
     tool_id: z.string().optional(),
   })
@@ -568,43 +423,12 @@ export const unmarshalToolSchema: z.ZodType<Tool> = z
               ? {$case: 'app' as const, app: d.app}
               : d.volume !== undefined
                 ? {$case: 'volume' as const, volume: d.volume}
-                : d.lakeview_dashboard !== undefined
+                : d.uc_connection !== undefined
                   ? {
-                      $case: 'lakeviewDashboard' as const,
-                      lakeviewDashboard: d.lakeview_dashboard,
+                      $case: 'ucConnection' as const,
+                      ucConnection: d.uc_connection,
                     }
-                  : d.serving_endpoint !== undefined
-                    ? {
-                        $case: 'servingEndpoint' as const,
-                        servingEndpoint: d.serving_endpoint,
-                      }
-                    : d.uc_table !== undefined
-                      ? {$case: 'ucTable' as const, ucTable: d.uc_table}
-                      : d.vector_search_index !== undefined
-                        ? {
-                            $case: 'vectorSearchIndex' as const,
-                            vectorSearchIndex: d.vector_search_index,
-                          }
-                        : d.uc_connection !== undefined
-                          ? {
-                              $case: 'ucConnection' as const,
-                              ucConnection: d.uc_connection,
-                            }
-                          : d.catalog !== undefined
-                            ? {$case: 'catalog' as const, catalog: d.catalog}
-                            : d.schema !== undefined
-                              ? {$case: 'schema' as const, schema: d.schema}
-                              : d.supervisor_agent !== undefined
-                                ? {
-                                    $case: 'supervisorAgent' as const,
-                                    supervisorAgent: d.supervisor_agent,
-                                  }
-                                : d.web_search !== undefined
-                                  ? {
-                                      $case: 'webSearch' as const,
-                                      webSearch: d.web_search,
-                                    }
-                                  : undefined,
+                  : undefined,
     description: d.description,
     toolId: d.tool_id,
   }));
@@ -625,24 +449,6 @@ export const unmarshalUcFunctionSchema: z.ZodType<UcFunction> = z
     name: d.name,
   }));
 
-export const unmarshalUcTableSchema: z.ZodType<UcTable> = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const unmarshalVectorSearchIndexSchema: z.ZodType<VectorSearchIndex> = z
-  .object({
-    name: z.string().optional(),
-    columns: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    columns: d.columns,
-  }));
-
 export const unmarshalVolumeSchema: z.ZodType<Volume> = z
   .object({
     name: z.string().optional(),
@@ -651,17 +457,7 @@ export const unmarshalVolumeSchema: z.ZodType<Volume> = z
     name: d.name,
   }));
 
-export const unmarshalWebSearchSchema: z.ZodType<WebSearch> = z.object({});
-
 export const marshalAppSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalCatalogSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
   })
@@ -701,30 +497,6 @@ export const marshalKnowledgeAssistantSchema: z.ZodType = z
     knowledge_assistant_id: d.knowledgeAssistantId,
   }));
 
-export const marshalLakeviewDashboardSchema: z.ZodType = z
-  .object({
-    dashboardId: z.string().optional(),
-  })
-  .transform(d => ({
-    dashboard_id: d.dashboardId,
-  }));
-
-export const marshalSchemaSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalServingEndpointSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
 export const marshalSupervisorAgentSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -752,14 +524,6 @@ export const marshalSupervisorAgentSchema: z.ZodType = z
     create_time: d.createTime,
     endpoint_name: d.endpointName,
     experiment_id: d.experimentId,
-  }));
-
-export const marshalSupervisorAgentToolSchema: z.ZodType = z
-  .object({
-    supervisorAgentId: z.string().optional(),
-  })
-  .transform(d => ({
-    supervisor_agent_id: d.supervisorAgentId,
   }));
 
 export const marshalToolSchema: z.ZodType = z
@@ -790,40 +554,8 @@ export const marshalToolSchema: z.ZodType = z
           volume: z.lazy(() => marshalVolumeSchema),
         }),
         z.object({
-          $case: z.literal('lakeviewDashboard'),
-          lakeviewDashboard: z.lazy(() => marshalLakeviewDashboardSchema),
-        }),
-        z.object({
-          $case: z.literal('servingEndpoint'),
-          servingEndpoint: z.lazy(() => marshalServingEndpointSchema),
-        }),
-        z.object({
-          $case: z.literal('ucTable'),
-          ucTable: z.lazy(() => marshalUcTableSchema),
-        }),
-        z.object({
-          $case: z.literal('vectorSearchIndex'),
-          vectorSearchIndex: z.lazy(() => marshalVectorSearchIndexSchema),
-        }),
-        z.object({
           $case: z.literal('ucConnection'),
           ucConnection: z.lazy(() => marshalUcConnectionSchema),
-        }),
-        z.object({
-          $case: z.literal('catalog'),
-          catalog: z.lazy(() => marshalCatalogSchema),
-        }),
-        z.object({
-          $case: z.literal('schema'),
-          schema: z.lazy(() => marshalSchemaSchema),
-        }),
-        z.object({
-          $case: z.literal('supervisorAgent'),
-          supervisorAgent: z.lazy(() => marshalSupervisorAgentToolSchema),
-        }),
-        z.object({
-          $case: z.literal('webSearch'),
-          webSearch: z.lazy(() => marshalWebSearchSchema),
         }),
       ])
       .optional(),
@@ -841,25 +573,9 @@ export const marshalToolSchema: z.ZodType = z
     ...(d.spec?.$case === 'ucFunction' && {uc_function: d.spec.ucFunction}),
     ...(d.spec?.$case === 'app' && {app: d.spec.app}),
     ...(d.spec?.$case === 'volume' && {volume: d.spec.volume}),
-    ...(d.spec?.$case === 'lakeviewDashboard' && {
-      lakeview_dashboard: d.spec.lakeviewDashboard,
-    }),
-    ...(d.spec?.$case === 'servingEndpoint' && {
-      serving_endpoint: d.spec.servingEndpoint,
-    }),
-    ...(d.spec?.$case === 'ucTable' && {uc_table: d.spec.ucTable}),
-    ...(d.spec?.$case === 'vectorSearchIndex' && {
-      vector_search_index: d.spec.vectorSearchIndex,
-    }),
     ...(d.spec?.$case === 'ucConnection' && {
       uc_connection: d.spec.ucConnection,
     }),
-    ...(d.spec?.$case === 'catalog' && {catalog: d.spec.catalog}),
-    ...(d.spec?.$case === 'schema' && {schema: d.spec.schema}),
-    ...(d.spec?.$case === 'supervisorAgent' && {
-      supervisor_agent: d.spec.supervisorAgent,
-    }),
-    ...(d.spec?.$case === 'webSearch' && {web_search: d.spec.webSearch}),
     description: d.description,
     tool_id: d.toolId,
   }));
@@ -880,24 +596,6 @@ export const marshalUcFunctionSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalUcTableSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-  }));
-
-export const marshalVectorSearchIndexSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    columns: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    columns: d.columns,
-  }));
-
 export const marshalVolumeSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -906,13 +604,7 @@ export const marshalVolumeSchema: z.ZodType = z
     name: d.name,
   }));
 
-export const marshalWebSearchSchema: z.ZodType = z.object({});
-
 const appFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-const catalogFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
 };
 
@@ -934,18 +626,6 @@ const genieSpaceFieldMaskSchema: FieldMaskSchema = {
 const knowledgeAssistantFieldMaskSchema: FieldMaskSchema = {
   knowledgeAssistantId: {wire: 'knowledge_assistant_id'},
   servingEndpointName: {wire: 'serving_endpoint_name'},
-};
-
-const lakeviewDashboardFieldMaskSchema: FieldMaskSchema = {
-  dashboardId: {wire: 'dashboard_id'},
-};
-
-const schemaFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-const servingEndpointFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
 };
 
 const supervisorAgentFieldMaskSchema: FieldMaskSchema = {
@@ -970,13 +650,8 @@ export function supervisorAgentFieldMask(
   );
 }
 
-const supervisorAgentToolFieldMaskSchema: FieldMaskSchema = {
-  supervisorAgentId: {wire: 'supervisor_agent_id'},
-};
-
 const toolFieldMaskSchema: FieldMaskSchema = {
   app: {wire: 'app', children: () => appFieldMaskSchema},
-  catalog: {wire: 'catalog', children: () => catalogFieldMaskSchema},
   description: {wire: 'description'},
   genieSpace: {wire: 'genie_space', children: () => genieSpaceFieldMaskSchema},
   id: {wire: 'id'},
@@ -984,20 +659,7 @@ const toolFieldMaskSchema: FieldMaskSchema = {
     wire: 'knowledge_assistant',
     children: () => knowledgeAssistantFieldMaskSchema,
   },
-  lakeviewDashboard: {
-    wire: 'lakeview_dashboard',
-    children: () => lakeviewDashboardFieldMaskSchema,
-  },
   name: {wire: 'name'},
-  schema: {wire: 'schema', children: () => schemaFieldMaskSchema},
-  servingEndpoint: {
-    wire: 'serving_endpoint',
-    children: () => servingEndpointFieldMaskSchema,
-  },
-  supervisorAgent: {
-    wire: 'supervisor_agent',
-    children: () => supervisorAgentToolFieldMaskSchema,
-  },
   toolId: {wire: 'tool_id'},
   toolType: {wire: 'tool_type'},
   ucConnection: {
@@ -1005,13 +667,7 @@ const toolFieldMaskSchema: FieldMaskSchema = {
     children: () => ucConnectionFieldMaskSchema,
   },
   ucFunction: {wire: 'uc_function', children: () => ucFunctionFieldMaskSchema},
-  ucTable: {wire: 'uc_table', children: () => ucTableFieldMaskSchema},
-  vectorSearchIndex: {
-    wire: 'vector_search_index',
-    children: () => vectorSearchIndexFieldMaskSchema,
-  },
   volume: {wire: 'volume', children: () => volumeFieldMaskSchema},
-  webSearch: {wire: 'web_search', children: () => webSearchFieldMaskSchema},
 };
 
 export function toolFieldMask(...paths: string[]): FieldMask<Tool> {
@@ -1026,17 +682,6 @@ const ucFunctionFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
 };
 
-const ucTableFieldMaskSchema: FieldMaskSchema = {
-  name: {wire: 'name'},
-};
-
-const vectorSearchIndexFieldMaskSchema: FieldMaskSchema = {
-  columns: {wire: 'columns'},
-  name: {wire: 'name'},
-};
-
 const volumeFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
 };
-
-const webSearchFieldMaskSchema: FieldMaskSchema = {};

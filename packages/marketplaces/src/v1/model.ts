@@ -41,7 +41,6 @@ export enum Category {
   SPORTS = 'SPORTS',
   TRANSPORTATION_AND_LOGISTICS = 'TRANSPORTATION_AND_LOGISTICS',
   TRAVEL_AND_TOURISM = 'TRAVEL_AND_TOURISM',
-  OPEN_SOURCE = 'OPEN_SOURCE',
 }
 
 export enum Cost {
@@ -115,14 +114,6 @@ export enum MarketplaceFileType {
   PROVIDER_ICON = 'PROVIDER_ICON',
   EMBEDDED_NOTEBOOK = 'EMBEDDED_NOTEBOOK',
   APP = 'APP',
-  EMBEDDED_MARKDOWN = 'EMBEDDED_MARKDOWN',
-  /**
-   * Consumer-attached supporting document (e.g., PDF) for a commit drawdown
-   * request. Stored under `staging/COMMIT_DRAWDOWN_REQUEST_ATTACHMENT/` (the
-   * entity stays in FILE_STATUS_STAGING permanently — no sanitization) with
-   * 14-day expiration; not served via the general presigned-GET path.
-   */
-  COMMIT_DRAWDOWN_REQUEST_ATTACHMENT = 'COMMIT_DRAWDOWN_REQUEST_ATTACHMENT',
 }
 
 export enum PersonalizationRequestStatus {

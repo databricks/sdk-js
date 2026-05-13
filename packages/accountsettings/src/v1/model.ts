@@ -46,11 +46,6 @@ export enum ComplianceStandard {
   GERMANY_C5 = 'GERMANY_C5',
   /** Trusted Information Security Assessment Exchange, a compliance standard for automotive industry for Germany */
   GERMANY_TISAX = 'GERMANY_TISAX',
-  /**
-   * Acceptable Risk Controls for ACA, Medicaid, and Partner Entities
-   * from the Centers for Medicare & Medicaid Services (CMS)
-   */
-  ARC_AMPE = 'ARC_AMPE',
 }
 
 /**

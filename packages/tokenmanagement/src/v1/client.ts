@@ -18,7 +18,6 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  AdminTokenInfo,
   CreateOnBehalfOfToken,
   CreateOnBehalfOfToken_Response,
   GetToken,
@@ -27,12 +26,9 @@ import type {
   ListTokens_Response,
   RevokeToken,
   RevokeToken_Response,
-  UpdateToken,
 } from './model';
 import {
   marshalCreateOnBehalfOfTokenSchema,
-  marshalUpdateTokenSchema,
-  unmarshalAdminTokenInfoSchema,
   unmarshalCreateOnBehalfOfToken_ResponseSchema,
   unmarshalGetToken_ResponseSchema,
   unmarshalListTokens_ResponseSchema,
@@ -175,32 +171,6 @@ export class Client {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListTokens_ResponseSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  /** Updates a token, specified by its ID. */
-  async updateToken(
-    req: UpdateToken,
-    options?: CallOptions
-  ): Promise<AdminTokenInfo> {
-    const url = `${this.host}/api/2.0/token-management/tokens/${req.token?.tokenId ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateTokenSchema);
-    let resp: AdminTokenInfo | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers({'Content-Type': 'application/json'});
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalAdminTokenInfoSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

@@ -2,7 +2,7 @@
 
 export {Client} from './client';
 
-export {ExportFormat, ExportOutputs, Language, ObjectType} from './model';
+export {ExportFormat, Language, ObjectType} from './model';
 
 export type {
   Delete,

@@ -60,8 +60,6 @@ export enum IngestionSourceType {
   INGESTION_SOURCE_TYPE_UNSPECIFIED = 'INGESTION_SOURCE_TYPE_UNSPECIFIED',
   MYSQL = 'MYSQL',
   POSTGRESQL = 'POSTGRESQL',
-  REDSHIFT = 'REDSHIFT',
-  SQLDW = 'SQLDW',
   SQLSERVER = 'SQLSERVER',
   SALESFORCE = 'SALESFORCE',
   BIGQUERY = 'BIGQUERY',
@@ -78,90 +76,7 @@ export enum IngestionSourceType {
   JIRA = 'JIRA',
   CONFLUENCE = 'CONFLUENCE',
   META_MARKETING = 'META_MARKETING',
-  GOOGLE_ADS = 'GOOGLE_ADS',
-  TIKTOK_ADS = 'TIKTOK_ADS',
-  SALESFORCE_MARKETING_CLOUD = 'SALESFORCE_MARKETING_CLOUD',
-  HUBSPOT = 'HUBSPOT',
-  WORKDAY_HCM = 'WORKDAY_HCM',
-  GUIDEWIRE = 'GUIDEWIRE',
   ZENDESK = 'ZENDESK',
-  /**
-   * Named COMMUNITY instead of GENERIC_LAKEFLOW_CONNECT (the connection type name)
-   * because we do not want to include LAKEFLOW in the public API.
-   */
-  COMMUNITY = 'COMMUNITY',
-  SLACK_AUDIT_LOGS = 'SLACK_AUDIT_LOGS',
-  KAFKA = 'KAFKA',
-  CROWDSTRIKE_EVENT_STREAM = 'CROWDSTRIKE_EVENT_STREAM',
-  WORKDAY_ACTIVITY_LOGGING = 'WORKDAY_ACTIVITY_LOGGING',
-  AKAMAI_WAF = 'AKAMAI_WAF',
-  VEEVA = 'VEEVA',
-  VEEVA_VAULT = 'VEEVA_VAULT',
-  M365_AUDIT_LOGS = 'M365_AUDIT_LOGS',
-  OKTA_SYSTEM_LOGS = 'OKTA_SYSTEM_LOGS',
-  ONE_PASSWORD_EVENT_LOGS = 'ONE_PASSWORD_EVENT_LOGS',
-  PROOFPOINT_SIEM = 'PROOFPOINT_SIEM',
-  WIZ_AUDIT_LOGS = 'WIZ_AUDIT_LOGS',
-  GITHUB = 'GITHUB',
-  OUTLOOK = 'OUTLOOK',
-  SMARTSHEET = 'SMARTSHEET',
-  MICROSOFT_TEAMS = 'MICROSOFT_TEAMS',
-  ADOBE_CAMPAIGNS = 'ADOBE_CAMPAIGNS',
-  LINKEDIN_ADS = 'LINKEDIN_ADS',
-  X_ADS = 'X_ADS',
-  BING_ADS = 'BING_ADS',
-  GOOGLE_SEARCH_CONSOLE = 'GOOGLE_SEARCH_CONSOLE',
-  PINTEREST_ADS = 'PINTEREST_ADS',
-  REDDIT_ADS = 'REDDIT_ADS',
-  PENDO = 'PENDO',
-  API_SOURCE = 'API_SOURCE',
-  SLACK_ACCESS_AND_INTEGRATION_LOGS = 'SLACK_ACCESS_AND_INTEGRATION_LOGS',
-  ORACLE_FUSION_CLOUD = 'ORACLE_FUSION_CLOUD',
-  RABBITMQ = 'RABBITMQ',
-  GOOGLE_ANALYTICS = 'GOOGLE_ANALYTICS',
-  AMPLITUDE = 'AMPLITUDE',
-  NOTION = 'NOTION',
-  ADP_WORKFORCE_NOW = 'ADP_WORKFORCE_NOW',
-  SAS = 'SAS',
-  GONG = 'GONG',
-  SALESLOFT = 'SALESLOFT',
-  GOOGLE_WORKSPACE = 'GOOGLE_WORKSPACE',
-  SHOPIFY = 'SHOPIFY',
-  ORACLE_ELOQUA = 'ORACLE_ELOQUA',
-  EPIC_CLARITY = 'EPIC_CLARITY',
-  LINEAR = 'LINEAR',
-  APPLE_APP_STORE = 'APPLE_APP_STORE',
-  SPLUNK = 'SPLUNK',
-  GITLAB = 'GITLAB',
-  ZOOM_LOGS = 'ZOOM_LOGS',
-  MONDAY_COM = 'MONDAY_COM',
-  AIRTABLE = 'AIRTABLE',
-  MICROSOFT_ENTRA_ID = 'MICROSOFT_ENTRA_ID',
-  PAGERDUTY = 'PAGERDUTY',
-  APPFIGURES = 'APPFIGURES',
-  ADOBE_COMMERCE = 'ADOBE_COMMERCE',
-  QUICKBOOKS = 'QUICKBOOKS',
-  SQUARE = 'SQUARE',
-  ZOHO_BOOKS = 'ZOHO_BOOKS',
-  SNAPCHAT_ADS = 'SNAPCHAT_ADS',
-  GENESYS = 'GENESYS',
-  SAP_SUCCESSFACTORS = 'SAP_SUCCESSFACTORS',
-  YOUTUBE_ANALYTICS = 'YOUTUBE_ANALYTICS',
-  CERIDIAN_DAYFORCE = 'CERIDIAN_DAYFORCE',
-  FRESHSERVICE = 'FRESHSERVICE',
-  SENDGRID = 'SENDGRID',
-  AZURE_MONITOR_LOGS = 'AZURE_MONITOR_LOGS',
-  ATLASSIAN_ORGANIZATION = 'ATLASSIAN_ORGANIZATION',
-  HIBOB = 'HIBOB',
-  APPLE_SEARCH_ADS = 'APPLE_SEARCH_ADS',
-  AWIN = 'AWIN',
-  DELIGHTED = 'DELIGHTED',
-  FRONT = 'FRONT',
-  GURU = 'GURU',
-  PARTNERSTACK = 'PARTNERSTACK',
-  MARKETO = 'MARKETO',
-  AHA = 'AHA',
-  NETSKOPE_LOGS = 'NETSKOPE_LOGS',
   FOREIGN_CATALOG = 'FOREIGN_CATALOG',
 }
 
@@ -190,16 +105,6 @@ export enum OutlookBodyFormat {
   OUTLOOK_BODY_FORMAT_UNSPECIFIED = 'OUTLOOK_BODY_FORMAT_UNSPECIFIED',
   TEXT_HTML = 'TEXT_HTML',
   TEXT_PLAIN = 'TEXT_PLAIN',
-}
-
-/** Determines how errors encountered while deserializing records are handled. */
-export enum ParseMode {
-  /** Default value. Uses the service default parse mode when not explicitly set. */
-  PARSE_MODE_UNSPECIFIED = 'PARSE_MODE_UNSPECIFIED',
-  /** Fails the pipeline when a record cannot be deserialized. */
-  FAILFAST = 'FAILFAST',
-  /** Skips malformed records and continues processing remaining data. */
-  PERMISSIVE = 'PERMISSIVE',
 }
 
 /** The health of a pipeline. */
@@ -259,26 +164,6 @@ export enum PublishingMode {
   DEFAULT_PUBLISHING_MODE = 'DEFAULT_PUBLISHING_MODE',
 }
 
-/** Defines how ingested data is written and maintained in the destination table. */
-export enum StorageMode {
-  STORAGE_MODE_UNSPECIFIED = 'STORAGE_MODE_UNSPECIFIED',
-  /**
-   * Maintains only the latest version of each record. Updates overwrite existing
-   * rows and deletes are soft-deleted (_is_deleted = true).
-   */
-  SCD_TYPE_1 = 'SCD_TYPE_1',
-  /**
-   * Maintains full history of changes with versioning, preserving previous
-   * versions of records alongside current ones.
-   */
-  SCD_TYPE_2 = 'SCD_TYPE_2',
-  /**
-   * Each record is ingested once and appended. Subsequent updates to the same
-   * source record are ignored and deletes are not tracked.
-   */
-  APPEND_ONLY = 'APPEND_ONLY',
-}
-
 /** What triggered this update. */
 export enum UpdateCause {
   /** Started through an API call. */
@@ -295,16 +180,6 @@ export enum UpdateCause {
   USER_ACTION = 'USER_ACTION',
   /** Started for infrastructure maintenance reason. */
   INFRASTRUCTURE_MAINTENANCE = 'INFRASTRUCTURE_MAINTENANCE',
-}
-
-export enum UpdateMode {
-  /** default update mode, a.k.a. "triggered" mode */
-  DEFAULT = 'DEFAULT',
-  /**
-   * continuous execution mode (regardless of whether the update was triggered
-   * by a continuous job or by a legacy continuous pipeline)
-   */
-  CONTINUOUS = 'CONTINUOUS',
 }
 
 /** The update state. */
@@ -344,7 +219,6 @@ export enum FileIngestionOptions_FileFormat {
   PARQUET = 'PARQUET',
   AVRO = 'AVRO',
   ORC = 'ORC',
-  FILE = 'FILE',
 }
 
 /** Based on https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/schema#how-does-auto-loader-schema-evolution-work */
@@ -364,27 +238,6 @@ export enum GoogleDriveOptions_GoogleDriveEntityType {
   FILE = 'FILE',
   FILE_METADATA = 'FILE_METADATA',
   PERMISSION = 'PERMISSION',
-  FILE_PERMISSION = 'FILE_PERMISSION',
-  GROUP_MEMBERSHIP = 'GROUP_MEMBERSHIP',
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum GoogleDriveOptions_GoogleDriveIngestionScope {
-  GOOGLE_DRIVE_INGESTION_SCOPE_UNSPECIFIED = 'GOOGLE_DRIVE_INGESTION_SCOPE_UNSPECIFIED',
-  USER_DRIVE = 'USER_DRIVE',
-  USER_ACCESSIBLE = 'USER_ACCESSIBLE',
-  DOMAIN_USER_DRIVES = 'DOMAIN_USER_DRIVES',
-  DOMAIN_SHARED_DRIVES = 'DOMAIN_SHARED_DRIVES',
-  DOMAIN_ALL = 'DOMAIN_ALL',
-}
-
-/** Time unit enums for different time units. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum PeriodicTrigger_TimeUnit {
-  TIME_UNIT_UNSPECIFIED = 'TIME_UNIT_UNSPECIFIED',
-  HOURS = 'HOURS',
-  DAYS = 'DAYS',
-  WEEKS = 'WEEKS',
 }
 
 /** The pipeline state. */
@@ -430,8 +283,6 @@ export enum SharepointOptions_SharepointEntityType {
   FILE_METADATA = 'FILE_METADATA',
   PERMISSION = 'PERMISSION',
   LIST = 'LIST',
-  FILE_PERMISSION = 'FILE_PERMISSION',
-  GROUP_MEMBERSHIP = 'GROUP_MEMBERSHIP',
 }
 
 /** Data level for TikTok Ads report aggregation. */
@@ -461,17 +312,6 @@ export enum Transformer_Format {
   FORMAT_UNSPECIFIED = 'FORMAT_UNSPECIFIED',
   STRING = 'STRING',
   JSON = 'JSON',
-  AVRO = 'AVRO',
-  PROTOBUF = 'PROTOBUF',
-}
-
-/** Akamai specific options for ingestion */
-export interface AkamaiOptions {
-  /**
-   * (Required) List of Akamai configuration IDs to ingest data from.
-   * A config ID is a unique identifier for a security configuration used to generate WAF logs.
-   */
-  configIds?: number[] | undefined;
 }
 
 export interface ApplyEnvironmentRequest {
@@ -491,18 +331,6 @@ export interface AutoFullRefreshPolicy {
    * If unspecified and autoFullRefresh is enabled then by default min_interval_hours is 24 hours.
    */
   minIntervalHours?: number | undefined;
-}
-
-export interface AvroTransformerOptions {
-  /** Inline Avro JSON schema string. */
-  schema?: string | undefined;
-  /** Path to a schema file (.avsc). */
-  schemaFilePath?: string | undefined;
-  /**
-   * (Optional) Parse mode for Avro data.
-   * Valid values: FAILFAST, PERMISSIVE. Defaults to FAILFAST.
-   */
-  parseMode?: ParseMode | undefined;
 }
 
 export interface ClonePipeline {
@@ -580,8 +408,6 @@ export interface ClonePipeline {
   environment?: PipelinesEnvironment | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
-  /** Interval at which rewind points are generated during pipeline execution. */
-  rewindGenerationInterval?: PeriodicTrigger | undefined;
   /** The type of clone to perform. Currently, only deep copies are supported */
   cloneMode?: CloneMode | undefined;
 }
@@ -611,19 +437,6 @@ export interface ClonePipeline_TagsEntry {
   value?: string | undefined;
 }
 
-/** Options for community connectors with arbitrary configuration. */
-export interface CommunityConnectorOptions {
-  /** Arbitrary key-value configuration options for the community connector. */
-  options?: Record<string, string> | undefined;
-}
-
-/** Key value pair used to specify configuration parameters to Execution */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CommunityConnectorOptions_OptionsEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
 /** Confluence specific options for ingestion */
 export interface ConfluenceConnectorOptions {
   /** (Optional) Spaces to filter Confluence data on */
@@ -648,7 +461,6 @@ export interface ConnectorOptions {
     | {$case: 'sharepointOptions'; sharepointOptions: SharepointOptions}
     | {$case: 'gdriveOptions'; gdriveOptions: GoogleDriveOptions}
     | {$case: 'outlookOptions'; outlookOptions: OutlookOptions}
-    | {$case: 'akamaiOptions'; akamaiOptions: AkamaiOptions}
     | {$case: 'smartsheetOptions'; smartsheetOptions: SmartsheetOptions}
     | {$case: 'jiraOptions'; jiraOptions: JiraConnectorOptions}
     | {
@@ -661,11 +473,6 @@ export interface ConnectorOptions {
         zendeskSupportOptions: ZendeskSupportOptions;
       }
     | {$case: 'kafkaOptions'; kafkaOptions: KafkaOptions}
-    | {$case: 'rabbitmqOptions'; rabbitmqOptions: RabbitmqOptions}
-    | {
-        $case: 'communityConnectorOptions';
-        communityConnectorOptions: CommunityConnectorOptions;
-      }
     | undefined;
 }
 
@@ -674,11 +481,6 @@ export interface CreatePipeline {
   allowDuplicateNames?: boolean | undefined;
   dryRun?: boolean | undefined;
   runAs?: PipelinesJobRunAs | undefined;
-  /**
-   * Key/value map of default parameters to use for pipeline execution.
-   * Maximum total size: 10k characters (JSON format)
-   */
-  parameters?: Record<string, string> | undefined;
   /** Unique identifier for this pipeline. */
   id?: string | undefined;
   /** Friendly identifier for this pipeline. */
@@ -743,19 +545,11 @@ export interface CreatePipeline {
   environment?: PipelinesEnvironment | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
-  /** Interval at which rewind points are generated during pipeline execution. */
-  rewindGenerationInterval?: PeriodicTrigger | undefined;
 }
 
 /** Key value pair used to specify configuration parameters to Execution */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CreatePipeline_ConfigurationEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreatePipeline_ParametersEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
@@ -815,8 +609,6 @@ export interface DeletePipeline {
    * By default, deletion will fail if resources cleanup is required but fails.
    */
   force?: boolean | undefined;
-  /** Deprecated: Use `cascade` instead. */
-  deleteDatasets?: boolean | undefined;
   /**
    * If false, pipeline deletion will not cascade to its datasets (MVs, STs, Views).
    * By default, this parameter will be true and all tables will be deleted with the pipeline.
@@ -839,11 +631,6 @@ export interface EditPipeline {
    */
   expectedLastModified?: number | undefined;
   runAs?: PipelinesJobRunAs | undefined;
-  /**
-   * Key/value map of default parameters to use for pipeline execution.
-   * Maximum total size: 10k characters (JSON format)
-   */
-  parameters?: Record<string, string> | undefined;
   /** Unique identifier for this pipeline. */
   id?: string | undefined;
   /** Friendly identifier for this pipeline. */
@@ -908,19 +695,11 @@ export interface EditPipeline {
   environment?: PipelinesEnvironment | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
-  /** Interval at which rewind points are generated during pipeline execution. */
-  rewindGenerationInterval?: PeriodicTrigger | undefined;
 }
 
 /** Key value pair used to specify configuration parameters to Execution */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface EditPipeline_ConfigurationEntry {
-  key?: string | undefined;
-  value?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface EditPipeline_ParametersEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
@@ -1071,21 +850,6 @@ export interface GetPipeline_Response {
    * To find the value in all cases, explicit or implicit, use `run_as_user_name`.
    */
   runAs?: PipelinesJobRunAs | undefined;
-  /** Serverless usage policy ID of the pipeline. */
-  effectiveUsagePolicyId?: string | undefined;
-  /**
-   * Key/value map of default parameters to use for pipeline execution.
-   * Maximum total size: 10k characters (JSON format)
-   */
-  parameters?: Record<string, string> | undefined;
-  /** The effective environment version resolved for the pipeline. */
-  effectiveEnvironmentVersion?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetPipeline_Response_ParametersEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 export interface GetUpdate {
@@ -1142,13 +906,6 @@ export interface GoogleDriveOptions {
   url?: string | undefined;
   entityType?: GoogleDriveOptions_GoogleDriveEntityType | undefined;
   fileIngestionOptions?: FileIngestionOptions | undefined;
-  /**
-   * The scope of the Google Drive ingestion.
-   * **ONLY ONE** of scope or url must be specified.
-   * If scope is specified, we will ingest files from the scope.
-   * If url is specified, we will ingest files from the url.
-   */
-  scope?: GoogleDriveOptions_GoogleDriveIngestionScope | undefined;
 }
 
 export interface IngestionGatewayPipelineDefinition {
@@ -1245,12 +1002,6 @@ export interface IngestionPipelineDefinition {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface IngestionPipelineDefinition_ConfluenceOptions {
-  /** (Optional) Spaces to filter confluence data on */
-  includeConfluenceSpaces?: string[] | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface IngestionPipelineDefinition_IngestionConfig {
   sourceTables?:
     | {
@@ -1269,12 +1020,6 @@ export interface IngestionPipelineDefinition_IngestionConfig {
         report: IngestionPipelineDefinition_ReportSpec;
       }
     | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface IngestionPipelineDefinition_JiraOptions {
-  /** (Optional) Projects/spaces to filter jira data on */
-  includeJiraSpaces?: string[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1307,18 +1052,6 @@ export interface IngestionPipelineDefinition_SchemaSpec {
   tableConfiguration?:
     | IngestionPipelineDefinition_TableSpecificConfig
     | undefined;
-  sourceOptions?:
-    | {
-        $case: 'jiraOptions';
-        /** Deprecated: Use connector_options.jira_options instead. */
-        jiraOptions: IngestionPipelineDefinition_JiraOptions;
-      }
-    | {
-        $case: 'confluenceOptions';
-        /** Deprecated: Use connector_options.confluence_options instead. */
-        confluenceOptions: IngestionPipelineDefinition_ConfluenceOptions;
-      }
-    | undefined;
   /** (Optional) Source Specific Connector Options */
   connectorOptions?: ConnectorOptions | undefined;
 }
@@ -1340,18 +1073,6 @@ export interface IngestionPipelineDefinition_TableSpec {
   /** Configuration settings to control the ingestion of tables. These settings override the table_configuration defined in the IngestionPipelineDefinition object and the SchemaSpec. */
   tableConfiguration?:
     | IngestionPipelineDefinition_TableSpecificConfig
-    | undefined;
-  sourceOptions?:
-    | {
-        $case: 'jiraOptions';
-        /** Deprecated: Use connector_options.jira_options instead. */
-        jiraOptions: IngestionPipelineDefinition_JiraOptions;
-      }
-    | {
-        $case: 'confluenceOptions';
-        /** Deprecated: Use connector_options.confluence_options instead. */
-        confluenceOptions: IngestionPipelineDefinition_ConfluenceOptions;
-      }
     | undefined;
   /** (Optional) Source Specific Connector Options */
   connectorOptions?: ConnectorOptions | undefined;
@@ -1408,36 +1129,6 @@ export interface IngestionPipelineDefinition_TableSpecificConfig {
    * If unspecified, auto full refresh is disabled.
    */
   autoFullRefreshPolicy?: AutoFullRefreshPolicy | undefined;
-  /**
-   * Table properties to set on the destination table.
-   * These are key-value pairs that configure various Delta table behaviors or any user defined properties.
-   * Example: {"delta.feature.variantType": "supported", "delta.enableTypeWidening": "true"}
-   * Note: table_properties in table specific configuration will override the table_properties of the pipeline definition.
-   */
-  tableProperties?: Record<string, string> | undefined;
-  /**
-   * Whether to enable auto clustering on the destination table.
-   * When enabled, Delta will automatically optimize the data layout
-   * based on the clustering columns for improved query performance.
-   * Note: enable_auto_clustering in table specific configuration will override the pipeline definition.
-   * Note: we can only provide enable_auto_clustering or clustering_columns,
-   * added as separate fields as we cannot have repeated field in oneof.
-   */
-  enableAutoClustering?: boolean | undefined;
-  /**
-   * List of column names to use for clustering the destination table.
-   * When specified, the destination Delta table will be clustered by these columns.
-   * This can improve query performance when filtering on these columns.
-   * Note: clustering_columns in table specific configuration will override the pipeline definition.
-   * Note: we can only provide enable_auto_clustering or clustering_columns,
-   * added as separate fields as we cannot have repeated field in oneof.
-   */
-  clusteringColumns?: string[] | undefined;
-  /**
-   * (Optional) Defines how ingested data is written and maintained in the destination table.
-   * Mutually exclusive with scd_type — a 400 error is returned if both are set.
-   */
-  storageMode?: StorageMode | undefined;
 }
 
 /** Configurations that are only applicable for query-based ingestion connectors. */
@@ -1473,12 +1164,6 @@ export interface IngestionPipelineDefinition_TableSpecificConfig_QueryBasedConne
    * This field is mutable and can be updated without triggering a full snapshot.
    */
   hardDeletionSyncMinIntervalInSeconds?: number | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface IngestionPipelineDefinition_TableSpecificConfig_TablePropertiesEntry {
-  key?: string | undefined;
-  value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1812,8 +1497,6 @@ export interface Origin {
   host?: string | undefined;
   /** Materialization name. */
   materializationName?: string | undefined;
-  /** The UUID of the graph associated with this event, corresponding to a GRAPH_UPDATED event. */
-  graphId?: string | undefined;
   /** The name of the source UC connection (if known) from whose data ingestion is described by this event. */
   ingestionSourceConnectionName?: string | undefined;
   /** The name of the source catalog name (if known) from whose data ingestion is described by this event. */
@@ -1885,14 +1568,6 @@ export interface OutlookOptions {
 export interface PathPattern {
   /** The source code to include for pipelines */
   include?: string | undefined;
-}
-
-/** Periodic (EVERY syntax) schedule trigger configuration for a pipeline. */
-export interface PeriodicTrigger {
-  /** An integer value representing the interval quantity for the schedule. */
-  interval?: number | undefined;
-  /** A time unit for the schedule. */
-  unit?: PeriodicTrigger_TimeUnit | undefined;
 }
 
 export interface PipelineCluster {
@@ -2170,8 +1845,6 @@ export interface PipelineSpec {
   environment?: PipelinesEnvironment | undefined;
   /** Usage policy of this pipeline. */
   usagePolicyId?: string | undefined;
-  /** Interval at which rewind points are generated during pipeline execution. */
-  rewindGenerationInterval?: PeriodicTrigger | undefined;
 }
 
 /** Key value pair used to specify configuration parameters to Execution */
@@ -2556,36 +2229,6 @@ export interface PostgresSlotConfig {
   publicationName?: string | undefined;
 }
 
-export interface ProtobufTransformerOptions {
-  /** Required: path to the .desc file (dbfs:/... or /Volumes/...). */
-  descFilePath?: string | undefined;
-  /** Required: fully-qualified message type name. */
-  messageName?: string | undefined;
-  /**
-   * (Optional) Maximum expansion depth for recursive protobuf fields.
-   * Spark SQL does not natively support recursive types, so recursive
-   * fields are expanded up to this depth and truncated beyond it.
-   * Valid values: -1 (disallow recursive fields), 0 (drop), 1-10.
-   */
-  recursiveFieldsMaxDepth?: number | undefined;
-  /**
-   * (Optional) Parse mode for Protobuf data.
-   * Valid values: FAILFAST, PERMISSIVE. Defaults to FAILFAST.
-   */
-  parseMode?: ParseMode | undefined;
-}
-
-/**
- * RabbitMQ specific options for ingestion.
- * Performance tuning options (consumers_per_task, max_messages_per_fetch, etc.)
- * are intentionally not exposed in the public API. The managed connector uses
- * sensible defaults internally. These can be added later if user demand arises.
- */
-export interface RabbitmqOptions {
-  /** (Required) RabbitMQ queue name to consume from. */
-  queue?: string | undefined;
-}
-
 /** Specifies a replace_where predicate override for a replace where flow. */
 export interface ReplaceWhereOverride {
   /** Name of the flow to apply this override to. */
@@ -2615,14 +2258,6 @@ export interface RestartWindow {
   timeZoneId?: string | undefined;
 }
 
-export interface RestorePipelineRequest {
-  /** The ID of the pipeline to restore */
-  pipelineId?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface RestorePipelineRequest_Response {}
-
 /** Configuration for rewinding a specific dataset. */
 export interface RewindDatasetSpec {
   /** The identifier of the dataset (e.g., "main.foo.tbl1"). */
@@ -2640,12 +2275,6 @@ export interface RewindSpec {
    * specified.
    */
   rewindTimestamp?: string | undefined;
-  /**
-   * The ID of a previously generated rewind point to rewind to (same as the
-   * originating event log ID). Exactly one of rewind_timestamp or
-   * rewind_point_id must be specified.
-   */
-  rewindPointId?: string | undefined;
   /** If true, this is a dry run and we should emit the RewindSummary but not perform the rewind. */
   dryRun?: boolean | undefined;
   /**
@@ -2757,12 +2386,6 @@ export interface StartUpdate {
    * the data in the flow's target table. Flows in this list may also appear in refresh_selection and full_refresh_selection.
    */
   resetCheckpointSelection?: string[] | undefined;
-  /**
-   * Flow names to selectively refresh. These are unioned with other selective refresh
-   * options (refresh_selection, full_refresh_selection, etc.) to determine the final
-   * set of flows to refresh.
-   */
-  refreshFlowSelection?: string[] | undefined;
   /** If true, this update only validates the correctness of pipeline source code but does not materialize or publish any datasets. */
   validateOnly?: boolean | undefined;
   /**
@@ -2852,8 +2475,6 @@ export interface Transformer {
    */
   config?:
     | {$case: 'jsonOptions'; jsonOptions: JsonTransformerOptions}
-    | {$case: 'avroOptions'; avroOptions: AvroTransformerOptions}
-    | {$case: 'protobufOptions'; protobufOptions: ProtobufTransformerOptions}
     | undefined;
 }
 
@@ -2910,17 +2531,6 @@ export interface UpdateInfo {
   fullRefreshSelection?: string[] | undefined;
   /** If true, this update only validates the correctness of pipeline source code but does not materialize or publish any datasets. */
   validateOnly?: boolean | undefined;
-  /**
-   * Flow names to selectively refresh. These are unioned with other selective refresh
-   * options (refresh_selection, full_refresh_selection, etc.) to determine the final
-   * set of flows to refresh.
-   */
-  refreshFlowSelection?: string[] | undefined;
-  /**
-   * Indicates whether the update is either part of a continuous job run, or running in legacy continuous pipeline mode.
-   * Returned only for GetUpdate; not populated in ListUpdates responses.
-   */
-  mode?: UpdateMode | undefined;
   /** Key/value map of parameters used to initiate the update */
   parameters?: Record<string, string> | undefined;
 }
@@ -2946,14 +2556,6 @@ export interface ZendeskSupportOptions {
   startDate?: string | undefined;
 }
 
-export const unmarshalAkamaiOptionsSchema: z.ZodType<AkamaiOptions> = z
-  .object({
-    config_ids: z.array(z.number()).optional(),
-  })
-  .transform(d => ({
-    configIds: d.config_ids,
-  }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalApplyEnvironmentRequest_ResponseSchema: z.ZodType<ApplyEnvironmentRequest_Response> =
   z.object({});
@@ -2969,19 +2571,6 @@ export const unmarshalAutoFullRefreshPolicySchema: z.ZodType<AutoFullRefreshPoli
       minIntervalHours: d.min_interval_hours,
     }));
 
-export const unmarshalAvroTransformerOptionsSchema: z.ZodType<AvroTransformerOptions> =
-  z
-    .object({
-      schema: z.string().optional(),
-      schema_file_path: z.string().optional(),
-      parse_mode: z.enum(ParseMode).optional(),
-    })
-    .transform(d => ({
-      schema: d.schema,
-      schemaFilePath: d.schema_file_path,
-      parseMode: d.parse_mode,
-    }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalClonePipeline_ResponseSchema: z.ZodType<ClonePipeline_Response> =
   z
@@ -2990,15 +2579,6 @@ export const unmarshalClonePipeline_ResponseSchema: z.ZodType<ClonePipeline_Resp
     })
     .transform(d => ({
       pipelineId: d.pipeline_id,
-    }));
-
-export const unmarshalCommunityConnectorOptionsSchema: z.ZodType<CommunityConnectorOptions> =
-  z
-    .object({
-      options: z.record(z.string(), z.string()).optional(),
-    })
-    .transform(d => ({
-      options: d.options,
     }));
 
 export const unmarshalConfluenceConnectorOptionsSchema: z.ZodType<ConfluenceConnectorOptions> =
@@ -3032,7 +2612,6 @@ export const unmarshalConnectorOptionsSchema: z.ZodType<ConnectorOptions> = z
       .optional(),
     gdrive_options: z.lazy(() => unmarshalGoogleDriveOptionsSchema).optional(),
     outlook_options: z.lazy(() => unmarshalOutlookOptionsSchema).optional(),
-    akamai_options: z.lazy(() => unmarshalAkamaiOptionsSchema).optional(),
     smartsheet_options: z
       .lazy(() => unmarshalSmartsheetOptionsSchema)
       .optional(),
@@ -3047,10 +2626,6 @@ export const unmarshalConnectorOptionsSchema: z.ZodType<ConnectorOptions> = z
       .lazy(() => unmarshalZendeskSupportOptionsSchema)
       .optional(),
     kafka_options: z.lazy(() => unmarshalKafkaOptionsSchema).optional(),
-    rabbitmq_options: z.lazy(() => unmarshalRabbitmqOptionsSchema).optional(),
-    community_connector_options: z
-      .lazy(() => unmarshalCommunityConnectorOptionsSchema)
-      .optional(),
   })
   .transform(d => ({
     connectorOptions:
@@ -3079,55 +2654,37 @@ export const unmarshalConnectorOptionsSchema: z.ZodType<ConnectorOptions> = z
                     $case: 'outlookOptions' as const,
                     outlookOptions: d.outlook_options,
                   }
-                : d.akamai_options !== undefined
+                : d.smartsheet_options !== undefined
                   ? {
-                      $case: 'akamaiOptions' as const,
-                      akamaiOptions: d.akamai_options,
+                      $case: 'smartsheetOptions' as const,
+                      smartsheetOptions: d.smartsheet_options,
                     }
-                  : d.smartsheet_options !== undefined
+                  : d.jira_options !== undefined
                     ? {
-                        $case: 'smartsheetOptions' as const,
-                        smartsheetOptions: d.smartsheet_options,
+                        $case: 'jiraOptions' as const,
+                        jiraOptions: d.jira_options,
                       }
-                    : d.jira_options !== undefined
+                    : d.confluence_options !== undefined
                       ? {
-                          $case: 'jiraOptions' as const,
-                          jiraOptions: d.jira_options,
+                          $case: 'confluenceOptions' as const,
+                          confluenceOptions: d.confluence_options,
                         }
-                      : d.confluence_options !== undefined
+                      : d.meta_ads_options !== undefined
                         ? {
-                            $case: 'confluenceOptions' as const,
-                            confluenceOptions: d.confluence_options,
+                            $case: 'metaAdsOptions' as const,
+                            metaAdsOptions: d.meta_ads_options,
                           }
-                        : d.meta_ads_options !== undefined
+                        : d.zendesk_support_options !== undefined
                           ? {
-                              $case: 'metaAdsOptions' as const,
-                              metaAdsOptions: d.meta_ads_options,
+                              $case: 'zendeskSupportOptions' as const,
+                              zendeskSupportOptions: d.zendesk_support_options,
                             }
-                          : d.zendesk_support_options !== undefined
+                          : d.kafka_options !== undefined
                             ? {
-                                $case: 'zendeskSupportOptions' as const,
-                                zendeskSupportOptions:
-                                  d.zendesk_support_options,
+                                $case: 'kafkaOptions' as const,
+                                kafkaOptions: d.kafka_options,
                               }
-                            : d.kafka_options !== undefined
-                              ? {
-                                  $case: 'kafkaOptions' as const,
-                                  kafkaOptions: d.kafka_options,
-                                }
-                              : d.rabbitmq_options !== undefined
-                                ? {
-                                    $case: 'rabbitmqOptions' as const,
-                                    rabbitmqOptions: d.rabbitmq_options,
-                                  }
-                                : d.community_connector_options !== undefined
-                                  ? {
-                                      $case:
-                                        'communityConnectorOptions' as const,
-                                      communityConnectorOptions:
-                                        d.community_connector_options,
-                                    }
-                                  : undefined,
+                            : undefined,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3288,9 +2845,6 @@ export const unmarshalGetPipeline_ResponseSchema: z.ZodType<GetPipeline_Response
       effective_budget_policy_id: z.string().optional(),
       effective_publishing_mode: z.enum(PublishingMode).optional(),
       run_as: z.lazy(() => unmarshalPipelinesJobRunAsSchema).optional(),
-      effective_usage_policy_id: z.string().optional(),
-      parameters: z.record(z.string(), z.string()).optional(),
-      effective_environment_version: z.string().optional(),
     })
     .transform(d => ({
       pipelineId: d.pipeline_id,
@@ -3307,9 +2861,6 @@ export const unmarshalGetPipeline_ResponseSchema: z.ZodType<GetPipeline_Response
       effectiveBudgetPolicyId: d.effective_budget_policy_id,
       effectivePublishingMode: d.effective_publishing_mode,
       runAs: d.run_as,
-      effectiveUsagePolicyId: d.effective_usage_policy_id,
-      parameters: d.parameters,
-      effectiveEnvironmentVersion: d.effective_environment_version,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3350,13 +2901,11 @@ export const unmarshalGoogleDriveOptionsSchema: z.ZodType<GoogleDriveOptions> =
       file_ingestion_options: z
         .lazy(() => unmarshalFileIngestionOptionsSchema)
         .optional(),
-      scope: z.enum(GoogleDriveOptions_GoogleDriveIngestionScope).optional(),
     })
     .transform(d => ({
       url: d.url,
       entityType: d.entity_type,
       fileIngestionOptions: d.file_ingestion_options,
-      scope: d.scope,
     }));
 
 export const unmarshalIngestionGatewayPipelineDefinitionSchema: z.ZodType<IngestionGatewayPipelineDefinition> =
@@ -3440,16 +2989,6 @@ export const unmarshalIngestionPipelineDefinitionSchema: z.ZodType<IngestionPipe
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalIngestionPipelineDefinition_ConfluenceOptionsSchema: z.ZodType<IngestionPipelineDefinition_ConfluenceOptions> =
-  z
-    .object({
-      include_confluence_spaces: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      includeConfluenceSpaces: d.include_confluence_spaces,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalIngestionPipelineDefinition_IngestionConfigSchema: z.ZodType<IngestionPipelineDefinition_IngestionConfig> =
   z
     .object({
@@ -3472,16 +3011,6 @@ export const unmarshalIngestionPipelineDefinition_IngestionConfigSchema: z.ZodTy
             : d.report !== undefined
               ? {$case: 'report' as const, report: d.report}
               : undefined,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalIngestionPipelineDefinition_JiraOptionsSchema: z.ZodType<IngestionPipelineDefinition_JiraOptions> =
-  z
-    .object({
-      include_jira_spaces: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      includeJiraSpaces: d.include_jira_spaces,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3519,14 +3048,6 @@ export const unmarshalIngestionPipelineDefinition_SchemaSpecSchema: z.ZodType<In
           () => unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema
         )
         .optional(),
-      jira_options: z
-        .lazy(() => unmarshalIngestionPipelineDefinition_JiraOptionsSchema)
-        .optional(),
-      confluence_options: z
-        .lazy(
-          () => unmarshalIngestionPipelineDefinition_ConfluenceOptionsSchema
-        )
-        .optional(),
       connector_options: z
         .lazy(() => unmarshalConnectorOptionsSchema)
         .optional(),
@@ -3537,15 +3058,6 @@ export const unmarshalIngestionPipelineDefinition_SchemaSpecSchema: z.ZodType<In
       destinationCatalog: d.destination_catalog,
       destinationSchema: d.destination_schema,
       tableConfiguration: d.table_configuration,
-      sourceOptions:
-        d.jira_options !== undefined
-          ? {$case: 'jiraOptions' as const, jiraOptions: d.jira_options}
-          : d.confluence_options !== undefined
-            ? {
-                $case: 'confluenceOptions' as const,
-                confluenceOptions: d.confluence_options,
-              }
-            : undefined,
       connectorOptions: d.connector_options,
     }));
 
@@ -3564,14 +3076,6 @@ export const unmarshalIngestionPipelineDefinition_TableSpecSchema: z.ZodType<Ing
           () => unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema
         )
         .optional(),
-      jira_options: z
-        .lazy(() => unmarshalIngestionPipelineDefinition_JiraOptionsSchema)
-        .optional(),
-      confluence_options: z
-        .lazy(
-          () => unmarshalIngestionPipelineDefinition_ConfluenceOptionsSchema
-        )
-        .optional(),
       connector_options: z
         .lazy(() => unmarshalConnectorOptionsSchema)
         .optional(),
@@ -3584,15 +3088,6 @@ export const unmarshalIngestionPipelineDefinition_TableSpecSchema: z.ZodType<Ing
       destinationSchema: d.destination_schema,
       destinationTable: d.destination_table,
       tableConfiguration: d.table_configuration,
-      sourceOptions:
-        d.jira_options !== undefined
-          ? {$case: 'jiraOptions' as const, jiraOptions: d.jira_options}
-          : d.confluence_options !== undefined
-            ? {
-                $case: 'confluenceOptions' as const,
-                confluenceOptions: d.confluence_options,
-              }
-            : undefined,
       connectorOptions: d.connector_options,
     }));
 
@@ -3622,10 +3117,6 @@ export const unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.Z
       auto_full_refresh_policy: z
         .lazy(() => unmarshalAutoFullRefreshPolicySchema)
         .optional(),
-      table_properties: z.record(z.string(), z.string()).optional(),
-      enable_auto_clustering: z.boolean().optional(),
-      clustering_columns: z.array(z.string()).optional(),
-      storage_mode: z.enum(StorageMode).optional(),
     })
     .transform(d => ({
       scdType: d.scd_type,
@@ -3638,10 +3129,6 @@ export const unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.Z
       rowFilter: d.row_filter,
       queryBasedConnectorConfig: d.query_based_connector_config,
       autoFullRefreshPolicy: d.auto_full_refresh_policy,
-      tableProperties: d.table_properties,
-      enableAutoClustering: d.enable_auto_clustering,
-      clusteringColumns: d.clustering_columns,
-      storageMode: d.storage_mode,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -3859,7 +3346,6 @@ export const unmarshalOriginSchema: z.ZodType<Origin> = z
     uc_resource_id: z.string().optional(),
     host: z.string().optional(),
     materialization_name: z.string().optional(),
-    graph_id: z.string().optional(),
     ingestion_source_connection_name: z.string().optional(),
     ingestion_source_catalog_name: z.string().optional(),
     ingestion_source_schema_name: z.string().optional(),
@@ -3884,7 +3370,6 @@ export const unmarshalOriginSchema: z.ZodType<Origin> = z
     ucResourceId: d.uc_resource_id,
     host: d.host,
     materializationName: d.materialization_name,
-    graphId: d.graph_id,
     ingestionSourceConnectionName: d.ingestion_source_connection_name,
     ingestionSourceCatalogName: d.ingestion_source_catalog_name,
     ingestionSourceSchemaName: d.ingestion_source_schema_name,
@@ -3924,16 +3409,6 @@ export const unmarshalPathPatternSchema: z.ZodType<PathPattern> = z
   })
   .transform(d => ({
     include: d.include,
-  }));
-
-export const unmarshalPeriodicTriggerSchema: z.ZodType<PeriodicTrigger> = z
-  .object({
-    interval: z.number().optional(),
-    unit: z.enum(PeriodicTrigger_TimeUnit).optional(),
-  })
-  .transform(d => ({
-    interval: d.interval,
-    unit: d.unit,
   }));
 
 export const unmarshalPipelineClusterSchema: z.ZodType<PipelineCluster> = z
@@ -4093,9 +3568,6 @@ export const unmarshalPipelineSpecSchema: z.ZodType<PipelineSpec> = z
     root_path: z.string().optional(),
     environment: z.lazy(() => unmarshalPipelinesEnvironmentSchema).optional(),
     usage_policy_id: z.string().optional(),
-    rewind_generation_interval: z
-      .lazy(() => unmarshalPeriodicTriggerSchema)
-      .optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -4126,7 +3598,6 @@ export const unmarshalPipelineSpecSchema: z.ZodType<PipelineSpec> = z
     rootPath: d.root_path,
     environment: d.environment,
     usagePolicyId: d.usage_policy_id,
-    rewindGenerationInterval: d.rewind_generation_interval,
   }));
 
 export const unmarshalPipelineStateInfoSchema: z.ZodType<PipelineStateInfo> = z
@@ -4355,29 +3826,6 @@ export const unmarshalPostgresSlotConfigSchema: z.ZodType<PostgresSlotConfig> =
       publicationName: d.publication_name,
     }));
 
-export const unmarshalProtobufTransformerOptionsSchema: z.ZodType<ProtobufTransformerOptions> =
-  z
-    .object({
-      desc_file_path: z.string().optional(),
-      message_name: z.string().optional(),
-      recursive_fields_max_depth: z.number().optional(),
-      parse_mode: z.enum(ParseMode).optional(),
-    })
-    .transform(d => ({
-      descFilePath: d.desc_file_path,
-      messageName: d.message_name,
-      recursiveFieldsMaxDepth: d.recursive_fields_max_depth,
-      parseMode: d.parse_mode,
-    }));
-
-export const unmarshalRabbitmqOptionsSchema: z.ZodType<RabbitmqOptions> = z
-  .object({
-    queue: z.string().optional(),
-  })
-  .transform(d => ({
-    queue: d.queue,
-  }));
-
 export const unmarshalRestartWindowSchema: z.ZodType<RestartWindow> = z
   .object({
     start_hour: z.number().optional(),
@@ -4389,10 +3837,6 @@ export const unmarshalRestartWindowSchema: z.ZodType<RestartWindow> = z
     daysOfWeek: d.days_of_week,
     timeZoneId: d.time_zone_id,
   }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRestorePipelineRequest_ResponseSchema: z.ZodType<RestorePipelineRequest_Response> =
-  z.object({});
 
 export const unmarshalSequencingSchema: z.ZodType<Sequencing> = z
   .object({
@@ -4523,26 +3967,13 @@ export const unmarshalTransformerSchema: z.ZodType<Transformer> = z
     json_options: z
       .lazy(() => unmarshalJsonTransformerOptionsSchema)
       .optional(),
-    avro_options: z
-      .lazy(() => unmarshalAvroTransformerOptionsSchema)
-      .optional(),
-    protobuf_options: z
-      .lazy(() => unmarshalProtobufTransformerOptionsSchema)
-      .optional(),
   })
   .transform(d => ({
     format: d.format,
     config:
       d.json_options !== undefined
         ? {$case: 'jsonOptions' as const, jsonOptions: d.json_options}
-        : d.avro_options !== undefined
-          ? {$case: 'avroOptions' as const, avroOptions: d.avro_options}
-          : d.protobuf_options !== undefined
-            ? {
-                $case: 'protobufOptions' as const,
-                protobufOptions: d.protobuf_options,
-              }
-            : undefined,
+        : undefined,
   }));
 
 export const unmarshalTruncationSchema: z.ZodType<Truncation> = z
@@ -4578,8 +4009,6 @@ export const unmarshalUpdateInfoSchema: z.ZodType<UpdateInfo> = z
     refresh_selection: z.array(z.string()).optional(),
     full_refresh_selection: z.array(z.string()).optional(),
     validate_only: z.boolean().optional(),
-    refresh_flow_selection: z.array(z.string()).optional(),
-    mode: z.enum(UpdateMode).optional(),
     parameters: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
@@ -4594,8 +4023,6 @@ export const unmarshalUpdateInfoSchema: z.ZodType<UpdateInfo> = z
     refreshSelection: d.refresh_selection,
     fullRefreshSelection: d.full_refresh_selection,
     validateOnly: d.validate_only,
-    refreshFlowSelection: d.refresh_flow_selection,
-    mode: d.mode,
     parameters: d.parameters,
   }));
 
@@ -4620,14 +4047,6 @@ export const unmarshalZendeskSupportOptionsSchema: z.ZodType<ZendeskSupportOptio
       startDate: d.start_date,
     }));
 
-export const marshalAkamaiOptionsSchema: z.ZodType = z
-  .object({
-    configIds: z.array(z.number()).optional(),
-  })
-  .transform(d => ({
-    config_ids: d.configIds,
-  }));
-
 export const marshalApplyEnvironmentRequestSchema: z.ZodType = z
   .object({
     pipelineId: z.string().optional(),
@@ -4644,18 +4063,6 @@ export const marshalAutoFullRefreshPolicySchema: z.ZodType = z
   .transform(d => ({
     enabled: d.enabled,
     min_interval_hours: d.minIntervalHours,
-  }));
-
-export const marshalAvroTransformerOptionsSchema: z.ZodType = z
-  .object({
-    schema: z.string().optional(),
-    schemaFilePath: z.string().optional(),
-    parseMode: z.enum(ParseMode).optional(),
-  })
-  .transform(d => ({
-    schema: d.schema,
-    schema_file_path: d.schemaFilePath,
-    parse_mode: d.parseMode,
   }));
 
 export const marshalClonePipelineSchema: z.ZodType = z
@@ -4695,9 +4102,6 @@ export const marshalClonePipelineSchema: z.ZodType = z
     rootPath: z.string().optional(),
     environment: z.lazy(() => marshalPipelinesEnvironmentSchema).optional(),
     usagePolicyId: z.string().optional(),
-    rewindGenerationInterval: z
-      .lazy(() => marshalPeriodicTriggerSchema)
-      .optional(),
     cloneMode: z.enum(CloneMode).optional(),
   })
   .transform(d => ({
@@ -4732,16 +4136,7 @@ export const marshalClonePipelineSchema: z.ZodType = z
     root_path: d.rootPath,
     environment: d.environment,
     usage_policy_id: d.usagePolicyId,
-    rewind_generation_interval: d.rewindGenerationInterval,
     clone_mode: d.cloneMode,
-  }));
-
-export const marshalCommunityConnectorOptionsSchema: z.ZodType = z
-  .object({
-    options: z.record(z.string(), z.string()).optional(),
-  })
-  .transform(d => ({
-    options: d.options,
   }));
 
 export const marshalConfluenceConnectorOptionsSchema: z.ZodType = z
@@ -4785,10 +4180,6 @@ export const marshalConnectorOptionsSchema: z.ZodType = z
           outlookOptions: z.lazy(() => marshalOutlookOptionsSchema),
         }),
         z.object({
-          $case: z.literal('akamaiOptions'),
-          akamaiOptions: z.lazy(() => marshalAkamaiOptionsSchema),
-        }),
-        z.object({
           $case: z.literal('smartsheetOptions'),
           smartsheetOptions: z.lazy(() => marshalSmartsheetOptionsSchema),
         }),
@@ -4816,16 +4207,6 @@ export const marshalConnectorOptionsSchema: z.ZodType = z
           $case: z.literal('kafkaOptions'),
           kafkaOptions: z.lazy(() => marshalKafkaOptionsSchema),
         }),
-        z.object({
-          $case: z.literal('rabbitmqOptions'),
-          rabbitmqOptions: z.lazy(() => marshalRabbitmqOptionsSchema),
-        }),
-        z.object({
-          $case: z.literal('communityConnectorOptions'),
-          communityConnectorOptions: z.lazy(
-            () => marshalCommunityConnectorOptionsSchema
-          ),
-        }),
       ])
       .optional(),
   })
@@ -4845,9 +4226,6 @@ export const marshalConnectorOptionsSchema: z.ZodType = z
     ...(d.connectorOptions?.$case === 'outlookOptions' && {
       outlook_options: d.connectorOptions.outlookOptions,
     }),
-    ...(d.connectorOptions?.$case === 'akamaiOptions' && {
-      akamai_options: d.connectorOptions.akamaiOptions,
-    }),
     ...(d.connectorOptions?.$case === 'smartsheetOptions' && {
       smartsheet_options: d.connectorOptions.smartsheetOptions,
     }),
@@ -4866,12 +4244,6 @@ export const marshalConnectorOptionsSchema: z.ZodType = z
     ...(d.connectorOptions?.$case === 'kafkaOptions' && {
       kafka_options: d.connectorOptions.kafkaOptions,
     }),
-    ...(d.connectorOptions?.$case === 'rabbitmqOptions' && {
-      rabbitmq_options: d.connectorOptions.rabbitmqOptions,
-    }),
-    ...(d.connectorOptions?.$case === 'communityConnectorOptions' && {
-      community_connector_options: d.connectorOptions.communityConnectorOptions,
-    }),
   }));
 
 export const marshalCreatePipelineSchema: z.ZodType = z
@@ -4879,7 +4251,6 @@ export const marshalCreatePipelineSchema: z.ZodType = z
     allowDuplicateNames: z.boolean().optional(),
     dryRun: z.boolean().optional(),
     runAs: z.lazy(() => marshalPipelinesJobRunAsSchema).optional(),
-    parameters: z.record(z.string(), z.string()).optional(),
     id: z.string().optional(),
     name: z.string().optional(),
     storage: z.string().optional(),
@@ -4912,15 +4283,11 @@ export const marshalCreatePipelineSchema: z.ZodType = z
     rootPath: z.string().optional(),
     environment: z.lazy(() => marshalPipelinesEnvironmentSchema).optional(),
     usagePolicyId: z.string().optional(),
-    rewindGenerationInterval: z
-      .lazy(() => marshalPeriodicTriggerSchema)
-      .optional(),
   })
   .transform(d => ({
     allow_duplicate_names: d.allowDuplicateNames,
     dry_run: d.dryRun,
     run_as: d.runAs,
-    parameters: d.parameters,
     id: d.id,
     name: d.name,
     storage: d.storage,
@@ -4949,7 +4316,6 @@ export const marshalCreatePipelineSchema: z.ZodType = z
     root_path: d.rootPath,
     environment: d.environment,
     usage_policy_id: d.usagePolicyId,
-    rewind_generation_interval: d.rewindGenerationInterval,
   }));
 
 export const marshalCronTriggerSchema: z.ZodType = z
@@ -4980,7 +4346,6 @@ export const marshalEditPipelineSchema: z.ZodType = z
     allowDuplicateNames: z.boolean().optional(),
     expectedLastModified: z.number().optional(),
     runAs: z.lazy(() => marshalPipelinesJobRunAsSchema).optional(),
-    parameters: z.record(z.string(), z.string()).optional(),
     id: z.string().optional(),
     name: z.string().optional(),
     storage: z.string().optional(),
@@ -5013,16 +4378,12 @@ export const marshalEditPipelineSchema: z.ZodType = z
     rootPath: z.string().optional(),
     environment: z.lazy(() => marshalPipelinesEnvironmentSchema).optional(),
     usagePolicyId: z.string().optional(),
-    rewindGenerationInterval: z
-      .lazy(() => marshalPeriodicTriggerSchema)
-      .optional(),
   })
   .transform(d => ({
     pipeline_id: d.pipelineId,
     allow_duplicate_names: d.allowDuplicateNames,
     expected_last_modified: d.expectedLastModified,
     run_as: d.runAs,
-    parameters: d.parameters,
     id: d.id,
     name: d.name,
     storage: d.storage,
@@ -5051,7 +4412,6 @@ export const marshalEditPipelineSchema: z.ZodType = z
     root_path: d.rootPath,
     environment: d.environment,
     usage_policy_id: d.usagePolicyId,
-    rewind_generation_interval: d.rewindGenerationInterval,
   }));
 
 export const marshalEventLogSpecSchema: z.ZodType = z
@@ -5159,13 +4519,11 @@ export const marshalGoogleDriveOptionsSchema: z.ZodType = z
     fileIngestionOptions: z
       .lazy(() => marshalFileIngestionOptionsSchema)
       .optional(),
-    scope: z.enum(GoogleDriveOptions_GoogleDriveIngestionScope).optional(),
   })
   .transform(d => ({
     url: d.url,
     entity_type: d.entityType,
     file_ingestion_options: d.fileIngestionOptions,
-    scope: d.scope,
   }));
 
 export const marshalIngestionGatewayPipelineDefinitionSchema: z.ZodType = z
@@ -5248,16 +4606,6 @@ export const marshalIngestionPipelineDefinitionSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngestionPipelineDefinition_ConfluenceOptionsSchema: z.ZodType =
-  z
-    .object({
-      includeConfluenceSpaces: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      include_confluence_spaces: d.includeConfluenceSpaces,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalIngestionPipelineDefinition_IngestionConfigSchema: z.ZodType =
   z
     .object({
@@ -5295,15 +4643,6 @@ export const marshalIngestionPipelineDefinition_IngestionConfigSchema: z.ZodType
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngestionPipelineDefinition_JiraOptionsSchema: z.ZodType = z
-  .object({
-    includeJiraSpaces: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    include_jira_spaces: d.includeJiraSpaces,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalIngestionPipelineDefinition_ReportSpecSchema: z.ZodType = z
   .object({
     sourceUrl: z.string().optional(),
@@ -5332,22 +4671,6 @@ export const marshalIngestionPipelineDefinition_SchemaSpecSchema: z.ZodType = z
     tableConfiguration: z
       .lazy(() => marshalIngestionPipelineDefinition_TableSpecificConfigSchema)
       .optional(),
-    sourceOptions: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('jiraOptions'),
-          jiraOptions: z.lazy(
-            () => marshalIngestionPipelineDefinition_JiraOptionsSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('confluenceOptions'),
-          confluenceOptions: z.lazy(
-            () => marshalIngestionPipelineDefinition_ConfluenceOptionsSchema
-          ),
-        }),
-      ])
-      .optional(),
     connectorOptions: z.lazy(() => marshalConnectorOptionsSchema).optional(),
   })
   .transform(d => ({
@@ -5356,12 +4679,6 @@ export const marshalIngestionPipelineDefinition_SchemaSpecSchema: z.ZodType = z
     destination_catalog: d.destinationCatalog,
     destination_schema: d.destinationSchema,
     table_configuration: d.tableConfiguration,
-    ...(d.sourceOptions?.$case === 'jiraOptions' && {
-      jira_options: d.sourceOptions.jiraOptions,
-    }),
-    ...(d.sourceOptions?.$case === 'confluenceOptions' && {
-      confluence_options: d.sourceOptions.confluenceOptions,
-    }),
     connector_options: d.connectorOptions,
   }));
 
@@ -5377,22 +4694,6 @@ export const marshalIngestionPipelineDefinition_TableSpecSchema: z.ZodType = z
     tableConfiguration: z
       .lazy(() => marshalIngestionPipelineDefinition_TableSpecificConfigSchema)
       .optional(),
-    sourceOptions: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('jiraOptions'),
-          jiraOptions: z.lazy(
-            () => marshalIngestionPipelineDefinition_JiraOptionsSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('confluenceOptions'),
-          confluenceOptions: z.lazy(
-            () => marshalIngestionPipelineDefinition_ConfluenceOptionsSchema
-          ),
-        }),
-      ])
-      .optional(),
     connectorOptions: z.lazy(() => marshalConnectorOptionsSchema).optional(),
   })
   .transform(d => ({
@@ -5403,12 +4704,6 @@ export const marshalIngestionPipelineDefinition_TableSpecSchema: z.ZodType = z
     destination_schema: d.destinationSchema,
     destination_table: d.destinationTable,
     table_configuration: d.tableConfiguration,
-    ...(d.sourceOptions?.$case === 'jiraOptions' && {
-      jira_options: d.sourceOptions.jiraOptions,
-    }),
-    ...(d.sourceOptions?.$case === 'confluenceOptions' && {
-      confluence_options: d.sourceOptions.confluenceOptions,
-    }),
     connector_options: d.connectorOptions,
   }));
 
@@ -5437,10 +4732,6 @@ export const marshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.Zod
       autoFullRefreshPolicy: z
         .lazy(() => marshalAutoFullRefreshPolicySchema)
         .optional(),
-      tableProperties: z.record(z.string(), z.string()).optional(),
-      enableAutoClustering: z.boolean().optional(),
-      clusteringColumns: z.array(z.string()).optional(),
-      storageMode: z.enum(StorageMode).optional(),
     })
     .transform(d => ({
       scd_type: d.scdType,
@@ -5453,10 +4744,6 @@ export const marshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.Zod
       row_filter: d.rowFilter,
       query_based_connector_config: d.queryBasedConnectorConfig,
       auto_full_refresh_policy: d.autoFullRefreshPolicy,
-      table_properties: d.tableProperties,
-      enable_auto_clustering: d.enableAutoClustering,
-      clustering_columns: d.clusteringColumns,
-      storage_mode: d.storageMode,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -5639,16 +4926,6 @@ export const marshalPathPatternSchema: z.ZodType = z
   })
   .transform(d => ({
     include: d.include,
-  }));
-
-export const marshalPeriodicTriggerSchema: z.ZodType = z
-  .object({
-    interval: z.number().optional(),
-    unit: z.enum(PeriodicTrigger_TimeUnit).optional(),
-  })
-  .transform(d => ({
-    interval: d.interval,
-    unit: d.unit,
   }));
 
 export const marshalPipelineClusterSchema: z.ZodType = z
@@ -5960,28 +5237,6 @@ export const marshalPostgresSlotConfigSchema: z.ZodType = z
     publication_name: d.publicationName,
   }));
 
-export const marshalProtobufTransformerOptionsSchema: z.ZodType = z
-  .object({
-    descFilePath: z.string().optional(),
-    messageName: z.string().optional(),
-    recursiveFieldsMaxDepth: z.number().optional(),
-    parseMode: z.enum(ParseMode).optional(),
-  })
-  .transform(d => ({
-    desc_file_path: d.descFilePath,
-    message_name: d.messageName,
-    recursive_fields_max_depth: d.recursiveFieldsMaxDepth,
-    parse_mode: d.parseMode,
-  }));
-
-export const marshalRabbitmqOptionsSchema: z.ZodType = z
-  .object({
-    queue: z.string().optional(),
-  })
-  .transform(d => ({
-    queue: d.queue,
-  }));
-
 export const marshalReplaceWhereOverrideSchema: z.ZodType = z
   .object({
     flowName: z.string().optional(),
@@ -6004,14 +5259,6 @@ export const marshalRestartWindowSchema: z.ZodType = z
     time_zone_id: d.timeZoneId,
   }));
 
-export const marshalRestorePipelineRequestSchema: z.ZodType = z
-  .object({
-    pipelineId: z.string().optional(),
-  })
-  .transform(d => ({
-    pipeline_id: d.pipelineId,
-  }));
-
 export const marshalRewindDatasetSpecSchema: z.ZodType = z
   .object({
     identifier: z.string().optional(),
@@ -6027,13 +5274,11 @@ export const marshalRewindDatasetSpecSchema: z.ZodType = z
 export const marshalRewindSpecSchema: z.ZodType = z
   .object({
     rewindTimestamp: z.string().optional(),
-    rewindPointId: z.string().optional(),
     dryRun: z.boolean().optional(),
     datasets: z.array(z.lazy(() => marshalRewindDatasetSpecSchema)).optional(),
   })
   .transform(d => ({
     rewind_timestamp: d.rewindTimestamp,
-    rewind_point_id: d.rewindPointId,
     dry_run: d.dryRun,
     datasets: d.datasets,
   }));
@@ -6104,7 +5349,6 @@ export const marshalStartUpdateSchema: z.ZodType = z
     refreshSelection: z.array(z.string()).optional(),
     fullRefreshSelection: z.array(z.string()).optional(),
     resetCheckpointSelection: z.array(z.string()).optional(),
-    refreshFlowSelection: z.array(z.string()).optional(),
     validateOnly: z.boolean().optional(),
     rewindSpec: z.lazy(() => marshalRewindSpecSchema).optional(),
     parameters: z.record(z.string(), z.string()).optional(),
@@ -6119,7 +5363,6 @@ export const marshalStartUpdateSchema: z.ZodType = z
     refresh_selection: d.refreshSelection,
     full_refresh_selection: d.fullRefreshSelection,
     reset_checkpoint_selection: d.resetCheckpointSelection,
-    refresh_flow_selection: d.refreshFlowSelection,
     validate_only: d.validateOnly,
     rewind_spec: d.rewindSpec,
     parameters: d.parameters,
@@ -6163,16 +5406,6 @@ export const marshalTransformerSchema: z.ZodType = z
           $case: z.literal('jsonOptions'),
           jsonOptions: z.lazy(() => marshalJsonTransformerOptionsSchema),
         }),
-        z.object({
-          $case: z.literal('avroOptions'),
-          avroOptions: z.lazy(() => marshalAvroTransformerOptionsSchema),
-        }),
-        z.object({
-          $case: z.literal('protobufOptions'),
-          protobufOptions: z.lazy(
-            () => marshalProtobufTransformerOptionsSchema
-          ),
-        }),
       ])
       .optional(),
   })
@@ -6180,12 +5413,6 @@ export const marshalTransformerSchema: z.ZodType = z
     format: d.format,
     ...(d.config?.$case === 'jsonOptions' && {
       json_options: d.config.jsonOptions,
-    }),
-    ...(d.config?.$case === 'avroOptions' && {
-      avro_options: d.config.avroOptions,
-    }),
-    ...(d.config?.$case === 'protobufOptions' && {
-      protobuf_options: d.config.protobufOptions,
     }),
   }));
 

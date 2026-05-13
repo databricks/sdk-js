@@ -311,17 +311,6 @@ export interface GetLoggedModel_Response {
   model?: LoggedModel | undefined;
 }
 
-export interface GetLoggedModelsRequest {
-  /** The IDs of the logged models to retrieve. Max threshold is 100. */
-  modelIds?: string[] | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetLoggedModelsRequest_Response {
-  /** The retrieved logged models. */
-  models?: LoggedModel[] | undefined;
-}
-
 export interface GetMetricHistory {
   /** ID of the run from which to fetch metric values. Must be provided. */
   runId?: string | undefined;
@@ -1158,16 +1147,6 @@ export const unmarshalGetLoggedModel_ResponseSchema: z.ZodType<GetLoggedModel_Re
     })
     .transform(d => ({
       model: d.model,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetLoggedModelsRequest_ResponseSchema: z.ZodType<GetLoggedModelsRequest_Response> =
-  z
-    .object({
-      models: z.array(z.lazy(() => unmarshalLoggedModelSchema)).optional(),
-    })
-    .transform(d => ({
-      models: d.models,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

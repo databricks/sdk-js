@@ -41,8 +41,6 @@ import type {
   ListUpdates_Response,
   PipelineEvent,
   PipelineStateInfo,
-  RestorePipelineRequest,
-  RestorePipelineRequest_Response,
   StartUpdate,
   StartUpdate_Response,
   StopPipeline,
@@ -54,7 +52,6 @@ import {
   marshalClonePipelineSchema,
   marshalCreatePipelineSchema,
   marshalEditPipelineSchema,
-  marshalRestorePipelineRequestSchema,
   marshalStartUpdateSchema,
   marshalStopPipelineSchema,
   unmarshalApplyEnvironmentRequest_ResponseSchema,
@@ -67,7 +64,6 @@ import {
   unmarshalListPipelineEvents_ResponseSchema,
   unmarshalListPipelines_ResponseSchema,
   unmarshalListUpdates_ResponseSchema,
-  unmarshalRestorePipelineRequest_ResponseSchema,
   unmarshalStartUpdate_ResponseSchema,
   unmarshalStopPipeline_ResponseSchema,
 } from './model';
@@ -209,9 +205,6 @@ export class Client {
     const params = new URLSearchParams();
     if (req.force !== undefined) {
       params.append('force', String(req.force));
-    }
-    if (req.deleteDatasets !== undefined) {
-      params.append('delete_datasets', String(req.deleteDatasets));
     }
     if (req.cascade !== undefined) {
       params.append('cascade', String(req.cascade));
@@ -459,39 +452,6 @@ export class Client {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalListUpdates_ResponseSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  /**
-   * *
-   * Restores a pipeline that was previously deleted, if within the restoration window.
-   * All tables deleted at pipeline deletion will be undropped as well.
-   */
-  async restorePipeline(
-    req: RestorePipelineRequest,
-    options?: CallOptions
-  ): Promise<RestorePipelineRequest_Response> {
-    const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}/restore`;
-    const body = marshalRequest(req, marshalRestorePipelineRequestSchema);
-    let resp: RestorePipelineRequest_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers({'Content-Type': 'application/json'});
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalRestorePipelineRequest_ResponseSchema
-      );
     };
     await executeCall(call, options);
     if (resp === undefined) {

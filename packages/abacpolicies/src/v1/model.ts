@@ -9,8 +9,6 @@ export enum PolicyType {
   POLICY_TYPE_UNSPECIFIED = 'POLICY_TYPE_UNSPECIFIED',
   POLICY_TYPE_ROW_FILTER = 'POLICY_TYPE_ROW_FILTER',
   POLICY_TYPE_COLUMN_MASK = 'POLICY_TYPE_COLUMN_MASK',
-  POLICY_TYPE_DENY = 'POLICY_TYPE_DENY',
-  POLICY_TYPE_GRANT = 'POLICY_TYPE_GRANT',
 }
 
 /** The type of Unity Catalog securable. */
@@ -56,14 +54,6 @@ export interface ColumnMaskOptions {
   using?: FunctionArgument[] | undefined;
 }
 
-/** Extracts the value of a column-level tag: get_column_tag_value(col, "tagKey"). */
-export interface ColumnTagValueExtraction {
-  /** The alias from MATCH COLUMNS that identifies the column. */
-  columnAlias?: string | undefined;
-  /** 1024 matches the max_length on FunctionArgument.constant above. */
-  tagKey?: string | undefined;
-}
-
 export interface CreatePolicy {
   /** Required. The policy to create. */
   policyInfo?: PolicyInfo | undefined;
@@ -81,30 +71,6 @@ export interface DeletePolicy {
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
 export interface DeletePolicy_Response {}
 
-export interface DenyOptions {
-  /**
-   * List of privileges to deny.
-   * When any of these privileges are requested, the policy will deny access
-   * if the principal and condition match.
-   * Required on create and update.
-   */
-  privileges?: string[] | undefined;
-}
-
-/**
- * An expression that is evaluated at query time against per-request context.
- * New variants (e.g., identity attributes) are added as additional oneof cases.
- */
-export interface FunctionArgExpression {
-  expr?:
-    | {
-        $case: 'tagIntrospection';
-        /** An expression that introspects tags at query time. */
-        tagIntrospection: TagIntrospectionExpression;
-      }
-    | undefined;
-}
-
 export interface FunctionArgument {
   /** A positional argument pass to a row filter or column mask function. */
   arg?:
@@ -118,15 +84,6 @@ export interface FunctionArgument {
         /** A constant literal. */
         constant: string;
       }
-    | {
-        $case: 'functionArgExpression';
-        /**
-         * An expression evaluated at query time. Wraps per-request expression variants
-         * (e.g., tag introspection) so new variants can be added without extending the
-         * FunctionArgument oneof.
-         */
-        functionArgExpression: FunctionArgExpression;
-      }
     | undefined;
 }
 
@@ -137,16 +94,6 @@ export interface GetPolicy {
   onSecurableFullname?: string | undefined;
   /** Required. The name of the policy to retrieve. */
   name?: string | undefined;
-}
-
-export interface GrantOptions {
-  /**
-   * List of privileges to grant.
-   * When any of these privileges are requested, the policy will grant access
-   * if the principal and condition match.
-   * Required on create and update.
-   */
-  privileges?: string[] | undefined;
 }
 
 export interface ListPolicies {
@@ -248,24 +195,6 @@ export interface PolicyInfo {
          */
         columnMask: ColumnMaskOptions;
       }
-    | {
-        $case: 'deny';
-        /**
-         * Options for deny policies. Valid only if `policy_type` is `POLICY_TYPE_DENY`.
-         * Required on create and optional on update. When specified on update,
-         * the new options will replace the existing options as a whole.
-         */
-        deny: DenyOptions;
-      }
-    | {
-        $case: 'grant';
-        /**
-         * Options for grant policies. Valid only if `policy_type` is `POLICY_TYPE_GRANT`.
-         * Required on create and optional on update. When specified on update,
-         * the new options will replace the existing options as a whole.
-         */
-        grant: GrantOptions;
-      }
     | undefined;
   /**
    * Optional list of condition expressions used to match table columns.
@@ -281,15 +210,6 @@ export interface PolicyInfo {
   updatedAt?: number | undefined;
   /** Username of the user who last modified the policy. Output only. */
   updatedBy?: string | undefined;
-  /**
-   * Temporary for migrating customers to session identity.
-   * Customers not currently using ABAC will not be able to set this field to false
-   * and all new policies will have this field default to true.
-   * Existing customers will have this field default to false, but can set it to true to opt in to session identity.
-   * after a grace period, this field will be removed and all policies will use session identity.
-   * Only for row filter and column mask policies. Not applicable to deny policies.
-   */
-  useSessionIdentity?: boolean | undefined;
 }
 
 export interface RowFilterOptions {
@@ -305,29 +225,6 @@ export interface RowFilterOptions {
    * The type of each column should match the positional argument of the row filter function.
    */
   using?: FunctionArgument[] | undefined;
-}
-
-/** An expression that introspects tags at query time. */
-export interface TagIntrospectionExpression {
-  /** The tag introspection variant to evaluate at query time. */
-  expr?:
-    | {
-        $case: 'tagValue';
-        /** Extracts the value of a securable-level tag. */
-        tagValue: TagValueExtraction;
-      }
-    | {
-        $case: 'columnTagValue';
-        /** Extracts the value of a column-level tag. */
-        columnTagValue: ColumnTagValueExtraction;
-      }
-    | undefined;
-}
-
-/** Extracts the value of a securable-level tag: get_tag_value("tagKey"). */
-export interface TagValueExtraction {
-  /** 1024 matches the max_length on FunctionArgument.constant above. */
-  tagKey?: string | undefined;
 }
 
 export interface UpdatePolicy {
@@ -366,53 +263,14 @@ export const unmarshalColumnMaskOptionsSchema: z.ZodType<ColumnMaskOptions> = z
     using: d.using,
   }));
 
-export const unmarshalColumnTagValueExtractionSchema: z.ZodType<ColumnTagValueExtraction> =
-  z
-    .object({
-      column_alias: z.string().optional(),
-      tag_key: z.string().optional(),
-    })
-    .transform(d => ({
-      columnAlias: d.column_alias,
-      tagKey: d.tag_key,
-    }));
-
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalDeletePolicy_ResponseSchema: z.ZodType<DeletePolicy_Response> =
   z.object({});
-
-export const unmarshalDenyOptionsSchema: z.ZodType<DenyOptions> = z
-  .object({
-    privileges: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    privileges: d.privileges,
-  }));
-
-export const unmarshalFunctionArgExpressionSchema: z.ZodType<FunctionArgExpression> =
-  z
-    .object({
-      tag_introspection: z
-        .lazy(() => unmarshalTagIntrospectionExpressionSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      expr:
-        d.tag_introspection !== undefined
-          ? {
-              $case: 'tagIntrospection' as const,
-              tagIntrospection: d.tag_introspection,
-            }
-          : undefined,
-    }));
 
 export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
   .object({
     alias: z.string().optional(),
     constant: z.string().optional(),
-    function_arg_expression: z
-      .lazy(() => unmarshalFunctionArgExpressionSchema)
-      .optional(),
   })
   .transform(d => ({
     arg:
@@ -420,20 +278,7 @@ export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
         ? {$case: 'alias' as const, alias: d.alias}
         : d.constant !== undefined
           ? {$case: 'constant' as const, constant: d.constant}
-          : d.function_arg_expression !== undefined
-            ? {
-                $case: 'functionArgExpression' as const,
-                functionArgExpression: d.function_arg_expression,
-              }
-            : undefined,
-  }));
-
-export const unmarshalGrantOptionsSchema: z.ZodType<GrantOptions> = z
-  .object({
-    privileges: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    privileges: d.privileges,
+          : undefined,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -472,14 +317,11 @@ export const unmarshalPolicyInfoSchema: z.ZodType<PolicyInfo> = z
     policy_type: z.enum(PolicyType).optional(),
     row_filter: z.lazy(() => unmarshalRowFilterOptionsSchema).optional(),
     column_mask: z.lazy(() => unmarshalColumnMaskOptionsSchema).optional(),
-    deny: z.lazy(() => unmarshalDenyOptionsSchema).optional(),
-    grant: z.lazy(() => unmarshalGrantOptionsSchema).optional(),
     match_columns: z.array(z.lazy(() => unmarshalMatchColumnSchema)).optional(),
     created_at: z.number().optional(),
     created_by: z.string().optional(),
     updated_at: z.number().optional(),
     updated_by: z.string().optional(),
-    use_session_identity: z.boolean().optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -497,17 +339,12 @@ export const unmarshalPolicyInfoSchema: z.ZodType<PolicyInfo> = z
         ? {$case: 'rowFilter' as const, rowFilter: d.row_filter}
         : d.column_mask !== undefined
           ? {$case: 'columnMask' as const, columnMask: d.column_mask}
-          : d.deny !== undefined
-            ? {$case: 'deny' as const, deny: d.deny}
-            : d.grant !== undefined
-              ? {$case: 'grant' as const, grant: d.grant}
-              : undefined,
+          : undefined,
     matchColumns: d.match_columns,
     createdAt: d.created_at,
     createdBy: d.created_by,
     updatedAt: d.updated_at,
     updatedBy: d.updated_by,
-    useSessionIdentity: d.use_session_identity,
   }));
 
 export const unmarshalRowFilterOptionsSchema: z.ZodType<RowFilterOptions> = z
@@ -519,35 +356,6 @@ export const unmarshalRowFilterOptionsSchema: z.ZodType<RowFilterOptions> = z
     functionName: d.function_name,
     using: d.using,
   }));
-
-export const unmarshalTagIntrospectionExpressionSchema: z.ZodType<TagIntrospectionExpression> =
-  z
-    .object({
-      tag_value: z.lazy(() => unmarshalTagValueExtractionSchema).optional(),
-      column_tag_value: z
-        .lazy(() => unmarshalColumnTagValueExtractionSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      expr:
-        d.tag_value !== undefined
-          ? {$case: 'tagValue' as const, tagValue: d.tag_value}
-          : d.column_tag_value !== undefined
-            ? {
-                $case: 'columnTagValue' as const,
-                columnTagValue: d.column_tag_value,
-              }
-            : undefined,
-    }));
-
-export const unmarshalTagValueExtractionSchema: z.ZodType<TagValueExtraction> =
-  z
-    .object({
-      tag_key: z.string().optional(),
-    })
-    .transform(d => ({
-      tagKey: d.tag_key,
-    }));
 
 export const marshalColumnMaskOptionsSchema: z.ZodType = z
   .object({
@@ -561,72 +369,18 @@ export const marshalColumnMaskOptionsSchema: z.ZodType = z
     using: d.using,
   }));
 
-export const marshalColumnTagValueExtractionSchema: z.ZodType = z
-  .object({
-    columnAlias: z.string().optional(),
-    tagKey: z.string().optional(),
-  })
-  .transform(d => ({
-    column_alias: d.columnAlias,
-    tag_key: d.tagKey,
-  }));
-
-export const marshalDenyOptionsSchema: z.ZodType = z
-  .object({
-    privileges: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    privileges: d.privileges,
-  }));
-
-export const marshalFunctionArgExpressionSchema: z.ZodType = z
-  .object({
-    expr: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('tagIntrospection'),
-          tagIntrospection: z.lazy(
-            () => marshalTagIntrospectionExpressionSchema
-          ),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    ...(d.expr?.$case === 'tagIntrospection' && {
-      tag_introspection: d.expr.tagIntrospection,
-    }),
-  }));
-
 export const marshalFunctionArgumentSchema: z.ZodType = z
   .object({
     arg: z
       .discriminatedUnion('$case', [
         z.object({$case: z.literal('alias'), alias: z.string()}),
         z.object({$case: z.literal('constant'), constant: z.string()}),
-        z.object({
-          $case: z.literal('functionArgExpression'),
-          functionArgExpression: z.lazy(
-            () => marshalFunctionArgExpressionSchema
-          ),
-        }),
       ])
       .optional(),
   })
   .transform(d => ({
     ...(d.arg?.$case === 'alias' && {alias: d.arg.alias}),
     ...(d.arg?.$case === 'constant' && {constant: d.arg.constant}),
-    ...(d.arg?.$case === 'functionArgExpression' && {
-      function_arg_expression: d.arg.functionArgExpression,
-    }),
-  }));
-
-export const marshalGrantOptionsSchema: z.ZodType = z
-  .object({
-    privileges: z.array(z.string()).optional(),
-  })
-  .transform(d => ({
-    privileges: d.privileges,
   }));
 
 export const marshalMatchColumnSchema: z.ZodType = z
@@ -661,14 +415,6 @@ export const marshalPolicyInfoSchema: z.ZodType = z
           $case: z.literal('columnMask'),
           columnMask: z.lazy(() => marshalColumnMaskOptionsSchema),
         }),
-        z.object({
-          $case: z.literal('deny'),
-          deny: z.lazy(() => marshalDenyOptionsSchema),
-        }),
-        z.object({
-          $case: z.literal('grant'),
-          grant: z.lazy(() => marshalGrantOptionsSchema),
-        }),
       ])
       .optional(),
     matchColumns: z.array(z.lazy(() => marshalMatchColumnSchema)).optional(),
@@ -676,7 +422,6 @@ export const marshalPolicyInfoSchema: z.ZodType = z
     createdBy: z.string().optional(),
     updatedAt: z.number().optional(),
     updatedBy: z.string().optional(),
-    useSessionIdentity: z.boolean().optional(),
   })
   .transform(d => ({
     id: d.id,
@@ -693,14 +438,11 @@ export const marshalPolicyInfoSchema: z.ZodType = z
     ...(d.options?.$case === 'columnMask' && {
       column_mask: d.options.columnMask,
     }),
-    ...(d.options?.$case === 'deny' && {deny: d.options.deny}),
-    ...(d.options?.$case === 'grant' && {grant: d.options.grant}),
     match_columns: d.matchColumns,
     created_at: d.createdAt,
     created_by: d.createdBy,
     updated_at: d.updatedAt,
     updated_by: d.updatedBy,
-    use_session_identity: d.useSessionIdentity,
   }));
 
 export const marshalRowFilterOptionsSchema: z.ZodType = z
@@ -713,48 +455,10 @@ export const marshalRowFilterOptionsSchema: z.ZodType = z
     using: d.using,
   }));
 
-export const marshalTagIntrospectionExpressionSchema: z.ZodType = z
-  .object({
-    expr: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('tagValue'),
-          tagValue: z.lazy(() => marshalTagValueExtractionSchema),
-        }),
-        z.object({
-          $case: z.literal('columnTagValue'),
-          columnTagValue: z.lazy(() => marshalColumnTagValueExtractionSchema),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    ...(d.expr?.$case === 'tagValue' && {tag_value: d.expr.tagValue}),
-    ...(d.expr?.$case === 'columnTagValue' && {
-      column_tag_value: d.expr.columnTagValue,
-    }),
-  }));
-
-export const marshalTagValueExtractionSchema: z.ZodType = z
-  .object({
-    tagKey: z.string().optional(),
-  })
-  .transform(d => ({
-    tag_key: d.tagKey,
-  }));
-
 const columnMaskOptionsFieldMaskSchema: FieldMaskSchema = {
   functionName: {wire: 'function_name'},
   onColumn: {wire: 'on_column'},
   using: {wire: 'using'},
-};
-
-const denyOptionsFieldMaskSchema: FieldMaskSchema = {
-  privileges: {wire: 'privileges'},
-};
-
-const grantOptionsFieldMaskSchema: FieldMaskSchema = {
-  privileges: {wire: 'privileges'},
 };
 
 const policyInfoFieldMaskSchema: FieldMaskSchema = {
@@ -765,10 +469,8 @@ const policyInfoFieldMaskSchema: FieldMaskSchema = {
   comment: {wire: 'comment'},
   createdAt: {wire: 'created_at'},
   createdBy: {wire: 'created_by'},
-  deny: {wire: 'deny', children: () => denyOptionsFieldMaskSchema},
   exceptPrincipals: {wire: 'except_principals'},
   forSecurableType: {wire: 'for_securable_type'},
-  grant: {wire: 'grant', children: () => grantOptionsFieldMaskSchema},
   id: {wire: 'id'},
   matchColumns: {wire: 'match_columns'},
   name: {wire: 'name'},
@@ -782,7 +484,6 @@ const policyInfoFieldMaskSchema: FieldMaskSchema = {
   toPrincipals: {wire: 'to_principals'},
   updatedAt: {wire: 'updated_at'},
   updatedBy: {wire: 'updated_by'},
-  useSessionIdentity: {wire: 'use_session_identity'},
   whenCondition: {wire: 'when_condition'},
 };
 

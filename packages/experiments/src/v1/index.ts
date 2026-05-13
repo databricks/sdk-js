@@ -36,8 +36,6 @@ export type {
   GetExperimentByName_Response,
   GetLoggedModel,
   GetLoggedModel_Response,
-  GetLoggedModelsRequest,
-  GetLoggedModelsRequest_Response,
   GetMetricHistory,
   GetMetricHistory_Response,
   GetRun,

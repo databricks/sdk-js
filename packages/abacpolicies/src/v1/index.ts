@@ -6,21 +6,15 @@ export {PolicyType, SecurableType} from './model';
 
 export type {
   ColumnMaskOptions,
-  ColumnTagValueExtraction,
   CreatePolicy,
   DeletePolicy,
   DeletePolicy_Response,
-  DenyOptions,
-  FunctionArgExpression,
   FunctionArgument,
   GetPolicy,
-  GrantOptions,
   ListPolicies,
   ListPolicies_Response,
   MatchColumn,
   PolicyInfo,
   RowFilterOptions,
-  TagIntrospectionExpression,
-  TagValueExtraction,
   UpdatePolicy,
 } from './model';

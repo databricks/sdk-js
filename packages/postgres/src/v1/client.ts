@@ -24,7 +24,6 @@ import type {
   BranchOperationMetadata,
   Catalog,
   CatalogOperationMetadata,
-  ComputeInstance,
   CreateBranchRequest,
   CreateCatalogRequest,
   CreateDatabaseRequest,
@@ -32,7 +31,6 @@ import type {
   CreateProjectRequest,
   CreateRoleRequest,
   CreateSyncedTableRequest,
-  CreateTableRequest,
   Database,
   DatabaseCredential,
   DatabaseOperationMetadata,
@@ -40,35 +38,22 @@ import type {
   DeleteCatalogRequest,
   DeleteDatabaseRequest,
   DeleteEndpointRequest,
-  DeleteForwardEtlConfigurationRequest,
-  DeleteForwardEtlConfigurationResponse,
   DeleteProjectRequest,
   DeleteRoleRequest,
   DeleteSyncedTableRequest,
-  DeleteTableRequest,
-  DisableForwardEtlRequest,
-  DisableForwardEtlResponse,
   Endpoint,
   EndpointOperationMetadata,
-  ForwardEtlMetadata,
-  ForwardEtlStatus,
   GenerateDatabaseCredentialRequest,
   GetBranchRequest,
   GetCatalogRequest,
-  GetComputeInstanceRequest,
   GetDatabaseRequest,
   GetEndpointRequest,
-  GetForwardEtlMetadataRequest,
-  GetForwardEtlStatusRequest,
   GetOperationRequest,
   GetProjectRequest,
   GetRoleRequest,
   GetSyncedTableRequest,
-  GetTableRequest,
   ListBranchesRequest,
   ListBranchesResponse,
-  ListComputeInstancesRequest,
-  ListComputeInstancesResponse,
   ListDatabasesRequest,
   ListDatabasesResponse,
   ListEndpointsRequest,
@@ -84,8 +69,6 @@ import type {
   RoleOperationMetadata,
   SyncedTable,
   SyncedTableOperationMetadata,
-  Table,
-  UndeleteBranchRequest,
   UndeleteProjectRequest,
   UpdateBranchRequest,
   UpdateDatabaseRequest,
@@ -102,25 +85,17 @@ import {
   marshalProjectSchema,
   marshalRoleSchema,
   marshalSyncedTableSchema,
-  marshalTableSchema,
-  marshalUndeleteBranchRequestSchema,
   marshalUndeleteProjectRequestSchema,
   unmarshalBranchOperationMetadataSchema,
   unmarshalBranchSchema,
   unmarshalCatalogOperationMetadataSchema,
   unmarshalCatalogSchema,
-  unmarshalComputeInstanceSchema,
   unmarshalDatabaseCredentialSchema,
   unmarshalDatabaseOperationMetadataSchema,
   unmarshalDatabaseSchema,
-  unmarshalDeleteForwardEtlConfigurationResponseSchema,
-  unmarshalDisableForwardEtlResponseSchema,
   unmarshalEndpointOperationMetadataSchema,
   unmarshalEndpointSchema,
-  unmarshalForwardEtlMetadataSchema,
-  unmarshalForwardEtlStatusSchema,
   unmarshalListBranchesResponseSchema,
-  unmarshalListComputeInstancesResponseSchema,
   unmarshalListDatabasesResponseSchema,
   unmarshalListEndpointsResponseSchema,
   unmarshalListProjectsResponseSchema,
@@ -132,7 +107,6 @@ import {
   unmarshalRoleSchema,
   unmarshalSyncedTableOperationMetadataSchema,
   unmarshalSyncedTableSchema,
-  unmarshalTableSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -498,52 +472,17 @@ export class Client {
     return new CreateSyncedTableOperation(this, op);
   }
 
-  /** Create a Table (non-synced database table for Autoscaling v2 Lakebase projects). */
-  async createTable(
-    req: CreateTableRequest,
-    options?: CallOptions
-  ): Promise<Table> {
-    const url = `${this.host}/api/2.0/postgres/tables`;
-    const body = marshalRequest(req.table, marshalTableSchema);
-    let resp: Table | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers({'Content-Type': 'application/json'});
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalTableSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
   /** Deletes the specified database branch. */
   async deleteBranch(
     req: DeleteBranchRequest,
     options?: CallOptions
   ): Promise<Operation> {
     const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
-    const params = new URLSearchParams();
-    if (req.purge !== undefined) {
-      params.append('purge', String(req.purge));
-    }
-    if (req.allowMissing !== undefined) {
-      params.append('allow_missing', String(req.allowMissing));
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: Operation | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -665,52 +604,6 @@ export class Client {
     return new DeleteEndpointOperation(this, op);
   }
 
-  /**
-   * Hard delete a Forward ETL configuration and all associated table mappings.
-   * Unlike DisableForwardEtl, this permanently removes the config and mapping rows.
-   */
-  async deleteForwardEtlConfiguration(
-    req: DeleteForwardEtlConfigurationRequest,
-    options?: CallOptions
-  ): Promise<DeleteForwardEtlConfigurationResponse> {
-    const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/forward-etl/configuration`;
-    const params = new URLSearchParams();
-    if (req.tenantId !== undefined) {
-      params.append('tenant_id', req.tenantId);
-    }
-    if (req.timelineId !== undefined) {
-      params.append('timeline_id', req.timelineId);
-    }
-    if (req.pgDatabaseOid !== undefined) {
-      params.append('pg_database_oid', String(req.pgDatabaseOid));
-    }
-    if (req.pgSchemaOid !== undefined) {
-      params.append('pg_schema_oid', String(req.pgSchemaOid));
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: DeleteForwardEtlConfigurationResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteForwardEtlConfigurationResponseSchema
-      );
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
   /** Deletes the specified database project. */
   async deleteProject(
     req: DeleteProjectRequest,
@@ -822,65 +715,6 @@ export class Client {
     return new DeleteSyncedTableOperation(this, op);
   }
 
-  /** Delete a Table (non-synced database table for Autoscaling v2 Lakebase projects). */
-  async deleteTable(
-    req: DeleteTableRequest,
-    options?: CallOptions
-  ): Promise<void> {
-    const url = `${this.host}/api/2.0/postgres/tables/${req.name ?? ''}`;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-    };
-    await executeCall(call, options);
-  }
-
-  /** Disable Forward ETL for a branch. */
-  async disableForwardEtl(
-    req: DisableForwardEtlRequest,
-    options?: CallOptions
-  ): Promise<DisableForwardEtlResponse> {
-    const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/forward-etl`;
-    const params = new URLSearchParams();
-    if (req.tenantId !== undefined) {
-      params.append('tenant_id', req.tenantId);
-    }
-    if (req.timelineId !== undefined) {
-      params.append('timeline_id', req.timelineId);
-    }
-    if (req.pgDatabaseOid !== undefined) {
-      params.append('pg_database_oid', String(req.pgDatabaseOid));
-    }
-    if (req.pgSchemaOid !== undefined) {
-      params.append('pg_schema_oid', String(req.pgSchemaOid));
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: DisableForwardEtlResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalDisableForwardEtlResponseSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
   /** Generate OAuth credentials for a Postgres database. */
   async generateDatabaseCredential(
     req: GenerateDatabaseCredentialRequest,
@@ -960,34 +794,6 @@ export class Client {
     return resp;
   }
 
-  /**
-   * Lists the specific compute instance under an endpoint.
-   * Note: ComputeInstances are managed via the parent Endpoint resource, and cannot be created, updated, or deleted directly.
-   */
-  async getComputeInstance(
-    req: GetComputeInstanceRequest,
-    options?: CallOptions
-  ): Promise<ComputeInstance> {
-    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}`;
-    let resp: ComputeInstance | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalComputeInstanceSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
   /** Get a Database. */
   async getDatabase(
     req: GetDatabaseRequest,
@@ -1030,74 +836,6 @@ export class Client {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalEndpointSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  /** Get Forward ETL metadata (database and schema OIDs). */
-  async getForwardEtlMetadata(
-    req: GetForwardEtlMetadataRequest,
-    options?: CallOptions
-  ): Promise<ForwardEtlMetadata> {
-    const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/forward-etl/metadata`;
-    const params = new URLSearchParams();
-    if (req.tenantId !== undefined) {
-      params.append('tenant_id', req.tenantId);
-    }
-    if (req.timelineId !== undefined) {
-      params.append('timeline_id', req.timelineId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ForwardEtlMetadata | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalForwardEtlMetadataSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  /** Get Forward ETL configuration and status for a branch. */
-  async getForwardEtlStatus(
-    req: GetForwardEtlStatusRequest,
-    options?: CallOptions
-  ): Promise<ForwardEtlStatus> {
-    const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/forward-etl`;
-    const params = new URLSearchParams();
-    if (req.tenantId !== undefined) {
-      params.append('tenant_id', req.tenantId);
-    }
-    if (req.timelineId !== undefined) {
-      params.append('timeline_id', req.timelineId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ForwardEtlStatus | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalForwardEtlStatusSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1203,28 +941,6 @@ export class Client {
     return resp;
   }
 
-  /** Get a Table (non-synced database table for Autoscaling v2 Lakebase projects). */
-  async getTable(req: GetTableRequest, options?: CallOptions): Promise<Table> {
-    const url = `${this.host}/api/2.0/postgres/tables/${req.name ?? ''}`;
-    let resp: Table | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalTableSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
   /** Returns a paginated list of database branches in the project. */
   async listBranches(
     req: ListBranchesRequest,
@@ -1237,9 +953,6 @@ export class Client {
     }
     if (req.pageSize !== undefined) {
       params.append('page_size', String(req.pageSize));
-    }
-    if (req.showDeleted !== undefined) {
-      params.append('show_deleted', String(req.showDeleted));
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -1270,63 +983,6 @@ export class Client {
     for (;;) {
       const resp = await this.listBranches(pageReq, options);
       for (const item of resp.branches ?? []) {
-        yield item;
-      }
-      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
-        return;
-      }
-      pageReq.pageToken = resp.nextPageToken;
-    }
-  }
-
-  /**
-   * Lists all compute instances that have been created under the specified endpoint.
-   * Note: ComputeInstances are managed via the parent Endpoint resource, and cannot be created, updated, or deleted directly.
-   */
-  async listComputeInstances(
-    req: ListComputeInstancesRequest,
-    options?: CallOptions
-  ): Promise<ListComputeInstancesResponse> {
-    const url = `${this.host}/api/2.0/postgres/${req.parent ?? ''}/compute-instances`;
-    const params = new URLSearchParams();
-    if (req.pageSize !== undefined) {
-      params.append('page_size', String(req.pageSize));
-    }
-    if (req.pageToken !== undefined) {
-      params.append('page_token', req.pageToken);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListComputeInstancesResponse | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListComputeInstancesResponseSchema
-      );
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  async *listComputeInstancesIter(
-    req: ListComputeInstancesRequest,
-    options?: CallOptions
-  ): AsyncGenerator<ComputeInstance> {
-    const pageReq: ListComputeInstancesRequest = {...req};
-    for (;;) {
-      const resp = await this.listComputeInstances(pageReq, options);
-      for (const item of resp.computeInstances ?? []) {
         yield item;
       }
       if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
@@ -1541,40 +1197,6 @@ export class Client {
       }
       pageReq.pageToken = resp.nextPageToken;
     }
-  }
-
-  /** Undeletes the specified database branch. */
-  async undeleteBranch(
-    req: UndeleteBranchRequest,
-    options?: CallOptions
-  ): Promise<Operation> {
-    const url = `${this.host}/api/2.0/postgres/${req.name ?? ''}/undelete`;
-    const body = marshalRequest(req, marshalUndeleteBranchRequestSchema);
-    let resp: Operation | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers({'Content-Type': 'application/json'});
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalOperationSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  async undeleteBranchOperation(
-    req: UndeleteBranchRequest,
-    options?: CallOptions
-  ): Promise<UndeleteBranchOperation> {
-    const op = await this.undeleteBranch(req, options);
-    return new UndeleteBranchOperation(this, op);
   }
 
   /** Undeletes a soft-deleted project. */
@@ -2993,87 +2615,6 @@ export class DeleteSyncedTableOperation {
     return Promise.resolve(
       z
         .lazy(() => unmarshalSyncedTableOperationMetadataSchema)
-        .parse(this.operation.metadata)
-    );
-  }
-
-  /**
-   * Polls the operation until it completes.
-   *
-   * Throws if the operation failed.
-   */
-  async wait(options?: CallOptions): Promise<void> {
-    const errStillRunning = new Error('operation still in progress');
-
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const op = await this.client.getOperation(
-        {
-          name: this.operation.name,
-        },
-        {...options, ...(callSignal !== undefined && {signal: callSignal})}
-      );
-      this.operation = op;
-      if (op.done === undefined) {
-        throw new Error('operation is missing the done field');
-      }
-      if (!op.done) {
-        throw errStillRunning;
-      }
-
-      if (op.result?.$case === 'error') {
-        const err = op.result.error;
-        const msg =
-          err.message !== undefined && err.message !== ''
-            ? err.message
-            : 'unknown error';
-        const errorMsg =
-          err.errorCode !== undefined ? `[${err.errorCode}] ${msg}` : msg;
-        throw new Error(`operation failed: ${errorMsg}`, {
-          cause: err,
-        });
-      }
-    };
-
-    const retryOptions: CallOptions = {
-      ...(options?.signal !== undefined && {signal: options.signal}),
-      retrier: () =>
-        retryOn({}, (err: Error) => {
-          return err.message.includes('operation still in progress');
-        }),
-    };
-    await executeCall(call, retryOptions);
-  }
-
-  /** Checks whether the operation has completed */
-  async done(options?: CallOptions): Promise<boolean | undefined> {
-    const op = await this.client.getOperation(
-      {name: this.operation.name},
-      options
-    );
-    this.operation = op;
-    return op.done;
-  }
-}
-
-export class UndeleteBranchOperation {
-  constructor(
-    private readonly client: Client,
-    private operation: Operation
-  ) {}
-
-  /** Returns the server-assigned name of the long-running operation. */
-  name(): Promise<string | undefined> {
-    return Promise.resolve(this.operation.name);
-  }
-
-  /** Returns metadata associated with the long-running operation. */
-  metadata(): Promise<BranchOperationMetadata | undefined> {
-    if (this.operation.metadata === undefined) {
-      return Promise.resolve(undefined);
-    }
-    return Promise.resolve(
-      z
-        .lazy(() => unmarshalBranchOperationMetadataSchema)
         .parse(this.operation.metadata)
     );
   }

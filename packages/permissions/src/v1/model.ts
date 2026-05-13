@@ -24,11 +24,6 @@ export enum PermissionLevel {
   CAN_CREATE = 'CAN_CREATE',
   CAN_MONITOR_ONLY = 'CAN_MONITOR_ONLY',
   CAN_CREATE_APP = 'CAN_CREATE_APP',
-  /**
-   * Sentinel value for deletion in PATCH requests. When used in PATCH, signals
-   * intent to remove the principal's permissions while preserving other principals.
-   */
-  UNSPECIFIED = 'UNSPECIFIED',
 }
 
 export interface AccessControlRequest {
