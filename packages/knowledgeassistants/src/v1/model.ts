@@ -160,7 +160,7 @@ export interface KnowledgeAssistant {
   name?: string | undefined;
   /** State of the Knowledge Assistant. Not returned in List responses. */
   state?: KnowledgeAssistant_State | undefined;
-  /** The universally unique identifier (UUID) of the Knowledge Assistant. */
+  /** Deprecated: use knowledge_assistant_id instead. */
   id?: string | undefined;
   /**
    * The display name of the Knowledge Assistant, unique at workspace level.
@@ -193,6 +193,8 @@ export interface KnowledgeAssistant {
   experimentId?: string | undefined;
   /** Error details when the Knowledge Assistant is in FAILED state. */
   errorInfo?: string | undefined;
+  /** The universally unique identifier (UUID) of the Knowledge Assistant. */
+  knowledgeAssistantId?: string | undefined;
 }
 
 /**
@@ -445,6 +447,7 @@ export const unmarshalKnowledgeAssistantSchema: z.ZodType<KnowledgeAssistant> =
       endpoint_name: z.string().optional(),
       experiment_id: z.string().optional(),
       error_info: z.string().optional(),
+      knowledge_assistant_id: z.string().optional(),
     })
     .transform(d => ({
       name: d.name,
@@ -458,6 +461,7 @@ export const unmarshalKnowledgeAssistantSchema: z.ZodType<KnowledgeAssistant> =
       endpointName: d.endpoint_name,
       experimentId: d.experiment_id,
       errorInfo: d.error_info,
+      knowledgeAssistantId: d.knowledge_assistant_id,
     }));
 
 export const unmarshalKnowledgeSourceSchema: z.ZodType<KnowledgeSource> = z
@@ -606,6 +610,7 @@ export const marshalKnowledgeAssistantSchema: z.ZodType = z
     endpointName: z.string().optional(),
     experimentId: z.string().optional(),
     errorInfo: z.string().optional(),
+    knowledgeAssistantId: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -619,6 +624,7 @@ export const marshalKnowledgeAssistantSchema: z.ZodType = z
     endpoint_name: d.endpointName,
     experiment_id: d.experimentId,
     error_info: d.errorInfo,
+    knowledge_assistant_id: d.knowledgeAssistantId,
   }));
 
 export const marshalKnowledgeSourceSchema: z.ZodType = z
@@ -714,6 +720,7 @@ const knowledgeAssistantFieldMaskSchema: FieldMaskSchema = {
   experimentId: {wire: 'experiment_id'},
   id: {wire: 'id'},
   instructions: {wire: 'instructions'},
+  knowledgeAssistantId: {wire: 'knowledge_assistant_id'},
   name: {wire: 'name'},
   state: {wire: 'state'},
 };

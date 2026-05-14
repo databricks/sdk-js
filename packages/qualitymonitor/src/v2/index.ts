@@ -2,11 +2,19 @@
 
 export {Client} from './client';
 
-export {AnomalyDetectionRunStatus} from './model';
+export {
+  AnomalyDetectionJobType,
+  AnomalyDetectionRunStatus,
+  ThresholdType,
+} from './model';
 
 export type {
   AnomalyDetectionConfig,
+  ColumnMatcher,
   CreateQualityMonitorRequest,
+  CustomCheckConfiguration,
+  CustomCheckThresholds,
+  CustomScalarCheck,
   DeleteQualityMonitorRequest,
   GetQualityMonitorRequest,
   ListQualityMonitorRequest,
@@ -14,6 +22,7 @@ export type {
   PercentNullValidityCheck,
   QualityMonitor,
   RangeValidityCheck,
+  Threshold,
   UniquenessValidityCheck,
   UpdateQualityMonitorRequest,
   ValidityCheckConfiguration,

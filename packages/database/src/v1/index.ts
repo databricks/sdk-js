@@ -3,6 +3,7 @@
 export {Client, CreateDatabaseInstanceWaiter} from './client';
 
 export {
+  PipelineChannel,
   ProvisioningPhase,
   SyncedTableSchedulingPolicy,
   SyncedTableState,
@@ -11,6 +12,8 @@ export {
   DatabaseInstanceRole_MembershipRole,
   ProvisioningInfo_State,
   RequestedClaims_PermissionSet,
+  SyncedTableSpec_PgSpecificType,
+  SyncedTableSpec_SecondaryIndex_CreationPoint,
 } from './model';
 
 export type {
@@ -33,6 +36,7 @@ export type {
   DeleteDatabaseTableRequest,
   DeleteSyncedDatabaseTableRequest,
   DeltaTableSyncInfo,
+  FailoverDatabaseInstanceRequest,
   FindDatabaseInstanceByUidRequest,
   GenerateDatabaseCredentialRequest,
   GetDatabaseCatalogRequest,
@@ -59,9 +63,14 @@ export type {
   SyncedTablePosition,
   SyncedTableProvisioningStatus,
   SyncedTableSpec,
+  SyncedTableSpec_ExtraColumnDefinition,
+  SyncedTableSpec_SecondaryIndex,
+  SyncedTableSpec_TypeOverride,
   SyncedTableStatus,
   SyncedTableTriggeredUpdateStatus,
   UpdateDatabaseCatalogRequest,
   UpdateDatabaseInstanceRequest,
+  UpdateDatabaseInstanceRoleRequest,
   UpdateSyncedDatabaseTableRequest,
+  UpgradeInstanceToAutoscalingRequest,
 } from './model';

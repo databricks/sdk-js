@@ -123,6 +123,9 @@ export class Client {
     if (req.directDownload !== undefined) {
       params.append('direct_download', String(req.directDownload));
     }
+    if (req.outputs !== undefined) {
+      params.append('outputs', req.outputs);
+    }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: Export_Response | undefined;

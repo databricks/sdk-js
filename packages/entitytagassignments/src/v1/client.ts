@@ -135,11 +135,17 @@ export class Client {
     options?: CallOptions
   ): Promise<EntityTagAssignment> {
     const url = `${this.host}/api/2.1/unity-catalog/entity-tag-assignments/${req.entityType ?? ''}/${req.entityName ?? ''}/tags/${req.tagKey ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.includeInherited !== undefined) {
+      params.append('include_inherited', String(req.includeInherited));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: EntityTagAssignment | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,
@@ -171,6 +177,9 @@ export class Client {
     }
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
+    }
+    if (req.includeInherited !== undefined) {
+      params.append('include_inherited', String(req.includeInherited));
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;

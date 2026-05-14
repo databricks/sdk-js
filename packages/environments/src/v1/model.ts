@@ -513,6 +513,15 @@ export enum ErrorCode {
   PROVIDER_SHARE_NOT_ACCESSIBLE = 'PROVIDER_SHARE_NOT_ACCESSIBLE',
 }
 
+/** Identifies who provides and manages a WorkspaceBaseEnvironment. */
+export enum WorkspaceBaseEnvironmentProvider {
+  WORKSPACE_BASE_ENVIRONMENT_PROVIDER_UNSPECIFIED = 'WORKSPACE_BASE_ENVIRONMENT_PROVIDER_UNSPECIFIED',
+  /** Created and managed by workspace admins. */
+  ADMIN = 'ADMIN',
+  /** Provided by Databricks. Read-only; cannot be created, updated, or deleted. */
+  DATABRICKS = 'DATABRICKS',
+}
+
 /** Status of the environment materialization. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum WorkspaceBaseEnvironmentCache_Status {
@@ -741,6 +750,8 @@ export interface WorkspaceBaseEnvironment {
   isDefault?: boolean | undefined;
   /** The type of base environment (CPU or GPU). */
   baseEnvironmentType?: BaseEnvironmentType | undefined;
+  /** The provider of this workspace base environment. */
+  baseEnvironmentProvider?: WorkspaceBaseEnvironmentProvider | undefined;
 }
 
 /** Materialized environment information for a WorkspaceBaseEnvironment. */
@@ -837,6 +848,9 @@ export const unmarshalWorkspaceBaseEnvironmentSchema: z.ZodType<WorkspaceBaseEnv
       message: z.string().optional(),
       is_default: z.boolean().optional(),
       base_environment_type: z.enum(BaseEnvironmentType).optional(),
+      base_environment_provider: z
+        .enum(WorkspaceBaseEnvironmentProvider)
+        .optional(),
     })
     .transform(d => ({
       name: d.name,
@@ -850,6 +864,7 @@ export const unmarshalWorkspaceBaseEnvironmentSchema: z.ZodType<WorkspaceBaseEnv
       message: d.message,
       isDefault: d.is_default,
       baseEnvironmentType: d.base_environment_type,
+      baseEnvironmentProvider: d.base_environment_provider,
     }));
 
 export const unmarshalWorkspaceBaseEnvironmentOperationMetadataSchema: z.ZodType<WorkspaceBaseEnvironmentOperationMetadata> =
@@ -894,6 +909,9 @@ export const marshalWorkspaceBaseEnvironmentSchema: z.ZodType = z
     message: z.string().optional(),
     isDefault: z.boolean().optional(),
     baseEnvironmentType: z.enum(BaseEnvironmentType).optional(),
+    baseEnvironmentProvider: z
+      .enum(WorkspaceBaseEnvironmentProvider)
+      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -907,6 +925,7 @@ export const marshalWorkspaceBaseEnvironmentSchema: z.ZodType = z
     message: d.message,
     is_default: d.isDefault,
     base_environment_type: d.baseEnvironmentType,
+    base_environment_provider: d.baseEnvironmentProvider,
   }));
 
 const defaultWorkspaceBaseEnvironmentFieldMaskSchema: FieldMaskSchema = {

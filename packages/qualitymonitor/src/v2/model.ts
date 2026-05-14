@@ -2,6 +2,12 @@
 
 import {z} from 'zod';
 
+export enum AnomalyDetectionJobType {
+  ANOMALY_DETECTION_JOB_TYPE_UNSPECIFIED = 'ANOMALY_DETECTION_JOB_TYPE_UNSPECIFIED',
+  ANOMALY_DETECTION_JOB_TYPE_NORMAL = 'ANOMALY_DETECTION_JOB_TYPE_NORMAL',
+  ANOMALY_DETECTION_JOB_TYPE_INTERNAL_HIDDEN = 'ANOMALY_DETECTION_JOB_TYPE_INTERNAL_HIDDEN',
+}
+
 /** Status of Anomaly Detection Job Run */
 export enum AnomalyDetectionRunStatus {
   ANOMALY_DETECTION_RUN_STATUS_UNKNOWN = 'ANOMALY_DETECTION_RUN_STATUS_UNKNOWN',
@@ -14,17 +20,59 @@ export enum AnomalyDetectionRunStatus {
   ANOMALY_DETECTION_RUN_STATUS_WORKSPACE_MISMATCH_ERROR = 'ANOMALY_DETECTION_RUN_STATUS_WORKSPACE_MISMATCH_ERROR',
 }
 
+export enum ThresholdType {
+  THRESHOLD_TYPE_UNSPECIFIED = 'THRESHOLD_TYPE_UNSPECIFIED',
+  THRESHOLD_TYPE_AUTO = 'THRESHOLD_TYPE_AUTO',
+  THRESHOLD_TYPE_UNBOUNDED = 'THRESHOLD_TYPE_UNBOUNDED',
+  THRESHOLD_TYPE_MANUAL = 'THRESHOLD_TYPE_MANUAL',
+}
+
 export interface AnomalyDetectionConfig {
   /** Run id of the last run of the workflow */
   lastRunId?: string | undefined;
   /** The status of the last run of the workflow. */
   latestRunStatus?: AnomalyDetectionRunStatus | undefined;
+  /** The type of the last run of the workflow. */
+  jobType?: AnomalyDetectionJobType | undefined;
   /** List of fully qualified table names to exclude from anomaly detection. */
   excludedTableFullNames?: string[] | undefined;
+  customCheckConfigurations?: CustomCheckConfiguration[] | undefined;
+  validityCheckConfigurations?: ValidityCheckConfiguration[] | undefined;
+}
+
+export interface ColumnMatcher {
+  /** Variable name within a custom sql query that this matcher applies to. */
+  variableName?: string | undefined;
+  /** List of column names (in target tables) to match. */
+  columnNames?: string[] | undefined;
 }
 
 export interface CreateQualityMonitorRequest {
   qualityMonitor?: QualityMonitor | undefined;
+}
+
+export interface CustomCheckConfiguration {
+  checkType?:
+    | {$case: 'scalarCheck'; scalarCheck: CustomScalarCheck}
+    | undefined;
+}
+
+export interface CustomCheckThresholds {
+  /** Lower bound threshold */
+  lowerBound?: Threshold | undefined;
+  /** Upper bound threshold */
+  upperBound?: Threshold | undefined;
+}
+
+export interface CustomScalarCheck {
+  /** Name of the custom check */
+  checkName?: string | undefined;
+  /** Templated SQL query for this check */
+  sqlQuery?: string | undefined;
+  /** Column matchers to determine which tables to apply this check to */
+  columnMatchers?: ColumnMatcher[] | undefined;
+  /** Upper/lower thresholds for the output of the query */
+  thresholds?: CustomCheckThresholds | undefined;
 }
 
 export interface DeleteQualityMonitorRequest {
@@ -77,6 +125,12 @@ export interface RangeValidityCheck {
   upperBound?: number | undefined;
 }
 
+export interface Threshold {
+  /** Bound value for this threshold. Meaningful only if threshold_type is MANUAL. */
+  boundValue?: number | undefined;
+  thresholdType?: ThresholdType | undefined;
+}
+
 export interface UniquenessValidityCheck {
   /** List of column names to check for uniqueness */
   columnNames?: string[] | undefined;
@@ -111,13 +165,72 @@ export const unmarshalAnomalyDetectionConfigSchema: z.ZodType<AnomalyDetectionCo
     .object({
       last_run_id: z.string().optional(),
       latest_run_status: z.enum(AnomalyDetectionRunStatus).optional(),
+      job_type: z.enum(AnomalyDetectionJobType).optional(),
       excluded_table_full_names: z.array(z.string()).optional(),
+      custom_check_configurations: z
+        .array(z.lazy(() => unmarshalCustomCheckConfigurationSchema))
+        .optional(),
+      validity_check_configurations: z
+        .array(z.lazy(() => unmarshalValidityCheckConfigurationSchema))
+        .optional(),
     })
     .transform(d => ({
       lastRunId: d.last_run_id,
       latestRunStatus: d.latest_run_status,
+      jobType: d.job_type,
       excludedTableFullNames: d.excluded_table_full_names,
+      customCheckConfigurations: d.custom_check_configurations,
+      validityCheckConfigurations: d.validity_check_configurations,
     }));
+
+export const unmarshalColumnMatcherSchema: z.ZodType<ColumnMatcher> = z
+  .object({
+    variable_name: z.string().optional(),
+    column_names: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    variableName: d.variable_name,
+    columnNames: d.column_names,
+  }));
+
+export const unmarshalCustomCheckConfigurationSchema: z.ZodType<CustomCheckConfiguration> =
+  z
+    .object({
+      scalar_check: z.lazy(() => unmarshalCustomScalarCheckSchema).optional(),
+    })
+    .transform(d => ({
+      checkType:
+        d.scalar_check !== undefined
+          ? {$case: 'scalarCheck' as const, scalarCheck: d.scalar_check}
+          : undefined,
+    }));
+
+export const unmarshalCustomCheckThresholdsSchema: z.ZodType<CustomCheckThresholds> =
+  z
+    .object({
+      lower_bound: z.lazy(() => unmarshalThresholdSchema).optional(),
+      upper_bound: z.lazy(() => unmarshalThresholdSchema).optional(),
+    })
+    .transform(d => ({
+      lowerBound: d.lower_bound,
+      upperBound: d.upper_bound,
+    }));
+
+export const unmarshalCustomScalarCheckSchema: z.ZodType<CustomScalarCheck> = z
+  .object({
+    check_name: z.string().optional(),
+    sql_query: z.string().optional(),
+    column_matchers: z
+      .array(z.lazy(() => unmarshalColumnMatcherSchema))
+      .optional(),
+    thresholds: z.lazy(() => unmarshalCustomCheckThresholdsSchema).optional(),
+  })
+  .transform(d => ({
+    checkName: d.check_name,
+    sqlQuery: d.sql_query,
+    columnMatchers: d.column_matchers,
+    thresholds: d.thresholds,
+  }));
 
 export const unmarshalListQualityMonitorResponseSchema: z.ZodType<ListQualityMonitorResponse> =
   z
@@ -174,6 +287,16 @@ export const unmarshalRangeValidityCheckSchema: z.ZodType<RangeValidityCheck> =
       upperBound: d.upper_bound,
     }));
 
+export const unmarshalThresholdSchema: z.ZodType<Threshold> = z
+  .object({
+    bound_value: z.number().optional(),
+    threshold_type: z.enum(ThresholdType).optional(),
+  })
+  .transform(d => ({
+    boundValue: d.bound_value,
+    thresholdType: d.threshold_type,
+  }));
+
 export const unmarshalUniquenessValidityCheckSchema: z.ZodType<UniquenessValidityCheck> =
   z
     .object({
@@ -222,12 +345,75 @@ export const marshalAnomalyDetectionConfigSchema: z.ZodType = z
   .object({
     lastRunId: z.string().optional(),
     latestRunStatus: z.enum(AnomalyDetectionRunStatus).optional(),
+    jobType: z.enum(AnomalyDetectionJobType).optional(),
     excludedTableFullNames: z.array(z.string()).optional(),
+    customCheckConfigurations: z
+      .array(z.lazy(() => marshalCustomCheckConfigurationSchema))
+      .optional(),
+    validityCheckConfigurations: z
+      .array(z.lazy(() => marshalValidityCheckConfigurationSchema))
+      .optional(),
   })
   .transform(d => ({
     last_run_id: d.lastRunId,
     latest_run_status: d.latestRunStatus,
+    job_type: d.jobType,
     excluded_table_full_names: d.excludedTableFullNames,
+    custom_check_configurations: d.customCheckConfigurations,
+    validity_check_configurations: d.validityCheckConfigurations,
+  }));
+
+export const marshalColumnMatcherSchema: z.ZodType = z
+  .object({
+    variableName: z.string().optional(),
+    columnNames: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    variable_name: d.variableName,
+    column_names: d.columnNames,
+  }));
+
+export const marshalCustomCheckConfigurationSchema: z.ZodType = z
+  .object({
+    checkType: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('scalarCheck'),
+          scalarCheck: z.lazy(() => marshalCustomScalarCheckSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.checkType?.$case === 'scalarCheck' && {
+      scalar_check: d.checkType.scalarCheck,
+    }),
+  }));
+
+export const marshalCustomCheckThresholdsSchema: z.ZodType = z
+  .object({
+    lowerBound: z.lazy(() => marshalThresholdSchema).optional(),
+    upperBound: z.lazy(() => marshalThresholdSchema).optional(),
+  })
+  .transform(d => ({
+    lower_bound: d.lowerBound,
+    upper_bound: d.upperBound,
+  }));
+
+export const marshalCustomScalarCheckSchema: z.ZodType = z
+  .object({
+    checkName: z.string().optional(),
+    sqlQuery: z.string().optional(),
+    columnMatchers: z
+      .array(z.lazy(() => marshalColumnMatcherSchema))
+      .optional(),
+    thresholds: z.lazy(() => marshalCustomCheckThresholdsSchema).optional(),
+  })
+  .transform(d => ({
+    check_name: d.checkName,
+    sql_query: d.sqlQuery,
+    column_matchers: d.columnMatchers,
+    thresholds: d.thresholds,
   }));
 
 export const marshalPercentNullValidityCheckSchema: z.ZodType = z
@@ -268,6 +454,16 @@ export const marshalRangeValidityCheckSchema: z.ZodType = z
     column_names: d.columnNames,
     lower_bound: d.lowerBound,
     upper_bound: d.upperBound,
+  }));
+
+export const marshalThresholdSchema: z.ZodType = z
+  .object({
+    boundValue: z.number().optional(),
+    thresholdType: z.enum(ThresholdType).optional(),
+  })
+  .transform(d => ({
+    bound_value: d.boundValue,
+    threshold_type: d.thresholdType,
   }));
 
 export const marshalUniquenessValidityCheckSchema: z.ZodType = z

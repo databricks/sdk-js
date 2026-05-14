@@ -695,8 +695,22 @@ export enum TerminationCode {
   NETWORK_CHECK_MULTIPLE_COMPONENTS_FAILURE = 'NETWORK_CHECK_MULTIPLE_COMPONENTS_FAILURE',
   /** Driver has been down or unresponsive for an extended period of time */
   DRIVER_UNHEALTHY = 'DRIVER_UNHEALTHY',
+  /**
+   * Nephos only: The initial security agents (Capsule8 or ClamAv) failed to startup
+   * This error code only applies to clusters with the attribute is_csp_unified=true
+   */
+  SECURITY_AGENTS_FAILED_INITIAL_VERIFICATION = 'SECURITY_AGENTS_FAILED_INITIAL_VERIFICATION',
+  /** Failed to resolve the driver's DNS host name to an IP address. */
+  DRIVER_DNS_RESOLUTION_FAILURE = 'DRIVER_DNS_RESOLUTION_FAILURE',
+  /** Serverless only. There are no activated K8s for the cluster. */
+  NO_ACTIVATED_K8S = 'NO_ACTIVATED_K8S',
   /** cluster request is denied due to disallowed usage policy entitlement */
   USAGE_POLICY_ENTITLEMENT_DENIED = 'USAGE_POLICY_ENTITLEMENT_DENIED',
+  /**
+   * Serverless only. There are no activated K8s for the cluster.
+   * Used in testing (e.g. preselected K8s) to denoise alarms when no K8s are activated.
+   */
+  NO_ACTIVATED_K8S_TESTING_TAG = 'NO_ACTIVATED_K8S_TESTING_TAG',
   /** Request exceeded MAX_ACTIVE_DBR_PODS_PER_K8S_CLUSTER quota - too many active pods on the K8s cluster */
   K8S_ACTIVE_POD_QUOTA_EXCEEDED = 'K8S_ACTIVE_POD_QUOTA_EXCEEDED',
   /** Request exceeded MAX_PODS_PER_CLOUD_ACCOUNT quota - subscription/cloud account pod limit reached */
@@ -721,6 +735,17 @@ export enum TerminationCode {
   MTLS_PORT_CONNECTIVITY_FAILURE = 'MTLS_PORT_CONNECTIVITY_FAILURE',
   /** The cluster was terminated because hivemetastore connectivity check failed. */
   HIVEMETASTORE_CONNECTIVITY_FAILURE = 'HIVEMETASTORE_CONNECTIVITY_FAILURE',
+  /**
+   * Dynamic secret creation failed due to access denied when assuming customer's IAM role.
+   * This is a client error caused by customer IAM role misconfiguration.
+   */
+  SECRET_CREATION_ACCESS_DENIED = 'SECRET_CREATION_ACCESS_DENIED',
+  /**
+   * The cluster was terminated proactively by the control plane because it was using old
+   * TLS certificates, which are set to expire soon. New launches will use the rotated cert
+   * set automatically.
+   */
+  CERT_ROTATION = 'CERT_ROTATION',
 }
 
 /** type of the termination */

@@ -49,6 +49,8 @@ export enum QueryStatementType {
   TRUNCATE = 'TRUNCATE',
   UPDATE = 'UPDATE',
   USE = 'USE',
+  /** SQL Script */
+  CALL = 'CALL',
 }
 
 /**

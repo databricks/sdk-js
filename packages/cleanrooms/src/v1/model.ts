@@ -64,7 +64,10 @@ export enum ColumnTypeName {
   VARIANT = 'VARIANT',
   GEOMETRY = 'GEOMETRY',
   GEOGRAPHY = 'GEOGRAPHY',
+  TIME = 'TIME',
+  FILE = 'FILE',
   TABLE_TYPE = 'TABLE_TYPE',
+  TABLEREF_TYPE = 'TABLEREF_TYPE',
 }
 
 /** Compliance standard for SHIELD customers. See README.md for how instructions of how to add new standards. */
@@ -109,6 +112,11 @@ export enum ComplianceStandard {
   GERMANY_C5 = 'GERMANY_C5',
   /** Trusted Information Security Assessment Exchange, a compliance standard for automotive industry for Germany */
   GERMANY_TISAX = 'GERMANY_TISAX',
+  /**
+   * Acceptable Risk Controls for ACA, Medicaid, and Partner Entities
+   * from the Centers for Medicare & Medicaid Services (CMS)
+   */
+  ARC_AMPE = 'ARC_AMPE',
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -269,6 +277,13 @@ export interface CleanRoom {
   outputCatalog?: CleanRoomOutputCatalog | undefined;
   /** Whether clean room access is restricted due to [CSP](https://docs.databricks.com/en/security/privacy/security-profile.html) */
   accessRestricted?: CleanRoom_AccessRestricted | undefined;
+  /**
+   * Whether allow task to write to shared output schema.
+   * When enabled, clean room task runs triggered by the current collaborator
+   * can write to the run-scoped shared output schema which is accessible by all collaborators.
+   * TODO: deprecate this field once shared output PrPr is finalized
+   */
+  enableSharedOutput?: boolean | undefined;
 }
 
 /** Clean room status. */
@@ -402,6 +417,13 @@ export interface CleanRoomAsset_Notebook {
   reviews?: CleanRoomNotebookReview[] | undefined;
   /** Top-level status derived from all reviews */
   reviewState?: CleanRoomNotebookReview_NotebookReviewState | undefined;
+  /** Optional description of the notebook shown to all collaborators. */
+  description?: string | undefined;
+  /**
+   * The serverless environment version used to execute the notebook (e.g. "4").
+   * Defaults to "2" if not specified.
+   */
+  environmentVersion?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
@@ -559,6 +581,13 @@ export interface CleanRoomNotebookTaskRun {
   notebookEtag?: string | undefined;
   /** The timestamp of when the notebook was last updated. */
   notebookUpdatedAt?: number | undefined;
+  /**
+   * Name of the shared output schema associated with the clean rooms notebook task run.
+   * This schema is accessible by all collaborators when enable_shared_output is true.
+   */
+  sharedOutputSchemaName?: string | undefined;
+  /** Expiration time of the shared output schema of the task run (if any), in epoch milliseconds. */
+  sharedOutputSchemaExpirationTime?: number | undefined;
 }
 
 export interface CleanRoomOutputCatalog {
@@ -1026,6 +1055,7 @@ export const unmarshalCleanRoomSchema: z.ZodType<CleanRoom> = z
       .lazy(() => unmarshalCleanRoomOutputCatalogSchema)
       .optional(),
     access_restricted: z.enum(CleanRoom_AccessRestricted).optional(),
+    enable_shared_output: z.boolean().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1038,6 +1068,7 @@ export const unmarshalCleanRoomSchema: z.ZodType<CleanRoom> = z
     localCollaboratorAlias: d.local_collaborator_alias,
     outputCatalog: d.output_catalog,
     accessRestricted: d.access_restricted,
+    enableSharedOutput: d.enable_shared_output,
   }));
 
 export const unmarshalCleanRoomAssetSchema: z.ZodType<CleanRoomAsset> = z
@@ -1141,6 +1172,8 @@ export const unmarshalCleanRoomAsset_NotebookSchema: z.ZodType<CleanRoomAsset_No
       review_state: z
         .enum(CleanRoomNotebookReview_NotebookReviewState)
         .optional(),
+      description: z.string().optional(),
+      environment_version: z.string().optional(),
     })
     .transform(d => ({
       notebookContent: d.notebook_content,
@@ -1148,6 +1181,8 @@ export const unmarshalCleanRoomAsset_NotebookSchema: z.ZodType<CleanRoomAsset_No
       runnerCollaboratorAliases: d.runner_collaborator_aliases,
       reviews: d.reviews,
       reviewState: d.review_state,
+      description: d.description,
+      environmentVersion: d.environment_version,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1294,6 +1329,8 @@ export const unmarshalCleanRoomNotebookTaskRunSchema: z.ZodType<CleanRoomNoteboo
       output_schema_expiration_time: z.number().optional(),
       notebook_etag: z.string().optional(),
       notebook_updated_at: z.number().optional(),
+      shared_output_schema_name: z.string().optional(),
+      shared_output_schema_expiration_time: z.number().optional(),
     })
     .transform(d => ({
       notebookName: d.notebook_name,
@@ -1305,6 +1342,8 @@ export const unmarshalCleanRoomNotebookTaskRunSchema: z.ZodType<CleanRoomNoteboo
       outputSchemaExpirationTime: d.output_schema_expiration_time,
       notebookEtag: d.notebook_etag,
       notebookUpdatedAt: d.notebook_updated_at,
+      sharedOutputSchemaName: d.shared_output_schema_name,
+      sharedOutputSchemaExpirationTime: d.shared_output_schema_expiration_time,
     }));
 
 export const unmarshalCleanRoomOutputCatalogSchema: z.ZodType<CleanRoomOutputCatalog> =
@@ -1707,6 +1746,7 @@ export const marshalCleanRoomSchema: z.ZodType = z
     localCollaboratorAlias: z.string().optional(),
     outputCatalog: z.lazy(() => marshalCleanRoomOutputCatalogSchema).optional(),
     accessRestricted: z.enum(CleanRoom_AccessRestricted).optional(),
+    enableSharedOutput: z.boolean().optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1719,6 +1759,7 @@ export const marshalCleanRoomSchema: z.ZodType = z
     local_collaborator_alias: d.localCollaboratorAlias,
     output_catalog: d.outputCatalog,
     access_restricted: d.accessRestricted,
+    enable_shared_output: d.enableSharedOutput,
   }));
 
 export const marshalCleanRoomAssetSchema: z.ZodType = z
@@ -1833,6 +1874,8 @@ export const marshalCleanRoomAsset_NotebookSchema: z.ZodType = z
       .array(z.lazy(() => marshalCleanRoomNotebookReviewSchema))
       .optional(),
     reviewState: z.enum(CleanRoomNotebookReview_NotebookReviewState).optional(),
+    description: z.string().optional(),
+    environmentVersion: z.string().optional(),
   })
   .transform(d => ({
     notebook_content: d.notebookContent,
@@ -1840,6 +1883,8 @@ export const marshalCleanRoomAsset_NotebookSchema: z.ZodType = z
     runner_collaborator_aliases: d.runnerCollaboratorAliases,
     reviews: d.reviews,
     review_state: d.reviewState,
+    description: d.description,
+    environment_version: d.environmentVersion,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.

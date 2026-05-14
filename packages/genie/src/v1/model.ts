@@ -26,7 +26,10 @@ export enum ColumnTypeName {
   VARIANT = 'VARIANT',
   GEOMETRY = 'GEOMETRY',
   GEOGRAPHY = 'GEOGRAPHY',
+  TIME = 'TIME',
+  FILE = 'FILE',
   TABLE_TYPE = 'TABLE_TYPE',
+  TABLEREF_TYPE = 'TABLEREF_TYPE',
 }
 
 /** Error codes returned by Databricks APIs to indicate specific failure conditions. */
@@ -581,6 +584,12 @@ export enum NullValue {
   NULL_VALUE = 'NULL_VALUE',
 }
 
+export enum ResponsePhase {
+  RESPONSE_PHASE_UNSPECIFIED = 'RESPONSE_PHASE_UNSPECIFIED',
+  RESPONSE_PHASE_THINKING = 'RESPONSE_PHASE_THINKING',
+  RESPONSE_PHASE_VERIFYING = 'RESPONSE_PHASE_VERIFYING',
+}
+
 export enum ScoreReason {
   SCORE_REASON_UNSPECIFIED = 'SCORE_REASON_UNSPECIFIED',
   EMPTY_RESULT = 'EMPTY_RESULT',
@@ -644,6 +653,18 @@ export enum ThoughtType {
   THOUGHT_TYPE_STEPS = 'THOUGHT_TYPE_STEPS',
 }
 
+/**
+ * Verification workflow section - indicates which stage of verification this attachment belongs to
+ * These sections are used for grouping and ordering attachments in the frontend UI
+ */
+export enum VerificationSection {
+  VERIFICATION_SECTION_UNSPECIFIED = 'VERIFICATION_SECTION_UNSPECIFIED',
+  VERIFICATION_SECTION_SQL_EXAMPLES_VALIDATION = 'VERIFICATION_SECTION_SQL_EXAMPLES_VALIDATION',
+  VERIFICATION_SECTION_VERIFICATION_QUERIES = 'VERIFICATION_SECTION_VERIFICATION_QUERIES',
+  VERIFICATION_SECTION_PROPOSED_IMPROVEMENT = 'VERIFICATION_SECTION_PROPOSED_IMPROVEMENT',
+  VERIFICATION_SECTION_FINAL_DECISION = 'VERIFICATION_SECTION_FINAL_DECISION',
+}
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum MessageError_Type {
   TYPE_UNSPECIFIED = 'TYPE_UNSPECIFIED',
@@ -701,6 +722,7 @@ export enum MessageError_Type {
   INVALID_SQL_UNKNOWN_TABLE_EXCEPTION = 'INVALID_SQL_UNKNOWN_TABLE_EXCEPTION',
   INVALID_SQL_MULTIPLE_STATEMENTS_EXCEPTION = 'INVALID_SQL_MULTIPLE_STATEMENTS_EXCEPTION',
   INVALID_SQL_MULTIPLE_DATASET_REFERENCES_EXCEPTION = 'INVALID_SQL_MULTIPLE_DATASET_REFERENCES_EXCEPTION',
+  INVALID_CHAT_COMPLETION_ARGUMENTS_JSON_EXCEPTION = 'INVALID_CHAT_COMPLETION_ARGUMENTS_JSON_EXCEPTION',
   MESSAGE_ATTACHMENT_TOO_LONG_ERROR = 'MESSAGE_ATTACHMENT_TOO_LONG_ERROR',
   INTERNAL_CATALOG_PATH_OVERLAP_EXCEPTION = 'INTERNAL_CATALOG_PATH_OVERLAP_EXCEPTION',
   INTERNAL_CATALOG_MISSING_UC_PATH_EXCEPTION = 'INTERNAL_CATALOG_MISSING_UC_PATH_EXCEPTION',
@@ -710,6 +732,7 @@ export enum MessageError_Type {
   INTERNAL_CATALOG_ASSET_CREATION_UNSUPPORTED_EXCEPTION = 'INTERNAL_CATALOG_ASSET_CREATION_UNSUPPORTED_EXCEPTION',
   UNSUPPORTED_CONVERSATION_TYPE_EXCEPTION = 'UNSUPPORTED_CONVERSATION_TYPE_EXCEPTION',
   COULD_NOT_GET_DASHBOARD_SCHEMA_EXCEPTION = 'COULD_NOT_GET_DASHBOARD_SCHEMA_EXCEPTION',
+  DELEGATION_NOT_FOUND_EXCEPTION = 'DELEGATION_NOT_FOUND_EXCEPTION',
 }
 
 /**
@@ -1527,6 +1550,8 @@ export interface GenieUpdateSpaceRequest {
    * has been modified since. Omit to apply the update unconditionally.
    */
   etag?: string | undefined;
+  /** Parent workspace folder path to move this Genie space under. */
+  parentPath?: string | undefined;
 }
 
 /**
@@ -1712,6 +1737,9 @@ export interface TextAttachment {
   /** AI generated message */
   content?: string | undefined;
   id?: string | undefined;
+  phase?: ResponsePhase | undefined;
+  /** Metadata for verification phase attachments. Only set when phase = RESPONSE_PHASE_VERIFYING. */
+  verificationMetadata?: VerificationMetadata | undefined;
   /** Purpose/intent of this text attachment */
   purpose?: TextAttachmentPurpose | undefined;
 }
@@ -1776,6 +1804,13 @@ export interface Value {
         listValue: ListValue;
       }
     | undefined;
+}
+
+/** Metadata for verification phase attachments */
+export interface VerificationMetadata {
+  section?: VerificationSection | undefined;
+  /** Optional index to help order attachments within the same section */
+  index?: number | undefined;
 }
 
 export const unmarshalChunkInfoSchema: z.ZodType<ChunkInfo> = z
@@ -2458,11 +2493,17 @@ export const unmarshalTextAttachmentSchema: z.ZodType<TextAttachment> = z
   .object({
     content: z.string().optional(),
     id: z.string().optional(),
+    phase: z.enum(ResponsePhase).optional(),
+    verification_metadata: z
+      .lazy(() => unmarshalVerificationMetadataSchema)
+      .optional(),
     purpose: z.enum(TextAttachmentPurpose).optional(),
   })
   .transform(d => ({
     content: d.content,
     id: d.id,
+    phase: d.phase,
+    verificationMetadata: d.verification_metadata,
     purpose: d.purpose,
   }));
 
@@ -2501,6 +2542,17 @@ export const unmarshalValueSchema: z.ZodType<Value> = z
                   ? {$case: 'listValue' as const, listValue: d.list_value}
                   : undefined,
   }));
+
+export const unmarshalVerificationMetadataSchema: z.ZodType<VerificationMetadata> =
+  z
+    .object({
+      section: z.enum(VerificationSection).optional(),
+      index: z.number().optional(),
+    })
+    .transform(d => ({
+      section: d.section,
+      index: d.index,
+    }));
 
 export const marshalGenieCreateConversationMessageRequestSchema: z.ZodType = z
   .object({
@@ -2630,6 +2682,7 @@ export const marshalGenieUpdateSpaceRequestSchema: z.ZodType = z
     description: z.string().optional(),
     warehouseId: z.string().optional(),
     etag: z.string().optional(),
+    parentPath: z.string().optional(),
   })
   .transform(d => ({
     space_id: d.spaceId,
@@ -2638,4 +2691,5 @@ export const marshalGenieUpdateSpaceRequestSchema: z.ZodType = z
     description: d.description,
     warehouse_id: d.warehouseId,
     etag: d.etag,
+    parent_path: d.parentPath,
   }));

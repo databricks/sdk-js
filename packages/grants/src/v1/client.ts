@@ -18,10 +18,16 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
+  EffectivePrivilegeAssignment,
   GetEffectivePermissions,
   GetEffectivePermissions_Response,
   GetPermissions,
   GetPermissions_Response,
+  ListEffectivePrivilegeAssignmentsRequest,
+  ListEffectivePrivilegeAssignmentsResponse,
+  ListPrivilegeAssignmentsRequest,
+  ListPrivilegeAssignmentsResponse,
+  PrivilegeAssignment,
   UpdatePermissions,
   UpdatePermissions_Response,
 } from './model';
@@ -29,6 +35,8 @@ import {
   marshalUpdatePermissionsSchema,
   unmarshalGetEffectivePermissions_ResponseSchema,
   unmarshalGetPermissions_ResponseSchema,
+  unmarshalListEffectivePrivilegeAssignmentsResponseSchema,
+  unmarshalListPrivilegeAssignmentsResponseSchema,
   unmarshalUpdatePermissions_ResponseSchema,
 } from './model';
 
@@ -133,6 +141,12 @@ export class Client {
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
     }
+    if (req.includeDeletedPrincipals !== undefined) {
+      params.append(
+        'include_deleted_principals',
+        String(req.includeDeletedPrincipals)
+      );
+    }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: GetPermissions_Response | undefined;
@@ -152,6 +166,141 @@ export class Client {
       throw new Error('API call completed without a result.');
     }
     return resp;
+  }
+
+  /**
+   * Lists the effective privilege assignments for a securable. Includes inherited privileges.
+   * Paginated version of Get Effective Permissions API.
+   */
+  async listEffectivePrivilegeAssignments(
+    req: ListEffectivePrivilegeAssignmentsRequest,
+    options?: CallOptions
+  ): Promise<ListEffectivePrivilegeAssignmentsResponse> {
+    const url = `${this.host}/api/2.1/unity-catalog/effective-privilege-assignments/${req.securableType ?? ''}/${req.fullName ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.principal !== undefined) {
+      params.append('principal', req.principal);
+    }
+    if (req.includeDeletedPrincipals !== undefined) {
+      params.append(
+        'include_deleted_principals',
+        String(req.includeDeletedPrincipals)
+      );
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListEffectivePrivilegeAssignmentsResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListEffectivePrivilegeAssignmentsResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listEffectivePrivilegeAssignmentsIter(
+    req: ListEffectivePrivilegeAssignmentsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<EffectivePrivilegeAssignment> {
+    const pageReq: ListEffectivePrivilegeAssignmentsRequest = {...req};
+    for (;;) {
+      const resp = await this.listEffectivePrivilegeAssignments(
+        pageReq,
+        options
+      );
+      for (const item of resp.effectivePrivilegeAssignments ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /**
+   * Lists the privilege assignments for a securable. Does not include inherited privileges.
+   * Paginated version of Get Permissions API.
+   */
+  async listPrivilegeAssignments(
+    req: ListPrivilegeAssignmentsRequest,
+    options?: CallOptions
+  ): Promise<ListPrivilegeAssignmentsResponse> {
+    const url = `${this.host}/api/2.1/unity-catalog/privilege-assignments/${req.securableType ?? ''}/${req.fullName ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.principal !== undefined) {
+      params.append('principal', req.principal);
+    }
+    if (req.includeDeletedPrincipals !== undefined) {
+      params.append(
+        'include_deleted_principals',
+        String(req.includeDeletedPrincipals)
+      );
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListPrivilegeAssignmentsResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListPrivilegeAssignmentsResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listPrivilegeAssignmentsIter(
+    req: ListPrivilegeAssignmentsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<PrivilegeAssignment> {
+    const pageReq: ListPrivilegeAssignmentsRequest = {...req};
+    for (;;) {
+      const resp = await this.listPrivilegeAssignments(pageReq, options);
+      for (const item of resp.privilegeAssignments ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
   }
 
   /** Updates the permissions for a securable. */

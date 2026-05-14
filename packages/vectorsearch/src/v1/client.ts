@@ -38,6 +38,8 @@ import type {
   PatchEndpointBudgetPolicyRequest,
   PatchEndpointBudgetPolicyResponse,
   PatchEndpointRequest,
+  PatchEndpointThroughputRequest,
+  PatchEndpointThroughputResponse,
   QueryVectorIndexNextPageRequest,
   QueryVectorIndexRequest,
   QueryVectorIndexResponse,
@@ -55,6 +57,7 @@ import {
   marshalCreateVectorIndexRequestSchema,
   marshalPatchEndpointBudgetPolicyRequestSchema,
   marshalPatchEndpointRequestSchema,
+  marshalPatchEndpointThroughputRequestSchema,
   marshalQueryVectorIndexNextPageRequestSchema,
   marshalQueryVectorIndexRequestSchema,
   marshalScanVectorIndexRequestSchema,
@@ -67,6 +70,7 @@ import {
   unmarshalListEndpointResponseSchema,
   unmarshalListVectorIndexResponseSchema,
   unmarshalPatchEndpointBudgetPolicyResponseSchema,
+  unmarshalPatchEndpointThroughputResponseSchema,
   unmarshalQueryVectorIndexResponseSchema,
   unmarshalScanVectorIndexResponseSchema,
   unmarshalSyncVectorIndexResponseSchema,
@@ -461,6 +465,38 @@ export class Client {
       resp = parseResponse(
         respBody,
         unmarshalPatchEndpointBudgetPolicyResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Update the throughput (concurrency) of an endpoint */
+  async patchEndpointThroughput(
+    req: PatchEndpointThroughputRequest,
+    options?: CallOptions
+  ): Promise<PatchEndpointThroughputResponse> {
+    const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/throughput`;
+    const body = marshalRequest(
+      req,
+      marshalPatchEndpointThroughputRequestSchema
+    );
+    let resp: PatchEndpointThroughputResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalPatchEndpointThroughputResponseSchema
       );
     };
     await executeCall(call, options);

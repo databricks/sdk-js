@@ -1,5 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -159,6 +161,8 @@ export interface UpdateBudgetPolicyRequest {
    * update.
    */
   policy?: BudgetPolicy | undefined;
+  /** Field mask specifying which fields to update. When not provided, all fields are updated. */
+  updateMask?: FieldMask<BudgetPolicy> | undefined;
   /** The account Id of the customer */
   accountId?: string | undefined;
   /** DEPRECATED. This is redundant field as LimitConfig is part of the BudgetPolicy */
@@ -263,3 +267,16 @@ export const marshalSortSpecSchema: z.ZodType = z
     field: d.field,
     descending: d.descending,
   }));
+
+const budgetPolicyFieldMaskSchema: FieldMaskSchema = {
+  bindingWorkspaceIds: {wire: 'binding_workspace_ids'},
+  customTags: {wire: 'custom_tags'},
+  policyId: {wire: 'policy_id'},
+  policyName: {wire: 'policy_name'},
+};
+
+export function budgetPolicyFieldMask(
+  ...paths: string[]
+): FieldMask<BudgetPolicy> {
+  return FieldMask.build<BudgetPolicy>(paths, budgetPolicyFieldMaskSchema);
+}

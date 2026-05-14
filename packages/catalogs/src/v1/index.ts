@@ -5,7 +5,9 @@ export {Client} from './client';
 export {
   CatalogIsolationMode,
   CatalogType,
+  DrReplicationStatus,
   SecurableType,
+  ConversionInfo_State,
   ProvisioningInfo_State,
 } from './model';
 
@@ -14,11 +16,13 @@ export type {
   CatalogInfo,
   CatalogInfo_OptionsEntry,
   CatalogInfo_PropertiesEntry,
+  ConversionInfo,
   CreateCatalog,
   CreateCatalog_OptionsEntry,
   CreateCatalog_PropertiesEntry,
   DeleteCatalog,
   DeleteCatalog_Response,
+  DrReplicationInfo,
   EffectivePredictiveOptimizationFlag,
   EncryptionSettings,
   GetCatalog,

@@ -7,12 +7,15 @@ export {
   IndexSubtype,
   PipelineType,
   ScalingChangeState,
+  ThroughputChangeRequestState,
+  ThroughputPatchStatus,
   UpsertDeleteDataStatus,
   VectorIndexType,
   EndpointStatus_State,
 } from './model';
 
 export type {
+  AdjustedThroughputRequest,
   ColumnInfo,
   CreateEndpointRequest,
   CreateVectorIndexRequest,
@@ -31,6 +34,7 @@ export type {
   Endpoint,
   EndpointScalingInfo,
   EndpointStatus,
+  EndpointThroughputInfo,
   GetEndpointRequest,
   GetVectorIndexRequest,
   ListEndpointRequest,
@@ -43,6 +47,8 @@ export type {
   PatchEndpointBudgetPolicyRequest,
   PatchEndpointBudgetPolicyResponse,
   PatchEndpointRequest,
+  PatchEndpointThroughputRequest,
+  PatchEndpointThroughputResponse,
   QueryVectorIndexNextPageRequest,
   QueryVectorIndexRequest,
   QueryVectorIndexResponse,

@@ -173,6 +173,8 @@ export enum HardwareAcceleratorType {
   GPU_1X_A10 = 'GPU_1xA10',
   /** GPU_8xH100: 8x H100 GPU configuration. */
   GPU_8X_H100 = 'GPU_8xH100',
+  /** GPU_1xH100: Single H100 GPU configuration. */
+  GPU_1X_H100 = 'GPU_1xH100',
 }
 
 /**
@@ -206,6 +208,28 @@ export enum JobsHealthMetric {
 /** Specifies the operator used to compare the health metric value with the specified threshold. */
 export enum JobsHealthOperator {
   GREATER_THAN = 'GREATER_THAN',
+}
+
+/** Granularity for incremental refresh windows. */
+export enum RefreshGranularity {
+  REFRESH_GRANULARITY_UNSPECIFIED = 'REFRESH_GRANULARITY_UNSPECIFIED',
+  /** Uses day-based refresh windows. */
+  REFRESH_GRANULARITY_DAY = 'REFRESH_GRANULARITY_DAY',
+  /** Uses month-based refresh windows. */
+  REFRESH_GRANULARITY_MONTH = 'REFRESH_GRANULARITY_MONTH',
+  /** Uses quarter-based refresh windows. */
+  REFRESH_GRANULARITY_QUARTER = 'REFRESH_GRANULARITY_QUARTER',
+  /** Uses year-based refresh windows. */
+  REFRESH_GRANULARITY_YEAR = 'REFRESH_GRANULARITY_YEAR',
+}
+
+/** The refresh policy mode for incremental refresh. */
+export enum RefreshPolicyMode {
+  REFRESH_POLICY_MODE_UNSPECIFIED = 'REFRESH_POLICY_MODE_UNSPECIFIED',
+  /** Uses DirectQuery for data within the refresh window and Import for archived data. */
+  REFRESH_POLICY_MODE_HYBRID = 'REFRESH_POLICY_MODE_HYBRID',
+  /** Uses Import mode for all partitions; no DirectQuery overlay. */
+  REFRESH_POLICY_MODE_IMPORT_ONLY = 'REFRESH_POLICY_MODE_IMPORT_ONLY',
 }
 
 /**
@@ -677,6 +701,11 @@ export enum TerminationCode_Code {
   SUCCESS_WITH_FAILURES = 'SUCCESS_WITH_FAILURES',
   /** Run failed because of an intentional breaking change in Spark, but it will be retried with a mitigation config. */
   BREAKING_CHANGE = 'BREAKING_CHANGE',
+  /**
+   * Run failed because the externally managed (interactive/all-purpose) cluster entered an
+   * unusable state, likely due to the user terminating or restarting it outside the jobs service.
+   */
+  CLUSTER_TERMINATED_BY_USER = 'CLUSTER_TERMINATED_BY_USER',
 }
 
 /**
@@ -706,6 +735,183 @@ export interface AccessControlRequest {
 export interface Adlsgen2Info {
   /** abfss destination, e.g. `abfss://<container-name>@<storage-account-name>.dfs.core.windows.net/<directory-name>`. */
   destination?: string | undefined;
+}
+
+/**
+ * Tool configuration for an inlined agentic task agent. Discriminator
+ * selects which per-asset config message applies (``genie_space``,
+ * ``knowledge_assistant``, ``uc_function``, ``uc_connection``, ``app``,
+ * ``table``, ``vector_search_index``, ``volume``, ``catalog``, ``schema``,
+ * ``dashboard``, ``supervisor_agent``, ``serving_endpoint``,
+ * ``web_search``); ``description`` is a free-form top-level description;
+ * each per-asset config carries only the asset's identifier.
+ *
+ * The discriminator is exposed under two interchangeable names:
+ * ``type`` mirrors the Supervisor (Responses) API surface,
+ * and ``tool_type`` is the AIP-friendly alias for clients where
+ * ``type`` is a reserved keyword (Terraform, etc.). Set exactly one.
+ */
+export interface AgentTool {
+  /**
+   * Required. Discriminator. One of: "genie_space", "knowledge_assistant",
+   * "uc_function", "uc_connection", "app", "table", "vector_search_index",
+   * "volume", "catalog", "schema", "dashboard", "supervisor_agent",
+   * "serving_endpoint", "web_search".
+   */
+  toolTypeField?: {$case: 'toolType'; toolType: string} | undefined;
+  /** Optional. Free-form description of the tool. */
+  description?: string | undefined;
+  /** Genie space tool config. Set when the discriminator == "genie_space". */
+  genieSpace?: GenieSpaceTool | undefined;
+  /** Knowledge Assistant tool config. Set when the discriminator == "knowledge_assistant". */
+  knowledgeAssistant?: KnowledgeAssistantTool | undefined;
+  /** Unity Catalog function tool config. Set when the discriminator == "uc_function". */
+  ucFunction?: UcFunctionTool | undefined;
+  /** External MCP / UC connection tool config. Set when the discriminator == "uc_connection". */
+  ucConnection?: UcConnectionTool | undefined;
+  /** Databricks App tool config. Set when the discriminator == "app". */
+  app?: AppTool | undefined;
+  /** Unity Catalog table tool config. Set when the discriminator == "table". */
+  table?: TableTool | undefined;
+  /** Vector Search index tool config. Set when the discriminator == "vector_search_index". */
+  vectorSearchIndex?: VectorSearchIndexTool | undefined;
+  /** Unity Catalog volume tool config. Set when the discriminator == "volume". */
+  volume?: VolumeTool | undefined;
+  /** Unity Catalog catalog tool config. Set when the discriminator == "catalog". */
+  catalog?: CatalogTool | undefined;
+  /** Unity Catalog schema tool config. Set when the discriminator == "schema". */
+  schema?: SchemaTool | undefined;
+  /** Lakeview dashboard tool config. Set when the discriminator == "dashboard". */
+  dashboard?: DashboardTool | undefined;
+  /**
+   * Supervisor Agent tool config (a supervisor agent used as a tool).
+   * Set when the discriminator == "supervisor_agent".
+   */
+  supervisorAgent?: SupervisorAgentTool | undefined;
+  /** Model serving endpoint tool config. Set when the discriminator == "serving_endpoint". */
+  servingEndpoint?: ServingEndpointTool | undefined;
+  /** Web search tool config. Set when the discriminator == "web_search". */
+  webSearch?: WebSearchTool | undefined;
+}
+
+/**
+ * Defines an agentic task configuration for job-based execution. Two
+ * configuration paths via ``oneof agent``:
+ * - Reference a pre-registered Supervisor Agent tile via
+ * ``supervisor_agent.agent_id``.
+ * - Provide an inlined Responses-API-style config via ``supervisor_api``.
+ */
+export interface AgenticTask {
+  /**
+   * Deprecated. Use ``input`` (field 7) instead. Kept for backwards
+   * compatibility with existing callers; will be removed in a future revision.
+   */
+  goal?: string | undefined;
+  /** Required. The agent to execute. */
+  agent?:
+    | {
+        $case: 'supervisorAgent';
+        /**
+         * A Supervisor Agent that orchestrates sub-agents and tools, referenced
+         * by tile_id.
+         */
+        supervisorAgent: SupervisorAgent;
+      }
+    | {
+        $case: 'supervisorApi';
+        /**
+         * Inlined Responses-API supervisor configuration (model + instructions + tools).
+         * Mutually exclusive with ``supervisor_agent``.
+         */
+        supervisorApi: SupervisorApi;
+      }
+    | undefined;
+  /**
+   * Deprecated. Use ``output_schema`` (field 8) instead. Kept for backwards
+   * compatibility with existing callers; will be removed in a future revision.
+   */
+  taskOutputSchema?: Record<string, string> | undefined;
+  /** Optional. Context input providing conversation history and instructions. */
+  context?: AgenticTaskContext | undefined;
+  /**
+   * Optional. The user query / task input the agent must accomplish. Mirrors
+   * the OpenAI Responses API ``input`` field. Replaces the deprecated
+   * ``goal`` field; new callers should populate ``input`` going forward.
+   */
+  input?: string | undefined;
+  /**
+   * Optional. JSON-Schema-style declaration of the structured output the
+   * agent should produce. Replaces the deprecated ``task_output_schema``
+   * map; new callers should populate ``output_schema`` going forward.
+   */
+  outputSchema?: TaskOutputSchema | undefined;
+  /**
+   * Optional. Where MLflow traces produced by this task run should be
+   * persisted. When unset, traces follow the workspace default destination.
+   */
+  traceDestination?: TraceDestination | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface AgenticTask_TaskOutputSchemaEntry {
+  key?: string | undefined;
+  value?: string | undefined;
+}
+
+/**
+ * Context input for an agentic task, providing conversation history
+ * and additional instructions to guide the agent.
+ */
+export interface AgenticTaskContext {
+  /** Optional. Conversation IDs to load as context for the agent. */
+  conversationIds?: string[] | undefined;
+  /** Optional. Additional instructions to guide the agent's behavior. */
+  instructions?: string[] | undefined;
+}
+
+/** Output returned after an agentic task completes. */
+export interface AgenticTaskOutput {
+  /**
+   * Deprecated. Run-level identity already lives on the surrounding
+   * ``RunOutput``; ``SupervisorOutput.response_id`` is the canonical handle
+   * for the structured response.
+   */
+  id?: string | undefined;
+  /** Deprecated. Run timestamps are exposed on the surrounding job-run. */
+  createdAt?: number | undefined;
+  /**
+   * Deprecated. The final text response is now surfaced in
+   * ``task_output["response"]``; new callers should read it from there.
+   */
+  response?: string | undefined;
+  /** Deprecated. Run lifecycle state is exposed on the surrounding job-run. */
+  status?: string | undefined;
+  /**
+   * Custom output values from the agent. When the caller specified a
+   * ``task_output_schema`` / ``output_schema``, this carries those user-defined
+   * keys. When no schema is specified, this carries default supervisor keys
+   * (``response``, ``truncated``, ...).
+   */
+  taskOutput?: Record<string, string> | undefined;
+  /** The conversation ID generated during this task execution. */
+  conversationId?: string | undefined;
+  /**
+   * Agent-specific output payload. The variant set depends on which agent
+   * type executed the task.
+   */
+  agentOutput?:
+    | {
+        $case: 'supervisor';
+        /** Supervisor (tile or inlined) execution output. */
+        supervisor: SupervisorOutput;
+      }
+    | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface AgenticTaskOutput_TaskOutputEntry {
+  key?: string | undefined;
+  value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -747,6 +953,11 @@ export interface AlertTaskSubscriber {
       }
     | {$case: 'destinationId'; destinationId: string}
     | undefined;
+}
+
+export interface AppTool {
+  /** The Databricks App name. */
+  name?: string | undefined;
 }
 
 export interface AutoScale {
@@ -903,6 +1114,11 @@ export interface BaseJob {
   effectiveBudgetPolicyId?: string | undefined;
   /** The id of the usage policy used by this job for cost attribution purposes. */
   effectiveUsagePolicyId?: string | undefined;
+  /**
+   * Path of the job object in workspace file tree, including file extension. If absent, the job doesn't have a workspace object.
+   * Example: /Workspace/user@example.com/my_project/my_job.job.json
+   */
+  path?: string | undefined;
 }
 
 export interface BaseRun {
@@ -1016,6 +1232,11 @@ export interface CancelRun {
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
 export interface CancelRun_Response {}
 
+export interface CatalogTool {
+  /** UC catalog name. */
+  name?: string | undefined;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface CleanRoomTaskRunLifeCycleState {}
 
@@ -1060,6 +1281,8 @@ export interface CleanRoomsNotebookTask_CleanRoomsNotebookTaskOutput {
   notebookOutput?: NotebookTask_NotebookOutput | undefined;
   /** Information on how to access the output schema for the clean room run */
   outputSchemaInfo?: OutputSchemaInfo | undefined;
+  /** Information on how to access the shared output schema for the clean room run */
+  sharedOutputSchemaInfo?: OutputSchemaInfo | undefined;
 }
 
 /** Name-based parameters for jobs running notebook tasks. */
@@ -1530,6 +1753,11 @@ export interface CronSchedule {
   timezoneId?: string | undefined;
   /** Indicate whether this schedule is paused or not. */
   pauseStatus?: SchedulePauseStatus | undefined;
+  /**
+   * SQL condition that must be satisfied before a scheduled run is triggered. The condition is evaluated
+   * after the cron expression fires and must return a truthy result for the run to proceed.
+   */
+  sqlCondition?: SqlConditionConfiguration | undefined;
 }
 
 export interface DashboardPageSnapshot {
@@ -1568,6 +1796,11 @@ export interface DashboardTask_FiltersEntry {
 export interface DashboardTaskOutput {
   /** Should only be populated for manual PDF download jobs. */
   pageSnapshots?: DashboardPageSnapshot[] | undefined;
+}
+
+export interface DashboardTool {
+  /** Lakeview dashboard ID. */
+  dashboardId?: string | undefined;
 }
 
 /** A storage location in DBFS */
@@ -1894,6 +2127,41 @@ export interface GenAiComputeTask {
    * found, backend will create the mlflow experiment using the name.
    */
   mlflowExperimentName?: string | undefined;
+  /**
+   * Optional custom Docker container image URL for running the training script.
+   * Format: organization/repository:tag (e.g., "pytorch/pytorch:2.0.1")
+   */
+  dockerImageUrl?: string | undefined;
+  /**
+   * Version of the client (e.g., sgcli wheel) that submitted this task.
+   * Used by handlers to gate behavior or reject incompatible versions.
+   */
+  clientVersion?: string | undefined;
+  /**
+   * Optional path to a tarball containing the user's workspace contents. When set, the entry
+   * script extracts the tarball into the working directory before running the training script,
+   * so the training script can import sibling modules and read packaged data files. Must be a
+   * workspace path (e.g. `/Workspace/Users/...`) or volume; `dbfs:/` is not supported.
+   */
+  codeSourceTarPath?: string | undefined;
+  /**
+   * Optional path to a requirements.yaml file describing pip dependencies to install before
+   * running the training script. Consumed by the entry script; format matches the runtime
+   * requirements.yaml convention used by sgcli. Must be a workspace path
+   * (e.g. `/Workspace/Users/...`) or volume; `dbfs:/` is not supported.
+   */
+  requirementsYamlPath?: string | undefined;
+  /**
+   * Optional name to assign to the MLflow run created for this task. If unset,
+   * MLflow auto-generates a name. Used alongside `mlflow_experiment_name` to
+   * identify the run in the MLflow UI.
+   */
+  mlflowRunName?: string | undefined;
+}
+
+export interface GenieSpaceTool {
+  /** The Genie space ID. */
+  spaceId?: string | undefined;
 }
 
 /** Retrieves information about a single job. */
@@ -1940,6 +2208,11 @@ export interface GetJob_Response {
   effectiveBudgetPolicyId?: string | undefined;
   /** The id of the usage policy used by this job for cost attribution purposes. */
   effectiveUsagePolicyId?: string | undefined;
+  /**
+   * Path of the job object in workspace file tree, including file extension. If absent, the job doesn't have a workspace object.
+   * Example: /Workspace/user@example.com/my_project/my_job.job.json
+   */
+  path?: string | undefined;
 }
 
 export interface GetRun {
@@ -2113,6 +2386,11 @@ export interface GetRunOutput_Response {
         /** The output of an alert task, if available */
         alertOutput: AlertTaskOutput;
       }
+    | {
+        $case: 'agenticTaskOutput';
+        /** The output of an agentic task, if available */
+        agenticTaskOutput: AgenticTaskOutput;
+      }
     | undefined;
   /**
    * The output from tasks that write to standard streams (stdout/stderr) such as
@@ -2168,6 +2446,46 @@ export interface GitSource {
   /** The source of the job specification in the remote repository when the job is source controlled. */
   jobSource?: JobSource | undefined;
   sparseCheckout?: SparseCheckout | undefined;
+}
+
+/**
+ * Configuration for Power BI incremental refresh applied to all IMPORT mode tables.
+ * When set, IMPORT tables with incremental_refresh_datetime_column will use
+ * date-based partitioning for incremental imports instead of full refreshes.
+ * The refresh windows and mode are shared across all tables; the partition
+ * column is specified per-table on PowerBiTable.
+ */
+export interface IncrementalRefreshConfig {
+  /**
+   * Number of periods in the rolling refresh window.
+   * Partitions within this window are re-imported on each refresh.
+   * Default: 1
+   */
+  refreshWindowPeriods?: number | undefined;
+  /** Granularity for the refresh window. Default: DAY */
+  refreshWindowGranularity?: RefreshGranularity | undefined;
+  /**
+   * Number of periods in the archive window (total data retained).
+   * Must be greater than the refresh window when using the same granularity.
+   * Default: 3 (with YEAR granularity = 3 years)
+   */
+  archiveWindowPeriods?: number | undefined;
+  /** Granularity for the archive window. Default: MONTH */
+  archiveWindowGranularity?: RefreshGranularity | undefined;
+  /** If true, only refresh complete periods (e.g., skip today's partial data). */
+  onlyRefreshCompletePeriods?: boolean | undefined;
+  /**
+   * The refresh policy mode. Hybrid adds a real-time DirectQuery partition
+   * for the most recent data; Import uses only batch-imported partitions.
+   * Default: HYBRID
+   */
+  mode?: RefreshPolicyMode | undefined;
+  /**
+   * If true, Power BI will check whether data has changed in each partition
+   * before reimporting. Partitions with unchanged data are skipped, reducing
+   * refresh cost further. Uses MAX(datetime_column) as the change detector.
+   */
+  detectDataChanges?: boolean | undefined;
 }
 
 /**
@@ -2468,6 +2786,11 @@ export interface JobsHealthRule {
 /** An optional set of health rules that can be defined for this job. */
 export interface JobsHealthRules {
   rules?: JobsHealthRule[] | undefined;
+}
+
+export interface KnowledgeAssistantTool {
+  /** The Knowledge Assistant ID. */
+  knowledgeAssistantId?: string | undefined;
 }
 
 export interface Library {
@@ -2775,13 +3098,37 @@ export interface PeriodicTriggerConfiguration {
 export interface PipelineParameters {
   /** If true, triggers a full refresh on the spark declarative pipeline. */
   fullRefresh?: boolean | undefined;
+  /** A list of tables to update without fullRefresh. */
+  refreshSelection?: string[] | undefined;
+  /** A list of tables to update with fullRefresh. */
+  fullRefreshSelection?: string[] | undefined;
+  /** A list of streaming flows to reset checkpoints without clearing data. */
+  resetCheckpointSelection?: string[] | undefined;
 }
 
 export interface PipelineTask {
   /** The full name of the pipeline task to execute. */
   pipelineId?: string | undefined;
+  /**
+   * Key/value-map of parameters to pass to the pipeline execution.
+   * Limited to 10k characters in total. Each key must be 1-100 characters
+   * long and composed of letters, digits, underscores, and dashes.
+   */
+  pipelineTaskParameters?: Record<string, string> | undefined;
   /** If true, triggers a full refresh on the spark declarative pipeline. */
   fullRefresh?: boolean | undefined;
+  /** A list of tables to update without fullRefresh. */
+  refreshSelection?: string[] | undefined;
+  /** A list of tables to update with fullRefresh. */
+  fullRefreshSelection?: string[] | undefined;
+  /** A list of streaming flows to reset checkpoints without clearing data. */
+  resetCheckpointSelection?: string[] | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface PipelineTask_PipelineTaskParametersEntry {
+  key?: string | undefined;
+  value?: string | undefined;
 }
 
 export interface PowerBiModel {
@@ -2806,6 +3153,13 @@ export interface PowerBiTable {
   schema?: string | undefined;
   /** The Power BI storage mode of the table */
   storageMode?: StorageMode | undefined;
+  /**
+   * The datetime column used for incremental refresh partitioning on this table.
+   * e.g., "order_date", "updated_at"
+   * Only applicable when the task has incremental_refresh_config set and
+   * this table uses IMPORT storage mode.
+   */
+  incrementalRefreshDatetimeColumn?: string | undefined;
 }
 
 export interface PowerBiTask {
@@ -2819,6 +3173,11 @@ export interface PowerBiTask {
   connectionResourceName?: string | undefined;
   /** Whether the model should be refreshed after the update */
   refreshAfterUpdate?: boolean | undefined;
+  /**
+   * Incremental refresh policy applied to all IMPORT mode tables in the model.
+   * Windows and mode are shared; partition columns are set per-table on PowerBiTable.
+   */
+  incrementalRefreshConfig?: IncrementalRefreshConfig | undefined;
 }
 
 export interface PythonPyPiLibrary {
@@ -3075,6 +3434,10 @@ export interface ResolvedValues {
         $case: 'simulationTask';
         simulationTask: ResolvedValues_SimulationTaskResolvedValues;
       }
+    | {
+        $case: 'pipelineTask';
+        pipelineTask: ResolvedValues_PipelineTaskResolvedValues;
+      }
     | undefined;
 }
 
@@ -3098,6 +3461,21 @@ export interface ResolvedValues_NotebookTaskResolvedValues {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface ResolvedValues_NotebookTaskResolvedValues_BaseParametersEntry {
   /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
+  key?: string | undefined;
+  value?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ResolvedValues_PipelineTaskResolvedValues {
+  /**
+   * Key/value-map of parameters passed to the pipeline execution.
+   * Limited to 10k characters in total.
+   */
+  pipelineTaskParameters?: Record<string, string> | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ResolvedValues_PipelineTaskResolvedValues_PipelineTaskParametersEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
@@ -3801,6 +4179,11 @@ export interface RunTask {
         dbtCloudTask: DbtCloudTask;
       }
     | {$case: 'dbtPlatformTask'; dbtPlatformTask: DbtPlatformTask}
+    | {
+        $case: 'agenticTask';
+        /** Agentic Task for job-based multi-agent execution */
+        agenticTask: AgenticTask;
+      }
     | undefined;
   spec?:
     | {
@@ -3985,6 +4368,11 @@ export interface RunTaskSettings {
         dbtCloudTask: DbtCloudTask;
       }
     | {$case: 'dbtPlatformTask'; dbtPlatformTask: DbtPlatformTask}
+    | {
+        $case: 'agenticTask';
+        /** Agentic Task for job-based multi-agent execution */
+        agenticTask: AgenticTask;
+      }
     | undefined;
   spec?:
     | {
@@ -4028,6 +4416,8 @@ export interface RunTaskSettings {
 
 /** Additional details about what triggered the run */
 export interface RunTriggerInfo {
+  /** SQL condition evaluation details for this run */
+  sqlCondition?: SqlConditionRunInfoDetails | undefined;
   /** The run id of the Run Job task run */
   runId?: number | undefined;
 }
@@ -4069,6 +4459,16 @@ export interface S3StorageInfo {
    * read the logs.
    */
   cannedAcl?: string | undefined;
+}
+
+export interface SchemaTool {
+  /** UC schema name (``catalog.schema``). */
+  name?: string | undefined;
+}
+
+export interface ServingEndpointTool {
+  /** Model serving endpoint name. */
+  name?: string | undefined;
 }
 
 export interface SparkJarTask {
@@ -4130,6 +4530,38 @@ export interface SparseCheckout {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface SqlAlertState {}
+
+export interface SqlConditionConfiguration {
+  /** The ID of the SQL query to evaluate as the trigger condition. */
+  sqlQueryId?: string | undefined;
+  /** The canonical identifier of the SQL warehouse to run the condition query against. */
+  warehouseId?: string | undefined;
+}
+
+/** SQL condition evaluation details captured at the time the run was triggered */
+export interface SqlConditionRunInfoDetails {
+  /**
+   * Deprecated in favor of condition_evaluation_sql_session_id due to a change
+   * in the design to use Redash as the SQL execution backend instead of the SQL execution API.
+   */
+  conditionEvaluationSqlStatementId?: string | undefined;
+  /** Whether the last condition evaluation was satisfied (query returned truthy result). */
+  conditionEvaluationSatisfied?: boolean | undefined;
+  /** The ID of the SQL session, used by UI to track session context. */
+  conditionEvaluationSqlSessionId?: string | undefined;
+}
+
+export interface SqlConditionState {
+  /**
+   * Deprecated in favor of latest_condition_evaluation_sql_session_id due to a change
+   * in the design to use Redash as the SQL execution backend instead of the SQL execution API.
+   */
+  latestConditionEvaluationSqlStatementId?: string | undefined;
+  /** Whether the last condition evaluation was satisfied (query returned truthy result). */
+  latestConditionEvaluationSatisfied?: boolean | undefined;
+  /** The ID of the SQL session, used by UI to track session context. */
+  latestConditionEvaluationSqlSessionId?: string | undefined;
+}
 
 export interface SqlTask {
   /** Parameters to be used for each run of this job. The SQL alert task does not support custom parameters. */
@@ -4401,6 +4833,48 @@ export interface Subscription_Subscriber {
     | undefined;
 }
 
+/** Configuration for a Supervisor Agent referenced by tile_id. */
+export interface SupervisorAgent {
+  /** Required. The ID of the supervisor agent (tile_id). */
+  agentId?: string | undefined;
+}
+
+/** Supervisor Agent referenced by another supervisor as a tool. */
+export interface SupervisorAgentTool {
+  /** Supervisor Agent ID. */
+  supervisorAgentId?: string | undefined;
+}
+
+/**
+ * Inlined Responses-API supervisor configuration. Used as a oneof variant
+ * inside ``AgenticTask.agent`` to define an agent without referencing a
+ * pre-registered Supervisor Agent tile.
+ */
+export interface SupervisorApi {
+  /** Required. Databricks-provided FMAPI model, e.g. "databricks-claude-sonnet-4-5". */
+  model?: string | undefined;
+  /**
+   * Optional. System instructions that guide how the supervisor routes queries
+   * across tools and synthesizes responses.
+   */
+  instructions?: string | undefined;
+  /** Optional. The tools the inlined agent can use. */
+  tools?: AgentTool[] | undefined;
+}
+
+/**
+ * Output specific to the ``SupervisorAgent`` / ``SupervisorApi`` execution
+ * path of an agentic task.
+ */
+export interface SupervisorOutput {
+  /**
+   * The Responses-API ``response.id`` produced by the supervisor. Use this
+   * ID with the Responses API to fetch the full structured response
+   * (assistant messages, function calls, function-call outputs).
+   */
+  responseId?: string | undefined;
+}
+
 export interface TableState {
   /** Full table name of the table to monitor, e.g. `mycatalog.myschema.mytable` */
   tableName?: string | undefined;
@@ -4409,6 +4883,11 @@ export interface TableState {
    * the creation of the trigger or the last successful evaluation of the trigger
    */
   hasSeenUpdates?: boolean | undefined;
+}
+
+export interface TableTool {
+  /** Full UC table name (``catalog.schema.table``). */
+  name?: string | undefined;
 }
 
 export interface TableTriggerConfiguration {
@@ -4440,6 +4919,26 @@ export interface TaskDependency {
   taskKey?: string | undefined;
   /** Can only be specified on condition task dependencies. The outcome of the dependent task that must be met for this task to run. */
   outcome?: string | undefined;
+}
+
+/**
+ * Single-layer JSON-Schema-style declaration of the structured output the
+ * agent should produce.
+ */
+export interface TaskOutputSchema {
+  /** Map of property name to property definition. */
+  properties?: Record<string, TaskOutputSchemaProperty> | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface TaskOutputSchema_PropertiesEntry {
+  key?: string | undefined;
+  value?: TaskOutputSchemaProperty | undefined;
+}
+
+export interface TaskOutputSchemaProperty {
+  /** Description of what the property should contain. */
+  description?: string | undefined;
 }
 
 export interface TaskSettings {
@@ -4580,6 +5079,11 @@ export interface TaskSettings {
         dbtCloudTask: DbtCloudTask;
       }
     | {$case: 'dbtPlatformTask'; dbtPlatformTask: DbtPlatformTask}
+    | {
+        $case: 'agenticTask';
+        /** Agentic Task for job-based multi-agent execution */
+        agenticTask: AgenticTask;
+      }
     | undefined;
   spec?:
     | {
@@ -4634,6 +5138,25 @@ export interface TerminationDetails {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface TerminationType {}
 
+/**
+ * Where MLflow traces produced by an agentic task run should be persisted.
+ * Traces are written to the given MLflow experiment, with their source data
+ * landing in a UC table at ``<catalog_name>.<schema_name>.<table_prefix>...``.
+ */
+export interface TraceDestination {
+  /** MLflow experiment ID where traces are written. */
+  experimentId?: string | undefined;
+  /** Unity Catalog catalog name for the trace table. */
+  catalogName?: string | undefined;
+  /** Unity Catalog schema name for the trace table. */
+  schemaName?: string | undefined;
+  /**
+   * Table-name prefix under ``<catalog>.<schema>``. Trace tables are created
+   * as ``<catalog>.<schema>.<table_prefix>_<...>``.
+   */
+  tablePrefix?: string | undefined;
+}
+
 export interface TriggerSettings {
   /** Whether this trigger is paused or not. */
   pauseStatus?: SchedulePauseStatus | undefined;
@@ -4651,6 +5174,11 @@ export interface TriggerSettings {
     | {$case: 'tableUpdate'; tableUpdate: TableTriggerConfiguration}
     | {$case: 'model'; model: ModelTriggerConfiguration}
     | undefined;
+  /**
+   * SQL condition that must be satisfied for the trigger to fire. Can be used in combination with other trigger types and
+   * runs *after* other trigger types conditions are evaluated.
+   */
+  sqlCondition?: SqlConditionConfiguration | undefined;
 }
 
 export interface TriggerStateProto {
@@ -4658,6 +5186,18 @@ export interface TriggerStateProto {
     | {$case: 'table'; table: TableTriggerState}
     | {$case: 'fileArrival'; fileArrival: FileArrivalTriggerState}
     | undefined;
+  /** State for SQL condition evaluation, can coexist with other trigger states. */
+  sqlCondition?: SqlConditionState | undefined;
+}
+
+export interface UcConnectionTool {
+  /** The UC connection name (an external MCP server). */
+  name?: string | undefined;
+}
+
+export interface UcFunctionTool {
+  /** The fully qualified UC function path (catalog.schema.function). */
+  name?: string | undefined;
 }
 
 export interface UpdateJob {
@@ -4681,6 +5221,11 @@ export interface UpdateJob {
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
 export interface UpdateJob_Response {}
 
+export interface VectorSearchIndexTool {
+  /** Full Vector Search index name (``catalog.schema.index``). */
+  name?: string | undefined;
+}
+
 export interface ViewItem {
   /** Content of the view. */
   content?: string | undefined;
@@ -4688,6 +5233,11 @@ export interface ViewItem {
   name?: string | undefined;
   /** Type of the view item. */
   type?: ViewType | undefined;
+}
+
+export interface VolumeTool {
+  /** Full UC volume name (``catalog.schema.volume``). */
+  name?: string | undefined;
 }
 
 /** A storage location back by UC Volumes. */
@@ -4698,6 +5248,10 @@ export interface VolumesStorageInfo {
    */
   destination?: string | undefined;
 }
+
+/** Built-in web-search tool. No per-asset configuration today. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface WebSearchTool {}
 
 export interface Webhook {
   id?: string | undefined;
@@ -4753,6 +5307,118 @@ export const unmarshalAdlsgen2InfoSchema: z.ZodType<Adlsgen2Info> = z
     destination: d.destination,
   }));
 
+export const unmarshalAgentToolSchema: z.ZodType<AgentTool> = z
+  .object({
+    tool_type: z.string().optional(),
+    description: z.string().optional(),
+    genie_space: z.lazy(() => unmarshalGenieSpaceToolSchema).optional(),
+    knowledge_assistant: z
+      .lazy(() => unmarshalKnowledgeAssistantToolSchema)
+      .optional(),
+    uc_function: z.lazy(() => unmarshalUcFunctionToolSchema).optional(),
+    uc_connection: z.lazy(() => unmarshalUcConnectionToolSchema).optional(),
+    app: z.lazy(() => unmarshalAppToolSchema).optional(),
+    table: z.lazy(() => unmarshalTableToolSchema).optional(),
+    vector_search_index: z
+      .lazy(() => unmarshalVectorSearchIndexToolSchema)
+      .optional(),
+    volume: z.lazy(() => unmarshalVolumeToolSchema).optional(),
+    catalog: z.lazy(() => unmarshalCatalogToolSchema).optional(),
+    schema: z.lazy(() => unmarshalSchemaToolSchema).optional(),
+    dashboard: z.lazy(() => unmarshalDashboardToolSchema).optional(),
+    supervisor_agent: z
+      .lazy(() => unmarshalSupervisorAgentToolSchema)
+      .optional(),
+    serving_endpoint: z
+      .lazy(() => unmarshalServingEndpointToolSchema)
+      .optional(),
+    web_search: z.lazy(() => unmarshalWebSearchToolSchema).optional(),
+  })
+  .transform(d => ({
+    toolTypeField:
+      d.tool_type !== undefined
+        ? {$case: 'toolType' as const, toolType: d.tool_type}
+        : undefined,
+    description: d.description,
+    genieSpace: d.genie_space,
+    knowledgeAssistant: d.knowledge_assistant,
+    ucFunction: d.uc_function,
+    ucConnection: d.uc_connection,
+    app: d.app,
+    table: d.table,
+    vectorSearchIndex: d.vector_search_index,
+    volume: d.volume,
+    catalog: d.catalog,
+    schema: d.schema,
+    dashboard: d.dashboard,
+    supervisorAgent: d.supervisor_agent,
+    servingEndpoint: d.serving_endpoint,
+    webSearch: d.web_search,
+  }));
+
+export const unmarshalAgenticTaskSchema: z.ZodType<AgenticTask> = z
+  .object({
+    goal: z.string().optional(),
+    supervisor_agent: z.lazy(() => unmarshalSupervisorAgentSchema).optional(),
+    supervisor_api: z.lazy(() => unmarshalSupervisorApiSchema).optional(),
+    task_output_schema: z.record(z.string(), z.string()).optional(),
+    context: z.lazy(() => unmarshalAgenticTaskContextSchema).optional(),
+    input: z.string().optional(),
+    output_schema: z.lazy(() => unmarshalTaskOutputSchemaSchema).optional(),
+    trace_destination: z.lazy(() => unmarshalTraceDestinationSchema).optional(),
+  })
+  .transform(d => ({
+    goal: d.goal,
+    agent:
+      d.supervisor_agent !== undefined
+        ? {
+            $case: 'supervisorAgent' as const,
+            supervisorAgent: d.supervisor_agent,
+          }
+        : d.supervisor_api !== undefined
+          ? {$case: 'supervisorApi' as const, supervisorApi: d.supervisor_api}
+          : undefined,
+    taskOutputSchema: d.task_output_schema,
+    context: d.context,
+    input: d.input,
+    outputSchema: d.output_schema,
+    traceDestination: d.trace_destination,
+  }));
+
+export const unmarshalAgenticTaskContextSchema: z.ZodType<AgenticTaskContext> =
+  z
+    .object({
+      conversation_ids: z.array(z.string()).optional(),
+      instructions: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      conversationIds: d.conversation_ids,
+      instructions: d.instructions,
+    }));
+
+export const unmarshalAgenticTaskOutputSchema: z.ZodType<AgenticTaskOutput> = z
+  .object({
+    id: z.string().optional(),
+    created_at: z.number().optional(),
+    response: z.string().optional(),
+    status: z.string().optional(),
+    task_output: z.record(z.string(), z.string()).optional(),
+    conversation_id: z.string().optional(),
+    supervisor: z.lazy(() => unmarshalSupervisorOutputSchema).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    createdAt: d.created_at,
+    response: d.response,
+    status: d.status,
+    taskOutput: d.task_output,
+    conversationId: d.conversation_id,
+    agentOutput:
+      d.supervisor !== undefined
+        ? {$case: 'supervisor' as const, supervisor: d.supervisor}
+        : undefined,
+  }));
+
 export const unmarshalAlertTaskSchema: z.ZodType<AlertTask> = z
   .object({
     alert_id: z.string().optional(),
@@ -4791,6 +5457,14 @@ export const unmarshalAlertTaskSubscriberSchema: z.ZodType<AlertTaskSubscriber> 
             ? {$case: 'destinationId' as const, destinationId: d.destination_id}
             : undefined,
     }));
+
+export const unmarshalAppToolSchema: z.ZodType<AppTool> = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
 
 export const unmarshalAutoScaleSchema: z.ZodType<AutoScale> = z
   .object({
@@ -4855,6 +5529,7 @@ export const unmarshalBaseJobSchema: z.ZodType<BaseJob> = z
     has_more: z.boolean().optional(),
     effective_budget_policy_id: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
+    path: z.string().optional(),
   })
   .transform(d => ({
     jobId: d.job_id,
@@ -4866,6 +5541,7 @@ export const unmarshalBaseJobSchema: z.ZodType<BaseJob> = z
     hasMore: d.has_more,
     effectiveBudgetPolicyId: d.effective_budget_policy_id,
     effectiveUsagePolicyId: d.effective_usage_policy_id,
+    path: d.path,
   }));
 
 export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
@@ -4956,6 +5632,14 @@ export const unmarshalCancelAllRuns_ResponseSchema: z.ZodType<CancelAllRuns_Resp
 export const unmarshalCancelRun_ResponseSchema: z.ZodType<CancelRun_Response> =
   z.object({});
 
+export const unmarshalCatalogToolSchema: z.ZodType<CatalogTool> = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const unmarshalCleanRoomTaskRunStateSchema: z.ZodType<CleanRoomTaskRunState> =
   z
     .object({
@@ -4999,11 +5683,15 @@ export const unmarshalCleanRoomsNotebookTask_CleanRoomsNotebookTaskOutputSchema:
       output_schema_info: z
         .lazy(() => unmarshalOutputSchemaInfoSchema)
         .optional(),
+      shared_output_schema_info: z
+        .lazy(() => unmarshalOutputSchemaInfoSchema)
+        .optional(),
     })
     .transform(d => ({
       cleanRoomJobRunState: d.clean_room_job_run_state,
       notebookOutput: d.notebook_output,
       outputSchemaInfo: d.output_schema_info,
+      sharedOutputSchemaInfo: d.shared_output_schema_info,
     }));
 
 export const unmarshalClusterInstanceSchema: z.ZodType<ClusterInstance> = z
@@ -5204,11 +5892,15 @@ export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
     quartz_cron_expression: z.string().optional(),
     timezone_id: z.string().optional(),
     pause_status: z.enum(SchedulePauseStatus).optional(),
+    sql_condition: z
+      .lazy(() => unmarshalSqlConditionConfigurationSchema)
+      .optional(),
   })
   .transform(d => ({
     quartzCronExpression: d.quartz_cron_expression,
     timezoneId: d.timezone_id,
     pauseStatus: d.pause_status,
+    sqlCondition: d.sql_condition,
   }));
 
 export const unmarshalDashboardPageSnapshotSchema: z.ZodType<DashboardPageSnapshot> =
@@ -5248,6 +5940,14 @@ export const unmarshalDashboardTaskOutputSchema: z.ZodType<DashboardTaskOutput> 
     .transform(d => ({
       pageSnapshots: d.page_snapshots,
     }));
+
+export const unmarshalDashboardToolSchema: z.ZodType<DashboardTool> = z
+  .object({
+    dashboard_id: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboardId: d.dashboard_id,
+  }));
 
 export const unmarshalDbfsStorageInfoSchema: z.ZodType<DbfsStorageInfo> = z
   .object({
@@ -5506,6 +6206,11 @@ export const unmarshalGenAiComputeTaskSchema: z.ZodType<GenAiComputeTask> = z
     yaml_parameters_file_path: z.string().optional(),
     yaml_parameters: z.string().optional(),
     mlflow_experiment_name: z.string().optional(),
+    docker_image_url: z.string().optional(),
+    client_version: z.string().optional(),
+    code_source_tar_path: z.string().optional(),
+    requirements_yaml_path: z.string().optional(),
+    mlflow_run_name: z.string().optional(),
   })
   .transform(d => ({
     dlRuntimeImage: d.dl_runtime_image,
@@ -5516,6 +6221,19 @@ export const unmarshalGenAiComputeTaskSchema: z.ZodType<GenAiComputeTask> = z
     yamlParametersFilePath: d.yaml_parameters_file_path,
     yamlParameters: d.yaml_parameters,
     mlflowExperimentName: d.mlflow_experiment_name,
+    dockerImageUrl: d.docker_image_url,
+    clientVersion: d.client_version,
+    codeSourceTarPath: d.code_source_tar_path,
+    requirementsYamlPath: d.requirements_yaml_path,
+    mlflowRunName: d.mlflow_run_name,
+  }));
+
+export const unmarshalGenieSpaceToolSchema: z.ZodType<GenieSpaceTool> = z
+  .object({
+    space_id: z.string().optional(),
+  })
+  .transform(d => ({
+    spaceId: d.space_id,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -5531,6 +6249,7 @@ export const unmarshalGetJob_ResponseSchema: z.ZodType<GetJob_Response> = z
     has_more: z.boolean().optional(),
     effective_budget_policy_id: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
+    path: z.string().optional(),
   })
   .transform(d => ({
     nextPageToken: d.next_page_token,
@@ -5543,6 +6262,7 @@ export const unmarshalGetJob_ResponseSchema: z.ZodType<GetJob_Response> = z
     hasMore: d.has_more,
     effectiveBudgetPolicyId: d.effective_budget_policy_id,
     effectiveUsagePolicyId: d.effective_usage_policy_id,
+    path: d.path,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -5659,6 +6379,9 @@ export const unmarshalGetRunOutput_ResponseSchema: z.ZodType<GetRunOutput_Respon
         .lazy(() => unmarshalDbtPlatformTaskOutputSchema)
         .optional(),
       alert_output: z.lazy(() => unmarshalAlertTaskOutputSchema).optional(),
+      agentic_task_output: z
+        .lazy(() => unmarshalAgenticTaskOutputSchema)
+        .optional(),
       logs: z.string().optional(),
       logs_truncated: z.boolean().optional(),
       error_trace: z.string().optional(),
@@ -5707,7 +6430,12 @@ export const unmarshalGetRunOutput_ResponseSchema: z.ZodType<GetRunOutput_Respon
                               $case: 'alertOutput' as const,
                               alertOutput: d.alert_output,
                             }
-                          : undefined,
+                          : d.agentic_task_output !== undefined
+                            ? {
+                                $case: 'agenticTaskOutput' as const,
+                                agenticTaskOutput: d.agentic_task_output,
+                              }
+                            : undefined,
       logs: d.logs,
       logsTruncated: d.logs_truncated,
       errorTrace: d.error_trace,
@@ -5748,6 +6476,27 @@ export const unmarshalGitSourceSchema: z.ZodType<GitSource> = z
     jobSource: d.job_source,
     sparseCheckout: d.sparse_checkout,
   }));
+
+export const unmarshalIncrementalRefreshConfigSchema: z.ZodType<IncrementalRefreshConfig> =
+  z
+    .object({
+      refresh_window_periods: z.number().optional(),
+      refresh_window_granularity: z.enum(RefreshGranularity).optional(),
+      archive_window_periods: z.number().optional(),
+      archive_window_granularity: z.enum(RefreshGranularity).optional(),
+      only_refresh_complete_periods: z.boolean().optional(),
+      mode: z.enum(RefreshPolicyMode).optional(),
+      detect_data_changes: z.boolean().optional(),
+    })
+    .transform(d => ({
+      refreshWindowPeriods: d.refresh_window_periods,
+      refreshWindowGranularity: d.refresh_window_granularity,
+      archiveWindowPeriods: d.archive_window_periods,
+      archiveWindowGranularity: d.archive_window_granularity,
+      onlyRefreshCompletePeriods: d.only_refresh_complete_periods,
+      mode: d.mode,
+      detectDataChanges: d.detect_data_changes,
+    }));
 
 export const unmarshalInitScriptInfoSchema: z.ZodType<InitScriptInfo> = z
   .object({
@@ -5970,6 +6719,15 @@ export const unmarshalJobsHealthRulesSchema: z.ZodType<JobsHealthRules> = z
     rules: d.rules,
   }));
 
+export const unmarshalKnowledgeAssistantToolSchema: z.ZodType<KnowledgeAssistantTool> =
+  z
+    .object({
+      knowledge_assistant_id: z.string().optional(),
+    })
+    .transform(d => ({
+      knowledgeAssistantId: d.knowledge_assistant_id,
+    }));
+
 export const unmarshalLibrarySchema: z.ZodType<Library> = z
   .object({
     jar: z.string().optional(),
@@ -6156,19 +6914,33 @@ export const unmarshalPipelineParametersSchema: z.ZodType<PipelineParameters> =
   z
     .object({
       full_refresh: z.boolean().optional(),
+      refresh_selection: z.array(z.string()).optional(),
+      full_refresh_selection: z.array(z.string()).optional(),
+      reset_checkpoint_selection: z.array(z.string()).optional(),
     })
     .transform(d => ({
       fullRefresh: d.full_refresh,
+      refreshSelection: d.refresh_selection,
+      fullRefreshSelection: d.full_refresh_selection,
+      resetCheckpointSelection: d.reset_checkpoint_selection,
     }));
 
 export const unmarshalPipelineTaskSchema: z.ZodType<PipelineTask> = z
   .object({
     pipeline_id: z.string().optional(),
+    parameters: z.record(z.string(), z.string()).optional(),
     full_refresh: z.boolean().optional(),
+    refresh_selection: z.array(z.string()).optional(),
+    full_refresh_selection: z.array(z.string()).optional(),
+    reset_checkpoint_selection: z.array(z.string()).optional(),
   })
   .transform(d => ({
     pipelineId: d.pipeline_id,
+    pipelineTaskParameters: d.parameters,
     fullRefresh: d.full_refresh,
+    refreshSelection: d.refresh_selection,
+    fullRefreshSelection: d.full_refresh_selection,
+    resetCheckpointSelection: d.reset_checkpoint_selection,
   }));
 
 export const unmarshalPowerBiModelSchema: z.ZodType<PowerBiModel> = z
@@ -6193,12 +6965,14 @@ export const unmarshalPowerBiTableSchema: z.ZodType<PowerBiTable> = z
     catalog: z.string().optional(),
     schema: z.string().optional(),
     storage_mode: z.enum(StorageMode).optional(),
+    incremental_refresh_datetime_column: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
     catalog: d.catalog,
     schema: d.schema,
     storageMode: d.storage_mode,
+    incrementalRefreshDatetimeColumn: d.incremental_refresh_datetime_column,
   }));
 
 export const unmarshalPowerBiTaskSchema: z.ZodType<PowerBiTask> = z
@@ -6208,6 +6982,9 @@ export const unmarshalPowerBiTaskSchema: z.ZodType<PowerBiTask> = z
     power_bi_model: z.lazy(() => unmarshalPowerBiModelSchema).optional(),
     connection_resource_name: z.string().optional(),
     refresh_after_update: z.boolean().optional(),
+    incremental_refresh_config: z
+      .lazy(() => unmarshalIncrementalRefreshConfigSchema)
+      .optional(),
   })
   .transform(d => ({
     tables: d.tables,
@@ -6215,6 +6992,7 @@ export const unmarshalPowerBiTaskSchema: z.ZodType<PowerBiTask> = z
     powerBiModel: d.power_bi_model,
     connectionResourceName: d.connection_resource_name,
     refreshAfterUpdate: d.refresh_after_update,
+    incrementalRefreshConfig: d.incremental_refresh_config,
   }));
 
 export const unmarshalPythonPyPiLibrarySchema: z.ZodType<PythonPyPiLibrary> = z
@@ -6339,6 +7117,9 @@ export const unmarshalResolvedValuesSchema: z.ZodType<ResolvedValues> = z
     simulation_task: z
       .lazy(() => unmarshalResolvedValues_SimulationTaskResolvedValuesSchema)
       .optional(),
+    pipeline_task: z
+      .lazy(() => unmarshalResolvedValues_PipelineTaskResolvedValuesSchema)
+      .optional(),
   })
   .transform(d => ({
     resolved:
@@ -6380,7 +7161,12 @@ export const unmarshalResolvedValuesSchema: z.ZodType<ResolvedValues> = z
                               $case: 'simulationTask' as const,
                               simulationTask: d.simulation_task,
                             }
-                          : undefined,
+                          : d.pipeline_task !== undefined
+                            ? {
+                                $case: 'pipelineTask' as const,
+                                pipelineTask: d.pipeline_task,
+                              }
+                            : undefined,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -6413,6 +7199,16 @@ export const unmarshalResolvedValues_NotebookTaskResolvedValuesSchema: z.ZodType
     })
     .transform(d => ({
       baseParameters: d.base_parameters,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalResolvedValues_PipelineTaskResolvedValuesSchema: z.ZodType<ResolvedValues_PipelineTaskResolvedValues> =
+  z
+    .object({
+      parameters: z.record(z.string(), z.string()).optional(),
+    })
+    .transform(d => ({
+      pipelineTaskParameters: d.parameters,
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -6723,6 +7519,7 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
     dashboard_task: z.lazy(() => unmarshalDashboardTaskSchema).optional(),
     dbt_cloud_task: z.lazy(() => unmarshalDbtCloudTaskSchema).optional(),
     dbt_platform_task: z.lazy(() => unmarshalDbtPlatformTaskSchema).optional(),
+    agentic_task: z.lazy(() => unmarshalAgenticTaskSchema).optional(),
     existing_cluster_id: z.string().optional(),
     new_cluster: z.lazy(() => unmarshalClusterSpec_NewClusterSchema).optional(),
     job_cluster_key: z.string().optional(),
@@ -6845,7 +7642,12 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
                                               dbtPlatformTask:
                                                 d.dbt_platform_task,
                                             }
-                                          : undefined,
+                                          : d.agentic_task !== undefined
+                                            ? {
+                                                $case: 'agenticTask' as const,
+                                                agenticTask: d.agentic_task,
+                                              }
+                                            : undefined,
     spec:
       d.existing_cluster_id !== undefined
         ? {
@@ -6876,9 +7678,13 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
 
 export const unmarshalRunTriggerInfoSchema: z.ZodType<RunTriggerInfo> = z
   .object({
+    sql_condition: z
+      .lazy(() => unmarshalSqlConditionRunInfoDetailsSchema)
+      .optional(),
     run_id: z.number().optional(),
   })
   .transform(d => ({
+    sqlCondition: d.sql_condition,
     runId: d.run_id,
   }));
 
@@ -6901,6 +7707,23 @@ export const unmarshalS3StorageInfoSchema: z.ZodType<S3StorageInfo> = z
     kmsKey: d.kms_key,
     cannedAcl: d.canned_acl,
   }));
+
+export const unmarshalSchemaToolSchema: z.ZodType<SchemaTool> = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const unmarshalServingEndpointToolSchema: z.ZodType<ServingEndpointTool> =
+  z
+    .object({
+      name: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+    }));
 
 export const unmarshalSparkJarTaskSchema: z.ZodType<SparkJarTask> = z
   .object({
@@ -6942,6 +7765,45 @@ export const unmarshalSparseCheckoutSchema: z.ZodType<SparseCheckout> = z
   })
   .transform(d => ({
     patterns: d.patterns,
+  }));
+
+export const unmarshalSqlConditionConfigurationSchema: z.ZodType<SqlConditionConfiguration> =
+  z
+    .object({
+      sql_query_id: z.string().optional(),
+      warehouse_id: z.string().optional(),
+    })
+    .transform(d => ({
+      sqlQueryId: d.sql_query_id,
+      warehouseId: d.warehouse_id,
+    }));
+
+export const unmarshalSqlConditionRunInfoDetailsSchema: z.ZodType<SqlConditionRunInfoDetails> =
+  z
+    .object({
+      condition_evaluation_sql_statement_id: z.string().optional(),
+      condition_evaluation_satisfied: z.boolean().optional(),
+      condition_evaluation_sql_session_id: z.string().optional(),
+    })
+    .transform(d => ({
+      conditionEvaluationSqlStatementId:
+        d.condition_evaluation_sql_statement_id,
+      conditionEvaluationSatisfied: d.condition_evaluation_satisfied,
+      conditionEvaluationSqlSessionId: d.condition_evaluation_sql_session_id,
+    }));
+
+export const unmarshalSqlConditionStateSchema: z.ZodType<SqlConditionState> = z
+  .object({
+    latest_condition_evaluation_sql_statement_id: z.string().optional(),
+    latest_condition_evaluation_satisfied: z.boolean().optional(),
+    latest_condition_evaluation_sql_session_id: z.string().optional(),
+  })
+  .transform(d => ({
+    latestConditionEvaluationSqlStatementId:
+      d.latest_condition_evaluation_sql_statement_id,
+    latestConditionEvaluationSatisfied: d.latest_condition_evaluation_satisfied,
+    latestConditionEvaluationSqlSessionId:
+      d.latest_condition_evaluation_sql_session_id,
   }));
 
 export const unmarshalSqlTaskSchema: z.ZodType<SqlTask> = z
@@ -7197,6 +8059,43 @@ export const unmarshalSubscription_SubscriberSchema: z.ZodType<Subscription_Subs
             : undefined,
     }));
 
+export const unmarshalSupervisorAgentSchema: z.ZodType<SupervisorAgent> = z
+  .object({
+    agent_id: z.string().optional(),
+  })
+  .transform(d => ({
+    agentId: d.agent_id,
+  }));
+
+export const unmarshalSupervisorAgentToolSchema: z.ZodType<SupervisorAgentTool> =
+  z
+    .object({
+      supervisor_agent_id: z.string().optional(),
+    })
+    .transform(d => ({
+      supervisorAgentId: d.supervisor_agent_id,
+    }));
+
+export const unmarshalSupervisorApiSchema: z.ZodType<SupervisorApi> = z
+  .object({
+    model: z.string().optional(),
+    instructions: z.string().optional(),
+    tools: z.array(z.lazy(() => unmarshalAgentToolSchema)).optional(),
+  })
+  .transform(d => ({
+    model: d.model,
+    instructions: d.instructions,
+    tools: d.tools,
+  }));
+
+export const unmarshalSupervisorOutputSchema: z.ZodType<SupervisorOutput> = z
+  .object({
+    response_id: z.string().optional(),
+  })
+  .transform(d => ({
+    responseId: d.response_id,
+  }));
+
 export const unmarshalTableStateSchema: z.ZodType<TableState> = z
   .object({
     table_name: z.string().optional(),
@@ -7205,6 +8104,14 @@ export const unmarshalTableStateSchema: z.ZodType<TableState> = z
   .transform(d => ({
     tableName: d.table_name,
     hasSeenUpdates: d.has_seen_updates,
+  }));
+
+export const unmarshalTableToolSchema: z.ZodType<TableTool> = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
   }));
 
 export const unmarshalTableTriggerConfigurationSchema: z.ZodType<TableTriggerConfiguration> =
@@ -7243,6 +8150,28 @@ export const unmarshalTaskDependencySchema: z.ZodType<TaskDependency> = z
     taskKey: d.task_key,
     outcome: d.outcome,
   }));
+
+export const unmarshalTaskOutputSchemaSchema: z.ZodType<TaskOutputSchema> = z
+  .object({
+    properties: z
+      .record(
+        z.string(),
+        z.lazy(() => unmarshalTaskOutputSchemaPropertySchema)
+      )
+      .optional(),
+  })
+  .transform(d => ({
+    properties: d.properties,
+  }));
+
+export const unmarshalTaskOutputSchemaPropertySchema: z.ZodType<TaskOutputSchemaProperty> =
+  z
+    .object({
+      description: z.string().optional(),
+    })
+    .transform(d => ({
+      description: d.description,
+    }));
 
 export const unmarshalTaskSettingsSchema: z.ZodType<TaskSettings> = z
   .object({
@@ -7286,6 +8215,7 @@ export const unmarshalTaskSettingsSchema: z.ZodType<TaskSettings> = z
     dashboard_task: z.lazy(() => unmarshalDashboardTaskSchema).optional(),
     dbt_cloud_task: z.lazy(() => unmarshalDbtCloudTaskSchema).optional(),
     dbt_platform_task: z.lazy(() => unmarshalDbtPlatformTaskSchema).optional(),
+    agentic_task: z.lazy(() => unmarshalAgenticTaskSchema).optional(),
     existing_cluster_id: z.string().optional(),
     new_cluster: z.lazy(() => unmarshalClusterSpec_NewClusterSchema).optional(),
     job_cluster_key: z.string().optional(),
@@ -7392,7 +8322,12 @@ export const unmarshalTaskSettingsSchema: z.ZodType<TaskSettings> = z
                                               dbtPlatformTask:
                                                 d.dbt_platform_task,
                                             }
-                                          : undefined,
+                                          : d.agentic_task !== undefined
+                                            ? {
+                                                $case: 'agenticTask' as const,
+                                                agenticTask: d.agentic_task,
+                                              }
+                                            : undefined,
     spec:
       d.existing_cluster_id !== undefined
         ? {
@@ -7427,6 +8362,20 @@ export const unmarshalTerminationDetailsSchema: z.ZodType<TerminationDetails> =
       message: d.message,
     }));
 
+export const unmarshalTraceDestinationSchema: z.ZodType<TraceDestination> = z
+  .object({
+    experiment_id: z.string().optional(),
+    catalog_name: z.string().optional(),
+    schema_name: z.string().optional(),
+    table_prefix: z.string().optional(),
+  })
+  .transform(d => ({
+    experimentId: d.experiment_id,
+    catalogName: d.catalog_name,
+    schemaName: d.schema_name,
+    tablePrefix: d.table_prefix,
+  }));
+
 export const unmarshalTriggerSettingsSchema: z.ZodType<TriggerSettings> = z
   .object({
     pause_status: z.enum(SchedulePauseStatus).optional(),
@@ -7440,6 +8389,9 @@ export const unmarshalTriggerSettingsSchema: z.ZodType<TriggerSettings> = z
       .lazy(() => unmarshalTableTriggerConfigurationSchema)
       .optional(),
     model: z.lazy(() => unmarshalModelTriggerConfigurationSchema).optional(),
+    sql_condition: z
+      .lazy(() => unmarshalSqlConditionConfigurationSchema)
+      .optional(),
   })
   .transform(d => ({
     pauseStatus: d.pause_status,
@@ -7453,6 +8405,7 @@ export const unmarshalTriggerSettingsSchema: z.ZodType<TriggerSettings> = z
             : d.model !== undefined
               ? {$case: 'model' as const, model: d.model}
               : undefined,
+    sqlCondition: d.sql_condition,
   }));
 
 export const unmarshalTriggerStateProtoSchema: z.ZodType<TriggerStateProto> = z
@@ -7461,6 +8414,7 @@ export const unmarshalTriggerStateProtoSchema: z.ZodType<TriggerStateProto> = z
     file_arrival: z
       .lazy(() => unmarshalFileArrivalTriggerStateSchema)
       .optional(),
+    sql_condition: z.lazy(() => unmarshalSqlConditionStateSchema).optional(),
   })
   .transform(d => ({
     triggerType:
@@ -7469,11 +8423,37 @@ export const unmarshalTriggerStateProtoSchema: z.ZodType<TriggerStateProto> = z
         : d.file_arrival !== undefined
           ? {$case: 'fileArrival' as const, fileArrival: d.file_arrival}
           : undefined,
+    sqlCondition: d.sql_condition,
+  }));
+
+export const unmarshalUcConnectionToolSchema: z.ZodType<UcConnectionTool> = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const unmarshalUcFunctionToolSchema: z.ZodType<UcFunctionTool> = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalUpdateJob_ResponseSchema: z.ZodType<UpdateJob_Response> =
   z.object({});
+
+export const unmarshalVectorSearchIndexToolSchema: z.ZodType<VectorSearchIndexTool> =
+  z
+    .object({
+      name: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+    }));
 
 export const unmarshalViewItemSchema: z.ZodType<ViewItem> = z
   .object({
@@ -7487,6 +8467,14 @@ export const unmarshalViewItemSchema: z.ZodType<ViewItem> = z
     type: d.type,
   }));
 
+export const unmarshalVolumeToolSchema: z.ZodType<VolumeTool> = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const unmarshalVolumesStorageInfoSchema: z.ZodType<VolumesStorageInfo> =
   z
     .object({
@@ -7495,6 +8483,10 @@ export const unmarshalVolumesStorageInfoSchema: z.ZodType<VolumesStorageInfo> =
     .transform(d => ({
       destination: d.destination,
     }));
+
+export const unmarshalWebSearchToolSchema: z.ZodType<WebSearchTool> = z.object(
+  {}
+);
 
 export const unmarshalWebhookSchema: z.ZodType<Webhook> = z
   .object({
@@ -7598,6 +8590,100 @@ export const marshalAdlsgen2InfoSchema: z.ZodType = z
     destination: d.destination,
   }));
 
+export const marshalAgentToolSchema: z.ZodType = z
+  .object({
+    toolTypeField: z
+      .discriminatedUnion('$case', [
+        z.object({$case: z.literal('toolType'), toolType: z.string()}),
+      ])
+      .optional(),
+    description: z.string().optional(),
+    genieSpace: z.lazy(() => marshalGenieSpaceToolSchema).optional(),
+    knowledgeAssistant: z
+      .lazy(() => marshalKnowledgeAssistantToolSchema)
+      .optional(),
+    ucFunction: z.lazy(() => marshalUcFunctionToolSchema).optional(),
+    ucConnection: z.lazy(() => marshalUcConnectionToolSchema).optional(),
+    app: z.lazy(() => marshalAppToolSchema).optional(),
+    table: z.lazy(() => marshalTableToolSchema).optional(),
+    vectorSearchIndex: z
+      .lazy(() => marshalVectorSearchIndexToolSchema)
+      .optional(),
+    volume: z.lazy(() => marshalVolumeToolSchema).optional(),
+    catalog: z.lazy(() => marshalCatalogToolSchema).optional(),
+    schema: z.lazy(() => marshalSchemaToolSchema).optional(),
+    dashboard: z.lazy(() => marshalDashboardToolSchema).optional(),
+    supervisorAgent: z.lazy(() => marshalSupervisorAgentToolSchema).optional(),
+    servingEndpoint: z.lazy(() => marshalServingEndpointToolSchema).optional(),
+    webSearch: z.lazy(() => marshalWebSearchToolSchema).optional(),
+  })
+  .transform(d => ({
+    ...(d.toolTypeField?.$case === 'toolType' && {
+      tool_type: d.toolTypeField.toolType,
+    }),
+    description: d.description,
+    genie_space: d.genieSpace,
+    knowledge_assistant: d.knowledgeAssistant,
+    uc_function: d.ucFunction,
+    uc_connection: d.ucConnection,
+    app: d.app,
+    table: d.table,
+    vector_search_index: d.vectorSearchIndex,
+    volume: d.volume,
+    catalog: d.catalog,
+    schema: d.schema,
+    dashboard: d.dashboard,
+    supervisor_agent: d.supervisorAgent,
+    serving_endpoint: d.servingEndpoint,
+    web_search: d.webSearch,
+  }));
+
+export const marshalAgenticTaskSchema: z.ZodType = z
+  .object({
+    goal: z.string().optional(),
+    agent: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('supervisorAgent'),
+          supervisorAgent: z.lazy(() => marshalSupervisorAgentSchema),
+        }),
+        z.object({
+          $case: z.literal('supervisorApi'),
+          supervisorApi: z.lazy(() => marshalSupervisorApiSchema),
+        }),
+      ])
+      .optional(),
+    taskOutputSchema: z.record(z.string(), z.string()).optional(),
+    context: z.lazy(() => marshalAgenticTaskContextSchema).optional(),
+    input: z.string().optional(),
+    outputSchema: z.lazy(() => marshalTaskOutputSchemaSchema).optional(),
+    traceDestination: z.lazy(() => marshalTraceDestinationSchema).optional(),
+  })
+  .transform(d => ({
+    goal: d.goal,
+    ...(d.agent?.$case === 'supervisorAgent' && {
+      supervisor_agent: d.agent.supervisorAgent,
+    }),
+    ...(d.agent?.$case === 'supervisorApi' && {
+      supervisor_api: d.agent.supervisorApi,
+    }),
+    task_output_schema: d.taskOutputSchema,
+    context: d.context,
+    input: d.input,
+    output_schema: d.outputSchema,
+    trace_destination: d.traceDestination,
+  }));
+
+export const marshalAgenticTaskContextSchema: z.ZodType = z
+  .object({
+    conversationIds: z.array(z.string()).optional(),
+    instructions: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    conversation_ids: d.conversationIds,
+    instructions: d.instructions,
+  }));
+
 export const marshalAlertTaskSchema: z.ZodType = z
   .object({
     alertId: z.string().optional(),
@@ -7633,6 +8719,14 @@ export const marshalAlertTaskSubscriberSchema: z.ZodType = z
     ...(d.subscriberType?.$case === 'destinationId' && {
       destination_id: d.subscriberType.destinationId,
     }),
+  }));
+
+export const marshalAppToolSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
   }));
 
 export const marshalAutoScaleSchema: z.ZodType = z
@@ -7701,6 +8795,14 @@ export const marshalCancelRunSchema: z.ZodType = z
   })
   .transform(d => ({
     run_id: d.runId,
+  }));
+
+export const marshalCatalogToolSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
   }));
 
 export const marshalCleanRoomsNotebookTaskSchema: z.ZodType = z
@@ -7953,11 +9055,15 @@ export const marshalCronScheduleSchema: z.ZodType = z
     quartzCronExpression: z.string().optional(),
     timezoneId: z.string().optional(),
     pauseStatus: z.enum(SchedulePauseStatus).optional(),
+    sqlCondition: z
+      .lazy(() => marshalSqlConditionConfigurationSchema)
+      .optional(),
   })
   .transform(d => ({
     quartz_cron_expression: d.quartzCronExpression,
     timezone_id: d.timezoneId,
     pause_status: d.pauseStatus,
+    sql_condition: d.sqlCondition,
   }));
 
 export const marshalDashboardTaskSchema: z.ZodType = z
@@ -7972,6 +9078,14 @@ export const marshalDashboardTaskSchema: z.ZodType = z
     warehouse_id: d.warehouseId,
     dashboard_id: d.dashboardId,
     filters: d.filters,
+  }));
+
+export const marshalDashboardToolSchema: z.ZodType = z
+  .object({
+    dashboardId: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboard_id: d.dashboardId,
   }));
 
 export const marshalDbfsStorageInfoSchema: z.ZodType = z
@@ -8147,6 +9261,11 @@ export const marshalGenAiComputeTaskSchema: z.ZodType = z
     yamlParametersFilePath: z.string().optional(),
     yamlParameters: z.string().optional(),
     mlflowExperimentName: z.string().optional(),
+    dockerImageUrl: z.string().optional(),
+    clientVersion: z.string().optional(),
+    codeSourceTarPath: z.string().optional(),
+    requirementsYamlPath: z.string().optional(),
+    mlflowRunName: z.string().optional(),
   })
   .transform(d => ({
     dl_runtime_image: d.dlRuntimeImage,
@@ -8157,6 +9276,19 @@ export const marshalGenAiComputeTaskSchema: z.ZodType = z
     yaml_parameters_file_path: d.yamlParametersFilePath,
     yaml_parameters: d.yamlParameters,
     mlflow_experiment_name: d.mlflowExperimentName,
+    docker_image_url: d.dockerImageUrl,
+    client_version: d.clientVersion,
+    code_source_tar_path: d.codeSourceTarPath,
+    requirements_yaml_path: d.requirementsYamlPath,
+    mlflow_run_name: d.mlflowRunName,
+  }));
+
+export const marshalGenieSpaceToolSchema: z.ZodType = z
+  .object({
+    spaceId: z.string().optional(),
+  })
+  .transform(d => ({
+    space_id: d.spaceId,
   }));
 
 export const marshalGitMetadataSnapshotSchema: z.ZodType = z
@@ -8195,6 +9327,26 @@ export const marshalGitSourceSchema: z.ZodType = z
     git_snapshot: d.gitSnapshot,
     job_source: d.jobSource,
     sparse_checkout: d.sparseCheckout,
+  }));
+
+export const marshalIncrementalRefreshConfigSchema: z.ZodType = z
+  .object({
+    refreshWindowPeriods: z.number().optional(),
+    refreshWindowGranularity: z.enum(RefreshGranularity).optional(),
+    archiveWindowPeriods: z.number().optional(),
+    archiveWindowGranularity: z.enum(RefreshGranularity).optional(),
+    onlyRefreshCompletePeriods: z.boolean().optional(),
+    mode: z.enum(RefreshPolicyMode).optional(),
+    detectDataChanges: z.boolean().optional(),
+  })
+  .transform(d => ({
+    refresh_window_periods: d.refreshWindowPeriods,
+    refresh_window_granularity: d.refreshWindowGranularity,
+    archive_window_periods: d.archiveWindowPeriods,
+    archive_window_granularity: d.archiveWindowGranularity,
+    only_refresh_complete_periods: d.onlyRefreshCompletePeriods,
+    mode: d.mode,
+    detect_data_changes: d.detectDataChanges,
   }));
 
 export const marshalInitScriptInfoSchema: z.ZodType = z
@@ -8439,6 +9591,14 @@ export const marshalJobsHealthRulesSchema: z.ZodType = z
     rules: d.rules,
   }));
 
+export const marshalKnowledgeAssistantToolSchema: z.ZodType = z
+  .object({
+    knowledgeAssistantId: z.string().optional(),
+  })
+  .transform(d => ({
+    knowledge_assistant_id: d.knowledgeAssistantId,
+  }));
+
 export const marshalLibrarySchema: z.ZodType = z
   .object({
     lib: z
@@ -8567,19 +9727,33 @@ export const marshalPeriodicTriggerConfigurationSchema: z.ZodType = z
 export const marshalPipelineParametersSchema: z.ZodType = z
   .object({
     fullRefresh: z.boolean().optional(),
+    refreshSelection: z.array(z.string()).optional(),
+    fullRefreshSelection: z.array(z.string()).optional(),
+    resetCheckpointSelection: z.array(z.string()).optional(),
   })
   .transform(d => ({
     full_refresh: d.fullRefresh,
+    refresh_selection: d.refreshSelection,
+    full_refresh_selection: d.fullRefreshSelection,
+    reset_checkpoint_selection: d.resetCheckpointSelection,
   }));
 
 export const marshalPipelineTaskSchema: z.ZodType = z
   .object({
     pipelineId: z.string().optional(),
+    pipelineTaskParameters: z.record(z.string(), z.string()).optional(),
     fullRefresh: z.boolean().optional(),
+    refreshSelection: z.array(z.string()).optional(),
+    fullRefreshSelection: z.array(z.string()).optional(),
+    resetCheckpointSelection: z.array(z.string()).optional(),
   })
   .transform(d => ({
     pipeline_id: d.pipelineId,
+    parameters: d.pipelineTaskParameters,
     full_refresh: d.fullRefresh,
+    refresh_selection: d.refreshSelection,
+    full_refresh_selection: d.fullRefreshSelection,
+    reset_checkpoint_selection: d.resetCheckpointSelection,
   }));
 
 export const marshalPowerBiModelSchema: z.ZodType = z
@@ -8604,12 +9778,14 @@ export const marshalPowerBiTableSchema: z.ZodType = z
     catalog: z.string().optional(),
     schema: z.string().optional(),
     storageMode: z.enum(StorageMode).optional(),
+    incrementalRefreshDatetimeColumn: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
     catalog: d.catalog,
     schema: d.schema,
     storage_mode: d.storageMode,
+    incremental_refresh_datetime_column: d.incrementalRefreshDatetimeColumn,
   }));
 
 export const marshalPowerBiTaskSchema: z.ZodType = z
@@ -8619,6 +9795,9 @@ export const marshalPowerBiTaskSchema: z.ZodType = z
     powerBiModel: z.lazy(() => marshalPowerBiModelSchema).optional(),
     connectionResourceName: z.string().optional(),
     refreshAfterUpdate: z.boolean().optional(),
+    incrementalRefreshConfig: z
+      .lazy(() => marshalIncrementalRefreshConfigSchema)
+      .optional(),
   })
   .transform(d => ({
     tables: d.tables,
@@ -8626,6 +9805,7 @@ export const marshalPowerBiTaskSchema: z.ZodType = z
     power_bi_model: d.powerBiModel,
     connection_resource_name: d.connectionResourceName,
     refresh_after_update: d.refreshAfterUpdate,
+    incremental_refresh_config: d.incrementalRefreshConfig,
   }));
 
 export const marshalPythonPyPiLibrarySchema: z.ZodType = z
@@ -8879,6 +10059,10 @@ export const marshalRunTaskSettingsSchema: z.ZodType = z
           $case: z.literal('dbtPlatformTask'),
           dbtPlatformTask: z.lazy(() => marshalDbtPlatformTaskSchema),
         }),
+        z.object({
+          $case: z.literal('agenticTask'),
+          agenticTask: z.lazy(() => marshalAgenticTaskSchema),
+        }),
       ])
       .optional(),
     spec: z
@@ -8960,6 +10144,7 @@ export const marshalRunTaskSettingsSchema: z.ZodType = z
     ...(d.task?.$case === 'dbtPlatformTask' && {
       dbt_platform_task: d.task.dbtPlatformTask,
     }),
+    ...(d.task?.$case === 'agenticTask' && {agentic_task: d.task.agenticTask}),
     ...(d.spec?.$case === 'existingClusterId' && {
       existing_cluster_id: d.spec.existingClusterId,
     }),
@@ -8992,6 +10177,22 @@ export const marshalS3StorageInfoSchema: z.ZodType = z
     encryption_type: d.encryptionType,
     kms_key: d.kmsKey,
     canned_acl: d.cannedAcl,
+  }));
+
+export const marshalSchemaToolSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalServingEndpointToolSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
   }));
 
 export const marshalSparkJarTaskSchema: z.ZodType = z
@@ -9034,6 +10235,16 @@ export const marshalSparseCheckoutSchema: z.ZodType = z
   })
   .transform(d => ({
     patterns: d.patterns,
+  }));
+
+export const marshalSqlConditionConfigurationSchema: z.ZodType = z
+  .object({
+    sqlQueryId: z.string().optional(),
+    warehouseId: z.string().optional(),
+  })
+  .transform(d => ({
+    sql_query_id: d.sqlQueryId,
+    warehouse_id: d.warehouseId,
   }));
 
 export const marshalSqlTaskSchema: z.ZodType = z
@@ -9225,6 +10436,42 @@ export const marshalSubscription_SubscriberSchema: z.ZodType = z
     }),
   }));
 
+export const marshalSupervisorAgentSchema: z.ZodType = z
+  .object({
+    agentId: z.string().optional(),
+  })
+  .transform(d => ({
+    agent_id: d.agentId,
+  }));
+
+export const marshalSupervisorAgentToolSchema: z.ZodType = z
+  .object({
+    supervisorAgentId: z.string().optional(),
+  })
+  .transform(d => ({
+    supervisor_agent_id: d.supervisorAgentId,
+  }));
+
+export const marshalSupervisorApiSchema: z.ZodType = z
+  .object({
+    model: z.string().optional(),
+    instructions: z.string().optional(),
+    tools: z.array(z.lazy(() => marshalAgentToolSchema)).optional(),
+  })
+  .transform(d => ({
+    model: d.model,
+    instructions: d.instructions,
+    tools: d.tools,
+  }));
+
+export const marshalTableToolSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalTableTriggerConfigurationSchema: z.ZodType = z
   .object({
     tableNames: z.array(z.string()).optional(),
@@ -9247,6 +10494,27 @@ export const marshalTaskDependencySchema: z.ZodType = z
   .transform(d => ({
     task_key: d.taskKey,
     outcome: d.outcome,
+  }));
+
+export const marshalTaskOutputSchemaSchema: z.ZodType = z
+  .object({
+    properties: z
+      .record(
+        z.string(),
+        z.lazy(() => marshalTaskOutputSchemaPropertySchema)
+      )
+      .optional(),
+  })
+  .transform(d => ({
+    properties: d.properties,
+  }));
+
+export const marshalTaskOutputSchemaPropertySchema: z.ZodType = z
+  .object({
+    description: z.string().optional(),
+  })
+  .transform(d => ({
+    description: d.description,
   }));
 
 export const marshalTaskSettingsSchema: z.ZodType = z
@@ -9352,6 +10620,10 @@ export const marshalTaskSettingsSchema: z.ZodType = z
           $case: z.literal('dbtPlatformTask'),
           dbtPlatformTask: z.lazy(() => marshalDbtPlatformTaskSchema),
         }),
+        z.object({
+          $case: z.literal('agenticTask'),
+          agenticTask: z.lazy(() => marshalAgenticTaskSchema),
+        }),
       ])
       .optional(),
     spec: z
@@ -9433,6 +10705,7 @@ export const marshalTaskSettingsSchema: z.ZodType = z
     ...(d.task?.$case === 'dbtPlatformTask' && {
       dbt_platform_task: d.task.dbtPlatformTask,
     }),
+    ...(d.task?.$case === 'agenticTask' && {agentic_task: d.task.agenticTask}),
     ...(d.spec?.$case === 'existingClusterId' && {
       existing_cluster_id: d.spec.existingClusterId,
     }),
@@ -9445,6 +10718,20 @@ export const marshalTaskSettingsSchema: z.ZodType = z
     min_retry_interval_millis: d.minRetryIntervalMillis,
     retry_on_timeout: d.retryOnTimeout,
     disable_auto_optimization: d.disableAutoOptimization,
+  }));
+
+export const marshalTraceDestinationSchema: z.ZodType = z
+  .object({
+    experimentId: z.string().optional(),
+    catalogName: z.string().optional(),
+    schemaName: z.string().optional(),
+    tablePrefix: z.string().optional(),
+  })
+  .transform(d => ({
+    experiment_id: d.experimentId,
+    catalog_name: d.catalogName,
+    schema_name: d.schemaName,
+    table_prefix: d.tablePrefix,
   }));
 
 export const marshalTriggerSettingsSchema: z.ZodType = z
@@ -9472,6 +10759,9 @@ export const marshalTriggerSettingsSchema: z.ZodType = z
         }),
       ])
       .optional(),
+    sqlCondition: z
+      .lazy(() => marshalSqlConditionConfigurationSchema)
+      .optional(),
   })
   .transform(d => ({
     pause_status: d.pauseStatus,
@@ -9485,6 +10775,23 @@ export const marshalTriggerSettingsSchema: z.ZodType = z
       table_update: d.configuration.tableUpdate,
     }),
     ...(d.configuration?.$case === 'model' && {model: d.configuration.model}),
+    sql_condition: d.sqlCondition,
+  }));
+
+export const marshalUcConnectionToolSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalUcFunctionToolSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
   }));
 
 export const marshalUpdateJobSchema: z.ZodType = z
@@ -9499,6 +10806,22 @@ export const marshalUpdateJobSchema: z.ZodType = z
     fields_to_remove: d.fieldsToRemove,
   }));
 
+export const marshalVectorSearchIndexToolSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
+export const marshalVolumeToolSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalVolumesStorageInfoSchema: z.ZodType = z
   .object({
     destination: z.string().optional(),
@@ -9506,6 +10829,8 @@ export const marshalVolumesStorageInfoSchema: z.ZodType = z
   .transform(d => ({
     destination: d.destination,
   }));
+
+export const marshalWebSearchToolSchema: z.ZodType = z.object({});
 
 export const marshalWebhookSchema: z.ZodType = z
   .object({

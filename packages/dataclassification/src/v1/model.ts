@@ -25,6 +25,11 @@ export interface AutoTaggingConfig {
   classificationTag?: string | undefined;
   /** Whether auto-tagging is enabled or disabled for this classification tag. */
   autoTaggingMode?: AutoTaggingConfig_AutoTaggingMode | undefined;
+  /**
+   * Governance tag value paired with `classification_tag` for a custom class. Omit this field
+   * for built-in classes, which use only the system tag key.
+   */
+  classificationTagValue?: string | undefined;
 }
 
 /**
@@ -50,6 +55,11 @@ export interface CatalogConfig {
    * Empty list means no auto-tagging is enabled.
    */
   autoTagConfigs?: AutoTaggingConfig[] | undefined;
+  /**
+   * The effective list of auto-tagging configurations for this catalog. Computed from
+   * auto_tag_configs on this catalog and those inherited from the metastore.
+   */
+  effectiveAutoTagConfigs?: AutoTaggingConfig[] | undefined;
 }
 
 /** Wrapper message for a list of schema names. */
@@ -104,10 +114,12 @@ export const unmarshalAutoTaggingConfigSchema: z.ZodType<AutoTaggingConfig> = z
   .object({
     classification_tag: z.string().optional(),
     auto_tagging_mode: z.enum(AutoTaggingConfig_AutoTaggingMode).optional(),
+    classification_tag_value: z.string().optional(),
   })
   .transform(d => ({
     classificationTag: d.classification_tag,
     autoTaggingMode: d.auto_tagging_mode,
+    classificationTagValue: d.classification_tag_value,
   }));
 
 export const unmarshalCatalogConfigSchema: z.ZodType<CatalogConfig> = z
@@ -117,6 +129,9 @@ export const unmarshalCatalogConfigSchema: z.ZodType<CatalogConfig> = z
       .lazy(() => unmarshalCatalogConfig_SchemaNamesSchema)
       .optional(),
     auto_tag_configs: z
+      .array(z.lazy(() => unmarshalAutoTaggingConfigSchema))
+      .optional(),
+    effective_auto_tag_configs: z
       .array(z.lazy(() => unmarshalAutoTaggingConfigSchema))
       .optional(),
   })
@@ -130,6 +145,7 @@ export const unmarshalCatalogConfigSchema: z.ZodType<CatalogConfig> = z
           }
         : undefined,
     autoTagConfigs: d.auto_tag_configs,
+    effectiveAutoTagConfigs: d.effective_auto_tag_configs,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -146,10 +162,12 @@ export const marshalAutoTaggingConfigSchema: z.ZodType = z
   .object({
     classificationTag: z.string().optional(),
     autoTaggingMode: z.enum(AutoTaggingConfig_AutoTaggingMode).optional(),
+    classificationTagValue: z.string().optional(),
   })
   .transform(d => ({
     classification_tag: d.classificationTag,
     auto_tagging_mode: d.autoTaggingMode,
+    classification_tag_value: d.classificationTagValue,
   }));
 
 export const marshalCatalogConfigSchema: z.ZodType = z
@@ -166,6 +184,9 @@ export const marshalCatalogConfigSchema: z.ZodType = z
     autoTagConfigs: z
       .array(z.lazy(() => marshalAutoTaggingConfigSchema))
       .optional(),
+    effectiveAutoTagConfigs: z
+      .array(z.lazy(() => marshalAutoTaggingConfigSchema))
+      .optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -173,6 +194,7 @@ export const marshalCatalogConfigSchema: z.ZodType = z
       included_schemas: d.selectedSchemas.includedSchemas,
     }),
     auto_tag_configs: d.autoTagConfigs,
+    effective_auto_tag_configs: d.effectiveAutoTagConfigs,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -186,6 +208,7 @@ export const marshalCatalogConfig_SchemaNamesSchema: z.ZodType = z
 
 const catalogConfigFieldMaskSchema: FieldMaskSchema = {
   autoTagConfigs: {wire: 'auto_tag_configs'},
+  effectiveAutoTagConfigs: {wire: 'effective_auto_tag_configs'},
   includedSchemas: {
     wire: 'included_schemas',
     children: () => catalogConfig_SchemaNamesFieldMaskSchema,

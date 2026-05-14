@@ -214,6 +214,9 @@ export class Client {
   ): Promise<BudgetPolicy> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/budget-policies/${req.policy?.policyId ?? ''}`;
     const params = new URLSearchParams();
+    if (req.updateMask !== undefined) {
+      params.append('update_mask', req.updateMask.toString());
+    }
     if (req.limitConfig !== undefined) {
       flattenQueryParams(
         'limit_config',

@@ -6,6 +6,7 @@ export enum IsolationMode {
   ISOLATION_MODE_UNSPECIFIED = 'ISOLATION_MODE_UNSPECIFIED',
   ISOLATION_MODE_OPEN = 'ISOLATION_MODE_OPEN',
   ISOLATION_MODE_ISOLATED = 'ISOLATION_MODE_ISOLATED',
+  ISOLATION_MODE_OPEN_IN_ACCOUNT = 'ISOLATION_MODE_OPEN_IN_ACCOUNT',
 }
 
 export enum PathOperation {
@@ -137,22 +138,14 @@ export interface AccountsUpdateStorageCredentialPublic_Response {
   credentialInfo?: StorageCredentialInfo | undefined;
 }
 
-/**
- * AWS temporary credentials for API authentication.
- * Read more at https://docs.aws.amazon.com/STS/latest/APIReference/API_Credentials.html.
- */
 export interface AwsCredentials {
-  /** The access key ID that identifies the temporary credentials. */
-  accessKeyId?: string | undefined;
-  /** The secret access key that can be used to sign AWS API requests. */
-  secretAccessKey?: string | undefined;
-  /** The token that users must pass to AWS API to use the temporary credentials. */
-  sessionToken?: string | undefined;
-  /**
-   * The Amazon Resource Name (ARN) of the S3 access point for
-   * temporary credentials related the external location.
-   */
-  accessPoint?: string | undefined;
+  creds?: {$case: 'stsRole'; stsRole: AwsCredentials_StsRole} | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface AwsCredentials_StsRole {
+  /** The Amazon Resource Name (ARN) of the cross account IAM role. */
+  roleArn?: string | undefined;
 }
 
 /** The AWS IAM role configuration */
@@ -379,6 +372,20 @@ export interface CreateCredential {
   isolationMode?: IsolationMode | undefined;
 }
 
+export interface CreateCredentialAwsCredentials {
+  creds?: {$case: 'stsRole'; stsRole: AwsCredentials_StsRole} | undefined;
+}
+
+export interface CreateCredentialsPublicRequest {
+  accountId?: string | undefined;
+  /** The human-readable name of the credential configuration object. */
+  credentialsName?: string | undefined;
+  /** (-- NOTE(austin) This oneof is a future-looking definition when we add other clouds --) */
+  cloudCredentials?:
+    | {$case: 'awsCredentials'; awsCredentials: CreateCredentialAwsCredentials}
+    | undefined;
+}
+
 export interface CreateStorageCredential {
   /** Supplying true to this argument skips validation of the created credential. */
   skipValidation?: boolean | undefined;
@@ -527,6 +534,21 @@ export interface CredentialInfo {
   isolationMode?: IsolationMode | undefined;
 }
 
+export interface Credentials {
+  /** <Databricks> credential configuration ID. */
+  credentialsId?: string | undefined;
+  /** The <Databricks> account ID that hosts the credential. */
+  accountId?: string | undefined;
+  /** (-- NOTE(austin) This oneof is a future-looking definition when we add other clouds --) */
+  cloudCredentials?:
+    | {$case: 'awsCredentials'; awsCredentials: AwsCredentials}
+    | undefined;
+  /** The human-readable name of the credential configuration object. */
+  credentialsName?: string | undefined;
+  /** Time in epoch milliseconds when the credential was created. */
+  creationTime?: number | undefined;
+}
+
 /**
  * GCP long-lived credential.
  * <Databricks>-created Google Cloud Storage service account.
@@ -553,6 +575,12 @@ export interface DeleteCredential {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
 export interface DeleteCredential_Response {}
+
+export interface DeleteCredentialsPublicRequest {
+  /** Databricks Account API credential configuration ID */
+  credentialsId?: string | undefined;
+  accountId?: string | undefined;
+}
 
 export interface DeleteStorageCredential {
   /** Name of the storage credential. */
@@ -606,7 +634,7 @@ export interface GenerateTemporaryPathCredential {
 export interface GenerateTemporaryPathCredential_Response {
   /** The temporary credential. */
   credentials?:
-    | {$case: 'awsTempCredentials'; awsTempCredentials: AwsCredentials}
+    | {$case: 'awsTempCredentials'; awsTempCredentials: TemporaryAwsCredentials}
     | {
         $case: 'azureUserDelegationSas';
         azureUserDelegationSas: AzureUserDelegationSas;
@@ -614,6 +642,7 @@ export interface GenerateTemporaryPathCredential_Response {
     | {$case: 'gcpOauthToken'; gcpOauthToken: GcpOauthToken}
     | {$case: 'azureAad'; azureAad: AzureActiveDirectoryToken}
     | {$case: 'r2TempCredentials'; r2TempCredentials: R2Credentials}
+    | {$case: 'ucEncryptedToken'; ucEncryptedToken: UcEncryptedToken}
     | undefined;
   /**
    * Server time when the credential will expire, in epoch milliseconds.
@@ -674,7 +703,7 @@ export interface GenerateTemporaryTableCredential {
 export interface GenerateTemporaryTableCredential_Response {
   /** The temporary credential. */
   credentials?:
-    | {$case: 'awsTempCredentials'; awsTempCredentials: AwsCredentials}
+    | {$case: 'awsTempCredentials'; awsTempCredentials: TemporaryAwsCredentials}
     | {
         $case: 'azureUserDelegationSas';
         azureUserDelegationSas: AzureUserDelegationSas;
@@ -682,6 +711,7 @@ export interface GenerateTemporaryTableCredential_Response {
     | {$case: 'gcpOauthToken'; gcpOauthToken: GcpOauthToken}
     | {$case: 'azureAad'; azureAad: AzureActiveDirectoryToken}
     | {$case: 'r2TempCredentials'; r2TempCredentials: R2Credentials}
+    | {$case: 'ucEncryptedToken'; ucEncryptedToken: UcEncryptedToken}
     | undefined;
   /**
    * Server time when the credential will expire, in epoch milliseconds.
@@ -707,7 +737,7 @@ export interface GenerateTemporaryVolumeCredential {
 export interface GenerateTemporaryVolumeCredential_Response {
   /** The temporary credential. */
   credentials?:
-    | {$case: 'awsTempCredentials'; awsTempCredentials: AwsCredentials}
+    | {$case: 'awsTempCredentials'; awsTempCredentials: TemporaryAwsCredentials}
     | {
         $case: 'azureUserDelegationSas';
         azureUserDelegationSas: AzureUserDelegationSas;
@@ -715,6 +745,7 @@ export interface GenerateTemporaryVolumeCredential_Response {
     | {$case: 'gcpOauthToken'; gcpOauthToken: GcpOauthToken}
     | {$case: 'azureAad'; azureAad: AzureActiveDirectoryToken}
     | {$case: 'r2TempCredentials'; r2TempCredentials: R2Credentials}
+    | {$case: 'ucEncryptedToken'; ucEncryptedToken: UcEncryptedToken}
     | undefined;
   /**
    * Server time when the credential will expire, in epoch milliseconds.
@@ -728,6 +759,12 @@ export interface GenerateTemporaryVolumeCredential_Response {
 export interface GetCredential {
   /** Name of the credential. */
   nameArg?: string | undefined;
+}
+
+export interface GetCredentialsPublicRequest {
+  /** Credential configuration ID */
+  credentialsId?: string | undefined;
+  accountId?: string | undefined;
 }
 
 /**
@@ -779,6 +816,14 @@ export interface ListCredentials_Response {
    * next page of results).
    */
   nextPageToken?: string | undefined;
+}
+
+export interface ListCredentialsPublicRequest {
+  accountId?: string | undefined;
+}
+
+export interface ListCredentialsPublicResponse {
+  credentials?: Credentials[] | undefined;
 }
 
 export interface ListStorageCredentials {
@@ -899,10 +944,28 @@ export interface StorageCredentialInfo {
   isolationMode?: IsolationMode | undefined;
 }
 
+/**
+ * AWS temporary credentials for API authentication.
+ * Read more at https://docs.aws.amazon.com/STS/latest/APIReference/API_Credentials.html.
+ */
+export interface TemporaryAwsCredentials {
+  /** The access key ID that identifies the temporary credentials. */
+  accessKeyId?: string | undefined;
+  /** The secret access key that can be used to sign AWS API requests. */
+  secretAccessKey?: string | undefined;
+  /** The token that users must pass to AWS API to use the temporary credentials. */
+  sessionToken?: string | undefined;
+  /**
+   * The Amazon Resource Name (ARN) of the S3 access point for
+   * temporary credentials related the external location.
+   */
+  accessPoint?: string | undefined;
+}
+
 export interface TemporaryCredentials {
   /** The temporary credential. */
   credentials?:
-    | {$case: 'awsTempCredentials'; awsTempCredentials: AwsCredentials}
+    | {$case: 'awsTempCredentials'; awsTempCredentials: TemporaryAwsCredentials}
     | {
         $case: 'azureUserDelegationSas';
         azureUserDelegationSas: AzureUserDelegationSas;
@@ -910,6 +973,7 @@ export interface TemporaryCredentials {
     | {$case: 'gcpOauthToken'; gcpOauthToken: GcpOauthToken}
     | {$case: 'azureAad'; azureAad: AzureActiveDirectoryToken}
     | {$case: 'r2TempCredentials'; r2TempCredentials: R2Credentials}
+    | {$case: 'ucEncryptedToken'; ucEncryptedToken: UcEncryptedToken}
     | undefined;
   /**
    * Server time when the credential will expire, in epoch milliseconds.
@@ -918,6 +982,15 @@ export interface TemporaryCredentials {
   expirationTime?: number | undefined;
   /** The URL of the storage path accessible by the temporary credential. */
   url?: string | undefined;
+}
+
+/**
+ * Encrypted token used when we cannot downscope the cloud provider token appropriately
+ * See: https://docs.google.com/document/d/1hEKDnSckuU5PIS798CtfqBElrMR6OJuR2wgz_BjhMSY
+ */
+export interface UcEncryptedToken {
+  /** Stores encrypted ScopedCloudToken as a base64-encoded string */
+  encryptedPayload?: string | undefined;
 }
 
 export interface UpdateAccountsStorageCredential {
@@ -1337,17 +1410,24 @@ export const unmarshalAccountsUpdateStorageCredentialPublic_ResponseSchema: z.Zo
 
 export const unmarshalAwsCredentialsSchema: z.ZodType<AwsCredentials> = z
   .object({
-    access_key_id: z.string().optional(),
-    secret_access_key: z.string().optional(),
-    session_token: z.string().optional(),
-    access_point: z.string().optional(),
+    sts_role: z.lazy(() => unmarshalAwsCredentials_StsRoleSchema).optional(),
   })
   .transform(d => ({
-    accessKeyId: d.access_key_id,
-    secretAccessKey: d.secret_access_key,
-    sessionToken: d.session_token,
-    accessPoint: d.access_point,
+    creds:
+      d.sts_role !== undefined
+        ? {$case: 'stsRole' as const, stsRole: d.sts_role}
+        : undefined,
   }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalAwsCredentials_StsRoleSchema: z.ZodType<AwsCredentials_StsRole> =
+  z
+    .object({
+      role_arn: z.string().optional(),
+    })
+    .transform(d => ({
+      roleArn: d.role_arn,
+    }));
 
 export const unmarshalAwsIamRoleSchema: z.ZodType<AwsIamRole> = z
   .object({
@@ -1496,6 +1576,25 @@ export const unmarshalCredentialInfoSchema: z.ZodType<CredentialInfo> = z
     isolationMode: d.isolation_mode,
   }));
 
+export const unmarshalCredentialsSchema: z.ZodType<Credentials> = z
+  .object({
+    credentials_id: z.string().optional(),
+    account_id: z.string().optional(),
+    aws_credentials: z.lazy(() => unmarshalAwsCredentialsSchema).optional(),
+    credentials_name: z.string().optional(),
+    creation_time: z.number().optional(),
+  })
+  .transform(d => ({
+    credentialsId: d.credentials_id,
+    accountId: d.account_id,
+    cloudCredentials:
+      d.aws_credentials !== undefined
+        ? {$case: 'awsCredentials' as const, awsCredentials: d.aws_credentials}
+        : undefined,
+    credentialsName: d.credentials_name,
+    creationTime: d.creation_time,
+  }));
+
 export const unmarshalDatabricksGcpServiceAccountSchema: z.ZodType<DatabricksGcpServiceAccount> =
   z
     .object({
@@ -1543,7 +1642,7 @@ export const unmarshalGenerateTemporaryPathCredential_ResponseSchema: z.ZodType<
   z
     .object({
       aws_temp_credentials: z
-        .lazy(() => unmarshalAwsCredentialsSchema)
+        .lazy(() => unmarshalTemporaryAwsCredentialsSchema)
         .optional(),
       azure_user_delegation_sas: z
         .lazy(() => unmarshalAzureUserDelegationSasSchema)
@@ -1554,6 +1653,9 @@ export const unmarshalGenerateTemporaryPathCredential_ResponseSchema: z.ZodType<
         .optional(),
       r2_temp_credentials: z
         .lazy(() => unmarshalR2CredentialsSchema)
+        .optional(),
+      uc_encrypted_token: z
+        .lazy(() => unmarshalUcEncryptedTokenSchema)
         .optional(),
       expiration_time: z.number().optional(),
       url: z.string().optional(),
@@ -1582,7 +1684,12 @@ export const unmarshalGenerateTemporaryPathCredential_ResponseSchema: z.ZodType<
                       $case: 'r2TempCredentials' as const,
                       r2TempCredentials: d.r2_temp_credentials,
                     }
-                  : undefined,
+                  : d.uc_encrypted_token !== undefined
+                    ? {
+                        $case: 'ucEncryptedToken' as const,
+                        ucEncryptedToken: d.uc_encrypted_token,
+                      }
+                    : undefined,
       expirationTime: d.expiration_time,
       url: d.url,
     }));
@@ -1592,7 +1699,7 @@ export const unmarshalGenerateTemporaryTableCredential_ResponseSchema: z.ZodType
   z
     .object({
       aws_temp_credentials: z
-        .lazy(() => unmarshalAwsCredentialsSchema)
+        .lazy(() => unmarshalTemporaryAwsCredentialsSchema)
         .optional(),
       azure_user_delegation_sas: z
         .lazy(() => unmarshalAzureUserDelegationSasSchema)
@@ -1603,6 +1710,9 @@ export const unmarshalGenerateTemporaryTableCredential_ResponseSchema: z.ZodType
         .optional(),
       r2_temp_credentials: z
         .lazy(() => unmarshalR2CredentialsSchema)
+        .optional(),
+      uc_encrypted_token: z
+        .lazy(() => unmarshalUcEncryptedTokenSchema)
         .optional(),
       expiration_time: z.number().optional(),
       url: z.string().optional(),
@@ -1631,7 +1741,12 @@ export const unmarshalGenerateTemporaryTableCredential_ResponseSchema: z.ZodType
                       $case: 'r2TempCredentials' as const,
                       r2TempCredentials: d.r2_temp_credentials,
                     }
-                  : undefined,
+                  : d.uc_encrypted_token !== undefined
+                    ? {
+                        $case: 'ucEncryptedToken' as const,
+                        ucEncryptedToken: d.uc_encrypted_token,
+                      }
+                    : undefined,
       expirationTime: d.expiration_time,
       url: d.url,
     }));
@@ -1641,7 +1756,7 @@ export const unmarshalGenerateTemporaryVolumeCredential_ResponseSchema: z.ZodTyp
   z
     .object({
       aws_temp_credentials: z
-        .lazy(() => unmarshalAwsCredentialsSchema)
+        .lazy(() => unmarshalTemporaryAwsCredentialsSchema)
         .optional(),
       azure_user_delegation_sas: z
         .lazy(() => unmarshalAzureUserDelegationSasSchema)
@@ -1652,6 +1767,9 @@ export const unmarshalGenerateTemporaryVolumeCredential_ResponseSchema: z.ZodTyp
         .optional(),
       r2_temp_credentials: z
         .lazy(() => unmarshalR2CredentialsSchema)
+        .optional(),
+      uc_encrypted_token: z
+        .lazy(() => unmarshalUcEncryptedTokenSchema)
         .optional(),
       expiration_time: z.number().optional(),
       url: z.string().optional(),
@@ -1680,7 +1798,12 @@ export const unmarshalGenerateTemporaryVolumeCredential_ResponseSchema: z.ZodTyp
                       $case: 'r2TempCredentials' as const,
                       r2TempCredentials: d.r2_temp_credentials,
                     }
-                  : undefined,
+                  : d.uc_encrypted_token !== undefined
+                    ? {
+                        $case: 'ucEncryptedToken' as const,
+                        ucEncryptedToken: d.uc_encrypted_token,
+                      }
+                    : undefined,
       expirationTime: d.expiration_time,
       url: d.url,
     }));
@@ -1804,11 +1927,26 @@ export const unmarshalStorageCredentialInfoSchema: z.ZodType<StorageCredentialIn
       isolationMode: d.isolation_mode,
     }));
 
+export const unmarshalTemporaryAwsCredentialsSchema: z.ZodType<TemporaryAwsCredentials> =
+  z
+    .object({
+      access_key_id: z.string().optional(),
+      secret_access_key: z.string().optional(),
+      session_token: z.string().optional(),
+      access_point: z.string().optional(),
+    })
+    .transform(d => ({
+      accessKeyId: d.access_key_id,
+      secretAccessKey: d.secret_access_key,
+      sessionToken: d.session_token,
+      accessPoint: d.access_point,
+    }));
+
 export const unmarshalTemporaryCredentialsSchema: z.ZodType<TemporaryCredentials> =
   z
     .object({
       aws_temp_credentials: z
-        .lazy(() => unmarshalAwsCredentialsSchema)
+        .lazy(() => unmarshalTemporaryAwsCredentialsSchema)
         .optional(),
       azure_user_delegation_sas: z
         .lazy(() => unmarshalAzureUserDelegationSasSchema)
@@ -1819,6 +1957,9 @@ export const unmarshalTemporaryCredentialsSchema: z.ZodType<TemporaryCredentials
         .optional(),
       r2_temp_credentials: z
         .lazy(() => unmarshalR2CredentialsSchema)
+        .optional(),
+      uc_encrypted_token: z
+        .lazy(() => unmarshalUcEncryptedTokenSchema)
         .optional(),
       expiration_time: z.number().optional(),
       url: z.string().optional(),
@@ -1847,10 +1988,23 @@ export const unmarshalTemporaryCredentialsSchema: z.ZodType<TemporaryCredentials
                       $case: 'r2TempCredentials' as const,
                       r2TempCredentials: d.r2_temp_credentials,
                     }
-                  : undefined,
+                  : d.uc_encrypted_token !== undefined
+                    ? {
+                        $case: 'ucEncryptedToken' as const,
+                        ucEncryptedToken: d.uc_encrypted_token,
+                      }
+                    : undefined,
       expirationTime: d.expiration_time,
       url: d.url,
     }));
+
+export const unmarshalUcEncryptedTokenSchema: z.ZodType<UcEncryptedToken> = z
+  .object({
+    encrypted_payload: z.string().optional(),
+  })
+  .transform(d => ({
+    encryptedPayload: d.encrypted_payload,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalValidateCredential_ResponseSchema: z.ZodType<ValidateCredential_Response> =
@@ -1942,6 +2096,15 @@ export const marshalAccountsUpdateStorageCredentialPublicSchema: z.ZodType = z
     name_arg: d.nameArg,
     credential_info: d.credentialInfo,
     skip_validation: d.skipValidation,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalAwsCredentials_StsRoleSchema: z.ZodType = z
+  .object({
+    roleArn: z.string().optional(),
+  })
+  .transform(d => ({
+    role_arn: d.roleArn,
   }));
 
 export const marshalAwsIamRoleSchema: z.ZodType = z
@@ -2156,6 +2319,44 @@ export const marshalCreateCredentialSchema: z.ZodType = z
     used_for_managed_storage: d.usedForManagedStorage,
     full_name: d.fullName,
     isolation_mode: d.isolationMode,
+  }));
+
+export const marshalCreateCredentialAwsCredentialsSchema: z.ZodType = z
+  .object({
+    creds: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('stsRole'),
+          stsRole: z.lazy(() => marshalAwsCredentials_StsRoleSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.creds?.$case === 'stsRole' && {sts_role: d.creds.stsRole}),
+  }));
+
+export const marshalCreateCredentialsPublicRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    credentialsName: z.string().optional(),
+    cloudCredentials: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('awsCredentials'),
+          awsCredentials: z.lazy(
+            () => marshalCreateCredentialAwsCredentialsSchema
+          ),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    credentials_name: d.credentialsName,
+    ...(d.cloudCredentials?.$case === 'awsCredentials' && {
+      aws_credentials: d.cloudCredentials.awsCredentials,
+    }),
   }));
 
 export const marshalCreateStorageCredentialSchema: z.ZodType = z

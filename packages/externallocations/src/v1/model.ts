@@ -6,6 +6,7 @@ export enum IsolationMode {
   ISOLATION_MODE_UNSPECIFIED = 'ISOLATION_MODE_UNSPECIFIED',
   ISOLATION_MODE_OPEN = 'ISOLATION_MODE_OPEN',
   ISOLATION_MODE_ISOLATED = 'ISOLATION_MODE_ISOLATED',
+  ISOLATION_MODE_OPEN_IN_ACCOUNT = 'ISOLATION_MODE_OPEN_IN_ACCOUNT',
 }
 
 export enum SseEncryptionAlgorithm {
@@ -172,11 +173,13 @@ export interface FileEventQueue {
     | {$case: 'providedAqs'; providedAqs: AzureQueueStorage}
     | {$case: 'providedSqs'; providedSqs: AwsSqsQueue}
     | {$case: 'providedPubsub'; providedPubsub: GcpPubsub}
+    | {$case: 'providedOnelake'; providedOnelake: OneLakeEventQueue}
     | undefined;
   managed?:
     | {$case: 'managedAqs'; managedAqs: AzureQueueStorage}
     | {$case: 'managedSqs'; managedSqs: AwsSqsQueue}
     | {$case: 'managedPubsub'; managedPubsub: GcpPubsub}
+    | {$case: 'managedOnelake'; managedOnelake: OneLakeEventQueue}
     | undefined;
 }
 
@@ -226,6 +229,40 @@ export interface ListExternalLocations_Response {
    * __page_token__ should be set to this value for the next request (for the next page of results).
    */
   nextPageToken?: string | undefined;
+}
+
+/**
+ * File event queue for OneLake (Microsoft Fabric) locations. Events flow through Fabric
+ * Eventstream in both arms; CSMS consumes from a user-provided Azure Event Hub
+ * (provided_onelake) or from a Fabric Eventstream that CSMS provisions in the user's
+ * workspace (managed_onelake).
+ */
+export interface OneLakeEventQueue {
+  /**
+   * The Event Hub URL in the format https://{namespace}.servicebus.windows.net/{event_hub_name}.
+   * Deprecated: use fully_qualified_namespace + event_hub_name instead.
+   */
+  eventHubUrl?: string | undefined;
+  /** Unique identifier included in the name of the file events managed resources. */
+  managedResourceId?: string | undefined;
+  /**
+   * The fully qualified domain name of the Event Hubs namespace, e.g.
+   * {yournamespace}.servicebus.windows.net.
+   * Only required for provided_onelake.
+   */
+  fullyQualifiedNamespace?: string | undefined;
+  /**
+   * Event Hub entity name within the namespace.
+   * Only required for provided_onelake.
+   */
+  eventHubName?: string | undefined;
+  /**
+   * Event Hubs consumer group used to consume file events. Defaults to "$Default"
+   * when unset. Recommended for provided_onelake: create a dedicated consumer
+   * group on the Event Hub for file events to avoid contending with the customer's
+   * other consumers.
+   */
+  consumerGroup?: string | undefined;
 }
 
 /** Server-Side Encryption properties for clients communicating with AWS s3. */
@@ -396,9 +433,11 @@ export const unmarshalFileEventQueueSchema: z.ZodType<FileEventQueue> = z
     provided_aqs: z.lazy(() => unmarshalAzureQueueStorageSchema).optional(),
     provided_sqs: z.lazy(() => unmarshalAwsSqsQueueSchema).optional(),
     provided_pubsub: z.lazy(() => unmarshalGcpPubsubSchema).optional(),
+    provided_onelake: z.lazy(() => unmarshalOneLakeEventQueueSchema).optional(),
     managed_aqs: z.lazy(() => unmarshalAzureQueueStorageSchema).optional(),
     managed_sqs: z.lazy(() => unmarshalAwsSqsQueueSchema).optional(),
     managed_pubsub: z.lazy(() => unmarshalGcpPubsubSchema).optional(),
+    managed_onelake: z.lazy(() => unmarshalOneLakeEventQueueSchema).optional(),
   })
   .transform(d => ({
     provided:
@@ -411,7 +450,12 @@ export const unmarshalFileEventQueueSchema: z.ZodType<FileEventQueue> = z
                 $case: 'providedPubsub' as const,
                 providedPubsub: d.provided_pubsub,
               }
-            : undefined,
+            : d.provided_onelake !== undefined
+              ? {
+                  $case: 'providedOnelake' as const,
+                  providedOnelake: d.provided_onelake,
+                }
+              : undefined,
     managed:
       d.managed_aqs !== undefined
         ? {$case: 'managedAqs' as const, managedAqs: d.managed_aqs}
@@ -419,7 +463,12 @@ export const unmarshalFileEventQueueSchema: z.ZodType<FileEventQueue> = z
           ? {$case: 'managedSqs' as const, managedSqs: d.managed_sqs}
           : d.managed_pubsub !== undefined
             ? {$case: 'managedPubsub' as const, managedPubsub: d.managed_pubsub}
-            : undefined,
+            : d.managed_onelake !== undefined
+              ? {
+                  $case: 'managedOnelake' as const,
+                  managedOnelake: d.managed_onelake,
+                }
+              : undefined,
   }));
 
 export const unmarshalGcpPubsubSchema: z.ZodType<GcpPubsub> = z
@@ -445,6 +494,22 @@ export const unmarshalListExternalLocations_ResponseSchema: z.ZodType<ListExtern
       externalLocations: d.external_locations,
       nextPageToken: d.next_page_token,
     }));
+
+export const unmarshalOneLakeEventQueueSchema: z.ZodType<OneLakeEventQueue> = z
+  .object({
+    event_hub_url: z.string().optional(),
+    managed_resource_id: z.string().optional(),
+    fully_qualified_namespace: z.string().optional(),
+    event_hub_name: z.string().optional(),
+    consumer_group: z.string().optional(),
+  })
+  .transform(d => ({
+    eventHubUrl: d.event_hub_url,
+    managedResourceId: d.managed_resource_id,
+    fullyQualifiedNamespace: d.fully_qualified_namespace,
+    eventHubName: d.event_hub_name,
+    consumerGroup: d.consumer_group,
+  }));
 
 export const unmarshalSseEncryptionDetailsSchema: z.ZodType<SseEncryptionDetails> =
   z
@@ -564,6 +629,10 @@ export const marshalFileEventQueueSchema: z.ZodType = z
           $case: z.literal('providedPubsub'),
           providedPubsub: z.lazy(() => marshalGcpPubsubSchema),
         }),
+        z.object({
+          $case: z.literal('providedOnelake'),
+          providedOnelake: z.lazy(() => marshalOneLakeEventQueueSchema),
+        }),
       ])
       .optional(),
     managed: z
@@ -580,6 +649,10 @@ export const marshalFileEventQueueSchema: z.ZodType = z
           $case: z.literal('managedPubsub'),
           managedPubsub: z.lazy(() => marshalGcpPubsubSchema),
         }),
+        z.object({
+          $case: z.literal('managedOnelake'),
+          managedOnelake: z.lazy(() => marshalOneLakeEventQueueSchema),
+        }),
       ])
       .optional(),
   })
@@ -593,6 +666,9 @@ export const marshalFileEventQueueSchema: z.ZodType = z
     ...(d.provided?.$case === 'providedPubsub' && {
       provided_pubsub: d.provided.providedPubsub,
     }),
+    ...(d.provided?.$case === 'providedOnelake' && {
+      provided_onelake: d.provided.providedOnelake,
+    }),
     ...(d.managed?.$case === 'managedAqs' && {
       managed_aqs: d.managed.managedAqs,
     }),
@@ -601,6 +677,9 @@ export const marshalFileEventQueueSchema: z.ZodType = z
     }),
     ...(d.managed?.$case === 'managedPubsub' && {
       managed_pubsub: d.managed.managedPubsub,
+    }),
+    ...(d.managed?.$case === 'managedOnelake' && {
+      managed_onelake: d.managed.managedOnelake,
     }),
   }));
 
@@ -612,6 +691,22 @@ export const marshalGcpPubsubSchema: z.ZodType = z
   .transform(d => ({
     subscription_name: d.subscriptionName,
     managed_resource_id: d.managedResourceId,
+  }));
+
+export const marshalOneLakeEventQueueSchema: z.ZodType = z
+  .object({
+    eventHubUrl: z.string().optional(),
+    managedResourceId: z.string().optional(),
+    fullyQualifiedNamespace: z.string().optional(),
+    eventHubName: z.string().optional(),
+    consumerGroup: z.string().optional(),
+  })
+  .transform(d => ({
+    event_hub_url: d.eventHubUrl,
+    managed_resource_id: d.managedResourceId,
+    fully_qualified_namespace: d.fullyQualifiedNamespace,
+    event_hub_name: d.eventHubName,
+    consumer_group: d.consumerGroup,
   }));
 
 export const marshalSseEncryptionDetailsSchema: z.ZodType = z

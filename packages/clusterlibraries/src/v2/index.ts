@@ -2,20 +2,37 @@
 
 export {Client} from './client';
 
-export {LibraryInstallStatus} from './model';
+export {
+  BaseEnvironmentType,
+  LibraryInstallStatus,
+  DefaultBaseEnvironmentCache_Status,
+} from './model';
 
 export type {
   ClusterLibraryStatuses,
   ClusterStatus,
+  CreateDefaultBaseEnvironmentRequest,
+  DefaultBaseEnvironment,
+  DefaultBaseEnvironmentCache,
+  DeleteDefaultBaseEnvironmentRequest,
+  Environment,
+  GetDefaultBaseEnvironmentRequest,
   InstallLibraries,
   InstallLibraries_Response,
   Library,
   LibraryFullStatus,
   ListAllClusterLibraryStatuses,
   ListAllClusterLibraryStatuses_Response,
+  ListDefaultBaseEnvironmentsRequest,
+  ListDefaultBaseEnvironmentsResponse,
+  MaterializedEnvironment,
   MavenLibrary,
   PythonPyPiLibrary,
   RCranLibrary,
+  RefreshDefaultBaseEnvironmentsRequest,
+  RefreshDefaultBaseEnvironmentsResponse,
   UninstallLibraries,
   UninstallLibraries_Response,
+  UpdateDefaultBaseEnvironmentRequest,
+  UpdateDefaultDefaultBaseEnvironmentRequest,
 } from './model';

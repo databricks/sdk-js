@@ -5,8 +5,26 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+/** Policy that determines how to resolve conflicts when multiple upstream sources have different tag values. */
+export interface ConflictResolutionPolicy {
+  /** The conflict resolution strategy to apply. Only one policy type should be specified. */
+  policy?:
+    | {
+        $case: 'defaultValueOverride';
+        /** Uses a specified default value to override when conflicts happen. */
+        defaultValueOverride: DefaultValueOverridePolicy;
+      }
+    | undefined;
+}
+
 export interface CreateTagPolicyRequest {
   tagPolicy?: TagPolicy | undefined;
+}
+
+/** Policy that specifies a default value to use when resolving tag conflicts during propagation. */
+export interface DefaultValueOverridePolicy {
+  /** The tag value to apply when conflicts are detected. This value must be one of the allowed values defined in the tag policy. */
+  defaultValue?: string | undefined;
 }
 
 export interface DeleteTagPolicyRequest {
@@ -33,6 +51,14 @@ export interface ListTagPoliciesResponse {
   nextPageToken?: string | undefined;
 }
 
+/** Configuration that controls how tags are automatically propagated through data lineage. */
+export interface PropagationConfig {
+  /** Determines whether this tag should automatically propagate through lineage. */
+  enabled?: boolean | undefined;
+  /** Policy that determines how to resolve conflicts when multiple upstream sources have different tag values. */
+  conflictResolution?: ConflictResolutionPolicy | undefined;
+}
+
 export interface TagPolicy {
   tagKey?: string | undefined;
   id?: string | undefined;
@@ -42,6 +68,10 @@ export interface TagPolicy {
   createTime?: Temporal.Instant | undefined;
   /** Timestamp when the tag policy was last updated */
   updateTime?: Temporal.Instant | undefined;
+  /** Configuration that controls how tags are automatically propagated through data lineage. */
+  propagationConfig?: PropagationConfig | undefined;
+  /** The account ID that owns this tag policy. */
+  accountId?: string | undefined;
 }
 
 export interface UpdateTagPolicyRequest {
@@ -53,6 +83,32 @@ export interface Value {
   name?: string | undefined;
 }
 
+export const unmarshalConflictResolutionPolicySchema: z.ZodType<ConflictResolutionPolicy> =
+  z
+    .object({
+      default_value_override: z
+        .lazy(() => unmarshalDefaultValueOverridePolicySchema)
+        .optional(),
+    })
+    .transform(d => ({
+      policy:
+        d.default_value_override !== undefined
+          ? {
+              $case: 'defaultValueOverride' as const,
+              defaultValueOverride: d.default_value_override,
+            }
+          : undefined,
+    }));
+
+export const unmarshalDefaultValueOverridePolicySchema: z.ZodType<DefaultValueOverridePolicy> =
+  z
+    .object({
+      default_value: z.string().optional(),
+    })
+    .transform(d => ({
+      defaultValue: d.default_value,
+    }));
+
 export const unmarshalListTagPoliciesResponseSchema: z.ZodType<ListTagPoliciesResponse> =
   z
     .object({
@@ -63,6 +119,18 @@ export const unmarshalListTagPoliciesResponseSchema: z.ZodType<ListTagPoliciesRe
       tagPolicies: d.tag_policies,
       nextPageToken: d.next_page_token,
     }));
+
+export const unmarshalPropagationConfigSchema: z.ZodType<PropagationConfig> = z
+  .object({
+    enabled: z.boolean().optional(),
+    conflict_resolution: z
+      .lazy(() => unmarshalConflictResolutionPolicySchema)
+      .optional(),
+  })
+  .transform(d => ({
+    enabled: d.enabled,
+    conflictResolution: d.conflict_resolution,
+  }));
 
 export const unmarshalTagPolicySchema: z.ZodType<TagPolicy> = z
   .object({
@@ -78,6 +146,10 @@ export const unmarshalTagPolicySchema: z.ZodType<TagPolicy> = z
       .string()
       .transform(s => Temporal.Instant.from(s))
       .optional(),
+    propagation_config: z
+      .lazy(() => unmarshalPropagationConfigSchema)
+      .optional(),
+    account_id: z.string().optional(),
   })
   .transform(d => ({
     tagKey: d.tag_key,
@@ -86,6 +158,8 @@ export const unmarshalTagPolicySchema: z.ZodType<TagPolicy> = z
     values: d.values,
     createTime: d.create_time,
     updateTime: d.update_time,
+    propagationConfig: d.propagation_config,
+    accountId: d.account_id,
   }));
 
 export const unmarshalValueSchema: z.ZodType<Value> = z
@@ -94,6 +168,45 @@ export const unmarshalValueSchema: z.ZodType<Value> = z
   })
   .transform(d => ({
     name: d.name,
+  }));
+
+export const marshalConflictResolutionPolicySchema: z.ZodType = z
+  .object({
+    policy: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('defaultValueOverride'),
+          defaultValueOverride: z.lazy(
+            () => marshalDefaultValueOverridePolicySchema
+          ),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.policy?.$case === 'defaultValueOverride' && {
+      default_value_override: d.policy.defaultValueOverride,
+    }),
+  }));
+
+export const marshalDefaultValueOverridePolicySchema: z.ZodType = z
+  .object({
+    defaultValue: z.string().optional(),
+  })
+  .transform(d => ({
+    default_value: d.defaultValue,
+  }));
+
+export const marshalPropagationConfigSchema: z.ZodType = z
+  .object({
+    enabled: z.boolean().optional(),
+    conflictResolution: z
+      .lazy(() => marshalConflictResolutionPolicySchema)
+      .optional(),
+  })
+  .transform(d => ({
+    enabled: d.enabled,
+    conflict_resolution: d.conflictResolution,
   }));
 
 export const marshalTagPolicySchema: z.ZodType = z
@@ -110,6 +223,8 @@ export const marshalTagPolicySchema: z.ZodType = z
       .any()
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
+    propagationConfig: z.lazy(() => marshalPropagationConfigSchema).optional(),
+    accountId: z.string().optional(),
   })
   .transform(d => ({
     tag_key: d.tagKey,
@@ -118,6 +233,8 @@ export const marshalTagPolicySchema: z.ZodType = z
     values: d.values,
     create_time: d.createTime,
     update_time: d.updateTime,
+    propagation_config: d.propagationConfig,
+    account_id: d.accountId,
   }));
 
 export const marshalValueSchema: z.ZodType = z
@@ -128,10 +245,34 @@ export const marshalValueSchema: z.ZodType = z
     name: d.name,
   }));
 
+const conflictResolutionPolicyFieldMaskSchema: FieldMaskSchema = {
+  defaultValueOverride: {
+    wire: 'default_value_override',
+    children: () => defaultValueOverridePolicyFieldMaskSchema,
+  },
+};
+
+const defaultValueOverridePolicyFieldMaskSchema: FieldMaskSchema = {
+  defaultValue: {wire: 'default_value'},
+};
+
+const propagationConfigFieldMaskSchema: FieldMaskSchema = {
+  conflictResolution: {
+    wire: 'conflict_resolution',
+    children: () => conflictResolutionPolicyFieldMaskSchema,
+  },
+  enabled: {wire: 'enabled'},
+};
+
 const tagPolicyFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
   createTime: {wire: 'create_time'},
   description: {wire: 'description'},
   id: {wire: 'id'},
+  propagationConfig: {
+    wire: 'propagation_config',
+    children: () => propagationConfigFieldMaskSchema,
+  },
   tagKey: {wire: 'tag_key'},
   updateTime: {wire: 'update_time'},
   values: {wire: 'values'},

@@ -2,7 +2,7 @@
 
 export {Client} from './client';
 
-export {} from './model';
+export {AutoscopeState} from './model';
 
 export type {
   CreateToken,

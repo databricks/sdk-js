@@ -20,19 +20,36 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   ClusterLibraryStatuses,
   ClusterStatus,
+  CreateDefaultBaseEnvironmentRequest,
+  DefaultBaseEnvironment,
+  DeleteDefaultBaseEnvironmentRequest,
+  GetDefaultBaseEnvironmentRequest,
   InstallLibraries,
   InstallLibraries_Response,
   ListAllClusterLibraryStatuses,
   ListAllClusterLibraryStatuses_Response,
+  ListDefaultBaseEnvironmentsRequest,
+  ListDefaultBaseEnvironmentsResponse,
+  RefreshDefaultBaseEnvironmentsRequest,
+  RefreshDefaultBaseEnvironmentsResponse,
   UninstallLibraries,
   UninstallLibraries_Response,
+  UpdateDefaultBaseEnvironmentRequest,
+  UpdateDefaultDefaultBaseEnvironmentRequest,
 } from './model';
 import {
+  marshalCreateDefaultBaseEnvironmentRequestSchema,
   marshalInstallLibrariesSchema,
+  marshalRefreshDefaultBaseEnvironmentsRequestSchema,
   marshalUninstallLibrariesSchema,
+  marshalUpdateDefaultBaseEnvironmentRequestSchema,
+  marshalUpdateDefaultDefaultBaseEnvironmentRequestSchema,
   unmarshalClusterLibraryStatusesSchema,
+  unmarshalDefaultBaseEnvironmentSchema,
   unmarshalInstallLibraries_ResponseSchema,
   unmarshalListAllClusterLibraryStatuses_ResponseSchema,
+  unmarshalListDefaultBaseEnvironmentsResponseSchema,
+  unmarshalRefreshDefaultBaseEnvironmentsResponseSchema,
   unmarshalUninstallLibraries_ResponseSchema,
 } from './model';
 
@@ -138,6 +155,95 @@ export class Client {
   }
 
   /**
+   * Create a default base environment within workspaces to define the environment version and a list of dependencies
+   * to be used in serverless notebooks and jobs. This process will asynchronously generate a cache to
+   * optimize dependency resolution.
+   */
+  async createDefaultBaseEnvironment(
+    req: CreateDefaultBaseEnvironmentRequest,
+    options?: CallOptions
+  ): Promise<DefaultBaseEnvironment> {
+    const url = `${this.host}/api/2.0/default-base-environments`;
+    const body = marshalRequest(
+      req,
+      marshalCreateDefaultBaseEnvironmentRequestSchema
+    );
+    let resp: DefaultBaseEnvironment | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalDefaultBaseEnvironmentSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Delete the default base environment given an ID. The default base environment may be used by downstream workloads.
+   * Please ensure that the deletion is intentional.
+   */
+  async deleteDefaultBaseEnvironment(
+    req: DeleteDefaultBaseEnvironmentRequest,
+    options?: CallOptions
+  ): Promise<void> {
+    const url = `${this.host}/api/2.0/default-base-environments/${req.id ?? ''}`;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+    };
+    await executeCall(call, options);
+  }
+
+  /** Return the default base environment details for a given ID. */
+  async getDefaultBaseEnvironment(
+    req: GetDefaultBaseEnvironmentRequest,
+    options?: CallOptions
+  ): Promise<DefaultBaseEnvironment> {
+    const url = `${this.host}/api/2.0/default-base-environments:getDefaultBaseEnvironment`;
+    const params = new URLSearchParams();
+    if (req.id !== undefined) {
+      params.append('id', req.id);
+    }
+    if (req.traceId !== undefined) {
+      params.append('trace_id', req.traceId);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: DefaultBaseEnvironment | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalDefaultBaseEnvironmentSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
    * Add libraries to install on a cluster. The installation is asynchronous; it happens in
    * the background after the completion of this request.
    */
@@ -158,6 +264,95 @@ export class Client {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalInstallLibraries_ResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** List default base environments defined in the workspaces for the requested user. */
+  async listDefaultBaseEnvironments(
+    req: ListDefaultBaseEnvironmentsRequest,
+    options?: CallOptions
+  ): Promise<ListDefaultBaseEnvironmentsResponse> {
+    const url = `${this.host}/api/2.0/default-base-environments`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListDefaultBaseEnvironmentsResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListDefaultBaseEnvironmentsResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listDefaultBaseEnvironmentsIter(
+    req: ListDefaultBaseEnvironmentsRequest,
+    options?: CallOptions
+  ): AsyncGenerator<DefaultBaseEnvironment> {
+    const pageReq: ListDefaultBaseEnvironmentsRequest = {...req};
+    for (;;) {
+      const resp = await this.listDefaultBaseEnvironments(pageReq, options);
+      for (const item of resp.defaultBaseEnvironments ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /**
+   * Refresh the cached default base environments for the given IDs. This process will asynchronously regenerate the caches.
+   * The existing caches remains available until it expires.
+   */
+  async refreshDefaultBaseEnvironments(
+    req: RefreshDefaultBaseEnvironmentsRequest,
+    options?: CallOptions
+  ): Promise<RefreshDefaultBaseEnvironmentsResponse> {
+    const url = `${this.host}/api/2.0/default-base-environments/refresh`;
+    const body = marshalRequest(
+      req,
+      marshalRefreshDefaultBaseEnvironmentsRequestSchema
+    );
+    let resp: RefreshDefaultBaseEnvironmentsResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalRefreshDefaultBaseEnvironmentsResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -190,6 +385,67 @@ export class Client {
         respBody,
         unmarshalUninstallLibraries_ResponseSchema
       );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Update the default base environment for the given ID. This process will asynchronously regenerate the cache.
+   * The existing cache remains available until it expires.
+   */
+  async updateDefaultBaseEnvironment(
+    req: UpdateDefaultBaseEnvironmentRequest,
+    options?: CallOptions
+  ): Promise<DefaultBaseEnvironment> {
+    const url = `${this.host}/api/2.0/default-base-environments/${req.id ?? ''}`;
+    const body = marshalRequest(
+      req,
+      marshalUpdateDefaultBaseEnvironmentRequestSchema
+    );
+    let resp: DefaultBaseEnvironment | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalDefaultBaseEnvironmentSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Set the default base environment for the workspace. This marks the specified DBE as the workspace default. */
+  async updateDefaultDefaultBaseEnvironment(
+    req: UpdateDefaultDefaultBaseEnvironmentRequest,
+    options?: CallOptions
+  ): Promise<DefaultBaseEnvironment> {
+    const url = `${this.host}/api/2.0/default-base-environments:setDefault`;
+    const body = marshalRequest(
+      req,
+      marshalUpdateDefaultDefaultBaseEnvironmentRequestSchema
+    );
+    let resp: DefaultBaseEnvironment | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalDefaultBaseEnvironmentSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

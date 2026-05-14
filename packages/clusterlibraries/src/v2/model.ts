@@ -2,6 +2,13 @@
 
 import {z} from 'zod';
 
+/** If changed, also update estore/namespaces/defaultbaseenvironments/latest.proto */
+export enum BaseEnvironmentType {
+  BASE_ENVIRONMENT_TYPE_UNSPECIFIED = 'BASE_ENVIRONMENT_TYPE_UNSPECIFIED',
+  CPU = 'CPU',
+  GPU = 'GPU',
+}
+
 /** The status of a library on a specific cluster. */
 export enum LibraryInstallStatus {
   /** No action has yet been taken to install the library. This state should be very short lived. */
@@ -35,6 +42,17 @@ export enum LibraryInstallStatus {
   RESTORED = 'RESTORED',
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export enum DefaultBaseEnvironmentCache_Status {
+  STATUS_UNSPECIFIED = 'STATUS_UNSPECIFIED',
+  PENDING = 'PENDING',
+  CREATED = 'CREATED',
+  FAILED = 'FAILED',
+  EXPIRED = 'EXPIRED',
+  INVALID = 'INVALID',
+  REFRESHING = 'REFRESHING',
+}
+
 export interface ClusterLibraryStatuses {
   /** Unique identifier for the cluster. */
   clusterId?: string | undefined;
@@ -45,6 +63,86 @@ export interface ClusterLibraryStatuses {
 export interface ClusterStatus {
   /** Unique identifier of the cluster whose status should be retrieved. */
   clusterId?: string | undefined;
+}
+
+export interface CreateDefaultBaseEnvironmentRequest {
+  defaultBaseEnvironment?: DefaultBaseEnvironment | undefined;
+  /**
+   * A unique identifier for this request. A random UUID is recommended.
+   * This request is only idempotent if a `request_id` is provided.
+   */
+  requestId?: string | undefined;
+  workspaceBaseEnvironmentId?: string | undefined;
+}
+
+export interface DefaultBaseEnvironment {
+  id?: string | undefined;
+  name?: string | undefined;
+  creatorUserId?: number | undefined;
+  createdTimestamp?: number | undefined;
+  lastUpdatedUserId?: number | undefined;
+  lastUpdatedTimestamp?: number | undefined;
+  /**
+   * Note: we made `environment` non-internal because we need to expose its `client` field. All other fields should be
+   * treated as internal.
+   */
+  environment?: Environment | undefined;
+  filepath?: string | undefined;
+  status?: DefaultBaseEnvironmentCache_Status | undefined;
+  message?: string | undefined;
+  baseEnvironmentCache?: DefaultBaseEnvironmentCache[] | undefined;
+  principalIds?: number[] | undefined;
+  isDefault?: boolean | undefined;
+  baseEnvironmentType?: BaseEnvironmentType | undefined;
+}
+
+export interface DefaultBaseEnvironmentCache {
+  materializedEnvironment?: MaterializedEnvironment | undefined;
+  indefiniteMaterializedEnvironment?: MaterializedEnvironment | undefined;
+  status?: DefaultBaseEnvironmentCache_Status | undefined;
+  message?: string | undefined;
+}
+
+export interface DeleteDefaultBaseEnvironmentRequest {
+  id?: string | undefined;
+}
+
+/**
+ * The environment entity used to preserve serverless environment side panel, jobs' environment for non-notebook task, and SDP's environment for classic and serverless pipelines.
+ * In this minimal environment spec, only pip and java dependencies are supported.
+ */
+export interface Environment {
+  /** Use `environment_version` instead. */
+  client?: string | undefined;
+  /**
+   * List of pip dependencies, as supported by the version of pip in this environment.
+   * Each dependency is a valid pip requirements file line per https://pip.pypa.io/en/stable/reference/requirements-file-format/.
+   * Allowed dependencies include a requirement specifier, an archive URL, a local project path (such as WSFS or UC Volumes in <Databricks>), or a VCS project URL.
+   */
+  dependencies?: string[] | undefined;
+  /**
+   * The base environment this environment is built on top of. A base environment defines the environment version and a
+   * list of dependencies for serverless compute. The value can be a file path to a custom `env.yaml` file
+   * (e.g., `/Workspace/path/to/env.yaml`). Support for a Databricks-provided base environment ID
+   * (e.g., `workspace-base-environments/databricks_ai_v4`) and workspace base environment ID
+   * (e.g., `workspace-base-environments/dbe_b849b66e-b31a-4cb5-b161-1f2b10877fb7`) is in Beta.
+   * Either `environment_version` or `base_environment` can be provided.  For more information, see
+   */
+  baseEnvironment?: string | undefined;
+  /**
+   * Either `environment_version` or `base_environment` needs to be provided. Environment version used by the environment.
+   * Each version comes with a specific Python version and a set of Python packages.
+   * The version is a string, consisting of an integer.
+   */
+  environmentVersion?: string | undefined;
+  /** List of java dependencies. Each dependency is a string representing a java library path. For example: `/Volumes/path/to/test.jar`. */
+  javaDependencies?: string[] | undefined;
+}
+
+export interface GetDefaultBaseEnvironmentRequest {
+  id?: string | undefined;
+  /** Deprecated: use ctx.requestId instead */
+  traceId?: string | undefined;
 }
 
 export interface InstallLibraries {
@@ -139,6 +237,33 @@ export interface ListAllClusterLibraryStatuses_Response {
   statuses?: ClusterLibraryStatuses[] | undefined;
 }
 
+export interface ListDefaultBaseEnvironmentsRequest {
+  pageSize?: number | undefined;
+  pageToken?: string | undefined;
+}
+
+export interface ListDefaultBaseEnvironmentsResponse {
+  defaultBaseEnvironments?: DefaultBaseEnvironment[] | undefined;
+  nextPageToken?: string | undefined;
+}
+
+/**
+ * Materialized Environment information enables environment sharing and reuse via Environment Caching during
+ * library installations. Currently this feature is only supported for Python libraries.
+ *
+ * - If the env cache entry in LMv2 DB doesn't exist or invalid, library installations and environment materialization
+ * will occur. A new Materialized Environment metadata will be sent from DP upon successful library installations and
+ * env materialization, and is persisted into database by LMv2.
+ * - If the env cache entry in LMv2 DB is valid, the Materialized Environment will be sent to DP by LMv2, and DP will
+ * restore the cached environment from a store instead of reinstalling libraries from scratch.
+ *
+ * If changed, also update estore/namespaces/defaultbaseenvironments/latest.proto with new version
+ */
+export interface MaterializedEnvironment {
+  /** The timestamp (in epoch milliseconds) when the materialized env is updated. */
+  lastUpdatedTimestamp?: number | undefined;
+}
+
 export interface MavenLibrary {
   /** Gradle-style maven coordinates. For example: "org.jsoup:jsoup:1.7.2". */
   coordinates?: string | undefined;
@@ -176,6 +301,13 @@ export interface RCranLibrary {
   repo?: string | undefined;
 }
 
+export interface RefreshDefaultBaseEnvironmentsRequest {
+  ids?: string[] | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface RefreshDefaultBaseEnvironmentsResponse {}
+
 export interface UninstallLibraries {
   /** Unique identifier for the cluster on which to uninstall these libraries. */
   clusterId?: string | undefined;
@@ -185,6 +317,16 @@ export interface UninstallLibraries {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
 export interface UninstallLibraries_Response {}
+
+export interface UpdateDefaultBaseEnvironmentRequest {
+  id?: string | undefined;
+  defaultBaseEnvironment?: DefaultBaseEnvironment | undefined;
+}
+
+export interface UpdateDefaultDefaultBaseEnvironmentRequest {
+  id?: string | undefined;
+  baseEnvironmentType?: BaseEnvironmentType | undefined;
+}
 
 export const unmarshalClusterLibraryStatusesSchema: z.ZodType<ClusterLibraryStatuses> =
   z
@@ -198,6 +340,78 @@ export const unmarshalClusterLibraryStatusesSchema: z.ZodType<ClusterLibraryStat
       clusterId: d.cluster_id,
       libraryStatuses: d.library_statuses,
     }));
+
+export const unmarshalDefaultBaseEnvironmentSchema: z.ZodType<DefaultBaseEnvironment> =
+  z
+    .object({
+      id: z.string().optional(),
+      name: z.string().optional(),
+      creator_user_id: z.number().optional(),
+      created_timestamp: z.number().optional(),
+      last_updated_user_id: z.number().optional(),
+      last_updated_timestamp: z.number().optional(),
+      environment: z.lazy(() => unmarshalEnvironmentSchema).optional(),
+      filepath: z.string().optional(),
+      status: z.enum(DefaultBaseEnvironmentCache_Status).optional(),
+      message: z.string().optional(),
+      base_environment_cache: z
+        .array(z.lazy(() => unmarshalDefaultBaseEnvironmentCacheSchema))
+        .optional(),
+      principal_ids: z.array(z.number()).optional(),
+      is_default: z.boolean().optional(),
+      base_environment_type: z.enum(BaseEnvironmentType).optional(),
+    })
+    .transform(d => ({
+      id: d.id,
+      name: d.name,
+      creatorUserId: d.creator_user_id,
+      createdTimestamp: d.created_timestamp,
+      lastUpdatedUserId: d.last_updated_user_id,
+      lastUpdatedTimestamp: d.last_updated_timestamp,
+      environment: d.environment,
+      filepath: d.filepath,
+      status: d.status,
+      message: d.message,
+      baseEnvironmentCache: d.base_environment_cache,
+      principalIds: d.principal_ids,
+      isDefault: d.is_default,
+      baseEnvironmentType: d.base_environment_type,
+    }));
+
+export const unmarshalDefaultBaseEnvironmentCacheSchema: z.ZodType<DefaultBaseEnvironmentCache> =
+  z
+    .object({
+      materialized_environment: z
+        .lazy(() => unmarshalMaterializedEnvironmentSchema)
+        .optional(),
+      indefinite_materialized_environment: z
+        .lazy(() => unmarshalMaterializedEnvironmentSchema)
+        .optional(),
+      status: z.enum(DefaultBaseEnvironmentCache_Status).optional(),
+      message: z.string().optional(),
+    })
+    .transform(d => ({
+      materializedEnvironment: d.materialized_environment,
+      indefiniteMaterializedEnvironment: d.indefinite_materialized_environment,
+      status: d.status,
+      message: d.message,
+    }));
+
+export const unmarshalEnvironmentSchema: z.ZodType<Environment> = z
+  .object({
+    client: z.string().optional(),
+    dependencies: z.array(z.string()).optional(),
+    base_environment: z.string().optional(),
+    environment_version: z.string().optional(),
+    java_dependencies: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    client: d.client,
+    dependencies: d.dependencies,
+    baseEnvironment: d.base_environment,
+    environmentVersion: d.environment_version,
+    javaDependencies: d.java_dependencies,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalInstallLibraries_ResponseSchema: z.ZodType<InstallLibraries_Response> =
@@ -261,6 +475,28 @@ export const unmarshalListAllClusterLibraryStatuses_ResponseSchema: z.ZodType<Li
       statuses: d.statuses,
     }));
 
+export const unmarshalListDefaultBaseEnvironmentsResponseSchema: z.ZodType<ListDefaultBaseEnvironmentsResponse> =
+  z
+    .object({
+      default_base_environments: z
+        .array(z.lazy(() => unmarshalDefaultBaseEnvironmentSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      defaultBaseEnvironments: d.default_base_environments,
+      nextPageToken: d.next_page_token,
+    }));
+
+export const unmarshalMaterializedEnvironmentSchema: z.ZodType<MaterializedEnvironment> =
+  z
+    .object({
+      last_updated_timestamp: z.number().optional(),
+    })
+    .transform(d => ({
+      lastUpdatedTimestamp: d.last_updated_timestamp,
+    }));
+
 export const unmarshalMavenLibrarySchema: z.ZodType<MavenLibrary> = z
   .object({
     coordinates: z.string().optional(),
@@ -293,9 +529,96 @@ export const unmarshalRCranLibrarySchema: z.ZodType<RCranLibrary> = z
     repo: d.repo,
   }));
 
+export const unmarshalRefreshDefaultBaseEnvironmentsResponseSchema: z.ZodType<RefreshDefaultBaseEnvironmentsResponse> =
+  z.object({});
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalUninstallLibraries_ResponseSchema: z.ZodType<UninstallLibraries_Response> =
   z.object({});
+
+export const marshalCreateDefaultBaseEnvironmentRequestSchema: z.ZodType = z
+  .object({
+    defaultBaseEnvironment: z
+      .lazy(() => marshalDefaultBaseEnvironmentSchema)
+      .optional(),
+    requestId: z.string().optional(),
+    workspaceBaseEnvironmentId: z.string().optional(),
+  })
+  .transform(d => ({
+    default_base_environment: d.defaultBaseEnvironment,
+    request_id: d.requestId,
+    workspace_base_environment_id: d.workspaceBaseEnvironmentId,
+  }));
+
+export const marshalDefaultBaseEnvironmentSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    name: z.string().optional(),
+    creatorUserId: z.number().optional(),
+    createdTimestamp: z.number().optional(),
+    lastUpdatedUserId: z.number().optional(),
+    lastUpdatedTimestamp: z.number().optional(),
+    environment: z.lazy(() => marshalEnvironmentSchema).optional(),
+    filepath: z.string().optional(),
+    status: z.enum(DefaultBaseEnvironmentCache_Status).optional(),
+    message: z.string().optional(),
+    baseEnvironmentCache: z
+      .array(z.lazy(() => marshalDefaultBaseEnvironmentCacheSchema))
+      .optional(),
+    principalIds: z.array(z.number()).optional(),
+    isDefault: z.boolean().optional(),
+    baseEnvironmentType: z.enum(BaseEnvironmentType).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    name: d.name,
+    creator_user_id: d.creatorUserId,
+    created_timestamp: d.createdTimestamp,
+    last_updated_user_id: d.lastUpdatedUserId,
+    last_updated_timestamp: d.lastUpdatedTimestamp,
+    environment: d.environment,
+    filepath: d.filepath,
+    status: d.status,
+    message: d.message,
+    base_environment_cache: d.baseEnvironmentCache,
+    principal_ids: d.principalIds,
+    is_default: d.isDefault,
+    base_environment_type: d.baseEnvironmentType,
+  }));
+
+export const marshalDefaultBaseEnvironmentCacheSchema: z.ZodType = z
+  .object({
+    materializedEnvironment: z
+      .lazy(() => marshalMaterializedEnvironmentSchema)
+      .optional(),
+    indefiniteMaterializedEnvironment: z
+      .lazy(() => marshalMaterializedEnvironmentSchema)
+      .optional(),
+    status: z.enum(DefaultBaseEnvironmentCache_Status).optional(),
+    message: z.string().optional(),
+  })
+  .transform(d => ({
+    materialized_environment: d.materializedEnvironment,
+    indefinite_materialized_environment: d.indefiniteMaterializedEnvironment,
+    status: d.status,
+    message: d.message,
+  }));
+
+export const marshalEnvironmentSchema: z.ZodType = z
+  .object({
+    client: z.string().optional(),
+    dependencies: z.array(z.string()).optional(),
+    baseEnvironment: z.string().optional(),
+    environmentVersion: z.string().optional(),
+    javaDependencies: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    client: d.client,
+    dependencies: d.dependencies,
+    base_environment: d.baseEnvironment,
+    environment_version: d.environmentVersion,
+    java_dependencies: d.javaDependencies,
+  }));
 
 export const marshalInstallLibrariesSchema: z.ZodType = z
   .object({
@@ -340,6 +663,14 @@ export const marshalLibrarySchema: z.ZodType = z
     ...(d.lib?.$case === 'requirements' && {requirements: d.lib.requirements}),
   }));
 
+export const marshalMaterializedEnvironmentSchema: z.ZodType = z
+  .object({
+    lastUpdatedTimestamp: z.number().optional(),
+  })
+  .transform(d => ({
+    last_updated_timestamp: d.lastUpdatedTimestamp,
+  }));
+
 export const marshalMavenLibrarySchema: z.ZodType = z
   .object({
     coordinates: z.string().optional(),
@@ -372,6 +703,14 @@ export const marshalRCranLibrarySchema: z.ZodType = z
     repo: d.repo,
   }));
 
+export const marshalRefreshDefaultBaseEnvironmentsRequestSchema: z.ZodType = z
+  .object({
+    ids: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    ids: d.ids,
+  }));
+
 export const marshalUninstallLibrariesSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
@@ -381,3 +720,26 @@ export const marshalUninstallLibrariesSchema: z.ZodType = z
     cluster_id: d.clusterId,
     libraries: d.libraries,
   }));
+
+export const marshalUpdateDefaultBaseEnvironmentRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    defaultBaseEnvironment: z
+      .lazy(() => marshalDefaultBaseEnvironmentSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    default_base_environment: d.defaultBaseEnvironment,
+  }));
+
+export const marshalUpdateDefaultDefaultBaseEnvironmentRequestSchema: z.ZodType =
+  z
+    .object({
+      id: z.string().optional(),
+      baseEnvironmentType: z.enum(BaseEnvironmentType).optional(),
+    })
+    .transform(d => ({
+      id: d.id,
+      base_environment_type: d.baseEnvironmentType,
+    }));

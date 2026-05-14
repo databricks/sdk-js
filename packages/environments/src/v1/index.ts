@@ -10,6 +10,7 @@ export {
 export {
   BaseEnvironmentType,
   ErrorCode,
+  WorkspaceBaseEnvironmentProvider,
   WorkspaceBaseEnvironmentCache_Status,
 } from './model';
 
