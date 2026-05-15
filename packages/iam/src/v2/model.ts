@@ -1,6 +1,18 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
+
+export enum Entitlement {
+  ENTITLEMENT_UNSPECIFIED = 'ENTITLEMENT_UNSPECIFIED',
+  WORKSPACE_ACCESS = 'WORKSPACE_ACCESS',
+  WORKSPACE_CONSUME = 'WORKSPACE_CONSUME',
+  DATABRICKS_SQL_ACCESS = 'DATABRICKS_SQL_ACCESS',
+  WORKSPACE_ADMIN = 'WORKSPACE_ADMIN',
+  ALLOW_CLUSTER_CREATE = 'ALLOW_CLUSTER_CREATE',
+  ALLOW_INSTANCE_POOL_CREATE = 'ALLOW_INSTANCE_POOL_CREATE',
+}
 
 /** The type of the principal (user/sp/group). */
 export enum PrincipalType {
@@ -46,6 +58,38 @@ export enum WorkspaceAccessDetail_AccessType {
   INDIRECT = 'INDIRECT',
 }
 
+/** Assign an identity directly to a workspace with the specified permissions and workspace-level status. */
+export interface CreateWorkspaceAssignmentDetailProxyRequest {
+  /** Required. Workspace assignment detail to be created in <Databricks>. */
+  workspaceAssignmentDetail?: WorkspaceAssignmentDetail | undefined;
+}
+
+/** Assign an identity directly to a workspace with the specified permissions and workspace-level status. */
+export interface CreateWorkspaceAssignmentDetailRequest {
+  /** Required. The account ID for which the workspace assignment detail is being created. */
+  accountId?: string | undefined;
+  /** Required. The workspace ID for which the workspace assignment detail is being created. */
+  workspaceId?: number | undefined;
+  /** Required. Workspace assignment detail to be created in <Databricks>. */
+  workspaceAssignmentDetail?: WorkspaceAssignmentDetail | undefined;
+}
+
+/** Proxy request for deleting a workspace assignment detail for a principal. */
+export interface DeleteWorkspaceAssignmentDetailProxyRequest {
+  /** Required. ID of the principal in <Databricks> to delete workspace assignment for. */
+  principalId?: number | undefined;
+}
+
+/** If the identity is directly assigned to the workspace, remove its assignment from the workspace */
+export interface DeleteWorkspaceAssignmentDetailRequest {
+  /** Required. The account ID for which the workspace assignment detail is being deleted. */
+  accountId?: string | undefined;
+  /** The workspace ID where the principal has access. */
+  workspaceId?: number | undefined;
+  /** Required. ID of the principal in <Databricks> to delete workspace assignment for. */
+  principalId?: number | undefined;
+}
+
 /** Request message for getting the access details for a principal in the current workspace. */
 export interface GetWorkspaceAccessDetailLocalRequest {
   /** Required. The internal ID of the principal (user/sp/group) for which the access details are being requested. */
@@ -66,6 +110,22 @@ export interface GetWorkspaceAccessDetailRequest {
   view?: WorkspaceAccessDetailView | undefined;
 }
 
+/** Proxy request for getting workspace assignment details for a principal in a workspace. */
+export interface GetWorkspaceAssignmentDetailProxyRequest {
+  /** Required. The internal ID of the principal (user/sp/group) for which the assignment details are being requested. */
+  principalId?: number | undefined;
+}
+
+/** Get the workspace assignment details of a principal that is provisioned in the account and directly assigned to a workspace */
+export interface GetWorkspaceAssignmentDetailRequest {
+  /** Required. The parent account ID for which the workspace assignment details are being requested. */
+  accountId?: string | undefined;
+  /** Required. The workspace ID for which the assignment details are being requested. */
+  workspaceId?: number | undefined;
+  /** Required. The internal ID of the principal (user/sp/group) for which the assignment details are being requested. */
+  principalId?: number | undefined;
+}
+
 /** The details of a Group resource. */
 export interface Group {
   /** The parent account ID for group in <Databricks>. */
@@ -76,6 +136,33 @@ export interface Group {
   externalId?: string | undefined;
   /** Display name of the group. */
   groupName?: string | undefined;
+}
+
+/** Proxy request for listing workspace assignment details for a workspace. */
+export interface ListWorkspaceAssignmentDetailsProxyRequest {
+  /** The maximum number of workspace assignment details to return. The service may return fewer than this value. */
+  pageSize?: number | undefined;
+  /** A page token, received from a previous ListWorkspaceAssignmentDetailsProxy call. Provide this to retrieve the subsequent page. */
+  pageToken?: string | undefined;
+}
+
+/** Returns a paginated list of direct assignments to the workspace. */
+export interface ListWorkspaceAssignmentDetailsRequest {
+  /** Required. The account ID for which the workspace assignment details are being fetched. */
+  accountId?: string | undefined;
+  /** Required. The workspace ID for which the workspace assignment details are being fetched. */
+  workspaceId?: number | undefined;
+  /** The maximum number of workspace assignment details to return. The service may return fewer than this value. */
+  pageSize?: number | undefined;
+  /** A page token, received from a previous ListWorkspaceAssignmentDetails call. Provide this to retrieve the subsequent page. */
+  pageToken?: string | undefined;
+}
+
+/** Response message for listing workspace assignment details. */
+export interface ListWorkspaceAssignmentDetailsResponse {
+  workspaceAssignmentDetails?: WorkspaceAssignmentDetail[] | undefined;
+  /** A token, which can be sent as page_token to retrieve the next page. If this field is omitted, there are no subsequent pages. */
+  nextPageToken?: string | undefined;
 }
 
 /**
@@ -169,6 +256,30 @@ export interface ServicePrincipal {
   accountSpStatus?: State | undefined;
 }
 
+/** Proxy request for updating a workspace assignment detail for a principal. */
+export interface UpdateWorkspaceAssignmentDetailProxyRequest {
+  /** Required. ID of the principal in <Databricks>. */
+  principalId?: number | undefined;
+  /** Required. Workspace assignment detail to be updated in <Databricks>. */
+  workspaceAssignmentDetail?: WorkspaceAssignmentDetail | undefined;
+  /** Required. The list of fields to update. */
+  updateMask?: FieldMask<WorkspaceAssignmentDetail> | undefined;
+}
+
+/** TBD since the only updatable field is permissions */
+export interface UpdateWorkspaceAssignmentDetailRequest {
+  /** Required. The account ID for which the workspace assignment detail is being updated. */
+  accountId?: string | undefined;
+  /** Required. The workspace ID for which the workspace assignment detail is being updated. */
+  workspaceId?: number | undefined;
+  /** Required. ID of the principal in <Databricks>. */
+  principalId?: number | undefined;
+  /** Required. Workspace assignment detail to be updated in <Databricks>. */
+  workspaceAssignmentDetail?: WorkspaceAssignmentDetail | undefined;
+  /** Required. The list of fields to update. */
+  updateMask?: FieldMask<WorkspaceAssignmentDetail> | undefined;
+}
+
 /** The details of a User resource. */
 export interface User {
   /** The accountId parent of the user in <Databricks>. */
@@ -206,6 +317,18 @@ export interface WorkspaceAccessDetail {
   permissions?: WorkspacePermission[] | undefined;
 }
 
+/** The details of a principal's assignment to a workspace. */
+export interface WorkspaceAssignmentDetail {
+  /** The internal ID of the principal (user/sp/group) in <Databricks>. */
+  principalId?: number | undefined;
+  /** The workspace ID where the principal is assigned */
+  workspaceId?: number | undefined;
+  /** The account ID parent of the workspace where the principal is assigned */
+  accountId?: string | undefined;
+  principalType?: PrincipalType | undefined;
+  entitlements?: Entitlement[] | undefined;
+}
+
 export const unmarshalGroupSchema: z.ZodType<Group> = z
   .object({
     account_id: z.string().optional(),
@@ -219,6 +342,19 @@ export const unmarshalGroupSchema: z.ZodType<Group> = z
     externalId: d.external_id,
     groupName: d.group_name,
   }));
+
+export const unmarshalListWorkspaceAssignmentDetailsResponseSchema: z.ZodType<ListWorkspaceAssignmentDetailsResponse> =
+  z
+    .object({
+      workspace_assignment_details: z
+        .array(z.lazy(() => unmarshalWorkspaceAssignmentDetailSchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      workspaceAssignmentDetails: d.workspace_assignment_details,
+      nextPageToken: d.next_page_token,
+    }));
 
 export const unmarshalResolveGroupResponseSchema: z.ZodType<ResolveGroupResponse> =
   z
@@ -317,6 +453,23 @@ export const unmarshalWorkspaceAccessDetailSchema: z.ZodType<WorkspaceAccessDeta
       permissions: d.permissions,
     }));
 
+export const unmarshalWorkspaceAssignmentDetailSchema: z.ZodType<WorkspaceAssignmentDetail> =
+  z
+    .object({
+      principal_id: z.number().optional(),
+      workspace_id: z.number().optional(),
+      account_id: z.string().optional(),
+      principal_type: z.enum(PrincipalType).optional(),
+      entitlements: z.array(z.enum(Entitlement)).optional(),
+    })
+    .transform(d => ({
+      principalId: d.principal_id,
+      workspaceId: d.workspace_id,
+      accountId: d.account_id,
+      principalType: d.principal_type,
+      entitlements: d.entitlements,
+    }));
+
 export const marshalResolveGroupProxyRequestSchema: z.ZodType = z
   .object({
     externalId: z.string().optional(),
@@ -370,3 +523,36 @@ export const marshalResolveUserRequestSchema: z.ZodType = z
     account_id: d.accountId,
     external_id: d.externalId,
   }));
+
+export const marshalWorkspaceAssignmentDetailSchema: z.ZodType = z
+  .object({
+    principalId: z.number().optional(),
+    workspaceId: z.number().optional(),
+    accountId: z.string().optional(),
+    principalType: z.enum(PrincipalType).optional(),
+    entitlements: z.array(z.enum(Entitlement)).optional(),
+  })
+  .transform(d => ({
+    principal_id: d.principalId,
+    workspace_id: d.workspaceId,
+    account_id: d.accountId,
+    principal_type: d.principalType,
+    entitlements: d.entitlements,
+  }));
+
+const workspaceAssignmentDetailFieldMaskSchema: FieldMaskSchema = {
+  accountId: {wire: 'account_id'},
+  entitlements: {wire: 'entitlements'},
+  principalId: {wire: 'principal_id'},
+  principalType: {wire: 'principal_type'},
+  workspaceId: {wire: 'workspace_id'},
+};
+
+export function workspaceAssignmentDetailFieldMask(
+  ...paths: string[]
+): FieldMask<WorkspaceAssignmentDetail> {
+  return FieldMask.build<WorkspaceAssignmentDetail>(
+    paths,
+    workspaceAssignmentDetailFieldMaskSchema
+  );
+}

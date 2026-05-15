@@ -17,6 +17,7 @@ import {
   parseResponse,
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
+import {z} from 'zod';
 import type {
   AccountsCreateStorageCredentialPublic,
   AccountsCreateStorageCredentialPublic_Response,
@@ -29,10 +30,13 @@ import type {
   AccountsUpdateStorageCredentialPublic,
   AccountsUpdateStorageCredentialPublic_Response,
   CreateCredential,
+  CreateCredentialsPublicRequest,
   CreateStorageCredential,
   CredentialInfo,
+  Credentials,
   DeleteCredential,
   DeleteCredential_Response,
+  DeleteCredentialsPublicRequest,
   DeleteStorageCredential,
   DeleteStorageCredential_Response,
   GenerateTemporaryPathCredential,
@@ -43,8 +47,11 @@ import type {
   GenerateTemporaryVolumeCredential,
   GenerateTemporaryVolumeCredential_Response,
   GetCredential,
+  GetCredentialsPublicRequest,
   GetStorageCredential,
   ListCredentials,
+  ListCredentialsPublicRequest,
+  ListCredentialsPublicResponse,
   ListCredentials_Response,
   ListStorageCredentials,
   ListStorageCredentials_Response,
@@ -61,6 +68,7 @@ import {
   marshalAccountsCreateStorageCredentialPublicSchema,
   marshalAccountsUpdateStorageCredentialPublicSchema,
   marshalCreateCredentialSchema,
+  marshalCreateCredentialsPublicRequestSchema,
   marshalCreateStorageCredentialSchema,
   marshalGenerateTemporaryPathCredentialSchema,
   marshalGenerateTemporaryServiceCredentialSchema,
@@ -75,6 +83,7 @@ import {
   unmarshalAccountsGetStorageCredentialPublic_ResponseSchema,
   unmarshalAccountsListStorageCredentialsPublic_ResponseSchema,
   unmarshalAccountsUpdateStorageCredentialPublic_ResponseSchema,
+  unmarshalCredentialsSchema,
   unmarshalDeleteCredential_ResponseSchema,
   unmarshalDeleteStorageCredential_ResponseSchema,
   unmarshalGenerateTemporaryPathCredential_ResponseSchema,
@@ -885,6 +894,121 @@ export class Client {
         respBody,
         unmarshalValidateStorageCredential_ResponseSchema
       );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Creates a <Databricks> credential configuration that represents cloud cross-account credentials for a specified account. <Databricks> uses this to set up network infrastructure properly to host <Databricks> clusters. For your AWS IAM role, you need to trust the External ID (the Databricks Account API account ID)  in the returned credential object, and configure the required access policy.
+   *
+   * Save the response's `credentials_id` field, which is the ID for your new credential configuration object.
+   *
+   * For information about how to create a new workspace with this API, see [Create a new workspace using the Account API](http://docs.databricks.com/administration-guide/account-api/new-workspace.html)
+   */
+  async createCredentialsPublic(
+    req: CreateCredentialsPublicRequest,
+    options?: CallOptions
+  ): Promise<Credentials> {
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/credentials`;
+    const body = marshalRequest(
+      req,
+      marshalCreateCredentialsPublicRequestSchema
+    );
+    let resp: Credentials | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalCredentialsSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Deletes a <Databricks> credential configuration object for an account, both specified by ID. You cannot delete a credential that is associated with any workspace. */
+  async deleteCredentialsPublic(
+    req: DeleteCredentialsPublicRequest,
+    options?: CallOptions
+  ): Promise<Credentials> {
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/credentials/${req.credentialsId ?? ''}`;
+    let resp: Credentials | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalCredentialsSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Gets a <Databricks> credential configuration object for an account, both specified by ID. */
+  async getCredentialsPublic(
+    req: GetCredentialsPublicRequest,
+    options?: CallOptions
+  ): Promise<Credentials> {
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/credentials/${req.credentialsId ?? ''}`;
+    let resp: Credentials | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalCredentialsSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** List <Databricks> credential configuration objects for an account, specified by ID. */
+  async listCredentialsPublic(
+    req: ListCredentialsPublicRequest,
+    options?: CallOptions
+  ): Promise<ListCredentialsPublicResponse> {
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/credentials`;
+    let resp: ListCredentialsPublicResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = {
+        credentials: parseResponse(
+          respBody,
+          z.array(z.lazy(() => unmarshalCredentialsSchema))
+        ),
+      };
     };
     await executeCall(call, options);
     if (resp === undefined) {
