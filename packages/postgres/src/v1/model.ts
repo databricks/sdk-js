@@ -1663,7 +1663,7 @@ export interface ProjectOperationMetadata {}
 export interface ProjectSpec {
   /** Human-readable project name. Length should be between 1 and 256 characters. */
   displayName?: string | undefined;
-  /** The major Postgres version number. Supported versions are 16 and 17. */
+  /** The major Postgres version number. The set of supported versions may vary; consult the API documentation for currently accepted values. */
   pgVersion?: number | undefined;
   /** The number of seconds to retain the shared history for point in time recovery for all branches in this project. Value should be between 172800s (2 days) and 3024000s (35 days). */
   historyRetentionDuration?: Temporal.Duration | undefined;

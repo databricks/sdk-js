@@ -18,8 +18,17 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
+  CreateWorkspaceAssignmentDetailProxyRequest,
+  CreateWorkspaceAssignmentDetailRequest,
+  DeleteWorkspaceAssignmentDetailProxyRequest,
+  DeleteWorkspaceAssignmentDetailRequest,
   GetWorkspaceAccessDetailLocalRequest,
   GetWorkspaceAccessDetailRequest,
+  GetWorkspaceAssignmentDetailProxyRequest,
+  GetWorkspaceAssignmentDetailRequest,
+  ListWorkspaceAssignmentDetailsProxyRequest,
+  ListWorkspaceAssignmentDetailsRequest,
+  ListWorkspaceAssignmentDetailsResponse,
   ResolveGroupProxyRequest,
   ResolveGroupRequest,
   ResolveGroupResponse,
@@ -29,7 +38,10 @@ import type {
   ResolveUserProxyRequest,
   ResolveUserRequest,
   ResolveUserResponse,
+  UpdateWorkspaceAssignmentDetailProxyRequest,
+  UpdateWorkspaceAssignmentDetailRequest,
   WorkspaceAccessDetail,
+  WorkspaceAssignmentDetail,
 } from './model';
 import {
   marshalResolveGroupProxyRequestSchema,
@@ -38,10 +50,13 @@ import {
   marshalResolveServicePrincipalRequestSchema,
   marshalResolveUserProxyRequestSchema,
   marshalResolveUserRequestSchema,
+  marshalWorkspaceAssignmentDetailSchema,
+  unmarshalListWorkspaceAssignmentDetailsResponseSchema,
   unmarshalResolveGroupResponseSchema,
   unmarshalResolveServicePrincipalResponseSchema,
   unmarshalResolveUserResponseSchema,
   unmarshalWorkspaceAccessDetailSchema,
+  unmarshalWorkspaceAssignmentDetailSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -331,6 +346,339 @@ export class Client {
         logger: this.logger,
       });
       resp = parseResponse(respBody, unmarshalWorkspaceAccessDetailSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Creates a workspace assignment detail for a principal. Entitlement grants are applied
+   * individually and non-atomically — if a failure occurs partway through, the principal will be
+   * assigned to the workspace but with only a subset of the requested entitlements. Use
+   * GetWorkspaceAssignmentDetail to confirm which entitlements were successfully granted.
+   */
+  async createWorkspaceAssignmentDetail(
+    req: CreateWorkspaceAssignmentDetailRequest,
+    options?: CallOptions
+  ): Promise<WorkspaceAssignmentDetail> {
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/workspaceAssignmentDetails`;
+    const body = marshalRequest(
+      req.workspaceAssignmentDetail,
+      marshalWorkspaceAssignmentDetailSchema
+    );
+    let resp: WorkspaceAssignmentDetail | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalWorkspaceAssignmentDetailSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Creates a workspace assignment detail for a principal (workspace-level proxy). Entitlement
+   * grants are applied individually and non-atomically — if a failure occurs partway through, the
+   * principal will be assigned to the workspace but with only a subset of the requested
+   * entitlements. Use GetWorkspaceAssignmentDetail to confirm which entitlements were successfully
+   * granted.
+   */
+  async createWorkspaceAssignmentDetailProxy(
+    req: CreateWorkspaceAssignmentDetailProxyRequest,
+    options?: CallOptions
+  ): Promise<WorkspaceAssignmentDetail> {
+    const url = `${this.host}/api/2.0/identity/workspaceAssignmentDetails`;
+    const body = marshalRequest(
+      req.workspaceAssignmentDetail,
+      marshalWorkspaceAssignmentDetailSchema
+    );
+    let resp: WorkspaceAssignmentDetail | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalWorkspaceAssignmentDetailSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Deletes a workspace assignment detail for a principal, revoking all associated entitlements.
+   * Entitlement revocations are applied individually and non-atomically — if a failure occurs
+   * partway through, the principal remains assigned with a subset of its original entitlements,
+   * and the operation is safe to retry.
+   */
+  async deleteWorkspaceAssignmentDetail(
+    req: DeleteWorkspaceAssignmentDetailRequest,
+    options?: CallOptions
+  ): Promise<void> {
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/workspaceAssignmentDetails/${String(req.principalId ?? '')}`;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+    };
+    await executeCall(call, options);
+  }
+
+  /**
+   * Deletes a workspace assignment detail for a principal (workspace-level proxy), revoking all
+   * associated entitlements. Entitlement revocations are applied individually and non-atomically
+   * — if a failure occurs partway through, the principal remains assigned with a subset of its
+   * original entitlements, and the operation is safe to retry.
+   */
+  async deleteWorkspaceAssignmentDetailProxy(
+    req: DeleteWorkspaceAssignmentDetailProxyRequest,
+    options?: CallOptions
+  ): Promise<void> {
+    const url = `${this.host}/api/2.0/identity/workspaceAssignmentDetails/${String(req.principalId ?? '')}`;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+    };
+    await executeCall(call, options);
+  }
+
+  /** Returns the assignment details for a principal in a workspace. */
+  async getWorkspaceAssignmentDetail(
+    req: GetWorkspaceAssignmentDetailRequest,
+    options?: CallOptions
+  ): Promise<WorkspaceAssignmentDetail> {
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/workspaceAssignmentDetails/${String(req.principalId ?? '')}`;
+    let resp: WorkspaceAssignmentDetail | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalWorkspaceAssignmentDetailSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Returns the assignment details for a principal in a workspace (workspace-level proxy). */
+  async getWorkspaceAssignmentDetailProxy(
+    req: GetWorkspaceAssignmentDetailProxyRequest,
+    options?: CallOptions
+  ): Promise<WorkspaceAssignmentDetail> {
+    const url = `${this.host}/api/2.0/identity/workspaceAssignmentDetails/${String(req.principalId ?? '')}`;
+    let resp: WorkspaceAssignmentDetail | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalWorkspaceAssignmentDetailSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Lists workspace assignment details for a workspace. */
+  async listWorkspaceAssignmentDetails(
+    req: ListWorkspaceAssignmentDetailsRequest,
+    options?: CallOptions
+  ): Promise<ListWorkspaceAssignmentDetailsResponse> {
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/workspaceAssignmentDetails`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListWorkspaceAssignmentDetailsResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListWorkspaceAssignmentDetailsResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Lists workspace assignment details for a workspace (workspace-level proxy). */
+  async listWorkspaceAssignmentDetailsProxy(
+    req: ListWorkspaceAssignmentDetailsProxyRequest,
+    options?: CallOptions
+  ): Promise<ListWorkspaceAssignmentDetailsResponse> {
+    const url = `${this.host}/api/2.0/identity/workspaceAssignmentDetails`;
+    const params = new URLSearchParams();
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListWorkspaceAssignmentDetailsResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListWorkspaceAssignmentDetailsResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Updates the entitlements of a directly assigned principal in a workspace. Entitlement changes
+   * are applied individually and non-atomically — if a failure occurs partway through, only a
+   * subset of the requested changes may have been applied. Use GetWorkspaceAssignmentDetail to
+   * confirm the final state.
+   */
+  async updateWorkspaceAssignmentDetail(
+    req: UpdateWorkspaceAssignmentDetailRequest,
+    options?: CallOptions
+  ): Promise<WorkspaceAssignmentDetail> {
+    const url = `${this.host}/api/2.0/identity/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/workspaceAssignmentDetails/${String(req.principalId ?? '')}`;
+    const params = new URLSearchParams();
+    if (req.updateMask !== undefined) {
+      params.append('update_mask', req.updateMask.toString());
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(
+      req.workspaceAssignmentDetail,
+      marshalWorkspaceAssignmentDetailSchema
+    );
+    let resp: WorkspaceAssignmentDetail | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalWorkspaceAssignmentDetailSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Updates the entitlements of a directly assigned principal in a workspace (workspace-level
+   * proxy). Entitlement changes are applied individually and non-atomically — if a failure occurs
+   * partway through, only a subset of the requested changes may have been applied. Use
+   * GetWorkspaceAssignmentDetail to confirm the final state.
+   */
+  async updateWorkspaceAssignmentDetailProxy(
+    req: UpdateWorkspaceAssignmentDetailProxyRequest,
+    options?: CallOptions
+  ): Promise<WorkspaceAssignmentDetail> {
+    const url = `${this.host}/api/2.0/identity/workspaceAssignmentDetails/${String(req.principalId ?? '')}`;
+    const params = new URLSearchParams();
+    if (req.updateMask !== undefined) {
+      params.append('update_mask', req.updateMask.toString());
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    const body = marshalRequest(
+      req.workspaceAssignmentDetail,
+      marshalWorkspaceAssignmentDetailSchema
+    );
+    let resp: WorkspaceAssignmentDetail | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest(
+        'PATCH',
+        fullUrl,
+        headers,
+        callSignal,
+        body
+      );
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalWorkspaceAssignmentDetailSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

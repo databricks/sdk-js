@@ -263,6 +263,15 @@ export interface StableUrl {
    * responses. Mirrors FailoverGroup.initial_primary_region semantics.
    */
   initialWorkspaceId?: string | undefined;
+  /**
+   * Fully qualified resource name of the FailoverGroup this stable URL is
+   * currently linked to, in the format
+   * `accounts/{account_id}/failover-groups/{failover_group_id}`. Empty when
+   * the stable URL is not attached to any failover group. Server-controlled:
+   * written by CreateFailoverGroup / UpdateFailoverGroup on link, cleared by
+   * DeleteFailoverGroup / UpdateFailoverGroup on unlink.
+   */
+  failoverGroupName?: string | undefined;
 }
 
 /** A Unity Catalog catalog to replicate. */
@@ -410,11 +419,13 @@ export const unmarshalStableUrlSchema: z.ZodType<StableUrl> = z
     name: z.string().optional(),
     url: z.string().optional(),
     initial_workspace_id: z.string().optional(),
+    failover_group_name: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
     url: d.url,
     initialWorkspaceId: d.initial_workspace_id,
+    failoverGroupName: d.failover_group_name,
   }));
 
 export const unmarshalUcCatalogSchema: z.ZodType<UcCatalog> = z
@@ -534,11 +545,13 @@ export const marshalStableUrlSchema: z.ZodType = z
     name: z.string().optional(),
     url: z.string().optional(),
     initialWorkspaceId: z.string().optional(),
+    failoverGroupName: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
     url: d.url,
     initial_workspace_id: d.initialWorkspaceId,
+    failover_group_name: d.failoverGroupName,
   }));
 
 export const marshalUcCatalogSchema: z.ZodType = z

@@ -85,7 +85,10 @@ export interface Example {
 }
 
 export interface GenieSpace {
-  /** The ID of the genie space. */
+  /**
+   * Deprecated: use space_id instead. Still REQUIRED for backward compatibility
+   * until a future API version removes it.
+   */
   id?: string | undefined;
 }
 
