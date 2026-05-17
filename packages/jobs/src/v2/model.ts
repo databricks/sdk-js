@@ -2821,6 +2821,25 @@ export interface PowerBiTask {
   refreshAfterUpdate?: boolean | undefined;
 }
 
+export interface PythonOperatorTask {
+  /**
+   * An ordered list of task parameters.
+   * TODO(JOBS-30885): Add limits for parameters.
+   */
+  parameters?: PythonOperatorTask_Parameter[] | undefined;
+  /**
+   * Fully qualified name of the main class or function.
+   * For example, `my_project.my_function` or `my_project.MyOperator`.
+   */
+  main?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface PythonOperatorTask_Parameter {
+  name?: string | undefined;
+  value?: string | undefined;
+}
+
 export interface PythonPyPiLibrary {
   /**
    * The name of the pypi package to install. An optional exact version specification is also
@@ -3801,6 +3820,11 @@ export interface RunTask {
         dbtCloudTask: DbtCloudTask;
       }
     | {$case: 'dbtPlatformTask'; dbtPlatformTask: DbtPlatformTask}
+    | {
+        $case: 'pythonOperatorTask';
+        /** The task runs a Python operator task. */
+        pythonOperatorTask: PythonOperatorTask;
+      }
     | undefined;
   spec?:
     | {
@@ -3985,6 +4009,11 @@ export interface RunTaskSettings {
         dbtCloudTask: DbtCloudTask;
       }
     | {$case: 'dbtPlatformTask'; dbtPlatformTask: DbtPlatformTask}
+    | {
+        $case: 'pythonOperatorTask';
+        /** The task runs a Python operator task. */
+        pythonOperatorTask: PythonOperatorTask;
+      }
     | undefined;
   spec?:
     | {
@@ -4580,6 +4609,11 @@ export interface TaskSettings {
         dbtCloudTask: DbtCloudTask;
       }
     | {$case: 'dbtPlatformTask'; dbtPlatformTask: DbtPlatformTask}
+    | {
+        $case: 'pythonOperatorTask';
+        /** The task runs a Python operator task. */
+        pythonOperatorTask: PythonOperatorTask;
+      }
     | undefined;
   spec?:
     | {
@@ -6217,6 +6251,31 @@ export const unmarshalPowerBiTaskSchema: z.ZodType<PowerBiTask> = z
     refreshAfterUpdate: d.refresh_after_update,
   }));
 
+export const unmarshalPythonOperatorTaskSchema: z.ZodType<PythonOperatorTask> =
+  z
+    .object({
+      parameters: z
+        .array(z.lazy(() => unmarshalPythonOperatorTask_ParameterSchema))
+        .optional(),
+      main: z.string().optional(),
+    })
+    .transform(d => ({
+      parameters: d.parameters,
+      main: d.main,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalPythonOperatorTask_ParameterSchema: z.ZodType<PythonOperatorTask_Parameter> =
+  z
+    .object({
+      name: z.string().optional(),
+      value: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+      value: d.value,
+    }));
+
 export const unmarshalPythonPyPiLibrarySchema: z.ZodType<PythonPyPiLibrary> = z
   .object({
     package: z.string().optional(),
@@ -6723,6 +6782,9 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
     dashboard_task: z.lazy(() => unmarshalDashboardTaskSchema).optional(),
     dbt_cloud_task: z.lazy(() => unmarshalDbtCloudTaskSchema).optional(),
     dbt_platform_task: z.lazy(() => unmarshalDbtPlatformTaskSchema).optional(),
+    python_operator_task: z
+      .lazy(() => unmarshalPythonOperatorTaskSchema)
+      .optional(),
     existing_cluster_id: z.string().optional(),
     new_cluster: z.lazy(() => unmarshalClusterSpec_NewClusterSchema).optional(),
     job_cluster_key: z.string().optional(),
@@ -6845,7 +6907,14 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
                                               dbtPlatformTask:
                                                 d.dbt_platform_task,
                                             }
-                                          : undefined,
+                                          : d.python_operator_task !== undefined
+                                            ? {
+                                                $case:
+                                                  'pythonOperatorTask' as const,
+                                                pythonOperatorTask:
+                                                  d.python_operator_task,
+                                              }
+                                            : undefined,
     spec:
       d.existing_cluster_id !== undefined
         ? {
@@ -7286,6 +7355,9 @@ export const unmarshalTaskSettingsSchema: z.ZodType<TaskSettings> = z
     dashboard_task: z.lazy(() => unmarshalDashboardTaskSchema).optional(),
     dbt_cloud_task: z.lazy(() => unmarshalDbtCloudTaskSchema).optional(),
     dbt_platform_task: z.lazy(() => unmarshalDbtPlatformTaskSchema).optional(),
+    python_operator_task: z
+      .lazy(() => unmarshalPythonOperatorTaskSchema)
+      .optional(),
     existing_cluster_id: z.string().optional(),
     new_cluster: z.lazy(() => unmarshalClusterSpec_NewClusterSchema).optional(),
     job_cluster_key: z.string().optional(),
@@ -7392,7 +7464,14 @@ export const unmarshalTaskSettingsSchema: z.ZodType<TaskSettings> = z
                                               dbtPlatformTask:
                                                 d.dbt_platform_task,
                                             }
-                                          : undefined,
+                                          : d.python_operator_task !== undefined
+                                            ? {
+                                                $case:
+                                                  'pythonOperatorTask' as const,
+                                                pythonOperatorTask:
+                                                  d.python_operator_task,
+                                              }
+                                            : undefined,
     spec:
       d.existing_cluster_id !== undefined
         ? {
@@ -8628,6 +8707,29 @@ export const marshalPowerBiTaskSchema: z.ZodType = z
     refresh_after_update: d.refreshAfterUpdate,
   }));
 
+export const marshalPythonOperatorTaskSchema: z.ZodType = z
+  .object({
+    parameters: z
+      .array(z.lazy(() => marshalPythonOperatorTask_ParameterSchema))
+      .optional(),
+    main: z.string().optional(),
+  })
+  .transform(d => ({
+    parameters: d.parameters,
+    main: d.main,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const marshalPythonOperatorTask_ParameterSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    value: d.value,
+  }));
+
 export const marshalPythonPyPiLibrarySchema: z.ZodType = z
   .object({
     package: z.string().optional(),
@@ -8879,6 +8981,10 @@ export const marshalRunTaskSettingsSchema: z.ZodType = z
           $case: z.literal('dbtPlatformTask'),
           dbtPlatformTask: z.lazy(() => marshalDbtPlatformTaskSchema),
         }),
+        z.object({
+          $case: z.literal('pythonOperatorTask'),
+          pythonOperatorTask: z.lazy(() => marshalPythonOperatorTaskSchema),
+        }),
       ])
       .optional(),
     spec: z
@@ -8959,6 +9065,9 @@ export const marshalRunTaskSettingsSchema: z.ZodType = z
     }),
     ...(d.task?.$case === 'dbtPlatformTask' && {
       dbt_platform_task: d.task.dbtPlatformTask,
+    }),
+    ...(d.task?.$case === 'pythonOperatorTask' && {
+      python_operator_task: d.task.pythonOperatorTask,
     }),
     ...(d.spec?.$case === 'existingClusterId' && {
       existing_cluster_id: d.spec.existingClusterId,
@@ -9352,6 +9461,10 @@ export const marshalTaskSettingsSchema: z.ZodType = z
           $case: z.literal('dbtPlatformTask'),
           dbtPlatformTask: z.lazy(() => marshalDbtPlatformTaskSchema),
         }),
+        z.object({
+          $case: z.literal('pythonOperatorTask'),
+          pythonOperatorTask: z.lazy(() => marshalPythonOperatorTaskSchema),
+        }),
       ])
       .optional(),
     spec: z
@@ -9432,6 +9545,9 @@ export const marshalTaskSettingsSchema: z.ZodType = z
     }),
     ...(d.task?.$case === 'dbtPlatformTask' && {
       dbt_platform_task: d.task.dbtPlatformTask,
+    }),
+    ...(d.task?.$case === 'pythonOperatorTask' && {
+      python_operator_task: d.task.pythonOperatorTask,
     }),
     ...(d.spec?.$case === 'existingClusterId' && {
       existing_cluster_id: d.spec.existingClusterId,

@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src"],
+  "exclude": ["dist", "node_modules", "tests"],
+  "references": [
+    {"path": "../auth"},
+    {"path": "../core"},
+    {"path": "../databricks"},
+    {"path": "../options"}
+  ]
+}

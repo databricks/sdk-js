@@ -95,6 +95,10 @@ export interface AibiDashboardEmbeddingApprovedDomains {
   approvedDomains?: string[] | undefined;
 }
 
+export interface AllowedAppsUserApiScopesMessage {
+  allowedScopes?: string[] | undefined;
+}
+
 export interface BooleanMessage {
   value?: boolean | undefined;
 }
@@ -343,6 +347,11 @@ export interface Setting {
         /** Setting value for personal_compute setting. This is the setting value set by consumers, check effective_personal_compute for final setting value. */
         personalCompute: PersonalComputeMessage;
       }
+    | {
+        $case: 'allowedAppsUserApiScopes';
+        /** Setting value for allowed_apps_user_api_scopes setting. This is the setting value set by consumers, check effective_allowed_apps_user_api_scopes for final setting value. */
+        allowedAppsUserApiScopes: AllowedAppsUserApiScopesMessage;
+      }
     | undefined;
   /**
    * New fields should be added before the oneof below - unless it's a new Setting value message,
@@ -389,6 +398,11 @@ export interface Setting {
         $case: 'effectivePersonalCompute';
         /** Effective setting value for personal_compute setting. This is the final effective value of setting. To set a value use personal_compute. */
         effectivePersonalCompute: PersonalComputeMessage;
+      }
+    | {
+        $case: 'effectiveAllowedAppsUserApiScopes';
+        /** Effective setting value for allowed_apps_user_api_scopes setting. This is the final effective value of setting. To set a value use allowed_apps_user_api_scopes. */
+        effectiveAllowedAppsUserApiScopes: AllowedAppsUserApiScopesMessage;
       }
     | undefined;
 }
@@ -464,6 +478,15 @@ export const unmarshalAibiDashboardEmbeddingApprovedDomainsSchema: z.ZodType<Aib
     })
     .transform(d => ({
       approvedDomains: d.approved_domains,
+    }));
+
+export const unmarshalAllowedAppsUserApiScopesMessageSchema: z.ZodType<AllowedAppsUserApiScopesMessage> =
+  z
+    .object({
+      allowed_scopes: z.array(z.string()).optional(),
+    })
+    .transform(d => ({
+      allowedScopes: d.allowed_scopes,
     }));
 
 export const unmarshalBooleanMessageSchema: z.ZodType<BooleanMessage> = z
@@ -649,6 +672,9 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
     personal_compute: z
       .lazy(() => unmarshalPersonalComputeMessageSchema)
       .optional(),
+    allowed_apps_user_api_scopes: z
+      .lazy(() => unmarshalAllowedAppsUserApiScopesMessageSchema)
+      .optional(),
     effective_boolean_val: z
       .lazy(() => unmarshalBooleanMessageSchema)
       .optional(),
@@ -670,6 +696,9 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
       .optional(),
     effective_personal_compute: z
       .lazy(() => unmarshalPersonalComputeMessageSchema)
+      .optional(),
+    effective_allowed_apps_user_api_scopes: z
+      .lazy(() => unmarshalAllowedAppsUserApiScopesMessageSchema)
       .optional(),
   })
   .transform(d => ({
@@ -709,7 +738,13 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
                           $case: 'personalCompute' as const,
                           personalCompute: d.personal_compute,
                         }
-                      : undefined,
+                      : d.allowed_apps_user_api_scopes !== undefined
+                        ? {
+                            $case: 'allowedAppsUserApiScopes' as const,
+                            allowedAppsUserApiScopes:
+                              d.allowed_apps_user_api_scopes,
+                          }
+                        : undefined,
     effectiveValue:
       d.effective_boolean_val !== undefined
         ? {
@@ -760,7 +795,13 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
                           effectivePersonalCompute:
                             d.effective_personal_compute,
                         }
-                      : undefined,
+                      : d.effective_allowed_apps_user_api_scopes !== undefined
+                        ? {
+                            $case: 'effectiveAllowedAppsUserApiScopes' as const,
+                            effectiveAllowedAppsUserApiScopes:
+                              d.effective_allowed_apps_user_api_scopes,
+                          }
+                        : undefined,
   }));
 
 export const unmarshalSettingsMetadataSchema: z.ZodType<SettingsMetadata> = z
@@ -839,6 +880,14 @@ export const marshalAibiDashboardEmbeddingApprovedDomainsSchema: z.ZodType = z
   })
   .transform(d => ({
     approved_domains: d.approvedDomains,
+  }));
+
+export const marshalAllowedAppsUserApiScopesMessageSchema: z.ZodType = z
+  .object({
+    allowedScopes: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    allowed_scopes: d.allowedScopes,
   }));
 
 export const marshalBooleanMessageSchema: z.ZodType = z
@@ -1004,6 +1053,12 @@ export const marshalSettingSchema: z.ZodType = z
           $case: z.literal('personalCompute'),
           personalCompute: z.lazy(() => marshalPersonalComputeMessageSchema),
         }),
+        z.object({
+          $case: z.literal('allowedAppsUserApiScopes'),
+          allowedAppsUserApiScopes: z.lazy(
+            () => marshalAllowedAppsUserApiScopesMessageSchema
+          ),
+        }),
       ])
       .optional(),
     effectiveValue: z
@@ -1050,6 +1105,12 @@ export const marshalSettingSchema: z.ZodType = z
             () => marshalPersonalComputeMessageSchema
           ),
         }),
+        z.object({
+          $case: z.literal('effectiveAllowedAppsUserApiScopes'),
+          effectiveAllowedAppsUserApiScopes: z.lazy(
+            () => marshalAllowedAppsUserApiScopesMessageSchema
+          ),
+        }),
       ])
       .optional(),
   })
@@ -1075,6 +1136,9 @@ export const marshalSettingSchema: z.ZodType = z
     }),
     ...(d.value?.$case === 'personalCompute' && {
       personal_compute: d.value.personalCompute,
+    }),
+    ...(d.value?.$case === 'allowedAppsUserApiScopes' && {
+      allowed_apps_user_api_scopes: d.value.allowedAppsUserApiScopes,
     }),
     ...(d.effectiveValue?.$case === 'effectiveBooleanVal' && {
       effective_boolean_val: d.effectiveValue.effectiveBooleanVal,
@@ -1106,6 +1170,10 @@ export const marshalSettingSchema: z.ZodType = z
     }),
     ...(d.effectiveValue?.$case === 'effectivePersonalCompute' && {
       effective_personal_compute: d.effectiveValue.effectivePersonalCompute,
+    }),
+    ...(d.effectiveValue?.$case === 'effectiveAllowedAppsUserApiScopes' && {
+      effective_allowed_apps_user_api_scopes:
+        d.effectiveValue.effectiveAllowedAppsUserApiScopes,
     }),
   }));
 

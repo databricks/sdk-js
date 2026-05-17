@@ -162,6 +162,7 @@ export interface ColumnSelection {
   column?: string | undefined;
 }
 
+/** Deprecated: use RollingWindow with `delay` instead. */
 export interface ContinuousWindow {
   /** The duration of the continuous window (must be positive). */
   windowDuration?: Temporal.Duration | undefined;
@@ -607,6 +608,21 @@ export interface RequestSource {
     | undefined;
 }
 
+/**
+ * A rolling time window with an optional delay. This is the SQL-spec-aligned
+ * replacement for ContinuousWindow: `delay` is the non-negative counterpart
+ * of the legacy non-positive `ContinuousWindow.offset`.
+ */
+export interface RollingWindow {
+  /** The duration of the rolling window (must be positive). */
+  windowDuration?: Temporal.Duration | undefined;
+  /**
+   * The delay applied to the end of the rolling window (must be non-negative).
+   * For example, delay=1d shifts the window end 1 day before the evaluation time.
+   */
+  delay?: Temporal.Duration | undefined;
+}
+
 export interface SchemaConfig {
   schema?:
     | {
@@ -641,6 +657,7 @@ export interface StddevSampFunction {
   input?: string | undefined;
 }
 
+/** Deprecated: Use KafkaSubscriptionMode instead. */
 export interface SubscriptionMode {
   /** These match the settings from https://spark.apache.org/docs/latest/streaming/structured-streaming-kafka-integration.html */
   subscriptionMode?:
@@ -681,6 +698,7 @@ export interface TimeWindow {
     | {$case: 'continuous'; continuous: ContinuousWindow}
     | {$case: 'tumbling'; tumbling: TumblingWindow}
     | {$case: 'sliding'; sliding: SlidingWindow}
+    | {$case: 'rolling'; rolling: RollingWindow}
     | undefined;
 }
 
@@ -1281,6 +1299,22 @@ export const unmarshalRequestSourceSchema: z.ZodType<RequestSource> = z
         : undefined,
   }));
 
+export const unmarshalRollingWindowSchema: z.ZodType<RollingWindow> = z
+  .object({
+    window_duration: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
+    delay: z
+      .string()
+      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
+      .optional(),
+  })
+  .transform(d => ({
+    windowDuration: d.window_duration,
+    delay: d.delay,
+  }));
+
 export const unmarshalSchemaConfigSchema: z.ZodType<SchemaConfig> = z
   .object({
     json_schema: z.string().optional(),
@@ -1358,6 +1392,7 @@ export const unmarshalTimeWindowSchema: z.ZodType<TimeWindow> = z
     continuous: z.lazy(() => unmarshalContinuousWindowSchema).optional(),
     tumbling: z.lazy(() => unmarshalTumblingWindowSchema).optional(),
     sliding: z.lazy(() => unmarshalSlidingWindowSchema).optional(),
+    rolling: z.lazy(() => unmarshalRollingWindowSchema).optional(),
   })
   .transform(d => ({
     windowType:
@@ -1367,7 +1402,9 @@ export const unmarshalTimeWindowSchema: z.ZodType<TimeWindow> = z
           ? {$case: 'tumbling' as const, tumbling: d.tumbling}
           : d.sliding !== undefined
             ? {$case: 'sliding' as const, sliding: d.sliding}
-            : undefined,
+            : d.rolling !== undefined
+              ? {$case: 'rolling' as const, rolling: d.rolling}
+              : undefined,
   }));
 
 export const unmarshalTimeseriesColumnSchema: z.ZodType<TimeseriesColumn> = z
@@ -1956,6 +1993,22 @@ export const marshalRequestSourceSchema: z.ZodType = z
     ...(d.schema?.$case === 'flatSchema' && {flat_schema: d.schema.flatSchema}),
   }));
 
+export const marshalRollingWindowSchema: z.ZodType = z
+  .object({
+    windowDuration: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+    delay: z
+      .any()
+      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
+      .optional(),
+  })
+  .transform(d => ({
+    window_duration: d.windowDuration,
+    delay: d.delay,
+  }));
+
 export const marshalSchemaConfigSchema: z.ZodType = z
   .object({
     schema: z
@@ -2049,6 +2102,10 @@ export const marshalTimeWindowSchema: z.ZodType = z
           $case: z.literal('sliding'),
           sliding: z.lazy(() => marshalSlidingWindowSchema),
         }),
+        z.object({
+          $case: z.literal('rolling'),
+          rolling: z.lazy(() => marshalRollingWindowSchema),
+        }),
       ])
       .optional(),
   })
@@ -2060,6 +2117,7 @@ export const marshalTimeWindowSchema: z.ZodType = z
       tumbling: d.windowType.tumbling,
     }),
     ...(d.windowType?.$case === 'sliding' && {sliding: d.windowType.sliding}),
+    ...(d.windowType?.$case === 'rolling' && {rolling: d.windowType.rolling}),
   }));
 
 export const marshalTimeseriesColumnSchema: z.ZodType = z
@@ -2348,6 +2406,11 @@ const requestSourceFieldMaskSchema: FieldMaskSchema = {
   flatSchema: {wire: 'flat_schema', children: () => flatSchemaFieldMaskSchema},
 };
 
+const rollingWindowFieldMaskSchema: FieldMaskSchema = {
+  delay: {wire: 'delay'},
+  windowDuration: {wire: 'window_duration'},
+};
+
 const schemaConfigFieldMaskSchema: FieldMaskSchema = {
   jsonSchema: {wire: 'json_schema'},
 };
@@ -2380,6 +2443,7 @@ const timeWindowFieldMaskSchema: FieldMaskSchema = {
     wire: 'continuous',
     children: () => continuousWindowFieldMaskSchema,
   },
+  rolling: {wire: 'rolling', children: () => rollingWindowFieldMaskSchema},
   sliding: {wire: 'sliding', children: () => slidingWindowFieldMaskSchema},
   tumbling: {wire: 'tumbling', children: () => tumblingWindowFieldMaskSchema},
 };
