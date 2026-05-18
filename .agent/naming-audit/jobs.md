@@ -11,8 +11,8 @@ the SDK and exposes ~140 interfaces, 47 enums, and 19 client methods.
 | High         | 37    | Reserved-word risks, broken/misleading names, identifier collisions, contradictions. |
 | Medium       | 87    | Underscores, redundant prefixes/suffixes, vague names, acronym casing.         |
 | Low          | 53    | Mild verbosity, plural mismatches, stylistic inconsistencies.                  |
-| Observations | 17    | Patterns spanning the entire file (proto leakage, oneof wrappers, etc.).       |
-| **Total**    | **194** | |
+| Observations | 16    | Patterns spanning the entire file (proto leakage, oneof wrappers, etc.).       |
+| **Total**    | **193** | |
 
 Issues are catalogued below by severity, then by file/line.
 
@@ -870,29 +870,26 @@ Issues are catalogued below by severity, then by file/line.
 - `client.submitRun(SubmitRun)`: verb-noun matches.
 - See H33.
 
-### O10. Schema export naming
-- `marshalCancelAllRunsSchema` / `unmarshalCancelAllRuns_ResponseSchema` are public; the `_Response` underscore is exposed through TS identifiers. Consider TypeScript-native names for non-wire identifiers.
-
-### O11. The waiters duplicate ~80 lines of code each
+### O10. The waiters duplicate ~80 lines of code each
 - `CancelRunWaiter`, `RepairWaiter`, `RunNowWaiter`, `SubmitRunWaiter` (~80 lines each, mostly identical). Naming: `RepairWaiter` is unique in dropping the `Run` suffix.
 - Suggestion: `RepairRunWaiter` for consistency.
 
-### O12. `client.ts:594` declares `repair()` method (not `repairRun()`) — see H33, O9.
+### O11. `client.ts:594` declares `repair()` method (not `repairRun()`) — see H33, O9.
 
-### O13. `index.ts` re-exports both the value classes and types in two blocks
+### O12. `index.ts` re-exports both the value classes and types in two blocks
 - Enums and waiter classes go through `export { ... }`; interfaces go through `export type { ... }`. Both blocks together have 200+ identifiers.
 
-### O14. `Format` and `Source` are top-level public enums named with single English words
+### O13. `Format` and `Source` are top-level public enums named with single English words
 - These specific names collide with global and tooling identifiers — see H3, H4.
 
-### O15. Acronym-casing rule should be documented
+### O14. Acronym-casing rule should be documented
 - `Sql`, `Dbt`, `Jvm`, `Adls`, `Aws`, `Azure`, `Gcp`, `Gcs`, `Powerbi` (mixed), `Ml`, `Mlflow`, `Gpu`, `Lakeview`, `Dbfs`, `Ebs`, `Vm`.
 - The pattern is mostly "first letter of acronym capitalized only", with a few exceptions. Codify.
 
-### O16. Wire-shape vs SDK-shape concept leakage
+### O15. Wire-shape vs SDK-shape concept leakage
 - `numberInJob`, `originalAttemptRunId`, `Run_JobLevelParameters` are wire artifacts the TS layer should hide or rename.
 
-### O17. Inconsistent abbreviations: `Params` vs `Parameters`
+### O16. Inconsistent abbreviations: `Params` vs `Parameters`
 - Within the same parent type (e.g., `RunNow`): `jobParameters`, `notebookParams`, `pythonParams`, `pipelineParams`, `pythonNamedParams`, `sqlParams`, `sparkSubmitParams`, `jarParams`, `dbtCommands`.
 - Standardize on `Parameters`.
 

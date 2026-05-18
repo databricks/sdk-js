@@ -13,15 +13,15 @@ discriminated union over 14 tool kinds), and `Example` (child of
 Every list endpoint paginates via `pageSize`/`pageToken`. No state enums
 exist in this package; the entire surface is data plus references to other
 Databricks resources.
-**Total weird names flagged:** 49
+**Total weird names flagged:** 43
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 13 |
-| Medium | 18 |
-| Low | 11 |
-| Observation | 7 |
+| Medium | 15 |
+| Low | 9 |
+| Observation | 6 |
 
 ## High severity
 
@@ -44,7 +44,7 @@ Databricks resources.
 - **Rationale:** Stringly-typed enums in TypeScript are a well-documented anti-pattern (https://google.github.io/styleguide/tsguide.html#enums-vs-string-literals). The duplicate declaration in two casings is a generator artifact from the proto definition and a tax on every consumer.
 
 ### 4. `Tool.toolType` casing disagrees with every other discriminator value on the wire — `src/v1/model.ts:259`
-- **Why weird:** The 14 enumerated values inside the doc string are snake_case: `"genie_space"`, `"knowledge_assistant"`, `"lakeview_dashboard"`, `"serving_endpoint"`, `"uc_function"`, `"uc_connection"`, `"uc_table"`, `"vector_search_index"`, `"supervisor_agent"`, `"web_search"` (singletons `"app"`, `"volume"`, `"catalog"`, `"schema"` work in both). But the TypeScript `spec.$case` field uses camelCase variants of the same set: `'genieSpace'`, `'knowledgeAssistant'`, etc. The marshal/unmarshal pair around lines 765-865 keeps `toolType` as a *string* in both directions, so the wire format for `toolType` is snake_case — but the consumer must know to write `toolType: 'genie_space'` while paying attention to camelCase `spec.$case`. A TypeScript-only consumer who never reads JSDoc will think the values are camelCase to match `$case` and get HTTP 400 on the first request.
+- **Why weird:** The 14 enumerated values inside the doc string are snake_case: `"genie_space"`, `"knowledge_assistant"`, `"lakeview_dashboard"`, `"serving_endpoint"`, `"uc_function"`, `"uc_connection"`, `"uc_table"`, `"vector_search_index"`, `"supervisor_agent"`, `"web_search"` (singletons `"app"`, `"volume"`, `"catalog"`, `"schema"` work in both). But the TypeScript `spec.$case` field uses camelCase variants of the same set: `'genieSpace'`, `'knowledgeAssistant'`, etc. The wire format for `toolType` is snake_case — but the consumer must know to write `toolType: 'genie_space'` while paying attention to camelCase `spec.$case`. A TypeScript-only consumer who never reads JSDoc will think the values are camelCase to match `$case` and get HTTP 400 on the first request.
 - **Category:** 17 (casing inconsistency within the same struct), 4 (snake_case in a string-literal value, even though the value is on the wire).
 - **Suggested name:** If `toolType` survives (see #3), document inline that values are snake_case wire-side, or normalize to camelCase to match `spec.$case`.
 - **Rationale:** The mismatch is exactly what causes the most painful bugs in generated SDKs — the type checker says it is fine, the runtime fails. A naming audit must call this out even though it is a *value* mismatch rather than an *identifier* mismatch.
@@ -189,28 +189,7 @@ Databricks resources.
 - **Suggested name:** Either remove `tool.toolId` from the body shape (TypeScript can enforce this via a discriminated `Omit<Tool, 'toolId'>` type for create), or document the precedence rule on the JSDoc.
 - **Rationale:** Generated request types with duplicate fields are a well-known footgun.
 
-### 28. `unmarshal*Schema` and `marshal*Schema` `Schema` suffix — `src/v1/model.ts:378,386,394,408,416,427,435,446,459,469,477,485,514,523,612,620,628,636,646,654,656,664,672,686,694,704,712,720,728,757,765,867,875,883,891,901,909`
-- **Why weird:** All marshal/unmarshal Zod schemas suffix `*Schema`. Same pattern documented in `knowledgeassistants.md` #28: every export reads `unmarshalXSchema`, which is 20+ characters of pure suffix. SDK-wide convention; flagging for cross-cutting review rather than local fix. Total of ~37 marshal/unmarshal sites in this file.
-- **Category:** 7 (overly verbose), 8 (redundant suffix).
-- **Suggested name:** `unmarshalSupervisorAgent` (Zod schemas are obviously schemas; the suffix is type-system redundancy). Flagged for SDK-wide convention review.
-- **Rationale:** Cross-package convention; no local fix.
-
-### 29. `*FieldMaskSchema` private constants and `*FieldMask` public builder — `src/v1/model.ts:911-1042`
-- **Why weird:** Two parallel naming families:
-  - Private (file-scope) constants: `appFieldMaskSchema`, `catalogFieldMaskSchema`, `exampleFieldMaskSchema`, `genieSpaceFieldMaskSchema`, `knowledgeAssistantFieldMaskSchema`, `lakeviewDashboardFieldMaskSchema`, `schemaFieldMaskSchema`, `servingEndpointFieldMaskSchema`, `supervisorAgentFieldMaskSchema`, `supervisorAgentToolFieldMaskSchema`, `toolFieldMaskSchema`, `ucConnectionFieldMaskSchema`, `ucFunctionFieldMaskSchema`, `ucTableFieldMaskSchema`, `vectorSearchIndexFieldMaskSchema`, `volumeFieldMaskSchema`, `webSearchFieldMaskSchema`.
-  - Public builders: `exampleFieldMask`, `supervisorAgentFieldMask`, `toolFieldMask`.
-  Only three types get a builder (`Example`, `SupervisorAgent`, `Tool`) — the others are private. But the convention puts `Schema` as the suffix on the constants and bare on the builder, which is the opposite of the `unmarshalXSchema` convention. Also: every field-mask constant exists *whether or not* the type is exposed via a builder — so for tool spec variants the field-mask schema is dead weight.
-- **Category:** 7 (verbose), 8 (suffix), 17.
-- **Suggested name:** Drop the `Schema` suffix from the private constants (`appFieldMask`, `catalogFieldMask`, etc., with the builders renamed to `buildAppFieldMask`, `buildToolFieldMask`).
-- **Rationale:** Cross-package convention; no local fix.
-
-### 30. `listExamplesIter`/`listSupervisorAgentsIter`/`listToolsIter` — `Iter` suffix Go-style — `src/v1/client.ts:342,396,447`
-- **Why weird:** The `Iter` suffix on async iterators is a direct port from Go's `*Iter` convention, same as `knowledgeassistants.md` #29 and applies SDK-wide. The audit prompt's rule 14 (Go/Java-style names) calls this out.
-- **Category:** 14 (Go-style name), 8 (redundant suffix — return type already says it's an iterator).
-- **Suggested name:** Drop the suffix and make auto-paging the default (`listExamples` returns an `AsyncIterable<Example>`, and a separate `listExamplesPage` returns one page). Or swap the names: `listExamples` (current paged) becomes `listExamplesPage`, and `listExamplesIter` becomes `listExamples`.
-- **Rationale:** Modern TypeScript convention is that the default form is auto-paging; the suffix is a Go/Java carryover.
-
-### 31. `Client` class name — bare, no scoping — `src/v1/client.ts:61`
+### 28. `Client` class name — bare, no scoping — `src/v1/client.ts:61`
 - **Why weird:** The class is named `Client`. After `import {Client} from '@databricks/sdk-supervisoragents/v1'`, the type is unambiguous in isolation — but consumers importing multiple packages routinely write `import {Client as SAClient} from '@databricks/sdk-supervisoragents/v1'`. Same SDK-wide issue flagged in `knowledgeassistants.md` #30.
 - **Category:** 1 (vague), 17 (SDK-wide inconsistency).
 - **Suggested name:** `SupervisorAgentsClient` (matches the Go SDK's `WorkspaceClient.SupervisorAgents` and AWS SDK's `S3Client`, `IAMClient` pattern).
@@ -218,19 +197,19 @@ Databricks resources.
 
 ## Low severity
 
-### 32. `Volume`/`UcFunction`/`UcConnection`/`UcTable` — `Uc` prefix on some, bare on others — `src/v1/model.ts:304,308,318,364`
+### 29. `Volume`/`UcFunction`/`UcConnection`/`UcTable` — `Uc` prefix on some, bare on others — `src/v1/model.ts:304,308,318,364`
 - **Why weird:** Of the variant types, four are Unity Catalog resources: `Volume`, `UcFunction`, `UcConnection`, `UcTable`. The `Uc` prefix is applied to three but not to `Volume` — even though a Databricks volume is *always* a UC volume. The `Uc` prefix is also inconsistent acronym casing: `Uc` (title-case) instead of `UC` (all-caps), and the Google TypeScript style guide could go either way (https://google.github.io/styleguide/tsguide.html#identifiers). Same acronym-casing question as flagged in `customllms.md` #1 (`Llm` vs `LLM`).
 - **Category:** 3 (acronym casing — `Uc` vs `UC`), 17 (inconsistent prefix application — `Volume` should be `UcVolume`).
 - **Suggested name:** Either drop the `Uc` prefix everywhere (the package context makes it clear) or apply it uniformly: `UcVolume`, `UcFunction`, `UcConnection`, `UcTable` (with the acronym-casing question decided once SDK-wide).
 - **Rationale:** Consistency wins; the audit prompt rule 3 (acronym casing) and rule 17 (consistent action verbs / family naming) both flag this.
 
-### 33. `LakeviewDashboard` — product name leaks into type name — `src/v1/model.ts:135`
+### 30. `LakeviewDashboard` — product name leaks into type name — `src/v1/model.ts:135`
 - **Why weird:** "Lakeview" is the marketing name for Databricks SQL dashboards (https://docs.databricks.com/en/dashboards/index.html). The type name carries the product name. If the product is renamed (as has happened — "Lakeview" has been deprecated in some Databricks branding in favor of "Dashboards"), the SDK will be stuck with the old name. Cross-package: the dashboards SDK at `packages/dashboards/` uses `LakeviewDashboard` too — so the SDK is consistent, but the question is whether the canonical name should propagate.
 - **Category:** Observation / 6 (potentially misleading if product is rebranded).
 - **Suggested name:** Keep `LakeviewDashboard` (the wire name is fixed) but document the marketing-name origin.
 - **Rationale:** Naming audits should flag product-name leakage even if there's no fix.
 
-### 34. `Catalog`, `Schema`, `UcTable` fields all named `name` but doc differently — `src/v1/model.ts:21,212,321`
+### 31. `Catalog`, `Schema`, `UcTable` fields all named `name` but doc differently — `src/v1/model.ts:21,212,321`
 - **Why weird:** Three variant types with a single `name` field carrying three subtly different format claims:
   - `Catalog.name`: "Bare UC catalog name this tool is authorized to search (no `.`)." — one component.
   - `Schema.name`: "Full UC schema name (catalog.schema) this tool is authorized to search." — two components.
@@ -240,82 +219,68 @@ Databricks resources.
 - **Suggested name:** Differentiate: `Catalog.catalogName` (one part), `Schema.schemaFullName` (two parts), `UcTable.tableFullName` (three parts). Or use AIP-style `fullName` on each but document the cardinality explicitly.
 - **Rationale:** Three types with the same field name representing different formats is exactly the kind of inconsistency that bites at code-review time.
 
-### 35. `VectorSearchIndex.columns` semantic ambiguity — `src/v1/model.ts:357-361`
+### 32. `VectorSearchIndex.columns` semantic ambiguity — `src/v1/model.ts:357-361`
 - **Why weird:** Doc reads "Optional columns to return from the index. If unset, discovered from index schema at query time." So `columns` is a list of column names to *project* in the response — but the field name does not communicate "to return" vs "to filter on" vs "to embed." A consumer scanning the type sees `columns?: string[]` and reasonably wonders whether these are the *output* columns or the *input* columns to vectorize. The doc is the only disambiguator.
 - **Category:** 1 (vague), 6 (misleading — name does not encode return-vs-filter direction).
 - **Suggested name:** `returnedColumns` or `outputColumns` (or `projection`, a SQL term).
 - **Rationale:** The doc gives the contract; the field name should too.
 
-### 36. `parseResponse` / `marshalRequest` asymmetric verbs — `src/v1/utils.ts:113,119`
-- **Why weird:** Same as `customllms.md` #22 and `knowledgeassistants.md` #33: `parseResponse` and `marshalRequest` use two different verbs for inverse operations. The model file uses `unmarshal*Schema` / `marshal*Schema` consistently, but `utils.ts` breaks the pattern with `parse`.
-- **Category:** 17 (inconsistent action verbs).
-- **Suggested name:** `unmarshalResponse` / `marshalRequest` for symmetry.
-- **Rationale:** Pair-wise consistency aids reading.
-
-### 37. `executeCall` / `executeHttpCall` differ in name by `Http` only — `src/v1/utils.ts:26,65`
+### 33. `executeCall` / `executeHttpCall` differ in name by `Http` only — `src/v1/utils.ts:26,65`
 - **Why weird:** Two functions with nearly identical names handling different layers — same anti-pattern as `customllms.md` #21 and `knowledgeassistants.md` #34. Each generated package carries the same pair.
 - **Category:** 1 (vague), 17 (inconsistency).
 - **Suggested name:** `runWithCallOptions` / `sendHttp` or `wrapCall` / `dispatchHttp`.
 - **Rationale:** Names should differ in more than one infix.
 
-### 38. `HttpCallOptions` reuses `Options` — `src/v1/utils.ts:15`
+### 34. `HttpCallOptions` reuses `Options` — `src/v1/utils.ts:15`
 - **Why weird:** Same as `customllms.md` #23 and `knowledgeassistants.md` #35: `ClientOptions`, `CallOptions`, and `HttpCallOptions` all live in scope simultaneously. Three things named `Options`.
 - **Category:** 1 (vague suffix).
 - **Suggested name:** `HttpCallContext` or `HttpCallParams`.
 - **Rationale:** Distinguish internal context bags from user-facing options.
 
-### 39. `flattenQueryParams` exported but unused — `src/v1/utils.ts:123`
+### 35. `flattenQueryParams` exported but unused — `src/v1/utils.ts:123`
 - **Why weird:** Same as `customllms.md` #28 and `knowledgeassistants.md` #36: exported but not used by `client.ts`. Generator-mechanical surface area.
 - **Category:** Observation / (unused export).
 - **Suggested name:** Either remove the export or document why it ships per-package.
 - **Rationale:** Generated artifact; flag for cross-package cleanup.
 
-### 40. `readAll` helper generic name — `src/v1/utils.ts:40`
+### 36. `readAll` helper generic name — `src/v1/utils.ts:40`
 - **Why weird:** Same as `customllms.md` #29 and `knowledgeassistants.md` #37: helper reads an entire response body stream; name is generic.
 - **Category:** 1 (vague).
 - **Suggested name:** `drainStream` or `readStreamToEnd`.
 - **Rationale:** Internal helper, low cost. Skip if generated.
 
-### 41. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:56`
+### 37. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:56`
 - **Why weird:** Same as `customllms.md` #24 and `knowledgeassistants.md` #38: `Segment` is a generic CS term.
 - **Category:** 1 (vague).
 - **Suggested name:** `USER_AGENT_PACKAGE` or `PKG_USER_AGENT_SEGMENT`.
 - **Rationale:** SDK-wide consistency review.
 
-### 42. `resp` local variable in every method — `src/v1/client.ts:93,122,154,242,267,289,323,374,428,477,521,562`
+## Observations
+
+### 38. `resp` local variable in every method — `src/v1/client.ts:93,122,154,242,267,289,323,374,428,477,521,562`
 - **Why weird:** Same as `customllms.md` #33 and `knowledgeassistants.md` #39: `resp` is the response. 12 methods repeat the same pattern.
 - **Category:** 12 (duplicate pattern).
 - **Suggested name:** Refactor away the pattern, not the name.
 - **Rationale:** Refactor opportunity surfaced by audit.
 
-## Observations
-
-### 43. `pageReq` local in iterator methods — `src/v1/client.ts:346,400,451`
+### 39. `pageReq` local in iterator methods — `src/v1/client.ts:346,400,451`
 - **Why weird:** Same as `knowledgeassistants.md` #40: three async generator methods declare `const pageReq: ... = {...req};`. Reuses the abbreviation `Req` while elsewhere in the file the parameter is named `req`.
 - **Category:** 5 (abbreviation).
 - **Suggested name:** `pageRequest` or `nextPageReq`.
 
-### 44. `tool.spec` field-mask handling — discriminated union flattened — `src/v1/model.ts:977-1015`
-- **Why weird:** `toolFieldMaskSchema` carries top-level entries for each variant of the `spec` union — `app`, `catalog`, `genieSpace`, `knowledgeAssistant`, `lakeviewDashboard`, `schema`, `servingEndpoint`, `supervisorAgent`, `ucConnection`, `ucFunction`, `ucTable`, `vectorSearchIndex`, `volume`, `webSearch`. The field-mask schema flattens the union variants to top-level field-mask paths (AIP-161, https://google.aip.dev/161 behavior) but does not include a `spec` path. A consumer writing `toolFieldMask('spec.genieSpace')` will get an invalid mask. Same pattern flagged in `knowledgeassistants.md` #41.
-- **Category:** 17 (inconsistency between TS shape and field-mask schema).
+### 40. `tool.spec` field-mask handling — discriminated union flattened — `src/v1/model.ts:977-1015`
+- **Why weird:** The field-mask carries top-level entries for each variant of the `spec` union — `app`, `catalog`, `genieSpace`, `knowledgeAssistant`, `lakeviewDashboard`, `schema`, `servingEndpoint`, `supervisorAgent`, `ucConnection`, `ucFunction`, `ucTable`, `vectorSearchIndex`, `volume`, `webSearch`. The field-mask flattens the union variants to top-level field-mask paths (AIP-161, https://google.aip.dev/161 behavior) but does not include a `spec` path. A consumer writing `toolFieldMask('spec.genieSpace')` will get an invalid mask. Same pattern flagged in `knowledgeassistants.md` #41.
+- **Category:** 17 (inconsistency between TS shape and field-mask).
 - **Suggested name:** No rename; document on the JSDoc.
 
-### 45. The 14 tool kinds + 1 nested = effectively 15 kinds — `src/v1/model.ts:262-297`
+### 41. The 14 tool kinds + 1 nested = effectively 15 kinds — `src/v1/model.ts:262-297`
 - **Why weird:** The doc on `Tool.toolType` (model.ts:259) lists 14 kinds, but the discriminated union on `Tool.spec` (model.ts:262-297) also has 14 cases. Counting carefully: `genieSpace`, `knowledgeAssistant`, `ucFunction`, `app`, `volume`, `lakeviewDashboard`, `servingEndpoint`, `ucTable`, `vectorSearchIndex`, `ucConnection`, `catalog`, `schema`, `supervisorAgent`, `webSearch` — that is 14, and matches the doc. So the count is correct; flagged here as a *positive* observation.
 
-### 46. `unmarshalToolSchema` deep ternary chain — `src/v1/model.ts:557-607`
-- **Why weird:** The unmarshal logic for `Tool.spec` is a 50-line nested ternary picking which variant case applies. Not a naming issue; flagging because the readability of generated code at this depth is hostile.
-- **Category:** Observation.
-
-### 47. `marshalToolSchema` discriminated union explicit `$case` literals — `src/v1/model.ts:765-828`
-- **Why weird:** The marshal-side Zod schema enumerates each `$case` as a string literal in `z.discriminatedUnion('$case', [...])`. The 14 explicit `z.literal('genieSpace')` etc. lines duplicate the data already in the unmarshal-side ternary chain. Not a naming bug; flagging for codegen review.
-- **Category:** Observation.
-
-### 48. Action verbs in `Client` are consistent — `src/v1/client.ts`
+### 42. Action verbs in `Client` are consistent — `src/v1/client.ts`
 - **Why weird:** The client uses `create`/`delete`/`get`/`list`/`update` — no `fetch`/`retrieve`/`read`/`remove`. This is good. Flagging as a *positive* observation.
 - **Category:** 17 (reversed — consistency note).
 
-### 49. Method-name verb conventions match resource targets — `src/v1/client.ts:87,113,142,180,199,218,237,262,287,309,360,414,465,506,550`
+### 43. Method-name verb conventions match resource targets — `src/v1/client.ts:87,113,142,180,199,218,237,262,287,309,360,414,465,506,550`
 - **Why weird:** Methods are uniformly `verb` + `Subject` (createExample, createSupervisorAgent, createTool, deleteExample, deleteSupervisorAgent, deleteTool, getExample, getSupervisorAgent, getTool, listExamples, listSupervisorAgents, listTools, updateExample, updateSupervisorAgent, updateTool). 15 methods, 5 verbs × 3 subjects, no exceptions. Strong positive observation.
 - **Category:** 17 (positive observation).
 

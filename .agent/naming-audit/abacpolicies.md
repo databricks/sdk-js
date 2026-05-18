@@ -3,14 +3,14 @@
 **Path:** `packages/abacpolicies/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Attribute-Based Access Control (ABAC) policies on Unity Catalog securables — create/get/list/update/delete row-filter, column-mask, deny, and grant policies.
-**Total weird names flagged:** 40
+**Total weird names flagged:** 39
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 11 |
 | Medium | 17 |
-| Low | 8 |
+| Low | 7 |
 | Observation | 4 |
 
 ## High severity
@@ -217,19 +217,13 @@
 - **Suggested name:** `drainStream` / `readStreamToEnd`.
 - **Rationale:** Internal helper, low cost. Skip if generated.
 
-### 34. `parseResponse` / `marshalRequest` verb asymmetry — `src/v1/utils.ts:113,119`
-- **Why weird:** `parseResponse` (unmarshal) is the inverse of `marshalRequest`. Naming uses two different verbs (`parse` vs `marshal`) for opposite operations.
-- **Category:** 17 (inconsistent action verbs).
-- **Suggested name:** `unmarshalResponse` / `marshalRequest` for symmetry, or `parseResponse` / `serializeRequest`.
-- **Rationale:** Pair-wise consistency aids reading.
-
-### 35. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
+### 34. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
 - **Why weird:** Two functions with nearly identical names handling very different layers (retry/rate-limit wrapper vs raw HTTP send + logging). Easy to confuse at call site.
 - **Category:** 1 (vague), 17 (inconsistent).
 - **Suggested name:** `runWithCallOptions` / `sendHttp` (or `wrapCall` / `dispatchHttp`).
 - **Rationale:** Names should differ in more than the `Http` infix.
 
-### 36. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 35. `HttpCallOptions` — `src/v1/utils.ts:15`
 - **Why weird:** Same word `Options` is reused throughout the SDK for many unrelated concepts (`ClientOptions`, `CallOptions`, `RowFilterOptions`, ...). Within this file there's also `Options` imported from `@databricks/sdk-core/api` (line 3).
 - **Category:** 1 (vague suffix).
 - **Suggested name:** `HttpCallContext` (it's not user-facing options; it's an internal bag of args).
@@ -237,17 +231,17 @@
 
 ## Observations
 
-### 37. Wire/TS divergence is heavy
+### 36. Wire/TS divergence is heavy
 The model file is ~796 lines for ~15 user-facing types; >half is marshal/unmarshal/FieldMaskSchema scaffolding. Not a naming problem, but the audit surfaces just how much generator boilerplate dominates each package — worth raising at the SDK-design level.
 
-### 38. Action-verb conventions in `Client`
+### 37. Action-verb conventions in `Client`
 The client uses `Create`/`Get`/`List`/`Update`/`Delete` consistently. No mixed `Fetch`/`Retrieve`/`Read`. This is good. (Listed as observation per rule 17 since the audit asked us to flag inconsistencies; here we explicitly note consistency.)
 
-### 39. Acronym casing for `Http` / `Url` / `Id` in `utils.ts` / `client.ts`
+### 38. Acronym casing for `Http` / `Url` / `Id` in `utils.ts` / `client.ts`
 The codebase uses `Http` (`HttpClient`, `HttpRequest`, `executeHttpCall`) and `URLSearchParams` (Web standard) and `url` (lowercase) and `userAgent`. Mixing `Http` (PascalCase capital-then-lower) with the imported `URLSearchParams` (ALLCAPS) is inconsistent — common across JS ecosystem and probably not worth changing, but worth noting.
 - **Category:** 3 (acronym casing).
 
-### 40. `abac` abbreviation only appears in package name
+### 39. `abac` abbreviation only appears in package name
 The package directory is `abacpolicies` but neither type, field, comment, nor enum mentions `abac`. The package name acts as a domain keyword the SDK is otherwise silent about. Comments on `useSessionIdentity` (model.ts:286) mention "ABAC" once. May confuse users searching by acronym.
 - **Category:** 5 (cryptic abbreviation in package name).
 

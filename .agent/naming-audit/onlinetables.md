@@ -65,17 +65,6 @@
 14. `TriggeredUpdateStatus` (model.ts:238) — fields:
     `lastProcessedCommitVersion`, `timestamp`, `triggeredUpdateProgress`.
 
-### Zod schemas (model.ts)
-
-- Unmarshal: `unmarshalContinuousUpdateStatusSchema`,
-  `unmarshalFailedStatusSchema`, `unmarshalOnlineTableSchema`,
-  `unmarshalOnlineTableSpecSchema`,
-  `unmarshalOnlineTableSpec_ContinuousSchedulingPolicySchema`,
-  `unmarshalOnlineTableSpec_TriggeredSchedulingPolicySchema`,
-  `unmarshalOnlineTableStatusSchema`, `unmarshalPipelineProgressSchema`,
-  `unmarshalProvisioningStatusSchema`, `unmarshalTriggeredUpdateStatusSchema`.
-- Marshal: identical list with `marshal` prefix.
-
 ### Client (client.ts)
 
 - Class `Client` (client.ts:41).
@@ -104,10 +93,10 @@
 | Severity              | Count |
 | --------------------- | ----- |
 | High                  | 7     |
-| Medium                | 14    |
-| Low / SDK-wide note   | 11    |
+| Medium                | 13    |
+| Low / SDK-wide note   | 9     |
 | Pass / acceptable     | 9     |
-| **Total findings**    | **41** |
+| **Total findings**    | **38** |
 
 (Several findings touch multiple audit categories; counts above are unique
 findings.)
@@ -858,33 +847,7 @@ a period (matches `.agent/rules` / user CLAUDE.md style).
 
 ---
 
-### 37. `unmarshal*Schema` / `marshal*Schema` Go vocabulary — category 14 (Go/Java-style names)
-
-**Symbols:** `unmarshalContinuousUpdateStatusSchema`,
-`unmarshalFailedStatusSchema`, `unmarshalOnlineTableSchema`,
-`unmarshalOnlineTableSpecSchema`,
-`unmarshalOnlineTableSpec_ContinuousSchedulingPolicySchema`,
-`unmarshalOnlineTableSpec_TriggeredSchedulingPolicySchema`,
-`unmarshalOnlineTableStatusSchema`, `unmarshalPipelineProgressSchema`,
-`unmarshalProvisioningStatusSchema`, `unmarshalTriggeredUpdateStatusSchema`,
-and the parallel `marshal*Schema` set (model.ts:253–602).
-
-**Issue:** "Marshal" / "Unmarshal" is Go-ism vocabulary. The TS/JS ecosystem
-uses "serialize" / "deserialize", or, working with Zod, "parse" / "stringify"
-/ "schema". The whole SDK uses this convention; **flag for SDK-wide
-cleanup, not this package alone.**
-
-The `*Schema` suffix is also redundant — `unmarshalOnlineTable` without
-`Schema` would suffice since the value's type is `z.ZodType<OnlineTable>`
-and there are no non-schema cousins. **Pass with note.**
-
-Additionally, the `unmarshalOnlineTableSpec_…Schema` chain compounds with
-finding 1's underscore problem — each carries an explicit lint suppression
-(model.ts:331, 335, 507, 511).
-
----
-
-### 38. `HttpCallOptions` interface — category 1 (Vague/generic) and category 20 (Type-suffix tautology)
+### 37. `HttpCallOptions` interface — category 1 (Vague/generic) and category 20 (Type-suffix tautology)
 
 **Symbol:** `HttpCallOptions` interface (utils.ts:15).
 
@@ -898,7 +861,7 @@ any fix must apply everywhere).
 
 ---
 
-### 39. `executeCall` vs `executeHttpCall` verb collision — category 17 (Inconsistent action verbs)
+### 38. `executeCall` vs `executeHttpCall` verb collision — category 17 (Inconsistent action verbs)
 
 **Symbols:** `executeCall` (utils.ts:26) and `executeHttpCall` (utils.ts:65).
 
@@ -909,29 +872,6 @@ and decodes the body. They do *different* things at *different* layers; the
 names imply a hierarchical relationship that does not exist. The HTTP one
 is roughly `sendAndDecode` or `doHttpRequest`. **Flag for SDK-wide cleanup;**
 this file is generated boilerplate copied across every package.
-
----
-
-### 40. `readAll` — *pass*
-
-Helper does what its name says (reads a `ReadableStream<Uint8Array>` to
-completion). Conventional in the Node `stream/promises` ecosystem. **Pass.**
-
----
-
-### 41. `parseResponse` / `marshalRequest` verb inconsistency — category 17 (Inconsistent action verbs)
-
-**Symbols:** `parseResponse` (utils.ts:113), `marshalRequest` (utils.ts:119).
-
-**Issue:** Two symmetric operations: response→object (parse) and
-object→body-string (marshal). The verbs come from two different vocabularies
-("parse" is generic TS/JS, "marshal" is Go). Internally consistent verb-pair
-would be `parseResponse` / `serializeRequest` or `unmarshalResponse` /
-`marshalRequest`. The current pair is awkward.
-
-**Suggested:** `serializeRequest` and `parseResponse` (TS-native vocabulary)
-or commit fully to the Go terms: `unmarshalResponse` and `marshalRequest`.
-**Flag for SDK-wide consistency.**
 
 ---
 
@@ -999,9 +939,9 @@ names (strip the proto namespace). **Flag for generator.**
 | Severity | Count | Findings |
 | -------- | ----- | -------- |
 | **High** (style guide violations, cross-package collisions) | 7 | #1, #2, #5, #11, #17, #25, #35, **and** cross-package A |
-| **Medium** (naming clarity, verbose, redundant suffixes, JSDoc drift) | 14 | #3, #4, #6, #7, #8, #12, #13, #14, #15, #16, #19, #20, #21, #23, #27, #41 |
-| **Low / SDK-wide note** (generator boilerplate, not local fix) | 11 | #9, #10, #18, #24, #26, #28, #31, #37, #38, #39, #41 |
-| **Pass / acceptable** | 9 | #18, #22, #24, #26, #28, #29, #30, #32, #33, #34, #36, #40 |
+| **Medium** (naming clarity, verbose, redundant suffixes, JSDoc drift) | 13 | #3, #4, #6, #7, #8, #12, #13, #14, #15, #16, #19, #20, #21, #23, #27 |
+| **Low / SDK-wide note** (generator boilerplate, not local fix) | 9 | #9, #10, #18, #24, #26, #28, #31, #37, #38 |
+| **Pass / acceptable** | 9 | #18, #22, #24, #26, #28, #29, #30, #32, #33, #34, #36 |
 
 ---
 
@@ -1035,9 +975,8 @@ names (strip the proto namespace). **Flag for generator.**
    (`ProvisioningInfo_State` → `ProvisioningState`).
 3. **#5** — `UpperCamelCase` enum members (string value preserved as wire
    form).
-4. **#37, #41** — settle marshal/unmarshal vs. parse/serialize vocabulary.
-5. **#35** — `PACKAGE_SEGMENT` → `packageSegment`.
-6. **#31** — settle waiter naming convention (`*Waiter` vs `*Poller` vs
+4. **#35** — `PACKAGE_SEGMENT` → `packageSegment`.
+5. **#31** — settle waiter naming convention (`*Waiter` vs `*Poller` vs
    inline `*AndWait`).
 
 ---

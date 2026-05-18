@@ -3,17 +3,17 @@
 **Path:** `packages/workspacebindings/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Unity Catalog workspace bindings — controls which Databricks workspaces can access a given UC securable (catalog, storage credential, credential, external location) and at what access level (`READ_WRITE` or `READ_ONLY`). Exposes a legacy catalog-only API (`/workspace-bindings/catalogs/{name}`) and a generic securable-aware API (`/bindings/{type}/{full_name}`).
-**Total weird names flagged:** 47
+**Total weird names flagged:** 37
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 14 |
-| Medium | 18 |
-| Low | 10 |
-| Observation | 5 |
+| Medium | 17 |
+| Low | 2 |
+| Observation | 4 |
 
-The package contains 9 generated types (1 enum + 8 message/response shapes), 4 client methods (plus 1 paginated iterator), and the generator's standard set of marshal/unmarshal schema helpers. The pervasive issues are (1) **proto-style nested-message names** like `GetWorkspaceBindings_Response` leaking into the TS surface and requiring `eslint-disable` directives at every declaration and at every use site; (2) **the request-type-as-verb pattern** (`GetWorkspaceBindings`, `UpdateWorkspaceBindings`, `GetCatalogWorkspaceBindings`, `UpdateCatalogWorkspaceBindings`) producing the awkward `getWorkspaceBindings(req: GetWorkspaceBindings)` verb-noun-verb-noun signature; (3) **enum values that bake the type name back into every member** (`BindingType.BINDING_TYPE_READ_WRITE` etc.); (4) **stringly-typed `securableType`** that should be a closed enum; (5) **dual catalog-specific and generic-securable APIs** that overlap functionally — `getCatalogWorkspaceBindings` is a deprecated specialisation of `getWorkspaceBindings(securableType: 'catalog', ...)` but both ship in v1 with different request/response shapes; and (6) **conceptual neighbour confusion** with the separate `workspaceassignment` package, which assigns *principals* to workspaces while this package binds *securables* to workspaces — same noun "workspace", opposite direction.
+The package contains 9 generated types (1 enum + 8 message/response shapes) and 4 client methods (plus 1 paginated iterator). The pervasive issues are (1) **proto-style nested-message names** like `GetWorkspaceBindings_Response` leaking into the TS surface and requiring `eslint-disable` directives at every declaration and at every use site; (2) **the request-type-as-verb pattern** (`GetWorkspaceBindings`, `UpdateWorkspaceBindings`, `GetCatalogWorkspaceBindings`, `UpdateCatalogWorkspaceBindings`) producing the awkward `getWorkspaceBindings(req: GetWorkspaceBindings)` verb-noun-verb-noun signature; (3) **enum values that bake the type name back into every member** (`BindingType.BINDING_TYPE_READ_WRITE` etc.); (4) **stringly-typed `securableType`** that should be a closed enum; (5) **dual catalog-specific and generic-securable APIs** that overlap functionally — `getCatalogWorkspaceBindings` is a deprecated specialisation of `getWorkspaceBindings(securableType: 'catalog', ...)` but both ship in v1 with different request/response shapes; and (6) **conceptual neighbour confusion** with the separate `workspaceassignment` package, which assigns *principals* to workspaces while this package binds *securables* to workspaces — same noun "workspace", opposite direction.
 
 ---
 
@@ -189,31 +189,25 @@ The package contains 9 generated types (1 enum + 8 message/response shapes), 4 c
 - **Suggested name:** Mark with `@deprecated`.
 - **Rationale:** See #26.
 
-### 28. `getWorkspaceBindingsIter` (method) — `src/v1/client.ts:147`
-- **Why weird:** `Iter` suffix is Go-style (Go uses `*Iterator` types). TS uses `AsyncGenerator` / `AsyncIterable` whose syntax `async *foo()` already communicates iteration. The suffix adds nothing. Plus: `getWorkspaceBindingsIter` reads as "get-workspace-bindings-iter" — five words to say "iterate workspace bindings".
-- **Category:** 5 (cryptic abbreviation: `Iter`), 14 (Go-style name), 7 (verbose).
-- **Suggested name:** `iterateWorkspaceBindings` (verb-first), or `workspaceBindings` (with iterator semantics implied by `AsyncGenerator` return type).
-- **Rationale:** Idiomatic TS naming for async generators is verb-first or noun-only; the Go `*Iter`/`*Iterator` suffix doesn't translate.
-
-### 29. `Client` — `src/v1/client.ts:46`
+### 28. `Client` — `src/v1/client.ts:46`
 - **Why weird:** Top-level export named just `Client`. Generic, ambiguous. The package-level `index.ts:3` re-exports it as `Client`. Users importing from multiple `@databricks/sdk-*` packages must alias every Client (`import {Client as WorkspaceBindingsClient} from '@databricks/sdk-workspacebindings/v1'`).
 - **Category:** 1 (vague), 12 (duplicate across packages).
 - **Suggested name:** `WorkspaceBindingsClient`.
 - **Rationale:** Convention in AWS, Google Cloud, Azure SDKs is service-prefixed client class names for exactly this reason. Same fix should apply across all `@databricks/sdk-*` packages.
 
-### 30. `executeCall` — `src/v1/utils.ts:26`
+### 29. `executeCall` — `src/v1/utils.ts:26`
 - **Why weird:** Generic verb-noun name. Two `execute` functions in scope (`execute` imported on line 4, `executeCall` defined on line 26, `executeHttpCall` defined on line 65). The discriminator between them is just "Call" vs "HttpCall" — and both ultimately wrap the imported `execute()`.
 - **Category:** 1 (vague), 17 (inconsistent action verbs).
 - **Suggested name:** `executeRetryableCall` (since this one applies the retrier/rateLimiter/timeout options) or `executeWithOptions`.
 - **Rationale:** Distinguishes the two wrappers semantically.
 
-### 31. `executeHttpCall` — `src/v1/utils.ts:65`
+### 30. `executeHttpCall` — `src/v1/utils.ts:65`
 - **Why weird:** Generic name for what is actually "send an HTTP request, drain the body, surface API errors as exceptions, and return the raw body bytes". The function name does not communicate that it throws `APIError` on 4xx/5xx (line 88-91) — a non-obvious side effect.
 - **Category:** 1 (vague), 6 (misleading: "execute" sounds neutral but throws).
 - **Suggested name:** `sendAndParseResponse` or `sendOrThrow`.
 - **Rationale:** Naming should hint at error semantics.
 
-### 32. `HttpCallOptions` (interface) — `src/v1/utils.ts:15`
+### 31. `HttpCallOptions` (interface) — `src/v1/utils.ts:15`
 - **Why weird:** Yet another `*Options` suffix in a file that already imports `Options` (line 3) and `CallOptions` (line 12) — three `Options` types in scope. `HttpCallOptions` is purely an internal context bag for `executeHttpCall` (request + httpClient + logger) — it isn't user-tunable, so `Options` is misleading.
 - **Category:** 1 (vague suffix), 8 (redundant suffix), 17 (inconsistency).
 - **Suggested name:** `HttpCallContext` (it's a context bag, not user-tunable options).
@@ -223,67 +217,13 @@ The package contains 9 generated types (1 enum + 8 message/response shapes), 4 c
 
 ## Low severity
 
-### 33. `unmarshalGetCatalogWorkspaceBindings_ResponseSchema` — `src/v1/model.ts:96`
-- **Why weird:** 53-character constant name combining the redundant `Schema` suffix (#39), the proto underscore (#7), and the verb-shaped request type name (#3). Requires `eslint-disable` on line 95.
-- **Category:** 4 (underscore), 7 (verbose), 8 (redundant `Schema` suffix), 14.
-- **Suggested name:** `unmarshalCatalogWorkspaceBindingsResponse` (cascading from #7 and #39).
-- **Rationale:** Cascades from upstream fixes.
-
-### 34. `unmarshalGetWorkspaceBindings_ResponseSchema` — `src/v1/model.ts:106`
-- **Why weird:** Same as #33.
-- **Category:** 4, 7, 8, 14.
-- **Suggested name:** `unmarshalWorkspaceBindingsResponse`.
-- **Rationale:** Cascades.
-
-### 35. `unmarshalUpdateCatalogWorkspaceBindings_ResponseSchema` — `src/v1/model.ts:120`
-- **Why weird:** Same as #33. 56 characters.
-- **Category:** 4, 7, 8, 14.
-- **Suggested name:** `unmarshalUpdateCatalogWorkspaceBindingsResponse`.
-- **Rationale:** Cascades.
-
-### 36. `unmarshalUpdateWorkspaceBindings_ResponseSchema` — `src/v1/model.ts:130`
-- **Why weird:** Same as #33.
-- **Category:** 4, 7, 8, 14.
-- **Suggested name:** `unmarshalUpdateWorkspaceBindingsResponse`.
-- **Rationale:** Cascades.
-
-### 37. `unmarshalWorkspaceBindingInfoSchema` — `src/v1/model.ts:141`
-- **Why weird:** Redundant `Schema` suffix (the `z.ZodType<X>` annotation already states the kind). Combined with #15 (`*Info` Go-style suffix), the constant is `unmarshalWorkspaceBindingInfoSchema` — 35 characters of which 10 are redundant suffix.
-- **Category:** 8 (redundant suffix), 14 (Go-style).
-- **Suggested name:** `unmarshalWorkspaceBinding`.
-- **Rationale:** Both `Info` and `Schema` add zero information beyond the type signature.
-
-### 38. `marshalUpdateCatalogWorkspaceBindingsSchema` — `src/v1/model.ts:152`
-- **Why weird:** 43 characters with redundant `Schema` suffix and the verb-shaped request type name (#5).
-- **Category:** 7, 8.
-- **Suggested name:** `marshalUpdateCatalogWorkspaceBindings`.
-- **Rationale:** Drop `Schema` suffix.
-
-### 39. `*Schema` constants (all) — `src/v1/model.ts:96,106,120,130,141,152,164,178`
-- **Why weird:** Every marshal/unmarshal helper carries a `Schema` suffix. The TS type annotation `z.ZodType<X>` already says it's a Zod schema. The suffix is redundant and contributes 6 characters to every export name.
-- **Category:** 8 (redundant suffix), 20 (type-suffix tautology).
-- **Suggested name:** Drop `Schema` everywhere — `unmarshalWorkspaceBinding`, `marshalUpdateCatalogWorkspaceBindings`, etc.
-- **Rationale:** Naming consistency; the suffix carries no info beyond the type annotation.
-
-### 40. `flattenQueryParams` — `src/v1/utils.ts:123`
+### 32. `flattenQueryParams` — `src/v1/utils.ts:123`
 - **Why weird:** Exported but unused in this package (the client builds query strings inline with `URLSearchParams.append` on `client.ts:117-122`). Dead-looking export from the standard generator template.
 - **Category:** Observation, 11 (unused public helper).
 - **Suggested name:** Remove if generator default; or move to a shared utility package and not emit per-package.
 - **Rationale:** Cross-package consistency.
 
-### 41. `readAll` — `src/v1/utils.ts:40`
-- **Why weird:** Internal helper name is generic and conflicts cognitively with `Array` and `ReadableStream` APIs. The function reads a `ReadableStream<Uint8Array>` into a single `Uint8Array` buffer. The Go SDK uses `io.ReadAll` (the standard library) — direct Go-port artifact.
-- **Category:** 1 (vague), 14 (Go-style: `io.ReadAll` is the Go convention).
-- **Suggested name:** `readStreamToEnd`, `drainStream`, or `bufferStream`.
-- **Rationale:** Cross-package consistency.
-
-### 42. `parseResponse` / `marshalRequest` verb asymmetry — `src/v1/utils.ts:113,119`
-- **Why weird:** `parseResponse` (decode) is the inverse of `marshalRequest` (encode); but the model file uses `marshal*` / `unmarshal*` consistently — so `parseResponse` is the odd one out. Three verbs (`parse`, `marshal`, `unmarshal`) for two operations (encode, decode).
-- **Category:** 17 (inconsistent action verbs).
-- **Suggested name:** `unmarshalResponse` / `marshalRequest` for pair symmetry with the rest of the file.
-- **Rationale:** Mirroring helps readers map TS↔wire at a glance.
-
-### 43. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:41`
+### 33. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:41`
 - **Why weird:** `Segment` is a generic word; without the inline doc-comment the constant doesn't communicate User-Agent identity. Same issue exists in every generated package.
 - **Category:** 1 (vague), 15 (generic name).
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
@@ -293,18 +233,18 @@ The package contains 9 generated types (1 enum + 8 message/response shapes), 4 c
 
 ## Observations
 
-### 44. Client `Host is required.` error message — `src/v1/client.ts:57`
+### 34. Client `Host is required.` error message — `src/v1/client.ts:57`
 The error thrown when `options.host` is undefined says only "Host is required." — no client name, no package context. Across many similar packages every Client throws the same string, so a stack trace at the outer layer is ambiguous about which Client failed. Naming-adjacent.
 - **Category:** Observation.
 
-### 45. `marshalRequest` / `parseResponse` schemas not re-exported from `index.ts`
+### 35. `marshalRequest` / `parseResponse` schemas not re-exported from `index.ts`
 The marshal/unmarshal helpers are exported from `model.ts` (via `export const`) but `index.ts` (lines 7-17) only re-exports types and `Client`. So the schemas are part of the package's effective import surface (`import {...} from '@databricks/sdk-workspacebindings/v1/model'`) but not advertised. Dead surface or intentional? If the latter, the `export const` should be `const` (module-local).
 - **Category:** Observation, 11 (effectively-internal exports).
 
-### 46. `WorkspaceBindingInfo.workspaceId` doc-comment "Required" — `src/v1/model.ts:89`
+### 36. `WorkspaceBindingInfo.workspaceId` doc-comment "Required" — `src/v1/model.ts:89`
 The single word "Required" appears as a doc-comment on `workspaceId?: number`. But the field is *optional* in the TypeScript type (`workspaceId?: number | undefined`). The annotation contradicts the type modifier. Either: (a) the field is genuinely required by the server and the optional TS type is generator-wide policy (proto3 fields are all optional in TS); or (b) the doc is stale. Either way, readers can't tell.
 - **Category:** Observation, 6 (misleading docs).
 
-### 47. `BindingType` doc-comment surfaces proto comment as TS doc — `src/v1/model.ts:5`
+### 37. `BindingType` doc-comment surfaces proto comment as TS doc — `src/v1/model.ts:5`
 The comment "Using `BINDING_TYPE_` prefix here to avoid conflict with `TableOperation` enum in `credentials_common.proto`." is a wire-implementation note that has been promoted to a TS doc-comment. TS consumers should not need to know about proto namespaces. This is naming-adjacent — the comment exists *because* of the redundant prefix (#1, #2). Removing the prefix would also remove the need for the explanation.
 - **Category:** Observation, 14 (proto-style naming surfaced in docs).

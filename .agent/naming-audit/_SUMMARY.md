@@ -1,10 +1,10 @@
 # Cross-Package Naming Audit — Executive Summary
 
 **Packages audited:** 98 (every API package under `packages/<pkg>/src/<vN>/`)
-**Total findings across all audits:** **5,001** (down from 5,322; **321 findings pruned**)
+**Total findings across all audits:** **4,502** (down from 5,322 originally, then 5,001 after the first prune pass, then 4,544 after the second; **42 additional findings pruned in this third pass**, **820 cumulative**)
 **Source files:** `/home/parth.bansal/sdk-js/.agent/naming-audit/<package>.md`
 
-> **Prune note.** The original audit included a cross-cutting theme
+> **Prune note 1.** The original audit included a cross-cutting theme
 > "Empty / trivial wrapper interfaces" (empty `*_Response` interfaces,
 > single-field-primitive wrapper types, and proto outer-message wrappers
 > retained only to anchor a nested enum). Per user direction these have
@@ -14,6 +14,30 @@
 > breaking change if the response was previously `void` or a bare
 > primitive. The 321 pruned findings are reflected in the totals,
 > theme list, and Top-50 below.
+
+> **Prune note 2.** A second cross-cutting theme,
+> "`marshal` / `unmarshal` / `Schema` suffix vocabulary is Go-isms"
+> (`marshalCreatePolicySchema`, `unmarshalGetMetastoreSummary_ResponseSchema`,
+> etc.), has now also been pruned per user direction. These Zod
+> encoder/decoder helpers are SDK-internal — they are emitted into
+> per-package `utils.ts` and `model.ts` but are not part of the public
+> contract that callers import against. Renaming them carries zero
+> external risk and is therefore not a public-surface naming concern.
+> The 457 pruned findings from this pass are reflected in the totals,
+> theme list (Theme 8 removed), generator recommendations (§8.7
+> removed), and by-the-numbers table below.
+
+> **Prune note 3.** A third cross-cutting theme,
+> "Pagination `Iter` suffix on every paginating method"
+> (`listPoliciesIter`, `listCatalogsIter`, `listWarehousesIter`, etc.),
+> has now been promoted to a generator-only recommendation per user
+> direction. The duplicate-method pattern is emitted by every generated
+> package; the fix is one template change, not per-package work. Rather
+> than carry the same finding in 98 per-package audits, the rule is
+> recorded once in the new `## Generator-only recommendations` section
+> below. The 42 pruned findings from this pass are reflected in the
+> totals, theme list (the former Theme 8 removed), generator
+> recommendations (§8.10 removed), and by-the-numbers table below.
 
 This document synthesises the per-package audits into the patterns that the
 upstream generator (and a smaller number of API team decisions) should fix
@@ -205,44 +229,6 @@ generator-wide. The two consistent options are:
 2. **.NET / Microsoft (`ALL_CAPS` for ≤2-letter, `Pascal-then-lower` for ≥3):** `URL`, `ID`, `Sql`, `Json`. Pro: matches HTTP/RFC casing; con: harder to typo-check.
 
 The choice matters less than the consistency; today the SDK has both.
-
-### Theme 8. `marshal` / `unmarshal` / `Schema` suffix vocabulary is Go-isms — ~90/98 packages
-
-Every package exports `marshal*Schema` / `unmarshal*Schema` Zod helpers
-(`unmarshalPolicySchema`, `marshalCreatePolicySchema`, etc.). The TS
-ecosystem uses `serialize`/`deserialize` or `encode`/`decode`, and the
-`Schema` suffix is redundant with the `z.ZodType<>` type annotation. The
-`unmarshalGetMetastoreSummary_ResponseSchema`-style identifiers can reach
-50+ characters.
-
-Examples:
-- `unmarshalGetAssignableRolesForResourceResponseSchema` (52 chars) — `packages/accountaccesscontrolproxy/src/v1/model.ts:113`.
-- `unmarshalCreateServicePrincipalSecretResponseSchema` (50 chars).
-- Every `parseResponse` / `marshalRequest` pair in `utils.ts` uses
-  asymmetric verbs (`parse` vs `marshal`).
-
-**Generator fix:** Rename `marshal*Schema` → `encode*` (or `serialize*`),
-`unmarshal*Schema` → `decode*` (or `deserialize*`), and drop the redundant
-`Schema` suffix. These are SDK-internal helpers — renaming has zero
-external risk.
-
-### Theme 9. Pagination `Iter` suffix on every paginating method — ~57/98 packages
-
-Every paginating list method is emitted twice: `list*()` returning the
-first page, plus `list*Iter()` returning an `AsyncIterator`. The `Iter`
-suffix is a Go-ism (`ListPoliciesIter` in Go = `for it.Next() {...}`).
-TypeScript ecosystems either:
-- Make the list method itself return an `AsyncIterable<T>` (Octokit, Azure
-  SDK), or
-- Expose `.list()` and `.listAll()` (AWS SDK v3).
-
-Examples: every package with a list endpoint — `listPoliciesIter`,
-`listCatalogsIter`, `listWarehousesIter`, `listEndpointsIter`, etc. The
-duplicate methods double the method-count noise in `client.ts`.
-
-**Generator fix:** Pick one pagination shape. The most TS-native option is
-to have `list*()` return `AsyncIterable<T>` and add a `.firstPage()`
-escape hatch for callers who need the raw response page.
 
 ---
 
@@ -653,104 +639,104 @@ generator pattern it exemplifies.
 
 | # | Package | Findings | Top theme |
 |---|---|---|---|
-| 1 | jobs | 194 | Generic enum/interface names (`Run`, `Format`, `Source`, `Compute`); `Run` overload across 7 shapes |
-| 2 | warehouses | 124 | Legacy `Endpoint*` brand surviving the SQL-Warehouse rebrand |
-| 3 | endpoints | 118 | `Endpoint*` (vector search) vs `endpoints` (other products); brand-name collision |
-| 4 | settings | 111 | Cross-package duplication with `accountsettings`/`workspacesettings`/`workspaceconf` |
-| 5 | catalogs | 97 | `*_OptionsEntry`/`*_PropertiesEntry`; `nameArg`; Create-with-read-only-fields |
-| 6 | postgres | 92 | 18 underscore type names; quad-nested `SyncedTable_SyncedTableSpec_SecondaryIndex_CreationPoint` |
-| 7 | pipelines | 92 | `Update` noun = pipeline run; `Pipelines*` prefix on every type |
-| 8 | schemas | 89 | `_OptionsEntry`/`_PropertiesEntry`; `fullNameArg`; vs `systemschemas` package |
-| 9 | budgets | 89 | Budget vs `budgetpolicy` duplication |
-| 10 | metastores | 87 | `Get*Summary_Response` underscores; structural duplicate of `MetastoreInfo` |
-| 11 | clusters | 87 | `ClusterState_ClusterState`; per-cloud-enum-prefix inconsistency; 150-member `TerminationCode` |
-| 12 | functions | 86 | `function` reserved-word; proto-nested `FunctionInfo_*`; `fullNameArg` |
-| 13 | forecasting | 80 | `Forecasting*` prefix; underscored type names |
-| 14 | cleanroomassets | 80 | 18 underscore identifiers; `CleanRoom*` re-prefix on every type |
-| 15 | clusterlibraries | 79 | `Library.lib` field; "Full" suffix without "Partial" counterpart |
-| 16 | apps | 78 | `App` vs `Application` vocabularies; `AppResourceApp_AppPermission` triple-tautology |
-| 17 | genie | 73 | Inconsistent method prefixing (28/30 with `genie*`); `GenieSpace` opaque term |
-| 18 | instancepools | 68 | Massive structural duplication of `Create*`/`Edit*`/`*_Response`/`*AndStats` |
-| 19 | instanceprofiles | 67 | Bare verb request types; vague identifiers |
-| 20 | tables | 66 | `fullNameArg`; `TableInfo` vs `TableSummary`; cross-package `Dependency` family duplication |
-| 21 | policyfamilies | 65 | "Family" + "Policy Family" mixed; underscored enums |
-| 22 | modelregistry | 65 | Workspace vs UC duplicate (`registeredmodels`); `MLflow` vocabulary |
-| 23 | marketplaces | 65 | 14× `_Response` proto underscores |
-| 24 | iam | 65 | `*Proxy` method duplicates; `State`/`Entitlement` generic enums |
-| 25 | globalinitscripts | 65 | Verb-as-noun requests; proto `_Response` wrappers |
-| 26 | experiments | 63 | Single-word top-level types (`Run`, `Metric`, `Experiment`) |
-| 27 | externallocations | 62 | `IsolationMode_*`/`SseEncryptionAlgorithm_*` enum prefixing; cross-cloud queue type naming inconsistency |
-| 28 | cleanrooms | 60 | 4-level proto nesting; redundant enum prefixes throughout |
-| 29 | clusterpolicies | 57 | Underscore types; verb-as-noun requests |
-| 30 | workspacesettings | 56 | Cross-package duplicates with `settings`/`accountsettings`/`workspaceconf` |
-| 31 | database | 56 | Package name overlaps `postgres`; deep proto nesting |
-| 32 | files | 54 | `Read`/`Move`/`Put`/`Delete`/`Close`/`Create`/`MkDirs`/`AddBlock` — verb-as-noun (legacy DBFS) |
-| 33 | modelservingmanagement | 53 | `InferenceEndpoint` vs `ServingEndpoint` vs `serving-endpoints` URL — three names |
-| 34 | credentials | 53 | 4× duplicate type pairs (`Credential*` vs `StorageCredential*`); cross-package with `auth/credentials` |
-| 35 | qualitymonitors | 52 | Plural vs singular `qualitymonitor`; both deprecated |
-| 36 | dataquality | 52 | `ListMonitorRequest` singular for list of monitors |
-| 37 | registeredmodels | 51 | `fullNameArg`/`versionArg`/`aliasArg`; cross-package overlap with `modelregistry` |
-| 38 | features | 50 | Three sibling feature packages with blurry boundaries |
-| 39 | supervisoragents | 49 | Generic `SupervisorAgent`; `Tool` bare type for 14-arm union |
-| 40 | workspacebindings | 47 | Bare verb requests; underscore identifiers |
-| 41 | statementexecution | 47 | Package name overlaps `queryexecution`/`commandexecution`/`queries` |
-| 42 | queryhistory | 47 | Vague `Query` types; cross-package overlap with `queries`/`queryexecution` |
-| 43 | qualitymonitor | 47 | Sibling-package collision with `qualitymonitors` |
-| 44 | rfa | 46 | 3-letter cryptic package name |
-| 45 | connections | 46 | `UNKNOWN_*` sentinels; `ConnectionType` value casing inconsistencies |
-| 46 | grants | 45 | Verb-phrase request types; underscore identifiers |
-| 47 | lakeview | 43 | Old codename (rebrand to "AI/BI Dashboards") |
-| 48 | indexes | 43 | Package name not "vector search"; `MiniVectorIndex` duplicates `VectorIndex` |
-| 49 | commandexecution | 43 | Three resources (Command/Context/Cluster) mixed; `id?: string` underspecified |
-| 50 | accountsettings | 43 | `Csp`/`Esm`/`Llm`/`Dcp` cryptic acronyms; generic `value` discriminator |
-| 51 | knowledgeassistants | 42 | `KnowledgeAssistant_State` underscore identifier |
-| 52 | usagepolicy | 41 | 1:1 clone of `budgetpolicy` |
-| 53 | repos | 41 | "Repos" legacy term; product is "Git folders" |
-| 54 | onlinetables | 41 | `ProvisioningInfo_State`; underscore identifiers |
-| 55 | materializedfeatures | 41 | Package name doesn't match contents |
-| 56 | permissions | 40 | Cross-package overlap with `iam`/`accountaccesscontrol`/`grants` |
-| 57 | externalmetadata | 40 | `SystemType.*_UNSPECIFIED`; brand-value casing (`POWER_BI`, `STREAM_NATIVE`) |
-| 58 | abacpolicies | 40 | `PolicyInfo`; `_Response` underscores; verb-as-noun requests |
-| 59 | secrets | 39 | 11/13 types with proto underscore; mutation-verb inconsistency |
-| 60 | queries | 39 | Three-package overlap with `queryhistory`/`queryexecution` |
-| 61 | featurestore | 39 | `OnlineStore_State` underscore identifier |
-| 62 | bundle | 39 | Generic package name (`bundle`); verb-as-noun requests |
-| 63 | budgetpolicy | 38 | Sibling clone in `usagepolicy` |
-| 64 | tagpolicies | 37 | Three sibling tag packages with overlapping vocab |
-| 65 | entitytagassignments | 37 | `EntityTagAssignment` vs `TagAssignment` cross-package collision |
-| 66 | workspaceassignment | 36 | Cross-package overlap with `iam` |
-| 67 | tokenmanagement | 36 | Overlap with `tokens`; duplicate `AutoscopeState` enum |
-| 68 | queryexecution | 36 | Package name far broader than scope (dashboards-only) |
-| 69 | logdeliveryconfigurations | 36 | Long verbose names |
-| 70 | customllms | 36 | `Llm` casing throughout |
-| 71 | alerts | 36 | Mixed v1/v2 |
-| 72 | tokens | 35 | Cross-package duplicate of `tokenmanagement` |
-| 73 | tagassignments | 35 | Three-package tag split; sibling field-name drift |
-| 74 | modelservingquery | 34 | `QueryEndpointInput` has 7 mutually-exclusive input fields, no oneof |
-| 75 | environments | 34 | `Environment` generic name |
-| 76 | serviceprincipalsecrets | 33 | Identical to `serviceprincipalsecretsproxy` |
-| 77 | serviceprincipalsecretsproxy | 33 | Byte-identical to non-proxy version |
-| 78 | workspace | 32 | Most overloaded of 5 `workspace*` packages |
-| 79 | secretsuc | 32 | `uc` cryptic suffix; collides with `secrets` |
-| 80 | modelservingdebug | 32 | Tiny package, mostly proto underscores |
-| 81 | disasterrecovery | 32 | `FailoverFailoverGroupRequest` stutter |
-| 82 | gitcredentials | 31 | Three "Credentials" packages with different meanings |
-| 83 | externallineage | 31 | `Direction_LineageDirection` underscore; `tpe` typo |
-| 84 | dataclassification | 29 | Tag-domain overlap |
-| 85 | accountaccesscontrolproxy | 29 | 1:1 surface duplicate of `accountaccesscontrol` |
-| 86 | systemschemas | 27 | Sibling-package collision with `schemas` |
-| 87 | volumes | 26 | `fullNameArg`; verb-as-noun requests |
-| 88 | usagedashboards | 26 | Vague type names |
-| 89 | notificationdestinations | 26 | `Config`/`config` self-reference; `DestinationType` vague enum |
-| 90 | resourcequotas | 25 | Underscore identifiers |
-| 91 | cleanroomtaskruns | 24 | `LifeCycle` casing; one of four cleanroom packages |
-| 92 | workspaceconf | 23 | `conf` cryptic abbreviation; wire-shape regression |
-| 93 | billableusagedownload | 21 | Verb in package name (`download`) |
-| 94 | artifactallowlists | 20 | Vague type names |
-| 95 | oauthpublishedapp | 19 | Singular but only `list*` endpoints |
-| 96 | cleanroomautoapprovalrules | 19 | 26-char package name; `CleanRoomAutoApprovalRule` re-prefix |
-| 97 | oauthcustomappintegration | 18 | Package covers Custom AND Published despite name |
-| 98 | accountaccesscontrol | 18 | Sibling duplicate `accountaccesscontrolproxy` |
+| 1 | jobs | 193 | Generic enum/interface names (`Run`, `Format`, `Source`, `Compute`); `Run` overload across 7 shapes |
+| 2 | warehouses | 119 | Legacy `Endpoint*` brand surviving the SQL-Warehouse rebrand |
+| 3 | endpoints | 114 | `Endpoint*` (vector search) vs `endpoints` (other products); brand-name collision |
+| 4 | settings | 106 | Cross-package duplication with `accountsettings`/`workspacesettings`/`workspaceconf` |
+| 5 | pipelines | 92 | `Update` noun = pipeline run; `Pipelines*` prefix on every type |
+| 6 | postgres | 90 | 18 underscore type names; quad-nested `SyncedTable_SyncedTableSpec_SecondaryIndex_CreationPoint` |
+| 7 | clusters | 84 | `ClusterState_ClusterState`; per-cloud-enum-prefix inconsistency; 150-member `TerminationCode` |
+| 8 | catalogs | 84 | `*_OptionsEntry`/`*_PropertiesEntry`; `nameArg`; Create-with-read-only-fields |
+| 9 | budgets | 84 | Budget vs `budgetpolicy` duplication |
+| 10 | functions | 75 | `function` reserved-word; proto-nested `FunctionInfo_*`; `fullNameArg` |
+| 11 | forecasting | 73 | `Forecasting*` prefix; underscored type names |
+| 12 | genie | 72 | Inconsistent method prefixing (28/30 with `genie*`); `GenieSpace` opaque term |
+| 13 | clusterlibraries | 72 | `Library.lib` field; "Full" suffix without "Partial" counterpart |
+| 14 | apps | 72 | `App` vs `Application` vocabularies; `AppResourceApp_AppPermission` triple-tautology |
+| 15 | cleanroomassets | 71 | 18 underscore identifiers; `CleanRoom*` re-prefix on every type |
+| 16 | schemas | 68 | `_OptionsEntry`/`_PropertiesEntry`; `fullNameArg`; vs `systemschemas` package |
+| 17 | tables | 63 | `fullNameArg`; `TableInfo` vs `TableSummary`; cross-package `Dependency` family duplication |
+| 18 | metastores | 62 | `Get*Summary_Response` underscores; structural duplicate of `MetastoreInfo` |
+| 19 | marketplaces | 62 | 14× `_Response` proto underscores |
+| 20 | modelregistry | 61 | Workspace vs UC duplicate (`registeredmodels`); `MLflow` vocabulary |
+| 21 | iam | 61 | `*Proxy` method duplicates; `State`/`Entitlement` generic enums |
+| 22 | instancepools | 59 | Massive structural duplication of `Create*`/`Edit*`/`*_Response`/`*AndStats` |
+| 23 | instanceprofiles | 58 | Bare verb request types; vague identifiers |
+| 24 | externallocations | 57 | `IsolationMode_*`/`SseEncryptionAlgorithm_*` enum prefixing; cross-cloud queue type naming inconsistency |
+| 25 | experiments | 55 | Single-word top-level types (`Run`, `Metric`, `Experiment`) |
+| 26 | database | 53 | Package name overlaps `postgres`; deep proto nesting |
+| 27 | features | 52 | Three sibling feature packages with blurry boundaries |
+| 28 | workspacesettings | 51 | Cross-package duplicates with `settings`/`accountsettings`/`workspaceconf` |
+| 29 | credentials | 51 | 4× duplicate type pairs (`Credential*` vs `StorageCredential*`); cross-package with `auth/credentials` |
+| 30 | clusterpolicies | 51 | Underscore types; verb-as-noun requests |
+| 31 | statementexecution | 50 | Package name overlaps `queryexecution`/`commandexecution`/`queries` |
+| 32 | qualitymonitors | 50 | Plural vs singular `qualitymonitor`; both deprecated |
+| 33 | globalinitscripts | 50 | Verb-as-noun requests; proto `_Response` wrappers |
+| 34 | files | 49 | `Read`/`Move`/`Put`/`Delete`/`Close`/`Create`/`MkDirs`/`AddBlock` — verb-as-noun (legacy DBFS) |
+| 35 | cleanrooms | 49 | 4-level proto nesting; redundant enum prefixes throughout |
+| 36 | queryhistory | 47 | Vague `Query` types; cross-package overlap with `queries`/`queryexecution` |
+| 37 | modelservingmanagement | 47 | `InferenceEndpoint` vs `ServingEndpoint` vs `serving-endpoints` URL — three names |
+| 38 | policyfamilies | 44 | "Family" + "Policy Family" mixed; underscored enums |
+| 39 | dataquality | 44 | `ListMonitorRequest` singular for list of monitors |
+| 40 | supervisoragents | 43 | Generic `SupervisorAgent`; `Tool` bare type for 14-arm union |
+| 41 | registeredmodels | 43 | `fullNameArg`/`versionArg`/`aliasArg`; cross-package overlap with `modelregistry` |
+| 42 | accountsettings | 43 | `Csp`/`Esm`/`Llm`/`Dcp` cryptic acronyms; generic `value` discriminator |
+| 43 | qualitymonitor | 42 | Sibling-package collision with `qualitymonitors` |
+| 44 | lakeview | 42 | Old codename (rebrand to "AI/BI Dashboards") |
+| 45 | rfa | 41 | 3-letter cryptic package name |
+| 46 | connections | 41 | `UNKNOWN_*` sentinels; `ConnectionType` value casing inconsistencies |
+| 47 | commandexecution | 41 | Three resources (Command/Context/Cluster) mixed; `id?: string` underspecified |
+| 48 | repos | 40 | "Repos" legacy term; product is "Git folders" |
+| 49 | knowledgeassistants | 39 | `KnowledgeAssistant_State` underscore identifier |
+| 50 | abacpolicies | 39 | `PolicyInfo`; `_Response` underscores; verb-as-noun requests |
+| 51 | usagepolicy | 38 | 1:1 clone of `budgetpolicy` |
+| 52 | queries | 38 | Three-package overlap with `queryhistory`/`queryexecution` |
+| 53 | onlinetables | 38 | `ProvisioningInfo_State`; underscore identifiers |
+| 54 | indexes | 38 | Package name not "vector search"; `MiniVectorIndex` duplicates `VectorIndex` |
+| 55 | workspacebindings | 37 | Bare verb requests; underscore identifiers |
+| 56 | externalmetadata | 37 | `SystemType.*_UNSPECIFIED`; brand-value casing (`POWER_BI`, `STREAM_NATIVE`) |
+| 57 | secrets | 36 | 11/13 types with proto underscore; mutation-verb inconsistency |
+| 58 | bundle | 36 | Generic package name (`bundle`); verb-as-noun requests |
+| 59 | alerts | 35 | Mixed v1/v2 |
+| 60 | permissions | 34 | Cross-package overlap with `iam`/`accountaccesscontrol`/`grants` |
+| 61 | logdeliveryconfigurations | 34 | Long verbose names |
+| 62 | grants | 34 | Verb-phrase request types; underscore identifiers |
+| 63 | modelservingquery | 33 | `QueryEndpointInput` has 7 mutually-exclusive input fields, no oneof |
+| 64 | materializedfeatures | 33 | Package name doesn't match contents |
+| 65 | workspace | 32 | Most overloaded of 5 `workspace*` packages |
+| 66 | featurestore | 32 | `OnlineStore_State` underscore identifier |
+| 67 | environments | 32 | `Environment` generic name |
+| 68 | customllms | 32 | `Llm` casing throughout |
+| 69 | budgetpolicy | 32 | Sibling clone in `usagepolicy` |
+| 70 | tokens | 31 | Cross-package duplicate of `tokenmanagement` |
+| 71 | entitytagassignments | 31 | `EntityTagAssignment` vs `TagAssignment` cross-package collision |
+| 72 | tagpolicies | 30 | Three sibling tag packages with overlapping vocab |
+| 73 | queryexecution | 30 | Package name far broader than scope (dashboards-only) |
+| 74 | tokenmanagement | 29 | Overlap with `tokens`; duplicate `AutoscopeState` enum |
+| 75 | workspaceassignment | 28 | Cross-package overlap with `iam` |
+| 76 | disasterrecovery | 28 | `FailoverFailoverGroupRequest` stutter |
+| 77 | tagassignments | 27 | Three-package tag split; sibling field-name drift |
+| 78 | serviceprincipalsecretsproxy | 26 | Byte-identical to non-proxy version |
+| 79 | serviceprincipalsecrets | 26 | Identical to `serviceprincipalsecretsproxy` |
+| 80 | externallineage | 26 | `Direction_LineageDirection` underscore; `tpe` typo |
+| 81 | volumes | 25 | `fullNameArg`; verb-as-noun requests |
+| 82 | usagedashboards | 25 | Vague type names |
+| 83 | accountaccesscontrolproxy | 25 | 1:1 surface duplicate of `accountaccesscontrol` |
+| 84 | secretsuc | 24 | `uc` cryptic suffix; collides with `secrets` |
+| 85 | notificationdestinations | 24 | `Config`/`config` self-reference; `DestinationType` vague enum |
+| 86 | workspaceconf | 23 | `conf` cryptic abbreviation; wire-shape regression |
+| 87 | resourcequotas | 23 | Underscore identifiers |
+| 88 | gitcredentials | 23 | Three "Credentials" packages with different meanings |
+| 89 | modelservingdebug | 22 | Tiny package, mostly proto underscores |
+| 90 | systemschemas | 21 | Sibling-package collision with `schemas` |
+| 91 | dataclassification | 21 | Tag-domain overlap |
+| 92 | billableusagedownload | 20 | Verb in package name (`download`) |
+| 93 | cleanroomautoapprovalrules | 19 | 26-char package name; `CleanRoomAutoApprovalRule` re-prefix |
+| 94 | cleanroomtaskruns | 18 | `LifeCycle` casing; one of four cleanroom packages |
+| 95 | artifactallowlists | 18 | Vague type names |
+| 96 | oauthcustomappintegration | 17 | Package covers Custom AND Published despite name |
+| 97 | oauthpublishedapp | 16 | Singular but only `list*` endpoints |
+| 98 | accountaccesscontrol | 16 | Sibling duplicate `accountaccesscontrolproxy` |
 
 ---
 
@@ -810,13 +796,7 @@ field names (`webhookUrl` vs `webhookURL`),
 enum values (`URL` vs `Url` — the latter avoids JS-global collision).
 Affects 98/98 packages.
 
-### 8.7 Replace `marshal`/`unmarshal`/`Schema` vocabulary
-
-Emit `encode*` / `decode*` (or `serialize*` / `deserialize*`) and drop the
-`Schema` suffix on Zod helpers. Pair `parseResponse` with `serializeRequest`
-in `utils.ts` for symmetry. Affects ~90/98 packages.
-
-### 8.8 Rename `Client` per package
+### 8.7 Rename `Client` per package
 
 Every package exports a class literally named `Client`. Imagine a user
 with `jobs`, `clusters`, `pipelines` all importing `Client`. Rename to
@@ -824,7 +804,7 @@ with `jobs`, `clusters`, `pipelines` all importing `Client`. Rename to
 `WarehousesClient`. Removes the most common cross-package alias-on-import
 pattern. Affects 98/98 packages.
 
-### 8.9 Strip the package-name prefix from type names
+### 8.8 Strip the package-name prefix from type names
 
 When a type name begins with the package's domain noun and the unprefixed
 name does not clash with another type in the same package, drop the
@@ -832,7 +812,7 @@ prefix. `Pipelines*` → drop, `Genie*` → drop, `CleanRoom*` → drop,
 `OAuthAppIntegration*` → drop where unambiguous, `Tag*` → drop in
 single-domain packages. Affects ~70/98 packages.
 
-### 8.10 (Bonus) Surface deprecations as `@deprecated` JSDoc tags
+### 8.9 (Bonus) Surface deprecations as `@deprecated` JSDoc tags
 
 Today the audits found dozens of fields whose JSDoc text says "deprecated"
 in prose but does not carry the `@deprecated` tag, so IDEs do not strike
@@ -842,11 +822,33 @@ in `qualitymonitor`/`qualitymonitors`. A simple template change — when
 the proto description starts with "Deprecated", emit `@deprecated` —
 catches all of them.
 
-### 8.11 (Bonus) Adopt `AsyncIterable<T>` for pagination
+---
 
-Make `list*()` return `AsyncIterable<T>` and add `.firstPage()` for callers
-who need raw pages. Removes 60+ `*Iter` companion methods. Affects ~57/98
-packages.
+## 9. Generator-only recommendations
+
+The following recommendations are template-level fixes that the
+generator emits identically across every package. Rather than carry the
+same finding in 98 per-package audits, each rule is recorded once here.
+Each item names the rule, why it is generator-only, the approximate
+package count it appeared in before promotion, and an illustrative
+example.
+
+### 9.1 Drop the duplicate `list*Iter()` paginator method
+
+**Rule:** Drop the duplicate `list*Iter()` paginator method. Make
+`list*()` return `AsyncIterable<T>` natively and add a `.firstPage()`
+escape hatch for callers who need the raw page response. Modeled on
+Octokit, Azure SDK, AWS SDK v3.
+
+**Why it's generator-only:** The duplicate-method pattern is emitted by
+every generated package; the fix is one template change, not per-package
+work.
+
+**Approximate package count where it appeared before pruning:** ~57/98
+packages (every package that has a paginating list endpoint).
+
+**Illustrative example:** `listCatalogsIter` in `catalogs/v1/client.ts`
+(and parallel methods in `endpoints`, `warehouses`, `jobs`, etc.).
 
 ---
 

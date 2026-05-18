@@ -12,9 +12,9 @@
 | ------------ | ----- |
 | High         | 7     |
 | Medium       | 13    |
-| Low          | 11    |
-| Observation  | 8     |
-| **Total**    | **39** |
+| Low          | 10    |
+| Observation  | 6     |
+| **Total**    | **36** |
 
 Dominant themes:
 1. **Pervasive redundant enum prefixes.** All seven enums repeat the type name on every member (`DEPLOYMENT_STATUS_ACTIVE`, `VERSION_TYPE_DEPLOY`, etc.) — 50+ values affected — which is a Go/Protobuf carry-over that hurts TS ergonomics.
@@ -308,15 +308,7 @@ No issue, just noting these names are uniform and correct.
 
 ---
 
-### L7. `*Iter` suffix on async generators (Category: 5 — cryptic abbreviation)
-
-**Location:** `Client.listDeploymentsIter`, `Client.listOperationsIter`, `Client.listResourcesIter`, `Client.listVersionsIter` (`client.ts:457`, `508`, `559`, `613`).
-
-`Iter` is a Go-style abbreviation for "iterator". The Go SDK uses `Iterator(...)` or `Iter(...)` similarly. In TS the convention is more often `listDeploymentsAsyncIterator` or `iterateDeployments` (or, if the existing list method returns the page, an overload). `Iter` is short but cryptic to JS-native developers. Not load-bearing because there is a comment-free convention across the SDK — verify with the wider SDK before changing.
-
----
-
-### L8. `Operation` interface name collides with `Operation` from `@databricks/sdk-databricks` long-running-ops (Category: 12 — duplicate concepts)
+### L7. `Operation` interface name collides with `Operation` from `@databricks/sdk-databricks` long-running-ops (Category: 12 — duplicate concepts)
 
 **Location:** `Operation` (`model.ts:441-481`).
 
@@ -324,7 +316,7 @@ In many Databricks/Google APIs, `Operation` is the LRO (Long-Running Operation) 
 
 ---
 
-### L9. `Resource.resourceKey` vs `Operation.resourceKey` — same name, same role (good)
+### L8. `Resource.resourceKey` vs `Operation.resourceKey` — same name, same role (good)
 
 **Location:** `model.ts:497`, `model.ts:458`.
 
@@ -332,7 +324,7 @@ This is correct re-use — both reference the same bundle config path. No issue.
 
 ---
 
-### L10. `deployments` request method names vs URL path consistency
+### L9. `deployments` request method names vs URL path consistency
 
 **Location:** `Client.listDeployments` → `/api/2.0/bundle/deployments` (`client.ts:428`).
 
@@ -340,7 +332,7 @@ The URL is `/api/2.0/bundle/deployments` (`/api/2.0/{service}/{resource}`). The 
 
 ---
 
-### L11. Acronym casing in `cliVersion`, `versionId`, `expireTime` — check SDK-wide
+### L10. Acronym casing in `cliVersion`, `versionId`, `expireTime` — check SDK-wide
 
 **Location:** `Version.cliVersion` (`model.ts:535`), `Version.versionId` (`model.ts:527`), `HeartbeatResponse.expireTime` (`model.ts:315`).
 
@@ -350,35 +342,27 @@ The URL is `/api/2.0/bundle/deployments` (`/api/2.0/{service}/{resource}`). The 
 
 ## Observations (Non-Defects)
 
-### O1. Marshal/unmarshal schemas use snake_case keys to match wire format
-
-`marshal*` schemas write `display_name`, `created_by`, etc. while the TS-side interfaces use `displayName`, `createdBy`. This is the correct pattern for a 1:1 port and is not a naming defect — just noting the boundary.
-
-### O2. `unmarshalListDeploymentsResponseSchema` etc. are long but well-structured
-
-The `unmarshal{Type}Schema` and `marshal{Type}Schema` exports are verbose but completely predictable. No findings — they read like generator output (which they are).
-
-### O3. JSDoc on the `state` fields is good
+### O1. JSDoc on the `state` fields is good
 
 `Resource.state` and `Operation.state` both clearly say "Serialized local config state". Naming could improve (M12) but doc-level disambiguation is solid.
 
-### O4. Pagination naming is uniform and correct
+### O2. Pagination wire shape is uniform and correct
 
-`pageSize`, `pageToken`, `nextPageToken`, `*Iter` (modulo L7) — all four `List*Request`/`List*Response` pairs are mechanically identical, with parallel `List*Iter` async generators on the client.
+`pageSize`, `pageToken`, `nextPageToken` — all four `List*Request`/`List*Response` pairs are mechanically identical on the wire.
 
-### O5. `Resource.state` is `JsonValue` from `@databricks/sdk-core/wkt` — correct typing
+### O3. `Resource.state` is `JsonValue` from `@databricks/sdk-core/wkt` — correct typing
 
 The `jsonValueSchema` (recursive Zod) is a clean port pattern. The field type is correct; the *name* is what is generic (see M12).
 
-### O6. Method `getResource` returns `Resource`, no naming collision
+### O4. Method `getResource` returns `Resource`, no naming collision
 
 `client.ts:341` returns `Resource` (the per-deployment tracked resource). No confusion with `DeploymentResourceType` here at the *method* level — only at the *interface* level (H5).
 
-### O7. Comment on the `name`-vs-`destroy` divergence is appreciated
+### O5. Comment on the `name`-vs-`destroy` divergence is appreciated
 
 `Deployment.destroyTime` has an in-code justification (`model.ts:255-258`) explaining why it's not `deleteTime`. This kind of inline rationale is exactly what's missing on the `name` overload — a one-line "this is a fully-qualified resource path, not a display name" would help readers (see H4).
 
-### O8. The `HeartbeatResponse.expireTime` field has no `Lease`/`Lock` prefix
+### O6. The `HeartbeatResponse.expireTime` field has no `Lease`/`Lock` prefix
 
 The docstring says "new lock expiry time", but the field is just `expireTime`. Calling it `lockExpireTime` or `lockExpiresAt` would self-document. Marginal because of H7 (rename the whole method to `renewLock` and the field name becomes obvious from context).
 
@@ -407,8 +391,8 @@ The docstring says "new lock expiry time", but the field is just `expireTime`. C
 
 | File              | Lines | Findings                                                                          |
 | ----------------- | ----- | --------------------------------------------------------------------------------- |
-| `src/v1/model.ts` | 843   | H1, H2, H3, H4, H5, H6, H7, M1-M13, L1-L5, L8, L9, L11, O1, O2, O3, O5, O7, O8     |
-| `src/v1/client.ts`| 630   | H4 (request types), H7 (method name), M9, L7, L10, O6                             |
+| `src/v1/model.ts` | 843   | H1, H2, H3, H4, H5, H6, H7, M1-M13, L1-L5, L7, L8, L10, O1, O3, O5, O6             |
+| `src/v1/client.ts`| 630   | H4 (request types), H7 (method name), M9, L9, O4                                  |
 | `src/v1/utils.ts` | 151   | (no findings — internal helpers, all well-named: `executeCall`, `executeHttpCall`, `buildHttpRequest`, `parseResponse`, `marshalRequest`, `flattenQueryParams`, `readAll`, `HttpCallOptions`) |
 | `src/v1/index.ts` | 40    | Re-exports — inherits findings from `model.ts` and `client.ts`.                   |
 

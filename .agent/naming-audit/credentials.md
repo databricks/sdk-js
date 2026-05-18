@@ -13,7 +13,7 @@ cloud-provider configurations (AWS IAM role, Azure Service Principal, Azure
 Managed Identity, GCP Service Account Key, Databricks-managed GCP Service
 Account, Cloudflare API token) and yields one of six temporary-credential
 shapes (AWS, Azure SAS, GCP OAuth, Azure AAD, R2, UC encrypted token).
-**Total weird names flagged:** 53
+**Total weird names flagged:** 51
 
 ---
 
@@ -71,9 +71,7 @@ shapes (AWS, Azure SAS, GCP OAuth, Azure AAD, R2, UC encrypted token).
 | 48 | `expirationTime` (epoch milliseconds) | model.ts:467 | field | Medium | 6 Misleading names | "Time" is too generic; the value is an epoch-ms integer. Other timestamp-y fields in this file are `createdAt`/`updatedAt` (also epoch-ms). Inconsistent: should be `expiresAt` to match the `*At` pattern. |
 | 49 | `createdAt`, `updatedAt`, `createdBy`, `updatedBy` | model.ts:205, 209, 207, 211 | field set | Low | (none) | Standard, consistent across the file. (Listing for completeness.) |
 | 50 | `purpose` field (referenced in JSDoc but absent from interface) | model.ts:107-110 (etc.) | (missing) | High | 6 Misleading names | The JSDoc text on `readOnly` and `usedForManagedStorage` (and elsewhere) says "Only applicable when purpose is **STORAGE**" / "**SERVICE**". But there is no `purpose` field on `CreateCredential`/`CredentialInfo`/`UpdateCredential`. Either the field is missing from the generated TS, or the doc is stale. Either way the contract is broken. |
-| 51 | `marshalXxxSchema` / `unmarshalXxxSchema` const naming | model.ts:1070-2293 | const set | Low | 14 Go/Java-style names, 20 Type-suffix tautology | `marshal`/`unmarshal` are Go-idioms; `Schema` is tautological with `z.ZodType<T>`. TS idiom is `encode`/`decode`. Generator-wide pattern. |
-| 52 | `executeCall` vs `executeHttpCall` | utils.ts:26, 65 | function pair | Medium | 17 Inconsistent action verbs | Two `execute*` functions with overlapping vocabulary. One translates options + dispatches retries, the other does one HTTP roundtrip. Cf. accountaccesscontrolproxy audit M5. |
-| 53 | `parseResponse` vs `marshalRequest` | utils.ts:113, 119 | function pair | Low | 17 Inconsistent action verbs | Mixing `parse`/`marshal`. Either `parse`/`format` or `marshal`/`unmarshal`. |
+| 51 | `executeCall` vs `executeHttpCall` | utils.ts:26, 65 | function pair | Medium | 17 Inconsistent action verbs | Two `execute*` functions with overlapping vocabulary. One translates options + dispatches retries, the other does one HTTP roundtrip. Cf. accountaccesscontrolproxy audit M5. |
 
 ---
 
@@ -202,8 +200,7 @@ Names affected: `ValidateCredential_Result`, `ValidateStorageCredential_FileOper
 `GenerateTemporaryServiceCredential_GcpOptions`, `ListCredentials_Response`,
 `ListStorageCredentials_Response`, `ValidateCredential_Response`,
 `ValidateCredential_ValidationResult`, `ValidateStorageCredential_Response`,
-`ValidateStorageCredential_ValidationResult`, and the corresponding
-`marshal*Schema`/`unmarshal*Schema` constants.
+`ValidateStorageCredential_ValidationResult`.
 
 Standard TS idiom would nest these inside namespaces (`ValidateCredential.Result`)
 or give them top-level domain names (`ValidationOutcome`,
@@ -255,9 +252,8 @@ and from any sibling package collides. Either:
 ### M3. Eight `client.ts` method pairs duplicate work
 
 Sixteen methods, eight pairs. Each pair differs only in the URL it hits.
-Cf. #11. The class is 707 lines, the marshaling/unmarshaling roundtrips
-inside each method add ~30 lines of boilerplate per method. Half of that is
-generated for the legacy storage-credentials path.
+Cf. #11. The class is 707 lines, with ~30 lines of boilerplate per method.
+Half of that is generated for the legacy storage-credentials path.
 
 ### M4. `IsolationMode` enum values stutter the enum name
 
@@ -382,36 +378,27 @@ RFC 6749 (OAuth 2.0) titles the term as "OAuth". The code uses "Oauth". Minor.
 "Used" reads as historical state. The doc says it is current state ("is this
 the root storage credential"). `isManagedStorageRoot` reads as state.
 
-### L7. `marshal`/`unmarshal` are Go-idioms
-
-JS/TS ecosystem uses `encode`/`decode`, `parse`/`stringify`, or
-`serialize`/`deserialize`. Generator-wide.
-
-### L8. `parseResponse` vs `marshalRequest` mix
-
-`utils.ts` has both verbs. Either `parse`/`format` or `marshal`/`unmarshal`.
-
-### L9. `PACKAGE_SEGMENT` is undescriptive
+### L7. `PACKAGE_SEGMENT` is undescriptive
 
 Used only for the User-Agent header. `USER_AGENT_PACKAGE_SEGMENT` is
 self-documenting.
 
-### L10. `HttpCallOptions`
+### L8. `HttpCallOptions`
 
 Generic name, internal-only. Same pattern as in sibling packages. Fine inside
 the file; would warrant a better name if it leaked out.
 
-### L11. `req` parameter naming in client methods
+### L9. `req` parameter naming in client methods
 
 Standard across the SDK. Go-idiomatic, but consistent.
 
-### L12. `Generate*Credential` method names are 30+ chars
+### L10. `Generate*Credential` method names are 30+ chars
 
 `generateTemporaryServiceCredential` is 35 chars. Combined with `await
 client.generateTemporaryServiceCredential(req)` the call site is 60+ chars
 before the args. Cannot shorten without breaking the resource hierarchy.
 
-### L13. Acronym casing review
+### L11. Acronym casing review
 
 - `Aws` (PascalCase first letter) — `AwsCredentials`, `AwsIamRole`,
   `awsIamRole`. Internally consistent.
@@ -523,7 +510,7 @@ Class re-exported with `export {Client}`; types and enums re-exported with
 
 | File | Lines | Exports counted | Audited |
 |------|-------|-----------------|---------|
-| `src/v1/model.ts` | 2293 | 7 enums, 32 interfaces, 33 zod consts (15 unmarshal + 18 marshal) | yes |
+| `src/v1/model.ts` | 2293 | 7 enums, 32 interfaces | yes |
 | `src/v1/client.ts` | 707 | 1 class, 18 public methods (16 RPC + 2 async generators) | yes |
 | `src/v1/utils.ts` | 151 | 1 interface, 5 functions | yes |
 | `src/v1/index.ts` | 60 | 1 class re-export, 6 enum re-exports, 39 type re-exports | yes |

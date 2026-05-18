@@ -131,7 +131,7 @@ means it is awkward or inconsistent; "low" means a minor blemish.
 
 ### 4.2 `InstallLibraries_Response` — `model.ts:156, 417`
 - Same pattern: proto-style nested name flattened by underscore. The eslint
-  comment acknowledges it. See also §20 (suffix redundancy).
+  comment acknowledges it. See also §19 (suffix redundancy).
 - Severity: high.
 
 ### 4.3 `UninstallLibraries_Response` — `model.ts:319, 536`
@@ -139,11 +139,6 @@ means it is awkward or inconsistent; "low" means a minor blemish.
 
 ### 4.4 `ListAllClusterLibraryStatuses_Response` — `model.ts:235, 467`
 - Same. Severity: high.
-
-### 4.5 Marshal/unmarshal schema constants — `model.ts:417, 467, 536`
-- `unmarshalInstallLibraries_ResponseSchema` and similar embed the
-  underscore. These follow the type names so they propagate the issue.
-- Severity: medium (internal helpers, but still exported).
 
 ---
 
@@ -189,10 +184,7 @@ means it is awkward or inconsistent; "low" means a minor blemish.
 ### 6.2 `UpdateDefaultDefaultBaseEnvironmentRequest` — `model.ts:326`
 - Same problem on the request type. Severity: high.
 
-### 6.3 `marshalUpdateDefaultDefaultBaseEnvironmentRequestSchema` — `model.ts:736`
-- Same. Severity: high.
-
-### 6.4 `ClusterStatus` — `model.ts:63`
+### 6.3 `ClusterStatus` — `model.ts:63`
 - The type holds only a `clusterId` and is used as the request body for
   `clusterStatus()`. Naming it `ClusterStatus` suggests it *is* the status,
   but it is a request that fetches status. Better: `ClusterStatusRequest`
@@ -200,26 +192,26 @@ means it is awkward or inconsistent; "low" means a minor blemish.
   `ClusterLibraryStatuses` (correct).
 - Severity: high (the type name lies about its role).
 
-### 6.5 `LibraryFullStatus` — `model.ts:220`
+### 6.4 `LibraryFullStatus` — `model.ts:220`
 - "Full" implies there is a "Partial" or "Short" counterpart, but there is
   none in this package. The type is "the status of a library on a cluster"
   per the JSDoc — `LibraryStatus` would suffice. `Full` is meaningless.
 - Severity: medium.
 
-### 6.6 `LibraryInstallStatus` value `RESTORED` — `model.ts:42`
+### 6.5 `LibraryInstallStatus` value `RESTORED` — `model.ts:42`
 - The docstring says "Library installation is restored and can be used."
   But `RESTORED` overlaps semantically with `INSTALLED`. Without further
   context (cache restore vs. fresh install), consumers cannot distinguish.
   Name is technically accurate but underspecified.
 - Severity: low.
 
-### 6.7 `LibraryInstallStatus` value `UNINSTALL_ON_RESTART` — `model.ts:35`
+### 6.6 `LibraryInstallStatus` value `UNINSTALL_ON_RESTART` — `model.ts:35`
 - This is the only value that is an action+condition (rather than a state
   noun). Surrounding values are `PENDING`, `INSTALLED`, `FAILED`. A noun
   form like `PENDING_UNINSTALL` would line up.
 - Severity: medium.
 
-### 6.8 `allClusterStatuses()` — `client.ts:91`
+### 6.7 `allClusterStatuses()` — `client.ts:91`
 - Method is the GET for `all-cluster-statuses`. The TS method name reads
   like an adjective ("all-cluster statuses") and is not verb-prefixed.
   Sibling method is `clusterStatus()` (also verb-less). Compare with the
@@ -227,29 +219,29 @@ means it is awkward or inconsistent; "low" means a minor blemish.
   `createDefaultBaseEnvironment`, etc. (all verb-prefixed). The two GET
   methods alone are exempt. Should be `listAllClusterStatuses` or
   `getAllClusterStatuses`, and `getClusterStatus` respectively.
-- Severity: medium. See also §16.
+- Severity: medium. See also §15.
 
-### 6.9 `Environment` — `model.ts:114`
+### 6.8 `Environment` — `model.ts:114`
 - Type name is generic but the comment makes clear it is the "environment
   spec" used in serverless side-panel / job-task / pipeline contexts. A
   more specific name like `EnvironmentSpec` or `WorkspaceEnvironment` would
   avoid collisions with the JS global `process.env` mental model.
 - Severity: low.
 
-### 6.10 `MaterializedEnvironment.lastUpdatedTimestamp` — `model.ts:264`
+### 6.9 `MaterializedEnvironment.lastUpdatedTimestamp` — `model.ts:264`
 - The JSDoc says "when the materialized env is updated" — sufficient but
   the type itself does not carry the materialized payload (e.g., a hash,
   ID, or contents). The name overpromises relative to the contents;
   `EnvironmentCacheEntry` would be more honest.
 - Severity: medium.
 
-### 6.11 `DefaultBaseEnvironmentCache.indefiniteMaterializedEnvironment` — `model.ts:101`
+### 6.10 `DefaultBaseEnvironmentCache.indefiniteMaterializedEnvironment` — `model.ts:101`
 - "Indefinite" is unexplained anywhere in the file. It pairs with
   `materializedEnvironment` but the semantic distinction is opaque. The
   name needs a doc or rename.
 - Severity: medium.
 
-### 6.12 `Environment.baseEnvironment` — `model.ts:131`
+### 6.11 `Environment.baseEnvironment` — `model.ts:131`
 - A field inside `Environment` is also named `baseEnvironment` (same root
   word), which makes the relationship between the type and the field
   recursive-looking even though the field is just a path/ID string.
@@ -260,18 +252,14 @@ means it is awkward or inconsistent; "low" means a minor blemish.
 
 ## 7. Overly verbose names
 
-### 7.1 `marshalUpdateDefaultDefaultBaseEnvironmentRequestSchema` — `model.ts:736`
-- 50 characters of identifier, of which much is redundant ("Default" twice).
-  See §6.1. Severity: medium.
-
-### 7.2 `unmarshalListAllClusterLibraryStatuses_ResponseSchema` — `model.ts:467`
-- 53 characters and includes both an underscore (§4) and "All" (which is
-  also encoded in the URL `/api/2.0/libraries/all-cluster-statuses`). The
-  type name `ListAllClusterLibraryStatuses` is itself verbose — `ListLibraryStatuses` or
-  `ListClusterStatuses` would suffice.
+### 7.1 `ListAllClusterLibraryStatuses_Response` — `model.ts:235`
+- Underscored response type whose name embeds "All" (which is also encoded
+  in the URL `/api/2.0/libraries/all-cluster-statuses`). The type name
+  `ListAllClusterLibraryStatuses` is itself verbose — `ListLibraryStatuses`
+  or `ListClusterStatuses` would suffice. See also §4.4.
 - Severity: medium.
 
-### 7.3 `UninstallLibraries_Response`, `InstallLibraries_Response` — `model.ts:156, 319`
+### 7.2 `UninstallLibraries_Response`, `InstallLibraries_Response` — `model.ts:156, 319`
 - Verbose, underscored names. See §4.
 - Severity: medium.
 
@@ -279,26 +267,18 @@ means it is awkward or inconsistent; "low" means a minor blemish.
 
 ## 8. Redundant suffixes
 
-### 8.1 Marshal/unmarshal schemas — `model.ts:331-746`
-- All schemas end with `Schema`, but they are typed `z.ZodType<...>` which
-  already conveys their schema nature. Inside the file the suffix may aid
-  reading, but on a wide API surface `unmarshalLibrarySchema` reads as
-  "Schema schema". Common enough in zod codebases that this is borderline
-  acceptable; flagged for completeness.
-- Severity: low.
-
-### 8.2 `LibraryFullStatus` — `model.ts:220`
-- "Full" is a vestigial qualifier with no counterpart. See §6.5.
+### 8.1 `LibraryFullStatus` — `model.ts:220`
+- "Full" is a vestigial qualifier with no counterpart. See §6.4.
 - Severity: medium.
 
-### 8.3 `ClusterLibraryStatuses.libraryStatuses` — `model.ts:60`
+### 8.2 `ClusterLibraryStatuses.libraryStatuses` — `model.ts:60`
 - Field name repeats the parent's middle word (Library). Could simply be
   `statuses`. Borderline acceptable for clarity.
 - Severity: low.
 
-### 8.4 `ListAllClusterLibraryStatuses_Response.statuses` — `model.ts:237`
+### 8.3 `ListAllClusterLibraryStatuses_Response.statuses` — `model.ts:237`
 - Field is just `statuses` while the type bakes in `LibraryStatuses`
-  plurality and `ClusterLibrary` qualifier. Inconsistent with §8.3 which
+  plurality and `ClusterLibrary` qualifier. Inconsistent with §8.2 which
   uses `libraryStatuses`.
 - Severity: low.
 
@@ -316,7 +296,7 @@ means it is awkward or inconsistent; "low" means a minor blemish.
        — `model.ts:232, 237`
 - Singular method name `allClusterStatuses` (`client.ts:91`) for what is
   semantically a list operation. Compare `listDefaultBaseEnvironments`
-  (`client.ts:276`). The action verb should be `list` for both. See §16.
+  (`client.ts:276`). The action verb should be `list` for both. See §15.
 - Severity: medium.
 
 ### 9.3 `DefaultBaseEnvironment.baseEnvironmentCache` — `model.ts:93`
@@ -366,12 +346,6 @@ means it is awkward or inconsistent; "low" means a minor blemish.
   consumers face a name-soup. No surface fix; flagged for awareness.
 - Severity: low.
 
-### 11.4 `marshalRequest` vs implicit `JSON.stringify` — `utils.ts:119`
-- Helper validates with zod then stringifies. Name suggests it could be
-  used for any "request", but it is generic enough to marshal any value.
-  Misleading-by-narrowing. `marshalToJson` would be clearer. (Utility scope.)
-- Severity: low.
-
 ---
 
 ## 12. Verb-tense inconsistency
@@ -385,13 +359,13 @@ means it is awkward or inconsistent; "low" means a minor blemish.
   use verb-prefixed forms.
 - Two stragglers (`allClusterStatuses`, `clusterStatus`) should be aligned:
   `listAllClusterStatuses` (or `getAllClusterStatuses`) and
-  `getClusterStatus`. See §6.8 and §16.
+  `getClusterStatus`. See §6.7 and §15.
 - Severity: high (consistency of the verb-prefix is a Java/TS SDK convention
   that consumers rely on).
 
 ### 12.2 `LibraryInstallStatus` action vs state values — `model.ts:13`
 - Values mostly nouns (`PENDING`, `INSTALLED`, `FAILED`) but one verb
-  imperative `UNINSTALL_ON_RESTART` and one passive `SKIPPED`. See §6.7.
+  imperative `UNINSTALL_ON_RESTART` and one passive `SKIPPED`. See §6.6.
 - Severity: medium.
 
 ---
@@ -409,14 +383,7 @@ means it is awkward or inconsistent; "low" means a minor blemish.
 ### 13.2 `DefaultBaseEnvironmentCache_Status` — `model.ts:46`
 - Same. Severity: high.
 
-### 13.3 `marshalRequest` / `parseResponse` / `executeHttpCall` — `utils.ts`
-- Function names follow Go/Java SDK convention (verbs). Fine for TS too.
-
-### 13.4 Schema variable casing — `model.ts:331+`
-- `marshalXxxSchema` / `unmarshalXxxSchema` constants follow Go SDK casing
-  conventions. Idiomatic enough in TS but the lengths get long (§7.2).
-
-### 13.5 `Library.lib` discriminator field — `model.ts:159`
+### 13.3 `Library.lib` discriminator field — `model.ts:159`
 - `$case` literal on the discriminator is a ts-proto / nanopb-style emission
   (e.g., the same pattern as ts-proto's discriminated union output). Not
   unidiomatic for TS, but `kind`, `type`, or `tag` would be more readable
@@ -455,39 +422,15 @@ means it is awkward or inconsistent; "low" means a minor blemish.
 
 ---
 
-## 15. Field contradicting type domain
+## 15. Inconsistent action verbs
 
-### 15.1 `Environment.client` — `model.ts:116`
-- "Client" inside an Environment spec is unexpected; the doc clarifies it
-  is a deprecated stand-in for `environment_version`. The name belongs to
-  a different semantic domain (clients connect to environments, they are
-  not part of them).
-- Severity: medium (deprecated, but exposed).
-
-### 15.2 `LibraryFullStatus.isLibraryForAllClusters` — `model.ts:228`
-- Inside `LibraryFullStatus` (per-cluster status), a field that describes
-  whether the library is configured cluster-wide. The name reads like a
-  global property but the type belongs to a single cluster's view. Better:
-  `installedOnAllClusters` or `isClusterWideLibrary`.
-- Severity: medium.
-
-### 15.3 `MaterializedEnvironment.lastUpdatedTimestamp` — `model.ts:264`
-- Type is "materialized environment metadata"; the only field is a
-  timestamp. The materialization payload is missing — see §6.10. The
-  timestamp belongs in a cache-entry type, not a materialization type.
-- Severity: medium.
-
----
-
-## 16. Inconsistent action verbs
-
-### 16.1 GET vs `list` vs `all` — `client.ts:91, 276`
+### 15.1 GET vs `list` vs `all` — `client.ts:91, 276`
 - `allClusterStatuses()` (verb `all`) is structurally identical to
   `listDefaultBaseEnvironments()` (verb `list`). Pick one. The Go SDK uses
   the same naming, but the TS port has the opportunity to normalize.
 - Severity: medium (see §12.1).
 
-### 16.2 `refreshDefaultBaseEnvironments` — `client.ts:333`
+### 15.2 `refreshDefaultBaseEnvironments` — `client.ts:333`
 - `refresh` is a TS-idiomatic verb meaning re-fetch / re-compute. The
   operation here regenerates a cache asynchronously. Borderline OK, but
   consumers may expect `refresh()` to return updated data; this returns
@@ -495,16 +438,40 @@ means it is awkward or inconsistent; "low" means a minor blemish.
   reflect the side-effect more honestly.
 - Severity: low.
 
-### 16.3 `updateDefaultDefaultBaseEnvironment` vs `setDefault` URL — `client.ts:433`
+### 15.3 `updateDefaultDefaultBaseEnvironment` vs `setDefault` URL — `client.ts:433`
 - The URL says `:setDefault` but the method says `updateDefaultDefault`.
   `setDefaultBaseEnvironment` or `setWorkspaceDefault` would mirror the
   URL semantics. See §6.1.
 - Severity: high.
 
-### 16.4 `installLibraries` / `uninstallLibraries` — `client.ts:250, 368`
+### 15.4 `installLibraries` / `uninstallLibraries` — `client.ts:250, 368`
 - Symmetric pair, good. Mirror request types `InstallLibraries` /
   `UninstallLibraries` (named after the operation, not the resource).
   Consistent.
+
+---
+
+## 16. Field contradicting type domain
+
+### 16.1 `Environment.client` — `model.ts:116`
+- "Client" inside an Environment spec is unexpected; the doc clarifies it
+  is a deprecated stand-in for `environment_version`. The name belongs to
+  a different semantic domain (clients connect to environments, they are
+  not part of them).
+- Severity: medium (deprecated, but exposed).
+
+### 16.2 `LibraryFullStatus.isLibraryForAllClusters` — `model.ts:228`
+- Inside `LibraryFullStatus` (per-cluster status), a field that describes
+  whether the library is configured cluster-wide. The name reads like a
+  global property but the type belongs to a single cluster's view. Better:
+  `installedOnAllClusters` or `isClusterWideLibrary`.
+- Severity: medium.
+
+### 16.3 `MaterializedEnvironment.lastUpdatedTimestamp` — `model.ts:264`
+- Type is "materialized environment metadata"; the only field is a
+  timestamp. The materialization payload is missing — see §6.9. The
+  timestamp belongs in a cache-entry type, not a materialization type.
+- Severity: medium.
 
 ---
 
@@ -513,7 +480,7 @@ means it is awkward or inconsistent; "low" means a minor blemish.
 ### 17.1 `LibraryInstallStatus.UNINSTALL_ON_RESTART` — `model.ts:35`
 - 20 characters; the only multi-word value. Acceptable since it conveys
   semantics, but combined with the prefix `LibraryInstallStatus.` the
-  full reference is 41 characters. See also §6.7.
+  full reference is 41 characters. See also §6.6.
 - Severity: low.
 
 ### 17.2 `BaseEnvironmentType.BASE_ENVIRONMENT_TYPE_UNSPECIFIED` — `model.ts:7`
@@ -583,7 +550,7 @@ means it is awkward or inconsistent; "low" means a minor blemish.
 - Severity: low.
 
 ### 19.2 `ClusterLibraryStatuses.libraryStatuses` — `model.ts:60`
-- Already noted in §8.3.
+- Already noted in §8.2.
 - Severity: low.
 
 ### 19.3 `ListAllClusterLibraryStatuses_Response.statuses` — `model.ts:237`
@@ -604,40 +571,38 @@ means it is awkward or inconsistent; "low" means a minor blemish.
 ### High-severity (consumer-facing surprises)
 
 - `updateDefaultDefaultBaseEnvironment` / `UpdateDefaultDefaultBaseEnvironmentRequest`
-  / `marshalUpdateDefaultDefaultBaseEnvironmentRequestSchema` (§6.1, §6.2,
-  §6.3): the "Default Default" doubling is the most jarring naming in the
-  package. Best resolved by renaming the public API to
+  (§6.1, §6.2): the "Default Default" doubling is the most jarring naming
+  in the package. Best resolved by renaming the public API to
   `setWorkspaceDefaultBaseEnvironment`.
 - All `_Response` and `_Status` underscore types (§4, §13.1): non-idiomatic
   in TS, repeatedly exported, every importer sees them.
 - `PythonPyPiLibrary` brand-casing inconsistency (§3.1): "PyPi" misspells
   the PyPI brand.
-- `ClusterStatus` request type misleading-as-response (§6.4).
+- `ClusterStatus` request type misleading-as-response (§6.3).
 - `baseEnvironmentCache: DefaultBaseEnvironmentCache[]` singular-on-array
   (§9.3).
 - `package` reserved-word collision on PyPI and CRAN libraries (§10.1).
 - Verb-tense gap: `allClusterStatuses()` and `clusterStatus()` break the
-  client's prevailing verb-prefix convention (§12.1, §16.1).
+  client's prevailing verb-prefix convention (§12.1, §15.1).
 
 ### Medium-severity
 
 - Enum values embedding the enum name (§2.1, §2.2).
-- `LibraryFullStatus` with no "non-full" counterpart (§6.5).
+- `LibraryFullStatus` with no "non-full" counterpart (§6.4).
 - `LibraryInstallStatus.UNINSTALL_ON_RESTART` mixes action and state
-  (§6.7, §12.2).
-- `MaterializedEnvironment` containing only a timestamp (§6.10).
+  (§6.6, §12.2).
+- `MaterializedEnvironment` containing only a timestamp (§6.9).
 - `DefaultBaseEnvironmentCache.indefiniteMaterializedEnvironment`
-  unexplained (§6.11).
+  unexplained (§6.10).
 - `isLibraryForAllClusters` field name awkwardly straddles per-cluster
-  and global domains (§15.2).
+  and global domains (§16.2).
 
 ### Low-severity / stylistic
 
 - `repo` vs `repository` short form (§1.5).
 - `whl`, `jar`, `egg` extension-as-field-name (§5.1).
 - `filepath` one-word concatenation (§5.4).
-- Schema constants' `Schema` suffix (§8.1).
-- `LibraryInstallStatus.RESTORED` underspecified vs `INSTALLED` (§6.6).
+- `LibraryInstallStatus.RESTORED` underspecified vs `INSTALLED` (§6.5).
 - "dependences" typo in `MavenLibrary.exclusions` doc (§9.1).
 
 ---

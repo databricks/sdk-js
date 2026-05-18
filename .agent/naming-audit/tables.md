@@ -180,9 +180,9 @@
 | --------------------- | ----- |
 | High                  | 16    |
 | Medium                | 26    |
-| Low / SDK-wide note   | 14    |
+| Low / SDK-wide note   | 11    |
 | Pass / acceptable     | 10    |
-| **Total findings**    | **66** |
+| **Total findings**    | **63** |
 
 (Findings often span multiple audit categories; counts above are unique
 findings.)
@@ -737,16 +737,6 @@ but resolves the verb-as-noun reading).
 type names also clash with the *response* concept — e.g. `CreateTable` is
 sometimes interpreted as "an action: create the table" and sometimes as
 "the type representing a table to be created."
-
-The same problem extends to the marshal/unmarshal schema names:
-- `marshalCreateTableSchema` (model.ts:1496) — schema for the
-  request-input shape.
-- `unmarshalTableInfoSchema` (model.ts:1325) — schema for the response.
-
-There is **no** `unmarshalCreateTableSchema` because the response of
-`createTable` is `TableInfo`. The asymmetry between marshal (input) and
-unmarshal (output) is the right structure but the naming makes it hard to
-spot.
 
 **Suggested:** rename to `CreateTableRequest`, `GetTableRequest`, etc., or
 keep the current convention and document that "verb-noun" types are always
@@ -1369,31 +1359,13 @@ Same `{verb}{Resource}` pattern. **Pass.**
 
 ---
 
-### 55. `Client.listTableSummariesIter` / `listTablesIter` `Iter` suffix — category 14 (Go/Java-style names)
-
-**Symbols:** `Client.listTableSummariesIter` (client.ts:357),
-`Client.listTablesIter` (client.ts:444).
-
-**Issue:** The `Iter` suffix is a Go-ism (Go's `…All()` / `…Iter()`
-convention for paginated lists). In TS, the conventional name is
-`listTablesAsyncIterator()` or simply `listTables()` returning an
-`AsyncIterable`. The `Iter` suffix is also borderline cryptic.
-
-**Suggested:** `listAllTables` or simply have the non-iter version return
-an `AsyncIterable<TableInfo>`. The current dual API
-(`listTables` + `listTablesIter`) is a Go-port artefact.
-
-**Flag for SDK-wide cleanup.**
-
----
-
-### 56. `Client` private fields `host`, `httpClient`, `logger`, `userAgent` — *pass*
+### 55. `Client` private fields `host`, `httpClient`, `logger`, `userAgent` — *pass*
 
 Standard. **Pass.**
 
 ---
 
-### 57. `PACKAGE_SEGMENT` SCREAMING_SNAKE — category 4 (Underscores in TS identifiers)
+### 56. `PACKAGE_SEGMENT` SCREAMING_SNAKE — category 4 (Underscores in TS identifiers)
 
 **Symbol:** `PACKAGE_SEGMENT` (client.ts:55).
 
@@ -1407,7 +1379,7 @@ SDK-wide cleanup.**
 
 ---
 
-### 58. `HttpCallOptions` interface — category 1 (Vague/generic) and category 20 (Type-suffix tautology)
+### 57. `HttpCallOptions` interface — category 1 (Vague/generic) and category 20 (Type-suffix tautology)
 
 **Symbol:** `HttpCallOptions` (utils.ts:15).
 
@@ -1421,7 +1393,7 @@ SDK-wide cleanup** — generated boilerplate.
 
 ---
 
-### 59. `executeCall` vs `executeHttpCall` verb collision — category 17 (Inconsistent action verbs)
+### 58. `executeCall` vs `executeHttpCall` verb collision — category 17 (Inconsistent action verbs)
 
 **Symbols:** `executeCall` (utils.ts:26), `executeHttpCall` (utils.ts:65).
 
@@ -1433,39 +1405,7 @@ layers. The names imply a hierarchical relationship that does not exist.
 
 ---
 
-### 60. `parseResponse` / `marshalRequest` verb inconsistency — category 17 (Inconsistent action verbs) and category 14 (Go/Java-style names)
-
-**Symbols:** `parseResponse` (utils.ts:113), `marshalRequest` (utils.ts:119).
-
-**Issue:** Two symmetric operations with verbs from two vocabularies —
-"parse" is TS/JS, "marshal" is Go. Internally consistent verb-pair would
-be `parseResponse` / `serializeRequest` or `unmarshalResponse` /
-`marshalRequest`.
-
-**Suggested:** `serializeRequest` and `parseResponse` (TS-native). **Flag
-for SDK-wide consistency.**
-
----
-
-### 61. `unmarshal*` / `marshal*` Go vocabulary — category 14 (Go/Java-style names)
-
-**Symbols:** All 50+ Zod schemas (e.g. `unmarshalColumnInfoSchema`,
-`marshalCreateTableSchema`).
-
-**Issue:** "Marshal" / "unmarshal" is Go-ism vocabulary. TS/JS use
-"serialize" / "deserialize" or "parse" / "stringify". The whole SDK uses
-the Go convention.
-
-**Suggested:** `serialize*Schema` / `parse*Schema` (TS-native). **Flag for
-SDK-wide cleanup, not this package alone.**
-
-The `*Schema` suffix is also redundant — the value's type is
-`z.ZodType<…>` and there are no non-schema cousins. `parseColumnInfo` /
-`serializeColumnInfo` would suffice. **Pass with note.**
-
----
-
-### 62. `buildHttpRequest`, `readAll`, `flattenQueryParams` — *pass*
+### 59. `buildHttpRequest`, `readAll`, `flattenQueryParams` — *pass*
 
 Verb-prefixed. Naming is fine. `flattenQueryParams` is used by the
 multi-query-param list methods (client.ts:357, 444).
@@ -1478,7 +1418,7 @@ file.)
 
 ---
 
-### 63. `index.ts` re-exports underscored type names — category 4 (Underscores in TS identifiers)
+### 60. `index.ts` re-exports underscored type names — category 4 (Underscores in TS identifiers)
 
 **Symbols:** index.ts re-exports include `CreateTable_PropertiesEntry`,
 `DeleteTable_Response`, `DeleteTableConstraint_Response`,
@@ -1497,7 +1437,7 @@ Style Guide § 5.3 and the project's lint rule on identifiers.
 
 ---
 
-### 64. Singular/plural — package name `tables` vs type names singular — category 9 (Singular/plural mismatch) — *pass*
+### 61. Singular/plural — package name `tables` vs type names singular — category 9 (Singular/plural mismatch) — *pass*
 
 Package: `@databricks/sdk-tables` (plural — collection). Types: `TableInfo`,
 `TableSummary`, `TableConstraint`, etc. (singular — one item). SDK-wide
@@ -1505,7 +1445,7 @@ pattern. **Pass.**
 
 ---
 
-### 65. `Dependency.value` $case literals (`'table'`, `'function'`, `'connection'`, `'credential'`, `'volume'`, `'secret'`) all lowercase, no prefix — category 17 (Inconsistent action verbs) — *pass with note*
+### 62. `Dependency.value` $case literals (`'table'`, `'function'`, `'connection'`, `'credential'`, `'volume'`, `'secret'`) all lowercase, no prefix — category 17 (Inconsistent action verbs) — *pass with note*
 
 **Symbols:** `Dependency.value.$case` literals (model.ts:455–467).
 
@@ -1526,7 +1466,7 @@ their $case literals.
 
 ---
 
-### 66. `parseResponse` ignores `Content-Type` — category 6 (Misleading names) — *pass with note*
+### 63. `parseResponse` ignores `Content-Type` — category 6 (Misleading names) — *pass with note*
 
 **Symbol:** `parseResponse` (utils.ts:113) does `JSON.parse(text)`
 unconditionally. The name implies it can handle any response shape; in
@@ -1629,16 +1569,16 @@ documentation pass needed.**
 
 | Severity | Count | Findings |
 | -------- | ----- | -------- |
-| **High** (style guide violations, dead/empty types, cross-package collisions, misleading semantics) | 16 | #1, #2, #3, #10, #11, #20, #23, #24, #26, #28, #35, #36, #43, #49, #57, #63 |
+| **High** (style guide violations, dead/empty types, cross-package collisions, misleading semantics) | 16 | #1, #2, #3, #10, #11, #20, #23, #24, #26, #28, #35, #36, #43, #49, #56, #60 |
 | **Medium** (naming clarity, verbose, redundant suffixes, JSDoc drift) | 26 | #4, #5, #6, #7, #9, #13, #14, #15, #16, #18, #19, #21, #22, #25, #27, #30, #31, #33, #34, #37, #39, #40, #41, #45, #48, #51 |
-| **Low / SDK-wide note** (generator boilerplate, not local fix) | 14 | #8, #12, #29, #42, #44, #46, #50, #55, #58, #59, #60, #61, #65, #66 |
-| **Pass / acceptable** | 10 | #17, #32, #38, #47, #52, #53, #54, #56, #62, #64 |
+| **Low / SDK-wide note** (generator boilerplate, not local fix) | 11 | #8, #12, #29, #42, #44, #46, #50, #57, #58, #62, #63 |
+| **Pass / acceptable** | 10 | #17, #32, #38, #47, #52, #53, #54, #55, #59, #61 |
 
 ---
 
 ## Top fixes (highest local return)
 
-1. **#2 / #63** — drop the underscored `*_PropertiesEntry` / `*_Response`
+1. **#2 / #60** — drop the underscored `*_PropertiesEntry` / `*_Response`
    type names from the public surface. Removes lint suppressions and
    eliminates the proto-style naming.
 2. **#3** — fix `DeltaRuntimePropertiesKvpairs` (field) /

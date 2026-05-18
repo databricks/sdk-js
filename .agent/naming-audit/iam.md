@@ -14,8 +14,8 @@ and resolve-by-external-id flows that bridge the customer IdP to Databricks.
 | High     |    18 |
 | Medium   |    22 |
 | Low      |    16 |
-| Observation | 9 |
-| **Total** | **65** |
+| Observation | 5 |
+| **Total** | **61** |
 
 Three dominant themes emerged. **First, the package ships every method,
 request, and a handful of enums in two parallel forms — `*` and `*Proxy` —
@@ -151,9 +151,7 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 - **Category:** 4, 14 (underscore in TS identifier; proto-style)
 - **Issue:** `User_Name` is a nested message type carrying `givenName` and
   `familyName`. The name violates TS conventions (requires
-  `// eslint-disable-next-line` to compile). The corresponding
-  `unmarshalUser_NameSchema` and `user_NameFieldMaskSchema` propagate the
-  same underscored identifier downward through the file.
+  `// eslint-disable-next-line` to compile).
 - **Suggestion:** Rename to `UserName` or, better, `PersonName` (since
   `userName` is overloaded with `username` two lines up — see H7). Even
   inlining `givenName?: string; familyName?: string` onto `User` would be
@@ -803,48 +801,20 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
   generator falls back to when the upstream API definition lacks
   documentation. The fix is in the upstream spec, not the SDK.
 
-### O3. `marshal*ProxyRequestSchema` vs `marshal*RequestSchema` — schema-level Proxy variants
-- **File:** `model.ts:1342, 1350, 1360, 1368, 1378, 1386`
-- **Issue:** Each Resolve request has both marshal schemas; the proxy
-  variant is identical to the non-proxy minus `accountId`. Same H1 pattern
-  at the schema layer.
-
-### O4. `FieldMaskSchema` is defined per resource type
-- **File:** `model.ts:1473, 1484, 1502, 1521, 1538`
-- **Issue:** Five `FieldMaskSchema`s defined for Group, ServicePrincipal,
-  User, WorkspaceAssignmentDetail, WorkspaceIdentityDetail. Pattern is
-  consistent across the SDK — flagging for completeness only.
-
-### O5. Marshal/unmarshal schema pairs exist for all types but Direct/Transitive
-- **File:** `model.ts:1006-1471`
-- **Issue:** Unmarshal schemas exist for all response shapes including
-  `TransitiveParentGroup`, but marshal schemas only exist for shapes that
-  appear in request bodies (no marshal for `TransitiveParentGroup`,
-  `WorkspaceAccessDetail`). Consistent with the request/response split, but
-  worth confirming this is intentional and not generator skew.
-
-### O6. `User_NameFieldMaskSchema` (lowercase initial) — naming inconsistency
-- **File:** `model.ts:1516`
-- **Issue:** Variable name is `user_NameFieldMaskSchema` (snake_case initial
-  segment, then camelCase). The eslint disable comment says
-  `naming-convention -- Proto-style nested message name.`. The
-  inconsistency is `User_Name` (type, PascalCase + underscore) vs
-  `user_NameFieldMaskSchema` (variable, camelCase first + underscore).
-
-### O7. Method name `getAccountAccessIdentityRule` is 35 characters
+### O3. Method name `getAccountAccessIdentityRule` is 35 characters
 - **File:** `client.ts:241`
 - **Issue:** All four rule-endpoint method names hover around 30–37 chars.
   Not actionable on its own — flagging because long names compound the H1
   problem.
 
-### O8. `Local` only applies to `WorkspaceAccessDetail` (not `WorkspaceAssignmentDetail`)
+### O4. `Local` only applies to `WorkspaceAccessDetail` (not `WorkspaceAssignmentDetail`)
 - **File:** `model.ts:411, 677`, `client.ts:1715, 1783`
 - **Issue:** Only WorkspaceAccessDetail has a `Local` variant; the parallel
   `WorkspaceAssignmentDetail` uses `Proxy` instead, and
   `WorkspaceIdentityDetail` has neither. Inconsistent presence of the
   Local/Proxy variants across sibling Detail types.
 
-### O9. The `accountId` fallback comment in `client.ts:151-152` only applies to non-proxy methods
+### O5. The `accountId` fallback comment in `client.ts:151-152` only applies to non-proxy methods
 - **File:** `client.ts:151-152`
 - **Issue:** "Fallback for endpoints whose path contains {account_id}. If
   the request already carries an accountId, that value wins." This is true
@@ -857,7 +827,7 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 
 ## Cross-cutting recommendations (priority order)
 
-1. **Collapse `*Proxy` and `*Local` variants (H1, M2, L3, O3, O8, O9).** This
+1. **Collapse `*Proxy` and `*Local` variants (H1, M2, L3, O4, O5).** This
    is the largest single improvement and ~halves the public type surface.
 2. **Drop `<NAME>_UNSPECIFIED` enum members (H10, H4).** 9 dead enum values
    removed; users no longer write `=== State.STATE_UNSPECIFIED` accidentally.

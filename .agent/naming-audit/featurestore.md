@@ -213,8 +213,7 @@ fine under finding 4. **Pass at the TS level**, flag at the wire level.
 ### 6. `DeleteOnlineTableRequest.onlineTableName` diverges from sibling package — category 12 (Duplicate concepts) and category 19 (Underspecified IDs)
 
 **Symbol:** `DeleteOnlineTableRequest.onlineTableName` (model.ts:59), wire
-field `online_table_name` (per `marshalPublishSpecSchema:207` style; here the
-field appears in the URL path, not JSON).
+field `online_table_name` (the field appears in the URL path, not JSON).
 
 **Issue:** The neighbouring `onlinetables/v1` package defines an *identical*
 operation with a *different* field name:
@@ -413,11 +412,10 @@ suffix.
 
 **Suggested:** rename to `onlineStoreName` to match `sourceTableName`,
 `onlineTableName`, and the wire field `online_store` (or
-`online_store_name` — see finding 24). This is a *symbol-level*
-inconsistency *within the same file* and is the single highest-confidence
-fix in this audit. The Go SDK uses `OnlineStore` (capitalised, but a
-string), so this is a port-time correctness opportunity, not a coordination
-issue with upstream Go fields.
+`online_store_name`). This is a *symbol-level* inconsistency *within the
+same file* and is the single highest-confidence fix in this audit. The Go
+SDK uses `OnlineStore` (capitalised, but a string), so this is a port-time
+correctness opportunity, not a coordination issue with upstream Go fields.
 
 **P1 fix candidate.**
 
@@ -457,7 +455,7 @@ is a coupled fix; do not change in isolation.
 
 ### 18. `PublishTableRequest`/`Response.onlineTableName` underspecified — category 19 (Underspecified IDs)
 
-**Symbol:** `PublishTableRequest.publishSpec.onlineTableName`,
+**Symbols:** `PublishTableRequest.publishSpec.onlineTableName`,
 `PublishTableResponse.onlineTableName` (model.ts:103, 117).
 
 **Issue:** The JSDoc on both reads "The full three-part (catalog, schema,
@@ -545,46 +543,7 @@ the *request types* are also identically named but field-incompatible.
 
 ---
 
-### 23. `Client.listOnlineStoresIter` async-iterator naming — *pass*
-
-`Iter` suffix is the project's canonical name for paginator generators
-(`cleanrooms`, `cleanroomassets`, etc., per audit history). Consistent.
-**Pass.**
-
----
-
-### 24. Wire field `online_store` vs. field name `onlineStore` referring to a string — category 5 (Cryptic abbreviations) and category 15 (Generic field names losing meaning)
-
-**Symbol:** `marshalPublishSpecSchema` (model.ts:206) maps
-`onlineStore → online_store`. The wire field is `online_store` (a string
-name), not `online_store_name`. This is a wire-level decision — the Go SDK
-also uses `online_store` for this string field — but it amplifies finding 15:
-even at the wire level, the field name suggests a *struct*, not a string.
-
-**Pass at the SDK level, flag upstream.**
-
----
-
-### 25. `unmarshal*Schema` / `marshal*Schema` Go vocabulary — category 14 (Go/Java-style names)
-
-**Symbols:** `unmarshalListOnlineStoresResponseSchema`,
-`unmarshalOnlineStoreSchema`, `unmarshalPublishTableResponseSchema`,
-`marshalOnlineStoreSchema`, `marshalPublishSpecSchema`,
-`marshalPublishTableRequestSchema` (model.ts:129, 142, 165, 176, 199, 211).
-
-**Issue:** "Marshal" / "Unmarshal" is Go-ism vocabulary. TS ecosystem uses
-"serialize" / "deserialize" or, when working with Zod, "parse" / "stringify"
-/ "schema". The full SDK uses this convention; **flag for SDK-wide cleanup,
-not this package alone.**
-
-The `*Schema` suffix is also somewhat redundant — `unmarshalOnlineStore`
-without `Schema` would suffice since the value's type is
-`z.ZodType<OnlineStore>` and there are no non-schema cousins. But this is a
-naming-pattern decision applied SDK-wide. **Pass with note.**
-
----
-
-### 26. `onlineStoreFieldMaskSchema` private but exported via `onlineStoreFieldMask()` — *pass*
+### 23. `onlineStoreFieldMaskSchema` private but exported via `onlineStoreFieldMask()` — *pass*
 
 **Symbols:** `onlineStoreFieldMaskSchema` (model.ts:221, internal) and
 `onlineStoreFieldMask()` (model.ts:231, public). Clean separation: the
@@ -593,14 +552,14 @@ Google AIP-134 update-mask vocabulary. **Pass.**
 
 ---
 
-### 27. `Client` class name — category 1 (Vague/generic) — *pass*
+### 24. `Client` class name — category 1 (Vague/generic) — *pass*
 
 Package convention. Every TS package exports a single `Client` class scoped
 to its import path (e.g. `@databricks/sdk-featurestore/v1`). **Pass.**
 
 ---
 
-### 28. `PACKAGE_SEGMENT` constant — category 4 (Underscores in TS identifiers)
+### 25. `PACKAGE_SEGMENT` constant — category 4 (Underscores in TS identifiers)
 
 **Symbol:** `PACKAGE_SEGMENT` (client.ts:41).
 
@@ -616,7 +575,7 @@ do not fix in isolation.**
 
 ---
 
-### 29. `userAgent` / `httpClient` / `host` / `logger` — *pass*
+### 26. `userAgent` / `httpClient` / `host` / `logger` — *pass*
 
 Standard private field names. Acronym handling matches the project rule
 (`HttpClient`, `Url` would be flagged, but `HttpClient` matches the imported
@@ -624,58 +583,14 @@ type `HttpClient`). **Pass.**
 
 ---
 
-### 30. `HttpCallOptions` (utils.ts:15) — category 1 (Vague/generic) and category 20 (Type-suffix tautology)
-
-**Symbol:** `HttpCallOptions` interface.
-
-**Issue:** "HttpCall" is not a concept that exists elsewhere in the SDK; the
-neighbouring `CallOptions` exists in `@databricks/sdk-options/call`. Naming
-both *in the same file* (`HttpCallOptions` here, `CallOptions` imported on
-line 12) confuses readers — which "Call" do they mean? Suggest
-`HttpRequestContext` or `ExecuteHttpArgs`. **Flag for SDK-wide cleanup**
-(this utils.ts is generated boilerplate copied across every package, so any
-fix must apply everywhere).
-
----
-
-### 31. `executeCall` vs `executeHttpCall` — category 17 (Inconsistent action verbs)
-
-**Symbols:** `executeCall` (utils.ts:26) and `executeHttpCall` (utils.ts:65).
-
-**Issue:** Two functions named `execute…Call`. `executeCall` is the public
-API wrapper that calls `execute()` from `@databricks/sdk-core/api`.
-`executeHttpCall` performs an HTTP request and decodes the body. They do
-*different* things at *different* layers — but the names imply a
-hierarchical relationship that does not exist. The HTTP one is roughly
-`sendAndDecode` or `doHttpRequest`. **Flag for SDK-wide naming cleanup;**
-this file is generated boilerplate copied across every package.
-
----
-
-### 32. `readAll` — *pass*
+### 27. `readAll` — *pass*
 
 Helper does what its name says (reads a `ReadableStream<Uint8Array>` to
 completion). Conventional in the Node `stream/promises` ecosystem. **Pass.**
 
 ---
 
-### 33. `parseResponse` / `marshalRequest` verb inconsistency — category 17 (Inconsistent action verbs)
-
-**Symbols:** `parseResponse` (utils.ts:113), `marshalRequest` (utils.ts:119).
-
-**Issue:** Two symmetric operations: response→object (parse) and
-object→body-string (marshal). The verbs come from two different vocabularies
-("parse" is generic TS/JS, "marshal" is Go). Internally consistent verb-pair
-would be `parseResponse` / `serializeRequest` or `unmarshalResponse` /
-`marshalRequest`. The current pair is awkward.
-
-**Suggested:** `serializeRequest` and `parseResponse` (TS-native vocabulary)
-or commit fully to the Go terms: `unmarshalResponse` and `marshalRequest`.
-**Flag for SDK-wide consistency.**
-
----
-
-### 34. `buildHttpRequest` — category 17 (Inconsistent action verbs) — *pass*
+### 28. `buildHttpRequest` — category 17 (Inconsistent action verbs) — *pass*
 
 Verb-prefix matches the function's role (constructs an `HttpRequest`
 object). Naming is fine. Note however the *file* mixes `build…`,
@@ -684,21 +599,7 @@ seven functions. Not unique to this package. **Pass.**
 
 ---
 
-### 35. `flattenQueryParams` (utils.ts:123) — *dead code*
-
-**Symbol:** `flattenQueryParams` (utils.ts:123).
-
-**Issue:** Imported nowhere within this package's client (the `list` method
-builds its query string inline at client.ts:166–173, and `update` does
-similar at client.ts:243–247). The helper is dead code in this package, and
-`marshalRequest` is also declared and unused in some methods that emit raw
-bodies. Naming itself is fine. **Suggest** deleting from this package, or
-extracting all utils into a shared helper module
-(`@databricks/sdk-core/http`). **Flag generator behaviour.**
-
----
-
-### 36. `ListOnlineStoresRequest`/`Response` — category 7 (Overly verbose) — *pass with note*
+### 29. `ListOnlineStoresRequest`/`Response` — category 7 (Overly verbose) — *pass with note*
 
 **Symbols:** `ListOnlineStoresRequest` (model.ts:67),
 `ListOnlineStoresResponse` (model.ts:74).
@@ -710,7 +611,7 @@ package qualifies. **Pass on package consistency.**
 
 ---
 
-### 37. `Client.listOnlineStores` doc says "List Online Feature Stores" — category 6 (Misleading names)
+### 30. `Client.listOnlineStores` doc says "List Online Feature Stores" — category 6 (Misleading names)
 
 **Symbol:** `Client.listOnlineStores` (client.ts:160).
 
@@ -738,14 +639,14 @@ and update JSDocs to drop "Feature" (already redundant since the package is
 
 ---
 
-### 38. Singular `OnlineStore` ⇔ plural `onlineStores` consistency — category 9 (Singular/plural mismatch) — *pass*
+### 31. Singular `OnlineStore` ⇔ plural `onlineStores` consistency — category 9 (Singular/plural mismatch) — *pass*
 
 `ListOnlineStoresResponse.onlineStores: OnlineStore[]` (model.ts:76) is the
 canonical pattern. **Pass.**
 
 ---
 
-### 39. `creator` vs `pipelineId` casing — category 3 (Acronym/compound-word casing) — *pass*
+### 32. `creator` vs `pipelineId` casing — category 3 (Acronym/compound-word casing) — *pass*
 
 `pipelineId` correctly camelCases the two-letter "ID"; `creator` is a
 plain word. **Pass.**
@@ -834,16 +735,16 @@ approaches (string enum vs. discriminated union). Plus there is no
   `DeleteOnlineTableRequest` shape collision with `onlinetables`).
 - **High (style guide violations):** 4 findings (#1 `OnlineStore_State`
   underscore; #2 `PublishSpec_PublishMode` doubled noun; #4 enum SCREAMING
-  casing; #28 `PACKAGE_SEGMENT` casing).
+  casing; #25 `PACKAGE_SEGMENT` casing).
 - **Medium (naming clarity, JSDoc drift):** 10 findings (#3, #7, #8, #11,
-  #12, #14, #16, #21, #22, #37).
-- **Low / project-wide convention notes (generator-level):** 10 findings
-  (#9, #13, #17, #18, #24, #25, #30, #31, #33, #35).
-- **Pass / acceptable as-is:** 13 findings (#5, #10, #19, #20, #23, #26,
-  #27, #29, #32, #34, #36, #38, #39 — partial pass with notes).
+  #12, #14, #16, #21, #22, #30).
+- **Low / project-wide convention notes (generator-level):** 4 findings
+  (#9, #13, #17, #29).
+- **Pass / acceptable as-is:** 11 findings (#5, #10, #18, #19, #20, #23,
+  #24, #26, #27, #28, #31, #32 — partial pass with notes).
 
-**Total flagged findings: 39** distinct items across 20 audit categories
+**Total flagged findings: 32** distinct items across the audit categories
 (several findings touch multiple categories). Many issues are
 generator-emitted boilerplate inherited from the Go SDK; the cleanest local
-fixes are findings 15, 21 (JSDoc), 22, 37 (JSDoc), and the cross-package
+fixes are findings 15, 21 (JSDoc), 22, 30 (JSDoc), and the cross-package
 alignments noted above.

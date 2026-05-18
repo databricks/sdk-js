@@ -364,11 +364,9 @@ artefact, but it inflates the cognitive load of reading the model.
 
 ### 9. Verb-tense inconsistency
 
-#### 9.1 Client methods are well-aligned: `createFunction`, `deleteFunction`, `getFunction`, `listFunctions`, `updateFunction`, `listFunctionsIter`. No tense issues.
+#### 9.1 Client methods are well-aligned: `createFunction`, `deleteFunction`, `getFunction`, `listFunctions`, `updateFunction`. No tense issues.
 
-#### 9.2 `unmarshal…` / `marshal…` schema-export prefixes are consistent.
-
-#### 9.3 `executeCall`, `executeHttpCall` (utils.ts:26, 65), `buildHttpRequest`, `parseResponse`, `marshalRequest`, `flattenQueryParams` (utils.ts:96, 113, 119, 123) — all imperative present, consistent.
+#### 9.2 `executeCall`, `executeHttpCall` (utils.ts:26, 65), `buildHttpRequest`, `flattenQueryParams` (utils.ts:96, 123) — all imperative present, consistent.
 
 No verb-tense inconsistencies found across the package.
 
@@ -390,12 +388,7 @@ alias. Package-wide convention; flagged for consistency.
 
 #### 10.3 `fullNameArg` (model.ts:155, 294, 343) — Go generator naming. See §5.2.
 
-#### 10.4 `unmarshal…` / `marshal…` (Go's `encoding/json` verbs)
-Direct Go ports. The TS ecosystem typically uses `parse` / `serialize`
-or `decode` / `encode`. Internal to the generated layer; identified
-as Go-style for completeness.
-
-#### 10.5 `Dependency.value.$case` discriminated union encoding (model.ts:168-184)
+#### 10.4 `Dependency.value.$case` discriminated union encoding (model.ts:168-184)
 The `$case` discriminator with `value`-keyed payload is a ts-proto
 serialiser idiom. TS-native discriminated unions usually keep the
 discriminator at the top level (`{type: 'function', function: {…}}`)
@@ -469,9 +462,9 @@ also §2.1.
 ### 13. Inconsistent action verbs
 
 Method verbs in `Client`: `createFunction`, `deleteFunction`,
-`getFunction`, `listFunctions`, `updateFunction`, `listFunctionsIter`.
-Verbs are consistent: standard CRUD plus a `…Iter` paginator. No
-`fetch…` / `retrieve…` / `read…` outliers. No issues found.
+`getFunction`, `listFunctions`, `updateFunction`. Verbs are
+consistent: standard CRUD. No `fetch…` / `retrieve…` / `read…`
+outliers. No issues found.
 
 ---
 
@@ -574,18 +567,11 @@ schema produces a JSON field `full_name_arg`. Either the server
 tolerates the extra field or this is a bug. The `Arg` suffix lets
 the bug hide.
 
-### D. Marshal/unmarshal exports have inconsistent TS types
-(model.ts:627, 635, etc.) — every `marshal…Schema` is typed
-`z.ZodType` (no generic) versus every `unmarshal…Schema` typed
-`z.ZodType<…>` (with generic). The marshal side is implicitly
-untyped. Not a naming issue per se, but inconsistent with the
-unmarshal naming/typing.
-
-### E. `Client` constructor throws bare `Error` for missing `host` (client.ts:55)
+### D. `Client` constructor throws bare `Error` for missing `host` (client.ts:55)
 "Host is required." — bare `Error`. Not a naming issue, flagged for
 consistency with the catalogs audit.
 
-### F. `index.ts` re-exports proto-style names verbatim
+### E. `index.ts` re-exports proto-style names verbatim
 (index.ts:9-12, 21) — every underscore-bearing identifier surfaces
 in the package's public API. A consumer of `@databricks/sdk-functions/v1`
 sees `FunctionInfo_ParameterStyle`, `FunctionInfo_RoutineBody`,
@@ -593,7 +579,7 @@ sees `FunctionInfo_ParameterStyle`, `FunctionInfo_RoutineBody`,
 `DeleteFunction_Response`, `ListFunctions_Response` as first-class
 exports.
 
-### G. Package-name collision with JavaScript reserved word
+### F. Package-name collision with JavaScript reserved word
 The package is named `@databricks/sdk-functions` and the npm
 workspace path is `packages/functions/`. `function` is a JS reserved
 word; `functions` is not, but the proximity is jarring. Importers
@@ -604,12 +590,12 @@ shadows nothing, but the `Dependency.value.$case === 'function'`
 pattern (§7.1) combined with the package name creates a vocabulary
 where "function" is overloaded.
 
-### H. `FunctionInfo.routineDependencies` is described as "function dependencies."
+### G. `FunctionInfo.routineDependencies` is described as "function dependencies."
 (model.ts:122, 241, 386) Comment text starts with lowercase and uses
 "function" instead of "routine"; field name uses "routine". See
 §6.1 and §6.3.
 
-### I. `parameterStyle: FunctionInfo_ParameterStyle` with one variant `S`
+### H. `parameterStyle: FunctionInfo_ParameterStyle` with one variant `S`
 The most extreme case of a single-purpose API surface: a long enum
 type holding a one-letter variant, only ever set to `S`, marshaled
 as the JSON string `"S"`. Three layers of indirection for a constant.
@@ -644,7 +630,7 @@ See §2.2, §5.1.
 | `DeleteFunction.force`                                   | model.ts:157          | 1.1, 6.2 |
 | `DeleteFunction_Response`                                | model.ts:161          | 4.5 |
 | `Dependency.value.function` arm                          | model.ts:170          | 7.1 |
-| `Dependency.value.$case`                                 | model.ts:168          | 10.5 |
+| `Dependency.value.$case`                                 | model.ts:168          | 10.4 |
 | `FunctionDependency`                                     | model.ts:193          | 7.2 |
 | `FunctionInfo`                                           | model.ts:198          | 7.3, 8.1 |
 | `FunctionInfo.routineBody/Definition/Dependencies`       | model.ts:212/214/242  | 6.3 |
@@ -669,8 +655,7 @@ See §2.2, §5.1.
 | `Client` (bare name)                                     | client.ts:44          | 10.2 |
 | `${req.fullNameArg ?? ''}` URL substitution              | client.ts:114, 152, 260 | B |
 | `flattenQueryParams` (unused export)                     | utils.ts:123          | A |
-| `marshal…` / `unmarshal…` verbs                          | model.ts (many)       | 10.4 |
-| `index.ts` re-exports                                    | index.ts:5-35         | F |
+| `index.ts` re-exports                                    | index.ts:5-35         | E |
 
 ---
 

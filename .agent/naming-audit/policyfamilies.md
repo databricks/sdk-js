@@ -70,11 +70,7 @@ The package defines no enums.
   `fullUrl`, `resp`, `call`, `callSignal`, `headers`, `httpReq`, `respBody`,
   `pageReq`, `item`, `info`.
 - `utils.ts`: `HttpCallOptions` interface; functions `executeCall`,
-  `readAll`, `executeHttpCall`, `buildHttpRequest`, `parseResponse`,
-  `marshalRequest`, `flattenQueryParams`.
-- Marshal / unmarshal schemas: `unmarshalPolicyFamilySchema`,
-  `unmarshalListPolicyFamilies_ResponseSchema`. No `marshal*` schemas
-  exist (read-only API).
+  `readAll`, `executeHttpCall`, `buildHttpRequest`, `flattenQueryParams`.
 
 ---
 
@@ -88,9 +84,7 @@ The package defines no enums.
 | V-02  | `PolicyFamily.name`                                  | Low      | Generic but standard for entity types; meaning is preserved by the parent type. |
 | V-03  | `PolicyFamily.description`                           | Low      | Generic but standard across the SDK; acceptable. |
 | V-04  | `GetPolicyFamily.version`                            | Medium   | `version` is generic. The JSDoc says "version number for the family"; field could be `familyVersion` or `policyFamilyVersion` to make it self-describing when destructured (e.g. `const {version} = req` loses context). |
-| V-05  | `parseResponse` (utils)                              | Low      | Generic, but it's local to the package. Acceptable. |
-| V-06  | `flattenQueryParams` (utils)                         | Low      | Reasonable. |
-| V-07  | `marshalRequest` (utils)                             | Low      | Generic helper for "marshal arbitrary request body". OK in context. Note this package never calls it (read-only API). |
+| V-05  | `flattenQueryParams` (utils)                         | Low      | Reasonable. |
 
 ### 2.2 Redundant enum prefixes — High
 
@@ -104,15 +98,13 @@ The package defines no enums.
 | ----- | --------------------- | -------- | ----- |
 | A-01  | `httpClient`, `HttpClient`, `HttpCallOptions`, `HttpRequest`, `HttpResponse`, `httpReq` | Low | `Http` (lowercased) follows Google TS style for acronyms ≥3 chars. Consistent with the rest of the SDK. |
 | A-02  | `URLSearchParams` (local in `client.ts`)              | Low      | DOM API; uses uppercase `URL` because that is the platform-defined identifier. Acceptable. |
-| A-03  | `unmarshalListPolicyFamilies_ResponseSchema`          | Low      | "Marshal/unmarshal" is the chosen vocabulary; cf. § 2.13 (G-02). Not an acronym-case issue. |
 
 ### 2.4 Underscores in TS identifiers — High
 
 | ID    | Symbol                                               | Severity | Issue |
 | ----- | ---------------------------------------------------- | -------- | ----- |
 | U-01  | `ListPolicyFamilies_Response`                        | High     | Underscores in TS type names violate Google TypeScript style (`UpperCamelCase` only — see https://google.github.io/styleguide/tsguide.html#naming-style). The codebase even disables ESLint on the line: `// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.`. Should be `ListPolicyFamiliesResponse`. |
-| U-02  | `unmarshalListPolicyFamilies_ResponseSchema`         | High     | Same as U-01; the underscore cascades into the schema constant and forces the same ESLint disable comment in `model.ts` (line 40-41). |
-| U-03  | Imports/exports of `ListPolicyFamilies_Response`     | High     | `client.ts` and `index.ts` both import/re-export the underscored name, propagating the violation across the public surface (see `index.ts` line 10). |
+| U-02  | Imports/exports of `ListPolicyFamilies_Response`     | High     | `client.ts` and `index.ts` both import/re-export the underscored name, propagating the violation across the public surface (see `index.ts` line 10). |
 
 No enum-member identifiers exist in this package, so the
 `SCREAMING_SNAKE_CASE` exception (which is permitted by Google style for
@@ -125,7 +117,7 @@ enum members) does not apply here.
 | C-01  | `req`, `resp` (locals in `client.ts`)             | Low      | Inside method scope; OK for short-lived locals but `request` / `response` would be clearer at no cost. Used in every CRUD method. |
 | C-02  | `httpReq` (local in `client.ts`)                  | Low      | Short for "HTTP request". OK in local scope. |
 | C-03  | `respBody` (local in `client.ts`)                 | Low      | Short for "response body". OK in local scope. |
-| C-04  | `pageReq` (local in `client.ts`, `listPolicyFamiliesIter`) | Low | Short for "page request". OK. |
+| C-04  | `pageReq` (local in `client.ts`)                   | Low      | Short for "page request". OK. |
 | C-05  | `opts` (`utils.ts` parameter, `executeHttpCall` and `executeCall`) | Low | Inside fn scope; minor. |
 | C-06  | `pkgJson` (import in `client.ts`)                  | Low      | Short for `packageJson`. Consistent with peer packages' codegen output. |
 | C-07  | `acc` (local in `utils.ts` reduce callback)        | Low      | Standard reduce-accumulator name. OK. |
@@ -136,22 +128,16 @@ enum members) does not apply here.
 | ----- | ---------------------------------------------------- | -------- | ----- |
 | M-01  | `getPolicyFamily()` JSDoc: "an policy family"        | Low      | Typo in the JSDoc ("an" should be "a"). Not a naming issue but a generator artifact worth fixing upstream. |
 | M-02  | `listPolicyFamilies()` JSDoc: "list of policy definition types" | Medium | The method returns *policy families*, but the JSDoc paraphrases them as "policy definition types". Mismatched terminology between the method name (`PolicyFamily`) and its docstring will confuse readers. Method/type/route all say "family"; doc should too. |
-| M-03  | `parseResponse` (utils)                              | Low      | Parses **JSON** specifically — `parseJsonResponse` would be more accurate. |
-| M-04  | `marshalRequest` (utils)                             | Low      | Marshals to **JSON string**. `marshalJsonRequest` would be more accurate. Not used in this package. |
-| M-05  | `GetPolicyFamily` JSDoc: "Returns the details of a policy family at a specific version" | Low | The JSDoc describes the *operation*, not the request body. The type is a request shape, not a response. Convention across the SDK, OK but slightly misleading on first read. |
-| M-06  | `ListPolicyFamilies` JSDoc: "Returns the list of policy families…" | Low | Same as M-05 — the JSDoc describes the operation rather than the request shape. |
-| M-07  | `Client` (class)                                     | Medium   | Bare `Client` (with no domain qualifier) is ambiguous when imported into application code that uses multiple SDK packages — e.g. `import {Client as PolicyFamiliesClient} from '@databricks/sdk-policyfamilies/v2'` requires an alias to disambiguate from `Client` exported from `clusterpolicies`, `clusters`, etc. `PolicyFamiliesClient` would self-disambiguate. (Repo-wide pattern; flagged for consistency review at the codegen layer.) |
+| M-03  | `GetPolicyFamily` JSDoc: "Returns the details of a policy family at a specific version" | Low | The JSDoc describes the *operation*, not the request body. The type is a request shape, not a response. Convention across the SDK, OK but slightly misleading on first read. |
+| M-04  | `ListPolicyFamilies` JSDoc: "Returns the list of policy families…" | Low | Same as M-03 — the JSDoc describes the operation rather than the request shape. |
+| M-05  | `Client` (class)                                     | Medium   | Bare `Client` (with no domain qualifier) is ambiguous when imported into application code that uses multiple SDK packages — e.g. `import {Client as PolicyFamiliesClient} from '@databricks/sdk-policyfamilies/v2'` requires an alias to disambiguate from `Client` exported from `clusterpolicies`, `clusters`, etc. `PolicyFamiliesClient` would self-disambiguate. (Repo-wide pattern; flagged for consistency review at the codegen layer.) |
 
 ### 2.7 Overly verbose / Redundant suffixes — Medium
 
 | ID    | Symbol                                               | Severity | Issue |
 | ----- | ---------------------------------------------------- | -------- | ----- |
 | O-01  | `policyFamilyId` (every occurrence)                  | Low      | 14 chars but precise. Two `policyFamily*` fields would collapse to one once the type name (`PolicyFamily`) is in scope, but it remains unambiguous across the SDK and matches the upstream API field name. Accept. |
-| O-02  | `unmarshalListPolicyFamilies_ResponseSchema`         | High     | 43 characters. Combines (a) underscore violation U-01, (b) proto-style nested-message tail `_Response`, (c) the `unmarshal*Schema` triple-statement pattern (cf. O-04 in `clusterpolicies`). Removing `_Response` saves one char and one ESLint disable; adopting `deserializeListPolicyFamiliesSchema` (or `*Codec`) would be even shorter and more idiomatic JS/TS. |
-| O-03  | `unmarshalPolicyFamilySchema`                        | Medium   | 28 chars. Pattern `unmarshal<Type>Schema` triple-states intent ("schema for unmarshalling X"). Repo-wide convention, but noted. |
-| O-04  | `ListPolicyFamilies_Response`                        | Medium   | The `_Response` suffix is a proto-import artifact; for a one-method list endpoint the suffix is redundant with the type's outer name (`ListPolicyFamilies`). Combined with U-01, the renaming to `ListPolicyFamiliesResponse` saves the disable comment. |
-| O-05  | `listPolicyFamiliesIter` (method)                    | Medium   | Three observations: (a) the `Iter` suffix is Go-style (`*Iter` convention from `databricks/sdk-go`). TypeScript convention is to leverage `Symbol.asyncIterator` on a custom iterable or name the method `*Iterator()` (matching DOM's `entries() / keys()`). (b) Without `Iter` the method name would collide with `listPolicyFamilies`. (c) `listAll` or `listPolicyFamiliesAll` would communicate "auto-page through everything" more clearly than `Iter`. Tracked under § 2.13 G-05. |
-| O-06  | `PACKAGE_SEGMENT` (`client.ts`)                      | Low      | OK in context. |
+| O-02  | `PACKAGE_SEGMENT` (`client.ts`)                      | Low      | OK in context. |
 
 ### 2.8 Singular / plural mismatches — Low
 
@@ -181,28 +167,22 @@ _None._
 | D-01  | `PolicyFamily.policyFamilyId` (here) and `Policy.policyFamilyId` (in `clusterpolicies`) | Low | The field name is consistent across packages — good. No duplication concern. |
 | D-02  | `PolicyFamily.definition` vs `Policy.definition` / `Policy.policyFamilyDefinitionOverrides` (in `clusterpolicies`) | Medium | Three related "definition" concepts spread across two packages: `PolicyFamily.definition` (the canonical CPDL doc), `Policy.definition` (custom override), and `Policy.policyFamilyDefinitionOverrides` (delta). The current package has only one of the three, but the field name `definition` does not communicate which of the three roles it plays. Adding a JSDoc cross-link to the `clusterpolicies` `*Overrides` field would help; a rename to `policyDefinition` would align with the sibling field names. |
 | D-03  | `PolicyFamily` vs `Policy` (cross-package)           | Low      | Distinct concepts: a `PolicyFamily` is a template, a `Policy` is an instance. Cross-package linking (JSDoc `{@link}`) would help readers understand the relationship. Out of scope for naming. |
-| D-04  | `parseResponse`, `executeCall`, `executeHttpCall`, `buildHttpRequest`, `flattenQueryParams`, `readAll` (`utils.ts`) | Medium | All six helpers are byte-identical duplicates of the helpers in every other API package's `utils.ts` (`clusterpolicies`, `clusters`, `accounts`, etc.). The codegen emits the same file per package. Should be hoisted into `@databricks/sdk-core/api` or similar to eliminate the duplication. Per-package naming impact: none, but the duplication is a maintenance hazard. |
-| D-05  | `HttpCallOptions` (utils)                            | Medium   | Same interface re-declared per package — see D-04. |
 
 ### 2.12 Verb-tense inconsistency — Low
 
 | ID    | Symbol                                               | Severity | Issue |
 | ----- | ---------------------------------------------------- | -------- | ----- |
 | T-01  | `getPolicyFamily`, `listPolicyFamilies`              | Low      | Both imperative present-tense — consistent. |
-| T-02  | `listPolicyFamiliesIter`                             | Low      | Imperative + Go-style noun suffix. Verb tense is consistent. |
-| T-03  | `executeCall`, `executeHttpCall`, `buildHttpRequest`, `parseResponse`, `marshalRequest`, `flattenQueryParams`, `readAll` | Low | All imperative present-tense — consistent. |
+| T-02  | `executeCall`, `executeHttpCall`, `buildHttpRequest`, `flattenQueryParams`, `readAll` | Low | All imperative present-tense — consistent. |
 
 ### 2.13 Go / Java-style names — Medium
 
 | ID    | Symbol                                               | Severity | Issue |
 | ----- | ---------------------------------------------------- | -------- | ----- |
 | G-01  | `ListPolicyFamilies_Response` (proto nested-message style) | High | Direct port of Go's `pb.ListPolicyFamiliesResponse` / protobuf naming. TypeScript ecosystems do not use `_` separators between message and nested-message names; the codebase even disables ESLint for each occurrence. Should adopt the TS-idiomatic `ListPolicyFamiliesResponse`. |
-| G-02  | `unmarshalXxxSchema` / `marshalXxxSchema`            | Medium   | "Marshal/unmarshal" is the Go (and gRPC) verb pair. JS/TS code overwhelmingly uses **serialize / deserialize** (or **parse / stringify**). New TS readers will look up "marshal" before they recognise it. Repo-wide convention; flagged once per package. |
-| G-03  | `HttpClient`, `HttpRequest`, `HttpResponse`          | Low      | Google TS style uses `Http` (lowercased acronym) — consistent. Not a Go-style violation. |
-| G-04  | `listPolicyFamiliesIter` (`*Iter` suffix)            | Medium   | The `Iter` suffix is the Go SDK's idiomatic naming for `iter.Seq[T]`-returning helpers. TypeScript convention is to (a) implement `Symbol.asyncIterator` directly on a custom iterable, or (b) name the method `entries()` / `values()` matching the DOM/Map APIs. The current naming is faithful to the Go port but reads as foreign in TS. |
-| G-05  | `executeCall`, `executeHttpCall`                     | Medium   | The dual-naming (`Call` vs `HttpCall`) communicates the wrapping relationship in a Go-style "the inner one is HTTP-specific, the outer one is a generic retry/timeout decorator" idiom. Acceptable; common pattern in the Go SDK at `databricks/sdk-go/transport/`. |
-| G-06  | `marshalRequest`, `parseResponse`                    | Medium   | Same as G-02 — the JS-idiomatic verbs would be `serialize` / `parse` (or `stringify` / `parse`). |
-| G-07  | `buildHttpRequest`                                   | Low      | "Build" is fine in TS; the naming is broadly used. |
+| G-02  | `HttpClient`, `HttpRequest`, `HttpResponse`          | Low      | Google TS style uses `Http` (lowercased acronym) — consistent. Not a Go-style violation. |
+| G-03  | `executeCall`, `executeHttpCall`                     | Medium   | The dual-naming (`Call` vs `HttpCall`) communicates the wrapping relationship in a Go-style "the inner one is HTTP-specific, the outer one is a generic retry/timeout decorator" idiom. Acceptable; common pattern in the Go SDK at `databricks/sdk-go/transport/`. |
+| G-04  | `buildHttpRequest`                                   | Low      | "Build" is fine in TS; the naming is broadly used. |
 
 ### 2.14 Generic field names losing meaning — Medium
 
@@ -225,8 +205,7 @@ _None._
 | ID    | Symbol                                               | Severity | Issue |
 | ----- | ---------------------------------------------------- | -------- | ----- |
 | AV-01 | `getPolicyFamily()` (singular get) vs `listPolicyFamilies()` (plural list) | Low | Correct convention: singular `get` for one-resource, plural `list` for many. Consistent. |
-| AV-02 | `listPolicyFamiliesIter()` — the verb is `list`, the suffix `Iter` repurposes the same verb | Low | The two list-style methods share the verb `list` and differ only in suffix. Acceptable but slightly confusing (one returns a page, the other yields a stream). A TS-idiomatic alternative such as `iterPolicyFamilies()` or `policyFamilies()` (returning an `AsyncIterable`) would separate concerns. |
-| AV-03 | The package exposes only **read** verbs — `get`, `list`. There are no `create` / `update` / `delete` methods (the API is read-only). The verb set is consistent with the API's read-only nature. | Low | OK. |
+| AV-02 | The package exposes only **read** verbs — `get`, `list`. There are no `create` / `update` / `delete` methods (the API is read-only). The verb set is consistent with the API's read-only nature. | Low | OK. |
 
 ### 2.17 Long enum values — Medium
 
@@ -260,13 +239,11 @@ _None._
 | X-05  | `Client.userAgent` (private)                         | Low      | Standard naming; HTTP `User-Agent` is the wire-format identifier. OK. |
 | X-06  | `executeCall` parameter `call: Call`                 | Low      | The type `Call` is generic from `@databricks/sdk-core/api` and overloads the verb; readers may briefly wonder which "call" is meant (function callback vs. RPC call). Imported from the core package; flagged once. |
 | X-07  | `callSignal` (local in `client.ts`)                  | Low      | Distinct from `req.signal` / `options?.signal` — the qualifier `call` disambiguates. Good. |
-| X-08  | `parseResponse` is generic (`<T>`) but `marshalRequest` is not (`schema: z.ZodType` without inference) | Low | Type asymmetry: `parseResponse` returns `T`, `marshalRequest` accepts `unknown` and returns `string`. A symmetric design would type both generically. Not a name issue; flagged for code-quality follow-up. |
-| X-09  | `flattenQueryParams` (utils, exported)                | Low      | Exported but `client.ts` builds query strings manually with `URLSearchParams.append`. Either remove or use it. Not strictly a naming issue. |
-| X-10  | `listPolicyFamiliesIter` body uses a `for (;;)` infinite loop | Low | Naming-neutral; the `for (;;)` idiom (instead of `while (true)`) is consistent with the rest of the codebase. |
-| X-11  | `pageReq` (local in `client.ts`, `listPolicyFamiliesIter`) | Low | Mutated per iteration. Naming reasonable; an alternative `nextRequest` reads slightly clearer. |
-| X-12  | `index.ts` has `export {} from './model';` (empty re-export) | Low | The empty `export {}` is dead code emitted by codegen. Naming-neutral. Should be removed by codegen, not a per-package fix. |
-| X-13  | The package directory `policyfamilies/` is squashed lowercase | Low | Cross-codebase pattern; cf. P-05. The package name choice influences method placement (a future `databricks.policyFamilies.get(...)` aggregator should keep the same casing). |
-| X-14  | The class is exported simply as `Client` from `client.ts` and re-exported from `index.ts` | Medium | See M-07. Consumers must import `{Client as PolicyFamiliesClient}` to disambiguate. Codegen could emit `export class PolicyFamiliesClient` to relieve the alias burden. |
+| X-08  | `flattenQueryParams` (utils, exported)                | Low      | Exported but `client.ts` builds query strings manually with `URLSearchParams.append`. Either remove or use it. Not strictly a naming issue. |
+| X-09  | `pageReq` (local in `client.ts`)                      | Low      | Mutated per iteration. Naming reasonable; an alternative `nextRequest` reads slightly clearer. |
+| X-10  | `index.ts` has `export {} from './model';` (empty re-export) | Low | The empty `export {}` is dead code emitted by codegen. Naming-neutral. Should be removed by codegen, not a per-package fix. |
+| X-11  | The package directory `policyfamilies/` is squashed lowercase | Low | Cross-codebase pattern; cf. P-05. The package name choice influences method placement (a future `databricks.policyFamilies.get(...)` aggregator should keep the same casing). |
+| X-12  | The class is exported simply as `Client` from `client.ts` and re-exported from `index.ts` | Medium | See M-05. Consumers must import `{Client as PolicyFamiliesClient}` to disambiguate. Codegen could emit `export class PolicyFamiliesClient` to relieve the alias burden. |
 
 ---
 
@@ -276,29 +253,28 @@ _None._
 
 | Severity | Count |
 | -------- | ----- |
-| High     | 6     |
-| Medium   | 20    |
-| Low      | 39    |
-| **Total**| **65**|
+| High     | 4     |
+| Medium   | 12    |
+| Low      | 28    |
+| **Total**| **44**|
 
 (Counted unique IDs across all categories. The total double-counts cross-referenced symbols
-intentionally — e.g. `ListPolicyFamilies_Response` appears in U-01, U-02, U-03, O-04, and G-01.)
+intentionally — e.g. `ListPolicyFamilies_Response` appears in U-01, U-02, and G-01.)
 
 ### 3.2 Top themes
 
-1. **Proto-style `_Response` suffix.** `ListPolicyFamilies_Response` and its
-   schema `unmarshalListPolicyFamilies_ResponseSchema` violate Google TS style
-   (no underscores in `UpperCamelCase` identifiers) and each requires an
-   `eslint-disable @typescript-eslint/naming-convention` annotation. Renaming
-   to `ListPolicyFamiliesResponse` would remove the disables and align with
-   TS conventions. This is the package's only **High**-severity cluster.
+1. **Proto-style `_Response` suffix.** `ListPolicyFamilies_Response`
+   violates Google TS style (no underscores in `UpperCamelCase` identifiers)
+   and requires an `eslint-disable @typescript-eslint/naming-convention`
+   annotation. Renaming to `ListPolicyFamiliesResponse` would remove the
+   disables and align with TS conventions. This is the package's only
+   **High**-severity cluster.
 
 2. **Read-only API ⇒ minimal naming surface.** With only two endpoints
    (`getPolicyFamily`, `listPolicyFamilies`) and one entity (`PolicyFamily`),
    the package introduces almost no domain-specific naming. The vast
-   majority of issues are repo-wide patterns (Go-style verbs, the
-   marshal/unmarshal idiom, the bare `Client` class name, the underscored
-   `_Response` suffix) rather than per-package mistakes.
+   majority of issues are repo-wide patterns (the bare `Client` class name,
+   the underscored `_Response` suffix) rather than per-package mistakes.
 
 3. **`definition` and `version` are over-generic on a generic entity.**
    `PolicyFamily.definition` and `GetPolicyFamily.version` are the two
@@ -306,31 +282,15 @@ intentionally — e.g. `ListPolicyFamilies_Response` appears in U-01, U-02, U-03
    the field name itself. Renaming to `policyDefinition` /
    `familyVersion` (or `policyFamilyVersion`) would self-describe.
 
-4. **`Iter` suffix is Go-style.** `listPolicyFamiliesIter` mirrors the Go SDK
-   `iter.Seq[T]` naming. TS-idiomatic alternatives would use
-   `Symbol.asyncIterator` or `entries()`-style naming.
-
-5. **Cross-package duplication.** Every helper in `utils.ts`
-   (`executeCall`, `executeHttpCall`, `buildHttpRequest`, `parseResponse`,
-   `marshalRequest`, `flattenQueryParams`, `readAll`) is byte-identical to
-   the same helper across all other API packages. Hoist to
-   `@databricks/sdk-core/api`. Naming-neutral but architecturally
-   significant.
-
 ### 3.3 Suggested quick wins
 (non-breaking renames are not possible — this section is advisory for the
 codegen owners)
 
 - Drop `_Response` suffix → `ListPolicyFamiliesResponse`. Removes one
   ESLint-disable comment and one Google-style violation.
-- Rename `unmarshalListPolicyFamilies_ResponseSchema` →
-  `unmarshalListPolicyFamiliesResponseSchema`. Cascading from the above.
 - Rename `PolicyFamily.definition` → `policyDefinition` (matches the
   sibling field `policyFamilyDefinitionOverrides` in the
   `clusterpolicies` package).
-- Rename `listPolicyFamiliesIter()` → `iterPolicyFamilies()` or have the
-  client class implement `Symbol.asyncIterator` directly on a paginated
-  iterable wrapper.
 - Fix the JSDoc on `getPolicyFamily()` ("an policy family" → "a policy
   family") and on `listPolicyFamilies()` ("policy definition types" →
   "policy families").
@@ -339,16 +299,10 @@ codegen owners)
 
 ### 3.4 Cross-package consistency notes
 
-- The `marshal*` / `unmarshal*` schema-naming convention is consistent
-  with peer packages (`clusters`, `clusterpolicies`, etc.) and is
-  therefore a repo-wide concern, not a per-package fix.
 - The `_Response` proto-style suffix is consistent with peers; addressing
   at the codegen level would fix all packages in one sweep.
 - The bare `Client` class name is consistent with peers; a codegen-level
   rename to `<Resource>Client` would help all packages.
-- The `*Iter` suffix is consistent with `clusters.listClustersIter`,
-  `clusterpolicies.listPoliciesIter`, etc. — a repo-wide TS-idiomatic
-  rework (e.g. `Symbol.asyncIterator`) would benefit all packages.
 - `PolicyFamily.policyFamilyId` matches `Policy.policyFamilyId` in the
   `clusterpolicies` package — cross-package field naming is consistent.
 - `PolicyFamily.definition` does **not** match the more-qualified

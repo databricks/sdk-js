@@ -3,14 +3,14 @@
 **Path:** `packages/systemschemas/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Unity Catalog *system schemas* (curated, server-managed schemas such as `access`, `billing`, `lineage`, `query`) — enable/disable a system schema in a metastore and list the system schemas under a metastore.
-**Total weird names flagged:** 27
+**Total weird names flagged:** 21
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 9 |
-| Medium | 9 |
-| Low | 5 |
+| Medium | 6 |
+| Low | 2 |
 | Observation | 4 |
 
 ## High severity
@@ -83,43 +83,25 @@
 - **Suggested name:** Same as #9 — rename one or both and unify optionality where possible.
 - **Rationale:** Symmetry across request/response pairs improves readability; identical names with diverging contracts do not.
 
-### 12. `marshalEnableSystemSchemaSchema` constant — `src/v1/model.ts:95`
-- **Why weird:** Double `Schema` suffix: it's a zod **Schema** that marshals the `EnableSystemSchema` request. Reads as `marshal-EnableSystemSchema-Schema`. Same problem with `unmarshalSystemSchemaInfoSchema` (model.ts:85), `unmarshalListSystemSchemas_ResponseSchema` (model.ts:72), etc. — every zod schema constant carries the word `Schema` *and* sits in a file already named for `SystemSchema`, leading to three nested meanings of "schema": the domain entity, the request type, and the zod validator.
-- **Category:** 17 (verb/word reuse), 20 (type-suffix tautology — the zod object is already a schema, no need to spell it).
-- **Suggested name:** Drop the trailing `Schema` and adopt a clearer suffix: `marshalEnableSystemSchemaCodec`, or move them to a `codecs.ts` namespace that supplies the `Schema` semantics by location.
-- **Rationale:** The "schema" overload is unique to this package — most other generated packages have a single `Schema` meaning (zod). Here all three collide.
-
-### 13. `marshalEnableSystemSchemaSchema: z.ZodType` lacks a type parameter — `src/v1/model.ts:95`
-- **Why weird:** Declared as `z.ZodType` (no generic argument), unlike the sibling `unmarshalSystemSchemaInfoSchema: z.ZodType<SystemSchemaInfo>` (model.ts:85). The marshalled output is therefore typed as `unknown` and the `parse` call on it loses static guarantees.
-- **Category:** 17 (inconsistency with sibling exports), 6 (misleading — looks just like the unmarshal helpers but is weaker).
-- **Suggested name:** Either rename to clarify the asymmetry, or fix the signature to `z.ZodType<EnableSystemSchema>` (or to the wire-shape type). Not strictly a naming finding, but the name implies parity that isn't there.
-- **Rationale:** Mechanical fallout from the marshal/unmarshal verb split (#21).
-
-### 14. `listSystemSchemas` vs `listSystemSchemasIter` — `src/v1/client.ts:139,172`
-- **Why weird:** `Iter` is a Go-SDK loanword (`...Iterator`). TS convention is to name an iterator after what it yields or to use a verb like `iterate`. The current pair names a page-fetching method and a streaming method with a three-letter abbreviation tacked on, making the difference at the call site (`client.listSystemSchemas` vs `client.listSystemSchemasIter`) inscrutable.
-- **Category:** 5 (cryptic abbreviation), 14 (Go-style naming).
-- **Suggested name:** `iterSystemSchemas` (verb-first), `listAllSystemSchemas`, or split into `listSystemSchemasPage` (current `list...`) and `listSystemSchemas` (current `list...Iter`).
-- **Rationale:** Async generators are common enough in TS that the language has its own conventions (`for await (const x of obj.foos())`); naming the generator with the visible "stream" verb communicates better than `Iter`.
-
-### 15. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:37`
+### 12. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:37`
 - **Why weird:** `Segment` is a generic CS term. Comment explains it's the User-Agent identity segment; without the comment the constant name doesn't communicate intent.
 - **Category:** 1 (vague), 15 (generic field name).
 - **Suggested name:** `USER_AGENT_PACKAGE` or `PKG_USER_AGENT_SEGMENT`.
 - **Rationale:** Minor; flagged for cross-SDK consistency since the same constant appears in every generated client.
 
-### 16. `Client` — `src/v1/client.ts:42`
+### 13. `Client` — `src/v1/client.ts:42`
 - **Why weird:** Class is just `Client` (no domain qualifier). Once a consumer imports `import {Client} from '@databricks/sdk-systemschemas/v1'`, the bare name carries no clue about which API surface it talks to. The other generated packages have the same problem, so they all clash on import.
 - **Category:** 1 (vague), 15 (generic).
 - **Suggested name:** `SystemSchemasClient`.
 - **Rationale:** Forces consumers to alias on import (`import {Client as SystemSchemasClient}`) if they ever combine clients. Every generated package has this issue; flagged for consistency.
 
-### 17. `ListSystemSchemas.maxResults` doc semantics — `src/v1/model.ts:31-36`
+### 14. `ListSystemSchemas.maxResults` doc semantics — `src/v1/model.ts:31-36`
 - **Why weird:** Field is named `maxResults` but the doc describes three semantically distinct modes (0 = server default, >0 = bounded, <0 = error) and one quirky default (not set = "all", "not recommended"). The name "maxResults" implies an upper bound, not a tri-state control. Same pattern in every other List request, but here the doc highlights how overloaded the name is.
 - **Category:** 6 (misleading — name suggests a single integer cap), 1 (vague).
 - **Suggested name:** `pageSize` (matching most modern paginated APIs) and let the value 0 mean "server default". Drop the negative-error branch entirely.
 - **Rationale:** Worth raising upstream; the JS SDK's name should describe what consumers do, not the wire's quirks.
 
-### 18. `nextPageToken` is `string | undefined` but server may also return empty-string — `src/v1/model.ts:50`, `client.ts:182`
+### 15. `nextPageToken` is `string | undefined` but server may also return empty-string — `src/v1/model.ts:50`, `client.ts:182`
 - **Why weird:** `listSystemSchemasIter` (client.ts:182) checks `resp.nextPageToken === undefined || resp.nextPageToken === ''` to know it's done — i.e., the wire uses an empty string as a sentinel. The TS type `nextPageToken: string | undefined` doesn't capture this contract; readers must inspect the iterator code to learn that `''` is a terminator.
 - **Category:** 6 (misleading — type allows `''` but doc says "Absent if there are no more pages"), 16 (field-vs-doc mismatch).
 - **Suggested name:** Keep the name; tighten the contract by replacing `''` with `undefined` in the zod transform (model.ts:78-83) so callers see a consistent sentinel.
@@ -127,31 +109,13 @@
 
 ## Low severity
 
-### 19. `unmarshalDisableSystemSchema_ResponseSchema` — `src/v1/model.ts:64`
-- **Why weird:** Schema constant carries the underscore from the type plus an `eslint-disable`.
-- **Category:** 4 (underscore identifier).
-- **Suggested name:** Falls out once `DisableSystemSchema_Response` is renamed (#3): `unmarshalDisableSystemSchemaResponseSchema` — though `Schema` triple-tautology (#12) still applies.
-- **Rationale:** Mechanical cascade.
-
-### 20. `unmarshalEnableSystemSchema_ResponseSchema` — `src/v1/model.ts:68`
-- **Why weird:** Same as #19.
-- **Category:** 4.
-- **Suggested name:** Cascade from #4.
-- **Rationale:** Same.
-
-### 21. `parseResponse` / `marshalRequest` verb asymmetry — `src/v1/utils.ts:113,119`
-- **Why weird:** `parseResponse` (effectively unmarshal) is the inverse of `marshalRequest`. Two different verbs (`parse` vs `marshal`) for opposite operations.
-- **Category:** 17 (inconsistent action verbs).
-- **Suggested name:** `unmarshalResponse` / `marshalRequest`, or `parseResponse` / `serializeRequest`.
-- **Rationale:** Pair-wise consistency aids reading. Same finding shows up in every generated `utils.ts`.
-
-### 22. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
+### 16. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
 - **Why weird:** Two functions whose names differ by a single `Http` infix, handling very different layers (retry/rate-limit wrapper vs raw HTTP send + logging).
 - **Category:** 1 (vague), 17 (inconsistent).
 - **Suggested name:** `runWithCallOptions` / `sendHttp` (or `wrapCall` / `dispatchHttp`).
 - **Rationale:** Same pattern across the SDK; collected for the cross-package sweep.
 
-### 23. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 17. `HttpCallOptions` — `src/v1/utils.ts:15`
 - **Why weird:** The word `Options` is reused across the SDK for many unrelated things (`ClientOptions`, `CallOptions`, etc.); within this file `Options` is also imported from `@databricks/sdk-core/api` (line 3).
 - **Category:** 1 (vague suffix), 17 (collision with imported `Options`).
 - **Suggested name:** `HttpCallContext` — it's an internal bag of args, not user-tunable options.
@@ -159,18 +123,18 @@
 
 ## Observations
 
-### 24. `flattenQueryParams` — `src/v1/utils.ts:123`
+### 18. `flattenQueryParams` — `src/v1/utils.ts:123`
 Function is exported but has no caller within this package — `client.ts` does its own simple query-param assembly (`client.ts:144-150`). Dead surface area imported from the generator's shared template.
 - **Category:** Observation / 11 (unused public helper).
 - Recommend either removing the export or documenting why it ships per-package.
 
-### 25. `readAll` — `src/v1/utils.ts:40`
+### 19. `readAll` — `src/v1/utils.ts:40`
 Reads an entire response body stream into a buffer. Name is fine but generic; collides cognitively with `Array.prototype` or stream utilities. Internal helper, low impact.
 
-### 26. Action-verb consistency in `Client`
-Methods are `disable`, `enable`, `list`, `listSystemSchemasIter` — no mixed `delete`/`remove` or `fetch`/`get`. The pair `enable` / `disable` is also a clean antonym, which is good. Flagged per rule 17 because the audit asked for inconsistency *and* notable consistency.
+### 20. Action-verb consistency in `Client`
+Methods are `disable`, `enable`, `list` — no mixed `delete`/`remove` or `fetch`/`get`. The pair `enable` / `disable` is also a clean antonym, which is good. Flagged per rule 17 because the audit asked for inconsistency *and* notable consistency.
 
-### 27. Domain noun overlap: `Schema`, `SystemSchema`, `schemas:` field, `Schema` zod
+### 21. Domain noun overlap: `Schema`, `SystemSchema`, `schemas:` field, `Schema` zod
 The word "schema" appears in this single package as a wire field, a domain noun (`SystemSchema`), a type suffix (`...Schema_Response`), the package name (`systemschemas`), and a library term (zod's `Schema`). Five overlapping uses of the same word in a 106-line model file. Worth raising as a package-design issue rather than a per-name fix.
 - **Category:** 12 (duplicate concept), 17 (inconsistent meaning of same word within one module).
 

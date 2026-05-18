@@ -6,7 +6,7 @@
 to principals (users, groups, service principals, tag policies), exposed as a
 "proxy" variant whose surface area is indistinguishable from the sibling
 `accountaccesscontrol` package.
-**Total weird names flagged:** 29
+**Total weird names flagged:** 25
 
 ---
 
@@ -28,21 +28,17 @@ to principals (users, groups, service principals, tag policies), exposed as a
 | 12 | `RuleSet` | model.ts:73 | interface | High | 12 Duplicate concepts | Has identical shape to `RuleSetUpdateRequest` (model.ts:89): `name`, `etag`, `grantRules`. One of them is redundant. |
 | 13 | `RuleSet.name` | model.ts:75 | field | High | 19 Underspecified IDs, 15 Generic field names losing meaning | Same problem as #6 — this is a fully-qualified path, not a human-readable name. Rename to `ruleSetName` or `resourceName`. |
 | 14 | `RuleSet.etag` | model.ts:85 | field | Low | 3 Acronym casing inconsistencies | Same `etag` vs `ETag` (RFC 7232) issue as #7. |
-| 15 | `RuleSet.grantRules` | model.ts:86 | field | Low | 9 Singular/plural mismatches | Plural is correct, but the wire form is `grant_rules` (model.ts:144) — underscore vs camelCase split is a real coupling point. Worth checking that the marshal/unmarshal pair is the only place that needs to know. |
+| 15 | `RuleSet.grantRules` | model.ts:86 | field | Low | 9 Singular/plural mismatches | Plural is correct, but the wire form is `grant_rules` (model.ts:144) — underscore vs camelCase split is a real coupling point worth verifying is centralized. |
 | 16 | `RuleSetUpdateRequest` | model.ts:89 | interface | High | 12 Duplicate concepts, 13 Verb-tense inconsistency | Same fields as `RuleSet`. The "UpdateRequest" suffix collides naming with the outer `UpdateRuleSetRequest` (model.ts:105), giving two overlapping `*UpdateRequest`/`Update*Request` shapes for the same operation. |
 | 17 | `RuleSetUpdateRequest` vs `UpdateRuleSetRequest` | model.ts:89, 105 | interface pair | High | 13 Verb-tense inconsistency, 12 Duplicate concepts | Two side-by-side request types whose names invert noun/verb order (`RuleSetUpdateRequest` vs `UpdateRuleSetRequest`). Inevitable confusion; one is the outer envelope (`{accountId, name, ruleSet}`), the other is the inner payload. Inner should be named `RuleSetPayload`, `RuleSetSpec`, or merged with `RuleSet`. |
 | 18 | `UpdateRuleSetRequest.name` | model.ts:109 | field | High | 12 Duplicate concepts | `name` appears at the outer level AND inside `ruleSet.name`. Which one wins? The Go-style nesting is preserved verbatim, but a TS consumer has to guess. |
 | 19 | `UpdateRuleSetRequest.ruleSet` | model.ts:110 | field | Low | 7 Overly verbose | Outer envelope wraps a `ruleSet: RuleSetUpdateRequest`. Could be flattened. |
-| 20 | `unmarshalGetAssignableRolesForResourceResponseSchema` | model.ts:113 | const | Medium | 7 Overly verbose | 50-char identifier. Generator should drop `Schema` (tautology with `z.ZodType`) or fold into `Codec` namespace. |
-| 21 | `unmarshalRoleSchema`, `unmarshalRuleSetSchema`, `unmarshalGrantRuleSchema` | model.ts:122, 132, 140 | const | Low | 20 Type-suffix tautology | The `Schema` suffix is redundant with the `z.ZodType<...>` annotation. `unmarshalRole`/`roleDecoder` would be cleaner. |
-| 22 | `marshalGrantRuleSchema`, `marshalRuleSetUpdateRequestSchema`, `marshalUpdateRuleSetRequestSchema` | model.ts:152, 162, 174 | const | Low | 20 Type-suffix tautology, 17 Inconsistent action verbs | Same as #21. Also: pairing is `marshal*` / `unmarshal*` (Go-idiom). TS convention would be `encode*` / `decode*` or `serialize*` / `deserialize*`. |
-| 23 | `Client` | client.ts:39 | class | Medium | 1 Vague/generic without domain context | Top-level `Client` with no qualifier; once imported into a consumer that uses multiple Databricks clients, every one is just `Client`. Should be `AccessControlProxyClient` or aliased on export. |
-| 24 | `Client.getAssignableRolesForResource` | client.ts:72 | method | Medium | 7 Overly verbose | "ForResource" is implicit (only one parameter is the resource); `getAssignableRoles(req)` reads cleanly. |
-| 25 | `HttpCallOptions` | utils.ts:15 | interface | Low | 1 Vague/generic without domain context | Bundle of `{request, httpClient, logger}` named generically. Inside a single file this is fine; if it ever leaks out, `ExecuteHttpCallParams` would self-document. |
-| 26 | `executeCall` vs `executeHttpCall` | utils.ts:26, 65 | function pair | Medium | 17 Inconsistent action verbs | Two `execute*` functions in the same file with overlapping vocabulary. `executeCall` (orchestrates retries/timeouts) and `executeHttpCall` (does one HTTP roundtrip) are two different concepts — name them so. e.g. `runWithOptions` / `sendRequest`. |
-| 27 | `parseResponse` | utils.ts:113 | function | Low | 17 Inconsistent action verbs | Naming pair is `parseResponse` (decode) and `marshalRequest` (encode). Either `parse`/`format` or `marshal`/`unmarshal`, not a mix. |
-| 28 | `flattenQueryParams` (dead code) | utils.ts:123 | function | Low | 21 Dead code | Exported from `utils.ts` but never imported in `client.ts`. Either dead code or for future generated calls. |
-| 29 | `PACKAGE_SEGMENT` | client.ts:34 | const | Low | 1 Vague/generic without domain context | Could be `USER_AGENT_PACKAGE_SEGMENT` to clarify what "segment" means at the call site. |
+| 20 | `Client` | client.ts:39 | class | Medium | 1 Vague/generic without domain context | Top-level `Client` with no qualifier; once imported into a consumer that uses multiple Databricks clients, every one is just `Client`. Should be `AccessControlProxyClient` or aliased on export. |
+| 21 | `Client.getAssignableRolesForResource` | client.ts:72 | method | Medium | 7 Overly verbose | "ForResource" is implicit (only one parameter is the resource); `getAssignableRoles(req)` reads cleanly. |
+| 22 | `HttpCallOptions` | utils.ts:15 | interface | Low | 1 Vague/generic without domain context | Bundle of `{request, httpClient, logger}` named generically. Inside a single file this is fine; if it ever leaks out, `ExecuteHttpCallParams` would self-document. |
+| 23 | `executeCall` vs `executeHttpCall` | utils.ts:26, 65 | function pair | Medium | 17 Inconsistent action verbs | Two `execute*` functions in the same file with overlapping vocabulary. `executeCall` (orchestrates retries/timeouts) and `executeHttpCall` (does one HTTP roundtrip) are two different concepts — name them so. e.g. `runWithOptions` / `sendRequest`. |
+| 24 | `flattenQueryParams` (dead code) | utils.ts:123 | function | Low | 21 Dead code | Exported from `utils.ts` but never imported in `client.ts`. Either dead code or for future generated calls. |
+| 25 | `PACKAGE_SEGMENT` | client.ts:34 | const | Low | 1 Vague/generic without domain context | Could be `USER_AGENT_PACKAGE_SEGMENT` to clarify what "segment" means at the call site. |
 
 ---
 
@@ -162,44 +158,27 @@ The wire and field name is `etag` (lowercase). The JSDoc in the same comment
 block uses `eTag`, `Etag`, and `ETag` interchangeably. RFC 7232 §2.3 defines
 the header as `ETag`. Pick one.
 
-### L2. `Schema` suffix tautology
-
-`unmarshalRoleSchema: z.ZodType<Role>` — the `Schema` suffix duplicates the
-type annotation. Pattern is consistent across the SDK, so this is a
-generator-wide concern, not unique to this package.
-
-### L3. `marshal`/`unmarshal` are Go-idioms
-
-JS/TS conventions are `JSON.stringify`/`JSON.parse`, `encode`/`decode`, or
-`serialize`/`deserialize`. `marshal`/`unmarshal` is a Go transliteration. (Go
-SDK `encoding/json` uses `Marshal`/`Unmarshal`. TS ecosystem does not.)
-
-### L4. `parseResponse` vs `marshalRequest`
-
-Mixing `parse`/`marshal` action verbs in the same file. Either both
-`parse`/`format` or both `marshal`/`unmarshal`.
-
-### L5. `flattenQueryParams` is exported but never imported
+### L2. `flattenQueryParams` is exported but never imported
 
 `utils.ts:123` exports `flattenQueryParams`. `client.ts` never imports it (it
 builds query strings inline via `URLSearchParams`). Either:
 - Remove it (dead code), or
 - Use it (current inline code reproduces a subset of its logic).
 
-### L6. `PACKAGE_SEGMENT`
+### L3. `PACKAGE_SEGMENT`
 
 Used only for the User-Agent header. Renaming to
 `USER_AGENT_PACKAGE_SEGMENT` makes the call site self-explanatory:
 `createDefault().with(USER_AGENT_PACKAGE_SEGMENT)`.
 
-### L7. `HttpCallOptions`
+### L4. `HttpCallOptions`
 
 Internal `interface` with `{request, httpClient, logger}`. Could be inlined
 into `executeHttpCall` as positional parameters, or renamed
 `ExecuteHttpCallParams` to disambiguate from `CallOptions` (which is a public
 type).
 
-### L8. `req` parameter naming in client methods
+### L5. `req` parameter naming in client methods
 
 ```ts
 async getAssignableRolesForResource(req: GetAssignableRolesForResourceRequest, ...)

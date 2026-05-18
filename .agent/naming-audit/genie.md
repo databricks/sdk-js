@@ -3,7 +3,7 @@
 **Path:** `packages/genie/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Databricks "Genie" — natural-language data interface. The unit of organisation is a `GenieSpace` (a workspace scoped to a warehouse + a set of dataset/instructions); inside a space, users `startConversation` and exchange `Message`s; messages produce `GenieAttachment`s (text / SQL query / suggested follow-up questions); SQL attachments execute against the warehouse and yield `Result`s (`StatementResponse` shapes copied from the statement-execution API). The package also exposes "Eval" — a benchmarking flow (`EvalRun` → `EvalResult` → `EvalResultDetails` with LLM-judge scoring).
-**Total weird names flagged:** 73
+**Total weird names flagged:** 72
 
 ## Summary
 | Severity | Count |
@@ -11,7 +11,7 @@
 | High | 21 |
 | Medium | 27 |
 | Low | 19 |
-| Observation | 6 |
+| Observation | 5 |
 
 ## High severity
 
@@ -443,8 +443,5 @@
 - **Suggested name:** Replace `Value | Struct | ListValue` with `unknown` (or `JsonValue`) at marshal boundary.
 - **Rationale:** Genie doesn't actually use these in any public method body; they exist only as transitive types referenced by `Result.* → ResultData.dataArray` (whose elements are `ListValue` of `Value`). The proto-WKT shape is buying nothing.
 
-### 72. `unmarshalGenieMessageSchema` returns a `GenieMessage` but the input keys are snake_case — `src/v1/model.ts:2188`
-- **Observation:** Standard generator pattern. Worth noting that the package has 50 `unmarshalXSchema` exports and 14 `marshalXSchema` exports — generator-faithful. Not a naming bug per se.
-
-### 73. Inconsistent `request field X required for polling is missing` error messages — `src/v1/client.ts:195,200,204,1000,1004,1008`
+### 72. Inconsistent `request field X required for polling is missing` error messages — `src/v1/client.ts:195,200,204,1000,1004,1008`
 - **Observation:** All six error strings phrased identically, but `response field` vs `request field` distinction is correct. No naming bug; documentation only.

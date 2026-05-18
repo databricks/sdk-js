@@ -3,7 +3,7 @@
 **Path:** `packages/database/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Databricks Lakebase OLTP layer — manage Postgres `DatabaseInstance`s, `DatabaseCatalog`s (Unity Catalog mirrors of logical Postgres databases), `DatabaseTable`s (UC-registered PG tables), `SyncedDatabaseTable`s (UC-managed Delta-to-PG continuous/triggered/snapshot sync pipelines), instance roles, and short-lived credentials.
-**Total weird names flagged:** 56
+**Total weird names flagged:** 53
 
 ## Summary
 | Severity | Count |
@@ -11,7 +11,7 @@
 | High | 16 |
 | Medium | 20 |
 | Low | 14 |
-| Observation | 6 |
+| Observation | 3 |
 
 ## High severity
 
@@ -417,28 +417,17 @@
 
 ## Observations
 
-### 67. Wire/TS divergence is enormous in this package
-File `model.ts` is 2,217 lines. ~270 lines are the actual user-facing TS interfaces and enums; the rest is unmarshal schemas (~520 lines), marshal schemas (~490 lines), and `FieldMaskSchema` definitions (~200 lines), plus paired exports. This is a generator-shape observation, not a naming bug — but it dwarfs the public surface 7x.
-
-### 68. `client.ts` has a 6-line block-comment at line 666-671 explaining that the role APIs will never reach Public Preview
+### 67. `client.ts` has a 6-line block-comment at line 666-671 explaining that the role APIs will never reach Public Preview
 The comment ("START OF PG ROLE APIs Section ... These APIs are marked a PUBLIC with stage < PUBLIC_PREVIEW. With more recent Lakebase V2 plans, we don't plan to ever advance these to PUBLIC_PREVIEW.") leaks internal lifecycle. It belongs in JSDoc on each role method as `@experimental` / `@internal`, not as a block-comment in the middle of the client.
 - **Category:** 6 (misleading: client exposes APIs that won't stabilise).
 - **Action:** Mark `createDatabaseInstanceRole`, `deleteDatabaseInstanceRole`, `getDatabaseInstanceRole`, `listDatabaseInstanceRoles`, `updateDatabaseInstanceRole` as `@experimental`.
 
-### 69. `findDatabaseInstanceByUid` is the only `findBy*` method
+### 68. `findDatabaseInstanceByUid` is the only `findBy*` method
 Every other lookup is `getX(req)`. This method exists because the API has a distinct route (`/instances:findByUid`) for UID-lookup vs `/instances/{name}`. The TS surface reflects the URL shape rather than the user's mental model.
 - **Category:** 17 (inconsistency with peer methods).
 
-### 70. `marshal*` / `unmarshal*` schemas are exported even though no consumer should use them
-All `marshal*` and `unmarshal*` schemas in `model.ts` are `export`. They are used internally by `client.ts` but are public surface. Same as the abacpolicies audit observation.
-- **Category:** Observation.
-
-### 71. Action-verb conventions in `Client` are consistent
+### 69. Action-verb conventions in `Client` are consistent
 `create*` / `delete*` / `get*` / `list*` / `update*` / `failover*` / `findBy*` / `upgrade*` — verb prefixes are consistent. Lookup is `get` (good). No `fetch`/`retrieve`/`read` mixing.
-
-### 72. `index.ts` re-exports both types and value enums but does not re-export `marshal*` / `unmarshal*` schemas
-Good hygiene — only the user-facing surface is re-exported. The `*FieldMaskSchema` constants are not exported (they're file-private). The `databaseCatalogFieldMask` / `databaseInstanceFieldMask` / `syncedDatabaseTableFieldMask` builder functions are exported from `model.ts` (lines 2025, 2068, 2116) but NOT re-exported in `index.ts` — so they exist on the package boundary but are not visible to consumers. Inconsistency.
-- **Category:** 17 (inconsistent export surface).
 
 ## Domain glossary
 - `Lakebase` — Databricks' managed Postgres-as-a-service product (mentioned only in the buried client.ts:666 comment).

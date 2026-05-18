@@ -3,7 +3,7 @@
 **Path:** `packages/postgres/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Lakebase Autoscaling Postgres — manages Lakebase `Project`s, `Branch`es (Postgres-style branching for PITR / dev forks), `Endpoint`s (autoscaling read-write or read-only compute endpoints), `ComputeInstance`s (the individual compute nodes inside an endpoint group), `Database`s (logical Postgres databases inside a branch), `Role`s (Postgres roles bound to Databricks identities or plain Postgres roles), `SyncedTable`s (UC-managed Delta→Postgres sync pipelines), `Table`s (non-synced PG tables), `Catalog`s (Unity Catalog mirrors of logical PG databases), Forward ETL (PG→UC reverse-ETL), short-lived `DatabaseCredential`s, and long-running `Operation`s with per-resource `*Waiter`-style classes.
-**Total weird names flagged:** 92
+**Total weird names flagged:** 90
 
 ## Summary
 | Severity | Count |
@@ -11,7 +11,7 @@
 | High | 22 |
 | Medium | 47 |
 | Low | 17 |
-| Observation | 6 |
+| Observation | 4 |
 
 ## High severity
 
@@ -588,25 +588,13 @@
 - **Suggested name:** `Operation<TResult, TMetadata>` generic.
 - **Rationale:** Connects #20, #21, #52, #53.
 
-### 89. `marshalRequest` / `parseResponse` / `executeCall` are exported from `utils.ts` only inside the package — `src/v1/utils.ts`
-- **Why weird:** Utility names are generic (`buildHttpRequest`, `executeHttpCall`, `flattenQueryParams`, `marshalRequest`, `parseResponse`). They're not in the `index.ts` public exports, so this is internal naming. No naming bug per se; flag that they're all generic and could collide if ever exposed.
-- **Category:** Observation (internal generics).
-- **Suggested name:** N/A (internal).
-- **Rationale:** Not actionable but worth noting.
-
-### 90. `flattenQueryParams` in `utils.ts` has the comment "// arrays of objects are not yet supported" — `src/v1/utils.ts:132`
-- **Why weird:** Code comment admits a gap. Not naming-related, but indicates the marshal layer is incomplete; future array-of-objects fields will silently misbehave.
-- **Category:** Observation.
-- **Suggested name:** Fix the gap (TODO) or document the constraint at the public layer.
-- **Rationale:** Not naming.
-
-### 91. `EndpointSettings_PgSettingsEntry` and `ProjectDefaultEndpointSettings_PgSettingsEntry` are duplicated, dead types — `src/v1/model.ts:1421, 2136`
+### 89. `EndpointSettings_PgSettingsEntry` and `ProjectDefaultEndpointSettings_PgSettingsEntry` are duplicated, dead types — `src/v1/model.ts:1421, 2136`
 - **Why weird:** Both types are identical (`{key, value}`) and unused. They are proto-generated map-entry types. They are exported from `index.ts:91, 135`.
 - **Category:** Observation (related to #46, #55).
 - **Suggested name:** Remove (and also `ProjectCustomTag` could merge with `database.CustomTag`).
 - **Rationale:** Public surface bloat.
 
-### 92. `ProvisioningInfo_State` is exported from both `database` and `postgres` packages with identical members — `src/v1/model.ts:654`, `database/v1/model.ts:148`
+### 90. `ProvisioningInfo_State` is exported from both `database` and `postgres` packages with identical members — `src/v1/model.ts:654`, `database/v1/model.ts:148`
 - **Why weird:** Same enum, two packages, identical members. Reader importing both packages has to alias one.
 - **Category:** Observation (cross-package duplication).
 - **Suggested name:** Move to a shared `core/lakebase-common` or `core/enums`.

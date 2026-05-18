@@ -8,15 +8,15 @@ Staging / Production / Archived), transition-approval workflow, comments,
 tags, latest-version lookups, registry webhooks, and Databricks-specific
 permission/ACL extensions. Distinct from `registeredmodels` package which
 is the Unity-Catalog-scoped successor.
-**Total weird names flagged:** 65
+**Total weird names flagged:** 61
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 21 |
 | Medium | 24 |
-| Low | 14 |
-| Observation | 6 |
+| Low | 12 |
+| Observation | 4 |
 
 ## High severity
 
@@ -718,33 +718,16 @@ is the Unity-Catalog-scoped successor.
 - **Suggested name:** Field name OK; fix doc-comment.
 - **Rationale:** Generator bug; users will read the doc.
 
-### 63. `unmarshalActivitySchema`, `unmarshalCommentObjectSchema`,
-   `unmarshalTransitionRequestSchema` — `model.ts:1141, 1177, 1664`
-- **Why weird:** Three near-identical Zod schemas for three identical
-  types (#7).
-- **Category:** 12 (duplicate concept).
-- **Suggested name:** Single `unmarshalActivitySchema` once #7 collapses
-  the types.
-- **Rationale:** Mechanical cascade from #7.
-
-### 64. `marshalRegisteredModelTagSchema` /
-   `marshalModelVersionTagSchema` — `model.ts:1856, 1866`
-- **Why weird:** Two schemas for two identical-shape types (#35).
-- **Category:** 12 (duplicate concept).
-- **Suggested name:** Single `marshalTagSchema` once #35 collapses.
-- **Rationale:** Mechanical cascade from #35.
-
 ## Observations
 
-### 65. Wire/TS divergence is massive
-The model file is ~2000 lines for ~33 user-facing types. ~870 lines are
-type declarations, ~860 lines are unmarshal schemas, ~270 lines are
-marshal schemas. Plus 33 `*_Response` types with `eslint-disable` lints.
-This is the highest disable-count-per-type density I've seen — a sign
-the generator's Go/proto idioms are fighting TS conventions throughout.
+### 63. `*_Response` underscore lint-disable density
+The model file has 33 `*_Response` types, each carrying an
+`eslint-disable @typescript-eslint/naming-convention` comment to permit
+the underscore. This is the highest disable-count-per-type density I've
+seen — a sign the generator's proto idioms are fighting TS conventions.
 - **Category:** Observation.
 
-### 66. Both `modelregistry` and `registeredmodels` exist as packages
+### 64. Both `modelregistry` and `registeredmodels` exist as packages
 The user instruction calls out this duplication. Cross-package overlap:
 - `RegisteredModel` (modelregistry) vs `RegisteredModelInfo`
   (registeredmodels) — same concept, different names.
@@ -762,7 +745,7 @@ The user instruction calls out this duplication. Cross-package overlap:
   Documentation does not direct users to one or the other.
 - **Category:** 12 (duplicate concepts — across packages).
 
-### Action-verb conventions in `Client`
+### 65. Action-verb conventions in `Client`
 The client mixes `Approve` / `Reject` (active verbs for transition-
 request lifecycle) with `Set` / `Delete` (CRUD) and `Test` (verb for
 webhook health) and `Transition` (verb-as-method-name for state
@@ -771,17 +754,7 @@ reasonably motivated by the underlying state model. Not a defect, but
 worth noting.
 - **Category:** 17 (mixed but justified).
 
-### `flattenQueryParams` (`utils.ts:123`) is unused in this package
-Same observation as in other audits: a generator-shipped helper is
-exported even though only `marshalRequest` is consumed by the client.
-- **Category:** Observation.
-
-### `parseResponse` / `marshalRequest` verb asymmetry (`utils.ts:113, 119`)
-Same generator-level observation: opposite operations use mismatched
-verbs (`parse` vs `marshal`).
-- **Category:** 17.
-
-### Acronym casing inside doc-comments
+### 66. Acronym casing inside doc-comments
 `MLflow` is consistent throughout (good). `HTTP` appears as `HTTPS`
 (`HttpUrlSpec` doc, model.ts:553) and `HTTPS` (doc, model.ts:368). Type
 names use `Http` (Pascal). Standard JS-ecosystem split between Pascal-Http

@@ -80,10 +80,10 @@ Issues are catalogued below by severity, then by file/line. Throughout this docu
 - **Suggestion:** Rename to `listEvents()` for symmetry with `listUpdates()`, `list()`.
 - **Rationale:** Bare `events()` reads as a property accessor or event emitter, not an HTTP `GET`. Every other paginating method uses `list*` (`list`, `listUpdates`).
 
-### H10. `client.list()` / `client.listIter()` — too generic for the package's bare-`list` slot
-- **Locations:** `client.ts:377`, `client.ts:416`.
+### H10. `client.list()` — too generic for the package's bare-`list` slot
+- **Location:** `client.ts:377`.
 - **Category:** 1 (vague), 17 (inconsistent verbs).
-- **Suggestion:** Rename to `listPipelines()` / `listPipelinesIter()` to match the request type `ListPipelines` and to disambiguate from `listUpdates`/`listEvents`.
+- **Suggestion:** Rename to `listPipelines()` to match the request type `ListPipelines` and to disambiguate from `listUpdates`/`listEvents`.
 - **Rationale:** `client.list(req)` requires the user to remember `list` of *what*. Adjacent methods are `listUpdates`, `events` (sic), and the request type is already `ListPipelines`. Bare `list` is a Go-SDK convention (where the package name disambiguates) but loses information in TS.
 
 ### H11. `PipelineState_PipelineState` enum — underscore suffix tautology
@@ -156,7 +156,7 @@ Issues are catalogued below by severity, then by file/line. Throughout this docu
 - **Locations:** `model.ts:644-670`, `model.ts:1323`, `model.ts:1357`.
 - **Category:** 20 (type-suffix tautology), 12 (duplicate naming).
 - **Suggestion:** Rename the outer interface to `ConnectorOptions` and the inner discriminator to `options` (or `payload`). Then `connectorOptions: {payload: {...}}` reads cleanly.
-- **Rationale:** Currently `ConnectorOptions.connectorOptions.googleAdsOptions` requires four nested identifiers all containing "options". Marshaling code (`model.ts:4763-4875`) is illegible because of it.
+- **Rationale:** Currently `ConnectorOptions.connectorOptions.googleAdsOptions` requires four nested identifiers all containing "options".
 
 ### H23. `PipelinesEnvironment` vs `IngestionPipelineDefinition` — two `Pipeline*` namespaces, only one is plural
 - **Locations:** `model.ts:2382` (`PipelinesEnvironment`), `model.ts:1173` (`IngestionPipelineDefinition`).

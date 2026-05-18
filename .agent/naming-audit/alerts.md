@@ -3,7 +3,7 @@
 **Path:** `packages/alerts/src/{v1,v2}/`
 **Versions audited:** v1, v2
 **Inferred domain:** SQL/Databricks alerts: a stored configuration that periodically evaluates a query result against a threshold and notifies subscribers when it triggers.
-**Total weird names flagged:** 36
+**Total weird names flagged:** 35
 
 ## Summary table
 
@@ -34,17 +34,16 @@
 | 23 | Medium | v2 | `model.ts` field | `AlertSubscription.subscriptionType` | Type-suffix tautology |
 | 24 | Low | both | `model.ts` field | `pageToken` / `pageSize` / `nextPageToken` | Conventional; flagged only for completeness |
 | 25 | Low | both | `model.ts` field | `ListAlertsRequest`/`ListAlertsResponse` plural vs `GetAlertRequest` singular | Consistent with REST norms |
-| 26 | Low | both | `client.ts` method | `listAlertsIter` | Cryptic abbreviation (`Iter`) |
-| 27 | Low | v2 | `model.ts` enum value | `Aggregation.STDDEV` | Cryptic abbreviation |
-| 28 | Low | v2 | `model.ts` enum value | `Aggregation.AVG` | Cryptic abbreviation |
-| 29 | Low | v1 | `model.ts` field | `AlertCondition.emptyResultState` | Underspecified (state of what when empty) |
-| 30 | Low | v2 | `model.ts` field | `AlertEvaluation.source` | Vague/generic |
-| 31 | Low | v2 | `model.ts` field | `AlertEvaluation.threshold` typed as `AlertOperand` | Misleading type (threshold can be a column) |
-| 32 | Low | v1 | `model.ts` enum | `LifecycleState` | Missing domain prefix (v2 fixes to `AlertLifecycleState`) |
-| 33 | Low | both | `model.ts` field | `Alert.customBody` / `customSubject` (v1) vs `customSummary` / `customDescription` (v2) | v1→v2 rename — different email/text vocabulary |
-| 34 | Low | v2 | `model.ts` field | `Alert.parentPath` and `effectiveParentPath` | "Effective" prefix unexplained at first read |
-| 35 | Low | v2 | `model.ts` field | `Alert.id`, `Alert.queryText` co-located | "id" alone underspecified at field level (docs clarify) |
-| 36 | Low | both | `client.ts` | comment "Create Alert" / "Update alert" docstrings | Verb-tense / casing inconsistency in JSDoc |
+| 26 | Low | v2 | `model.ts` enum value | `Aggregation.STDDEV` | Cryptic abbreviation |
+| 27 | Low | v2 | `model.ts` enum value | `Aggregation.AVG` | Cryptic abbreviation |
+| 28 | Low | v1 | `model.ts` field | `AlertCondition.emptyResultState` | Underspecified (state of what when empty) |
+| 29 | Low | v2 | `model.ts` field | `AlertEvaluation.source` | Vague/generic |
+| 30 | Low | v2 | `model.ts` field | `AlertEvaluation.threshold` typed as `AlertOperand` | Misleading type (threshold can be a column) |
+| 31 | Low | v1 | `model.ts` enum | `LifecycleState` | Missing domain prefix (v2 fixes to `AlertLifecycleState`) |
+| 32 | Low | both | `model.ts` field | `Alert.customBody` / `customSubject` (v1) vs `customSummary` / `customDescription` (v2) | v1→v2 rename — different email/text vocabulary |
+| 33 | Low | v2 | `model.ts` field | `Alert.parentPath` and `effectiveParentPath` | "Effective" prefix unexplained at first read |
+| 34 | Low | v2 | `model.ts` field | `Alert.id`, `Alert.queryText` co-located | "id" alone underspecified at field level (docs clarify) |
+| 35 | Low | both | `client.ts` | comment "Create Alert" / "Update alert" docstrings | Verb-tense / casing inconsistency in JSDoc |
 
 ## v1 vs v2 comparison
 
@@ -383,17 +382,7 @@ Conventional Google AIP-158 pagination names. Flagged only because the rule list
 
 Consistent with REST norms (`GET /alerts/{id}` singular, `GET /alerts` plural). No action recommended.
 
-### 26. `listAlertsIter` — cryptic abbreviation (both)
-
-**Location:** v1 `client.ts:152-167`, v2 `client.ts:150-165`
-
-```ts
-async *listAlertsIter(...) : AsyncGenerator<...> { ... }
-```
-
-`Iter` for "iterator" reads as a Go/Rust port. Idiomatic TS would name this method `listAllAlerts` (or simply drop the paginated overload entirely and have callers use the async generator pattern returned from `listAlerts`).
-
-### 27. `Aggregation.STDDEV` — cryptic abbreviation (v2)
+### 26. `Aggregation.STDDEV` — cryptic abbreviation (v2)
 
 ```ts
 STDDEV = 'STDDEV',
@@ -401,11 +390,11 @@ STDDEV = 'STDDEV',
 
 `STANDARD_DEVIATION` or `STDEV` would be clearer; `STDDEV` is a SQL-server-ism.
 
-### 28. `Aggregation.AVG` — cryptic abbreviation (v2)
+### 27. `Aggregation.AVG` — cryptic abbreviation (v2)
 
 `AVERAGE` would be consistent with `SUM`, `COUNT`, `MEDIAN`, `MIN`, `MAX`. The mix of short and full names inside one enum is the issue.
 
-### 29. `AlertCondition.emptyResultState` — underspecified (v1)
+### 28. `AlertCondition.emptyResultState` — underspecified (v1)
 
 ```ts
 /** Alert state if result is empty. */
@@ -414,7 +403,7 @@ emptyResultState?: AlertState | undefined;
 
 Reads as "the empty-result state." `stateWhenEmptyResult` or `emptyResultBehavior` parses left-to-right. Minor.
 
-### 30. `AlertEvaluation.source` — vague (v2)
+### 29. `AlertEvaluation.source` — vague (v2)
 
 ```ts
 /** Source column from result to use to evaluate alert */
@@ -423,7 +412,7 @@ source?: AlertOperandColumn | undefined;
 
 `source` is generic; `operandColumn` (matching the type), `inputColumn`, or `column` would be clearer.
 
-### 31. `AlertEvaluation.threshold` typed as `AlertOperand` — misleading (v2)
+### 30. `AlertEvaluation.threshold` typed as `AlertOperand` — misleading (v2)
 
 ```ts
 /** Threshold to user for alert evaluation, can be a column or a value. */
@@ -434,15 +423,15 @@ The JSDoc admits the threshold can be a column — i.e., not actually a threshol
 
 Also note the typo "Threshold to user" (should be "to use") — content, not naming, but worth fixing.
 
-### 32. `LifecycleState` — missing domain prefix (v1)
+### 31. `LifecycleState` — missing domain prefix (v1)
 
 v1 exports a global-looking `LifecycleState`. v2 corrects this to `AlertLifecycleState`.
 
-### 33. `customBody` / `customSubject` (v1) vs `customSummary` / `customDescription` (v2)
+### 32. `customBody` / `customSubject` (v1) vs `customSummary` / `customDescription` (v2)
 
 Same data, different vocabulary. v1 = email metaphor, v2 = generic content metaphor. Users porting from v1 to v2 need a translation table.
 
-### 34. `effectiveParentPath` / `effectiveRunAs` (v2)
+### 33. `effectiveParentPath` / `effectiveRunAs` (v2)
 
 ```ts
 /** The actual workspace path of the folder containing the alert. This is an output-only field. */
@@ -451,11 +440,11 @@ effectiveParentPath?: string | undefined;
 
 The "effective" prefix is a Databricks convention for "value after applying inheritance/permissions." First-time readers will not know what `effectiveX` means without docs. Established convention, but flagged.
 
-### 35. `Alert.id` (both)
+### 34. `Alert.id` (both)
 
 The name alone (`id`) is underspecified at type level — `alertId` would be clearer when constructing a request that takes both `req.id` and the alert's id. The JSDoc covers it; the field doesn't.
 
-### 36. JSDoc verb/casing inconsistency (both)
+### 35. JSDoc verb/casing inconsistency (both)
 
 **Location:** v2 `client.ts:68`, `client.ts:198`
 
@@ -479,10 +468,6 @@ async updateAlert(...) { ... }
 4. **`Alert.evaluation` mixes config and telemetry.** `AlertEvaluation` carries both inputs (`comparisonOperator`, `threshold`, `notification`) and outputs (`state`, `lastEvaluatedAt`). The name suggests "a run/event," but the type is really "evaluation configuration + last-run snapshot." Splitting into `AlertEvaluationConfig` + `AlertEvaluationStatus` (or moving `state`/`lastEvaluatedAt` onto `Alert` directly, where they used to live in v1) would make the naming honest.
 
 5. **Top-level type pollution in v2.** v2 exports `Aggregation`, `ComparisonOperator`, `CronSchedule`, `SchedulePauseStatus`, `AlertEvaluationState`, `AlertLifecycleState` plus 9 message types from a single package. Several have no `Alert` prefix and read as if they belong to a shared domain library. Prefixing them all uniformly (`AlertAggregation`, `AlertScheduleCron`, `AlertSchedulePauseStatus`) would isolate the package.
-
-6. **`utils.ts` is identical across v1 and v2** and contains no domain names. The exported helpers (`executeCall`, `executeHttpCall`, `buildHttpRequest`, `parseResponse`, `marshalRequest`, `flattenQueryParams`) are well-named and not flagged. (`flattenQueryParams` is exported but unused in `client.ts` — orphaned export, not a naming issue.)
-
-7. **`Iter` suffix.** `listAlertsIter` is the only client method whose name carries a Go/Rust-flavoured abbreviation. TS idiom would use the method name as the iterable (or `listAllAlerts`). This will surface in every generated package; flag at the generator level.
 
 ## Domain glossary
 

@@ -3,15 +3,15 @@
 **Path:** `packages/permissions/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Workspace-object permissions — get, set, update, and inspect ACLs (access control lists) attached to Databricks workspace objects (clusters, jobs, notebooks, dashboards, pipelines, registered models, queries, repos, files, instance pools, etc.). Distinct from `grants` (Unity Catalog privileges on UC securables), though the two surfaces overlap conceptually and lexically.
-**Total weird names flagged:** 40
+**Total weird names flagged:** 34
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 12 |
 | Medium | 14 |
-| Low | 9 |
-| Observation | 5 |
+| Low | 4 |
+| Observation | 4 |
 
 The permissions package contains 9 generated types, 1 enum, and 4 client methods, plus utility helpers. Three thematic problems dominate. (1) The request-as-imperative-verb pattern (`GetObjectPermissions`, `SetObjectPermissions`, `UpdateObjectPermissions`, `GetPermissionLevels`) collides with the verb-noun methods on `Client`, so users write `client.setObjectPermissions(req: SetObjectPermissions)` and the type name looks like a command rather than a payload. (2) The `PermissionLevel` enum mixes acronym-prefix patterns (`CAN_*`, `IS_*`) with redundant suffixes (`CAN_MONITOR` vs `CAN_MONITOR_ONLY`, `CAN_MANAGE_RUN`, `CAN_CREATE_APP`) and includes a sentinel `UNSPECIFIED` whose semantics ("delete this principal") are only discoverable from JSDoc — the value name actively misleads. (3) The package overlaps heavily with `grants` in vocabulary (`Permission`, `PermissionsResponse`, `permissionLevels`) while modelling a completely different concept; the only public type distinguishing this package from its sibling is `AccessControlRequest`/`Response`, both of which use the IAM-style "access control list" pattern that's unique-in-the-SDK.
 
@@ -36,7 +36,7 @@ Two structural warts surface as a result of mechanical proto-to-TS porting: `Get
 ### 3. `UpdateObjectPermissions` (type) — `src/v1/model.ts:123`
 - **Why weird:** Same as #1, #2. Verb-shaped type. Used at `client.ts:147` as `updateObjectPermissions(req: UpdateObjectPermissions)`.
 - **Category:** 7, 14, 17.
-- **Suggested name:** `UpdateObjectPermissionsRequest` or `ObjectPermissionsPatch` (since the HTTP method is PATCH, not PUT — see #35).
+- **Suggested name:** `UpdateObjectPermissionsRequest` or `ObjectPermissionsPatch` (since the HTTP method is PATCH, not PUT — see #29).
 - **Rationale:** See #1.
 
 ### 4. `GetPermissionLevels` (type) — `src/v1/model.ts:86`
@@ -190,55 +190,25 @@ Two structural warts surface as a result of mechanical proto-to-TS porting: `Get
 
 ## Low severity
 
-### 27. `unmarshalAccessControlResponseSchema` and similar — `src/v1/model.ts:131,159,170,182,193`
-- **Why weird:** Six exported `unmarshal*Schema` and three `marshal*Schema` (lines 208, 235, 249) constants. Long names with redundant `Schema` suffix; the `z.ZodType<X>` type annotation already says they're Zod schemas. Plus `unmarshalGetPermissionLevels_ResponseSchema` (line 159) embeds the proto underscore and requires eslint-disable (line 158).
-- **Category:** 8 (redundant `Schema` suffix), 4 (underscore), 20 (type-suffix tautology).
-- **Suggested name:** Drop `Schema` suffix → `unmarshalAccessControlResponse`, `marshalSetObjectPermissions`, etc.
-- **Rationale:** Naming consistency; type signature already conveys the schema-ness.
-
-### 28. `unmarshalGetPermissionLevels_ResponseSchema` — `src/v1/model.ts:159`
-- **Why weird:** 47-character name combining #5 (`_Response` underscore), #27 (`Schema` suffix), and #4 (verbose request type name). Requires eslint-disable on the preceding line.
-- **Category:** 4, 7, 8.
-- **Suggested name:** `unmarshalPermissionLevelsResponse` (cascading from #5 and #27).
-- **Rationale:** Cascade.
-
-### 29. `marshalSetObjectPermissionsSchema` / `marshalUpdateObjectPermissionsSchema` — `src/v1/model.ts:235,249`
-- **Why weird:** 37- and 41-character names. Same `Schema` suffix issue (#27) plus the verbose `Set/UpdateObjectPermissions` name (#2, #3).
-- **Category:** 4 (cascading), 7, 8.
-- **Suggested name:** `marshalSetObjectPermissions` / `marshalUpdateObjectPermissions`.
-- **Rationale:** Cascade.
-
-### 30. `marshalAccessControlRequestSchema` — `src/v1/model.ts:208`
-- **Why weird:** Same as #27. The schema type annotation here is `z.ZodType` (no generic), not `z.ZodType<AccessControlRequest>` — so the schema is *less* typed than its companions (which use `z.ZodType<X>`). Inconsistent.
-- **Category:** 8, 17.
-- **Suggested name:** `marshalAccessControlRequest` with a generic on the Zod type.
-- **Rationale:** Internal consistency.
-
-### 31. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:36`
+### 27. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:36`
 - **Why weird:** `Segment` is a generic word; the constant carries User-Agent identity but the name communicates nothing. Same wart appears in every generated package.
 - **Category:** 1 (vague), 15 (generic name).
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
 - **Rationale:** Cross-package consistency.
 
-### 32. `readAll` (utility) — `src/v1/utils.ts:40`
+### 28. `readAll` (utility) — `src/v1/utils.ts:40`
 - **Why weird:** Internal helper name generic to the point of meaninglessness; clashes cognitively with `Array.prototype` methods and Web Streams APIs. Same pattern called out in `.agent/naming-audit/grants.md` #38. The function name is also a direct Go-port of `io.ReadAll`.
 - **Category:** 1 (vague), 14 (Go-style).
 - **Suggested name:** `readStreamToEnd`, `drainStream`, or `bufferStream`.
 - **Rationale:** Cross-package consistency.
 
-### 33. `parseResponse` / `marshalRequest` verb asymmetry — `src/v1/utils.ts:113,119`
-- **Why weird:** `parseResponse` (decode) is the inverse of `marshalRequest` (encode); two different verbs for opposite operations within the same 152-line file. The `model.ts` file uses `marshal*` / `unmarshal*` consistently — `parseResponse` is the odd one out.
-- **Category:** 17 (inconsistent action verbs).
-- **Suggested name:** `unmarshalResponse` / `marshalRequest` for pair symmetry.
-- **Rationale:** Same finding as `.agent/naming-audit/grants.md` #39. Mirroring helps readers map TS→wire/wire→TS at a glance.
-
-### 34. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 29. `HttpCallOptions` — `src/v1/utils.ts:15`
 - **Why weird:** Another `Options`-suffixed type; the file also imports `Options` (line 3) and `CallOptions` (line 12), so three `Options` types are in scope at once. The `HttpCallOptions` is internal — purely a context bag for `executeHttpCall`.
 - **Category:** 1 (vague suffix), 17 (inconsistent — internal struct shouldn't share a suffix with the user-facing CallOptions).
 - **Suggested name:** `HttpCallContext` (it's a context bag, not user-tunable options).
 - **Rationale:** Distinguish internal context bags from user-facing option structs. Same finding as `grants.md` #40.
 
-### 35. `updateObjectPermissions` uses PATCH but the type says "Update" — `src/v1/client.ts:146`
+### 30. `updateObjectPermissions` uses PATCH but the type says "Update" — `src/v1/client.ts:146`
 - **Why weird:** Method `updateObjectPermissions` issues HTTP `PATCH` (line 156). The request type `UpdateObjectPermissions` is symmetric in name to `SetObjectPermissions` (PUT) — but the semantics differ: PUT replaces, PATCH merges. The naming gives no hint of this. A user reading both method names side-by-side (`set...` and `update...`) might reasonably assume both perform full replacement.
 - **Category:** 17 (inconsistent action verbs), Observation.
 - **Suggested name:** `patchObjectPermissions` for the PATCH method, OR explicit JSDoc on `update*` clarifying merge semantics.
@@ -248,22 +218,18 @@ Two structural warts surface as a result of mechanical proto-to-TS porting: `Get
 
 ## Observations
 
-### 36. Three response paths converge on `PermissionsResponse`
+### 31. Three response paths converge on `PermissionsResponse`
 `getObjectPermissions`, `setObjectPermissions`, and `updateObjectPermissions` all return the same `PermissionsResponse` type (`client.ts:70,123,149`). This is fine functionally but means callers can't distinguish "the state I just wrote" from "the state I just read" by type — only by which method was called. For an audit log or comparison flow, this loses information. Naming-adjacent because the type carries no read/write/post-update distinction.
 - **Category:** Observation.
 
-### 37. Sentinel value `UNSPECIFIED` in PATCH is the only mutation-state encoded in an enum
+### 32. Sentinel value `UNSPECIFIED` in PATCH is the only mutation-state encoded in an enum
 The `PermissionLevel.UNSPECIFIED` sentinel (see #6) is unique in the SDK: it's the only enum value across `permissions`, `grants`, `accountaccesscontrol`, and `iam` that doubles as a deletion marker when sent in a PATCH body. Most APIs model this with a separate request body shape (e.g. `removals: Principal[]`) or with HTTP DELETE. Encoding "remove me" as an enum value alongside "let me have this permission" is unusual.
 - **Category:** Observation, 6 (misleading).
 
-### 38. Doc-comment list of object types is potentially stale
+### 33. Doc-comment list of object types is potentially stale
 The hardcoded list in `requestObjectType` doc-comments includes `database-projects`, `genie`, `knowledge-assistants`, `supervisor-agents` — all relatively new product surfaces. The list will need updating with every new permission-able workspace object. As-is the SDK has 26; if not regularly synced with the server, the JSDoc will drift.
 - **Category:** Observation.
 
-### 39. No pagination — all methods are unpaginated single-call
+### 34. No pagination — all methods are unpaginated single-call
 Unlike `grants` (which has both unpaginated `Get*` and paginated `List*` methods, see `grants.md` #41), `permissions` has no listing operation. Every method here is by-object-id; there's no "list all permissioned objects" surface. This is correct for the API but worth noting because users coming from `grants` (or `accountaccesscontrol`) might expect parallel list semantics. Naming-adjacent because the absence of `list*` here aligns the method-vocabulary differently than its sibling packages.
 - **Category:** Observation.
-
-### 40. `marshalAccessControlRequestSchema` type annotation lacks generic — `src/v1/model.ts:208`
-The schema is typed `z.ZodType` (without `<AccessControlRequest>`) while every other schema in the file is typed `z.ZodType<X>`. Inconsistent; reduces type-safety at the schema-usage sites. Naming-adjacent because a fully-typed schema would also make the generated `marshalRequest` calls type-safe.
-- **Category:** Observation, 17.

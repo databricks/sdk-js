@@ -3,15 +3,15 @@
 **Path:** `packages/clusters/src/v2/`
 **Versions audited:** v2
 **Inferred domain:** Databricks Spark cluster lifecycle (create/edit/start/restart/resize/delete/permanent-delete/pin/unpin/update/get/list), node-type catalogue, Spark-version catalogue, availability zones, and cluster-policy compliance.
-**Total weird names flagged:** 87
+**Total weird names flagged:** 84
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 19 |
 | Medium | 32 |
-| Low | 26 |
-| Observation | 10 |
+| Low | 24 |
+| Observation | 9 |
 
 ## High severity
 
@@ -102,7 +102,7 @@
 ### 15. `ClusterInfo_ComputeSpec_CustomTagsEntry`, `ClusterInfo_SparkConfEntry`, etc. — 16 underscore-laden map-entry types
 - **Why weird:** 16 interfaces with names like `ClusterInfo_ComputeSpec_CustomTagsEntry` (`model.ts:1412`), `ClusterInfo_ComputeSpec_SparkConfEntry` (`model.ts:1429`), `ClusterInfo_ComputeSpec_SparkEnvVarsEntry` (`model.ts:1436`), `ClusterInfo_CustomTagsEntry`, `ClusterInfo_DefaultTagsEntry`, `ClusterInfo_SparkConfEntry`, `ClusterInfo_SparkEnvVarsEntry`, `CreateCluster_CustomTagsEntry`, `CreateCluster_SparkConfEntry`, `CreateCluster_SparkEnvVarsEntry`, `EditCluster_CustomTagsEntry`, `EditCluster_SparkConfEntry`, `EditCluster_SparkEnvVarsEntry`, `UpdateCluster_UpdateClusterResource_CustomTagsEntry`, `UpdateCluster_UpdateClusterResource_SparkConfEntry`, `UpdateCluster_UpdateClusterResource_SparkEnvVarsEntry`. Each carries the same `{key?: string; value?: string}` shape — sixteen distinct names for one concept.
 - **Category:** 4 (underscores), 12 (duplicate concepts — same `{key, value}` shape 16 times).
-- **Suggested name:** Consolidate around the wire-equivalent `Record<string, string>` form already used by the parent fields and marshal/unmarshal schemas.
+- **Suggested name:** Consolidate around the wire-equivalent `Record<string, string>` form already used by the parent fields.
 - **Rationale:** These types exist only because protobuf models maps as repeated `Entry` messages. TypeScript has built-in `Record<>` — sixteen separate `{key, value}` types for the same concept is pure proto-style duplication.
 
 ### 16. `UpdateCluster_UpdateClusterResource` — `src/v2/model.ts:2590`
@@ -469,59 +469,43 @@
 - **Suggested name:** `Autoscale` (one word, matching the field).
 - **Rationale:** Matches sibling naming (`autoscale: Autoscale`).
 
-### 76. `*FieldMaskSchema` constants — `src/v2/model.ts:4247-4413`
-- **Why weird:** 13 lowerCase-starting consts named `autoScaleFieldMaskSchema`, `awsAttributesFieldMaskSchema`, etc. These are internal to the package. `updateCluster_UpdateClusterResourceFieldMaskSchema` (line 4329) carries the underscore from its parent type. Pure scaffolding.
-- **Category:** 4 (underscore), Observation (internal scaffolding).
-- **Suggested name:** No public API impact; flagged for completeness.
-- **Rationale:** Generated content.
-
-### 77. `marshalX` / `unmarshalX` verb asymmetry — `utils.ts:113,119`
-- **Why weird:** `parseResponse` (decode) and `marshalRequest` (encode) — same pair-asymmetry noted in `abacpolicies.md` audit. `parseResponse` reads the body, `marshalRequest` writes it. Names are non-mirrored verbs.
-- **Category:** 17 (inconsistent action verbs).
-- **Suggested name:** `unmarshalResponse`/`marshalRequest` or `parseResponse`/`serializeRequest`.
-- **Rationale:** Pair-wise verb consistency aids reading.
-
 ## Observations
 
-### 78. Seven Waiter classes with identical shape — `client.ts:879-1435`
+### 76. Seven Waiter classes with identical shape — `client.ts:879-1435`
 The file declares `CreateClusterWaiter`, `DeleteClusterWaiter`, `EditClusterWaiter`, `ResizeClusterWaiter`, `RestartClusterWaiter`, `StartClusterWaiter`, `UpdateClusterWaiter` — 557 lines. The only variation between them is the set of terminal `ClusterState_ClusterState` values they accept (e.g., `CreateClusterWaiter` treats `RUNNING` as success and `TERMINATED` as failure; `DeleteClusterWaiter` does the opposite). The rest is copy-pasted.
 - **Category:** 12 (duplicate concept across seven classes), Observation.
 - **Suggested:** A generic `ClusterStateWaiter` parameterised by the success/failure state sets would shrink this to ~80 lines.
 
-### 79. `_req` parameter for empty request types — `client.ts:343,422,447`
+### 77. `_req` parameter for empty request types — `client.ts:343,422,447`
 Several methods take a `_req: ListAvailableZones` / `_req: ListNodeTypes` / `_req: GetSparkVersions` parameter even though the request types are empty (`{}`). The underscore prefix avoids the unused-arg lint warning. Indicates the generator does not collapse empty requests.
 - **Category:** Observation (generator artefact).
 
-### 80. `enable*` boolean conventions — `enableElasticDisk`, `enableLocalDiskEncryption`, `enableEncryption`
+### 78. `enable*` boolean conventions — `enableElasticDisk`, `enableLocalDiskEncryption`, `enableEncryption`
 - **Why weird:** Three sibling booleans use `enable*` prefix. `is*` is the more idiomatic JS boolean convention. Inconsistent with `isSingleNode`, `isCompliant`, `isDeprecated`.
 - **Category:** 17 (mixed `enable*` and `is*` for booleans).
 - **Rationale:** Naming-convention drift.
 
-### 81. `ResizeCluster` / `RestartCluster` requests are partial overlaps
+### 79. `ResizeCluster` / `RestartCluster` requests are partial overlaps
 `ResizeCluster` carries `clusterId` and `size`; `RestartCluster` carries `clusterId` and `restartUser`; `StartCluster` carries only `clusterId`. Three near-identical types; could be one.
 - **Category:** 12 (duplicate concept), Observation.
 
-### 82. `marshal*Schema` / `unmarshal*Schema` constants are individually named per type — 35 marshal + 35 unmarshal exports
-Naming follows `marshalXxxSchema` / `unmarshalXxxSchema`. Convention is consistent but the underscored proto-style nesting carries over (`unmarshalEnforcePolicyComplianceForCluster_Response_ClusterSettingsChangeSchema` is a 67-character identifier).
-- **Category:** 7 (overly verbose), Observation.
-
-### 83. `_req` unused vs `req` used — inconsistency in method-signature lint
+### 80. `_req` unused vs `req` used — inconsistency in method-signature lint
 Five client methods use `_req` (where the request type is empty), 15 use `req` (where it's not). Pure mechanical.
 - **Category:** Observation.
 
-### 84. `clusterId?: string | undefined` shape
+### 81. `clusterId?: string | undefined` shape
 Every request type that targets a cluster has `clusterId?: string | undefined`. `?` (optional) plus `undefined` is the explicit-undefined style used throughout. But `clusterId` is semantically required for many operations (delete, edit, restart, etc.). Marking it optional means the runtime check `if (req.clusterId === undefined) throw new Error(...)` appears in every waiter constructor (`client.ts:204,246,296,565,604,651,729`).
 - **Category:** 6 (misleading optional — should be required), Observation.
 
-### 85. `executeCall` / `executeHttpCall` (`utils.ts:26,65`)
+### 82. `executeCall` / `executeHttpCall` (`utils.ts:26,65`)
 Two functions whose names differ only by `Http`. Same pair-naming concern flagged in `abacpolicies.md` audit (item #36 there).
 - **Category:** 1 (vague), 17 (inconsistent), Observation.
 
-### 86. `flattenQueryParams` exported but unused (`utils.ts:123`)
+### 83. `flattenQueryParams` exported but unused (`utils.ts:123`)
 The function is exported but `client.ts` never calls it. (Cluster v2 endpoints with query params do it inline.) Same observation as in `abacpolicies.md`.
 - **Category:** Observation (dead public surface).
 
-### 87. JSDoc placeholder `<Databricks>` — pervasive
+### 84. JSDoc placeholder `<Databricks>` — pervasive
 Throughout the model, JSDocs say `<Databricks>` (e.g., `model.ts:1097` — "Databricks will tag all cluster resources..."). Looks like an un-substituted templated brand placeholder. Reader sees `<Databricks>` in IntelliSense.
 - **Category:** Observation (doc-quality artefact in generator).
 

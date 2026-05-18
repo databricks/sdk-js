@@ -81,12 +81,6 @@ are graded:
 - `utils.ts`: `HttpCallOptions` interface; functions `executeCall`,
   `readAll`, `executeHttpCall`, `buildHttpRequest`, `parseResponse`,
   `marshalRequest`, `flattenQueryParams`.
-- Marshal / unmarshal schemas: `unmarshalAddInstanceProfile_ResponseSchema`,
-  `unmarshalEditInstanceProfile_ResponseSchema`, `unmarshalInstanceProfileSchema`,
-  `unmarshalListInstanceProfiles_ResponseSchema`,
-  `unmarshalRemoveInstanceProfile_ResponseSchema`,
-  `marshalAddInstanceProfileSchema`, `marshalEditInstanceProfileSchema`,
-  `marshalRemoveInstanceProfileSchema`.
 
 ---
 
@@ -98,10 +92,8 @@ are graded:
 | ----- | ----------------------------------- | -------- | ----- |
 | V-01  | `InstanceProfile` (interface)       | High     | The unqualified name reads as a general "instance profile" concept, but the type is **AWS-specific** (an AWS IAM Instance Profile, see https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html). The Databricks SDK supports multiple clouds (AWS, Azure, GCP) — peers in this SDK (e.g. `AzureServicePrincipal`, `GcpAttributes`) lead with the cloud prefix. `AwsInstanceProfile` would prevent collision with future Azure/GCP "instance" abstractions and align with the cloud-prefixed naming in `compute`, `clusters`, etc. Inherited from the API; flagged for visibility. |
 | V-02  | `AddInstanceProfile.skipValidation` | Medium   | `skipValidation` is generic — *which* validation? Reading the JSDoc reveals it specifically skips the AWS `RunInstances` dry-run permission check. `skipIamValidation` or `skipPermissionDryRun` would self-document. |
-| V-03  | `parseResponse` (utils)             | Low      | Generic name. Parses JSON specifically; `parseJsonResponse` would be more accurate. Local to the package — acceptable. |
-| V-04  | `marshalRequest` (utils)            | Low      | Generic but local. OK. |
-| V-05  | `flattenQueryParams` (utils)        | Low      | Reasonable. |
-| V-06  | `readAll` (utils, private)          | Low      | Standard name for "read all bytes from a stream". OK. |
+| V-03  | `flattenQueryParams` (utils)        | Low      | Reasonable. |
+| V-04  | `readAll` (utils, private)          | Low      | Standard name for "read all bytes from a stream". OK. |
 
 ### 2.2 Redundant enum prefixes — N/A
 
@@ -126,11 +118,7 @@ are graded:
 | U-02  | `EditInstanceProfile_Response`                  | High     | Same as U-01. |
 | U-03  | `ListInstanceProfiles_Response`                 | High     | Same as U-01. |
 | U-04  | `RemoveInstanceProfile_Response`                | High     | Same as U-01. |
-| U-05  | `unmarshalAddInstanceProfile_ResponseSchema`    | High     | Same naming-convention violation cascades through the schema constants. |
-| U-06  | `unmarshalEditInstanceProfile_ResponseSchema`   | High     | Same as U-05. |
-| U-07  | `unmarshalListInstanceProfiles_ResponseSchema`  | High     | Same as U-05. |
-| U-08  | `unmarshalRemoveInstanceProfile_ResponseSchema` | High     | Same as U-05. |
-| U-09  | Wire-format snake-case in zod schemas (`instance_profile_arn`, `is_meta_instance_profile`, `iam_role_arn`, `instance_profiles`, `skip_validation`) | Low | Underscores in *string literals* are correct — they match the JSON wire format. Not a violation. Noted for completeness. |
+| U-05  | Wire-format snake-case in zod schemas (`instance_profile_arn`, `is_meta_instance_profile`, `iam_role_arn`, `instance_profiles`, `skip_validation`) | Low | Underscores in *string literals* are correct — they match the JSON wire format. Not a violation. Noted for completeness. |
 
 ### 2.5 Cryptic abbreviations — Medium
 
@@ -150,10 +138,9 @@ are graded:
 | M-01  | `AddInstanceProfile` / `addInstanceProfile()` | High | "Add" is ambiguous between "create a new resource" and "register an existing resource". The JSDoc clarifies this method **registers** an existing AWS instance profile (it does **not** create one in AWS). `registerInstanceProfile` would be more accurate and would pair semantically with `removeInstanceProfile` (where "remove" actually means "unregister"). The current naming implies CRUD-create semantics that aren't true — the AWS resource exists independent of this call. |
 | M-02  | `RemoveInstanceProfile` / `removeInstanceProfile()` | High | Same domain mismatch as M-01: the method **unregisters** the instance profile from Databricks (the AWS resource is untouched). The JSDoc even notes "Existing clusters with this instance profile will continue to function." `unregisterInstanceProfile` would be more accurate. |
 | M-03  | `EditInstanceProfile` / `editInstanceProfile()` | Medium | "Edit" is a non-standard CRUD verb (the standard is "update"). Other Databricks SDK surfaces use `update*` for the same operation. Matches the wire path `/edit`, so this is a per-API upstream decision. |
-| M-04  | `parseResponse` (utils)             | Low      | Parses **JSON** specifically — `parseJsonResponse` would be more accurate. |
-| M-05  | `InstanceProfile.instanceProfileArn` (marked required, but `?: string \| undefined`) | High | The JSDoc says "This field is required" but the TS type is `string \| undefined`. Across the SDK, every field is optional in the generated type; the doc note is informational. Not a name issue per se, but the type contradicts the documented contract. Flagged because the *name* implies it should always be populated, yet the type doesn't enforce it. |
-| M-06  | `skipValidation` (`AddInstanceProfile`) | Medium | The name implies skipping *all* validation; the JSDoc clarifies it only skips the AWS dry-run permission check. See V-02. |
-| M-07  | `isMetaInstanceProfile`             | Medium | The boolean's semantics ("for credential passthrough scenarios where the instance profile contains a meta-IAM role that can assume a wide range of roles") is much narrower than "is this a meta instance profile". Calling it `isCredentialPassthrough` or `isMetaIamRole` would describe the actual behaviour. |
+| M-04  | `InstanceProfile.instanceProfileArn` (marked required, but `?: string \| undefined`) | High | The JSDoc says "This field is required" but the TS type is `string \| undefined`. Across the SDK, every field is optional in the generated type; the doc note is informational. Not a name issue per se, but the type contradicts the documented contract. Flagged because the *name* implies it should always be populated, yet the type doesn't enforce it. |
+| M-05  | `skipValidation` (`AddInstanceProfile`) | Medium | The name implies skipping *all* validation; the JSDoc clarifies it only skips the AWS dry-run permission check. See V-02. |
+| M-06  | `isMetaInstanceProfile`             | Medium | The boolean's semantics ("for credential passthrough scenarios where the instance profile contains a meta-IAM role that can assume a wide range of roles") is much narrower than "is this a meta instance profile". Calling it `isCredentialPassthrough` or `isMetaIamRole` would describe the actual behaviour. |
 
 ### 2.7 Overly verbose / Redundant suffixes — Medium
 
@@ -161,9 +148,8 @@ are graded:
 | ----- | ----------------------------------- | -------- | ----- |
 | O-01  | `instanceProfileArn` (in `InstanceProfile`) | Medium | Inside a type already called `InstanceProfile`, prefixing the field with `instanceProfile` is redundant — `arn` alone (or `instanceProfileArn` only on request types, with `arn` on the entity) would suffice. Tautology pattern: `instanceProfile.instanceProfileArn`. |
 | O-02  | `isMetaInstanceProfile` (in `InstanceProfile`) | Medium | Same tautology: `instanceProfile.isMetaInstanceProfile`. `isMeta` alone (or `isMetaRole`) would suffice within the entity. |
-| O-03  | `unmarshalAddInstanceProfile_ResponseSchema` and 3 siblings | Medium | The pattern `unmarshal<Type>Schema` triple-states intent ("schema for unmarshalling X"). ~44 chars per constant; repeated across the codebase. Repo-wide convention; not local-fix territory. |
-| O-04  | `PACKAGE_SEGMENT` (`client.ts`)     | Low      | OK in context. |
-| O-05  | `ListInstanceProfiles_Response.instanceProfiles` | Medium | Inside `ListInstanceProfiles_Response`, the field `instanceProfiles` re-states the type prefix. `items` or `profiles` would suffice. Per-API codegen output. |
+| O-03  | `PACKAGE_SEGMENT` (`client.ts`)     | Low      | OK in context. |
+| O-04  | `ListInstanceProfiles_Response.instanceProfiles` | Medium | Inside `ListInstanceProfiles_Response`, the field `instanceProfiles` re-states the type prefix. `items` or `profiles` would suffice. Per-API codegen output. |
 
 ### 2.8 Singular / plural mismatches — Low
 
@@ -207,15 +193,14 @@ revisions can add fields without breaking the type signature. Not flagged.
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | G-01  | `AddInstanceProfile_Response` (proto nested-message style) | High | Direct port of Go's `pb.AddInstanceProfileResponse` / protobuf naming. TypeScript ecosystems do not use `_` separators between message and nested-message names; the codebase even disables ESLint for each occurrence. Should adopt the TS-idiomatic `AddInstanceProfileResponse`. |
-| G-02  | `unmarshalXxxSchema` / `marshalXxxSchema` | Medium | "Marshal/unmarshal" is the Go (and gRPC) verb pair. JS/TS code overwhelmingly uses **serialize / deserialize** (or **parse / stringify**) — see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON. New TS readers will look up "marshal" before they recognise it. Repo-wide convention; flagged once per package. |
-| G-03  | `RemoveInstanceProfile`            | Low | Pairs with `addInstanceProfile`. The "add/remove" pair is idiomatic in many languages; OK. |
+| G-02  | `RemoveInstanceProfile`            | Low | Pairs with `addInstanceProfile`. The "add/remove" pair is idiomatic in many languages; OK. |
 
 ### 2.14 Generic field names losing meaning — Low
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | F-01  | `instanceProfileArn`, `iamRoleArn`  | Low      | Well-qualified; meaning preserved out of context. Good. |
-| F-02  | `isMetaInstanceProfile`             | Medium   | Without the JSDoc, "meta instance profile" is a Databricks-internal term and conveys little. See C-03 / M-07. |
+| F-02  | `isMetaInstanceProfile`             | Medium   | Without the JSDoc, "meta instance profile" is a Databricks-internal term and conveys little. See C-03 / M-06. |
 | F-03  | `skipValidation`                    | Medium   | Without the JSDoc, unclear which validation. See V-02. |
 | F-04  | `instanceProfiles` (in `ListInstanceProfiles_Response`) | Low | Self-describing. Good. |
 | F-05  | `httpReq`, `respBody`, `body` (locals in `client.ts`) | Low | Locals only. |
@@ -261,7 +246,7 @@ package is exemplary in using ARNs as identifiers.)
 | ----- | ----------------------------------- | -------- | ----- |
 | TS-01 | `InstanceProfile.instanceProfileArn` | Medium  | Inside a type called `InstanceProfile`, the `instanceProfile` prefix on the field is tautological. See O-01. |
 | TS-02 | `InstanceProfile.isMetaInstanceProfile` | Medium | Same tautology: `isMeta` inside `InstanceProfile`. See O-02. |
-| TS-03 | `ListInstanceProfiles_Response.instanceProfiles` | Medium | Field re-states the entity type that fills the array. `items` or `profiles` would suffice. See O-05. |
+| TS-03 | `ListInstanceProfiles_Response.instanceProfiles` | Medium | Field re-states the entity type that fills the array. `items` or `profiles` would suffice. See O-04. |
 
 ### 2.20 Other observations
 
@@ -273,7 +258,6 @@ package is exemplary in using ARNs as identifiers.)
 | X-04  | `Client` (the class name itself)    | Medium   | The class is just `Client`. The package exports it as the top-level symbol, but a reader importing it as `import {Client} from '@databricks/sdk-instanceprofiles/v2'` may collide with other packages' `Client`. Most consumers will alias it (`InstanceProfilesClient`); flagging that the bare name doesn't carry scope. This is a repo-wide pattern (every package exports `Client`); not a per-package fix. |
 | X-05  | `pkgJson` (import alias)            | Low      | Standard short alias for `package.json`. OK. |
 | X-06  | `PACKAGE_SEGMENT.key` derives from `pkgJson.name.replace(/^@[^/]+\//, '')` (string transform on a constant) | Low | Identifier semantics OK; observation only. |
-| X-07  | Schema field `skip_validation` in `marshalAddInstanceProfileSchema` (line 147) | Low | The wire-format snake_case is correct. Note `skipValidation` doesn't appear in the `unmarshal` schema (it's a request-only flag) — also correct. |
 
 ---
 
@@ -283,19 +267,19 @@ package is exemplary in using ARNs as identifiers.)
 
 | Severity | Count |
 | -------- | ----- |
-| High     | 15    |
-| Medium   | 22    |
-| Low      | 30    |
-| **Total**| **67**|
+| High     | 14    |
+| Medium   | 19    |
+| Low      | 25    |
+| **Total**| **58**|
 
 ### 3.2 Top themes
 
 1. **Proto-style `_Response` suffix pollutes every response type.**
    Four interfaces (`AddInstanceProfile_Response`, `EditInstanceProfile_Response`,
-   `ListInstanceProfiles_Response`, `RemoveInstanceProfile_Response`) plus
-   four schema constants each require an `eslint-disable` for the naming
-   rule. Renaming to TS-idiomatic `AddInstanceProfileResponse` etc. would
-   eliminate 8 disable-comments and a Google-style violation in one sweep.
+   `ListInstanceProfiles_Response`, `RemoveInstanceProfile_Response`) each
+   require an `eslint-disable` for the naming rule. Renaming to TS-idiomatic
+   `AddInstanceProfileResponse` etc. would eliminate the disable-comments and
+   the Google-style violation in one sweep.
 
 2. **`add` / `remove` verbs mislead about scope.** The methods **register** /
    **unregister** an existing AWS instance profile with Databricks — neither
@@ -333,9 +317,6 @@ package is exemplary in using ARNs as identifiers.)
 
 ### 3.4 Cross-package consistency notes
 
-- The `marshal*` / `unmarshal*` schema-naming convention is consistent with
-  peer packages (e.g. `clusters`, `clusterpolicies`) and is therefore a
-  repo-wide concern, not a per-package fix.
 - The proto-style `_Response` suffix is consistent with peers and should be
   addressed at the codegen level.
 - `editInstanceProfile` (vs `updateInstanceProfile`) is a per-API decision

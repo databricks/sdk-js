@@ -4,14 +4,14 @@
 **Versions audited:** v1 AND v2
 **Inferred domain:** File operations on Databricks storage. `v1` is a small hand-written wrapper exposing only `upload` against the modern Files API (`/api/2.0/fs/files/...`). `v2` is the generated 1:1 port of the upstream API surface and is the union of TWO distinct underlying services: (a) the legacy DBFS API (`/api/2.0/dbfs/...`) — `addBlock`, `close`, `create`, `delete`, `getStatus`, `list`, `mkdirs`, `move`, `put`, `read`; and (b) the modern Files API (`/api/2.0/fs/...`) — `createDirectory`, `deleteDirectory`, `deleteFile`, `downloadFile`, `getDirectoryMetadata`, `getFileMetadata`, `listDirectoryContents`, `uploadFile`. Both surfaces are presented through a single `Client` class with no naming distinction between the two services.
 
-**Total weird names flagged:** 54
+**Total weird names flagged:** 49
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 17 |
-| Medium | 20 |
-| Low | 11 |
+| Medium | 17 |
+| Low | 9 |
 | Observation | 6 |
 
 ## v1 vs v2 comparison
@@ -423,25 +423,11 @@ Doc says don't set the field. Then why is the field public? Name is fine; flaggi
 
 Every legacy `Foo_Response` type carries an `eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.` directive because the underscore violates TS PascalCase. Modern API peers (`CreateDirectoryResponse`, `DownloadFileResponse`) need no such directive. Two conventions, one file — surface friction every time the generator runs.
 
-### 29. v2 `listDirectoryContentsIter` — naming inconsistency with `listDirectoryContents` — `src/v2/client.ts:689`
-
-```ts
-async listDirectoryContents(...): Promise<ListDirectoryResponse>
-async *listDirectoryContentsIter(...): AsyncGenerator<DirectoryEntry>
-```
-
-`...Iter` is a Go-style suffix (the Go SDK has `ListAll` / `Iter` helpers). TS convention would be `listDirectoryContents` (returns one page) and `iterateDirectoryContents` / `listDirectoryEntries` (yields each item). The `Iter` suffix also collides with TS iterator conventions where the method is just `[Symbol.asyncIterator]()` on the result.
-
-### 30. `Read_Response.data: Uint8Array` is base64 on the wire — `src/v2/model.ts:273,419-424`
-
-```ts
-unmarshalRead_ResponseSchema: ...
-  data: z.string().transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0))).optional()
-```
+### 29. `Read_Response.data: Uint8Array` is base64 on the wire — `src/v2/model.ts:273`
 
 The field is decoded from base64 on read; doc says "The base64-encoded contents of the file read." but the TS type is already `Uint8Array` (decoded). Consumers reading the docstring may think they have to decode themselves. Name could clarify: `bytes: Uint8Array` with doc "Already base64-decoded".
 
-### 31. v2 `index.ts` exports `FileInfo` but `v1/index.ts` does NOT export `DownloadRequest`/`DownloadResponse`-as-used — `src/v1/index.ts:3`
+### 30. v2 `index.ts` exports `FileInfo` but `v1/index.ts` does NOT export `DownloadRequest`/`DownloadResponse`-as-used — `src/v1/index.ts:3`
 
 ```ts
 export type {DownloadRequest, DownloadResponse, UploadRequest} from './model';
@@ -449,34 +435,15 @@ export type {DownloadRequest, DownloadResponse, UploadRequest} from './model';
 
 v1 exports `DownloadRequest`/`DownloadResponse` but the v1 client has NO download method. Dangling types — see net assessment.
 
-### 32. `marshalRequest` returns a `string` — name implies object — `src/v2/utils.ts:119`
-
-```ts
-export function marshalRequest(data: unknown, schema: z.ZodType): string {
-  return JSON.stringify(schema.parse(data));
-}
-```
-
-The verb "marshal" typically returns a marshalled object, not its serialised form. Name suggests "convert object to wire shape" but actually does "convert to wire JSON string". `serializeRequest` or `marshalRequestJson` would be more honest.
-
-### 33. `parseResponse` is asymmetric with `marshalRequest` — `src/v2/utils.ts:113`
-
-```ts
-export function parseResponse<T>(body: Uint8Array, schema: z.ZodType<T>): T
-export function marshalRequest(data: unknown, schema: z.ZodType): string
-```
-
-`parseResponse` and `marshalRequest` are inverse operations, but the verb pair is non-symmetric: `parse` ↔ `format` (or `marshal` ↔ `unmarshal`). Should be `marshalRequest`/`unmarshalResponse` OR `serializeRequest`/`parseResponse` — not the mix.
-
-### 34. `flattenQueryParams` — unused in this file — `src/v2/utils.ts:123`
+### 31. `flattenQueryParams` — unused in this file — `src/v2/utils.ts:123`
 
 Exported helper. Search shows it's never called by `client.ts` here. Name is generic and could collide with workspace-flattening utilities. Either dead code or genuine helper waiting for use.
 
-### 35. `readAll` is duplicated — `src/v1/utils.ts:23` and `src/v2/utils.ts:40`
+### 32. `readAll` is duplicated — `src/v1/utils.ts:23` and `src/v2/utils.ts:40`
 
 Same conceptual helper, two implementations (v1 uses `new Response(body).arrayBuffer()`, v2 walks the reader manually). Name OK; flagged as cross-version duplication.
 
-### 36. `PACKAGE_SEGMENT` — SCREAMING_SNAKE constant — `src/v2/client.ts:89`
+### 33. `PACKAGE_SEGMENT` — SCREAMING_SNAKE constant — `src/v2/client.ts:89`
 
 ```ts
 const PACKAGE_SEGMENT = {
@@ -487,7 +454,7 @@ const PACKAGE_SEGMENT = {
 
 SCREAMING_SNAKE is only conventional for true compile-time primitives in TS. This is a plain object; `packageSegment` is fine.
 
-### 37. `HttpCallOptions` duplicated across files — `src/v1/utils.ts:13`, `src/v2/utils.ts:15`
+### 34. `HttpCallOptions` duplicated across files — `src/v1/utils.ts:13`, `src/v2/utils.ts:15`
 
 ```ts
 export interface HttpCallOptions {
@@ -501,23 +468,23 @@ Same name, same shape, in two files in the same package. Should be shared / re-e
 
 ## Low severity
 
-### 38. v1 `encodeFilePath` vs v2 `encodeMultiSegmentPath` — `src/v1/utils.ts:36`, `src/v2/utils.ts:156`
+### 35. v1 `encodeFilePath` vs v2 `encodeMultiSegmentPath` — `src/v1/utils.ts:36`, `src/v2/utils.ts:156`
 
 Same function, renamed in v2. Good rename (v2's is more accurate), but the rename means a v1 user upgrading sees an unexplained name change.
 
-### 39. `Move.sourcePath` / `Move.destinationPath` — could be `source` / `destination` — `src/v2/model.ts:233-236`
+### 36. `Move.sourcePath` / `Move.destinationPath` — could be `source` / `destination` — `src/v2/model.ts:233-236`
 
 The type name is `Move`; the fields are `sourcePath`/`destinationPath`. Inside a `Move` request, the `Path` suffix is redundant — `source: string; destination: string`. Acceptable; flagged because it's the longer form against the rest of the file's `path: string`.
 
-### 40. `pageSize: number` — should mention coercion — `src/v2/model.ts:192`
+### 37. `pageSize: number` — should mention coercion — `src/v2/model.ts:192`
 
 JSDoc says "The maximum value is 1000. Values above 1000 will be coerced to 1000." Type does not encode the constraint. (TS branded types could; not a naming issue.)
 
-### 41. `pageToken` — opaque token, marked `string | undefined` — `src/v2/model.ts:203`
+### 38. `pageToken` — opaque token, marked `string | undefined` — `src/v2/model.ts:203`
 
 Best practice is to brand the type (`PageToken = string & {readonly __brand: unique symbol}`) to prevent passing an arbitrary string. Not a naming issue per se.
 
-### 42. v2 `index.ts` exports neither `Client` constants nor `VERSION` — `src/v2/index.ts:3-6`
+### 39. v2 `index.ts` exports neither `Client` constants nor `VERSION` — `src/v2/index.ts:3-6`
 
 ```ts
 export {Client} from './client';
@@ -526,11 +493,11 @@ export {} from './model';   // <-- empty named export
 
 Line 5 (`export {} from './model';`) is a no-op. Not a name bug, just dead syntax.
 
-### 43. `directoryPath ?? ''` fallback in client — `src/v2/client.ts:462,492,517,546,595,626,660,716`
+### 40. `directoryPath ?? ''` fallback in client — `src/v2/client.ts:462,492,517,546,595,626,660,716`
 
 8 places where `directoryPath` is coerced to empty string. Field is typed optional but the URL must have it. Either type the field as required, or document the fallback. Name OK.
 
-### 44. v1 `Client.upload` returns `Promise<void>` but JSDoc says "does not retry" — `src/v1/client.ts:33-36`
+### 41. v1 `Client.upload` returns `Promise<void>` but JSDoc says "does not retry" — `src/v1/client.ts:33-36`
 
 ```ts
 /**
@@ -543,33 +510,25 @@ async upload(req: UploadRequest, options?: CallOptions): Promise<void> {
 
 `upload` is the name; the JSDoc tells you it doesn't retry. v2 inherits the same property for `uploadFile` but the doc on `client.ts:706` doesn't say so. Inconsistent docs across versions.
 
-### 45. `unmarshal*Schema` constant names — `src/v2/model.ts:290-431`
-
-19 exported constants named `unmarshal<Type>Schema`. Verbose but consistent. Acceptable.
-
-### 46. `marshal*Schema` constant names — `src/v2/model.ts:433-510`
-
-7 exported constants. Acceptable; mirror of unmarshal.
-
-### 47. `pkgJson.name.replace(/^@[^/]+\//, '')` — `src/v2/client.ts:90`
+### 42. `pkgJson.name.replace(/^@[^/]+\//, '')` — `src/v2/client.ts:90`
 
 Inlined regex to strip `@scope/` prefix. Should be a helper named `packageName`. Not a naming issue per se.
 
-### 48. v1 imports `@databricks/sdk-core/http` (not `@databricks/sdk-databricks/http`) — `src/v1/client.ts:9`
+### 43. v1 imports `@databricks/sdk-core/http` (not `@databricks/sdk-databricks/http`) — `src/v1/client.ts:9`
 
 Different package than the audit but worth flagging: v1 still uses `sdk-core` while v2 uses `sdk-databricks` for some imports — internal inconsistency.
 
 ## Observations
 
-### 49. The empty `export {} from './model';` line — `src/v2/index.ts:5`
+### 44. The empty `export {} from './model';` line — `src/v2/index.ts:5`
 
 Likely a generator artifact; no impact.
 
-### 50. v1 has 78 lines of utils for one operation; v2 has 196 lines of utils for ten operations — files are well-sized.
+### 45. v1 has 78 lines of utils for one operation; v2 has 196 lines of utils for ten operations — files are well-sized.
 
-### 51. `Client` constructor's User-Agent code is duplicated across packages — out of scope here.
+### 46. `Client` constructor's User-Agent code is duplicated across packages — out of scope here.
 
-### 52. `'head'` HTTP method passed in lowercase to `buildHttpRequest` — `src/v2/client.ts:600,637`
+### 47. `'head'` HTTP method passed in lowercase to `buildHttpRequest` — `src/v2/client.ts:600,637`
 
 ```ts
 const httpReq = buildHttpRequest('head', url, headers, callSignal);
@@ -577,10 +536,10 @@ const httpReq = buildHttpRequest('head', url, headers, callSignal);
 
 Other calls use `'POST'`/`'GET'`/`'PUT'`/`'DELETE'` uppercase. Cosmetic — actual bug because `buildHttpRequest` does not normalise — but flagged here as casing inconsistency.
 
-### 53. `read()` JSDoc references `RESOURCE_DOES_NOT_EXIST`, `MAX_READ_SIZE_EXCEEDED`, `INVALID_PARAMETER_VALUE` — strings, not enums — `src/v2/client.ts:412-418`
+### 48. `read()` JSDoc references `RESOURCE_DOES_NOT_EXIST`, `MAX_READ_SIZE_EXCEEDED`, `INVALID_PARAMETER_VALUE` — strings, not enums — `src/v2/client.ts:412-418`
 
 Error codes are referenced as freeform strings in JSDoc. Out of naming scope.
 
-### 54. `listDirectoryContentsIter` is the only iterator method on the client — `src/v2/client.ts:689`
+### 49. Legacy DBFS `list` lacks pagination wire shape — `src/v2/model.ts:160,178`
 
-The legacy `list` does not have an `Iter` variant (it doesn't paginate). Asymmetry of pagination support across the legacy/modern surfaces, reflected in method naming.
+The modern Files API `listDirectoryContents` carries `pageSize` / `pageToken` on the request and `nextPageToken` on the response. The legacy DBFS `list` (`ListStatus` request) has only `path` and returns `ListStatus_Response` with no paging cursor — the JSDoc on `list` even warns of a 10 K file cap. Two list shapes for the same conceptual operation, one with pagination wire fields and one without.

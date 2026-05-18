@@ -3,15 +3,15 @@
 **Path:** `packages/accountaccesscontrol/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Account-level Databricks IAM rule sets — list assignable roles for a resource and read/replace the grant rules attached to that resource.
-**Total weird names flagged:** 18
+**Total weird names flagged:** 16
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 3 |
 | Medium | 7 |
-| Low | 5 |
-| Observation | 3 |
+| Low | 4 |
+| Observation | 2 |
 
 ## High severity
 
@@ -85,25 +85,19 @@
 - **Suggested name:** Confirm the project-wide policy. If the codebase uses `eTag` elsewhere, align here.
 - **Rationale:** Defer to global policy.
 
-### 12. `accountId` vs `account_id` snake-case duality — `src/v1/model.ts:7`
-- **Why weird:** The TS interface uses `accountId`, but the marshal/unmarshal transforms (line 181) convert to `account_id`. This is intentional and standard for a generated SDK; flagging only because it means the public surface is camelCase but logs and wire bodies are snake_case. Nothing to do.
-- **Category:** 14 (Go/Java-style name parallel)
-- **Suggested name:** None — this is correct.
-- **Rationale:** Documenting the convention.
-
-### 13. `GetRuleSetRequest.name` ambiguity with `RuleSet.name` — `src/v1/model.ts:38`
+### 12. `GetRuleSetRequest.name` ambiguity with `RuleSet.name` — `src/v1/model.ts:38`
 - **Why weird:** A request type and a response type both have a `name` field with subtly different semantics: the request `name` is the *lookup key* the caller supplies; the response `name` is the *canonical name* the server returns. Same word, two roles. Common pattern, but worth flagging.
 - **Category:** 1 (vague)
 - **Suggested name:** Acceptable, but consider `GetRuleSetRequest.resourceName` for clarity.
 - **Rationale:** Minor readability win.
 
-### 14. `flattenQueryParams` is exported but unused — `src/v1/utils.ts:123`
+### 13. `flattenQueryParams` is exported but unused — `src/v1/utils.ts:123`
 - **Why weird:** This helper is `export`ed from `utils.ts`. It is not used by `client.ts` and is not re-exported from `index.ts`. Either it is dead code or the export modifier is wrong.
 - **Category:** 11 (effectively trivial / dead)
 - **Suggested name:** Drop the `export` keyword if internal-only; if it is meant for other generated clients, move it to a shared core package.
 - **Rationale:** Hygiene.
 
-### 15. `HttpCallOptions` shadows `CallOptions` — `src/v1/utils.ts:15`
+### 14. `HttpCallOptions` shadows `CallOptions` — `src/v1/utils.ts:15`
 - **Why weird:** The package imports `CallOptions` from `@databricks/sdk-options/call` and defines its own `HttpCallOptions` here. The names suggest the latter is a subtype/extension of the former, but they actually describe different concerns — `CallOptions` is retry/signal/timeout policy; `HttpCallOptions` is request + client + logger bundle. The naming makes them look related.
 - **Category:** 1 (vague/generic)
 - **Suggested name:** `HttpExecutionContext` or `HttpCallContext`.
@@ -116,9 +110,6 @@
 
 ### O2. `executeCall` / `executeHttpCall` naming — `src/v1/utils.ts:26,65`
 - Two functions with overlapping names. `executeCall` is the public-CallOptions translator; `executeHttpCall` is the wire-level request executor. The names do not signal that `executeCall` wraps the `Call` callback (which itself wraps `executeHttpCall`). Could be `applyCallOptions` and `sendHttpRequest` respectively. Generated code; flag for upstream.
-
-### O3. `parseResponse` / `marshalRequest` asymmetry — `src/v1/utils.ts:113,119`
-- The pair are conceptual inverses (decode wire → typed; encode typed → wire) but use different verbs. `parseResponse`/`serializeRequest` or `unmarshalResponse`/`marshalRequest` would pair better. Generated code.
 
 ## Domain glossary
 - `accountId` — Databricks account UUID (the top-level tenant container, distinct from a workspace).

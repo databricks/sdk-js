@@ -3,15 +3,15 @@
 **Path:** `packages/externallineage/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** External Lineage relationships on Unity Catalog — create / update / delete / list typed relationships between Databricks objects (tables, paths, model versions) and external metadata objects (e.g., Tableau dashboards, Looker views), plus optional per-column relationships.
-**Total weird names flagged:** 31
+**Total weird names flagged:** 26
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 8 |
-| Medium | 11 |
+| Medium | 7 |
 | Low | 8 |
-| Observation | 4 |
+| Observation | 3 |
 
 ## High severity
 
@@ -77,61 +77,37 @@
 - **Suggested name:** `ExternalLineageClient` (matches the package name and avoids collisions).
 - **Rationale:** A user doing `import {Client} from '@databricks/sdk-externallineage'` and `import {Client} from '@databricks/sdk-externalmetadata'` cannot, and must rename. Sister packages share the problem; treat as generator-wide.
 
-### 11. `marshalCreateRequestExternalLineageSchema` / `marshalDeleteRequestExternalLineageSchema` / `marshalUpdateRequestExternalLineageSchema` — `src/v1/model.ts:477, 497, 588`
-- **Why weird:** Three Zod schemas named with the inverted `*RequestExternalLineage` naming (see #3). They are structurally identical — same five fields. The names burn ~37 characters each.
-- **Category:** 7 (overly verbose), 12 (duplicate concept — three identical schemas), 14 (Go-style verb `marshal`).
-- **Suggested name:** Collapse to one schema `marshalExternalLineageRelationshipSchema` and reuse for all three call sites. Or, if separation must be preserved for future divergence, name them `marshalCreate…RelationshipSchema` to match the entity-first convention.
-- **Rationale:** Three identical schemas is generator overhead. The names re-state what the type system already says.
-
-### 12. `unmarshalExternalLineageRelationshipSchema` and 9 sibling Zod schemas — `src/v1/model.ts:257-465`
-- **Why weird:** All Zod schemas use `marshal`/`unmarshal` (Go terminology) where TS / JS users say `encode`/`decode` or `serialize`/`parse`. Within Zod's own docs the verb is `parse`. Mixing Go vocabulary with a TS library is jarring.
-- **Category:** 14 (Go-style names imported into TS), 17 (verb inconsistency — Zod's own API is `.parse()`).
-- **Suggested name:** `decodeExternalLineageRelationship` / `encodeExternalLineageRelationship`, or `externalLineageRelationshipFromWire` / `externalLineageRelationshipToWire`.
-- **Rationale:** Marshal/unmarshal is a Go term of art (`encoding/json` package); TS developers reach for `JSON.stringify`/`JSON.parse` or Zod's `parse`/`safeParse`. The current name forces a vocabulary translation.
-
-### 13. `executeCall` vs. `executeHttpCall` — `src/v1/utils.ts:26, 65`
+### 11. `executeCall` vs. `executeHttpCall` — `src/v1/utils.ts:26, 65`
 - **Why weird:** Two functions named "execute" — one runs the retry/rate-limit shell, the other does the actual HTTP request. The names do not communicate the layering. Inside each client method, `executeHttpCall` is wrapped in `call`, then `executeCall(call, options)` runs it. The reader has to read the bodies to figure out who calls whom.
 - **Category:** 1 (vague), 12 (duplicate concept — both are "execute"), 17 (inconsistent layering name).
 - **Suggested name:** `runWithRetry(call, options)` (outer) and `sendHttpRequest(opts)` (inner). Or `executeWithPolicies` + `executeHttpRequest`.
 - **Rationale:** The current names hide the fact that one wraps the other. Layer names should make the call graph obvious.
 
-### 14. `marshalRequest(data, schema)` and `parseResponse(body, schema)` — `src/v1/utils.ts:119, 113`
-- **Why weird:** The functions take an arbitrary `unknown` and a Zod schema and return JSON string / typed object. The names say "Request"/"Response" but the functions are content-agnostic. The pair also uses inconsistent verbs: `marshal` (Go) for the encode side and `parse` (TS/Zod) for the decode side.
-- **Category:** 1 (vague — `Request`/`Response` does not constrain), 6 (misleading — works for any payload), 17 (asymmetric verb pair).
-- **Suggested name:** `encodeJson` / `decodeJson`, or `toWireJson` / `fromWireJson`. Pair the verbs so they're symmetric.
-- **Rationale:** `Request`/`Response` should refer to a request or response specifically. Symmetric verbs make the pair readable.
-
-### 15. `updateRequestExternalLineageFieldMaskSchema` and `updateRequestExternalLineageFieldMask(...)` — `src/v1/model.ts:646, 660`
-- **Why weird:** Two exports differ only by the `Schema` suffix; the helper function and its lookup table share a stem. A reader has to look up which is the runtime schema vs. the factory function. Function/data naming should be more distinguishable.
-- **Category:** 17 (inconsistent action verbs — schema is a noun, but the function uses the same name as a verbless noun).
-- **Suggested name:** `buildUpdateRequestExternalLineageFieldMask(...)` for the function, leave the schema with `Schema` suffix.
-- **Rationale:** Functions should be verb-prefixed; the schema-vs-builder distinction should jump off the page. Sister packages share this problem (generator-wide).
-
-### 16. `buildHttpRequest` returns `HttpRequest` — `src/v1/utils.ts:96`
+### 12. `buildHttpRequest` returns `HttpRequest` — `src/v1/utils.ts:96`
 - **Why weird:** A pure object-literal-with-optional-fields helper named "build" suggests something more elaborate (e.g., builder pattern). The function just spreads optional fields into a struct.
 - **Category:** 1 (vague), 6 (misleading — implies builder pattern, is just an object literal).
 - **Suggested name:** `makeHttpRequest` or inline at the call sites.
 - **Rationale:** "Build" carries connotations from Java/JS Builder patterns; this is a one-liner.
 
-### 17. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 13. `HttpCallOptions` — `src/v1/utils.ts:15`
 - **Why weird:** Type called `Options` but it is an internal context bag (request + http client + logger), not user-tunable options. The user-facing options type is `CallOptions` (different file). Mixing "options" for two different concepts is confusing.
 - **Category:** 1 (vague suffix `Options`), 8 (redundant suffix — internal context bags should not be called `Options`).
 - **Suggested name:** `HttpCallContext` or `HttpCallArgs`.
 - **Rationale:** Reserve `Options` for things callers tune; use `Context`/`Args` for the internal bag.
 
-### 18. `flattenQueryParams` — `src/v1/utils.ts:123`
+### 14. `flattenQueryParams` — `src/v1/utils.ts:123`
 - **Why weird:** Function recurses into objects and arrays to flatten them into URL-search-parameter dot-notation form. The "arrays of objects are not yet supported" comment shows the implementation is partial. The name says "flatten" but the function in fact *recurses* and *appends* to a `URLSearchParams` instance — it does not return a flat structure.
 - **Category:** 1 (vague — "flatten" doesn't say "append to URLSearchParams"), 6 (misleading — looks pure, mutates a parameter), 17 (verb inconsistency — name says "flatten" but action is "append").
 - **Suggested name:** `appendDotPathParams` or `serializeQueryDotPath`.
 - **Rationale:** A function that mutates its third argument should not be named after the value it returns (`flatten` reads as a pure transform). Generator-wide concern (every package duplicates this helper).
 
-### 19. `LineageTableInfo.name` — `src/v1/model.ts:201`
+### 15. `LineageTableInfo.name` — `src/v1/model.ts:201`
 - **Why weird:** Field literally called `name` with JSDoc "Name of Table." (capitalised "Table" mid-sentence). The neighbour fields are `catalogName` and `schemaName` — so the type has `(name, catalogName, schemaName)`. Inconsistent: two fields use the `*Name` suffix while the table name itself drops it. Most readers will reach for `tableName`.
 - **Category:** 1 (vague — `name` of what?), 15 (generic field name losing meaning), 17 (inconsistent within the same type — `name` vs `catalogName` vs `schemaName`).
 - **Suggested name:** `tableName: string` (and JSDoc punctuation fix).
 - **Rationale:** Within `LineageTableInfo`, the canonical name for "the table's name" is `tableName`. Mixing `name`, `catalogName`, `schemaName` makes the table's own name look special when it isn't.
 
-### 20. `ExternalLineageRelationshipExternalMetadata.name` — `src/v1/model.ts:131`
+### 16. `ExternalLineageRelationshipExternalMetadata.name` — `src/v1/model.ts:131`
 - **Why weird:** Field is `name?: string` with no JSDoc. Type is named to encode "external metadata object on the external-lineage edge". Given the wider package uses `name` for tables, models, external metadata, paths-via-`url`, the field gives up domain meaning to be terse.
 - **Category:** 1 (vague `name`), 15 (generic field name), 19 (underspecified ID — for `ExternalMetadata`, the `name` is actually a fully-qualified resource path including the metastore).
 - **Suggested name:** `externalMetadataName: string` with a JSDoc clarifying the expected format (mirror the `ExternalMetadata.name` JSDoc on the externalmetadata package).
@@ -139,49 +115,49 @@
 
 ## Low severity
 
-### 21. `ExternalLineageRelationshipPath.url` — `src/v1/model.ts:155`
+### 17. `ExternalLineageRelationshipPath.url` — `src/v1/model.ts:155`
 - **Why weird:** Field is `url?: string` on a type called `*Path`. A `Path` whose only field is a `url` — two different nouns for the same thing. Compare with `LineageFileInfo.path` and `ExternalLineageRelationshipPath.url`: the file `path` and the lineage-path `url` carry the same kind of value.
 - **Category:** 1 (vague), 6 (misleading — `Path` and `url` are not the same), 12 (duplicate concept — `path` and `url` interchangeable across the package), 17 (inconsistent vocabulary).
 - **Suggested name:** Either rename the type to `LineagePathObject` and call the field `path: string`, or rename the field to keep the type name: `path?: string`.
 - **Rationale:** Pick one of `path` or `url` for storage location strings and stick to it.
 
-### 22. `LineageModelVersionInfo.modelName` vs `version` — `src/v1/model.ts:191, 193`
+### 18. `LineageModelVersionInfo.modelName` vs `version` — `src/v1/model.ts:191, 193`
 - **Why weird:** Type carries `modelName` (string) and `version` (number). The `version` is described as "Version number of the model" — but the related type `ExternalLineageRelationshipModelVersion` (#8) uses `version: string`. Same concept, two types: `number` in the response, `string` on the relationship side.
 - **Category:** 16 (field contradicting type domain — `version` is `number` here, `string` elsewhere), 17 (inconsistent type for the same concept).
 - **Suggested name:** Pick one type and stick to it. (Likely `string` because UC model versions can be e.g. `"1"`, `"prod"`, `"latest"`.)
 - **Rationale:** Type drift on the same field across types implies one of them is wrong on the wire.
 
-### 23. `LineageFileInfo.securableName`, `securableType`, `storageLocation` — `src/v1/model.ts:179-183`
+### 19. `LineageFileInfo.securableName`, `securableType`, `storageLocation` — `src/v1/model.ts:179-183`
 - **Why weird:** Type is `LineageFileInfo` but three of its four data-bearing fields are about a *securable* (which the JSDoc says lives "on the path"). The type is mostly about the securable, not the file. The fourth field is `path: string` ("URL of the path"); reread: URL of the path. Three fields named with `securable*` on a type called `*FileInfo` looks like the type name was chosen too early.
 - **Category:** 6 (misleading type name — `FileInfo` advertises "info about a file" but it's "info about a securable on a file"), 15 (generic `path` field doing structured work).
 - **Suggested name:** `LineageFileSecurableInfo`, or rename the fields to drop `securable` if the file aspect is meant to dominate. Also expand the `path` JSDoc — "URL of the path" is circular.
 - **Rationale:** Type name should reflect the dominant content; current name is misleading.
 
-### 24. `eventTime` repeated on four sibling types — `src/v1/model.ts:171, 185, 195, 207`
+### 20. `eventTime` repeated on four sibling types — `src/v1/model.ts:171, 185, 195, 207`
 - **Why weird:** Every `Lineage*Info` type carries `eventTime?: Temporal.Instant` with identical JSDoc "Timestamp of the lineage event." This is fine for parallelism, but the field is *also* not present on `ExternalLineageRelationship` (the actual edge metadata) — only on the node-side `Info` types. A reader expects the edge to carry the event time.
 - **Category:** 12 (duplicate concept — four identical fields), 6 (misleading — the edge type *lacks* the event time, an asymmetry the names hide).
 - **Suggested name:** Lift `eventTime` into a shared `LineageNode` base interface if duplication bothers; or document why the edge lacks one.
 - **Rationale:** Four-fold repetition is a generator artefact. The asymmetry against the edge is the hidden bit.
 
-### 25. `req` parameter and `respBody` / `resp` locals — `src/v1/client.ts:72, 85-92, 107, 134-186, 202-235`
+### 21. `req` parameter and `respBody` / `resp` locals — `src/v1/client.ts:72, 85-92, 107, 134-186, 202-235`
 - **Why weird:** Two stages produce `respBody: Uint8Array` then `resp: ExternalLineageRelationship`. The names differ only by `Body`; the reader has to track that one is bytes, one is parsed.
 - **Category:** 5 (cryptic abbreviation), 17 (`respBody` keeps `Body`, `resp` drops the implied `Parsed`).
 - **Suggested name:** `rawBody` + `result` (or `parsedResponse`).
 - **Rationale:** Distinguish stages by meaningful nouns, not by suffix differences on the same root.
 
-### 26. `httpReq` local variable — `src/v1/client.ts:84, 123, 162, 220`
+### 22. `httpReq` local variable — `src/v1/client.ts:84, 123, 162, 220`
 - **Why weird:** Inside a method that already has `req: …Request`, a second variable `httpReq: HttpRequest` shares the same `req` root with a different prefix. Easy to grab the wrong one.
 - **Category:** 5 (cryptic abbreviation), 12 (duplicate concept — two `req`s in the same scope).
 - **Suggested name:** `httpRequest` (no abbreviation) or `wireRequest`.
 - **Rationale:** Avoid forking the same identifier across two layers in the same scope.
 
-### 27. `Call` type and `call` variable — `src/v1/client.ts:81, 120, 159, 217`
+### 23. `Call` type and `call` variable — `src/v1/client.ts:81, 120, 159, 217`
 - **Why weird:** Variable named `call` of type `Call` — same word for the variable, type, and the API method semantics. Inside `executeCall(call, options)` the verb-noun collision is jarring.
 - **Category:** 1 (vague), 12 (duplicate concept).
 - **Suggested name:** `runRequest` / `sendRequest` for the variable; reserve `Call` for the type.
 - **Rationale:** Type-name collisions read fine in IDE but obscure prose-style reads.
 
-### 28. `PACKAGE_SEGMENT` — `src/v1/client.ts:40`
+### 24. `PACKAGE_SEGMENT` — `src/v1/client.ts:40`
 - **Why weird:** `SEGMENT` is unspecific; the value is `{key, value}` for the User-Agent identity. The comment above does the documentation work the name should.
 - **Category:** 1 (vague — `Segment` of what?).
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT` or `PACKAGE_USER_AGENT_ID`.
@@ -189,29 +165,23 @@
 
 ## Observations
 
-### 29. Method names re-state the entity verbosely
+### 25. Method names re-state the entity verbosely
 All four methods (`createExternalLineageRelationship`, `updateExternalLineageRelationship`, `deleteExternalLineageRelationship`, `listExternalLineageRelationships`) end with `ExternalLineageRelationship`. The package is *named* `externallineage`, so the entity is obvious from the import path. `client.create(...)` / `client.list(...)` would be both terser and more readable, but generator-wide consistency probably wins.
 - **Category:** 7 (overly verbose) — generator-wide pattern, listed as observation only.
 
-### 30. `ListExternalLineageRelationshipsResponse.externalLineageRelationships` field name
+### 26. `ListExternalLineageRelationshipsResponse.externalLineageRelationships` field name
 The response wraps an array under the field `externalLineageRelationships` (35 characters). The type of that array is `ExternalLineageInfo[]` — *not* `ExternalLineageRelationship[]`. So a field named `externalLineageRelationships` is actually a list of `ExternalLineageInfo`. This is the same Info/Relationship muddle from #6.
 - **Category:** 6 (misleading — field name promises one type, returns another), 12 (duplicate concept).
 
-### 31. Wire-format singular `external_lineage_info`
+### 27. Wire-format singular `external_lineage_info`
 The unmarshal schema at `model.ts:279` maps the wire key `external_lineage_info` (singular) onto the TS field `externalLineageInfo`. The wire is consistent with the TS muddle. Worth flagging as upstream: the API itself names the edge-metadata field `external_lineage_info` when it would more accurately be `relationship`.
 - **Category:** 6 (misleading), generator-wide concern.
-
-### 32. `listExternalLineageRelationshipsIter` — `src/v1/client.ts:180`
-- **Why weird:** Suffix `Iter` is Go-style (Go uses `*Iterator` types). TS has no `Iter` convention — typical names are `AsyncIterable`, `*Stream`, or just verb-only with the return type tagged as `AsyncGenerator`. Also the method takes the same request the non-`Iter` variant takes and silently mutates the local clone of `pageReq.pageToken` to walk pages.
-- **Category:** 14 (Go-style name), 17 (action-verb inconsistency — non-iter method is `listExternalLineageRelationships`, no `List` prefix needed on the async-generator twin).
-- **Suggested name:** `streamExternalLineageRelationships` or `iterateExternalLineageRelationships` (returns `AsyncIterable<ExternalLineageInfo>`).
-- **Rationale:** `Iter` is Go terminology. TS convention prefers `stream`/`iterate`/`*Iterable`.
 
 ## Domain glossary
 - `External Lineage` — relationships connecting Databricks (UC) data assets to non-Databricks systems (Tableau dashboards, Looker views, Power BI reports, BigQuery tables, etc.). The "edge" is `ExternalLineageRelationship`.
 - `UC` / Unity Catalog — the governance layer that owns the source/target objects on the Databricks side (tables, paths, model versions).
 - `Securable` — UC concept for any governed object; see `LineageFileInfo.securableType`/`securableName`. Not surfaced as its own type in this package.
-- `Model Version` — MLflow registered-model version, identified by `(modelName, version)` pair. Note the type-drift between `number` (in `LineageModelVersionInfo`) and `string` (in `ExternalLineageRelationshipModelVersion`) — see #22.
+- `Model Version` — MLflow registered-model version, identified by `(modelName, version)` pair. Note the type-drift between `number` (in `LineageModelVersionInfo`) and `string` (in `ExternalLineageRelationshipModelVersion`) — see #18.
 - `External Metadata` — sister package `externalmetadata`. The edge type here references it by name only (`ExternalLineageRelationshipExternalMetadata.name`).
 - `wkt` — Well-Known Types (import `@databricks/sdk-core/wkt`, used for `FieldMask`).
 - `wire` — JSON-on-the-wire representation; `marshal`/`unmarshal` schemas translate between TS camelCase and wire snake_case.

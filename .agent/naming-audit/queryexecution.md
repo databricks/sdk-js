@@ -9,14 +9,14 @@ GET = poll, DELETE = cancel). The package name (`queryexecution`) is much broade
 what it actually does (lakeview-dashboard query lifecycle). Confusing overlap with
 sibling packages `statementexecution` (general SQL Statement Execution API),
 `queryhistory` (history of executed queries), and `queries` (saved query definitions).
-**Total weird names flagged:** 36
+**Total weird names flagged:** 30
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 8 |
-| Medium | 15 |
-| Low | 9 |
+| High | 6 |
+| Medium | 12 |
+| Low | 8 |
 | Observation | 4 |
 
 ## High severity
@@ -39,151 +39,122 @@ sibling packages `statementexecution` (general SQL Statement Execution API),
 - **Suggested name:** `ExecutePublishedQueryResponse` (matching scope).
 - **Rationale:** The asymmetric prefix forces callers to mentally translate between two near-identical names. Symmetric request/response pairs are the SDK norm.
 
-### 4. `CancelQueryExecutionResponseStatus.status` discriminated union — `src/v1/model.ts:22-32`
-- **Why weird:** The type is named `CancelQueryExecutionResponseStatus` (so `Status`-the-suffix), but its main payload is *also* called `status` (a discriminated union over `success`/`pending`). So you write `responseStatus.status` to access the status of the status.
-- **Category:** 1 (vague — `status.status` reads as redundant), 12 (duplicate concept — same word twice in one expression), 20 (type-suffix tautology).
-- **Suggested name:** Rename outer type to `CancelTokenResult` (or `CancelOutcome`).
-- **Rationale:** When the same word appears at two adjacent levels of a structure (`x.status.status`), it usually means one of them is misnamed. Here the inner one is the actual discriminant; the outer "Status" is a redundant suffix.
-
-### 5. `PollQueryStatusResponse.data` — `src/v1/model.ts:82`
+### 4. `PollQueryStatusResponse.data` — `src/v1/model.ts:82`
 - **Why weird:** Top-level field named `data` on a response object. `data` is the most generic possible field name (rule 15 in the prompt: "Generic field names losing meaning"). It happens to hold *per-token statuses*, but the name gives a reader zero hint of that.
 - **Category:** 1 (vague), 15 (generic field name losing meaning).
 - **Suggested name:** `statuses` (plural, matches the array shape) or `tokenStatuses`.
 - **Rationale:** `data` should never be the name of the only field on a response. The wire calls it `data`, but a TS SDK can do better.
 
-### 6. `QueryResponseStatus` vs. `CancelQueryExecutionResponseStatus` — `src/v1/model.ts:22,89`
+### 5. `QueryResponseStatus` vs. `CancelQueryExecutionResponseStatus` — `src/v1/model.ts:22,89`
 - **Why weird:** Two near-identical types differ only by the verbs they accept (`CancelQueryExecutionResponseStatus` has `success`/`pending`, `QueryResponseStatus` has `success`/`pending`/`canceled`/`closed`). Both wrap discriminated unions over the same vocabulary. They could be unified by making the cancel response use a subset of `QueryResponseStatus`. The fact that the names are *different but parallel* makes the duplication harder to spot.
 - **Category:** 12 (duplicate concept — two types modelling the same idea), 17 (inconsistent action-verb prefix — one uses `Cancel*ResponseStatus`, the other uses `*ResponseStatus`).
 - **Suggested name:** Collapse into one `QueryResponseStatus`, drop the `Cancel*ResponseStatus` and use the unified type with only the arms that apply.
 - **Rationale:** Two types with the same purpose is a maintenance hazard. The names actively conceal the duplication by spelling things differently.
 
-### 7. `Client` class name — `src/v1/client.ts:41`
+### 6. `Client` class name — `src/v1/client.ts:41`
 - **Why weird:** A class literally named `Client` at the top level of the package's API surface, re-exported as just `Client`. Identical to `dataclassification.md` Finding #11 and a repeated pattern across the SDK. A user importing `Client` from `@databricks/sdk-queryexecution` and another `Client` from `@databricks/sdk-statementexecution` collides on the namespace.
 - **Category:** 1 (vague — `Client` is the most generic name possible), 15 (generic name).
 - **Suggested name:** `QueryExecutionClient` (or, per #1, `PublishedDashboardQueryClient`).
 - **Rationale:** Same as the cross-SDK pattern: every API package has a `Client`, and combined imports require renaming. The collision risk grows with each added package.
 
-### 8. `unmarshalPollQueryStatusResponseDataSchema` — `src/v1/model.ts:167`
-- **Why weird:** Five stacked words: `unmarshal` + `Poll` + `QueryStatus` + `Response` + `Data` + `Schema`. The triple-`Schema`-like suffix repeats both `Status` (from inner) and `Schema` (from zod-helper convention). The variable definition spans three lines just by signature. Worst-offender length in the file.
-- **Category:** 5 (cryptic — hard to parse), 7 (overly verbose), 8 (redundant suffix — `Response` + `Data` are both meta-suffixes), 14 (Go-style `marshal`/`unmarshal`).
-- **Suggested name:** `decodeTokenStatusEntrySchema`.
-- **Rationale:** A function name should fit a short line. Five stacked qualifiers is a sign that several layers of abstraction are leaking into the identifier.
-
 ## Medium severity
 
-### 9. `PendingStatus` and `SuccessStatus` types — `src/v1/model.ts:60,105`
+### 7. `PendingStatus` and `SuccessStatus` types — `src/v1/model.ts:60,105`
 - **Why weird:** Two types share the `Status` suffix, but only one of them ("Success") carries the `truncated` boolean. Their names suggest they are siblings of an enum (`Pending` vs `Success`), but `Pending` only has `dataToken`, while `Success` has `dataToken` + `truncated`. This means the *only* thing that distinguishes a "success" from a "pending" at the type level is the *presence* of `truncated` — but since `truncated` is `optional`, neither type's instance can be reliably distinguished from the other.
 - **Category:** 6 (misleading — types are technically distinguishable but in practice not), 16 (field contradicts type domain — `truncated` is meaningless on `Pending` but exists structurally), 17 (asymmetric).
 - **Suggested name:** Keep names but make `truncated` required (non-optional) on `SuccessStatus`, or merge them: `interface QueryToken { dataToken?: string; truncated?: boolean }` with the state encoded by the discriminator only.
 - **Rationale:** When two state-variant types differ only by one optional field, they shouldn't be separate types.
 
-### 10. `dataToken` field — `src/v1/model.ts:27,65,110`
+### 8. `dataToken` field — `src/v1/model.ts:27,65,110`
 - **Why weird:** The field is described inline as "The token to poll for result asynchronously". The name `dataToken` doesn't communicate that — it sounds like a token that wraps data. The JSDoc even admits that `data_token` and `statement_id` (in the parent type) are the *same value* on the wire ("The statement_id should be identical to data_token in SuccessStatus and PendingStatus."). The fact that the wire has two names for the same value (one is the polling cursor, the other is the audit-log identifier) is a wire-protocol decision that leaks into the TS surface.
-- **Category:** 1 (vague — `dataToken` could mean anything), 5 (cryptic abbreviation — "data" of what?), 12 (duplicate concept — `dataToken` and `statementId` are the same value), 19 (underspecified ID — see also #11).
+- **Category:** 1 (vague — `dataToken` could mean anything), 5 (cryptic abbreviation — "data" of what?), 12 (duplicate concept — `dataToken` and `statementId` are the same value), 19 (underspecified ID — see also #9).
 - **Suggested name:** `pollToken` or `pollingToken` (matches its purpose). If the duplication with `statementId` is fixed at the wire level, drop entirely.
 - **Rationale:** A field whose JSDoc says "this is identical to another field" is screaming for a rename. `pollToken` describes its function; `dataToken` describes its construction.
 
-### 11. `statementId` field — `src/v1/model.ts:102`
+### 9. `statementId` field — `src/v1/model.ts:102`
 - **Why weird:** A field called `statementId` appearing on `QueryResponseStatus`, accompanied by a 4-line JSDoc explaining that it is "created for audit logging purpose to record the statement_id of all QueryResponseStatus". So this is an audit-only field that duplicates `dataToken`. In a typed API, an audit-only field is something the client should *never* set or rely on — but the type doesn't say `readonly` and there's no convention enforcing that.
 - **Category:** 6 (misleading — looks like a regular ID, is audit-only), 12 (duplicate concept), 19 (underspecified — what kind of "statement"? Compare to `statementexecution` package's `statementId` which means the SQL Statement Execution API ID).
 - **Suggested name:** `auditStatementId` (or remove from the public surface). If kept, document `@readonly`.
 - **Rationale:** Audit/log-only fields on a typed response are a footgun. The current name promises usability; the doc explains it isn't.
 
-### 12. `tokens` field — `src/v1/model.ts:13,76`
+### 10. `tokens` field — `src/v1/model.ts:13,76`
 - **Why weird:** Field called `tokens` with example value `EC0A..ChAB7WCEn_4...`. The JSDoc only shows one example; no plural-form documentation. The wire spec apparently allows multiple tokens (since the field is `string[]`), and the SDK serializes the array via `String(req.tokens)` — which means JS does `tokens.join(',')` (the array's default `toString`). This is fragile: if a token ever contains a comma, the URL becomes corrupt. The name `tokens` doesn't communicate "comma-separated on the wire".
 - **Category:** 1 (vague — `tokens` of what?), 5 (cryptic — token value example dominates over a description), 6 (misleading — the array-to-string conversion is implicit).
-- **Suggested name:** `pollTokens` (matches the proposal in #10). If the wire really expects comma-separated, document that on the field; otherwise use `URLSearchParams.append` per-token.
+- **Suggested name:** `pollTokens` (matches the proposal in #8). If the wire really expects comma-separated, document that on the field; otherwise use `URLSearchParams.append` per-token.
 - **Rationale:** The name `tokens` is too generic for a top-level request field. The hidden join-on-comma is a bug magnet.
 
-### 13. `dashboardName` field — `src/v1/model.ts:14,51,77`
+### 11. `dashboardName` field — `src/v1/model.ts:14,51,77`
 - **Why weird:** Field is `dashboardName` but appears alongside `dashboardRevisionId`. The pairing `Name` + `Id` is inconsistent — they should be either both names or both IDs. The wire calls the first one `dashboard_name` and the second `dashboard_revision_id`, so the asymmetry is upstream — but a TS SDK could rename for symmetry. The JSDoc says: "Dashboard name and revision_id is required to retrieve PublishedDatasetDataModel". The casual `_id`/`Id` shift is jarring.
 - **Category:** 17 (asymmetric pair naming — `Name` vs `Id`).
 - **Suggested name:** `dashboardId` + `dashboardRevisionId` (if both are IDs on the wire) or document why one is "name" while the other is "ID".
 - **Rationale:** Symmetric pair fields should have symmetric naming. A user looking at the request would assume `Name` is human-readable and `RevisionId` is opaque — but typically both are opaque identifiers in published-dashboard URLs.
 
-### 14. `overrideWarehouseId` field — `src/v1/model.ts:54`
+### 12. `overrideWarehouseId` field — `src/v1/model.ts:54`
 - **Why weird:** Field name is fine in isolation, but unusual that there is no plain `warehouseId` field for context. The JSDoc explains: "A dashboard schedule can override the warehouse used as compute for processing the published dashboard queries". Reading the model in isolation, a user has no way to know that *not* setting `overrideWarehouseId` means the dashboard's *configured* warehouse is used. The name carries baggage that requires reading the JSDoc to decode.
 - **Category:** 1 (vague — "override" of what?), 6 (misleading — implies a write to a property, is actually an optional override).
 - **Suggested name:** Keep but make sure the JSDoc is exhaustive about the fallback behaviour. Alternatively `warehouseIdOverride` (English noun order — read "the override of warehouseId").
 - **Rationale:** Override-fields are common; the only fix is documentation. Flagged for consistency.
 
-### 15. `dashboardRevisionId` field — `src/v1/model.ts:15,52,78`
+### 13. `dashboardRevisionId` field — `src/v1/model.ts:15,52,78`
 - **Why weird:** The wire format on the published dashboard URL uses `dashboard_revision_id`. The TS name flatten-converts. But internally this is the "version" of the dashboard, and the broader SDK uses `revision` and `version` inconsistently (e.g., `apps` package uses `currentRevision`, etc.). Verifying SDK-wide vocabulary would be valuable.
 - **Category:** 17 (potential inconsistency with sibling SDK packages — flagged for review).
 - **Suggested name:** Keep as-is unless a wider SDK convention dictates `version`.
 - **Rationale:** Low confidence; flagged to ensure SDK consistency check.
 
-### 16. `marshalExecutePublishedDashboardQueryRequestSchema` — `src/v1/model.ts:209`
-- **Why weird:** Single longest exported name in the model file (50 characters). Six stacked qualifiers: `marshal`+`Execute`+`PublishedDashboardQuery`+`Request`+`Schema`. Required to be camelCase to fit ESLint. Almost impossible to read aloud.
-- **Category:** 5 (cryptic — visual density), 7 (overly verbose), 8 (redundant suffix — `Request`+`Schema` is two layers of meta).
-- **Suggested name:** `encodePublishedQueryRequest` (drop `Execute`, `Dashboard`, `Schema` — the function takes a `PublishedQueryRequest` and the input/output are obvious).
-- **Rationale:** A function name should fit a short line. 50 characters of qualifiers is a sign that several layers of abstraction are leaking into the identifier.
-
-### 17. `marshalRequest` vs. `parseResponse` — `src/v1/utils.ts:119,113`
-- **Why weird:** Same problem as `dataclassification.md` Findings #17, #18. The asymmetric verb pair (`marshal` vs. `parse`) doesn't say what they do (encode/decode JSON). Both functions are generic — they accept any payload, not specifically requests/responses. The names lie about the constraint.
-- **Category:** 1 (vague), 14 (Go-style `marshal`), 17 (asymmetric verb pair).
-- **Suggested name:** `encodeJson(data, schema)` + `decodeJson(body, schema)`.
-- **Rationale:** Same as in `dataclassification.md`. The generator emits these into every package, so the fix is generator-wide.
-
-### 18. `executeCall` / `executeHttpCall` — `src/v1/utils.ts:26,65`
+### 14. `executeCall` / `executeHttpCall` — `src/v1/utils.ts:26,65`
 - **Why weird:** Same as `dataclassification.md` Finding #15. Two `execute*` functions for two layers (retry/rate-limit shell vs. actual HTTP). The name `executeCall` doesn't say what about the call is being executed.
 - **Category:** 1, 12, 17.
 - **Suggested name:** `runWithPolicies` (outer) + `sendHttpRequest` (inner).
 - **Rationale:** Generator-wide pattern, fix once.
 
-### 19. `buildHttpRequest` — `src/v1/utils.ts:96`
+### 15. `buildHttpRequest` — `src/v1/utils.ts:96`
 - **Why weird:** Same as `dataclassification.md` Finding #16. "Build" implies builder pattern; this is a 16-line object-literal helper used 4× per client method.
 - **Category:** 1, 6.
 - **Suggested name:** `makeHttpRequest` or inline.
 - **Rationale:** Generator-wide.
 
-### 20. `readAll` — `src/v1/utils.ts:40`
+### 16. `readAll` — `src/v1/utils.ts:40`
 - **Why weird:** Same as `dataclassification.md` Finding #20. Generic name for a stream-drain helper.
 - **Category:** 1, 5.
 - **Suggested name:** `drainStream`.
 
-### 21. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 17. `HttpCallOptions` — `src/v1/utils.ts:15`
 - **Why weird:** Same as `dataclassification.md` Finding #21. Type called `Options` but is an internal context bag.
 - **Category:** 1, 8.
 - **Suggested name:** `HttpCallContext`.
 
-### 22. `PACKAGE_SEGMENT` — `src/v1/client.ts:36`
+### 18. `PACKAGE_SEGMENT` — `src/v1/client.ts:36`
 - **Why weird:** Same as `dataclassification.md` Finding #22. Generic constant name.
 - **Category:** 1.
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
 
-### 23. `Call` type and `call` variable — `src/v1/client.ts:85,117,157`
-- **Why weird:** Same as `dataclassification.md` Finding #24. Three-way collision: `Call` type, `call` variable, "the API call" semantics.
-- **Category:** 1, 12.
-- **Suggested name:** `sendRequest` for the variable.
-
 ## Low severity
 
-### 24. `Client` constructor — `src/v1/client.ts:50-64`
+### 19. `Client` constructor — `src/v1/client.ts:50-64`
 - **Why weird:** The constructor accepts `ClientOptions` but doesn't validate the options beyond `host`. Other fields (`logger`, `credentials`) use `??`-default and never warn about missing values. Naming is fine; behaviour is worth flagging for consistency with other SDK packages.
 - **Category:** N/A (behavioural).
 
-### 25. `respBody` vs `resp` locals — `src/v1/client.ts:89,94,121,126,161,166`
+### 20. `respBody` vs `resp` locals — `src/v1/client.ts:89,94,121,126,161,166`
 - **Why weird:** Same as `dataclassification.md` Finding #26. Stage names are abbreviated and similar.
 - **Category:** 5, 17.
 - **Suggested name:** `rawBody` + `result`.
 
-### 26. `httpReq` local — `src/v1/client.ts:88,120,160`
+### 21. `httpReq` local — `src/v1/client.ts:88,120,160`
 - **Why weird:** Same as `dataclassification.md` Finding #27. Two `req`s in scope: `req: CancelPublishedQueryExecutionRequest` and `httpReq: HttpRequest`.
 - **Category:** 5, 12.
 - **Suggested name:** `httpRequest` (no abbreviation).
 
-### 27. `cancelPublishedQueryExecution` method — `src/v1/client.ts:67`
+### 22. `cancelPublishedQueryExecution` method — `src/v1/client.ts:67`
 - **Why weird:** The method is verbose (29 characters) and contains the package name `queryExecution` already. Once `Client` is renamed `QueryExecutionClient`, the package context becomes explicit and the method name should shrink to `cancelPublished` or `cancelPublishedQuery`. The current form reads as `QueryExecutionClient.cancelPublishedQueryExecution(...)` — "queryExecution" twice.
 - **Category:** 7 (overly verbose), 12 (duplicate concept — `QueryExecution` in both class and method).
 - **Suggested name:** `cancelPublishedQuery` (or `cancel` if the package is renamed per #1).
 
-### 28. `executePublishedDashboardQuery` method — `src/v1/client.ts:107`
-- **Why weird:** Same redundancy as #27 — `executePublishedDashboardQuery` repeats the package's domain. After renaming class to `PublishedDashboardQueryClient`, the method should just be `execute`.
+### 23. `executePublishedDashboardQuery` method — `src/v1/client.ts:107`
+- **Why weird:** Same redundancy as #22 — `executePublishedDashboardQuery` repeats the package's domain. After renaming class to `PublishedDashboardQueryClient`, the method should just be `execute`.
 - **Category:** 7 (overly verbose).
 - **Suggested name:** `execute` (in renamed client) or `executePublishedQuery`.
 
-### 29. `pollPublishedQueryStatus` method — `src/v1/client.ts:139`
+### 24. `pollPublishedQueryStatus` method — `src/v1/client.ts:139`
 - **Why weird:** Inconsistency: `cancelPublishedQueryExecution` uses `QueryExecution` while `pollPublishedQueryStatus` uses `QueryStatus`. So the cancel-side mirrors the *operation* word, the poll-side mirrors the *response* word. The three method names all sound like sibling operations but use three different stems:
   - `cancelPublishedQueryExecution`
   - `executePublishedDashboardQuery`
@@ -191,25 +162,19 @@ sibling packages `statementexecution` (general SQL Statement Execution API),
 - **Category:** 17 (inconsistent action-verb stem — three different patterns for three sibling methods).
 - **Suggested name:** Make the stem identical: `cancelPublishedQuery` / `executePublishedQuery` / `pollPublishedQueryStatus` (or remove the `Status` suffix to match: `pollPublishedQuery`).
 
-### 30. `truncated` field on `SuccessStatus` — `src/v1/model.ts:112`
+### 25. `truncated` field on `SuccessStatus` — `src/v1/model.ts:112`
 - **Why weird:** Field called `truncated`. The JSDoc says "Whether the query result is truncated (either by byte limit or row limit)". The naming is OK in context, but the field stands alone on `SuccessStatus` and tells the user nothing about *what* limit was hit. Compare: `statementexecution` package uses the same name (`truncated`) with the same vagueness — so the inconsistency is cross-package, not local.
 - **Category:** 1 (vague — truncated by what?), 12 (cross-package duplicate of `statementexecution`'s `truncated`).
 - **Suggested name:** Document on the type, or split into `truncatedByByteLimit?: boolean` / `truncatedByRowLimit?: boolean`.
 
-### 31. Lowercase `c` in JSDoc comment opening — `src/v1/model.ts:6,42,68`
+### 26. Lowercase `c` in JSDoc comment opening — `src/v1/model.ts:6,42,68`
 - **Why weird:** The JSDoc starts with lowercase: "cancel query request for published Dashboards" (line 6), "Execute query request for published Dashboards" (line 42 — that one starts uppercase, inconsistent), "poll query request..." (line 68). Inconsistent comment style and lowercase sentence openings. Project convention is "Comments should always be proper sentences ending with a period" — these violate it.
 - **Category:** N/A (style, not naming) — flagged because the prompt requested "EVERY type, field, ... and method"; the JSDoc affects the type's apparent name.
 - **Suggested name:** N/A (fix prose, not name).
 
-### 32. `$case` discriminator field — `src/v1/model.ts:29-31,91-95`
-- **Why weird:** The dollar-sign-prefixed discriminator `$case` is non-standard JS/TS convention. It mimics protobuf-ts and ts-proto outputs. To a TS developer not coming from protobuf, the `$` prefix is jarring (and clashes with `$`-prefixed special properties in many libraries like jQuery). The discriminator should follow standard TS tagged-union convention (`kind`/`type`/`tag`).
-- **Category:** 14 (Go/proto-style import — `$case` is a ts-proto convention).
-- **Suggested name:** `kind` or `tag`. The standard TS pattern is `{kind: 'success'; success: ...}` (no `$`).
-- **Rationale:** Other parts of the SDK may already use `$case` — this is a generator-wide concern. Flagged here for completeness.
-
 ## Observations
 
-### 33. Cross-package vocabulary drift — `statementexecution` / `queryhistory` / `queries` overlap
+### 27. Cross-package vocabulary drift — `statementexecution` / `queryhistory` / `queries` overlap
 - **Description:** Five overlapping concepts span four packages:
   - **`statementexecution.StatementStatus_State`** = `PENDING | RUNNING | SUCCEEDED | FAILED | CANCELED | CLOSED` (6 states)
   - **`queryexecution.QueryResponseStatus`** = `success | pending | canceled | closed` (4 arms — no `running` or `failed`)
@@ -222,7 +187,7 @@ sibling packages `statementexecution` (general SQL Statement Execution API),
 - **Category:** 12 (duplicate concepts across packages), 17 (inconsistent vocabulary).
 - **Recommendation:** Document the relationship in a shared glossary. Long-term, unify the status types or at least the state names.
 
-### 34. Vocabulary collision: `query` vs. `statement` vs. `execution`
+### 28. Vocabulary collision: `query` vs. `statement` vs. `execution`
 - **Description:** The SDK uses three near-synonymous nouns:
   - **`query`** — appears in `queryexecution`, `queryhistory`, `queries`. Generally means a SQL query (often a saved one).
   - **`statement`** — appears in `statementexecution` and as `statementId` in `queryexecution`. Means a SQL statement (the SQL Execution API's unit of work).
@@ -231,7 +196,7 @@ sibling packages `statementexecution` (general SQL Statement Execution API),
 - **Category:** 12 (duplicate concepts), 14 (vocabulary inconsistency).
 - **Recommendation:** Pick a vocabulary and use it consistently. SQL Statement Execution API uses "statement"; published dashboard queries use "query". Document the distinction in the SDK README.
 
-### 35. JSDoc grammar errors / wire-layer leakage
+### 29. JSDoc grammar errors / wire-layer leakage
 - **Description:** Multiple JSDocs reference internal wire terminology not relevant to a TS user:
   - "rpc calls to sql-exec-api" (lines 10, 73 — internal service name)
   - "PublishedDatasetDataModel" (line 48 — Java class name)
@@ -240,7 +205,7 @@ sibling packages `statementexecution` (general SQL Statement Execution API),
 - **Category:** N/A (documentation leakage).
 - **Recommendation:** Generator should strip wire-layer references from public JSDoc.
 
-### 36. Comment style violations
+### 30. Comment style violations
 - **Description:** Per the project rule "Comments should always be proper sentences ending with a period", many JSDocs in this file start lowercase ("cancel query request..."), are sentence fragments ("Example: EC0A..."), or omit terminal periods. Generator-wide.
 - **Category:** N/A (style).
 

@@ -3,7 +3,7 @@
 **Path:** `packages/lakeview/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Databricks AI/BI Dashboards (formerly named "Lakeview"). CRUD of draft dashboards, publish/unpublish, schedule periodic refresh, and email subscriptions tied to schedules. Also includes a one-way migration entry point from the older "classic SQL" dashboards.
-**Total weird names flagged:** 43
+**Total weird names flagged:** 42
 
 ## Summary
 
@@ -11,7 +11,7 @@
 | ----------- | ----- |
 | High        | 8     |
 | Medium      | 17    |
-| Low         | 12    |
+| Low         | 11    |
 | Observation | 6     |
 
 ## Summary table
@@ -55,13 +55,12 @@
 | 35 | Low         | `model.ts` field                      | `PublishDashboardRequest.embedCredentials`                                                      | 7          |
 | 36 | Low         | `model.ts` field                      | `ListDashboardsRequest.showTrashed`                                                             | 13, 17     |
 | 37 | Low         | `model.ts` field                      | `DashboardView.DASHBOARD_VIEW_BASIC`                                                            | 2, 18      |
-| 38 | Low         | `client.ts` methods                   | `listDashboardsIter`, `listSchedulesIter`, `listSubscriptionsIter`                              | 5          |
-| 39 | Observation | `model.ts` field                      | `Dashboard.dashboardId` (tautology in `dashboard.dashboardId`)                                  | 8, 20      |
-| 40 | Observation | `model.ts` field                      | `CreateDashboardRequest.datasetCatalog`/`datasetSchema`                                         | 15         |
-| 41 | Observation | `model.ts` field                      | `ListSchedulesRequest.dashboardId` doc typo                                                     | 9          |
-| 42 | Observation | `model.ts` field                      | `Subscription_Subscriber.userSubscriber` / `destinationSubscriber`                              | 8, 20      |
-| 43 | Observation | `index.ts`                            | Mixed `export {...}` for enums and `export type {...}` for interfaces                           | n/a        |
-| 44 | Observation | URL paths                             | `/api/2.0/lakeview/...` URL prefix still uses old name                                          | 6          |
+| 38 | Observation | `model.ts` field                      | `Dashboard.dashboardId` (tautology in `dashboard.dashboardId`)                                  | 8, 20      |
+| 39 | Observation | `model.ts` field                      | `CreateDashboardRequest.datasetCatalog`/`datasetSchema`                                         | 15         |
+| 40 | Observation | `model.ts` field                      | `ListSchedulesRequest.dashboardId` doc typo                                                     | 9          |
+| 41 | Observation | `model.ts` field                      | `Subscription_Subscriber.userSubscriber` / `destinationSubscriber`                              | 8, 20      |
+| 42 | Observation | `index.ts`                            | Mixed `export {...}` for enums and `export type {...}` for interfaces                           | n/a        |
+| 43 | Observation | URL paths                             | `/api/2.0/lakeview/...` URL prefix still uses old name                                          | 6          |
 
 ---
 
@@ -693,21 +692,11 @@ Member is `DASHBOARD_VIEW_BASIC = 'DASHBOARD_VIEW_BASIC'` — both Pascal-prefix
 
 **Suggested name:** `DashboardView.BASIC = 'DASHBOARD_VIEW_BASIC'`.
 
-### 38. `listDashboardsIter`, `listSchedulesIter`, `listSubscriptionsIter` — `Iter` is cryptic
-
-**Location:** `src/v1/client.ts:455,506,557`
-
-Same as `alerts.md` #31. `Iter` is a Go/Rust idiom for "iterator generator". In JS/TS the natural name is `*Async` or `*Stream` or `*All`. Consistency across the SDK is preferable.
-
-**Category:** 5 (cryptic).
-
-**Suggested name:** `listAllDashboards`/`listDashboardsAsync` (the existing return type is `AsyncGenerator<Dashboard>` so `Async` is descriptive).
-
 ---
 
 ## Observations
 
-### 39. `Dashboard.dashboardId` — tautology at use site
+### 38. `Dashboard.dashboardId` — tautology at use site
 
 **Location:** `src/v1/model.ts:95`
 
@@ -724,7 +713,7 @@ Caller writes `dashboard.dashboardId`. Inside a type already named `Dashboard`, 
 
 **Suggested name:** `Dashboard.id` (and similarly `Schedule.id`, `Subscription.id`). Marshal/unmarshal already remaps to/from `dashboard_id`.
 
-### 40. `CreateDashboardRequest.datasetCatalog`/`datasetSchema` — generic prefix
+### 39. `CreateDashboardRequest.datasetCatalog`/`datasetSchema` — generic prefix
 
 **Location:** `src/v1/model.ts:61,67`
 
@@ -737,7 +726,7 @@ datasetSchema?: string | undefined;
 
 **Suggested name:** Keep. Add JSDoc clarifying "this is the Unity Catalog *catalog* / *schema* applied to dataset queries". Done already in the JSDoc, but worth flagging.
 
-### 41. `ListSchedulesRequest.dashboardId` doc typo
+### 40. `ListSchedulesRequest.dashboardId` doc typo
 
 **Location:** `src/v1/model.ts:250`
 
@@ -750,7 +739,7 @@ dashboardId?: string | undefined;
 
 **Category:** 9 (plural verb agreement).
 
-### 42. `Subscription_Subscriber.userSubscriber` / `destinationSubscriber` — field name == type-tail
+### 41. `Subscription_Subscriber.userSubscriber` / `destinationSubscriber` — field name == type-tail
 
 **Location:** `src/v1/model.ts:409,414`
 
@@ -763,7 +752,7 @@ Field name suffix `Subscriber` echoes the parent type `Subscriber`. If the paren
 
 **Category:** 8 (field name overlap with parent), 20.
 
-### 43. `index.ts` — mixed `export {...}` and `export type {...}`
+### 42. `index.ts` — mixed `export {...}` and `export type {...}`
 
 **Location:** `src/v1/index.ts:5,7-47`
 
@@ -774,7 +763,7 @@ export type {AuthorizationDetails, ...} from './model';
 
 Enums are exported as values (correct — they have runtime representation); interfaces are exported as types (correct — type-only). The pattern is right; flagging only because a reader scanning the index file might miss the distinction. Consistent with other SDK packages.
 
-### 44. URL paths still use `lakeview`
+### 43. URL paths still use `lakeview`
 
 **Location:** Every method's URL constant in `client.ts`, e.g. line 112: `/api/2.0/lakeview/dashboards`
 

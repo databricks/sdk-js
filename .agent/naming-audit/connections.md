@@ -3,14 +3,14 @@
 **Path:** `packages/connections/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Unity Catalog Foreign Connections — create/get/list/update/delete connections to external data sources (MySQL, Snowflake, Salesforce, BigQuery, ServiceNow, GitHub, etc.) for federated query and ingestion.
-**Total weird names flagged:** 46
+**Total weird names flagged:** 41
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 13 |
 | Medium | 17 |
-| Low | 11 |
+| Low | 6 |
 | Observation | 5 |
 
 ## High severity
@@ -205,67 +205,37 @@
 
 ## Low severity
 
-### 32. `unmarshalConnectionInfoSchema` / `marshalCreateConnectionSchema` / `marshalUpdateConnectionSchema` and related — `src/v1/model.ts:386,471,539`
-- **Why weird:** Three different verb prefixes (`marshal`/`unmarshal`) used as schema-name prefix. Function names communicate direction (`marshalX` = TS→wire, `unmarshalX` = wire→TS), but the resulting names are long (e.g. `unmarshalListConnections_ResponseSchema`).
-- **Category:** 8 (redundant suffix `Schema`).
-- **Suggested name:** Drop `Schema` suffix (`unmarshalConnectionInfo`, `marshalCreateConnection`), or shorten to `decode`/`encode` verbs.
-- **Rationale:** Internal-style; the `Schema` suffix repeats info already captured by the `z.ZodType` typing.
-
-### 33. `unmarshalDeleteConnection_ResponseSchema` — `src/v1/model.ts:435`
-- **Why weird:** Underscore inherited from the type name; eslint-disable required.
-- **Category:** 4.
-- **Suggested name:** Cascades from #10.
-- **Rationale:** Mechanical.
-
-### 34. `unmarshalListConnections_ResponseSchema` — `src/v1/model.ts:450`
-- **Why weird:** Same as #33.
-- **Category:** 4.
-- **Suggested name:** Cascades from #11.
-- **Rationale:** Mechanical.
-
-### 35. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:39`
+### 32. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:39`
 - **Why weird:** `Segment` is a generic word; without the comment the constant doesn't communicate User-Agent identity.
 - **Category:** 1 (vague), 15 (generic name).
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
 - **Rationale:** Same finding as in `abacpolicies` audit; consistent across generated packages.
 
-### 36. `flattenQueryParams` — `src/v1/utils.ts:123`
+### 33. `flattenQueryParams` — `src/v1/utils.ts:123`
 - **Why weird:** Exported but unused in this package (`client.ts` builds query strings inline with `URLSearchParams.append`). Dead-looking export.
 - **Category:** Observation / 11 (unused public helper).
 - **Suggested name:** Remove from utils if generator default.
 - **Rationale:** Generator emits the same helper into every package even when unused.
 
-### 37. `readAll` — `src/v1/utils.ts:40`
+### 34. `readAll` — `src/v1/utils.ts:40`
 - **Why weird:** Internal helper name is generic and clashes cognitively with `Array.prototype` / stream utilities.
 - **Category:** 1 (vague).
 - **Suggested name:** `readStreamToEnd` / `drainStream`.
 - **Rationale:** Trivial; flagged for cross-package consistency.
 
-### 38. `parseResponse` / `marshalRequest` verb asymmetry — `src/v1/utils.ts:113,119`
-- **Why weird:** `parseResponse` (decode) is the inverse of `marshalRequest` (encode); two different verbs for opposite operations within the same file.
-- **Category:** 17 (inconsistent action verbs).
-- **Suggested name:** `unmarshalResponse` / `marshalRequest` for pair symmetry.
-- **Rationale:** Mirroring helps readers map TS→wire/wire→TS at a glance.
-
-### 39. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
+### 35. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
 - **Why weird:** Two functions distinguished only by an `Http` infix. `executeCall` wraps retry/rate-limit/timeout; `executeHttpCall` does the actual fetch + logging + error throw. Easy to confuse at call site.
 - **Category:** 1 (vague), 17 (inconsistent).
 - **Suggested name:** `runWithCallOptions` / `sendHttp`, or `wrapCall` / `dispatchHttp`.
 - **Rationale:** Names should encode the layer, not just the protocol.
 
-### 40. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 36. `HttpCallOptions` — `src/v1/utils.ts:15`
 - **Why weird:** Yet another `Options` suffix; the file also imports `Options` (line 3) and `CallOptions` (line 12), so three `Options` types are in scope at once. The `HttpCallOptions` is internal — purely a context bag for `executeHttpCall`.
 - **Category:** 1 (vague suffix).
 - **Suggested name:** `HttpCallContext` (it's a context bag, not user-tunable options).
 - **Rationale:** Distinguish internal context bags from user-facing option structs.
 
-### 41. `listConnectionsIter` — `src/v1/client.ts:194`
-- **Why weird:** `Iter` is a Go-style abbreviation for `Iterator`. TS convention is to spell out, or to use the `*` (async generator) syntax to communicate iteration. Consumer code reads `for await (const c of client.listConnectionsIter(...))`, the `Iter` adds nothing.
-- **Category:** 5 (cryptic abbreviation), 14 (Go-style name).
-- **Suggested name:** `listConnectionsPaginated` or just `iterateConnections`.
-- **Rationale:** TS code typically uses verb-form for generators (`iterate`, `walk`) or describes the pagination behaviour (`paginated`).
-
-### 42. Inconsistent option name: `req.maxResults` vs wire `max_results` — `src/v1/client.ts:164-165`
+### 37. Inconsistent option name: `req.maxResults` vs wire `max_results` — `src/v1/client.ts:164-165`
 - **Why weird:** TS uses camelCase (`maxResults`); wire is snake_case (`max_results`). Conversion is buried in the client method. Fine in isolation but two near-identical strings live three lines apart.
 - **Category:** Observation only.
 - **Suggested name:** None — this is the marshalling boundary by design.
@@ -273,11 +243,11 @@
 
 ## Observations
 
-### 43. ~50 vendor names baked into `ConnectionType` enum
+### 38. ~50 vendor names baked into `ConnectionType` enum
 The enum lists ~70 vendors (`MYSQL` ... `MARKETO`), all SCREAMING_SNAKE. This makes `model.ts` 84 lines of enum just for connection types. Worth raising with API design whether the type should be `string` with vendor metadata living in a separate registry — adding a new connection type today requires releasing a new SDK version.
 - **Category:** 18 (long enum value set).
 
-### 44. Casing inconsistency in vendor name decomposition
+### 39. Casing inconsistency in vendor name decomposition
 Within `ConnectionType`:
 - `BIGQUERY`, `POSTGRESQL`, `SQLSERVER` (joined) vs `POWER_BI`, `WORKDAY_RAAS`, `META_MARKETING` (split).
 - `MYSQL` (joined) vs `MICROSOFT_ENTRA_ID` (split).
@@ -285,14 +255,14 @@ Within `ConnectionType`:
 No discoverable rule. Wire-locked, but worth surfacing.
 - **Category:** 3 (acronym/casing inconsistency).
 
-### 45. Action-verb conventions on `Client`
+### 40. Action-verb conventions on `Client`
 `createConnection`, `getConnection`, `listConnections`, `updateConnection`, `deleteConnection` — uniform. (Listed as observation since the audit asks us to flag inconsistencies; here we explicitly note consistency.)
 
-### 46. `Client` constructor throws for missing host
+### 41. `Client` constructor throws for missing host
 `if (options.host === undefined) { throw new Error('Host is required.'); }` — error message is fine, naming is fine, but `Host is required.` doesn't tell the user which constructor failed. Flagged for cross-SDK consistency review.
 - **Category:** Observation.
 
-### 47. `index.ts` re-exports proto-map entry types
+### 42. `index.ts` re-exports proto-map entry types
 `ConnectionInfo_OptionsEntry`, `ConnectionInfo_PropertiesEntry`, `ConnectionInfo_SecretsEntry`, plus the same for `CreateConnection_*` and `UpdateConnection_*` — nine types whose only purpose is to model proto map entries. None are usable as `Record<string, string>` consumers expect. These should not be on the public surface.
 - **Category:** 12 (duplicate concepts).
 

@@ -3,15 +3,15 @@
 **Path:** `packages/tagassignments/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Tag assignment management for non-Unity-Catalog Databricks platform entities — specifically `apps`, `dashboards`, `geniespaces`, `notebooks`. Provides CRUD over (entityType, entityId, tagKey) -> tagValue triples through `/api/2.0/entity-tag-assignments`. Sister of `entitytagassignments` (Unity Catalog entities) and `tagpolicies` (governed tag definitions). Despite the package name and the URL path both being `entity-tag-assignments`-flavored, the primary type here is `TagAssignment` (no `Entity` prefix), unlike sister package `entitytagassignments`.
-**Total weird names flagged:** 35
+**Total weird names flagged:** 27
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 11 |
-| Medium | 13 |
-| Low | 6 |
-| Observation | 5 |
+| High | 10 |
+| Medium | 10 |
+| Low | 4 |
+| Observation | 3 |
 
 ## High severity
 
@@ -54,7 +54,7 @@
 ### 7. `createTagAssignment` / `deleteTagAssignment` / `getTagAssignment` / `listTagAssignments` / `updateTagAssignment` method names — `src/v1/client.ts:67,93,112,137,188`
 - **Why weird:** Every method repeats the package's subject in the identifier. `client.createTagAssignment(...)` on a `Client` whose only job is tag assignments reads as "package.subject.create.subject". Sister package does the same with `createEntityTagAssignment`.
 - **Category:** 7 (overly verbose), 8 (redundant suffix — repeats `TagAssignment` on every method when the client only manages `TagAssignment`).
-- **Suggested name:** `create`, `delete`, `get`, `list`, `update`, `listIter` (drop the noun). Or `createAssignment` / `deleteAssignment` if the noun is desired.
+- **Suggested name:** `create`, `delete`, `get`, `list`, `update` (drop the noun). Or `createAssignment` / `deleteAssignment` if the noun is desired.
 - **Rationale:** Single-purpose clients should not repeat the subject. `TagAssignmentsClient.create()` reads cleaner.
 
 ### 8. `pageSize` here vs. `maxResults` in sister `entitytagassignments` — `src/v1/model.ts:35` vs. `entitytagassignments/src/v1/model.ts:68`
@@ -69,13 +69,7 @@
 - **Suggested name:** `key` and `value` (drop the `tag` prefix). Wire stays `tag_key` / `tag_value`.
 - **Rationale:** Fields should not re-state their container's noun. `assignment.key` reads cleaner.
 
-### 10. `tagKey` validation rules in doc but not type — `src/v1/model.ts:17,26,52`
-- **Why weird:** The JSDoc reads: "The key of the tag. The characters `,` `.` `:` `/` `-` `=` and leading/trailing spaces are not allowed". This is a strict character-class constraint that lives in prose, not in the type. The TS type is just `string`. A user concatenating `${prefix}.${name}` produces an invalid `tagKey` with no compile-time signal.
-- **Category:** 6 (misleading — type permits values that the API rejects), 19 (underspecified ID).
-- **Suggested name:** Keep `tagKey: string` but document the constraint in a way the generator could surface (e.g. via a `TagKey` branded type). At minimum, both `Create` and `Get`/`Delete` request docs should be consistent.
-- **Rationale:** Validation rules in JSDoc only are an asymmetric SDK contract.
-
-### 11. `ListTagAssignmentsRequest.entityType` / `entityId` are functionally required but typed optional — `src/v1/model.ts:31,33` and used in URL at `client.ts:141`
+### 10. `ListTagAssignmentsRequest.entityType` / `entityId` are functionally required but typed optional — `src/v1/model.ts:31,33` and used in URL at `client.ts:141`
 - **Why weird:** The list URL is `/api/2.0/entity-tag-assignments/${entityType ?? ''}/${entityId ?? ''}/tags`. When either is undefined, the URL becomes `.../entity-tag-assignments///tags`. Both fields are typed `string | undefined`, but `entityType` and `entityId` are clearly required to address an entity. Same issue on `Get`/`Delete`/`Update`. The SDK silently produces malformed URLs.
 - **Category:** 6 (misleading — optional in type but required in practice).
 - **Suggested name:** Make path-component fields required (non-optional) on the request types.
@@ -83,31 +77,19 @@
 
 ## Medium severity
 
-### 12. `CreateTagAssignmentRequest` etc. — five request DTOs share a 17-char prefix — `src/v1/model.ts:7,11,20,29,57`
+### 11. `CreateTagAssignmentRequest` etc. — five request DTOs share a 17-char prefix — `src/v1/model.ts:7,11,20,29,57`
 - **Why weird:** `CreateTagAssignmentRequest`, `DeleteTagAssignmentRequest`, `GetTagAssignmentRequest`, `ListTagAssignmentsRequest`, `UpdateTagAssignmentRequest`. Every request type re-states `TagAssignment` in a package whose only subject *is* the tag assignment.
 - **Category:** 7 (overly verbose), 8 (redundant suffix), 20 (type-suffix tautology — `*Request` plus an embedded noun).
 - **Suggested name:** `CreateRequest`, `DeleteRequest`, `GetRequest`, `ListRequest`, `UpdateRequest`. Or drop the noun.
 - **Rationale:** Single-subject packages do not need to repeat the subject on every request DTO.
 
-### 13. `ListTagAssignmentsRequest` (plural) vs. `TagAssignment` (singular) — `src/v1/model.ts:29` vs. `src/v1/model.ts:46`
+### 12. `ListTagAssignmentsRequest` (plural) vs. `TagAssignment` (singular) — `src/v1/model.ts:29` vs. `src/v1/model.ts:46`
 - **Why weird:** The plural appears only on list types. The HTTP resource on the wire is `/entity-tag-assignments` (plural) while the item type is singular `TagAssignment`. List response is `ListTagAssignmentsResponse` (plural).
 - **Category:** 9 (singular/plural mismatch — present and intentional, but inconsistent vocabulary).
 - **Suggested name:** Keep as-is (cross-SDK convention). Listed for completeness.
 - **Rationale:** Rule 9 demands the flag even when intentional.
 
-### 14. `tagAssignmentFieldMask` / `tagAssignmentFieldMaskSchema` — `src/v1/model.ts:103,110`
-- **Why weird:** A function and a lookup table share a stem and differ only by the `Schema` suffix. The function reads as a noun (no verb). 28+ characters. Compare sister `entityTagAssignmentFieldMask`.
-- **Category:** 17 (function and noun share the same stem), 7 (overly verbose).
-- **Suggested name:** `buildTagAssignmentFieldMask(...)` (verb-prefixed), or shorten to `fieldMask(...)` (the surrounding package and `TagAssignment` generic do the rest).
-- **Rationale:** Functions should be verb-prefixed; otherwise they read as nouns. Generator-wide concern.
-
-### 15. `marshalTagAssignmentSchema` / `unmarshalTagAssignmentSchema` / `unmarshalListTagAssignmentsResponseSchema` — `src/v1/model.ts:62,75,89`
-- **Why weird:** These are Zod schemas (47-char identifier on `unmarshalListTagAssignmentsResponseSchema`) using Go verbs `marshal`/`unmarshal`. TS reaches for `serialize`/`parse` or Zod's own `.parse()`. The TS-Go vocab mix is jarring; Zod schemas already have `.parse()`.
-- **Category:** 14 (Go-style verbs in TS code), 17 (verb inconsistency with Zod's `.parse()`).
-- **Suggested name:** `encodeTagAssignment` / `decodeTagAssignment` / `decodeListResponse`. Or drop `Schema` since the value *is* a Zod schema.
-- **Rationale:** `marshal`/`unmarshal` is Go vocabulary; this is a TS file with Zod. Generator-wide concern.
-
-### 16. `executeCall` vs. `executeHttpCall` — `src/v1/utils.ts:26,65`
+### 13. `executeCall` vs. `executeHttpCall` — `src/v1/utils.ts:26,65`
 - **Why weird:** Two functions named "execute". `executeCall` wraps retry/rate-limit policy; `executeHttpCall` does the actual HTTP send. In every client method both appear:
   ```ts
   const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -121,109 +103,84 @@
 - **Suggested name:** `runWithPolicies(call, options)` for outer, `sendHttpRequest(opts)` for inner.
 - **Rationale:** Layering should be readable from names. Generator-wide concern.
 
-### 17. `Call` type and `call` variable — `src/v1/client.ts:74,98,118,152,201` and `src/v1/utils.ts:27`
+### 14. `Call` type and `call` variable — `src/v1/client.ts:74,98,118,152,201` and `src/v1/utils.ts:27`
 - **Why weird:** Variable `call` of type `Call`, passed to `executeCall`. Same word as variable, type, and verb. Inside one method scope we have `req`, `call`, `httpReq`, `resp` — four roles, three of which abbreviate.
 - **Category:** 1 (vague), 12 (duplicate concept), 4 (no underscore — but the name collision compensates).
 - **Suggested name:** `runRequest`/`sendRequest` for the variable; keep `Call` as the type.
 - **Rationale:** Variable-type collisions are tolerable but obscure prose.
 
-### 18. URL composition with `req.entityType ?? ''` etc. — `src/v1/client.ts:97,116,141,192`
+### 15. URL composition with `req.entityType ?? ''` etc. — `src/v1/client.ts:97,116,141,192`
 - **Why weird:** Four endpoints silently fall back to empty string for missing path components. When `entityType` is undefined the URL becomes `.../entity-tag-assignments//entity-id/tags/key`. Same problem flagged in other packages; specific instance here.
 - **Category:** 6 (misleading — silent malformed URLs).
 - **Suggested name:** Make `entityType`/`entityId`/`tagKey` non-optional on path-bearing request types.
-- **Rationale:** See #11. Generator-wide concern.
+- **Rationale:** See #10. Generator-wide concern.
 
-### 19. `respBody` (bytes) vs. `resp` (parsed) — `src/v1/client.ts:78-83,122-128,156-161,211-216`
+### 16. `respBody` (bytes) vs. `resp` (parsed) — `src/v1/client.ts:78-83,122-128,156-161,211-216`
 - **Why weird:** `respBody: Uint8Array` and `resp: TagAssignment` differ only by suffix. Both abbreviate "response"; the reader must remember which is bytes and which is parsed. There is no `reqBody` sibling for symmetry.
 - **Category:** 5 (cryptic abbreviation), 17 (inconsistency — only response abbreviates with `Body`).
 - **Suggested name:** `rawBody`/`result`, or `responseBytes`/`response`.
 - **Rationale:** Stage differences should be communicated by meaningful nouns, not suffix variations.
 
-### 20. `httpReq` local variable — `src/v1/client.ts:77,101,121,155,204`
+### 17. `httpReq` local variable — `src/v1/client.ts:77,101,121,155,204`
 - **Why weird:** Inside methods that already have `req: <RequestType>`, a second variable `httpReq: HttpRequest` shares the `req` root. Two `req`s in the same scope.
 - **Category:** 5 (cryptic abbreviation), 12 (duplicate concept — two `req`s).
 - **Suggested name:** `httpRequest` (no abbreviation), or `wireRequest`.
 - **Rationale:** Forking the same identifier across layers is hard to read.
 
-### 21. `pageReq` in `listTagAssignmentsIter` — `src/v1/client.ts:174`
-- **Why weird:** Inside `listTagAssignmentsIter`, a clone of `req` is named `pageReq`. The `Req` abbreviation gets re-applied with a `page` modifier; outer `req` is the parameter.
-- **Category:** 5 (cryptic), 8 (redundant prefix — `page` on a paginated iter is implicit).
+### 18. `pageReq` clone variable in paginated list — `src/v1/client.ts:174`
+- **Why weird:** A clone of `req` is named `pageReq`. The `Req` abbreviation gets re-applied with a `page` modifier; outer `req` is the parameter.
+- **Category:** 5 (cryptic), 8 (redundant prefix — `page` in a pagination loop is implicit).
 - **Suggested name:** `current` or `cursor` (describes its role as iterator state).
 - **Rationale:** A variable that mutates a clone of the input should describe its role.
 
-### 22. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 19. `HttpCallOptions` — `src/v1/utils.ts:15`
 - **Why weird:** Type called `Options` but it is an internal context bag (request + http client + logger), not a user-tunable options struct. The user-facing options type is `CallOptions` (different file). Two different `Options` types for two different concepts.
 - **Category:** 1 (vague suffix `Options`), 8 (redundant suffix — internal bags should not be called `Options`).
 - **Suggested name:** `HttpCallContext` or `HttpCallArgs`.
 - **Rationale:** Reserve `Options` for caller-tunable knobs; use `Context`/`Args` for internal bags.
 
-### 23. `buildHttpRequest` is just object-spread — `src/v1/utils.ts:96`
+### 20. `buildHttpRequest` is just object-spread — `src/v1/utils.ts:96`
 - **Why weird:** Pure object-literal-with-optional-fields helper named "build". "Build" suggests builder-pattern construction; the function just spreads fields into a struct.
 - **Category:** 1 (vague — "build" suggests heavyweight construction), 6 (misleading — implies builder pattern).
 - **Suggested name:** `makeHttpRequest` or inline at call sites.
 - **Rationale:** "Build" carries Java/JS Builder-pattern connotations.
 
-### 24. `marshalRequest(data, schema)` — `src/v1/utils.ts:119`
-- **Why weird:** Takes `unknown` value plus Zod schema; returns JSON string. The name says "Request" but the function works for any payload.
-- **Category:** 1 (vague — `Request` does not constrain), 6 (misleading — works for any payload).
-- **Suggested name:** `marshalToJson` / `encodeToJson`.
-- **Rationale:** Function name should reflect actual function. Same problem in sister packages.
-
 ## Low severity
 
-### 25. `parseResponse(body, schema)` — `src/v1/utils.ts:113`
-- **Why weird:** Symmetric to `marshalRequest`. Parses any JSON `Uint8Array` against a Zod schema; "Response" in the name does not constrain.
-- **Category:** 1 (vague), 6 (misleading).
-- **Suggested name:** `parseJsonBody` / `decodeFromJson`.
-- **Rationale:** Asymmetric verb pair `marshal`/`parse` AND inaccurate naming.
-
-### 26. `flattenQueryParams` — `src/v1/utils.ts:123`
+### 21. `flattenQueryParams` — `src/v1/utils.ts:123`
 - **Why weird:** Exported but unused in `client.ts`. This package's `listTagAssignments` uses individual `params.append(...)` calls (line 142-148) instead. Dead-shaped helper in shared scaffolding.
 - **Category:** 6 (misleading — implies the package uses it).
 - **Suggested name:** N/A — should not live here at all. Belongs in a shared utils package.
 - **Rationale:** Generator-wide concern: every package duplicates this helper.
 
-### 27. `readAll(body)` — `src/v1/utils.ts:40`
+### 22. `readAll(body)` — `src/v1/utils.ts:40`
 - **Why weird:** `readAll` is too generic; the function specifically drains a `ReadableStream<Uint8Array>` into a single buffer. The name does not say "drain a stream into a buffer".
 - **Category:** 1 (vague), 5 (cryptic — `readAll` is JS-conventional but not self-describing).
 - **Suggested name:** `drainStream` or `readStreamToUint8Array`.
 - **Rationale:** Reads like it might take a file path or array.
 
-### 28. `PACKAGE_SEGMENT` — `src/v1/client.ts:36`
+### 23. `PACKAGE_SEGMENT` — `src/v1/client.ts:36`
 - **Why weird:** `SEGMENT` is unspecific; the value is `{key, value}` for the User-Agent identity. The single word "segment" provides no domain context.
 - **Category:** 1 (vague — `Segment` of what?).
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT` or `PACKAGE_USER_AGENT_ID`.
 - **Rationale:** Comment above the constant does the work the name should.
 
-### 29. `tagValue` field doc empty — `src/v1/model.ts:53,54`
+### 24. `tagValue` field doc empty — `src/v1/model.ts:53,54`
 - **Why weird:** `tagValue?: string | undefined` is documented as "The value of the tag" — a tautology. Compare the rich docs on `entityType`/`entityId`/`tagKey` (with character-class rules). The doc is doing zero work.
 - **Category:** 1 (vague — doc says nothing the field name does not), 15 (generic field doc).
 - **Suggested name:** Document what makes a `tagValue` valid (max length? character set? same restrictions as `tagKey`?).
 - **Rationale:** Asymmetric documentation: three fields have rules, one is silent.
 
-### 30. `tagAssignments` vs. `nextPageToken` field-naming style on `ListTagAssignmentsResponse` — `src/v1/model.ts:41,43`
-- **Why weird:** Response has `tagAssignments?: TagAssignment[] | undefined` and `nextPageToken?: string | undefined`. The latter is consistent with the convention (`nextPageToken`), the former carries the redundant `tag` prefix on the array of a `TagAssignment[]`. Inside the response type, `assignments?: TagAssignment[]` would also unambiguously be a list of tag assignments.
-- **Category:** 8 (redundant prefix — `tag` within a TagAssignment array).
-- **Suggested name:** `assignments` (drop the `tag` prefix). Wire stays `tag_assignments`.
-- **Rationale:** Field names should not duplicate their element-type's noun.
-
 ## Observations
 
-### 31. Wire/TS divergence dominates the file
-The `model.ts` file is 115 lines for ~7 user-facing types; ~50 lines are `marshal`/`unmarshal`/`FieldMaskSchema` scaffolding. Same pattern as sister packages.
+### 25. Action verb consistency
+The client uses `create`/`get`/`update`/`delete`/`list` — no `fetch`/`retrieve`. Consistent across this package and aligned with sister packages.
 
-### 32. Action verb consistency
-The client uses `create`/`get`/`update`/`delete`/`list`/`listIter` — no `fetch`/`retrieve`. Consistent across this package and aligned with sister packages.
-
-### 33. Acronym casing
-The file uses `HttpRequest`/`HttpResponse`/`HttpCallOptions` (Pascal `Http`), `URLSearchParams` (web standard `URL`), `userAgent` (camelCase). The `Http` vs. `URL` split is the JS-ecosystem norm. No `Id`/`Uri`/`UC` casing clashes encountered.
-- **Category:** 3 (acronym casing — consistent within file, ecosystem-divergent overall).
-
-### 34. `tagassignments` lowercase package name vs. types and HTTP path
+### 26. `tagassignments` lowercase package name vs. types and HTTP path
 The package directory is `tagassignments` (single token, no separator). Types are `TagAssignment` (PascalCase, no compound). HTTP path is `/entity-tag-assignments` (kebab and *with* `entity`). Three different naming conventions for the same concept across three surface layers. Same problem as sister packages.
 - **Category:** 3 (casing inconsistency between directory token, kebab wire path, and Pascal types), 1 (vague directory token).
 
-### 35. Domain leakage between sister packages
+### 27. Domain leakage between sister packages
 Three packages — `tagassignments`, `entitytagassignments`, `tagpolicies` — collide on the noun "tag". Each ships its own `Client`, its own `*TagAssignment`/`TagPolicy` type, and its own `tagKey`/`tagValue`. Co-import requires aliasing. The split aligns to wire-side API groupings (different HTTP paths and product surfaces), not to a user mental model of "tag tools". Worth flagging upstream as a structure-level concern, not just naming.
 - **Category:** 12 (duplicate concept across siblings).
 

@@ -10,8 +10,8 @@
 | --- | --- |
 | High | 8 |
 | Medium | 19 |
-| Low | 16 |
-| Observation | 4 |
+| Low | 20 |
+| Observation | 3 |
 
 ## High severity
 
@@ -324,9 +324,6 @@
 
 ### O3. `executeCall` and `executeHttpCall` — overlapping verb pair — `src/v1/utils.ts:26,65`
 - Two functions, similar names, different purposes. `executeCall` is the public-`CallOptions` adapter; `executeHttpCall` is the wire-level executor. Names don't signal that one wraps the other. Could be `applyCallOptions` + `sendHttpRequest`. Generated-code concern. (See also the `accountaccesscontrol` audit O2.)
-
-### O4. `marshalRequest` exported but unused — `src/v1/utils.ts:119`
-- `marshalRequest` is `export`ed but `listQueries` doesn't use it (it marshals inline using `marshalQueryFilterSchema.parse(...)`). Either the helper is dead in this package or the generator emits it preemptively for other shapes. Should be removed if unused.
 
 ## Cross-cutting themes
 

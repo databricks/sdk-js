@@ -3,15 +3,15 @@
 **Path:** `packages/grants/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Unity Catalog Grants — get, list, and update privileges (e.g. `SELECT`, `MODIFY`, `USE_CATALOG`) on UC securables (catalogs, schemas, tables, etc.) for principals (users, groups, service principals). Also exposes "effective" variants that traverse parent-securable inheritance.
-**Total weird names flagged:** 45
+**Total weird names flagged:** 34
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 14 |
-| Medium | 17 |
-| Low | 9 |
-| Observation | 5 |
+| Medium | 15 |
+| Low | 4 |
+| Observation | 1 |
 
 The grants package contains 12 generated types and 5 client methods (plus 2 paginated iterators) covering one of the most overlapping surfaces in the SDK: UC privilege management. The most pervasive issues are (1) the request-type-as-verb naming pattern (`GetPermissions`, `UpdatePermissions`, `GetEffectivePermissions`) which collides with the verb-noun method naming on `Client` and is doubly confusing because the API mixes "permissions" and "privileges" terminology in the same file, (2) proto-style `_Response` underscore-suffixed identifiers leaking into TypeScript (`GetPermissions_Response`, `GetEffectivePermissions_Response`, `UpdatePermissions_Response`) requiring eslint-disable directives, (3) significant duplication of concept between `GetPermissions` / `ListPrivilegeAssignmentsRequest` and `GetEffectivePermissions` / `ListEffectivePrivilegeAssignmentsRequest` — four request types for two operations, plus inconsistent field naming (`securableFullName` vs `fullName`, `maxResults` vs `pageSize`) — and (4) hard-conceptual overlap with the separate `permissions` package, which uses entirely different vocabulary (`PermissionLevel`, `AccessControlRequest`, `PermissionsResponse`) for a similar operation.
 
@@ -168,49 +168,37 @@ The grants package contains 12 generated types and 5 client methods (plus 2 pagi
 - **Suggested name:** `assignments`.
 - **Rationale:** See #22.
 
-### 24. `listEffectivePrivilegeAssignmentsIter` — `src/v1/client.ts:220`
-- **Why weird:** 38-character method name on `Client`. `Iter` suffix is Go-style (Go uses `*Iterator` types; TS uses `AsyncGenerator` / `AsyncIterable`). The async generator syntax `async *foo()` is already iterating — `Iter` adds nothing the language doesn't communicate. Plus the noun pile-up: `list` + `Effective` + `Privilege` + `Assignments` + `Iter`.
-- **Category:** 5 (cryptic abbreviation: `Iter`), 14 (Go-style name), 7 (overly verbose).
-- **Suggested name:** `iterateEffectivePrivilegeAssignments` (verb-first for generators), or `effectiveAssignments` (with the iterator semantics implied).
-- **Rationale:** TS convention is `for await` over async generators with verb-first naming.
-
-### 25. `listPrivilegeAssignmentsIter` — `src/v1/client.ts:289`
-- **Why weird:** Same problem as #24.
-- **Category:** 5, 14, 7.
-- **Suggested name:** `iteratePrivilegeAssignments` or `assignments`.
-- **Rationale:** See #24.
-
-### 26. `getEffectivePermissions` (method) — `src/v1/client.ts:82`
+### 24. `getEffectivePermissions` (method) — `src/v1/client.ts:82`
 - **Why weird:** Method returns `GetEffectivePermissions_Response` (note the underscore — see #4). The method-name-as-verb is fine, but the type contract has the proto-style wart. Also, the doc-comment notes "Unpaginated calls will be deprecated soon" — so this method exists as a soon-to-be-deprecated mirror of `listEffectivePrivilegeAssignments`. Why ship both in the same v1?
 - **Category:** 12 (duplicate concept — see #9), Observation.
 - **Suggested name:** Mark as `@deprecated` in JSDoc (currently the deprecation note is just plain text inside the doc-comment, lines 77-78 — not an actual `@deprecated` tag).
 - **Rationale:** Tooling like IDEs and ts-doc strikes through deprecated methods only when the `@deprecated` tag is used.
 
-### 27. `getPermissions` (method) — `src/v1/client.ts:129`
-- **Why weird:** Same as #26 — soon-to-be-deprecated unpaginated mirror of `listPrivilegeAssignments`.
+### 25. `getPermissions` (method) — `src/v1/client.ts:129`
+- **Why weird:** Same as #24 — soon-to-be-deprecated unpaginated mirror of `listPrivilegeAssignments`.
 - **Category:** 12, Observation.
 - **Suggested name:** Add `@deprecated` JSDoc tag.
-- **Rationale:** See #26.
+- **Rationale:** See #24.
 
-### 28. `securableType: string` — model-wide (5 occurrences)
+### 26. `securableType: string` — model-wide (5 occurrences)
 - **Why weird:** Same concept as #19 — free-form string for what should be an enum. UC defines a closed set of securable types (`CATALOG`, `SCHEMA`, `TABLE`, `VIEW`, `FUNCTION`, `VOLUME`, `EXTERNAL_LOCATION`, `STORAGE_CREDENTIAL`, `CONNECTION`, `METASTORE`, ...). The TS SDK exposes none of them.
 - **Category:** 19 (underspecified), 1 (vague).
 - **Suggested name:** Define a `SecurableType` enum.
 - **Rationale:** See #19.
 
-### 29. `nextPageToken` (field, multiple) — `src/v1/model.ts:58,96,123,162`
+### 27. `nextPageToken` (field, multiple) — `src/v1/model.ts:58,96,123,162`
 - **Why weird:** Same identifier appears in 4 response types. Fine in isolation, but the doc-comment "__page_token__ should be set to this value for the next request (for the next page of results)" is copy-pasted verbatim 4 times — including the suspicious `__page_token__` (double-underscore, suggesting wire-format documentation) which makes no sense for TS consumers using `pageToken`.
 - **Category:** Observation (mostly consistency), 6 (misleading: `__page_token__` in doc).
 - **Suggested name:** No rename needed, but doc-comments should reference TS field name `pageToken`, not `__page_token__`.
 - **Rationale:** Doc string consistency.
 
-### 30. `includeDeletedPrincipals` — `src/v1/model.ts:87,109,136`
+### 28. `includeDeletedPrincipals` — `src/v1/model.ts:87,109,136`
 - **Why weird:** Verbose camelCase boolean. Reasonable but flagged because it's missing from `GetEffectivePermissions` (where the analogous feature would also make sense) but present on `GetPermissions` and both `List*Request` types. Inconsistent feature parity (see also #9).
 - **Category:** 17 (inconsistency), 7 (verbose).
 - **Suggested name:** `includeDeleted` (shorter).
 - **Rationale:** Consistency issue more than naming issue.
 
-### 31. `Client` — `src/v1/client.ts:49`
+### 29. `Client` — `src/v1/client.ts:49`
 - **Why weird:** Top-level export named just `Client`. Generic, ambiguous. The package-level `index.ts` re-exports `Client` (line 3), so users write `import { Client } from '@databricks/sdk-grants/v1'`. Same name appears in every generated package — you can't have multiple grants/catalogs/etc. clients in one import without aliasing.
 - **Category:** 1 (vague), 12 (duplicate across packages).
 - **Suggested name:** `GrantsClient` (or whatever the package-specific name is).
@@ -220,55 +208,25 @@ The grants package contains 12 generated types and 5 client methods (plus 2 pagi
 
 ## Low severity
 
-### 32. `unmarshalEffectivePrivilegeSchema` / `marshalUpdatePermissionsSchema` and related — `src/v1/model.ts:212,225,239,253,266,279,292,306,317,331`
-- **Why weird:** Eight `unmarshal*Schema` and two `marshal*Schema` exports. Long names with redundant `Schema` suffix; the `z.ZodType<X>` type annotation already says they're Zod schemas. Plus three of them (`unmarshalGetEffectivePermissions_ResponseSchema`, `unmarshalGetPermissions_ResponseSchema`, `unmarshalUpdatePermissions_ResponseSchema`) embed proto underscores and require eslint-disable directives (lines 238, 252, 305).
-- **Category:** 8 (redundant `Schema` suffix), 4 (underscores), 20 (type-suffix tautology).
-- **Suggested name:** Drop `Schema` suffix → `unmarshalEffectivePrivilege`, `marshalUpdatePermissions`, etc.
-- **Rationale:** Naming consistency with the rest of the SDK; the suffix carries no info beyond the type signature.
-
-### 33. `unmarshalGetEffectivePermissions_ResponseSchema` — `src/v1/model.ts:239`
-- **Why weird:** 49-character name; combines #32 (`Schema` suffix), #4 (proto underscore), and the verbose `GetEffectivePermissions` (#3). Requires eslint-disable.
-- **Category:** 4, 7, 8.
-- **Suggested name:** `unmarshalEffectivePermissionsResponse` (cascading from #4 and #32).
-- **Rationale:** Cascades.
-
-### 34. `unmarshalGetPermissions_ResponseSchema` — `src/v1/model.ts:253`
-- **Why weird:** Same as #33.
-- **Category:** 4, 7, 8.
-- **Suggested name:** `unmarshalPermissionsResponse`.
-- **Rationale:** Cascades.
-
-### 35. `unmarshalUpdatePermissions_ResponseSchema` — `src/v1/model.ts:306`
-- **Why weird:** Same as #33.
-- **Category:** 4, 7, 8.
-- **Suggested name:** `unmarshalUpdatePermissionsResponse`.
-- **Rationale:** Cascades.
-
-### 36. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:44`
+### 30. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:44`
 - **Why weird:** `Segment` is a generic word; without the doc-comment the constant doesn't communicate User-Agent identity. Same issue exists in every generated package.
 - **Category:** 1 (vague), 15 (generic name).
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
 - **Rationale:** Cross-package consistency.
 
-### 37. `flattenQueryParams` — `src/v1/utils.ts:123`
+### 31. `flattenQueryParams` — `src/v1/utils.ts:123`
 - **Why weird:** Exported but unused in this package (the client builds query strings inline with `URLSearchParams.append`). Dead-looking export.
 - **Category:** Observation / 11 (unused public helper).
 - **Suggested name:** Remove if generator default.
 - **Rationale:** Generator emits the same helper into every package even when unused.
 
-### 38. `readAll` — `src/v1/utils.ts:40`
+### 32. `readAll` — `src/v1/utils.ts:40`
 - **Why weird:** Internal helper name is generic and clashes cognitively with `Array.prototype` / Web Streams. The function reads a `ReadableStream<Uint8Array>` into a single buffer.
 - **Category:** 1 (vague), 14 (Go-style: `io.ReadAll` is a Go idiom).
 - **Suggested name:** `readStreamToEnd`, `drainStream`, or `bufferStream`.
 - **Rationale:** Cross-package consistency.
 
-### 39. `parseResponse` / `marshalRequest` verb asymmetry — `src/v1/utils.ts:113,119`
-- **Why weird:** `parseResponse` (decode) is the inverse of `marshalRequest` (encode); two different verbs for opposite operations within the same file. The model file uses `marshal*` / `unmarshal*` consistently — `parseResponse` is the odd one out.
-- **Category:** 17 (inconsistent action verbs).
-- **Suggested name:** `unmarshalResponse` / `marshalRequest` for pair symmetry.
-- **Rationale:** Mirroring helps readers map TS→wire/wire→TS at a glance.
-
-### 40. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 33. `HttpCallOptions` — `src/v1/utils.ts:15`
 - **Why weird:** Yet another `Options` suffix; the file also imports `Options` (line 3) and `CallOptions` (line 12), so three `Options` types are in scope at once. The `HttpCallOptions` is internal — purely a context bag for `executeHttpCall`.
 - **Category:** 1 (vague suffix), 17 (inconsistent).
 - **Suggested name:** `HttpCallContext` (it's a context bag, not user-tunable options).
@@ -278,22 +236,6 @@ The grants package contains 12 generated types and 5 client methods (plus 2 pagi
 
 ## Observations
 
-### 41. Five client methods cover effectively two operations
-`getPermissions`, `getEffectivePermissions`, `listPrivilegeAssignments`, `listEffectivePrivilegeAssignments`, `updatePermissions`. The two Get-style methods are documented as soon-to-be-deprecated mirrors of the List-style methods, leaving the steady-state SDK with three operations: list, list-effective, update. The 5-method surface is a transitional artefact.
-- **Category:** 12 (duplicate concept), Observation.
-
-### 42. Wire vs. TS field-name churn
-TS `securableFullName` → wire `securable_full_name`; TS `securableType` → wire `securable_type`; TS `principalId` → wire `principal_id`; TS `pageSize` → wire `page_size`. All consistent snake_case ↔ camelCase translations — flagged only because the `marshalPermissionsChangeSchema` (line 317) marshals `principalId` to `principal_id` but the doc-comment on `PermissionsChange` refers to it as "principal_id" (line 180), which mixes wire-format vocabulary into the TS surface doc.
-- **Category:** Observation, 6 (misleading docs).
-
-### 43. `Client` constructor: `Host is required.` — `src/v1/client.ts:60`
+### 34. `Client` constructor: `Host is required.` — `src/v1/client.ts:60`
 Error message thrown but no client name in the message. Across many similar packages every Client throws the same string, so a stack trace at the outer layer is ambiguous about which Client failed.
 - **Category:** Observation.
-
-### 44. `GetEffectivePermissions.maxResults` doc — `src/v1/model.ts:35-46`
-The doc-comment is 12 lines of conditional behaviour ("If not set / If set to lesser than 0 / equal to 0 / lesser than 150 ...") — appropriate detail but copy-pasted verbatim into `GetPermissions.maxResults` (lines 71-82) and partially into `ListPrivilegeAssignmentsRequest.pageSize` (lines 139-150). Three near-identical 10+ line blocks. Naming-adjacent — flag for doc DRY-ness.
-- **Category:** Observation.
-
-### 45. `unmarshal*Schema` and `marshal*Schema` exported but only used internally
-All schemas are re-imported by `client.ts` from the same `./model` module; they aren't re-exported from `index.ts` (lines 7-22 list only the types). So the schemas are part of the package's effective surface (importable as `'./model'`) but not advertised. Dead surface or intentional? If the latter, the `export const` should be `const` (module-local). Naming-adjacent.
-- **Category:** Observation, 11 (effectively-internal exports).

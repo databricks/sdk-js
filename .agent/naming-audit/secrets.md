@@ -20,10 +20,10 @@ Notation: file paths are relative to the package root. Findings reference
 | Severity    | Count |
 | ----------- | ----- |
 | High        | 8     |
-| Medium      | 15    |
-| Low         | 11    |
+| Medium      | 14    |
+| Low         | 9     |
 | Observation | 5     |
-| **Total**   | **39** |
+| **Total**   | **36** |
 
 Headline themes:
 
@@ -441,19 +441,6 @@ Headline themes:
   plural. `items` is the odd-one-out; the field name should match the
   pattern.
 
-### M15. `marshalXxxSchema` / `unmarshalXxxSchema` const naming is Go-style
-
-- **File / line:** `src/v1/model.ts:205, 215, 227, 231, 235, 239, 243,
-  258, 267, 277, 287, 291, 294, 304, 318, 328, 344, 354, 362, 372, 384`.
-- **Category:** #14 Go/Java-style names, #20 type-suffix tautology.
-- **Current:** `marshalCreateScopeSchema: z.ZodType`,
-  `unmarshalAclItemSchema: z.ZodType<AclItem>`, etc.
-- **Suggestion:** TS idiom is `encode`/`decode` or `serialize`/`deserialize`.
-  `Schema` is also tautological since the value is a `z.ZodType` —
-  `aclItemDecoder`, `createScopeEncoder` would be type-self-describing.
-- **Rationale:** Generator-wide convention (same defect cited in many
-  audits, e.g. `credentials.md` #53). Cannot be fixed in isolation.
-
 ---
 
 ## Low Severity
@@ -527,18 +514,7 @@ Headline themes:
   later release." The release shipped; the doc string is stale. Not a
   naming issue but indicates the file is not maintained tightly.
 
-### L7. `marshal*Schema` types use bare `z.ZodType` (no type argument)
-
-- **Files / lines:** `model.ts:318, 328, 344, 354, 362, 372, 384`.
-- **Category:** asymmetry; #20 type-suffix tautology.
-- **Current:** `marshalCreateScopeSchema: z.ZodType = ...` — no type
-  parameter. Compare with `unmarshalAclItemSchema: z.ZodType<AclItem>`.
-- **Suggestion:** mirror the input shape on the marshal side
-  (`marshalCreateScopeSchema: z.ZodType<CreateScope>`). As-is, the
-  marshal path has no type guarantee — `marshalCreateScopeSchema.parse({
-  scope: 123 })` would not type-check the input.
-
-### L8. `flattenQueryParams` is dead code in this package
+### L7. `flattenQueryParams` is dead code in this package
 
 - **File / line:** `src/v1/utils.ts:123`.
 - **Category:** #21 dead code.
@@ -548,7 +524,7 @@ Headline themes:
   generator-wide.
 - **Suggestion:** drop dead code, or move it to a shared utils package.
 
-### L9. `executeCall` vs `executeHttpCall` name collision
+### L8. `executeCall` vs `executeHttpCall` name collision
 
 - **Files / lines:** `src/v1/utils.ts:26, 65`.
 - **Category:** #17 inconsistent action verbs.
@@ -556,15 +532,7 @@ Headline themes:
   `executeCall` (sets options + dispatches retries) and `executeHttpCall`
   (one HTTP roundtrip). Same defect cataloged in other audits.
 
-### L10. `parseResponse` vs `marshalRequest` mix verbs
-
-- **Files / lines:** `src/v1/utils.ts:113, 119`.
-- **Category:** #17 inconsistent action verbs.
-- **Current:** mixing `parse`/`marshal` for symmetric encode/decode
-  responsibilities. Should be `parseResponse` + `formatRequest`, or
-  `unmarshalResponse` + `marshalRequest`.
-
-### L11. `PACKAGE_SEGMENT` constant is vague
+### L9. `PACKAGE_SEGMENT` constant is vague
 
 - **File / line:** `src/v1/client.ts:65`.
 - **Category:** #1 vague/generic.
@@ -653,5 +621,3 @@ Headline themes:
     (`backendType`) (M10).
 13. `CreateScope.backendAzureKeyvault` ↔ `SecretScope.keyvaultMetadata`
     → pick one (`keyVaultBackend`) (M11).
-14. `marshalXxxSchema` / `unmarshalXxxSchema` → `encodeXxx` / `decodeXxx`
-    (M15, repo-wide; not isolated to this package).

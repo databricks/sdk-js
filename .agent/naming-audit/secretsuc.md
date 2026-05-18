@@ -3,15 +3,15 @@
 **Path:** `packages/secretsuc/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Unity Catalog (UC) secrets — three-level namespaced (`catalog.schema.secret`) credential objects that store passwords/tokens/keys. Distinct from the workspace-level `secrets` package (scopes + key/value pairs). REST root is `/api/2.1/unity-catalog/secrets`.
-**Total weird names flagged:** 32
+**Total weird names flagged:** 24
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 8 |
-| Medium | 10 |
-| Low | 9 |
-| Observation | 5 |
+| Medium | 8 |
+| Low | 4 |
+| Observation | 4 |
 
 ## High severity
 
@@ -34,7 +34,7 @@
 - **Rationale:** Even if the package rename happens, the type name `Secret` carries no UC-specific signal. Users wiring up both APIs will collide. The Go SDK has the same problem but disambiguates via Go's package-qualified types (`secretsuc.Secret` vs `secrets.SecretMetadata`); TS imports are commonly unqualified at the call site, so the type itself needs to carry the disambiguator.
 
 ### 4. `externalSecretId` — `src/v1/model.ts:143`
-- **Why weird:** Completely undocumented field (no JSDoc comment, unlike every other field on `Secret`). The wire field exists in marshal/unmarshal (`model.ts:203,222,252,271`) and in the field-mask schema (`model.ts:283`) but is not in the field-mask's documented "Supported fields" list (`value, comment, owner, expire_time` — `client.ts:238`). The field's existence and semantics are entirely opaque to a reader of the model file.
+- **Why weird:** Completely undocumented field (no JSDoc comment, unlike every other field on `Secret`). The wire field exists in the field-mask but is not in the field-mask's documented "Supported fields" list (`value, comment, owner, expire_time` — `client.ts:238`). The field's existence and semantics are entirely opaque to a reader of the model file.
 - **Category:** 1 (vague — what is "external"?), 6 (misleading — undocumented field that is presumably real), 19 (underspecified id — alongside `metastoreId` and `fullName`).
 - **Suggested name:** Keep the name but ship JSDoc; or `externalSecretReference` / `externalProviderSecretId` if the field points at an external secret manager (AWS Secrets Manager, etc.).
 - **Rationale:** A bare `externalSecretId` next to `metastoreId` and `fullName` invites the reader to guess. JSDoc is the cheapest fix; renaming to disclose the "external store" intent is the better one. This may be a generator gap (missing API description), worth flagging upstream so the description is included.
@@ -43,7 +43,7 @@
 - **Why weird:** Doc says "This field is input-only and is not returned in responses". Same struct has `effectiveValue` (`model.ts:131`) for the output. Two near-identical fields, one input-only, one output-only, both meaning "the secret value". Generic name `value` is also category-1 vague — without the doc, "value" could mean any value in any struct.
 - **Category:** 1 (vague), 6 (misleading — same name covers both write-only-input and a sibling read-only-output), 11 (input-only field on a shared input/output type forces the reader to know the direction).
 - **Suggested name:** `secretValue` (for symmetry with `effectiveValue`), or split into `CreateSecretInput.value` / `Secret.effectiveValue` so the asymmetry surfaces in the type system. Alternatively rename `effectiveValue` -> `value` and have a separate write-only `newValue` on update.
-- **Rationale:** The current shape relies entirely on the JSDoc to inform the reader which field to set on input and which to read on output. The Zod marshal schema happily round-trips both fields (`model.ts:246,268`), so a buggy caller can set `effectiveValue` on a create call and the SDK will serialise it to the wire (where the server presumably ignores it). The TS type system should keep the asymmetry visible.
+- **Rationale:** The current shape relies entirely on the JSDoc to inform the reader which field to set on input and which to read on output. A buggy caller can set `effectiveValue` on a create call and the SDK will serialise it to the wire (where the server presumably ignores it). The TS type system should keep the asymmetry visible.
 
 ### 6. `effectiveValue` / `effectiveOwner` "effective" prefix — `src/v1/model.ts:101,131`
 - **Why weird:** Two unrelated `effective*` fields used with two different meanings. `effectiveOwner` is documented as "the effective owner of the secret, which may differ from the directly-set **owner** due to inheritance" — so "effective" = "after inheritance resolution". `effectiveValue` is documented as "the secret value. Only populated in responses when you have the **READ_SECRET** privilege" — so "effective" = "the actual readable value, not what was sent in". Two distinct semantics under one prefix.
@@ -65,14 +65,14 @@
 
 ## Medium severity
 
-### 9. `Secret` mixes input-only and output-only fields — `src/v1/model.ts:126,225-272`
-- **Why weird:** The single `Secret` type carries write-only `value` alongside read-only `effectiveValue`, `effectiveOwner`, `createTime`, `createdBy`, `updateTime`, `updatedBy`, `metastoreId`, `browseOnly`. `marshalSecretSchema` (`model.ts:225`) round-trips every field, so it is shared between create (`client.ts:80`) and update (`client.ts:251`) paths. Callers cannot tell from the type which fields are writable on input and which are server-populated on output.
+### 9. `Secret` mixes input-only and output-only fields — `src/v1/model.ts:126`
+- **Why weird:** The single `Secret` type carries write-only `value` alongside read-only `effectiveValue`, `effectiveOwner`, `createTime`, `createdBy`, `updateTime`, `updatedBy`, `metastoreId`, `browseOnly`. The shared type is used on both create (`client.ts:80`) and update (`client.ts:251`) paths. Callers cannot tell from the type which fields are writable on input and which are server-populated on output.
 - **Category:** 11 (single type wearing two hats), 6 (misleading).
 - **Suggested name:** Split into `WritableSecret` / `Secret`, or `SecretCreateInput` / `SecretUpdateInput` / `Secret`.
 - **Rationale:** The single-type approach is a generator artefact (Go SDK uses one struct with pointer fields to elide zeros); TS lacks that ergonomic and forces every consumer to know which fields are write-permitted. The field-mask on update (`updateMask` — `model.ts:162`) partially mitigates but doesn't substitute for type-level intent.
 
 ### 10. `UpdateSecretRequest.secret` is the *update payload* with `fullName` as routing key — `src/v1/model.ts:147-163`
-- **Why weird:** `UpdateSecretRequest` has both `fullName` (routing) and `secret` (payload). The nested `secret.fullName` is meaningless — what if it differs from the outer `fullName`? The Zod marshalRequest serialises the whole `secret`, including its own optional `fullName`, into the PATCH body even though the path is keyed by the outer `req.fullName`.
+- **Why weird:** `UpdateSecretRequest` has both `fullName` (routing) and `secret` (payload). The nested `secret.fullName` is meaningless — what if it differs from the outer `fullName`? The whole `secret`, including its own optional `fullName`, is serialised into the PATCH body even though the path is keyed by the outer `req.fullName`.
 - **Category:** 6 (misleading — two `fullName`s can disagree), 17 (inconsistency — same field appearing twice in one logical operation).
 - **Suggested name:** Either define `SecretUpdate` (omits `fullName`, `createTime`, etc.) or rely on the field-mask to ignore non-listed fields. Naming-wise: rename the outer to `name`/`secretFullName` to emphasise it's the routing key, not part of the payload.
 - **Rationale:** This is a real bug surface: callers will write `{fullName: 'a.b.c', secret: {fullName: 'x.y.z', ...}}` and wonder why renames don't work.
@@ -113,6 +113,8 @@
 - **Suggested name:** `relativeName` for `name`, or `schemaRelativeName`. Wire stays `name`.
 - **Rationale:** When `fullName` is the routing key, `name` should disclose that it's the inferior, scope-relative one. Failing that, JSDoc must always be read.
 
+## Low severity
+
 ### 17. `comment` vs documented "description" mismatch — `src/v1/model.ts:113`
 - **Why weird:** Field named `comment` with JSDoc "User-provided free-form text description of the secret." The doc calls it a description; the field is called a comment. Same mismatch pattern as `abacpolicies.PolicyInfo.comment` (audit #28).
 - **Category:** 6 (misleading — doc says description, name says comment), 17 (cross-package inconsistency).
@@ -125,79 +127,32 @@
 - **Suggested name:** Rename `owner` -> `explicitOwner` or `directOwner` to mirror `effectiveOwner`'s "resolved" framing.
 - **Rationale:** Sibling pair should be obviously a pair. Reading `owner` and `effectiveOwner` side-by-side, the user has to consult the JSDoc to discover one is the raw input and one is the resolved output. Wire stays `owner`.
 
-## Low severity
-
 ### 19. `Client.createSecret` / `deleteSecret` / `getSecret` / `listSecrets` / `updateSecret` — `src/v1/client.ts:75,105,132,172,240`
 - **Why weird:** Method names redundantly include `Secret` even though the class is already secret-scoped. `client.createSecret(req)` reads okay, but inside a UC-secrets-only file `client.create(req)` would be cleaner. Compare with `pkgJson.scripts` ("build", "test") — context-scoped commands omit the noun.
 - **Category:** 8 (redundant suffix — name repeats the class scope).
 - **Suggested name:** Within the class, `create` / `delete` / `get` / `list` / `update` would be tighter. (But it would break a cross-package convention — every generated client uses `<verb><Noun>`.)
 - **Rationale:** Cross-package convention wins here; flagging because rule 8 asks for redundant suffixes. The Go SDK uses `Create` / `Delete` etc. because Go method calls are scoped by receiver (`secretsuc.Create`). TS does the same implicitly (`client.create`). Worth raising at the SDK-design level.
 
-### 20. `listSecretsIter` — `src/v1/client.ts:214`
-- **Why weird:** `Iter` suffix is a Go convention. JS/TS convention is to return an `AsyncIterable` (or named explicit iterator helper) — the method already returns `AsyncGenerator<Secret>`, so the `Iter` is redundant after the return-type annotation. Compare with `Symbol.asyncIterator` ecosystem (`for await...of` consumes any `AsyncGenerator` directly; users don't expect to call `.iter()`).
-- **Category:** 14 (Go-style name), 8 (redundant suffix — return type already says it's an iterator).
-- **Suggested name:** `streamSecrets`, `secretsStream`, or hoist into a `listSecrets[Symbol.asyncIterator]()`-style method.
-- **Rationale:** TS callers write `for await (const s of client.listSecretsIter(req)) {}` which is fine, but the `Iter` adds nothing the type signature doesn't. Cross-SDK convention again; not worth fixing in isolation.
-
-### 21. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:36`
+### 20. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:36`
 - **Why weird:** Same constant repeated in every generated package. `Segment` is generic; reader needs the comment to learn it's the User-Agent identity segment.
 - **Category:** 1 (vague), 15 (generic field name).
 - **Suggested name:** `USER_AGENT_PACKAGE_ID` or `PACKAGE_USER_AGENT_SEGMENT`.
 - **Rationale:** Same flag as in other generated packages; flagged for consistency.
 
-### 22. `flattenQueryParams` — `src/v1/utils.ts:123`
-- **Why weird:** Function is exported but not called from `client.ts` in this package — all query strings are built manually with `URLSearchParams.append`. Dead-looking surface area.
-- **Category:** Observation / 11 (unused public helper).
-- **Suggested name:** Either remove or document why it ships per-package.
-- **Rationale:** Same observation as in other audits. Each generated package carries this helper unused.
-
-### 23. `readAll` — `src/v1/utils.ts:40`
-- **Why weird:** Generic name for "read response body stream into a Uint8Array". Could be confused with `Array.prototype.readAll`-like operations.
-- **Category:** 1 (vague).
-- **Suggested name:** `drainStream` / `readStreamToEnd` / `collectStream`.
-- **Rationale:** Internal helper; low cost; skip if generated.
-
-### 24. `parseResponse` / `marshalRequest` verb asymmetry — `src/v1/utils.ts:113,119`
-- **Why weird:** `parseResponse` (unmarshal) vs `marshalRequest` (marshal). Two different verbs for inverse operations.
-- **Category:** 17 (inconsistent verbs).
-- **Suggested name:** `unmarshalResponse` / `marshalRequest` (symmetry), or `parseResponse` / `serializeRequest`.
-- **Rationale:** Pair-wise consistency aids reading.
-
-### 25. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
-- **Why weird:** Near-identical names for different layers — `executeCall` wraps retry/rate-limit/timeout, `executeHttpCall` does raw HTTP send + logging. Distinguishing `Http` infix is a fragile cue.
-- **Category:** 1 (vague), 17 (inconsistent — should differ in more than `Http`).
-- **Suggested name:** `runWithCallOptions` / `sendHttp` (or `wrapCall` / `dispatchHttp`).
-- **Rationale:** Eases call-site reading.
-
-### 26. `HttpCallOptions` — `src/v1/utils.ts:15`
-- **Why weird:** `Options` reused throughout the SDK (`ClientOptions`, `CallOptions`, etc.). Within `utils.ts` there's also `Options` imported from `@databricks/sdk-core/api` (`utils.ts:3`).
-- **Category:** 1 (vague suffix).
-- **Suggested name:** `HttpCallContext` or `HttpCallArgs`.
-- **Rationale:** Distinguish internal context bags from user-tunable options.
-
-### 27. `secretFieldMask` helper function — `src/v1/model.ts:294`
-- **Why weird:** Helper that builds a typed `FieldMask<Secret>` from string paths. Name is fine, but inconsistent with `marshalSecretSchema` / `unmarshalSecretSchema` which are nouns; this is a verb-style camelCase function. Lower-case-first is correct, but the pattern "what is X" (`secretFieldMask`) vs "what does X do" (`marshalSecretSchema` as a Zod schema object) shows mixed conventions in the file.
-- **Category:** 17 (inconsistent — neighbouring exports mix function/value forms).
-- **Suggested name:** Keep as-is (function names *should* be verb-first by JS convention, but `secretFieldMask` is a builder — `buildSecretFieldMask` would clarify).
-- **Rationale:** Minor stylistic inconsistency.
-
 ## Observations
 
-### 28. Wire/TS divergence is heavy
-The model file is 296 lines for *one* user-facing type (`Secret`) plus four request DTOs and one response DTO; ~130 lines are marshal/unmarshal/FieldMaskSchema scaffolding. The Zod schema duplicates the field list three times (interface, marshal schema, unmarshal schema, FieldMaskSchema). Not a naming problem, but the redundancy means a rename touches four places.
-
-### 29. Action-verb convention in `Client`
+### 21. Action-verb convention in `Client`
 `createSecret` / `deleteSecret` / `getSecret` / `listSecrets` / `updateSecret` — fully consistent CRUDL verbs. No mixed `fetch`/`retrieve`. (Good.)
 
-### 30. Acronym casing for `Http` / `Url`
+### 22. Acronym casing for `Http` / `Url`
 Same as other audited packages: `Http` (PascalCase capital-then-lower) coexists with `URLSearchParams` (ALLCAPS from Web standard). Convention inherited from broader JS ecosystem; not worth changing.
 - **Category:** 3.
 
-### 31. `Uc` abbreviation never expanded in code
+### 23. `Uc` abbreviation never expanded in code
 Tracked thoroughly. The string "Uc" (in any case) does not appear in any identifier, type name, field name, constant, or enum value. "Unity Catalog" appears only in (a) JSDoc on `Secret` (`model.ts:85`), (b) JSDoc on `createSecret` / `listSecrets` / `updateSecret` (`client.ts:67,163,232`), and (c) the URL path string `/api/2.1/unity-catalog/secrets` (`client.ts:79,109,136,176,244`). The package name `secretsuc` is the **only** carrier of the disambiguator at the import level, and it's silent everywhere else. A consumer importing `Client` and `Secret` from this package, then opening their editor's symbol view, will see no hint that this is Unity-Catalog-scoped. See finding #1.
 - **Category:** 5.
 
-### 32. No enums in this package
+### 24. No enums in this package
 No enum types are defined. (`secrets` workspace package has `AclPermission` and `ScopeBackendType`; `secretsuc` exposes none.) This avoids the enum-prefix and enum-value-length problems that other audited packages have. Worth noting because the audit checklist asks about enum issues.
 
 ## Domain glossary

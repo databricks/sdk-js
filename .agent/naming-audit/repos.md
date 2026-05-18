@@ -14,7 +14,7 @@ even though the product was rebranded to "Git folders". One resource type
 (`RepoInfo`), two sparse-checkout config types (`SparseCheckout`,
 `SparseCheckoutUpdate`), and no enums anywhere despite eight closed-set
 `provider` values appearing in JSDoc on five fields.
-**Total weird names flagged:** 41
+**Total weird names flagged:** 40
 
 ---
 
@@ -28,7 +28,7 @@ even though the product was rebranded to "Git folders". One resource type
 | 4 | `CreateRepo_Response` (proto-style underscore) | model.ts:29 | interface | High | 4 Underscores in TS identifiers | Proto-message-nested-message-encoded-as-underscore. Carries an inline `// eslint-disable-next-line @typescript-eslint/naming-convention` comment — the generator already knows the name violates the project's own convention. Standard TS idiom would be `CreateRepoResponse` (no underscore), or — since the response is a `RepoInfo` shape — `RepoInfo` directly. |
 | 5 | `GetRepo_Response` (proto-style underscore) | model.ts:64 | interface | High | 4 Underscores in TS identifiers, 12 Duplicate concepts | Field-for-field identical to `CreateRepo_Response` and `RepoInfo`. Same eslint-disable. |
 | 6 | `ListRepos_Response` (proto-style underscore) | model.ts:100 | interface | High | 4 Underscores in TS identifiers | Same eslint-disable. The body is `{repos: RepoInfo[], nextPageToken}` — the only `_Response` type with a non-redundant shape. |
-| 7 | Five `*_Response` types each carry inline `// eslint-disable-next-line @typescript-eslint/naming-convention` | model.ts:28, 55, 63, 99, 170 | interface set | High | 4 Underscores in TS identifiers | Five disables in one file. Plus another five on the marshal/unmarshal schemas (model.ts:173, 195, 199, 220, 260) — ten total disables. The presence of those disables is the loudest possible signal that the names violate the project's own conventions. |
+| 7 | Five `*_Response` types each carry inline `// eslint-disable-next-line @typescript-eslint/naming-convention` | model.ts:28, 55, 63, 99, 170 | interface set | High | 4 Underscores in TS identifiers | Five disables in one file. The presence of those disables is the loudest possible signal that the names violate the project's own conventions. |
 | 8 | `RepoInfo` ≡ `CreateRepo_Response` ≡ `GetRepo_Response` (three identical shapes) | model.ts:111, 29, 64 | interface trio | High | 12 Duplicate concepts | All three have the same seven fields (`id`, `path`, `url`, `provider`, `branch`, `headCommitId`, `sparseCheckout`) with the same types and the same optionality. The three zod transforms are three copies of the same body (model.ts:174-193, 200-218, 232-250 — sixty lines of duplicated logic). `CreateRepo_Response` and `GetRepo_Response` should be type aliases of `RepoInfo`. |
 | 9 | `DeleteProject` (request type) | model.ts:50 | interface | High | 6 Misleading names, 12 Duplicate concepts | The type is named `DeleteProject` but the field, JSDoc, endpoint, and method all say "repo". The doc says: "The ID for the corresponding **repo** to delete." The endpoint is `/api/2.0/repos/{id}`. The client method is `deleteProject` but JSDoc above it says "Deletes the specified **repo**". This is the only `*Project` name in the entire package — every other operation uses `*Repo`. The wire-side path name (`/api/2.0/repos`) was likely once `/api/2.0/projects` (legacy/internal name) but the TS-side carries the legacy operation name only for this one method. |
 | 10 | `Client.deleteProject` (method name on a `repos` client) | client.ts:105 | method | High | 6 Misleading names, 17 Inconsistent action verbs | The client method is `deleteProject` even though the package is `repos`, the URL is `/repos/{id}`, the JSDoc says "Deletes the specified repo", and the four sibling methods are `createRepo`, `getRepo`, `listRepos`, `updateRepo`. Should be `deleteRepo`. Reads as: `client.createRepo(...)`, `client.getRepo(...)`, `client.deleteProject(...)`, `client.updateRepo(...)` — the inconsistency is loud. |
@@ -49,24 +49,19 @@ even though the product was rebranded to "Git folders". One resource type
 | 25 | `repos` field on `ListRepos_Response` | model.ts:102 | field | Medium | 1 Vague/generic, 15 Generic field names | The response wraps an array of `RepoInfo` items. The field is named `repos` (plural). The doc says "List of Git folders (repos)." If the resource type were renamed to `GitFolder` (per H1), this field should be `gitFolders`. As is, `repos` matches the wire JSON key (`repos`) but mismatches the JSDoc terminology ("Git folders"). |
 | 26 | `Client` (unqualified class name) | client.ts:49 | class | Medium | 1 Vague/generic | `export class Client` — once imported it shadows every other package's `Client` (every package in this SDK exports its own `Client`). Should be `ReposClient` or, per H1, `GitFoldersClient`. Same flag as every prior audit. |
 | 27 | `Client.createRepo` / `getRepo` / `listRepos` / `updateRepo` (singular) vs `deleteProject` | client.ts:79, 130, 158, 212, 105 | method set | High | 17 Inconsistent action verbs, 12 Duplicate concepts, 6 Misleading names | Four methods carry the `Repo` suffix; one carries `Project`. Per #9/#10, the `Project` form is a legacy name that leaked into this one operation only. Method naming should be uniform: `createRepo`, `getRepo`, `listRepos`, `updateRepo`, `deleteRepo` (or — per H1 — `createGitFolder`/`getGitFolder`/etc.). |
-| 28 | `Client.listReposIter` (iter suffix vs full word) | client.ts:191 | method | Medium | 5 Cryptic abbreviations, 17 Inconsistent action verbs | The `*Iter` suffix is a Go/Rust idiom; TS idiom for async-generator iteration is to either:<br>- Use `*Stream` / `*All` / `*AsObservable`, or<br>- Just expose an `[Symbol.asyncIterator]()` method on the result.<br>The `Iter` abbreviation is also opaque — readers will think "is it `iter` (iterator) or `iter` (iterate)?" Full word `iterate` or `pages`/`stream` would clarify. (Generator-wide pattern; flag once.) |
-| 29 | `listReposIter` returns `AsyncGenerator<RepoInfo>` (per-item) but the underlying call is per-page | client.ts:191 | method | Low | 6 Misleading names | The user sees a single async generator of items but each `for await` of `next` may quietly trigger an HTTP call (every Nth iteration). Memory consumption and latency depend on page size, but the caller has no signal of that. JSDoc is absent. Recommendation: at least document the per-page behavior. (Same finding repeated across iterator audits.) |
-| 30 | `unmarshalCreateRepo_ResponseSchema` (and four siblings) | model.ts:174, 196, 200, 221, 261 | const set | High | 4 Underscores in TS identifiers, 14 Go/Java-style names, 20 Type-suffix tautology | Five `unmarshal*_ResponseSchema` consts plus three `unmarshal*Schema` consts (`unmarshalRepoInfoSchema`, `unmarshalSparseCheckoutSchema`) plus the matching marshal-side consts. Each `*_Response*` schema carries `// eslint-disable-next-line @typescript-eslint/naming-convention`. The names pile up three type-suffix words: `CreateRepo_ResponseSchema` is "Repo" + "Response" + "Schema", each implying the others. |
-| 31 | `marshal*Schema` / `unmarshal*Schema` const naming | model.ts:174, 196, 200, 221, 232, 252, 261, 264, 278, 286, 294 | const set | Low | 14 Go/Java-style names, 20 Type-suffix tautology | `marshal`/`unmarshal` are Go idioms; `Schema` is tautological with `z.ZodType<T>`. TS-canonical pair is `encode`/`decode`. Generator-wide pattern (also flagged in every prior audit). |
-| 32 | `executeCall` vs `executeHttpCall` | utils.ts:26, 65 | function pair | Medium | 17 Inconsistent action verbs, 1 Vague/generic | Two `execute*` functions with overlapping vocabulary. `executeCall` translates options and dispatches via the retry/rate-limit executor; `executeHttpCall` does one HTTP round-trip. Same complaint as the `credentials`, `gitcredentials`, and `accountaccesscontrolproxy` audits — repeated boilerplate. |
-| 33 | `parseResponse` vs `marshalRequest` (mixed action verbs) | utils.ts:113, 119 | function pair | Low | 17 Inconsistent action verbs | One side says `parse`, the other says `marshal`. Should be either `parse`/`format` or `marshal`/`unmarshal`. |
-| 34 | `buildHttpRequest` action verb mixed with `executeHttpCall` | utils.ts:96, 65 | function pair | Low | 17 Inconsistent action verbs | The `*HttpRequest`/`*HttpCall` vocabulary is mixed: `buildHttpRequest` builds a *request* object; `executeHttpCall` makes the *call*. "Call" and "Request" are used interchangeably. |
-| 35 | `PACKAGE_SEGMENT` const | client.ts:44 | const | Low | 1 Vague/generic | "Segment" is vague — segment of what? It is a user-agent segment. Could be `USER_AGENT_PACKAGE_SEGMENT`. Same flag as every prior audit. |
-| 36 | `host` field replacement (`replace(/\/$/, '')`) | client.ts:62 | (logic, not name) | Low | 6 Misleading names | The `host` field actually holds a base URL with trailing slash stripped — not just a host. `baseUrl` would be more honest. (Same misnomer as in the other clients.) |
-| 37 | `userAgent` private field | client.ts:56 | field | Low | (none) | Standard, consistent. Listing for completeness. |
-| 38 | `req.id ?? ''` String coercion in URL builders | client.ts:109, 134, 216 | (logic, not name) | Medium | 6 Misleading names | The `id` field is typed `number | undefined`. The URL builders do `String(req.id ?? '')` — falling back to the empty string when `id` is undefined. That produces URLs like `/api/2.0/repos/` (trailing slash, no ID) which the server will reject. Either the field should be required (no `| undefined`) or the call should throw. The bug-shaped coalesce is hidden behind the name `id` (which suggests the caller knows what an ID is). Same problem appears in every audited package; flagging once per audit. |
-| 39 | `CreateRepo` (no body wrapper for fields) | model.ts:5 | interface | Medium | 9 Singular/plural mismatches | The endpoint is `POST /api/2.0/repos` (plural collection URL). The request type is `CreateRepo` (singular noun). The response is `CreateRepo_Response`. Singular naming matches Go-SDK convention but reads inconsistently with the wire URL. Compare to the `gitcredentials` audit (H2), which has the opposite problem — there the wire URL is plural and the request type is also plural for a single-resource op. Here the wire URL is plural and the request is singular. Pick one rule. |
-| 40 | `RepoInfo` doc says "Git folder (repo) information" | model.ts:110 | doc | Low | 6 Misleading names | The doc consistently uses the form "Git folder (repo)" (e.g., model.ts:30, 32, 42, 44, 46, 59, 65, 81, 89, 101, 110, 112, 114, 124, 126, 128). The type name says only "Repo". Either the doc is overspecified (parenthetical "(repo)" is redundant) or the type name is underspecified. Pick one. |
-| 41 | `RepoInfo.path` doc says "Root path" but `CreateRepo.path` and `GetRepo_Response.path` say "Path" | model.ts:115 vs 20, 33, 68 | field | Low | 6 Misleading names | `RepoInfo.path` doc: "Root path of the git folder (repo) in the Workspace." The same field on `CreateRepo`/`GetRepo_Response`/`CreateRepo_Response` says just "Path of the Git folder (repo) in the workspace." Different qualifiers ("root path" vs "path"), different casing ("Workspace" vs "workspace"). Inconsistency within the same model file. |
-| 42 | `RepoInfo` doc casing inconsistency: "git folder" vs "Git folder" | model.ts:110, 112, 114, 116, 118, 124, 126, 128 | doc | Low | (none) | Within `RepoInfo` alone, the JSDoc uses both "Git folder" (sentence-start, capitalized) and "git folder" (mid-sentence, lowercase). Same for "Workspace" vs "workspace". The other types (e.g., `CreateRepo_Response`) consistently say "Git folder (repo)" with capital G. Generator-introduced text inconsistency. |
-| 43 | `provider` field doc enumerates eight values inline (each ~25 chars) | model.ts:9-13, 37-39, 72-75, 119-121 | doc | Low | 7 Overly verbose | The JSDoc for `provider` on `CreateRepo`, `CreateRepo_Response`, `GetRepo_Response`, and `RepoInfo` enumerates 6-8 values inline. The enumeration is duplicated four times (the generator emits the same text four times in one file). If it were a typed enum (H4), the JSDoc could be on the enum once. |
-| 44 | `req.url`, `req.path`, `req.id`, `req.branch`, `req.tag`, `req.headCommitId` (six bare nouns) | model.ts (throughout) | field set | Medium | 1 Vague/generic, 15 Generic field names | Six fields in `CreateRepo`/`UpdateRepo`/`RepoInfo` are bare nouns: `url`, `path`, `id`, `branch`, `tag`, `headCommitId`. None of them are qualified with the domain (`gitUrl`, `workspacePath`, `repoId`, `gitBranch`, `gitTag`). The fields belong to a Git-folder resource, so reading `repo.url` is fine in context — but standalone (`const url = await getUrlFromSomewhere();`) the type system gives no hint. |
-| 45 | `path` collides with Node.js global `path` module | model.ts:20, 33, 68, 91, 115 | field | Low | 10 Reserved-word collisions | `path` is a common identifier name in TS/Node (`import * as path from 'node:path'`). Local field `path` shadows the import in many codebases. Not a TS reserved word, but a high-shadowing-risk identifier. |
+| 28 | `executeCall` vs `executeHttpCall` | utils.ts:26, 65 | function pair | Medium | 17 Inconsistent action verbs, 1 Vague/generic | Two `execute*` functions with overlapping vocabulary. `executeCall` translates options and dispatches via the retry/rate-limit executor; `executeHttpCall` does one HTTP round-trip. Same complaint as the `credentials`, `gitcredentials`, and `accountaccesscontrolproxy` audits — repeated boilerplate. |
+| 29 | `buildHttpRequest` action verb mixed with `executeHttpCall` | utils.ts:96, 65 | function pair | Low | 17 Inconsistent action verbs | The `*HttpRequest`/`*HttpCall` vocabulary is mixed: `buildHttpRequest` builds a *request* object; `executeHttpCall` makes the *call*. "Call" and "Request" are used interchangeably. |
+| 30 | `PACKAGE_SEGMENT` const | client.ts:44 | const | Low | 1 Vague/generic | "Segment" is vague — segment of what? It is a user-agent segment. Could be `USER_AGENT_PACKAGE_SEGMENT`. Same flag as every prior audit. |
+| 31 | `host` field replacement (`replace(/\/$/, '')`) | client.ts:62 | (logic, not name) | Low | 6 Misleading names | The `host` field actually holds a base URL with trailing slash stripped — not just a host. `baseUrl` would be more honest. (Same misnomer as in the other clients.) |
+| 32 | `userAgent` private field | client.ts:56 | field | Low | (none) | Standard, consistent. Listing for completeness. |
+| 33 | `req.id ?? ''` String coercion in URL builders | client.ts:109, 134, 216 | (logic, not name) | Medium | 6 Misleading names | The `id` field is typed `number | undefined`. The URL builders do `String(req.id ?? '')` — falling back to the empty string when `id` is undefined. That produces URLs like `/api/2.0/repos/` (trailing slash, no ID) which the server will reject. Either the field should be required (no `| undefined`) or the call should throw. The bug-shaped coalesce is hidden behind the name `id` (which suggests the caller knows what an ID is). Same problem appears in every audited package; flagging once per audit. |
+| 34 | `CreateRepo` (no body wrapper for fields) | model.ts:5 | interface | Medium | 9 Singular/plural mismatches | The endpoint is `POST /api/2.0/repos` (plural collection URL). The request type is `CreateRepo` (singular noun). The response is `CreateRepo_Response`. Singular naming matches Go-SDK convention but reads inconsistently with the wire URL. Compare to the `gitcredentials` audit (H2), which has the opposite problem — there the wire URL is plural and the request type is also plural for a single-resource op. Here the wire URL is plural and the request is singular. Pick one rule. |
+| 35 | `RepoInfo` doc says "Git folder (repo) information" | model.ts:110 | doc | Low | 6 Misleading names | The doc consistently uses the form "Git folder (repo)" (e.g., model.ts:30, 32, 42, 44, 46, 59, 65, 81, 89, 101, 110, 112, 114, 124, 126, 128). The type name says only "Repo". Either the doc is overspecified (parenthetical "(repo)" is redundant) or the type name is underspecified. Pick one. |
+| 36 | `RepoInfo.path` doc says "Root path" but `CreateRepo.path` and `GetRepo_Response.path` say "Path" | model.ts:115 vs 20, 33, 68 | field | Low | 6 Misleading names | `RepoInfo.path` doc: "Root path of the git folder (repo) in the Workspace." The same field on `CreateRepo`/`GetRepo_Response`/`CreateRepo_Response` says just "Path of the Git folder (repo) in the workspace." Different qualifiers ("root path" vs "path"), different casing ("Workspace" vs "workspace"). Inconsistency within the same model file. |
+| 37 | `RepoInfo` doc casing inconsistency: "git folder" vs "Git folder" | model.ts:110, 112, 114, 116, 118, 124, 126, 128 | doc | Low | (none) | Within `RepoInfo` alone, the JSDoc uses both "Git folder" (sentence-start, capitalized) and "git folder" (mid-sentence, lowercase). Same for "Workspace" vs "workspace". The other types (e.g., `CreateRepo_Response`) consistently say "Git folder (repo)" with capital G. Generator-introduced text inconsistency. |
+| 38 | `provider` field doc enumerates eight values inline (each ~25 chars) | model.ts:9-13, 37-39, 72-75, 119-121 | doc | Low | 7 Overly verbose | The JSDoc for `provider` on `CreateRepo`, `CreateRepo_Response`, `GetRepo_Response`, and `RepoInfo` enumerates 6-8 values inline. The enumeration is duplicated four times (the generator emits the same text four times in one file). If it were a typed enum (H4), the JSDoc could be on the enum once. |
+| 39 | `req.url`, `req.path`, `req.id`, `req.branch`, `req.tag`, `req.headCommitId` (six bare nouns) | model.ts (throughout) | field set | Medium | 1 Vague/generic, 15 Generic field names | Six fields in `CreateRepo`/`UpdateRepo`/`RepoInfo` are bare nouns: `url`, `path`, `id`, `branch`, `tag`, `headCommitId`. None of them are qualified with the domain (`gitUrl`, `workspacePath`, `repoId`, `gitBranch`, `gitTag`). The fields belong to a Git-folder resource, so reading `repo.url` is fine in context — but standalone (`const url = await getUrlFromSomewhere();`) the type system gives no hint. |
+| 40 | `path` collides with Node.js global `path` module | model.ts:20, 33, 68, 91, 115 | field | Low | 10 Reserved-word collisions | `path` is a common identifier name in TS/Node (`import * as path from 'node:path'`). Local field `path` shadows the import in many codebases. Not a TS reserved word, but a high-shadowing-risk identifier. |
 
 ---
 
@@ -217,12 +212,11 @@ The package's `Client` class exposes:
 client.createRepo(req)       // ✓
 client.getRepo(req)          // ✓
 client.listRepos(req)        // ✓
-client.listReposIter(req)    // ✓
 client.deleteProject(req)    // 🚨 different noun
 client.updateRepo(req)       // ✓
 ```
 
-Five methods read uniformly; one does not. Renaming `deleteProject` →
+Four methods read uniformly; one does not. Renaming `deleteProject` →
 `deleteRepo` is a one-line fix on the TS side that materially improves
 readability. See H2 for the full discussion.
 
@@ -316,43 +310,21 @@ repository". Bare `url` is generic. `remoteUrl` (Git terminology) or
 `gitUrl` would self-document. The JSDoc says "URL of the [linked|remote]
 Git repository" each time.
 
-### M5. `listReposIter` uses Go-idiom `Iter` suffix
-
-```ts
-async *listReposIter(req: ListRepos, options?: CallOptions): AsyncGenerator<RepoInfo>
-```
-
-`Iter` is a Go convention. TS-native options:
-- `listAllRepos(req)` returning `AsyncIterable<RepoInfo>`
-- `listRepos(req)` returning the pager that exposes `[Symbol.asyncIterator]`
-- `streamRepos(req)`
-
-Pick a JS convention.
-
-### M6. `parseResponse` / `marshalRequest` / `executeCall` / `executeHttpCall` (action-verb soup)
+### M5. `executeCall` / `executeHttpCall` (overlapping vocabulary)
 
 `utils.ts` exposes:
 
-- `parseResponse(body, schema)`
-- `marshalRequest(data, schema)`
 - `executeCall(call, options)`
 - `executeHttpCall(opts)`
 - `buildHttpRequest(method, url, headers, signal?, body?)`
 
-Four different action verbs across the file (`parse`, `marshal`,
-`execute`, `build`). The `parse`/`marshal` mismatch is the loudest one
-(both functions are zod-schema invocations that go in opposite
-directions). Either:
-
-- `marshalRequest` / `unmarshalResponse` (Go idiom, matches
-  `marshal*Schema`/`unmarshal*Schema`), or
-- `encodeRequest` / `decodeResponse` (TS idiom).
-
 The `execute*` pair (`executeCall` wraps the retry/rate-limit executor;
 `executeHttpCall` is a single HTTP round-trip) has been flagged in every
-audit so far.
+audit so far. The `*HttpRequest`/`*HttpCall` vocabulary is also mixed —
+"Call" and "Request" used interchangeably across `buildHttpRequest` and
+`executeHttpCall`.
 
-### M7. `repos` plural field is fine, but inconsistent with the singular-resource convention used everywhere else
+### M6. `repos` plural field is fine, but inconsistent with the singular-resource convention used everywhere else
 
 The list-response wraps `repos: RepoInfo[]`. That part is fine
 (`listRepos` → `{repos: [...]}`). But the singular `RepoInfo` and the
@@ -360,7 +332,7 @@ plural `repos` co-exist in the same file — and once you rename
 `RepoInfo` to `Repo` (per M1) or `GitFolder` (per H1), the response
 field needs to follow (`gitFolders: GitFolder[]`).
 
-### M8. `req.id ?? ''` URL-builder bug-shape
+### M7. `req.id ?? ''` URL-builder bug-shape
 
 ```ts
 const url = `${this.host}/api/2.0/repos/${String(req.id ?? '')}`;
@@ -382,23 +354,19 @@ The field name `headCommitId` uses the Git term "HEAD". Readers unfamiliar
 with Git internals will not parse "head commit". The value is a SHA-1
 hash. `headSha` or `currentCommitSha` would be more direct. See #19.
 
-### L2. `parseResponse` vs `marshalRequest` action-verb mismatch
-
-See M6. Lowest priority of the action-verb-soup findings. See #33.
-
-### L3. `PACKAGE_SEGMENT` could be more specific
+### L2. `PACKAGE_SEGMENT` could be more specific
 
 "Segment" is vague — it is a user-agent segment, specifically. The
 constant is used once (in the User-Agent string). `USER_AGENT_PACKAGE_SEGMENT`
-would tie it to its only consumer. See #35.
+would tie it to its only consumer. See #30.
 
-### L4. `host` field stores a base URL, not a host
+### L3. `host` field stores a base URL, not a host
 
 `this.host = options.host.replace(/\/$/, '')` — the field is a base URL
 with trailing slash stripped, not a host (a host has no scheme, no path).
-`baseUrl` would be the honest name. See #36.
+`baseUrl` would be the honest name. See #31.
 
-### L5. `awsCodeCommit` is documented as deprecated but not tagged
+### L4. `awsCodeCommit` is documented as deprecated but not tagged
 
 The JSDoc on `provider` says "`awsCodeCommit` (deprecated by AWS, not
 accepting new customers)". But the model has no `@deprecated` tag on
@@ -406,7 +374,7 @@ either the field's documentation or on a typed enum value (which doesn't
 exist — see H5). Callers cannot programmatically detect deprecated values.
 See #15.
 
-### L6. `SparseCheckout` doc has a comma splice
+### L5. `SparseCheckout` doc has a comma splice
 
 ```ts
 /** Sparse checkout configuration, it contains options like cone patterns. */
@@ -418,26 +386,26 @@ joined by a comma). Should be "Sparse checkout configuration." or
 "Sparse checkout configuration. The `patterns` array specifies cone-mode
 patterns." See #22.
 
-### L7. `RepoInfo` doc text inconsistencies
+### L6. `RepoInfo` doc text inconsistencies
 
 "Git folder" vs "git folder" within `RepoInfo` (model.ts:110, 112, 114,
 116, 118, 124, 126, 128). "Workspace" vs "workspace". Generator-introduced
-text inconsistency. See #42.
+text inconsistency. See #37.
 
-### L8. `RepoInfo.path` doc says "Root path"; the other three `path` docs say "Path"
+### L7. `RepoInfo.path` doc says "Root path"; the other three `path` docs say "Path"
 
 The `RepoInfo` interface describes `path` as "Root path of the git folder
 (repo) in the Workspace." The same field on `CreateRepo` / `GetRepo` /
 `GetRepo_Response` / `CreateRepo_Response` says "Path of the Git folder
 (repo) in the workspace." Different qualifier ("root path" vs "path"),
 different casing ("Workspace" vs "workspace"). Generator-introduced. See
-#41.
+#36.
 
-### L9. `path` field name collides with Node.js `path` module
+### L8. `path` field name collides with Node.js `path` module
 
 `import * as path from 'node:path'` is common; local field also named
 `path` shadows the import. Not a TS reserved word, but a known footgun.
-See #45.
+See #40.
 
 ---
 
@@ -461,10 +429,9 @@ method name (`deleteProject`) and the *TS-side* request type
 |---|---|
 | Total exported interfaces | 10 |
 | Underscored (proto-style) interfaces | 5 (`CreateRepo_Response`, `DeleteProject_Response`, `GetRepo_Response`, `ListRepos_Response`, `UpdateRepo_Response`) |
-| Underscored (proto-style) const schemas | 5 (the matching `unmarshal*_ResponseSchema`) |
 | Identical-shape interface trios | 1 (`RepoInfo` ≡ `CreateRepo_Response` ≡ `GetRepo_Response`) |
 | Identical-shape interface pairs | 1 (`SparseCheckout` ≡ `SparseCheckoutUpdate`) |
-| Inline ESLint disables required by these names | 10 |
+| Inline ESLint disables required by these names | 5 |
 | Enums | 0 (despite an 8-value closed set on `provider`) |
 | Legacy-name leaks | 1 (`DeleteProject*` on a "repos" client) |
 | Rebranding leaks | All identifiers (the resource is now "Git folder" everywhere in JSDoc and product UI, but the type/method names still say "Repo") |
@@ -477,13 +444,11 @@ method name (`deleteProject`) and the *TS-side* request type
 | `_Response` underscore types | Yes (H3) | Yes (H3) | Yes (#18) |
 | Three identical resource/response shapes | Yes (H4: `RepoInfo` ≡ `CreateRepo_Response` ≡ `GetRepo_Response`) | Yes (H4: `Credential` ≡ `CreateCredentials_Response` ≡ `GetCredentials_Response`) | Yes (#2, #3, #5) |
 | `string`-typed enum-domain field (`provider`) | Yes (H5) | Yes (H6 — same field!) | No (uses real enums) |
-| `marshal*Schema` / `unmarshal*Schema` consts | Yes (#30, #31) | Yes (#28, #29) | Yes (#53) |
-| `executeCall` / `executeHttpCall` vocabulary clash | Yes (M6) | Yes (#31) | Yes (#55) |
-| `parseResponse` / `marshalRequest` action mismatch | Yes (M6, L2) | Yes (#32) | Yes (#56) |
-| `PACKAGE_SEGMENT` generic const | Yes (L3) | Yes (#35) | Yes (#58) |
-| `host` field stores a URL | Yes (L4) | Yes (#36) | Common |
+| `executeCall` / `executeHttpCall` vocabulary clash | Yes (M5) | Yes (#31) | Yes (#55) |
+| `PACKAGE_SEGMENT` generic const | Yes (L2) | Yes (#35) | Yes (#58) |
+| `host` field stores a URL | Yes (L3) | Yes (#36) | Common |
 | Bare `id` on requests | Yes (H6) | Yes (#24 — but with `credentialId` divergence on responses) | Yes (`nameArg` divergence) |
-| Plural/singular mismatch | Mild (#39 — singular request type for plural endpoint) | Severe (H2 — plural request type for singular op) | Mixed |
+| Plural/singular mismatch | Mild (#34 — singular request type for plural endpoint) | Severe (H2 — plural request type for singular op) | Mixed |
 | Legacy-name leak | **Yes (H2 — `DeleteProject*` on a "repos" client)** | No | No |
 | Product-rebrand leak | **Yes (H1 — TS surface says "Repo", product/doc says "Git folder")** | Partial (Bitbucket Data Center rename, GitLab Self-Managed rename — wire values only) | No |
 

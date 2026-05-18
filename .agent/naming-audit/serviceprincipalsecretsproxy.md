@@ -6,7 +6,7 @@
 service principal (create, list, delete), exposed as a "proxy" variant whose
 surface area is byte-identical to the sibling `serviceprincipalsecrets`
 package.
-**Total weird names flagged:** 33
+**Total weird names flagged:** 26
 
 ---
 
@@ -37,16 +37,9 @@ package.
 | 21 | `ListServicePrincipalSecrets_Response.secrets` | model.ts:61 | field | Low | 9 Singular/plural mismatches | Plural is correct. JSDoc says "List of the secrets" — phrasing nit, "List of secrets" would read better. |
 | 22 | `ServicePrincipalSecret` | model.ts:66 | interface | Medium | 12 Duplicate concepts | Structurally identical to `CreateServicePrincipalSecretResponse` (see #7). Two names for one shape. |
 | 23 | `ServicePrincipalSecret.id` / `secret` / `secretHash` / `status` | model.ts:68, 70, 72, 78 | field | Medium | 1 Vague/generic without domain context | Same vague-field issues as the response copy (#8-#11). |
-| 24 | `unmarshalCreateServicePrincipalSecretResponseSchema` | model.ts:83 | const | Medium | 7 Overly verbose, 20 Type-suffix tautology | 50-char identifier. `Schema` suffix is redundant with the `z.ZodType<...>` annotation; the leading `unmarshal` is Go-idiom (see #29). |
-| 25 | `unmarshalDeleteServicePrincipalSecret_ResponseSchema` | model.ts:108 | const | High | 4 Underscores in TS identifiers, 7 Overly verbose | 52-char identifier that includes an embedded underscore; needs `eslint-disable-next-line @typescript-eslint/naming-convention`. |
-| 26 | `unmarshalListServicePrincipalSecrets_ResponseSchema` | model.ts:112 | const | High | 4 Underscores in TS identifiers, 7 Overly verbose | Same underscore + verbosity issue as #25. |
-| 27 | `unmarshalServicePrincipalSecretSchema` | model.ts:125 | const | Low | 20 Type-suffix tautology | `Schema` suffix is tautological with the `z.ZodType<ServicePrincipalSecret>` annotation. |
-| 28 | `marshalCreateServicePrincipalSecretSchema` | model.ts:149 | const | Low | 17 Inconsistent action verbs, 20 Type-suffix tautology | Same as #27, plus: pairing is `marshal*`/`unmarshal*` (Go-idiom — TS norm would be `encode`/`decode` or `serialize`/`deserialize`). Note this const has type `z.ZodType` *without* a generic argument while every sibling unmarshal const supplies one. |
-| 29 | `marshal`/`unmarshal` verbs (whole file) | model.ts:83, 108, 112, 125, 149 | naming pattern | Low | 14 Go/Java-style names not idiomatic TS, 17 Inconsistent action verbs | Direct Go transliteration. TS ecosystem uses `JSON.stringify` / `JSON.parse`, `encode` / `decode`, or `serialize` / `deserialize`. |
-| 30 | `Client` | client.ts:42 | class | Medium | 1 Vague/generic without domain context | Top-level `Client` with no qualifier. Once two Databricks clients are imported in the same module, every one is just `Client`. Should be `ServicePrincipalSecretsProxyClient` or aliased on export. |
-| 31 | `Client.createServicePrincipalSecret` / `deleteServicePrincipalSecret` / `listServicePrincipalSecrets` | client.ts:72, 101, 129 | method | Medium | 7 Overly verbose | Inside a class named `Client` (let alone a class that should be `ServicePrincipalSecretsClient`), repeating `ServicePrincipalSecret` in every method name is stutter. `create(req)` / `delete(req)` / `list(req)` would read cleanly. |
-| 32 | `Client.listServicePrincipalSecretsIter` | client.ts:165 | method | Medium | 7 Overly verbose, 14 Go/Java-style names not idiomatic TS, 5 Cryptic abbreviations | `Iter` suffix is a Go-idiom (`func ListSomethingIter()`). TS `AsyncGenerator` returns are conventionally named without suffixes, or with `*All` / `*Stream`. Combined with the already-verbose method root, this is a 37-character identifier. |
-| 33 | `PACKAGE_SEGMENT` | client.ts:37 | const | Low | 1 Vague/generic without domain context | Used only to assemble the User-Agent header. `USER_AGENT_PACKAGE_SEGMENT` makes the call site self-explanatory. |
+| 24 | `Client` | client.ts:42 | class | Medium | 1 Vague/generic without domain context | Top-level `Client` with no qualifier. Once two Databricks clients are imported in the same module, every one is just `Client`. Should be `ServicePrincipalSecretsProxyClient` or aliased on export. |
+| 25 | `Client.createServicePrincipalSecret` / `deleteServicePrincipalSecret` / `listServicePrincipalSecrets` | client.ts:72, 101, 129 | method | Medium | 7 Overly verbose | Inside a class named `Client` (let alone a class that should be `ServicePrincipalSecretsClient`), repeating `ServicePrincipalSecret` in every method name is stutter. `create(req)` / `delete(req)` / `list(req)` would read cleanly. |
+| 26 | `PACKAGE_SEGMENT` | client.ts:37 | const | Low | 1 Vague/generic without domain context | Used only to assemble the User-Agent header. `USER_AGENT_PACKAGE_SEGMENT` makes the call site self-explanatory. |
 
 ---
 
@@ -77,9 +70,8 @@ Same seven exported types
 `DeleteServicePrincipalSecret_Response`,
 `ListServicePrincipalSecrets`,
 `ListServicePrincipalSecrets_Response`,
-`ServicePrincipalSecret`), same four client methods (`createServicePrincipalSecret`,
-`deleteServicePrincipalSecret`, `listServicePrincipalSecrets`,
-`listServicePrincipalSecretsIter`), same URL path
+`ServicePrincipalSecret`), same client methods (`createServicePrincipalSecret`,
+`deleteServicePrincipalSecret`, `listServicePrincipalSecrets`), same URL path
 (`/api/2.0/accounts/<id>/servicePrincipals/<sp>/credentials/secrets`).
 
 The user instruction calls out: *"Pay extra attention: the 'proxy' variant
@@ -114,13 +106,11 @@ Rename to `servicePrincipalId` everywhere.
 
 ### H3. Protobuf-style underscore identifiers leak into TS
 
-Three identifiers carry an embedded `_` that requires `eslint-disable-next-line`
+Two identifiers carry an embedded `_` that requires `eslint-disable-next-line`
 comments at every declaration:
 
 - `DeleteServicePrincipalSecret_Response` (model.ts:42)
 - `ListServicePrincipalSecrets_Response` (model.ts:59)
-- `unmarshalDeleteServicePrincipalSecret_ResponseSchema` (model.ts:108)
-- `unmarshalListServicePrincipalSecrets_ResponseSchema` (model.ts:112)
 
 This is category 4 (underscores in TS identifiers) and category 14
 (Go/Java-style names not idiomatic TS). The inline comments
@@ -208,20 +198,12 @@ class Client {
   createServicePrincipalSecret(req, ...)
   deleteServicePrincipalSecret(req, ...)
   listServicePrincipalSecrets(req, ...)
-  listServicePrincipalSecretsIter(req, ...)
 }
 ```
 
 The receiver is already the secrets client. Methods could be `create`,
-`delete`, `list`, `listAll` (or `list` returning an iterable). Even keeping
-the long names, the consistent stutter is worth flagging since the package
-name is already 33 characters.
-
-### M8. `listServicePrincipalSecretsIter` uses a Go-idiom suffix
-
-`*Iter` is Go convention (`func ListSomethingIter() iter.Seq`). TS code
-typically returns `AsyncIterable` without suffix, or uses `*Stream` /
-`iter*()`. Other audited packages have flagged the same pattern.
+`delete`, `list`. Even keeping the long names, the consistent stutter is
+worth flagging since the package name is already 33 characters.
 
 ---
 
@@ -238,64 +220,32 @@ The wire field is `secret_hash` and the doc is "Secret Hash". Callers cannot
 verify hashes without knowing the algorithm (almost certainly SHA-256 given
 Databricks norms, but the SDK does not say).
 
-### L3. `Schema` suffix tautology
-
-Every zod constant is named `unmarshal*Schema` / `marshal*Schema`. The
-`Schema` suffix duplicates the `z.ZodType<...>` annotation. Cross-SDK
-generator concern, not unique to this package.
-
-### L4. `marshal` / `unmarshal` are Go-idioms
-
-```ts
-unmarshalCreateServicePrincipalSecretResponseSchema = z.object(...).transform(...)
-marshalCreateServicePrincipalSecretSchema = z.object(...).transform(...)
-```
-
-TS ecosystem norm is `encode` / `decode`, `serialize` / `deserialize`, or
-just `parse` / `stringify`. Go's `encoding/json` uses `Marshal`/`Unmarshal`;
-TS does not.
-
-### L5. `marshalCreateServicePrincipalSecretSchema` lacks a generic argument
-
-```ts
-export const marshalCreateServicePrincipalSecretSchema: z.ZodType = z.object(...);
-```
-
-Every sibling unmarshal const supplies a generic argument
-(`z.ZodType<ServicePrincipalSecret>`). The marshal const drops it, weakening
-type safety on the call to `marshalRequest(req, marshalCreateServicePrincipalSecretSchema)`.
-
-### L6. `PACKAGE_SEGMENT`
+### L3. `PACKAGE_SEGMENT`
 
 Used only for the User-Agent header. Rename to
 `USER_AGENT_PACKAGE_SEGMENT` so the call site
 (`createDefault().with(PACKAGE_SEGMENT)` → `.with(USER_AGENT_PACKAGE_SEGMENT)`)
 is self-explanatory.
 
-### L7. `HttpCallOptions`
+### L4. `HttpCallOptions`
 
 Internal `interface` with `{request, httpClient, logger}`. Generic name. If
 it ever leaks beyond `utils.ts`, `ExecuteHttpCallParams` would self-document.
 (This shape and name is shared verbatim with sibling packages — generator-wide.)
 
-### L8. `parseResponse` vs `marshalRequest`
-
-`utils.ts` mixes `parse` / `marshal` action verbs. Pick one pair
-(`parse` / `format`, or `marshal` / `unmarshal`) and stay consistent.
-
-### L9. `flattenQueryParams` exported but never imported
+### L5. `flattenQueryParams` exported but never imported
 
 `utils.ts:123` exports `flattenQueryParams`. `client.ts` builds query strings
 inline via `URLSearchParams` (client.ts:134-141). Either:
 - Use it (current inline code reproduces a subset of its logic), or
 - Remove it (dead code).
 
-### L10. `req` parameter naming in client methods
+### L6. `req` parameter naming in client methods
 
 Every public method uses `req: <RequestType>` — Go-idiom. TS conventions
 prefer `request` or `params`. Stylistic only.
 
-### L11. `pageToken` JSDoc is enormous
+### L7. `pageToken` JSDoc is enormous
 
 ```ts
 /**
@@ -316,7 +266,7 @@ A four-sentence pagination contract attached to a single field. `pageSize`
 on the very next line has zero JSDoc. Move the contract to the type-level
 JSDoc or package docs; keep the field-level note short.
 
-### L12. `accountId` in path templates falls back silently
+### L8. `accountId` in path templates falls back silently
 
 ```ts
 const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/servicePrincipals/${req.servicePrincipal ?? ''}/credentials/secrets`;
@@ -377,7 +327,7 @@ validation error. Not a naming issue per se, but a result of the underspecified
 | File | Lines | Exports counted | Audited |
 |------|-------|-----------------|---------|
 | `src/v1/model.ts` | 162 | 7 interfaces, 5 zod consts | yes |
-| `src/v1/client.ts` | 181 | 1 class, 4 public methods (3 request + 1 iterator) | yes |
+| `src/v1/client.ts` | 181 | 1 class, 3 public methods | yes |
 | `src/v1/utils.ts` | 150 | 1 interface, 5 functions | yes |
 | `src/v1/index.ts` | 15 | 1 class re-export, 7 type re-exports, 1 no-op `export {}` | yes |
 

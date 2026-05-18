@@ -3,15 +3,15 @@
 **Path:** `packages/tagpolicies/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Account-level governed-tag definitions. A `TagPolicy` declares a `tagKey`, an allowed set of `values`, and optional `propagationConfig` (with conflict-resolution rules) so that a tag becomes "governed" across the account. Sister of `tagassignments` (apps/dashboards/geniespaces/notebooks K/V tags) and `entitytagassignments` (Unity Catalog K/V tags). The HTTP surface is `/api/2.1/tag-policies`, with the five standard verbs (create/get/list/update/delete) keyed by `tagKey`.
-**Total weird names flagged:** 37
+**Total weird names flagged:** 30
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 8 |
-| Medium | 13 |
-| Low | 11 |
-| Observation | 5 |
+| Medium | 10 |
+| Low | 8 |
+| Observation | 4 |
 
 ## High severity
 
@@ -42,7 +42,7 @@
 ### 5. Method names `createTagPolicy` / `deleteTagPolicy` / `getTagPolicy` / `listTagPolicies` / `updateTagPolicy` — `src/v1/client.ts:67,93,112,137,188`
 - **Why weird:** Every client method repeats the package name in its identifier. On `Client` already scoped by import to this package, `client.createTagPolicy(...)` reads as "package.subject.create.subject" — the noun is doubled. The shorter form `client.create(...)` / `client.list(...)` is what TS users expect when a client is single-purpose. Sister packages do the same.
 - **Category:** 7 (overly verbose), 8 (redundant suffix — repeats `TagPolicy` five times when the client only manages `TagPolicy`).
-- **Suggested name:** `create`, `delete`, `get`, `list`, `update` (and `listIter`).
+- **Suggested name:** `create`, `delete`, `get`, `list`, `update`.
 - **Rationale:** A client class that ships exactly five methods all named after the same subject is repeating the subject. `TagPoliciesClient.create()` reads better than `client.createTagPolicy()`.
 
 ### 6. `tagKey` is both the resource identifier and a field on `TagPolicy` — `src/v1/model.ts:63` and `model.ts:31,35`
@@ -108,36 +108,18 @@
 - **Rationale:** Three identifiers in one switch (`$case === 'defaultValueOverride'` ⇒ `defaultValueOverride.defaultValue`) that say the same thing make for noisy type checks.
 
 ### 16. `tagPolicyFieldMask(...paths: string[])` exported helper — `src/v1/model.ts:281`
-- **Why weird:** A free function `tagPolicyFieldMask` exported alongside the type system, with no class namespace. The user types `tagPolicyFieldMask('description', 'values')`. The lowercase camelCase clashes with the PascalCase convention for type-related exports. Re-stated in sister packages with the same shape (`tagAssignmentFieldMask`, etc.). Belongs in a `TagPolicy.fieldMask` static method or in a shared helper module.
-- **Category:** 8 (redundant prefix `tagPolicy` on a function exported only from the `tagpolicies` package), 14 (Go-style top-level functions instead of class statics).
-- **Suggested name:** `fieldMask` (let the import path supply scope), or `TagPolicy.fieldMask` (static method).
-- **Rationale:** Free functions with the type name as prefix replicate Go's lack of methods on structs. TS supports static methods natively.
+- **Why weird:** A free function `tagPolicyFieldMask` exported alongside the type system. The user types `tagPolicyFieldMask('description', 'values')` — the package name is already `tagpolicies`, so the `tagPolicy` prefix re-states the package scope. Sister packages do the same (`tagAssignmentFieldMask`, etc.).
+- **Category:** 8 (redundant prefix `tagPolicy` on a function exported only from the `tagpolicies` package).
+- **Suggested name:** `fieldMask` (let the import path supply scope).
+- **Rationale:** Once a caller has imported from `@databricks/sdk-tagpolicies`, the `tagPolicy` prefix on the helper is noise.
 
-### 17. `marshalRequest` / `parseResponse` asymmetric verb pair — `src/v1/utils.ts:113,119`
-- **Why weird:** Two functions that form a logical pair, named with mismatched verbs: `marshalRequest` (serialize TS → wire) and `parseResponse` (deserialize wire → TS). The corresponding inverse pair would be `marshalRequest`/`unmarshalResponse` or `serializeRequest`/`deserializeResponse`. Currently asymmetric: `marshal` ↔ `parse`.
-- **Category:** 17 (inconsistent action verbs — marshal/unmarshal vs. marshal/parse).
-- **Suggested name:** `marshalRequest` / `unmarshalResponse`, or `serializeRequest` / `deserializeResponse`.
-- **Rationale:** Sibling helpers should use mirrored verbs. The mismatch is a generator-wide pattern but worth flagging.
-
-### 18. `marshalRequest` is mis-named — `src/v1/utils.ts:119`
-- **Why weird:** The function `marshalRequest(data, schema)` takes *any* data (not a "request"), parses it through the schema, and returns a JSON string. It is a generic JSON encoder; the name implies it only handles request bodies.
-- **Category:** 6 (misleading — handles arbitrary data, not just requests), 1 (vague — `marshal` is non-specific in JS, where `JSON.stringify` is the convention).
-- **Suggested name:** `toJsonString` or `marshal` (no `Request` suffix).
-- **Rationale:** A name that overstates the function's coupling to "request" misleads callers who'd reuse it for response prep.
-
-### 19. `parseResponse` is mis-named — `src/v1/utils.ts:113`
-- **Why weird:** Same problem as `marshalRequest` — the function `parseResponse(body, schema)` parses *any* `Uint8Array` body, not specifically a response. Used to validate request bodies during testing as well.
-- **Category:** 6 (misleading), 1 (vague).
-- **Suggested name:** `parseJson` or `unmarshal`.
-- **Rationale:** Drops the false coupling to "response".
-
-### 20. `executeCall` vs. `executeHttpCall` confusion — `src/v1/utils.ts:26,65`
+### 17. `executeCall` vs. `executeHttpCall` confusion — `src/v1/utils.ts:26,65`
 - **Why weird:** Two near-identical names with different purposes. `executeCall(call, options)` runs a `Call` through the retrier/rate-limiter; `executeHttpCall(opts)` issues a single HTTP request and reads the body. The names differ by one word (`Http`) but the responsibilities are radically different (orchestrator vs. transport). A user grepping for "execute" can't tell which one to use.
 - **Category:** 1 (vague — the disambiguator is too thin), 17 (inconsistent verb scoping).
 - **Suggested name:** `executeCall` (orchestrator) and `sendHttpRequest` (single-request transport).
 - **Rationale:** Distinct responsibilities should have distinct verb roots, not a same-verb-different-noun split.
 
-### 21. `flattenQueryParams` exported but unused — `src/v1/utils.ts:123`
+### 18. `flattenQueryParams` exported but unused — `src/v1/utils.ts:123`
 - **Why weird:** Exported helper that this client does not invoke (the list endpoint uses individual `params.append(...)` calls instead — see `client.ts:143,146`). Dead-code-shaped helper.
 - **Category:** 6 (misleading — implies the package uses it), 1 (vague — `flatten` is generic; this specific one only handles a subset of types).
 - **Suggested name:** N/A — should live in a shared utils package, not be copied into every package.
@@ -145,67 +127,49 @@
 
 ## Low severity
 
-### 22. `createTime` and `updateTime` naming on `TagPolicy` — `src/v1/model.ts:68,70`
+### 19. `createTime` and `updateTime` naming on `TagPolicy` — `src/v1/model.ts:68,70`
 - **Why weird:** Verb tense / noun pair where the natural English is "created at" / "updated at". `createTime` reads as "the time to create" (a verb-noun); `createdAt` is the cross-language convention for "timestamp when it was created". Cross-SDK convention is `createTime`/`updateTime`, so this is consistent with the rest of the codebase, but is non-idiomatic JS/TS.
 - **Category:** 13 (verb-tense inconsistency — `create` (infinitive) vs. `created` (past participle)), 14 (Go-style naming — Go uses `CreateTime`).
 - **Suggested name:** `createdAt` / `updatedAt`.
 - **Rationale:** Established SDK pattern, but rule 13/14 demand the flag. Mongo, PostgREST, Rails, GraphQL conventions all use `createdAt`.
 
-### 23. `accountId: string` on `TagPolicy` — `src/v1/model.ts:74`
+### 20. `accountId: string` on `TagPolicy` — `src/v1/model.ts:74`
 - **Why weird:** "The account ID that owns this tag policy." — generic. `accountId` is consistent across the SDK, but the SDK's bound to an account already (via `ClientOptions.accountId`), so this field is redundant *output* (the server tells you the account that owns the policy, which the client already knows).
 - **Category:** 1 (vague — what kind of ID? account number? UUID?), 19 (underspecified ID — no format documented), 15 (generic field name losing meaning in the SDK context).
 - **Suggested name:** Keep `accountId`; document that it's the Databricks account UUID.
 - **Rationale:** Minor; flagged because all `*Id` fields without docs trigger rule 19.
 
-### 24. `Temporal.Instant` for timestamps — `src/v1/model.ts:68,70`
+### 21. `Temporal.Instant` for timestamps — `src/v1/model.ts:68,70`
 - **Why weird:** Uses `Temporal.Instant` (from `@js-temporal/polyfill`), which is a great future-proof choice — but `Instant` is unfamiliar to most JS devs (who expect `Date` or string). The doc says "Timestamp when the tag policy was created" without explaining why it's an `Instant`.
 - **Category:** 1 (slightly vague choice without doc support), 5 (cryptic to readers unfamiliar with Temporal proposal).
 - **Suggested name:** Keep `Temporal.Instant`; add JSDoc explaining the type choice.
 - **Rationale:** Generator-wide; flagged once.
 
-### 25. `nextPageToken: string` empty-string semantics — `src/v1/client.ts:180,183`
-- **Why weird:** The pagination loop terminates on `resp.nextPageToken === undefined || resp.nextPageToken === ''`. Two sentinel values for "end of pages": `undefined` (TS-native missing field) and `''` (proto-side default). Callers must remember the two cases. The schema converts both to `string | undefined`, but the wire emits `""` rather than dropping the field.
-- **Category:** 6 (misleading — `nextPageToken: ''` looks like a valid token but means "no more pages"), 17 (inconsistent sentinel — two values mean the same thing).
-- **Suggested name:** Keep `nextPageToken`; normalize empty string to `undefined` in the unmarshaller. The field is purely a continuation token; "" is not a token, it's a missing token.
-- **Rationale:** Generator-wide pattern. Each `*Iter` method has to handle both sentinels.
-
-### 26. `listTagPoliciesIter` method name — `src/v1/client.ts:170`
-- **Why weird:** `Iter` suffix is Go-style (sister `listTagPoliciesIter` matches `Go ListTagPoliciesIterator`). In JS/TS, the standard is to expose `[Symbol.asyncIterator]()` on a class, or to name a generator function with a noun phrase (e.g., `tagPolicies()`). `Iter` is also a cryptic three-letter abbreviation.
-- **Category:** 14 (Go-style naming), 5 (cryptic abbreviation — `Iter` shortens `Iterator`).
-- **Suggested name:** `listAll(...)` or `iterateTagPolicies(...)`, or make the class an `AsyncIterable` directly.
-- **Rationale:** TS has built-in support for `for await...of`; the iterator method should match those expectations.
-
-### 27. `pageSize` upper-bound documented in doc, not enforced in type — `src/v1/model.ts:43-44`
+### 22. `pageSize` upper-bound documented in doc, not enforced in type — `src/v1/model.ts:43-44`
 - **Why weird:** JSDoc says "The maximum value is 1000; values above 1000 will be coerced down to 1000." but the field is typed `number | undefined`. A caller passing `pageSize: 100000` silently gets clipped to 1000. The constraint travels only via the docstring.
 - **Category:** 6 (misleading — type does not match contract).
 - **Suggested name:** Keep `pageSize`; consider a branded type or a runtime validator. At minimum, restate the limit clearly.
 - **Rationale:** Generator-wide; flagged because docs lie about wire behaviour.
 
-### 28. `pageSize` and `pageToken` are camelCase but wire is `page_size` / `page_token` — `src/v1/client.ts:144,147`
-- **Why weird:** The TS request shape uses `pageSize` / `pageToken`, but the URL builder hard-codes the wire names `page_size` / `page_token` (`client.ts:144,147`) — i.e., the client serializes TS field names *manually* into snake_case query strings. If a future request adds new query params, every new param requires another two-name mapping.
-- **Category:** 17 (inconsistency — request fields camelCase, URL builder snake_case, no shared mapping table).
-- **Suggested name:** N/A; flag as generator-side smell. A field-mask or marshal-schema-driven URL builder would avoid the dual-name maintenance.
-- **Rationale:** Each new query param doubles the bug surface.
-
-### 29. `updateMask` field type `FieldMask<TagPolicy>` — `src/v1/model.ts:79`
+### 23. `updateMask` field type `FieldMask<TagPolicy>` — `src/v1/model.ts:79`
 - **Why weird:** `FieldMask<TagPolicy>` is a generic type carrying the masked-shape as a type parameter. The name `updateMask` is wire-standard (proto FieldMask) but cryptic to TS users — "mask" usually means a bitmask. The JSDoc is missing.
 - **Category:** 5 (cryptic — `mask` for TS users means bitmask), 14 (proto-style — FieldMask is a proto concept).
 - **Suggested name:** Keep `updateMask`; add JSDoc explaining it's a path-based selector for partial updates.
 - **Rationale:** Generator-wide name; flag once.
 
-### 30. `id` field on `TagPolicy` — `src/v1/model.ts:64`
+### 24. `id` field on `TagPolicy` — `src/v1/model.ts:64`
 - **Why weird:** Field name `id` with no JSDoc on what it represents — server-generated UUID? Hashed `tagKey`? Path key for some other endpoint? See #6 for the duplicate-identifier critique; this is the underspecified-`id`-name flag separately.
 - **Category:** 1 (vague), 19 (underspecified ID), 15 (generic name).
 - **Suggested name:** `policyId` or `governedTagId`; add JSDoc.
 - **Rationale:** Sibling `BudgetPolicy.policyId` uses the prefix; `TagPolicy.id` does not. Cross-SDK inconsistency.
 
-### 31. `description` field doc missing — `src/v1/model.ts:65`
+### 25. `description` field doc missing — `src/v1/model.ts:65`
 - **Why weird:** Just `description?: string | undefined` with no JSDoc. Width limits? Mandatory? Format?
 - **Category:** 1 (vague — no contract on the field).
 - **Suggested name:** Keep `description`; add JSDoc.
 - **Rationale:** Common pattern, but flagged because rule 1 demands it.
 
-### 32. `host` constructor field with trailing-slash stripping — `src/v1/client.ts:42,54`
+### 26. `host` constructor field with trailing-slash stripping — `src/v1/client.ts:42,54`
 - **Why weird:** The constructor strips trailing `/` from `options.host` (`client.ts:54`). Field is `host`, not `baseUrl` or `endpoint`. The TS field `host` is a string like `https://workspace.cloud.databricks.com`, which is by convention "the base URL" not "the host" (the host would be `workspace.cloud.databricks.com` without scheme).
 - **Category:** 6 (misleading — "host" usually means hostname-only).
 - **Suggested name:** `baseUrl` or `endpoint`.
@@ -213,21 +177,18 @@
 
 ## Observations
 
-### 33. Wire/TS divergence dominates the file
-The `model.ts` file is 284 lines for ~9 user-facing types; ~140 lines are `marshal`/`unmarshal`/`FieldMaskSchema` scaffolding. Same pattern as other audited packages.
+### 27. Action verb consistency
+The client uses `create`/`get`/`update`/`delete`/`list` — no `fetch`/`retrieve`. Consistent across this package and aligned with sister packages.
 
-### 34. Action verb consistency
-The client uses `create`/`get`/`update`/`delete`/`list` (plus `listIter`) — no `fetch`/`retrieve`. Consistent across this package and aligned with sister packages.
-
-### 35. Acronym casing
+### 28. Acronym casing
 File uses `HttpRequest`, `HttpResponse`, `HttpCallOptions` (Pascal `Http`), `URLSearchParams` (web standard `URL`), `userAgent` (camelCase). The `Http` vs. `URL` split is the JS-ecosystem norm. No `Id`/`Uri` casing clashes encountered within the file.
 - **Category:** 3 (acronym casing — consistent within the file, ecosystem-divergent overall).
 
-### 36. `tagpolicies` lowercase package name
+### 29. `tagpolicies` lowercase package name
 Package directory is `tagpolicies` (single token, no separator), but every type uses `TagPolicy*` and the HTTP path uses `tag-policies`. Same problem as `dataclassification`, `tagassignments`, `entitytagassignments` — SDK-wide convention issue.
 - **Category:** 3 (casing inconsistency between directory token, kebab wire path, and Pascal types).
 
-### 37. Domain leakage from sister packages
+### 30. Domain leakage from sister packages
 Three packages — `tagpolicies`, `tagassignments`, `entitytagassignments` — all collide on the noun "tag". Each ships its own `Client`, its own `tag*` types, and its own `tagKey`. Co-import requires extensive aliasing. `tagpolicies` differs in that it defines the *policy* over the tag, while the assignment packages attach a `tagKey` + `tagValue` to entities — but a user can't tell from the name; "tag policies" sounds like it could be policies *for* tag assignments.
 - **Category:** 12 (duplicate concept across siblings).
 

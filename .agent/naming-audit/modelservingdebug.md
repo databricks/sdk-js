@@ -4,15 +4,15 @@
 **Package name:** `@databricks/sdk-modelservingdebug`
 **Versions audited:** v1
 **Inferred domain:** Diagnostic / troubleshooting endpoints carved out of the Model Serving API. Three HTTP GETs hanging off `/api/2.0/serving-endpoints/{name}`: `GET /metrics` returns a Prometheus/OpenMetrics text blob (streamed body), `GET /served-models/{servedModelName}/logs` returns the most recent server stdout lines, and `GET /served-models/{servedModelName}/build-logs` returns the served-entity environment build logs.
-**Total weird names flagged:** 32
+**Total weird names flagged:** 22
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 9 |
-| Medium | 13 |
-| Low | 8 |
-| Observation | 2 |
+| High | 8 |
+| Medium | 7 |
+| Low | 6 |
+| Observation | 1 |
 
 ## Inventory
 
@@ -223,26 +223,7 @@ suggestion below.
   Guide § Identifiers
   (https://google.github.io/styleguide/tsguide.html#identifiers).
 
-### 5. Request types lack `Request` suffix; response types have `_Response` — `model.ts:19,24,37`
-- **Why weird:** Asymmetric: `GetServedModelLogs` (request, no suffix)
-  paired with `GetServedModelLogs_Response` (response, suffixed). The
-  bare `GetServedModelLogs` reads like a verb-as-type — "do the action
-  GetServedModelLogs". Reading
-  `function f(req: GetServedModelLogs)` is jarring; the type *is* the
-  action, not a value. Compare to other audited packages
-  (`endpoints.GetEndpointRequest`, `customllms.GetCustomLlmRequest`)
-  where the convention is `*Request`/`*Response`.
-- **Category:** 17 (inconsistent action verb-form between request and
-  response), 14 (Go-style `Get*` as type name).
-- **Suggested name:** Add `Request` suffix to all three:
-  `GetExportEndpointMetricsRequest`,
-  `GetServedModelBuildLogsRequest`,
-  `GetServedModelLogsRequest`. Pair with `*Response` (no underscore,
-  per #4) on the response side.
-- **Rationale:** Symmetry. `Request`/`Response` is the project
-  precedent set by `endpoints`, `customllms`, and others.
-
-### 6. `name` field on every request — `model.ts:21,26,39`
+### 5. `name` field on every request — `model.ts:21,26,39`
 - **Why weird:** All three request types have `name?: string` and the
   JSDoc has to spell out "The name of the serving endpoint" each time.
   Bare `name` is the most generic identifier possible — readers without
@@ -262,7 +243,7 @@ suggestion below.
   makes the pairing with `servedModelName` parallel (`endpointName` +
   `servedModelName`).
 
-### 7. `name ?? ''` empty-string fallback when the field is "required" — `client.ts:69,96,124`
+### 6. `name ?? ''` empty-string fallback when the field is "required" — `client.ts:69,96,124`
 - **Why weird:** The JSDoc on each request says "This field is
   required" yet the type marks `name?: string | undefined` *optional*
   and the URL is built with `${req.name ?? ''}` — meaning if the caller
@@ -281,7 +262,7 @@ suggestion below.
   (https://google.aip.dev/122) which mandates path parameters be
   required.
 
-### 8. `servedModelName` doc echoes the field name three times — `model.ts:27-28,40-41`
+### 7. `servedModelName` doc echoes the field name three times — `model.ts:27-28,40-41`
 - **Why weird:** JSDoc on `GetServedModelBuildLogs.servedModelName`
   reads "The name of the served model that build logs will be
   retrieved for. This field is required." The field name already
@@ -299,7 +280,7 @@ suggestion below.
   identifier + JSDoc; the doc carrying no information beyond what
   the name says is a footgun for consumers.
 
-### 9. `GetServedModelLogs_Response.logs: string` is a single blob — `model.ts:47`
+### 8. `GetServedModelLogs_Response.logs: string` is a single blob — `model.ts:47`
 - **Why weird:** The field is named `logs` (plural) but typed as a
   single `string`. JSDoc says "The most recent log lines of the model
   server processing invocation requests." So it's many log *lines*
@@ -318,7 +299,7 @@ suggestion below.
 
 ## Medium severity
 
-### 10. `GetServedModelBuildLogs.name` clashes with `GetServedModelBuildLogs.servedModelName` — `model.ts:26,28`
+### 9. `GetServedModelBuildLogs.name` clashes with `GetServedModelBuildLogs.servedModelName` — `model.ts:26,28`
 - **Why weird:** Two name fields on one struct: `name` (endpoint name)
   and `servedModelName` (served model name). The bare `name` looks like
   *the* name of the request entity (which a reader would assume is the
@@ -331,7 +312,7 @@ suggestion below.
 - **Rationale:** When two `*Name` fields exist on one struct, neither
   should be bare `name`.
 
-### 11. `ExportMetricsResponse.contents` vs convention `body` — `model.ts:16`
+### 10. `ExportMetricsResponse.contents` vs convention `body` — `model.ts:16`
 - **Why weird:** The only field is `contents?: ReadableStream | undefined`.
   Web Fetch standard
   (https://fetch.spec.whatwg.org/#bodyinit-unions) and the SDK's own
@@ -345,7 +326,7 @@ suggestion below.
 - **Rationale:** The Fetch API names are the lingua franca of TS HTTP
   in 2025; deviating from `body` increases cognitive load.
 
-### 12. `getExportEndpointMetrics` returns `ExportMetricsResponse` (no `Endpoint`) — `client.ts:65-68`
+### 11. `getExportEndpointMetrics` returns `ExportMetricsResponse` (no `Endpoint`) — `client.ts:65-68`
 - **Why weird:** The method name says `EndpointMetrics`, the response
   type says `ExportMetricsResponse` (no `Endpoint`). Inconsistent
   qualifier between method and return type. A reader greping for
@@ -360,7 +341,7 @@ suggestion below.
 - **Rationale:** Symmetry between method and return type aids
   IDE autocomplete and grep-ability.
 
-### 13. `Get*` prefix on three of three methods — `client.ts:65,92,120`
+### 12. `Get*` prefix on three of three methods — `client.ts:65,92,120`
 - **Why weird:** Every method here is a GET. The `Get*` verb prefix on
   TS methods is a Go/Java/.NET pattern; in TS, a noun method `endpointMetrics()`
   or `metrics()` is more idiomatic for read operations
@@ -377,7 +358,7 @@ suggestion below.
   (https://google.github.io/styleguide/tsguide.html#methods) prefers
   imperative verbs, but does not mandate `get*` for retrievals.
 
-### 14. `getServedModelLogs` vs `getServedModelBuildLogs` — duplicate concept "logs" — `client.ts:92,120`
+### 13. `getServedModelLogs` vs `getServedModelBuildLogs` — duplicate concept "logs" — `client.ts:92,120`
 - **Why weird:** Two methods, both retrieve logs, distinguished only
   by what *kind* of logs (runtime "service" logs vs container "build"
   logs). The build/service axis is a sub-attribute of "logs", not a
@@ -394,7 +375,7 @@ suggestion below.
   and `getServedModelBuildLogs` is the special case; the API doesn't
   advertise the asymmetry.
 
-### 15. `GetServedModelLogs.servedModelName` doc says "The name of the served model that logs will be retrieved for" — passive voice — `model.ts:41`
+### 14. `GetServedModelLogs.servedModelName` doc says "The name of the served model that logs will be retrieved for" — passive voice — `model.ts:41`
 - **Why weird:** Passive voice "that logs will be retrieved for"
   reads like a phrase translated from a proto comment. Active voice
   is shorter: "The served model whose logs to retrieve." Pure JSDoc
@@ -405,30 +386,7 @@ suggestion below.
 - **Suggested name:** No rename; rewrite JSDoc in active voice.
 - **Rationale:** API surface clarity. Not blocking.
 
-### 16. `unmarshalGetServedModelBuildLogs_ResponseSchema` is 41 characters of noise — `model.ts:51`
-- **Why weird:** Schema names embed the *full* request type name
-  including the `_Response` underscore artefact. `unmarshal` + nested
-  type name = 41 chars for one symbol. Three eslint-disable directives
-  in a row (model.ts:31, 44, 50, 60) make the readability worse.
-- **Category:** 7 (overly verbose), 4 (underscore in TS identifier),
-  20 (type-suffix tautology — the schema's `<T>` argument already
-  says `Response`).
-- **Suggested name:** `unmarshalServedModelBuildLogs` (drop `Get`,
-  drop `_Response` — the symbol with no suffix is a fine name for
-  "the unmarshal for the build-logs response"). Pair with the
-  `Request`/`Response` symmetry fix in #5.
-- **Rationale:** Schema names ride on type names; fixing the type
-  names cascades.
-
-### 17. `unmarshalX_ResponseSchema` violates camelCase — `model.ts:51,61`
-- **Why weird:** The capital `R` in `_ResponseSchema` is half-word
-  inside what should be camelCase. Same eslint suppression pattern
-  as #4.
-- **Category:** 4 (underscores in TS identifiers).
-- **Suggested name:** See #16.
-- **Rationale:** Same as #4 / #16.
-
-### 18. `PACKAGE_SEGMENT` const is unsized — `client.ts:34-37`
+### 15. `PACKAGE_SEGMENT` const is unsized — `client.ts:34-37`
 - **Why weird:** SCREAMING_SNAKE_CASE in TS is a Go/Python carryover.
   Google TS Style Guide
   (https://google.github.io/styleguide/tsguide.html#identifiers)
@@ -442,67 +400,9 @@ suggestion below.
   `PACKAGE_SEGMENT` const, so this is a cross-package finding —
   fix at the generator.
 
-### 19. `HttpCallOptions` and `executeHttpCall` vs `executeCall` overlap — `utils.ts:15,26,65`
-- **Why weird:** Three callable surfaces with overlapping names:
-  - `executeCall(call: Call, options?: CallOptions)` — wraps the retrier.
-  - `executeHttpCall(opts: HttpCallOptions): Promise<Uint8Array>` —
-    sends one HTTP request and reads the body.
-  - `sendAndCheckError(opts: HttpCallOptions): Promise<HttpResponse>` —
-    sends one HTTP request and returns the response (body untouched).
-  All three "execute calls" but at different abstraction levels.
-  `executeHttpCall` *also* checks errors and reads the body;
-  `sendAndCheckError` checks errors but doesn't read the body. The
-  names don't communicate the body-reading behaviour.
-- **Category:** 12 (duplicate concept), 1 (vague), 17 (inconsistent
-  verbs — `execute*` vs `sendAndCheckError`).
-- **Suggested name:** Rename to convey the body behaviour:
-  - `executeHttpCall` → `sendAndReadBody` (or `executeAndReadBody`).
-  - `sendAndCheckError` stays (it's the most-specific name).
-  - `executeCall` → `runWithRetries` or `runCall`.
-- **Rationale:** Today a reader has to read both function bodies to
-  pick the right one. Names should describe the side effect on the
-  body stream.
-
-### 20. `marshalRequest` is unused inside this package — `utils.ts:119`
-- **Why weird:** `marshalRequest(data, schema)` is exported from
-  `utils.ts` but the only call site in this package's `client.ts` is
-  none (all three methods are GETs with no body). The function exists
-  because `utils.ts` is generator-copied verbatim across packages.
-  Dead code is a naming smell because it inflates the surface area
-  the reader has to keep in their head.
-- **Category:** Observation (cross-package generator artefact).
-- **Suggested name:** No rename; flag for generator-level dead-code
-  pruning.
-- **Rationale:** Public utility surface in a package that doesn't use
-  it is dead weight.
-
-### 21. `flattenQueryParams` is unused inside this package — `utils.ts:123`
-- **Why weird:** Same as #20. None of the three GETs construct query
-  params (all data is in the URL path). Exported function with zero
-  internal users.
-- **Category:** Observation (cross-package generator artefact).
-- **Suggested name:** No rename; flag for generator-level dead-code
-  pruning.
-- **Rationale:** Same as #20.
-
-### 22. `executeCall` second parameter `options?` is shadowed by `opts` inside — `utils.ts:26-38`
-- **Why weird:** `options?: CallOptions` parameter is mapped onto a
-  local `const opts: Options = {...}`. The name shift `options` →
-  `opts` happens inline. Both are valid, but inside one 13-line
-  function they alternate, e.g., `options?.retrier` and
-  `opts.retrier` would mean different things. Today the code
-  carefully translates one into the other.
-- **Category:** 1 (vague), 17 (inconsistent shortening — `options` vs
-  `opts`).
-- **Suggested name:** Pick one. Either rename the parameter to `opts`
-  (and use `internalOpts` for the translated value) or keep `options`
-  and `internalOptions`.
-- **Rationale:** Three-letter `opts` shorthand inside a function that
-  takes `options` is a category-5 cryptic-abbreviation finding.
-
 ## Low severity
 
-### 23. `Call` type aliased to `Promise<void>` in `utils.ts` import — `utils.ts:3`
+### 16. `Call` type aliased to `Promise<void>` in `utils.ts` import — `utils.ts:3`
 - **Why weird:** `Call` is one of the most generic names imaginable.
   Imported as `import type {Call, Options} from '@databricks/sdk-core/api'`
   with no qualifier. Inside the client `const call: Call = async ...`
@@ -516,8 +416,8 @@ suggestion below.
   that survives review only because nobody wants to argue with the
   framework.
 
-### 24. `Options` type aliased to internal options shape — `utils.ts:3,30`
-- **Why weird:** Same as #23 but for `Options`. `Options` is generic
+### 17. `Options` type aliased to internal options shape — `utils.ts:3,30`
+- **Why weird:** Same as #16 but for `Options`. `Options` is generic
   to the point of meaninglessness. The translation step in
   `executeCall` exists *because* the public `CallOptions` and the
   internal `Options` are two different "options" types that happen
@@ -529,7 +429,7 @@ suggestion below.
 - **Rationale:** Two adjacent "Options" types in 35 lines of code is
   the classic accidental-collision pattern.
 
-### 25. `userAgent` is built once in the constructor and never refreshed — `client.ts:46,60`
+### 18. `userAgent` is built once in the constructor and never refreshed — `client.ts:46,60`
 - **Why weird:** Not a name bug per se, but the field name `userAgent`
   suggests a dynamic property, while the construction reads
   `this.userAgent = info.toString();` once at construction time. If
@@ -540,16 +440,16 @@ suggestion below.
   freeze in the JSDoc on line 43-46.
 - **Rationale:** Worth a comment; not a rename target.
 
-### 26. `host` is normalised by trailing-slash strip — `client.ts:52`
+### 19. `host` is normalised by trailing-slash strip — `client.ts:52`
 - **Why weird:** `this.host = options.host.replace(/\/$/, '');`
   silently rewrites the input. The field name `host` doesn't tell
   the consumer "we normalise this to no trailing slash". If a debug
   log later prints `client.host`, it won't match what was passed in.
 - **Category:** Observation, 6 (mildly misleading).
 - **Suggested name:** No rename. Add a JSDoc note.
-- **Rationale:** Same pattern as #25; cross-package.
+- **Rationale:** Same pattern as #18; cross-package.
 
-### 27. `info` local var in the constructor — `client.ts:54,56,57,58,60`
+### 20. `info` local var in the constructor — `client.ts:54,56,57,58,60`
 - **Why weird:** `let info = createDefault().with(PACKAGE_SEGMENT);`
   then more `info = info.with(...)` chains. The name `info` is
   category-5 (cryptic abbreviation of "information") and category-1
@@ -561,7 +461,7 @@ suggestion below.
   `createDefault` factory and the SDK convention).
 - **Rationale:** Local-scope, low-impact rename. Cross-package.
 
-### 28. `pkgJson` import alias for package.json — `client.ts:19,35,36`
+### 21. `pkgJson` import alias for package.json — `client.ts:19,35,36`
 - **Why weird:** `import pkgJson from '../../package.json' with {type:
   'json'};`. The alias name `pkgJson` is cryptic; readers who don't
   know `pkg` is "package" will guess. The line is unique-per-package
@@ -570,30 +470,9 @@ suggestion below.
 - **Suggested name:** `packageManifest` or `packageJson` (camelCase).
 - **Rationale:** Trivial fix; cross-package.
 
-### 29. `httpReq` and `httpResp` shorthand inside methods — `client.ts:74,75,99,101,128,129`
-- **Why weird:** `const httpReq = buildHttpRequest(...)` and
-  `const httpResp = await sendAndCheckError(...)`. The `Req`/`Resp`
-  truncation is shorter by 4 characters and a touch less readable.
-  TypeScript can autocomplete the longer form, so the savings are
-  illusory.
-- **Category:** 5 (cryptic abbreviation).
-- **Suggested name:** `httpRequest`, `httpResponse`. Cross-package
-  pattern.
-- **Rationale:** Minor. Worth normalising at the generator.
-
-### 30. `e: unknown` catch parameter — `utils.ts:76,167`
-- **Why weird:** `} catch (e: unknown) {` — single-letter `e` for the
-  exception. TS 4.0+ requires the explicit `: unknown`; the variable
-  name is style. Most codebases use `err` or `error` because `e` is
-  too overloaded (event handlers also use `e`).
-- **Category:** 5 (cryptic abbreviation), 17 (inconsistency — sibling
-  utils.ts files would all need to match).
-- **Suggested name:** `error` or `cause`.
-- **Rationale:** Low impact, generator-fix only.
-
 ## Observation
 
-### 31. `getReader()` chunk-accumulator in `readAll` is a hot-path candidate — `utils.ts:46-62`
+### 22. `getReader()` chunk-accumulator in `readAll` is a hot-path candidate — `utils.ts:46-62`
 - **Why weird:** `readAll` is the buffering implementation used by
   every method (including `getServedModelLogs` which can return many
   KB of text). The chunk-collection loop allocates many intermediate
@@ -606,21 +485,3 @@ suggestion below.
   consumers can iterate the stream.
 - **Rationale:** Not a naming bug, but the audit covers the function
   by virtue of its inclusion in `utils.ts`. Worth a note.
-
-### 32. `getExportEndpointMetrics` returns the raw `httpResp.body` (a stream) — `client.ts:80-82`
-- **Why weird:** Method-level inconsistency: of the three methods,
-  *only* `getExportEndpointMetrics` returns the body stream (the
-  others read-and-parse). The asymmetry isn't communicated by the
-  return-type name `ExportMetricsResponse` vs the others'
-  `GetServedModelLogs_Response`. A reader has to inspect both type
-  declarations to discover that one is streaming and two are buffered.
-- **Category:** 6 (misleading — return type doesn't advertise
-  streaming).
-- **Suggested name:** Either rename the return type to include
-  `Stream` (e.g., `EndpointMetricsStream` with a `body: ReadableStream`)
-  or buffer the body inside the SDK (consistent with the other two
-  methods). The choice depends on consumer needs — metrics blobs
-  can be large, so the stream is the right shape but it must be
-  named accordingly.
-- **Rationale:** Sibling consistency or explicit streaming naming;
-  pick one.

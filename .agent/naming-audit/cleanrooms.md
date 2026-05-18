@@ -12,7 +12,7 @@ grouped by category, and each finding cites the file/line where it appears.
 
 ## Summary
 
-- **Total findings:** 60
+- **Total findings:** 49
 - **Highest-impact themes:**
   1. Proto-style nested enum/message names with embedded underscores
      (`CleanRoom_Status_Enum`,
@@ -189,18 +189,6 @@ Same. Triple-segment Go-style nested enum name.
 - `EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode` (model.ts:321)
 - `EgressNetworkPolicy_InternetAccessPolicy_StorageDestination` (model.ts:332)
 
-### 4.11 Marshal/unmarshal schema constants
-- `unmarshalEgressNetworkPolicy_InternetAccessPolicySchema` (model.ts:494)
-- `unmarshalEgressNetworkPolicy_InternetAccessPolicy_InternetDestinationSchema`
-  (model.ts:531)
-- `unmarshalEgressNetworkPolicy_InternetAccessPolicy_LogOnlyModeSchema` (model.ts:553)
-- `unmarshalEgressNetworkPolicy_InternetAccessPolicy_StorageDestinationSchema`
-  (model.ts:575)
-- `marshalEgressNetworkPolicy_InternetAccessPolicySchema` (model.ts:718)
-- `marshalEgressNetworkPolicy_InternetAccessPolicy_InternetDestinationSchema` (model.ts:755)
-- `marshalEgressNetworkPolicy_InternetAccessPolicy_LogOnlyModeSchema` (model.ts:777)
-- `marshalEgressNetworkPolicy_InternetAccessPolicy_StorageDestinationSchema` (model.ts:799)
-
 The underscore-bearing identifiers radiate from the model file into the
 public re-exports in `index.ts` (lines 7–13, 20, 30–33), so the API surface
 is contaminated.
@@ -299,20 +287,14 @@ Worst offenders:
 The same enums also have `UNSPECIFIED` members reaching 36 characters
 (`INTERNET_DESTINATION_FILTERING_PROTOCOL_UNSPECIFIED`).
 
-### 7.2 Marshal/unmarshal schema identifiers (model.ts:494, 531, 553, 575,
-718, 755, 777, 799)
-The constants `unmarshalEgressNetworkPolicy_InternetAccessPolicy_InternetDestinationSchema`
-and its marshal mirror each weigh in at **84 characters**. They are
-exported and survive in source as long lines that already wrap awkwardly.
-
-### 7.3 `CreateCleanRoomOutputCatalogResponse` (model.ts:263) /
+### 7.2 `CreateCleanRoomOutputCatalogResponse` (model.ts:263) /
 `CreateCleanRoomOutputCatalogRequest` (model.ts:257)
 36 characters each, but the underlying response body has a single field
 (`outputCatalog`). Could be `OutputCatalogResponse` if the operation
 context is unambiguous from the method signature. Probably keep — RPC
 naming convention.
 
-### 7.4 `centralCleanRoomId?: string` (model.ts:228)
+### 7.3 `centralCleanRoomId?: string` (model.ts:228)
 Inside `CleanRoomRemoteDetail`, the `central` adjective is redundant — the
 type itself describes the central clean room. `id` would suffice (subject
 to §1 generic-name caveat — perhaps `remoteId` if we keep the structure).
@@ -321,28 +303,21 @@ to §1 generic-name caveat — perhaps `remoteId` if we keep the structure).
 
 ## 8. Redundant Suffixes
 
-### 8.1 `CleanRoom_Status_Enum` (model.ts:61)
-The `_Enum` suffix is tautological with the `enum` keyword.
-
-### 8.2 `CleanRoomOutputCatalog_OutputCatalogStatus` (model.ts:70)
-The `OutputCatalogStatus` segment repeats `OutputCatalog`. `Status` alone
-would work given the enclosing scope.
-
-### 8.3 `_InternetDestinationFilteringProtocol` (model.ts:87) and
+### 8.1 `_InternetDestinationFilteringProtocol` (model.ts:87) and
 `_InternetDestinationType` (model.ts:93)
 Both append `InternetDestination*` to a type whose Go-style nested path
 already says `…_InternetDestination_…`. Pure repetition.
 
-### 8.4 `_LogOnlyMode_LogOnlyModeType` (model.ts:99)
+### 8.2 `_LogOnlyMode_LogOnlyModeType` (model.ts:99)
 `LogOnlyMode` appears twice in the same identifier. Same for
 `_StorageDestination_StorageDestinationType`.
 
-### 8.5 `complianceSecurityProfile?: ComplianceSecurityProfile` (model.ts:246)
+### 8.3 `complianceSecurityProfile?: ComplianceSecurityProfile` (model.ts:246)
 Field name is identical to the type name — repetition but consistent with
 the rest of the SDK style. (Mild — many ports do this.)
 
-### 8.6 `outputCatalog?: CleanRoomOutputCatalog` (model.ts:164, 260, 264)
-Same field-name-equals-type pattern as §8.5.
+### 8.4 `outputCatalog?: CleanRoomOutputCatalog` (model.ts:164, 260, 264)
+Same field-name-equals-type pattern as §8.3.
 
 ---
 
@@ -381,7 +356,7 @@ Note: TypeScript's discriminated-union pattern often uses literal `type` —
 so this is a soft flag.
 
 ### 10.2 `status` field appears on `CleanRoom` and `CleanRoomOutputCatalog`
-Not a reserved word; raised here to highlight the duplication. See §12.
+Not a reserved word; raised here to highlight the duplication. See §11.
 
 ---
 
@@ -437,26 +412,14 @@ positive example.
 ## 13. Go / Java / Proto-Style Names in TS
 
 ### 13.1 The nine `*_*_*` enum names and five `*_*_*` interface names
-already enumerated in §4.1–§4.11 are direct Go/proto carryovers. The
+already enumerated in §4.1–§4.10 are direct Go/proto carryovers. The
 `eslint-disable-next-line` comments explicitly acknowledge this with the
 phrase "Proto-style nested enum name" / "Proto-style nested message name."
 They are *the* defining stylistic deviation of this file.
 
-### 13.2 The marshal/unmarshal naming
-`marshalCleanRoomSchema`, `unmarshalCleanRoomSchema` (model.ts:371, 613)
-follow Go naming (`Marshal` / `Unmarshal`). JS/TS idiom is
-`serialize`/`deserialize`, `encode`/`decode`, or `to{Json,Wire}` /
-`from{Json,Wire}`. This is a system-wide SDK choice and not unique to
-cleanrooms, but worth flagging once.
-
-### 13.3 `CreateCleanRoomWaiter` (client.ts:289)
+### 13.2 `CreateCleanRoomWaiter` (client.ts:289)
 "Waiter" is the Go SDK convention; in TS, `Poller` / `Watcher` /
 `Operation` (Azure-style) are more idiomatic. Inherited convention.
-
-### 13.4 `req` parameter convention (client.ts:86, 111, 123, 160, 179,
-207, 240, 264)
-`req` is a Go SDK convention. TS norms favor explicit parameter names
-(`request`) or destructuring. Minor.
 
 ---
 
@@ -522,10 +485,6 @@ same wart, but it surfaces here as inconsistent ergonomics:
 `(await c.createCleanRoom(...)).name` vs.
 `(await c.createCleanRoomOutputCatalog(...)).outputCatalog?.catalogName`.
 
-### 16.2 `listCleanRoomsIter` (client.ts:239)
-The `*Iter` suffix matches the Go SDK's iterator naming. TS norms suggest
-`*Iterator`, `*AsyncIterable`, or returning a `Pager` object. Minor.
-
 ---
 
 ## 17. Long Enum Values
@@ -582,16 +541,12 @@ predicate. Combined with the field `accessRestricted: CleanRoom_AccessRestricted
 the result is `accessRestricted: AccessRestricted` — pure echo (the field
 adds no information beyond what the type name supplies).
 
-### 19.2 `CleanRoom_Status_Enum` (model.ts:61)
-The `_Enum` suffix is the canonical example of type-suffix tautology.
-TS's `enum` keyword already conveys "this is an enum."
-
-### 19.3 `_LogOnlyMode_LogOnlyModeType` (model.ts:99) and
+### 19.2 `_LogOnlyMode_LogOnlyModeType` (model.ts:99) and
 `_StorageDestination_StorageDestinationType` (model.ts:129)
 Type name segment appears twice. See §8.
 
-### 19.4 `complianceSecurityProfile: ComplianceSecurityProfile` (model.ts:246)
-See §8.5 — common pattern.
+### 19.3 `complianceSecurityProfile: ComplianceSecurityProfile` (model.ts:246)
+See §8.3 — common pattern.
 
 ---
 
@@ -639,9 +594,6 @@ generic code.
   use correct plurality.
 - JSDoc is generally comprehensive — references to UC naming rules and
   external compliance documents are well-linked.
-- The `executeCall`, `executeHttpCall`, `marshalRequest`, `parseResponse`,
-  `buildHttpRequest`, `flattenQueryParams` utilities in `utils.ts` have
-  short, clear, verb-driven names that survive idiomatically.
 - The `StillRunningError` class (client.ts:48) is concise and
   self-documenting.
 - The package-level segment naming (`PACKAGE_SEGMENT` in client.ts:43)
@@ -662,8 +614,8 @@ output that this audit catalogs.
 If the SDK adopts a TS-idiomatic alias layer, the most leverage comes
 from:
 1. Flattening or shortening the seven `EgressNetworkPolicy_*` enums
-   (eliminates §4.4–§4.9, §7.1, §17.3–§17.6, §19.2–§19.3).
-2. Renaming `CleanRoom_Status_Enum` to `CleanRoomStatus` (§4.2, §8.1, §19.2).
+   (eliminates §4.4–§4.9, §7.1, §17.3–§17.6, §19.2).
+2. Renaming `CleanRoom_Status_Enum` to `CleanRoomStatus` (§4.2).
 3. Renaming `accessRestricted` -> `accessRestriction` and
    `CleanRoom_AccessRestricted` -> `AccessRestriction` (§6.2, §12.2, §19.1).
 4. Renaming `remoteDetailedInfo` -> `details` or `remoteDetail` (§6.1)

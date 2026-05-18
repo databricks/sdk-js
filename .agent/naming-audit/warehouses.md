@@ -13,11 +13,10 @@ This audit applies the 20 numbered concern categories from the audit
 checklist. Each finding lists the offending identifier(s), the
 category number, severity (`HIGH` / `MEDIUM` / `LOW`), and a concrete
 rename suggestion. Findings are grouped by category. Generator-driven
-items (such as `_Response` underscore on proto-style nested messages
-and the `marshal`/`unmarshal` schema prefixes) are flagged as `LOW`
-because they are codified across the entire generated SDK surface —
-they should be fixed at the generator, not by hand-editing this
-package.
+items (such as `_Response` underscore on proto-style nested messages)
+are flagged as `LOW` because they are codified across the entire
+generated SDK surface — they should be fixed at the generator, not by
+hand-editing this package.
 
 **Special historical context:** SQL Warehouses were renamed from
 "SQL Endpoints" (legacy term). The proto definitions still use
@@ -200,7 +199,7 @@ compatibility while updating the customer-visible type names.
   `jdbcUrl`, `numClusters`, etc.), but the type is named
   `EndpointInfo`. Same root concept as `GetWarehouse_Response`,
   which has identical field set — so the type name should
-  match. "Info" is a Go-ism (see F14.2).
+  match.
 - **Suggestion:** Rename to `Warehouse` (the resource itself) or
   `WarehouseInfo` if backward parity matters. Mirror
   `GetWarehouse_Response` shape into a single canonical type
@@ -561,22 +560,6 @@ compatibility while updating the customer-visible type names.
   `EditWarehouseResponse`, etc. — this matches the convention
   used by the rest of the JS SDK for top-level types.
 
-#### F4.2 — Schema names inherit the underscore (HIGH, generator-driven)
-- **Where:**
-  - `unmarshalCreateWarehouse_ResponseSchema` (`model.ts:1525`)
-  - `unmarshalEditWarehouseRequest_ResponseSchema` (`model.ts:1550`)
-  - `unmarshalGetWarehouse_ResponseSchema` (`model.ts:1646`)
-  - `unmarshalGetWorkspaceWarehouseConfigRequest_ResponseSchema` (`model.ts:1694`)
-  - `unmarshalSetWorkspaceWarehouseConfigRequest_ResponseSchema` (`model.ts:1774`)
-  - `unmarshalDeleteWarehouseRequest_ResponseSchema` (`model.ts:1800`)
-  - `unmarshalListWarehousesRequest_ResponseSchema` (`model.ts:1804`)
-  - `unmarshalStartRequest_ResponseSchema` (`model.ts:1816`)
-  - `unmarshalStopRequest_ResponseSchema` (`model.ts:1820`)
-- **Why flagged:** Same root cause as F4.1. Schema identifiers
-  carry the underscore.
-- **Suggestion:** Generator-level. Drop underscore when
-  generating schema names.
-
 ---
 
 ### 5. Cryptic abbreviations
@@ -736,20 +719,8 @@ compatibility while updating the customer-visible type names.
 - **Suggestion:** Acceptable; AIP-compliant. Aliasing at the
   call site is the typical workaround.
 
-#### F7.2 — `marshalSetWorkspaceWarehouseConfigRequestSchema` and
-`unmarshalGetWorkspaceWarehouseConfigRequest_ResponseSchema` (LOW)
-- **Where:** `model.ts:1694, 1953`. 51 and 51 characters
-  respectively.
-- **Why flagged:** Schema names approach 60 chars and contain
-  every part of the wire name. Generator-driven; readability is
-  poor.
-- **Suggestion:** Generator-level. Could shorten by dropping
-  the `Request_Response` chain to just `Response`:
-  `unmarshalGetWorkspaceWarehouseConfigResponseSchema`.
-
-#### F7.3 — `defaultWarehouseOverrideFieldMaskSchema`,
-`defaultWarehouseOverrideFieldMask` (LOW)
-- **Where:** `model.ts:2015, 2022`.
+#### F7.2 — `defaultWarehouseOverrideFieldMask` (LOW)
+- **Where:** `model.ts:2022`.
 - **Why flagged:** Long, but consistent with the AIP-style
   resource name. Acceptable.
 
@@ -799,25 +770,10 @@ compatibility while updating the customer-visible type names.
   `WarehouseTypeAvailability` (or similar) — wire-aligned but
   semantically clearer than the `Pair` suffix.
 
-#### F8.4 — `Info` suffix on `EndpointInfo` (HIGH, Go-ism)
-- **Where:** `model.ts:1006`.
-- **Why flagged:** "Info" is a Go-ism — it carries no
-  semantic value in TS. See category 14.
-- **Suggestion:** Rename to `Warehouse`. Aligns with F1.1.
-
-#### F8.5 — `_Response` underscore suffix (HIGH, generator-driven)
+#### F8.4 — `_Response` underscore suffix (HIGH, generator-driven)
 - Covered in F4.1.
 
-#### F8.6 — `Request_Response` chain in schema names (HIGH, generator-driven)
-- Covered in F4.2.
-
-#### F8.7 — `Schema` suffix on every schema (LOW, generator-driven)
-- **Where:** All `marshal*Schema`, `unmarshal*Schema` exports.
-- **Why flagged:** `Schema` is a Zod-specific convention; not
-  inherently bad, but redundant with the `marshal`/`unmarshal`
-  prefix. Acceptable.
-
-#### F8.8 — `Params` suffix on `OdbcParams` (LOW)
+#### F8.5 — `Params` suffix on `OdbcParams` (LOW)
 - **Where:** `model.ts:1329`.
 - **Why flagged:** Mild noise. Type has `hostname`, `path`,
   `protocol`, `port` — `OdbcConnectionInfo` would be more
@@ -909,9 +865,7 @@ _None. Wrappers are retained for forward compatibility._
   identical fields). One is the per-warehouse record in
   `listWarehouses`, the other is the result of `getWarehouse`.
   Duplicating the shape across two types means every change has
-  to happen in two places. Note also `unmarshalEndpointInfoSchema`
-  (`model.ts:1579`) and `unmarshalGetWarehouse_ResponseSchema`
-  (`model.ts:1646`) are nearly identical Zod schemas.
+  to happen in two places.
 - **Suggestion:** Collapse into one type (call it `Warehouse`).
   `GetWarehouse_Response = Warehouse`. `EndpointInfo` removed.
   Generator-level.
@@ -1005,32 +959,17 @@ _None. Wrappers are retained for forward compatibility._
   within the same method signature.
 - **Suggestion:** Generator-level.
 
-#### F14.2 — `Info` suffix on types (Go-ism) (HIGH)
-- **Where:** `EndpointInfo` (`model.ts:1006`).
-- **Why flagged:** Go has `ClusterInfo`, `JobInfo`, etc. TS
-  prefers the bare noun (`Cluster`, `Job`). `Info` is a
-  Go-ism.
-- **Suggestion:** Rename to `Warehouse`.
-
-#### F14.3 — `Repeated` proto-prefix (LOW)
+#### F14.2 — `Repeated` proto-prefix (LOW)
 - Covered in F13.2.
 
-#### F14.4 — `Params` suffix on types (Java-ish) (LOW)
-- `OdbcParams` — minor. See F8.8.
+#### F14.3 — `Params` suffix on types (Java-ish) (LOW)
+- `OdbcParams` — minor. See F8.5.
 
-#### F14.5 — `Pair` suffix (Java-ish) (LOW)
+#### F14.4 — `Pair` suffix (Java-ish) (LOW)
 - `EndpointTagPair`, `EndpointConfPair`, `WarehouseTypePair`.
   Covered in F8.3.
 
-#### F14.6 — `marshal*` / `unmarshal*` prefixes are protobuf/Go vocabulary (LOW, generator-driven)
-- **Where:** All schema exports.
-- **Why flagged:** JS/TS commonly uses `serialize`/`deserialize`,
-  `encode`/`decode`, or `toJson`/`fromJson`. "Marshal" is
-  Go/protobuf.
-- **Suggestion:** Cross-cutting; generator-level. Out of scope
-  for this package's audit.
-
-#### F14.7 — `for (;;)` C-style infinite loop (LOW, generator-driven)
+#### F14.5 — `for (;;)` C-style infinite loop (LOW, generator-driven)
 - **Where:** `client.ts:405, 462`, `utils.ts:48`.
 - **Why flagged:** `for (;;)` is C/Go idiom; TS prefers
   `while (true)` for readability. Minor.
@@ -1312,16 +1251,15 @@ _None. Wrappers are retained for forward compatibility._
 ### Highest-leverage fixes
 
 1. **Resolve the `Endpoint*` legacy naming (F0, F1.1-F1.6,
-   F6.1-F6.5, F8.4, F14.2, F12.4)** — rename every `Endpoint*`
-   type to `Warehouse*` to align with the customer brand. Single
-   biggest fix; cleans up ~10 type names and the entire
-   marshal/unmarshal schema family.
+   F6.1-F6.5, F12.4)** — rename every `Endpoint*` type to
+   `Warehouse*` to align with the customer brand. Single biggest
+   fix; cleans up ~10 type names across the package.
 2. **Resolve `Edit` vs. `Update` (F17.1)** — pick one verb for
    "modify resource" across the SDK; standardize wire and TS.
 3. **Strip redundant enum prefixes (F2.1, F2.2, F2.3, F2.4,
    F2.5)** — `ChannelName.CHANNEL_NAME_PREVIEW` etc. Trivial
    generator-level fix; massive readability win.
-4. **Drop `_Response` underscore convention (F4.1, F4.2)** —
+4. **Drop `_Response` underscore convention (F4.1)** —
    namespace or naked concatenation. Generator-level.
 5. **Collapse duplicate types (F12.1, F12.2, F12.3)** —
    `EndpointInfo` + `GetWarehouse_Response`,
@@ -1331,9 +1269,9 @@ _None. Wrappers are retained for forward compatibility._
 ### Recurring themes
 
 - **Generator-driven proto-isms** (`Repeated`, `_Response`,
-  `marshal`/`unmarshal`, `req`/`resp`, `for(;;)`) are the
-  largest single category. Most are LOW because they are
-  consistent across the entire SDK; fix at the generator.
+  `req`/`resp`, `for(;;)`) are the largest single category.
+  Most are LOW because they are consistent across the entire
+  SDK; fix at the generator.
 - **Legacy `Endpoint*` naming** is the package-specific issue.
   It causes the most readability harm because the package
   brand is "warehouse" while half the types still say

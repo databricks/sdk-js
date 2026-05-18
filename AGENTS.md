@@ -128,7 +128,7 @@ issue. Each finding cites `file:line`, the category, a suggested name, and
 the rationale.
 
 Two reduction workflows keep the audit current. Both spawn one
-`general-purpose` agent per API package in parallel batches of ~20 to
+`general-purpose` agent per API package in parallel batches of ~30-40 to
 avoid collision in reasoning. Always omit the `model` parameter so
 subagents inherit the parent model.
 
@@ -237,7 +237,8 @@ totals) so cross-package counts stay consistent.
 - The list of API packages is everything under `packages/` that has a
   `src/v*/` subdirectory. Generate it with:
   `for d in packages/*/; do [ -d "$d/src" ] && ls "$d/src" 2>/dev/null | grep -qE '^v[0-9]' && echo "${d#packages/}"; done`.
-- Batch parallel agent calls at ~20-25 per message.
+- Batch parallel agent calls at ~30-40 per message.
+- Real-world experience: ~25 sometimes hit transient socket errors on the longest single-agent runs; 30-40 has worked in practice as long as you accept the occasional retry.
 - Agents must always write back to the existing audit file path. Never
   create new files in `.agent/naming-audit/` outside of `_SUMMARY.md`
   and the one-per-package `<pkg>.md`.

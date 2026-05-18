@@ -14,14 +14,15 @@ Notation: file paths are absolute. Findings reference `file:line`.
 | ----------- | ----- |
 | High        | 4     |
 | Medium      | 7     |
-| Low         | 6     |
-| Observation | 8     |
-| **Total**   | **25** |
+| Low         | 5     |
+| Observation | 7     |
+| **Total**   | **23** |
+
 
 Headline themes:
 
-1. **Singular/plural mismatch on the `listQuota` method and `ListQuotas` request type.** The package name (`resourcequotas`), HTTP path (`/all-resource-quotas`), and request/response types (`ListQuotas`, `ListQuotas_Response`) are all plural, but the client method is `listQuota` (singular). The companion iterator is `listQuotaIter`, doubling down on the singular. This is the most user-visible naming defect.
-2. **Proto-style `Parent_Response` identifiers leaking into the TypeScript public API.** `GetQuota_Response` and `ListQuotas_Response` retain the underscore from Go/proto nesting, and `index.ts` re-exports them verbatim. The `unmarshalGetQuota_ResponseSchema` / `unmarshalListQuotas_ResponseSchema` symbols carry the same underscore into the schema layer.
+1. **Singular/plural mismatch on the `listQuota` method and `ListQuotas` request type.** The package name (`resourcequotas`), HTTP path (`/all-resource-quotas`), and request/response types (`ListQuotas`, `ListQuotas_Response`) are all plural, but the client method is `listQuota` (singular). This is the most user-visible naming defect.
+2. **Proto-style `Parent_Response` identifiers leaking into the TypeScript public API.** `GetQuota_Response` and `ListQuotas_Response` retain the underscore from Go/proto nesting, and `index.ts` re-exports them verbatim.
 3. **Verb-phrase request types collide semantically with client methods.** `interface GetQuota` reads as an action; `client.getQuota(req: GetQuota)` forces readers to mentally distinguish the verb-phrase function from the verb-phrase type. Several sibling packages (`accountsettings`, `budgetpolicy`, `bundle`) use the `…Request` suffix to remove this collision.
 4. **`quotaName`/`quotaCount`/`quotaLimit` triple-tautology.** Every field on the `QuotaInfo` payload (and on the `GetQuota` request) is prefixed `quota…` even though the surrounding type is already `QuotaInfo` / `GetQuota`. The Go SDK necessitates this because Go embeds no enclosing namespace; TypeScript does, and the prefix becomes noise.
 5. **`SecurableType` is duplicated as a `string` on `GetQuota` but a typed enum on `QuotaInfo`.** The two views of the same field are inconsistent — see H4 below.
@@ -32,19 +33,19 @@ Headline themes:
 
 ### H1. Method name `listQuota` is singular but returns / paginates a list
 
-- **File / line:** `src/v1/client.ts:98` (`async listQuota(...)`); also `client.ts:131` (`listQuotaIter`).
+- **File / line:** `src/v1/client.ts:98` (`async listQuota(...)`).
 - **Category:** #9 singular/plural mismatch; #15 generic-name losing meaning.
 - **Current:** `async listQuota(req: ListQuotas, options?): Promise<ListQuotas_Response>`.
-- **Suggestion:** `listQuotas` (and `listQuotasIter`).
+- **Suggestion:** `listQuotas`.
 - **Rationale:** The request type is `ListQuotas` (plural), the response is `ListQuotas_Response` carrying `quotas: QuotaInfo[]`, the URL is `/all-resource-quotas`, and the JSDoc explicitly says "ListQuotas returns **all** quota values" (`client.ts:92`). Every neighbouring signal is plural except the method name. Compare to sibling packages (`catalogs.listCatalogs`, `connections.listConnections`, `cleanrooms.listCleanRooms`), all of which use the plural verb. This is a 1-character defect with high user impact.
 
 ### H2. `GetQuota_Response` and `ListQuotas_Response` violate TypeScript identifier convention
 
 - **File / line:** `src/v1/model.ts:37` (`GetQuota_Response`), `src/v1/model.ts:50` (`ListQuotas_Response`); also re-exported from `src/v1/index.ts:9, 11`.
 - **Category:** #4 underscore in TypeScript identifier; #14 Go/Java-style name.
-- **Current:** `GetQuota_Response`, `ListQuotas_Response`, `unmarshalGetQuota_ResponseSchema` (`model.ts:76`), `unmarshalListQuotas_ResponseSchema` (`model.ts:85`).
-- **Suggestion:** `GetQuotaResponse`, `ListQuotasResponse`, `unmarshalGetQuotaResponseSchema`, `unmarshalListQuotasResponseSchema`.
-- **Rationale:** Proto nested-message convention `Parent_Child` is being mechanically transposed into TypeScript. The codebase itself acknowledges the convention is wrong by disabling ESLint at four separate sites (`model.ts:36`, `model.ts:49`, `model.ts:75`, `model.ts:84`) with the comment "Proto-style nested message name." Every disable is a vote against the name. This is the same defect noted in `catalogs.md` §4.6–4.8 and is repo-wide; flagged here at high severity because there are only two model types in this package and *both* are affected. See also Observation O2.
+- **Current:** `GetQuota_Response`, `ListQuotas_Response`.
+- **Suggestion:** `GetQuotaResponse`, `ListQuotasResponse`.
+- **Rationale:** Proto nested-message convention `Parent_Child` is being mechanically transposed into TypeScript. The codebase itself acknowledges the convention is wrong by disabling ESLint at the model sites (`model.ts:36`, `model.ts:49`) with the comment "Proto-style nested message name." Every disable is a vote against the name. This is the same defect noted in `catalogs.md` §4.6–4.8 and is repo-wide; flagged here at high severity because there are only two model types in this package and *both* are affected. See also Observation O2.
 
 ### H3. `GetQuota` is a verb-phrase used as a request data type
 
@@ -128,11 +129,11 @@ Headline themes:
 
 ### L1. `req` parameter name on every client method
 
-- **File / line:** `src/v1/client.ts:68, 99, 132`.
+- **File / line:** `src/v1/client.ts:68, 99`.
 - **Category:** #5 cryptic abbreviation; #14 Go-style name.
 - **Current:** `req: GetQuota`, `req: ListQuotas`.
 - **Suggestion:** `request`.
-- **Rationale:** Throughout the JS/TS ecosystem function parameters are spelled out. The Go `req`/`resp` idiom reads as Go-translated. The companion `resp` shows up at `client.ts:72, 77, 82, 112, 117, 122, 137` — same shorthand, lower priority.
+- **Rationale:** Throughout the JS/TS ecosystem function parameters are spelled out. The Go `req`/`resp` idiom reads as Go-translated. The companion `resp` shows up at `client.ts:72, 77, 82, 112, 117, 122` — same shorthand, lower priority.
 
 ### L2. `Client` is the bare type name (no `ResourceQuotasClient`)
 
@@ -166,14 +167,6 @@ Headline themes:
 - **Suggestion:** `packageJson` or `manifest`.
 - **Rationale:** Minor and internal; the `Json` part is obvious from the import target. Listed because the file is small enough to track every identifier. Repo-wide.
 
-### L6. `data` parameter on `marshalRequest`
-
-- **File / line:** `src/v1/utils.ts:119`.
-- **Category:** #15 generic field name losing meaning.
-- **Current:** `function marshalRequest(data: unknown, schema: z.ZodType): string`.
-- **Suggestion:** `request` or `payload`.
-- **Rationale:** The function is named `marshalRequest` but the parameter is named `data` — the request semantic is lost in the helper. Repo-wide port-style convention (same defect noted in `artifactallowlists.md` §L4).
-
 ---
 
 ## Observations (repo-wide conventions, not local defects)
@@ -185,7 +178,7 @@ Headline themes:
 
 ### O2. Proto-style `Parent_Response` identifiers are repo-wide
 
-`GetQuota_Response` and `ListQuotas_Response` follow the same `Parent_Child` underscore convention as `ConversionInfo_State`, `DatabaseInstance_State`, `EndpointStatus_State`, etc. across the workspace (see `catalogs.md` §4 and `artifactallowlists.md` O2). The four ESLint disable comments in `model.ts` confirm the convention is mechanically applied. Flag for awareness; fix is repo-wide.
+`GetQuota_Response` and `ListQuotas_Response` follow the same `Parent_Child` underscore convention as `ConversionInfo_State`, `DatabaseInstance_State`, `EndpointStatus_State`, etc. across the workspace (see `catalogs.md` §4 and `artifactallowlists.md` O2). The ESLint disable comments in `model.ts` confirm the convention is mechanically applied. Flag for awareness; fix is repo-wide.
 
 ### O3. Bare `Get*` / `List*` request shapes are a repo-wide pattern
 
@@ -210,11 +203,6 @@ Headline themes:
 - **File / line:** `src/v1/utils.ts:123`.
 - **Observation:** Both `getQuota` (`client.ts:71`) and `listQuota` (`client.ts:102-111`) build URLs/query strings inline. The `flattenQueryParams` helper is dead code from the package's standpoint. Same finding as `catalogs.md` cross-cutting §A and `artifactallowlists.md` L5 — repo-wide template artifact.
 
-### O8. Marshal helper `marshalRequest` is exported but unused
-
-- **File / line:** `src/v1/utils.ts:119`.
-- **Observation:** Both methods are `GET` with no body, so `marshalRequest` is never called. Same template-artifact category as O7. Not a local naming defect.
-
 ---
 
 ## Domain glossary
@@ -236,9 +224,9 @@ Headline themes:
 
 | File           | Lines | Audited                                                                |
 | -------------- | ----- | ---------------------------------------------------------------------- |
-| `src/v1/model.ts`  | 113 | 1 enum (17 members), 4 interfaces (12 fields total), 3 schemas.        |
+| `src/v1/model.ts`  | 113 | 1 enum (17 members), 4 interfaces (12 fields total).                   |
 | `src/v1/client.ts` | 148 | `Client` class + constructor + 3 methods + all locals + `PACKAGE_SEGMENT`. |
-| `src/v1/utils.ts`  | 151 | All 7 exported / private functions, the `HttpCallOptions` interface, `readAll`. |
+| `src/v1/utils.ts`  | 151 | All exported / private functions, the `HttpCallOptions` interface, `readAll`. |
 | `src/v1/index.ts`  | 14  | All 7 re-exports.                                                       |
 
 Type & symbol checklist:
@@ -264,22 +252,12 @@ Type & symbol checklist:
 - [x] `QuotaInfo.quotaCount` → M2, M5.
 - [x] `QuotaInfo.quotaLimit` → M2, M5.
 - [x] `QuotaInfo.lastRefreshedAt` → M6.
-- [x] `unmarshalGetQuota_ResponseSchema` → H2.
-- [x] `unmarshalListQuotas_ResponseSchema` → H2.
-- [x] `unmarshalQuotaInfoSchema` → no defect.
 - [x] `Client` class → L2.
 - [x] `Client.host` / `httpClient` / `logger` / `userAgent` fields → no defect.
 - [x] `PACKAGE_SEGMENT` constant → O6.
 - [x] `getQuota(req, options)` method → H3, L1.
 - [x] `listQuota(req, options)` method → H1, L1, L3, L4.
-- [x] `listQuotaIter(req, options)` method → H1.
 - [x] `HttpCallOptions` interface → no defect.
-- [x] `executeCall` function → no defect (consistent with sibling packages; same minor concern as `catalogs.md` §6.9 if duplicated naming is considered defect).
-- [x] `readAll` private function → no defect.
-- [x] `executeHttpCall` function → no defect.
-- [x] `buildHttpRequest` function → no defect.
-- [x] `parseResponse` function → no defect.
-- [x] `marshalRequest` function → L6 (`data` param); O8 (unused).
 - [x] `flattenQueryParams` function → O7 (unused).
 - [x] `index.ts` re-exports → no extra defects; mirrors model exports faithfully, but propagates H2 underscore identifiers.
 
@@ -309,19 +287,14 @@ Type & symbol checklist:
 | `QuotaInfo.quotaCount`                            | model.ts:68       | M2, M5                   |
 | `QuotaInfo.quotaLimit`                            | model.ts:70       | M2, M5                   |
 | `QuotaInfo.lastRefreshedAt`                       | model.ts:72       | M6                       |
-| `unmarshalGetQuota_ResponseSchema`                | model.ts:76       | H2                       |
-| `unmarshalListQuotas_ResponseSchema`              | model.ts:85       | H2                       |
-| `unmarshalQuotaInfoSchema`                        | model.ts:96       | —                        |
 | `Client` (bare name)                              | client.ts:37      | L2                       |
 | `PACKAGE_SEGMENT`                                 | client.ts:32      | O6                       |
 | `pkgJson` import alias                            | client.ts:18      | L5                       |
 | `Client.getQuota` parameter `req`                 | client.ts:68      | L1                       |
 | `Client.listQuota` (singular method)              | client.ts:98      | H1, L1                   |
-| `Client.listQuotaIter`                            | client.ts:131     | H1                       |
 | `const call: Call`                                | client.ts:73, 113 | L3                       |
 | `let resp: …_Response`                            | client.ts:72, 112 | L4                       |
 | `const respBody`                                  | client.ts:77, 117 | L4                       |
-| `marshalRequest(data, schema)`                    | utils.ts:119      | L6, O8                   |
 | `flattenQueryParams`                              | utils.ts:123      | O7                       |
 | `index.ts` re-exports propagate `_Response` types | index.ts:9, 11    | H2                       |
 
@@ -329,7 +302,7 @@ Type & symbol checklist:
 
 ## Recommended priority order
 
-1. **Rename `listQuota` → `listQuotas` (and `listQuotaIter` → `listQuotasIter`)** — single-character defect, highest user impact. (H1)
+1. **Rename `listQuota` → `listQuotas`** — single-character defect, highest user impact. (H1)
 2. **Add `…Request` / `…Response` suffix uniformly and drop the underscore.** (H2, H3)
 3. **Reconcile `parentSecurableType` type — make `GetQuota.parentSecurableType: SecurableType`.** (H4)
 4. **Drop `quota` prefix on `quotaName` / `quotaCount` / `quotaLimit` inside `QuotaInfo`.** (M2)

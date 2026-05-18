@@ -3,15 +3,15 @@
 **Path:** `packages/oauthpublishedapp/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Account-level read-only catalog of Databricks-blessed third-party OAuth applications (e.g. Power BI, Tableau Desktop) that can be enabled for an account. The package exposes a single endpoint that lists the published-app catalog rows. Each `PublishedOAuthApp` is a *catalog entry* (template) — not an *integration row* (which is the realised binding tracked by the sibling `oauthcustomappintegration` package). The package therefore plays "catalog index" to `oauthcustomappintegration`'s "registration manager". Domain underpinning is RFC 6749 (OAuth 2.0) client-type "published" applications, augmented by a Databricks-owned catalog of vetted third-party clients.
-**Total weird names flagged:** 19
+**Total weird names flagged:** 16
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 5 |
 | Medium | 6 |
-| Low | 4 |
-| Observation | 4 |
+| Low | 3 |
+| Observation | 2 |
 
 ## High severity
 
@@ -105,13 +105,7 @@
 - **Suggested name:** `OAuthPublishedAppClient` (still inside `…/v1`). Project-wide change.
 - **Rationale:** Defer to the project-wide naming-audit summary. Same as sibling finding #19.
 
-### 14. Async-iterator method named `…Iter` — `client.ts:98`
-- **Why weird:** `listPublishedOAuthAppsIter` (Go-style `…Iter` suffix). TypeScript convention for an `AsyncGenerator` is to use no suffix and have the type signature express it, or to use the verb form `iterate…` / `walk…`. The `Iter` suffix is a Go transliteration (Go has `…Iter()` from `golang.org/x/iter`). Sibling packages with the same generator method use the same `Iter` suffix.
-- **Category:** 14 (Go/Java-style name)
-- **Suggested name:** `listPublishedOAuthAppsAsync` (matches the JS ecosystem `…Async` convention when the non-async variant doesn't exist — but here only the async variant is present, so this is debatable), or rename the page-returning variant `listPublishedOAuthAppsPage` and the streaming variant `listPublishedOAuthApps` (the iterator is the more natural default in a TS world with `for await`).
-- **Rationale:** The `Iter` suffix is invisible to TypeScript ecosystem readers. Compare modern Node APIs: `fs.opendir().readdir()` returns a `Dir` directly iterable; no `…Iter` suffix. Defer to project-wide pattern but flag.
-
-### 15. `apps?: PublishedOAuthApp[]` field on response — collection field name matches type — `model.ts:17`
+### 14. `apps?: PublishedOAuthApp[]` field on response — collection field name matches type — `model.ts:17`
 - **Why weird:** `ListPublishedOAuthApps_Response.apps` is the collection field. Unlike the sibling package's `apps` field finding (`oauthcustomappintegration` #4) where the field carried *integrations* and the name was misleading, here the field genuinely is published apps. The name is correct *but* it duplicates the type name (`apps: PublishedOAuthApp[]` — "apps of type App"). Reads naturally enough, but no other indication of plurality at the field name (only the array type adds plurality). Acceptable.
 - **Category:** 15 (generic field — `apps` is the maximally-generic plural of `app`) — flagged for completeness
 - **Suggested name:** Keep `apps`. Or rename `publishedApps` to make plural+domain explicit. No strong action.
@@ -124,12 +118,6 @@
 
 ### O2. `_Response` suffix is the only naming-convention violation — `model.ts:14-15`
 - The one `_Response` type has an `eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.` comment. No other naming violations in the package require ESLint disables. Single, removable wart that the generator could fix. See finding #4.
-
-### O3. `executeCall` / `executeHttpCall` / `marshalRequest` / `parseResponse` utility-name asymmetry — `utils.ts:26, 65, 113, 119`
-- Same observation across every package: the utility names do not pair symmetrically. `marshalRequest` ↔ `parseResponse` (verb mismatch: `marshal` vs `parse`, and `Request` vs `Response`). `executeCall` ↔ `executeHttpCall` (one wraps the other). Generated code, flag for upstream.
-
-### O4. `flattenQueryParams` and `marshalRequest` are exported but unused — `utils.ts:113, 119, 123`
-- This package only `GET`s a list endpoint with three flat scalar query params and never marshals a request body. So `flattenQueryParams` and `marshalRequest` are dead in this build. Same as in sibling packages. Either drop the `export`, gate on per-package generation, or move these helpers to `@databricks/sdk-core` and have packages import only what they use.
 
 ## Domain glossary
 - `accountId` — Databricks account UUID (top-level tenant). Distinct from a workspace ID.

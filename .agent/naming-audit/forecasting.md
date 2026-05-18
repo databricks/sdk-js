@@ -13,10 +13,10 @@ This audit applies the 20 numbered concern categories from the audit
 checklist. Each finding lists the offending identifier(s), the
 category number, severity (`HIGH` / `MEDIUM` / `LOW`), and a concrete
 rename suggestion. Findings are grouped by category. Generator-driven
-items (such as the proto-style underscored nested-message names and
-`marshal`/`unmarshal` schema prefixes) are flagged as `LOW` because
-they are codified across the entire generated SDK surface — they
-should be fixed at the generator, not by hand-editing this package.
+items (such as the proto-style underscored nested-message names) are
+flagged as `LOW` because they are codified across the entire generated
+SDK surface — they should be fixed at the generator, not by
+hand-editing this package.
 
 ---
 
@@ -33,12 +33,6 @@ should be fixed at the generator, not by hand-editing this package.
 `CreateForecastingExperimentRequest`,
 `CreateForecastingExperimentResponse`, `ForecastingExperiment`,
 `GetForecastingExperimentRequest`.
-
-### Schemas (`model.ts`)
-
-`unmarshalCreateForecastingExperimentResponseSchema`,
-`unmarshalForecastingExperimentSchema`,
-`marshalCreateForecastingExperimentRequestSchema`.
 
 ### Client classes and methods (`client.ts`)
 
@@ -189,16 +183,7 @@ should be fixed at the generator, not by hand-editing this package.
   Approach (1) is more straightforward for tree-shaking and module
   re-exports; approach (2) more closely mirrors the proto nesting.
 
-#### F4.2 — Wire-protocol snake_case in `marshal`/`unmarshal` body
-  (acceptable)
-- **Where:** `model.ts:89, 98-99, 110-145`.
-- **Why flagged:** Field names like `experiment_id`, `train_data_path`
-  inside the `z.object({...})` are wire shapes, not identifiers.
-  Required for JSON parsing.
-- **Suggestion:** Leave as-is. They are correctly scoped to the
-  schema definition.
-
-#### F4.3 — JSDoc comment "double-slash" artifact in
+#### F4.2 — JSDoc comment "double-slash" artifact in
   `splitColumn` (LOW)
 - **Where:** `model.ts:41`.
 - **Why flagged:** The JSDoc reads `/** // The column ... */` — an
@@ -415,17 +400,7 @@ should be fixed at the generator, not by hand-editing this package.
   `get`. The class itself already conveys "forecasting".
   Cross-cutting convention.
 
-#### F7.6 — `marshalCreateForecastingExperimentRequestSchema` and
-  `unmarshalCreateForecastingExperimentResponseSchema` (LOW)
-- **Where:** `model.ts:86, 108`.
-- **Why flagged:** 47 / 51 character schema constant names. Long
-  but mechanical. Inherits length from the underlying type name
-  plus `marshal`/`Schema` affixes.
-- **Suggestion:** Once F7.1/F7.2 are applied at generator level,
-  these collapse to `marshalCreateExperimentRequestSchema` etc.
-  Cross-cutting.
-
-#### F7.7 — `timeseriesIdentifierColumns` (LOW)
+#### F7.6 — `timeseriesIdentifierColumns` (LOW)
 - **Where:** `model.ts:50`.
 - **Why flagged:** 27 character field name. "Time series identifier
   columns" is long-form; "series ID columns" or `seriesIdColumns`
@@ -457,10 +432,6 @@ should be fixed at the generator, not by hand-editing this package.
   Go-flavored.
 - **Suggestion:** Rename suffix to `Operation` or `Run` (e.g.
   `ExperimentRun`). See F7.3.
-
-#### F8.3 — `Schema` suffix on Zod constants (acceptable)
-- **Where:** `model.ts:86, 95, 108`.
-- The `…Schema` suffix matches Zod community convention. No issue.
 
 ---
 
@@ -593,23 +564,7 @@ should be fixed at the generator, not by hand-editing this package.
 #### F13.1 — Method verbs (acceptable)
 - `create*`, `get*` — uniform imperative present. Good.
 
-#### F13.2 — `marshalRequest` / `parseResponse` (LOW, asymmetry)
-- **Where:** `utils.ts:113, 119`.
-- **Why flagged:** `parse` vs `marshal` use different verbs for the
-  same kind of operation (JSON conversion).
-- **Suggestion:** Use the same axis: either `marshal/unmarshal`
-  or `encode/decode` or `serialize/deserialize`. Cross-cutting.
-
-#### F13.3 — `unmarshalXSchema` / `marshalXSchema` constants (LOW)
-- **Where:** `model.ts:86, 95, 108`.
-- **Why flagged:** Naming pattern is correct (verb + noun + Schema),
-  but the verb form makes them read like functions, not constants.
-  They *are* values (`z.ZodType` objects).
-- **Suggestion:** Rename to nouns: `createExperimentRequestSchema`
-  for marshalling, `experimentSchema` for unmarshalling. Cross-
-  cutting; tied to generator.
-
-#### F13.4 — `wait` vs `done` on the waiter (acceptable)
+#### F13.2 — `wait` vs `done` on the waiter (acceptable)
 - Both are imperative single-word verbs. Match. Subject to F6.2
   / F10.2.
 
@@ -639,25 +594,13 @@ should be fixed at the generator, not by hand-editing this package.
   gain. This is a porting-convention decision and should be made
   globally at the generator level.
 
-#### F14.2 — `marshal*` / `unmarshal*` schema prefixes (LOW)
-- **Where:** `model.ts:86, 95, 108`.
-- **Why flagged:** `marshal`/`unmarshal` is a Go term
-  (encoding/json). The JS/TS world says "serialize"/"deserialize"
-  or "encode"/"decode". `JSON.parse`/`JSON.stringify` is the
-  vernacular. `marshal` is recognizable but Go-flavored.
-- **Suggestion:** Rename to `encode`/`decode` or
-  `serialize`/`deserialize`. Generator-level decision.
-
-#### F14.3 — `Schema` suffix on Zod constants (acceptable)
-- The `…Schema` suffix matches Zod community convention.
-
-#### F14.4 — `_State` underscore-pseudo-nesting (HIGH)
+#### F14.2 — `_State` underscore-pseudo-nesting (HIGH)
 - See F4.1. Underscores are foreign to TS.
 
-#### F14.5 — `Public RPC to get forecasting experiment` JSDoc (LOW)
+#### F14.3 — `Public RPC to get forecasting experiment` JSDoc (LOW)
 - See F3.4.
 
-#### F14.6 — `terminal state` error message style (LOW)
+#### F14.4 — `terminal state` error message style (LOW)
 - **Where:** `client.ts:172`.
 - **Why flagged:** "terminal state" is Go-flavored language; TS/JS
   user-facing errors more commonly say "operation failed" or
@@ -758,9 +701,6 @@ should be fixed at the generator, not by hand-editing this package.
 - **Suggestion:** Rename second to `startForecastingExperiment`
   or `createAndWaitForecastingExperiment`.
 
-#### F17.4 — `marshal` / `unmarshal` vs `parse` (LOW)
-- See F13.2 / F14.2.
-
 ---
 
 ### 18. Long enum values
@@ -808,15 +748,6 @@ should be fixed at the generator, not by hand-editing this package.
   `Experiment.state: ExperimentState`. Tolerable.
 - **Suggestion:** Tie to F4.1 / F7.1.
 
-#### F20.2 — Generic `*Schema` suffix (LOW)
-- **Where:** `model.ts:86, 95, 108`.
-- **Why flagged:**
-  `unmarshalCreateForecastingExperimentResponseSchema` is 51
-  characters with "Schema" suffixed onto an already-typed
-  `z.ZodType<...>`. The `Schema` suffix is conventional in Zod
-  ecosystems though.
-- **Suggestion:** Acceptable; tied to generator.
-
 ---
 
 ## Package overlap: `forecasting` vs `experiments`
@@ -853,30 +784,30 @@ generic experiment but uses the same term and the same ID name.
 | 1 | Vague / generic                         | 5 (1 acceptable note) |
 | 2 | Redundant enum prefixes                 | 1 (acceptable) |
 | 3 | Acronym casing                          | 4 (2 acceptable) |
-| 4 | Underscores in TS identifiers           | 3 (1 acceptable) |
+| 4 | Underscores in TS identifiers           | 2 |
 | 5 | Cryptic abbreviations                   | 9 |
 | 6 | Misleading names                        | 6 |
-| 7 | Overly verbose                          | 7 |
-| 8 | Redundant suffixes                      | 3 (2 acceptable) |
+| 7 | Overly verbose                          | 6 |
+| 8 | Redundant suffixes                      | 2 (1 acceptable) |
 | 9 | Singular / plural mismatch              | 5 (3 acceptable + 1 note) |
 | 10 | Reserved-word collisions               | 4 (2 acceptable) |
 | 11 | Empty / trivial wrappers               | 1 |
 | 12 | Duplicate concepts                     | 4 |
-| 13 | Verb-tense inconsistency               | 4 (2 acceptable) |
-| 14 | Go / Java-style names                  | 6 |
+| 13 | Verb-tense inconsistency               | 2 (2 acceptable) |
+| 14 | Go / Java-style names                  | 4 |
 | 15 | Generic field names                    | 6 |
 | 16 | Field contradicting type domain        | 3 (1 acceptable) |
-| 17 | Inconsistent action verbs              | 4 (1 acceptable) |
+| 17 | Inconsistent action verbs              | 3 (1 acceptable) |
 | 18 | Long enum values                       | 1 (acceptable) |
 | 19 | Underspecified IDs                     | 2 (1 acceptable) |
-| 20 | Type-suffix tautology                  | 2 |
+| 20 | Type-suffix tautology                  | 1 |
 | OVERLAP | forecasting vs experiments         | 2 |
 
 ---
 
 ## Top 10 highest-impact renames (recommended order)
 
-1. **F4.1 / F14.4:** Replace underscored `ForecastingExperiment_State`
+1. **F4.1 / F14.2:** Replace underscored `ForecastingExperiment_State`
    with flat PascalCase `ForecastingExperimentState` or
    namespace nesting. Eliminates the `eslint-disable` comment.
 2. **F6.3 / F7.4 / F17.3:** Rename
@@ -921,16 +852,9 @@ generic experiment but uses the same term and the same ID name.
   "Code generated from API definition by Databricks SDK Generator.
   DO NOT EDIT." The fixes belong upstream in the generator and
   spec. This audit is a backlog for that generator.
-- The `utils.ts` file contains the same generic helpers
-  (`executeCall`, `parseResponse`, `marshalRequest`,
-  `flattenQueryParams`, `executeHttpCall`, `buildHttpRequest`,
-  `readAll`) that every generated package duplicates. The
-  duplication itself is not a naming issue, but the *names*
-  (`marshal/unmarshal`) are Go-flavored and inconsistent
-  (`parseResponse` vs `marshalRequest`).
 - This package has no `tests/` directory (verified by repo
   structure check), so the audit does not cover test naming.
 - The `flattenQueryParams` helper in `utils.ts` is exported but
   never used in this package — see F6.5.
 - The JSDoc on `splitColumn` (`model.ts:41`) has a stray `//`
-  prefix from the source — generator bug, see F4.3.
+  prefix from the source — generator bug, see F4.2.

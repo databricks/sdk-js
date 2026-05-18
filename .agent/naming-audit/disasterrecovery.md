@@ -3,15 +3,15 @@
 **Path:** `packages/disasterrecovery/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Account-level Disaster Recovery — manage `FailoverGroup` resources (regions, workspace sets, UC replication config) and `StableUrl` resources (failover-aware endpoints for workspaces), including a `failover` action to swing the primary region.
-**Total weird names flagged:** 32
+**Total weird names flagged:** 28
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 9 |
 | Medium | 11 |
-| Low | 8 |
-| Observation | 4 |
+| Low | 5 |
+| Observation | 3 |
 
 ## High severity
 
@@ -46,10 +46,10 @@
 - **Rationale:** Optional `state?: FailoverGroupState` encodes the unset case. PascalCase members align with TS conventions while leaving the SCREAMING_SNAKE_CASE wire values intact via the Zod schema.
 
 ### 6. `StableUrl` (and all references: `CreateStableUrlRequest`, `stableUrl`, `stableUrlId`, `stableUrlNames`, `ListStableUrlsResponse`, etc.) — `src/v1/model.ts:53,57,64,82,87,162,167,198,211,213,247,317`
-- **Why weird:** Acronym casing for `URL` is inconsistent with the wider JS/TS ecosystem, which treats `URL` as ALLCAPS (Web `URL` global, `URLSearchParams`, `urlencoded`). This package uses `Url` (PascalCase capital-then-lower) for one of the two top-level resources. `client.ts` mirrors the inconsistency: `createStableUrl`, `getStableUrl`, `deleteStableUrl`, `listStableUrls`, `listStableUrlsIter`.
+- **Why weird:** Acronym casing for `URL` is inconsistent with the wider JS/TS ecosystem, which treats `URL` as ALLCAPS (Web `URL` global, `URLSearchParams`, `urlencoded`). This package uses `Url` (PascalCase capital-then-lower) for one of the two top-level resources. `client.ts` mirrors the inconsistency: `createStableUrl`, `getStableUrl`, `deleteStableUrl`, `listStableUrls`.
 - **Category:** 3 (acronym casing inconsistency).
 - **Suggested name:** `StableURL` / `CreateStableURLRequest` / `stableURLId` (matches Web `URL` global) **or** keep `Stable` + `Url` consistently across both type and wire (current) but explicitly document the choice.
-- **Rationale:** Within `client.ts` line 8 we import `CallOptions` and the file uses `URLSearchParams` (line 83) right beside `stableUrlId` (line 128), giving us `URLSearchParams` and `stableUrlId` on adjacent lines. The mixed casing is jarring. (Note: this is a package-wide rename; the cheaper compromise is to keep `Url` but document the convention. See observation #31 — same issue applies in `utils.ts` field `url` on `StableUrl`.)
+- **Rationale:** Within `client.ts` line 8 we import `CallOptions` and the file uses `URLSearchParams` (line 83) right beside `stableUrlId` (line 128), giving us `URLSearchParams` and `stableUrlId` on adjacent lines. The mixed casing is jarring. (Note: this is a package-wide rename; the cheaper compromise is to keep `Url` but document the convention. See observation #28 — same issue applies in `utils.ts` field `url` on `StableUrl`.)
 
 ### 7. `effectivePrimaryRegion` vs `initialPrimaryRegion` vs `targetPrimaryRegion` field triplet — `src/v1/model.ts:125,149,101`
 - **Why weird:** Three subtly-different "primary region" fields whose semantics depend entirely on a JSDoc paragraph:
@@ -143,49 +143,31 @@
 
 ## Low severity
 
-### 21. `marshalFailoverFailoverGroupRequestSchema` — `src/v1/model.ts:457`
-- **Why weird:** Stutter inherited from `FailoverFailoverGroupRequest`. Schema name is `marshal` + `FailoverFailoverGroupRequest` + `Schema`, four words and a doubled word.
-- **Category:** 7 (overly verbose), 4 (cascaded from #1).
-- **Suggested name:** Falls out if `FailoverFailoverGroupRequest` becomes `FailoverRequest`. Result: `marshalFailoverRequestSchema`.
-- **Rationale:** Mechanical cascade from finding #1.
-
-### 22. `unmarshalUcCatalogSchema`, `marshalUcCatalogSchema`, `unmarshalUcReplicationConfigSchema`, `marshalUcReplicationConfigSchema` — `src/v1/model.ts:420,544,428,552`
-- **Why weird:** `Uc` prefix in schema names cascades from `UcCatalog` / `UcReplicationConfig`.
-- **Category:** 5 (cryptic abbreviation).
-- **Suggested name:** Cascades from #11 and #12 (`unmarshalCatalogSchema`, `unmarshalUnityCatalogReplicationConfigSchema`).
-- **Rationale:** Mechanical cascade.
-
-### 23. `failoverFailoverGroup` method name on `Client` — `src/v1/client.ts:204`
+### 21. `failoverFailoverGroup` method name on `Client` — `src/v1/client.ts:204`
 - **Why weird:** Stutter (same as #1). Methods elsewhere are `createFailoverGroup`, `getFailoverGroup`, `listFailoverGroups`, `updateFailoverGroup`, `deleteFailoverGroup` — all use `<verb><Resource>`. This one collides because `failover` is both the verb and (lower-cased) part of the resource.
 - **Category:** 7 (overly verbose), 17 (inconsistency — verb visually merges with resource).
 - **Suggested name:** `triggerFailover` (verb `trigger`, since `failover` is the object) or just `failover` (single-word, since the package is already "disasterrecovery").
 - **Rationale:** `client.failoverFailoverGroup({...})` reads like a typo. `client.failover({...})` or `client.triggerFailover({...})` are unambiguous.
 
-### 24. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:47`
+### 22. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:47`
 - **Why weird:** Generic CS-term constant; the comment (line 46) explains it as "Package identity segment for this client to be used in the User-Agent header." Without the comment the name doesn't communicate that it's a User-Agent payload.
 - **Category:** 1 (vague), 15 (generic).
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT` or `PKG_UA_SEGMENT`.
 - **Rationale:** Same as other packages in the audit. Flag once per package.
 
-### 25. `flattenQueryParams` — `src/v1/utils.ts:123`
+### 23. `flattenQueryParams` — `src/v1/utils.ts:123`
 - **Why weird:** Exported helper but no caller in `client.ts` (the client builds URLSearchParams inline). Dead-looking surface area.
 - **Category:** Observation / 11 (unused public helper).
 - **Suggested name:** Either remove the export (generator default) or document why it ships per-package.
 - **Rationale:** Carried by every generated package. Surfaces as `import { flattenQueryParams } from './utils'` no-op.
 
-### 26. `readAll` — `src/v1/utils.ts:40`
+### 24. `readAll` — `src/v1/utils.ts:40`
 - **Why weird:** Generic name for "read a `ReadableStream<Uint8Array>` to a single Uint8Array". Could collide cognitively with `Array.prototype` ergonomics.
 - **Category:** 1 (vague).
 - **Suggested name:** `drainStream` / `readStreamToBuffer`.
 - **Rationale:** Internal helper. Skip if generated identically across all packages.
 
-### 27. `parseResponse` vs `marshalRequest` verb asymmetry — `src/v1/utils.ts:113,119`
-- **Why weird:** Inverse operations named with two different verbs (`parse` vs `marshal`).
-- **Category:** 17 (inconsistent action verbs).
-- **Suggested name:** `unmarshalResponse` / `marshalRequest` (symmetric pair).
-- **Rationale:** Pair-wise consistency aids reading.
-
-### 28. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
+### 25. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
 - **Why weird:** Two functions whose names differ only by `Http` infix but operate on very different layers (retry/rate-limit wrapper vs raw HTTP send + APIError lift).
 - **Category:** 1 (vague), 17 (inconsistent).
 - **Suggested name:** `runCallWithOptions` / `sendHttp` (or `wrapCall` / `dispatchHttp`).
@@ -193,13 +175,10 @@
 
 ## Observations
 
-### 29. Wire-format ratio is unusually high
-`model.ts` is ~608 lines; of those, ~290 are TS types/enums and the remaining ~320 are marshal/unmarshal/FieldMaskSchema scaffolding. For nine user-facing types this is heavy. Not a naming issue per se but worth raising at the SDK-design level for the same reason flagged in the `abacpolicies` audit.
+### 26. Action-verb consistency on `Client` (mostly good)
+Methods are `create*`/`get*`/`list*`/`update*`/`delete*` plus one bespoke action (`failoverFailoverGroup`). Aside from the stutter (#21), this is consistent. Listed as observation per rule 17 since the audit asks to flag inconsistencies — here only the one method breaks the pattern.
 
-### 30. Action-verb consistency on `Client` (mostly good)
-Methods are `create*`/`get*`/`list*`/`update*`/`delete*` plus one bespoke action (`failoverFailoverGroup`). Aside from the stutter (#23), this is consistent. Listed as observation per rule 17 since the audit asks to flag inconsistencies — here only the one method breaks the pattern.
-
-### 31. Acronym casing inconsistency: `URL` vs `Uri` vs `Url`
+### 27. Acronym casing inconsistency: `URL` vs `Uri` vs `Url`
 Within this package:
 - `stableUrl`/`StableUrl` (PascalCase capital-then-lower).
 - `uriByRegion`/`LocationMappingEntry.uri` (`Uri` capital-then-lower).
@@ -207,7 +186,7 @@ Within this package:
 Three different casings for two acronyms (URL/URI). The Web platform uses `URL` (ALLCAPS) globally; the TS code uses `Url`/`Uri` to follow Go-style camelCase. Pick one. (Listed at observation since this is a package-wide policy question, not a single-line fix.)
 - **Category:** 3 (acronym casing).
 
-### 32. Cryptic acronyms left undefined in the source
+### 28. Cryptic acronyms left undefined in the source
 The file mentions `UCDR` and `CPDR` in one comment (line 113) and `spog_host` in a URL example (line 256). Of these, only `CPDR` is decoded via a parenthetical ("control plane DR") elsewhere (line 308). `UCDR` and `spog` appear once each with no expansion in the source. A reader without internal Databricks context cannot decode them. This isn't a name-quality issue on a TS identifier, but the comments are part of the user-facing JSDoc surface (they appear in IDE hovers), so flagged here.
 - **Category:** 5 (cryptic abbreviation in JSDoc), 14 (internal jargon leak).
 

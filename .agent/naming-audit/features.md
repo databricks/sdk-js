@@ -15,7 +15,7 @@ computes a feature on a schedule and writes results to an offline or online
 store). Feature transformations are a discriminated union over 13 aggregation
 functions and 3 data sources (Delta, Kafka, request-time), composed under
 three flavors of time window (continuous, tumbling, sliding).
-**Total weird names flagged:** 50
+**Total weird names flagged:** 52
 
 ---
 
@@ -27,7 +27,7 @@ three flavors of time window (continuous, tumbling, sliding).
 | 2 | three sibling packages: `features` / `featurestore` / `materializedfeatures` | (across packages) | package set | High | 12 Duplicate concepts | The Feature Engineering surface is split across three top-level packages whose names overlap at the prefix. Boundaries: `features` defines feature *definitions* (this package); `materializedfeatures` is **misnamed** — it actually owns feature **lineage and tags** (`FeatureLineage`, `FeatureTag`), not materialized features (which live here); `featurestore` owns **online stores**. The names do not align with their contents. Either rename `materializedfeatures` to `featuremetadata` / `featurelineage`, or move `MaterializedFeature` and its client methods out of this package into the (misnamed) `materializedfeatures` package. |
 | 3 | `Feature` interface | model.ts:279 | interface | High | 1 Vague/generic | The unqualified noun `Feature` is the single most overloaded word in Databricks vocabulary. As a TS-imported type, `import {Feature}` from `@databricks/sdk-features/v1` collides conceptually with: (a) feature flags, (b) preview features, (c) workspace "feature settings". Rename to `FeatureDefinition`, `MLFeature`, or `FeatureEngineeringFeature` to scope the noun. |
 | 4 | `Client` | client.ts:65 | class | Medium | 1 Vague/generic, 12 Duplicate concepts | Unqualified `Client` — once imported it shadows every other package's `Client`. `FeaturesClient` or `FeatureEngineeringClient` would self-identify and disambiguate from `featurestore.Client` and `materializedfeatures.Client`. |
-| 5 | `Client.createFeature` / `getFeature` / `updateFeature` / `deleteFeature` / `listFeatures` / `listFeaturesIter` plus `Client.create/get/update/delete/list/listIterKafkaConfig*` plus `Client.batchCreate/create/get/update/delete/list/listIterMaterializedFeatures*` (3 resource families on one client) | client.ts:91-628 | method set | Medium | 12 Duplicate concepts | One `Client` class owns three distinct resource families: `Feature`, `KafkaConfig`, and `MaterializedFeature` (21 methods total). The class is 631 lines and reads as three sub-clients merged. A `FeaturesClient` (feature defs only) + `KafkaConfigsClient` + `MaterializedFeaturesClient` split would let each Client be ≤ 250 lines and would clarify the URL groupings (`/api/2.0/feature-engineering/features`, `/.../kafka-configs`, `/.../materialized-features`). |
+| 5 | `Client.*Feature*` plus `Client.*KafkaConfig*` plus `Client.*MaterializedFeature*` (3 resource families on one client) | client.ts:91-628 | method set | Medium | 12 Duplicate concepts | One `Client` class owns three distinct resource families: `Feature`, `KafkaConfig`, and `MaterializedFeature`. The class is 631 lines and reads as three sub-clients merged. A `FeaturesClient` (feature defs only) + `KafkaConfigsClient` + `MaterializedFeaturesClient` split would let each Client be ≤ 250 lines and would clarify the URL groupings (`/api/2.0/feature-engineering/features`, `/.../kafka-configs`, `/.../materialized-features`). |
 | 6 | `ScalarDataType.SCALAR_DATA_TYPE_UNSPECIFIED` and 11 sibling values | model.ts:13-24 | enum values | High | 2 Redundant enum prefixes, 18 Long enum values | Only one value (`SCALAR_DATA_TYPE_UNSPECIFIED`) stutters the enum name; the other eleven (`INTEGER`, `FLOAT`, `BOOLEAN`, etc.) are reasonable. Just remove the sentinel or rename to `Unspecified`. The wire format is dictated by the API; TS keys can be Pascal-cased via the zod transform. |
 | 7 | `ScalarDataType.SCALAR_DATA_TYPE_UNSPECIFIED` (sentinel) | model.ts:13 | enum value | Medium | 6 Misleading names, 18 Long enum values | Proto-style "Unspecified" sentinel. The field is already `dataType?: ScalarDataType \| undefined` (FieldDefinition:325) — omitting the field communicates "unspecified" naturally. Sentinel is dead in TS. |
 | 8 | `Function_FunctionType` enum name | model.ts:29 | enum | High | 4 Underscores in TS identifiers, 8 Redundant suffixes, 20 Type-suffix tautology | `Function_FunctionType` is a proto-nested-message-encoded-as-underscore name and is internally tautological (`Function`+`FunctionType`). It also requires an inline `// eslint-disable-next-line @typescript-eslint/naming-convention`. The TS idiom would be `FunctionKind` or `AggregationKind`, nested as `Function.Kind` under a namespace. |
@@ -71,13 +71,10 @@ three flavors of time window (continuous, tumbling, sliding).
 | 46 | `AggregationFunction.inputs` field referenced in JSDoc but not present | model.ts:285-288 | (missing) | High | 6 Misleading names | The JSDoc on `Feature.inputs` says "Deprecated: Use AggregationFunction.inputs instead." But `AggregationFunction` has no `inputs` field. The intended successor is per-function `input?` (singular, on each of `AvgFunction`, `SumFunction`, etc.). Doc is stale. |
 | 47 | `Feature.entities` JSDoc references missing `Feature.entity` | model.ts:241-245 | (missing) | High | 6 Misleading names | `DeltaTableSource.entityColumns` JSDoc says "Use Feature.entity instead." The actual field is `Feature.entities` (plural). Stale or pluralized inconsistently. |
 | 48 | `Feature.timeseries_column` (snake_case in JSDoc) | model.ts:243 | doc | Low | 4 Underscores | JSDoc references "Feature.timeseries_column" — wire-format name in user-facing TS docs. Should be `Feature.timeseriesColumn`. (Multiple occurrences across model.ts JSDoc texts.) |
-| 49 | `unmarshalAggregationFunctionSchema` `$case === 'countFunction'` vs all others (`avg`, `sum`, ...) | model.ts:849 | const | High | 12 Duplicate concepts, 17 Inconsistent action verbs | The 13-case discriminated union for `AggregationFunction.operation` uses `$case` strings that mostly correspond to the math operation (`avg`, `sum`, `min`, `max`, `first`, `last`, `approxCountDistinct`, `approxPercentile`, `stddevPop`, `stddevSamp`, `varPop`, `varSamp`) — *except* for `countFunction`, which retains the `Function` suffix. The wire string is `count_function` while the wire strings for the others are `avg`, `sum`, etc. The asymmetry comes from the spec ("count" is a reserved word in some surfaces) but reads as a bug in TS code. |
-| 50 | `marshal*Schema` / `unmarshal*Schema` const naming | model.ts:822-2274 | const set | Low | 14 Go/Java-style names, 20 Type-suffix tautology | `marshal`/`unmarshal` are Go-idioms; `Schema` is tautological with `z.ZodType<T>`. TS idiom is `encode`/`decode`. Generator-wide pattern, no per-package fix. |
-| 51 | `executeCall` vs `executeHttpCall` | utils.ts:26, 65 | function pair | Medium | 17 Inconsistent action verbs | Two `execute*` functions with overlapping vocabulary. One translates options + dispatches retries, the other does one HTTP roundtrip. Same pattern as sibling-package audits. |
-| 52 | `parseResponse` vs `marshalRequest` | utils.ts:113, 119 | function pair | Low | 17 Inconsistent action verbs | Mixing `parse`/`marshal`. Either `parse`/`format` or `marshal`/`unmarshal`. Sibling-package pattern. |
-| 53 | `PACKAGE_SEGMENT` | client.ts:60 | const | Low | 1 Vague/generic | Could be `USER_AGENT_PACKAGE_SEGMENT`. Sibling-package pattern. |
-| 54 | `featureFieldMask` / `kafkaConfigFieldMask` / `materializedFeatureFieldMask` | model.ts:2396, 2446, 2491 | function set | Low | (none) | Three helper builders. Standard generator pattern. Consistent across resources. Listing for completeness. |
-| 55 | `ContinuousWindow` / `SlidingWindow` / `TumblingWindow` (Spark windowing) | model.ts:170, 702, 781 | interface set | Low | (none) | Standard Spark Structured Streaming idioms. Fine. |
+| 49 | `executeCall` vs `executeHttpCall` | utils.ts:26, 65 | function pair | Medium | 17 Inconsistent action verbs | Two `execute*` functions with overlapping vocabulary. One translates options + dispatches retries, the other does one HTTP roundtrip. Same pattern as sibling-package audits. |
+| 50 | `PACKAGE_SEGMENT` | client.ts:60 | const | Low | 1 Vague/generic | Could be `USER_AGENT_PACKAGE_SEGMENT`. Sibling-package pattern. |
+| 51 | `featureFieldMask` / `kafkaConfigFieldMask` / `materializedFeatureFieldMask` | model.ts:2396, 2446, 2491 | function set | Low | (none) | Three helper builders. Standard generator pattern. Consistent across resources. Listing for completeness. |
+| 52 | `ContinuousWindow` / `SlidingWindow` / `TumblingWindow` (Spark windowing) | model.ts:170, 702, 781 | interface set | Low | (none) | Standard Spark Structured Streaming idioms. Fine. |
 
 ---
 
@@ -178,8 +175,7 @@ inline `// eslint-disable-next-line @typescript-eslint/naming-convention`:
 - `Function_ExtraParameter` (interface) — model.ts:373
 - `MaterializedFeature_PipelineScheduleState` (enum) — model.ts:47
 
-And the corresponding `unmarshal*` / `marshal*` constants below. The
-existence of those eslint-disable comments is the loudest possible signal
+The existence of those eslint-disable comments is the loudest possible signal
 that the names violate the codebase's own conventions.
 
 Standard TS idiom: lift to top-level (`FunctionType`,
@@ -245,14 +241,12 @@ within the file *and* potentially unsafe at the `2^53` boundary.
 
 ### M1. One `Client` owning three resource families
 
-The `Client` class is 631 lines and exposes 21 methods over three resource
+The `Client` class is 631 lines and exposes methods over three resource
 families:
 
-- `Feature` (5 RPCs + 1 iterator): create, get, list, listIter, update, delete.
-- `KafkaConfig` (5 RPCs + 1 iterator): create, get, list, listIter, update,
-  delete.
-- `MaterializedFeature` (5 RPCs + 1 iterator + 1 batch): batchCreate, create,
-  get, list, listIter, update, delete.
+- `Feature`: create, get, list, update, delete.
+- `KafkaConfig`: create, get, list, update, delete.
+- `MaterializedFeature`: batchCreate, create, get, list, update, delete.
 
 The URL groupings hint that they are distinct sub-resources:
 
@@ -373,68 +367,60 @@ types. Only the sentinel `SCALAR_DATA_TYPE_UNSPECIFIED` is a problem.
 
 Sibling-package pattern.
 
-### L3. `parseResponse` vs `marshalRequest` verb mix
-
-Sibling-package pattern.
-
-### L4. `MtlsConfig.disableHostnameVerification` reasonable
+### L3. `MtlsConfig.disableHostnameVerification` reasonable
 
 Boolean named in negative ("disable") to match the underlying Kafka option
 (`kafka.ssl.endpoint.identification.algorithm`). JSDoc warns about security
 implications. Fine.
 
-### L5. `bootstrapServers` is conventional Kafka
+### L4. `bootstrapServers` is conventional Kafka
 
 Fine.
 
-### L6. `cronSchedule` field on `MaterializedFeature`
+### L5. `cronSchedule` field on `MaterializedFeature`
 
 `MaterializedFeature.cronSchedule: string` is a Quartz cron expression. The
 field name is fine; the type could be a branded `CronExpression` for stronger
 typing, but flagging only for completeness.
 
-### L7. `req` parameter naming in client methods
+### L6. `req` parameter naming in client methods
 
 Standard SDK-wide convention. Fine.
 
-### L8. `marshal`/`unmarshal` are Go-idioms
-
-Generator-wide. Cf. credentials audit L7.
-
-### L9. `Function_FunctionType` enum values use SQL-conventional uppercase
+### L7. `Function_FunctionType` enum values use SQL-conventional uppercase
 
 `AVG`, `COUNT`, `SUM`, etc. Match SQL/Spark idioms. Fine for the wire format;
 TS keys could be PascalCase.
 
-### L10. `ContinuousWindow.offset` allows non-positive
+### L8. `ContinuousWindow.offset` allows non-positive
 
 Note in JSDoc: "must be non-positive" — i.e., 0 or negative duration. The
 type is `Temporal.Duration` which doesn't constrain sign. Documentation-only
 constraint; not enforced. Same critique as `SlidingWindow.slideDuration`
 ("must be positive and less than duration").
 
-### L11. `ProtoSchemaSpec.schemaText` carries the entire `.proto` file text
+### L9. `ProtoSchemaSpec.schemaText` carries the entire `.proto` file text
 
 A `string` containing potentially many KB of source text. Naming is fine; the
 data shape is the design choice. Listing for completeness.
 
-### L12. JSDoc typo on `JobContext.jobId`
+### L10. JSDoc typo on `JobContext.jobId`
 
 "The job ID where this API invoked." → "where this API was invoked." Minor.
 
-### L13. `SecretScopeReference { scope, key }`
+### L11. `SecretScopeReference { scope, key }`
 
 Two-field reference to a Databricks secret. Standard. Fine.
 
-### L14. `TimeWindow`, `ContinuousWindow`, `TumblingWindow`, `SlidingWindow`
+### L12. `TimeWindow`, `ContinuousWindow`, `TumblingWindow`, `SlidingWindow`
 
 Four Spark Structured Streaming idioms. Standard. Fine.
 
-### L15. `featureFieldMask` / `kafkaConfigFieldMask` / `materializedFeatureFieldMask`
+### L13. `featureFieldMask` / `kafkaConfigFieldMask` / `materializedFeatureFieldMask`
 
 Three field-mask builders. Standard generator pattern. Fine.
 
-### L16. `req.featureName` query parameter on `ListMaterializedFeaturesRequest`
+### L14. `req.featureName` query parameter on `ListMaterializedFeaturesRequest`
 
 The list endpoint filters by feature name (full UC name). Field is
 `featureName?: string` — fine. Distinguishes from `MaterializedFeature.featureName`
@@ -555,7 +541,7 @@ who know the upstream API; opaque otherwise.
 | File | Lines | Exports counted | Audited |
 |------|-------|-----------------|---------|
 | `src/v1/model.ts` | 2499 | 3 enums, 50 interfaces, 60 zod consts (30 unmarshal + 30 marshal), 3 field-mask helpers | yes |
-| `src/v1/client.ts` | 631 | 1 class, 21 public methods (15 RPCs + 3 paging iterators + 1 batch) | yes |
+| `src/v1/client.ts` | 631 | 1 class, public methods covering 3 resource families (Feature, KafkaConfig, MaterializedFeature) | yes |
 | `src/v1/utils.ts` | 151 | 1 interface, 5 functions | yes |
 | `src/v1/index.ts` | 78 | 1 class re-export, 3 enum re-exports, 60 type re-exports | yes |
 

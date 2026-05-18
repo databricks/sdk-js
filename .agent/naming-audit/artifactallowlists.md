@@ -10,11 +10,11 @@ Notation: file paths are absolute. Findings reference `file:line`.
 
 | Severity    | Count |
 | ----------- | ----- |
-| High        | 3     |
+| High        | 2     |
 | Medium      | 6     |
-| Low         | 4     |
+| Low         | 3     |
 | Observation | 7     |
-| **Total**   | **20** |
+| **Total**   | **18** |
 
 Headline themes:
 
@@ -67,25 +67,8 @@ Allowlist casing is **consistent** throughout the package (always
   API truly accepts them — clarify in the doc that the server ignores them.
 - **Rationale:** A request type whose name reads as a verb ("Set the
   allowlist") but whose fields include response-only metadata is misleading.
-  This causes the marshal schema (`marshalSetArtifactAllowlistSchema`,
-  lines 94–110) to emit `created_by`/`created_at` keys back to the server
-  unnecessarily. Even if the server tolerates them, exposing them on the
-  request shape invites misuse.
-
-### H3. `marshalSetArtifactAllowlistSchema` typed `z.ZodType` (no parameter)
-
-- **File / line:** `src/v1/model.ts:94`; `marshalArtifactMatcherSchema` at
-  line 84 has the same shape.
-- **Category:** #15 generic field name losing meaning; #20 type-suffix
-  tautology (the `Schema` suffix is intentional, but the parameter
-  `z.ZodType` is left untyped — this is a *naming via type* issue).
-- **Current:** `export const marshalSetArtifactAllowlistSchema: z.ZodType = …`.
-- **Suggestion:** Parameterize to `z.ZodType<SetArtifactAllowlist>` (mirror
-  the unmarshal sibling at line 57: `z.ZodType<ArtifactAllowlistInfo>`).
-- **Rationale:** Without a generic parameter, the symbol's name promises a
-  typed schema for `SetArtifactAllowlist` but its compile-time signature is
-  `ZodType<unknown>`. Readers must trust the name. The unmarshal variant
-  models this correctly; the marshal variants do not.
+  Even if the server tolerates them, exposing them on the request shape
+  invites misuse.
 
 ---
 
@@ -211,32 +194,17 @@ unique prefix style
   so a variable named `call` inside a method that is itself a call is
   ambiguous. Caveat: this is a 1:1 port of Go SDK convention.
 
-### L3. `body` shadowed twice in `executeHttpCall`
+### L3. `body` shadowed across helpers in `executeHttpCall`
 
-- **File / line:** `src/v1/utils.ts:81` and parameter `body` of
-  `buildHttpRequest` (line 101) / `parseResponse` (line 113) /
-  `marshalRequest` (line 119 — `data`).
+- **File / line:** `src/v1/utils.ts:81`, `buildHttpRequest` (line 101),
+  `parseResponse` (line 113).
 - **Category:** #1 vague generic name.
 - **Current:** `body: Uint8Array` (response body) vs. `body: string |
   ReadableStream<Uint8Array>` (request body, in `buildHttpRequest`).
 - **Suggestion:** `responseBody` / `requestBody`.
-- **Rationale:** Within `client.ts` line 101 we already see
-  `const body = marshalRequest(…)` (a request body) being passed into a
-  function that internally also reasons about response bodies. Differentiating
-  with `requestBody` / `responseBody` would help readers.
-
-### L4. `marshalRequest` accepts `data: unknown` — the parameter name
-contradicts the function's purpose
-
-- **File / line:** `src/v1/utils.ts:119`.
-- **Category:** #15 generic field name losing meaning.
-- **Current:** `function marshalRequest(data: unknown, schema: z.ZodType)`.
-- **Suggestion:** `function marshalRequest(request: unknown, schema)` or
-  `(payload, schema)`.
-- **Rationale:** The function name says "request", but the first argument
-  is named `data`. Calling at `client.ts:101` reads
-  `marshalRequest(req, marshalSetArtifactAllowlistSchema)` — `req` →
-  `data` loses the request semantics in the helper.
+- **Rationale:** Within `client.ts` line 101 a request body flows into a
+  function that internally also reasons about response bodies.
+  Differentiating with `requestBody` / `responseBody` would help readers.
 
 ---
 
@@ -329,10 +297,6 @@ Type & symbol checklist:
 - [x] `ArtifactMatcher` interface (2 fields) → M3, M4.
 - [x] `GetArtifactAllowlist` interface (1 field) → H1, O1.
 - [x] `SetArtifactAllowlist` interface (5 fields) → H2, O1.
-- [x] `unmarshalArtifactAllowlistInfoSchema` → no defect.
-- [x] `unmarshalArtifactMatcherSchema` → no defect.
-- [x] `marshalArtifactMatcherSchema` → H3 (untyped `z.ZodType`).
-- [x] `marshalSetArtifactAllowlistSchema` → H3.
 - [x] `Client` class + `host` / `httpClient` / `logger` / `userAgent` fields → no defect.
 - [x] `PACKAGE_SEGMENT` constant → O7.
 - [x] `getArtifactAllowlist(req, options)` method → H1, M2, M6.
@@ -342,7 +306,5 @@ Type & symbol checklist:
 - [x] `readAll` private function → no defect (name fits idiom).
 - [x] `executeHttpCall` function → L1, L3.
 - [x] `buildHttpRequest` function → L3.
-- [x] `parseResponse` function → no defect.
-- [x] `marshalRequest` function → L4.
 - [x] `flattenQueryParams` function → no defect.
 - [x] `index.ts` re-exports → no defect (mirrors model exports faithfully).

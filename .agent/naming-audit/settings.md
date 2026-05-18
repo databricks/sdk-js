@@ -3,7 +3,7 @@
 **Path:** `/home/parth.bansal/sdk-js/packages/settings/`
 **Versions audited:** v2
 **Inferred domain:** A "unified" generic settings/user-preference key/value API (referred to as `settingsv2` in the wire/JSDoc) that exposes a single `Setting` polymorphic value type with seven typed payload variants. Operates at three scopes — account-level settings, account-level user preferences, and workspace-level settings — replacing the per-feature `get*`/`update*`/`delete*` endpoints that live in `accountsettings` (v1) and `workspacesettings` (v1).
-**Total weird names flagged:** 111
+**Total weird names flagged:** 106
 
 ---
 
@@ -79,66 +79,61 @@ The same data type — `RestrictWorkspaceAdminsMessage`, `ClusterAutoRestartMess
 | 49 | Medium | Singular/plural mismatch | `listAccountSettingsMetadata` returns `settingsMetadata?: SettingsMetadata[]` — pluralisation collides with the singular type | `model.ts:194, 196`; `client.ts:166` |
 | 50 | Medium | Singular/plural mismatch | `listAccountUserPreferencesMetadata` returns `settingsMetadata?: SettingsMetadata[]` (not `userPreferencesMetadata`) | `model.ts:225-227`; `client.ts:226` |
 | 51 | Medium | Singular/plural mismatch | `listWorkspaceSettingsMetadata` field reuses `settingsMetadata` | `model.ts:252-254` |
-| 52 | Medium | Method name redundancy | `listAccountSettingsMetadataIter` ("Iter" suffix vs neighbouring `listAccountSettingsMetadata`) | `client.ts:202, 262, 323` |
-| 53 | Medium | Cryptic abbreviation | `Iter` (Go iterator idiom in JS — should be implicit on AsyncGenerator) | `client.ts:202, 262, 323` |
-| 54 | Medium | Overly verbose | `PreviewPhase.PREVIEW_PHASE_UNSPECIFIED` (when accessed as enum member) | `model.ts:13` |
-| 55 | Medium | Verb-tense inconsistency | `PreviewPhase` vs `GA_SOON` (mixed adverb/timeline forms) | `model.ts:11-27` |
-| 56 | Medium | Acronym casing | `Aibi` should be `AIBI` or `AiBi` per TS rules | `model.ts:30` |
-| 57 | Medium | Acronym casing | `Gov` (short for "Government") undocumented short | `model.ts:294` |
-| 58 | Medium | Field contradicting type domain | `automaticClusterUpdateWorkspace` discriminator on `Setting` (a workspace-only feature on a unified type) | `model.ts:322` |
-| 59 | Medium | Field contradicting type domain | `restrictWorkspaceAdmins` discriminator on `Setting` used by both workspace and account endpoints | `model.ts:337` |
-| 60 | Medium | Generic field name | `canToggle?: boolean` on `ClusterAutoRestartMessage` (toggle what?) | `model.ts:104` |
-| 61 | Medium | Generic field name | `hours?: number`, `minutes?: number` on `WindowStartTime` (no timezone documented) | `model.ts:148-149` |
-| 62 | Medium | Overly verbose discriminator | `effectiveAutomaticClusterUpdateWorkspace` | `model.ts:369` |
-| 63 | Medium | Overly verbose discriminator | `effectiveAibiDashboardEmbeddingApprovedDomains` | `model.ts:374` |
-| 64 | Medium | Overly verbose discriminator | `effectiveAibiDashboardEmbeddingAccessPolicy` | `model.ts:379` |
-| 65 | Medium | Overly verbose discriminator | `effectiveRestrictWorkspaceAdmins` | `model.ts:384` |
-| 66 | Medium | Overly verbose discriminator | `effectivePersonalCompute` | `model.ts:389` |
-| 67 | Medium | Generic name | `displayName` on `SettingsMetadata` (vs `name`) | `model.ts:411` |
-| 68 | Medium | Cryptic abbreviation | `docsLink` (vs `documentationUrl`) | `model.ts:404` |
-| 69 | Medium | Misleading field | `name` on `SettingsMetadata` (means "key", not "human-readable name" — which is `displayName`) | `model.ts:398` |
-| 70 | Medium | Acronym casing | `Url` vs `URL` (Google TS style allows either, package uses neither — it uses `Link` and `url`) | `model.ts:404`; `utils.ts:69, 71, 100, 103` |
-| 71 | Medium | Field name verb-as-noun | `restartEvenIfNoUpdatesAvailable?: boolean` (whole sentence as field name) | `model.ts:107` |
-| 72 | Low | Long enum value | `PREVIEW_PHASE_UNSPECIFIED` | `model.ts:13` |
-| 73 | Low | Long enum value | `ACCESS_POLICY_TYPE_UNSPECIFIED` | `model.ts:31` |
-| 74 | Low | Long enum value | `DAY_OF_WEEK_UNSPECIFIED` | `model.ts:39` |
-| 75 | Low | Long enum value | `WEEK_DAY_FREQUENCY_UNSPECIFIED` | `model.ts:51` |
-| 76 | Low | Long enum value | `PERSONAL_COMPUTE_MESSAGE_ENUM_UNSPECIFIED` | `model.ts:67` |
-| 77 | Low | Long enum value | `RESTRICT_TOKENS_AND_JOB_RUN_AS` | `model.ts:85` |
-| 78 | Low | Long enum value | `FIRST_AND_THIRD_OF_MONTH` | `model.ts:56` |
-| 79 | Low | Long enum value | `SECOND_AND_FOURTH_OF_MONTH` | `model.ts:57` |
-| 80 | Low | Cryptic abbreviation | `OBO` (in `RESTRICT_TOKENS_AND_JOB_RUN_AS` doc) | `model.ts:79` |
-| 81 | Low | Cryptic abbreviation | `WS` (in same doc) | `model.ts:79` |
-| 82 | Low | Cryptic abbreviation | `SP`/`SPs` ("service principal") in same doc | `model.ts:79, 83` |
-| 83 | Low | Cryptic abbreviation | `OBO` undocumented | `model.ts:79` |
-| 84 | Low | Reserved-word adjacency | `value` (used as discriminated union field) | `model.ts:99, 172, 285, 305, 416, 434` |
-| 85 | Low | Reserved-word adjacency | `type` (used as plain field on `SettingsMetadata`) | `model.ts:402` |
-| 86 | Low | Reserved-word adjacency | `name` (used everywhere, common JS builtin name) | `model.ts:153, 163, 168, 265, 274, 280, 299, 398, 426` |
-| 87 | Low | Acronym casing | `Id` vs `ID` (TS chooses `Id`, package consistent) | `model.ts:153, 161, ...` |
-| 88 | Low | Acronym casing | `Ws` (in JSDoc, not identifier) | `model.ts:78, 83` |
-| 89 | Low | Misleading | "Setting" doc on `UserPreference.setting` field (it's actually a UserPreference, not a Setting) | `model.ts:275` |
-| 90 | Low | Wire-vs-TS abbreviation | `disable_gov_tag_creation` wire key | `model.ts:624, 959` |
-| 91 | Low | Wire-vs-TS abbreviation | `restrict_tokens_and_job_run_as` enum value | `model.ts:85` |
-| 92 | Low | Misleading singular | `IntegerMessage.value` is `number` (TS has no integer/float distinction; "Integer" misleads) | `model.ts:172` |
-| 93 | Low | Singular-list mismatch | the `Setting.value` field name collides with `BooleanMessage.value` etc. (nested `value.value`) | `model.ts:305, 99` |
-| 94 | Low | Long discriminator string | `aibiDashboardEmbeddingApprovedDomains` (string literal used at runtime by consumers) | `model.ts:327-329` |
-| 95 | Low | Long discriminator string | `effectiveAibiDashboardEmbeddingApprovedDomains` (45 chars) | `model.ts:374` |
-| 96 | Low | Vague | `enabled?: boolean` (enabled what? on `ClusterAutoRestartMessage`) | `model.ts:103` |
-| 97 | Low | Vague | `frequency?` on `WeekDayBasedSchedule` (frequency-of-what?) | `model.ts:137` |
-| 98 | Low | Vague | `status?` on `RestrictWorkspaceAdminsMessage` (status-of-what?) | `model.ts:289` |
-| 99 | Low | Inconsistent verb | "patch" (HTTP idiom) vs "update" (SDK idiom in sibling packages) | `client.ts:346, 378, 409` |
-| 100 | Low | Inconsistent verb | `Iter` suffix (Go idiom in TS) | `client.ts:202, 262, 323` |
-| 101 | Low | Misleading | doc on `userId` on `GetPublicAccountUserPreferenceRequest` says "user whose setting is being retrieved" (says "setting" not "preference") | `model.ts:160-161` |
-| 102 | Low | Empty default | `PreviewPhase.PREVIEW_PHASE_UNSPECIFIED = 'PREVIEW_PHASE_UNSPECIFIED'` doc says unset-OR-not-a-preview (two distinct meanings) | `model.ts:12-13` |
-| 103 | Low | Long type | `ClusterAutoRestartMessage_EnablementDetails` containing three `unavailable_for_*` booleans | `model.ts:119-126` |
-| 104 | Low | Cryptic field | `unavailableForNonEnterpriseTier` (double negative — "unavailable" + "non-") | `model.ts:121` |
-| 105 | Low | Cryptic field | `unavailableForDisabledEntitlement` (same double negative) | `model.ts:123` |
-| 106 | Low | Misleading verb | `forcedForComplianceMode` (passive verb as boolean state name; should be `forceEnabledInComplianceMode` or `complianceModeForcesEnabled`) | `model.ts:125` |
-| 107 | Low | Acronym casing | `Dbfs` doc — appears in workspacesettings as `Dbfs` (cross-package) | `workspacesettings/model.ts`; `settings` doesn't have it but consumers will collide |
-| 108 | Low | Generic name | `host` (on `Client` private field) | `client.ts:54` |
-| 109 | Low | Reserved-word adjacency | `signal` (uses Web/Node `AbortSignal` standard name — okay, just noting) | `client.ts:89, 118, 143, ...` |
-| 110 | Low | Misleading | `PreviewPhase` enum lists `BETA` as separate from `PUBLIC_PREVIEW` even though common usage merges them | `model.ts:21-25` |
-| 111 | Low | Type-suffix tautology | `*Schema` suffix on every zod schema (`unmarshalSettingSchema`, `marshalSettingSchema`, etc.) — Zod variables don't need the suffix; `import {z} from 'zod'` already conveys this | `model.ts:449, 460, 469, 477, ...` |
+| 52 | Medium | Overly verbose | `PreviewPhase.PREVIEW_PHASE_UNSPECIFIED` (when accessed as enum member) | `model.ts:13` |
+| 53 | Medium | Verb-tense inconsistency | `PreviewPhase` vs `GA_SOON` (mixed adverb/timeline forms) | `model.ts:11-27` |
+| 54 | Medium | Acronym casing | `Aibi` should be `AIBI` or `AiBi` per TS rules | `model.ts:30` |
+| 55 | Medium | Acronym casing | `Gov` (short for "Government") undocumented short | `model.ts:294` |
+| 56 | Medium | Field contradicting type domain | `automaticClusterUpdateWorkspace` discriminator on `Setting` (a workspace-only feature on a unified type) | `model.ts:322` |
+| 57 | Medium | Field contradicting type domain | `restrictWorkspaceAdmins` discriminator on `Setting` used by both workspace and account endpoints | `model.ts:337` |
+| 58 | Medium | Generic field name | `canToggle?: boolean` on `ClusterAutoRestartMessage` (toggle what?) | `model.ts:104` |
+| 59 | Medium | Generic field name | `hours?: number`, `minutes?: number` on `WindowStartTime` (no timezone documented) | `model.ts:148-149` |
+| 60 | Medium | Overly verbose discriminator | `effectiveAutomaticClusterUpdateWorkspace` | `model.ts:369` |
+| 61 | Medium | Overly verbose discriminator | `effectiveAibiDashboardEmbeddingApprovedDomains` | `model.ts:374` |
+| 62 | Medium | Overly verbose discriminator | `effectiveAibiDashboardEmbeddingAccessPolicy` | `model.ts:379` |
+| 63 | Medium | Overly verbose discriminator | `effectiveRestrictWorkspaceAdmins` | `model.ts:384` |
+| 64 | Medium | Overly verbose discriminator | `effectivePersonalCompute` | `model.ts:389` |
+| 65 | Medium | Generic name | `displayName` on `SettingsMetadata` (vs `name`) | `model.ts:411` |
+| 66 | Medium | Cryptic abbreviation | `docsLink` (vs `documentationUrl`) | `model.ts:404` |
+| 67 | Medium | Misleading field | `name` on `SettingsMetadata` (means "key", not "human-readable name" — which is `displayName`) | `model.ts:398` |
+| 68 | Medium | Acronym casing | `Url` vs `URL` (Google TS style allows either, package uses neither — it uses `Link` and `url`) | `model.ts:404`; `utils.ts:69, 71, 100, 103` |
+| 69 | Medium | Field name verb-as-noun | `restartEvenIfNoUpdatesAvailable?: boolean` (whole sentence as field name) | `model.ts:107` |
+| 70 | Low | Long enum value | `PREVIEW_PHASE_UNSPECIFIED` | `model.ts:13` |
+| 71 | Low | Long enum value | `ACCESS_POLICY_TYPE_UNSPECIFIED` | `model.ts:31` |
+| 72 | Low | Long enum value | `DAY_OF_WEEK_UNSPECIFIED` | `model.ts:39` |
+| 73 | Low | Long enum value | `WEEK_DAY_FREQUENCY_UNSPECIFIED` | `model.ts:51` |
+| 74 | Low | Long enum value | `PERSONAL_COMPUTE_MESSAGE_ENUM_UNSPECIFIED` | `model.ts:67` |
+| 75 | Low | Long enum value | `RESTRICT_TOKENS_AND_JOB_RUN_AS` | `model.ts:85` |
+| 76 | Low | Long enum value | `FIRST_AND_THIRD_OF_MONTH` | `model.ts:56` |
+| 77 | Low | Long enum value | `SECOND_AND_FOURTH_OF_MONTH` | `model.ts:57` |
+| 78 | Low | Cryptic abbreviation | `OBO` (in `RESTRICT_TOKENS_AND_JOB_RUN_AS` doc) | `model.ts:79` |
+| 79 | Low | Cryptic abbreviation | `WS` (in same doc) | `model.ts:79` |
+| 80 | Low | Cryptic abbreviation | `SP`/`SPs` ("service principal") in same doc | `model.ts:79, 83` |
+| 81 | Low | Cryptic abbreviation | `OBO` undocumented | `model.ts:79` |
+| 82 | Low | Reserved-word adjacency | `value` (used as discriminated union field) | `model.ts:99, 172, 285, 305, 416, 434` |
+| 83 | Low | Reserved-word adjacency | `type` (used as plain field on `SettingsMetadata`) | `model.ts:402` |
+| 84 | Low | Reserved-word adjacency | `name` (used everywhere, common JS builtin name) | `model.ts:153, 163, 168, 265, 274, 280, 299, 398, 426` |
+| 85 | Low | Acronym casing | `Id` vs `ID` (TS chooses `Id`, package consistent) | `model.ts:153, 161, ...` |
+| 86 | Low | Acronym casing | `Ws` (in JSDoc, not identifier) | `model.ts:78, 83` |
+| 87 | Low | Misleading | "Setting" doc on `UserPreference.setting` field (it's actually a UserPreference, not a Setting) | `model.ts:275` |
+| 88 | Low | Wire-vs-TS abbreviation | `disable_gov_tag_creation` wire key | `model.ts:624, 959` |
+| 89 | Low | Wire-vs-TS abbreviation | `restrict_tokens_and_job_run_as` enum value | `model.ts:85` |
+| 90 | Low | Misleading singular | `IntegerMessage.value` is `number` (TS has no integer/float distinction; "Integer" misleads) | `model.ts:172` |
+| 91 | Low | Singular-list mismatch | the `Setting.value` field name collides with `BooleanMessage.value` etc. (nested `value.value`) | `model.ts:305, 99` |
+| 92 | Low | Long discriminator string | `aibiDashboardEmbeddingApprovedDomains` (string literal used at runtime by consumers) | `model.ts:327-329` |
+| 93 | Low | Long discriminator string | `effectiveAibiDashboardEmbeddingApprovedDomains` (45 chars) | `model.ts:374` |
+| 94 | Low | Vague | `enabled?: boolean` (enabled what? on `ClusterAutoRestartMessage`) | `model.ts:103` |
+| 95 | Low | Vague | `frequency?` on `WeekDayBasedSchedule` (frequency-of-what?) | `model.ts:137` |
+| 96 | Low | Vague | `status?` on `RestrictWorkspaceAdminsMessage` (status-of-what?) | `model.ts:289` |
+| 97 | Low | Inconsistent verb | "patch" (HTTP idiom) vs "update" (SDK idiom in sibling packages) | `client.ts:346, 378, 409` |
+| 98 | Low | Misleading | doc on `userId` on `GetPublicAccountUserPreferenceRequest` says "user whose setting is being retrieved" (says "setting" not "preference") | `model.ts:160-161` |
+| 99 | Low | Empty default | `PreviewPhase.PREVIEW_PHASE_UNSPECIFIED = 'PREVIEW_PHASE_UNSPECIFIED'` doc says unset-OR-not-a-preview (two distinct meanings) | `model.ts:12-13` |
+| 100 | Low | Long type | `ClusterAutoRestartMessage_EnablementDetails` containing three `unavailable_for_*` booleans | `model.ts:119-126` |
+| 101 | Low | Cryptic field | `unavailableForNonEnterpriseTier` (double negative — "unavailable" + "non-") | `model.ts:121` |
+| 102 | Low | Cryptic field | `unavailableForDisabledEntitlement` (same double negative) | `model.ts:123` |
+| 103 | Low | Misleading verb | `forcedForComplianceMode` (passive verb as boolean state name; should be `forceEnabledInComplianceMode` or `complianceModeForcesEnabled`) | `model.ts:125` |
+| 104 | Low | Acronym casing | `Dbfs` doc — appears in workspacesettings as `Dbfs` (cross-package) | `workspacesettings/model.ts`; `settings` doesn't have it but consumers will collide |
+| 105 | Low | Generic name | `host` (on `Client` private field) | `client.ts:54` |
+| 106 | Low | Misleading | `PreviewPhase` enum lists `BETA` as separate from `PUBLIC_PREVIEW` even though common usage merges them | `model.ts:21-25` |
 
 ---
 
@@ -358,20 +353,13 @@ The same data type — `RestrictWorkspaceAdminsMessage`, `ClusterAutoRestartMess
 - **Suggestion:** On `ListAccountUserPreferencesMetadataResponse`, the field should be `userPreferencesMetadata`, not `settingsMetadata`. Currently the response field for "list of user preferences" is typed as `SettingsMetadata[]` and named `settingsMetadata` — which is technically the same metadata type but linguistically misleading.
 - **Rationale:** A consumer reading `resp.settingsMetadata` on a `ListAccountUserPreferencesMetadataResponse` will be confused why "settings" appears on a "user preferences" response.
 
-### 52–53. `*Iter` suffix on AsyncGenerator methods — Go-style
-
-- **File:line:** `client.ts:202, 262, 323`
-- **Category:** Go/Java-style naming, cryptic abbreviation
-- **Suggestion:** Drop the suffix or use TS conventions. AsyncGenerator return-type already differentiates from the page-returning variant. Common TS patterns: `listX()` returns a page, `listXAll()` or `[Symbol.asyncIterator]` returns an iterator.
-- **Rationale:** "Iter" mimics Go's `func (c *Client) ListAccountSettingsMetadataAll(...)` iterator helper. In TS, returning `AsyncGenerator<T>` is already idiomatic; the suffix is noise.
-
-### 54. `PreviewPhase.PREVIEW_PHASE_UNSPECIFIED` access stutters
+### 52. `PreviewPhase.PREVIEW_PHASE_UNSPECIFIED` access stutters
 
 - **File:line:** `model.ts:13`
 - **Category:** Overly verbose enum access
 - **Suggestion:** See #16.
 
-### 55. `PreviewPhase` enum — mixed temporal/qualitative members
+### 53. `PreviewPhase` enum — mixed temporal/qualitative members
 
 - **File:line:** `model.ts:11-27`
 - **Category:** Verb-tense / categorisation inconsistency
@@ -379,53 +367,53 @@ The same data type — `RestrictWorkspaceAdminsMessage`, `ClusterAutoRestartMess
 - **Suggestion:** Standardise. The current set has `*_PREVIEW` (qualifier-style) alongside `BETA` (single word), `GA_SOON` (temporal hedge), and `GA` (acronym). `PUBLIC_PREVIEW` vs `BETA` are essentially the same launch phase in many product lifecycles — picking one would tighten the model.
 - **Rationale:** Tension visible even in the JSDoc: "The feature is in public preview, available to all customers. Also used for gated public preview (available to customers who request access) since the distinction is internal." So `PUBLIC_PREVIEW` already covers two cases. Adding `BETA` on top is a third overlapping concept.
 
-### 56–57. Acronym casing: `Aibi` vs `AIBI`; `Gov` vs `Governance`
+### 54–55. Acronym casing: `Aibi` vs `AIBI`; `Gov` vs `Governance`
 
 - **File:line:** `model.ts:30, 88, 94, 294`
 - **Category:** Acronym casing
 - **Suggestion:** Google TS style says 2-3 letter acronyms can be TitleCase (`Aibi` ok) but longer acronyms or non-acronyms (like `Gov` for `Governance`) should be spelt out.
 
-### 58–59. `automaticClusterUpdateWorkspace`, `restrictWorkspaceAdmins` discriminator names mixing scope
+### 56–57. `automaticClusterUpdateWorkspace`, `restrictWorkspaceAdmins` discriminator names mixing scope
 
 - **File:line:** `model.ts:322 (auto-cluster on a unified Setting), 337 (restrict-admins on Setting)`
 - **Category:** Field contradicting type domain
 - **Suggestion:** Either drop the `Workspace` suffix from `automaticClusterUpdateWorkspace` (the parent `Setting` type is scope-agnostic) or always include the scope (then `personalCompute` should be `personalComputeAccount`).
 - **Rationale:** Some payload discriminators mention scope (`automaticClusterUpdateWorkspace`), others don't (`personalCompute`, `restrictWorkspaceAdmins`). A reader can't predict the rule.
 
-### 60. `canToggle?: boolean` on `ClusterAutoRestartMessage`
+### 58. `canToggle?: boolean` on `ClusterAutoRestartMessage`
 
 - **File:line:** `model.ts:104`
 - **Category:** Generic field
 - **Suggestion:** `userCanToggle: boolean` or `togglePermitted: boolean`. "Toggle what?" is unclear from the field alone (presumably toggle the `enabled` field, but that's implicit).
 
-### 61. `hours`, `minutes` with no timezone
+### 59. `hours`, `minutes` with no timezone
 
 - **File:line:** `model.ts:148-149`
 - **Category:** Generic field name, missing constraint
 - **Suggestion:** Add doc specifying the time-zone interpretation, or rename `utcHours`/`utcMinutes` if UTC, or add a `timezone?: string` field.
 - **Rationale:** A "maintenance window start time" without timezone is ambiguous (workspace TZ? customer TZ? UTC?).
 
-### 62–66. Overly verbose `effective*` discriminator names
+### 60–64. Overly verbose `effective*` discriminator names
 
 - **File:line:** `model.ts:369, 374, 379, 384, 389`
 - **Category:** Overly verbose
 - **Suggestion:** Either drop the `effective` prefix on the discriminator value (the parent field is `effectiveValue`, so the prefix is redundant) or split into two top-level discriminated unions (`Setting.value: {$case: 'automaticClusterUpdateWorkspace', ...}` and `Setting.effectiveValue: {$case: 'automaticClusterUpdateWorkspace', ...}`).
 - **Rationale:** `effectiveAibiDashboardEmbeddingApprovedDomains` (45 chars) is the longest discriminator in the package and stutters `effective`/`Effective` with its parent field name.
 
-### 67–69. `name` (key) vs `displayName` (human name) — inverted intuition
+### 65–67. `name` (key) vs `displayName` (human name) — inverted intuition
 
 - **File:line:** `model.ts:398, 411`
 - **Category:** Generic name + misleading
 - **Suggestion:** Rename `name` → `key`, then `displayName` → `name` (or `label`).
 - **Rationale:** Across most data-modelling traditions, `name` is the human-readable name and `key`/`id` is the identifier. This package inverts the convention.
 
-### 70. `Url` vs `URL` vs `Link`
+### 68. `Url` vs `URL` vs `Link`
 
 - **File:line:** `model.ts:404 (docsLink)`; `utils.ts:69, 71, 100, 103 (url)`
 - **Category:** Acronym casing inconsistency
 - **Suggestion:** `docsUrl` for parity with `request.url` already used elsewhere. "Link" is HTML-flavoured; "URL" is the data.
 
-### 71. `restartEvenIfNoUpdatesAvailable` — whole sentence as field name
+### 69. `restartEvenIfNoUpdatesAvailable` — whole sentence as field name
 
 - **File:line:** `model.ts:107`
 - **Category:** Field name verb-as-noun, overly verbose
@@ -436,14 +424,14 @@ The same data type — `RestrictWorkspaceAdminsMessage`, `ClusterAutoRestartMess
 
 ## Low severity
 
-### 72–79. Long enum values
+### 70–77. Long enum values
 
 - **File:line:** `model.ts:13, 31, 39, 51, 67, 75, 56, 57, 85`
 - **Category:** Long enum value
 - **Identifiers:** `PREVIEW_PHASE_UNSPECIFIED` (24c), `ACCESS_POLICY_TYPE_UNSPECIFIED` (30c), `DAY_OF_WEEK_UNSPECIFIED` (23c), `WEEK_DAY_FREQUENCY_UNSPECIFIED` (30c), `PERSONAL_COMPUTE_MESSAGE_ENUM_UNSPECIFIED` (40c), `RESTRICT_TOKENS_AND_JOB_RUN_AS` (28c), `FIRST_AND_THIRD_OF_MONTH` (24c), `SECOND_AND_FOURTH_OF_MONTH` (26c)
 - **Suggestion:** See #16–21. For `RESTRICT_TOKENS_AND_JOB_RUN_AS`, the wire string is fixed (`'RESTRICT_TOKENS_AND_JOB_RUN_AS'`), so the TS-side rename would only affect the enum-key access.
 
-### 80–83. Undocumented abbreviations in JSDoc
+### 78–81. Undocumented abbreviations in JSDoc
 
 - **File:line:** `model.ts:79, 83`
 - **Category:** Cryptic abbreviation
@@ -451,82 +439,82 @@ The same data type — `RestrictWorkspaceAdminsMessage`, `ClusterAutoRestartMess
 - **Suggestion:** Spell out in the JSDoc.
 - **Rationale:** Users reading the IDE tooltip will see "WS admins to create OBO tokens for all SPs" without expansions.
 
-### 84–86. Reserved-word adjacency: `value`, `type`, `name`
+### 82–84. Reserved-word adjacency: `value`, `type`, `name`
 
 - **File:line:** `model.ts` passim
 - **Category:** Reserved-word risk
 - **Suggestion:** See #25–27.
 
-### 87–88. Acronym casing notes
+### 85–86. Acronym casing notes
 
 - **File:line:** `model.ts:153, 78`
 - **Category:** Acronym casing
 - **Notes:** `Id` (consistent), `Ws` (only in JSDoc, not identifiers — safe).
 
-### 89. `setting?: UserPreference` doc mismatch
+### 87. `setting?: UserPreference` doc mismatch
 
 - Already covered in #29; flagged again here for the JSDoc inconsistency (`model.ts:275` field is "setting" but type is "UserPreference").
 
-### 90. `disable_gov_tag_creation` wire key
+### 88. `disable_gov_tag_creation` wire key
 
 - **File:line:** `model.ts:624, 959`
 - **Category:** Cryptic abbreviation (server-controlled)
 - **Suggestion:** N/A — wire format is fixed. Note for documentation.
 
-### 91. `restrict_tokens_and_job_run_as` enum string value
+### 89. `restrict_tokens_and_job_run_as` enum string value
 
 - **File:line:** `model.ts:85`
 - **Category:** Wire value
 - **Suggestion:** N/A — wire-fixed.
 
-### 92. `IntegerMessage` misleading in JS
+### 90. `IntegerMessage` misleading in JS
 
 - **File:line:** `model.ts:171-173`
 - **Category:** Misleading
 - **Suggestion:** The "Integer" half of the name is misleading — JS has no distinct integer type, and the `value` field is typed `number` (i.e. IEEE-754 double). A neutral name like `NumberMessage` would be honest about the runtime type.
 - **Rationale:** A reader seeing `IntegerMessage` may assume validation, bigint, or some integer-preserving codec. None is present.
 
-### 93. Nested `.value.value`
+### 91. Nested `.value.value`
 
 - **File:line:** `model.ts:305, 99`
 - **Category:** Singular naming collision
 - **Suggestion:** See #25.
 
-### 94–95. Long discriminator strings
+### 92–93. Long discriminator strings
 
 - **File:line:** `model.ts:327-329, 374`
 - **Category:** Long string identifier
-- **Suggestion:** See #30, #62.
+- **Suggestion:** See #30, #60.
 
-### 96–98. Vague field names
+### 94–96. Vague field names
 
 - **File:line:** `model.ts:103 (enabled), 137 (frequency), 289 (status)`
 - **Category:** Vague
 - **Suggestion:** Add domain context: `clusterRestartEnabled`, `restartFrequency`, `workspaceAdminRestrictionStatus`.
 - **Rationale:** Inside their parent types the meaning is somewhat clear but auto-complete shows only the field name, which is generic.
 
-### 99–100. `patch*` vs `update*`, `*Iter` suffix
+### 97. `patch*` vs `update*`
 
-- See #42, #52.
+- See #42.
 
-### 101. JSDoc on `userId` says "user whose setting is being retrieved" instead of "preference"
+### 98. JSDoc on `userId` says "user whose setting is being retrieved" instead of "preference"
 
 - **File:line:** `model.ts:160-161`
 - **Category:** Misleading
 - **Suggestion:** Use the same vocabulary as the type — "preference" for user-preference endpoints.
 
-### 102. `PreviewPhase` UNSPECIFIED doc — two meanings
+### 99. `PreviewPhase` UNSPECIFIED doc — two meanings
 
 - **File:line:** `model.ts:12-13`
 - **Category:** Empty/ambiguous default
 - **Doc:** "Default value. Indicates the preview phase is unknown or the setting is not a feature preview."
 - **Suggestion:** Use two separate enum values (one for "unknown phase", one for "not a preview at all") or pick one definition.
 
-### 103. `ClusterAutoRestartMessage_EnablementDetails` — long type
+### 100. `ClusterAutoRestartMessage_EnablementDetails` — long type
 
 - See #12.
 
-### 104–106. Double-negative / passive booleans on `EnablementDetails`
+### 101–103. Double-negative / passive booleans on `EnablementDetails`
 
 - **File:line:** `model.ts:121, 123, 125`
 - **Category:** Misleading / cognitive load
@@ -534,34 +522,21 @@ The same data type — `RestrictWorkspaceAdminsMessage`, `ClusterAutoRestartMess
 - **Suggestion:** Phrase positively where possible: `availableForEnterpriseTier?: boolean`, `availableForEntitlement?: boolean`, `forceEnabledByComplianceMode?: boolean`. Double-negatives ("unavailable for non-enterprise") slow comprehension.
 - **Rationale:** "Unavailable for non-enterprise tier" requires the reader to parse two negatives ("un-" and "non-") to conclude "this is only available for enterprise". Worth one extra second of think-time on every field access.
 
-### 107. Cross-package `Dbfs` casing
+### 104. Cross-package `Dbfs` casing
 
 - **File:line:** `workspacesettings/v1/model.ts` (consumer-collision risk noted; not present in this package directly)
 - **Category:** Cross-package acronym casing
 - **Suggestion:** Note for the cross-package audit, not actionable here.
 
-### 108. `host` — generic class field
+### 105. `host` — generic class field
 
 - **File:line:** `client.ts:54`
 - **Category:** Generic
 - **Suggestion:** `baseUrl` (consistent with `fetch` API conventions). "Host" can mean DNS host, host machine, etc.
 
-### 109. `signal: AbortSignal` field — okay, just noting
+### 106. `BETA` member adjacent to `PUBLIC_PREVIEW`
 
-- **File:line:** `client.ts:89, 118, 143, ...`
-- **Category:** Reserved-word adjacency (web standard)
-- **Suggestion:** Keep — matches Web API.
-
-### 110. `BETA` member adjacent to `PUBLIC_PREVIEW`
-
-- See #55.
-
-### 111. `*Schema` suffix on every zod schema
-
-- **File:line:** `model.ts:449, 460, 469, 477, 499, 513, 528, 551, 562, 570, 583, 596, 609, 620, 631, 766, 784, 792, 826, 836, 844, 852, 873, 887, 902, 925, 936, 944, 952, 962, 1112, 1120`
-- **Category:** Type-suffix tautology
-- **Suggestion:** Drop `Schema` — the variables are imported from a file that already imports zod, and the convention `unmarshal*` / `marshal*` already labels them. Currently `unmarshalSettingSchema` reads as "unmarshal-the-setting-schema" rather than the intended "schema for unmarshalling Setting". Renaming to `unmarshalSetting` / `marshalSetting` would be tighter, though it does collide with hypothetical function-style imports.
-- **Rationale:** Minor — convention-only concern. Currently consistent within the package.
+- See #53.
 
 ---
 
@@ -586,11 +561,9 @@ The same data type — `RestrictWorkspaceAdminsMessage`, `ClusterAutoRestartMess
 
 5. **`patch` vs `update` cross-package inconsistency.** The v1 SDKs use `update*`; the v2 SDK uses `patch*`. Same wire verb (PATCH HTTP). The verb mismatch will trip muscle-memory across the surface.
 
-6. **`*Iter` suffix is a Go idiom.** The Go SDK's `*All` helper for AsyncGenerator-equivalent iteration is named with `Iter` here. TS-idiomatic patterns are returning `AsyncIterable<T>` directly or implementing `[Symbol.asyncIterator]`. Three method names carry the suffix.
+6. **`Aibi`, `Gov`, `Dbfs`, `Csp`, `Esm`, `Dcp`, `Llm`, `Sql` etc.** form an acronym soup across all four packages. None of them are defined in any one place. A glossary at the repo level (or per package) would be high-ROI and zero-risk.
 
-7. **`Aibi`, `Gov`, `Dbfs`, `Csp`, `Esm`, `Dcp`, `Llm`, `Sql` etc.** form an acronym soup across all four packages. None of them are defined in any one place. A glossary at the repo level (or per package) would be high-ROI and zero-risk.
-
-8. **Field-vs-discriminator name divergence on `value`.** A consumer constructing a `Setting` writes:
+7. **Field-vs-discriminator name divergence on `value`.** A consumer constructing a `Setting` writes:
    ```
    { name: 'restrict_workspace_admins',
      value: { $case: 'restrictWorkspaceAdmins',
@@ -603,9 +576,9 @@ The same data type — `RestrictWorkspaceAdminsMessage`, `ClusterAutoRestartMess
    ```
    — same expressivity, half the typing.
 
-9. **`name` field's role swings.** On `Setting`/`UserPreference`/`SettingsMetadata` it is the *key* of the setting (used in URL paths). On most other Databricks resources `name` is the human-readable label. The inverted convention is a small but real footgun.
+8. **`name` field's role swings.** On `Setting`/`UserPreference`/`SettingsMetadata` it is the *key* of the setting (used in URL paths). On most other Databricks resources `name` is the human-readable label. The inverted convention is a small but real footgun.
 
-10. **`patchPublic*` is six syllables and four word-roots for a single PATCH call.** `patch` + `Public` + (`Account` | `Workspace`) + (`Setting` | `UserPreference`) + `Request` accumulates fast. After dropping `Public` and `Request`, names like `patchAccountSetting` would be drastically more usable.
+9. **`patchPublic*` is six syllables and four word-roots for a single PATCH call.** `patch` + `Public` + (`Account` | `Workspace`) + (`Setting` | `UserPreference`) + `Request` accumulates fast. After dropping `Public` and `Request`, names like `patchAccountSetting` would be drastically more usable.
 
 ---
 
@@ -635,5 +608,5 @@ The same data type — `RestrictWorkspaceAdminsMessage`, `ClusterAutoRestartMess
 |------|-----------|----------|
 | `src/v2/index.ts` | 42 (full) | 100% — exports inventory only, no naming surprises beyond the type names already audited from `model.ts`. |
 | `src/v2/model.ts` | 1160 (full) | 100% — 6 enums, 23 interfaces (incl. all nested message types), 15 unmarshal-zod schemas, 15 marshal-zod schemas audited. |
-| `src/v2/client.ts` | 433 (full) | 100% — `Client` constructor, 9 client methods (`getPublic*`, `patchPublic*`, `list*`, `list*Iter` x 3 each), and private fields (`host`, `accountId`, `httpClient`, `logger`, `userAgent`) audited. |
+| `src/v2/client.ts` | 433 (full) | 100% — `Client` constructor and 9 client methods audited (paginated page-returning and iterator-returning variants both reviewed). Private fields (`host`, `accountId`, `httpClient`, `logger`, `userAgent`) audited. |
 | `src/v2/utils.ts` | 150 (full) | 100% — `HttpCallOptions`, `executeCall`, `executeHttpCall`, `buildHttpRequest`, `parseResponse`, `marshalRequest`, `flattenQueryParams`, `readAll` audited. Shared utility code; no naming issues unique to this package (the same scaffolding appears in every package). |

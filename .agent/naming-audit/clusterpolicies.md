@@ -126,8 +126,7 @@ rubric. Issues are graded:
 | V-02  | `MavenLibrary.repo`, `RCranLibrary.repo`, `PythonPyPiLibrary.repo` | Medium | `repo` is generic and overloaded across types. For Maven it is a Maven repository URL; for CRAN it is a CRAN mirror; for PyPI it is a pip index. Renaming to `repositoryUrl` (or even `mavenRepoUrl` / `cranMirrorUrl` / `pipIndexUrl`) would be more self-describing. |
 | V-03  | `Policy.definition`, `CreatePolicy.definition`, `EditPolicy.definition` | Medium | `definition` is generic in a multi-domain SDK. Without the JSDoc it's unclear it's a JSON document. `policyDefinition` (matches `policyFamilyDefinitionOverrides`) would be self-consistent. |
 | V-04  | `Policy.description`, `CreatePolicy.description`, `EditPolicy.description` | Low | Generic but standard across the SDK; acceptable. |
-| V-05  | `parseResponse` (utils)             | Low      | Generic, but it's local to the package. Acceptable. |
-| V-06  | `flattenQueryParams` (utils)        | Low      | Reasonable. |
+| V-05  | `flattenQueryParams` (utils)        | Low      | Reasonable. |
 
 ### 2.2 Redundant enum prefixes — High
 
@@ -143,7 +142,7 @@ abbreviations and don't repeat the enum prefix.
 
 | ID    | Symbol                | Severity | Issue |
 | ----- | --------------------- | -------- | ----- |
-| A-01  | `PythonPyPiLibrary`   | High     | "PyPI" is a proper acronym (Python Package Index). The chosen casing `PyPi` is non-standard — official sources write **PyPI** (see https://pypi.org/ and PEP 541). Should be `PythonPyPILibrary`. Also affects the schema names `unmarshalPythonPyPiLibrarySchema` / `marshalPythonPyPiLibrarySchema`. |
+| A-01  | `PythonPyPiLibrary`   | High     | "PyPI" is a proper acronym (Python Package Index). The chosen casing `PyPi` is non-standard — official sources write **PyPI** (see https://pypi.org/ and PEP 541). Should be `PythonPyPILibrary`. |
 | A-02  | `RCranLibrary`        | Medium   | "CRAN" is an acronym ("Comprehensive R Archive Network"). The type uses `Cran` (PascalCase) which is acceptable under Google TS style (acronyms ≥3 chars → only first letter capitalised). However, the JSDoc and surrounding usage refers to "CRAN library". Consistent with the rule but worth noting — peer types like `PolicySortColumn` keep full uppercase in member names. Leave as-is for Google style compliance. |
 | A-03  | `RCranLibrary` — prefix `R` | Low | The leading lone `R` (the language) is awkward; the Go SDK uses the same name so this is a porting constraint. |
 | A-04  | `pypi` discriminator case (`Library.lib.$case === 'pypi'`) | Low | Lowercased, matching API wire format; consistent with `jar`, `egg`, `cran`, `maven`. Acceptable. |
@@ -156,8 +155,7 @@ abbreviations and don't repeat the enum prefix.
 | U-02  | `DeletePolicy_Response`             | High     | Same as U-01. |
 | U-03  | `EditPolicy_Response`               | High     | Same as U-01. |
 | U-04  | `ListPolicies_Response`             | High     | Same as U-01. |
-| U-05  | `unmarshalCreatePolicy_ResponseSchema` (and 3 siblings) | High | Same naming-convention violation cascades through the schema constants. |
-| U-06  | Enum member identifiers (`POLICY_CREATION_TIME`, `POLICY_NAME`) | Low | `SCREAMING_SNAKE_CASE` is acceptable for enum members under Google style (matches API wire values). Not a violation, just noted. |
+| U-05  | Enum member identifiers (`POLICY_CREATION_TIME`, `POLICY_NAME`) | Low | `SCREAMING_SNAKE_CASE` is acceptable for enum members under Google style (matches API wire values). Not a violation, just noted. |
 
 ### 2.5 Cryptic abbreviations — Medium
 
@@ -176,7 +174,6 @@ abbreviations and don't repeat the enum prefix.
 | ----- | ----------------------------------- | -------- | ----- |
 | M-01  | `EditPolicy` / `editPolicy()`       | High     | Standard CRUD verbs in TS/REST are **create / read / update / delete**. The Databricks "Cluster Policies 2.0" API uses `/edit` as the wire path, but the SDK could still expose `updatePolicy` (with `UpdatePolicy` request type) which is the conventional REST verb. Compare with the newer `policies` API surface and most other Databricks SDK resources that expose `update*`. As-is, the SDK exposes `editPolicy` while peer packages (e.g. `clusters`) often expose `editCluster` too — there is precedent — but it remains inconsistent with the broader CRUD vocabulary. Tracked here as a discrepancy worth raising upstream. |
 | M-02  | `MavenLibrary.exclusions` (JSDoc says "List of dependences to exclude") | Low | Typo in the JSDoc ("dependences"); not a name issue per se. |
-| M-03  | `parseResponse` (utils)             | Low      | Parses **JSON** specifically — `parseJsonResponse` would be more accurate. |
 
 ### 2.7 Overly verbose / Redundant suffixes — Medium
 
@@ -185,9 +182,8 @@ abbreviations and don't repeat the enum prefix.
 | O-01  | `policyFamilyDefinitionOverrides`   | Medium   | Five-word camel-case identifier. Inherited from the API; very long but no shorter form is unambiguous. Accept as upstream constraint. |
 | O-02  | `createdAtTimestamp`                | High     | "Timestamp" is redundant — `createdAt` is the universal convention for epoch-millisecond fields (and the JSDoc says "in millisecond"). `createdAtTimestamp` is a tautology (`*-At` already implies a time value). |
 | O-03  | `creatorUserName`                   | Medium   | Three words for "creator". `creator` alone would suffice if the value is a username; `createdBy` is the convention used elsewhere in the Databricks SDK. |
-| O-04  | `unmarshalCreatePolicy_ResponseSchema` | Medium | The pattern `unmarshal<Type>Schema` triple-states intent ("schema for unmarshalling X"). The repo-wide convention probably can't change here, but each constant runs ~38 chars. |
-| O-05  | `PACKAGE_SEGMENT` (`client.ts`)     | Low      | OK in context. |
-| O-06  | `Policy.maxClustersPerUser`         | Low      | Long but precise. |
+| O-04  | `PACKAGE_SEGMENT` (`client.ts`)     | Low      | OK in context. |
+| O-05  | `Policy.maxClustersPerUser`         | Low      | Long but precise. |
 
 ### 2.8 Singular / plural mismatches — Low
 
@@ -230,9 +226,8 @@ _None._
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | G-01  | `CreatePolicy_Response` (proto nested-message style) | High | This is a direct port of Go's `pb.CreatePolicyResponse` / protobuf naming. TypeScript ecosystems do not use `_` separators between message and nested-message names; the codebase even disables ESLint for each occurrence. Should adopt the TS-idiomatic `CreatePolicyResponse`. |
-| G-02  | `unmarshalXxxSchema` / `marshalXxxSchema` | Medium | "Marshal/unmarshal" is the Go (and gRPC) verb pair. JS/TS code overwhelmingly uses **serialize / deserialize** (or **parse / stringify**). New TS readers will look up "marshal" before they recognise it. Repo-wide convention; flagged once per package. |
-| G-03  | `MavenLibrary`, `PythonPyPiLibrary`, `RCranLibrary` (suffix `Library` repeated) | Low | Java-style "TypeNameTypeSuffix" pattern. See § 2.20 for the type-suffix tautology angle. |
-| G-04  | `httpClient`, `HttpClient` (vs `HTTPClient`) | Low | Google TS style uses `Http` (lowercased acronym) — consistent. |
+| G-02  | `MavenLibrary`, `PythonPyPiLibrary`, `RCranLibrary` (suffix `Library` repeated) | Low | Java-style "TypeNameTypeSuffix" pattern. See § 2.19 for the type-suffix tautology angle. |
+| G-03  | `httpClient`, `HttpClient` (vs `HTTPClient`) | Low | Google TS style uses `Http` (lowercased acronym) — consistent. |
 
 ### 2.14 Generic field names losing meaning — Medium
 
@@ -290,9 +285,8 @@ _None._
 | X-02  | `Library.lib.$case` literal `'requirements'` | Low | The discriminator value `'requirements'` is the longest in the union (12 chars) and contrasts with three-letter peers (`jar`, `egg`, `whl`). Consistent with wire format, OK. |
 | X-03  | `HttpCallOptions` (utils)           | Low      | Local interface; precise. |
 | X-04  | `executeHttpCall`, `executeCall`    | Low      | Both exist, one wraps the other. The naming difference (`HttpCall` vs `Call`) communicates layering: HTTP-aware vs. transport-agnostic. OK. |
-| X-05  | `marshalRequest` (utils)            | Low      | Generic for "marshal arbitrary request body". OK in context. |
-| X-06  | `readAll` (utils, private)          | Low      | Reads a `ReadableStream` to a `Uint8Array`. Standard name. |
-| X-07  | `flattenQueryParams` (utils, exported but unused in this package?) | Low | Exported but `client.ts` builds query strings manually with `URLSearchParams.append`. Either remove or use it. Not strictly a naming issue. |
+| X-05  | `readAll` (utils, private)          | Low      | Reads a `ReadableStream` to a `Uint8Array`. Standard name. |
+| X-06  | `flattenQueryParams` (utils, exported but unused in this package?) | Low | Exported but `client.ts` builds query strings manually with `URLSearchParams.append`. Either remove or use it. Not strictly a naming issue. |
 
 ---
 
@@ -302,19 +296,19 @@ _None._
 
 | Severity | Count |
 | -------- | ----- |
-| High     | 11    |
-| Medium   | 21    |
-| Low      | 25    |
-| **Total**| **57**|
+| High     | 10    |
+| Medium   | 18    |
+| Low      | 23    |
+| **Total**| **51**|
 
 ### 3.2 Top themes
 
 1. **Proto-style `_Response` suffix pollutes every CRUD response type.**
-   Five interfaces (`CreatePolicy_Response`, `DeletePolicy_Response`,
-   `EditPolicy_Response`, `ListPolicies_Response`, plus the schema constants)
-   each require an `eslint-disable` for the naming-convention rule. Renaming
-   to TS-idiomatic `CreatePolicyResponse` etc. would eliminate ~9
-   disable-comments and a Google-style violation in one sweep.
+   Four interfaces (`CreatePolicy_Response`, `DeletePolicy_Response`,
+   `EditPolicy_Response`, `ListPolicies_Response`) each require an
+   `eslint-disable` for the naming-convention rule. Renaming to TS-idiomatic
+   `CreatePolicyResponse` etc. would eliminate disable-comments and a
+   Google-style violation in one sweep.
 
 2. **`Library.lib` repeats the type stem in its discriminator field.**
    Callers write `library.lib?.$case` — `lib` adds no information the type
@@ -343,9 +337,6 @@ section is advisory for the codegen owners)
 
 ### 3.4 Cross-package consistency notes
 
-- The `marshal*` / `unmarshal*` schema-naming convention is consistent with
-  peer packages (e.g. `clusters`, `clusterlibraries`) and is therefore a
-  repo-wide concern, not a per-package fix.
 - The `Proto-style nested message name` `_Response` suffix is consistent
   with peers and should be addressed at the codegen level.
 - `editPolicy` (vs `updatePolicy`) is a per-API decision driven by the

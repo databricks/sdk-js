@@ -11,7 +11,7 @@ update / delete) at `/api/2.1/unity-catalog/external-locations`. The interesting
 sub-structure is `FileEventQueue` — an oneof-of-oneofs across four cloud
 providers (Azure AQS, AWS SQS, GCP Pub/Sub, OneLake Fabric Eventstream) with a
 parallel "provided" vs "managed" axis (8 cases total).
-**Total weird names flagged:** 62
+**Total weird names flagged:** 57
 
 ---
 
@@ -33,12 +33,9 @@ parallel "provided" vs "managed" axis (8 cases total).
 | 12  | `OneLakeEventQueue` vs `OneLake` (no Azure/Fabric prefix)                     | model.ts:240      | type               | Low      | 3 Acronym casing, 1 Vague/generic                   | OneLake is a Microsoft Fabric product. Other Azure-side types in the file lead with `Azure`. `OneLake` requires Fabric product knowledge to recognize.                                                                                                                       |
 | 13  | `Pubsub` casing inside `GcpPubsub`                                            | model.ts:186      | type               | Low      | 3 Acronym casing                                    | GCP's product brand is "Pub/Sub". The TS type uses `Pubsub`. Consistent with field names but not with marketing. Same applies to `providedPubsub`/`managedPubsub`.                                                                                                          |
 | 14  | `DeleteExternalLocation_Response` underscore                                  | model.ts:109      | interface          | High     | 4 Underscores in TS identifiers                     | Proto-style nested-message encoded as `Parent_Child` with a literal underscore. Requires `// eslint-disable-next-line @typescript-eslint/naming-convention` (file already has the disable on line 108).                                                                     |
-| 15  | `ListExternalLocations_Response` underscore                                   | model.ts:224      | interface          | High     | 4 Underscores in TS identifiers                     | Same as #14. Disable on line 223. Underscore identifiers also propagate to `unmarshalListExternalLocations_ResponseSchema` (line 467) and `unmarshalDeleteExternalLocation_ResponseSchema` (line 343).                                                                       |
+| 15  | `ListExternalLocations_Response` underscore                                   | model.ts:224      | interface          | High     | 4 Underscores in TS identifiers                     | Same as #14. Disable on line 223. Underscore identifiers also propagate to related helpers downstream.                                                                                                                                                                       |
 | 16  | `nameArg` field                                                                | model.ts:103, 198, 263 | field             | High     | 5 Cryptic abbreviations, 14 Go/Java-style names    | Three request types (`DeleteExternalLocation`, `GetExternalLocation`, `UpdateExternalLocation`) carry a field named `nameArg`. The `Arg` suffix is a generator artifact (it exists because some envelopes also carry a body-level `name`). TS callers reading `req.nameArg = 'my-loc'` get no hint of why it isn't `name`. |
 | 17  | `providedOnelake` / `managedOnelake` (case key spelling)                       | model.ts:176, 182 | field              | Medium   | 3 Acronym casing                                    | OneLake is officially "OneLake" (camelCase capitalized "L"). The case key spells it `Onelake` (one capital). The interface name uses `OneLake` (two capitals). Inconsistent within the same file.                                                                            |
-| 18  | `marshal*Schema` / `unmarshal*Schema` constants                                | model.ts:318-746  | const set          | Low      | 14 Go/Java-style names, 20 Type-suffix tautology   | `marshal`/`unmarshal` are Go idioms; JS uses `encode`/`decode` or `serialize`/`deserialize`. `Schema` is tautological with the `z.ZodType` type. Generator-wide pattern.                                                                                                    |
-| 19  | `marshalXxxSchema: z.ZodType` (no type parameter)                              | model.ts:501-746  | const set          | Medium   | (typing asymmetry)                                  | All `marshal*Schema` exports are typed `z.ZodType` (no type argument), while `unmarshal*Schema` exports are typed `z.ZodType<T>`. Asymmetric. The marshal side loses input-type guarantees.                                                                                  |
-| 20  | `parseResponse` vs `marshalRequest`                                            | utils.ts:113, 119 | function pair      | Low      | 17 Inconsistent action verbs                        | Mixed verbs within one file: `parse`/`marshal`. Pair them as `parse`/`format`, `marshal`/`unmarshal`, or `decode`/`encode`.                                                                                                                                                  |
 
 ---
 
@@ -187,22 +184,6 @@ GCP's product is "Pub/Sub" (with slash and two capitals). The TS type is
 `GcpPubsub` (one capital). Internally consistent (the discriminator cases
 `providedPubsub`/`managedPubsub` match), but not the canonical GCP spelling.
 
-### M6. `marshal*Schema: z.ZodType` (no type parameter)
-
-```ts
-export const marshalCreateExternalLocationSchema: z.ZodType = z.object({ ... });
-```
-
-vs
-
-```ts
-export const unmarshalExternalLocationInfoSchema: z.ZodType<ExternalLocationInfo> = ...
-```
-
-Asymmetric. The marshal side loses input-type guarantees. A consumer who
-passes the wrong shape to `marshalRequest(data, marshalCreateExternalLocationSchema)`
-gets a runtime error instead of a TS error.
-
 ---
 
 ## Low severity (nits)
@@ -249,22 +230,21 @@ The following acronyms appear:
 
 ## Summary
 
-20 findings:
+17 findings:
 
 - **3 High severity** — enum stutter, `nameArg` artifact, underscore TS
   identifiers.
-- **6 Medium severity** — `AQS` JSDoc copy-paste error in AWS type,
+- **5 Medium severity** — `AQS` JSDoc copy-paste error in AWS type,
   naming-pattern inconsistency across the four queue types, OneLake casing
-  inconsistency, AQS abbreviation, Pubsub casing, `marshal*Schema` type-parameter
-  asymmetry.
+  inconsistency, AQS abbreviation, Pubsub casing.
 - **0 Low severity (nits)**.
 
 Primary themes:
 
 1. **Generator-encoded proto patterns dominate**: underscore-named nested
-   message types, SCREAMING_SNAKE enum members, the `marshal`/`unmarshal`
-   verbs, and the `nameArg` path-vs-body disambiguation are all proto/Go-SDK
-   artifacts that idiomatic TS would express differently.
+   message types, SCREAMING_SNAKE enum members, and the `nameArg` path-vs-body
+   disambiguation are all proto/Go-SDK artifacts that idiomatic TS would
+   express differently.
 2. **Cloud-provider naming is internally inconsistent**: four queue-config
    types with four different naming conventions, OneLake spelled three ways,
    AQS abbreviation that isn't Microsoft canonical, copy-paste error mixing

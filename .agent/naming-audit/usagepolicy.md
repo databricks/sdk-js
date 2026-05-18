@@ -3,14 +3,14 @@
 **Path:** `packages/usagepolicy/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Account-level "Usage Policy" management — create/get/list/update/delete cost-attribution policies that attach custom tags to billing usage and can be bound to specific workspaces. Hits `POST/GET/PATCH/DELETE /api/2.1/accounts/{accountId}/usage-policies`. The JSDoc on `UsagePolicy` reads "Contains the UsagePolicy details (same structure as BudgetPolicy)" — i.e. this package is an explicit clone of the sibling `budgetpolicy` package with a renamed entity and a bumped API version (`/api/2.1` vs `/api/2.0`).
-**Total weird names flagged:** 41
+**Total weird names flagged:** 38
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 10 |
-| Medium | 15 |
-| Low | 11 |
+| Medium | 14 |
+| Low | 9 |
 | Observation | 5 |
 
 ## High severity
@@ -86,7 +86,7 @@
 ### 12. `CustomPolicyTag` reserved-key documentation refers to `budget-policy-*` keys — `src/v1/model.ts:27-29`
 - **Why weird:** Doc says key cannot be `"budget-policy-name"`, `"budget-policy-id"` or `"budget-policy-resolution-result"`. These reserved keys are the wire-form spelling **from the budget-policy domain** — copy-pasted verbatim from the `budgetpolicy` package without renaming to the usage-policy equivalents (one would expect `usage-policy-name` etc.). Either (a) the wire really *does* use the `budget-policy-*` prefix (which is a Databricks API design issue worth surfacing), or (b) the JSDoc was lazily duplicated and the actual reserved keys are different.
 - **Category:** 6 (misleading: cross-domain magic strings that callers must memorise), 12 (duplicate across siblings — but here it's a *bug*, because the reserved keys are not surfaced as constants and may differ from `budgetpolicy`), 18 (long magic string sentinels).
-- **Suggested name:** Either expose a `RESERVED_TAG_KEYS` constant per package, or validate in marshal step and throw a typed error. If the wire truly shares the budget-policy reserved keys, the JSDoc should say "(shared with budget-policy)" to remove the ambiguity.
+- **Suggested name:** Either expose a `RESERVED_TAG_KEYS` constant per package, or validate the wire payload and throw a typed error. If the wire truly shares the budget-policy reserved keys, the JSDoc should say "(shared with budget-policy)" to remove the ambiguity.
 - **Rationale:** Documentation-only constraints are easy to violate and produce server-side 400s. Either way the verbatim duplication smells.
 
 ### 13. `Filter.creatorUserId: number` representation — `src/v1/model.ts:57`
@@ -120,7 +120,7 @@
 - **Rationale:** Tied to type rename considerations. If the entity-type were renamed (per finding #1), `policies` could stay; otherwise `usagePolicies` makes the field self-documenting at any depth.
 
 ### 18. `ListUsagePoliciesResponse.previousPageToken` — `src/v1/model.ts:100`
-- **Why weird:** Response supports both forward (`nextPageToken`) and backward (`previousPageToken`) pagination — but `listUsagePoliciesIter` (client.ts:193) only walks forward. The bidirectional surface area exists but is unused by the iterator helper.
+- **Why weird:** Response supports both forward (`nextPageToken`) and backward (`previousPageToken`) pagination — but the iterator helper only walks forward. The bidirectional surface area exists but is unused by the iterator helper.
 - **Category:** Observation / 12 (duplicate-but-asymmetric concept).
 - **Suggested name:** Keep name; consider documenting that the iterator does not honor `previousPageToken`.
 - **Rationale:** Field name is fine on its own; flagging because it hints at unsupported reverse pagination. Mirrors `budgetpolicy` finding #20.
@@ -149,19 +149,13 @@
 - **Suggested name:** If full-replace: document on `UpdateUsagePolicyRequest`. If partial-update: add `updateMask?: FieldMask<UsagePolicy>` and a `usagePolicyFieldMask(...paths)` helper to match the sibling.
 - **Rationale:** A user toggling between the two clones will expect parity. The divergence is silent and unjustified by either docstring.
 
-### 23. `unmarshalUsagePolicySchema` / `marshalUsagePolicySchema` naming pair — `src/v1/model.ts:155,217`
-- **Why weird:** "Marshal" and "unmarshal" terms come from Go encoding semantics. JS/TS world uses "serialize" / "deserialize" (or "parse" / "stringify"). Note also `parseResponse`/`marshalRequest` in `utils.ts:113,119` already mix `parse` and `marshal` for the same operation pair.
-- **Category:** 14 (Go-style names not idiomatic in TS), 17 (`parseResponse` vs `marshalRequest` mix `parse` and `marshal` for inverse operations).
-- **Suggested name:** `serializeUsagePolicy` / `deserializeUsagePolicy`, or `usagePolicyToWire` / `usagePolicyFromWire`.
-- **Rationale:** Aligns with broader JS ecosystem (`JSON.parse`/`JSON.stringify`, Zod's `parse`/`safeParse`). Generator-wide concern.
-
-### 24. `UsagePolicy` lacks the rich constraints documented on `BudgetPolicy.policyName` — `src/v1/model.ts:125` vs `packages/budgetpolicy/src/v1/model.ts:20-25`
+### 23. `UsagePolicy` lacks the rich constraints documented on `BudgetPolicy.policyName` — `src/v1/model.ts:125` vs `packages/budgetpolicy/src/v1/model.ts:20-25`
 - **Why weird:** `BudgetPolicy.policyName` has a four-line JSDoc enumerating constraints: uniqueness, ISO 8859-1 (latin1) charset, reserved-keyword prefix ban. `UsagePolicy.policyName` says only "The name of the policy." If both APIs share the same backend (likely), the usage-policy doc is silently incomplete. If the constraints genuinely differ, the doc should call out the difference.
 - **Category:** 17 (sibling-package doc divergence for what is plausibly the same constraint), 15 (generic name losing meaning when the constraint set is undocumented).
 - **Suggested name:** Restore the full constraint doc, or document the deviation.
 - **Rationale:** This is the kind of divergence that bites users who copy code from one package to the other.
 
-### 25. `ListUsagePoliciesResponse.nextPageToken` / `previousPageToken` docs trimmed vs sibling — `src/v1/model.ts:97-100`
+### 24. `ListUsagePoliciesResponse.nextPageToken` / `previousPageToken` docs trimmed vs sibling — `src/v1/model.ts:97-100`
 - **Why weird:** Docs read: "A token that can be sent as `page_token` to retrieve the next page." and "A token that can be sent as `page_token` to retrieve the previous page." The sibling `budgetpolicy.ListBudgetPoliciesResponse` adds: "If this field is omitted, there are no subsequent pages." / "In this field is omitted, there are no previous pages." Both omission notes are missing here.
 - **Category:** 17 (inconsistent doc across siblings), 14 (wire-name `page_token` leak in TS doc).
 - **Suggested name:** Restore the omission notes and fix `page_token` → `pageToken`.
@@ -169,67 +163,55 @@
 
 ## Low severity
 
-### 26. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
+### 25. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
 - **Why weird:** Two functions with nearly identical names handle different layers (retry/rate-limit wrapper vs raw HTTP send + logging). Easy to confuse at call sites in `client.ts`.
 - **Category:** 1 (vague), 17 (names differ only by `Http` infix).
 - **Suggested name:** `runWithCallOptions` / `sendHttpRequest`.
 - **Rationale:** Same pair flagged in `abacpolicies` and `budgetpolicy` audits. Generator-wide.
 
-### 27. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 26. `HttpCallOptions` — `src/v1/utils.ts:15`
 - **Why weird:** `Options` is reused across the SDK for many unrelated concepts (`ClientOptions`, `CallOptions`, and the imported `Options` type from `@databricks/sdk-core/api` on line 3). Within `utils.ts` alone, two `Options`-named types collide cognitively.
 - **Category:** 1 (vague suffix), 17 (collides with the imported `Options`).
 - **Suggested name:** `HttpCallContext` (it's not user-facing options; it's an internal bag of arguments).
 - **Rationale:** Generator-wide; same as `budgetpolicy` finding #29.
 
-### 28. `parseResponse` / `marshalRequest` verb asymmetry — `src/v1/utils.ts:113,119`
-- **Why weird:** `parseResponse` (unmarshal) is the inverse of `marshalRequest`. Naming uses two different verbs (`parse` vs `marshal`) for opposite operations.
-- **Category:** 17 (inconsistent action verbs).
-- **Suggested name:** `unmarshalResponse` / `marshalRequest`, or `parseResponse` / `serializeRequest`.
-- **Rationale:** Pair-wise consistency aids reading. Identical to `budgetpolicy` finding #30; the `utils.ts` files are byte-for-byte clones (same 4012-byte size, same code).
-
-### 29. `readAll` — `src/v1/utils.ts:40`
+### 27. `readAll` — `src/v1/utils.ts:40`
 - **Why weird:** Function reads an entire response body stream into a buffer. Generic name; collides cognitively with `Array.prototype` or stream utilities.
 - **Category:** 1 (vague).
 - **Suggested name:** `drainStream` or `readStreamToEnd`.
 - **Rationale:** Internal helper. Generator-wide.
 
-### 30. `flattenQueryParams` — `src/v1/utils.ts:123`
+### 28. `flattenQueryParams` — `src/v1/utils.ts:123`
 - **Why weird:** Used by `client.ts:158,165,217` for nested query-param flattening; OK in this package but exported per package which makes it a duplicated utility across every generated package (12+ identical copies in this monorepo).
 - **Category:** Observation / 12 (duplicate utility across packages).
 - **Suggested name:** Keep name; consider hoisting to `@databricks/sdk-core`.
 - **Rationale:** Naming is fine; flagging duplication.
 
-### 31. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:41`
+### 29. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:41`
 - **Why weird:** `Segment` is a generic CS term. Comment explains it's the User-Agent identity segment; without the comment the constant name doesn't communicate that.
 - **Category:** 1 (vague), 15 (generic name losing meaning).
 - **Suggested name:** `USER_AGENT_PACKAGE` or `PKG_USER_AGENT_SEGMENT`.
 - **Rationale:** Same as `budgetpolicy` finding #33; generator-wide.
 
-### 32. `Client` class plain name — `src/v1/client.ts:46`
+### 30. `Client` class plain name — `src/v1/client.ts:46`
 - **Why weird:** Top-level export `Client`. When a consumer imports `Client` from `@databricks/sdk-usagepolicy/v1`, they will almost certainly alias it (`import {Client as UsagePolicyClient}`) to avoid collision with `Client` from every other package — including the byte-identical class from `@databricks/sdk-budgetpolicy/v1`.
 - **Category:** 1 (vague — `Client` is the most generic name in the SDK ecosystem), 12 (duplicate across all packages, *especially* this one and `budgetpolicy`).
 - **Suggested name:** `UsagePolicyClient`.
 - **Rationale:** Each generated package emits a `Client`. With `usagepolicy`/`budgetpolicy` being near-clones, the importer who needs both will be forced into double-aliasing.
 
-### 33. `req` parameter name on client methods — `src/v1/client.ts:77,103,122,147,194,212`
+### 31. `req` parameter name on client methods — `src/v1/client.ts:77,103,122,147,194,212`
 - **Why weird:** Abbreviation `req` instead of `request`. Six occurrences in `client.ts`.
 - **Category:** 5 (cryptic abbreviation when the long form fits comfortably).
 - **Suggested name:** `request`.
 - **Rationale:** Style. Comments on `client.ts` already use the full word. Same convention should apply to params for hovers. Same as `budgetpolicy` finding #35.
 
-### 34. `listUsagePoliciesIter` method name — `src/v1/client.ts:193`
-- **Why weird:** `Iter` is a cryptic abbreviation for "iterator" / "iterable". Mirrors Go SDK's `Iterator` style. TS convention is to spell out (`...Iterator`) or use a stronger naming convention (`paginate*`, `list*All`).
-- **Category:** 5 (cryptic abbreviation).
-- **Suggested name:** `listUsagePoliciesIterator`, or `listAllUsagePolicies`.
-- **Rationale:** `Iter` is a Go-style truncation that JS/TS users rarely use.
-
-### 35. JSDoc on `getUsagePolicy` reads "Retrieves a usage policy by it's ID." — `src/v1/client.ts:120`
+### 32. JSDoc on `getUsagePolicy` reads "Retrieves a usage policy by it's ID." — `src/v1/client.ts:120`
 - **Why weird:** "it's" should be "its" (possessive). Same grammatical mistake appears in `budgetpolicy/src/v1/client.ts:120` ("Retrieves a policy by it's ID.") — copy-pasted across the clones.
 - **Category:** Observation (grammar).
 - **Suggested name:** Fix to "its".
 - **Rationale:** Surfaces in editor hovers; small but persistent.
 
-### 36. `listUsagePolicies` JSDoc verbatim duplicates sibling — `src/v1/client.ts:145`
+### 33. `listUsagePolicies` JSDoc verbatim duplicates sibling — `src/v1/client.ts:145`
 - **Why weird:** "Lists all usage policies. Policies are returned in the alphabetically ascending order of their names." Word-for-word translation of the budgetpolicy version with `usage` substituted. Same finding for the rest of the method docstrings — they're all `s/budget/usage/` substitutions with no domain-specific guidance.
 - **Category:** Observation, 12 (cross-package boilerplate).
 - **Suggested name:** Keep, but worth flagging that the package ships zero domain-specific guidance — every per-method doc is a clone with substitution.
@@ -237,23 +219,23 @@
 
 ## Observations
 
-### 37. URL-path version split (`/api/2.1` vs `/api/2.0`) is the only meaningful API surface difference
+### 34. URL-path version split (`/api/2.1` vs `/api/2.0`) is the only meaningful API surface difference
 The only on-the-wire distinction between this package and `budgetpolicy` is the URL: `/api/2.1/accounts/{accountId}/usage-policies` (`client.ts:80,106,125,150,215`) vs `/api/2.0/accounts/{accountId}/budget-policies`. Same HTTP verbs, same query parameter names (`page_size`, `page_token`, `filter_by`, `sort_spec`, `limit_config`), same request and response shapes. If the two endpoints are intended to converge under the `2.1` URL, `budgetpolicy` is likely v1 of the same surface and this package supersedes it. If they are intended to coexist, the type names should not collide.
 - **Category:** 12 (duplicate concept), 1 (vague package boundary).
 
-### 38. No `FieldMask` import in `usagepolicy/src/v1/model.ts`
+### 35. No `FieldMask` import in `usagepolicy/src/v1/model.ts`
 Unlike `budgetpolicy/src/v1/model.ts:3-4` which imports `FieldMask` from `@databricks/sdk-core/wkt` and emits a `budgetPolicyFieldMask(...paths)` helper (lines 271-282), `usagepolicy` has no `FieldMask` machinery at all. This is linked to finding #22 (no `updateMask` on the update request). Either the API genuinely doesn't support field masks (the SDK is correct), or it does and the SDK is missing the support.
 - **Category:** Observation / 17 (cross-package inconsistency).
 
-### 39. Action-verb conventions in `Client`
+### 36. Action-verb conventions in `Client`
 The client consistently uses `create`/`delete`/`get`/`list`/`update` verbs. No mixed `fetch`/`retrieve`/`read`.
 - **Category:** 17 (observation of consistency, per rule that we flag inconsistencies — this is the inverse).
 
-### 40. Acronym casing `Id` consistently used as `Id`, not `ID`
+### 37. Acronym casing `Id` consistently used as `Id`, not `ID`
 `policyId`, `accountId`, `creatorUserId`, `bindingWorkspaceIds`, `requestId`, `pageSize`/`pageToken`. Internal consistency holds. Inconsistent only with external `URLSearchParams` (Web API; out of our control).
 - **Category:** 3 (observation — internal acronym style is consistent).
 
-### 41. Wire-form vs kebab-case vs TS casings (`usage_policies` / `usage-policies` / `usagePolicies`)
+### 38. Wire-form vs kebab-case vs TS casings (`usage_policies` / `usage-policies` / `usagePolicies`)
 The same identifier appears in three forms in the same client file:
 - `usage_policies` — wire form (in the Zod schemas via snake_case keys).
 - `usage-policies` — URL path segment (`client.ts:80,106,125,150,215`).

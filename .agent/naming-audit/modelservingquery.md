@@ -11,7 +11,7 @@
 
 **Inferred domain:** Model-serving *inference path*. The single client method `query()` POSTs an inference request body to `/api/serving-endpoints/{name}/invocations`. Supports four payload shapes simultaneously: chat (LLM), completions (LLM), embeddings (LLM), and traditional MLflow models (dataframes / tensors). The package is a *sibling* of `servingendpoints` (which owns CRUD on the endpoint resource itself) — this package only owns the **query/invoke** verb. The package name and its types share vocabulary with the unrelated SQL packages `queries`, `queryexecution`, `queryhistory` — none of which have anything to do with model serving.
 
-**Total weird names flagged:** 34
+**Total weird names flagged:** 33
 
 ---
 
@@ -51,8 +51,7 @@
 | 30 | Low      | `client.ts` JSDoc                 | `/** Query a serving endpoint */`                            | Verb-tense / missing period (project rule) |
 | 31 | Low      | `model.ts` enum value             | `ChatMessageRole.ASSISTANT`                                  | OK, but missing common values (`tool`, `function`) — incomplete enum |
 | 32 | Low      | `model.ts` field                  | `EmbeddingsV1ResponseEmbeddingElement.index`                 | Underspecified (index of what?) |
-| 33 | Low      | `model.ts` schema                 | `marshalQueryEndpointInputSchema` / `unmarshalQueryEndpointResponseSchema` | Go/Java-style "marshal/unmarshal" verbs in TS (codified at generator) |
-| 34 | Low      | `utils.ts` function               | `flattenQueryParams`                                         | Orphaned export — not used in client; "Query" here means URL query, conflicting with the package's "Query" |
+| 33 | Low      | `utils.ts` function               | `flattenQueryParams`                                         | Orphaned export — not used in client; "Query" here means URL query, conflicting with the package's "Query" |
 
 ---
 
@@ -570,20 +569,7 @@ index?: number | undefined;
 
 `index` without qualification: index inside what? `responseIndex`, `embeddingIndex`, or `position` would be specific. Pairs with `V1ResponseChoiceElement.index` and `DataframeSplitInput.index` — three "index" fields with three different meanings.
 
-### 33. `marshal*Schema` / `unmarshal*Schema` — Go/Java idiom
-
-**Location:** `src/v1/model.ts:198-342`
-
-**Category:** 14 (Go/Java-style names)
-
-```ts
-export const unmarshalChatMessageSchema: z.ZodType<ChatMessage> = ...
-export const marshalChatMessageSchema: z.ZodType = ...
-```
-
-`marshal`/`unmarshal` are Go-flavoured verbs. Idiomatic TS uses `serialize`/`deserialize` or `encode`/`decode` (Zod itself uses `parse` / `safeParse`). The pattern is codified across the entire generated SDK, so this is a generator-level concern rather than a per-package fix. Also note the `Schema` suffix on Zod consts is tautological — `unmarshalChatMessage` would be enough, or simply colocate the zod schema with the type.
-
-### 34. `flattenQueryParams` — orphaned export with conflicting "Query"
+### 33. `flattenQueryParams` — orphaned export with conflicting "Query"
 
 **Location:** `src/v1/utils.ts:123-150`
 

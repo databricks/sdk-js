@@ -3,15 +3,15 @@
 **Path:** `packages/tokenmanagement/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Workspace-admin API for managing personal access tokens (PATs) belonging to any user in the workspace — list/get/update/delete arbitrary user tokens, plus create on-behalf-of-service-principal tokens. Distinct from the per-user `tokens` API which only manages the calling user's own tokens.
-**Total weird names flagged:** 36
+**Total weird names flagged:** 29
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 12 |
+| High | 11 |
 | Medium | 13 |
-| Low | 8 |
-| Observation | 3 |
+| Low | 3 |
+| Observation | 2 |
 
 ## High severity
 
@@ -58,7 +58,7 @@
 - **Rationale:** The admin variant forces the id into the nested body while the sibling `tokens` package hoists it. This is a real ergonomic delta worth flagging upstream; consumers of both packages will trip on it.
 
 ### 8. `client.updateToken` returns `AdminTokenInfo`, sibling returns `UpdateTokenResponse` — inconsistent response handling
-- **Why weird:** `tokenmanagement.Client.updateToken` returns `Promise<AdminTokenInfo>` (client.ts:190) — the bare entity. The sibling `tokens.Client.updateToken` returns `Promise<UpdateTokenResponse>`. Worse: the `tokenmanagement` version doesn't even have a response type declared in `model.ts`; the client just unmarshals into the entity using `unmarshalAdminTokenInfoSchema`. So in one package `updateToken` returns the updated row; in the other it returns a different shape.
+- **Why weird:** `tokenmanagement.Client.updateToken` returns `Promise<AdminTokenInfo>` (client.ts:190) — the bare entity. The sibling `tokens.Client.updateToken` returns `Promise<UpdateTokenResponse>`. Worse: the `tokenmanagement` version doesn't even have a response type declared in `model.ts`; the client just unmarshals into the entity. So in one package `updateToken` returns the updated row; in the other it returns a different shape.
 - **Category:** 12 (duplicate concept inconsistently implemented), 17 (inconsistent client return shapes).
 - **Suggested name:** Pick one — either always return the updated entity (preferred; useful) or always return void. If returning the entity, name the type `Token`/`UpdateTokenResponse` rather than reusing the raw entity, so it can evolve.
 - **Rationale:** Cross-package consistency. A user who learns one client will be surprised by the other.
@@ -81,13 +81,13 @@
 - **Suggested name:** Add `PAT` aliases or document at the package level. Consider renaming `Token` → `PersonalAccessToken` or, less verbosely, keep `Token` but clarify in JSDoc.
 - **Rationale:** Discoverability. This package is the admin PAT API; calling that out beats hiding it.
 
+## Medium severity
+
 ### 12. `applicationId` on `CreateOnBehalfOfToken` — generic field name in a security-sensitive context
 - **Why weird:** `applicationId: string` (model.ts:51) is the OAuth client ID of the service principal the on-behalf-of token will represent. "Application ID" is Azure terminology; on AWS/GCP it's "service principal ID" or "client ID". This is the *target* identity for a privileged token-mint operation; `applicationId` undersells the security implication and overloads "application" with three different meanings across Databricks clouds.
 - **Category:** 1 (vague — "application" is overloaded), 14 (Azure-style naming leaks), 15 (generic name in security context), 19 (underspecified ID — application ID of what?).
 - **Suggested name:** `servicePrincipalApplicationId` or `servicePrincipalClientId` (the JSDoc literally says "Application ID of the service principal", so the field name should too).
 - **Rationale:** The field documentation already names the concept correctly; the field name should follow. Mistaking this for "Databricks Apps application id" would mint a token for the wrong principal.
-
-## Medium severity
 
 ### 13. `ListTokens` request fields `createdById` and `createdByUsername` — duplicate filter slots
 - **Why weird:** `ListTokens { createdById?, createdByUsername? }` (model.ts:96-100). Two fields that filter on the same logical concept (the creator), with no semantics about whether they're AND/OR. The doc string above the type even says "string filter parameter instead of hard-coded filters" — i.e., this is a temporary shape. The client builds `params` from both unconditionally (client.ts:159-164) which means callers can submit both at once and get undefined server behavior.
@@ -161,74 +161,35 @@
 - **Suggested name:** `tokenSecret` or `bearerToken`, and add a JSDoc warning ("Returned once. Store immediately.").
 - **Rationale:** Defensive naming for security-critical fields helps users not log/leak the value.
 
-### 25. `lifetimeSeconds` field — unit-suffix while sibling has same name and unit but adjacent fields differ
-- **Why weird:** `CreateOnBehalfOfToken.lifetimeSeconds: number` (model.ts:53) matches sibling `tokens.CreateToken.lifetimeSeconds` (tokens model.ts:29) — good consistency. But within the same file, `AdminTokenInfo.expiryTime: number` lacks a `Ms` unit suffix despite being epoch ms. Mixed convention.
-- **Category:** 17 (inconsistent unit-suffix conventions).
-- **Suggested name:** Either `lifetimeSeconds` + `expiryTimeMs` (specify both) or `lifetime: number` + `expiryTime: number` (specify neither). Recommend the former.
-- **Rationale:** When some fields encode units and others don't, readers can't tell which to trust.
-
 ## Low severity
 
-### 26. `unmarshalCreateOnBehalfOfToken_ResponseSchema`, `unmarshalGetToken_ResponseSchema`, `unmarshalListTokens_ResponseSchema`, `unmarshalRevokeToken_ResponseSchema` — schema constants carry underscores
-- **Why weird:** Each constant name carries the underscore from the corresponding type plus an `eslint-disable`. Mechanical cascade from finding #5.
-- **Category:** 4 (underscore identifier).
-- **Suggested name:** Falls out if response types lose the underscore.
-- **Rationale:** Mechanical.
-
-### 27. `marshalCreateOnBehalfOfTokenSchema` — long mouthful
-- **Why weird:** Schema constant name is 32 characters. Verbose but accurate.
-- **Category:** 7 (verbosity), Observation.
-- **Suggested name:** Acceptable as-is.
-- **Rationale:** Convention is consistent across all generated packages; no fix needed.
-
-### 28. `adminTokenInfoFieldMaskSchema` and `adminTokenInfoFieldMask()` — `Info` cascade
-- **Why weird:** Both names carry the `Info` suffix from `AdminTokenInfo`. Mechanical cascade from finding #3.
-- **Category:** 1 (vague suffix `Info`).
-- **Suggested name:** `tokenFieldMaskSchema` / `tokenFieldMask()` if entity is renamed.
-- **Rationale:** Mechanical.
-
-### 29. `marshalUpdateTokenSchema` second parameter `updateMask` uses `z.any()`
-- **Why weird:** The zod schema for `updateMask` is `z.any().transform((m: FieldMask) => m.toString())` (model.ts:236-238). Not a naming issue per se, but `z.any()` defeats type-checking on this field. The schema infers `any` and the marshal accepts anything; only the cast inside the transform restores typing.
-- **Category:** Observation, 6 (misleading — schema typed `any`, code expects `FieldMask`).
-- **Suggested name:** N/A (logic concern).
-- **Rationale:** Same `z.any()` pattern is in the sibling `tokens` marshal. Worth flagging at generator level.
-
-### 30. `Client` class is named `Client` (no namespacing)
+### 25. `Client` class is named `Client` (no namespacing)
 - **Why weird:** `export class Client` (client.ts:48). With both `tokens` and `tokenmanagement` packages exporting a `Client`, and many other packages too, code that imports several SDK clients has to alias each one. The class name itself is the most generic possible.
 - **Category:** 1 (vague), 12 (duplicate concept across all SDK packages — every package has its own `Client`).
 - **Suggested name:** `TokenManagementClient` (or `TokenAdminClient`).
 - **Rationale:** This is a cross-package convention concern; mass-renaming would be a breaking change, but flag because users will hit it.
 
-### 31. `host` field on `Client` — workspace URL is more specific
+### 26. `host` field on `Client` — workspace URL is more specific
 - **Why weird:** `private readonly host: string;` (client.ts:49). The constructor accepts `options.host` which is actually the workspace URL (e.g., `https://my-workspace.cloud.databricks.com`). "Host" is HTTP-level jargon; `workspaceUrl` is the domain-level term users learn first.
 - **Category:** 1 (vague), 15 (generic name).
 - **Suggested name:** `workspaceUrl` (and `options.workspaceUrl`).
 - **Rationale:** This is a shared concern across all generated clients; flagged here as it appears in this client.
 
-### 32. `PACKAGE_SEGMENT` constant — vague label
+### 27. `PACKAGE_SEGMENT` constant — vague label
 - **Why weird:** `const PACKAGE_SEGMENT = {...}` (client.ts:43). "Segment" is CS jargon; the comment one line up explains it's "the User-Agent identity segment". Without the comment, the constant name doesn't communicate that.
 - **Category:** 1 (vague), 15 (generic name).
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT` or `USER_AGENT_PKG`.
 - **Rationale:** Minor; identical issue in every generated package.
 
-### 33. `executeCall` / `executeHttpCall` / `buildHttpRequest` — utility verb pairs without obvious distinction
-- **Why weird:** `executeCall` (utils.ts:26) is the public-options-to-internal-options bridge that calls `execute()`. `executeHttpCall` (utils.ts:65) actually issues the HTTP request. The verb is the same ("execute") and the disambiguator is "Http" — a layer below "Call". A reader has to read both to know which to call when.
-- **Category:** 1 (vague — `executeCall` is unspecific), 17 (inconsistent layering convention).
-- **Suggested name:** `runWithRetry` / `runHttp`, or `executeWithOptions` / `executeHttpRequest`.
-- **Rationale:** Same pattern in every generated client; flagging once.
-
 ## Observations
 
-### 34. Type-suffix tautology pattern repeats: `tokenInfo: AdminTokenInfo`, `tokenInfos: AdminTokenInfo[]`
-- These are mechanical consequences of the `Info` suffix on the central entity (finding #3). Listed separately in findings #9 and #10. If the entity is renamed to `Token`, the field names also need to lose the `Info` cascade (`token` and `tokens`).
-- **Category:** 20 (type-suffix tautology).
-
-### 35. Heavy marshal/unmarshal scaffolding ratio
-- Model.ts is 265 lines; only ~120 are user-facing type declarations. The rest is zod schemas, transform pairs, FieldMaskSchema, and `eslint-disable` comments. Generator-output bloat per package; not a naming issue.
-
-### 36. Verb-tense and action-verb summary across the client
+### 28. Verb-tense and action-verb summary across the client
 - `Client` methods: `createOnBehalfOfToken`, `deleteToken`, `getToken`, `listTokens`, `updateToken`. The set is `create/delete/get/list/update` — consistent CRUDish. The mismatch is only with the request types (`RevokeToken` for `deleteToken`, finding #6).
 - **Category:** 13 (verb-tense inconsistency between method and type).
+
+### 29. Type-suffix tautology pattern repeats: `tokenInfo: AdminTokenInfo`, `tokenInfos: AdminTokenInfo[]`
+- These are mechanical consequences of the `Info` suffix on the central entity (finding #3). Listed separately in findings #9 and #10. If the entity is renamed to `Token`, the field names also need to lose the `Info` cascade (`token` and `tokens`).
+- **Category:** 20 (type-suffix tautology).
 
 ## Domain glossary
 - `PAT` — Personal Access Token (only in `AutoscopeState` doc comment; the term the package is about but never names directly).

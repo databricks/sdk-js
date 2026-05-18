@@ -10,10 +10,10 @@ with deployments, custom templates, app spaces, and resource bindings.
 | Severity | Count |
 | -------- | ----- |
 | High     |    14 |
-| Medium   |    28 |
-| Low      |    24 |
-| Observation | 12 |
-| **Total** | **78** |
+| Medium   |    26 |
+| Low      |    21 |
+| Observation | 11 |
+| **Total** | **72** |
 
 The audit found two dominant themes. First, the package leaks proto/Go
 conventions deep into the public surface: every nested message keeps its
@@ -484,26 +484,7 @@ versus Genie Space).
   `SpaceCreateOperation`, `SpaceDeleteOperation`, etc. Today the field name
   promises nothing.
 
-### M21. `marshalRequest`, `marshalAppSchema`, ..., `marshal` vs `unmarshal`
-- **File:** `model.ts:2306, 2404, ...`, `utils.ts:119`
-- **Category:** Inconsistent action verbs (17)
-- **Issue:** `marshal`/`unmarshal` is gRPC-/Go-vernacular. JavaScript's
-  baseline vocabulary is `serialize`/`deserialize` or `toJSON`/`fromJSON`.
-- **Suggestion:** Either keep the Go names (for porting consistency) or
-  rename across the SDK. Documenting the convention in `porting.mdc` is the
-  easier path.
-
-### M22. `parseResponse` / `marshalRequest` - inconsistent verb pairing
-- **File:** `utils.ts:113, 119`
-- **Category:** Inconsistent action verbs (17)
-- **Issue:** Adjacent helpers use different verb conventions: `parseResponse`
-  (parse/serialize convention) and `marshalRequest` (marshal/unmarshal
-  convention). The natural pair would be `unmarshalResponse` and
-  `marshalRequest`, or `parseResponse` and `serializeRequest`.
-- **Suggestion:** Rename `marshalRequest` -> `serializeRequest` or
-  `parseResponse` -> `unmarshalResponse`.
-
-### M23. `flattenQueryParams` — what does it flatten?
+### M21. `flattenQueryParams` — what does it flatten?
 - **File:** `utils.ts:123`
 - **Category:** Vague/generic (1)
 - **Issue:** `flattenQueryParams(prefix, value, params)` — the function
@@ -512,7 +493,7 @@ versus Genie Space).
 - **Suggestion:** Rename to `encodeNestedQueryParams` or
   `appendObjectAsQueryParams`.
 
-### M24. `readAll` — local helper exported as `readAll`
+### M22. `readAll` — local helper exported as `readAll`
 - **File:** `utils.ts:40`
 - **Category:** Vague/generic (1)
 - **Issue:** `readAll(body: ReadableStream<Uint8Array> | null)` — reads-all of
@@ -520,7 +501,7 @@ versus Genie Space).
 - **Suggestion:** Rename to `readStreamToBytes` or `consumeStream`. (It's not
   exported, so impact is local.)
 
-### M25. `executeCall` vs `executeHttpCall` — pair drifts in meaning
+### M23. `executeCall` vs `executeHttpCall` — pair drifts in meaning
 - **File:** `utils.ts:26, 65`
 - **Category:** Inconsistent action verbs (17)
 - **Issue:** `executeCall` is the *outer* retry/rate-limit wrapper;
@@ -530,7 +511,7 @@ versus Genie Space).
   would help.
 - **Suggestion:** Rename to `runWithRetries`/`sendHttp`, or `runCall`/`sendOne`.
 
-### M26. `StillRunningError` — internal sentinel class, named ambiguously
+### M24. `StillRunningError` — internal sentinel class, named ambiguously
 - **File:** `client.ts:93`
 - **Category:** Misleading names (6)
 - **Issue:** `class StillRunningError extends Error {}` — used as a sentinel
@@ -539,7 +520,7 @@ versus Genie Space).
 - **Suggestion:** Rename to `pollAgainSentinel` (as a typed Error subclass) or
   `RetryablePollError`, and add a comment that it never escapes the file.
 
-### M27. Method name verb inconsistency: `asyncUpdateApp` is verb-prefixed but `updateSpace` returns an `Operation` too
+### M25. Method name verb inconsistency: `asyncUpdateApp` is verb-prefixed but `updateSpace` returns an `Operation` too
 - **File:** `client.ts:121, 914`
 - **Category:** Inconsistent action verbs (17), Verb-tense inconsistency (13)
 - **Issue:** Both `asyncUpdateApp` and `updateSpace` are asynchronous,
@@ -550,7 +531,7 @@ versus Genie Space).
 - **Suggestion:** Drop the `async` prefix from `asyncUpdateApp` to match
   `updateSpace`, or add `asyncUpdateSpace` for symmetry.
 
-### M28. `createSpaceOperation`, `deleteSpaceOperation`, `updateSpaceOperation` — `*Operation` suffix is confusing alongside the `Operation` type
+### M26. `createSpaceOperation`, `deleteSpaceOperation`, `updateSpaceOperation` — `*Operation` suffix is confusing alongside the `Operation` type
 - **File:** `client.ts:309, 408, 951`
 - **Category:** Type-suffix tautology (20)
 - **Issue:** Methods named `createSpaceOperation()` return a
@@ -621,26 +602,7 @@ versus Genie Space).
 - **Suggestion:** Drop or rephrase the reference to `app.proto`; in TS the
   reference is meaningless.
 
-### L10. `unmarshalAppManifest_AppResourceServingEndpointSpecSchema` — extremely long Zod variable name
-- **File:** `model.ts:1690, 2532`
-- **Category:** Overly verbose (7)
-- **Issue:** 60-character private const. Inherited from H3.
-- **Suggestion:** Rename via H3.
-
-### L11. `unmarshalListAppsResponseSchema` etc. — verb `unmarshal` repeated
-- **File:** `model.ts:2133, 2146, 2156, 2169, 2180, 2202, 2246, 2256, ...`
-- **Category:** Verbosity (7)
-- **Suggestion:** Group under a namespace
-  `unmarshal.ListAppsResponse`, `unmarshal.Operation`, etc., or shorten with
-  `parseListAppsResponse`.
-
-### L12. `appFieldMaskSchema` / `appDeploymentFieldMaskSchema` etc. — every type gets a parallel `*FieldMaskSchema`
-- **File:** `model.ts:3075, 3135, 3152, 3156, 3161, 3167, 3173, 3180, 3192, 3215`
-- **Category:** Verbose / repetitive
-- **Suggestion:** Consider a `fieldMasks.app`, `fieldMasks.appDeployment`
-  namespace object rather than 10 individually named consts.
-
-### L13. `appFieldMask(...paths)` and `spaceFieldMask(...paths)` — global helpers
+### L10. `appFieldMask(...paths)` and `spaceFieldMask(...paths)` — global helpers
 - **File:** `model.ts:3131, 3211`
 - **Category:** Vague/generic (1) — qualified by entity, but
 - **Issue:** Inconsistent that only `App` and `Space` get an exported helper —
@@ -649,21 +611,21 @@ versus Genie Space).
 - **Suggestion:** Either expose helpers for every entity with a field-mask
   schema, or none.
 
-### L14. `App.thumbnailUrl: string` vs `AppThumbnail.thumbnail: Uint8Array` — different mental models
+### L11. `App.thumbnailUrl: string` vs `AppThumbnail.thumbnail: Uint8Array` — different mental models
 - **File:** `model.ts:783-784, 1032-1035`
 - **Category:** Duplicate concepts (12)
 - **Suggestion:** Document that `thumbnailUrl` is the display URL and
   `AppThumbnail.thumbnail` is the byte content (used in
   update/delete-thumbnail requests).
 
-### L15. `AppDeployment.envVars` carries a list of `EnvVar`, each with a `source` union — discriminator `'value'` vs `'valueFrom'`
+### L12. `AppDeployment.envVars` carries a list of `EnvVar`, each with a `source` union — discriminator `'value'` vs `'valueFrom'`
 - **File:** `model.ts:1156-1166`
 - **Category:** Vague/generic (1)
 - **Suggestion:** Discriminator `'value'` and `'valueFrom'` are short; consider
   `'literal'` and `'reference'` to make intent clearer. (Wire field names
   unchanged.)
 
-### L16. `Space` interface — same name as the Genie product `AppResourceGenieSpace`
+### L13. `Space` interface — same name as the Genie product `AppResourceGenieSpace`
 - **File:** `model.ts:1357, 978-982`
 - **Category:** Duplicate concepts (12)
 - **Issue:** `Space` (an Apps Space) and `GenieSpace` (the Genie product) share
@@ -675,25 +637,25 @@ versus Genie Space).
   is the outlier. This realignment also clarifies the wire URLs
   (`/api/2.0/app-spaces/...`).
 
-### L17. `CreateSpaceRequest`, `DeleteSpaceRequest`, `GetSpaceRequest`,
+### L14. `CreateSpaceRequest`, `DeleteSpaceRequest`, `GetSpaceRequest`,
   `ListSpacesRequest`, etc., do not mention "App"
 - **File:** `model.ts:1101, 1147, 1197, 1301`, also `index.ts:82-88, 105`
 - **Category:** Vague/generic (1)
-- **Suggestion:** Tied to L16 — rename these to `CreateAppSpaceRequest`, etc.
+- **Suggestion:** Tied to L13 — rename these to `CreateAppSpaceRequest`, etc.
 
-### L18. `ListSpacesResponse.spaces` plural is fine, but consistent with `ListAppsResponse.apps`?
+### L15. `ListSpacesResponse.spaces` plural is fine, but consistent with `ListAppsResponse.apps`?
 - **File:** `model.ts:1308-1312, 1282-1286`
-- **Category:** Observation — both follow the same pattern. Tied to L16 again
+- **Category:** Observation — both follow the same pattern. Tied to L13 again
   for the entity rename.
 
-### L19. `CreateAppDeploymentRequest.autoDeploy` doc: "Whether to enable automatic deployments on push events to the git repository"
+### L16. `CreateAppDeploymentRequest.autoDeploy` doc: "Whether to enable automatic deployments on push events to the git repository"
 - **File:** `model.ts:1086-1089`
 - **Category:** Misleading names (6)
 - **Issue:** The field name suggests "deploy automatically now". The doc says
   it sets up a webhook. These are very different ideas.
 - **Suggestion:** Rename to `enableAutoDeploy` or `webhookAutoDeploy`.
 
-### L20. `GitRepository.autoDeploy` vs `CreateAppDeploymentRequest.autoDeploy`
+### L17. `GitRepository.autoDeploy` vs `CreateAppDeploymentRequest.autoDeploy`
 - **File:** `model.ts:1086, 1211`
 - **Category:** Duplicate concepts (12)
 - **Issue:** Two `autoDeploy` fields in the same file: one on the deployment
@@ -702,7 +664,7 @@ versus Genie Space).
 - **Suggestion:** Document the relationship in JSDoc; if they're the same
   state, only one should exist.
 
-### L21. `Operation.name` — server-assigned UNIQUE name, not human-readable
+### L18. `Operation.name` — server-assigned UNIQUE name, not human-readable
 - **File:** `model.ts:1319-1324`
 - **Category:** Misleading names (6)
 - **Issue:** `Operation.name` is the operation *identifier* path
@@ -711,7 +673,7 @@ versus Genie Space).
   package.
 - **Suggestion:** Rename to `operationName` or, given the format, just `path`.
 
-### L22. `Client` class — exported as bare `Client`
+### L19. `Client` class — exported as bare `Client`
 - **File:** `client.ts:95`, also `index.ts:4`
 - **Category:** Vague/generic (1)
 - **Issue:** `import {Client} from '@databricks/sdk-apps/v1'`. Reads as "the
@@ -719,7 +681,7 @@ versus Genie Space).
   `@databricks/sdk-jobs`, they need an alias.
 - **Suggestion:** Rename to `AppsClient`. Common SDK convention.
 
-### L23. `host` (private field on `Client`)
+### L20. `host` (private field on `Client`)
 - **File:** `client.ts:96`
 - **Category:** Vague/generic (1)
 - **Issue:** `private readonly host: string`. The doc on the workspace
@@ -727,7 +689,7 @@ versus Genie Space).
 - **Suggestion:** Rename to `workspaceUrl` or `workspaceHost`. Internal-only,
   cosmetic.
 
-### L24. `getSpaceOperation` (method) vs `GetOperationRequest`
+### L21. `getSpaceOperation` (method) vs `GetOperationRequest`
 - **File:** `client.ts:536-558`
 - **Category:** Type-suffix tautology (20)
 - **Issue:** `getSpaceOperation(req: GetOperationRequest)` — the method tells
@@ -760,39 +722,34 @@ visible.
 `AppDeployment` etc. are not. Probably intentional (only `App` and `Space`
 have an update endpoint that takes a mask), but worth confirming.
 
-### O4. Every nested message has both `marshal*` and `unmarshal*` schemas
-This doubles every name. If the project goal is 1:1 with Go's
-`MarshalJSON`/`UnmarshalJSON`, this is correct; otherwise, a single bi-directional
-`*Schema` would halve the API surface.
-
-### O5. Discriminated unions use `$case` — borrowed from `ts-proto` oneof
+### O4. Discriminated unions use `$case` — borrowed from `ts-proto` oneof
 The `$case` discriminator is non-idiomatic in hand-written TS (most consumers
 use plain `kind: 'X'`). Documenting this in the package README would help.
 
-### O6. `CustomTemplate` doesn't carry "App" in its name, but it's an app template
+### O5. `CustomTemplate` doesn't carry "App" in its name, but it's an app template
 The doc and methods make this clear (`createCustomTemplate` ->
 `/api/2.0/apps-settings/templates`), but the type name is ambiguous.
 Consider `AppTemplate` or `CustomAppTemplate`.
 
-### O7. `ListSpacesRequest` doesn't take a `space` filter the way `ListAppsRequest` takes a `space` filter
+### O6. `ListSpacesRequest` doesn't take a `space` filter the way `ListAppsRequest` takes a `space` filter
 Asymmetry but probably intentional.
 
-### O8. `ApplicationStatus.runningInstances` vs `ComputeStatus.activeInstances`
+### O7. `ApplicationStatus.runningInstances` vs `ComputeStatus.activeInstances`
 Two related counts, different verbs. `runningInstances` for app process,
 `activeInstances` for compute resources. Document the distinction.
 
-### O9. `ListAppsRequest.space` filters by space name (string), not by
+### O8. `ListAppsRequest.space` filters by space name (string), not by
 `Space` object — consistent with H8 issue.
 
-### O10. The package re-exports the `apierr` enum locally
+### O9. The package re-exports the `apierr` enum locally
 Per H5, this enum should live in `@databricks/sdk-databricks/apierror/codes`.
 The project memory note already calls this out
 (`packages/databricks/src/apierror/codes/`).
 
-### O11. Files use `// eslint-disable-next-line` for every Proto-style nested name
+### O10. Files use `// eslint-disable-next-line` for every Proto-style nested name
 60+ disables across `model.ts`. Fixing H3 eliminates the disables.
 
-### O12. `index.ts` exports
+### O11. `index.ts` exports
 - 18 enums
 - 51 type aliases
 - 8 named exports from `./client` (1 class + 7 wrapper classes)
@@ -812,13 +769,13 @@ detail.
 | `AppDeployment` | A specific deployment (source-code + config snapshot) | Has its own `id`, status, lifecycle. |
 | `AppManifest` | Schema describing required resources for an app | Used by `CustomTemplate`. |
 | `AppResource` | A binding from an App to another Databricks resource | Discriminated union of 10 cases. |
-| `Space` (`AppSpace`) | A workspace-scoped grouping of Apps | Recommended rename: `AppSpace`. See L16. |
-| `GenieSpace` | Databricks Genie product — *unrelated* to App Spaces | Confusion source; see L16. |
+| `Space` (`AppSpace`) | A workspace-scoped grouping of Apps | Recommended rename: `AppSpace`. See L13. |
+| `GenieSpace` | Databricks Genie product — *unrelated* to App Spaces | Confusion source; see L13. |
 | `CustomTemplate` | An installable app template stored in Git | Lives under `/api/2.0/apps-settings/`. |
 | `Operation` | google.longrunning.Operation for Space CRUD | Only used by Space operations. See H7. |
 | `Waiter` | Locally-driven status poller for App/Deployment lifecycle | Distinct from `Operation`. See O2. |
 | `UcSecurable` | A Unity Catalog securable (table/volume/function/connection) | Two duplicate enums. See M15/M16. |
-| `Thumbnail` | An app's display image (bytes) plus its URL | Two fields, two concepts. See L14. |
+| `Thumbnail` | An app's display image (bytes) plus its URL | Two fields, two concepts. See L11. |
 | `EnvVar` | Environment variable for the deployed app process | Short for "EnvironmentVariable". See M6. |
 | `GitRepository` | Repository configuration (URL + provider + credentials) | Top-level Git config on App. |
 | `GitSource` | Specific commit/branch/tag + path within a `GitRepository` | Used by deployments. |

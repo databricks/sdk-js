@@ -15,10 +15,10 @@ the single most problematic naming choice in the whole package. Each
 finding lists the offending identifier(s), the category number,
 severity (`HIGH` / `MEDIUM` / `LOW`), and a concrete rename
 suggestion. Findings are grouped by category. Generator-driven items
-(such as the `_State` underscore on proto-style nested enums and the
-`marshal`/`unmarshal` schema prefixes) are flagged as `LOW` because
-they are codified across the entire generated SDK surface — they
-should be fixed at the generator, not by hand-editing this package.
+(such as the `_State` underscore on proto-style nested enums) are
+flagged as `LOW` because they are codified across the entire
+generated SDK surface — they should be fixed at the generator, not by
+hand-editing this package.
 
 ---
 
@@ -595,7 +595,7 @@ each category.
   containing class is *already* the endpoints client (or will be
   after F0 rename — `VectorSearchEndpointsClient`). Compare typical
   TS SDK shape: `endpoints.create(...)`, `endpoints.patchBudgetPolicy(...)`.
-- **Suggestion:** `create`, `delete`, `get`, `list`, `listIter`,
+- **Suggestion:** `create`, `delete`, `get`, `list`,
   `patch`, `patchBudgetPolicy`, `patchThroughput`. Cross-package
   convention.
 
@@ -629,18 +629,9 @@ each category.
   - Rename to `createEndpointAndWait` (verbose but explicit), or
   - Inline the polling into `createEndpoint` and remove the waiter
     type entirely.
-  See F17.5.
+  See F17.3.
 
-#### F7.8 — `listEndpointIter` (MEDIUM)
-- **Where:** `client.ts:199-214`.
-- **Why flagged:** `Iter` suffix is Go-style; in TS the idiomatic
-  alternative is an async iterator method
-  (`[Symbol.asyncIterator]`) or a name like `listAll` /
-  `streamEndpoints`.
-- **Suggestion:** Tied to F17.4: `listIter` (drop the singular
-  `Endpoint`) or `iterate` / `stream` / `listAll`. Cross-package.
-
-#### F7.9 — `STILL_RUNNING` / `StillRunningError` (LOW)
+#### F7.8 — `STILL_RUNNING` / `StillRunningError` (LOW)
 - **Where:** `client.ts:54`.
 - **Why flagged:** Private error class used as a control-flow signal
   for `retryOn`. Three concepts in one name ("still" + "running" +
@@ -696,8 +687,7 @@ each category.
 - **Where:** `client.ts:169`.
 - **Why flagged:** Method returns `ListEndpointResponse` whose
   `endpoints` field is `Endpoint[]`. The method should be
-  `listEndpoints` (plural). Same applies to its iterator and
-  request type: `listEndpointIter` should be `listEndpointsIter`,
+  `listEndpoints` (plural). Same applies to its request type:
   `ListEndpointRequest` should be `ListEndpointsRequest`,
   `ListEndpointResponse` should be `ListEndpointsResponse`.
 - **Suggestion:** Pluralize throughout. The wire path is
@@ -898,15 +888,7 @@ each category.
   applied consistently across the SDK; flag for cross-cutting
   decision.
 
-#### F13.4 — `unmarshalXSchema` constants (LOW, code style)
-- **Where:** `model.ts:267, 280, 290, 293, 329, 340, 350, 376, 387, 398`.
-- **Why flagged:** Naming pattern `verb + noun + Schema` makes them
-  read like functions; they are Zod constants. Same finding as
-  in `budgets` audit (F13.3 there).
-- **Suggestion:** Generator-level rename to `endpointWireSchema` or
-  `endpointDecoderSchema`. Cross-cutting.
-
-#### F13.5 — `creationTimestamp` / `lastUpdatedTimestamp` past-tense
+#### F13.4 — `creationTimestamp` / `lastUpdatedTimestamp` past-tense
   asymmetry (LOW)
 - **Where:** `model.ts:117, 119`.
 - **Why flagged:** "creation" (noun) vs "lastUpdated" (past
@@ -922,13 +904,12 @@ each category.
 
 ### 14. Go / Java-style names
 
-#### F14.1 — `req`, `resp`, `err`, `Iter`, `httpReq`, `apiErr`,
+#### F14.1 — `req`, `resp`, `err`, `httpReq`, `apiErr`,
   `pkgJson`, `opts`, `msg` (HIGH, cross-cutting)
 - **Where:**
   - `req` in every client method
   - `resp`, `respBody`, `pollResp` in `client.ts`
   - `e` in `utils.ts:76`
-  - `Iter` suffix in `listEndpointIter`
   - `httpReq` in `client.ts`
   - `apiErr` in `utils.ts:88`
   - `pkgJson` in `client.ts:20, 50`
@@ -936,31 +917,20 @@ each category.
   - `msg` in `client.ts:339`
 - **Why flagged:** All classic Go idioms ported verbatim. TS
   convention favors spelled-out names: `request`, `response`,
-  `error`, `iterator`/`stream`/`listAll`, `httpRequest`,
-  `apiError`, `packageJson`, `options`, `message`.
+  `error`, `httpRequest`, `apiError`, `packageJson`, `options`,
+  `message`.
 - **Suggestion:** Spell them out. Trivial diff, large readability
   gain. Generator-level decision; identical to the recommendation
   in the `budgets` audit.
 
-#### F14.2 — `unmarshal*` / `marshal*` schema prefixes (LOW)
-- **Where:** All schema exports.
-- **Why flagged:** `marshal`/`unmarshal` is a Go term (`encoding/json`).
-  The JS/TS world says "serialize"/"deserialize" or "encode"/"decode";
-  `JSON.parse`/`JSON.stringify` is the vernacular.
-- **Suggestion:** Generator-level rename to `encode`/`decode` or
-  `serialize`/`deserialize`. Cross-cutting.
-
-#### F14.3 — `Schema` suffix on Zod constants (acceptable)
-- The `…Schema` suffix matches Zod community convention.
-
-#### F14.4 — `for (;;)` infinite loop (acceptable)
+#### F14.2 — `for (;;)` infinite loop (acceptable)
 - **Where:** `client.ts:204`, `utils.ts:48`.
 - **Why flagged:** Style; this is a `for (;;)` Go-idiom (the Go form
   is `for { … }`). TS prefers `while (true)` or `do { … } while (…)`.
   But `for (;;)` is also legal and idiomatic in C-derived languages.
 - **Suggestion:** Acceptable; consistent within the SDK.
 
-#### F14.5 — `Waiter` suffix (Go-style) (MEDIUM)
+#### F14.3 — `Waiter` suffix (Go-style) (MEDIUM)
 - **Where:** `client.ts:107-116, 307`. Exported as
   `CreateEndpointWaiter` (`index.ts:3`).
 - **Why flagged:** "Waiter" is an AWS SDK / Go SDK pattern. TS
@@ -973,7 +943,7 @@ each category.
   for parity with other Databricks SDKs (Go has Waiters; users
   porting may expect them).
 
-#### F14.6 — `numIndexes`, `numReplicas` `num` prefix (LOW)
+#### F14.4 — `numIndexes`, `numReplicas` `num` prefix (LOW)
 - **Where:** `model.ts:87, 129, 177, 179, 252`.
 - **Why flagged:** `num` is shortened from "number of". TS often
   uses the bare noun (`replicas`, `indexCount`) or `count` suffix.
@@ -1070,24 +1040,12 @@ each category.
 - `getEndpoint` for single, `listEndpoint` for collection. Standard
   REST verbs. (Plural issue covered in F9.1.)
 
-#### F17.3 — `listEndpointIter` (MEDIUM)
-- **Where:** `client.ts:199`. Already flagged in F7.8 / F14.1.
-
-#### F17.4 — `marshal` / `unmarshal` / `parseResponse` /
-  `marshalRequest` (LOW)
-- **Where:** `utils.ts:113, 119`, all schema names.
-- **Why flagged:** `parse` vs `marshal` use different verbs for the
-  same kind of operation (JSON conversion). Inconsistent verb
-  choice. Same finding as `budgets` F17.4.
-- **Suggestion:** Use the same axis throughout: either
-  `marshal/unmarshal` or `encode/decode` or `serialize/deserialize`.
-
-#### F17.5 — `createEndpoint` returns `Endpoint`,
+#### F17.3 — `createEndpoint` returns `Endpoint`,
   `createEndpointWaiter` returns `CreateEndpointWaiter` (MEDIUM)
 - **Where:** `client.ts:82, 107`.
 - See F7.7 / F13.3.
 
-#### F17.6 — `wait` vs `done` on `CreateEndpointWaiter` (acceptable)
+#### F17.4 — `wait` vs `done` on `CreateEndpointWaiter` (acceptable)
 - **Where:** `client.ts:318, 362`.
 - Both verbs are well-chosen. `wait` is blocking-until-terminal;
   `done` is a non-blocking check. Symmetric and clear.
@@ -1237,22 +1195,22 @@ This SDK exposes *three* distinct "endpoint" packages plus a sibling
 | 4 | Underscores in TS identifiers           | 2        |
 | 5 | Cryptic abbreviations                   | 10       |
 | 6 | Misleading names                        | 9        |
-| 7 | Overly verbose                          | 9        |
+| 7 | Overly verbose                          | 8        |
 | 8 | Redundant suffixes                      | 5        |
 | 9 | Singular / plural mismatch              | 5 (3 acceptable) |
 | 10 | Reserved-word collisions               | 5 (3 acceptable) |
 | 11 | Empty / trivial wrappers               | 1        |
 | 12 | Duplicate concepts                     | 7        |
-| 13 | Verb-tense inconsistency               | 5 (1 acceptable) |
-| 14 | Go / Java-style names                  | 6        |
+| 13 | Verb-tense inconsistency               | 4 (1 acceptable) |
+| 14 | Go / Java-style names                  | 4 (1 acceptable) |
 | 15 | Generic field names                    | 6        |
 | 16 | Field contradicting type domain        | 4        |
-| 17 | Inconsistent action verbs              | 6 (2 acceptable) |
+| 17 | Inconsistent action verbs              | 4 (2 acceptable) |
 | 18 | Long enum values                       | 5 (1 acceptable) |
 | 19 | Underspecified IDs                     | 3 (2 acceptable) |
 | 20 | Type-suffix tautology                  | 6 (3 acceptable) |
 | OVERLAP | endpoints vs warehouses vs serving | 4 |
-| **Total** |                                     | **118**  |
+| **Total** |                                     | **112**  |
 
 ---
 
@@ -1268,9 +1226,8 @@ This SDK exposes *three* distinct "endpoint" packages plus a sibling
    `ThroughputChangeRequestState` (`CHANGE_*`), and
    `ThroughputPatchStatus` (`PATCH_*`).
 3. **F9.1 / F9.2:** Pluralize the list method, request, and response:
-   `listEndpoints`, `ListEndpointsRequest`, `ListEndpointsResponse`,
-   `listEndpointsIter`.
-4. **F4.1 / F14.4:** Replace `EndpointStatus_State` with namespace
+   `listEndpoints`, `ListEndpointsRequest`, `ListEndpointsResponse`.
+4. **F4.1:** Replace `EndpointStatus_State` with namespace
    nesting or flat PascalCase (`EndpointStatusState`); eliminate
    the `eslint-disable-next-line` for `naming-convention`.
 5. **F6.5:** Rename `minimalConcurrencyAllowed →
@@ -1282,7 +1239,7 @@ This SDK exposes *three* distinct "endpoint" packages plus a sibling
 7. **F8.2 / F20.1 / F20.2:** Drop redundant tokens from
    `Endpoint.endpointType` and `Endpoint.endpointStatus` to bare
    `type` / `status`.
-8. **F14.1 / F5.x:** Spell out `req`/`resp`/`err`/`Iter`/`opts`/
+8. **F14.1 / F5.x:** Spell out `req`/`resp`/`err`/`opts`/
    `pkgJson`/`msg` across the generated code.
 9. **F12.2:** Resolve the `targetQps` / `replicationFactor` /
    `numReplicas` overlap at the API spec level — three names for
@@ -1301,9 +1258,8 @@ This SDK exposes *three* distinct "endpoint" packages plus a sibling
   (`executeCall`, `parseResponse`, `marshalRequest`,
   `flattenQueryParams`, `executeHttpCall`, `buildHttpRequest`,
   `readAll`) that every generated package duplicates. The
-  duplication itself is not a naming issue, but the *names*
-  (`marshal/unmarshal`) are Go-flavored and inconsistent with
-  `parseResponse`.
+  duplication itself is not a naming issue and is out of scope for
+  this audit.
 - This package has no `tests/` directory (verified by repo
   structure check), so the audit does not cover test naming.
 - The `Waiter` pattern (`CreateEndpointWaiter`) is a Go SDK idiom

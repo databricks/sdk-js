@@ -9,14 +9,14 @@ volume `FilesSpec`, or table `FileTableSpec`), and (c) a `sync` action that
 re-ingests all non-index sources for one assistant. `KnowledgeAssistant` and
 `KnowledgeSource` each carry their own proto-style nested lifecycle enum
 (`CREATING/ACTIVE/FAILED` and `UPDATING/UPDATED/FAILED_UPDATE`).
-**Total weird names flagged:** 42
+**Total weird names flagged:** 39
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 12 |
-| Medium | 14 |
-| Low | 10 |
+| Medium | 12 |
+| Low | 9 |
 | Observation | 6 |
 
 ## High severity
@@ -108,7 +108,7 @@ re-ingests all non-index sources for one assistant. `KnowledgeAssistant` and
 ### 14. `IndexSpec.textCol` / `IndexSpec.docUriCol` cryptic abbreviation — `src/v1/model.ts:145,147`
 - **Why weird:** Same `Col` abbreviation as #13, plus `docUri` truncates "document URI" awkwardly. Reading `docUriCol`, your eye parses `doc-Uri-Col` — three abbreviations stacked. The doc reads "The column that specifies a link or reference to where the information came from" — a much friendlier name would be `sourceUriColumn` or `referenceColumn`.
 - **Category:** 5 (cryptic abbreviation), 3 (acronym casing: `Uri` vs `URI`).
-- **Suggested name:** `documentUriColumn` or `sourceUriColumn` (spell out `document`; promote `Uri` to `URI` if SDK convention is all-caps for three-letter acronyms — see Observation #41).
+- **Suggested name:** `documentUriColumn` or `sourceUriColumn` (spell out `document`; promote `Uri` to `URI` if SDK convention is all-caps for three-letter acronyms — see Observation #38).
 - **Rationale:** The savings are minimal; the readability cost is real.
 
 ### 15. `IndexSpec.indexName` type-suffix tautology — `src/v1/model.ts:143`
@@ -173,19 +173,7 @@ re-ingests all non-index sources for one assistant. `KnowledgeAssistant` and
 - **Suggested name:** Both should use `PROCESSING` or `IN_PROGRESS` — operation-agnostic in-flight markers. If lifecycle stages matter, both should split into `CREATING` / `UPDATING` consistently.
 - **Rationale:** The asymmetry suggests the API team modeled the two resources separately and never unified the lifecycle vocabulary.
 
-### 24. `unmarshalListExamplesResponseSchema` / `marshalKnowledgeSourceSchema` etc. — `*Schema` suffix is verbose — `src/v1/model.ts:377,463,539,624`
-- **Why weird:** All marshal/unmarshal schemas suffix `*Schema`. The variables are Zod schemas, so the suffix is *literally* accurate — but every export reads `unmarshalKnowledgeAssistantSchema`, 32 characters. The same pattern is universal across this SDK; flagging for cross-cutting review rather than local fix.
-- **Category:** 7 (overly verbose), 8 (redundant suffix).
-- **Suggested name:** `unmarshalKnowledgeAssistant` (Zod schemas are obviously schemas; the suffix is type-system redundancy). Or namespace: `KnowledgeAssistantCodec.in` / `.out`.
-- **Rationale:** Flagged as SDK-wide convention to revisit. Not a per-package fix.
-
-### 25. `listExamplesIter` / `listKnowledgeAssistantsIter` / `listKnowledgeSourcesIter` — `Iter` suffix Go-style — `src/v1/client.ts:338,392,446`
-- **Why weird:** The `Iter` suffix on async iterators is a direct port from Go's `*Iter` convention. In TS, async iterators are first-class via `Symbol.asyncIterator`; the convention is to expose them as the *default* iteration form (`for await (const x of client.listExamples(req))` works directly if the method returns an `AsyncIterable`). The `*Iter` suffix is a Go/Java carryover.
-- **Category:** 14 (Go-style name), 8 (redundant suffix — return type already says it's an iterator).
-- **Suggested name:** Drop the suffix and overload on return type, or rename `listExamples` (paged) → `listExamplesPage` and `listExamplesIter` → `listExamples` (auto-paging is the default).
-- **Rationale:** Modern TS APIs prefer that the default form is auto-paging. The `Iter` suffix is a code smell from the Go port.
-
-### 26. `Client` class name — bare, no scoping — `src/v1/client.ts:63`
+### 24. `Client` class name — bare, no scoping — `src/v1/client.ts:63`
 - **Why weird:** The class is named `Client`. After `import {Client} from '@databricks/sdk-knowledgeassistants/v1'`, the type is unambiguous in isolation — but consumers importing multiple packages routinely write `import {Client as KAClient} from '@databricks/sdk-knowledgeassistants/v1'`. Other SDKs in the Databricks ecosystem name the class `KnowledgeAssistantsClient` (or `KnowledgeAssistantsApi`), avoiding the alias dance.
 - **Category:** 1 (vague), 17 (SDK-wide inconsistency).
 - **Suggested name:** `KnowledgeAssistantsClient`. Sibling SDK packages (Go SDK reference uses `WorkspaceClient.KnowledgeAssistants`; AWS JS SDK uses `S3Client`, `IAMClient`) follow this pattern.
@@ -193,61 +181,55 @@ re-ingests all non-index sources for one assistant. `KnowledgeAssistant` and
 
 ## Low severity
 
-### 27. `KnowledgeAssistant_State.CREATING` vs `KnowledgeSource_State.UPDATING` — `src/v1/model.ts:11,19`
+### 25. `KnowledgeAssistant_State.CREATING` vs `KnowledgeSource_State.UPDATING` — `src/v1/model.ts:11,19`
 - **Why weird:** See #23; flagged again at low severity as a *style* concern (the higher-severity finding is the verb-mismatch).
 - **Category:** 13 (verb tense).
 - **Suggested name:** See #23.
 - **Rationale:** Cosmetic but consistent with audit's "verb-tense inconsistency" category.
 
-### 28. `parseResponse` / `marshalRequest` asymmetric verbs — `src/v1/utils.ts:113,119`
-- **Why weird:** Same as `customllms` audit #22: `parseResponse` and `marshalRequest` use two different verbs for inverse operations. The model file uses `unmarshal*Schema` / `marshal*Schema` consistently, but `utils.ts` breaks the pattern with `parse`.
-- **Category:** 17 (inconsistent action verbs).
-- **Suggested name:** `unmarshalResponse` / `marshalRequest` for symmetry.
-- **Rationale:** Pair-wise consistency aids reading.
-
-### 29. `executeCall` / `executeHttpCall` differ in name by `Http` only — `src/v1/utils.ts:26,65`
+### 26. `executeCall` / `executeHttpCall` differ in name by `Http` only — `src/v1/utils.ts:26,65`
 - **Why weird:** Two functions with nearly identical names handling different layers — same anti-pattern as `customllms.md` #21.
 - **Category:** 1 (vague), 17 (inconsistency).
 - **Suggested name:** `runWithCallOptions` / `sendHttp` or `wrapCall` / `dispatchHttp`.
 - **Rationale:** Names should differ in more than one infix.
 
-### 30. `HttpCallOptions` reuses `Options` — `src/v1/utils.ts:15`
+### 27. `HttpCallOptions` reuses `Options` — `src/v1/utils.ts:15`
 - **Why weird:** Same as `customllms.md` #23: `ClientOptions`, `CallOptions`, and `HttpCallOptions` all live in the same file. Three things named `Options`.
 - **Category:** 1 (vague suffix).
 - **Suggested name:** `HttpCallContext` or `HttpCallParams`.
 - **Rationale:** Distinguish internal context bags from user-facing options.
 
-### 31. `flattenQueryParams` exported but unused — `src/v1/utils.ts:123`
+### 28. `flattenQueryParams` exported but unused — `src/v1/utils.ts:123`
 - **Why weird:** Same as `customllms.md` #28: exported but not used by `client.ts`.
 - **Category:** Observation / 11 (unused export).
 - **Suggested name:** Either remove the export or document why it ships per-package.
 - **Rationale:** Generated artifact; flag for cross-package cleanup.
 
-### 32. `readAll` helper generic name — `src/v1/utils.ts:40`
+### 29. `readAll` helper generic name — `src/v1/utils.ts:40`
 - **Why weird:** Same as `customllms.md` #29: helper reads an entire response body stream; name is generic.
 - **Category:** 1 (vague).
 - **Suggested name:** `drainStream` or `readStreamToEnd`.
 - **Rationale:** Internal helper, low cost. Skip if generated.
 
-### 33. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:58`
+### 30. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:58`
 - **Why weird:** Same as `customllms.md` #24: `Segment` is a generic CS term.
 - **Category:** 1 (vague).
 - **Suggested name:** `USER_AGENT_PACKAGE` or `PKG_USER_AGENT_SEGMENT`.
 - **Rationale:** SDK-wide consistency review.
 
-### 34. `resp` local variable in every method — `src/v1/client.ts:95,124,153,235,260,285,319,370,424,496,537,578`
+### 31. `resp` local variable in every method — `src/v1/client.ts:95,124,153,235,260,285,319,370,424,496,537,578`
 - **Why weird:** Same as `customllms.md` #33: `resp` is the response. 12 methods repeat the same pattern.
 - **Category:** 12 (duplicate pattern).
 - **Suggested name:** Refactor away the pattern, not the name.
 - **Rationale:** Refactor opportunity surfaced by audit.
 
-### 35. `pageReq` local in iterator methods — `src/v1/client.ts:342,396,450`
+### 32. `pageReq` local in iterator methods — `src/v1/client.ts:342,396,450`
 - **Why weird:** Three async generator methods each declare `const pageReq: ... = {...req};`. Reuses the abbreviation `Req` while elsewhere in the file the parameter is named `req`. Minor abbreviation inconsistency: `request` would be clearer in the iterator context, where the variable's purpose ("the request used to fetch each page") differs from the input `req`.
 - **Category:** 5 (abbreviation).
 - **Suggested name:** `pageRequest` or `nextPageReq`.
 - **Rationale:** Local clarity for readability.
 
-### 36. `KnowledgeSource.spec` field-mask child wiring inconsistent with `$case` — `src/v1/model.ts:734-737`
+### 33. `KnowledgeSource.spec` field-mask child wiring inconsistent with `$case` — `src/v1/model.ts:734-737`
 - **Why weird:** `knowledgeSourceFieldMaskSchema` carries top-level entries `fileTable`, `files`, `index` — matching the `$case` keys, but the wire serialization uses `file_table`/`files`/`index`. Reading the schema, a consumer might write `knowledgeSourceFieldMask('spec.files')` expecting the variant-aware path; the field-mask schema has no `spec` key at all. The discriminated union variants are flattened to top-level field-mask paths, which is correct AIP-161 (https://google.aip.dev/161) behavior — but jarring if you've read the TS type.
 - **Category:** 17 (inconsistency between TS shape and field-mask schema).
 - **Suggested name:** Not a rename; flag for documentation.
@@ -255,29 +237,29 @@ re-ingests all non-index sources for one assistant. `KnowledgeAssistant` and
 
 ## Observations
 
-### 37. `KnowledgeAssistant.description` "user-facing" annotation — `src/v1/model.ts:172-178`
+### 34. `KnowledgeAssistant.description` "user-facing" annotation — `src/v1/model.ts:172-178`
 - **Why weird:** Doc says "Description of what this agent can do (user-facing)." The parenthetical "(user-facing)" is unusual — every other `description` field in the Databricks SDK is implicitly user-facing. Either every `description` should carry this annotation, or none should. Flagged for cross-package style review.
 - **Category:** Observation.
 
-### 38. No `list` for `Example` siblings outside of `listExamples` — `src/v1/client.ts:305-336`
+### 35. No `list` for `Example` siblings outside of `listExamples` — `src/v1/client.ts:305-336`
 - **Why weird:** The package supports `list` on `KnowledgeAssistant`, `Example`, and `KnowledgeSource`. Naming consistent. Flagging as a *positive* observation — the verbs are uniform.
 - **Category:** 17 (reversed — consistency note).
 
-### 39. `syncKnowledgeSources` — verb is plural but operates on parent — `src/v1/client.ts:464`
+### 36. `syncKnowledgeSources` — verb is plural but operates on parent — `src/v1/client.ts:464`
 - **Why weird:** Method `syncKnowledgeSources` takes a `SyncKnowledgeSourcesRequest` whose `name` field is the **parent assistant** id (see #7, #8). The verb is "sync" and the noun is the (plural) child collection, but the addressing is parent-level. Compare with `cancelOptimization` on `customllms` — same pattern.
 - **Category:** 6 (slightly misleading; the resource being addressed is the assistant, not "the sources"). The method does sync *all* sources for one assistant, so the plural is faithful to the *action* if not the *target*.
 - **Suggested name:** Acceptable; consider `syncAssistantSources` for parent-clarity, but the current name reads fine.
 
-### 40. Acronym casing: `URI`, `UUID`, `MLflow`, `UC` — `src/v1/model.ts:92,142,144,146,165,192,261,310`
+### 37. Acronym casing: `URI`, `UUID`, `MLflow`, `UC` — `src/v1/model.ts:92,142,144,146,165,192,261,310`
 - **Why weird:** This package follows the SDK convention of *not* using acronym casing in TS identifiers (none of `UUID`, `URI`, `MLflow`, `UC` appear as identifier components in source — they only appear in JSDoc as documentation). When they do appear in TS identifiers (`docUriCol`), they are title-cased (`Uri`) — matching Microsoft's three-letter-acronym rule but contradicting the SDK's own `APIError` usage. Cross-cutting observation from `customllms.md` #36.
 - **Category:** 3 (acronym casing — SDK-wide).
 - **Suggested name:** SDK-wide policy decision.
 
-### 41. `KnowledgeAssistant` and `KnowledgeSource` symmetric type design — `src/v1/model.ts:155-196,204-240`
+### 38. `KnowledgeAssistant` and `KnowledgeSource` symmetric type design — `src/v1/model.ts:155-196,204-240`
 - **Why weird:** Both entities carry: `name`, `state`, `id`, `displayName`, `description`, `createTime`. They diverge: `KnowledgeAssistant` adds `instructions`, `creator`, `endpointName`, `experimentId`, `errorInfo`; `KnowledgeSource` adds `sourceType`, `spec`, `knowledgeCutoffTime`. Symmetric design is a good thing — flagged as a *positive* observation.
 - **Category:** Observation.
 
-### 42. `Example` lacks `state` field — `src/v1/model.ts:79-98`
+### 39. `Example` lacks `state` field — `src/v1/model.ts:79-98`
 - **Why weird:** Both sibling entities (`KnowledgeAssistant`, `KnowledgeSource`) have a `state` enum; `Example` does not. This is correct given examples are passive metadata (no lifecycle), but consumers expecting symmetry will notice the asymmetry. Flagged as design observation, not a naming bug.
 - **Category:** Observation.
 

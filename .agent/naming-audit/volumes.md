@@ -12,9 +12,9 @@ Notation: file paths are absolute. Findings reference `file:line`.
 | ----------- | ----- |
 | High        | 4     |
 | Medium      | 7     |
-| Low         | 7     |
+| Low         | 6     |
 | Observation | 8     |
-| **Total**   | **26** |
+| **Total**   | **25** |
 
 Headline themes:
 
@@ -60,13 +60,10 @@ Headline themes:
   field maps to a URL path argument." TypeScript callers have no concept
   of "Arg" — they just see two fields named `fullNameArg` and (on the
   related `VolumeInfo` / `UpdateVolume` payload) `fullName`, with no way
-  to know they refer to the same volume identifier. The marshal schema
-  (`model.ts:358, 379`) further serializes this as `full_name_arg`, which
-  is a non-standard JSON key the server is unlikely to consume — the URL
-  templating in `client.ts:125, 154, 268` interpolates it into the path
-  directly, so the marshal entry is dead. The `?: | undefined` is also a
-  semantic lie — without this value the path becomes
-  `/api/2.1/unity-catalog/volumes/` and the call cannot succeed.
+  to know they refer to the same volume identifier. The URL templating in
+  `client.ts:125, 154, 268` interpolates it into the path directly. The
+  `?: | undefined` is also a semantic lie — without this value the path
+  becomes `/api/2.1/unity-catalog/volumes/` and the call cannot succeed.
 
 ### H2. `Create*` / `Update*` request types include server-only fields
 
@@ -87,10 +84,8 @@ Headline themes:
   `createdAt`, `createdBy`, `updatedAt`, `updatedBy`, and `volumeId`
   invites users to populate them — but the server ignores or rejects
   them. The `client.ts:262` doc itself says "Currently only the name, the
-  owner or the comment of the volume could be updated." Marshal schemas
-  at `model.ts:289–328` and `model.ts:356–398` faithfully serialize these
-  fields, padding every request body. Compare with the Go SDK
-  `databricks/sdk-go/databricks/api/volumes/v1/` to confirm the
+  owner or the comment of the volume could be updated." Compare with the
+  Go SDK `databricks/sdk-go/databricks/api/volumes/v1/` to confirm the
   upstream split. (Caveat: if the upstream proto truly reuses the same
   message for request + response, the audit recommends a TS-specific
   request type — name suggestions: `CreateVolumeRequest`,
@@ -289,25 +284,11 @@ field-naming style
   response body, with different types
   (`Uint8Array`, `string | ReadableStream<Uint8Array>`).
 - **Suggestion:** `responseBody` / `requestBody`.
-- **Rationale:** In `client.ts:94, 269` we see `const body =
-  marshalRequest(...)` (a request body) passed into `buildHttpRequest`
-  while inside `executeHttpCall` the `body` is a response payload.
+- **Rationale:** The same identifier `body` flows through helpers as a
+  request payload in one place and a response payload in another.
   Differentiating helps readers track direction.
 
-### L4. `marshalRequest` accepts `data: unknown` — the parameter name
-contradicts the function's purpose
-
-- **File / line:** `src/v1/utils.ts:119`.
-- **Category:** #15 generic field name losing meaning.
-- **Current:** `function marshalRequest(data: unknown, schema: z.ZodType)`.
-- **Suggestion:** `function marshalRequest(request: unknown, schema)` or
-  `(payload, schema)`.
-- **Rationale:** The function name says "request"; the first argument
-  is named `data`. Calling at `client.ts:94, 269` reads
-  `marshalRequest(req, marshalCreateVolumeSchema)` — `req` → `data` loses
-  the request semantics in the helper.
-
-### L5. `flattenQueryParams` is dead code in this package
+### L4. `flattenQueryParams` is dead code in this package
 
 - **File / line:** `src/v1/utils.ts:123`.
 - **Category:** dead code.
@@ -319,7 +300,7 @@ contradicts the function's purpose
   scope for pure naming but flagged because the name promises a feature
   that no method exercises.
 
-### L6. `fullName` (on `VolumeInfo`) vs. `fullNameArg` (on path-param
+### L5. `fullName` (on `VolumeInfo`) vs. `fullNameArg` (on path-param
 requests)
 
 - **File / line:** `model.ts:36, 75, 126, 148, 186` (`fullName` on
@@ -331,14 +312,13 @@ requests)
   request/response position.
 - **Suggestion:** Resolve in concert with H1 — use `fullName` everywhere.
   If proto generation requires the `_Arg` discriminator, then bury it
-  internally (in the marshal schema) and surface only `fullName` to
-  callers.
+  internally and surface only `fullName` to callers.
 - **Rationale:** A user reading the API sees `fullName` on
   `VolumeInfo` and `fullNameArg` on `DeleteVolume` and has to ask: why
   are they different? The answer ("one is a request path parameter")
   is generator-internal and should not bleed onto the public surface.
 
-### L7. `pageReq` and `pageReq.pageToken` mutation in `listVolumesIter`
+### L6. `pageReq` and `pageReq.pageToken` mutation in `listVolumesIter`
 
 - **File / line:** `src/v1/client.ts:242–252`.
 - **Category:** #1 vague/generic.
@@ -456,38 +436,27 @@ Type & symbol checklist:
 - [x] `SseEncryptionAlgorithm` enum (3 members) → O3.
 - [x] `VolumeType` enum (2 members) → O6 (clean).
 - [x] `CreateVolume` interface (17 fields) → H2, M1, M5, M6.
-- [x] `DeleteVolume` interface (1 field) → H1, M1, L6.
+- [x] `DeleteVolume` interface (1 field) → H1, M1, L5.
 - [x] `DeleteVolume_Response` empty interface → H3.
 - [x] `EncryptionDetails` interface → no additional defect.
-- [x] `GetVolume` interface (2 fields) → H1, M1, L6.
+- [x] `GetVolume` interface (2 fields) → H1, M1, L5.
 - [x] `ListVolumes` interface (5 fields) → M1.
 - [x] `ListVolumes_Response` interface (2 fields) → H4.
 - [x] `SseEncryptionDetails` interface (2 fields) → M3, M4, M5.
-- [x] `UpdateVolume` interface (18 fields) → H1, H2, M1, M5, M6, L6.
-- [x] `VolumeInfo` interface (16 fields) → M2, M5, M6, L6, O4.
-- [x] `unmarshalDeleteVolume_ResponseSchema` → H3.
-- [x] `unmarshalEncryptionDetailsSchema` → no additional defect.
-- [x] `unmarshalListVolumes_ResponseSchema` → H4.
-- [x] `unmarshalSseEncryptionDetailsSchema` → no additional defect.
-- [x] `unmarshalVolumeInfoSchema` → no additional defect.
-- [x] `marshalCreateVolumeSchema` → H2.
-- [x] `marshalEncryptionDetailsSchema` → no additional defect.
-- [x] `marshalSseEncryptionDetailsSchema` → no additional defect.
-- [x] `marshalUpdateVolumeSchema` → H1 (`full_name_arg` key), H2.
+- [x] `UpdateVolume` interface (18 fields) → H1, H2, M1, M5, M6, L5.
+- [x] `VolumeInfo` interface (16 fields) → M2, M5, M6, L5, O4.
 - [x] `Client` class + `host` / `httpClient` / `logger` / `userAgent` fields → no defect.
 - [x] `PACKAGE_SEGMENT` constant → O8.
 - [x] `createVolume(req, options)` method → H2, M1, M7, L2.
 - [x] `deleteVolume(req, options)` method → H1, H3, M1, M7, L2.
 - [x] `getVolume(req, options)` method → H1, M1, M7, L2.
 - [x] `listVolumes(req, options)` method → H4, M1, M7, L2.
-- [x] `listVolumesIter(req, options)` async generator → M1, M7, L7.
+- [x] `listVolumesIter(req, options)` async generator → M1, M7, L6.
 - [x] `updateVolume(req, options)` method → H1, H2, M1, M7, L2.
 - [x] `HttpCallOptions` interface → no defect.
 - [x] `executeCall` function → L1.
 - [x] `readAll` private function → no defect (name fits idiom).
 - [x] `executeHttpCall` function → L1, L3.
 - [x] `buildHttpRequest` function → L3.
-- [x] `parseResponse` function → no defect.
-- [x] `marshalRequest` function → L4.
-- [x] `flattenQueryParams` function → L5 (unused).
+- [x] `flattenQueryParams` function → L4 (unused).
 - [x] `index.ts` re-exports → no defect (mirrors model exports faithfully).

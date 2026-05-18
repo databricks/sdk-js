@@ -3,15 +3,16 @@
 **Path:** `packages/qualitymonitor/src/v2/`
 **Versions audited:** v2
 **Inferred domain:** Quality monitoring on Unity Catalog objects (currently only `schema`). The package defines a single `QualityMonitor` entity that wraps `AnomalyDetectionConfig` (last-run telemetry plus excluded tables) and a list of `ValidityCheckConfiguration` arms (percent-null, range, uniqueness). A nested concept (`CustomCheckConfiguration` -> `CustomScalarCheck`) lets callers attach templated SQL checks with per-column matchers. Every operation is marked `Deprecated: Use Data Quality Monitoring API instead (/api/data-quality/v1/monitors).` — i.e., this entire package is a deprecated shim that has been superseded by the `dataquality` package.
-**Total weird names flagged:** 47
+**Total weird names flagged:** 42
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 13 |
-| Medium | 17 |
-| Low | 11 |
-| Observation | 6 |
+| Medium | 16 |
+| Low | 8 |
+| Observation | 5 |
+
 
 ## CRITICAL: Two packages, same domain
 This package (`@databricks/sdk-qualitymonitor`, exporting `./v2`) and its sibling `@databricks/sdk-qualitymonitors` (plural, exporting `./v1`) **both exist** in this repo. They model overlapping data-quality concepts but with completely different shapes:
@@ -38,10 +39,10 @@ The singular-vs-plural naming gives the reader no hint that these are different 
 - **Suggested name:** `QualityMonitorClient`.
 - **Rationale:** Cross-package import collisions force users to alias. Generator-wide concern but especially acute here because three sibling packages (this, `qualitymonitors`, `dataquality`) all expose `Client`.
 
-### 3. `ListQualityMonitorRequest` / `ListQualityMonitorResponse` / `listQualityMonitor` / `listQualityMonitorIter` — `src/v2/model.ts:92-100`, `src/v2/client.ts:152,185`
-- **Why weird:** Singular noun on a list operation. The response holds `qualityMonitors?: QualityMonitor[]` (plural), the paginator yields a single `QualityMonitor`, and the wire path is `/api/2.0/quality-monitors` (plural) — every concrete signal is plural; only the type/method name uses the singular `QualityMonitor`. Same singular-on-list bug as `dataquality` finding #1.
+### 3. `ListQualityMonitorRequest` / `ListQualityMonitorResponse` / `listQualityMonitor` — `src/v2/model.ts:92-100`, `src/v2/client.ts:152`
+- **Why weird:** Singular noun on a list operation. The response holds `qualityMonitors?: QualityMonitor[]` (plural), and the wire path is `/api/2.0/quality-monitors` (plural) — every concrete signal is plural; only the type/method name uses the singular `QualityMonitor`. Same singular-on-list bug as `dataquality` finding #1.
 - **Category:** 9 (singular/plural mismatch).
-- **Suggested name:** `ListQualityMonitorsRequest` / `ListQualityMonitorsResponse` / `listQualityMonitors` / `listQualityMonitorsIter`.
+- **Suggested name:** `ListQualityMonitorsRequest` / `ListQualityMonitorsResponse` / `listQualityMonitors`.
 - **Rationale:** REST conventions, the package's own field naming (`qualityMonitors`), and the URL path all use plural. The singular form is generator template noise.
 
 ### 4. `QualityMonitor.objectType` + `QualityMonitor.objectId` — `src/v2/model.ts:109-113` (and copied into 4 request types)
@@ -179,9 +180,9 @@ The singular-vs-plural naming gives the reader no hint that these are different 
 - **Rationale:** Method docs that lie about implementation status are worse than no docs.
 
 ### 26. `listQualityMonitor` parameter is non-optional, but `req` is empty in normal use — `src/v2/client.ts:152-154`
-- **Why weird:** `listQualityMonitor(req: ListQualityMonitorRequest, options?: CallOptions)` requires the caller to pass `req` even when they want all defaults. `ListQualityMonitorRequest` is `{pageToken?, pageSize?}` — both optional. So the only "no special args" call is `listQualityMonitor({})` — an empty object placeholder. The paginator wrapper (`listQualityMonitorIter`) has the same shape.
+- **Why weird:** `listQualityMonitor(req: ListQualityMonitorRequest, options?: CallOptions)` requires the caller to pass `req` even when they want all defaults. `ListQualityMonitorRequest` is `{pageToken?, pageSize?}` — both optional. So the only "no special args" call is `listQualityMonitor({})` — an empty object placeholder.
 - **Category:** 6 (misleading — looks like there's a required input but there isn't).
-- **Suggested name:** Make `req?: ListQualityMonitorRequest` optional: `listQualityMonitor(req?: ListQualityMonitorRequest, options?: CallOptions)`. Same for the iterator.
+- **Suggested name:** Make `req?: ListQualityMonitorRequest` optional: `listQualityMonitor(req?: ListQualityMonitorRequest, options?: CallOptions)`.
 - **Rationale:** Optionality on the wire should match optionality at the TS surface. Generator-wide concern.
 
 ### 27. `Deprecated:` JSDoc tag style — `src/v2/client.ts:67,99,121,149,202`
@@ -193,7 +194,7 @@ The singular-vs-plural naming gives the reader no hint that these are different 
 ### 28. Method names `createQualityMonitor` / `deleteQualityMonitor` / `getQualityMonitor` / `listQualityMonitor` / `updateQualityMonitor` — `src/v2/client.ts:70,102,124,152,206`
 - **Why weird:** Five methods, all of which repeat "QualityMonitor" in the name even though they are members of a `Client` class whose package (`qualitymonitor`) already encodes that domain. Compare with sister packages where methods are `create` / `get` / `delete` / `list` (verbs only). The "QualityMonitor" suffix is dead context — calling `client.createQualityMonitor(...)` from a package literally called `qualitymonitor` is reading the noun twice.
 - **Category:** 7 (overly verbose), 8 (redundant suffix).
-- **Suggested name:** `create` / `delete` / `get` / `list` / `update` (drop the noun). With `listIter` as the paginator.
+- **Suggested name:** `create` / `delete` / `get` / `list` / `update` (drop the noun).
 - **Rationale:** When the class is `Client` and the package is `qualitymonitor`, the only entity to act on is the quality monitor; the noun adds no signal.
 
 ### 29. `UpdateQualityMonitorRequest` carries `objectType` + `objectId` + `qualityMonitor` — `src/v2/model.ts:139-145`
@@ -202,75 +203,51 @@ The singular-vs-plural naming gives the reader no hint that these are different 
 - **Suggested name:** Either: (a) move identifiers entirely to the nested `qualityMonitor` (server reads them from the body and the path is derived from the body in TS land), or (b) move identifiers entirely to top-level and let `qualityMonitor` be just the mutable fields.
 - **Rationale:** Same identifier surfaced twice on the same request is an invitation to bugs.
 
-### 30. `marshalQualityMonitorSchema` and 9 other `marshal*Schema` / `unmarshal*Schema` names — `src/v2/model.ts:163-512`
-- **Why weird:** Generator-emitted Zod schemas all carry the awkward double-`Schema` suffix at the call site (`z.lazy(() => unmarshalQualityMonitorSchema)`) — "lazy unmarshal Quality Monitor Schema" reads as four nouns. Same as `dataquality` finding #47.
-- **Category:** 14 (Go-style), 17 (verb-naming mismatch with Zod's own `parse`).
-- **Suggested name:** `encodeQualityMonitor` / `decodeQualityMonitor`.
-- **Rationale:** Generator-wide.
-
 ## Low severity
 
-### 31. `flattenQueryParams` exported but unused — `src/v2/utils.ts:123`
+### 30. `flattenQueryParams` exported but unused — `src/v2/utils.ts:123`
 - **Why weird:** Exported helper that is never called from `client.ts`. The package's one list endpoint handles pagination params (`pageToken`, `pageSize`) inline rather than via `flattenQueryParams`. Dead exported surface. Same as `dataquality` finding #35.
 - **Category:** 6 (misleading — looks like it's used; isn't).
 - **Suggested name:** N/A — should be unexported (or moved to a shared utils package — generator-wide concern).
 - **Rationale:** Same as other audited packages.
 
-### 32. `executeCall` vs `executeHttpCall` — `src/v2/utils.ts:26,65`
+### 31. `executeCall` vs `executeHttpCall` — `src/v2/utils.ts:26,65`
 - **Why weird:** Layering not visible from names; identical to `dataquality` finding #36.
 - **Category:** 1, 12, 17.
 - **Suggested name:** `runWithRetry` (outer) + `sendHttpRequest` (inner).
 - **Rationale:** Layering should be readable from the names without opening the source.
 
-### 33. `buildHttpRequest` — `src/v2/utils.ts:96`
-- **Why weird:** Same as `dataquality` finding #37; "build" suggests builder pattern, the function spreads literals.
-- **Category:** 1, 6.
-- **Suggested name:** `makeHttpRequest`.
-- **Rationale:** "Make" matches the simpler reality.
-
-### 34. `marshalRequest` and `parseResponse` — `src/v2/utils.ts:113,119`
-- **Why weird:** Names imply request/response but the functions work on any payload + schema; identical to `dataquality` findings.
-- **Category:** 1, 6.
-- **Suggested name:** `encodeToJson` / `decodeFromJson`.
-- **Rationale:** Symmetric verb pair removes the "Request"/"Response" mis-promise.
-
-### 35. `readAll` — `src/v2/utils.ts:40`
-- **Why weird:** Identical to `dataquality` finding #39; "readAll" does not say "drain a stream".
-- **Category:** 1, 5.
-- **Suggested name:** `drainStream`.
-- **Rationale:** Self-describing name.
-
-### 36. `HttpCallOptions` — `src/v2/utils.ts:15`
+### 32. `HttpCallOptions` — `src/v2/utils.ts:15`
 - **Why weird:** Same as `dataquality` finding #40; internal context bag called `Options`.
 - **Category:** 1, 8.
 - **Suggested name:** `HttpCallContext`.
 - **Rationale:** Reserve `Options` for user-tunable knobs.
 
-### 37. `PACKAGE_SEGMENT` — `src/v2/client.ts:36`
+### 33. `PACKAGE_SEGMENT` — `src/v2/client.ts:36`
 - **Why weird:** Same as `dataquality` finding #41; unspecific noun for a User-Agent identity object.
 - **Category:** 1.
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
 - **Rationale:** Add the missing domain word.
 
-### 38. `Call` type + `call` variable — `src/v2/client.ts:80, 107, 130, 167, 216`
+### 34. `Call` type + `call` variable — `src/v2/client.ts:80, 107, 130, 167, 216`
 - **Why weird:** Same as `dataquality` finding #42; variable named `call` of type `Call` repeated 5 times across the client.
 - **Category:** 1, 12.
 - **Suggested name:** `request` (variable) — reserve `Call` for the type.
 - **Rationale:** Type/variable collision is common in Go idioms; TS prefers distinct names.
 
-### 39. `req.objectType ?? ''` / `req.objectId ?? ''` URL composition — `src/v2/client.ts:106, 128, 210`
+### 35. `req.objectType ?? ''` / `req.objectId ?? ''` URL composition — `src/v2/client.ts:106, 128, 210`
 - **Why weird:** Same as `dataquality` finding #43 — `objectType`/`objectId` typed optional but required in practice for the URL path. Silently substitutes empty string producing malformed URLs like `/api/2.0/quality-monitors//`. Three call sites here.
 - **Category:** 6.
 - **Suggested name:** Make `objectType` and `objectId` non-optional on every request type that constructs a URL from them.
 - **Rationale:** Type shape should match runtime requirement.
 
-### 40. `respBody` vs `resp` — `src/v2/client.ts:84-95, 134-145, 171-182, 218-231`
+### 36. `respBody` vs `resp` — `src/v2/client.ts:84-95, 134-145, 171-182, 218-231`
 - **Why weird:** Same as `dataquality` finding #44; two variables differ by `Body` only.
 - **Category:** 5, 17.
 - **Suggested name:** `rawBody` + `result`.
 - **Rationale:** Distinguish by meaningful nouns.
 
-### 41. `httpReq` local — `src/v2/client.ts:83, 110, 133, 170, 219`
+### 37. `httpReq` local — `src/v2/client.ts:83, 110, 133, 170, 219`
 - **Why weird:** Same as `dataquality` finding #45.
 - **Category:** 5, 12.
 - **Suggested name:** `httpRequest` (no abbreviation).
@@ -278,24 +255,21 @@ The singular-vs-plural naming gives the reader no hint that these are different 
 
 ## Observations
 
-### 42. Heavy boilerplate dominates the file
-`model.ts` is 512 lines for **15 user-facing types and 3 enums**; **350 lines (~68%)** are `marshal*` / `unmarshal*` Zod scaffolding. Higher boilerplate-to-content ratio than `dataquality` (~46%) because this package has fewer types but the same generator overhead per type.
-
-### 43. Action verbs in `Client`
+### 38. Action verbs in `Client`
 The client uses `Create` / `Get` / `Update` / `Delete` / `List` for monitor operations. Verbs are consistent within the package. Listed per rule 17 to note the absence of inconsistency (relative to `qualitymonitors` plural, which adds `Cancel` / `Run` / `Regenerate`).
 
-### 44. Acronym casing
+### 39. Acronym casing
 Mixed conventions, all generator-emitted: `Id` (PascalCase-capital-then-lower in `objectId`, `lastRunId`), `URL` (only via the web-standard `URLSearchParams`), `Sql` (capital-then-lower in `sqlQuery`), `Http` (capital-then-lower in `HttpClient`, `HttpRequest`). No within-package collisions.
 - **Category:** 3 (acronym casing).
 
-### 45. No `wkt` (well-known types), `FieldMask`, or `time` imports
+### 40. No `wkt` (well-known types), `FieldMask`, or `time` imports
 Unlike `dataquality` and other newer packages, this package has no `Timestamp`, `FieldMask`, or `Duration` fields. The lack of these is consistent with the package being older and frozen (deprecated) — newer features were added to `dataquality` instead.
 
-### 46. `qualitymonitor` lowercase package name vs `quality-monitors` wire path vs `QualityMonitor` types
+### 41. `qualitymonitor` lowercase package name vs `quality-monitors` wire path vs `QualityMonitor` types
 Same shape as the `dataquality` casing observation: directory is one collapsed word (`qualitymonitor`), wire path is kebab-plural (`/quality-monitors`), TS types are PascalCase singular (`QualityMonitor`). The directory plural-vs-singular question (relative to `qualitymonitors`) is unique to this package family.
 - **Category:** 3 (casing inconsistency), 9 (singular/plural mismatch).
 
-### 47. Entire package is `@deprecated` per JSDoc
+### 42. Entire package is `@deprecated` per JSDoc
 Every method's JSDoc starts with `Deprecated: Use Data Quality Monitoring API instead (/api/data-quality/v1/monitors).` — i.e., the package itself should not be used in new code. The TS surface does not surface this with `@deprecated` tags (#27), so IDE tooling does not strike through call sites. This is the single most important fact about this package and it is documented only inside method bodies.
 
 ## Domain glossary

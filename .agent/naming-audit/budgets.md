@@ -46,35 +46,11 @@ fixed at the generator, not by hand-editing this package.
 `UpdateBudgetConfiguration_Response`,
 `UpdateBudgetConfigurationBudget`.
 
-### Schemas (`model.ts`)
-
-`unmarshalActionConfigurationSchema`,
-`unmarshalAlertConfigurationSchema`,
-`unmarshalBudgetConfigurationSchema`,
-`unmarshalBudgetConfigurationFilterSchema`,
-`unmarshalBudgetConfigurationFilter_ClauseSchema`,
-`unmarshalBudgetConfigurationFilter_TagClauseSchema`,
-`unmarshalBudgetConfigurationFilter_WorkspaceIdClauseSchema`,
-`unmarshalCreateBudgetConfiguration_ResponseSchema`,
-`unmarshalDeleteBudgetConfiguration_ResponseSchema`,
-`unmarshalGetBudgetConfiguration_ResponseSchema`,
-`unmarshalListBudgetConfigurations_ResponseSchema`,
-`unmarshalUpdateBudgetConfiguration_ResponseSchema`,
-`marshalActionConfigurationSchema`, `marshalAlertConfigurationSchema`,
-`marshalBudgetConfigurationFilterSchema`,
-`marshalBudgetConfigurationFilter_ClauseSchema`,
-`marshalBudgetConfigurationFilter_TagClauseSchema`,
-`marshalBudgetConfigurationFilter_WorkspaceIdClauseSchema`,
-`marshalCreateBudgetConfigurationSchema`,
-`marshalCreateBudgetConfigurationBudgetSchema`,
-`marshalUpdateBudgetConfigurationSchema`,
-`marshalUpdateBudgetConfigurationBudgetSchema`.
-
 ### Client methods (`client.ts`)
 
 `createBudgetConfiguration`, `deleteBudgetConfiguration`,
 `getBudgetConfiguration`, `listBudgetConfigurations`,
-`listBudgetConfigurationsIter`, `updateBudgetConfiguration`.
+`updateBudgetConfiguration`.
 
 ### Utility functions (`utils.ts`)
 
@@ -258,7 +234,6 @@ fixed at the generator, not by hand-editing this package.
   - `GetBudgetConfiguration_Response` `model.ts:152`
   - `ListBudgetConfigurations_Response` `model.ts:169`
   - `UpdateBudgetConfiguration_Response` `model.ts:183`
-  - All `marshal*` / `unmarshal*` schema constants of the above.
   - Re-exported through `index.ts:10, 18-31`.
 - **Why flagged:** Each of these requires an
   `eslint-disable-next-line @typescript-eslint/naming-convention`
@@ -462,26 +437,9 @@ fixed at the generator, not by hand-editing this package.
   `updateBudgetConfiguration`. Inside a `Budgets` client, the
   `Budget`/`Budgets` suffix is repetitive. Compare typical TS SDK
   shape: `budgets.create(...)`, `budgets.list(...)`.
-- **Suggestion:** `create`, `delete`, `get`, `list`, `listIter`,
+- **Suggestion:** `create`, `delete`, `get`, `list`,
   `update`. The class itself already conveys "budgets". This is a
   cross-package convention to decide once.
-
-#### F7.5 — `listBudgetConfigurationsIter` (MEDIUM)
-- **Where:** `client.ts:212`.
-- **Why flagged:** 30 characters, with `Configurations` repeated. The
-  `Iter` suffix is also Go-style; in TS the idiomatic alternative
-  is an async iterator method (`[Symbol.asyncIterator]`) or a name
-  like `listAll` / `streamBudgets`.
-- **Suggestion:** Tied to F7.4: collapse to `listIter` or
-  better, `iterate`/`stream`/`listAll` — and decide cross-package.
-
-#### F7.6 — `BudgetConfigurationFilter_WorkspaceIdClause` (LOW)
-- **Where:** `model.ts:93`.
-- **Why flagged:** 43 characters. Even after un-underscoring it remains
-  `BudgetConfigurationFilterWorkspaceIdClause` — readable but heavy.
-- **Suggestion:** Inside a renamed `Budget.Filter` namespace,
-  `WorkspaceIdClause` is fine. If kept flat, `BudgetFilterWorkspaceClause`
-  is shorter and equally clear (drop `Id`).
 
 ---
 
@@ -566,10 +524,6 @@ fixed at the generator, not by hand-editing this package.
 #### F9.5 — `budgets` field in `ListBudgetConfigurations_Response`
   (acceptable)
 - Plural, correct.
-
-#### F9.6 — `listBudgetConfigurations` vs `listBudgetConfigurationsIter`
-  (acceptable)
-- Plural form is correct here.
 
 ---
 
@@ -699,23 +653,7 @@ _None._
 - `create*`, `delete*`, `get*`, `list*`, `update*` — uniform
   imperative present. Good.
 
-#### F13.2 — `marshalRequest` / `parseResponse` (acceptable)
-- `marshalRequest` (utils.ts:119) is imperative; `parseResponse`
-  (utils.ts:113) is imperative. Consistent.
-
-#### F13.3 — `unmarshalXSchema` constants (LOW, code style)
-- **Where:** `model.ts:208, 221, 242, …` and all `marshal…Schema`.
-- **Why flagged:** Naming pattern is correct (verb + noun + Schema),
-  but the verb form makes them read like functions, not constants.
-  They *are* values (`z.ZodType` objects). The Zod community
-  conventionally exports schemas as PascalCase nouns
-  (`BudgetSchema`) or `budgetSchema` in camelCase. Verb prefix is
-  unusual.
-- **Suggestion:** Rename to `budgetWireSchema` / `budgetReadSchema`
-  or pair `budgetEncoder` / `budgetDecoder`. Cross-cutting; tied to
-  generator.
-
-#### F13.4 — `createTime`, `updateTime` vs `created_at`/`updated_at`
+#### F13.2 — `createTime`, `updateTime` vs `created_at`/`updated_at`
   conventions (LOW)
 - **Where:** `model.ts:56-58, 115-117, 194-196`.
 - **Why flagged:** Past-tense `createdTime` / `updatedTime` (or
@@ -731,41 +669,27 @@ _None._
 
 ### 14. Go / Java-style names
 
-#### F14.1 — `req`, `resp`, `err`, `Iter`, `httpReq`, `apiErr`,
+#### F14.1 — `req`, `resp`, `err`, `httpReq`, `apiErr`,
   `pkgJson`, `opts` (HIGH, but cross-cutting)
 - **Where:**
   - `req` everywhere in `client.ts`
   - `resp` everywhere in `client.ts` and `utils.ts:73, 81`
   - `e` in `utils.ts:76` (with rethrow)
-  - `Iter` suffix in `listBudgetConfigurationsIter`
   - `httpReq` in client.ts
   - `apiErr` in utils.ts:88
   - `pkgJson` in client.ts:19
   - `opts` in utils.ts:30, 68
 - **Why flagged:** These are all classic Go idioms ported verbatim.
   TS convention favors spelled-out names (`request`, `response`,
-  `error`, `iterator`/`stream`/`listAll`, `httpRequest`,
-  `apiError`, `packageJson`, `options`).
+  `error`, `httpRequest`, `apiError`, `packageJson`, `options`).
 - **Suggestion:** Spell them out. Trivial diff, large readability
   gain. This is a porting-convention decision and should be made
   globally at the generator level.
 
-#### F14.2 — `unmarshal*` / `marshal*` schema prefixes (LOW)
-- **Where:** All schema exports.
-- **Why flagged:** `marshal`/`unmarshal` is a Go term
-  (encoding/json). The JS/TS world says "serialize"/"deserialize"
-  or "encode"/"decode". `JSON.parse`/`JSON.stringify` is the
-  vernacular. `marshal` is recognizable but Go-flavored.
-- **Suggestion:** Rename to `encode`/`decode` or
-  `serialize`/`deserialize`. Generator-level decision.
-
-#### F14.3 — `Schema` suffix on Zod constants (acceptable)
-- The `…Schema` suffix matches Zod community convention.
-
-#### F14.4 — `_Response` (and other) underscore-pseudo-nesting (HIGH)
+#### F14.2 — `_Response` (and other) underscore-pseudo-nesting (HIGH)
 - See F4.1. Underscores are foreign to TS.
 
-#### F14.5 — Comment style (acceptable)
+#### F14.3 — Comment style (acceptable)
 - Comments are sentences. Good — but the file-top comment is the
   generator banner.
 
@@ -826,26 +750,6 @@ _None._
 
 #### F17.1 — `Get` vs `List` for read endpoints (acceptable)
 - `get` for single, `list` for collection. Standard REST verbs.
-
-#### F17.2 — `listBudgetConfigurationsIter` (MEDIUM)
-- **Where:** `client.ts:212`.
-- **Why flagged:** `Iter` is not a verb; it is a suffix attached to
-  `list`. In TS the pattern `list` returns a single page, `listAll`
-  or `stream*` returns an async iterator. `listIter` is fine but
-  inconsistent across SDKs.
-- **Suggestion:** Pick `listAll` or `iterate` or expose
-  `[Symbol.asyncIterator]` on a paginator object. Cross-cutting.
-
-#### F17.3 — `marshal` / `unmarshal` (Go-style verbs, LOW)
-- See F14.2.
-
-#### F17.4 — `parseResponse` vs `marshalRequest` (LOW, asymmetry)
-- **Where:** `utils.ts:113, 119`.
-- **Why flagged:** `parse` vs `marshal` use different verbs for the
-  same kind of operation (JSON conversion). Inconsistent verb
-  choice.
-- **Suggestion:** Use the same axis throughout: either
-  `marshal/unmarshal` or `encode/decode` or `serialize/deserialize`.
 
 ---
 
@@ -925,14 +829,6 @@ _None._
   (LOW)
 - **Where:** `model.ts:13, 39`. Same pattern.
 
-#### F20.5 — Generic `_ResponseSchema` on every wrap (LOW)
-- **Where:** `model.ts:319, 329, 333, 343, 357`.
-- **Why flagged:** `unmarshalCreateBudgetConfiguration_ResponseSchema`
-  is 51 characters with "Schema" suffixed onto an already-typed
-  `z.ZodType<...>`. The `Schema` suffix is conventional in Zod
-  ecosystems though.
-- **Suggestion:** Acceptable; tied to generator.
-
 ---
 
 ## Package overlap: `budgets` vs `budgetpolicy`
@@ -990,20 +886,20 @@ This SDK exposes two separate packages whose names both start with
 | 4 | Underscores in TS identifiers           | 2 |
 | 5 | Cryptic abbreviations                   | 7 |
 | 6 | Misleading names                        | 5 |
-| 7 | Overly verbose                          | 6 |
+| 7 | Overly verbose                          | 4 |
 | 8 | Redundant suffixes                      | 4 |
-| 9 | Singular / plural mismatch              | 6 (4 acceptable) |
+| 9 | Singular / plural mismatch              | 5 (3 acceptable) |
 | 10 | Reserved-word collisions               | 5 (3 acceptable) |
 | 11 | Empty / trivial wrappers               | 0 |
 | 12 | Duplicate concepts                     | 5 |
-| 13 | Verb-tense inconsistency               | 4 (2 acceptable) |
-| 14 | Go / Java-style names                  | 5 |
+| 13 | Verb-tense inconsistency               | 2 (1 acceptable) |
+| 14 | Go / Java-style names                  | 3 (1 acceptable) |
 | 15 | Generic field names                    | 5 |
 | 16 | Field contradicting type domain        | 3 |
-| 17 | Inconsistent action verbs              | 4 (1 acceptable) |
+| 17 | Inconsistent action verbs              | 1 (1 acceptable) |
 | 18 | Long enum values                       | 3 |
 | 19 | Underspecified IDs                     | 4 (1 acceptable) |
-| 20 | Type-suffix tautology                  | 5 |
+| 20 | Type-suffix tautology                  | 4 |
 | OVERLAP | budgets vs budgetpolicy             | 3 |
 
 ---
@@ -1026,12 +922,12 @@ This SDK exposes two separate packages whose names both start with
    (`CreateBudgetRequest`) and method names
    (`budgets.create(...)`); document explicit `Request`/`Response`
    suffix convention.
-6. **F4.1 / F14.4:** Replace underscored proto-style names with
+6. **F4.1:** Replace underscored proto-style names with
    flat PascalCase or namespaces; eliminates all
    `eslint-disable-next-line` for `naming-convention`.
 7. **F12.4:** Lift `accountId` to top-level on all request types
    (currently nested under `budget` for create/update only).
-8. **F14.1 / F5.x:** Spell out `req`/`resp`/`err`/`Iter`/`opts`/
+8. **F14.1 / F5.x:** Spell out `req`/`resp`/`err`/`opts`/
    `pkgJson` etc. across all generated code.
 
 ---
@@ -1042,12 +938,5 @@ This SDK exposes two separate packages whose names both start with
   "Code generated from API definition by Databricks SDK Generator.
   DO NOT EDIT." The fixes belong upstream in the generator and
   spec. This audit is a backlog for that generator.
-- The `utils.ts` file contains the same generic helpers
-  (`executeCall`, `parseResponse`, `marshalRequest`,
-  `flattenQueryParams`, `executeHttpCall`, `buildHttpRequest`,
-  `readAll`) that every generated package duplicates. The
-  duplication itself is not a naming issue, but the *names*
-  (`marshal/unmarshal`) are Go-flavored and inconsistent
-  (`parseResponse` vs `marshalRequest`).
 - This package has no `tests/` directory (verified by repo
   structure check), so the audit does not cover test naming.

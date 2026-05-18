@@ -13,9 +13,9 @@ The `registeredmodels` package exposes ten UC model-registry operations
 (`createRegisteredModel`, `deleteRegisteredModel`, `deleteModelVersion`,
 `deleteRegisteredModelAlias`, `getRegisteredModel`, `getModelVersion`,
 `getModelVersionByAlias`, `listRegisteredModels`, `listModelVersions`,
-`setRegisteredModelAlias`, `updateRegisteredModel`, `updateModelVersion`)
-plus two paginated iterators. The model layer is a verbatim 1:1 port of
-the Go SDK, and most defects derive from upstream definitions.
+`setRegisteredModelAlias`, `updateRegisteredModel`, `updateModelVersion`).
+The model layer is a verbatim 1:1 port of the Go SDK, and most defects
+derive from upstream definitions.
 
 The dominant naming issues are (1) the path-parameter `*Arg` suffix
 applied to fields that already encode their role through documentation
@@ -59,7 +59,7 @@ Both `RegisteredModelInfo`-adjacent payloads use bare `id` for two
 *different* identifier kinds (the alias and the model version). The
 reader cannot tell from the call site whether `info.id` is the alias's
 identifier or the model version's identifier. Prefer `aliasId` and
-`modelVersionId` to disambiguate (see also §16.1, §16.2).
+`modelVersionId` to disambiguate (see also §14.1, §14.2).
 
 #### 1.4 `ModelVersionInfo.version` (model.ts:251), `UpdateModelVersion.version` (model.ts:370)
 A field on a "model version" type called `version` is doubly redundant
@@ -130,21 +130,6 @@ Five distinct identifiers in this single file violate the naming
 convention. The eslint suppression is acknowledged tech debt; the audit
 must flag it nonetheless.
 
-#### 4.2 `unmarshalDeleteModelVersion_ResponseSchema` (model.ts:447)
-The schema name carries the underscore through, since schemas are named
-`unmarshal<TypeName>Schema`. Four additional instances:
-`unmarshalDeleteRegisteredModel_ResponseSchema` (line 451),
-`unmarshalDeleteRegisteredModelAlias_ResponseSchema` (line 455),
-`unmarshalListModelVersions_ResponseSchema` (line 502), and
-`unmarshalListRegisteredModels_ResponseSchema` (line 516).
-
-#### 4.3 Wire-format field names embedded as object keys
-Throughout the marshal/unmarshal schemas (model.ts:431-905), the input
-side uses `snake_case` keys (`connection_name`, `model_version_dependencies`,
-`run_workspace_id`, `next_page_token`, etc.). This is correct — these
-are wire-format keys, not TS identifiers, so they are exempt. Documenting
-here for completeness.
-
 ---
 
 ### 5. Cryptic abbreviations
@@ -192,7 +177,7 @@ Two identifier-shaped fields on the same shape; the doc on `id` ("unique
 identifier of the alias") suggests an internal opaque UUID, while
 `aliasName` is the human-readable handle the API uses elsewhere. Calling
 both "identifier" makes intent unclear. Rename `id` to `aliasUuid` or
-`aliasId` (see §16.1).
+`aliasId` (see §14.1).
 
 #### 6.3 `ModelVersionInfo.version` (model.ts:251)
 The field name suggests a string/identifier ("v2", "v3"), but the type
@@ -205,13 +190,7 @@ typical semantic versioning expectations is a real footgun. Rename
 
 ### 7. Overly verbose names
 
-#### 7.1 `marshalSetRegisteredModelAliasSchema` (model.ts:789)
-Forty-character marshal-schema name. The verbosity flows from the
-`SetRegisteredModelAlias` request type name, which itself is fine, but
-worth noting that every marshal/unmarshal schema name carries this
-verbosity tax.
-
-#### 7.2 `Client.setRegisteredModelAlias` versus `Client.deleteRegisteredModelAlias` (client.ts:202, 504)
+#### 7.1 `Client.setRegisteredModelAlias` versus `Client.deleteRegisteredModelAlias` (client.ts:202, 504)
 Method names hover around 30 characters. Java/Go style. In TS prefer
 `setAlias` / `deleteAlias` on a `RegisteredModelsClient` whose role is
 already established. The current names imply you could also call
@@ -238,11 +217,6 @@ TypeScript does not need the distinction. Compare with the legacy
 #### 9.1 `ListModelVersions` request, `ListModelVersions_Response.modelVersions` (model.ts:150, 169)
 The request type is *plural* (`ListModelVersions`), the response
 collection field is *plural* (`modelVersions`). Internally consistent.
-However, the iterator method is `listModelVersionsIter` returning an
-`AsyncGenerator<ModelVersionInfo>` (singular) — the singular/plural
-mismatch between the iterator's name (`listModelVersions*`, plural) and
-its yield type (`ModelVersionInfo`, singular) is conventional but worth
-noting. Same pattern on `listRegisteredModelsIter`.
 
 #### 9.2 `ListRegisteredModels` request paginates registered models; field is `registeredModels` (model.ts:212)
 Same as 9.1; flagged for completeness.
@@ -359,12 +333,39 @@ SDK pattern leaking into TS.
 
 ---
 
-### 14. Generic field names losing meaning
+### 14. Underspecified IDs
 
-#### 14.1 `Dependency.value` (model.ts:91)
+#### 14.1 `RegisteredModelAliasInfo.id` (model.ts:274)
+"The unique identifier of the alias". No format constraint, no
+mention of whether it is a UUID, a server-generated opaque token, or a
+human-friendly slug. Type is `string`. Compare with the well-typed
+`metastoreId` (which is also `string` but at least bound to a known
+domain). Recommend `aliasId` and adding format hints in the doc.
+
+#### 14.2 `ModelVersionInfo.id` (model.ts:263)
+"The unique identifier of the model version". Same issues as 14.1.
+Recommend `modelVersionId`.
+
+#### 14.3 `RegisteredModelInfo.metastoreId` (model.ts:297) and `ModelVersionInfo.metastoreId` (model.ts:254)
+"The unique identifier of the metastore". Acceptable name but worth
+flagging that the format (UUID? slug?) is not specified anywhere in
+the doc.
+
+#### 14.4 `ModelVersionInfo.runWorkspaceId` (model.ts:240)
+`number` typed. The doc says "ID of the Databricks workspace". Workspace
+IDs in Databricks are 64-bit integers — TS `number` is only safe up to
+2^53. This is a *type* concern, but the name `runWorkspaceId` does not
+flag the underlying integer-width risk; consider `string` per Go's
+`json:",string"` tag treatment.
+
+---
+
+### 15. Generic field names losing meaning
+
+#### 15.1 `Dependency.value` (model.ts:91)
 See §1.1.
 
-#### 14.2 Inconsistent `FullName` suffix across dependency wrappers (model.ts:18, 55, 118, 317, 332, 425)
+#### 15.2 Inconsistent `FullName` suffix across dependency wrappers (model.ts:18, 55, 118, 317, 332, 425)
 Four of the six dependency wrapper types use a `FullName` suffix on
 their single string field (`tableFullName`, `functionFullName`,
 `volumeFullName`, `secretFullName`), while two do not
@@ -374,7 +375,7 @@ form of `__connection_name__`"). The naming should be uniform — either
 add `FullName` to `connectionName` and `credentialName`, or drop the
 suffix from the other four.
 
-#### 14.3 `CreateRegisteredModel.aliases` (model.ts:48), `UpdateRegisteredModel.aliases` (model.ts:417)
+#### 15.3 `CreateRegisteredModel.aliases` (model.ts:48), `UpdateRegisteredModel.aliases` (model.ts:417)
 A request to *create* a model accepts a list of `RegisteredModelAliasInfo`.
 Aliases are normally set on already-existing models, not at create
 time. The field is also marked optional. The name `aliases` is
@@ -383,9 +384,9 @@ shape is semantically odd. Flagged for shape, not just naming.
 
 ---
 
-### 15. Field contradicting type domain
+### 16. Field contradicting type domain
 
-#### 15.1 `CreateRegisteredModel.{fullName, createdAt, createdBy, updatedAt, updatedBy, metastoreId}` (model.ts:37-45)
+#### 16.1 `CreateRegisteredModel.{fullName, createdAt, createdBy, updatedAt, updatedBy, metastoreId}` (model.ts:37-45)
 `CreateRegisteredModel` is a *request* shape, yet it includes six
 server-populated fields that the client cannot meaningfully set:
 - `fullName` (computed from `catalogName.schemaName.name`)
@@ -402,7 +403,7 @@ set creation timestamps or override the metastore. Same defect on
 which says "only the name, the owner or the comment of the registered
 model can be updated".
 
-#### 15.2 `UpdateModelVersion.{createdAt, createdBy, updatedAt, updatedBy, id, metastoreId, modelName, catalogName, schemaName, source, runId, runWorkspaceId, modelVersionDependencies, status, version, storageLocation, aliases}` (model.ts:335-385)
+#### 16.2 `UpdateModelVersion.{createdAt, createdBy, updatedAt, updatedBy, id, metastoreId, modelName, catalogName, schemaName, source, runId, runWorkspaceId, modelVersionDependencies, status, version, storageLocation, aliases}` (model.ts:335-385)
 `UpdateModelVersion` carries *every* field from `ModelVersionInfo`. The
 JSDoc says "Currently only the comment of the model version can be
 updated". The shape is therefore deeply misleading: it presents 17
@@ -410,38 +411,11 @@ optional fields where 16 are silently no-ops on the server. A user
 setting `updateModelVersion({comment: 'x', status: ModelVersionStatus.READY})`
 will see no effect from `status` but no error either.
 
-#### 15.3 `RegisteredModelAliasInfo.{modelName, catalogName, schemaName}` (model.ts:276-281)
+#### 16.3 `RegisteredModelAliasInfo.{modelName, catalogName, schemaName}` (model.ts:276-281)
 Three parent-locator fields on an alias type. The alias is already
 nested inside `RegisteredModelInfo.aliases`, so the parent is known
 from context. Embedding these makes the alias serialisable in
 isolation but pollutes the shape.
-
----
-
-### 16. Underspecified IDs
-
-#### 16.1 `RegisteredModelAliasInfo.id` (model.ts:274)
-"The unique identifier of the alias". No format constraint, no
-mention of whether it is a UUID, a server-generated opaque token, or a
-human-friendly slug. Type is `string`. Compare with the well-typed
-`metastoreId` (which is also `string` but at least bound to a known
-domain). Recommend `aliasId` and adding format hints in the doc.
-
-#### 16.2 `ModelVersionInfo.id` (model.ts:263)
-"The unique identifier of the model version". Same issues as 16.1.
-Recommend `modelVersionId`.
-
-#### 16.3 `RegisteredModelInfo.metastoreId` (model.ts:297) and `ModelVersionInfo.metastoreId` (model.ts:254)
-"The unique identifier of the metastore". Acceptable name but worth
-flagging that the format (UUID? slug?) is not specified anywhere in
-the doc.
-
-#### 16.4 `ModelVersionInfo.runWorkspaceId` (model.ts:240)
-`number` typed. The doc says "ID of the Databricks workspace". Workspace
-IDs in Databricks are 64-bit integers — TS `number` is only safe up to
-2^53. This is a *type* concern, but the name `runWorkspaceId` does not
-flag the underlying integer-width risk; consider `string` per Go's
-`json:",string"` tag treatment.
 
 ---
 
@@ -452,13 +426,6 @@ See §8.1. The `Info` suffix is tautological because the type already
 *is* the info; it does not need to be marked as such. Compare with the
 parallel `modelregistry` package which uses bare `RegisteredModel` /
 `ModelVersion`.
-
-#### 17.2 `*Schema` suffix on every marshal/unmarshal export
-`marshalCreateRegisteredModelSchema`, `unmarshalRegisteredModelInfoSchema`,
-etc. (35+ exports). The `Schema` suffix is tautological with the
-prefix `marshal`/`unmarshal` (these are always schemas). Could be
-`marshalCreateRegisteredModel` and `unmarshalRegisteredModelInfo`. Not
-a high-impact finding; consistency note.
 
 ---
 
@@ -487,7 +454,7 @@ of the package.
 `CreateRegisteredModel`, `UpdateRegisteredModel`, and especially
 `UpdateModelVersion` carry the entire response shape on the request side.
 This is a *type-design* defect surfaced via *naming* (a field called
-`createdAt` on a "create" request is meaningless). See §15.
+`createdAt` on a "create" request is meaningless). See §16.
 
 ### D. Path-parameter fields with `Arg` suffix
 
@@ -509,10 +476,10 @@ or (3) document the convention package-wide. See §5.1.
 3. **Disambiguate parallel-package collisions** with `modelregistry` —
    either re-namespace or rename types. (§11, §B)
 4. **Strip server-populated fields** from `CreateRegisteredModel`,
-   `UpdateRegisteredModel`, `UpdateModelVersion` request shapes. (§15, §C)
+   `UpdateRegisteredModel`, `UpdateModelVersion` request shapes. (§16, §C)
 5. **Unify `versionNum` versus `version`** on a single spelling.
    (§12.1)
-6. **Rename bare `id`** to `aliasId` / `modelVersionId`. (§16)
+6. **Rename bare `id`** to `aliasId` / `modelVersionId`. (§14)
 7. **Rename `source`** to `artifactUri` or `sourceUri`. (§1.2)
 8. **Drop `MODEL_VERSION_STATUS_` prefix** from
    `ModelVersionStatus.UNKNOWN`. (§2.1)

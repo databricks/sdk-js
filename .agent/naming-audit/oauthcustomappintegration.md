@@ -3,7 +3,7 @@
 **Path:** `packages/oauthcustomappintegration/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Account-level CRUD for OAuth App Integrations. Two flavours of integration are managed by the same service: *Custom* (caller-owned OAuth clients with their own redirect URLs and scopes) and *Published* (catalog of Databricks-blessed third-party apps such as Power BI or Tableau Desktop, identified by a stable `appId`). Both share the `TokenAccessPolicy` configuration. The package is the Databricks account-side complement of the `RFC 6749`/`OAuth 2.0` client registration concept.
-**Total weird names flagged:** 18
+**Total weird names flagged:** 17
 
 ## Summary
 | Severity | Count |
@@ -11,7 +11,7 @@
 | High | 5 |
 | Medium | 5 |
 | Low | 4 |
-| Observation | 4 |
+| Observation | 3 |
 
 ## High severity
 
@@ -144,10 +144,7 @@
 ### O2. `_Response` suffix is the only naming-convention violation — `model.ts: throughout`
 - All seven `_Response` types carry an `eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.` Comment. No other naming violations in the package require ESLint disables. This is a single, removable wart that the generator could fix in one place. See finding #5.
 
-### O3. `executeCall` / `executeHttpCall` / `marshalRequest` / `parseResponse` utility-name asymmetry — `utils.ts:26, 65, 113, 119`
-- Same observation across every package: the utility names do not pair symmetrically. `marshalRequest` ↔ `parseResponse` (verb mismatch: `marshal` vs `parse`, and `Request` vs `Response`). `executeCall` ↔ `executeHttpCall` (one wraps the other). Generated code, flag for upstream.
-
-### O4. `flattenQueryParams` is exported but unused — `utils.ts:123`
+### O3. `flattenQueryParams` is exported but unused — `utils.ts:123`
 - This package never builds nested query parameters (`ListCustomOAuthAppIntegrations` uses three flat scalars), so `flattenQueryParams` is dead in this build. Same as in many sibling packages. Either drop the `export` or move the helper to `@databricks/sdk-core`.
 
 ## Domain glossary

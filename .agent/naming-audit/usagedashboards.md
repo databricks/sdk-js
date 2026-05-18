@@ -3,13 +3,13 @@
 **Path:** `packages/usagedashboards/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Account-level CRUD for the Databricks "Billing Usage" dashboard — a workspace-scoped or globally-scoped DBSQL dashboard pre-built by Databricks that visualises account billing/usage data. Two endpoints only: `POST /api/2.0/accounts/{account_id}/dashboard` (create) and `GET /api/2.0/accounts/{account_id}/dashboard` (read). Both return a `dashboardId` (and the read variant also returns a `dashboardUrl`). No update, no delete, no list operation. Two enums (`UsageDashboardMajorVersion`, `UsageDashboardType`).
-**Total weird names flagged:** 26
+**Total weird names flagged:** 25
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 7 |
-| Medium | 9 |
+| Medium | 8 |
 | Low | 6 |
 | Observation | 4 |
 
@@ -54,7 +54,7 @@
 ### 7. `workspaceId: number` typed as JS `number` will silently truncate large IDs — `src/v1/model.ts:19, 36`
 - **Why weird:** Databricks workspace IDs are 64-bit integers (the Go SDK uses `int64`); JavaScript's `number` type is IEEE-754 double which loses precision above 2^53. The TS field is typed `number | undefined`. Same finding applies to `metastores` and most workspace-scoped packages in the SDK, but worth flagging because every audit cycle compounds the risk. Compare with `accountId: string` (line 21) which correctly uses `string` for an account UUID.
 - **Category:** 16 (field type contradicts domain — `number` cannot represent a 64-bit ID), 6 (misleading — type appears safe but is lossy).
-- **Suggested name:** Keep the field name, change type to `string` (and update `marshalCreateBillingUsageDashboardSchema` to allow string→number marshalling, or have the wire send it as a string — the Databricks REST API generally accepts both for `workspace_id`).
+- **Suggested name:** Keep the field name, change type to `string`.
 - **Rationale:** Most workspace IDs are below 2^53 in practice, so this rarely bites. But the type contract claims something the runtime can't honour for the high end of the ID space. This is a systemic SDK-level issue worth raising at the generator.
 
 ## Medium severity
@@ -84,9 +84,9 @@
 - **Rationale:** Same as `billableusagedownload` finding. The duplicated-with-fallback pattern is a footgun; the silent empty-string fallback compounds it. Removing the request-level field is the cleanest fix.
 
 ### 12. `accountId` is in the request body shape but is actually a URL path parameter — `src/v1/model.ts:21` / `src/v1/client.ts:72`
-- **Why weird:** `accountId` lives on `CreateBillingUsageDashboard` (looks like a body field) but the client extracts it for the URL path (`/api/2.0/accounts/${req.accountId}/dashboard`) — it is *not* sent in the JSON body. The marshal schema (lines 73-85) does emit `account_id` in the body though, so it goes out twice (once in the URL, once in the body). Server may ignore the body copy. The field type and location are misleading about its wire role.
+- **Why weird:** `accountId` lives on `CreateBillingUsageDashboard` (looks like a body field) but the client extracts it for the URL path (`/api/2.0/accounts/${req.accountId}/dashboard`) — it is *not* sent in the JSON body. The marshalled body does emit `account_id` though, so it goes out twice (once in the URL, once in the body). Server may ignore the body copy. The field type and location are misleading about its wire role.
 - **Category:** 6 (misleading — body shape implies body field, but it's a path param), 16 (field's structural location contradicts wire role), 19 (underspecified — what happens if URL and body disagree?).
-- **Suggested name:** Either segregate path params into a separate type (`PathParams` / `RouteParams`) or document the field's dual role. Or omit it from the body via the marshal schema (`d.account_id` would not appear) and keep it as a path-param-only field. Most idiomatic: remove from request DTO entirely (see #11).
+- **Suggested name:** Either segregate path params into a separate type (`PathParams` / `RouteParams`) or document the field's dual role. Or omit it from the body and keep it as a path-param-only field. Most idiomatic: remove from request DTO entirely (see #11).
 - **Rationale:** The current shape misleads callers about the wire format. The field appears in two URL segments simultaneously, which is suspicious.
 
 ### 13. `dashboardId` returned but never used to re-fetch — `src/v1/model.ts:31, 46`
@@ -107,54 +107,48 @@
 - **Suggested name:** `USER_AGENT_PACKAGE` or `PKG_USER_AGENT_SEGMENT`.
 - **Rationale:** Cross-package consistency — same finding appears in every audited package. Worth normalising at the generator level.
 
-### 16. `marshalCreateBillingUsageDashboardSchema` / `unmarshalCreateBillingUsageDashboard_ResponseSchema` schema names are 40+ chars — `src/v1/model.ts:52, 62, 73`
-- **Why weird:** The schema identifiers are mouthfuls: `unmarshalCreateBillingUsageDashboard_ResponseSchema` is 51 characters; the `Schema` suffix and `unmarshal`/`marshal` prefix together inflate already-long type names. The `_Response` underscore appears in the schema name too (same lint suppression).
-- **Category:** 7 (overly verbose), 4 (underscore), 20 (type-suffix tautology — `Schema` suffix on a zod schema is redundant given the value's `z.ZodType` type).
-- **Suggested name:** Group schemas in a namespace or object: `schemas.createBillingUsageDashboard` / `schemas.createBillingUsageDashboardResponse`. Or accept the verbosity but at least drop `_Response` (see #4).
-- **Rationale:** Tree-shaking concerns aside, the current names are read-once, write-many. Worth simplifying.
-
 ## Low severity
 
-### 17. JSDoc on `dashboardType` is duplicated verbatim — `src/v1/model.ts:22, 39`
+### 16. JSDoc on `dashboardType` is duplicated verbatim — `src/v1/model.ts:22, 39`
 - **Why weird:** The exact same multi-sentence JSDoc ("Workspace level usage dashboard shows usage data for the specified workspace ID. Global level usage dashboard shows usage data for all workspaces in the account.") appears on `CreateBillingUsageDashboard.dashboardType` (line 22) and `GetBillingUsageDashboard.dashboardType` (line 39). The duplication suggests the underlying enum (`UsageDashboardType`) should carry the doc, not each field.
 - **Category:** Observation — not strictly a name issue but flagged because it implies fragmentation. JSDoc duplication is a generator artefact.
 - **Suggested name:** Move the doc to the `UsageDashboardType` enum (or its members).
 
-### 18. `req` / `resp` / `httpReq` abbreviations — `src/v1/client.ts:68, 74, 78, 97, 111, 115, 117`
+### 17. `req` / `resp` / `httpReq` abbreviations — `src/v1/client.ts:68, 74, 78, 97, 111, 115, 117`
 - **Why weird:** Local variables use three-letter abbreviations (`req`, `resp`, `opts`, `httpReq`). The codebase guideline (typescript.mdc § 5) discourages cryptic short abbreviations. Compare with `httpClient` (full word) in the same file.
 - **Category:** 5 (cryptic abbreviation).
 - **Suggested name:** `request`, `response`, `options`, `httpRequest`.
 - **Rationale:** Inexpensive readability win.
 
-### 19. `req: CreateBillingUsageDashboard` parameter name — `src/v1/client.ts:69, 98`
-- **Why weird:** The method parameter is named `req` (the abbreviation from #18). It is also the request DTO whose type name doesn't end in `Request` (see #5). The parameter name `req` clashes with the natural reading where the type name suggests an entity ("a usage dashboard to create") not a request envelope.
+### 18. `req: CreateBillingUsageDashboard` parameter name — `src/v1/client.ts:69, 98`
+- **Why weird:** The method parameter is named `req` (the abbreviation from #17). It is also the request DTO whose type name doesn't end in `Request` (see #5). The parameter name `req` clashes with the natural reading where the type name suggests an entity ("a usage dashboard to create") not a request envelope.
 - **Category:** 5 (cryptic), 6 (misleading paired with type name).
 - **Suggested name:** `params` or `input` (since the type is not literally a Request). Or fix the type name (`CreateBillingUsageDashboardRequest`) and keep `request`.
 
-### 20. `params` shadowed across files — `src/v1/client.ts:102`
+### 19. `params` shadowed across files — `src/v1/client.ts:102`
 - **Why weird:** Local `params: URLSearchParams` — fine in isolation, but `flattenQueryParams(prefix, value, params)` in `utils.ts:123` exposes the same `params` name in public API. The repeated use of `params` for both `URLSearchParams` and "named function parameters" is mildly confusing in audit traces.
 - **Category:** 1 (vague).
 - **Suggested name:** `queryParams` / `urlSearchParams`.
 
-### 21. `query` local in `getBillingUsageDashboard` — `src/v1/client.ts:109`
+### 20. `query` local in `getBillingUsageDashboard` — `src/v1/client.ts:109`
 - **Why weird:** `const query = params.toString();` — the variable is the serialized query *string*, but `query` reads as a query expression/object. Compare with `fullUrl` on the next line (which is clear about what it is).
 - **Category:** 1 (vague), 6 (misleading — name implies a query, value is a string).
 - **Suggested name:** `queryString`.
 
-### 22. `httpClient: HttpClient` field — `src/v1/client.ts:43`
+### 21. `httpClient: HttpClient` field — `src/v1/client.ts:43`
 - **Why weird:** Type-suffix tautology (`httpClient` field of type `HttpClient`). Minor — convention widespread in this SDK.
 - **Category:** 20 (type-suffix tautology).
 - **Suggested name:** `client: HttpClient` — though arguably the longer name disambiguates from the outer `Client` class in the same file.
 
 ## Observations
 
-### 23. `flattenQueryParams` exported but unused in this package — `src/v1/utils.ts:123`
+### 22. `flattenQueryParams` exported but unused in this package — `src/v1/utils.ts:123`
 The exported `flattenQueryParams` helper is never called from `client.ts` — the GET method does its own `params.append()` (lines 103-108) inline because there are only two query params. The helper is dead surface area in this package; same finding as `billableusagedownload` audit #11. Worth pruning at the generator level when the consuming methods don't need it.
 
-### 24. `executeHttpCall` and `executeCall` near-duplicate exported names — `src/v1/utils.ts:26, 65`
+### 23. `executeHttpCall` and `executeCall` near-duplicate exported names — `src/v1/utils.ts:26, 65`
 Two functions named almost identically, doing very different things: `executeCall` wraps the call in retry/rate-limit semantics, `executeHttpCall` does the raw HTTP send + decode + APIError check. Both are used in `client.ts:79, 89, 117, 126`. The verb-pair is fine, but the cognitive distance between "wrap with retry options" and "send an HTTP request and check for API errors" is large enough that one name should be different (e.g., `runWithCallOptions` / `sendHttp`). Same finding appears in every audited package's `utils.ts`.
 
-### 25. `BillingUsage` vs `UsageDashboard` noun ordering inconsistency
+### 24. `BillingUsage` vs `UsageDashboard` noun ordering inconsistency
 - The enum names are `UsageDashboardMajorVersion`, `UsageDashboardType` — `Usage` first, no "Billing".
 - The request types are `CreateBillingUsageDashboard` — `Billing` first, with `Usage`.
 - The package is `usagedashboards` — `usage` only, no "billing".
@@ -162,7 +156,7 @@ Two functions named almost identically, doing very different things: `executeCal
 
 Three different name compositions for one domain. A user trying to autocomplete `Billing` will find the request types but not the enums; trying `Usage` finds the enums but the type names appear under `Create...` / `Get...`. The SDK should pick one noun order (e.g., `BillingUsageDashboard*` everywhere, or `UsageDashboard*` everywhere) and stick to it. See also #8.
 
-### 26. The package has no list/page operations
+### 25. The package has no list/page operations
 There is no `ListBillingUsageDashboards`, no `Iterator`, no `nextPageToken`. The package is one-create-one-get only — a very thin API. Audit-rule categories 9 (singular/plural is settled — should be singular, see #1) and 13 (verb tense — no verb tense issues since there is no "Started"/"Starting" parallel) mostly don't apply. The Go SDK source likely has the same shape.
 
 ## Domain glossary

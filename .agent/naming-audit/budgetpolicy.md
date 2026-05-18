@@ -3,14 +3,14 @@
 **Path:** `packages/budgetpolicy/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Account-level "Budget Policy" management — create/get/list/update/delete cost-control policies that attach custom tags to billing usage and can be bound to specific workspaces. Distinct from the sibling `budgets` package, which manages spend-alert configurations.
-**Total weird names flagged:** 38
+**Total weird names flagged:** 32
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 8 |
-| Medium | 14 |
-| Low | 11 |
+| Medium | 11 |
+| Low | 8 |
 | Observation | 5 |
 
 ## High severity
@@ -125,112 +125,79 @@
 - **Suggested name:** Fix doc.
 - **Rationale:** Generated; surfaces in IntelliSense.
 
-### 19. `BudgetPolicy.customTags` plural field — `src/v1/model.ts:27`
-- **Why weird:** Plural field `customTags: CustomPolicyTag[]` plus the singular type with `Tag` suffix produces `customTags: CustomPolicyTag[]` which reads with the same word twice (`Tags`/`Tag`). Compare to better naming where the field is `tags: Tag[]` (in this package, "policy tags" is self-evident).
-- **Category:** 8 (redundant prefix `custom`), 20 (`customTags: CustomPolicyTag[]` is type-suffix tautology).
-- **Suggested name:** `tags: Tag[]` (with type rename per #9). Wire form stays `custom_tags`.
-- **Rationale:** Linked to type-rename #9; if `CustomPolicyTag` becomes `Tag`, field naturally becomes `tags`.
-
-### 20. `CreateBudgetPolicyRequest.policy` field with confusing JSDoc — `src/v1/model.ts:46-50`
+### 19. `CreateBudgetPolicyRequest.policy` field with confusing JSDoc — `src/v1/model.ts:46-50`
 - **Why weird:** Doc: "The policy to create. `policy_id` needs to be empty as it will be generated. `policy_name` must be provided, custom_tags may need to be provided depending on the cloud provider. All other fields are optional." — wire-name leak again (`policy_id`, `policy_name`, `custom_tags`) in TS docs.
 - **Category:** Observation, 14 (wire-style identifiers in TS docs).
 - **Suggested name:** Fix the doc to reference TS field names.
 - **Rationale:** Editing UX: hovers should show TS, not proto.
 
-### 21. `UpdateBudgetPolicyRequest.policy` doc mentions `creator_user_id` — `src/v1/model.ts:159`
+### 20. `UpdateBudgetPolicyRequest.policy` doc mentions `creator_user_id` — `src/v1/model.ts:159`
 - **Why weird:** Doc: "`creator_user_id` cannot be specified in the request" — but `BudgetPolicy` (the type of `policy` here) doesn't have a `creatorUserId` field! It has `policyId`, `policyName`, `customTags`, `bindingWorkspaceIds`. The doc refers to a field that doesn't exist on the model.
 - **Category:** 6 (misleading documentation — refers to non-existent field), 17 (inconsistency: doc says creator is part of `BudgetPolicy`, model says otherwise).
 - **Suggested name:** Fix doc; likely a Go-SDK paste from a richer struct.
 - **Rationale:** Real bug.
 
-### 22. `unmarshalBudgetPolicySchema` / `marshalBudgetPolicySchema` naming pair — `src/v1/model.ts:172,211`
-- **Why weird:** "Marshal" and "unmarshal" terms come from Go encoding semantics. JS/TS world uses "serialize" / "deserialize" (or "parse" / "stringify").
-- **Category:** 14 (Go-style names not idiomatic in TS), 17 (across the file, `parseResponse`/`marshalRequest` in utils.ts:113,119 mix `parse` and `marshal`).
-- **Suggested name:** `serializeBudgetPolicy` / `deserializeBudgetPolicy`, or `budgetPolicyToWire` / `budgetPolicyFromWire`.
-- **Rationale:** Aligns with broader JS ecosystem (`JSON.parse`/`JSON.stringify`, Zod's `parse`/`safeParse`). Generator-wide concern.
-
 ## Low severity
 
-### 23. `budgetPolicyFieldMaskSchema` constant — `src/v1/model.ts:271`
-- **Why weird:** `*Schema` suffix on a non-Zod object (it's a `FieldMaskSchema` map describing wire-name aliases). Reuses `Schema` (which everywhere else in this file means a Zod schema) for a different concept.
-- **Category:** 1 (vague suffix overloaded), 17 (inconsistent — `Schema` used for two different things in one file).
-- **Suggested name:** `budgetPolicyFieldMaskFields` or `budgetPolicyFieldMaskMap`.
-- **Rationale:** Hover help becomes ambiguous; reader must disambiguate by inspecting the value.
-
-### 24. `budgetPolicyFieldMask` function — `src/v1/model.ts:278`
+### 21. `budgetPolicyFieldMask` function — `src/v1/model.ts:278`
 - **Why weird:** Exported helper for building a `FieldMask<BudgetPolicy>`. The export is not surfaced from `index.ts:5-19`, so it cannot be used by consumers of the package.
 - **Category:** Observation (unused public surface — dead export).
 - **Suggested name:** Either re-export from `index.ts`, or mark internal.
 - **Rationale:** Dead export.
 
-### 25. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
+### 22. `executeCall` / `executeHttpCall` naming pair — `src/v1/utils.ts:26,65`
 - **Why weird:** Two functions with nearly identical names handling different layers (retry/rate-limit wrapper vs raw HTTP send + logging). Easy to confuse at call sites in `client.ts`.
 - **Category:** 1 (vague), 17 (inconsistent — names differ only by `Http` infix).
 - **Suggested name:** `runWithCallOptions` / `sendHttpRequest`.
 - **Rationale:** Same pair flagged in the `abacpolicies` audit. Generator-wide.
 
-### 26. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 23. `HttpCallOptions` — `src/v1/utils.ts:15`
 - **Why weird:** `Options` is reused across the SDK for many unrelated concepts (`ClientOptions`, `CallOptions`, and the imported `Options` type from `@databricks/sdk-core/api` on line 3). Within `utils.ts` alone, two `Options`-named types collide cognitively.
 - **Category:** 1 (vague suffix), 17 (collides with the imported `Options`).
 - **Suggested name:** `HttpCallContext` (it's not user-facing options; it's an internal bag of arguments).
 - **Rationale:** Generator-wide concern; same as `abacpolicies` finding #37.
 
-### 27. `parseResponse` / `marshalRequest` verb asymmetry — `src/v1/utils.ts:113,119`
-- **Why weird:** `parseResponse` (unmarshal) is the inverse of `marshalRequest`. Naming uses two different verbs (`parse` vs `marshal`) for opposite operations.
-- **Category:** 17 (inconsistent action verbs).
-- **Suggested name:** `unmarshalResponse` / `marshalRequest`, or `parseResponse` / `serializeRequest`.
-- **Rationale:** Pair-wise consistency aids reading. Same as `abacpolicies` finding #35.
-
-### 28. `readAll` — `src/v1/utils.ts:40`
+### 24. `readAll` — `src/v1/utils.ts:40`
 - **Why weird:** Function reads an entire response body stream into a buffer. Generic name; collides cognitively with `Array.prototype` or stream utilities.
 - **Category:** 1 (vague).
 - **Suggested name:** `drainStream` or `readStreamToEnd`.
 - **Rationale:** Internal helper. Generator-wide.
 
-### 29. `flattenQueryParams` — `src/v1/utils.ts:123`
+### 25. `flattenQueryParams` — `src/v1/utils.ts:123`
 - **Why weird:** Used by `client.ts:158,165,221` for nested query-param flattening; OK in this package but exported per package which makes it a duplicated utility across every generated package.
 - **Category:** Observation / 12 (duplicate utility across packages).
 - **Suggested name:** Keep name; consider hoisting to `@databricks/sdk-core`.
 - **Rationale:** Naming is fine; flagging duplication.
 
-### 30. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:41`
+### 26. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:41`
 - **Why weird:** `Segment` is a generic CS term. Comment explains it's the User-Agent identity segment; without the comment the constant name doesn't communicate that.
 - **Category:** 1 (vague), 15 (generic name losing meaning).
 - **Suggested name:** `USER_AGENT_PACKAGE` or `PKG_USER_AGENT_SEGMENT`.
 - **Rationale:** Same as `abacpolicies` finding #32; generator-wide.
 
-### 31. `Client` class plain name — `src/v1/client.ts:46`
+### 27. `Client` class plain name — `src/v1/client.ts:46`
 - **Why weird:** Top-level export `Client`. When a consumer imports `Client` from `@databricks/sdk-budgetpolicy/v1`, they will likely alias it (`import {Client as BudgetPolicyClient}`) to avoid collision with `Client` from every other package.
 - **Category:** 1 (vague — `Client` is the most generic name in the SDK ecosystem), 12 (duplicate across all packages).
 - **Suggested name:** `BudgetPolicyClient`.
 - **Rationale:** Each generated package emits a `Client`. Forcing aliasing on every import is a usability cost. Generator-wide; not specific to this package.
 
-### 32. `req` parameter name on client methods — `src/v1/client.ts:77,103,122,147,194,212`
+### 28. `req` parameter name on client methods — `src/v1/client.ts:77,103,122,147,194,212`
 - **Why weird:** Abbreviation `req` instead of `request`. Six occurrences in `client.ts`.
 - **Category:** 5 (cryptic abbreviation when the long form fits comfortably).
 - **Suggested name:** `request`.
 - **Rationale:** Style. Comments on `client.ts` already use the full word. Same convention should apply to params for hovers.
 
-### 33. `listBudgetPoliciesIter` method name — `src/v1/client.ts:193`
-- **Why weird:** `Iter` is a cryptic abbreviation for "iterator" / "iterable". Mirrors Go SDK's `Iterator` style. TS convention is to spell out (`...Iterator`) or use a stronger naming convention (`paginate*`, `list*All`).
-- **Category:** 5 (cryptic abbreviation).
-- **Suggested name:** `listBudgetPoliciesIterator`, or rename pair: `listBudgetPolicies` (single page) + `listAllBudgetPolicies` (async iterable).
-- **Rationale:** `Iter` is a Go-style truncation that JS/TS users rarely use.
-
 ## Observations
 
-### 34. Action-verb conventions in `Client`
+### 29. Action-verb conventions in `Client`
 The client consistently uses `create`/`delete`/`get`/`list`/`update` verbs (matching the JSDoc method documentation). No mixed `fetch`/`retrieve`/`read`. (`abacpolicies` audit noted the same.)
 - **Category:** 17 (observation of consistency, per rule that we flag inconsistencies — this is the inverse).
 
-### 35. Wire/TS divergence dominates the file
-`src/v1/model.ts` is 283 lines for ~10 user-facing types; >40% is marshal/unmarshal/FieldMask scaffolding. Not a naming defect, but the audit surfaces how much generator boilerplate ships per package.
-
-### 36. Wire-form vs TS-form casing of `policyId` (path interpolation) — `src/v1/client.ts:80,106,125,150,215`
+### 30. Wire-form vs TS-form casing of `policyId` (path interpolation) — `src/v1/client.ts:80,106,125,150,215`
 The URL path uses `accounts/${req.accountId ?? this.accountId ?? ''}/budget-policies` and the policy id is substituted via `req.policyId ?? ''`. The kebab-case URL segment `budget-policies` is fine; flagging that the SDK uses three different casings (`budget_policies` wire-form for query params, `budget-policies` for the URL, `budgetPolicies` for TS) — readers must mentally translate.
 - **Category:** 3 (acronym/casing inconsistency — three forms of the same identifier).
 
-### 37. Package name `budgetpolicy` overlaps with `budgets` and `usagepolicy`
+### 31. Package name `budgetpolicy` overlaps with `budgets` and `usagepolicy`
 Three sibling packages exist with related-sounding names:
 - `budgetpolicy` — tag attribution policy (this package).
 - `budgets` — spend-alert budget configurations.
@@ -240,7 +207,7 @@ The three together blur the boundary between "policy that classifies usage" (bud
 - **Category:** 12 (duplicate concept), 1 (vague package names).
 - **Rationale:** Worth raising at the SDK / API design level. From the TS-user perspective, three near-clones makes the import surface confusing.
 
-### 38. Acronym casing `Id` consistently used as `Id`, not `ID`
+### 32. Acronym casing `Id` consistently used as `Id`, not `ID`
 `policyId`, `accountId`, `creatorUserId`, `bindingWorkspaceIds`, `requestId`, `pageSize`/`pageToken` (no id) — file consistently uses `Id` (Title-case lower). Inconsistent only with `URLSearchParams` (Web API; out of our control). Good internal consistency.
 - **Category:** 3 (observation — internal acronym style is consistent).
 

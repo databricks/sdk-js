@@ -28,14 +28,14 @@ The package name `statementexecution` is reasonable in isolation, but the SDK
 opening the marketplace sees four packages whose names overlap heavily and has
 to read every one to pick the right tool. See finding #1.
 
-**Total weird names flagged:** 47
+**Total weird names flagged:** 50
 
 ## Summary
 
 | Severity | Count |
 | --- | --- |
 | High | 13 |
-| Medium | 20 |
+| Medium | 27 |
 | Low | 10 |
 | Observation | 4 |
 
@@ -150,7 +150,7 @@ to read every one to pick the right tool. See finding #1.
 - **Rationale:** Cross-package consistency; this package is the canonical home of `statementId`.
 
 ### 18. `warehouseId` field — `src/v1/model.ts:158`
-- **Why weird:** Required field in practice (no statement can execute without it) but typed `string | undefined`. The JSDoc links to docs about SQL warehouses, which is good. The name is fine; the modality is wrong — every required field on the request is optional at the type level because the generator emits all fields as `optional`. Flagged for the consistency observation #41.
+- **Why weird:** Required field in practice (no statement can execute without it) but typed `string | undefined`. The JSDoc links to docs about SQL warehouses, which is good. The name is fine; the modality is wrong — every required field on the request is optional at the type level because the generator emits all fields as `optional`. Flagged for the consistency observation #39.
 - **Category:** 16 (field contradicts type domain — "required" per docs, optional in TS).
 - **Suggested name:** Make required: `warehouseId: string`.
 - **Rationale:** Wire requirements should propagate into TS types where possible.
@@ -261,41 +261,29 @@ to read every one to pick the right tool. See finding #1.
 - **Suggested name:** Discriminate on `disposition` — names unchanged; type shape changes.
 - **Rationale:** Two-of-N fields where only one is populated should be modelled as a union.
 
-### 36. `unmarshal*Schema` and `marshal*Schema` naming chain — `src/v1/model.ts:525-740`
-- **Why weird:** Same pattern as in `queryexecution.md` Finding #19. `unmarshalChunkInfoSchema`, `unmarshalColumnInfoSchema`, etc. — `unmarshal` (Go) + `Schema` (zod helper) — two layers of meta around one operation. Longest is `unmarshalStatementResponseSchema` (32 chars) and `marshalExecuteStatementRequestSchema` (37 chars).
-- **Category:** 5 (cryptic), 7 (verbose), 8 (redundant suffix), 14 (Go-style `marshal`).
-- **Suggested name:** `decodeChunkInfo`, `decodeColumnInfo`, etc. (drop `Schema`; rename to `decode/encode`). Generator-wide.
-- **Rationale:** Recurring SDK pattern; same fix as other audits.
-
-### 37. `marshalRequest` and `parseResponse` in utils — `src/v1/utils.ts:119, 113`
-- **Why weird:** Verb pair `marshal` (Go) + `parse` (JS) — asymmetric, identical to `queryexecution.md` Finding #20. The two functions are generic JSON encode/decode but named differently and asymmetrically.
-- **Category:** 1, 14, 17.
-- **Suggested name:** `encodeJson` / `decodeJson`.
-- **Rationale:** Generator-wide.
-
-### 38. `executeCall` and `executeHttpCall` in utils — `src/v1/utils.ts:26, 65`
+### 36. `executeCall` and `executeHttpCall` in utils — `src/v1/utils.ts:26, 65`
 - **Why weird:** Two `execute*` functions in the same file, one wraps retry/rate-limit policy and one does the actual HTTP. Same as `queryexecution.md` Finding #21.
 - **Category:** 1, 12, 17.
 - **Suggested name:** `runWithPolicies` + `sendHttpRequest`.
 - **Rationale:** Generator-wide.
 
-### 39. `buildHttpRequest` helper — `src/v1/utils.ts:96`
+### 37. `buildHttpRequest` helper — `src/v1/utils.ts:96`
 - **Why weird:** "Build" implies builder pattern; this is a 16-line object literal. Same as `queryexecution.md` Finding #22.
 - **Category:** 1, 6.
 - **Suggested name:** `makeHttpRequest` or inline.
 
-### 40. `readAll` stream-drain helper — `src/v1/utils.ts:40`
+### 38. `readAll` stream-drain helper — `src/v1/utils.ts:40`
 - **Why weird:** Generic verb. Same as `queryexecution.md` Finding #23.
 - **Category:** 1, 5.
 - **Suggested name:** `drainStream`.
 
-### 41. Every field on every request type is optional — `src/v1/model.ts` (every interface)
+### 39. Every field on every request type is optional — `src/v1/model.ts` (every interface)
 - **Why weird:** `warehouseId`, `statement`, `chunkIndex`, `statementId` — all required at the wire level — are all `?: T | undefined` at the TS level. The codegen emits everything as optional to keep round-tripping simple. The names don't communicate which fields are required; the JSDoc occasionally does (statement: "the SQL statement to execute"). A user can call `executeStatement({})` and only learn it's wrong at runtime.
 - **Category:** 16 (field contradicts domain — required-in-wire, optional-in-TS), 1 (modality silently lost).
 - **Suggested name:** N/A — the names are fine, the modality is wrong. Mark required fields as required (no `?`).
 - **Rationale:** Same finding as `commandexecution.md` and `queryexecution.md`; generator-wide.
 
-### 42. `StatementResponse` is the response of *two* methods — `src/v1/model.ts:493`, `src/v1/client.ts:151, 222`
+### 40. `StatementResponse` is the response of *two* methods — `src/v1/model.ts:493`, `src/v1/client.ts:151, 222`
 - **Why weird:** Both `executeStatement()` and `getStatementResult()` return `StatementResponse`. The name `StatementResponse` is generic enough to cover both — but a reader can't tell from the type which method produced it. The contents differ subtly: `executeStatement` may return `PENDING`; `getStatementResult` returns terminal states only. Two operations with one response type is fine if the response is genuinely one shape, but the JSDoc on the response should disambiguate, and the audit-only `statementId` collision (per #17) suggests this is the wrong abstraction.
 - **Category:** 6 (misleading — type is overloaded), 12 (duplicate concept — two operations).
 - **Suggested name:** Keep `StatementResponse` but document that it's polymorphic. Or split into `StatementSubmissionResponse` + `StatementStateResponse`.
@@ -303,54 +291,54 @@ to read every one to pick the right tool. See finding #1.
 
 ## Low severity
 
-### 43. `chunkIndex` vs `nextChunkIndex` naming pair — `src/v1/model.ts:107, 122`
+### 41. `chunkIndex` vs `nextChunkIndex` naming pair — `src/v1/model.ts:107, 122`
 - **Why weird:** A `ChunkInfo` has `chunkIndex` (this chunk's index) and `nextChunkIndex` (the *next* chunk's index). The pair is consistent. But the `ChunkInfo` is also used in two contexts (manifest array, in-chunk metadata), and the wire shape doesn't always populate `nextChunkIndex`. Names are fine but the duplication across two distinct uses is worth flagging.
 - **Category:** 17 (acceptable asymmetry).
 - **Suggested name:** Keep.
 
-### 44. `rowOffset`, `rowCount`, `byteCount` triple — `src/v1/model.ts:108, 111, 116`
+### 42. `rowOffset`, `rowCount`, `byteCount` triple — `src/v1/model.ts:108, 111, 116`
 - **Why weird:** Three integer fields on `ChunkInfo` (and parallel on `ExternalLink` and `ResultData`) that record per-chunk metrics. The pattern is the same across types; consider extracting to a shared `ChunkMetrics` mixin. The names are fine.
 - **Category:** 12 (duplicate concept — three types carry the same fields).
 - **Suggested name:** Extract `ChunkMetrics` shared interface.
 - **Rationale:** Trio-replicated types are a tell.
 
-### 45. `ColumnInfo.typeText` vs `typeName` — `src/v1/model.ts:135, 137`
+### 43. `ColumnInfo.typeText` vs `typeName` — `src/v1/model.ts:135, 137`
 - **Why weird:** `typeText` is "the full SQL type specification" (e.g. `DECIMAL(10,2)`). `typeName` is the base type name (`DECIMAL`). The pair is intentional but the names don't make the relationship obvious — `typeText` and `typeName` sound interchangeable.
 - **Category:** 17 (asymmetric pair — `Text` vs `Name`), 1 (vague — `Text` of what?).
 - **Suggested name:** `typeSql` (the wire SQL text) + `typeBase` (the base type) — but the wire is canonical, so keep names. Document the relationship.
 
-### 46. `position` field on `ColumnInfo` — `src/v1/model.ts:139`
+### 44. `position` field on `ColumnInfo` — `src/v1/model.ts:139`
 - **Why weird:** Top-level field literally `position` with JSDoc "The ordinal position of the column (starting at position 0)." `position` is generic. `ordinalPosition` (matches the JSDoc) or `columnIndex` would be more precise.
 - **Category:** 1 (vague), 15 (generic).
 - **Suggested name:** `ordinalPosition` or `index`.
 
-### 47. `expiration` field on `ExternalLink` — `src/v1/model.ts:341`
+### 45. `expiration` field on `ExternalLink` — `src/v1/model.ts:341`
 - **Why weird:** A string field whose JSDoc says "Indicates the date-time that the given external link will expire and becomes invalid". Two issues: the name `expiration` is ambiguous (an expiry timestamp? a TTL?), and the type is `string` (presumably ISO8601 — the JSDoc doesn't say). A reader can't tell from the type or name how to interpret the value.
 - **Category:** 1 (vague), 6 (misleading — could be TTL).
 - **Suggested name:** `expiresAt` (ISO8601 timestamp) — matches modern JS/TS convention.
 
-### 48. `httpHeaders` value type loses sensitivity context — `src/v1/model.ts:349`
+### 46. `httpHeaders` value type loses sensitivity context — `src/v1/model.ts:349`
 - **Why weird:** JSDoc says "Headers are typically used to pass a decryption key to the external service. The values of these headers should be considered sensitive and the client should not expose these values in a log." So this is a security-sensitive map. The TS type doesn't signal this. Names like `secretHeaders` or wrapper types like `SensitiveString` would surface the constraint.
 - **Category:** 16 (field-vs-domain contradiction — sensitive content with normal-string type).
 - **Suggested name:** Keep `httpHeaders` but tag the type or document at the type level.
 - **Rationale:** Optional/low-priority but worth noting.
 
-### 49. `Schema` type is overloaded with zod `*Schema` helpers — `src/v1/model.ts:468`
-- **Why weird:** The name `Schema` is one of the most overloaded words in SDK ecosystems (zod schemas, validation schemas, database schemas). Inside this file zod schemas are also named `*Schema` (unmarshal/marshal helpers). So `Schema` (type) coexists with `unmarshalSchemaSchema` (helper) — and yes, that line literally exists at `model.ts:634`: `export const unmarshalSchemaSchema: z.ZodType<Schema> = ...`.
-- **Category:** 1 (vague — `Schema` is overloaded), 10 (reserved-word-ish), 12 (duplicate concept — zod `*Schema` everywhere).
-- **Suggested name:** `ResultSchema` (or `ColumnSchema`) to disambiguate from validation schemas. Then `unmarshalResultSchemaSchema` becomes only mildly stuttery but at least no longer self-referential.
+### 47. `Schema` type is a top-level export with a maximally overloaded name — `src/v1/model.ts:468`
+- **Why weird:** The name `Schema` is one of the most overloaded words in SDK ecosystems (validation schemas, database schemas, JSON schemas). Exported at the top level of the package, a consumer importing `Schema` from `@databricks/sdk-statementexecution` collides with any other `Schema` they pull in.
+- **Category:** 1 (vague — `Schema` is overloaded), 10 (reserved-word-ish), 15 (generic top-level export).
+- **Suggested name:** `ResultSchema` (or `ColumnSchema`) to disambiguate from other schema concepts.
 
-### 50. `name`, `value`, `type` triple on `StatementParameter` — `src/v1/model.ts:479-491`
+### 48. `name`, `value`, `type` triple on `StatementParameter` — `src/v1/model.ts:479-491`
 - **Why weird:** Three single-word fields on a single type, all `string | undefined`. The JSDoc explains: name is the marker name; value is the substituted text; type is the SQL type. The names work fine in this context but are maximally generic — `name`, `value`, `type` could mean anything. The `type` field collides with the TS keyword visually (though `type` isn't actually reserved in object-position).
 - **Category:** 1 (vague), 10 (reserved-word collision — `type` is contextually meaningful), 15 (generic names).
 - **Suggested name:** `parameterName`, `parameterValue`, `sqlType` — but local names are fine inside a clear-context type. Flagged for completeness.
 
-### 51. `QueryTag.key` and `QueryTag.value` — `src/v1/model.ts:404-405`
-- **Why weird:** Generic key-value pair. Same as #50 but for tags. `tagKey` + `tagValue` are common alternatives.
+### 49. `QueryTag.key` and `QueryTag.value` — `src/v1/model.ts:404-405`
+- **Why weird:** Generic key-value pair. Same as #48 but for tags. `tagKey` + `tagValue` are common alternatives.
 - **Category:** 1 (vague), 15 (generic).
 - **Suggested name:** Acceptable in context.
 
-### 52. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:38`
+### 50. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:38`
 - **Why weird:** Generic name. Same as `queryexecution.md` Finding #25.
 - **Category:** 1.
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
@@ -407,7 +395,7 @@ the cross-package vocabulary alignment (#17, #26).
 
 ## Themes
 
-1. **Proto/Go leakage.** `StatementStatus_State`, `ExternalLink_HttpHeadersEntry`, `*_UNSPECIFIED` sentinels, `marshal/unmarshal` verb pair, `ServiceErrorCode` mimicking `google.rpc.Code`. Every leakage point requires an ESLint disable or a special-casing in zod. Generator-wide.
-2. **Word stutter.** `ServiceError.errorCode`, `ResultData.dataArray`, `*ResultData` vs `*StatementResult`, `executeStatement` / `getStatementResult` / `statement` field, `Schema` vs `unmarshalSchemaSchema`. The wire shape doesn't help here; the TS surface could compress.
+1. **Proto/Go leakage.** `StatementStatus_State`, `ExternalLink_HttpHeadersEntry`, `*_UNSPECIFIED` sentinels, `ServiceErrorCode` mimicking `google.rpc.Code`. Every leakage point requires an ESLint disable or a special-casing in zod. Generator-wide.
+2. **Word stutter.** `ServiceError.errorCode`, `ResultData.dataArray`, `*ResultData` vs `*StatementResult`, `executeStatement` / `getStatementResult` / `statement` field. The wire shape doesn't help here; the TS surface could compress.
 3. **Generic top-level names.** `Format`, `Disposition`, `Schema`, `Client`, `ServiceError`. Each one is fine in isolation but collides with the surrounding ecosystem (other SDKs, zod, language builtins).
 4. **Polymorphic types pretending to be flat.** `ResultData` (inline vs external links), `StatementResponse` (executeStatement vs getStatementResult), `ChunkInfo` (manifest entry vs response chunk). Discriminated unions would surface the variants.

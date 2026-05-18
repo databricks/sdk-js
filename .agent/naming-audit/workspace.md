@@ -269,7 +269,7 @@ directDownload?: boolean | undefined;
 
 `directDownload` reads as a noun phrase ("the direct download"), but it's a boolean flag controlling response shape. Booleans are usually named with `is`/`has`/`should` prefixes or as adjectives. `streamBinary` or `responseAsBinary` would parse as a flag.
 
-The flag also has a semantic problem: when `true`, the response body is raw bytes; when `false`, the response body is a JSON object with base64. So the field changes the entire response content type, but the generated client (`export` method) parses the response identically in both cases (via `unmarshalExport_ResponseSchema`). The schema only handles the base64 case. Setting `directDownload: true` would crash the parser.
+The flag also has a semantic problem: when `true`, the response body is raw bytes; when `false`, the response body is a JSON object with base64. So the field changes the entire response content type, but the generated client (`export` method) parses the response identically in both cases. Setting `directDownload: true` would crash the parser.
 
 ### 13. `Export_Response.fileType` — underspecified
 
@@ -296,7 +296,7 @@ The doc says "the file type" but doesn't say in what form. Is it the extension (
 content?: Uint8Array | undefined;
 ```
 
-The JSDoc says the content is base64-encoded; the type is `Uint8Array` (raw bytes). The unmarshaller (`unmarshalExport_ResponseSchema:225`) does the base64 decode itself, so the field actually holds decoded bytes, contradicting the JSDoc. The JSDoc was lifted from the wire format documentation and not updated for the post-decode TS shape. A reader holding the type sees "Uint8Array of base64-encoded data," which is technically meaningless (Uint8Arrays are bytes, not base64).
+The JSDoc says the content is base64-encoded; the type is `Uint8Array` (raw bytes). The client decodes base64 before populating this field, so the field actually holds decoded bytes, contradicting the JSDoc. The JSDoc was lifted from the wire format documentation and not updated for the post-decode TS shape. A reader holding the type sees "Uint8Array of base64-encoded data," which is technically meaningless (Uint8Arrays are bytes, not base64).
 
 ### 15. `Import.content` typed `Uint8Array` with "base64-encoded" doc
 
@@ -311,7 +311,7 @@ The JSDoc says the content is base64-encoded; the type is `Uint8Array` (raw byte
 content?: Uint8Array | undefined;
 ```
 
-Mirror of finding 14 in the reverse direction. The marshaller (`marshalImportSchema:289-293`) encodes the bytes to base64 before sending; the TS user passes raw bytes despite the JSDoc saying "base64-encoded." Worse: a defensive caller who reads the JSDoc and base64-encodes their bytes will double-encode and corrupt the upload.
+Mirror of finding 14 in the reverse direction. The client encodes the bytes to base64 before sending; the TS user passes raw bytes despite the JSDoc saying "base64-encoded." Worse: a defensive caller who reads the JSDoc and base64-encodes their bytes will double-encode and corrupt the upload.
 
 ### 16. `ObjectInfo.createdAt` and `ObjectInfo.modifiedAt` — unit ambiguity, `Number` precision
 
@@ -555,8 +555,6 @@ RAW = 'RAW',
 8. **`mkdirs` and `getStatus` are Unix/POSIX verbs that don't appear elsewhere in the SDK.** The `files` package uses `createDirectory` and `getMetadata`. The `repos` package uses `getRepo`. Picking one verb per concept and applying it across packages would let users transfer knowledge.
 
 9. **Sentinel `OBJECT_TYPE_UNSPECIFIED` documented as "only used by list-repo."** The enum exports a value that the package consumers should never set but cannot remove without breaking the read side. A separate response-only enum or a `null` for "unknown" would be cleaner.
-
-10. **`utils.ts` is shared boilerplate.** The exported helpers (`executeCall`, `executeHttpCall`, `buildHttpRequest`, `parseResponse`, `marshalRequest`, `flattenQueryParams`) are not flagged — they are well-named. `flattenQueryParams` is exported but unused in `client.ts` (this package has no nested-object query parameters); orphaned export. No domain naming surface in this file.
 
 ## Domain glossary
 

@@ -3,15 +3,15 @@
 **Path:** `packages/marketplaces/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Databricks Marketplace — provider-side and exchange-side operations for managing **listings** (the marketplace storefront entry for a dataset, model, notebook, app, MCP, partner integration, or git repo), **providers** (the publisher account), **exchanges** (curated, scoped collections of listings, including exchange filters that scope visibility by metastore), **personalization requests** (consumer-side requests for tailored access), **files** attached to listings/providers (icons, embedded notebooks, embedded markdown, commit drawdown attachments), and a separate **provider analytics dashboard** sub-resource (a Lakeview-backed dashboard for provider-side analytics).
-**Total weird names flagged:** 65
+**Total weird names flagged:** 62
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 16 |
 | Medium | 32 |
-| Low | 10 |
-| Observation | 7 |
+| Low | 8 |
+| Observation | 6 |
 
 The marketplaces package is one of the more naming-distressed surfaces in the SDK. The single dominant problem is the proto-style `MessageType_Response` underscore-suffixed identifier pattern — present on 14 of the 24 request types and infecting `client.ts`, `index.ts`, and every transitive importer with `// eslint-disable-next-line @typescript-eslint/naming-convention` comments. Closely behind it is the **inconsistent request-type convention** within a single file: some request types follow the verb-shaped Go style (`CreateFile`, `DeleteFile`, `GetListing`, `GetListings`, `UpdateListing`, `ListFiles`, `CreateProvider`, `UpdateProvider`, `DeleteProvider`, `ListProviders`, `CreateProviderAnalyticsDashboard`, `UpdateProviderAnalyticsDashboard`, `GetLatestVersionProviderAnalyticsDashboard`, `ListProviderAnalyticsDashboard`, `GetPersonalizationRequestsForProvider`, `UpdatePersonalizationRequestStatus`) while others follow the more idiomatic `*Request`/`*Response` suffix (`CreateExchangeRequest`, `DeleteExchangeRequest`, `GetExchangeRequest`, `UpdateExchangeRequest`, `ListExchangesRequest`, `CreateExchangeFilterRequest`, `DeleteExchangeFilterRequest`, `UpdateExchangeFilterRequest`, `ListExchangeFiltersRequest`, `AddExchangeForListingRequest`, `RemoveExchangeForListingRequest`, `ListExchangesForListingRequest`, `ListListingsForExchangeRequest`) — split almost perfectly down the provider/exchange axis but not advertised that way. Other notable issues are the overloaded vocabulary triad **Listing / Exchange / Provider** without disambiguation (an exchange filter is a metastore-id allowlist, an exchange listing is a join row between an exchange and a listing, a listing detail is the body of a listing, and a personalization request is a consumer-side action targeting a listing), the cryptic plural irregularities around the noun `Listings` (the `GetListings` request and `GetListings_Response` payload field both use `listings`, while `CreateListing` and `DeleteListing` use the singular and `ListListingsForExchange` re-introduces the plural with a different field name `exchangeListings`), and several typo-grade or wire-leak names (`termOfServiceLink` missing the plural-`s` from "Terms of Service", `MarketplaceFileType.COMMIT_DRAWDOWN_REQUEST_ATTACHMENT` exposing an internal commit-drawdown workflow with a 33-character enum value, and the field `isFromLighthouse` referencing the internal-codename "Lighthouse" service in a public type).
 
@@ -943,36 +943,7 @@ providerRegion?: RegionInfo | undefined;
 
 ## Low severity
 
-### 49. `unmarshal*Schema` / `marshal*Schema` exports — `Schema` suffix tautology
-
-**Location:** `src/v1/model.ts:679, 690, 704, 713, 723, 735, 745, 755, 764, 774, 777, 781, 785, 789, 792, 818, 842, 862, 888, 898, 908, 917, 927, 937, 949, 963, 972, 983, 996, 1008, 1019, 1033, 1047, 1058, 1070, 1118, 1126, 1170, 1180, 1219, 1253, 1263, 1266, 1274, 1284, 1293, 1302, 1313, 1323, 1333, 1346, 1356, 1364, 1372, 1386, 1394, 1402, 1405, 1415, 1441, 1465, 1485, 1511, 1521, 1533, 1581, 1589, 1633, 1643, 1677, 1687, 1695, 1705, 1715, 1725, 1735, 1751, 1761`
-
-```ts
-export const unmarshalContactInfoSchema: z.ZodType<ContactInfo> = ...
-export const unmarshalCreateExchangeFilterResponseSchema: ...
-export const marshalProviderInfoSchema: z.ZodType = ...
-```
-
-~78 exports. Every name combines `marshal|unmarshal` + the type name + `Schema`. The `Schema` suffix is redundant — the `z.ZodType<X>` type annotation already says it's a Zod schema.
-- **Category:** 8 (redundant `Schema` suffix), 7 (overly verbose).
-- **Suggested name:** Drop `Schema` suffix: `unmarshalContactInfo`, `marshalProviderInfo`, etc.
-- **Rationale:** Cross-package consistency / verbosity.
-
-### 50. `unmarshal*_ResponseSchema` — proto-underscore + Schema-suffix combo
-
-**Location:** `src/v1/model.ts:723, 735, 745, 755, 781, 785, 789, 908, 917, 927, 937, 949, 963, 1008, 1033, 1047, 1302, 1313, 1323, 1333`
-
-```ts
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateFile_ResponseSchema: z.ZodType<CreateFile_Response> = ...
-```
-
-Same as #1 but for the schema exports — 14 schemas embed the proto underscore plus the redundant `Schema` suffix. Each requires its own `// eslint-disable-next-line` comment.
-- **Category:** 4 (underscore), 8 (Schema suffix), 14 (proto/Go-style names).
-- **Suggested name:** `unmarshalCreateFileResponse`, etc.
-- **Rationale:** Cascades from #1 and #49.
-
-### 51. `Listing.id` vs `ListingDetail.fileIds: string[]` vs `ListingSummary.exchangeIds: string[]` — id pluralization
+### 49. `Listing.id` vs `ListingDetail.fileIds: string[]` vs `ListingSummary.exchangeIds: string[]` — id pluralization
 
 **Location:** `src/v1/model.ts:457, 467, 533`
 
@@ -981,14 +952,14 @@ Mixed singular/plural id fields:
 - `ListingDetail.fileIds: string[]` — many file ids.
 - `ListingSummary.exchangeIds: string[]` — many exchange ids.
 - `ListingSummary.providerId: string` — single provider id.
-- `ListingSummary.createdById: number` — single id, type `number` (not `string` like other ids — see #52).
+- `ListingSummary.createdById: number` — single id, type `number` (not `string` like other ids — see #50).
 
 Within one transitive type (`Listing → ListingSummary | ListingDetail`), id fields use 4 different patterns: `id`, `*Id` (number), `*Id` (string), `*Ids` (string[]). Internal consistency check fails.
-- **Category:** 9 (singular/plural mismatch), 17 (inconsistent suffix convention), 19 (underspecified — see #52).
+- **Category:** 9 (singular/plural mismatch), 17 (inconsistent suffix convention), 19 (underspecified — see #50).
 - **Suggested name:** Pick one — `*Id`/`*Ids` is standard.
 - **Rationale:** Observation; flagged for completeness.
 
-### 52. `ListingSummary.createdById: number` and `updatedById: number` — id typed as number
+### 50. `ListingSummary.createdById: number` and `updatedById: number` — id typed as number
 
 **Location:** `src/v1/model.ts:530-531`
 
@@ -1002,7 +973,7 @@ User ids are typed as `number`. JS `number` only safely represents integers up t
 - **Suggested name:** `createdById: string` or `bigint`.
 - **Rationale:** Lossy representation; consistency with other id fields (all `string`).
 
-### 53. `Visibility.PUBLIC` / `Visibility.PRIVATE` — binary enum named `Visibility`
+### 51. `Visibility.PUBLIC` / `Visibility.PRIVATE` — binary enum named `Visibility`
 
 **Location:** `src/v1/model.ts:136-139`
 
@@ -1018,7 +989,7 @@ Two-value enum. Could be a boolean (`isPublic?: boolean`) or a string literal ty
 - **Suggested name:** Could be `'public' | 'private'` literal union.
 - **Rationale:** Observation.
 
-### 54. `ListingShareType.SAMPLE` / `ListingShareType.FULL` — adjective vs noun
+### 52. `ListingShareType.SAMPLE` / `ListingShareType.FULL` — adjective vs noun
 
 **Location:** `src/v1/model.ts:90-93`
 
@@ -1034,7 +1005,7 @@ export enum ListingShareType {
 - **Suggested name:** `SAMPLE` / `COMPLETE` (both nouns) or `PARTIAL` / `FULL` (both adjectives).
 - **Rationale:** Internal consistency.
 
-### 55. `ListingType.STANDARD` / `ListingType.PERSONALIZED` — adjective values
+### 53. `ListingType.STANDARD` / `ListingType.PERSONALIZED` — adjective values
 
 **Location:** `src/v1/model.ts:109-112`
 
@@ -1050,7 +1021,7 @@ Two adjective values. Fine. Flagged because the package also has `Personalizatio
 - **Suggested name:** No rename.
 - **Rationale:** Internal consistency check.
 
-### 56. `ProviderInfo.iconFilePath` vs `iconFileId` — id and path co-located
+### 54. `ProviderInfo.iconFilePath` vs `iconFileId` — id and path co-located
 
 **Location:** `src/v1/model.ts:572, 580`
 
@@ -1065,7 +1036,7 @@ Same icon represented two ways — `iconFilePath` (a URL or storage path) and `i
 - **Suggested name:** No rename; flag for doc clarification.
 - **Rationale:** Observation.
 
-### 57. `ProviderInfo.darkModeIconFileId` / `darkModeIconFilePath` — naming for a UI mode
+### 55. `ProviderInfo.darkModeIconFileId` / `darkModeIconFilePath` — naming for a UI mode
 
 **Location:** `src/v1/model.ts:583-584`
 
@@ -1079,7 +1050,7 @@ The `darkMode` prefix encodes a UI rendering mode in a server-side data type. Th
 - **Suggested name:** `iconDarkFileId` / `iconDarkFilePath` or just `darkIcon*`.
 - **Rationale:** Observation.
 
-### 58. Method docstring inconsistency — `client.ts`
+### 56. Method docstring inconsistency — `client.ts`
 
 **Location:** `src/v1/client.ts:178, 207, 232, 261, 287, 313, 339, 371, 396, 424, 449, 474, 499, 524, 549, 577, 602, 656, 713, 738, 795, 846, 903, 961, 1018, 1046, 1097, 1125, 1151, 1180, 1206, 1238, 1264`
 
@@ -1106,29 +1077,25 @@ Inconsistent docstring style:
 
 ## Observations
 
-### 59. v1-only audit
+### 57. v1-only audit
 The marketplaces package has only v1 today (`packages/marketplaces/src/v1/`), so no v1↔v2 comparison to make.
 
-### 60. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:147`
+### 58. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:147`
 Same generic-name issue flagged in other audits — every package emits a `PACKAGE_SEGMENT` constant for User-Agent assembly. Cross-package consistency observation only.
 - **Category:** 1 (vague), 15 (generic name).
 
-### 61. `flattenQueryParams` — `src/v1/utils.ts:123`
+### 59. `flattenQueryParams` — `src/v1/utils.ts:123`
 The helper is used by `client.ts:911-915` to flatten the `file_parent` nested query object in `listFiles`. Most other packages emit this helper unused; here it's actually used. Cross-package consistency observation.
 - **Category:** Observation.
 
-### 62. `readAll` — `src/v1/utils.ts:40`
+### 60. `readAll` — `src/v1/utils.ts:40`
 Internal helper, same as in other packages. Generic name (`io.ReadAll` Go idiom). Could be `readStreamToEnd` or `bufferStream`.
 - **Category:** 1 (vague), 14 (Go-style name).
 
-### 63. `parseResponse` / `marshalRequest` verb asymmetry — `src/v1/utils.ts:113, 119`
-`parseResponse` (decode) is the inverse of `marshalRequest` (encode); two different verbs for opposite operations within one file. The model file uses `marshal*` / `unmarshal*` consistently — `parseResponse` is the odd one out.
-- **Category:** 17 (inconsistent action verbs).
-
-### 64. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 61. `HttpCallOptions` — `src/v1/utils.ts:15`
 Yet another `Options` suffix; `Options` (from `@databricks/sdk-core/api`) and `CallOptions` are also in scope. Could be `HttpCallContext`. Cross-package consistency observation.
 - **Category:** 1 (vague suffix), 17 (inconsistent).
 
-### 65. Exported but not in `index.ts`
+### 62. Exported but not in `index.ts`
 `index.ts` exports types but not the `*_Response` schemas, marshal/unmarshal functions, or the `*_Response` types fully (note: `CreateFile_Response` is exported via `index.ts:32` — so the underscore wart reaches the public surface). The fact that consumers do see the underscore form via the index export means every change to remove the underscore would be a breaking change.
 - **Category:** Observation.

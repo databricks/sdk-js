@@ -40,13 +40,6 @@ Files audited: `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`,
 - `UpdateCleanRoomAutoApprovalRuleRequest` (`autoApprovalRule?:
   CleanRoomAutoApprovalRule`)
 
-### Schemas / marshalling helpers (exported from `model.ts`)
-
-- `unmarshalCleanRoomAutoApprovalRuleSchema`
-- `unmarshalListCleanRoomAutoApprovalRulesResponseSchema`
-- `marshalCleanRoomAutoApprovalRuleSchema`
-- `marshalCreateCleanRoomAutoApprovalRuleRequestSchema`
-
 ### `client.ts`
 
 - `class Client`
@@ -61,8 +54,8 @@ Files audited: `src/v1/model.ts`, `src/v1/client.ts`, `src/v1/utils.ts`,
 ### `utils.ts`
 
 - `interface HttpCallOptions`
-- `executeCall`, `executeHttpCall`, `buildHttpRequest`, `parseResponse`,
-  `marshalRequest`, `flattenQueryParams`, internal `readAll`
+- Internal HTTP helpers (request building, response handling, query
+  flattening, etc.).
 
 ### `index.ts`
 
@@ -242,19 +235,7 @@ export a more specific name (`AutoApprovalRulesClient`,
 `CleanRoomAutoApprovalRulesClient`). Either way, this is a *package-wide*
 decision; this audit just flags that the bare `Client` name is generic.
 
-### 12. `listCleanRoomAutoApprovalRulesIter` — Category 7 (overly verbose) / Category 14 (Go-style name)
-
-The `Iter` suffix is a Go-ism (Go iterators historically end in `Iter`).
-For async generators in TS, the idiomatic name is plural-of-resource (the
-method already returns an `AsyncGenerator`), e.g., `listAllRules` /
-`rulesIterator` / overload `list()` to return `AsyncIterable`. Even keeping
-the suffix, dropping the long resource prefix (`listIter(...)` /
-`iterRules(...)`) would shave 24 characters. JS callers do not need the
-"Iter" disambiguator because `for await (const r of client.list(...))`
-already signals iteration; a separate `listRulesPage(...)` could carry the
-single-page behaviour if both shapes are needed.
-
-### 13. `nextPageToken` / `pageToken` are duplicated across the response and request — Category 12 (duplicate concepts) [informational]
+### 12. `nextPageToken` / `pageToken` are duplicated across the response and request — Category 12 (duplicate concepts) [informational]
 
 `ListCleanRoomAutoApprovalRulesResponse.nextPageToken` and
 `ListCleanRoomAutoApprovalRulesRequest.pageToken` are wire-mandated and
@@ -262,7 +243,7 @@ match the Databricks pagination convention. This is *not* a finding to act
 on — it is the standard pagination shape used across all packages. Logged
 for completeness because the prompt asks for an exhaustive scan.
 
-### 14. Doc references undefined casing — Category 16 (field contradicting type domain) [minor]
+### 13. Doc references undefined casing — Category 16 (field contradicting type domain) [minor]
 
 The JSDoc on `authorCollaboratorAlias` says:
 
@@ -279,32 +260,30 @@ arm of `authors` should be populated"). Same issue on line 25 of
 `ListCleanRoomAutoApprovalRulesResponse.nextPageToken` says "`page_token`
 should be set", which should read `pageToken`.
 
-### 15. Docs say "a auto-approval rule" — typo (not naming, but on JSDoc) [minor]
+### 14. Docs say "a auto-approval rule" — typo (not naming, but on JSDoc) [minor]
 
 `client.ts:96`, `client.ts:115`, `client.ts:194` use `Delete a
 auto-approval`, `Get a auto-approval`, `Update a auto-approval`. The
 article should be `an`. This is generated text; flag it for the
 generator. Not strictly a naming issue, but it sits in the same area.
 
-### 16. `Client` constructor field `userAgent` — Category 1 (vague) [minor]
+### 15. `Client` constructor field `userAgent` — Category 1 (vague) [minor]
 
 `private readonly userAgent: string` (`client.ts:49`) holds the *value* of
 the `User-Agent` header. The name reads as a thing rather than a header
 value. `userAgentHeader` or `userAgentValue` is unambiguous. Minor — the
 JSDoc above the field explains it — but consistent with the audit's brief.
 
-### 17. `utils.ts` is a kitchen-sink module name — Category 1 (vague/generic)
+### 16. `utils.ts` is a kitchen-sink module name — Category 1 (vague/generic)
 
-`utils.ts` houses `executeCall`, `executeHttpCall`, `buildHttpRequest`,
-`parseResponse`, `marshalRequest`, `flattenQueryParams`, `readAll`, and
-`HttpCallOptions`. Per the SDK's existing breakdown (see
-`@databricks/sdk-core/api`, `.../apierror`, `.../http`, `.../logger`), these
-helpers would normally live in a named module (e.g., `http.ts`,
-`request.ts`). All sibling API packages emit the same `utils.ts`, so this is
-a generator-level concern, not a per-package one. Flagged because the brief
-asks about generic names.
+The package's internal helpers all live in a single `utils.ts`. Per the SDK's
+existing breakdown (see `@databricks/sdk-core/api`, `.../apierror`,
+`.../http`, `.../logger`), these helpers would normally live in a named
+module (e.g., `http.ts`, `request.ts`). All sibling API packages emit the
+same `utils.ts`, so this is a generator-level concern, not a per-package
+one. Flagged because the brief asks about generic names.
 
-### 18. Method docstrings use "rule ID" inconsistently with field name — Category 6 (misleading names) [minor]
+### 17. Method docstrings use "rule ID" inconsistently with field name — Category 6 (misleading names) [minor]
 
 JSDocs say "Delete a auto-approval rule by rule ID", "Get a auto-approval
 rule by rule ID", "Update a auto-approval rule by rule ID". The request
@@ -312,7 +291,7 @@ fields are `ruleId` (camelCase). A reader scanning the docs sees "rule ID"
 and may search for a field called "rule ID" or "ID". Either keep "ruleId"
 verbatim in the prose or just say "by ID".
 
-### 19. `cleanRoomName` is the identifier doing double duty — Category 19 (underspecified ID) [minor]
+### 18. `cleanRoomName` is the identifier doing double duty — Category 19 (underspecified ID) [minor]
 
 The path identifier is the `cleanRoomName` (a URL segment). In other
 packages this is sometimes `cleanRoomId` (UUID) or a `metastoreId`. Here it
@@ -327,24 +306,23 @@ finding 10.
 ## Themes / suggested resolution priority
 
 1. **Verbosity from the package name leaking into every symbol.** Findings
-   1, 2, 3, 4, 12. This is the dominant issue: `CleanRoomAutoApproval`
+   1, 2, 3, 4. This is the dominant issue: `CleanRoomAutoApproval`
    appears in every type and method name even though it is already in the
    package import path. Strip the prefix and the surface area becomes about
    half as wide on screen.
-2. **Proto/Go ergonomics surfacing in TS.** Findings 3, 4, 5, 6, 12.
-   `_`-joined enum names, `_UNSPECIFIED` sentinels, and `Iter`-suffixed
-   iterators are conventions imported from protobuf/Go that have no payoff
-   in TypeScript.
+2. **Proto/Go ergonomics surfacing in TS.** Findings 3, 4, 5, 6.
+   `_`-joined enum names and `_UNSPECIFIED` sentinels are conventions
+   imported from protobuf/Go that have no payoff in TypeScript.
 3. **Field-name ambiguity around identifiers and aliases.** Findings 7, 8,
-   9, 10, 19. `authors`/`runners` are plural but always single;
+   9, 10, 18. `authors`/`runners` are plural but always single;
    collaborator aliases are typed `string`; `ruleId` is a UUID typed
    `string`. Type aliases plus singular field names would cover all of
    these.
-4. **Doc/identifier drift from the wire format.** Findings 14, 15, 18. JSDoc
+4. **Doc/identifier drift from the wire format.** Findings 13, 14, 17. JSDoc
    text references `snake_case` field names and includes generated-text
    typos. These are docs-only fixes but they bear on naming clarity.
 5. **Module-shape concerns** (only logged for awareness because the prompt
-   asked for an exhaustive sweep): findings 11, 16, 17.
+   asked for an exhaustive sweep): findings 11, 15, 16.
 
 ---
 

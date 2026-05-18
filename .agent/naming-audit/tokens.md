@@ -3,14 +3,14 @@
 **Path:** `packages/tokens/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Databricks workspace Personal Access Token (PAT) management — the *end-user-facing* surface for a workspace user to create/list/revoke/update their own tokens. Endpoints live under `/api/2.0/token/...`. Pairs with the *admin-facing* `tokenmanagement` package at `/api/2.0/token-management/...` which lets workspace administrators inspect and revoke tokens owned by *other* users (including on-behalf-of service principal tokens). The two packages share an `AutoscopeState` enum and a near-identical "token info" record, but the auth/audience boundary makes them distinct services.
-**Total weird names flagged:** 35
+**Total weird names flagged:** 31
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 9 |
-| Medium | 11 |
-| Low | 10 |
+| Medium | 10 |
+| Low | 7 |
 | Observation | 5 |
 
 ## High severity
@@ -148,13 +148,7 @@
 - **Suggested name:** `runWithCallOptions` / `sendHttp`, or `wrapCall` / `dispatchHttp`.
 - **Rationale:** Cross-package: same as `rfa#32`, recurs everywhere.
 
-### 19. `marshalRequest` / `parseResponse` verb asymmetry — `utils.ts:113,119`
-- **Why weird:** `parseResponse` (decode) is the inverse of `marshalRequest` (encode); two different verbs for opposite operations in the same file. The rest of the package consistently uses `marshal*`/`unmarshal*` (the schemas: `marshalCreateTokenSchema`, `unmarshalPublicTokenInfoSchema`, etc.), so the function-level utility breaks the package's own convention.
-- **Category:** 17 (inconsistent action verbs), 13 (intra-package inconsistency).
-- **Suggested name:** `unmarshalResponse` / `marshalRequest` for pair symmetry.
-- **Rationale:** Cross-package: same as `rfa#31`.
-
-### 20. `HttpCallOptions` shadows package's other `Options` types — `utils.ts:15`
+### 19. `HttpCallOptions` shadows package's other `Options` types — `utils.ts:15`
 - **Why weird:** The file imports `Options` from `@databricks/sdk-core/api` (line 3) and `CallOptions` from `@databricks/sdk-options/call` (line 12). Three `Options`-suffixed types in scope. `HttpCallOptions` is internal — purely a context bag passed to `executeHttpCall`.
 - **Category:** 1 (vague suffix).
 - **Suggested name:** `HttpCallContext` (it's a context bag, not user-tunable options).
@@ -162,81 +156,57 @@
 
 ## Low severity
 
-### 21. `marshalCreateTokenSchema` etc. — redundant `Schema` suffix on every codec — `model.ts:99-212`
-- **Why weird:** Seven marshal/unmarshal schemas, all suffixed `Schema`. Names get long (`unmarshalCreateToken_ResponseSchema` = 35 chars including the `_`). The suffix repeats info already captured by the `z.ZodType<...>` typing.
-- **Category:** 8 (redundant suffix `Schema`).
-- **Suggested name:** Drop `Schema` (`unmarshalCreateTokenResponse`, `marshalRevokeToken`), or shorten to `decode*`/`encode*` verbs.
-- **Rationale:** Same as `rfa#30`.
+### 20. `publicTokenInfoFieldMask` exported helper — public-API field-mask builder — `model.ts:226`
+- **Why weird:** The package exports `publicTokenInfoFieldMask(...)` as a top-level helper alongside the `Client`. Field-mask builders are an SDK-shape choice: making one a public export per type bakes the proto-FieldMask convention into the public API surface. Consumers writing `UpdateToken` payloads must learn this helper.
+- **Category:** 8 (helper-as-public-API), 13 (intra-package inconsistency — see #26 re-export gap).
+- **Suggested name:** Either hoist into a single `Client.updateToken` overload that accepts a partial payload and derives the mask, or document the helper prominently in `index.ts`.
+- **Rationale:** Exporting per-type mask builders is a Go-port artefact; native TS would lean on `Partial<T>` + key inference.
 
-### 22. `publicTokenInfoFieldMaskSchema` internal const + `publicTokenInfoFieldMask` exported helper — `model.ts:214,226`
-- **Why weird:** Two helpers with near-identical names: an internal `publicTokenInfoFieldMaskSchema` (the lookup table) and an exported `publicTokenInfoFieldMask(...)` (the builder). The `Schema` suffix on one, no suffix on the other, while both relate to field-mask handling.
-- **Category:** 8 (redundant suffix), 13 (intra-package inconsistency).
-- **Suggested name:** Either `publicTokenInfoFieldMaskPaths` (the static map) and `publicTokenInfoFieldMask` (the builder), or hoist into a single object exposing both.
-- **Rationale:** Generator artefact; mechanical fix.
-
-### 23. `readAll` — generic helper name — `utils.ts:40`
+### 21. `readAll` — generic helper name — `utils.ts:40`
 - **Why weird:** Internal helper name is generic; clashes cognitively with `Array.prototype` / stream utilities.
 - **Category:** 1 (vague).
 - **Suggested name:** `readStreamToEnd` / `drainStream`.
 - **Rationale:** Same as `rfa#34`.
 
-### 24. `flattenQueryParams` — `utils.ts:123`
+### 22. `flattenQueryParams` — `utils.ts:123`
 - **Why weird:** Exported but unused in this package (`client.ts` only ever builds JSON bodies). Dead-looking export.
 - **Category:** Observation / 11 (unused public helper).
 - **Suggested name:** Remove from utils if it's a generator default; or keep, but stop emitting it for body-only services.
 - **Rationale:** Same as `rfa#35`.
 
-### 25. `PACKAGE_SEGMENT` constant — `client.ts:41`
+### 23. `PACKAGE_SEGMENT` constant — `client.ts:41`
 - **Why weird:** `Segment` is a generic word; without the inline comment the constant doesn't communicate User-Agent identity.
 - **Category:** 1 (vague), 15 (generic name).
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
 - **Rationale:** Same as `rfa#36`.
 
-### 26. `buildHttpRequest` parameter list — five positional args — `utils.ts:96-102`
+### 24. `buildHttpRequest` parameter list — five positional args — `utils.ts:96-102`
 - **Why weird:** Five positional parameters (`method`, `url`, `headers`, `signal`, `body`) with the optional ones at the end. Callers in `client.ts:86,111,141,171` pass them positionally; the order is non-obvious from the name. Easy to confuse `signal` and `body` (both optional, both at the end).
 - **Category:** 1 (vague — five-positional builder).
 - **Suggested name:** Keep name; accept a single options object `{ method, url, headers, signal?, body? }`.
 - **Rationale:** Same as `rfa#38`.
 
-### 27. `marshalRequest(data: unknown, schema: z.ZodType): string` — `utils.ts:119`
-- **Why weird:** The function parses `data` against `schema` and returns a JSON string. The name says "marshal request", but it's used for *any* outbound body, including update bodies that aren't strictly "request DTOs" in the sense of "request type". Mechanical.
-- **Category:** 6 (misleading), 1 (vague).
-- **Suggested name:** `marshalJson` or `serializeBody`.
-- **Rationale:** Same as `rfa#39`.
-
-### 28. `parseResponse` overloads with `JSON.parse` and `schema.parse` — `utils.ts:113`
-- **Why weird:** Returns `T` where `T` is the schema's inferred type. The name "parse" overloads with `JSON.parse` (called inside) and with `schema.parse` (also called inside). Three layers of "parse" in five lines.
-- **Category:** 1 (vague).
-- **Suggested name:** `decodeResponse` or `unmarshalJson`.
-- **Rationale:** Same as `rfa#40`.
-
-### 29. `executeCall` `opts` local shadows `options` parameter — `utils.ts:30-37`
+### 25. `executeCall` `opts` local shadows `options` parameter — `utils.ts:30-37`
 - **Why weird:** Local `opts` variable is one letter shorter than the parameter `options` to disambiguate. The shadowing convention isn't documented.
 - **Category:** Observation.
 - **Suggested name:** Rename inner `opts` → `internalOptions`.
 - **Rationale:** Same as `rfa#41`.
 
-### 30. `unmarshalRevokeToken_ResponseSchema` — proto-style underscore propagates into schema constant — `model.ts:147-148`
-- **Why weird:** The `_Response` underscore from finding #7 propagates into the schema constant: `unmarshalRevokeToken_ResponseSchema` is 37 chars including the underscore, and the underscore *inside the identifier* makes IDE autocomplete jagged.
-- **Category:** 4 (underscore in TS identifier).
-- **Suggested name:** Combine with #7 (drop underscore everywhere).
-- **Rationale:** Mechanical.
-
 ## Observations
 
-### 31. `index.ts` re-exports interfaces but not marshal/unmarshal schemas
-The index file exports the `Client`, the `AutoscopeState` enum, and nine model interfaces. It does *not* export the `marshal*Schema`/`unmarshal*Schema` constants or the `publicTokenInfoFieldMask` helper. Consistent with sibling packages but means a downstream consumer cannot build field masks without reaching into `./model` directly. Same finding as `rfa#43`.
+### 26. `index.ts` re-exports interfaces but not the `publicTokenInfoFieldMask` helper
+The index file exports the `Client`, the `AutoscopeState` enum, and nine model interfaces. It does *not* export the `publicTokenInfoFieldMask` helper. Consistent with sibling packages but means a downstream consumer cannot build field masks without reaching into `./model` directly. Same finding as `rfa#43`.
 
-### 32. `package.json` description is empty string — `package.json:4`
+### 27. `package.json` description is empty string — `package.json:4`
 `"description": ""`. The npm package has no public description string. Combined with the ambiguous `tokens` name (see #1) and the parallel `tokenmanagement` package, this leaves users without any registry-level metadata to disambiguate the two packages.
 
-### 33. No tests in the package
+### 28. No tests in the package
 `package.json` line 24-25: `"test": "echo 'no tests'"`, `"test:browser": "echo 'no tests'"`. Same as `tokenmanagement` and most newly-generated packages. Not a naming issue, but the wire-format guarantees (`AutoscopeState` proto-link in the doc) deserve a contract test.
 
-### 34. Doc comments leak proto file paths and internal commentary
+### 29. Doc comments leak proto file paths and internal commentary
 The `AutoscopeState` doc (model.ts:7-12) references `common/principal-context/api/proto/tokendetails.proto` and `Principal context proto should NOT depend on this proto definitions` — internal architecture commentary that leaks into the public SDK surface. Similar pattern in `tokenmanagement`. Acceptable for now, but a polish pass should strip internal proto-tree paths from the user-facing JSDoc.
 
-### 35. Method `updateToken` uses URL path interpolation on a potentially empty string — `client.ts:165`
+### 30. Method `updateToken` uses URL path interpolation on a potentially empty string — `client.ts:165`
 `const url = \`${this.host}/api/2.0/token/${req.tokenId ?? ''}\`;` — when `req.tokenId` is unset, the URL becomes `${host}/api/2.0/token/` with a trailing slash, which the server may treat differently than a missing ID. Naming-adjacent: the type makes `tokenId` optional (`model.ts:89`), but the endpoint requires it. The TS surface doesn't enforce the required-ness. Not a naming issue per se — but a type-name fix (`tokenId: string` — required) would prevent the silent empty path.
 
 ## Domain glossary

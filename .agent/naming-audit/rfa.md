@@ -3,14 +3,14 @@
 **Path:** `packages/rfa/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Unity Catalog **R**equest **F**or **A**ccess — manage where access-request notifications are routed (the destinations: email addresses, Slack channels, Microsoft Teams webhooks, generic webhooks, or URLs) when end-users request access to a UC securable (catalog/schema/table/etc.). Also exposes a batched create endpoint that lets a caller fire one or more access requests on behalf of principals against a list of securables, returning the destinations the request will be sent to. URL prefix is `/api/3.0/rfa/...`.
-**Total weird names flagged:** 46
+**Total weird names flagged:** 41
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 10 |
 | Medium | 18 |
-| Low | 13 |
+| Low | 8 |
 | Observation | 5 |
 
 ## High severity
@@ -193,103 +193,73 @@
 
 ## Low severity
 
-### 29. `unmarshalAccessRequestDestinationsSchema` (and 6 other `unmarshal*Schema` / `marshal*Schema`) — `model.ts:189,212,223,236,249,259,271,291,301,315,327,337,349`
-- **Why weird:** 12 marshal/unmarshal schemas, all suffixed `Schema`. Names get long (`unmarshalAccessRequestDestinationsSchema` = 38 chars). The suffix repeats info already captured by the `z.ZodType<...>` typing.
-- **Category:** 8 (redundant suffix `Schema`).
-- **Suggested name:** Drop `Schema` (`unmarshalAccessRequestDestinations`, `marshalCreateAccessRequest`), or shorten to `decode*`/`encode*` verbs.
-- **Rationale:** Internal/generator style; same finding as `connections#33`, recurs across the SDK.
-
-### 30. `marshalRequest` / `parseResponse` verb asymmetry — `utils.ts:113,119`
-- **Why weird:** `parseResponse` (decode) is the inverse of `marshalRequest` (encode); two different verbs for opposite operations within the same file.
-- **Category:** 17 (inconsistent action verbs).
-- **Suggested name:** `unmarshalResponse` / `marshalRequest` for pair symmetry.
-- **Rationale:** Cross-package: same finding as `connections#39`.
-
-### 31. `executeCall` / `executeHttpCall` naming pair — `utils.ts:26,65`
+### 29. `executeCall` / `executeHttpCall` naming pair — `utils.ts:26,65`
 - **Why weird:** Two functions distinguished only by an `Http` infix. `executeCall` wraps retry/rate-limit/timeout; `executeHttpCall` does the actual fetch + logging + error throw. Easy to confuse at call site.
 - **Category:** 1 (vague), 17.
 - **Suggested name:** `runWithCallOptions` / `sendHttp`, or `wrapCall` / `dispatchHttp`.
 - **Rationale:** Same as `connections#40`.
 
-### 32. `HttpCallOptions` — `utils.ts:15`
+### 30. `HttpCallOptions` — `utils.ts:15`
 - **Why weird:** Yet another `Options` suffix; the file imports `Options` from `@databricks/sdk-core/api` and `CallOptions` from `@databricks/sdk-options/call`. Three `Options` types in scope. `HttpCallOptions` is internal — purely a context bag for `executeHttpCall`.
 - **Category:** 1 (vague suffix).
 - **Suggested name:** `HttpCallContext` (it's a context bag, not user-tunable options).
 - **Rationale:** Same as `connections#41`.
 
-### 33. `readAll` — `utils.ts:40`
+### 31. `readAll` — `utils.ts:40`
 - **Why weird:** Internal helper name is generic; clashes cognitively with `Array.prototype` / stream utilities.
 - **Category:** 1 (vague).
 - **Suggested name:** `readStreamToEnd` / `drainStream`.
 - **Rationale:** Same as `connections#38`.
 
-### 34. `flattenQueryParams` — `utils.ts:123`
+### 32. `flattenQueryParams` — `utils.ts:123`
 - **Why weird:** Exported but unused in this package (`client.ts` builds query strings inline with `URLSearchParams.append`). Dead-looking export.
 - **Category:** Observation / 11 (unused public helper).
 - **Suggested name:** Remove from utils if it's a generator default.
 - **Rationale:** Generator emits the same helper into every package even when unused. Same as `connections#37`.
 
-### 35. `PACKAGE_SEGMENT` constant — `client.ts:35`
+### 33. `PACKAGE_SEGMENT` constant — `client.ts:35`
 - **Why weird:** `Segment` is a generic word; without the comment the constant doesn't communicate User-Agent identity.
 - **Category:** 1 (vague), 15 (generic name).
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
 - **Rationale:** Same as `connections#36`.
 
-### 36. `Client` class — `client.ts:40`
+### 34. `Client` class — `client.ts:40`
 - **Why weird:** Top-level class literally named `Client`. Re-exported through `index.ts` as just `Client`. Two RFA packages co-existing in user code would clash on import (`import {Client} from '@databricks/sdk-rfa/v1'` vs `import {Client} from '@databricks/sdk-accounts/v1'`).
 - **Category:** 1 (vague).
 - **Suggested name:** `RfaClient` or `AccessRequestClient` (better — see #1).
 - **Rationale:** Same finding as `dataclassification`. Recurs across all generated packages.
 
-### 37. `buildHttpRequest` parameter list — `utils.ts:96-102`
+### 35. `buildHttpRequest` parameter list — `utils.ts:96-102`
 - **Why weird:** Five positional parameters (`method`, `url`, `headers`, `signal`, `body`) with the optional ones at the end. The function name `buildHttpRequest` doesn't communicate the parameter order; callers in `client.ts:87,122,166` pass them positionally. Easy to confuse `signal` and `body` (both optional, both at the end).
 - **Category:** 1 (vague — five-positional builder).
 - **Suggested name:** Keep name; accept a single options object `{ method, url, headers, signal?, body? }`.
 - **Rationale:** Five-positional builders without object syntax are an anti-pattern in modern TS.
 
-### 38. `marshalRequest(data: unknown, schema: z.ZodType): string` — `utils.ts:119`
-- **Why weird:** The function parses `data` against `schema` and returns a JSON string. The name says "marshal request", but it's used for *any* outbound body, including update bodies that aren't strictly "requests" in the sense of "user-facing request DTO" (e.g. line 158 marshals `accessRequestDestinations` which is the payload of an update, not the wrapping `UpdateAccessRequestDestinationsRequest`).
-- **Category:** 6 (misleading), 1 (vague).
-- **Suggested name:** `marshalJson` or `serializeBody`.
-- **Rationale:** Mechanical; not blocking.
-
-### 39. `parseResponse` typed return — `utils.ts:113`
-- **Why weird:** Returns `T` where `T` is the schema's inferred type. The name "parse" overloads with `JSON.parse` (called inside) and with `schema.parse` (also called inside). Three layers of "parse" in nine lines.
-- **Category:** 1 (vague).
-- **Suggested name:** `decodeResponse` or `unmarshalJson`.
-- **Rationale:** Mechanical.
-
-### 40. Loose typing for `executeCall(call, options)` `Options` field copying — `utils.ts:30-37`
+### 36. Loose typing for `executeCall(call, options)` `Options` field copying — `utils.ts:30-37`
 - **Why weird:** The `Options` shape is built with a series of `...(options?.foo !== undefined && {foo: options.foo})` spreads. The pattern is a TS-idiom for conditional spread of optional fields. Naming-wise: the local `opts` variable is intentionally one letter shorter than `options` to disambiguate — but the shadowing convention isn't documented.
 - **Category:** Observation.
 - **Suggested name:** Rename inner `opts` → `internalOptions` (or the outer parameter to `callOptions`).
 - **Rationale:** Mechanical.
 
-### 41. `accessRequestDestinationsFieldMaskSchema` and `securableFieldMaskSchema` — `model.ts:359,380`
-- **Why weird:** Internal `*FieldMaskSchema` constants (not exported). Names are 41 / 26 chars. Inconsistent capitalization with other helpers (`unmarshal*Schema` is exported, `*FieldMaskSchema` is not — yet both end with `Schema`).
-- **Category:** 8 (redundant suffix `Schema`).
-- **Suggested name:** `accessRequestDestinationsFieldMask` (drop trailing `Schema`).
-- **Rationale:** Generator-emitted; cross-package consistency issue.
-
 ## Observations
 
-### 42. `index.ts` is exhaustive but doesn't re-export schemas — `index.ts:1-24`
+### 37. `index.ts` is exhaustive but doesn't re-export schemas — `index.ts:1-24`
 The index file exports the `Client`, all four enums, and all nine model interfaces (`AccessRequestDestinations`, `BatchCreateAccessRequestsRequest`, `BatchCreateAccessRequestsResponse`, `CreateAccessRequest`, `CreateAccessRequestResponse`, `GetAccessRequestDestinationsRequest`, `NotificationDestination`, `Principal`, `Securable`, `SecurablePermissions`, `UpdateAccessRequestDestinationsRequest`). It does *not* export the `marshal*`/`unmarshal*` schemas or the `accessRequestDestinationsFieldMask` helper. Consistent with the other packages but means the field-mask helper isn't available to consumers.
 - **Category:** Observation.
 
-### 43. Comment-tag inconsistency — `client.ts:78,117,151` vs URL
+### 38. Comment-tag inconsistency — `client.ts:78,117,151` vs URL
 The URL constant `/api/3.0/rfa/...` (lower-case "rfa") is the only place the package name appears outside of imports — the entire SDK surface otherwise uses spelled-out names. Suggests the API itself owns the `rfa` shortname and the SDK is mechanically reflecting it. Worth confirming with the API team whether the URL prefix is intended to stay `/rfa/` or migrate to `/access-requests/`.
 - **Category:** Observation.
 
-### 44. No tests in the package
+### 39. No tests in the package
 `package.json` line 24-25: `"test": "echo 'no tests'"`, `"test:browser": "echo 'no tests'"`. The package ships untested. Not a naming issue, but cross-package noise — same as several other newly generated packages.
 - **Category:** Observation.
 
-### 45. Action-verb conventions on `Client`
+### 40. Action-verb conventions on `Client`
 `batchCreateAccessRequests`, `getAccessRequestDestinations`, `updateAccessRequestDestinations` — three different verbs across two resources. Verbs themselves match REST convention (`create`/`get`/`update`); the naming inconsistency is that the verb's target switches mid-class (see #28).
 - **Category:** Observation.
 
-### 46. `package.json` description is empty string — `package.json:4`
+### 41. `package.json` description is empty string — `package.json:4`
 `"description": ""`. The npm package has no public description string. Combined with the cryptic `rfa` name (see #1), this leaves users with no metadata to identify the package's purpose when browsing npm.
 - **Category:** Observation.
 

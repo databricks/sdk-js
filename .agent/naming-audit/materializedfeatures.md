@@ -155,9 +155,7 @@ disambiguation is needed:
 - `FeatureLineage_OnlineFeature` → `FeatureLineageOnlineFeature` (or
   `LineageOnlineFeature`, or `OnlineFeatureRef`).
 
-This is a generator-level fix coordinated SDK-wide. The unmarshal helpers
-inherit the same underscore (`unmarshalFeatureLineage_ModelSchema`, etc.),
-which compounds the issue.
+This is a generator-level fix coordinated SDK-wide.
 
 ---
 
@@ -373,18 +371,7 @@ Pass on naming, **fix the JSDoc** ("Response message for ListFeatureTags.").
 
 ---
 
-### 12. `ListFeatureTagsRequest` and `Response` could be `ListRequest`/`ListResponse` — category 7 (Overly verbose) — *pass*
-
-**Symbols:** `ListFeatureTagsRequest` (model.ts:76), `ListFeatureTagsResponse`
-(model.ts:86).
-
-**Issue:** Names are long (21/22 chars) but match the SDK-wide pattern for
-paginated list endpoints. Within this package only `FeatureTag` is listable,
-so `ListRequest` would suffice — but uniformity across packages wins. **Pass.**
-
----
-
-### 13. `UpdateFeatureTagRequest.featureTag.key` is also the path key — category 16 (Field contradicting type domain) and category 19 (Underspecified IDs)
+### 12. `UpdateFeatureTagRequest.featureTag.key` is also the path key — category 16 (Field contradicting type domain) and category 19 (Underspecified IDs)
 
 **Symbol:** `UpdateFeatureTagRequest.featureTag` (model.ts:96) +
 `client.updateFeatureTag` URL builder (client.ts:220).
@@ -416,7 +403,7 @@ The naming is fine; the structural choice is misleading. **Flag for upstream.**
 
 ---
 
-### 14. `GetFeatureLineageRequest` has fields ordered `featureName, tableName` — category 10 (Reserved-word collisions, by association) and JSDoc drift
+### 13. `GetFeatureLineageRequest` has fields ordered `featureName, tableName` — category 10 (Reserved-word collisions, by association) and JSDoc drift
 
 **Symbol:** `GetFeatureLineageRequest` (model.ts:61).
 
@@ -431,7 +418,7 @@ This is a cosmetic but reader-facing inconsistency.
 
 ---
 
-### 15. `Client.getFeatureLineage` JSDoc reads "Get Feature Lineage." with title case — JSDoc drift and category 17 (Inconsistent action verbs)
+### 14. `Client.getFeatureLineage` JSDoc reads "Get Feature Lineage." with title case — JSDoc drift and category 17 (Inconsistent action verbs)
 
 **Symbol:** `Client.getFeatureLineage` (client.ts:115).
 
@@ -452,17 +439,7 @@ name, fix JSDoc** to read "Gets a FeatureLineage." or "Gets feature lineage."
 
 ---
 
-### 16. `Client.listFeatureTagsIter` async-iterator naming — *pass*
-
-**Symbol:** `Client.listFeatureTagsIter` (client.ts:198).
-
-`Iter` suffix is the project's canonical name for paginator generators
-(`cleanrooms`, `cleanroomassets`, `featurestore`, etc.). Consistent across
-the SDK. **Pass.**
-
----
-
-### 17. Method-name verbs `creates`/`deletes`/`gets`/`lists`/`updates` are consistent — category 17 (Inconsistent action verbs) — *pass*
+### 15. Method-name verbs `creates`/`deletes`/`gets`/`lists`/`updates` are consistent — category 17 (Inconsistent action verbs) — *pass*
 
 **Symbols:** `createFeatureTag`, `deleteFeatureTag`, `getFeatureLineage`,
 `getFeatureTag`, `listFeatureTags`, `updateFeatureTag` (client.ts).
@@ -472,14 +449,14 @@ or `remove…` mixed in. **Pass.**
 
 ---
 
-### 18. `Client` class name — category 1 (Vague/generic) — *pass*
+### 16. `Client` class name — category 1 (Vague/generic) — *pass*
 
 Package convention. Every TS package exports a single `Client` class scoped to
 its import path (e.g. `@databricks/sdk-materializedfeatures/v1`). **Pass.**
 
 ---
 
-### 19. `PACKAGE_SEGMENT` constant — category 4 (Underscores in TS identifiers)
+### 17. `PACKAGE_SEGMENT` constant — category 4 (Underscores in TS identifiers)
 
 **Symbol:** `PACKAGE_SEGMENT` (client.ts:39).
 
@@ -494,89 +471,21 @@ for SDK-wide cleanup, do not fix in isolation.**
 
 ---
 
-### 20. `userAgent` / `httpClient` / `host` / `logger` — *pass*
+### 18. `userAgent` / `httpClient` / `host` / `logger` — *pass*
 
 Standard private field names. Acronym handling matches the project rule.
 **Pass.**
 
 ---
 
-### 21. `HttpCallOptions` (utils.ts:15) — category 1 (Vague/generic) and category 20 (Type-suffix tautology)
-
-**Symbol:** `HttpCallOptions` interface.
-
-**Issue:** "HttpCall" is not a concept that exists elsewhere in the SDK; the
-neighbouring `CallOptions` is imported on line 12 of the same file. Two
-"Call"-suffixed names in one file — which one does the reader mean? Suggest
-`HttpRequestContext` or `ExecuteHttpArgs`. **Flag for SDK-wide cleanup** —
-`utils.ts` is generated boilerplate copied across every package.
-
----
-
-### 22. `executeCall` vs `executeHttpCall` — category 17 (Inconsistent action verbs)
-
-**Symbols:** `executeCall` (utils.ts:26), `executeHttpCall` (utils.ts:65).
-
-**Issue:** Two functions named `execute…Call`. `executeCall` is the public
-API wrapper that calls `execute()` from `@databricks/sdk-core/api`;
-`executeHttpCall` performs an HTTP request and decodes the body. They do
-*different* things at *different* layers — but the names imply a hierarchical
-relationship that does not exist. The HTTP one is roughly `sendAndDecode` or
-`doHttpRequest`. **Flag for SDK-wide naming cleanup;** this file is generated
-boilerplate copied across every package.
-
----
-
-### 23. `readAll` — *pass*
+### 19. `readAll` — *pass*
 
 Helper does what its name says (reads a `ReadableStream<Uint8Array>` to
 completion). Conventional in the Node `stream/promises` ecosystem. **Pass.**
 
 ---
 
-### 24. `parseResponse` / `marshalRequest` verb inconsistency — category 17 (Inconsistent action verbs)
-
-**Symbols:** `parseResponse` (utils.ts:113), `marshalRequest` (utils.ts:119).
-
-**Issue:** Two symmetric operations: response→object (`parse`) and
-object→body-string (`marshal`). The verbs come from two different vocabularies
-("parse" is generic TS/JS, "marshal" is Go). Internally consistent verb-pair
-would be `parseResponse` / `serializeRequest`, or fully commit to Go terms:
-`unmarshalResponse` / `marshalRequest`. The current pair is awkward.
-
-**Suggested:** `serializeRequest` and `parseResponse` (TS-native vocabulary)
-or commit fully to Go terms: `unmarshalResponse` and `marshalRequest`. **Flag
-for SDK-wide consistency.**
-
----
-
-### 25. `unmarshal*Schema` / `marshal*Schema` Go vocabulary — category 14 (Go/Java-style names)
-
-**Symbols:** `unmarshalFeatureLineageSchema` (model.ts:101),
-`unmarshalFeatureLineage_FeatureSpecSchema` (model.ts:120),
-`unmarshalFeatureLineage_ModelSchema` (model.ts:130),
-`unmarshalFeatureLineage_OnlineFeatureSchema` (model.ts:142),
-`unmarshalFeatureTagSchema` (model.ts:153),
-`unmarshalListFeatureTagsResponseSchema` (model.ts:163),
-`marshalFeatureTagSchema` (model.ts:174).
-
-**Issue:** "Marshal" / "Unmarshal" is Go-ism vocabulary. TS ecosystem uses
-"serialize" / "deserialize" or, when working with Zod, "parse" /
-"stringify" / "schema". The full SDK uses this convention; **flag for SDK-wide
-cleanup, not this package alone.**
-
-The `*Schema` suffix is also somewhat redundant — `unmarshalFeatureTag`
-without `Schema` would suffice since the value's type is
-`z.ZodType<FeatureTag>` and there are no non-schema cousins. But this is a
-naming-pattern decision applied SDK-wide. **Pass with note.**
-
-Additionally, the underscore from finding 2 propagates here:
-`unmarshalFeatureLineage_ModelSchema` is doubly bad — both underscores *and*
-the Go vocabulary.
-
----
-
-### 26. `buildHttpRequest` — category 17 (Inconsistent action verbs) — *pass*
+### 20. `buildHttpRequest` — category 17 (Inconsistent action verbs) — *pass*
 
 Verb-prefix matches the function's role (constructs an `HttpRequest` object).
 Naming is fine. The file mixes `build…`, `execute…`, `marshal…`, `parse…`,
@@ -585,21 +494,7 @@ for its purpose. **Pass.**
 
 ---
 
-### 27. `flattenQueryParams` (utils.ts:123) — dead code in this package
-
-**Symbol:** `flattenQueryParams` (utils.ts:123).
-
-**Issue:** Imported nowhere within this package. The `listFeatureTags` method
-builds its query string inline at client.ts:170–177, and `updateFeatureTag`
-does similar at client.ts:221–225. The helper is dead code in this package.
-
-The name itself is fine. **Suggest** deleting from this package, or extracting
-all utils into a shared helper module (`@databricks/sdk-core/http`). **Flag
-generator behaviour** — this is boilerplate-copy noise.
-
----
-
-### 28. `featureTagFieldMaskSchema` private but exported via `featureTagFieldMask()` — *pass*
+### 21. `featureTagFieldMaskSchema` private but exported via `featureTagFieldMask()` — *pass*
 
 **Symbols:** `featureTagFieldMaskSchema` (model.ts:184, internal) and
 `featureTagFieldMask()` (model.ts:189, public). Clean separation: schema is
@@ -608,7 +503,7 @@ update-mask vocabulary. **Pass.**
 
 ---
 
-### 29. `UpdateFeatureTagRequest.updateMask` — category 7 (Overly verbose) — *pass*
+### 22. `UpdateFeatureTagRequest.updateMask` — category 7 (Overly verbose) — *pass*
 
 **Symbol:** `UpdateFeatureTagRequest.updateMask: FieldMask<FeatureTag>`
 (model.ts:98).
@@ -619,14 +514,14 @@ naming is SDK-wide and idiomatic. **Pass.**
 
 ---
 
-### 30. Singular `FeatureTag` ⇔ plural `featureTags` — category 9 (Singular/plural mismatch) — *pass*
+### 23. Singular `FeatureTag` ⇔ plural `featureTags` — category 9 (Singular/plural mismatch) — *pass*
 
 `ListFeatureTagsResponse.featureTags: FeatureTag[]` (model.ts:87) is the
 canonical pattern. **Pass.**
 
 ---
 
-### 31. `FeatureLineage.models` field name does not describe content — category 6 (Misleading names) and category 15 (Generic field names losing meaning)
+### 24. `FeatureLineage.models` field name does not describe content — category 6 (Misleading names) and category 15 (Generic field names losing meaning)
 
 **Symbol:** `FeatureLineage.models?: FeatureLineage_Model[]` (model.ts:26).
 
@@ -642,7 +537,7 @@ Pairs with the finding-5 rename of `FeatureLineage_Model` →
 
 ---
 
-### 32. `FeatureLineage.featureSpecs` vs `FeatureLineage.onlineFeatures` plural-singular mismatch — category 9 (Singular/plural mismatch) — *partial pass*
+### 25. `FeatureLineage.featureSpecs` vs `FeatureLineage.onlineFeatures` plural-singular mismatch — category 9 (Singular/plural mismatch) — *partial pass*
 
 **Symbols:** `FeatureLineage.featureSpecs`, `FeatureLineage.onlineFeatures`
 (model.ts:28, 30).
@@ -651,7 +546,7 @@ Both are arrays — plural form is consistent. No issue. **Pass.**
 
 ---
 
-### 33. `LineageContext` from `features` package vs `FeatureLineage` from this package — category 12 (Duplicate concepts)
+### 26. `LineageContext` from `features` package vs `FeatureLineage` from this package — category 12 (Duplicate concepts)
 
 **Symbol:** `FeatureLineage` (model.ts:24); compare
 `features.LineageContext` (`packages/features/src/v1/model.ts:465`).
@@ -676,18 +571,18 @@ vs. dependents (Lineage). **Flag for upstream Go SDK / generator.**
 
 ---
 
-### 34. `GetFeatureLineageRequest` is `GetFeature…`, returns `FeatureLineage` — *pass*
+### 27. `GetFeatureLineageRequest` is `GetFeature…`, returns `FeatureLineage` — *pass*
 
 **Symbol:** `Client.getFeatureLineage` (client.ts:115), return type
 `FeatureLineage` (model.ts:24).
 
 The method name uses verb `get` consistently; the return type name is the
 resource. No issue at the method-name layer. (Underlying naming smells of
-`FeatureLineage` itself are covered in findings 31, 33.) **Pass.**
+`FeatureLineage` itself are covered in findings 25, 27.) **Pass.**
 
 ---
 
-### 35. `BatchCreateMaterializedFeatures*` types live in `features` not this package — category 12 (Duplicate concepts) — cross-package
+### 28. `BatchCreateMaterializedFeatures*` types live in `features` not this package — category 12 (Duplicate concepts) — cross-package
 
 **Symbols (cross-package):** `BatchCreateMaterializedFeaturesRequest`,
 `BatchCreateMaterializedFeaturesResponse` live in `features/v1/model.ts:146,
@@ -701,21 +596,7 @@ coordination.**
 
 ---
 
-### 36. `marshalFeatureTagSchema` returns `z.ZodType` (no generic) but `unmarshalFeatureTagSchema` returns `z.ZodType<FeatureTag>` — category 17 (Inconsistent action verbs)
-
-**Symbols:** `unmarshalFeatureTagSchema: z.ZodType<FeatureTag>` (model.ts:153)
-vs. `marshalFeatureTagSchema: z.ZodType` (model.ts:174).
-
-**Issue:** The unmarshal schema declares its parsed type as
-`z.ZodType<FeatureTag>`; the marshal one declares only `z.ZodType` (i.e.
-`z.ZodType<unknown>`). Naming inconsistency mirrored in typing inconsistency.
-This pattern is SDK-wide and presumably intentional (the marshal direction
-produces wire-format objects without a TS shape), but symmetrically named
-helpers should probably share a generic shape. **Flag for SDK-wide cleanup.**
-
----
-
-### 37. `index.ts` re-exports underscore types — category 4 (Underscores in TS identifiers)
+### 29. `index.ts` re-exports underscore types — category 4 (Underscores in TS identifiers)
 
 **Symbol:** `index.ts:7–20`.
 
@@ -740,7 +621,7 @@ consumer sees them. **Pass at the index.ts layer**, fix follows from finding 2.
 
 ---
 
-### 38. `index.ts:5` empty re-export — *pass with note*
+### 30. `index.ts:5` empty re-export — *pass with note*
 
 **Symbol:** `export {} from './model';` (index.ts:5).
 
@@ -750,7 +631,7 @@ on naming**, flag for generator cleanup.
 
 ---
 
-### 39. URL path constants spread inline in `Client` methods — code-quality (out of scope) — *pass*
+### 31. URL path constants spread inline in `Client` methods — code-quality (out of scope) — *pass*
 
 **Symbols:** every method constructs a URL via template literal embedding
 `req.tableName ?? ''` and `req.featureName ?? ''` (client.ts:74, 100, 119,
@@ -761,7 +642,7 @@ concern, not naming. **Pass.**
 
 ---
 
-### 40. `req`/`resp`/`pageReq` Go-style short variable names — category 14 (Go/Java-style names)
+### 32. `req`/`resp`/`pageReq` Go-style short variable names — category 14 (Go/Java-style names)
 
 **Symbols:** local variables `req` (every method parameter), `resp` (every
 method local), `pageReq` (client.ts:202).
@@ -773,7 +654,7 @@ convention is mixed. **Pass with note — flag for SDK-wide style decision.**
 
 ---
 
-### 41. Generator-comment "DO NOT EDIT." header — *pass*
+### 33. Generator-comment "DO NOT EDIT." header — *pass*
 
 Every file begins with `// Code generated from API definition by Databricks
 SDK Generator. DO NOT EDIT.` Naming-irrelevant, but informs the scope of any
@@ -882,39 +763,26 @@ guidance.**
 
 ---
 
-### Wire-format vs TS field-name divergence
-
-Same as every package: every request/response type has both a TS interface
-and a Zod schema that maps `snake_case` wire fields to `camelCase` TS fields.
-This pattern is fine and consistent. The `marshal`/`unmarshal` Go vocabulary
-is a separate (SDK-wide) concern — see finding 25.
-
----
-
 ## Summary (counts)
 
 - **Critical / cross-package consistency:** 2 findings (#1 package name
   mis-scope `materializedfeatures` does not contain materialized features;
   #7 `FeatureLineage_OnlineFeature.tableName` should be `onlineTableName`).
-- **High (style guide violations):** 5 findings (#2 three underscore types
-  `FeatureLineage_FeatureSpec/Model/OnlineFeature`; #19 `PACKAGE_SEGMENT`
-  casing; #25 unmarshal/marshal Go vocab on schemas; #37 surface re-exports
-  underscore types; #36 generic-shape inconsistency between marshal and
-  unmarshal).
-- **Medium (naming clarity, JSDoc drift):** 11 findings (#3, #4, #5, #6, #8,
-  #9, #10, #11, #13, #14, #15, #31, #33).
-- **Low / project-wide convention notes (generator-level):** 6 findings (#21,
-  #22, #24, #27, #35, #40).
-- **Pass / acceptable as-is:** 14 findings (#12, #16, #17, #18, #20, #23,
-  #26, #28, #29, #30, #32, #34, #38, #39, #41 — many partial passes with
-  notes).
+- **High (style guide violations):** 3 findings (#2 three underscore types
+  `FeatureLineage_FeatureSpec/Model/OnlineFeature`; #17 `PACKAGE_SEGMENT`
+  casing; #29 surface re-exports underscore types).
+- **Medium (naming clarity, JSDoc drift):** 13 findings (#3, #4, #5, #6, #8,
+  #9, #10, #11, #12, #13, #14, #24, #26).
+- **Low / project-wide convention notes (generator-level):** 2 findings (#28,
+  #32).
+- **Pass / acceptable as-is:** 13 findings (#15, #16, #18, #19, #20, #21,
+  #22, #23, #25, #27, #30, #31, #33 — many partial passes with notes).
 
-**Total flagged findings: 41** distinct items across 20 audit categories
-(many findings touch multiple categories). The dominant theme is **package
+**Total flagged findings: 33** distinct items. The dominant theme is **package
 mis-naming** (the package does not contain what its name advertises) and
 **proto-style underscore identifier names** for nested types (`FeatureLineage_*`).
 Many issues are generator-emitted boilerplate inherited from the Go SDK;
 the cleanest local fixes are findings 1 (package rename), 7
 (`onlineTableName` field), 10 (JSDoc on `tableName`/`featureName`), 11
-(JSDoc plural form), 13 (top-level `key` for update), 14 (field order in
-`GetFeatureLineageRequest`), and 15 (`getFeatureLineage` JSDoc casing).
+(JSDoc plural form), 12 (top-level `key` for update), 13 (field order in
+`GetFeatureLineageRequest`), and 14 (`getFeatureLineage` JSDoc casing).

@@ -44,26 +44,24 @@ The domain centres on a `Command` (Python/SQL/Scala/R code), executed inside a
 | 21 | medium | 13. Verb-tense inconsistency | `model.ts:23-28` | `CANCELLED`, `CANCELLING`, `ERROR`, `FINISHED`, `QUEUED`, `RUNNING` | Mix of past, present, and noun. Normalise to present participle or to noun (e.g. `Cancelled`, `Cancelling`, `Failed`, `Finished`, `Queued`, `Running`) |
 | 22 | medium | 3. Acronym casing inconsistency | `model.ts:133` | `isJsonSchema` | OK (Json compound); contrast with `JsonValue`, `JsonObject` from wkt — confirm casing rule |
 | 23 | medium | 12. Duplicate concepts | `client.ts:286,289` | `execute()` returns `CreateResponse` | Type repurpose conflates "context created" vs "command queued" |
-| 24 | medium | 14. Go/Java-style names | `model.ts:74,156` | `DestroyContextRequest` / `unmarshalDestroyResponseSchema` | "Destroy" is unusual in JS/TS REST clients; `delete` is more idiomatic — but match Go SDK |
-| 25 | medium | 14. Go/Java-style names | `model.ts:145-253` | `marshal*Schema`, `unmarshal*Schema` | Go-isms; TS audiences use `serialize`/`deserialize` or `encode`/`decode`. Schema-level only, low blast radius. |
-| 26 | medium | 8. Redundant suffixes | `model.ts:145,148,156,159,172,183` | `unmarshal*Schema`, `marshal*Schema` | Both `marshal`+`Schema` suffixes; one is enough |
-| 27 | medium | 8. Redundant suffix | `client.ts:333,417,498` | `CancelWaiter`, `CreateWaiter`, `ExecuteWaiter` | OK if intentional waiter pattern, but `CreateWaiter` is for *context* creation not command creation; ambiguous |
-| 28 | medium | 6. Misleading name | `client.ts:417` | `CreateWaiter` | Waits for **context** to become RUNNING; not for "create" success. Rename `CreateContextWaiter`. |
-| 29 | medium | 6. Misleading name | `client.ts:333` | `CancelWaiter` | Waits for **command** cancellation. Rename `CancelCommandWaiter`. |
-| 30 | medium | 6. Misleading name | `client.ts:498` | `ExecuteWaiter` | Waits for **command** completion. Rename `ExecuteCommandWaiter`. |
-| 31 | medium | 17. Inconsistent action verbs | `client.ts:86,256` | `cancel()` vs `destroy()` | Two destroy-like verbs for different resources (cancel command, destroy context). Acceptable but tone-deaf for JS users. |
-| 32 | medium | 18. Long enum values | `model.ts:22-28` | `COMMAND_STATUS_UNSPECIFIED` | Drop the `*_UNSPECIFIED` sentinel in TS (TS represents absence via `undefined`) |
-| 33 | low | 1. Vague/generic | `model.ts:118` | `cause?: string` | Acceptable, but JSDoc says "The cause of the error" — better as `errorCause` or document under `Results.cause` |
-| 34 | low | 1. Vague/generic | `model.ts:140` | `summary?: string` | Doc says "summary of the error" — rename `errorSummary` or move into a nested `error` object |
-| 35 | low | 1. Vague/generic | `model.ts:142` | `truncated?: boolean` | OK, but document what is truncated |
-| 36 | low | 1. Vague/generic | `client.ts:54` | `StillRunningError` | Acceptable; private |
-| 37 | low | 3. Acronym casing | `client.ts:50,77` | `userAgent` (good) but the package-segment key is `'sdk-auth'` and `'auth'` — distinct from camelCase API conventions | Hyphenated identifier-like keys are intentional (HTTP User-Agent tokens) — leave |
-| 38 | low | 10. Reserved-word collision | `model.ts:138` | `schema` as field name | Not reserved, but very generic globally — see #16 |
-| 39 | low | 14. Go/Java-style | `client.ts:54` | `StillRunningError` | Idiomatic JS uses suffix `Error`; this is fine |
-| 40 | low | 15. Generic field losing meaning | `model.ts:89` | `command` inside `ExecuteCommandRequest` | The string is the *source code*, not "the command" — see #10 |
-| 41 | low | 15. Generic field losing meaning | `model.ts:67,87` | `language?: Language` | OK, but pair the values `R`, `SQL` (single-letter / acronym) — call out below |
-| 42 | low | 3. Acronym casing | `model.ts:42-43` | `SQL`, `R` enum values | Mixed-length acronym/single-letter values; `Sql` and `R` if camelCased — keep all-caps consistently |
-| 43 | low | 9. Singular/plural mismatch | `model.ts:131` | `fileNames?: string[]` (plural) but used for *images*, not arbitrary files | See #14 |
+| 24 | medium | 14. Go/Java-style names | `model.ts:74` + `client.ts:256` | `DestroyContextRequest` / `destroy()` | "Destroy" is unusual in JS/TS REST clients; `delete` is more idiomatic — but match Go SDK |
+| 25 | medium | 8. Redundant suffix — call-out | `client.ts:333, 417, 498` | `CancelWaiter`, `CreateWaiter`, `ExecuteWaiter` | OK if intentional waiter pattern, but `CreateWaiter` is for *context* creation not command creation; ambiguous |
+| 26 | medium | 6. Misleading name | `client.ts:417` | `CreateWaiter` | Waits for **context** to become RUNNING; not for "create" success. Rename `CreateContextWaiter`. |
+| 27 | medium | 6. Misleading name | `client.ts:333` | `CancelWaiter` | Waits for **command** cancellation. Rename `CancelCommandWaiter`. |
+| 28 | medium | 6. Misleading name | `client.ts:498` | `ExecuteWaiter` | Waits for **command** completion. Rename `ExecuteCommandWaiter`. |
+| 29 | medium | 17. Inconsistent action verbs | `client.ts:86,256` | `cancel()` vs `destroy()` | Two destroy-like verbs for different resources (cancel command, destroy context). Acceptable but tone-deaf for JS users. |
+| 30 | medium | 18. Long enum values | `model.ts:22-28` | `COMMAND_STATUS_UNSPECIFIED` | Drop the `*_UNSPECIFIED` sentinel in TS (TS represents absence via `undefined`) |
+| 31 | low | 1. Vague/generic | `model.ts:118` | `cause?: string` | Acceptable, but JSDoc says "The cause of the error" — better as `errorCause` or document under `Results.cause` |
+| 32 | low | 1. Vague/generic | `model.ts:140` | `summary?: string` | Doc says "summary of the error" — rename `errorSummary` or move into a nested `error` object |
+| 33 | low | 1. Vague/generic | `model.ts:142` | `truncated?: boolean` | OK, but document what is truncated |
+| 34 | low | 1. Vague/generic | `client.ts:54` | `StillRunningError` | Acceptable; private |
+| 35 | low | 3. Acronym casing | `client.ts:50,77` | `userAgent` (good) but the package-segment key is `'sdk-auth'` and `'auth'` — distinct from camelCase API conventions | Hyphenated identifier-like keys are intentional (HTTP User-Agent tokens) — leave |
+| 36 | low | 10. Reserved-word collision | `model.ts:138` | `schema` as field name | Not reserved, but very generic globally — see #16 |
+| 37 | low | 14. Go/Java-style | `client.ts:54` | `StillRunningError` | Idiomatic JS uses suffix `Error`; this is fine |
+| 38 | low | 15. Generic field losing meaning | `model.ts:89` | `command` inside `ExecuteCommandRequest` | The string is the *source code*, not "the command" — see #10 |
+| 39 | low | 15. Generic field losing meaning | `model.ts:67,87` | `language?: Language` | OK, but pair the values `R`, `SQL` (single-letter / acronym) — call out below |
+| 40 | low | 3. Acronym casing | `model.ts:42-43` | `SQL`, `R` enum values | Mixed-length acronym/single-letter values; `Sql` and `R` if camelCased — keep all-caps consistently |
+| 41 | low | 9. Singular/plural mismatch | `model.ts:131` | `fileNames?: string[]` (plural) but used for *images*, not arbitrary files | See #14 |
 
 ---
 
@@ -423,39 +421,15 @@ reserved word in expressions — typically requires bracket access).
 
 ---
 
-### Finding 25 — Medium — Cat 14 (Go/Java-style)
-**Location:** `src/v2/model.ts:145-253`
-```ts
-unmarshalCancelResponseSchema, marshalCreateContextRequestSchema, ...
-```
-**Issue:** `marshal` / `unmarshal` are Go terms. The TS audience reads
-`serialize` / `deserialize` or `encode` / `decode`. These names are
-exported and surface in stack traces.
-**Proposed:** `serializeCreateContextRequest` / `deserializeCancelResponse`
-(without `Schema` suffix — see #26). Since these are internal to the
-generated layer, the blast radius is small.
-
----
-
-### Finding 26 — Medium — Cat 8 (Redundant suffixes)
-**Location:** `src/v2/model.ts:145, 148, 156, 159, 172, 183, 209, 221, 231, 241`
-**Issue:** `marshal*Schema` and `unmarshal*Schema` carry two role suffixes
-(both the action verb and the artefact type). A schema is implied by zod's
-`z.ZodType`.
-**Proposed:** drop `Schema` suffix once #25 is applied:
-`serializeCreateContextRequest`, `deserializeResult`, etc.
-
----
-
-### Finding 27 — Medium — Cat 8 (Redundant suffix) — call-out
+### Finding 25 — Medium — Cat 8 (Redundant suffix) — call-out
 **Location:** `src/v2/client.ts:333, 417, 498`
 **Issue:** Three classes named `*Waiter`. Acceptable if waiter is a
 recognised pattern in this SDK (it is, see Go SDK `awaitable.go`). The
-issue is what they wait *for*: see #28-#30.
+issue is what they wait *for*: see #26-#28.
 
 ---
 
-### Finding 28 — Medium — Cat 6 (Misleading name)
+### Finding 26 — Medium — Cat 6 (Misleading name)
 **Location:** `src/v2/client.ts:417`
 ```ts
 export class CreateWaiter { ... }
@@ -470,21 +444,21 @@ target endpoint).
 
 ---
 
-### Finding 29 — Medium — Cat 6 (Misleading name)
+### Finding 27 — Medium — Cat 6 (Misleading name)
 **Location:** `src/v2/client.ts:333`
 **Issue:** `CancelWaiter` waits for *command* cancellation.
 **Proposed:** `CancelCommandWaiter`.
 
 ---
 
-### Finding 30 — Medium — Cat 6 (Misleading name)
+### Finding 28 — Medium — Cat 6 (Misleading name)
 **Location:** `src/v2/client.ts:498`
 **Issue:** `ExecuteWaiter` waits for *command* completion.
 **Proposed:** `ExecuteCommandWaiter`.
 
 ---
 
-### Finding 31 — Medium — Cat 17 (Inconsistent action verbs) — call-out
+### Finding 29 — Medium — Cat 17 (Inconsistent action verbs) — call-out
 **Location:** `src/v2/client.ts:86, 256`
 **Issue:** This package uses three lifecycle verbs:
 - `cancel()` on a command,
@@ -497,7 +471,7 @@ Go-SDK alignment decision.
 
 ---
 
-### Finding 32 — Medium — Cat 18 (Long enum values)
+### Finding 30 — Medium — Cat 18 (Long enum values)
 **Location:** `src/v2/model.ts:22, 32, 39, 47`
 **Issue:** `COMMAND_STATUS_UNSPECIFIED`, `CONTEXT_STATUS_UNSPECIFIED`,
 `LANGUAGE_UNSPECIFIED`, `RESULT_TYPE_UNSPECIFIED`. Long sentinel value
@@ -507,7 +481,7 @@ strings expose the protobuf convention to JS consumers. TS uses
 
 ---
 
-### Finding 33 — Low — Cat 1 (Vague/generic)
+### Finding 31 — Low — Cat 1 (Vague/generic)
 **Location:** `src/v2/model.ts:117-118`
 ```ts
 /** The cause of the error */
@@ -521,18 +495,18 @@ sub-object; or keep flat and document conditional presence.
 
 ---
 
-### Finding 34 — Low — Cat 1 (Vague/generic)
+### Finding 32 — Low — Cat 1 (Vague/generic)
 **Location:** `src/v2/model.ts:139-140`
 ```ts
 /** The summary of the error */
 summary?: string | undefined;
 ```
-Same as #33. The field is generic; the JSDoc reveals it's
+Same as #31. The field is generic; the JSDoc reveals it's
 error-specific.
 
 ---
 
-### Finding 35 — Low — Cat 1 (Underspecified)
+### Finding 33 — Low — Cat 1 (Underspecified)
 **Location:** `src/v2/model.ts:141-142`
 ```ts
 /** true if partial results are returned. */
@@ -543,7 +517,7 @@ Acceptable but ambiguous: truncated *what*? table rows? text length?
 
 ---
 
-### Finding 36 — Low — Cat 1 (Vague/generic) — call-out
+### Finding 34 — Low — Cat 1 (Vague/generic) — call-out
 **Location:** `src/v2/client.ts:54`
 ```ts
 class StillRunningError extends Error {}
@@ -552,7 +526,7 @@ Private, OK. Idiomatic for waiter polling patterns.
 
 ---
 
-### Finding 37 — Low — Cat 3 (Acronym casing) — non-issue
+### Finding 35 — Low — Cat 3 (Acronym casing) — non-issue
 **Location:** `src/v2/client.ts:49-52`
 ```ts
 const PACKAGE_SEGMENT = { key: pkgJson.name.replace(...), value: pkgJson.version };
@@ -563,33 +537,33 @@ correctly cased per the project rules.
 
 ---
 
-### Finding 38 — Low — Cat 10 (Reserved-word collision) — borderline
+### Finding 36 — Low — Cat 10 (Reserved-word collision) — borderline
 **Location:** `src/v2/model.ts:138`
 **Issue:** `schema` is not a TS reserved word but is heavily aliased
 across libraries (zod, JSON schema, table schema, GraphQL schema). See #16.
 
 ---
 
-### Finding 39 — Low — Cat 14 — non-issue
+### Finding 37 — Low — Cat 14 — non-issue
 **Location:** `src/v2/client.ts:54`
 **Issue:** `StillRunningError` is named in idiomatic TS style
 (`*Error` suffix on classes extending Error).
 
 ---
 
-### Finding 40 — Low — duplicate of #10
+### Finding 38 — Low — duplicate of #10
 **Location:** `src/v2/model.ts:89`
 Same finding as #10.
 
 ---
 
-### Finding 41 — Low — Cat 15 (Generic field) — call-out
+### Finding 39 — Low — Cat 15 (Generic field) — call-out
 **Location:** `src/v2/model.ts:67, 87`
 `language?: Language` is correct.
 
 ---
 
-### Finding 42 — Low — Cat 3 (Acronym casing in enum string values)
+### Finding 40 — Low — Cat 3 (Acronym casing in enum string values)
 **Location:** `src/v2/model.ts:42-43`
 ```ts
 SQL = 'SQL',
@@ -603,7 +577,7 @@ caps. Apply the casing rule (#5) and these become `Sql` (if the rule is
 
 ---
 
-### Finding 43 — Low — duplicate of #14
+### Finding 41 — Low — duplicate of #14
 **Location:** `src/v2/model.ts:131`
 `fileNames?: string[]` for images — same as #14.
 
@@ -612,17 +586,16 @@ caps. Apply the casing rule (#5) and these become `Sql` (if the rule is
 ## Top Themes
 
 1. **Wire-format leakage** — protobuf casing, `*_UNSPECIFIED` sentinels,
-   `marshal`/`unmarshal` Go verbs, and redundant enum-prefix members all
-   bleed from the source IDL into the public TS surface. The fix is a
-   project-wide style rule applied at the generator level:
+   and redundant enum-prefix members all bleed from the source IDL into
+   the public TS surface. The fix is a project-wide style rule applied at
+   the generator level:
    - PascalCase enum identifiers with wire-string values preserved;
-   - drop `*_UNSPECIFIED`;
-   - rename `marshal`/`unmarshal` to `serialize`/`deserialize`.
+   - drop `*_UNSPECIFIED`.
 
 2. **Three-resource ambiguity** — `Cluster`, `Context`, `Command` are easy
    to confuse, but the public types use the generic field `id` and reuse
    `CreateResponse` for two unrelated operations. Findings #6, #7, #10,
-   #11, #12, #14, #17, #19, #28-#30 all stem from one decision: **never
+   #11, #12, #14, #17, #19, #26-#28 all stem from one decision: **never
    say "id" when "commandId" or "contextId" would do, and never reuse a
    response shape across resources**. Splitting `CreateResponse` into
    `CreateContextResponse` and `ExecuteCommandResponse` cascades to fix

@@ -21,11 +21,11 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 
 | Severity     | Count |
 | ------------ | ----- |
-| High         | 18    |
-| Medium       | 22    |
-| Low          | 20    |
-| Observation  | 8     |
-| **Total**    | **68**|
+| High         | 16    |
+| Medium       | 18    |
+| Low          | 18    |
+| Observation  | 7     |
+| **Total**    | **59**|
 
 ### Top themes
 
@@ -108,37 +108,7 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 - `client.ts`: `PACKAGE_SEGMENT` constant; `Client` class with private fields
   `host`, `httpClient`, `logger`, `userAgent`.
 - `utils.ts`: `HttpCallOptions` interface; functions `executeCall`,
-  `readAll`, `executeHttpCall`, `buildHttpRequest`, `parseResponse`,
-  `marshalRequest`, `flattenQueryParams`.
-- Marshal / unmarshal schema constants (line numbers in `model.ts`):
-  `unmarshalCreateInstancePool_ResponseSchema` (779),
-  `unmarshalDeleteInstancePool_ResponseSchema` (789),
-  `unmarshalDiskSpecSchema` (792),
-  `unmarshalDiskTypeSchema` (808),
-  `unmarshalDockerBasicAuthSchema` (825),
-  `unmarshalDockerImageSchema` (835),
-  `unmarshalEditInstancePool_ResponseSchema` (849),
-  `unmarshalGetInstancePool_ResponseSchema` (853),
-  `unmarshalInstancePoolAndStatsSchema` (915),
-  `unmarshalInstancePoolAwsAttributesSchema` (977),
-  `unmarshalInstancePoolAzureAttributesSchema` (992),
-  `unmarshalInstancePoolGcpAttributesSchema` (1003),
-  `unmarshalInstancePoolStatsSchema` (1016),
-  `unmarshalInstancePoolStatusSchema` (1030),
-  `unmarshalListInstancePools_ResponseSchema` (1042),
-  `unmarshalNodeTypeFlexibilitySchema` (1053),
-  `unmarshalPendingInstanceErrorSchema` (1062),
-  `marshalCreateInstancePoolSchema` (1073),
-  `marshalDeleteInstancePoolSchema` (1123),
-  `marshalDiskSpecSchema` (1131),
-  `marshalDiskTypeSchema` (1147),
-  `marshalDockerBasicAuthSchema` (1171),
-  `marshalDockerImageSchema` (1181),
-  `marshalEditInstancePoolSchema` (1200),
-  `marshalInstancePoolAwsAttributesSchema` (1252),
-  `marshalInstancePoolAzureAttributesSchema` (1266),
-  `marshalInstancePoolGcpAttributesSchema` (1276),
-  `marshalNodeTypeFlexibilitySchema` (1288).
+  `readAll`, `executeHttpCall`, `buildHttpRequest`, `flattenQueryParams`.
 
 ---
 
@@ -150,11 +120,9 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | ----- | ----------------------------------- | -------- | ----- |
 | V-01  | `DockerImage.credsOneof`            | High     | `credsOneof` is a Go/proto-codegen leak — TS readers do not know what "Oneof" means in this context (the wire field uses a protobuf `oneof`). The "creds" abbreviation is also generic. Should be `credentials` (and the union shape itself satisfies the discriminator). |
 | V-02  | `PendingInstanceError.message`      | Medium   | `message` is generic. Could be `errorMessage` to match the type's purpose, or the type itself could be flattened. |
-| V-03  | `parseResponse` (`utils.ts:113`)    | Low      | Local helper; OK in scope. Parses JSON specifically — `parseJsonResponse` would be more accurate. |
-| V-04  | `marshalRequest` (`utils.ts:119`)   | Low      | Generic but local. OK. |
-| V-05  | `readAll` (`utils.ts:40`)           | Low      | Standard name for a read-to-end helper. |
-| V-06  | `Call` type imported from core      | Observation | Single-letter capitalized name; comes from `@databricks/sdk-core/api`. Out of scope. |
-| V-07  | `DockerImage.url` JSDoc only says "URL of the docker image" — but the field name `url` is already generic at the value-level when destructured outside `DockerImage`. | Low | Acceptable inside the type. |
+| V-03  | `readAll` (`utils.ts:40`)           | Low      | Standard name for a read-to-end helper. |
+| V-04  | `Call` type imported from core      | Observation | Single-letter capitalized name; comes from `@databricks/sdk-core/api`. Out of scope. |
+| V-05  | `DockerImage.url` JSDoc only says "URL of the docker image" — but the field name `url` is already generic at the value-level when destructured outside `DockerImage`. | Low | Acceptable inside the type. |
 
 ### 2.2 Redundant enum prefixes — High
 
@@ -190,7 +158,6 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | U-09  | `InstancePoolAndStats_CustomTagsEntry` (`model.ts:629`) | High | Same as U-01. |
 | U-10  | `InstancePoolAndStats_DefaultTagsEntry` (`model.ts:645`) | High | Same as U-01. |
 | U-11  | `ListInstancePools_Response` (`model.ts:762`)        | High     | Same as U-01. |
-| U-12  | `unmarshalCreateInstancePool_ResponseSchema` (and 4 sibling schemas) | High | Underscore cascades through every generated schema constant. |
 
 ### 2.5 Cryptic abbreviations — Medium
 
@@ -227,12 +194,10 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | O-01  | `idleInstanceAutoterminationMinutes` (5-word identifier, present in 4 types) | Medium | 33-char field. Inside a type called `CreateInstancePool` etc., `idleAutoterminationMinutes` or `idleTimeoutMinutes` would be 27 / 18 chars. The wire uses `idle_instance_autotermination_minutes` so any change is generator-side. |
 | O-02  | `enableAutoAlternateNodeTypes`      | Medium   | "Enable auto alternate node types" — five concept words. With node-type-flexibility being the modern replacement, the field is also deprecated (see M-04). |
 | O-03  | `InstancePool*` prefix on `InstancePoolStats`, `InstancePoolStatus`, `InstancePoolAndStats`, `InstancePoolAwsAttributes`, `InstancePoolAzureAttributes`, `InstancePoolGcpAttributes`, `InstancePoolState` | High | The package is already `@databricks/sdk-instancepools`. Inside the package, the prefix is redundant. `Stats`, `Status`, `AwsAttributes` would all suffice and remove ~12 chars from each name. Compare `clusters` (`clusters.md` #75) and `apps` packages, which face the same recurring issue. |
-| O-04  | `unmarshalInstancePoolGcpAttributesSchema` (40 chars) — and 7 sibling schema names | Medium | `marshal`/`unmarshal` + the verbose type-name + `Schema` triple-states intent. Repo-wide convention. |
-| O-05  | `unmarshalGetInstancePool_ResponseSchema` (39 chars) | Medium | Compound proto-nesting + `Schema` suffix yields long identifiers. |
-| O-06  | `PendingInstanceError`              | Low      | Three-word type for two-field shape (`instanceId`, `message`). OK. |
-| O-07  | `NodeTypeFlexibility.alternateNodeTypeIds` | Low | Field name re-states `node` twice (once from parent type, once in the field). Could be `alternates` or `fallbacks`. The wire path is the constraint. |
-| O-08  | `totalInitialRemoteDiskSize`        | Low      | 25-char field, four concept words. Reasonable but heavy. |
-| O-09  | `spotBidPricePercent`               | Low      | Five concept words crammed into one camelCase identifier. The JSDoc explains what each part means. |
+| O-04  | `PendingInstanceError`              | Low      | Three-word type for two-field shape (`instanceId`, `message`). OK. |
+| O-05  | `NodeTypeFlexibility.alternateNodeTypeIds` | Low | Field name re-states `node` twice (once from parent type, once in the field). Could be `alternates` or `fallbacks`. The wire path is the constraint. |
+| O-06  | `totalInitialRemoteDiskSize`        | Low      | 25-char field, four concept words. Reasonable but heavy. |
+| O-07  | `spotBidPricePercent`               | Low      | Five concept words crammed into one camelCase identifier. The JSDoc explains what each part means. |
 
 ### 2.8 Singular / plural mismatches — Low / High
 
@@ -282,10 +247,9 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | G-01  | `CreateInstancePool_Response`, `EditInstancePool_Response`, ... (proto-nested message style) | High | Direct port of Go `pb.CreateInstancePoolResponse`. Every occurrence requires `eslint-disable`. Repo-wide concern; flagged here. |
-| G-02  | `marshal*Schema` / `unmarshal*Schema` | High | Go (and gRPC) verb pair. JS/TS code uses **serialize / deserialize** (or **encode / decode**, or **parse / stringify**). Required `import` for new TS readers to look up. |
-| G-03  | `DockerImage.credsOneof`            | High     | `Oneof` is a literal proto-keyword leak. No TS reader expects this. See V-01. |
-| G-04  | `InstancePoolAndStats` (the "X-AndY" naming pattern) | Medium | "And" combinators in type names are a Go-isms (e.g., `ResultAndError`). TS usually picks a concept name. |
-| G-05  | `httpClient`, `HttpClient` (vs `HTTPClient`) | Low | Google TS style uses `Http` (lowercased acronym) — consistent. |
+| G-02  | `DockerImage.credsOneof`            | High     | `Oneof` is a literal proto-keyword leak. No TS reader expects this. See V-01. |
+| G-03  | `InstancePoolAndStats` (the "X-AndY" naming pattern) | Medium | "And" combinators in type names are a Go-isms (e.g., `ResultAndError`). TS usually picks a concept name. |
+| G-04  | `httpClient`, `HttpClient` (vs `HTTPClient`) | Low | Google TS style uses `Http` (lowercased acronym) — consistent. |
 
 ### 2.14 Generic field names losing meaning — Medium
 
@@ -342,7 +306,7 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | TS-02 | `InstancePoolStats`                 | Medium   | `Stats` is already abbreviated; the `InstancePool` prefix is redundant inside this package. |
 | TS-03 | `InstancePoolStatus`                | Medium   | Same as TS-02. |
 | TS-04 | `InstancePoolState` (enum)          | Medium   | Same. Could be `State` or `PoolState`. |
-| TS-05 | `InstancePoolAndStats`              | High     | Tautological + Go-style "And"-joiner (G-04). Doubly off. |
+| TS-05 | `InstancePoolAndStats`              | High     | Tautological + Go-style "And"-joiner (G-03). Doubly off. |
 | TS-06 | `NodeTypeFlexibility`               | Low      | "Flexibility" is the noun-form of a feature, not a type-suffix tautology. OK. |
 | TS-07 | `DiskSpec`                          | Low      | `Spec` is acceptable, but combined with each field's `disk*` prefix (M-05) the type-name still echoes. |
 | TS-08 | `EbsVolumeType`, `AzureDiskVolumeType` | Low | `VolumeType` / `DiskVolumeType` — standard cloud-storage terminology. OK. |
@@ -357,8 +321,7 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | X-04  | `client.ts:165-167` builds query manually inside `getInstancePool`. `utils.ts:123` exports `flattenQueryParams` but it is unused. | Observation | Dead exported helper. Same observation as in `abacpolicies.md` and other audits. |
 | X-05  | `client.ts:191` `_req: ListInstancePools` for empty request type | Observation | Generator artefact: empty request type still produced and prefixed `_` to satisfy lint. |
 | X-06  | `executeCall` / `executeHttpCall` pair (`utils.ts:26, 65`) | Observation | Same name-pair concern as in other audits (`abacpolicies.md` #36, `clusters.md` #90). One function name differs from the other only by `Http`. |
-| X-07  | The schema constants use the same name as the type with an `unmarshal`/`marshal` prefix and `Schema` suffix — e.g., `unmarshalInstancePoolAndStatsSchema`. Constants are not assignable types but the naming mirrors them. | Observation | OK; documented as repo-wide convention. |
-| X-08  | `index.ts` re-exports 28 type symbols and 6 enum symbols but **not** any of the 13 marshal/unmarshal schemas | Observation | Schemas are package-internal — good encapsulation. The `_CustomTagsEntry`/`_DefaultTagsEntry` types (8 names) *are* re-exported under proto-style underscore names. See W-01. |
+| X-07  | `index.ts` re-exports 28 type symbols and 6 enum symbols. The `_CustomTagsEntry`/`_DefaultTagsEntry` types (8 names) *are* re-exported under proto-style underscore names. See W-01. | Observation | Public surface area carries the underscore-named entry types. |
 
 ---
 
@@ -366,11 +329,11 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 
 | Severity     | Count |
 | ------------ | ----- |
-| High         | 18    |
-| Medium       | 22    |
-| Low          | 20    |
-| Observation  | 8     |
-| **Total**    | **68**|
+| High         | 16    |
+| Medium       | 18    |
+| Low          | 18    |
+| Observation  | 7     |
+| **Total**    | **59**|
 
 ## 4. Cross-package consistency notes
 

@@ -17,16 +17,16 @@ A log delivery configuration ties a `credentialsId` (AWS IAM role) and a
 endpoint by design — the API only supports disabling via the update
 method.
 
-**Total weird names flagged: 36**
+**Total weird names flagged: 34**
 
 ## Summary
 
 | Severity | Count |
 | --- | --- |
 | High | 7 |
-| Medium | 12 |
+| Medium | 11 |
 | Low | 10 |
-| Observation | 7 |
+| Observation | 6 |
 
 ---
 
@@ -42,7 +42,7 @@ method.
 ### H2. `LogDeliveryStatusEnum` — type-name carries `Enum` suffix — `model.ts:39`
 - **File:** `model.ts:39-50`, exported in `index.ts:8`.
 - **Category:** 20 (type-suffix tautology), 12 (duplicate concept — two enums with overlapping prefixes).
-- **Why weird:** `LogDeliveryStatusEnum` is the *only* type in the audited package (and one of the few across the workspace) whose name ends in `Enum`. Every other enum here is just `LogDeliveryConfigStatus`, `LogDeliveryType`, `LogDeliveryOutputFormat` — no suffix. The `Enum` tail exists because the simpler name `LogDeliveryStatus` was already claimed by the wrapper *interface* at `model.ts:208`. The wire-side schemas use `z.enum(LogDeliveryStatusEnum)` and `z.lazy(() => unmarshalLogDeliveryStatusSchema)` — the cognitive load of remembering which is enum, which is interface, and which is `Schema` is high.
+- **Why weird:** `LogDeliveryStatusEnum` is the *only* type in the audited package (and one of the few across the workspace) whose name ends in `Enum`. Every other enum here is just `LogDeliveryConfigStatus`, `LogDeliveryType`, `LogDeliveryOutputFormat` — no suffix. The `Enum` tail exists because the simpler name `LogDeliveryStatus` was already claimed by the wrapper *interface* at `model.ts:208`.
 - **Suggested name:** Rename the wrapper interface to `LogDeliveryAttempt` (it actually holds attempt fields: `lastAttemptTime`, `lastSuccessfulAttemptTime`, `message`, `status`), freeing `LogDeliveryStatus` for the enum. Alternatively, rename the enum to `LogDeliveryAttemptStatus` (drops `Enum`, matches the fields it describes).
 - **Rationale:** A field typed `attempt.status: LogDeliveryAttemptStatus` reads better than `logDeliveryStatus.status: LogDeliveryStatusEnum`. The `Enum` suffix is type-suffix tautology and is unique to this one type — a clear smell that the underlying noun is overloaded.
 
@@ -85,25 +85,25 @@ method.
 - **Suggested name:** Rename "of customer" away (`The unique UUID of the log delivery configuration to fetch`). Drop `| undefined` on `configId` — it is required. `accountId` is fine as optional only if the client falls back to `ClientOptions.accountId` (which it does at `client.ts:126`); document that explicitly.
 - **Rationale:** The current design type-checks fine but blows up at runtime with an unintuitive URL. Required path params should be required types. The "of customer" prose is generator-emitted boilerplate worth removing.
 
-### H7. `unmarshal*_ResponseSchema` and `marshal*Schema` — underscore in TS identifiers — `model.ts:243,255,267,332`
-- **File:** `model.ts:243,255,267,332` (also interface names `CreateLogDeliveryConfiguration_Response` at `model.ts:72`, `GetLogDeliveryConfiguration_Response` at `model.ts:132`, `ListLogDeliveryConfiguration_Response` at `model.ts:158`, `UpdateLogDeliveryConfiguration_Response` at `model.ts:240`).
+### H7. Underscore in TS identifiers on nested `_Response` types — `model.ts:72,132,158,240`
+- **File:** `model.ts:72` (`CreateLogDeliveryConfiguration_Response`), `model.ts:132` (`GetLogDeliveryConfiguration_Response`), `model.ts:158` (`ListLogDeliveryConfiguration_Response`), `model.ts:240` (`UpdateLogDeliveryConfiguration_Response`).
 - **Category:** 4 (underscores in TS identifiers), 14 (Go/proto-style names — these are protobuf `Nested.Response` messages).
 - **Why weird:** TypeScript convention is PascalCase / camelCase — no underscores. The generator emits `CreateLogDeliveryConfiguration_Response` because the wire proto has `message CreateLogDeliveryConfiguration { message Response {...} }`. Every offending type carries an eslint-disable comment (`// eslint-disable-next-line @typescript-eslint/naming-convention`). This is the same generator-level concern flagged in every prior audit, here amplified because every response type is underscored.
-- **Suggested name:** Flatten the nested message: `CreateLogDeliveryConfigurationResponse` (no underscore). Same for `Get*Response`, `List*Response`, `Update*Response` and their schemas.
+- **Suggested name:** Flatten the nested message: `CreateLogDeliveryConfigurationResponse` (no underscore). Same for `Get*Response`, `List*Response`, `Update*Response`.
 - **Rationale:** Fix at generator level — applies to every package. The eslint-disable suppression is itself a clue that the generator is fighting the TS convention rather than respecting it.
 
 ---
 
 ## Medium severity
 
-### M10. `Client` class is unprefixed — `client.ts:46`
+### M8. `Client` class is unprefixed — `client.ts:46`
 - **File:** `client.ts:46`, exported at `index.ts:3`.
 - **Category:** 1 (vague), 12 (duplicate concept across packages — every Databricks SDK package exports its own `Client`).
 - **Why weird:** A user importing this package writes `import {Client} from '@databricks/sdk-logdeliveryconfigurations/v1'` and immediately must alias (`import {Client as LogDeliveryClient}`) to compose multiple Databricks clients. Consistent across the SDK but worth flagging.
 - **Suggested name:** `LogDeliveryClient` or `LogDeliveryConfigurationsClient`. Or expose only a namespace (`import * as logDelivery from '@databricks/sdk-logdeliveryconfigurations/v1'` then `logDelivery.Client`).
 - **Rationale:** Cross-SDK consistency may justify keeping `Client`, but in practice every user re-aliases. Same finding as `billableusagedownload` audit #8.
 
-### M11. Client method names embed the noun three times — `client.ts:90,122,150,214`
+### M9. Client method names embed the noun three times — `client.ts:90,122,150,214`
 - **File:** `client.ts:90,122,150,192,214`.
 - **Category:** 7 (overly verbose), 17 (inconsistent action verbs vs sibling packages).
 - **Why weird:** `client.createLogDeliveryConfiguration(...)` is 27 characters. With the package prefix and the request type, a single call line reads:
@@ -112,30 +112,30 @@ method.
   ```
   That is "logDeliveryConfiguration" repeated three times in one expression. The Go SDK uses short method names (`Create`, `Get`, `List`, `PatchStatus`) because the noun comes from the receiver type. The TS port replicates the full noun. Sibling packages like `billableusagedownload.Client.download()` and `accountsettings.Client.disableLegacyFeatures()` use shorter names.
 - **Suggested name:** `client.create()`, `client.get()`, `client.list()`, `client.listIter()`, `client.updateStatus()`. The receiver type (`LogDeliveryClient`) already provides the noun.
-- **Rationale:** TS method names should not repeat the type they live on. Once `Client` is renamed `LogDeliveryClient` (M10), the shorter forms are unambiguous. Note that the Go SDK uses `PatchStatus` (the actual HTTP verb is `PATCH`) — the TS `updateLogDeliveryConfiguration` is already a paraphrase, so consistency with Go is partly already lost.
+- **Rationale:** TS method names should not repeat the type they live on. Once `Client` is renamed `LogDeliveryClient` (M8), the shorter forms are unambiguous. Note that the Go SDK uses `PatchStatus` (the actual HTTP verb is `PATCH`) — the TS `updateLogDeliveryConfiguration` is already a paraphrase, so consistency with Go is partly already lost.
 
-### M12. `updateLogDeliveryConfiguration` does not actually "update" — it only patches status — `client.ts:209-243`
+### M10. `updateLogDeliveryConfiguration` does not actually "update" — it only patches status — `client.ts:209-243`
 - **File:** `client.ts:209-243`, `UpdateLogDeliveryConfiguration` at `model.ts:230`.
 - **Category:** 6 (misleading), 17 (inconsistent verb — Go uses `PatchStatus`, TS uses `update`).
 - **Why weird:** The method name `updateLogDeliveryConfiguration` suggests "update arbitrary fields of the config". In reality the request body only contains `configId`, `accountId`, and `status` (see `UpdateLogDeliveryConfiguration` interface at `model.ts:230-237`) — you can only flip ENABLED <-> DISABLED. The JSDoc on the method (`client.ts:209-212`) calls it out: "Enables or disables a log delivery configuration." The Go SDK method is named `PatchStatus`, which is honest.
 - **Suggested name:** `patchStatus`, or `setStatus`, or `updateStatus`. The current name oversells the surface.
 - **Rationale:** "Update" implies multi-field mutation. If a caller writes `client.updateLogDeliveryConfiguration({configId, status, deliveryPathPrefix: '/new-prefix'})` they will be silently surprised — the `deliveryPathPrefix` is not part of the request DTO so it will not type-check (in TS strict mode), but they would have to read the type to learn that. The verb is a footgun.
 
-### M13. `listLogDeliveryConfigurationIter` — singular noun on a method returning multiple — `client.ts:192`
-- **File:** `client.ts:192`.
-- **Category:** 9 (singular/plural mismatch), 1 (vague — `Iter` suffix is opaque).
-- **Why weird:** `listLogDeliveryConfigurationIter` is singular ("Configuration") but the iterator yields multiple configurations one by one (returns `AsyncGenerator<LogDeliveryConfiguration>`). Sibling packages use `list*sIter` (plural) — e.g., `listBudgetConfigurationsIter` in `budgets/src/v1/client.ts`. Also, `Iter` is an unhelpful abbreviation — TS users expect `AsyncIterable` or `streamAll` or `pageThrough`.
-- **Suggested name:** `iterateLogDeliveryConfigurations` (plural noun, verb-prefix); or simply `listAll` (clean, returns generator).
-- **Rationale:** Adjacent package `budgets` uses `listBudgetConfigurationsIter` (plural). Within this package, the non-iterator `listLogDeliveryConfiguration` is also singular but returns a `*Response` whose body field is `logDeliveryConfigurations` (plural — `model.ts:160`). The singular method name fights the plural data shape.
+### M11. `listLogDeliveryConfiguration` — singular noun on a method returning multiple — `client.ts:150,192`
+- **File:** `client.ts:150,192`.
+- **Category:** 9 (singular/plural mismatch).
+- **Why weird:** `listLogDeliveryConfiguration` is singular ("Configuration") but the method yields multiple configurations (the response body field is `logDeliveryConfigurations` — plural — at `model.ts:160`). Sibling packages use plural — e.g., `listBudgetConfigurations` in `budgets/src/v1/client.ts`. The singular method name fights the plural data shape.
+- **Suggested name:** `listLogDeliveryConfigurations` (plural noun).
+- **Rationale:** Adjacent package `budgets` uses `listBudgetConfigurations` (plural). Within this package, the response body field is plural while the method name is singular — pluralisation should match the collection it returns.
 
-### M14. `ListLogDeliveryConfiguration` (request type) is singular — `model.ts:141`
+### M12. `ListLogDeliveryConfiguration` (request type) is singular — `model.ts:141`
 - **File:** `model.ts:141-155`.
 - **Category:** 9 (singular/plural mismatch).
-- **Why weird:** Same issue as M13 for the request DTO. The interface name says "List one configuration" but the method actually lists many. The class-level JSDoc says "List Log Delivery Configuration" (singular). Compare with `budgets.ListBudgetConfigurations` (plural) at `packages/budgets/src/v1/model.ts`.
+- **Why weird:** Same issue as M11 for the request DTO. The interface name says "List one configuration" but the method actually lists many. The class-level JSDoc says "List Log Delivery Configuration" (singular). Compare with `budgets.ListBudgetConfigurations` (plural) at `packages/budgets/src/v1/model.ts`.
 - **Suggested name:** `ListLogDeliveryConfigurationsRequest` (plural + `Request` suffix for clarity).
 - **Rationale:** Naming should match data shape. Pluralisation is the standard signal that a method returns a collection. Cross-package inconsistency.
 
-### M15. `logDeliveryStatus` field vs `LogDeliveryStatus` type vs `LogDeliveryStatusEnum` enum — three identifiers conflated — `model.ts:117,205,217`
+### M13. `logDeliveryStatus` field vs `LogDeliveryStatus` type vs `LogDeliveryStatusEnum` enum — three identifiers conflated — `model.ts:117,205,217`
 - **File:** `model.ts:117,205` (field `logDeliveryStatus: LogDeliveryStatus`), `model.ts:208` (interface `LogDeliveryStatus`), `model.ts:217` (`status?: LogDeliveryStatusEnum`).
 - **Category:** 12 (duplicate concept), 15 (generic field name losing meaning).
 - **Why weird:** A reader looking at `LogDeliveryConfiguration.logDeliveryStatus.status` traverses three types:
@@ -146,116 +146,109 @@ method.
 - **Suggested name:** Field: `lastAttempt: LogDeliveryAttempt`. Wrapper type: `LogDeliveryAttempt` (with fields `status`, `lastAttemptTime`, `lastSuccessfulAttemptTime`, `message` — drop `last` prefix once nested). Enum: `LogDeliveryAttemptStatus`. Result reads as `config.lastAttempt.status === 'SUCCEEDED'`.
 - **Rationale:** "Status" is too generic to triple-stack. Renaming the wrapper to "Attempt" (its actual semantics) breaks the conflation cleanly.
 
-### M16. `creationTime` / `updateTime` — verb-tense inconsistency, type misleads as ISO timestamp — `model.ts:113-115,201-203`
+### M14. `creationTime` / `updateTime` — verb-tense inconsistency, type misleads as ISO timestamp — `model.ts:113-115,201-203`
 - **File:** `model.ts:113-115,201-203`.
 - **Category:** 13 (verb-tense inconsistency — `creation` is a noun, `update` is a verb), 6 (misleading — `number` type with JSDoc "epoch milliseconds").
 - **Why weird:** `creationTime: number` and `updateTime: number`. The first is noun-form ("creation"), the second is verb-form ("update"). Pair-wise they should match: `createdTime`/`updatedTime` (past participle) or `creationTime`/`updateTime` (noun). Also, both are `number` (epoch ms) but neither type signals "this is a unix timestamp in milliseconds"; the JSDoc carries that information. Across the SDK, audited packages have flagged similar issues.
 - **Suggested name:** `createdAt: number` / `updatedAt: number` (canonical SaaS convention — Stripe/GitHub/Salesforce/Atlassian all use *At). Brand the type as `EpochMillis` for compile-time safety.
 - **Rationale:** "*At" is the industry standard for timestamps. Same finding in many other audited packages (`budgets`, `apps`, etc.) — fix at generator level.
 
-### M17. `deliveryStartTime: string` for YYYY-MM — misleading type — `model.ts:109,197`
+### M15. `deliveryStartTime: string` for YYYY-MM — misleading type — `model.ts:109,197`
 - **File:** `model.ts:108-109,196-197`.
 - **Category:** 6 (misleading — type contradicts domain), 1 (vague — "delivery start time" sounds like a timestamp).
 - **Why weird:** The field is `string`, but the JSDoc says "specified in YYYY-MM format". That is a year-month string, not a time. Compare with `creationTime: number` (which is an epoch-ms timestamp). The same word "Time" is used for two different formats. A `string` for "YYYY-MM" should be branded or use a `Temporal.YearMonth` from `@js-temporal/polyfill` (already a dependency at `package.json:23`).
 - **Suggested name:** `deliveryStartMonth` (clarifies granularity), typed `Temporal.PlainYearMonth | string`.
 - **Rationale:** "Time" implies high-resolution. The domain is monthly billing buckets, so "Month" is the right granularity. Same convention as `Stripe.Invoice.period_start` (epoch) vs `Stripe.UsageRecord.period.start` (date-only).
 
-### M18. `workspaceIdsFilter` — pluralised collection name mixed with `Filter` suffix — `model.ts:105,193`
+### M16. `workspaceIdsFilter` — pluralised collection name mixed with `Filter` suffix — `model.ts:105,193`
 - **File:** `model.ts:104-105,192-193`.
 - **Category:** 7 (overly verbose), 9 (singular/plural mix), 15 (generic suffix).
 - **Why weird:** The field is `workspaceIdsFilter: number[]`. The plural `Ids` says "this is a list of IDs". The `Filter` suffix says "this is a filter". A `number[]` already conveys "list of ints". Calling it `workspaceIdsFilter` adds redundant `Filter` noise; calling it just `workspaceIds` (the actual content) would be clearer. Compare with `ListLogDeliveryConfiguration.credentialsId: string` (singular, no `Filter` suffix at `model.ts:145`) which serves the same conceptual role.
 - **Suggested name:** `workspaceIds: number[]` (drop `Filter`). Or `filterByWorkspaceIds` if intent must be made explicit.
 - **Rationale:** Type-driven inference: a `number[]` named after the entity is unambiguous. `Filter` is generic ceremony.
 
-### M19. `workspaceIdsFilter: number[]` — IDs typed as `number` is dangerous — `model.ts:105,193`
+### M17. `workspaceIdsFilter: number[]` — IDs typed as `number` is dangerous — `model.ts:105,193`
 - **File:** `model.ts:104-105,192-193`.
 - **Category:** 6 (misleading), 19 (underspecified ID).
 - **Why weird:** The JSDoc explicitly says "each one is an `int64`". JavaScript `number` is a double precision float — only safe up to 2^53 - 1. Databricks workspace IDs are int64 server-side; sending an ID greater than 2^53 will silently lose precision in the JSON wire. The TS type should be `bigint[]` or `(number | bigint)[]` or branded.
 - **Suggested name:** `workspaceIds: bigint[]` (matches the int64 wire). Or `workspaceIds: WorkspaceId[]` with a branded `type WorkspaceId = number & {__brand: 'WorkspaceId'}`.
 - **Rationale:** Cross-package issue. Same finding will recur on every `*Id: number` field that maps to an int64 wire. Fix at generator level: emit `bigint` for `int64`.
 
-### M20. `host` field on `Client` lacks domain context — `client.ts:47`
+### M18. `host` field on `Client` lacks domain context — `client.ts:47`
 - **File:** `client.ts:47,62`.
 - **Category:** 1 (vague), 15 (generic field name).
 - **Why weird:** `private readonly host: string` — without context, `host` could be any URL or hostname. The setter at line 62 trims trailing slash. The semantically correct name is `databricksHost` or `workspaceUrl` or `baseUrl` (the actual content is `https://.../`, not just a hostname like `example.com`).
 - **Suggested name:** `baseUrl` (matches the actual content — a URL including scheme).
 - **Rationale:** Same pattern across every package's `Client`. Fix at generator. Same finding as `billableusagedownload` audit #?.
 
-### M21. `parseResponse` / `marshalRequest` verb asymmetry — `utils.ts:113,119`
-- **File:** `utils.ts:113-117` (`parseResponse`), `utils.ts:119-121` (`marshalRequest`).
-- **Category:** 17 (inconsistent action verbs).
-- **Why weird:** `parseResponse` (the inverse of `marshalRequest`) uses `parse`; the request side uses `marshal`. The verbs do not pair — they read as different layers. Pair would be `unmarshalResponse`/`marshalRequest` or `parseResponse`/`serializeRequest`.
-- **Suggested name:** `unmarshalResponse`/`marshalRequest` (already the verb used on the schema names: `unmarshal*Schema` / `marshal*Schema`).
-- **Rationale:** The schemas are already named `unmarshal*Schema`/`marshal*Schema` (lines 243, 280, 335). The utility functions should match.
-
 ---
 
 ## Low severity
 
-### L22. `LogDeliveryType` enum values `BILLABLE_USAGE` / `AUDIT_LOGS` — singular/plural mismatch — `model.ts:58-60`
+### L19. `LogDeliveryType` enum values `BILLABLE_USAGE` / `AUDIT_LOGS` — singular/plural mismatch — `model.ts:58-60`
 - **File:** `model.ts:56-61`.
 - **Category:** 9 (singular/plural mismatch), 18 (long enum values).
 - **Why weird:** `BILLABLE_USAGE` is singular; `AUDIT_LOGS` is plural. Both are types of logs delivered. They should match — either `BILLABLE_USAGE_LOGS` / `AUDIT_LOGS` (both plural) or `BILLABLE_USAGE` / `AUDIT` (both singular).
 - **Suggested name:** `BILLABLE_USAGE` / `AUDIT` (drop the `_LOGS` — the enum is `LogDeliveryType` so "logs" is implied).
 - **Rationale:** Pair-wise consistency. The implicit-noun pattern (rely on the type name) is cleaner.
 
-### L23. `LogDeliveryOutputFormat.CSV` / `.JSON` — acronym casing OK but enum is binary, no need — `model.ts:25-27`
+### L20. `LogDeliveryOutputFormat.CSV` / `.JSON` — acronym casing OK but enum is binary, no need — `model.ts:25-27`
 - **File:** `model.ts:23-28`.
 - **Category:** 3 (acronym casing — fine here since it matches the wire), Observation.
 - **Why weird:** Two-value enum where `log_type === 'BILLABLE_USAGE'` forces `output_format === 'CSV'` and `log_type === 'AUDIT_LOGS'` forces `'JSON'` (see JSDoc on `outputFormat` at `model.ts:93-96`). The field is therefore *always* derivable from `logType` — making it a redundant field, not a redundant enum, but worth flagging.
 - **Suggested name:** Drop `outputFormat` from the request DTO (it can be derived server-side). Keep on the response DTO for clarity.
 - **Rationale:** Not strictly a naming issue, but reduces API surface area.
 
-### L24. `LogDeliveryConfigStatus.ENABLED` / `.DISABLED` enum-member doc strings are tautological — `model.ts:13-16`
+### L21. `LogDeliveryConfigStatus.ENABLED` / `.DISABLED` enum-member doc strings are tautological — `model.ts:13-16`
 - **File:** `model.ts:13-16`.
 - **Category:** 1 (vague).
 - **Why weird:** `/** Configuration is enabled */ ENABLED = 'ENABLED'` — the doc says exactly what the name says. JSDoc should add information, not echo identifiers.
 - **Suggested name:** Either delete the JSDoc, or describe behavior: "Logs are actively delivered to the configured S3 bucket."
 - **Rationale:** Cross-cutting generator concern.
 
-### L25. `LogDeliveryStatusEnum.NOT_FOUND` is a confusing terminal state — `model.ts:48-49`
+### L22. `LogDeliveryStatusEnum.NOT_FOUND` is a confusing terminal state — `model.ts:48-49`
 - **File:** `model.ts:48-49`.
 - **Category:** 6 (misleading).
 - **Why weird:** `NOT_FOUND` reads as "this resource does not exist" — a 404-style state — but the JSDoc says it actually means "configuration has been disabled since the release of this feature or there are no workspaces in the account". That's not "not found"; it's "no logs to deliver because account state".
 - **Suggested name:** `NO_DATA` or `NOT_APPLICABLE` or `DISABLED_AT_RELEASE` — anything that doesn't sound like a 404.
 - **Rationale:** API value names should not collide with HTTP semantics that mean something different. A monitoring dashboard surfacing `status === 'NOT_FOUND'` will mislead an operator into thinking the config was deleted.
 
-### L26. `PACKAGE_SEGMENT` constant — `client.ts:41`
+### L23. `PACKAGE_SEGMENT` constant — `client.ts:41`
 - **File:** `client.ts:41-44`.
 - **Category:** 1 (vague), 15 (generic).
 - **Why weird:** `Segment` is a generic CS term. The comment "Package identity segment for this client to be used in the User-Agent header" (`client.ts:40`) is the disambiguator; without it the constant name does not communicate what it is.
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT` or `PKG_USER_AGENT_SEGMENT`.
 - **Rationale:** Cross-package consistency — same finding in every audited package. Worth normalising at generator level. Same as `billableusagedownload` audit #10.
 
-### L27. `httpClient: HttpClient` field — type-suffix tautology — `client.ts:51`
+### L24. `httpClient: HttpClient` field — type-suffix tautology — `client.ts:51`
 - **File:** `client.ts:51,72`.
 - **Category:** 20 (type-suffix tautology).
 - **Why weird:** Field name and type both end in `Client`. Convention is widespread but flagged per rule 20.
 - **Suggested name:** `transport: HttpClient` (matches the imported package `@databricks/sdk-databricks/transport`).
 - **Rationale:** `transport` is what HTTP layers are usually named in language-agnostic SDK terminology (gRPC, GraphQL clients, etc.). It avoids the `Client/Client` echo. Tolerable as-is.
 
-### L28. `req` / `resp` / `opts` / `httpReq` abbreviations — `client.ts:91,99,103,127,153,170,193,196,215,223`
+### L25. `req` / `resp` / `opts` / `httpReq` abbreviations — `client.ts:91,99,103,127,153,170,193,196,215,223`
 - **File:** `client.ts:91,99,103,...` (every method).
 - **Category:** 5 (cryptic abbreviation).
 - **Why weird:** Three-letter abbreviations for parameter and local names. The codebase guideline (typescript.mdc) discourages cryptic short abbreviations.
 - **Suggested name:** `request`, `response`, `options`, `httpRequest`, `httpResponse`.
 - **Rationale:** Spelling out costs nothing and improves readability. Same finding across every audit.
 
-### L29. `pageReq` local in `listLogDeliveryConfigurationIter` — `client.ts:196`
+### L26. `pageReq` local in `listLogDeliveryConfigurationIter` — `client.ts:196`
 - **File:** `client.ts:196`.
 - **Category:** 5 (cryptic), 1 (vague — `pageReq` is shorthand for "request for next page").
 - **Why weird:** Variable holds the *modified* request for each page (with `pageToken` updated). `pageReq` reads as "page request" — a noun describing the page itself.
 - **Suggested name:** `currentRequest` or `paginatedRequest`. Or unify with `request` if you adopt option-bag style.
 - **Rationale:** Low; loop-local variable.
 
-### L30. `executeCall` / `executeHttpCall` near-duplicate names — `utils.ts:26,65`
+### L27. `executeCall` / `executeHttpCall` near-duplicate names — `utils.ts:26,65`
 - **File:** `utils.ts:26-38,65-94`.
 - **Category:** 1 (vague), 17 (inconsistent layer naming).
 - **Why weird:** Two functions named almost identically doing very different things. `executeCall` wraps the call in retry/rate-limit; `executeHttpCall` does the raw HTTP send + decode + APIError. Within the same file the naming distinction is too subtle.
 - **Suggested name:** `runWithCallOptions` / `sendHttp` (or `dispatchHttp`). Or just `wrapRetry` / `sendHttp`.
 - **Rationale:** Same finding as `billableusagedownload` audit #13. Cross-package generator concern.
 
-### L31. `HttpCallOptions` — `utils.ts:15`
+### L28. `HttpCallOptions` — `utils.ts:15`
 - **File:** `utils.ts:15-19`.
 - **Category:** 1 (vague suffix `Options`), 12 (duplicate `Options` naming).
 - **Why weird:** The word `Options` is reused throughout the SDK for unrelated concepts (`ClientOptions`, `CallOptions`, `Options` from `@databricks/sdk-core/api` imported at line 3). The local interface shadows the imported one cognitively. The field is not user-facing — it is an internal bag.
@@ -266,25 +259,21 @@ method.
 
 ## Observations
 
-### O32. `flattenQueryParams` is exported but unused — `utils.ts:123`
+### O29. `flattenQueryParams` is exported but unused — `utils.ts:123`
 `client.ts` does its own query-param construction inline (lines 155-167) using `new URLSearchParams()` and four `params.append(...)` calls. The exported `flattenQueryParams` helper in `utils.ts` is never called by this package. This is a generator artefact — every generated package ships this helper.
 
-### O33. `parseResponse` is unused — `utils.ts:113`
+### O30. `parseResponse` is unused — `utils.ts:113`
 Actually, `parseResponse` *is* used (4 call sites in `client.ts:109,137,180,233`). Not dead. Correction to prior packages' findings: in `logdeliveryconfigurations`, parseResponse is actively in use.
 
-### O34. `marshalRequest` is used twice — `client.ts:95,219`
+### O31. `marshalRequest` is used twice — `client.ts:95,219`
 Used for `createLogDeliveryConfiguration` and `updateLogDeliveryConfiguration`. Not dead.
 
-### O35. `accountId` URL fallback — `client.ts:94,126,154,218`
+### O32. `accountId` URL fallback — `client.ts:94,126,154,218`
 `createLogDeliveryConfiguration` (line 94) reads `req.logDeliveryConfiguration?.accountId ?? ''` (no client fallback!), while the other three methods do `req.accountId ?? this.accountId ?? ''`. The create path silently differs — if `ClientOptions.accountId` is set but the caller forgets to put it inside `logDeliveryConfiguration`, the URL becomes `/api/2.0/accounts//log-delivery`. This is a correctness bug surfaced by a naming/structure inconsistency: the request DTO nests the account ID one level deeper than the others.
 - **Category:** 6 (misleading), 16 (field placement contradicts wire-level convention).
 - **Suggested fix:** Make `req.accountId ?? this.accountId ?? ''` consistent across all four methods (the create path should reach the top-level `accountId` and the client-options fallback, not just the nested wrapper field).
 
-### O36. `marshalCreateLogDeliveryConfigurationSchema` typed as bare `z.ZodType` (not parameterised) — `model.ts:335,345,379,393`
-None of the four marshal schemas carry a type parameter: `z.ZodType` instead of `z.ZodType<MyType>`. The unmarshal schemas *are* parameterised (`z.ZodType<LogDeliveryConfiguration>` at line 280, etc.). The asymmetry is invisible to callers but means `marshal*Schema.parse(input)` returns `unknown` rather than a known type. Generator concern.
-- **Category:** 6 (misleading — type appears typed but is in fact `any`-equivalent).
-
-### O37. JSDoc artefacts (`* *`, `<Databricks>` template) — `model.ts:6,20,32,53,64,77,120,137,165,225`
+### O33. JSDoc artefacts (`* *`, `<Databricks>` template) — `model.ts:6,20,32,53,64,77,120,137,165,225`
 Every multi-line JSDoc block in `model.ts` starts with a stray ` * *` on the first line (e.g., line 6:
 ```
  * *
@@ -292,15 +281,15 @@ Every multi-line JSDoc block in `model.ts` starts with a stray ` * *` on the fir
 ```
 ). Looks like the generator emits an empty paragraph break that renders as `*`. Also, `<Databricks>` appears in raw form throughout (e.g., `model.ts:98,127,142,186`); it should be a literal "Databricks" or substituted at generation time. Neither is a name issue per se but both pollute the docs.
 
-### O38. `host: string` vs `accountId: string | undefined` — initialisation imbalance — `client.ts:47-50,58-72`
-The constructor throws if `options.host` is undefined (`client.ts:59-61`) but happily accepts `accountId: undefined` (line 63). Then `accountId` is later substituted into URL paths via `??` fallbacks. This is fine for `get`/`list`/`update` (which fall back to the client-level value) but problematic for `create` (which doesn't fall back — see O35). The naming of `accountId` as "optional" in the type lies about the runtime requirement.
+### O34. `host: string` vs `accountId: string | undefined` — initialisation imbalance — `client.ts:47-50,58-72`
+The constructor throws if `options.host` is undefined (`client.ts:59-61`) but happily accepts `accountId: undefined` (line 63). Then `accountId` is later substituted into URL paths via `??` fallbacks. This is fine for `get`/`list`/`update` (which fall back to the client-level value) but problematic for `create` (which doesn't fall back — see O32). The naming of `accountId` as "optional" in the type lies about the runtime requirement.
 
 ---
 
 ## Domain glossary
 
 - **`account`** — Databricks account; the top-level billing/identity boundary. Surfaces as `accountId: string` (uuid-shaped) in every interface and as `ClientOptions.accountId` (`client.ts:50,63`).
-- **`workspace`** — A Databricks workspace under an account; `int64` ID on the wire (lossy as `number` in TS — see M19).
+- **`workspace`** — A Databricks workspace under an account; `int64` ID on the wire (lossy as `number` in TS — see M17).
 - **`credentials`** — Refers to `Credentials.Create` (cross-package) — a stored AWS IAM role with policy/trust relationship. The `credentialsId` field (`model.ts:101,189`) links a log delivery config to a previously-created credentials resource.
 - **`storage configuration`** — Refers to `Storage.Create` (cross-package) — a stored S3 bucket descriptor. The `storageConfigurationId` field (`model.ts:103,191`) links a log delivery config to a bucket.
 - **`log delivery configuration`** — The resource modelled by this package: a tuple of `(credentialsId, storageConfigurationId, logType, outputFormat, workspaceIdsFilter, status)` that tells Databricks to write certain logs to a bucket.
@@ -311,8 +300,8 @@ The constructor throws if `options.host` is undefined (`client.ts:59-61`) but ha
 - **`config status`** — `ENABLED` / `DISABLED`. The config is never deleted — only disabled (see `client.ts:88,211`).
 - **`attempt status`** — `CREATED` / `SUCCEEDED` / `USER_FAILURE` / `SYSTEM_FAILURE` / `NOT_FOUND`. Reflects the state of the most recent delivery attempt; surfaced as `LogDeliveryStatus.status` (i.e., `LogDeliveryConfiguration.logDeliveryStatus.status`).
 - **`E2`** — Databricks deployment architecture (newer multi-region account model). Mentioned in `UpdateLogDeliveryConfiguration.accountId` JSDoc (`model.ts:233`).
-- **`int64`** — Wire-level 64-bit signed integer; appears in `workspaceIdsFilter` JSDoc but typed `number` in TS (M19).
-- **`PATCH`** — HTTP verb used by the update endpoint (`client.ts:227`); the Go SDK calls this method `PatchStatus`, the TS port renames it `updateLogDeliveryConfiguration` (M12).
+- **`int64`** — Wire-level 64-bit signed integer; appears in `workspaceIdsFilter` JSDoc but typed `number` in TS (M17).
+- **`PATCH`** — HTTP verb used by the update endpoint (`client.ts:227`); the Go SDK calls this method `PatchStatus`, the TS port renames it `updateLogDeliveryConfiguration` (M10).
 
 ---
 
