@@ -3,6 +3,7 @@
 export {Client} from './client';
 
 export {
+  Entitlement,
   PrincipalType,
   State,
   WorkspaceAccessDetailView,
@@ -11,9 +12,18 @@ export {
 } from './model';
 
 export type {
+  CreateWorkspaceAssignmentDetailProxyRequest,
+  CreateWorkspaceAssignmentDetailRequest,
+  DeleteWorkspaceAssignmentDetailProxyRequest,
+  DeleteWorkspaceAssignmentDetailRequest,
   GetWorkspaceAccessDetailLocalRequest,
   GetWorkspaceAccessDetailRequest,
+  GetWorkspaceAssignmentDetailProxyRequest,
+  GetWorkspaceAssignmentDetailRequest,
   Group,
+  ListWorkspaceAssignmentDetailsProxyRequest,
+  ListWorkspaceAssignmentDetailsRequest,
+  ListWorkspaceAssignmentDetailsResponse,
   ResolveGroupProxyRequest,
   ResolveGroupRequest,
   ResolveGroupResponse,
@@ -24,7 +34,10 @@ export type {
   ResolveUserRequest,
   ResolveUserResponse,
   ServicePrincipal,
+  UpdateWorkspaceAssignmentDetailProxyRequest,
+  UpdateWorkspaceAssignmentDetailRequest,
   User,
   User_Name,
   WorkspaceAccessDetail,
+  WorkspaceAssignmentDetail,
 } from './model';

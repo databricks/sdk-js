@@ -57,6 +57,7 @@ export type {
   OfflineStoreConfig,
   OnlineStoreConfig,
   RequestSource,
+  RollingWindow,
   SchemaConfig,
   SlidingWindow,
   StddevPopFunction,

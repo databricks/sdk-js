@@ -163,6 +163,8 @@ export type {
   PowerBiModel,
   PowerBiTable,
   PowerBiTask,
+  PythonOperatorTask,
+  PythonOperatorTask_Parameter,
   PythonPyPiLibrary,
   PythonWheelTask,
   PythonWheelTask_NamedParametersEntry,

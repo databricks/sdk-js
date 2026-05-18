@@ -14,6 +14,7 @@ export {
 export type {
   AibiDashboardEmbeddingAccessPolicy,
   AibiDashboardEmbeddingApprovedDomains,
+  AllowedAppsUserApiScopesMessage,
   BooleanMessage,
   ClusterAutoRestartMessage,
   ClusterAutoRestartMessage_EnablementDetails,
