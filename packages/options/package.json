@@ -35,6 +35,6 @@
   },
   "dependencies": {
     "@databricks/sdk-auth": ">=0.0.0 <1.0.0",
-    "@databricks/sdk-core": ">=0.0.0 <1.0.0"
+    "@databricks/sdk-core": ">=0.1.0-dev.1 <1.0.0"
   }
 }
