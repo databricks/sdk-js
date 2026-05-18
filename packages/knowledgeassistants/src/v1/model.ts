@@ -160,7 +160,7 @@ export interface KnowledgeAssistant {
   name?: string | undefined;
   /** State of the Knowledge Assistant. Not returned in List responses. */
   state?: KnowledgeAssistant_State | undefined;
-  /** The universally unique identifier (UUID) of the Knowledge Assistant. */
+  /** Deprecated: use knowledge_assistant_id instead. */
   id?: string | undefined;
   /**
    * The display name of the Knowledge Assistant, unique at workspace level.
