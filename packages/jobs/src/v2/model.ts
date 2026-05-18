@@ -1721,6 +1721,65 @@ export interface DockerImage {
     | undefined;
 }
 
+export interface EnforcePolicyComplianceForJob {
+  /** The ID of the job you want to enforce policy compliance on. */
+  jobId?: number | undefined;
+  /**
+   * If set, previews changes made to the job to comply with its policy, but
+   * does not update the job.
+   */
+  validateOnly?: boolean | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface EnforcePolicyComplianceForJob_Response {
+  /**
+   * Whether any changes have been made to the job cluster settings for the job to
+   * become compliant with its policies.
+   */
+  hasChanges?: boolean | undefined;
+  /**
+   * A list of job cluster changes that have been made to the job’s cluster
+   * settings in order for all job clusters to become compliant with their
+   * policies.
+   */
+  jobClusterChanges?:
+    | EnforcePolicyComplianceForJob_Response_JobClusterSettingsChange[]
+    | undefined;
+  /**
+   * Updated job settings after policy enforcement. Policy enforcement only
+   * applies to job clusters that are created when running the job (which are
+   * specified in new_cluster) and does not apply to existing all-purpose clusters.
+   * Updated job settings are derived by applying policy default values to the
+   * existing job clusters in order to satisfy policy requirements.
+   */
+  settings?: JobSettings | undefined;
+}
+
+/**
+ * Represents a change to the job cluster's settings that would be required for the
+ * job clusters to become compliant with their policies.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface EnforcePolicyComplianceForJob_Response_JobClusterSettingsChange {
+  /** The field where this change would be made, prepended with the job cluster key. */
+  field?: string | undefined;
+  /**
+   * The previous value of this field before enforcing policy compliance
+   * (either a number, a boolean, or a string) converted to a string.
+   * This is intended to be read by a human. The type of the field
+   * can be retrieved by reading the settings field in the API response.
+   */
+  previousValue?: string | undefined;
+  /**
+   * The new value of this field after enforcing policy compliance
+   * (either a number, a boolean, or a string) converted to a string.
+   * This is intended to be read by a human. The typed new value of this field
+   * can be retrieved by reading the settings field in the API response.
+   */
+  newValue?: string | undefined;
+}
+
 /**
  * The environment entity used to preserve serverless environment side panel, jobs' environment for non-notebook task, and SDP's environment for classic and serverless pipelines.
  * In this minimal environment spec, only pip and java dependencies are supported.
@@ -1940,6 +1999,37 @@ export interface GetJob_Response {
   effectiveBudgetPolicyId?: string | undefined;
   /** The id of the usage policy used by this job for cost attribution purposes. */
   effectiveUsagePolicyId?: string | undefined;
+}
+
+export interface GetPolicyComplianceForJob {
+  /** The ID of the job whose compliance status you are requesting. */
+  jobId?: number | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface GetPolicyComplianceForJob_Response {
+  /**
+   * Whether the job is compliant with its policies or not. Jobs could be out of
+   * compliance if a policy they are using was updated after the job was
+   * last edited and some of its job clusters no longer comply with
+   * their updated policies.
+   */
+  isCompliant?: boolean | undefined;
+  /**
+   * An object containing key-value mappings representing the first 200 policy
+   * validation errors.
+   * The keys indicate the path where the policy validation error is occurring.
+   * An identifier for the job cluster is prepended to the path.
+   * The values indicate an error message describing the policy validation error.
+   */
+  violations?: Record<string, string> | undefined;
+}
+
+/** Proto defined to model a mapping from string to string. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface GetPolicyComplianceForJob_Response_ViolationsEntry {
+  key?: string | undefined;
+  value?: string | undefined;
 }
 
 export interface GetRun {
@@ -2529,6 +2619,61 @@ export interface Library {
         requirements: string;
       }
     | undefined;
+}
+
+export interface ListJobComplianceForPolicy {
+  /** Canonical unique identifier for the cluster policy. */
+  policyId?: string | undefined;
+  /**
+   * A page token that can be used to navigate to the next page or previous page as
+   * returned by `next_page_token` or `prev_page_token`.
+   */
+  pageToken?: string | undefined;
+  /**
+   * Use this field to specify the maximum number of results to be returned by the server.
+   * The server may further constrain the maximum number of results returned in a
+   * single page.
+   */
+  pageSize?: number | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ListJobComplianceForPolicy_JobCompliance {
+  /** Canonical unique identifier for a job. */
+  jobId?: number | undefined;
+  /** Whether this job is in compliance with the latest version of its policy. */
+  isCompliant?: boolean | undefined;
+  /**
+   * An object containing key-value mappings representing the first 200 policy
+   * validation errors.
+   * The keys indicate the path where the policy validation error is occurring.
+   * An identifier for the job cluster is prepended to the path.
+   * The values indicate an error message describing the policy validation error.
+   */
+  violations?: Record<string, string> | undefined;
+}
+
+/** Proto defined to model a mapping from string to string. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ListJobComplianceForPolicy_JobCompliance_ViolationsEntry {
+  key?: string | undefined;
+  value?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ListJobComplianceForPolicy_Response {
+  /** A list of jobs and their policy compliance statuses. */
+  jobs?: ListJobComplianceForPolicy_JobCompliance[] | undefined;
+  /**
+   * This field represents the pagination token to retrieve the next page of results.
+   * If this field is not in the response, it means no further results for the request.
+   */
+  nextPageToken?: string | undefined;
+  /**
+   * This field represents the pagination token to retrieve the previous page of results.
+   * If this field is not in the response, it means no further results for the request.
+   */
+  prevPageToken?: string | undefined;
 }
 
 /** Lists all jobs. */
@@ -5440,6 +5585,41 @@ export const unmarshalDockerImageSchema: z.ZodType<DockerImage> = z
         : undefined,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalEnforcePolicyComplianceForJob_ResponseSchema: z.ZodType<EnforcePolicyComplianceForJob_Response> =
+  z
+    .object({
+      has_changes: z.boolean().optional(),
+      job_cluster_changes: z
+        .array(
+          z.lazy(
+            () =>
+              unmarshalEnforcePolicyComplianceForJob_Response_JobClusterSettingsChangeSchema
+          )
+        )
+        .optional(),
+      settings: z.lazy(() => unmarshalJobSettingsSchema).optional(),
+    })
+    .transform(d => ({
+      hasChanges: d.has_changes,
+      jobClusterChanges: d.job_cluster_changes,
+      settings: d.settings,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalEnforcePolicyComplianceForJob_Response_JobClusterSettingsChangeSchema: z.ZodType<EnforcePolicyComplianceForJob_Response_JobClusterSettingsChange> =
+  z
+    .object({
+      field: z.string().optional(),
+      previous_value: z.string().optional(),
+      new_value: z.string().optional(),
+    })
+    .transform(d => ({
+      field: d.field,
+      previousValue: d.previous_value,
+      newValue: d.new_value,
+    }));
+
 export const unmarshalEnvironmentSchema: z.ZodType<Environment> = z
   .object({
     client: z.string().optional(),
@@ -5578,6 +5758,18 @@ export const unmarshalGetJob_ResponseSchema: z.ZodType<GetJob_Response> = z
     effectiveBudgetPolicyId: d.effective_budget_policy_id,
     effectiveUsagePolicyId: d.effective_usage_policy_id,
   }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalGetPolicyComplianceForJob_ResponseSchema: z.ZodType<GetPolicyComplianceForJob_Response> =
+  z
+    .object({
+      is_compliant: z.boolean().optional(),
+      violations: z.record(z.string(), z.string()).optional(),
+    })
+    .transform(d => ({
+      isCompliant: d.is_compliant,
+      violations: d.violations,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalGetRun_ResponseSchema: z.ZodType<GetRun_Response> = z
@@ -6035,6 +6227,38 @@ export const unmarshalLibrarySchema: z.ZodType<Library> = z
                       }
                     : undefined,
   }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalListJobComplianceForPolicy_JobComplianceSchema: z.ZodType<ListJobComplianceForPolicy_JobCompliance> =
+  z
+    .object({
+      job_id: z.number().optional(),
+      is_compliant: z.boolean().optional(),
+      violations: z.record(z.string(), z.string()).optional(),
+    })
+    .transform(d => ({
+      jobId: d.job_id,
+      isCompliant: d.is_compliant,
+      violations: d.violations,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalListJobComplianceForPolicy_ResponseSchema: z.ZodType<ListJobComplianceForPolicy_Response> =
+  z
+    .object({
+      jobs: z
+        .array(
+          z.lazy(() => unmarshalListJobComplianceForPolicy_JobComplianceSchema)
+        )
+        .optional(),
+      next_page_token: z.string().optional(),
+      prev_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      jobs: d.jobs,
+      nextPageToken: d.next_page_token,
+      prevPageToken: d.prev_page_token,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListJobs_ResponseSchema: z.ZodType<ListJobs_Response> = z
@@ -8144,6 +8368,16 @@ export const marshalDockerImageSchema: z.ZodType = z
     ...(d.credsOneof?.$case === 'basicAuth' && {
       basic_auth: d.credsOneof.basicAuth,
     }),
+  }));
+
+export const marshalEnforcePolicyComplianceForJobSchema: z.ZodType = z
+  .object({
+    jobId: z.number().optional(),
+    validateOnly: z.boolean().optional(),
+  })
+  .transform(d => ({
+    job_id: d.jobId,
+    validate_only: d.validateOnly,
   }));
 
 export const marshalEnvironmentSchema: z.ZodType = z

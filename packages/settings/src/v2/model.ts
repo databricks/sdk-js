@@ -263,6 +263,10 @@ export interface ListWorkspaceSettingsMetadataResponse {
   nextPageToken?: string | undefined;
 }
 
+export interface OperationalEmailCustomRecipientMessage {
+  email?: string | undefined;
+}
+
 export interface PatchPublicAccountSettingRequest {
   /** <Databricks> account ID of the account being managed. */
   accountId?: string | undefined;
@@ -352,6 +356,11 @@ export interface Setting {
         /** Setting value for allowed_apps_user_api_scopes setting. This is the setting value set by consumers, check effective_allowed_apps_user_api_scopes for final setting value. */
         allowedAppsUserApiScopes: AllowedAppsUserApiScopesMessage;
       }
+    | {
+        $case: 'operationalEmailCustomRecipient';
+        /** Setting value for operational_email_custom_recipient setting. This is the setting value set by consumers, check effective_operational_email_custom_recipient for final setting value. */
+        operationalEmailCustomRecipient: OperationalEmailCustomRecipientMessage;
+      }
     | undefined;
   /**
    * New fields should be added before the oneof below - unless it's a new Setting value message,
@@ -403,6 +412,11 @@ export interface Setting {
         $case: 'effectiveAllowedAppsUserApiScopes';
         /** Effective setting value for allowed_apps_user_api_scopes setting. This is the final effective value of setting. To set a value use allowed_apps_user_api_scopes. */
         effectiveAllowedAppsUserApiScopes: AllowedAppsUserApiScopesMessage;
+      }
+    | {
+        $case: 'effectiveOperationalEmailCustomRecipient';
+        /** Effective setting value for operational_email_custom_recipient setting. This is the final effective value of setting. To set a value use operational_email_custom_recipient. */
+        effectiveOperationalEmailCustomRecipient: OperationalEmailCustomRecipientMessage;
       }
     | undefined;
 }
@@ -629,6 +643,15 @@ export const unmarshalListWorkspaceSettingsMetadataResponseSchema: z.ZodType<Lis
       nextPageToken: d.next_page_token,
     }));
 
+export const unmarshalOperationalEmailCustomRecipientMessageSchema: z.ZodType<OperationalEmailCustomRecipientMessage> =
+  z
+    .object({
+      email: z.string().optional(),
+    })
+    .transform(d => ({
+      email: d.email,
+    }));
+
 export const unmarshalPersonalComputeMessageSchema: z.ZodType<PersonalComputeMessage> =
   z
     .object({
@@ -675,6 +698,9 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
     allowed_apps_user_api_scopes: z
       .lazy(() => unmarshalAllowedAppsUserApiScopesMessageSchema)
       .optional(),
+    operational_email_custom_recipient: z
+      .lazy(() => unmarshalOperationalEmailCustomRecipientMessageSchema)
+      .optional(),
     effective_boolean_val: z
       .lazy(() => unmarshalBooleanMessageSchema)
       .optional(),
@@ -699,6 +725,9 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
       .optional(),
     effective_allowed_apps_user_api_scopes: z
       .lazy(() => unmarshalAllowedAppsUserApiScopesMessageSchema)
+      .optional(),
+    effective_operational_email_custom_recipient: z
+      .lazy(() => unmarshalOperationalEmailCustomRecipientMessageSchema)
       .optional(),
   })
   .transform(d => ({
@@ -744,7 +773,13 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
                             allowedAppsUserApiScopes:
                               d.allowed_apps_user_api_scopes,
                           }
-                        : undefined,
+                        : d.operational_email_custom_recipient !== undefined
+                          ? {
+                              $case: 'operationalEmailCustomRecipient' as const,
+                              operationalEmailCustomRecipient:
+                                d.operational_email_custom_recipient,
+                            }
+                          : undefined,
     effectiveValue:
       d.effective_boolean_val !== undefined
         ? {
@@ -801,7 +836,15 @@ export const unmarshalSettingSchema: z.ZodType<Setting> = z
                             effectiveAllowedAppsUserApiScopes:
                               d.effective_allowed_apps_user_api_scopes,
                           }
-                        : undefined,
+                        : d.effective_operational_email_custom_recipient !==
+                            undefined
+                          ? {
+                              $case:
+                                'effectiveOperationalEmailCustomRecipient' as const,
+                              effectiveOperationalEmailCustomRecipient:
+                                d.effective_operational_email_custom_recipient,
+                            }
+                          : undefined,
   }));
 
 export const unmarshalSettingsMetadataSchema: z.ZodType<SettingsMetadata> = z
@@ -990,6 +1033,14 @@ export const marshalIntegerMessageSchema: z.ZodType = z
     value: d.value,
   }));
 
+export const marshalOperationalEmailCustomRecipientMessageSchema: z.ZodType = z
+  .object({
+    email: z.string().optional(),
+  })
+  .transform(d => ({
+    email: d.email,
+  }));
+
 export const marshalPersonalComputeMessageSchema: z.ZodType = z
   .object({
     value: z.enum(PersonalComputeMessage_PersonalComputeMessageEnum).optional(),
@@ -1059,6 +1110,12 @@ export const marshalSettingSchema: z.ZodType = z
             () => marshalAllowedAppsUserApiScopesMessageSchema
           ),
         }),
+        z.object({
+          $case: z.literal('operationalEmailCustomRecipient'),
+          operationalEmailCustomRecipient: z.lazy(
+            () => marshalOperationalEmailCustomRecipientMessageSchema
+          ),
+        }),
       ])
       .optional(),
     effectiveValue: z
@@ -1111,6 +1168,12 @@ export const marshalSettingSchema: z.ZodType = z
             () => marshalAllowedAppsUserApiScopesMessageSchema
           ),
         }),
+        z.object({
+          $case: z.literal('effectiveOperationalEmailCustomRecipient'),
+          effectiveOperationalEmailCustomRecipient: z.lazy(
+            () => marshalOperationalEmailCustomRecipientMessageSchema
+          ),
+        }),
       ])
       .optional(),
   })
@@ -1139,6 +1202,10 @@ export const marshalSettingSchema: z.ZodType = z
     }),
     ...(d.value?.$case === 'allowedAppsUserApiScopes' && {
       allowed_apps_user_api_scopes: d.value.allowedAppsUserApiScopes,
+    }),
+    ...(d.value?.$case === 'operationalEmailCustomRecipient' && {
+      operational_email_custom_recipient:
+        d.value.operationalEmailCustomRecipient,
     }),
     ...(d.effectiveValue?.$case === 'effectiveBooleanVal' && {
       effective_boolean_val: d.effectiveValue.effectiveBooleanVal,
@@ -1174,6 +1241,11 @@ export const marshalSettingSchema: z.ZodType = z
     ...(d.effectiveValue?.$case === 'effectiveAllowedAppsUserApiScopes' && {
       effective_allowed_apps_user_api_scopes:
         d.effectiveValue.effectiveAllowedAppsUserApiScopes,
+    }),
+    ...(d.effectiveValue?.$case ===
+      'effectiveOperationalEmailCustomRecipient' && {
+      effective_operational_email_custom_recipient:
+        d.effectiveValue.effectiveOperationalEmailCustomRecipient,
     }),
   }));
 

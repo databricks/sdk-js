@@ -31,14 +31,21 @@ import type {
   DeleteJob_Response,
   DeleteRun,
   DeleteRun_Response,
+  EnforcePolicyComplianceForJob,
+  EnforcePolicyComplianceForJob_Response,
   ExportRun,
   ExportRun_Response,
   GetJob,
   GetJob_Response,
+  GetPolicyComplianceForJob,
+  GetPolicyComplianceForJob_Response,
   GetRun,
   GetRunOutput,
   GetRunOutput_Response,
   GetRun_Response,
+  ListJobComplianceForPolicy,
+  ListJobComplianceForPolicy_JobCompliance,
+  ListJobComplianceForPolicy_Response,
   ListJobs,
   ListJobs_Response,
   ListRuns,
@@ -61,6 +68,7 @@ import {
   marshalCreateJobSchema,
   marshalDeleteJobSchema,
   marshalDeleteRunSchema,
+  marshalEnforcePolicyComplianceForJobSchema,
   marshalRepairRunSchema,
   marshalResetJobSchema,
   marshalRunNowSchema,
@@ -71,10 +79,13 @@ import {
   unmarshalCreateJob_ResponseSchema,
   unmarshalDeleteJob_ResponseSchema,
   unmarshalDeleteRun_ResponseSchema,
+  unmarshalEnforcePolicyComplianceForJob_ResponseSchema,
   unmarshalExportRun_ResponseSchema,
   unmarshalGetJob_ResponseSchema,
+  unmarshalGetPolicyComplianceForJob_ResponseSchema,
   unmarshalGetRunOutput_ResponseSchema,
   unmarshalGetRun_ResponseSchema,
+  unmarshalListJobComplianceForPolicy_ResponseSchema,
   unmarshalListJobs_ResponseSchema,
   unmarshalListRuns_ResponseSchema,
   unmarshalRepairRun_ResponseSchema,
@@ -115,6 +126,144 @@ export class Client {
     }
     this.userAgent = info.toString();
     this.httpClient = newHttpClient(options);
+  }
+
+  /**
+   * Updates a job so the job clusters that are created when running
+   * the job (specified in `new_cluster`) are compliant with the
+   * current versions of their respective cluster policies.
+   * All-purpose clusters used in the job will not be updated.
+   */
+  async enforcePolicyComplianceForJob(
+    req: EnforcePolicyComplianceForJob,
+    options?: CallOptions
+  ): Promise<EnforcePolicyComplianceForJob_Response> {
+    const url = `${this.host}/api/2.0/policies/jobs/enforce-compliance`;
+    const body = marshalRequest(
+      req,
+      marshalEnforcePolicyComplianceForJobSchema
+    );
+    let resp: EnforcePolicyComplianceForJob_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalEnforcePolicyComplianceForJob_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Returns the policy compliance status of a job. Jobs could be out of
+   * compliance if a cluster policy they use was updated after the job was
+   * last edited and some of its job clusters no longer comply with
+   * their updated policies.
+   */
+  async getPolicyComplianceForJob(
+    req: GetPolicyComplianceForJob,
+    options?: CallOptions
+  ): Promise<GetPolicyComplianceForJob_Response> {
+    const url = `${this.host}/api/2.0/policies/jobs/get-compliance`;
+    const params = new URLSearchParams();
+    if (req.jobId !== undefined) {
+      params.append('job_id', String(req.jobId));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: GetPolicyComplianceForJob_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalGetPolicyComplianceForJob_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Returns the policy compliance status of all jobs that use a
+   * given policy. Jobs could be out of compliance if a cluster policy they
+   * use was updated after the job was last edited and its job
+   * clusters no longer comply with the updated policy.
+   */
+  async listJobComplianceForPolicy(
+    req: ListJobComplianceForPolicy,
+    options?: CallOptions
+  ): Promise<ListJobComplianceForPolicy_Response> {
+    const url = `${this.host}/api/2.0/policies/jobs/list-compliance`;
+    const params = new URLSearchParams();
+    if (req.policyId !== undefined) {
+      params.append('policy_id', req.policyId);
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListJobComplianceForPolicy_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListJobComplianceForPolicy_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listJobComplianceForPolicyIter(
+    req: ListJobComplianceForPolicy,
+    options?: CallOptions
+  ): AsyncGenerator<ListJobComplianceForPolicy_JobCompliance> {
+    const pageReq: ListJobComplianceForPolicy = {...req};
+    for (;;) {
+      const resp = await this.listJobComplianceForPolicy(pageReq, options);
+      for (const item of resp.jobs ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
   }
 
   /**

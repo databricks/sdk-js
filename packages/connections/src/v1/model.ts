@@ -33,7 +33,7 @@ export enum ConnectionType {
   SMARTSHEET = 'SMARTSHEET',
 }
 
-/** Next Id: 18 */
+/** Next Id: 19 */
 export enum CredentialType {
   UNKNOWN_CREDENTIAL_TYPE = 'UNKNOWN_CREDENTIAL_TYPE',
   USERNAME_PASSWORD = 'USERNAME_PASSWORD',

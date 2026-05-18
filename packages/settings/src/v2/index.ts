@@ -31,6 +31,7 @@ export type {
   ListAccountUserPreferencesMetadataResponse,
   ListWorkspaceSettingsMetadataRequest,
   ListWorkspaceSettingsMetadataResponse,
+  OperationalEmailCustomRecipientMessage,
   PatchPublicAccountSettingRequest,
   PatchPublicAccountUserPreferenceRequest,
   PatchPublicWorkspaceSettingRequest,

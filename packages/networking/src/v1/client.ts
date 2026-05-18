@@ -20,6 +20,8 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import {z} from 'zod';
 import type {
   AccountNetworkPolicy,
+  CreateAccountIpAccessListRequest,
+  CreateAccountIpAccessListRequest_Response,
   CreateEndpointRequest,
   CreateIpAccessList,
   CreateIpAccessList_Response,
@@ -32,6 +34,8 @@ import type {
   CustomerFacingNetworkConnectivityConfig,
   CustomerFacingPrivateAccessSettings,
   CustomerFacingVpcEndpoint,
+  DeleteAccountIpAccessListRequest,
+  DeleteAccountIpAccessListRequest_Response,
   DeleteEndpointRequest,
   DeleteIpAccessList,
   DeleteIpAccessList_Response,
@@ -42,6 +46,8 @@ import type {
   DeletePrivateAccessSettingsPublicRequest,
   DeleteVpcEndpointPublicRequest,
   Endpoint,
+  GetAccountIpAccessListRequest,
+  GetAccountIpAccessListRequest_Response,
   GetEndpointRequest,
   GetIpAccessList,
   GetIpAccessList_Response,
@@ -52,6 +58,8 @@ import type {
   GetPrivateAccessSettingsPublicRequest,
   GetVpcEndpointPublicRequest,
   GetWorkspaceNetworkOptionRequest,
+  ListAccountIpAccessListsRequest,
+  ListAccountIpAccessListsRequest_Response,
   ListEndpointsRequest,
   ListEndpointsResponse,
   ListIpAccessLists,
@@ -70,8 +78,12 @@ import type {
   ListVpcEndpointPublicResponse,
   NccPrivateEndpointRule,
   Network,
+  ReplaceAccountIpAccessListRequest,
+  ReplaceAccountIpAccessListRequest_Response,
   ReplaceIpAccessList,
   ReplaceIpAccessList_Response,
+  UpdateAccountIpAccessListRequest,
+  UpdateAccountIpAccessListRequest_Response,
   UpdateIpAccessList,
   UpdateIpAccessList_Response,
   UpdateNccPrivateEndpointRuleRequest,
@@ -82,6 +94,7 @@ import type {
 } from './model';
 import {
   marshalAccountNetworkPolicySchema,
+  marshalCreateAccountIpAccessListRequestSchema,
   marshalCreateIpAccessListSchema,
   marshalCreateNetworkConnectivityConfigurationSchema,
   marshalCreateNetworkPublicRequestSchema,
@@ -90,18 +103,24 @@ import {
   marshalCreateVpcEndpointPublicRequestSchema,
   marshalCustomerFacingPrivateAccessSettingsSchema,
   marshalEndpointSchema,
+  marshalReplaceAccountIpAccessListRequestSchema,
   marshalReplaceIpAccessListSchema,
+  marshalUpdateAccountIpAccessListRequestSchema,
   marshalUpdateIpAccessListSchema,
   marshalUpdatePrivateEndpointRuleSchema,
   marshalWorkspaceNetworkOptionSchema,
   unmarshalAccountNetworkPolicySchema,
+  unmarshalCreateAccountIpAccessListRequest_ResponseSchema,
   unmarshalCreateIpAccessList_ResponseSchema,
   unmarshalCustomerFacingNetworkConnectivityConfigSchema,
   unmarshalCustomerFacingPrivateAccessSettingsSchema,
   unmarshalCustomerFacingVpcEndpointSchema,
+  unmarshalDeleteAccountIpAccessListRequest_ResponseSchema,
   unmarshalDeleteIpAccessList_ResponseSchema,
   unmarshalEndpointSchema,
+  unmarshalGetAccountIpAccessListRequest_ResponseSchema,
   unmarshalGetIpAccessList_ResponseSchema,
+  unmarshalListAccountIpAccessListsRequest_ResponseSchema,
   unmarshalListEndpointsResponseSchema,
   unmarshalListIpAccessLists_ResponseSchema,
   unmarshalListNccPrivateEndpointRulesResponseSchema,
@@ -109,7 +128,9 @@ import {
   unmarshalListNetworkPoliciesResponseSchema,
   unmarshalNccPrivateEndpointRuleSchema,
   unmarshalNetworkSchema,
+  unmarshalReplaceAccountIpAccessListRequest_ResponseSchema,
   unmarshalReplaceIpAccessList_ResponseSchema,
+  unmarshalUpdateAccountIpAccessListRequest_ResponseSchema,
   unmarshalUpdateIpAccessList_ResponseSchema,
   unmarshalWorkspaceNetworkOptionSchema,
 } from './model';
@@ -147,6 +168,228 @@ export class Client {
     }
     this.userAgent = info.toString();
     this.httpClient = newHttpClient(options);
+  }
+
+  /**
+   * Creates an IP access list for the account.
+   *
+   * A list can be an allow list or a block list. See the top of this file for a description of
+   * how the server treats allow lists and block lists at runtime.
+   *
+   * When creating or updating an IP access list:
+   *
+   * * For all allow lists and block lists combined, the API supports a maximum of 1000
+   * IP/CIDR values, where one CIDR counts as a single value. Attempts to exceed that number
+   * return error 400 with `error_code` value `QUOTA_EXCEEDED`.
+   * * If the new list would block the calling user's current IP, error 400 is returned with
+   * `error_code` value `INVALID_STATE`.
+   *
+   * It can take a few minutes for the changes to take effect.
+   */
+  async createAccountIpAccessList(
+    req: CreateAccountIpAccessListRequest,
+    options?: CallOptions
+  ): Promise<CreateAccountIpAccessListRequest_Response> {
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists`;
+    const body = marshalRequest(
+      req,
+      marshalCreateAccountIpAccessListRequestSchema
+    );
+    let resp: CreateAccountIpAccessListRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalCreateAccountIpAccessListRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Deletes an IP access list, specified by its list ID. */
+  async deleteAccountIpAccessList(
+    req: DeleteAccountIpAccessListRequest,
+    options?: CallOptions
+  ): Promise<DeleteAccountIpAccessListRequest_Response> {
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists/${req.listId ?? ''}`;
+    let resp: DeleteAccountIpAccessListRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalDeleteAccountIpAccessListRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Gets an IP access list, specified by its list ID. */
+  async getAccountIpAccessList(
+    req: GetAccountIpAccessListRequest,
+    options?: CallOptions
+  ): Promise<GetAccountIpAccessListRequest_Response> {
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists/${req.listId ?? ''}`;
+    let resp: GetAccountIpAccessListRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalGetAccountIpAccessListRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Gets all IP access lists for the specified account. */
+  async listAccountIpAccessLists(
+    req: ListAccountIpAccessListsRequest,
+    options?: CallOptions
+  ): Promise<ListAccountIpAccessListsRequest_Response> {
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists`;
+    let resp: ListAccountIpAccessListsRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListAccountIpAccessListsRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Replaces an IP access list, specified by its ID.
+   *
+   * A list can include allow lists and block lists. See the top of this file for a description
+   * of how the server treats allow lists and block lists at run time. When replacing an IP
+   * access list:
+   * * For all allow lists and block lists combined, the API supports a maximum of 1000 IP/CIDR values,
+   * where one CIDR counts as a single value. Attempts to exceed that number return error 400 with `error_code`
+   * value `QUOTA_EXCEEDED`.
+   * * If the resulting list would block the calling user's current IP, error 400 is returned with `error_code`
+   * value `INVALID_STATE`.
+   * It can take a few minutes for the changes to take effect.
+   */
+  async replaceAccountIpAccessList(
+    req: ReplaceAccountIpAccessListRequest,
+    options?: CallOptions
+  ): Promise<ReplaceAccountIpAccessListRequest_Response> {
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists/${req.listId ?? ''}`;
+    const body = marshalRequest(
+      req,
+      marshalReplaceAccountIpAccessListRequestSchema
+    );
+    let resp: ReplaceAccountIpAccessListRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalReplaceAccountIpAccessListRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * Updates an existing IP access list, specified by its ID.
+   *
+   * A list can include allow lists and block lists. See the top of this file for a description
+   * of how the server treats allow lists and block lists at run time.
+   *
+   * When updating an IP access list:
+   *
+   * * For all allow lists and block lists combined, the API supports a maximum of 1000
+   * IP/CIDR values, where one CIDR counts as a single value. Attempts to exceed that number
+   * return error 400 with `error_code` value `QUOTA_EXCEEDED`.
+   * * If the updated list would block the calling user's current IP, error 400 is returned
+   * with `error_code` value `INVALID_STATE`.
+   *
+   * It can take a few minutes for the changes to take effect.
+   */
+  async updateAccountIpAccessList(
+    req: UpdateAccountIpAccessListRequest,
+    options?: CallOptions
+  ): Promise<UpdateAccountIpAccessListRequest_Response> {
+    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists/${req.listId ?? ''}`;
+    const body = marshalRequest(
+      req,
+      marshalUpdateAccountIpAccessListRequestSchema
+    );
+    let resp: UpdateAccountIpAccessListRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalUpdateAccountIpAccessListRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
   }
 
   /**
@@ -284,26 +527,24 @@ export class Client {
   }
 
   /**
-   * Creates an IP access list for the account.
+   * Creates an IP access list for this workspace.
    *
-   * A list can be an allow list or a block list. See the top of this file for a description of
-   * how the server treats allow lists and block lists at runtime.
+   * A list can be an allow list or a block list.
+   * See the top of this file for a description of how the server treats allow lists and block lists at runtime.
    *
    * When creating or updating an IP access list:
    *
-   * * For all allow lists and block lists combined, the API supports a maximum of 1000
-   * IP/CIDR values, where one CIDR counts as a single value. Attempts to exceed that number
-   * return error 400 with `error_code` value `QUOTA_EXCEEDED`.
-   * * If the new list would block the calling user's current IP, error 400 is returned with
-   * `error_code` value `INVALID_STATE`.
+   * * For all allow lists and block lists combined, the API supports a maximum of 1000 IP/CIDR values,
+   * where one CIDR counts as a single value. Attempts to exceed that number return error 400 with `error_code` value `QUOTA_EXCEEDED`.
+   * * If the new list would block the calling user's current IP, error 400 is returned with `error_code` value `INVALID_STATE`.
    *
-   * It can take a few minutes for the changes to take effect.
+   * It can take a few minutes for the changes to take effect. **Note**: Your new IP access list has no effect until you enable the feature. See :method:workspaceconf/setStatus
    */
   async createIpAccessList(
     req: CreateIpAccessList,
     options?: CallOptions
   ): Promise<CreateIpAccessList_Response> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists`;
+    const url = `${this.host}/api/2.0/ip-access-lists`;
     const body = marshalRequest(req, marshalCreateIpAccessListSchema);
     let resp: CreateIpAccessList_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -332,7 +573,7 @@ export class Client {
     req: DeleteIpAccessList,
     options?: CallOptions
   ): Promise<DeleteIpAccessList_Response> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists/${req.listId ?? ''}`;
+    const url = `${this.host}/api/2.0/ip-access-lists/${req.listId ?? ''}`;
     let resp: DeleteIpAccessList_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -360,7 +601,7 @@ export class Client {
     req: GetIpAccessList,
     options?: CallOptions
   ): Promise<GetIpAccessList_Response> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists/${req.listId ?? ''}`;
+    const url = `${this.host}/api/2.0/ip-access-lists/${req.listId ?? ''}`;
     let resp: GetIpAccessList_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -380,12 +621,12 @@ export class Client {
     return resp;
   }
 
-  /** Gets all IP access lists for the specified account. */
+  /** Gets all IP access lists for the specified workspace. */
   async listIpAccessLists(
-    req: ListIpAccessLists,
+    _req: ListIpAccessLists,
     options?: CallOptions
   ): Promise<ListIpAccessLists_Response> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists`;
+    const url = `${this.host}/api/2.0/ip-access-lists`;
     let resp: ListIpAccessLists_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
@@ -408,21 +649,22 @@ export class Client {
   /**
    * Replaces an IP access list, specified by its ID.
    *
-   * A list can include allow lists and block lists. See the top of this file for a description
-   * of how the server treats allow lists and block lists at run time. When replacing an IP
-   * access list:
+   * A list can include allow lists and block lists. See the top
+   * of this file for a description of how the server treats allow lists and block lists at run time. When
+   * replacing an IP access list:
    * * For all allow lists and block lists combined, the API supports a maximum of 1000 IP/CIDR values,
    * where one CIDR counts as a single value. Attempts to exceed that number return error 400 with `error_code`
    * value `QUOTA_EXCEEDED`.
    * * If the resulting list would block the calling user's current IP, error 400 is returned with `error_code`
    * value `INVALID_STATE`.
-   * It can take a few minutes for the changes to take effect.
+   * It can take a few minutes for the changes to take effect. Note that your resulting IP access list has no
+   * effect until you enable the feature. See :method:workspaceconf/setStatus.
    */
   async replaceIpAccessList(
     req: ReplaceIpAccessList,
     options?: CallOptions
   ): Promise<ReplaceIpAccessList_Response> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists/${req.listId ?? ''}`;
+    const url = `${this.host}/api/2.0/ip-access-lists/${req.listId ?? ''}`;
     const body = marshalRequest(req, marshalReplaceIpAccessListSchema);
     let resp: ReplaceIpAccessList_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -449,24 +691,23 @@ export class Client {
   /**
    * Updates an existing IP access list, specified by its ID.
    *
-   * A list can include allow lists and block lists. See the top of this file for a description
-   * of how the server treats allow lists and block lists at run time.
+   * A list can include allow lists and block lists.
+   * See the top of this file for a description of how the server treats allow lists and block lists at run time.
    *
    * When updating an IP access list:
    *
-   * * For all allow lists and block lists combined, the API supports a maximum of 1000
-   * IP/CIDR values, where one CIDR counts as a single value. Attempts to exceed that number
-   * return error 400 with `error_code` value `QUOTA_EXCEEDED`.
-   * * If the updated list would block the calling user's current IP, error 400 is returned
-   * with `error_code` value `INVALID_STATE`.
+   * * For all allow lists and block lists combined, the API supports a maximum of 1000 IP/CIDR values,
+   * where one CIDR counts as a single value. Attempts to exceed that number return error 400 with `error_code` value `QUOTA_EXCEEDED`.
+   * * If the updated list would block the calling user's current IP, error 400 is returned with `error_code` value `INVALID_STATE`.
    *
-   * It can take a few minutes for the changes to take effect.
+   * It can take a few minutes for the changes to take effect. Note that your resulting IP access list has no effect until you enable
+   * the feature. See :method:workspaceconf/setStatus.
    */
   async updateIpAccessList(
     req: UpdateIpAccessList,
     options?: CallOptions
   ): Promise<UpdateIpAccessList_Response> {
-    const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/ip-access-lists/${req.listId ?? ''}`;
+    const url = `${this.host}/api/2.0/ip-access-lists/${req.listId ?? ''}`;
     const body = marshalRequest(req, marshalUpdateIpAccessListSchema);
     let resp: UpdateIpAccessList_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
