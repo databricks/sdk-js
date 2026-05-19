@@ -9,7 +9,6 @@
   "references": [
     {"path": "../auth"},
     {"path": "../core"},
-    {"path": "../databricks"},
     {"path": "../options"}
   ]
 }

@@ -9,7 +9,7 @@ import {NoOpLogger} from '@databricks/sdk-core/logger';
 import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
-import {newHttpClient} from '@databricks/sdk-databricks/transport';
+import {newHttpClient} from './transport';
 import {
   buildHttpRequest,
   executeCall,
