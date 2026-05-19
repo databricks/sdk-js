@@ -192,13 +192,29 @@ jobs:
       - name: Build
         run: npm run build -- --filter='@databricks/sdk-${{ matrix.shard }}'
 
+  check-licenses:
+    name: Check Licenses
+    runs-on:
+      group: databricks-protected-runner-group
+      labels: linux-ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+
+      - name: Verify every published package ships a LICENSE
+        run: node scripts/check-licenses.mjs
+
   # This job gates merging. It depends on all CI jobs so that branch protection
   # only needs to reference this single check. When adding new jobs, append
   # them to the "needs" list below and branch protection stays in sync.
   ci-gate:
     name: CI Gate
     if: always()
-    needs: [lint, typecheck, test, test-browser, build]
+    needs: [lint, typecheck, test, test-browser, build, check-licenses]
     runs-on:
       group: databricks-protected-runner-group
       labels: linux-ubuntu-latest
