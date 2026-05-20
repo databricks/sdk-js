@@ -54,12 +54,12 @@ export interface ColumnMaskOptions {
   using?: FunctionArgument[] | undefined;
 }
 
-export interface CreatePolicy {
+export interface CreatePolicyRequest {
   /** Required. The policy to create. */
   policyInfo?: PolicyInfo | undefined;
 }
 
-export interface DeletePolicy {
+export interface DeletePolicyRequest {
   /** Required. The type of the securable to delete the policy from. */
   onSecurableType?: string | undefined;
   /** Required. The fully qualified name of the securable to delete the policy from. */
@@ -69,7 +69,7 @@ export interface DeletePolicy {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeletePolicy_Response {}
+export interface DeletePolicyRequest_Response {}
 
 export interface FunctionArgument {
   /** A positional argument pass to a row filter or column mask function. */
@@ -87,7 +87,7 @@ export interface FunctionArgument {
     | undefined;
 }
 
-export interface GetPolicy {
+export interface GetPolicyRequest {
   /** Required. The type of the securable to retrieve the policy for. */
   onSecurableType?: string | undefined;
   /** Required. The fully qualified name of securable to retrieve policy for. */
@@ -96,7 +96,7 @@ export interface GetPolicy {
   name?: string | undefined;
 }
 
-export interface ListPolicies {
+export interface ListPoliciesRequest {
   /** Required. The type of the securable to list policies for. */
   onSecurableType?: string | undefined;
   /** Required. The fully qualified name of securable to list policies for. */
@@ -117,7 +117,7 @@ export interface ListPolicies {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListPolicies_Response {
+export interface ListPoliciesRequest_Response {
   /** The list of retrieved policies. */
   policies?: PolicyInfo[] | undefined;
   /**
@@ -227,7 +227,7 @@ export interface RowFilterOptions {
   using?: FunctionArgument[] | undefined;
 }
 
-export interface UpdatePolicy {
+export interface UpdatePolicyRequest {
   /** Required. The type of the securable to update the policy for. */
   onSecurableType?: string | undefined;
   /** Required. The fully qualified name of the securable to update the policy for. */
@@ -264,7 +264,7 @@ export const unmarshalColumnMaskOptionsSchema: z.ZodType<ColumnMaskOptions> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeletePolicy_ResponseSchema: z.ZodType<DeletePolicy_Response> =
+export const unmarshalDeletePolicyRequest_ResponseSchema: z.ZodType<DeletePolicyRequest_Response> =
   z.object({});
 
 export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
@@ -282,7 +282,7 @@ export const unmarshalFunctionArgumentSchema: z.ZodType<FunctionArgument> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListPolicies_ResponseSchema: z.ZodType<ListPolicies_Response> =
+export const unmarshalListPoliciesRequest_ResponseSchema: z.ZodType<ListPoliciesRequest_Response> =
   z
     .object({
       policies: z.array(z.lazy(() => unmarshalPolicyInfoSchema)).optional(),

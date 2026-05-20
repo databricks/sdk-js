@@ -18,18 +18,18 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  GetEffectivePermissions,
-  GetEffectivePermissions_Response,
-  GetPermissions,
-  GetPermissions_Response,
-  UpdatePermissions,
-  UpdatePermissions_Response,
+  GetEffectivePermissionsRequest,
+  GetEffectivePermissionsRequest_Response,
+  GetPermissionsRequest,
+  GetPermissionsRequest_Response,
+  UpdatePermissionsRequest,
+  UpdatePermissionsRequest_Response,
 } from './model';
 import {
-  marshalUpdatePermissionsSchema,
-  unmarshalGetEffectivePermissions_ResponseSchema,
-  unmarshalGetPermissions_ResponseSchema,
-  unmarshalUpdatePermissions_ResponseSchema,
+  marshalUpdatePermissionsRequestSchema,
+  unmarshalGetEffectivePermissionsRequest_ResponseSchema,
+  unmarshalGetPermissionsRequest_ResponseSchema,
+  unmarshalUpdatePermissionsRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -72,9 +72,9 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async getEffectivePermissions(
-    req: GetEffectivePermissions,
+    req: GetEffectivePermissionsRequest,
     options?: CallOptions
-  ): Promise<GetEffectivePermissions_Response> {
+  ): Promise<GetEffectivePermissionsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/effective-permissions/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
     const params = new URLSearchParams();
     if (req.principal !== undefined) {
@@ -88,7 +88,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetEffectivePermissions_Response | undefined;
+    let resp: GetEffectivePermissionsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -100,7 +100,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetEffectivePermissions_ResponseSchema
+        unmarshalGetEffectivePermissionsRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -119,9 +119,9 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async getPermissions(
-    req: GetPermissions,
+    req: GetPermissionsRequest,
     options?: CallOptions
-  ): Promise<GetPermissions_Response> {
+  ): Promise<GetPermissionsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/permissions/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
     const params = new URLSearchParams();
     if (req.principal !== undefined) {
@@ -135,7 +135,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetPermissions_Response | undefined;
+    let resp: GetPermissionsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -145,7 +145,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetPermissions_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalGetPermissionsRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -156,12 +159,12 @@ export class Client {
 
   /** Updates the permissions for a securable. */
   async updatePermissions(
-    req: UpdatePermissions,
+    req: UpdatePermissionsRequest,
     options?: CallOptions
-  ): Promise<UpdatePermissions_Response> {
+  ): Promise<UpdatePermissionsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/permissions/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
-    const body = marshalRequest(req, marshalUpdatePermissionsSchema);
-    let resp: UpdatePermissions_Response | undefined;
+    const body = marshalRequest(req, marshalUpdatePermissionsRequestSchema);
+    let resp: UpdatePermissionsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -171,7 +174,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalUpdatePermissions_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalUpdatePermissionsRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {

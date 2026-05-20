@@ -18,19 +18,19 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  CreatePolicy,
-  DeletePolicy,
-  DeletePolicy_Response,
-  GetPolicy,
-  ListPolicies,
-  ListPolicies_Response,
+  CreatePolicyRequest,
+  DeletePolicyRequest,
+  DeletePolicyRequest_Response,
+  GetPolicyRequest,
+  ListPoliciesRequest,
+  ListPoliciesRequest_Response,
   PolicyInfo,
-  UpdatePolicy,
+  UpdatePolicyRequest,
 } from './model';
 import {
   marshalPolicyInfoSchema,
-  unmarshalDeletePolicy_ResponseSchema,
-  unmarshalListPolicies_ResponseSchema,
+  unmarshalDeletePolicyRequest_ResponseSchema,
+  unmarshalListPoliciesRequest_ResponseSchema,
   unmarshalPolicyInfoSchema,
 } from './model';
 
@@ -70,7 +70,7 @@ export class Client {
    * The new policy applies to the securable and all its descendants.
    */
   async createPolicy(
-    req: CreatePolicy,
+    req: CreatePolicyRequest,
     options?: CallOptions
   ): Promise<PolicyInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/policies`;
@@ -96,11 +96,11 @@ export class Client {
 
   /** Delete an ABAC policy defined on a securable. */
   async deletePolicy(
-    req: DeletePolicy,
+    req: DeletePolicyRequest,
     options?: CallOptions
-  ): Promise<DeletePolicy_Response> {
+  ): Promise<DeletePolicyRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}/${req.name ?? ''}`;
-    let resp: DeletePolicy_Response | undefined;
+    let resp: DeletePolicyRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -110,7 +110,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeletePolicy_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalDeletePolicyRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -120,7 +123,10 @@ export class Client {
   }
 
   /** Get the policy definition on a securable */
-  async getPolicy(req: GetPolicy, options?: CallOptions): Promise<PolicyInfo> {
+  async getPolicy(
+    req: GetPolicyRequest,
+    options?: CallOptions
+  ): Promise<PolicyInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}/${req.name ?? ''}`;
     let resp: PolicyInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -149,9 +155,9 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listPolicies(
-    req: ListPolicies,
+    req: ListPoliciesRequest,
     options?: CallOptions
-  ): Promise<ListPolicies_Response> {
+  ): Promise<ListPoliciesRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}`;
     const params = new URLSearchParams();
     if (req.includeInherited !== undefined) {
@@ -165,7 +171,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListPolicies_Response | undefined;
+    let resp: ListPoliciesRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -175,7 +181,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListPolicies_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalListPoliciesRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -185,10 +194,10 @@ export class Client {
   }
 
   async *listPoliciesIter(
-    req: ListPolicies,
+    req: ListPoliciesRequest,
     options?: CallOptions
   ): AsyncGenerator<PolicyInfo> {
-    const pageReq: ListPolicies = {...req};
+    const pageReq: ListPoliciesRequest = {...req};
     for (;;) {
       const resp = await this.listPolicies(pageReq, options);
       for (const item of resp.policies ?? []) {
@@ -203,7 +212,7 @@ export class Client {
 
   /** Update an ABAC policy on a securable. */
   async updatePolicy(
-    req: UpdatePolicy,
+    req: UpdatePolicyRequest,
     options?: CallOptions
   ): Promise<PolicyInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}/${req.name ?? ''}`;

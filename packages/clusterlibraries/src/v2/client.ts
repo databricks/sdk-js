@@ -19,21 +19,21 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   ClusterLibraryStatuses,
-  ClusterStatus,
-  InstallLibraries,
-  InstallLibraries_Response,
-  ListAllClusterLibraryStatuses,
-  ListAllClusterLibraryStatuses_Response,
-  UninstallLibraries,
-  UninstallLibraries_Response,
+  ClusterStatusRequest,
+  InstallLibrariesRequest,
+  InstallLibrariesRequest_Response,
+  ListAllClusterLibraryStatusesRequest,
+  ListAllClusterLibraryStatusesRequest_Response,
+  UninstallLibrariesRequest,
+  UninstallLibrariesRequest_Response,
 } from './model';
 import {
-  marshalInstallLibrariesSchema,
-  marshalUninstallLibrariesSchema,
+  marshalInstallLibrariesRequestSchema,
+  marshalUninstallLibrariesRequestSchema,
   unmarshalClusterLibraryStatusesSchema,
-  unmarshalInstallLibraries_ResponseSchema,
-  unmarshalListAllClusterLibraryStatuses_ResponseSchema,
-  unmarshalUninstallLibraries_ResponseSchema,
+  unmarshalInstallLibrariesRequest_ResponseSchema,
+  unmarshalListAllClusterLibraryStatusesRequest_ResponseSchema,
+  unmarshalUninstallLibrariesRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -72,11 +72,11 @@ export class Client {
    * via the API or the libraries UI.
    */
   async allClusterStatuses(
-    _req: ListAllClusterLibraryStatuses,
+    _req: ListAllClusterLibraryStatusesRequest,
     options?: CallOptions
-  ): Promise<ListAllClusterLibraryStatuses_Response> {
+  ): Promise<ListAllClusterLibraryStatusesRequest_Response> {
     const url = `${this.host}/api/2.0/libraries/all-cluster-statuses`;
-    let resp: ListAllClusterLibraryStatuses_Response | undefined;
+    let resp: ListAllClusterLibraryStatusesRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -88,7 +88,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListAllClusterLibraryStatuses_ResponseSchema
+        unmarshalListAllClusterLibraryStatusesRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -108,7 +108,7 @@ export class Client {
    * but are now marked for removal, in no particular order, are returned last.
    */
   async clusterStatus(
-    req: ClusterStatus,
+    req: ClusterStatusRequest,
     options?: CallOptions
   ): Promise<ClusterLibraryStatuses> {
     const url = `${this.host}/api/2.0/libraries/cluster-status`;
@@ -142,12 +142,12 @@ export class Client {
    * the background after the completion of this request.
    */
   async installLibraries(
-    req: InstallLibraries,
+    req: InstallLibrariesRequest,
     options?: CallOptions
-  ): Promise<InstallLibraries_Response> {
+  ): Promise<InstallLibrariesRequest_Response> {
     const url = `${this.host}/api/2.0/libraries/install`;
-    const body = marshalRequest(req, marshalInstallLibrariesSchema);
-    let resp: InstallLibraries_Response | undefined;
+    const body = marshalRequest(req, marshalInstallLibrariesRequestSchema);
+    let resp: InstallLibrariesRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -157,7 +157,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalInstallLibraries_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalInstallLibrariesRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -171,12 +174,12 @@ export class Client {
    * the cluster is restarted. A request to uninstall a library that is not currently installed is ignored.
    */
   async uninstallLibraries(
-    req: UninstallLibraries,
+    req: UninstallLibrariesRequest,
     options?: CallOptions
-  ): Promise<UninstallLibraries_Response> {
+  ): Promise<UninstallLibrariesRequest_Response> {
     const url = `${this.host}/api/2.0/libraries/uninstall`;
-    const body = marshalRequest(req, marshalUninstallLibrariesSchema);
-    let resp: UninstallLibraries_Response | undefined;
+    const body = marshalRequest(req, marshalUninstallLibrariesRequestSchema);
+    let resp: UninstallLibrariesRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -188,7 +191,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalUninstallLibraries_ResponseSchema
+        unmarshalUninstallLibrariesRequest_ResponseSchema
       );
     };
     await executeCall(call, options);

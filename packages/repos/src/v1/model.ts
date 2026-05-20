@@ -2,7 +2,7 @@
 
 import {z} from 'zod';
 
-export interface CreateRepo {
+export interface CreateRepoRequest {
   /** URL of the Git repository to be linked. */
   url?: string | undefined;
   /**
@@ -26,7 +26,7 @@ export interface CreateRepo {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateRepo_Response {
+export interface CreateRepoRequest_Response {
   /** ID of the Git folder (repo) object in the workspace. */
   id?: number | undefined;
   /** Path of the Git folder (repo) in the workspace. */
@@ -47,21 +47,21 @@ export interface CreateRepo_Response {
   sparseCheckout?: SparseCheckout | undefined;
 }
 
-export interface DeleteProject {
+export interface DeleteProjectRequest {
   /** The ID for the corresponding repo to delete. */
   id?: number | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteProject_Response {}
+export interface DeleteProjectRequest_Response {}
 
-export interface GetRepo {
+export interface GetRepoRequest {
   /** ID of the Git folder (repo) object in the workspace. */
   id?: number | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetRepo_Response {
+export interface GetRepoRequest_Response {
   /** ID of the Git folder (repo) object in the workspace. */
   id?: number | undefined;
   /** Path of the Git folder (repo) in the workspace. */
@@ -82,7 +82,7 @@ export interface GetRepo_Response {
   sparseCheckout?: SparseCheckout | undefined;
 }
 
-export interface ListRepos {
+export interface ListReposRequest {
   /**
    * Filters repos that have paths starting with the given path prefix.
    * If not provided or when provided an effectively empty prefix (`/` or `/Workspace`)
@@ -97,7 +97,7 @@ export interface ListRepos {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListRepos_Response {
+export interface ListReposRequest_Response {
   /** List of Git folders (repos). */
   repos?: RepoInfo[] | undefined;
   /**
@@ -149,7 +149,7 @@ export interface SparseCheckoutUpdate {
   patterns?: string[] | undefined;
 }
 
-export interface UpdateRepo {
+export interface UpdateRepoRequest {
   /** ID of the Git folder (repo) object in the workspace. */
   id?: number | undefined;
   /** Branch that the local version of the repo is checked out to. */
@@ -168,10 +168,10 @@ export interface UpdateRepo {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface UpdateRepo_Response {}
+export interface UpdateRepoRequest_Response {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateRepo_ResponseSchema: z.ZodType<CreateRepo_Response> =
+export const unmarshalCreateRepoRequest_ResponseSchema: z.ZodType<CreateRepoRequest_Response> =
   z
     .object({
       id: z.number().optional(),
@@ -193,32 +193,33 @@ export const unmarshalCreateRepo_ResponseSchema: z.ZodType<CreateRepo_Response> 
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteProject_ResponseSchema: z.ZodType<DeleteProject_Response> =
+export const unmarshalDeleteProjectRequest_ResponseSchema: z.ZodType<DeleteProjectRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetRepo_ResponseSchema: z.ZodType<GetRepo_Response> = z
-  .object({
-    id: z.number().optional(),
-    path: z.string().optional(),
-    url: z.string().optional(),
-    provider: z.string().optional(),
-    branch: z.string().optional(),
-    head_commit_id: z.string().optional(),
-    sparse_checkout: z.lazy(() => unmarshalSparseCheckoutSchema).optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-    path: d.path,
-    url: d.url,
-    provider: d.provider,
-    branch: d.branch,
-    headCommitId: d.head_commit_id,
-    sparseCheckout: d.sparse_checkout,
-  }));
+export const unmarshalGetRepoRequest_ResponseSchema: z.ZodType<GetRepoRequest_Response> =
+  z
+    .object({
+      id: z.number().optional(),
+      path: z.string().optional(),
+      url: z.string().optional(),
+      provider: z.string().optional(),
+      branch: z.string().optional(),
+      head_commit_id: z.string().optional(),
+      sparse_checkout: z.lazy(() => unmarshalSparseCheckoutSchema).optional(),
+    })
+    .transform(d => ({
+      id: d.id,
+      path: d.path,
+      url: d.url,
+      provider: d.provider,
+      branch: d.branch,
+      headCommitId: d.head_commit_id,
+      sparseCheckout: d.sparse_checkout,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListRepos_ResponseSchema: z.ZodType<ListRepos_Response> =
+export const unmarshalListReposRequest_ResponseSchema: z.ZodType<ListReposRequest_Response> =
   z
     .object({
       repos: z.array(z.lazy(() => unmarshalRepoInfoSchema)).optional(),
@@ -258,10 +259,10 @@ export const unmarshalSparseCheckoutSchema: z.ZodType<SparseCheckout> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateRepo_ResponseSchema: z.ZodType<UpdateRepo_Response> =
+export const unmarshalUpdateRepoRequest_ResponseSchema: z.ZodType<UpdateRepoRequest_Response> =
   z.object({});
 
-export const marshalCreateRepoSchema: z.ZodType = z
+export const marshalCreateRepoRequestSchema: z.ZodType = z
   .object({
     url: z.string().optional(),
     provider: z.string().optional(),
@@ -291,7 +292,7 @@ export const marshalSparseCheckoutUpdateSchema: z.ZodType = z
     patterns: d.patterns,
   }));
 
-export const marshalUpdateRepoSchema: z.ZodType = z
+export const marshalUpdateRepoRequestSchema: z.ZodType = z
   .object({
     id: z.number().optional(),
     branch: z.string().optional(),

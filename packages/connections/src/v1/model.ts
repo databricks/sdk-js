@@ -135,7 +135,7 @@ export interface ConnectionInfo_PropertiesEntry {
   value?: string | undefined;
 }
 
-export interface CreateConnection {
+export interface CreateConnectionRequest {
   /** Name of the connection. */
   name?: string | undefined;
   /** The type of connection. */
@@ -173,31 +173,31 @@ export interface CreateConnection {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateConnection_OptionsEntry {
+export interface CreateConnectionRequest_OptionsEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateConnection_PropertiesEntry {
+export interface CreateConnectionRequest_PropertiesEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
-export interface DeleteConnection {
+export interface DeleteConnectionRequest {
   /** The name of the connection to be deleted. */
   nameArg?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteConnection_Response {}
+export interface DeleteConnectionRequest_Response {}
 
-export interface GetConnection {
+export interface GetConnectionRequest {
   /** Name of the connection. */
   nameArg?: string | undefined;
 }
 
-export interface ListConnections {
+export interface ListConnectionsRequest {
   /**
    * Maximum number of connections to return.
    * - If not set, all connections are returned (not recommended).
@@ -211,7 +211,7 @@ export interface ListConnections {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListConnections_Response {
+export interface ListConnectionsRequest_Response {
   /** An array of connection information objects. */
   connections?: ConnectionInfo[] | undefined;
   /**
@@ -227,7 +227,7 @@ export interface ProvisioningInfo {
   state?: ProvisioningInfo_State | undefined;
 }
 
-export interface UpdateConnection {
+export interface UpdateConnectionRequest {
   /** Name of the connection. */
   nameArg?: string | undefined;
   /** New name for the connection. */
@@ -269,13 +269,13 @@ export interface UpdateConnection {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateConnection_OptionsEntry {
+export interface UpdateConnectionRequest_OptionsEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateConnection_PropertiesEntry {
+export interface UpdateConnectionRequest_PropertiesEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
@@ -323,11 +323,11 @@ export const unmarshalConnectionInfoSchema: z.ZodType<ConnectionInfo> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteConnection_ResponseSchema: z.ZodType<DeleteConnection_Response> =
+export const unmarshalDeleteConnectionRequest_ResponseSchema: z.ZodType<DeleteConnectionRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListConnections_ResponseSchema: z.ZodType<ListConnections_Response> =
+export const unmarshalListConnectionsRequest_ResponseSchema: z.ZodType<ListConnectionsRequest_Response> =
   z
     .object({
       connections: z
@@ -348,7 +348,7 @@ export const unmarshalProvisioningInfoSchema: z.ZodType<ProvisioningInfo> = z
     state: d.state,
   }));
 
-export const marshalCreateConnectionSchema: z.ZodType = z
+export const marshalCreateConnectionRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     connectionType: z.enum(ConnectionType).optional(),
@@ -398,7 +398,7 @@ export const marshalProvisioningInfoSchema: z.ZodType = z
     state: d.state,
   }));
 
-export const marshalUpdateConnectionSchema: z.ZodType = z
+export const marshalUpdateConnectionRequestSchema: z.ZodType = z
   .object({
     nameArg: z.string().optional(),
     newName: z.string().optional(),

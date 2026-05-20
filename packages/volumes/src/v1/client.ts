@@ -18,20 +18,20 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  CreateVolume,
-  DeleteVolume,
-  DeleteVolume_Response,
-  GetVolume,
-  ListVolumes,
-  ListVolumes_Response,
-  UpdateVolume,
+  CreateVolumeRequest,
+  DeleteVolumeRequest,
+  DeleteVolumeRequest_Response,
+  GetVolumeRequest,
+  ListVolumesRequest,
+  ListVolumesRequest_Response,
+  UpdateVolumeRequest,
   VolumeInfo,
 } from './model';
 import {
-  marshalCreateVolumeSchema,
-  marshalUpdateVolumeSchema,
-  unmarshalDeleteVolume_ResponseSchema,
-  unmarshalListVolumes_ResponseSchema,
+  marshalCreateVolumeRequestSchema,
+  marshalUpdateVolumeRequestSchema,
+  unmarshalDeleteVolumeRequest_ResponseSchema,
+  unmarshalListVolumesRequest_ResponseSchema,
   unmarshalVolumeInfoSchema,
 } from './model';
 
@@ -87,11 +87,11 @@ export class Client {
    * or catalogs or schemas.
    */
   async createVolume(
-    req: CreateVolume,
+    req: CreateVolumeRequest,
     options?: CallOptions
   ): Promise<VolumeInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/volumes`;
-    const body = marshalRequest(req, marshalCreateVolumeSchema);
+    const body = marshalRequest(req, marshalCreateVolumeRequestSchema);
     let resp: VolumeInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -119,11 +119,11 @@ export class Client {
    * privilege on the parent catalog and the **USE_SCHEMA** privilege on the parent schema.
    */
   async deleteVolume(
-    req: DeleteVolume,
+    req: DeleteVolumeRequest,
     options?: CallOptions
-  ): Promise<DeleteVolume_Response> {
+  ): Promise<DeleteVolumeRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/volumes/${req.fullNameArg ?? ''}`;
-    let resp: DeleteVolume_Response | undefined;
+    let resp: DeleteVolumeRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -133,7 +133,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteVolume_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalDeleteVolumeRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -150,7 +153,10 @@ export class Client {
    * For the latter case, the caller must also be the owner or have the **USE_CATALOG**
    * privilege on the parent catalog and the **USE_SCHEMA** privilege on the parent schema.
    */
-  async getVolume(req: GetVolume, options?: CallOptions): Promise<VolumeInfo> {
+  async getVolume(
+    req: GetVolumeRequest,
+    options?: CallOptions
+  ): Promise<VolumeInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/volumes/${req.fullNameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.includeBrowse !== undefined) {
@@ -194,9 +200,9 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listVolumes(
-    req: ListVolumes,
+    req: ListVolumesRequest,
     options?: CallOptions
-  ): Promise<ListVolumes_Response> {
+  ): Promise<ListVolumesRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/volumes`;
     const params = new URLSearchParams();
     if (req.catalogName !== undefined) {
@@ -216,7 +222,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListVolumes_Response | undefined;
+    let resp: ListVolumesRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -226,7 +232,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListVolumes_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalListVolumesRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -236,10 +245,10 @@ export class Client {
   }
 
   async *listVolumesIter(
-    req: ListVolumes,
+    req: ListVolumesRequest,
     options?: CallOptions
   ): AsyncGenerator<VolumeInfo> {
-    const pageReq: ListVolumes = {...req};
+    const pageReq: ListVolumesRequest = {...req};
     for (;;) {
       const resp = await this.listVolumes(pageReq, options);
       for (const item of resp.volumes ?? []) {
@@ -262,11 +271,11 @@ export class Client {
    * Currently only the name, the owner or the comment of the volume could be updated.
    */
   async updateVolume(
-    req: UpdateVolume,
+    req: UpdateVolumeRequest,
     options?: CallOptions
   ): Promise<VolumeInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/volumes/${req.fullNameArg ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateVolumeSchema);
+    const body = marshalRequest(req, marshalUpdateVolumeRequestSchema);
     let resp: VolumeInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

@@ -12,7 +12,7 @@ export enum CatalogType {
   MANAGED_ONLINE_CATALOG = 'MANAGED_ONLINE_CATALOG',
 }
 
-export interface CreateSchema {
+export interface CreateSchemaRequest {
   /** Name of schema, relative to parent catalog. */
   name?: string | undefined;
   /** Name of parent catalog. */
@@ -55,18 +55,18 @@ export interface CreateSchema {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateSchema_OptionsEntry {
+export interface CreateSchemaRequest_OptionsEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateSchema_PropertiesEntry {
+export interface CreateSchemaRequest_PropertiesEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
-export interface DeleteSchema {
+export interface DeleteSchemaRequest {
   /** Full name of the schema. */
   fullNameArg?: string | undefined;
   /** Force deletion even if the schema is not empty. */
@@ -74,7 +74,7 @@ export interface DeleteSchema {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteSchema_Response {}
+export interface DeleteSchemaRequest_Response {}
 
 export interface EffectivePredictiveOptimizationFlag {
   /** Whether predictive optimization should be enabled for this object and objects under it. */
@@ -85,14 +85,14 @@ export interface EffectivePredictiveOptimizationFlag {
   inheritedFromName?: string | undefined;
 }
 
-export interface GetSchema {
+export interface GetSchemaRequest {
   /** Full name of the schema. */
   fullNameArg?: string | undefined;
   /** Whether to include schemas in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
 }
 
-export interface ListSchemas {
+export interface ListSchemasRequest {
   /** Parent catalog for schemas of interest. */
   catalogName?: string | undefined;
   /**
@@ -110,7 +110,7 @@ export interface ListSchemas {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListSchemas_Response {
+export interface ListSchemasRequest_Response {
   /** An array of schema information objects. */
   schemas?: SchemaInfo[] | undefined;
   /**
@@ -175,7 +175,7 @@ export interface SchemaInfo_PropertiesEntry {
   value?: string | undefined;
 }
 
-export interface UpdateSchema {
+export interface UpdateSchemaRequest {
   /** Full name of the schema. */
   fullNameArg?: string | undefined;
   /** New name for the schema. */
@@ -222,19 +222,19 @@ export interface UpdateSchema {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateSchema_OptionsEntry {
+export interface UpdateSchemaRequest_OptionsEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateSchema_PropertiesEntry {
+export interface UpdateSchemaRequest_PropertiesEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteSchema_ResponseSchema: z.ZodType<DeleteSchema_Response> =
+export const unmarshalDeleteSchemaRequest_ResponseSchema: z.ZodType<DeleteSchemaRequest_Response> =
   z.object({});
 
 export const unmarshalEffectivePredictiveOptimizationFlagSchema: z.ZodType<EffectivePredictiveOptimizationFlag> =
@@ -251,7 +251,7 @@ export const unmarshalEffectivePredictiveOptimizationFlagSchema: z.ZodType<Effec
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListSchemas_ResponseSchema: z.ZodType<ListSchemas_Response> =
+export const unmarshalListSchemasRequest_ResponseSchema: z.ZodType<ListSchemasRequest_Response> =
   z
     .object({
       schemas: z.array(z.lazy(() => unmarshalSchemaInfoSchema)).optional(),
@@ -309,7 +309,7 @@ export const unmarshalSchemaInfoSchema: z.ZodType<SchemaInfo> = z
     options: d.options,
   }));
 
-export const marshalCreateSchemaSchema: z.ZodType = z
+export const marshalCreateSchemaRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     catalogName: z.string().optional(),
@@ -368,7 +368,7 @@ export const marshalEffectivePredictiveOptimizationFlagSchema: z.ZodType = z
     inherited_from_name: d.inheritedFromName,
   }));
 
-export const marshalUpdateSchemaSchema: z.ZodType = z
+export const marshalUpdateSchemaRequestSchema: z.ZodType = z
   .object({
     fullNameArg: z.string().optional(),
     newName: z.string().optional(),

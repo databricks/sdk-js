@@ -267,7 +267,7 @@ export interface CommentObject {
 }
 
 /** Details required to create a comment on a model version. */
-export interface CreateComment {
+export interface CreateCommentRequest {
   /** Name of the model. */
   name?: string | undefined;
   /** Version of the model. */
@@ -277,12 +277,12 @@ export interface CreateComment {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateComment_Response {
+export interface CreateCommentRequest_Response {
   /** New comment object */
   comment?: CommentObject | undefined;
 }
 
-export interface CreateModelVersion {
+export interface CreateModelVersionRequest {
   /** Register model under this name */
   name?: string | undefined;
   /** URI indicating the location of the model artifacts. */
@@ -304,12 +304,12 @@ export interface CreateModelVersion {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateModelVersion_Response {
+export interface CreateModelVersionRequest_Response {
   /** Return new version number generated for this model in registry. */
   modelVersion?: ModelVersion | undefined;
 }
 
-export interface CreateRegisteredModel {
+export interface CreateRegisteredModelRequest {
   /** Register models under this name */
   name?: string | undefined;
   /** Additional metadata for registered model. */
@@ -319,12 +319,12 @@ export interface CreateRegisteredModel {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateRegisteredModel_Response {
+export interface CreateRegisteredModelRequest_Response {
   registeredModel?: RegisteredModel | undefined;
 }
 
 /** Details required to create a registry webhook. */
-export interface CreateRegistryWebhook {
+export interface CreateRegistryWebhookRequest {
   /** If model name is not specified, a registry-wide webhook is created that listens for the specified events across all versions of all registered models. */
   modelName?: string | undefined;
   /**
@@ -372,7 +372,7 @@ export interface CreateRegistryWebhook {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateRegistryWebhook_Response {
+export interface CreateRegistryWebhookRequest_Response {
   webhook?: RegistryWebhook | undefined;
 }
 
@@ -404,15 +404,15 @@ export interface CreateTransitionRequest_Response {
   request?: TransitionRequest | undefined;
 }
 
-export interface DeleteComment {
+export interface DeleteCommentRequest {
   /** Unique identifier of an activity */
   id?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteComment_Response {}
+export interface DeleteCommentRequest_Response {}
 
-export interface DeleteModelVersion {
+export interface DeleteModelVersionRequest {
   /** Name of the registered model */
   name?: string | undefined;
   /** Model version number */
@@ -420,9 +420,9 @@ export interface DeleteModelVersion {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteModelVersion_Response {}
+export interface DeleteModelVersionRequest_Response {}
 
-export interface DeleteModelVersionTag {
+export interface DeleteModelVersionTagRequest {
   /** Name of the registered model that the tag was logged under. */
   name?: string | undefined;
   /** Model version number that the tag was logged under. */
@@ -432,17 +432,17 @@ export interface DeleteModelVersionTag {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteModelVersionTag_Response {}
+export interface DeleteModelVersionTagRequest_Response {}
 
-export interface DeleteRegisteredModel {
+export interface DeleteRegisteredModelRequest {
   /** Registered model unique name identifier. */
   name?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteRegisteredModel_Response {}
+export interface DeleteRegisteredModelRequest_Response {}
 
-export interface DeleteRegisteredModelTag {
+export interface DeleteRegisteredModelTagRequest {
   /** Name of the registered model that the tag was logged under. */
   name?: string | undefined;
   /** Name of the tag. The name must be an exact match; wild-card deletion is not supported. Maximum size is 250 bytes. */
@@ -450,19 +450,19 @@ export interface DeleteRegisteredModelTag {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteRegisteredModelTag_Response {}
+export interface DeleteRegisteredModelTagRequest_Response {}
 
 /**
  * .. note::
  * Experimental: This entity may change or be removed in a future release without warning.
  */
-export interface DeleteRegistryWebhook {
+export interface DeleteRegistryWebhookRequest {
   /** Webhook ID required to delete a registry webhook. */
   id?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteRegistryWebhook_Response {}
+export interface DeleteRegistryWebhookRequest_Response {}
 
 export interface DeleteTransitionRequest {
   /** Name of the model. */
@@ -498,7 +498,7 @@ export interface FeatureList {
   features?: LinkedFeature[] | undefined;
 }
 
-export interface GetLatestVersions {
+export interface GetLatestVersionsRequest {
   /** Registered model unique name identifier. */
   name?: string | undefined;
   /** List of stages. */
@@ -506,7 +506,7 @@ export interface GetLatestVersions {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetLatestVersions_Response {
+export interface GetLatestVersionsRequest_Response {
   /**
    * Latest version models for each requests stage. Only return models with current `READY` status.
    * If no `stages` provided, returns the latest version for each stage, including `"None"`.
@@ -514,7 +514,7 @@ export interface GetLatestVersions_Response {
   modelVersions?: ModelVersion[] | undefined;
 }
 
-export interface GetModelVersion {
+export interface GetModelVersionDownloadUriRequest {
   /** Name of the registered model */
   name?: string | undefined;
   /** Model version number */
@@ -522,30 +522,30 @@ export interface GetModelVersion {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetModelVersion_Response {
-  modelVersion?: ModelVersion | undefined;
-}
-
-export interface GetModelVersionDownloadUri {
-  /** Name of the registered model */
-  name?: string | undefined;
-  /** Model version number */
-  version?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetModelVersionDownloadUri_Response {
+export interface GetModelVersionDownloadUriRequest_Response {
   /** URI corresponding to where artifacts for this model version are stored. */
   artifactUri?: string | undefined;
 }
 
-export interface GetRegisteredModelDatabricks {
+export interface GetModelVersionRequest {
+  /** Name of the registered model */
+  name?: string | undefined;
+  /** Model version number */
+  version?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface GetModelVersionRequest_Response {
+  modelVersion?: ModelVersion | undefined;
+}
+
+export interface GetRegisteredModelDatabricksRequest {
   /** Registered model unique name identifier. */
   name?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetRegisteredModelDatabricks_Response {
+export interface GetRegisteredModelDatabricksRequest_Response {
   registeredModelDatabricks?: RegisteredModelDatabricks | undefined;
 }
 
@@ -579,7 +579,7 @@ export interface LinkedFeature {
   featureTableId?: string | undefined;
 }
 
-export interface ListRegisteredModels {
+export interface ListRegisteredModelsRequest {
   /** Maximum number of registered models desired. Max threshold is 1000. */
   maxResults?: number | undefined;
   /** Pagination token to go to the next page based on a previous query. */
@@ -587,13 +587,13 @@ export interface ListRegisteredModels {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListRegisteredModels_Response {
+export interface ListRegisteredModelsRequest_Response {
   registeredModels?: RegisteredModel[] | undefined;
   /** Pagination token to request next page of models for the same query. */
   nextPageToken?: string | undefined;
 }
 
-export interface ListRegistryWebhooks {
+export interface ListRegistryWebhooksRequest {
   /**
    * Registered model name
    * If not specified, all webhooks associated with the specified events are listed, regardless of their associated model.
@@ -635,7 +635,7 @@ export interface ListRegistryWebhooks {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListRegistryWebhooks_Response {
+export interface ListRegistryWebhooksRequest_Response {
   /** Array of registry webhooks. */
   webhooks?: RegistryWebhook[] | undefined;
   /** Token that can be used to retrieve the next page of artifact results */
@@ -855,7 +855,7 @@ export interface RejectTransitionRequest_Response {
   activity?: Activity | undefined;
 }
 
-export interface RenameRegisteredModel {
+export interface RenameRegisteredModelRequest {
   /** Registered model unique name identifier. */
   name?: string | undefined;
   /** If provided, updates the name for this `registered_model`. */
@@ -863,11 +863,11 @@ export interface RenameRegisteredModel {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RenameRegisteredModel_Response {
+export interface RenameRegisteredModelRequest_Response {
   registeredModel?: RegisteredModel | undefined;
 }
 
-export interface SearchModelVersions {
+export interface SearchModelVersionsRequest {
   /**
    * String filter condition, like "name='my-model-name'". Must be a single boolean condition,
    * with string values wrapped in single quotes.
@@ -887,14 +887,14 @@ export interface SearchModelVersions {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface SearchModelVersions_Response {
+export interface SearchModelVersionsRequest_Response {
   /** Models that match the search criteria */
   modelVersions?: ModelVersion[] | undefined;
   /** Pagination token to request next page of models for the same search query. */
   nextPageToken?: string | undefined;
 }
 
-export interface SearchRegisteredModels {
+export interface SearchRegisteredModelsRequest {
   /**
    * String filter condition, like "name LIKE 'my-model-name'".
    * Interpreted in the backend automatically as "name LIKE '%my-model-name%'".
@@ -914,14 +914,14 @@ export interface SearchRegisteredModels {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface SearchRegisteredModels_Response {
+export interface SearchRegisteredModelsRequest_Response {
   /** Registered Models that match the search criteria. */
   registeredModels?: RegisteredModel[] | undefined;
   /** Pagination token to request the next page of models. */
   nextPageToken?: string | undefined;
 }
 
-export interface SetModelVersionTag {
+export interface SetModelVersionTagRequest {
   /** Unique name of the model. */
   name?: string | undefined;
   /** Model version number. */
@@ -940,9 +940,9 @@ export interface SetModelVersionTag {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface SetModelVersionTag_Response {}
+export interface SetModelVersionTagRequest_Response {}
 
-export interface SetRegisteredModelTag {
+export interface SetRegisteredModelTagRequest {
   /** Unique name of the model. */
   name?: string | undefined;
   /**
@@ -959,10 +959,10 @@ export interface SetRegisteredModelTag {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface SetRegisteredModelTag_Response {}
+export interface SetRegisteredModelTagRequest_Response {}
 
 /** Details required to test a registry webhook. */
-export interface TestRegistryWebhook {
+export interface TestRegistryWebhookRequest {
   /** Webhook ID */
   id?: string | undefined;
   /** If `event` is specified, the test trigger uses the specified event. If `event` is not specified, the test trigger uses a randomly chosen event associated with the webhook. */
@@ -970,7 +970,7 @@ export interface TestRegistryWebhook {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface TestRegistryWebhook_Response {
+export interface TestRegistryWebhookRequest_Response {
   /** Status code returned by the webhook URL */
   statusCode?: number | undefined;
   /** Body of the response from the webhook URL */
@@ -978,7 +978,7 @@ export interface TestRegistryWebhook_Response {
 }
 
 /** Details required to transition a model version's stage. */
-export interface TransitionModelVersionStageDatabricks {
+export interface TransitionModelVersionStageDatabricksRequest {
   /** Name of the model. */
   name?: string | undefined;
   /** Version of the model. */
@@ -1002,7 +1002,7 @@ export interface TransitionModelVersionStageDatabricks {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface TransitionModelVersionStageDatabricks_Response {
+export interface TransitionModelVersionStageDatabricksRequest_Response {
   /** Updated model version */
   modelVersionDatabricks?: ModelVersionDatabricks | undefined;
 }
@@ -1055,7 +1055,7 @@ export interface TransitionRequest {
 }
 
 /** Details required to edit a comment on a model version. */
-export interface UpdateComment {
+export interface UpdateCommentRequest {
   /** Unique identifier of an activity */
   id?: string | undefined;
   /** User-provided comment on the action. */
@@ -1063,12 +1063,12 @@ export interface UpdateComment {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateComment_Response {
+export interface UpdateCommentRequest_Response {
   /** Updated comment object */
   comment?: CommentObject | undefined;
 }
 
-export interface UpdateModelVersion {
+export interface UpdateModelVersionRequest {
   /** Name of the registered model */
   name?: string | undefined;
   /** Model version number */
@@ -1078,12 +1078,12 @@ export interface UpdateModelVersion {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateModelVersion_Response {
+export interface UpdateModelVersionRequest_Response {
   /** Return new version number generated for this model in registry. */
   modelVersion?: ModelVersion | undefined;
 }
 
-export interface UpdateRegisteredModel {
+export interface UpdateRegisteredModelRequest {
   /** Registered model unique name identifier. */
   name?: string | undefined;
   /** If provided, updates the description for this `registered_model`. */
@@ -1091,12 +1091,12 @@ export interface UpdateRegisteredModel {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateRegisteredModel_Response {
+export interface UpdateRegisteredModelRequest_Response {
   registeredModel?: RegisteredModel | undefined;
 }
 
 /** Details required to update a registry webhook. Only the fields that need to be updated should be specified, and both `http_url_spec` and `job_spec` should not be specified in the same request. */
-export interface UpdateRegistryWebhook {
+export interface UpdateRegistryWebhookRequest {
   /** Webhook ID */
   id?: string | undefined;
   /**
@@ -1134,7 +1134,7 @@ export interface UpdateRegistryWebhook {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateRegistryWebhook_Response {
+export interface UpdateRegistryWebhookRequest_Response {
   webhook?: RegistryWebhook | undefined;
 }
 
@@ -1201,7 +1201,7 @@ export const unmarshalCommentObjectSchema: z.ZodType<CommentObject> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateComment_ResponseSchema: z.ZodType<CreateComment_Response> =
+export const unmarshalCreateCommentRequest_ResponseSchema: z.ZodType<CreateCommentRequest_Response> =
   z
     .object({
       comment: z.lazy(() => unmarshalCommentObjectSchema).optional(),
@@ -1211,7 +1211,7 @@ export const unmarshalCreateComment_ResponseSchema: z.ZodType<CreateComment_Resp
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateModelVersion_ResponseSchema: z.ZodType<CreateModelVersion_Response> =
+export const unmarshalCreateModelVersionRequest_ResponseSchema: z.ZodType<CreateModelVersionRequest_Response> =
   z
     .object({
       model_version: z.lazy(() => unmarshalModelVersionSchema).optional(),
@@ -1221,7 +1221,7 @@ export const unmarshalCreateModelVersion_ResponseSchema: z.ZodType<CreateModelVe
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateRegisteredModel_ResponseSchema: z.ZodType<CreateRegisteredModel_Response> =
+export const unmarshalCreateRegisteredModelRequest_ResponseSchema: z.ZodType<CreateRegisteredModelRequest_Response> =
   z
     .object({
       registered_model: z.lazy(() => unmarshalRegisteredModelSchema).optional(),
@@ -1231,7 +1231,7 @@ export const unmarshalCreateRegisteredModel_ResponseSchema: z.ZodType<CreateRegi
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateRegistryWebhook_ResponseSchema: z.ZodType<CreateRegistryWebhook_Response> =
+export const unmarshalCreateRegistryWebhookRequest_ResponseSchema: z.ZodType<CreateRegistryWebhookRequest_Response> =
   z
     .object({
       webhook: z.lazy(() => unmarshalRegistryWebhookSchema).optional(),
@@ -1251,27 +1251,27 @@ export const unmarshalCreateTransitionRequest_ResponseSchema: z.ZodType<CreateTr
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteComment_ResponseSchema: z.ZodType<DeleteComment_Response> =
+export const unmarshalDeleteCommentRequest_ResponseSchema: z.ZodType<DeleteCommentRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteModelVersion_ResponseSchema: z.ZodType<DeleteModelVersion_Response> =
+export const unmarshalDeleteModelVersionRequest_ResponseSchema: z.ZodType<DeleteModelVersionRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteModelVersionTag_ResponseSchema: z.ZodType<DeleteModelVersionTag_Response> =
+export const unmarshalDeleteModelVersionTagRequest_ResponseSchema: z.ZodType<DeleteModelVersionTagRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRegisteredModel_ResponseSchema: z.ZodType<DeleteRegisteredModel_Response> =
+export const unmarshalDeleteRegisteredModelRequest_ResponseSchema: z.ZodType<DeleteRegisteredModelRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRegisteredModelTag_ResponseSchema: z.ZodType<DeleteRegisteredModelTag_Response> =
+export const unmarshalDeleteRegisteredModelTagRequest_ResponseSchema: z.ZodType<DeleteRegisteredModelTagRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRegistryWebhook_ResponseSchema: z.ZodType<DeleteRegistryWebhook_Response> =
+export const unmarshalDeleteRegistryWebhookRequest_ResponseSchema: z.ZodType<DeleteRegistryWebhookRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1293,7 +1293,7 @@ export const unmarshalFeatureListSchema: z.ZodType<FeatureList> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetLatestVersions_ResponseSchema: z.ZodType<GetLatestVersions_Response> =
+export const unmarshalGetLatestVersionsRequest_ResponseSchema: z.ZodType<GetLatestVersionsRequest_Response> =
   z
     .object({
       model_versions: z
@@ -1305,17 +1305,7 @@ export const unmarshalGetLatestVersions_ResponseSchema: z.ZodType<GetLatestVersi
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetModelVersion_ResponseSchema: z.ZodType<GetModelVersion_Response> =
-  z
-    .object({
-      model_version: z.lazy(() => unmarshalModelVersionSchema).optional(),
-    })
-    .transform(d => ({
-      modelVersion: d.model_version,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetModelVersionDownloadUri_ResponseSchema: z.ZodType<GetModelVersionDownloadUri_Response> =
+export const unmarshalGetModelVersionDownloadUriRequest_ResponseSchema: z.ZodType<GetModelVersionDownloadUriRequest_Response> =
   z
     .object({
       artifact_uri: z.string().optional(),
@@ -1325,7 +1315,17 @@ export const unmarshalGetModelVersionDownloadUri_ResponseSchema: z.ZodType<GetMo
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetRegisteredModelDatabricks_ResponseSchema: z.ZodType<GetRegisteredModelDatabricks_Response> =
+export const unmarshalGetModelVersionRequest_ResponseSchema: z.ZodType<GetModelVersionRequest_Response> =
+  z
+    .object({
+      model_version: z.lazy(() => unmarshalModelVersionSchema).optional(),
+    })
+    .transform(d => ({
+      modelVersion: d.model_version,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalGetRegisteredModelDatabricksRequest_ResponseSchema: z.ZodType<GetRegisteredModelDatabricksRequest_Response> =
   z
     .object({
       registered_model_databricks: z
@@ -1375,7 +1375,7 @@ export const unmarshalLinkedFeatureSchema: z.ZodType<LinkedFeature> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListRegisteredModels_ResponseSchema: z.ZodType<ListRegisteredModels_Response> =
+export const unmarshalListRegisteredModelsRequest_ResponseSchema: z.ZodType<ListRegisteredModelsRequest_Response> =
   z
     .object({
       registered_models: z
@@ -1389,7 +1389,7 @@ export const unmarshalListRegisteredModels_ResponseSchema: z.ZodType<ListRegiste
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListRegistryWebhooks_ResponseSchema: z.ZodType<ListRegistryWebhooks_Response> =
+export const unmarshalListRegistryWebhooksRequest_ResponseSchema: z.ZodType<ListRegistryWebhooksRequest_Response> =
   z
     .object({
       webhooks: z
@@ -1592,7 +1592,7 @@ export const unmarshalRejectTransitionRequest_ResponseSchema: z.ZodType<RejectTr
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRenameRegisteredModel_ResponseSchema: z.ZodType<RenameRegisteredModel_Response> =
+export const unmarshalRenameRegisteredModelRequest_ResponseSchema: z.ZodType<RenameRegisteredModelRequest_Response> =
   z
     .object({
       registered_model: z.lazy(() => unmarshalRegisteredModelSchema).optional(),
@@ -1602,7 +1602,7 @@ export const unmarshalRenameRegisteredModel_ResponseSchema: z.ZodType<RenameRegi
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSearchModelVersions_ResponseSchema: z.ZodType<SearchModelVersions_Response> =
+export const unmarshalSearchModelVersionsRequest_ResponseSchema: z.ZodType<SearchModelVersionsRequest_Response> =
   z
     .object({
       model_versions: z
@@ -1616,7 +1616,7 @@ export const unmarshalSearchModelVersions_ResponseSchema: z.ZodType<SearchModelV
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSearchRegisteredModels_ResponseSchema: z.ZodType<SearchRegisteredModels_Response> =
+export const unmarshalSearchRegisteredModelsRequest_ResponseSchema: z.ZodType<SearchRegisteredModelsRequest_Response> =
   z
     .object({
       registered_models: z
@@ -1630,15 +1630,15 @@ export const unmarshalSearchRegisteredModels_ResponseSchema: z.ZodType<SearchReg
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSetModelVersionTag_ResponseSchema: z.ZodType<SetModelVersionTag_Response> =
+export const unmarshalSetModelVersionTagRequest_ResponseSchema: z.ZodType<SetModelVersionTagRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSetRegisteredModelTag_ResponseSchema: z.ZodType<SetRegisteredModelTag_Response> =
+export const unmarshalSetRegisteredModelTagRequest_ResponseSchema: z.ZodType<SetRegisteredModelTagRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalTestRegistryWebhook_ResponseSchema: z.ZodType<TestRegistryWebhook_Response> =
+export const unmarshalTestRegistryWebhookRequest_ResponseSchema: z.ZodType<TestRegistryWebhookRequest_Response> =
   z
     .object({
       status_code: z.number().optional(),
@@ -1650,7 +1650,7 @@ export const unmarshalTestRegistryWebhook_ResponseSchema: z.ZodType<TestRegistry
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalTransitionModelVersionStageDatabricks_ResponseSchema: z.ZodType<TransitionModelVersionStageDatabricks_Response> =
+export const unmarshalTransitionModelVersionStageDatabricksRequest_ResponseSchema: z.ZodType<TransitionModelVersionStageDatabricksRequest_Response> =
   z
     .object({
       model_version_databricks: z
@@ -1688,7 +1688,7 @@ export const unmarshalTransitionRequestSchema: z.ZodType<TransitionRequest> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateComment_ResponseSchema: z.ZodType<UpdateComment_Response> =
+export const unmarshalUpdateCommentRequest_ResponseSchema: z.ZodType<UpdateCommentRequest_Response> =
   z
     .object({
       comment: z.lazy(() => unmarshalCommentObjectSchema).optional(),
@@ -1698,7 +1698,7 @@ export const unmarshalUpdateComment_ResponseSchema: z.ZodType<UpdateComment_Resp
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateModelVersion_ResponseSchema: z.ZodType<UpdateModelVersion_Response> =
+export const unmarshalUpdateModelVersionRequest_ResponseSchema: z.ZodType<UpdateModelVersionRequest_Response> =
   z
     .object({
       model_version: z.lazy(() => unmarshalModelVersionSchema).optional(),
@@ -1708,7 +1708,7 @@ export const unmarshalUpdateModelVersion_ResponseSchema: z.ZodType<UpdateModelVe
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateRegisteredModel_ResponseSchema: z.ZodType<UpdateRegisteredModel_Response> =
+export const unmarshalUpdateRegisteredModelRequest_ResponseSchema: z.ZodType<UpdateRegisteredModelRequest_Response> =
   z
     .object({
       registered_model: z.lazy(() => unmarshalRegisteredModelSchema).optional(),
@@ -1718,7 +1718,7 @@ export const unmarshalUpdateRegisteredModel_ResponseSchema: z.ZodType<UpdateRegi
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateRegistryWebhook_ResponseSchema: z.ZodType<UpdateRegistryWebhook_Response> =
+export const unmarshalUpdateRegistryWebhookRequest_ResponseSchema: z.ZodType<UpdateRegistryWebhookRequest_Response> =
   z
     .object({
       webhook: z.lazy(() => unmarshalRegistryWebhookSchema).optional(),
@@ -1743,7 +1743,7 @@ export const marshalApproveTransitionRequestSchema: z.ZodType = z
     comment: d.comment,
   }));
 
-export const marshalCreateCommentSchema: z.ZodType = z
+export const marshalCreateCommentRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     version: z.string().optional(),
@@ -1755,7 +1755,7 @@ export const marshalCreateCommentSchema: z.ZodType = z
     comment: d.comment,
   }));
 
-export const marshalCreateModelVersionSchema: z.ZodType = z
+export const marshalCreateModelVersionRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     source: z.string().optional(),
@@ -1773,7 +1773,7 @@ export const marshalCreateModelVersionSchema: z.ZodType = z
     description: d.description,
   }));
 
-export const marshalCreateRegisteredModelSchema: z.ZodType = z
+export const marshalCreateRegisteredModelRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     tags: z.array(z.lazy(() => marshalRegisteredModelTagSchema)).optional(),
@@ -1785,7 +1785,7 @@ export const marshalCreateRegisteredModelSchema: z.ZodType = z
     description: d.description,
   }));
 
-export const marshalCreateRegistryWebhookSchema: z.ZodType = z
+export const marshalCreateRegistryWebhookRequestSchema: z.ZodType = z
   .object({
     modelName: z.string().optional(),
     events: z.array(z.enum(RegistryWebhookEvent)).optional(),
@@ -1817,7 +1817,7 @@ export const marshalCreateTransitionRequestSchema: z.ZodType = z
     comment: d.comment,
   }));
 
-export const marshalGetLatestVersionsSchema: z.ZodType = z
+export const marshalGetLatestVersionsRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     stages: z.array(z.string()).optional(),
@@ -1887,7 +1887,7 @@ export const marshalRejectTransitionRequestSchema: z.ZodType = z
     comment: d.comment,
   }));
 
-export const marshalRenameRegisteredModelSchema: z.ZodType = z
+export const marshalRenameRegisteredModelRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     newName: z.string().optional(),
@@ -1897,7 +1897,7 @@ export const marshalRenameRegisteredModelSchema: z.ZodType = z
     new_name: d.newName,
   }));
 
-export const marshalSetModelVersionTagSchema: z.ZodType = z
+export const marshalSetModelVersionTagRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     version: z.string().optional(),
@@ -1911,7 +1911,7 @@ export const marshalSetModelVersionTagSchema: z.ZodType = z
     value: d.value,
   }));
 
-export const marshalSetRegisteredModelTagSchema: z.ZodType = z
+export const marshalSetRegisteredModelTagRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     key: z.string().optional(),
@@ -1923,7 +1923,7 @@ export const marshalSetRegisteredModelTagSchema: z.ZodType = z
     value: d.value,
   }));
 
-export const marshalTestRegistryWebhookSchema: z.ZodType = z
+export const marshalTestRegistryWebhookRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     event: z.enum(RegistryWebhookEvent).optional(),
@@ -1933,23 +1933,24 @@ export const marshalTestRegistryWebhookSchema: z.ZodType = z
     event: d.event,
   }));
 
-export const marshalTransitionModelVersionStageDatabricksSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    version: z.string().optional(),
-    stage: z.string().optional(),
-    archiveExistingVersions: z.boolean().optional(),
-    comment: z.string().optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    version: d.version,
-    stage: d.stage,
-    archive_existing_versions: d.archiveExistingVersions,
-    comment: d.comment,
-  }));
+export const marshalTransitionModelVersionStageDatabricksRequestSchema: z.ZodType =
+  z
+    .object({
+      name: z.string().optional(),
+      version: z.string().optional(),
+      stage: z.string().optional(),
+      archiveExistingVersions: z.boolean().optional(),
+      comment: z.string().optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+      version: d.version,
+      stage: d.stage,
+      archive_existing_versions: d.archiveExistingVersions,
+      comment: d.comment,
+    }));
 
-export const marshalUpdateCommentSchema: z.ZodType = z
+export const marshalUpdateCommentRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     comment: z.string().optional(),
@@ -1959,7 +1960,7 @@ export const marshalUpdateCommentSchema: z.ZodType = z
     comment: d.comment,
   }));
 
-export const marshalUpdateModelVersionSchema: z.ZodType = z
+export const marshalUpdateModelVersionRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     version: z.string().optional(),
@@ -1971,7 +1972,7 @@ export const marshalUpdateModelVersionSchema: z.ZodType = z
     description: d.description,
   }));
 
-export const marshalUpdateRegisteredModelSchema: z.ZodType = z
+export const marshalUpdateRegisteredModelRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     description: z.string().optional(),
@@ -1981,7 +1982,7 @@ export const marshalUpdateRegisteredModelSchema: z.ZodType = z
     description: d.description,
   }));
 
-export const marshalUpdateRegistryWebhookSchema: z.ZodType = z
+export const marshalUpdateRegistryWebhookRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     events: z.array(z.enum(RegistryWebhookEvent)).optional(),

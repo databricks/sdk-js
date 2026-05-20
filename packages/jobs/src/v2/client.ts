@@ -21,78 +21,78 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   BaseJob,
   BaseRun,
-  CancelAllRuns,
-  CancelAllRuns_Response,
-  CancelRun,
-  CancelRun_Response,
-  CreateJob,
-  CreateJob_Response,
-  DeleteJob,
-  DeleteJob_Response,
-  DeleteRun,
-  DeleteRun_Response,
+  CancelAllRunsRequest,
+  CancelAllRunsRequest_Response,
+  CancelRunRequest,
+  CancelRunRequest_Response,
+  CreateJobRequest,
+  CreateJobRequest_Response,
+  DeleteJobRequest,
+  DeleteJobRequest_Response,
+  DeleteRunRequest,
+  DeleteRunRequest_Response,
   EnforcePolicyComplianceForJob,
   EnforcePolicyComplianceForJob_Response,
-  ExportRun,
-  ExportRun_Response,
-  GetJob,
-  GetJob_Response,
+  ExportRunRequest,
+  ExportRunRequest_Response,
+  GetJobRequest,
+  GetJobRequest_Response,
   GetPolicyComplianceForJob,
   GetPolicyComplianceForJob_Response,
-  GetRun,
-  GetRunOutput,
-  GetRunOutput_Response,
-  GetRun_Response,
+  GetRunOutputRequest,
+  GetRunOutputRequest_Response,
+  GetRunRequest,
+  GetRunRequest_Response,
   ListJobComplianceForPolicy,
   ListJobComplianceForPolicy_JobCompliance,
   ListJobComplianceForPolicy_Response,
-  ListJobs,
-  ListJobs_Response,
-  ListRuns,
-  ListRuns_Response,
-  RepairRun,
-  RepairRun_Response,
-  ResetJob,
-  ResetJob_Response,
-  RunNow,
-  RunNow_Response,
-  SubmitRun,
-  SubmitRun_Response,
-  UpdateJob,
-  UpdateJob_Response,
+  ListJobsRequest,
+  ListJobsRequest_Response,
+  ListRunsRequest,
+  ListRunsRequest_Response,
+  RepairRunRequest,
+  RepairRunRequest_Response,
+  ResetJobRequest,
+  ResetJobRequest_Response,
+  RunNowRequest,
+  RunNowRequest_Response,
+  SubmitRunRequest,
+  SubmitRunRequest_Response,
+  UpdateJobRequest,
+  UpdateJobRequest_Response,
 } from './model';
 import {
   RunLifeCycleState_RunLifeCycleState,
-  marshalCancelAllRunsSchema,
-  marshalCancelRunSchema,
-  marshalCreateJobSchema,
-  marshalDeleteJobSchema,
-  marshalDeleteRunSchema,
+  marshalCancelAllRunsRequestSchema,
+  marshalCancelRunRequestSchema,
+  marshalCreateJobRequestSchema,
+  marshalDeleteJobRequestSchema,
+  marshalDeleteRunRequestSchema,
   marshalEnforcePolicyComplianceForJobSchema,
-  marshalRepairRunSchema,
-  marshalResetJobSchema,
-  marshalRunNowSchema,
-  marshalSubmitRunSchema,
-  marshalUpdateJobSchema,
-  unmarshalCancelAllRuns_ResponseSchema,
-  unmarshalCancelRun_ResponseSchema,
-  unmarshalCreateJob_ResponseSchema,
-  unmarshalDeleteJob_ResponseSchema,
-  unmarshalDeleteRun_ResponseSchema,
+  marshalRepairRunRequestSchema,
+  marshalResetJobRequestSchema,
+  marshalRunNowRequestSchema,
+  marshalSubmitRunRequestSchema,
+  marshalUpdateJobRequestSchema,
+  unmarshalCancelAllRunsRequest_ResponseSchema,
+  unmarshalCancelRunRequest_ResponseSchema,
+  unmarshalCreateJobRequest_ResponseSchema,
+  unmarshalDeleteJobRequest_ResponseSchema,
+  unmarshalDeleteRunRequest_ResponseSchema,
   unmarshalEnforcePolicyComplianceForJob_ResponseSchema,
-  unmarshalExportRun_ResponseSchema,
-  unmarshalGetJob_ResponseSchema,
+  unmarshalExportRunRequest_ResponseSchema,
+  unmarshalGetJobRequest_ResponseSchema,
   unmarshalGetPolicyComplianceForJob_ResponseSchema,
-  unmarshalGetRunOutput_ResponseSchema,
-  unmarshalGetRun_ResponseSchema,
+  unmarshalGetRunOutputRequest_ResponseSchema,
+  unmarshalGetRunRequest_ResponseSchema,
   unmarshalListJobComplianceForPolicy_ResponseSchema,
-  unmarshalListJobs_ResponseSchema,
-  unmarshalListRuns_ResponseSchema,
-  unmarshalRepairRun_ResponseSchema,
-  unmarshalResetJob_ResponseSchema,
-  unmarshalRunNow_ResponseSchema,
-  unmarshalSubmitRun_ResponseSchema,
-  unmarshalUpdateJob_ResponseSchema,
+  unmarshalListJobsRequest_ResponseSchema,
+  unmarshalListRunsRequest_ResponseSchema,
+  unmarshalRepairRunRequest_ResponseSchema,
+  unmarshalResetJobRequest_ResponseSchema,
+  unmarshalRunNowRequest_ResponseSchema,
+  unmarshalSubmitRunRequest_ResponseSchema,
+  unmarshalUpdateJobRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -271,12 +271,12 @@ export class Client {
    * prevent new runs from being started.
    */
   async cancelAllRuns(
-    req: CancelAllRuns,
+    req: CancelAllRunsRequest,
     options?: CallOptions
-  ): Promise<CancelAllRuns_Response> {
+  ): Promise<CancelAllRunsRequest_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/cancel-all`;
-    const body = marshalRequest(req, marshalCancelAllRunsSchema);
-    let resp: CancelAllRuns_Response | undefined;
+    const body = marshalRequest(req, marshalCancelAllRunsRequestSchema);
+    let resp: CancelAllRunsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -286,7 +286,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCancelAllRuns_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalCancelAllRunsRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -300,12 +303,12 @@ export class Client {
    * this request completes.
    */
   async cancelRun(
-    req: CancelRun,
+    req: CancelRunRequest,
     options?: CallOptions
-  ): Promise<CancelRun_Response> {
+  ): Promise<CancelRunRequest_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/cancel`;
-    const body = marshalRequest(req, marshalCancelRunSchema);
-    let resp: CancelRun_Response | undefined;
+    const body = marshalRequest(req, marshalCancelRunRequestSchema);
+    let resp: CancelRunRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -315,7 +318,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCancelRun_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalCancelRunRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -325,7 +328,7 @@ export class Client {
   }
 
   async cancelRunWaiter(
-    req: CancelRun,
+    req: CancelRunRequest,
     options?: CallOptions
   ): Promise<CancelRunWaiter> {
     await this.cancelRun(req, options);
@@ -337,12 +340,12 @@ export class Client {
 
   /** Create a new job. */
   async createJob(
-    req: CreateJob,
+    req: CreateJobRequest,
     options?: CallOptions
-  ): Promise<CreateJob_Response> {
+  ): Promise<CreateJobRequest_Response> {
     const url = `${this.host}/api/2.2/jobs/create`;
-    const body = marshalRequest(req, marshalCreateJobSchema);
-    let resp: CreateJob_Response | undefined;
+    const body = marshalRequest(req, marshalCreateJobRequestSchema);
+    let resp: CreateJobRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -352,7 +355,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCreateJob_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalCreateJobRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -363,12 +366,12 @@ export class Client {
 
   /** Deletes a job. */
   async deleteJob(
-    req: DeleteJob,
+    req: DeleteJobRequest,
     options?: CallOptions
-  ): Promise<DeleteJob_Response> {
+  ): Promise<DeleteJobRequest_Response> {
     const url = `${this.host}/api/2.2/jobs/delete`;
-    const body = marshalRequest(req, marshalDeleteJobSchema);
-    let resp: DeleteJob_Response | undefined;
+    const body = marshalRequest(req, marshalDeleteJobRequestSchema);
+    let resp: DeleteJobRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -378,7 +381,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteJob_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalDeleteJobRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -389,12 +392,12 @@ export class Client {
 
   /** Deletes a non-active run. Returns an error if the run is active. */
   async deleteRun(
-    req: DeleteRun,
+    req: DeleteRunRequest,
     options?: CallOptions
-  ): Promise<DeleteRun_Response> {
+  ): Promise<DeleteRunRequest_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/delete`;
-    const body = marshalRequest(req, marshalDeleteRunSchema);
-    let resp: DeleteRun_Response | undefined;
+    const body = marshalRequest(req, marshalDeleteRunRequestSchema);
+    let resp: DeleteRunRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -404,7 +407,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteRun_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalDeleteRunRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -415,9 +418,9 @@ export class Client {
 
   /** Export and retrieve the job run task. */
   async exportRun(
-    req: ExportRun,
+    req: ExportRunRequest,
     options?: CallOptions
-  ): Promise<ExportRun_Response> {
+  ): Promise<ExportRunRequest_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/export`;
     const params = new URLSearchParams();
     if (req.runId !== undefined) {
@@ -428,7 +431,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ExportRun_Response | undefined;
+    let resp: ExportRunRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -438,7 +441,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalExportRun_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalExportRunRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -455,7 +458,10 @@ export class Client {
    * Use the `next_page_token` field to check for more results and pass its value as the `page_token` in subsequent requests.
    * If any array properties have more than 100 elements, additional results will be returned on subsequent requests. Arrays without additional results will be empty on later pages.
    */
-  async getJob(req: GetJob, options?: CallOptions): Promise<GetJob_Response> {
+  async getJob(
+    req: GetJobRequest,
+    options?: CallOptions
+  ): Promise<GetJobRequest_Response> {
     const url = `${this.host}/api/2.2/jobs/get`;
     const params = new URLSearchParams();
     if (req.jobId !== undefined) {
@@ -466,7 +472,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetJob_Response | undefined;
+    let resp: GetJobRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -476,7 +482,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetJob_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalGetJobRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -493,7 +499,10 @@ export class Client {
    * Use the next_page_token field to check for more results and pass its value as the page_token in subsequent requests.
    * If any array properties have more than 100 elements, additional results will be returned on subsequent requests. Arrays without additional results will be empty on later pages.
    */
-  async getRun(req: GetRun, options?: CallOptions): Promise<GetRun_Response> {
+  async getRun(
+    req: GetRunRequest,
+    options?: CallOptions
+  ): Promise<GetRunRequest_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/get`;
     const params = new URLSearchParams();
     if (req.runId !== undefined) {
@@ -513,7 +522,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetRun_Response | undefined;
+    let resp: GetRunRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -523,7 +532,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetRun_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalGetRunRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -544,9 +553,9 @@ export class Client {
    * before they expire.
    */
   async getRunOutput(
-    req: GetRunOutput,
+    req: GetRunOutputRequest,
     options?: CallOptions
-  ): Promise<GetRunOutput_Response> {
+  ): Promise<GetRunOutputRequest_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/get-output`;
     const params = new URLSearchParams();
     if (req.runId !== undefined) {
@@ -554,7 +563,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetRunOutput_Response | undefined;
+    let resp: GetRunOutputRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -564,7 +573,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetRunOutput_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalGetRunOutputRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -575,9 +587,9 @@ export class Client {
 
   /** Retrieves a list of jobs. */
   async listJobs(
-    req: ListJobs,
+    req: ListJobsRequest,
     options?: CallOptions
-  ): Promise<ListJobs_Response> {
+  ): Promise<ListJobsRequest_Response> {
     const url = `${this.host}/api/2.2/jobs/list`;
     const params = new URLSearchParams();
     if (req.offset !== undefined) {
@@ -597,7 +609,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListJobs_Response | undefined;
+    let resp: ListJobsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -607,7 +619,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListJobs_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListJobsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -617,10 +629,10 @@ export class Client {
   }
 
   async *listJobsIter(
-    req: ListJobs,
+    req: ListJobsRequest,
     options?: CallOptions
   ): AsyncGenerator<BaseJob> {
-    const pageReq: ListJobs = {...req};
+    const pageReq: ListJobsRequest = {...req};
     for (;;) {
       const resp = await this.listJobs(pageReq, options);
       for (const item of resp.jobs ?? []) {
@@ -635,9 +647,9 @@ export class Client {
 
   /** List runs in descending order by start time. */
   async listRuns(
-    req: ListRuns,
+    req: ListRunsRequest,
     options?: CallOptions
-  ): Promise<ListRuns_Response> {
+  ): Promise<ListRunsRequest_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/list`;
     const params = new URLSearchParams();
     if (req.jobId !== undefined) {
@@ -675,7 +687,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListRuns_Response | undefined;
+    let resp: ListRunsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -685,7 +697,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListRuns_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListRunsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -695,10 +707,10 @@ export class Client {
   }
 
   async *listRunsIter(
-    req: ListRuns,
+    req: ListRunsRequest,
     options?: CallOptions
   ): AsyncGenerator<BaseRun> {
-    const pageReq: ListRuns = {...req};
+    const pageReq: ListRunsRequest = {...req};
     for (;;) {
       const resp = await this.listRuns(pageReq, options);
       for (const item of resp.runs ?? []) {
@@ -717,12 +729,12 @@ export class Client {
    * original job run.
    */
   async repair(
-    req: RepairRun,
+    req: RepairRunRequest,
     options?: CallOptions
-  ): Promise<RepairRun_Response> {
+  ): Promise<RepairRunRequest_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/repair`;
-    const body = marshalRequest(req, marshalRepairRunSchema);
-    let resp: RepairRun_Response | undefined;
+    const body = marshalRequest(req, marshalRepairRunRequestSchema);
+    let resp: RepairRunRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -732,7 +744,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalRepairRun_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalRepairRunRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -742,7 +754,7 @@ export class Client {
   }
 
   async repairWaiter(
-    req: RepairRun,
+    req: RepairRunRequest,
     options?: CallOptions
   ): Promise<RepairWaiter> {
     await this.repair(req, options);
@@ -754,12 +766,12 @@ export class Client {
 
   /** Overwrite all settings for the given job. Use the [_Update_ endpoint](:method:jobs/update) to update job settings partially. */
   async resetJob(
-    req: ResetJob,
+    req: ResetJobRequest,
     options?: CallOptions
-  ): Promise<ResetJob_Response> {
+  ): Promise<ResetJobRequest_Response> {
     const url = `${this.host}/api/2.2/jobs/reset`;
-    const body = marshalRequest(req, marshalResetJobSchema);
-    let resp: ResetJob_Response | undefined;
+    const body = marshalRequest(req, marshalResetJobRequestSchema);
+    let resp: ResetJobRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -769,7 +781,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalResetJob_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalResetJobRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -779,10 +791,13 @@ export class Client {
   }
 
   /** Run a job and return the `run_id` of the triggered run. */
-  async runNow(req: RunNow, options?: CallOptions): Promise<RunNow_Response> {
+  async runNow(
+    req: RunNowRequest,
+    options?: CallOptions
+  ): Promise<RunNowRequest_Response> {
     const url = `${this.host}/api/2.2/jobs/run-now`;
-    const body = marshalRequest(req, marshalRunNowSchema);
-    let resp: RunNow_Response | undefined;
+    const body = marshalRequest(req, marshalRunNowRequestSchema);
+    let resp: RunNowRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -792,7 +807,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalRunNow_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalRunNowRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -802,7 +817,7 @@ export class Client {
   }
 
   async runNowWaiter(
-    req: RunNow,
+    req: RunNowRequest,
     options?: CallOptions
   ): Promise<RunNowWaiter> {
     const resp = await this.runNow(req, options);
@@ -826,12 +841,12 @@ export class Client {
    * `POST /jobs/run-now` endpoints to create and run a saved job.
    */
   async submitRun(
-    req: SubmitRun,
+    req: SubmitRunRequest,
     options?: CallOptions
-  ): Promise<SubmitRun_Response> {
+  ): Promise<SubmitRunRequest_Response> {
     const url = `${this.host}/api/2.2/jobs/runs/submit`;
-    const body = marshalRequest(req, marshalSubmitRunSchema);
-    let resp: SubmitRun_Response | undefined;
+    const body = marshalRequest(req, marshalSubmitRunRequestSchema);
+    let resp: SubmitRunRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -841,7 +856,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalSubmitRun_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalSubmitRunRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -851,7 +866,7 @@ export class Client {
   }
 
   async submitRunWaiter(
-    req: SubmitRun,
+    req: SubmitRunRequest,
     options?: CallOptions
   ): Promise<SubmitRunWaiter> {
     const resp = await this.submitRun(req, options);
@@ -863,12 +878,12 @@ export class Client {
 
   /** Add, update, or remove specific settings of an existing job. Use the [_Reset_ endpoint](:method:jobs/reset) to overwrite all job settings. */
   async updateJob(
-    req: UpdateJob,
+    req: UpdateJobRequest,
     options?: CallOptions
-  ): Promise<UpdateJob_Response> {
+  ): Promise<UpdateJobRequest_Response> {
     const url = `${this.host}/api/2.2/jobs/update`;
-    const body = marshalRequest(req, marshalUpdateJobSchema);
-    let resp: UpdateJob_Response | undefined;
+    const body = marshalRequest(req, marshalUpdateJobRequestSchema);
+    let resp: UpdateJobRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -878,7 +893,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalUpdateJob_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalUpdateJobRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -899,8 +914,8 @@ export class CancelRunWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: CallOptions): Promise<GetRun_Response> {
-    let result: GetRun_Response | undefined;
+  async wait(options?: CallOptions): Promise<GetRunRequest_Response> {
+    let result: GetRunRequest_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getRun(
@@ -979,8 +994,8 @@ export class RepairWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: CallOptions): Promise<GetRun_Response> {
-    let result: GetRun_Response | undefined;
+  async wait(options?: CallOptions): Promise<GetRunRequest_Response> {
+    let result: GetRunRequest_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getRun(
@@ -1059,8 +1074,8 @@ export class RunNowWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: CallOptions): Promise<GetRun_Response> {
-    let result: GetRun_Response | undefined;
+  async wait(options?: CallOptions): Promise<GetRunRequest_Response> {
+    let result: GetRunRequest_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getRun(
@@ -1139,8 +1154,8 @@ export class SubmitRunWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: CallOptions): Promise<GetRun_Response> {
-    let result: GetRun_Response | undefined;
+  async wait(options?: CallOptions): Promise<GetRunRequest_Response> {
+    let result: GetRunRequest_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getRun(

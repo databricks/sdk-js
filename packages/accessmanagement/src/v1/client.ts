@@ -21,40 +21,40 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CheckPolicyRequest,
   CheckPolicyResponse,
-  DeleteWorkspacePermissionAssignment,
-  DeleteWorkspacePermissionAssignment_Response,
+  DeleteWorkspacePermissionAssignmentRequest,
+  DeleteWorkspacePermissionAssignmentRequest_Response,
   GetAssignableRolesForResourceRequest,
   GetAssignableRolesForResourceResponse,
-  GetObjectPermissions,
-  GetPermissionLevels,
-  GetPermissionLevels_Response,
+  GetObjectPermissionsRequest,
+  GetPermissionLevelsRequest,
+  GetPermissionLevelsRequest_Response,
   GetRuleSetRequest,
-  GetWorkspacePermissionAssignments,
-  GetWorkspacePermissionAssignments_Response,
-  ListWorkspacePermissions,
-  ListWorkspacePermissions_Response,
+  GetWorkspacePermissionAssignmentsRequest,
+  GetWorkspacePermissionAssignmentsRequest_Response,
+  ListWorkspacePermissionsRequest,
+  ListWorkspacePermissionsRequest_Response,
   PermissionsResponse,
   RuleSet,
-  SetObjectPermissions,
-  UpdateObjectPermissions,
+  SetObjectPermissionsRequest,
+  UpdateObjectPermissionsRequest,
   UpdateRuleSetRequest,
-  UpdateWorkspacePermissionAssignment,
+  UpdateWorkspacePermissionAssignmentRequest,
   WorkspacePermissionAssignmentOutput,
 } from './model';
 import {
   marshalActorSchema,
   marshalConsistencyTokenSchema,
   marshalResourceInfoSchema,
-  marshalSetObjectPermissionsSchema,
-  marshalUpdateObjectPermissionsSchema,
+  marshalSetObjectPermissionsRequestSchema,
+  marshalUpdateObjectPermissionsRequestSchema,
   marshalUpdateRuleSetRequestSchema,
-  marshalUpdateWorkspacePermissionAssignmentSchema,
+  marshalUpdateWorkspacePermissionAssignmentRequestSchema,
   unmarshalCheckPolicyResponseSchema,
-  unmarshalDeleteWorkspacePermissionAssignment_ResponseSchema,
+  unmarshalDeleteWorkspacePermissionAssignmentRequest_ResponseSchema,
   unmarshalGetAssignableRolesForResourceResponseSchema,
-  unmarshalGetPermissionLevels_ResponseSchema,
-  unmarshalGetWorkspacePermissionAssignments_ResponseSchema,
-  unmarshalListWorkspacePermissions_ResponseSchema,
+  unmarshalGetPermissionLevelsRequest_ResponseSchema,
+  unmarshalGetWorkspacePermissionAssignmentsRequest_ResponseSchema,
+  unmarshalListWorkspacePermissionsRequest_ResponseSchema,
   unmarshalPermissionsResponseSchema,
   unmarshalRuleSetSchema,
   unmarshalWorkspacePermissionAssignmentOutputSchema,
@@ -97,11 +97,11 @@ export class Client {
 
   /** Deletes the workspace permissions assignment in a given account and workspace for the specified principal. */
   async deleteWorkspacePermissionAssignment(
-    req: DeleteWorkspacePermissionAssignment,
+    req: DeleteWorkspacePermissionAssignmentRequest,
     options?: CallOptions
-  ): Promise<DeleteWorkspacePermissionAssignment_Response> {
+  ): Promise<DeleteWorkspacePermissionAssignmentRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments/principals/${String(req.principalId ?? '')}`;
-    let resp: DeleteWorkspacePermissionAssignment_Response | undefined;
+    let resp: DeleteWorkspacePermissionAssignmentRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -113,7 +113,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeleteWorkspacePermissionAssignment_ResponseSchema
+        unmarshalDeleteWorkspacePermissionAssignmentRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -125,11 +125,11 @@ export class Client {
 
   /** Get the permission assignments for the specified <Account> and <Workspace>. */
   async getWorkspacePermissionAssignments(
-    req: GetWorkspacePermissionAssignments,
+    req: GetWorkspacePermissionAssignmentsRequest,
     options?: CallOptions
-  ): Promise<GetWorkspacePermissionAssignments_Response> {
+  ): Promise<GetWorkspacePermissionAssignmentsRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments`;
-    let resp: GetWorkspacePermissionAssignments_Response | undefined;
+    let resp: GetWorkspacePermissionAssignmentsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -141,7 +141,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetWorkspacePermissionAssignments_ResponseSchema
+        unmarshalGetWorkspacePermissionAssignmentsRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -153,11 +153,11 @@ export class Client {
 
   /** Get an array of workspace permissions for the specified account and workspace. */
   async listWorkspacePermissions(
-    req: ListWorkspacePermissions,
+    req: ListWorkspacePermissionsRequest,
     options?: CallOptions
-  ): Promise<ListWorkspacePermissions_Response> {
+  ): Promise<ListWorkspacePermissionsRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments/permissions`;
-    let resp: ListWorkspacePermissions_Response | undefined;
+    let resp: ListWorkspacePermissionsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -169,7 +169,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListWorkspacePermissions_ResponseSchema
+        unmarshalListWorkspacePermissionsRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -181,13 +181,13 @@ export class Client {
 
   /** Creates or updates the workspace permissions assignment in a given account and workspace for the specified principal. */
   async updateWorkspacePermissionAssignment(
-    req: UpdateWorkspacePermissionAssignment,
+    req: UpdateWorkspacePermissionAssignmentRequest,
     options?: CallOptions
   ): Promise<WorkspacePermissionAssignmentOutput> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments/principals/${String(req.principalId ?? '')}`;
     const body = marshalRequest(
       req,
-      marshalUpdateWorkspacePermissionAssignmentSchema
+      marshalUpdateWorkspacePermissionAssignmentRequestSchema
     );
     let resp: WorkspacePermissionAssignmentOutput | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -419,7 +419,7 @@ export class Client {
 
   /** Gets the permissions of an object. Objects can inherit permissions from their parent objects or root object. */
   async getObjectPermissions(
-    req: GetObjectPermissions,
+    req: GetObjectPermissionsRequest,
     options?: CallOptions
   ): Promise<PermissionsResponse> {
     const url = `${this.host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}`;
@@ -444,11 +444,11 @@ export class Client {
 
   /** Gets the permission levels that a user can have on an object. */
   async getPermissionLevels(
-    req: GetPermissionLevels,
+    req: GetPermissionLevelsRequest,
     options?: CallOptions
-  ): Promise<GetPermissionLevels_Response> {
+  ): Promise<GetPermissionLevelsRequest_Response> {
     const url = `${this.host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}/permissionLevels`;
-    let resp: GetPermissionLevels_Response | undefined;
+    let resp: GetPermissionLevelsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -460,7 +460,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetPermissionLevels_ResponseSchema
+        unmarshalGetPermissionLevelsRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -472,11 +472,11 @@ export class Client {
 
   /** Sets permissions on an object, replacing existing permissions if they exist. Deletes all direct permissions if none are specified. Objects can inherit permissions from their parent objects or root object. */
   async setObjectPermissions(
-    req: SetObjectPermissions,
+    req: SetObjectPermissionsRequest,
     options?: CallOptions
   ): Promise<PermissionsResponse> {
     const url = `${this.host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}`;
-    const body = marshalRequest(req, marshalSetObjectPermissionsSchema);
+    const body = marshalRequest(req, marshalSetObjectPermissionsRequestSchema);
     let resp: PermissionsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -498,11 +498,14 @@ export class Client {
 
   /** Updates the permissions on an object. Objects can inherit permissions from their parent objects or root object. */
   async updateObjectPermissions(
-    req: UpdateObjectPermissions,
+    req: UpdateObjectPermissionsRequest,
     options?: CallOptions
   ): Promise<PermissionsResponse> {
     const url = `${this.host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateObjectPermissionsSchema);
+    const body = marshalRequest(
+      req,
+      marshalUpdateObjectPermissionsRequestSchema
+    );
     let resp: PermissionsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

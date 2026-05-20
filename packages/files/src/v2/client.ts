@@ -20,20 +20,20 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  AddBlock,
-  AddBlock_Response,
-  Close,
-  Close_Response,
-  Create,
+  AddBlockRequest,
+  AddBlockRequest_Response,
+  CloseRequest,
+  CloseRequest_Response,
   CreateDirectoryRequest,
   CreateDirectoryResponse,
-  Create_Response,
-  Delete,
+  CreateRequest,
+  CreateRequest_Response,
   DeleteDirectoryRequest,
   DeleteDirectoryResponse,
   DeleteFileRequest,
   DeleteFileResponse,
-  Delete_Response,
+  DeleteRequest,
+  DeleteRequest_Response,
   DirectoryEntry,
   DownloadFileRequest,
   DownloadFileResponse,
@@ -41,47 +41,47 @@ import type {
   GetDirectoryMetadataResponse,
   GetFileMetadataRequest,
   GetFileMetadataResponse,
-  GetStatus,
-  GetStatus_Response,
+  GetStatusRequest,
+  GetStatusRequest_Response,
   ListDirectoryContentsRequest,
   ListDirectoryResponse,
-  ListStatus,
-  ListStatus_Response,
-  MkDirs,
-  MkDirs_Response,
-  Move,
-  Move_Response,
-  Put,
-  Put_Response,
-  Read,
-  Read_Response,
+  ListStatusRequest,
+  ListStatusRequest_Response,
+  MkDirsRequest,
+  MkDirsRequest_Response,
+  MoveRequest,
+  MoveRequest_Response,
+  PutRequest,
+  PutRequest_Response,
+  ReadRequest,
+  ReadRequest_Response,
   UploadFileRequest,
   UploadFileResponse,
 } from './model';
 import {
-  marshalAddBlockSchema,
-  marshalCloseSchema,
-  marshalCreateSchema,
-  marshalDeleteSchema,
-  marshalMkDirsSchema,
-  marshalMoveSchema,
-  marshalPutSchema,
-  unmarshalAddBlock_ResponseSchema,
-  unmarshalClose_ResponseSchema,
+  marshalAddBlockRequestSchema,
+  marshalCloseRequestSchema,
+  marshalCreateRequestSchema,
+  marshalDeleteRequestSchema,
+  marshalMkDirsRequestSchema,
+  marshalMoveRequestSchema,
+  marshalPutRequestSchema,
+  unmarshalAddBlockRequest_ResponseSchema,
+  unmarshalCloseRequest_ResponseSchema,
   unmarshalCreateDirectoryResponseSchema,
-  unmarshalCreate_ResponseSchema,
+  unmarshalCreateRequest_ResponseSchema,
   unmarshalDeleteDirectoryResponseSchema,
   unmarshalDeleteFileResponseSchema,
-  unmarshalDelete_ResponseSchema,
+  unmarshalDeleteRequest_ResponseSchema,
   unmarshalGetDirectoryMetadataResponseSchema,
   unmarshalGetFileMetadataResponseSchema,
-  unmarshalGetStatus_ResponseSchema,
+  unmarshalGetStatusRequest_ResponseSchema,
   unmarshalListDirectoryResponseSchema,
-  unmarshalListStatus_ResponseSchema,
-  unmarshalMkDirs_ResponseSchema,
-  unmarshalMove_ResponseSchema,
-  unmarshalPut_ResponseSchema,
-  unmarshalRead_ResponseSchema,
+  unmarshalListStatusRequest_ResponseSchema,
+  unmarshalMkDirsRequest_ResponseSchema,
+  unmarshalMoveRequest_ResponseSchema,
+  unmarshalPutRequest_ResponseSchema,
+  unmarshalReadRequest_ResponseSchema,
   unmarshalUploadFileResponseSchema,
 } from './model';
 
@@ -123,12 +123,12 @@ export class Client {
    * If the block of data exceeds 1 MB, this call will throw an exception with ``MAX_BLOCK_SIZE_EXCEEDED``.
    */
   async addBlock(
-    req: AddBlock,
+    req: AddBlockRequest,
     options?: CallOptions
-  ): Promise<AddBlock_Response> {
+  ): Promise<AddBlockRequest_Response> {
     const url = `${this.host}/api/2.0/dbfs/add-block`;
-    const body = marshalRequest(req, marshalAddBlockSchema);
-    let resp: AddBlock_Response | undefined;
+    const body = marshalRequest(req, marshalAddBlockRequestSchema);
+    let resp: AddBlockRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -138,7 +138,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalAddBlock_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalAddBlockRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -151,10 +151,13 @@ export class Client {
    * Closes the stream specified by the input handle. If the handle does not exist, this call
    * throws an exception with ``RESOURCE_DOES_NOT_EXIST``.
    */
-  async close(req: Close, options?: CallOptions): Promise<Close_Response> {
+  async close(
+    req: CloseRequest,
+    options?: CallOptions
+  ): Promise<CloseRequest_Response> {
     const url = `${this.host}/api/2.0/dbfs/close`;
-    const body = marshalRequest(req, marshalCloseSchema);
-    let resp: Close_Response | undefined;
+    const body = marshalRequest(req, marshalCloseRequestSchema);
+    let resp: CloseRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -164,7 +167,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalClose_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalCloseRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -184,10 +187,13 @@ export class Client {
    * 2. Issue one or more ``add-block`` calls with the handle you have.
    * 3. Issue a ``close`` call with the handle you have.
    */
-  async create(req: Create, options?: CallOptions): Promise<Create_Response> {
+  async create(
+    req: CreateRequest,
+    options?: CallOptions
+  ): Promise<CreateRequest_Response> {
     const url = `${this.host}/api/2.0/dbfs/create`;
-    const body = marshalRequest(req, marshalCreateSchema);
-    let resp: Create_Response | undefined;
+    const body = marshalRequest(req, marshalCreateRequestSchema);
+    let resp: CreateRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -197,7 +203,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCreate_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalCreateRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -222,10 +228,13 @@ export class Client {
    * provides better control and manageability, such as selective deletes, and the possibility to automate periodic
    * delete jobs.
    */
-  async delete(req: Delete, options?: CallOptions): Promise<Delete_Response> {
+  async delete(
+    req: DeleteRequest,
+    options?: CallOptions
+  ): Promise<DeleteRequest_Response> {
     const url = `${this.host}/api/2.0/dbfs/delete`;
-    const body = marshalRequest(req, marshalDeleteSchema);
-    let resp: Delete_Response | undefined;
+    const body = marshalRequest(req, marshalDeleteRequestSchema);
+    let resp: DeleteRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -235,7 +244,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDelete_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalDeleteRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -249,9 +258,9 @@ export class Client {
    * If the file or directory does not exist, this call throws an exception with `RESOURCE_DOES_NOT_EXIST`.
    */
   async getStatus(
-    req: GetStatus,
+    req: GetStatusRequest,
     options?: CallOptions
-  ): Promise<GetStatus_Response> {
+  ): Promise<GetStatusRequest_Response> {
     const url = `${this.host}/api/2.0/dbfs/get-status`;
     const params = new URLSearchParams();
     if (req.path !== undefined) {
@@ -259,7 +268,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetStatus_Response | undefined;
+    let resp: GetStatusRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -269,7 +278,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetStatus_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalGetStatusRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -290,9 +299,9 @@ export class Client {
    * functionality without timing out.
    */
   async list(
-    req: ListStatus,
+    req: ListStatusRequest,
     options?: CallOptions
-  ): Promise<ListStatus_Response> {
+  ): Promise<ListStatusRequest_Response> {
     const url = `${this.host}/api/2.0/dbfs/list`;
     const params = new URLSearchParams();
     if (req.path !== undefined) {
@@ -300,7 +309,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListStatus_Response | undefined;
+    let resp: ListStatusRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -310,7 +319,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListStatus_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListStatusRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -324,10 +333,13 @@ export class Client {
    * If a file (not a directory) exists at any prefix of the input path, this call throws an exception with `RESOURCE_ALREADY_EXISTS`.
    * **Note**: If this operation fails, it might have succeeded in creating some of the necessary parent directories.
    */
-  async mkdirs(req: MkDirs, options?: CallOptions): Promise<MkDirs_Response> {
+  async mkdirs(
+    req: MkDirsRequest,
+    options?: CallOptions
+  ): Promise<MkDirsRequest_Response> {
     const url = `${this.host}/api/2.0/dbfs/mkdirs`;
-    const body = marshalRequest(req, marshalMkDirsSchema);
-    let resp: MkDirs_Response | undefined;
+    const body = marshalRequest(req, marshalMkDirsRequestSchema);
+    let resp: MkDirsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -337,7 +349,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalMkDirs_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalMkDirsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -352,10 +364,13 @@ export class Client {
    * If a file already exists in the destination path, this call throws an exception with `RESOURCE_ALREADY_EXISTS`.
    * If the given source path is a directory, this call always recursively moves all files.
    */
-  async move(req: Move, options?: CallOptions): Promise<Move_Response> {
+  async move(
+    req: MoveRequest,
+    options?: CallOptions
+  ): Promise<MoveRequest_Response> {
     const url = `${this.host}/api/2.0/dbfs/move`;
-    const body = marshalRequest(req, marshalMoveSchema);
-    let resp: Move_Response | undefined;
+    const body = marshalRequest(req, marshalMoveRequestSchema);
+    let resp: MoveRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -365,7 +380,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalMove_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalMoveRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -386,10 +401,13 @@ export class Client {
    * If you want to upload large files, use the streaming upload. For details, see :method:dbfs/create,
    * :method:dbfs/addBlock, :method:dbfs/close.
    */
-  async put(req: Put, options?: CallOptions): Promise<Put_Response> {
+  async put(
+    req: PutRequest,
+    options?: CallOptions
+  ): Promise<PutRequest_Response> {
     const url = `${this.host}/api/2.0/dbfs/put`;
-    const body = marshalRequest(req, marshalPutSchema);
-    let resp: Put_Response | undefined;
+    const body = marshalRequest(req, marshalPutRequestSchema);
+    let resp: PutRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -399,7 +417,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalPut_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalPutRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -416,7 +434,10 @@ export class Client {
    *
    * If `offset + length` exceeds the number of bytes in a file, it reads the contents until the end of file.
    */
-  async read(req: Read, options?: CallOptions): Promise<Read_Response> {
+  async read(
+    req: ReadRequest,
+    options?: CallOptions
+  ): Promise<ReadRequest_Response> {
     const url = `${this.host}/api/2.0/dbfs/read`;
     const params = new URLSearchParams();
     if (req.path !== undefined) {
@@ -430,7 +451,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: Read_Response | undefined;
+    let resp: ReadRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -440,7 +461,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalRead_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalReadRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

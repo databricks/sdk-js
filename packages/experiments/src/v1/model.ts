@@ -46,7 +46,7 @@ export enum ViewType {
   ALL = 'ALL',
 }
 
-export interface CreateExperiment {
+export interface CreateExperimentRequest {
   /** Experiment name. */
   name?: string | undefined;
   /**
@@ -64,12 +64,12 @@ export interface CreateExperiment {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateExperiment_Response {
+export interface CreateExperimentRequest_Response {
   /** Unique identifier for the experiment. */
   experimentId?: string | undefined;
 }
 
-export interface CreateLoggedModel {
+export interface CreateLoggedModelRequest {
   /** The ID of the experiment that owns the model. */
   experimentId?: string | undefined;
   /** The name of the model (optional). If not specified one will be generated. */
@@ -85,12 +85,12 @@ export interface CreateLoggedModel {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateLoggedModel_Response {
+export interface CreateLoggedModelRequest_Response {
   /** The newly created logged model. */
   model?: LoggedModel | undefined;
 }
 
-export interface CreateRun {
+export interface CreateRunRequest {
   /** ID of the associated experiment. */
   experimentId?: string | undefined;
   /**
@@ -108,7 +108,7 @@ export interface CreateRun {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateRun_Response {
+export interface CreateRunRequest_Response {
   /** The newly created run. */
   run?: Run | undefined;
 }
@@ -150,23 +150,23 @@ export interface DatasetInput {
   dataset?: Dataset | undefined;
 }
 
-export interface DeleteExperiment {
+export interface DeleteExperimentRequest {
   /** ID of the associated experiment. */
   experimentId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteExperiment_Response {}
+export interface DeleteExperimentRequest_Response {}
 
-export interface DeleteLoggedModel {
+export interface DeleteLoggedModelRequest {
   /** The ID of the logged model to delete. */
   modelId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteLoggedModel_Response {}
+export interface DeleteLoggedModelRequest_Response {}
 
-export interface DeleteLoggedModelTag {
+export interface DeleteLoggedModelTagRequest {
   /** The ID of the logged model to delete the tag from. */
   modelId?: string | undefined;
   /** The tag key. */
@@ -174,17 +174,17 @@ export interface DeleteLoggedModelTag {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteLoggedModelTag_Response {}
+export interface DeleteLoggedModelTagRequest_Response {}
 
-export interface DeleteRun {
+export interface DeleteRunRequest {
   /** ID of the run to delete. */
   runId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteRun_Response {}
+export interface DeleteRunRequest_Response {}
 
-export interface DeleteRuns {
+export interface DeleteRunsRequest {
   /** The ID of the experiment containing the runs to delete. */
   experimentId?: string | undefined;
   /**
@@ -200,12 +200,12 @@ export interface DeleteRuns {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface DeleteRuns_Response {
+export interface DeleteRunsRequest_Response {
   /** The number of runs deleted. */
   runsDeleted?: number | undefined;
 }
 
-export interface DeleteTag {
+export interface DeleteTagRequest {
   /** ID of the run that the tag was logged under. Must be provided. */
   runId?: string | undefined;
   /** Name of the tag. Maximum size is 255 bytes. Must be provided. */
@@ -213,7 +213,7 @@ export interface DeleteTag {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteTag_Response {}
+export interface DeleteTagRequest_Response {}
 
 /** An experiment and its metadata. */
 export interface Experiment {
@@ -254,7 +254,7 @@ export interface FileInfo {
   fileSize?: number | undefined;
 }
 
-export interface FinalizeLoggedModel {
+export interface FinalizeLoggedModelRequest {
   /** The ID of the logged model to finalize. */
   modelId?: string | undefined;
   /**
@@ -265,18 +265,29 @@ export interface FinalizeLoggedModel {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface FinalizeLoggedModel_Response {
+export interface FinalizeLoggedModelRequest_Response {
   /** The updated logged model. */
   model?: LoggedModel | undefined;
 }
 
-export interface GetExperiment {
+export interface GetExperimentByNameRequest {
+  /** Name of the associated experiment. */
+  experimentName?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface GetExperimentByNameRequest_Response {
+  /** Experiment details. */
+  experiment?: Experiment | undefined;
+}
+
+export interface GetExperimentRequest {
   /** ID of the associated experiment. */
   experimentId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetExperiment_Response {
+export interface GetExperimentRequest_Response {
   /** Experiment details. */
   experiment?: Experiment | undefined;
   /**
@@ -289,29 +300,18 @@ export interface GetExperiment_Response {
   runs?: RunInfo[] | undefined;
 }
 
-export interface GetExperimentByName {
-  /** Name of the associated experiment. */
-  experimentName?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetExperimentByName_Response {
-  /** Experiment details. */
-  experiment?: Experiment | undefined;
-}
-
-export interface GetLoggedModel {
+export interface GetLoggedModelRequest {
   /** The ID of the logged model to retrieve. */
   modelId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetLoggedModel_Response {
+export interface GetLoggedModelRequest_Response {
   /** The retrieved logged model. */
   model?: LoggedModel | undefined;
 }
 
-export interface GetMetricHistory {
+export interface GetMetricHistoryRequest {
   /** ID of the run from which to fetch metric values. Must be provided. */
   runId?: string | undefined;
   /**
@@ -331,7 +331,7 @@ export interface GetMetricHistory {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetMetricHistory_Response {
+export interface GetMetricHistoryRequest_Response {
   /**
    * All logged values for this metric if `max_results` is not specified in the request or if the total count of
    * metrics returned is less than the service level pagination threshold. Otherwise, this is one page of results.
@@ -344,7 +344,7 @@ export interface GetMetricHistory_Response {
   nextPageToken?: string | undefined;
 }
 
-export interface GetRun {
+export interface GetRunRequest {
   /** ID of the run to fetch. Must be provided. */
   runId?: string | undefined;
   /**
@@ -355,7 +355,7 @@ export interface GetRun {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetRun_Response {
+export interface GetRunRequest_Response {
   /** Run metadata (name, start time, etc) and data (metrics, params, and tags). */
   run?: Run | undefined;
 }
@@ -368,7 +368,7 @@ export interface InputTag {
   value?: string | undefined;
 }
 
-export interface ListArtifacts {
+export interface ListArtifactsRequest {
   /** ID of the run whose artifacts to list. Must be provided. */
   runId?: string | undefined;
   /**
@@ -388,7 +388,7 @@ export interface ListArtifacts {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListArtifacts_Response {
+export interface ListArtifactsRequest_Response {
   /** The root artifact directory for the run. */
   rootUri?: string | undefined;
   /** The file location and metadata for artifacts. */
@@ -397,7 +397,7 @@ export interface ListArtifacts_Response {
   nextPageToken?: string | undefined;
 }
 
-export interface ListExperiments {
+export interface ListExperimentsRequest {
   /**
    * Qualifier for type of experiments to be returned.
    * If unspecified, return only active experiments.
@@ -416,7 +416,7 @@ export interface ListExperiments {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListExperiments_Response {
+export interface ListExperimentsRequest_Response {
   /** Paginated Experiments beginning with the first item on the requested page. */
   experiments?: Experiment[] | undefined;
   /**
@@ -426,7 +426,7 @@ export interface ListExperiments_Response {
   nextPageToken?: string | undefined;
 }
 
-export interface LogBatch {
+export interface LogBatchRequest {
   /** ID of the run to log under */
   runId?: string | undefined;
   /**
@@ -447,9 +447,9 @@ export interface LogBatch {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface LogBatch_Response {}
+export interface LogBatchRequest_Response {}
 
-export interface LogInputs {
+export interface LogInputsRequest {
   /** ID of the run to log under */
   runId?: string | undefined;
   /** Dataset inputs */
@@ -459,7 +459,7 @@ export interface LogInputs {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface LogInputs_Response {}
+export interface LogInputsRequest_Response {}
 
 export interface LogLoggedModelParamsRequest {
   /** The ID of the logged model to log params for. */
@@ -471,7 +471,7 @@ export interface LogLoggedModelParamsRequest {
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
 export interface LogLoggedModelParamsRequest_Response {}
 
-export interface LogMetric {
+export interface LogMetricRequest {
   /** ID of the run under which to log the metric. Must be provided. */
   runId?: string | undefined;
   /**
@@ -503,9 +503,9 @@ export interface LogMetric {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface LogMetric_Response {}
+export interface LogMetricRequest_Response {}
 
-export interface LogModel {
+export interface LogModelRequest {
   /** ID of the run to log under */
   runId?: string | undefined;
   /** MLmodel file in json format. */
@@ -513,9 +513,9 @@ export interface LogModel {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface LogModel_Response {}
+export interface LogModelRequest_Response {}
 
-export interface LogOutputs {
+export interface LogOutputsRequest {
   /** The ID of the Run from which to log outputs. */
   runId?: string | undefined;
   /** The model outputs from the Run. */
@@ -523,9 +523,9 @@ export interface LogOutputs {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface LogOutputs_Response {}
+export interface LogOutputsRequest_Response {}
 
-export interface LogParam {
+export interface LogParamRequest {
   /** ID of the run under which to log the param. Must be provided. */
   runId?: string | undefined;
   /**
@@ -540,7 +540,7 @@ export interface LogParam {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface LogParam_Response {}
+export interface LogParamRequest_Response {}
 
 /**
  * A logged model message includes logged model attributes,
@@ -660,23 +660,23 @@ export interface Param {
   value?: string | undefined;
 }
 
-export interface RestoreExperiment {
+export interface RestoreExperimentRequest {
   /** ID of the associated experiment. */
   experimentId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface RestoreExperiment_Response {}
+export interface RestoreExperimentRequest_Response {}
 
-export interface RestoreRun {
+export interface RestoreRunRequest {
   /** ID of the run to restore. */
   runId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface RestoreRun_Response {}
+export interface RestoreRunRequest_Response {}
 
-export interface RestoreRuns {
+export interface RestoreRunsRequest {
   /** The ID of the experiment containing the runs to restore. */
   experimentId?: string | undefined;
   /**
@@ -692,7 +692,7 @@ export interface RestoreRuns {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RestoreRuns_Response {
+export interface RestoreRunsRequest_Response {
   /** The number of runs restored. */
   runsRestored?: number | undefined;
 }
@@ -769,7 +769,7 @@ export interface RunTag {
   value?: string | undefined;
 }
 
-export interface SearchExperiments {
+export interface SearchExperimentsRequest {
   /** Maximum number of experiments desired. Max threshold is 3000. */
   maxResults?: number | undefined;
   /** Token indicating the page of experiments to fetch */
@@ -790,7 +790,7 @@ export interface SearchExperiments {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface SearchExperiments_Response {
+export interface SearchExperimentsRequest_Response {
   /** Experiments that match the search criteria */
   experiments?: Experiment[] | undefined;
   /**
@@ -800,7 +800,7 @@ export interface SearchExperiments_Response {
   nextPageToken?: string | undefined;
 }
 
-export interface SearchLoggedModels {
+export interface SearchLoggedModelsRequest {
   /** The IDs of the experiments in which to search for logged models. */
   experimentIds?: string[] | undefined;
   /**
@@ -817,17 +817,17 @@ export interface SearchLoggedModels {
    * Metric values from ANY dataset matching the criteria are considered.
    * If no datasets are specified, then metrics across all datasets are considered in the filter.
    */
-  datasets?: SearchLoggedModels_Dataset[] | undefined;
+  datasets?: SearchLoggedModelsRequest_Dataset[] | undefined;
   /** The maximum number of Logged Models to return. The maximum limit is 50. */
   maxResults?: number | undefined;
   /** The list of columns for ordering the results, with additional fields for sorting criteria. */
-  orderBy?: SearchLoggedModels_OrderBy[] | undefined;
+  orderBy?: SearchLoggedModelsRequest_OrderBy[] | undefined;
   /** The token indicating the page of logged models to fetch. */
   pageToken?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface SearchLoggedModels_Dataset {
+export interface SearchLoggedModelsRequest_Dataset {
   /** The name of the dataset. */
   datasetName?: string | undefined;
   /** The digest of the dataset. */
@@ -835,7 +835,7 @@ export interface SearchLoggedModels_Dataset {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface SearchLoggedModels_OrderBy {
+export interface SearchLoggedModelsRequest_OrderBy {
   /** The name of the field to order by, e.g. "metrics.accuracy". */
   fieldName?: string | undefined;
   /** Whether the search results order is ascending or not. */
@@ -856,14 +856,14 @@ export interface SearchLoggedModels_OrderBy {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface SearchLoggedModels_Response {
+export interface SearchLoggedModelsRequest_Response {
   /** Logged models that match the search criteria. */
   models?: LoggedModel[] | undefined;
   /** The token that can be used to retrieve the next page of logged models. */
   nextPageToken?: string | undefined;
 }
 
-export interface SearchRuns {
+export interface SearchRunsRequest {
   /** List of experiment IDs to search over. */
   experimentIds?: string[] | undefined;
   /**
@@ -899,14 +899,14 @@ export interface SearchRuns {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface SearchRuns_Response {
+export interface SearchRunsRequest_Response {
   /** Runs that match the search criteria. */
   runs?: Run[] | undefined;
   /** Token for the next page of runs. */
   nextPageToken?: string | undefined;
 }
 
-export interface SetExperimentTag {
+export interface SetExperimentTagRequest {
   /** ID of the experiment under which to log the tag. Must be provided. */
   experimentId?: string | undefined;
   /** Name of the tag. Keys up to 250 bytes in size are supported. */
@@ -916,9 +916,9 @@ export interface SetExperimentTag {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface SetExperimentTag_Response {}
+export interface SetExperimentTagRequest_Response {}
 
-export interface SetLoggedModelTags {
+export interface SetLoggedModelTagsRequest {
   /** The ID of the logged model to set the tags on. */
   modelId?: string | undefined;
   /** The tags to set on the logged model. */
@@ -926,9 +926,9 @@ export interface SetLoggedModelTags {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface SetLoggedModelTags_Response {}
+export interface SetLoggedModelTagsRequest_Response {}
 
-export interface SetTag {
+export interface SetTagRequest {
   /** ID of the run under which to log the tag. Must be provided. */
   runId?: string | undefined;
   /**
@@ -943,9 +943,9 @@ export interface SetTag {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface SetTag_Response {}
+export interface SetTagRequest_Response {}
 
-export interface UpdateExperiment {
+export interface UpdateExperimentRequest {
   /** ID of the associated experiment. */
   experimentId?: string | undefined;
   /** If provided, the experiment's name is changed to the new name. The new name must be unique. */
@@ -953,9 +953,9 @@ export interface UpdateExperiment {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface UpdateExperiment_Response {}
+export interface UpdateExperimentRequest_Response {}
 
-export interface UpdateRun {
+export interface UpdateRunRequest {
   /** ID of the run to update. Must be provided. */
   runId?: string | undefined;
   /**
@@ -972,13 +972,13 @@ export interface UpdateRun {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateRun_Response {
+export interface UpdateRunRequest_Response {
   /** Updated metadata of the run. */
   runInfo?: RunInfo | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateExperiment_ResponseSchema: z.ZodType<CreateExperiment_Response> =
+export const unmarshalCreateExperimentRequest_ResponseSchema: z.ZodType<CreateExperimentRequest_Response> =
   z
     .object({
       experiment_id: z.string().optional(),
@@ -988,7 +988,7 @@ export const unmarshalCreateExperiment_ResponseSchema: z.ZodType<CreateExperimen
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateLoggedModel_ResponseSchema: z.ZodType<CreateLoggedModel_Response> =
+export const unmarshalCreateLoggedModelRequest_ResponseSchema: z.ZodType<CreateLoggedModelRequest_Response> =
   z
     .object({
       model: z.lazy(() => unmarshalLoggedModelSchema).optional(),
@@ -998,7 +998,7 @@ export const unmarshalCreateLoggedModel_ResponseSchema: z.ZodType<CreateLoggedMo
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateRun_ResponseSchema: z.ZodType<CreateRun_Response> =
+export const unmarshalCreateRunRequest_ResponseSchema: z.ZodType<CreateRunRequest_Response> =
   z
     .object({
       run: z.lazy(() => unmarshalRunSchema).optional(),
@@ -1036,23 +1036,23 @@ export const unmarshalDatasetInputSchema: z.ZodType<DatasetInput> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteExperiment_ResponseSchema: z.ZodType<DeleteExperiment_Response> =
+export const unmarshalDeleteExperimentRequest_ResponseSchema: z.ZodType<DeleteExperimentRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteLoggedModel_ResponseSchema: z.ZodType<DeleteLoggedModel_Response> =
+export const unmarshalDeleteLoggedModelRequest_ResponseSchema: z.ZodType<DeleteLoggedModelRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteLoggedModelTag_ResponseSchema: z.ZodType<DeleteLoggedModelTag_Response> =
+export const unmarshalDeleteLoggedModelTagRequest_ResponseSchema: z.ZodType<DeleteLoggedModelTagRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRun_ResponseSchema: z.ZodType<DeleteRun_Response> =
+export const unmarshalDeleteRunRequest_ResponseSchema: z.ZodType<DeleteRunRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRuns_ResponseSchema: z.ZodType<DeleteRuns_Response> =
+export const unmarshalDeleteRunsRequest_ResponseSchema: z.ZodType<DeleteRunsRequest_Response> =
   z
     .object({
       runs_deleted: z.number().optional(),
@@ -1062,7 +1062,7 @@ export const unmarshalDeleteRuns_ResponseSchema: z.ZodType<DeleteRuns_Response> 
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteTag_ResponseSchema: z.ZodType<DeleteTag_Response> =
+export const unmarshalDeleteTagRequest_ResponseSchema: z.ZodType<DeleteTagRequest_Response> =
   z.object({});
 
 export const unmarshalExperimentSchema: z.ZodType<Experiment> = z
@@ -1108,7 +1108,7 @@ export const unmarshalFileInfoSchema: z.ZodType<FileInfo> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalFinalizeLoggedModel_ResponseSchema: z.ZodType<FinalizeLoggedModel_Response> =
+export const unmarshalFinalizeLoggedModelRequest_ResponseSchema: z.ZodType<FinalizeLoggedModelRequest_Response> =
   z
     .object({
       model: z.lazy(() => unmarshalLoggedModelSchema).optional(),
@@ -1118,7 +1118,17 @@ export const unmarshalFinalizeLoggedModel_ResponseSchema: z.ZodType<FinalizeLogg
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetExperiment_ResponseSchema: z.ZodType<GetExperiment_Response> =
+export const unmarshalGetExperimentByNameRequest_ResponseSchema: z.ZodType<GetExperimentByNameRequest_Response> =
+  z
+    .object({
+      experiment: z.lazy(() => unmarshalExperimentSchema).optional(),
+    })
+    .transform(d => ({
+      experiment: d.experiment,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalGetExperimentRequest_ResponseSchema: z.ZodType<GetExperimentRequest_Response> =
   z
     .object({
       experiment: z.lazy(() => unmarshalExperimentSchema).optional(),
@@ -1130,17 +1140,7 @@ export const unmarshalGetExperiment_ResponseSchema: z.ZodType<GetExperiment_Resp
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetExperimentByName_ResponseSchema: z.ZodType<GetExperimentByName_Response> =
-  z
-    .object({
-      experiment: z.lazy(() => unmarshalExperimentSchema).optional(),
-    })
-    .transform(d => ({
-      experiment: d.experiment,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetLoggedModel_ResponseSchema: z.ZodType<GetLoggedModel_Response> =
+export const unmarshalGetLoggedModelRequest_ResponseSchema: z.ZodType<GetLoggedModelRequest_Response> =
   z
     .object({
       model: z.lazy(() => unmarshalLoggedModelSchema).optional(),
@@ -1150,7 +1150,7 @@ export const unmarshalGetLoggedModel_ResponseSchema: z.ZodType<GetLoggedModel_Re
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetMetricHistory_ResponseSchema: z.ZodType<GetMetricHistory_Response> =
+export const unmarshalGetMetricHistoryRequest_ResponseSchema: z.ZodType<GetMetricHistoryRequest_Response> =
   z
     .object({
       metrics: z.array(z.lazy(() => unmarshalMetricSchema)).optional(),
@@ -1162,13 +1162,14 @@ export const unmarshalGetMetricHistory_ResponseSchema: z.ZodType<GetMetricHistor
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetRun_ResponseSchema: z.ZodType<GetRun_Response> = z
-  .object({
-    run: z.lazy(() => unmarshalRunSchema).optional(),
-  })
-  .transform(d => ({
-    run: d.run,
-  }));
+export const unmarshalGetRunRequest_ResponseSchema: z.ZodType<GetRunRequest_Response> =
+  z
+    .object({
+      run: z.lazy(() => unmarshalRunSchema).optional(),
+    })
+    .transform(d => ({
+      run: d.run,
+    }));
 
 export const unmarshalInputTagSchema: z.ZodType<InputTag> = z
   .object({
@@ -1181,7 +1182,7 @@ export const unmarshalInputTagSchema: z.ZodType<InputTag> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListArtifacts_ResponseSchema: z.ZodType<ListArtifacts_Response> =
+export const unmarshalListArtifactsRequest_ResponseSchema: z.ZodType<ListArtifactsRequest_Response> =
   z
     .object({
       root_uri: z.string().optional(),
@@ -1195,7 +1196,7 @@ export const unmarshalListArtifacts_ResponseSchema: z.ZodType<ListArtifacts_Resp
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListExperiments_ResponseSchema: z.ZodType<ListExperiments_Response> =
+export const unmarshalListExperimentsRequest_ResponseSchema: z.ZodType<ListExperimentsRequest_Response> =
   z
     .object({
       experiments: z.array(z.lazy(() => unmarshalExperimentSchema)).optional(),
@@ -1207,11 +1208,11 @@ export const unmarshalListExperiments_ResponseSchema: z.ZodType<ListExperiments_
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalLogBatch_ResponseSchema: z.ZodType<LogBatch_Response> =
+export const unmarshalLogBatchRequest_ResponseSchema: z.ZodType<LogBatchRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalLogInputs_ResponseSchema: z.ZodType<LogInputs_Response> =
+export const unmarshalLogInputsRequest_ResponseSchema: z.ZodType<LogInputsRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1219,19 +1220,19 @@ export const unmarshalLogLoggedModelParamsRequest_ResponseSchema: z.ZodType<LogL
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalLogMetric_ResponseSchema: z.ZodType<LogMetric_Response> =
+export const unmarshalLogMetricRequest_ResponseSchema: z.ZodType<LogMetricRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalLogModel_ResponseSchema: z.ZodType<LogModel_Response> =
+export const unmarshalLogModelRequest_ResponseSchema: z.ZodType<LogModelRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalLogOutputs_ResponseSchema: z.ZodType<LogOutputs_Response> =
+export const unmarshalLogOutputsRequest_ResponseSchema: z.ZodType<LogOutputsRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalLogParam_ResponseSchema: z.ZodType<LogParam_Response> =
+export const unmarshalLogParamRequest_ResponseSchema: z.ZodType<LogParamRequest_Response> =
   z.object({});
 
 export const unmarshalLoggedModelSchema: z.ZodType<LoggedModel> = z
@@ -1348,15 +1349,15 @@ export const unmarshalParamSchema: z.ZodType<Param> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRestoreExperiment_ResponseSchema: z.ZodType<RestoreExperiment_Response> =
+export const unmarshalRestoreExperimentRequest_ResponseSchema: z.ZodType<RestoreExperimentRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRestoreRun_ResponseSchema: z.ZodType<RestoreRun_Response> =
+export const unmarshalRestoreRunRequest_ResponseSchema: z.ZodType<RestoreRunRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRestoreRuns_ResponseSchema: z.ZodType<RestoreRuns_Response> =
+export const unmarshalRestoreRunsRequest_ResponseSchema: z.ZodType<RestoreRunsRequest_Response> =
   z
     .object({
       runs_restored: z.number().optional(),
@@ -1438,7 +1439,7 @@ export const unmarshalRunTagSchema: z.ZodType<RunTag> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSearchExperiments_ResponseSchema: z.ZodType<SearchExperiments_Response> =
+export const unmarshalSearchExperimentsRequest_ResponseSchema: z.ZodType<SearchExperimentsRequest_Response> =
   z
     .object({
       experiments: z.array(z.lazy(() => unmarshalExperimentSchema)).optional(),
@@ -1450,7 +1451,7 @@ export const unmarshalSearchExperiments_ResponseSchema: z.ZodType<SearchExperime
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSearchLoggedModels_ResponseSchema: z.ZodType<SearchLoggedModels_Response> =
+export const unmarshalSearchLoggedModelsRequest_ResponseSchema: z.ZodType<SearchLoggedModelsRequest_Response> =
   z
     .object({
       models: z.array(z.lazy(() => unmarshalLoggedModelSchema)).optional(),
@@ -1462,7 +1463,7 @@ export const unmarshalSearchLoggedModels_ResponseSchema: z.ZodType<SearchLoggedM
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSearchRuns_ResponseSchema: z.ZodType<SearchRuns_Response> =
+export const unmarshalSearchRunsRequest_ResponseSchema: z.ZodType<SearchRunsRequest_Response> =
   z
     .object({
       runs: z.array(z.lazy(() => unmarshalRunSchema)).optional(),
@@ -1474,23 +1475,23 @@ export const unmarshalSearchRuns_ResponseSchema: z.ZodType<SearchRuns_Response> 
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSetExperimentTag_ResponseSchema: z.ZodType<SetExperimentTag_Response> =
+export const unmarshalSetExperimentTagRequest_ResponseSchema: z.ZodType<SetExperimentTagRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSetLoggedModelTags_ResponseSchema: z.ZodType<SetLoggedModelTags_Response> =
+export const unmarshalSetLoggedModelTagsRequest_ResponseSchema: z.ZodType<SetLoggedModelTagsRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSetTag_ResponseSchema: z.ZodType<SetTag_Response> =
+export const unmarshalSetTagRequest_ResponseSchema: z.ZodType<SetTagRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateExperiment_ResponseSchema: z.ZodType<UpdateExperiment_Response> =
+export const unmarshalUpdateExperimentRequest_ResponseSchema: z.ZodType<UpdateExperimentRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateRun_ResponseSchema: z.ZodType<UpdateRun_Response> =
+export const unmarshalUpdateRunRequest_ResponseSchema: z.ZodType<UpdateRunRequest_Response> =
   z
     .object({
       run_info: z.lazy(() => unmarshalRunInfoSchema).optional(),
@@ -1499,7 +1500,7 @@ export const unmarshalUpdateRun_ResponseSchema: z.ZodType<UpdateRun_Response> =
       runInfo: d.run_info,
     }));
 
-export const marshalCreateExperimentSchema: z.ZodType = z
+export const marshalCreateExperimentRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     artifactLocation: z.string().optional(),
@@ -1511,7 +1512,7 @@ export const marshalCreateExperimentSchema: z.ZodType = z
     tags: d.tags,
   }));
 
-export const marshalCreateLoggedModelSchema: z.ZodType = z
+export const marshalCreateLoggedModelRequestSchema: z.ZodType = z
   .object({
     experimentId: z.string().optional(),
     name: z.string().optional(),
@@ -1529,7 +1530,7 @@ export const marshalCreateLoggedModelSchema: z.ZodType = z
     tags: d.tags,
   }));
 
-export const marshalCreateRunSchema: z.ZodType = z
+export const marshalCreateRunRequestSchema: z.ZodType = z
   .object({
     experimentId: z.string().optional(),
     userId: z.string().optional(),
@@ -1573,7 +1574,7 @@ export const marshalDatasetInputSchema: z.ZodType = z
     dataset: d.dataset,
   }));
 
-export const marshalDeleteExperimentSchema: z.ZodType = z
+export const marshalDeleteExperimentRequestSchema: z.ZodType = z
   .object({
     experimentId: z.string().optional(),
   })
@@ -1581,7 +1582,7 @@ export const marshalDeleteExperimentSchema: z.ZodType = z
     experiment_id: d.experimentId,
   }));
 
-export const marshalDeleteRunSchema: z.ZodType = z
+export const marshalDeleteRunRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
   })
@@ -1589,7 +1590,7 @@ export const marshalDeleteRunSchema: z.ZodType = z
     run_id: d.runId,
   }));
 
-export const marshalDeleteRunsSchema: z.ZodType = z
+export const marshalDeleteRunsRequestSchema: z.ZodType = z
   .object({
     experimentId: z.string().optional(),
     maxTimestampMillis: z.number().optional(),
@@ -1601,7 +1602,7 @@ export const marshalDeleteRunsSchema: z.ZodType = z
     max_runs: d.maxRuns,
   }));
 
-export const marshalDeleteTagSchema: z.ZodType = z
+export const marshalDeleteTagRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
     key: z.string().optional(),
@@ -1621,7 +1622,7 @@ export const marshalExperimentTagSchema: z.ZodType = z
     value: d.value,
   }));
 
-export const marshalFinalizeLoggedModelSchema: z.ZodType = z
+export const marshalFinalizeLoggedModelRequestSchema: z.ZodType = z
   .object({
     modelId: z.string().optional(),
     status: z.enum(LoggedModelStatus).optional(),
@@ -1641,7 +1642,7 @@ export const marshalInputTagSchema: z.ZodType = z
     value: d.value,
   }));
 
-export const marshalLogBatchSchema: z.ZodType = z
+export const marshalLogBatchRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
     metrics: z.array(z.lazy(() => marshalMetricSchema)).optional(),
@@ -1655,7 +1656,7 @@ export const marshalLogBatchSchema: z.ZodType = z
     tags: d.tags,
   }));
 
-export const marshalLogInputsSchema: z.ZodType = z
+export const marshalLogInputsRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
     datasets: z.array(z.lazy(() => marshalDatasetInputSchema)).optional(),
@@ -1677,7 +1678,7 @@ export const marshalLogLoggedModelParamsRequestSchema: z.ZodType = z
     params: d.params,
   }));
 
-export const marshalLogMetricSchema: z.ZodType = z
+export const marshalLogMetricRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
     runUuid: z.string().optional(),
@@ -1701,7 +1702,7 @@ export const marshalLogMetricSchema: z.ZodType = z
     dataset_digest: d.datasetDigest,
   }));
 
-export const marshalLogModelSchema: z.ZodType = z
+export const marshalLogModelRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
     modelJson: z.string().optional(),
@@ -1711,7 +1712,7 @@ export const marshalLogModelSchema: z.ZodType = z
     model_json: d.modelJson,
   }));
 
-export const marshalLogOutputsSchema: z.ZodType = z
+export const marshalLogOutputsRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
     models: z.array(z.lazy(() => marshalModelOutputSchema)).optional(),
@@ -1721,7 +1722,7 @@ export const marshalLogOutputsSchema: z.ZodType = z
     models: d.models,
   }));
 
-export const marshalLogParamSchema: z.ZodType = z
+export const marshalLogParamRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
     runUuid: z.string().optional(),
@@ -1805,7 +1806,7 @@ export const marshalParamSchema: z.ZodType = z
     value: d.value,
   }));
 
-export const marshalRestoreExperimentSchema: z.ZodType = z
+export const marshalRestoreExperimentRequestSchema: z.ZodType = z
   .object({
     experimentId: z.string().optional(),
   })
@@ -1813,7 +1814,7 @@ export const marshalRestoreExperimentSchema: z.ZodType = z
     experiment_id: d.experimentId,
   }));
 
-export const marshalRestoreRunSchema: z.ZodType = z
+export const marshalRestoreRunRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
   })
@@ -1821,7 +1822,7 @@ export const marshalRestoreRunSchema: z.ZodType = z
     run_id: d.runId,
   }));
 
-export const marshalRestoreRunsSchema: z.ZodType = z
+export const marshalRestoreRunsRequestSchema: z.ZodType = z
   .object({
     experimentId: z.string().optional(),
     minTimestampMillis: z.number().optional(),
@@ -1843,7 +1844,7 @@ export const marshalRunTagSchema: z.ZodType = z
     value: d.value,
   }));
 
-export const marshalSearchExperimentsSchema: z.ZodType = z
+export const marshalSearchExperimentsRequestSchema: z.ZodType = z
   .object({
     maxResults: z.number().optional(),
     pageToken: z.string().optional(),
@@ -1859,16 +1860,16 @@ export const marshalSearchExperimentsSchema: z.ZodType = z
     view_type: d.viewType,
   }));
 
-export const marshalSearchLoggedModelsSchema: z.ZodType = z
+export const marshalSearchLoggedModelsRequestSchema: z.ZodType = z
   .object({
     experimentIds: z.array(z.string()).optional(),
     filter: z.string().optional(),
     datasets: z
-      .array(z.lazy(() => marshalSearchLoggedModels_DatasetSchema))
+      .array(z.lazy(() => marshalSearchLoggedModelsRequest_DatasetSchema))
       .optional(),
     maxResults: z.number().optional(),
     orderBy: z
-      .array(z.lazy(() => marshalSearchLoggedModels_OrderBySchema))
+      .array(z.lazy(() => marshalSearchLoggedModelsRequest_OrderBySchema))
       .optional(),
     pageToken: z.string().optional(),
   })
@@ -1882,7 +1883,7 @@ export const marshalSearchLoggedModelsSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSearchLoggedModels_DatasetSchema: z.ZodType = z
+export const marshalSearchLoggedModelsRequest_DatasetSchema: z.ZodType = z
   .object({
     datasetName: z.string().optional(),
     datasetDigest: z.string().optional(),
@@ -1893,7 +1894,7 @@ export const marshalSearchLoggedModels_DatasetSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalSearchLoggedModels_OrderBySchema: z.ZodType = z
+export const marshalSearchLoggedModelsRequest_OrderBySchema: z.ZodType = z
   .object({
     fieldName: z.string().optional(),
     ascending: z.boolean().optional(),
@@ -1907,7 +1908,7 @@ export const marshalSearchLoggedModels_OrderBySchema: z.ZodType = z
     dataset_digest: d.datasetDigest,
   }));
 
-export const marshalSearchRunsSchema: z.ZodType = z
+export const marshalSearchRunsRequestSchema: z.ZodType = z
   .object({
     experimentIds: z.array(z.string()).optional(),
     filter: z.string().optional(),
@@ -1925,7 +1926,7 @@ export const marshalSearchRunsSchema: z.ZodType = z
     page_token: d.pageToken,
   }));
 
-export const marshalSetExperimentTagSchema: z.ZodType = z
+export const marshalSetExperimentTagRequestSchema: z.ZodType = z
   .object({
     experimentId: z.string().optional(),
     key: z.string().optional(),
@@ -1937,7 +1938,7 @@ export const marshalSetExperimentTagSchema: z.ZodType = z
     value: d.value,
   }));
 
-export const marshalSetLoggedModelTagsSchema: z.ZodType = z
+export const marshalSetLoggedModelTagsRequestSchema: z.ZodType = z
   .object({
     modelId: z.string().optional(),
     tags: z.array(z.lazy(() => marshalLoggedModelTagSchema)).optional(),
@@ -1947,7 +1948,7 @@ export const marshalSetLoggedModelTagsSchema: z.ZodType = z
     tags: d.tags,
   }));
 
-export const marshalSetTagSchema: z.ZodType = z
+export const marshalSetTagRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
     runUuid: z.string().optional(),
@@ -1961,7 +1962,7 @@ export const marshalSetTagSchema: z.ZodType = z
     value: d.value,
   }));
 
-export const marshalUpdateExperimentSchema: z.ZodType = z
+export const marshalUpdateExperimentRequestSchema: z.ZodType = z
   .object({
     experimentId: z.string().optional(),
     newName: z.string().optional(),
@@ -1971,7 +1972,7 @@ export const marshalUpdateExperimentSchema: z.ZodType = z
     new_name: d.newName,
   }));
 
-export const marshalUpdateRunSchema: z.ZodType = z
+export const marshalUpdateRunRequestSchema: z.ZodType = z
   .object({
     runId: z.string().optional(),
     runUuid: z.string().optional(),

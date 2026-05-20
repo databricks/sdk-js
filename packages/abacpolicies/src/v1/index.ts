@@ -6,15 +6,15 @@ export {PolicyType, SecurableType} from './model';
 
 export type {
   ColumnMaskOptions,
-  CreatePolicy,
-  DeletePolicy,
-  DeletePolicy_Response,
+  CreatePolicyRequest,
+  DeletePolicyRequest,
+  DeletePolicyRequest_Response,
   FunctionArgument,
-  GetPolicy,
-  ListPolicies,
-  ListPolicies_Response,
+  GetPolicyRequest,
+  ListPoliciesRequest,
+  ListPoliciesRequest_Response,
   MatchColumn,
   PolicyInfo,
   RowFilterOptions,
-  UpdatePolicy,
+  UpdatePolicyRequest,
 } from './model';

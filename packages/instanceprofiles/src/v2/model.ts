@@ -2,7 +2,7 @@
 
 import {z} from 'zod';
 
-export interface AddInstanceProfile {
+export interface AddInstanceProfileRequest {
   /**
    * By default, <Databricks> validates that it has sufficient permissions to launch
    * instances with the instance profile. This validation uses AWS dry-run mode for
@@ -34,9 +34,9 @@ export interface AddInstanceProfile {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface AddInstanceProfile_Response {}
+export interface AddInstanceProfileRequest_Response {}
 
-export interface EditInstanceProfile {
+export interface EditInstanceProfileRequest {
   /** The AWS ARN of the instance profile to register with <Databricks>. This field is required. */
   instanceProfileArn?: string | undefined;
   /**
@@ -59,7 +59,7 @@ export interface EditInstanceProfile {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface EditInstanceProfile_Response {}
+export interface EditInstanceProfileRequest_Response {}
 
 export interface InstanceProfile {
   /** The AWS ARN of the instance profile to register with <Databricks>. This field is required. */
@@ -84,28 +84,28 @@ export interface InstanceProfile {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ListInstanceProfiles {}
+export interface ListInstanceProfilesRequest {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListInstanceProfiles_Response {
+export interface ListInstanceProfilesRequest_Response {
   /** A list of instance profiles that the user can access. */
   instanceProfiles?: InstanceProfile[] | undefined;
 }
 
-export interface RemoveInstanceProfile {
+export interface RemoveInstanceProfileRequest {
   /** The ARN of the instance profile to remove. This field is required. */
   instanceProfileArn?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface RemoveInstanceProfile_Response {}
+export interface RemoveInstanceProfileRequest_Response {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAddInstanceProfile_ResponseSchema: z.ZodType<AddInstanceProfile_Response> =
+export const unmarshalAddInstanceProfileRequest_ResponseSchema: z.ZodType<AddInstanceProfileRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEditInstanceProfile_ResponseSchema: z.ZodType<EditInstanceProfile_Response> =
+export const unmarshalEditInstanceProfileRequest_ResponseSchema: z.ZodType<EditInstanceProfileRequest_Response> =
   z.object({});
 
 export const unmarshalInstanceProfileSchema: z.ZodType<InstanceProfile> = z
@@ -121,7 +121,7 @@ export const unmarshalInstanceProfileSchema: z.ZodType<InstanceProfile> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListInstanceProfiles_ResponseSchema: z.ZodType<ListInstanceProfiles_Response> =
+export const unmarshalListInstanceProfilesRequest_ResponseSchema: z.ZodType<ListInstanceProfilesRequest_Response> =
   z
     .object({
       instance_profiles: z
@@ -133,10 +133,10 @@ export const unmarshalListInstanceProfiles_ResponseSchema: z.ZodType<ListInstanc
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRemoveInstanceProfile_ResponseSchema: z.ZodType<RemoveInstanceProfile_Response> =
+export const unmarshalRemoveInstanceProfileRequest_ResponseSchema: z.ZodType<RemoveInstanceProfileRequest_Response> =
   z.object({});
 
-export const marshalAddInstanceProfileSchema: z.ZodType = z
+export const marshalAddInstanceProfileRequestSchema: z.ZodType = z
   .object({
     skipValidation: z.boolean().optional(),
     instanceProfileArn: z.string().optional(),
@@ -150,7 +150,7 @@ export const marshalAddInstanceProfileSchema: z.ZodType = z
     iam_role_arn: d.iamRoleArn,
   }));
 
-export const marshalEditInstanceProfileSchema: z.ZodType = z
+export const marshalEditInstanceProfileRequestSchema: z.ZodType = z
   .object({
     instanceProfileArn: z.string().optional(),
     isMetaInstanceProfile: z.boolean().optional(),
@@ -162,7 +162,7 @@ export const marshalEditInstanceProfileSchema: z.ZodType = z
     iam_role_arn: d.iamRoleArn,
   }));
 
-export const marshalRemoveInstanceProfileSchema: z.ZodType = z
+export const marshalRemoveInstanceProfileRequestSchema: z.ZodType = z
   .object({
     instanceProfileArn: z.string().optional(),
   })

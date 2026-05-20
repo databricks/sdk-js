@@ -6,16 +6,16 @@ export {LibraryInstallStatus} from './model';
 
 export type {
   ClusterLibraryStatuses,
-  ClusterStatus,
-  InstallLibraries,
-  InstallLibraries_Response,
+  ClusterStatusRequest,
+  InstallLibrariesRequest,
+  InstallLibrariesRequest_Response,
   Library,
   LibraryFullStatus,
-  ListAllClusterLibraryStatuses,
-  ListAllClusterLibraryStatuses_Response,
+  ListAllClusterLibraryStatusesRequest,
+  ListAllClusterLibraryStatusesRequest_Response,
   MavenLibrary,
   PythonPyPiLibrary,
   RCranLibrary,
-  UninstallLibraries,
-  UninstallLibraries_Response,
+  UninstallLibrariesRequest,
+  UninstallLibrariesRequest_Response,
 } from './model';

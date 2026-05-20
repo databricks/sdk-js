@@ -73,7 +73,7 @@ export interface ExternalModelUsageElement {
   totalTokens?: number | undefined;
 }
 
-export interface QueryEndpointInput {
+export interface QueryEndpointInputRequest {
   /** The name of the serving endpoint. This field is required and is provided via the path parameter. */
   name?: string | undefined;
   /**
@@ -139,13 +139,13 @@ export interface QueryEndpointInput {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface QueryEndpointInput_ExtraParamsEntry {
+export interface QueryEndpointInputRequest_ExtraParamsEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface QueryEndpointInput_UsageContextEntry {
+export interface QueryEndpointInputRequest_UsageContextEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
@@ -303,7 +303,7 @@ export const marshalDataframeSplitInputSchema: z.ZodType = z
     data: d.data,
   }));
 
-export const marshalQueryEndpointInputSchema: z.ZodType = z
+export const marshalQueryEndpointInputRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     prompt: jsonValueSchema.optional(),

@@ -4,7 +4,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
-export interface CreateToken {
+export interface CreateTokenRequest {
   /**
    * The lifetime of the token, in seconds.
    *
@@ -18,7 +18,7 @@ export interface CreateToken {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateToken_Response {
+export interface CreateTokenRequest_Response {
   /** The value of the new token. */
   tokenValue?: string | undefined;
   /** The information for the new token. */
@@ -26,10 +26,10 @@ export interface CreateToken_Response {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ListTokens {}
+export interface ListTokensRequest {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListTokens_Response {
+export interface ListTokensRequest_Response {
   /** The information for each token. */
   tokenInfos?: PublicTokenInfo[] | undefined;
 }
@@ -45,15 +45,15 @@ export interface PublicTokenInfo {
   comment?: string | undefined;
 }
 
-export interface RevokeToken {
+export interface RevokeTokenRequest {
   /** The ID of the token to be revoked. */
   tokenId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface RevokeToken_Response {}
+export interface RevokeTokenRequest_Response {}
 
-export interface UpdateToken {
+export interface UpdateTokenRequest {
   /** The SHA-256 hash of the token to be updated. */
   tokenId?: string | undefined;
   token?: PublicTokenInfo | undefined;
@@ -65,7 +65,7 @@ export interface UpdateToken {
 export interface UpdateTokenResponse {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateToken_ResponseSchema: z.ZodType<CreateToken_Response> =
+export const unmarshalCreateTokenRequest_ResponseSchema: z.ZodType<CreateTokenRequest_Response> =
   z
     .object({
       token_value: z.string().optional(),
@@ -77,7 +77,7 @@ export const unmarshalCreateToken_ResponseSchema: z.ZodType<CreateToken_Response
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListTokens_ResponseSchema: z.ZodType<ListTokens_Response> =
+export const unmarshalListTokensRequest_ResponseSchema: z.ZodType<ListTokensRequest_Response> =
   z
     .object({
       token_infos: z
@@ -103,13 +103,13 @@ export const unmarshalPublicTokenInfoSchema: z.ZodType<PublicTokenInfo> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRevokeToken_ResponseSchema: z.ZodType<RevokeToken_Response> =
+export const unmarshalRevokeTokenRequest_ResponseSchema: z.ZodType<RevokeTokenRequest_Response> =
   z.object({});
 
 export const unmarshalUpdateTokenResponseSchema: z.ZodType<UpdateTokenResponse> =
   z.object({});
 
-export const marshalCreateTokenSchema: z.ZodType = z
+export const marshalCreateTokenRequestSchema: z.ZodType = z
   .object({
     lifetimeSeconds: z.number().optional(),
     comment: z.string().optional(),
@@ -135,7 +135,7 @@ export const marshalPublicTokenInfoSchema: z.ZodType = z
     comment: d.comment,
   }));
 
-export const marshalRevokeTokenSchema: z.ZodType = z
+export const marshalRevokeTokenRequestSchema: z.ZodType = z
   .object({
     tokenId: z.string().optional(),
   })
@@ -143,7 +143,7 @@ export const marshalRevokeTokenSchema: z.ZodType = z
     token_id: d.tokenId,
   }));
 
-export const marshalUpdateTokenSchema: z.ZodType = z
+export const marshalUpdateTokenRequestSchema: z.ZodType = z
   .object({
     tokenId: z.string().optional(),
     token: z.lazy(() => marshalPublicTokenInfoSchema).optional(),

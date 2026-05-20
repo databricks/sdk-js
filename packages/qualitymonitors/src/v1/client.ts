@@ -18,34 +18,34 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  CancelRefresh,
-  CancelRefresh_Response,
-  CreateMonitor,
+  CancelRefreshRequest,
+  CancelRefreshRequest_Response,
+  CreateMonitorRequest,
   DataMonitorInfo,
-  DeleteMonitor,
-  DeleteMonitor_Response,
-  GetMonitor,
-  GetRefresh,
-  ListRefreshes,
-  ListRefreshes_Response,
+  DeleteMonitorRequest,
+  DeleteMonitorRequest_Response,
+  GetMonitorRequest,
+  GetRefreshRequest,
+  ListRefreshesRequest,
+  ListRefreshesRequest_Response,
   RefreshInfo,
-  RegenerateDashboard,
-  RegenerateDashboard_Response,
-  RunRefresh,
-  UpdateMonitor,
+  RegenerateDashboardRequest,
+  RegenerateDashboardRequest_Response,
+  RunRefreshRequest,
+  UpdateMonitorRequest,
 } from './model';
 import {
-  marshalCancelRefreshSchema,
-  marshalCreateMonitorSchema,
-  marshalRegenerateDashboardSchema,
-  marshalRunRefreshSchema,
-  marshalUpdateMonitorSchema,
-  unmarshalCancelRefresh_ResponseSchema,
+  marshalCancelRefreshRequestSchema,
+  marshalCreateMonitorRequestSchema,
+  marshalRegenerateDashboardRequestSchema,
+  marshalRunRefreshRequestSchema,
+  marshalUpdateMonitorRequestSchema,
+  unmarshalCancelRefreshRequest_ResponseSchema,
   unmarshalDataMonitorInfoSchema,
-  unmarshalDeleteMonitor_ResponseSchema,
-  unmarshalListRefreshes_ResponseSchema,
+  unmarshalDeleteMonitorRequest_ResponseSchema,
+  unmarshalListRefreshesRequest_ResponseSchema,
   unmarshalRefreshInfoSchema,
-  unmarshalRegenerateDashboard_ResponseSchema,
+  unmarshalRegenerateDashboardRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -84,12 +84,12 @@ export class Client {
    * Cancels an already-initiated refresh job.
    */
   async cancelRefresh(
-    req: CancelRefresh,
+    req: CancelRefreshRequest,
     options?: CallOptions
-  ): Promise<CancelRefresh_Response> {
+  ): Promise<CancelRefreshRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullTableNameArg ?? ''}/monitor/refreshes/${String(req.refreshId ?? '')}/cancel`;
-    const body = marshalRequest(req, marshalCancelRefreshSchema);
-    let resp: CancelRefresh_Response | undefined;
+    const body = marshalRequest(req, marshalCancelRefreshRequestSchema);
+    let resp: CancelRefreshRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -99,7 +99,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCancelRefresh_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalCancelRefreshRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -124,11 +127,11 @@ export class Client {
    * this call was made.
    */
   async createMonitor(
-    req: CreateMonitor,
+    req: CreateMonitorRequest,
     options?: CallOptions
   ): Promise<DataMonitorInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullTableNameArg ?? ''}/monitor`;
-    const body = marshalRequest(req, marshalCreateMonitorSchema);
+    const body = marshalRequest(req, marshalCreateMonitorRequestSchema);
     let resp: DataMonitorInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -166,11 +169,11 @@ export class Client {
    * assets must be manually cleaned up (if desired).
    */
   async deleteMonitor(
-    req: DeleteMonitor,
+    req: DeleteMonitorRequest,
     options?: CallOptions
-  ): Promise<DeleteMonitor_Response> {
+  ): Promise<DeleteMonitorRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullTableNameArg ?? ''}/monitor`;
-    let resp: DeleteMonitor_Response | undefined;
+    let resp: DeleteMonitorRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -180,7 +183,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteMonitor_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalDeleteMonitorRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -206,7 +212,7 @@ export class Client {
    * if the caller is in a different workspace than where the monitor was created.
    */
   async getMonitor(
-    req: GetMonitor,
+    req: GetMonitorRequest,
     options?: CallOptions
   ): Promise<DataMonitorInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullTableNameArg ?? ''}/monitor`;
@@ -244,7 +250,7 @@ export class Client {
    * Additionally, the call must be made from the workspace where the monitor was created.
    */
   async getRefresh(
-    req: GetRefresh,
+    req: GetRefreshRequest,
     options?: CallOptions
   ): Promise<RefreshInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullTableNameArg ?? ''}/monitor/refreshes/${String(req.refreshId ?? '')}`;
@@ -282,11 +288,11 @@ export class Client {
    * Additionally, the call must be made from the workspace where the monitor was created.
    */
   async listRefreshes(
-    req: ListRefreshes,
+    req: ListRefreshesRequest,
     options?: CallOptions
-  ): Promise<ListRefreshes_Response> {
+  ): Promise<ListRefreshesRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullTableNameArg ?? ''}/monitor/refreshes`;
-    let resp: ListRefreshes_Response | undefined;
+    let resp: ListRefreshesRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -296,7 +302,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListRefreshes_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalListRefreshesRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -321,12 +330,12 @@ export class Client {
    * the assets directory that was specified when the monitor was created.
    */
   async regenerateDashboard(
-    req: RegenerateDashboard,
+    req: RegenerateDashboardRequest,
     options?: CallOptions
-  ): Promise<RegenerateDashboard_Response> {
+  ): Promise<RegenerateDashboardRequest_Response> {
     const url = `${this.host}/api/2.1/quality-monitoring/tables/${req.fullTableNameArg ?? ''}/monitor/dashboard`;
-    const body = marshalRequest(req, marshalRegenerateDashboardSchema);
-    let resp: RegenerateDashboard_Response | undefined;
+    const body = marshalRequest(req, marshalRegenerateDashboardRequestSchema);
+    let resp: RegenerateDashboardRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -338,7 +347,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalRegenerateDashboard_ResponseSchema
+        unmarshalRegenerateDashboardRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -364,11 +373,11 @@ export class Client {
    * Additionally, the call must be made from the workspace where the monitor was created.
    */
   async runRefresh(
-    req: RunRefresh,
+    req: RunRefreshRequest,
     options?: CallOptions
   ): Promise<RefreshInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullTableNameArg ?? ''}/monitor/refreshes`;
-    const body = marshalRequest(req, marshalRunRefreshSchema);
+    const body = marshalRequest(req, marshalRunRefreshRequestSchema);
     let resp: RefreshInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -406,11 +415,11 @@ export class Client {
    * Certain configuration fields, such as output asset identifiers, cannot be updated.
    */
   async updateMonitor(
-    req: UpdateMonitor,
+    req: UpdateMonitorRequest,
     options?: CallOptions
   ): Promise<DataMonitorInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullTableNameArg ?? ''}/monitor`;
-    const body = marshalRequest(req, marshalUpdateMonitorSchema);
+    const body = marshalRequest(req, marshalUpdateMonitorRequestSchema);
     let resp: DataMonitorInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

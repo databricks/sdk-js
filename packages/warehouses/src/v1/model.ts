@@ -716,7 +716,7 @@ export interface CreateDefaultWarehouseOverrideRequest {
 }
 
 /** Creates a new SQL warehouse. */
-export interface CreateWarehouse {
+export interface CreateWarehouseRequest {
   /**
    * Logical name for the cluster.
    *
@@ -812,7 +812,7 @@ export interface CreateWarehouse {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateWarehouse_Response {
+export interface CreateWarehouseRequest_Response {
   /**
    * Id for the SQL warehouse.
    * This value is unique across all SQL warehouses.
@@ -1105,13 +1105,13 @@ export interface GetDefaultWarehouseOverrideRequest {
 }
 
 /** Fetches the warehouse info for a single SQL warehouse. */
-export interface GetWarehouse {
+export interface GetWarehouseRequest {
   /** Required. Id of the SQL warehouse. */
   id?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetWarehouse_Response {
+export interface GetWarehouseRequest_Response {
   /** unique identifier for warehouse */
   id?: string | undefined;
   /**
@@ -1495,7 +1495,7 @@ export const unmarshalChannelSchema: z.ZodType<Channel> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateWarehouse_ResponseSchema: z.ZodType<CreateWarehouse_Response> =
+export const unmarshalCreateWarehouseRequest_ResponseSchema: z.ZodType<CreateWarehouseRequest_Response> =
   z
     .object({
       id: z.string().optional(),
@@ -1616,7 +1616,7 @@ export const unmarshalEndpointTagsSchema: z.ZodType<EndpointTags> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetWarehouse_ResponseSchema: z.ZodType<GetWarehouse_Response> =
+export const unmarshalGetWarehouseRequest_ResponseSchema: z.ZodType<GetWarehouseRequest_Response> =
   z
     .object({
       id: z.string().optional(),
@@ -1803,7 +1803,7 @@ export const marshalChannelSchema: z.ZodType = z
     dbsql_version: d.dbsqlVersion,
   }));
 
-export const marshalCreateWarehouseSchema: z.ZodType = z
+export const marshalCreateWarehouseRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     clusterSize: z.string().optional(),

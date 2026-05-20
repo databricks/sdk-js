@@ -19,20 +19,20 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CatalogInfo,
-  CreateCatalog,
-  DeleteCatalog,
-  DeleteCatalog_Response,
-  GetCatalog,
-  ListCatalogs,
-  ListCatalogs_Response,
-  UpdateCatalog,
+  CreateCatalogRequest,
+  DeleteCatalogRequest,
+  DeleteCatalogRequest_Response,
+  GetCatalogRequest,
+  ListCatalogsRequest,
+  ListCatalogsRequest_Response,
+  UpdateCatalogRequest,
 } from './model';
 import {
-  marshalCreateCatalogSchema,
-  marshalUpdateCatalogSchema,
+  marshalCreateCatalogRequestSchema,
+  marshalUpdateCatalogRequestSchema,
   unmarshalCatalogInfoSchema,
-  unmarshalDeleteCatalog_ResponseSchema,
-  unmarshalListCatalogs_ResponseSchema,
+  unmarshalDeleteCatalogRequest_ResponseSchema,
+  unmarshalListCatalogsRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -68,11 +68,11 @@ export class Client {
 
   /** Creates a new catalog instance in the parent metastore if the caller is a metastore admin or has the **CREATE_CATALOG** privilege. */
   async createCatalog(
-    req: CreateCatalog,
+    req: CreateCatalogRequest,
     options?: CallOptions
   ): Promise<CatalogInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/catalogs`;
-    const body = marshalRequest(req, marshalCreateCatalogSchema);
+    const body = marshalRequest(req, marshalCreateCatalogRequestSchema);
     let resp: CatalogInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -94,9 +94,9 @@ export class Client {
 
   /** Deletes the catalog that matches the supplied name. The caller must be a metastore admin or the owner of the catalog. */
   async deleteCatalog(
-    req: DeleteCatalog,
+    req: DeleteCatalogRequest,
     options?: CallOptions
-  ): Promise<DeleteCatalog_Response> {
+  ): Promise<DeleteCatalogRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/catalogs/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -104,7 +104,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: DeleteCatalog_Response | undefined;
+    let resp: DeleteCatalogRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -114,7 +114,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteCatalog_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalDeleteCatalogRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -128,7 +131,7 @@ export class Client {
    * The caller must be a metastore admin, the owner of the catalog, or a user that has the **USE_CATALOG** privilege set for their account.
    */
   async getCatalog(
-    req: GetCatalog,
+    req: GetCatalogRequest,
     options?: CallOptions
   ): Promise<CatalogInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/catalogs/${req.nameArg ?? ''}`;
@@ -169,9 +172,9 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listCatalogs(
-    req: ListCatalogs,
+    req: ListCatalogsRequest,
     options?: CallOptions
-  ): Promise<ListCatalogs_Response> {
+  ): Promise<ListCatalogsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/catalogs`;
     const params = new URLSearchParams();
     if (req.includeBrowse !== undefined) {
@@ -188,7 +191,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListCatalogs_Response | undefined;
+    let resp: ListCatalogsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -198,7 +201,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListCatalogs_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalListCatalogsRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -208,10 +214,10 @@ export class Client {
   }
 
   async *listCatalogsIter(
-    req: ListCatalogs,
+    req: ListCatalogsRequest,
     options?: CallOptions
   ): AsyncGenerator<CatalogInfo> {
-    const pageReq: ListCatalogs = {...req};
+    const pageReq: ListCatalogsRequest = {...req};
     for (;;) {
       const resp = await this.listCatalogs(pageReq, options);
       for (const item of resp.catalogs ?? []) {
@@ -229,11 +235,11 @@ export class Client {
    * The caller must be either the owner of the catalog, or a metastore admin (when changing the owner field of the catalog).
    */
   async updateCatalog(
-    req: UpdateCatalog,
+    req: UpdateCatalogRequest,
     options?: CallOptions
   ): Promise<CatalogInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/catalogs/${req.nameArg ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateCatalogSchema);
+    const body = marshalRequest(req, marshalUpdateCatalogRequestSchema);
     let resp: CatalogInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

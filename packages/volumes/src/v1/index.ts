@@ -5,14 +5,14 @@ export {Client} from './client';
 export {SseEncryptionAlgorithm, VolumeType} from './model';
 
 export type {
-  CreateVolume,
-  DeleteVolume,
-  DeleteVolume_Response,
+  CreateVolumeRequest,
+  DeleteVolumeRequest,
+  DeleteVolumeRequest_Response,
   EncryptionDetails,
-  GetVolume,
-  ListVolumes,
-  ListVolumes_Response,
+  GetVolumeRequest,
+  ListVolumesRequest,
+  ListVolumesRequest_Response,
   SseEncryptionDetails,
-  UpdateVolume,
+  UpdateVolumeRequest,
   VolumeInfo,
 } from './model';

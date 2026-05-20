@@ -19,11 +19,11 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   ArtifactAllowlistInfo,
-  GetArtifactAllowlist,
-  SetArtifactAllowlist,
+  GetArtifactAllowlistRequest,
+  SetArtifactAllowlistRequest,
 } from './model';
 import {
-  marshalSetArtifactAllowlistSchema,
+  marshalSetArtifactAllowlistRequestSchema,
   unmarshalArtifactAllowlistInfoSchema,
 } from './model';
 
@@ -64,7 +64,7 @@ export class Client {
    * on the metastore.
    */
   async getArtifactAllowlist(
-    req: GetArtifactAllowlist,
+    req: GetArtifactAllowlistRequest,
     options?: CallOptions
   ): Promise<ArtifactAllowlistInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/artifact-allowlists/${req.artifactType ?? ''}`;
@@ -94,11 +94,11 @@ export class Client {
    * on the metastore.
    */
   async setArtifactAllowlist(
-    req: SetArtifactAllowlist,
+    req: SetArtifactAllowlistRequest,
     options?: CallOptions
   ): Promise<ArtifactAllowlistInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/artifact-allowlists/${req.artifactType ?? ''}`;
-    const body = marshalRequest(req, marshalSetArtifactAllowlistSchema);
+    const body = marshalRequest(req, marshalSetArtifactAllowlistRequestSchema);
     let resp: ArtifactAllowlistInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

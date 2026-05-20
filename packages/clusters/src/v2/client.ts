@@ -19,79 +19,84 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  ChangeClusterOwner,
-  ChangeClusterOwner_Response,
+  ChangeClusterOwnerRequest,
+  ChangeClusterOwnerRequest_Response,
   ClusterCompliance,
+  ClusterEvent,
   ClusterInfo,
-  CreateCluster,
-  CreateCluster_Response,
-  DeleteCluster,
-  DeleteCluster_Response,
-  EditCluster,
-  EditCluster_Response,
-  EnforcePolicyComplianceForCluster,
-  EnforcePolicyComplianceForCluster_Response,
-  GetCluster,
-  GetPolicyComplianceForCluster,
-  GetPolicyComplianceForCluster_Response,
-  GetSparkVersions,
-  GetSparkVersions_Response,
-  ListAvailableZones,
-  ListAvailableZones_Response,
-  ListClusterComplianceForPolicy,
-  ListClusterComplianceForPolicy_Response,
-  ListClusters,
-  ListClusters_Response,
-  ListNodeTypes,
-  ListNodeTypes_Response,
-  PermanentDeleteCluster,
-  PermanentDeleteCluster_Response,
-  PinCluster,
-  PinCluster_Response,
-  ResizeCluster,
-  ResizeCluster_Response,
-  RestartCluster,
-  RestartCluster_Response,
-  StartCluster,
-  StartCluster_Response,
-  UnpinCluster,
-  UnpinCluster_Response,
-  UpdateCluster,
-  UpdateCluster_Response,
+  CreateClusterRequest,
+  CreateClusterRequest_Response,
+  DeleteClusterRequest,
+  DeleteClusterRequest_Response,
+  EditClusterRequest,
+  EditClusterRequest_Response,
+  EnforcePolicyComplianceForClusterRequest,
+  EnforcePolicyComplianceForClusterRequest_Response,
+  GetClusterRequest,
+  GetEvents,
+  GetEvents_Response,
+  GetPolicyComplianceForClusterRequest,
+  GetPolicyComplianceForClusterRequest_Response,
+  GetSparkVersionsRequest,
+  GetSparkVersionsRequest_Response,
+  ListAvailableZonesRequest,
+  ListAvailableZonesRequest_Response,
+  ListClusterComplianceForPolicyRequest,
+  ListClusterComplianceForPolicyRequest_Response,
+  ListClustersRequest,
+  ListClustersRequest_Response,
+  ListNodeTypesRequest,
+  ListNodeTypesRequest_Response,
+  PermanentDeleteClusterRequest,
+  PermanentDeleteClusterRequest_Response,
+  PinClusterRequest,
+  PinClusterRequest_Response,
+  ResizeClusterRequest,
+  ResizeClusterRequest_Response,
+  RestartClusterRequest,
+  RestartClusterRequest_Response,
+  StartClusterRequest,
+  StartClusterRequest_Response,
+  UnpinClusterRequest,
+  UnpinClusterRequest_Response,
+  UpdateClusterRequest,
+  UpdateClusterRequest_Response,
 } from './model';
 import {
   ClusterState_ClusterState,
-  marshalChangeClusterOwnerSchema,
-  marshalCreateClusterSchema,
-  marshalDeleteClusterSchema,
-  marshalEditClusterSchema,
-  marshalEnforcePolicyComplianceForClusterSchema,
-  marshalPermanentDeleteClusterSchema,
-  marshalPinClusterSchema,
-  marshalResizeClusterSchema,
-  marshalRestartClusterSchema,
-  marshalStartClusterSchema,
-  marshalUnpinClusterSchema,
-  marshalUpdateClusterSchema,
-  unmarshalChangeClusterOwner_ResponseSchema,
+  marshalChangeClusterOwnerRequestSchema,
+  marshalCreateClusterRequestSchema,
+  marshalDeleteClusterRequestSchema,
+  marshalEditClusterRequestSchema,
+  marshalEnforcePolicyComplianceForClusterRequestSchema,
+  marshalGetEventsSchema,
+  marshalPermanentDeleteClusterRequestSchema,
+  marshalPinClusterRequestSchema,
+  marshalResizeClusterRequestSchema,
+  marshalRestartClusterRequestSchema,
+  marshalStartClusterRequestSchema,
+  marshalUnpinClusterRequestSchema,
+  marshalUpdateClusterRequestSchema,
+  unmarshalChangeClusterOwnerRequest_ResponseSchema,
   unmarshalClusterInfoSchema,
-  unmarshalCreateCluster_ResponseSchema,
-  unmarshalDeleteCluster_ResponseSchema,
-  unmarshalEditCluster_ResponseSchema,
-  unmarshalEnforcePolicyComplianceForCluster_ResponseSchema,
-  unmarshalGetPolicyComplianceForCluster_ResponseSchema,
-  unmarshalGetSparkVersions_ResponseSchema,
-  unmarshalListAvailableZones_ResponseSchema,
-  unmarshalListClusterComplianceForPolicy_ResponseSchema,
-  unmarshalListClusters_ResponseSchema,
-  unmarshalListNodeTypes_ResponseSchema,
-  unmarshalPermanentDeleteCluster_ResponseSchema,
-  unmarshalPinCluster_ResponseSchema,
-  unmarshalResizeCluster_ResponseSchema,
-  unmarshalRestartCluster_ResponseSchema,
-  unmarshalStartCluster_ResponseSchema,
-  unmarshalUnpinCluster_ResponseSchema,
-  unmarshalUpdateCluster_ResponseSchema,
+  unmarshalCreateClusterRequest_ResponseSchema,
+  unmarshalDeleteClusterRequest_ResponseSchema,
+  unmarshalEditClusterRequest_ResponseSchema,
+  unmarshalEnforcePolicyComplianceForClusterRequest_ResponseSchema,
+  unmarshalGetEvents_ResponseSchema,
+  unmarshalGetPolicyComplianceForClusterRequest_ResponseSchema,
+  unmarshalGetSparkVersionsRequest_ResponseSchema,
+  unmarshalListAvailableZonesRequest_ResponseSchema,
+  unmarshalListClusterComplianceForPolicyRequest_ResponseSchema,
+  unmarshalListClustersRequest_ResponseSchema,
+  unmarshalListNodeTypesRequest_ResponseSchema,
+  unmarshalPermanentDeleteClusterRequest_ResponseSchema,
+  unmarshalPinClusterRequest_ResponseSchema,
+  unmarshalResizeClusterRequest_ResponseSchema,
+  unmarshalRestartClusterRequest_ResponseSchema,
+  unmarshalStartClusterRequest_ResponseSchema,
+  unmarshalUnpinClusterRequest_ResponseSchema,
+  unmarshalUpdateClusterRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -127,14 +132,61 @@ export class Client {
     this.httpClient = newHttpClient(options);
   }
 
+  /**
+   * Retrieves a list of events about the activity of a cluster.
+   * This API is paginated. If there are more events to read, the response includes all the
+   * parameters necessary to request the next page of events.
+   */
+  async getEvents(
+    req: GetEvents,
+    options?: CallOptions
+  ): Promise<GetEvents_Response> {
+    const url = `${this.host}/api/2.1/clusters/events`;
+    const body = marshalRequest(req, marshalGetEventsSchema);
+    let resp: GetEvents_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalGetEvents_ResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *getEventsIter(
+    req: GetEvents,
+    options?: CallOptions
+  ): AsyncGenerator<ClusterEvent> {
+    const pageReq: GetEvents = {...req};
+    for (;;) {
+      const resp = await this.getEvents(pageReq, options);
+      for (const item of resp.events ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
   /** Change the owner of the cluster. You must be an admin and the cluster must be terminated to perform this operation. The service principal application ID can be supplied as an argument to `owner_username`. */
   async changeClusterOwner(
-    req: ChangeClusterOwner,
+    req: ChangeClusterOwnerRequest,
     options?: CallOptions
-  ): Promise<ChangeClusterOwner_Response> {
+  ): Promise<ChangeClusterOwnerRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/change-owner`;
-    const body = marshalRequest(req, marshalChangeClusterOwnerSchema);
-    let resp: ChangeClusterOwner_Response | undefined;
+    const body = marshalRequest(req, marshalChangeClusterOwnerRequestSchema);
+    let resp: ChangeClusterOwnerRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -146,7 +198,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalChangeClusterOwner_ResponseSchema
+        unmarshalChangeClusterOwnerRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -171,12 +223,12 @@ export class Client {
    * [create compute UI](/compute/configure.html) and then copying the generated JSON definition from the UI.
    */
   async createCluster(
-    req: CreateCluster,
+    req: CreateClusterRequest,
     options?: CallOptions
-  ): Promise<CreateCluster_Response> {
+  ): Promise<CreateClusterRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/create`;
-    const body = marshalRequest(req, marshalCreateClusterSchema);
-    let resp: CreateCluster_Response | undefined;
+    const body = marshalRequest(req, marshalCreateClusterRequestSchema);
+    let resp: CreateClusterRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -186,7 +238,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCreateCluster_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalCreateClusterRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -196,7 +251,7 @@ export class Client {
   }
 
   async createClusterWaiter(
-    req: CreateCluster,
+    req: CreateClusterRequest,
     options?: CallOptions
   ): Promise<CreateClusterWaiter> {
     const resp = await this.createCluster(req, options);
@@ -214,12 +269,12 @@ export class Client {
    * If the cluster is already in a `TERMINATING` or `TERMINATED` state, nothing will happen.
    */
   async deleteCluster(
-    req: DeleteCluster,
+    req: DeleteClusterRequest,
     options?: CallOptions
-  ): Promise<DeleteCluster_Response> {
+  ): Promise<DeleteClusterRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/delete`;
-    const body = marshalRequest(req, marshalDeleteClusterSchema);
-    let resp: DeleteCluster_Response | undefined;
+    const body = marshalRequest(req, marshalDeleteClusterRequestSchema);
+    let resp: DeleteClusterRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -229,7 +284,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteCluster_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalDeleteClusterRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -239,7 +297,7 @@ export class Client {
   }
 
   async deleteClusterWaiter(
-    req: DeleteCluster,
+    req: DeleteClusterRequest,
     options?: CallOptions
   ): Promise<DeleteClusterWaiter> {
     await this.deleteCluster(req, options);
@@ -264,12 +322,12 @@ export class Client {
    * Clusters created by the Databricks Jobs service cannot be edited.
    */
   async editCluster(
-    req: EditCluster,
+    req: EditClusterRequest,
     options?: CallOptions
-  ): Promise<EditCluster_Response> {
+  ): Promise<EditClusterRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/edit`;
-    const body = marshalRequest(req, marshalEditClusterSchema);
-    let resp: EditCluster_Response | undefined;
+    const body = marshalRequest(req, marshalEditClusterRequestSchema);
+    let resp: EditClusterRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -279,7 +337,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalEditCluster_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalEditClusterRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -289,7 +350,7 @@ export class Client {
   }
 
   async editClusterWaiter(
-    req: EditCluster,
+    req: EditClusterRequest,
     options?: CallOptions
   ): Promise<EditClusterWaiter> {
     await this.editCluster(req, options);
@@ -306,7 +367,7 @@ export class Client {
    * Clusters can be described while they are running, or up to 60 days after they are terminated.
    */
   async getCluster(
-    req: GetCluster,
+    req: GetClusterRequest,
     options?: CallOptions
   ): Promise<ClusterInfo> {
     const url = `${this.host}/api/2.1/clusters/get`;
@@ -340,11 +401,11 @@ export class Client {
    * These zones can be used to launch a cluster.
    */
   async listAvailableZones(
-    _req: ListAvailableZones,
+    _req: ListAvailableZonesRequest,
     options?: CallOptions
-  ): Promise<ListAvailableZones_Response> {
+  ): Promise<ListAvailableZonesRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/list-zones`;
-    let resp: ListAvailableZones_Response | undefined;
+    let resp: ListAvailableZonesRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -356,7 +417,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListAvailableZones_ResponseSchema
+        unmarshalListAvailableZonesRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -368,9 +429,9 @@ export class Client {
 
   /** Return information about all pinned and active clusters, and all clusters terminated within the last 30 days. Clusters terminated prior to this period are not included. */
   async listClusters(
-    req: ListClusters,
+    req: ListClustersRequest,
     options?: CallOptions
-  ): Promise<ListClusters_Response> {
+  ): Promise<ListClustersRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/list`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -381,7 +442,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListClusters_Response | undefined;
+    let resp: ListClustersRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -391,7 +452,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListClusters_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalListClustersRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -401,10 +465,10 @@ export class Client {
   }
 
   async *listClustersIter(
-    req: ListClusters,
+    req: ListClustersRequest,
     options?: CallOptions
   ): AsyncGenerator<ClusterInfo> {
-    const pageReq: ListClusters = {...req};
+    const pageReq: ListClustersRequest = {...req};
     for (;;) {
       const resp = await this.listClusters(pageReq, options);
       for (const item of resp.clusters ?? []) {
@@ -419,11 +483,11 @@ export class Client {
 
   /** Returns a list of supported Spark node types. These node types can be used to launch a cluster. */
   async listNodeTypes(
-    _req: ListNodeTypes,
+    _req: ListNodeTypesRequest,
     options?: CallOptions
-  ): Promise<ListNodeTypes_Response> {
+  ): Promise<ListNodeTypesRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/list-node-types`;
-    let resp: ListNodeTypes_Response | undefined;
+    let resp: ListNodeTypesRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -433,7 +497,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListNodeTypes_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalListNodeTypesRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -444,11 +511,11 @@ export class Client {
 
   /** Returns the list of available Spark versions. These versions can be used to launch a cluster. */
   async listSparkVersions(
-    _req: GetSparkVersions,
+    _req: GetSparkVersionsRequest,
     options?: CallOptions
-  ): Promise<GetSparkVersions_Response> {
+  ): Promise<GetSparkVersionsRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/spark-versions`;
-    let resp: GetSparkVersions_Response | undefined;
+    let resp: GetSparkVersionsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -458,7 +525,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetSparkVersions_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalGetSparkVersionsRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -474,12 +544,15 @@ export class Client {
    * perform any action on permanently deleted clusters.
    */
   async permanentDeleteCluster(
-    req: PermanentDeleteCluster,
+    req: PermanentDeleteClusterRequest,
     options?: CallOptions
-  ): Promise<PermanentDeleteCluster_Response> {
+  ): Promise<PermanentDeleteClusterRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/permanent-delete`;
-    const body = marshalRequest(req, marshalPermanentDeleteClusterSchema);
-    let resp: PermanentDeleteCluster_Response | undefined;
+    const body = marshalRequest(
+      req,
+      marshalPermanentDeleteClusterRequestSchema
+    );
+    let resp: PermanentDeleteClusterRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -491,7 +564,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalPermanentDeleteCluster_ResponseSchema
+        unmarshalPermanentDeleteClusterRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -507,12 +580,12 @@ export class Client {
    * This API can only be called by workspace admins.
    */
   async pinCluster(
-    req: PinCluster,
+    req: PinClusterRequest,
     options?: CallOptions
-  ): Promise<PinCluster_Response> {
+  ): Promise<PinClusterRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/pin`;
-    const body = marshalRequest(req, marshalPinClusterSchema);
-    let resp: PinCluster_Response | undefined;
+    const body = marshalRequest(req, marshalPinClusterRequestSchema);
+    let resp: PinClusterRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -522,7 +595,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalPinCluster_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalPinClusterRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -533,12 +606,12 @@ export class Client {
 
   /** Resizes a cluster to have a desired number of workers. This will fail unless the cluster is in a `RUNNING` state. */
   async resizeCluster(
-    req: ResizeCluster,
+    req: ResizeClusterRequest,
     options?: CallOptions
-  ): Promise<ResizeCluster_Response> {
+  ): Promise<ResizeClusterRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/resize`;
-    const body = marshalRequest(req, marshalResizeClusterSchema);
-    let resp: ResizeCluster_Response | undefined;
+    const body = marshalRequest(req, marshalResizeClusterRequestSchema);
+    let resp: ResizeClusterRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -548,7 +621,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalResizeCluster_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalResizeClusterRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -558,7 +634,7 @@ export class Client {
   }
 
   async resizeClusterWaiter(
-    req: ResizeCluster,
+    req: ResizeClusterRequest,
     options?: CallOptions
   ): Promise<ResizeClusterWaiter> {
     await this.resizeCluster(req, options);
@@ -572,12 +648,12 @@ export class Client {
 
   /** Restarts a Spark cluster with the supplied ID. If the cluster is not currently in a `RUNNING` state, nothing will happen. */
   async restartCluster(
-    req: RestartCluster,
+    req: RestartClusterRequest,
     options?: CallOptions
-  ): Promise<RestartCluster_Response> {
+  ): Promise<RestartClusterRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/restart`;
-    const body = marshalRequest(req, marshalRestartClusterSchema);
-    let resp: RestartCluster_Response | undefined;
+    const body = marshalRequest(req, marshalRestartClusterRequestSchema);
+    let resp: RestartClusterRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -587,7 +663,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalRestartCluster_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalRestartClusterRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -597,7 +676,7 @@ export class Client {
   }
 
   async restartClusterWaiter(
-    req: RestartCluster,
+    req: RestartClusterRequest,
     options?: CallOptions
   ): Promise<RestartClusterWaiter> {
     await this.restartCluster(req, options);
@@ -619,12 +698,12 @@ export class Client {
    * - Clusters launched to run a job cannot be started.
    */
   async startCluster(
-    req: StartCluster,
+    req: StartClusterRequest,
     options?: CallOptions
-  ): Promise<StartCluster_Response> {
+  ): Promise<StartClusterRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/start`;
-    const body = marshalRequest(req, marshalStartClusterSchema);
-    let resp: StartCluster_Response | undefined;
+    const body = marshalRequest(req, marshalStartClusterRequestSchema);
+    let resp: StartClusterRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -634,7 +713,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalStartCluster_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalStartClusterRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -644,7 +726,7 @@ export class Client {
   }
 
   async startClusterWaiter(
-    req: StartCluster,
+    req: StartClusterRequest,
     options?: CallOptions
   ): Promise<StartClusterWaiter> {
     await this.startCluster(req, options);
@@ -662,12 +744,12 @@ export class Client {
    * This API can only be called by workspace admins.
    */
   async unpinCluster(
-    req: UnpinCluster,
+    req: UnpinClusterRequest,
     options?: CallOptions
-  ): Promise<UnpinCluster_Response> {
+  ): Promise<UnpinClusterRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/unpin`;
-    const body = marshalRequest(req, marshalUnpinClusterSchema);
-    let resp: UnpinCluster_Response | undefined;
+    const body = marshalRequest(req, marshalUnpinClusterRequestSchema);
+    let resp: UnpinClusterRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -677,7 +759,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalUnpinCluster_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalUnpinClusterRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -697,12 +782,12 @@ export class Client {
    * Clusters created by the Databricks Jobs service cannot be updated.
    */
   async updateCluster(
-    req: UpdateCluster,
+    req: UpdateClusterRequest,
     options?: CallOptions
-  ): Promise<UpdateCluster_Response> {
+  ): Promise<UpdateClusterRequest_Response> {
     const url = `${this.host}/api/2.1/clusters/update`;
-    const body = marshalRequest(req, marshalUpdateClusterSchema);
-    let resp: UpdateCluster_Response | undefined;
+    const body = marshalRequest(req, marshalUpdateClusterRequestSchema);
+    let resp: UpdateClusterRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -712,7 +797,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalUpdateCluster_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalUpdateClusterRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -722,7 +810,7 @@ export class Client {
   }
 
   async updateClusterWaiter(
-    req: UpdateCluster,
+    req: UpdateClusterRequest,
     options?: CallOptions
   ): Promise<UpdateClusterWaiter> {
     await this.updateCluster(req, options);
@@ -747,15 +835,15 @@ export class Client {
    * Instead, use the "Enforce job policy compliance" API to enforce policy compliance on jobs.
    */
   async enforcePolicyComplianceForCluster(
-    req: EnforcePolicyComplianceForCluster,
+    req: EnforcePolicyComplianceForClusterRequest,
     options?: CallOptions
-  ): Promise<EnforcePolicyComplianceForCluster_Response> {
+  ): Promise<EnforcePolicyComplianceForClusterRequest_Response> {
     const url = `${this.host}/api/2.0/policies/clusters/enforce-compliance`;
     const body = marshalRequest(
       req,
-      marshalEnforcePolicyComplianceForClusterSchema
+      marshalEnforcePolicyComplianceForClusterRequestSchema
     );
-    let resp: EnforcePolicyComplianceForCluster_Response | undefined;
+    let resp: EnforcePolicyComplianceForClusterRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -767,7 +855,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalEnforcePolicyComplianceForCluster_ResponseSchema
+        unmarshalEnforcePolicyComplianceForClusterRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -782,9 +870,9 @@ export class Client {
    * of compliance if their policy was updated after the cluster was last edited.
    */
   async getPolicyComplianceForCluster(
-    req: GetPolicyComplianceForCluster,
+    req: GetPolicyComplianceForClusterRequest,
     options?: CallOptions
-  ): Promise<GetPolicyComplianceForCluster_Response> {
+  ): Promise<GetPolicyComplianceForClusterRequest_Response> {
     const url = `${this.host}/api/2.0/policies/clusters/get-compliance`;
     const params = new URLSearchParams();
     if (req.clusterId !== undefined) {
@@ -792,7 +880,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetPolicyComplianceForCluster_Response | undefined;
+    let resp: GetPolicyComplianceForClusterRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -804,7 +892,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetPolicyComplianceForCluster_ResponseSchema
+        unmarshalGetPolicyComplianceForClusterRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -820,9 +908,9 @@ export class Client {
    * updated after the cluster was last edited.
    */
   async listClusterComplianceForPolicy(
-    req: ListClusterComplianceForPolicy,
+    req: ListClusterComplianceForPolicyRequest,
     options?: CallOptions
-  ): Promise<ListClusterComplianceForPolicy_Response> {
+  ): Promise<ListClusterComplianceForPolicyRequest_Response> {
     const url = `${this.host}/api/2.0/policies/clusters/list-compliance`;
     const params = new URLSearchParams();
     if (req.policyId !== undefined) {
@@ -836,7 +924,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListClusterComplianceForPolicy_Response | undefined;
+    let resp: ListClusterComplianceForPolicyRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -848,7 +936,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListClusterComplianceForPolicy_ResponseSchema
+        unmarshalListClusterComplianceForPolicyRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -859,10 +947,10 @@ export class Client {
   }
 
   async *listClusterComplianceForPolicyIter(
-    req: ListClusterComplianceForPolicy,
+    req: ListClusterComplianceForPolicyRequest,
     options?: CallOptions
   ): AsyncGenerator<ClusterCompliance> {
-    const pageReq: ListClusterComplianceForPolicy = {...req};
+    const pageReq: ListClusterComplianceForPolicyRequest = {...req};
     for (;;) {
       const resp = await this.listClusterComplianceForPolicy(pageReq, options);
       for (const item of resp.clusters ?? []) {

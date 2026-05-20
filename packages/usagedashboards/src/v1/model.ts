@@ -14,7 +14,7 @@ export enum UsageDashboardType {
   USAGE_DASHBOARD_TYPE_GLOBAL = 'USAGE_DASHBOARD_TYPE_GLOBAL',
 }
 
-export interface CreateBillingUsageDashboard {
+export interface CreateBillingUsageDashboardRequest {
   /** The workspace ID of the workspace in which the usage dashboard is created. */
   workspaceId?: number | undefined;
   /** <Databricks> account ID. */
@@ -26,12 +26,12 @@ export interface CreateBillingUsageDashboard {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateBillingUsageDashboard_Response {
+export interface CreateBillingUsageDashboardRequest_Response {
   /** The unique id of the usage dashboard. */
   dashboardId?: string | undefined;
 }
 
-export interface GetBillingUsageDashboard {
+export interface GetBillingUsageDashboardRequest {
   /** The workspace ID of the workspace in which the usage dashboard is created. */
   workspaceId?: number | undefined;
   /** <Databricks> account ID. */
@@ -41,7 +41,7 @@ export interface GetBillingUsageDashboard {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetBillingUsageDashboard_Response {
+export interface GetBillingUsageDashboardRequest_Response {
   /** The unique id of the usage dashboard. */
   dashboardId?: string | undefined;
   /** The URL of the usage dashboard. */
@@ -49,7 +49,7 @@ export interface GetBillingUsageDashboard_Response {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateBillingUsageDashboard_ResponseSchema: z.ZodType<CreateBillingUsageDashboard_Response> =
+export const unmarshalCreateBillingUsageDashboardRequest_ResponseSchema: z.ZodType<CreateBillingUsageDashboardRequest_Response> =
   z
     .object({
       dashboard_id: z.string().optional(),
@@ -59,7 +59,7 @@ export const unmarshalCreateBillingUsageDashboard_ResponseSchema: z.ZodType<Crea
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetBillingUsageDashboard_ResponseSchema: z.ZodType<GetBillingUsageDashboard_Response> =
+export const unmarshalGetBillingUsageDashboardRequest_ResponseSchema: z.ZodType<GetBillingUsageDashboardRequest_Response> =
   z
     .object({
       dashboard_id: z.string().optional(),
@@ -70,7 +70,7 @@ export const unmarshalGetBillingUsageDashboard_ResponseSchema: z.ZodType<GetBill
       dashboardUrl: d.dashboard_url,
     }));
 
-export const marshalCreateBillingUsageDashboardSchema: z.ZodType = z
+export const marshalCreateBillingUsageDashboardRequestSchema: z.ZodType = z
   .object({
     workspaceId: z.number().optional(),
     accountId: z.string().optional(),

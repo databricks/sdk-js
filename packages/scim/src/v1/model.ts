@@ -649,8 +649,12 @@ export interface ListUsersResponse {
   totalResults?: number | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface MeRequest {}
+export interface MeRequest {
+  /** Comma-separated list of attributes to return in response. */
+  attributes?: string | undefined;
+  /** Comma-separated list of attributes to exclude in response. */
+  excludedAttributes?: string | undefined;
+}
 
 export interface Name {
   /** Family name of the <Databricks> user. */

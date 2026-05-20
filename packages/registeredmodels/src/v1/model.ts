@@ -18,7 +18,7 @@ export interface ConnectionDependency {
   connectionName?: string | undefined;
 }
 
-export interface CreateRegisteredModel {
+export interface CreateRegisteredModelRequest {
   /** The name of the registered model */
   name?: string | undefined;
   /** The name of the catalog where the schema and the registered model reside */
@@ -55,7 +55,7 @@ export interface CredentialDependency {
   credentialName?: string | undefined;
 }
 
-export interface DeleteModelVersion {
+export interface DeleteModelVersionRequest {
   /** The three-level (fully qualified) name of the model version */
   fullNameArg?: string | undefined;
   /** The integer version number of the model version */
@@ -63,17 +63,9 @@ export interface DeleteModelVersion {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteModelVersion_Response {}
+export interface DeleteModelVersionRequest_Response {}
 
-export interface DeleteRegisteredModel {
-  /** The three-level (fully qualified) name of the registered model */
-  fullNameArg?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteRegisteredModel_Response {}
-
-export interface DeleteRegisteredModelAlias {
+export interface DeleteRegisteredModelAliasRequest {
   /** The three-level (fully qualified) name of the registered model */
   fullNameArg?: string | undefined;
   /** The name of the alias */
@@ -81,7 +73,15 @@ export interface DeleteRegisteredModelAlias {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteRegisteredModelAlias_Response {}
+export interface DeleteRegisteredModelAliasRequest_Response {}
+
+export interface DeleteRegisteredModelRequest {
+  /** The three-level (fully qualified) name of the registered model */
+  fullNameArg?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
+export interface DeleteRegisteredModelRequest_Response {}
 
 /**
  * A dependency of a SQL object. One of the following fields must be defined:
@@ -108,7 +108,16 @@ export interface FunctionDependency {
   functionFullName?: string | undefined;
 }
 
-export interface GetModelVersion {
+export interface GetModelVersionByAliasRequest {
+  /** The three-level (fully qualified) name of the registered model */
+  fullNameArg?: string | undefined;
+  /** The name of the alias */
+  aliasArg?: string | undefined;
+  /** Whether to include aliases associated with the model version in the response */
+  includeAliases?: boolean | undefined;
+}
+
+export interface GetModelVersionRequest {
   /** The three-level (fully qualified) name of the model version */
   fullNameArg?: string | undefined;
   /** The integer version number of the model version */
@@ -119,16 +128,7 @@ export interface GetModelVersion {
   includeBrowse?: boolean | undefined;
 }
 
-export interface GetModelVersionByAlias {
-  /** The three-level (fully qualified) name of the registered model */
-  fullNameArg?: string | undefined;
-  /** The name of the alias */
-  aliasArg?: string | undefined;
-  /** Whether to include aliases associated with the model version in the response */
-  includeAliases?: boolean | undefined;
-}
-
-export interface GetRegisteredModel {
+export interface GetRegisteredModelRequest {
   /** The three-level (fully qualified) name of the registered model */
   fullNameArg?: string | undefined;
   /** Whether to include registered model aliases in the response */
@@ -137,7 +137,7 @@ export interface GetRegisteredModel {
   includeBrowse?: boolean | undefined;
 }
 
-export interface ListModelVersions {
+export interface ListModelVersionsRequest {
   /** The full three-level name of the registered model under which to list model versions */
   fullNameArg?: string | undefined;
   /**
@@ -155,7 +155,7 @@ export interface ListModelVersions {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListModelVersions_Response {
+export interface ListModelVersionsRequest_Response {
   modelVersions?: ModelVersionInfo[] | undefined;
   /**
    * Opaque token to retrieve the next page of results. Absent if there are no more pages.
@@ -164,7 +164,7 @@ export interface ListModelVersions_Response {
   nextPageToken?: string | undefined;
 }
 
-export interface ListRegisteredModels {
+export interface ListRegisteredModelsRequest {
   /**
    * The identifier of the catalog under which to list registered models.
    * If specified, schema_name must be specified.
@@ -198,7 +198,7 @@ export interface ListRegisteredModels {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListRegisteredModels_Response {
+export interface ListRegisteredModelsRequest_Response {
   registeredModels?: RegisteredModelInfo[] | undefined;
   /**
    * Opaque token for pagination. Omitted if there are no more results. page_token should
@@ -301,7 +301,7 @@ export interface RegisteredModelInfo {
   browseOnly?: boolean | undefined;
 }
 
-export interface SetRegisteredModelAlias {
+export interface SetRegisteredModelAliasRequest {
   /** The three-level (fully qualified) name of the registered model */
   fullNameArg?: string | undefined;
   /** The name of the alias */
@@ -316,7 +316,7 @@ export interface TableDependency {
   tableFullName?: string | undefined;
 }
 
-export interface UpdateModelVersion {
+export interface UpdateModelVersionRequest {
   /** The three-level (fully qualified) name of the model version */
   fullNameArg?: string | undefined;
   /** The integer version number of the model version */
@@ -368,7 +368,7 @@ export interface UpdateModelVersion {
   aliases?: RegisteredModelAliasInfo[] | undefined;
 }
 
-export interface UpdateRegisteredModel {
+export interface UpdateRegisteredModelRequest {
   /** The three-level (fully qualified) name of the registered model */
   fullNameArg?: string | undefined;
   /** New name for the registered model. */
@@ -422,15 +422,15 @@ export const unmarshalCredentialDependencySchema: z.ZodType<CredentialDependency
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteModelVersion_ResponseSchema: z.ZodType<DeleteModelVersion_Response> =
+export const unmarshalDeleteModelVersionRequest_ResponseSchema: z.ZodType<DeleteModelVersionRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRegisteredModel_ResponseSchema: z.ZodType<DeleteRegisteredModel_Response> =
+export const unmarshalDeleteRegisteredModelAliasRequest_ResponseSchema: z.ZodType<DeleteRegisteredModelAliasRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRegisteredModelAlias_ResponseSchema: z.ZodType<DeleteRegisteredModelAlias_Response> =
+export const unmarshalDeleteRegisteredModelRequest_ResponseSchema: z.ZodType<DeleteRegisteredModelRequest_Response> =
   z.object({});
 
 export const unmarshalDependencySchema: z.ZodType<Dependency> = z
@@ -471,7 +471,7 @@ export const unmarshalFunctionDependencySchema: z.ZodType<FunctionDependency> =
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListModelVersions_ResponseSchema: z.ZodType<ListModelVersions_Response> =
+export const unmarshalListModelVersionsRequest_ResponseSchema: z.ZodType<ListModelVersionsRequest_Response> =
   z
     .object({
       model_versions: z
@@ -485,7 +485,7 @@ export const unmarshalListModelVersions_ResponseSchema: z.ZodType<ListModelVersi
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListRegisteredModels_ResponseSchema: z.ZodType<ListRegisteredModels_Response> =
+export const unmarshalListRegisteredModelsRequest_ResponseSchema: z.ZodType<ListRegisteredModelsRequest_Response> =
   z
     .object({
       registered_models: z
@@ -616,7 +616,7 @@ export const marshalConnectionDependencySchema: z.ZodType = z
     connection_name: d.connectionName,
   }));
 
-export const marshalCreateRegisteredModelSchema: z.ZodType = z
+export const marshalCreateRegisteredModelRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     catalogName: z.string().optional(),
@@ -724,7 +724,7 @@ export const marshalRegisteredModelAliasInfoSchema: z.ZodType = z
     schema_name: d.schemaName,
   }));
 
-export const marshalSetRegisteredModelAliasSchema: z.ZodType = z
+export const marshalSetRegisteredModelAliasRequestSchema: z.ZodType = z
   .object({
     fullNameArg: z.string().optional(),
     aliasArg: z.string().optional(),
@@ -744,7 +744,7 @@ export const marshalTableDependencySchema: z.ZodType = z
     table_full_name: d.tableFullName,
   }));
 
-export const marshalUpdateModelVersionSchema: z.ZodType = z
+export const marshalUpdateModelVersionRequestSchema: z.ZodType = z
   .object({
     fullNameArg: z.string().optional(),
     versionArg: z.number().optional(),
@@ -794,7 +794,7 @@ export const marshalUpdateModelVersionSchema: z.ZodType = z
     aliases: d.aliases,
   }));
 
-export const marshalUpdateRegisteredModelSchema: z.ZodType = z
+export const marshalUpdateRegisteredModelRequestSchema: z.ZodType = z
   .object({
     fullNameArg: z.string().optional(),
     newName: z.string().optional(),

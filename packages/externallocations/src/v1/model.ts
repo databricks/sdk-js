@@ -46,7 +46,7 @@ export interface AzureQueueStorage {
   managedResourceId?: string | undefined;
 }
 
-export interface CreateExternalLocation {
+export interface CreateExternalLocationRequest {
   /** Skips validation of the storage credential associated with the external location. */
   skipValidation?: boolean | undefined;
   /** Name of the external location. */
@@ -97,7 +97,7 @@ export interface CreateExternalLocation {
   effectiveFileEventQueue?: FileEventQueue | undefined;
 }
 
-export interface DeleteExternalLocation {
+export interface DeleteExternalLocationRequest {
   /** Name of the external location. */
   nameArg?: string | undefined;
   /** Force deletion even if there are dependent external tables or mounts. */
@@ -105,7 +105,7 @@ export interface DeleteExternalLocation {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteExternalLocation_Response {}
+export interface DeleteExternalLocationRequest_Response {}
 
 /** Encryption options that apply to clients connecting to cloud storage. */
 export interface EncryptionDetails {
@@ -190,14 +190,14 @@ export interface GcpPubsub {
   managedResourceId?: string | undefined;
 }
 
-export interface GetExternalLocation {
+export interface GetExternalLocationRequest {
   /** Name of the external location. */
   nameArg?: string | undefined;
   /** Whether to include external locations in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
 }
 
-export interface ListExternalLocations {
+export interface ListExternalLocationsRequest {
   /** Whether to include external locations in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
   /**
@@ -218,7 +218,7 @@ export interface ListExternalLocations {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListExternalLocations_Response {
+export interface ListExternalLocationsRequest_Response {
   /** An array of external locations. */
   externalLocations?: ExternalLocationInfo[] | undefined;
   /**
@@ -239,7 +239,7 @@ export interface SseEncryptionDetails {
   awsKmsKeyArn?: string | undefined;
 }
 
-export interface UpdateExternalLocation {
+export interface UpdateExternalLocationRequest {
   /** Name of the external location. */
   nameArg?: string | undefined;
   /** New name for the external location. */
@@ -321,7 +321,7 @@ export const unmarshalAzureQueueStorageSchema: z.ZodType<AzureQueueStorage> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteExternalLocation_ResponseSchema: z.ZodType<DeleteExternalLocation_Response> =
+export const unmarshalDeleteExternalLocationRequest_ResponseSchema: z.ZodType<DeleteExternalLocationRequest_Response> =
   z.object({});
 
 export const unmarshalEncryptionDetailsSchema: z.ZodType<EncryptionDetails> = z
@@ -433,7 +433,7 @@ export const unmarshalGcpPubsubSchema: z.ZodType<GcpPubsub> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListExternalLocations_ResponseSchema: z.ZodType<ListExternalLocations_Response> =
+export const unmarshalListExternalLocationsRequest_ResponseSchema: z.ZodType<ListExternalLocationsRequest_Response> =
   z
     .object({
       external_locations: z
@@ -481,7 +481,7 @@ export const marshalAzureQueueStorageSchema: z.ZodType = z
     managed_resource_id: d.managedResourceId,
   }));
 
-export const marshalCreateExternalLocationSchema: z.ZodType = z
+export const marshalCreateExternalLocationRequestSchema: z.ZodType = z
   .object({
     skipValidation: z.boolean().optional(),
     name: z.string().optional(),
@@ -624,7 +624,7 @@ export const marshalSseEncryptionDetailsSchema: z.ZodType = z
     aws_kms_key_arn: d.awsKmsKeyArn,
   }));
 
-export const marshalUpdateExternalLocationSchema: z.ZodType = z
+export const marshalUpdateExternalLocationRequestSchema: z.ZodType = z
   .object({
     nameArg: z.string().optional(),
     newName: z.string().optional(),

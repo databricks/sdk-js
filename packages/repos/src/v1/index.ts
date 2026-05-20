@@ -5,17 +5,17 @@ export {Client} from './client';
 export {} from './model';
 
 export type {
-  CreateRepo,
-  CreateRepo_Response,
-  DeleteProject,
-  DeleteProject_Response,
-  GetRepo,
-  GetRepo_Response,
-  ListRepos,
-  ListRepos_Response,
+  CreateRepoRequest,
+  CreateRepoRequest_Response,
+  DeleteProjectRequest,
+  DeleteProjectRequest_Response,
+  GetRepoRequest,
+  GetRepoRequest_Response,
+  ListReposRequest,
+  ListReposRequest_Response,
   RepoInfo,
   SparseCheckout,
   SparseCheckoutUpdate,
-  UpdateRepo,
-  UpdateRepo_Response,
+  UpdateRepoRequest,
+  UpdateRepoRequest_Response,
 } from './model';

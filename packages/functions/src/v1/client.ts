@@ -19,20 +19,20 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateFunctionRequest,
-  DeleteFunction,
-  DeleteFunction_Response,
+  DeleteFunctionRequest,
+  DeleteFunctionRequest_Response,
   FunctionInfo,
-  GetFunction,
-  ListFunctions,
-  ListFunctions_Response,
-  UpdateFunction,
+  GetFunctionRequest,
+  ListFunctionsRequest,
+  ListFunctionsRequest_Response,
+  UpdateFunctionRequest,
 } from './model';
 import {
   marshalCreateFunctionRequestSchema,
-  marshalUpdateFunctionSchema,
-  unmarshalDeleteFunction_ResponseSchema,
+  marshalUpdateFunctionRequestSchema,
+  unmarshalDeleteFunctionRequest_ResponseSchema,
   unmarshalFunctionInfoSchema,
-  unmarshalListFunctions_ResponseSchema,
+  unmarshalListFunctionsRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -108,9 +108,9 @@ export class Client {
    * - Is the owner of the function itself and have both the **USE_CATALOG** privilege on its parent catalog and the **USE_SCHEMA** privilege on its parent schema
    */
   async deleteFunction(
-    req: DeleteFunction,
+    req: DeleteFunctionRequest,
     options?: CallOptions
-  ): Promise<DeleteFunction_Response> {
+  ): Promise<DeleteFunctionRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/functions/${req.fullNameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -118,7 +118,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: DeleteFunction_Response | undefined;
+    let resp: DeleteFunctionRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -128,7 +128,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteFunction_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalDeleteFunctionRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -146,7 +149,7 @@ export class Client {
    * - Have the **USE_CATALOG** privilege on the function's parent catalog, the **USE_SCHEMA** privilege on the function's parent schema, and the **EXECUTE** privilege on the function itself
    */
   async getFunction(
-    req: GetFunction,
+    req: GetFunctionRequest,
     options?: CallOptions
   ): Promise<FunctionInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/functions/${req.fullNameArg ?? ''}`;
@@ -187,9 +190,9 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listFunctions(
-    req: ListFunctions,
+    req: ListFunctionsRequest,
     options?: CallOptions
-  ): Promise<ListFunctions_Response> {
+  ): Promise<ListFunctionsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/functions`;
     const params = new URLSearchParams();
     if (req.catalogName !== undefined) {
@@ -209,7 +212,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListFunctions_Response | undefined;
+    let resp: ListFunctionsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -219,7 +222,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListFunctions_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalListFunctionsRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -229,10 +235,10 @@ export class Client {
   }
 
   async *listFunctionsIter(
-    req: ListFunctions,
+    req: ListFunctionsRequest,
     options?: CallOptions
   ): AsyncGenerator<FunctionInfo> {
-    const pageReq: ListFunctions = {...req};
+    const pageReq: ListFunctionsRequest = {...req};
     for (;;) {
       const resp = await this.listFunctions(pageReq, options);
       for (const item of resp.functions ?? []) {
@@ -254,11 +260,11 @@ export class Client {
    * - Is the owner of the function itself and has the **USE_CATALOG** privilege on its parent catalog as well as the **USE_SCHEMA** privilege on the function's parent schema.
    */
   async updateFunction(
-    req: UpdateFunction,
+    req: UpdateFunctionRequest,
     options?: CallOptions
   ): Promise<FunctionInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/functions/${req.fullNameArg ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateFunctionSchema);
+    const body = marshalRequest(req, marshalUpdateFunctionRequestSchema);
     let resp: FunctionInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

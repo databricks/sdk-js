@@ -24,7 +24,7 @@ export enum SecurableType {
   STAGING_TABLE = 'STAGING_TABLE',
 }
 
-export interface GetQuota {
+export interface GetQuotaRequest {
   /** Securable type of the quota parent. */
   parentSecurableType?: string | undefined;
   /** Full name of the parent resource. Provide the metastore ID if the parent is a metastore. */
@@ -34,12 +34,12 @@ export interface GetQuota {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetQuota_Response {
+export interface GetQuotaRequest_Response {
   /** The returned QuotaInfo. */
   quotaInfo?: QuotaInfo | undefined;
 }
 
-export interface ListQuotas {
+export interface ListQuotasRequest {
   /** The number of quotas to return. */
   maxResults?: number | undefined;
   /** Opaque token for the next page of results. */
@@ -47,7 +47,7 @@ export interface ListQuotas {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListQuotas_Response {
+export interface ListQuotasRequest_Response {
   /** An array of returned QuotaInfos. */
   quotas?: QuotaInfo[] | undefined;
   /**
@@ -73,16 +73,17 @@ export interface QuotaInfo {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetQuota_ResponseSchema: z.ZodType<GetQuota_Response> = z
-  .object({
-    quota_info: z.lazy(() => unmarshalQuotaInfoSchema).optional(),
-  })
-  .transform(d => ({
-    quotaInfo: d.quota_info,
-  }));
+export const unmarshalGetQuotaRequest_ResponseSchema: z.ZodType<GetQuotaRequest_Response> =
+  z
+    .object({
+      quota_info: z.lazy(() => unmarshalQuotaInfoSchema).optional(),
+    })
+    .transform(d => ({
+      quotaInfo: d.quota_info,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListQuotas_ResponseSchema: z.ZodType<ListQuotas_Response> =
+export const unmarshalListQuotasRequest_ResponseSchema: z.ZodType<ListQuotasRequest_Response> =
   z
     .object({
       quotas: z.array(z.lazy(() => unmarshalQuotaInfoSchema)).optional(),

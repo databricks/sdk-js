@@ -2,7 +2,7 @@
 
 import {z} from 'zod';
 
-export interface CreateCredentials {
+export interface CreateCredentialsRequest {
   /**
    * Git provider. This field is case-insensitive. The available Git providers are `gitHub`,
    * `bitbucketCloud`, `gitLab`, `azureDevOpsServices` (Azure DevOps Services, including
@@ -40,7 +40,7 @@ export interface CreateCredentials {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateCredentials_Response {
+export interface CreateCredentialsRequest_Response {
   /** ID of the credential object in the workspace. */
   credentialId?: number | undefined;
   /** The Git provider associated with the credential. */
@@ -95,7 +95,7 @@ export interface Credential {
   gitEmail?: string | undefined;
 }
 
-export interface DeleteCredentials {
+export interface DeleteCredentialsRequest {
   /** The ID for the corresponding credential to access. */
   id?: number | undefined;
   /** The ID of the service principal whose credentials will be modified. Only service principal managers can perform this action. */
@@ -103,9 +103,9 @@ export interface DeleteCredentials {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteCredentials_Response {}
+export interface DeleteCredentialsRequest_Response {}
 
-export interface GetCredentials {
+export interface GetCredentialsRequest {
   /** The ID for the corresponding credential to access. */
   id?: number | undefined;
   /** The ID of the service principal whose credentials will be modified. Only service principal managers can perform this action. */
@@ -113,7 +113,7 @@ export interface GetCredentials {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetCredentials_Response {
+export interface GetCredentialsRequest_Response {
   /** ID of the credential object in the workspace. */
   credentialId?: number | undefined;
   /** The Git provider associated with the credential. */
@@ -138,18 +138,18 @@ export interface GetCredentials_Response {
   gitEmail?: string | undefined;
 }
 
-export interface ListCredentials {
+export interface ListCredentialsRequest {
   /** The ID of the service principal whose credentials will be listed. Only service principal managers can perform this action. */
   principalId?: number | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListCredentials_Response {
+export interface ListCredentialsRequest_Response {
   /** List of credentials. */
   credentials?: Credential[] | undefined;
 }
 
-export interface UpdateCredentials {
+export interface UpdateCredentialsRequest {
   /** The ID for the corresponding credential to access. */
   id?: number | undefined;
   /**
@@ -189,10 +189,10 @@ export interface UpdateCredentials {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface UpdateCredentials_Response {}
+export interface UpdateCredentialsRequest_Response {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateCredentials_ResponseSchema: z.ZodType<CreateCredentials_Response> =
+export const unmarshalCreateCredentialsRequest_ResponseSchema: z.ZodType<CreateCredentialsRequest_Response> =
   z
     .object({
       credential_id: z.number().optional(),
@@ -230,11 +230,11 @@ export const unmarshalCredentialSchema: z.ZodType<Credential> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteCredentials_ResponseSchema: z.ZodType<DeleteCredentials_Response> =
+export const unmarshalDeleteCredentialsRequest_ResponseSchema: z.ZodType<DeleteCredentialsRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetCredentials_ResponseSchema: z.ZodType<GetCredentials_Response> =
+export const unmarshalGetCredentialsRequest_ResponseSchema: z.ZodType<GetCredentialsRequest_Response> =
   z
     .object({
       credential_id: z.number().optional(),
@@ -254,7 +254,7 @@ export const unmarshalGetCredentials_ResponseSchema: z.ZodType<GetCredentials_Re
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListCredentials_ResponseSchema: z.ZodType<ListCredentials_Response> =
+export const unmarshalListCredentialsRequest_ResponseSchema: z.ZodType<ListCredentialsRequest_Response> =
   z
     .object({
       credentials: z.array(z.lazy(() => unmarshalCredentialSchema)).optional(),
@@ -264,10 +264,10 @@ export const unmarshalListCredentials_ResponseSchema: z.ZodType<ListCredentials_
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateCredentials_ResponseSchema: z.ZodType<UpdateCredentials_Response> =
+export const unmarshalUpdateCredentialsRequest_ResponseSchema: z.ZodType<UpdateCredentialsRequest_Response> =
   z.object({});
 
-export const marshalCreateCredentialsSchema: z.ZodType = z
+export const marshalCreateCredentialsRequestSchema: z.ZodType = z
   .object({
     gitProvider: z.string().optional(),
     gitUsername: z.string().optional(),
@@ -287,7 +287,7 @@ export const marshalCreateCredentialsSchema: z.ZodType = z
     git_email: d.gitEmail,
   }));
 
-export const marshalUpdateCredentialsSchema: z.ZodType = z
+export const marshalUpdateCredentialsRequestSchema: z.ZodType = z
   .object({
     id: z.number().optional(),
     personalAccessToken: z.string().optional(),

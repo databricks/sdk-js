@@ -13,9 +13,9 @@ export type {
   DataframeSplitInput,
   EmbeddingsV1ResponseEmbeddingElement,
   ExternalModelUsageElement,
-  QueryEndpointInput,
-  QueryEndpointInput_ExtraParamsEntry,
-  QueryEndpointInput_UsageContextEntry,
+  QueryEndpointInputRequest,
+  QueryEndpointInputRequest_ExtraParamsEntry,
+  QueryEndpointInputRequest_UsageContextEntry,
   QueryEndpointResponse,
   V1ResponseChoiceElement,
 } from './model';

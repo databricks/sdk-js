@@ -18,20 +18,20 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  CreateSchema,
-  DeleteSchema,
-  DeleteSchema_Response,
-  GetSchema,
-  ListSchemas,
-  ListSchemas_Response,
+  CreateSchemaRequest,
+  DeleteSchemaRequest,
+  DeleteSchemaRequest_Response,
+  GetSchemaRequest,
+  ListSchemasRequest,
+  ListSchemasRequest_Response,
   SchemaInfo,
-  UpdateSchema,
+  UpdateSchemaRequest,
 } from './model';
 import {
-  marshalCreateSchemaSchema,
-  marshalUpdateSchemaSchema,
-  unmarshalDeleteSchema_ResponseSchema,
-  unmarshalListSchemas_ResponseSchema,
+  marshalCreateSchemaRequestSchema,
+  marshalUpdateSchemaRequestSchema,
+  unmarshalDeleteSchemaRequest_ResponseSchema,
+  unmarshalListSchemasRequest_ResponseSchema,
   unmarshalSchemaInfoSchema,
 } from './model';
 
@@ -71,11 +71,11 @@ export class Client {
    * The caller must be a metastore admin, or have the **CREATE_SCHEMA** privilege in the parent catalog.
    */
   async createSchema(
-    req: CreateSchema,
+    req: CreateSchemaRequest,
     options?: CallOptions
   ): Promise<SchemaInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/schemas`;
-    const body = marshalRequest(req, marshalCreateSchemaSchema);
+    const body = marshalRequest(req, marshalCreateSchemaRequestSchema);
     let resp: SchemaInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -100,9 +100,9 @@ export class Client {
    * The caller must be the owner of the schema or an owner of the parent catalog.
    */
   async deleteSchema(
-    req: DeleteSchema,
+    req: DeleteSchemaRequest,
     options?: CallOptions
-  ): Promise<DeleteSchema_Response> {
+  ): Promise<DeleteSchemaRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/schemas/${req.fullNameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -110,7 +110,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: DeleteSchema_Response | undefined;
+    let resp: DeleteSchemaRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -120,7 +120,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteSchema_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalDeleteSchemaRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -133,7 +136,10 @@ export class Client {
    * Gets the specified schema within the metastore.
    * The caller must be a metastore admin, the owner of the schema, or a user that has the **USE_SCHEMA** privilege on the schema.
    */
-  async getSchema(req: GetSchema, options?: CallOptions): Promise<SchemaInfo> {
+  async getSchema(
+    req: GetSchemaRequest,
+    options?: CallOptions
+  ): Promise<SchemaInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/schemas/${req.fullNameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.includeBrowse !== undefined) {
@@ -172,9 +178,9 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listSchemas(
-    req: ListSchemas,
+    req: ListSchemasRequest,
     options?: CallOptions
-  ): Promise<ListSchemas_Response> {
+  ): Promise<ListSchemasRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/schemas`;
     const params = new URLSearchParams();
     if (req.catalogName !== undefined) {
@@ -191,7 +197,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListSchemas_Response | undefined;
+    let resp: ListSchemasRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -201,7 +207,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListSchemas_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalListSchemasRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -211,10 +220,10 @@ export class Client {
   }
 
   async *listSchemasIter(
-    req: ListSchemas,
+    req: ListSchemasRequest,
     options?: CallOptions
   ): AsyncGenerator<SchemaInfo> {
-    const pageReq: ListSchemas = {...req};
+    const pageReq: ListSchemasRequest = {...req};
     for (;;) {
       const resp = await this.listSchemas(pageReq, options);
       for (const item of resp.schemas ?? []) {
@@ -233,11 +242,11 @@ export class Client {
    * If the __name__ field must be updated, the caller must be a metastore admin or have the **CREATE_SCHEMA** privilege on the parent catalog.
    */
   async updateSchema(
-    req: UpdateSchema,
+    req: UpdateSchemaRequest,
     options?: CallOptions
   ): Promise<SchemaInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/schemas/${req.fullNameArg ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateSchemaSchema);
+    const body = marshalRequest(req, marshalUpdateSchemaRequestSchema);
     let resp: SchemaInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

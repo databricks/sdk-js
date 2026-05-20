@@ -18,19 +18,19 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  DisableSystemSchema,
-  DisableSystemSchema_Response,
-  EnableSystemSchema,
-  EnableSystemSchema_Response,
-  ListSystemSchemas,
-  ListSystemSchemas_Response,
+  DisableSystemSchemaRequest,
+  DisableSystemSchemaRequest_Response,
+  EnableSystemSchemaRequest,
+  EnableSystemSchemaRequest_Response,
+  ListSystemSchemasRequest,
+  ListSystemSchemasRequest_Response,
   SystemSchemaInfo,
 } from './model';
 import {
-  marshalEnableSystemSchemaSchema,
-  unmarshalDisableSystemSchema_ResponseSchema,
-  unmarshalEnableSystemSchema_ResponseSchema,
-  unmarshalListSystemSchemas_ResponseSchema,
+  marshalEnableSystemSchemaRequestSchema,
+  unmarshalDisableSystemSchemaRequest_ResponseSchema,
+  unmarshalEnableSystemSchemaRequest_ResponseSchema,
+  unmarshalListSystemSchemasRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -69,11 +69,11 @@ export class Client {
    * The caller must be an account admin or a metastore admin.
    */
   async disableSystemSchema(
-    req: DisableSystemSchema,
+    req: DisableSystemSchemaRequest,
     options?: CallOptions
-  ): Promise<DisableSystemSchema_Response> {
+  ): Promise<DisableSystemSchemaRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.metastoreId ?? ''}/systemschemas/${req.schema ?? ''}`;
-    let resp: DisableSystemSchema_Response | undefined;
+    let resp: DisableSystemSchemaRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -85,7 +85,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDisableSystemSchema_ResponseSchema
+        unmarshalDisableSystemSchemaRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -100,12 +100,12 @@ export class Client {
    * The caller must be an account admin or a metastore admin.
    */
   async enableSystemSchema(
-    req: EnableSystemSchema,
+    req: EnableSystemSchemaRequest,
     options?: CallOptions
-  ): Promise<EnableSystemSchema_Response> {
+  ): Promise<EnableSystemSchemaRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.metastoreId ?? ''}/systemschemas/${req.schema ?? ''}`;
-    const body = marshalRequest(req, marshalEnableSystemSchemaSchema);
-    let resp: EnableSystemSchema_Response | undefined;
+    const body = marshalRequest(req, marshalEnableSystemSchemaRequestSchema);
+    let resp: EnableSystemSchemaRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -117,7 +117,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalEnableSystemSchema_ResponseSchema
+        unmarshalEnableSystemSchemaRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -137,9 +137,9 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listSystemSchemas(
-    req: ListSystemSchemas,
+    req: ListSystemSchemasRequest,
     options?: CallOptions
-  ): Promise<ListSystemSchemas_Response> {
+  ): Promise<ListSystemSchemasRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.metastoreId ?? ''}/systemschemas`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -150,7 +150,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListSystemSchemas_Response | undefined;
+    let resp: ListSystemSchemasRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -160,7 +160,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListSystemSchemas_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalListSystemSchemasRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -170,10 +173,10 @@ export class Client {
   }
 
   async *listSystemSchemasIter(
-    req: ListSystemSchemas,
+    req: ListSystemSchemasRequest,
     options?: CallOptions
   ): AsyncGenerator<SystemSchemaInfo> {
-    const pageReq: ListSystemSchemas = {...req};
+    const pageReq: ListSystemSchemasRequest = {...req};
     for (;;) {
       const resp = await this.listSystemSchemas(pageReq, options);
       for (const item of resp.schemas ?? []) {

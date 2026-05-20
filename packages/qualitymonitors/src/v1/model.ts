@@ -87,7 +87,7 @@ export enum SchedulePauseStatus {
   PAUSED = 'PAUSED',
 }
 
-export interface CancelRefresh {
+export interface CancelRefreshRequest {
   /**
    * UC table name in format `catalog.schema.table_name`.
    * table_name is case insensitive and spaces are disallowed.
@@ -97,9 +97,9 @@ export interface CancelRefresh {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface CancelRefresh_Response {}
+export interface CancelRefreshRequest_Response {}
 
-export interface CreateMonitor {
+export interface CreateMonitorRequest {
   /**
    * UC table name in format `catalog.schema.table_name`.
    * This field corresponds to the {full_table_name_arg} arg in the endpoint path.
@@ -278,7 +278,7 @@ export interface DataMonitorInfo {
   monitorVersion?: number | undefined;
 }
 
-export interface DeleteMonitor {
+export interface DeleteMonitorRequest {
   /**
    * UC table name in format `catalog.schema.table_name`.
    * This field corresponds to the {full_table_name_arg} arg in the endpoint path.
@@ -287,14 +287,14 @@ export interface DeleteMonitor {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteMonitor_Response {}
+export interface DeleteMonitorRequest_Response {}
 
 export interface Destination {
   /** The list of email addresses to send the notification to. A maximum of 5 email addresses is supported. */
   emailAddresses?: string[] | undefined;
 }
 
-export interface GetMonitor {
+export interface GetMonitorRequest {
   /**
    * UC table name in format `catalog.schema.table_name`.
    * This field corresponds to the {full_table_name_arg} arg in the endpoint path.
@@ -302,7 +302,7 @@ export interface GetMonitor {
   fullTableNameArg?: string | undefined;
 }
 
-export interface GetRefresh {
+export interface GetRefreshRequest {
   /** Full name of the table. */
   fullTableNameArg?: string | undefined;
   /** ID of the refresh. */
@@ -326,7 +326,7 @@ export interface InferenceLogAnalysisConfig {
   predictionProbaCol?: string | undefined;
 }
 
-export interface ListRefreshes {
+export interface ListRefreshesRequest {
   /**
    * UC table name in format `catalog.schema.table_name`.
    * table_name is case insensitive and spaces are disallowed.
@@ -335,7 +335,7 @@ export interface ListRefreshes {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListRefreshes_Response {
+export interface ListRefreshesRequest_Response {
   /** List of refreshes. */
   refreshes?: RefreshInfo[] | undefined;
 }
@@ -371,7 +371,7 @@ export interface RefreshInfo {
   trigger?: RefreshTrigger | undefined;
 }
 
-export interface RegenerateDashboard {
+export interface RegenerateDashboardRequest {
   /**
    * UC table name in format `catalog.schema.table_name`.
    * This field corresponds to the {full_table_name_arg} arg in the endpoint path.
@@ -385,13 +385,13 @@ export interface RegenerateDashboard {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RegenerateDashboard_Response {
+export interface RegenerateDashboardRequest_Response {
   dashboardId?: string | undefined;
   /** Parent folder is equivalent to {assets_dir}/{tableName} */
   parentFolder?: string | undefined;
 }
 
-export interface RunRefresh {
+export interface RunRefreshRequest {
   /**
    * UC table name in format `catalog.schema.table_name`.
    * table_name is case insensitive and spaces are disallowed.
@@ -415,7 +415,7 @@ export interface TimeSeriesAnalysisConfig {
   granularities?: string[] | undefined;
 }
 
-export interface UpdateMonitor {
+export interface UpdateMonitorRequest {
   /**
    * UC table name in format `catalog.schema.table_name`.
    * This field corresponds to the {full_table_name_arg} arg in the endpoint path.
@@ -489,7 +489,7 @@ export interface UpdateMonitor {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCancelRefresh_ResponseSchema: z.ZodType<CancelRefresh_Response> =
+export const unmarshalCancelRefreshRequest_ResponseSchema: z.ZodType<CancelRefreshRequest_Response> =
   z.object({});
 
 export const unmarshalCustomMetricSchema: z.ZodType<CustomMetric> = z
@@ -573,7 +573,7 @@ export const unmarshalDataMonitorInfoSchema: z.ZodType<DataMonitorInfo> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteMonitor_ResponseSchema: z.ZodType<DeleteMonitor_Response> =
+export const unmarshalDeleteMonitorRequest_ResponseSchema: z.ZodType<DeleteMonitorRequest_Response> =
   z.object({});
 
 export const unmarshalDestinationSchema: z.ZodType<Destination> = z
@@ -606,7 +606,7 @@ export const unmarshalInferenceLogAnalysisConfigSchema: z.ZodType<InferenceLogAn
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListRefreshes_ResponseSchema: z.ZodType<ListRefreshes_Response> =
+export const unmarshalListRefreshesRequest_ResponseSchema: z.ZodType<ListRefreshesRequest_Response> =
   z
     .object({
       refreshes: z.array(z.lazy(() => unmarshalRefreshInfoSchema)).optional(),
@@ -659,7 +659,7 @@ export const unmarshalRefreshInfoSchema: z.ZodType<RefreshInfo> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRegenerateDashboard_ResponseSchema: z.ZodType<RegenerateDashboard_Response> =
+export const unmarshalRegenerateDashboardRequest_ResponseSchema: z.ZodType<RegenerateDashboardRequest_Response> =
   z
     .object({
       dashboard_id: z.string().optional(),
@@ -684,7 +684,7 @@ export const unmarshalTimeSeriesAnalysisConfigSchema: z.ZodType<TimeSeriesAnalys
       granularities: d.granularities,
     }));
 
-export const marshalCancelRefreshSchema: z.ZodType = z
+export const marshalCancelRefreshRequestSchema: z.ZodType = z
   .object({
     fullTableNameArg: z.string().optional(),
     refreshId: z.number().optional(),
@@ -694,7 +694,7 @@ export const marshalCancelRefreshSchema: z.ZodType = z
     refresh_id: d.refreshId,
   }));
 
-export const marshalCreateMonitorSchema: z.ZodType = z
+export const marshalCreateMonitorRequestSchema: z.ZodType = z
   .object({
     fullTableNameArg: z.string().optional(),
     skipBuiltinDashboard: z.boolean().optional(),
@@ -839,7 +839,7 @@ export const marshalNotificationsSchema: z.ZodType = z
     on_new_classification_tag_detected: d.onNewClassificationTagDetected,
   }));
 
-export const marshalRegenerateDashboardSchema: z.ZodType = z
+export const marshalRegenerateDashboardRequestSchema: z.ZodType = z
   .object({
     fullTableNameArg: z.string().optional(),
     warehouseId: z.string().optional(),
@@ -849,7 +849,7 @@ export const marshalRegenerateDashboardSchema: z.ZodType = z
     warehouse_id: d.warehouseId,
   }));
 
-export const marshalRunRefreshSchema: z.ZodType = z
+export const marshalRunRefreshRequestSchema: z.ZodType = z
   .object({
     fullTableNameArg: z.string().optional(),
   })
@@ -869,7 +869,7 @@ export const marshalTimeSeriesAnalysisConfigSchema: z.ZodType = z
     granularities: d.granularities,
   }));
 
-export const marshalUpdateMonitorSchema: z.ZodType = z
+export const marshalUpdateMonitorRequestSchema: z.ZodType = z
   .object({
     fullTableNameArg: z.string().optional(),
     outputSchemaName: z.string().optional(),

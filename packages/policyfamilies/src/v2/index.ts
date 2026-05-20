@@ -5,8 +5,8 @@ export {Client} from './client';
 export {} from './model';
 
 export type {
-  GetPolicyFamily,
-  ListPolicyFamilies,
-  ListPolicyFamilies_Response,
+  GetPolicyFamilyRequest,
+  ListPolicyFamiliesRequest,
+  ListPolicyFamiliesRequest_Response,
   PolicyFamily,
 } from './model';

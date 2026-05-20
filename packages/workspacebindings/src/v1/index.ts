@@ -5,13 +5,13 @@ export {Client} from './client';
 export {BindingType} from './model';
 
 export type {
-  GetCatalogWorkspaceBindings,
-  GetCatalogWorkspaceBindings_Response,
-  GetWorkspaceBindings,
-  GetWorkspaceBindings_Response,
-  UpdateCatalogWorkspaceBindings,
-  UpdateCatalogWorkspaceBindings_Response,
-  UpdateWorkspaceBindings,
-  UpdateWorkspaceBindings_Response,
+  GetCatalogWorkspaceBindingsRequest,
+  GetCatalogWorkspaceBindingsRequest_Response,
+  GetWorkspaceBindingsRequest,
+  GetWorkspaceBindingsRequest_Response,
+  UpdateCatalogWorkspaceBindingsRequest,
+  UpdateCatalogWorkspaceBindingsRequest_Response,
+  UpdateWorkspaceBindingsRequest,
+  UpdateWorkspaceBindingsRequest_Response,
   WorkspaceBindingInfo,
 } from './model';

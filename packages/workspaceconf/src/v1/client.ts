@@ -17,10 +17,10 @@ import {
   parseResponse,
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
-import type {GetWorkspaceConfRequest, WorkspaceConf} from './model';
+import type {GetWorkspaceConfRequest, WorkspaceConfRequest} from './model';
 import {
-  marshalWorkspaceConfSchema,
-  unmarshalWorkspaceConfSchema,
+  marshalWorkspaceConfRequestSchema,
+  unmarshalWorkspaceConfRequestSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -58,7 +58,7 @@ export class Client {
   async getWorkspaceConf(
     req: GetWorkspaceConfRequest,
     options?: CallOptions
-  ): Promise<WorkspaceConf> {
+  ): Promise<WorkspaceConfRequest> {
     const url = `${this.host}/api/2.0/workspace-conf`;
     const params = new URLSearchParams();
     if (req.keys !== undefined) {
@@ -66,7 +66,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: WorkspaceConf | undefined;
+    let resp: WorkspaceConfRequest | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -76,7 +76,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalWorkspaceConfSchema);
+      resp = parseResponse(respBody, unmarshalWorkspaceConfRequestSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -87,11 +87,11 @@ export class Client {
 
   /** Sets the configuration status for a workspace, including enabling or disabling it. */
   async updateWorkspaceConf(
-    req: WorkspaceConf,
+    req: WorkspaceConfRequest,
     options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/workspace-conf`;
-    const body = marshalRequest(req, marshalWorkspaceConfSchema);
+    const body = marshalRequest(req, marshalWorkspaceConfRequestSchema);
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);

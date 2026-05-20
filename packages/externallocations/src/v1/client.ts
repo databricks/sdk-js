@@ -18,21 +18,21 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  CreateExternalLocation,
-  DeleteExternalLocation,
-  DeleteExternalLocation_Response,
+  CreateExternalLocationRequest,
+  DeleteExternalLocationRequest,
+  DeleteExternalLocationRequest_Response,
   ExternalLocationInfo,
-  GetExternalLocation,
-  ListExternalLocations,
-  ListExternalLocations_Response,
-  UpdateExternalLocation,
+  GetExternalLocationRequest,
+  ListExternalLocationsRequest,
+  ListExternalLocationsRequest_Response,
+  UpdateExternalLocationRequest,
 } from './model';
 import {
-  marshalCreateExternalLocationSchema,
-  marshalUpdateExternalLocationSchema,
-  unmarshalDeleteExternalLocation_ResponseSchema,
+  marshalCreateExternalLocationRequestSchema,
+  marshalUpdateExternalLocationRequestSchema,
+  unmarshalDeleteExternalLocationRequest_ResponseSchema,
   unmarshalExternalLocationInfoSchema,
-  unmarshalListExternalLocations_ResponseSchema,
+  unmarshalListExternalLocationsRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -71,11 +71,14 @@ export class Client {
    * The caller must be a metastore admin or have the **CREATE_EXTERNAL_LOCATION** privilege on both the metastore and the associated storage credential.
    */
   async createExternalLocation(
-    req: CreateExternalLocation,
+    req: CreateExternalLocationRequest,
     options?: CallOptions
   ): Promise<ExternalLocationInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/external-locations`;
-    const body = marshalRequest(req, marshalCreateExternalLocationSchema);
+    const body = marshalRequest(
+      req,
+      marshalCreateExternalLocationRequestSchema
+    );
     let resp: ExternalLocationInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -97,9 +100,9 @@ export class Client {
 
   /** Deletes the specified external location from the metastore. The caller must be the owner of the external location. */
   async deleteExternalLocation(
-    req: DeleteExternalLocation,
+    req: DeleteExternalLocationRequest,
     options?: CallOptions
-  ): Promise<DeleteExternalLocation_Response> {
+  ): Promise<DeleteExternalLocationRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/external-locations/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -107,7 +110,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: DeleteExternalLocation_Response | undefined;
+    let resp: DeleteExternalLocationRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -119,7 +122,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeleteExternalLocation_ResponseSchema
+        unmarshalDeleteExternalLocationRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -134,7 +137,7 @@ export class Client {
    * The caller must be either a metastore admin, the owner of the external location, or a user that has some privilege on the external location.
    */
   async getExternalLocation(
-    req: GetExternalLocation,
+    req: GetExternalLocationRequest,
     options?: CallOptions
   ): Promise<ExternalLocationInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/external-locations/${req.nameArg ?? ''}`;
@@ -174,9 +177,9 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listExternalLocations(
-    req: ListExternalLocations,
+    req: ListExternalLocationsRequest,
     options?: CallOptions
-  ): Promise<ListExternalLocations_Response> {
+  ): Promise<ListExternalLocationsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/external-locations`;
     const params = new URLSearchParams();
     if (req.includeBrowse !== undefined) {
@@ -193,7 +196,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListExternalLocations_Response | undefined;
+    let resp: ListExternalLocationsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -205,7 +208,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListExternalLocations_ResponseSchema
+        unmarshalListExternalLocationsRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -216,10 +219,10 @@ export class Client {
   }
 
   async *listExternalLocationsIter(
-    req: ListExternalLocations,
+    req: ListExternalLocationsRequest,
     options?: CallOptions
   ): AsyncGenerator<ExternalLocationInfo> {
-    const pageReq: ListExternalLocations = {...req};
+    const pageReq: ListExternalLocationsRequest = {...req};
     for (;;) {
       const resp = await this.listExternalLocations(pageReq, options);
       for (const item of resp.externalLocations ?? []) {
@@ -237,11 +240,14 @@ export class Client {
    * In the second case, the admin can only update the name of the external location.
    */
   async updateExternalLocation(
-    req: UpdateExternalLocation,
+    req: UpdateExternalLocationRequest,
     options?: CallOptions
   ): Promise<ExternalLocationInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/external-locations/${req.nameArg ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateExternalLocationSchema);
+    const body = marshalRequest(
+      req,
+      marshalUpdateExternalLocationRequestSchema
+    );
     let resp: ExternalLocationInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

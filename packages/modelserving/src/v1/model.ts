@@ -268,7 +268,7 @@ export interface CohereConfig {
   cohereApiBase?: string | undefined;
 }
 
-export interface CreateInferenceEndpoint {
+export interface CreateInferenceEndpointRequest {
   /**
    * The name of the serving endpoint. This field is required and must be unique across a <Workspace>.
    * An endpoint name can consist of alphanumeric characters, dashes, and underscores.
@@ -291,7 +291,7 @@ export interface CreateInferenceEndpoint {
   description?: string | undefined;
 }
 
-export interface CreatePtEndpoint {
+export interface CreatePtEndpointRequest {
   /**
    * The name of the serving endpoint. This field is required and must be unique across a <Workspace>.
    * An endpoint name can consist of alphanumeric characters, dashes, and underscores.
@@ -359,12 +359,12 @@ export interface DatabricksModelServingConfig {
   databricksApiTokenPlaintext?: string | undefined;
 }
 
-export interface DeleteInferenceEndpoint {
+export interface DeleteInferenceEndpointRequest {
   name?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteInferenceEndpoint_Response {}
+export interface DeleteInferenceEndpointRequest_Response {}
 
 export interface EmailNotifications {
   /** A list of email addresses to be notified when an endpoint successfully updates its configuration or state. */
@@ -419,6 +419,20 @@ export interface EndpointTag {
   key?: string | undefined;
   /** Optional value field for a serving endpoint tag. */
   value?: string | undefined;
+}
+
+/**
+ * *
+ * Proto version of com.databricks.rpc.HttpOverRpcResponse.
+ *
+ * This message can be specially handled in UnaryRpcService with JettyRPC when the advanced feature
+ * CustomHandlingForHttpOverRpcProtoResponse is enabled - bypass the RPC serializer and populate
+ * HTTP status, response headers and response body from the proto message directly.
+ *
+ * Don't add/modify the fields before being aware of the implications.
+ */
+export interface ExportMetricsResponse {
+  contents?: ReadableStream | undefined;
 }
 
 /** Simple Proto message for testing */
@@ -523,12 +537,17 @@ export interface FoundationModel {
   description?: string | undefined;
 }
 
-export interface GetInferenceEndpoint {
+export interface GetExportEndpointMetricsRequest {
+  /** The name of the serving endpoint to retrieve metrics for. This field is required. */
+  name?: string | undefined;
+}
+
+export interface GetInferenceEndpointRequest {
   /** The name of the serving endpoint. This field is required. */
   name?: string | undefined;
 }
 
-export interface GetInferenceEndpointSchema {
+export interface GetInferenceEndpointSchemaRequest {
   /** The name of the serving endpoint that the served model belongs to. This field is required. */
   name?: string | undefined;
 }
@@ -536,6 +555,32 @@ export interface GetInferenceEndpointSchema {
 /** The top level proto message that represents an OpenAPI 3.0 document. */
 export interface GetOpenApiResponse {
   contents?: ReadableStream | undefined;
+}
+
+export interface GetServedModelBuildLogsRequest {
+  /** The name of the serving endpoint that the served model belongs to. This field is required. */
+  name?: string | undefined;
+  /** The name of the served model that build logs will be retrieved for. This field is required. */
+  servedModelName?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface GetServedModelBuildLogsRequest_Response {
+  /** The logs associated with building the served entity's environment. */
+  logs?: string | undefined;
+}
+
+export interface GetServedModelLogsRequest {
+  /** The name of the serving endpoint that the served model belongs to. This field is required. */
+  name?: string | undefined;
+  /** The name of the served model that logs will be retrieved for. This field is required. */
+  servedModelName?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface GetServedModelLogsRequest_Response {
+  /** The most recent log lines of the model server processing invocation requests. */
+  logs?: string | undefined;
 }
 
 export interface GoogleCloudVertexAiConfig {
@@ -680,10 +725,10 @@ export interface InferenceTableConfig {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ListInferenceEndpoints {}
+export interface ListInferenceEndpointsRequest {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListInferenceEndpoints_Response {
+export interface ListInferenceEndpointsRequest_Response {
   /** The list of endpoints. */
   endpoints?: InferenceEndpoint[] | undefined;
 }
@@ -788,7 +833,7 @@ export interface PaLmConfig {
   palmApiKeyPlaintext?: string | undefined;
 }
 
-export interface PatchInferenceEndpointTags {
+export interface PatchInferenceEndpointTagsRequest {
   /** The name of the serving endpoint who's tags to patch. This field is required. */
   name?: string | undefined;
   /** List of endpoint tags to add */
@@ -798,7 +843,7 @@ export interface PatchInferenceEndpointTags {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface PatchInferenceEndpointTags_Response {
+export interface PatchInferenceEndpointTagsRequest_Response {
   tags?: EndpointTag[] | undefined;
 }
 
@@ -855,7 +900,7 @@ export interface PtServedModel {
   burstScalingEnabled?: boolean | undefined;
 }
 
-export interface PutInferenceEndpointAiGateway {
+export interface PutInferenceEndpointAiGatewayRequest {
   /** The name of the serving endpoint whose AI Gateway is being updated. This field is required. */
   name?: string | undefined;
   /**
@@ -880,7 +925,7 @@ export interface PutInferenceEndpointAiGateway {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface PutInferenceEndpointAiGateway_Response {
+export interface PutInferenceEndpointAiGatewayRequest_Response {
   /**
    * Configuration to enable usage tracking using system tables.
    * These tables allow you to monitor operational usage on endpoints and their associated costs.
@@ -902,7 +947,7 @@ export interface PutInferenceEndpointAiGateway_Response {
   fallbackConfig?: FallbackConfig | undefined;
 }
 
-export interface PutInferenceEndpointConfig {
+export interface PutInferenceEndpointConfigRequest {
   /** The name of the serving endpoint to update. This field is required. */
   name?: string | undefined;
   /** The list of served entities under the serving endpoint config. */
@@ -920,7 +965,7 @@ export interface PutInferenceEndpointConfig {
   autoCaptureConfig?: AutoCaptureConfig | undefined;
 }
 
-export interface PutInferenceEndpointRateLimits {
+export interface PutInferenceEndpointRateLimitsRequest {
   /** The name of the serving endpoint whose rate limits are being updated. This field is required. */
   name?: string | undefined;
   /** The list of endpoint rate limits. */
@@ -928,12 +973,12 @@ export interface PutInferenceEndpointRateLimits {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface PutInferenceEndpointRateLimits_Response {
+export interface PutInferenceEndpointRateLimitsRequest_Response {
   /** The list of endpoint rate limits. */
   rateLimits?: RateLimit[] | undefined;
 }
 
-export interface PutPtEndpointConfig {
+export interface PutPtEndpointConfigRequest {
   /** The name of the pt endpoint to update. This field is required. */
   name?: string | undefined;
   config?: PtEndpointCoreConfig | undefined;
@@ -1031,7 +1076,7 @@ export interface TrafficConfig {
   routes?: Route[] | undefined;
 }
 
-export interface UpdateInferenceEndpointNotifications {
+export interface UpdateInferenceEndpointNotificationsRequest {
   /** The name of the serving endpoint whose notifications are being updated. This field is required. */
   name?: string | undefined;
   /** The email notification settings to update. Specify email addresses to notify when endpoint state changes occur. */
@@ -1039,7 +1084,7 @@ export interface UpdateInferenceEndpointNotifications {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateInferenceEndpointNotifications_Response {
+export interface UpdateInferenceEndpointNotificationsRequest_Response {
   name?: string | undefined;
   emailNotifications?: EmailNotifications | undefined;
 }
@@ -1251,7 +1296,7 @@ export const unmarshalDatabricksModelServingConfigSchema: z.ZodType<DatabricksMo
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteInferenceEndpoint_ResponseSchema: z.ZodType<DeleteInferenceEndpoint_Response> =
+export const unmarshalDeleteInferenceEndpointRequest_ResponseSchema: z.ZodType<DeleteInferenceEndpointRequest_Response> =
   z.object({});
 
 export const unmarshalEmailNotificationsSchema: z.ZodType<EmailNotifications> =
@@ -1406,6 +1451,26 @@ export const unmarshalFoundationModelSchema: z.ZodType<FoundationModel> = z
     description: d.description,
   }));
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalGetServedModelBuildLogsRequest_ResponseSchema: z.ZodType<GetServedModelBuildLogsRequest_Response> =
+  z
+    .object({
+      logs: z.string().optional(),
+    })
+    .transform(d => ({
+      logs: d.logs,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalGetServedModelLogsRequest_ResponseSchema: z.ZodType<GetServedModelLogsRequest_Response> =
+  z
+    .object({
+      logs: z.string().optional(),
+    })
+    .transform(d => ({
+      logs: d.logs,
+    }));
+
 export const unmarshalGoogleCloudVertexAiConfigSchema: z.ZodType<GoogleCloudVertexAiConfig> =
   z
     .object({
@@ -1531,7 +1596,7 @@ export const unmarshalInferenceTableConfigSchema: z.ZodType<InferenceTableConfig
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListInferenceEndpoints_ResponseSchema: z.ZodType<ListInferenceEndpoints_Response> =
+export const unmarshalListInferenceEndpointsRequest_ResponseSchema: z.ZodType<ListInferenceEndpointsRequest_Response> =
   z
     .object({
       endpoints: z
@@ -1591,7 +1656,7 @@ export const unmarshalPaLmConfigSchema: z.ZodType<PaLmConfig> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPatchInferenceEndpointTags_ResponseSchema: z.ZodType<PatchInferenceEndpointTags_Response> =
+export const unmarshalPatchInferenceEndpointTagsRequest_ResponseSchema: z.ZodType<PatchInferenceEndpointTagsRequest_Response> =
   z
     .object({
       tags: z.array(z.lazy(() => unmarshalEndpointTagSchema)).optional(),
@@ -1643,7 +1708,7 @@ export const unmarshalPiiSettingsSchema: z.ZodType<PiiSettings> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPutInferenceEndpointAiGateway_ResponseSchema: z.ZodType<PutInferenceEndpointAiGateway_Response> =
+export const unmarshalPutInferenceEndpointAiGatewayRequest_ResponseSchema: z.ZodType<PutInferenceEndpointAiGatewayRequest_Response> =
   z
     .object({
       usage_tracking_config: z
@@ -1667,7 +1732,7 @@ export const unmarshalPutInferenceEndpointAiGateway_ResponseSchema: z.ZodType<Pu
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPutInferenceEndpointRateLimits_ResponseSchema: z.ZodType<PutInferenceEndpointRateLimits_Response> =
+export const unmarshalPutInferenceEndpointRateLimitsRequest_ResponseSchema: z.ZodType<PutInferenceEndpointRateLimitsRequest_Response> =
   z
     .object({
       rate_limits: z.array(z.lazy(() => unmarshalRateLimitSchema)).optional(),
@@ -1785,7 +1850,7 @@ export const unmarshalTrafficConfigSchema: z.ZodType<TrafficConfig> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateInferenceEndpointNotifications_ResponseSchema: z.ZodType<UpdateInferenceEndpointNotifications_Response> =
+export const unmarshalUpdateInferenceEndpointNotificationsRequest_ResponseSchema: z.ZodType<UpdateInferenceEndpointNotificationsRequest_Response> =
   z
     .object({
       name: z.string().optional(),
@@ -1967,7 +2032,7 @@ export const marshalCohereConfigSchema: z.ZodType = z
     cohere_api_base: d.cohereApiBase,
   }));
 
-export const marshalCreateInferenceEndpointSchema: z.ZodType = z
+export const marshalCreateInferenceEndpointRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     config: z.lazy(() => marshalEndpointCoreConfigSchema).optional(),
@@ -1993,7 +2058,7 @@ export const marshalCreateInferenceEndpointSchema: z.ZodType = z
     description: d.description,
   }));
 
-export const marshalCreatePtEndpointSchema: z.ZodType = z
+export const marshalCreatePtEndpointRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     config: z.lazy(() => marshalPtEndpointCoreConfigSchema).optional(),
@@ -2261,7 +2326,7 @@ export const marshalPaLmConfigSchema: z.ZodType = z
     palm_api_key_plaintext: d.palmApiKeyPlaintext,
   }));
 
-export const marshalPatchInferenceEndpointTagsSchema: z.ZodType = z
+export const marshalPatchInferenceEndpointTagsRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     addTags: z.array(z.lazy(() => marshalEndpointTagSchema)).optional(),
@@ -2321,7 +2386,7 @@ export const marshalPtServedModelSchema: z.ZodType = z
     burst_scaling_enabled: d.burstScalingEnabled,
   }));
 
-export const marshalPutInferenceEndpointAiGatewaySchema: z.ZodType = z
+export const marshalPutInferenceEndpointAiGatewayRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     usageTrackingConfig: z
@@ -2345,7 +2410,7 @@ export const marshalPutInferenceEndpointAiGatewaySchema: z.ZodType = z
     fallback_config: d.fallbackConfig,
   }));
 
-export const marshalPutInferenceEndpointConfigSchema: z.ZodType = z
+export const marshalPutInferenceEndpointConfigRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     servedEntities: z.array(z.lazy(() => marshalServedModelSchema)).optional(),
@@ -2361,7 +2426,7 @@ export const marshalPutInferenceEndpointConfigSchema: z.ZodType = z
     auto_capture_config: d.autoCaptureConfig,
   }));
 
-export const marshalPutInferenceEndpointRateLimitsSchema: z.ZodType = z
+export const marshalPutInferenceEndpointRateLimitsRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     rateLimits: z.array(z.lazy(() => marshalRateLimitSchema)).optional(),
@@ -2371,7 +2436,7 @@ export const marshalPutInferenceEndpointRateLimitsSchema: z.ZodType = z
     rate_limits: d.rateLimits,
   }));
 
-export const marshalPutPtEndpointConfigSchema: z.ZodType = z
+export const marshalPutPtEndpointConfigRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     config: z.lazy(() => marshalPtEndpointCoreConfigSchema).optional(),
@@ -2469,17 +2534,18 @@ export const marshalTrafficConfigSchema: z.ZodType = z
     routes: d.routes,
   }));
 
-export const marshalUpdateInferenceEndpointNotificationsSchema: z.ZodType = z
-  .object({
-    name: z.string().optional(),
-    emailNotifications: z
-      .lazy(() => marshalEmailNotificationsSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    name: d.name,
-    email_notifications: d.emailNotifications,
-  }));
+export const marshalUpdateInferenceEndpointNotificationsRequestSchema: z.ZodType =
+  z
+    .object({
+      name: z.string().optional(),
+      emailNotifications: z
+        .lazy(() => marshalEmailNotificationsSchema)
+        .optional(),
+    })
+    .transform(d => ({
+      name: d.name,
+      email_notifications: d.emailNotifications,
+    }));
 
 export const marshalUsageTrackingConfigSchema: z.ZodType = z
   .object({

@@ -996,7 +996,7 @@ export interface BaseRun {
   queueDuration?: number | undefined;
 }
 
-export interface CancelAllRuns {
+export interface CancelAllRunsRequest {
   /** The canonical identifier of the job to cancel all runs of. */
   jobId?: number | undefined;
   /** Optional boolean parameter to cancel all queued runs. If no job_id is provided, all queued runs in the workspace are canceled. */
@@ -1005,16 +1005,16 @@ export interface CancelAllRuns {
 
 /** All runs were cancelled successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface CancelAllRuns_Response {}
+export interface CancelAllRunsRequest_Response {}
 
-export interface CancelRun {
+export interface CancelRunRequest {
   /** This field is required. */
   runId?: number | undefined;
 }
 
 /** Run was cancelled successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface CancelRun_Response {}
+export interface CancelRunRequest_Response {}
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface CleanRoomTaskRunLifeCycleState {}
@@ -1396,7 +1396,7 @@ export interface ContinuousSettings {
   taskRetryMode?: TaskRetryMode | undefined;
 }
 
-export interface CreateJob {
+export interface CreateJobRequest {
   /** List of permissions to set on the job. */
   accessControlList?: AccessControlRequest[] | undefined;
   /** An optional name for the job. The maximum length is 4096 bytes in UTF-8 encoding. */
@@ -1507,7 +1507,7 @@ export interface CreateJob {
 
 /** Job was created successfully */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateJob_Response {
+export interface CreateJobRequest_Response {
   /** The canonical identifier for the newly created job. */
   jobId?: number | undefined;
 }
@@ -1518,7 +1518,7 @@ export interface CreateJob_Response {
  * See https://developers.google.com/protocol-buffers/docs/proto#backwards_compatibility.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateJob_TagsEntry {
+export interface CreateJobRequest_TagsEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
@@ -1684,23 +1684,23 @@ export interface DbtTask_DbtTaskOutput_ArtifactsHeadersEntry {
   value?: string | undefined;
 }
 
-export interface DeleteJob {
+export interface DeleteJobRequest {
   /** The canonical identifier of the job to delete. This field is required. */
   jobId?: number | undefined;
 }
 
 /** Job was deleted successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteJob_Response {}
+export interface DeleteJobRequest_Response {}
 
-export interface DeleteRun {
+export interface DeleteRunRequest {
   /** ID of the run to delete. */
   runId?: number | undefined;
 }
 
 /** Run was deleted successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteRun_Response {}
+export interface DeleteRunRequest_Response {}
 
 export interface DockerBasicAuth {
   /** Name of the user */
@@ -1813,7 +1813,7 @@ export interface Environment {
 }
 
 /** Retrieves the export of a job run task. */
-export interface ExportRun {
+export interface ExportRunRequest {
   /** The canonical identifier for the run. This field is required. */
   runId?: number | undefined;
   /** Which views to export (CODE, DASHBOARDS, or ALL). Defaults to CODE. */
@@ -1822,7 +1822,7 @@ export interface ExportRun {
 
 /** Run was exported successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ExportRun_Response {
+export interface ExportRunRequest_Response {
   /** The exported content in HTML format (one for every view item). To extract the HTML notebook from the JSON response, download and run this [Python script](/_static/examples/extract.py). */
   views?: ViewItem[] | undefined;
 }
@@ -1956,7 +1956,7 @@ export interface GenAiComputeTask {
 }
 
 /** Retrieves information about a single job. */
-export interface GetJob {
+export interface GetJobRequest {
   /** The canonical identifier of the job to retrieve information about. This field is required. */
   jobId?: number | undefined;
   /** Use `next_page_token` returned from the previous GetJob response to request the next page of the job's array properties. */
@@ -1965,7 +1965,7 @@ export interface GetJob {
 
 /** Job was retrieved successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetJob_Response {
+export interface GetJobRequest_Response {
   /** A token that can be used to list the next page of array properties. */
   nextPageToken?: string | undefined;
   /** The canonical identifier for this job. */
@@ -2032,7 +2032,85 @@ export interface GetPolicyComplianceForJob_Response_ViolationsEntry {
   value?: string | undefined;
 }
 
-export interface GetRun {
+/** Retrieves both the output and the metadata of a run. */
+export interface GetRunOutputRequest {
+  /** The canonical identifier for the run. */
+  runId?: number | undefined;
+}
+
+/** Run output was retrieved successfully. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface GetRunOutputRequest_Response {
+  /** All details of the run except for its output. */
+  metadata?: Run | undefined;
+  /** An error message indicating why a task failed or why output is not available. The message is unstructured, and its exact format is subject to change. */
+  error?: string | undefined;
+  info?: string | undefined;
+  result?:
+    | {
+        $case: 'notebookOutput';
+        /**
+         * The output of a notebook task, if available. A notebook task that terminates (either successfully or with a failure)
+         * without calling `dbutils.notebook.exit()` is considered to have an empty output.
+         * This field is set but its result value is empty. <Databricks> restricts this API to return the first 5 MB of the output.
+         * To return a larger result, use the [ClusterLogConf](/dev-tools/api/latest/clusters.html#clusterlogconf) field to configure log storage
+         * for the job cluster.
+         */
+        notebookOutput: NotebookTask_NotebookOutput;
+      }
+    | {
+        $case: 'sqlOutput';
+        /** The output of a SQL task, if available. */
+        sqlOutput: SqlTask_SqlOutput;
+      }
+    | {
+        $case: 'dbtOutput';
+        /** The output of a dbt task, if available. */
+        dbtOutput: DbtTask_DbtTaskOutput;
+      }
+    | {
+        $case: 'runJobOutput';
+        /** The output of a run job task, if available */
+        runJobOutput: RunJobTask_RunJobTaskOutput;
+      }
+    | {
+        $case: 'cleanRoomsNotebookOutput';
+        /** The output of a clean rooms notebook task, if available */
+        cleanRoomsNotebookOutput: CleanRoomsNotebookTask_CleanRoomsNotebookTaskOutput;
+      }
+    | {
+        $case: 'dashboardOutput';
+        /** The output of a dashboard task, if available */
+        dashboardOutput: DashboardTaskOutput;
+      }
+    | {
+        $case: 'dbtCloudOutput';
+        /** Deprecated in favor of the new dbt_platform_output */
+        dbtCloudOutput: DbtCloudTaskOutput;
+      }
+    | {$case: 'dbtPlatformOutput'; dbtPlatformOutput: DbtPlatformTaskOutput}
+    | {
+        $case: 'alertOutput';
+        /** The output of an alert task, if available */
+        alertOutput: AlertTaskOutput;
+      }
+    | undefined;
+  /**
+   * The output from tasks that write to standard streams (stdout/stderr) such as
+   * spark_jar_task, spark_python_task, python_wheel_task.
+   *
+   * It's not supported for the notebook_task, pipeline_task or spark_submit_task.
+   *
+   * <Databricks> restricts this API to return the last 5 MB of these logs.
+   */
+  logs?: string | undefined;
+  /** Whether the logs are truncated. */
+  logsTruncated?: boolean | undefined;
+  /** If there was an error executing the run, this field contains any available stack traces. */
+  errorTrace?: string | undefined;
+}
+
+export interface GetRunRequest {
   /**
    * The canonical identifier of the run for which to retrieve the metadata.
    * This field is required.
@@ -2048,7 +2126,7 @@ export interface GetRun {
 
 /** Run was retrieved successfully */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetRun_Response {
+export interface GetRunRequest_Response {
   /** A token that can be used to list the next page of array properties. */
   nextPageToken?: string | undefined;
   /** The canonical identifier of the job that contains this run. */
@@ -2139,84 +2217,6 @@ export interface GetRun_Response {
   runDuration?: number | undefined;
   /** The time in milliseconds that the run has spent in the queue. */
   queueDuration?: number | undefined;
-}
-
-/** Retrieves both the output and the metadata of a run. */
-export interface GetRunOutput {
-  /** The canonical identifier for the run. */
-  runId?: number | undefined;
-}
-
-/** Run output was retrieved successfully. */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetRunOutput_Response {
-  /** All details of the run except for its output. */
-  metadata?: Run | undefined;
-  /** An error message indicating why a task failed or why output is not available. The message is unstructured, and its exact format is subject to change. */
-  error?: string | undefined;
-  info?: string | undefined;
-  result?:
-    | {
-        $case: 'notebookOutput';
-        /**
-         * The output of a notebook task, if available. A notebook task that terminates (either successfully or with a failure)
-         * without calling `dbutils.notebook.exit()` is considered to have an empty output.
-         * This field is set but its result value is empty. <Databricks> restricts this API to return the first 5 MB of the output.
-         * To return a larger result, use the [ClusterLogConf](/dev-tools/api/latest/clusters.html#clusterlogconf) field to configure log storage
-         * for the job cluster.
-         */
-        notebookOutput: NotebookTask_NotebookOutput;
-      }
-    | {
-        $case: 'sqlOutput';
-        /** The output of a SQL task, if available. */
-        sqlOutput: SqlTask_SqlOutput;
-      }
-    | {
-        $case: 'dbtOutput';
-        /** The output of a dbt task, if available. */
-        dbtOutput: DbtTask_DbtTaskOutput;
-      }
-    | {
-        $case: 'runJobOutput';
-        /** The output of a run job task, if available */
-        runJobOutput: RunJobTask_RunJobTaskOutput;
-      }
-    | {
-        $case: 'cleanRoomsNotebookOutput';
-        /** The output of a clean rooms notebook task, if available */
-        cleanRoomsNotebookOutput: CleanRoomsNotebookTask_CleanRoomsNotebookTaskOutput;
-      }
-    | {
-        $case: 'dashboardOutput';
-        /** The output of a dashboard task, if available */
-        dashboardOutput: DashboardTaskOutput;
-      }
-    | {
-        $case: 'dbtCloudOutput';
-        /** Deprecated in favor of the new dbt_platform_output */
-        dbtCloudOutput: DbtCloudTaskOutput;
-      }
-    | {$case: 'dbtPlatformOutput'; dbtPlatformOutput: DbtPlatformTaskOutput}
-    | {
-        $case: 'alertOutput';
-        /** The output of an alert task, if available */
-        alertOutput: AlertTaskOutput;
-      }
-    | undefined;
-  /**
-   * The output from tasks that write to standard streams (stdout/stderr) such as
-   * spark_jar_task, spark_python_task, python_wheel_task.
-   *
-   * It's not supported for the notebook_task, pipeline_task or spark_submit_task.
-   *
-   * <Databricks> restricts this API to return the last 5 MB of these logs.
-   */
-  logs?: string | undefined;
-  /** Whether the logs are truncated. */
-  logsTruncated?: boolean | undefined;
-  /** If there was an error executing the run, this field contains any available stack traces. */
-  errorTrace?: string | undefined;
 }
 
 /** Read-only state of the remote repository at the time the job was run. This field is only included on job runs. */
@@ -2677,7 +2677,7 @@ export interface ListJobComplianceForPolicy_Response {
 }
 
 /** Lists all jobs. */
-export interface ListJobs {
+export interface ListJobsRequest {
   /**
    * The offset of the first job to return, relative to the most recently created job.
    * Deprecated since June 2023. Use `page_token` to iterate through the pages instead.
@@ -2698,7 +2698,7 @@ export interface ListJobs {
 
 /** List of jobs was retrieved successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListJobs_Response {
+export interface ListJobsRequest_Response {
   /** The list of jobs. Only included in the response if there are jobs to list. */
   jobs?: BaseJob[] | undefined;
   /** If true, additional jobs matching the provided filter are available for listing. */
@@ -2710,7 +2710,7 @@ export interface ListJobs_Response {
 }
 
 /** Lists runs from most recently started to least. */
-export interface ListRuns {
+export interface ListRunsRequest {
   /** The job for which to list runs. If omitted, the Jobs service lists runs from all jobs. */
   jobId?: number | undefined;
   stateConstraint?:
@@ -2767,7 +2767,7 @@ export interface ListRuns {
 
 /** List of runs was retrieved successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListRuns_Response {
+export interface ListRunsRequest_Response {
   /** A list of runs, from most recently started to least. Only included in the response if there are runs to list. */
   runs?: BaseRun[] | undefined;
   /** If true, additional runs matching the provided filter are available for listing. */
@@ -2920,6 +2920,17 @@ export interface PeriodicTriggerConfiguration {
 export interface PipelineParameters {
   /** If true, triggers a full refresh on the spark declarative pipeline. */
   fullRefresh?: boolean | undefined;
+  /** A list of tables to update without fullRefresh. */
+  refreshSelection?: string[] | undefined;
+  /** A list of tables to update with fullRefresh. */
+  fullRefreshSelection?: string[] | undefined;
+  /** A list of streaming flows to reset checkpoints without clearing data. */
+  resetCheckpointSelection?: string[] | undefined;
+  /**
+   * Flow names to selectively refresh. These are unioned with other selective refresh
+   * options (refresh_selection, full_refresh_selection) to determine the final set of flows to refresh.
+   */
+  refreshFlowSelection?: string[] | undefined;
 }
 
 export interface PipelineTask {
@@ -2927,6 +2938,17 @@ export interface PipelineTask {
   pipelineId?: string | undefined;
   /** If true, triggers a full refresh on the spark declarative pipeline. */
   fullRefresh?: boolean | undefined;
+  /** A list of tables to update without fullRefresh. */
+  refreshSelection?: string[] | undefined;
+  /** A list of tables to update with fullRefresh. */
+  fullRefreshSelection?: string[] | undefined;
+  /** A list of streaming flows to reset checkpoints without clearing data. */
+  resetCheckpointSelection?: string[] | undefined;
+  /**
+   * Flow names to selectively refresh. These are unioned with other selective refresh
+   * options (refresh_selection, full_refresh_selection) to determine the final set of flows to refresh.
+   */
+  refreshFlowSelection?: string[] | undefined;
 }
 
 export interface PowerBiModel {
@@ -3064,7 +3086,7 @@ export interface Repair {
   effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
 }
 
-export interface RepairRun {
+export interface RepairRunRequest {
   /** The job run ID of the run to repair. The run must not be in progress. */
   runId?: number | undefined;
   /** The ID of the latest repair. This parameter is not required when repairing a run for the first time, but must be provided on subsequent requests to repair the same run. */
@@ -3154,7 +3176,7 @@ export interface RepairRun {
 
 /** Name-based parameters for jobs running notebook tasks. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RepairRun_JobParametersEntry {
+export interface RepairRunRequest_JobParametersEntry {
   /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
   key?: string | undefined;
   value?: string | undefined;
@@ -3162,7 +3184,7 @@ export interface RepairRun_JobParametersEntry {
 
 /** Name-based parameters for jobs running notebook tasks. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RepairRun_NotebookParamsEntry {
+export interface RepairRunRequest_NotebookParamsEntry {
   /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
   key?: string | undefined;
   value?: string | undefined;
@@ -3170,7 +3192,7 @@ export interface RepairRun_NotebookParamsEntry {
 
 /** Name-based parameters for jobs running notebook tasks. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RepairRun_PythonNamedParamsEntry {
+export interface RepairRunRequest_PythonNamedParamsEntry {
   /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
   key?: string | undefined;
   value?: string | undefined;
@@ -3178,20 +3200,20 @@ export interface RepairRun_PythonNamedParamsEntry {
 
 /** Run repair was initiated. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RepairRun_Response {
+export interface RepairRunRequest_Response {
   /** The ID of the repair. Must be provided in subsequent repairs using the `latest_repair_id` field to ensure sequential repairs. */
   repairId?: number | undefined;
 }
 
 /** Name-based parameters for jobs running notebook tasks. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RepairRun_SqlParamsEntry {
+export interface RepairRunRequest_SqlParamsEntry {
   /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
   key?: string | undefined;
   value?: string | undefined;
 }
 
-export interface ResetJob {
+export interface ResetJobRequest {
   /** The canonical identifier of the job to reset. This field is required. */
   jobId?: number | undefined;
   /**
@@ -3204,7 +3226,7 @@ export interface ResetJob {
 
 /** Job was overwritten successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface ResetJob_Response {}
+export interface ResetJobRequest_Response {}
 
 export interface ResolvedValues {
   resolved?:
@@ -3557,7 +3579,7 @@ export interface RunLifeCycleState {}
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface RunLifecycleStateV2 {}
 
-export interface RunNow {
+export interface RunNowRequest {
   /** The ID of the job to be executed */
   jobId?: number | undefined;
   /** Job-level parameters used in the run. for example `"param": "overriding_val"` */
@@ -3656,7 +3678,7 @@ export interface RunNow {
 
 /** Name-based parameters for jobs running notebook tasks. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunNow_JobParametersEntry {
+export interface RunNowRequest_JobParametersEntry {
   /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
   key?: string | undefined;
   value?: string | undefined;
@@ -3664,7 +3686,7 @@ export interface RunNow_JobParametersEntry {
 
 /** Name-based parameters for jobs running notebook tasks. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunNow_NotebookParamsEntry {
+export interface RunNowRequest_NotebookParamsEntry {
   /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
   key?: string | undefined;
   value?: string | undefined;
@@ -3672,7 +3694,7 @@ export interface RunNow_NotebookParamsEntry {
 
 /** Name-based parameters for jobs running notebook tasks. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunNow_PythonNamedParamsEntry {
+export interface RunNowRequest_PythonNamedParamsEntry {
   /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
   key?: string | undefined;
   value?: string | undefined;
@@ -3680,7 +3702,7 @@ export interface RunNow_PythonNamedParamsEntry {
 
 /** Run was started successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunNow_Response {
+export interface RunNowRequest_Response {
   /** The globally unique ID of the newly triggered run. */
   runId?: number | undefined;
   /** A unique identifier for this job run. This is set to the same value as `run_id`. */
@@ -3689,7 +3711,7 @@ export interface RunNow_Response {
 
 /** Name-based parameters for jobs running notebook tasks. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunNow_SqlParamsEntry {
+export interface RunNowRequest_SqlParamsEntry {
   /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
   key?: string | undefined;
   value?: string | undefined;
@@ -4486,7 +4508,7 @@ export interface SqlTaskSubscription {
     | undefined;
 }
 
-export interface SubmitRun {
+export interface SubmitRunRequest {
   /** List of permissions to set on the job. */
   accessControlList?: AccessControlRequest[] | undefined;
   /** The queue settings of the one-time run. */
@@ -4542,7 +4564,7 @@ export interface SubmitRun {
 
 /** Run was created and started successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface SubmitRun_Response {
+export interface SubmitRunRequest_Response {
   /** The canonical identifier for the newly submitted run. */
   runId?: number | undefined;
 }
@@ -4839,7 +4861,7 @@ export interface TriggerStateProto {
     | undefined;
 }
 
-export interface UpdateJob {
+export interface UpdateJobRequest {
   /** The canonical identifier of the job to update. This field is required. */
   jobId?: number | undefined;
   /**
@@ -4858,7 +4880,7 @@ export interface UpdateJob {
 
 /** Job was updated successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface UpdateJob_Response {}
+export interface UpdateJobRequest_Response {}
 
 export interface ViewItem {
   /** Content of the view. */
@@ -5128,11 +5150,11 @@ export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCancelAllRuns_ResponseSchema: z.ZodType<CancelAllRuns_Response> =
+export const unmarshalCancelAllRunsRequest_ResponseSchema: z.ZodType<CancelAllRunsRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCancelRun_ResponseSchema: z.ZodType<CancelRun_Response> =
+export const unmarshalCancelRunRequest_ResponseSchema: z.ZodType<CancelRunRequest_Response> =
   z.object({});
 
 export const unmarshalCleanRoomTaskRunStateSchema: z.ZodType<CleanRoomTaskRunState> =
@@ -5369,7 +5391,7 @@ export const unmarshalContinuousSettingsSchema: z.ZodType<ContinuousSettings> =
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateJob_ResponseSchema: z.ZodType<CreateJob_Response> =
+export const unmarshalCreateJobRequest_ResponseSchema: z.ZodType<CreateJobRequest_Response> =
   z
     .object({
       job_id: z.number().optional(),
@@ -5555,11 +5577,11 @@ export const unmarshalDbtTask_DbtTaskOutputSchema: z.ZodType<DbtTask_DbtTaskOutp
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteJob_ResponseSchema: z.ZodType<DeleteJob_Response> =
+export const unmarshalDeleteJobRequest_ResponseSchema: z.ZodType<DeleteJobRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRun_ResponseSchema: z.ZodType<DeleteRun_Response> =
+export const unmarshalDeleteRunRequest_ResponseSchema: z.ZodType<DeleteRunRequest_Response> =
   z.object({});
 
 export const unmarshalDockerBasicAuthSchema: z.ZodType<DockerBasicAuth> = z
@@ -5637,7 +5659,7 @@ export const unmarshalEnvironmentSchema: z.ZodType<Environment> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalExportRun_ResponseSchema: z.ZodType<ExportRun_Response> =
+export const unmarshalExportRunRequest_ResponseSchema: z.ZodType<ExportRunRequest_Response> =
   z
     .object({
       views: z.array(z.lazy(() => unmarshalViewItemSchema)).optional(),
@@ -5733,31 +5755,32 @@ export const unmarshalGenAiComputeTaskSchema: z.ZodType<GenAiComputeTask> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetJob_ResponseSchema: z.ZodType<GetJob_Response> = z
-  .object({
-    next_page_token: z.string().optional(),
-    job_id: z.number().optional(),
-    creator_user_name: z.string().optional(),
-    run_as_user_name: z.string().optional(),
-    settings: z.lazy(() => unmarshalJobSettingsSchema).optional(),
-    created_time: z.number().optional(),
-    trigger_state: z.lazy(() => unmarshalTriggerStateProtoSchema).optional(),
-    has_more: z.boolean().optional(),
-    effective_budget_policy_id: z.string().optional(),
-    effective_usage_policy_id: z.string().optional(),
-  })
-  .transform(d => ({
-    nextPageToken: d.next_page_token,
-    jobId: d.job_id,
-    creatorUserName: d.creator_user_name,
-    runAsUserName: d.run_as_user_name,
-    settings: d.settings,
-    createdTime: d.created_time,
-    triggerState: d.trigger_state,
-    hasMore: d.has_more,
-    effectiveBudgetPolicyId: d.effective_budget_policy_id,
-    effectiveUsagePolicyId: d.effective_usage_policy_id,
-  }));
+export const unmarshalGetJobRequest_ResponseSchema: z.ZodType<GetJobRequest_Response> =
+  z
+    .object({
+      next_page_token: z.string().optional(),
+      job_id: z.number().optional(),
+      creator_user_name: z.string().optional(),
+      run_as_user_name: z.string().optional(),
+      settings: z.lazy(() => unmarshalJobSettingsSchema).optional(),
+      created_time: z.number().optional(),
+      trigger_state: z.lazy(() => unmarshalTriggerStateProtoSchema).optional(),
+      has_more: z.boolean().optional(),
+      effective_budget_policy_id: z.string().optional(),
+      effective_usage_policy_id: z.string().optional(),
+    })
+    .transform(d => ({
+      nextPageToken: d.next_page_token,
+      jobId: d.job_id,
+      creatorUserName: d.creator_user_name,
+      runAsUserName: d.run_as_user_name,
+      settings: d.settings,
+      createdTime: d.created_time,
+      triggerState: d.trigger_state,
+      hasMore: d.has_more,
+      effectiveBudgetPolicyId: d.effective_budget_policy_id,
+      effectiveUsagePolicyId: d.effective_usage_policy_id,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalGetPolicyComplianceForJob_ResponseSchema: z.ZodType<GetPolicyComplianceForJob_Response> =
@@ -5772,90 +5795,7 @@ export const unmarshalGetPolicyComplianceForJob_ResponseSchema: z.ZodType<GetPol
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetRun_ResponseSchema: z.ZodType<GetRun_Response> = z
-  .object({
-    next_page_token: z.string().optional(),
-    job_id: z.number().optional(),
-    run_id: z.number().optional(),
-    creator_user_name: z.string().optional(),
-    number_in_job: z.number().optional(),
-    original_attempt_run_id: z.number().optional(),
-    state: z.lazy(() => unmarshalRunStateSchema).optional(),
-    schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
-    cluster_spec: z.lazy(() => unmarshalClusterSpecSchema).optional(),
-    cluster_instance: z.lazy(() => unmarshalClusterInstanceSchema).optional(),
-    job_parameters: z
-      .array(z.lazy(() => unmarshalRun_JobLevelParametersSchema))
-      .optional(),
-    overriding_parameters: z
-      .lazy(() => unmarshalRunParametersSchema)
-      .optional(),
-    trigger: z.enum(TriggerType).optional(),
-    trigger_info: z.lazy(() => unmarshalRunTriggerInfoSchema).optional(),
-    run_name: z.string().optional(),
-    run_page_url: z.string().optional(),
-    run_type: z.enum(RunType).optional(),
-    tasks: z.array(z.lazy(() => unmarshalRunTaskSchema)).optional(),
-    description: z.string().optional(),
-    attempt_number: z.number().optional(),
-    job_clusters: z.array(z.lazy(() => unmarshalJobClusterSchema)).optional(),
-    git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
-    repair_history: z.array(z.lazy(() => unmarshalRepairSchema)).optional(),
-    status: z.lazy(() => unmarshalRunStatusSchema).optional(),
-    job_run_id: z.number().optional(),
-    has_more: z.boolean().optional(),
-    effective_performance_target: z
-      .enum(PerformanceTarget_PerformanceTarget)
-      .optional(),
-    effective_usage_policy_id: z.string().optional(),
-    start_time: z.number().optional(),
-    setup_duration: z.number().optional(),
-    execution_duration: z.number().optional(),
-    cleanup_duration: z.number().optional(),
-    end_time: z.number().optional(),
-    run_duration: z.number().optional(),
-    queue_duration: z.number().optional(),
-  })
-  .transform(d => ({
-    nextPageToken: d.next_page_token,
-    jobId: d.job_id,
-    runId: d.run_id,
-    creatorUserName: d.creator_user_name,
-    numberInJob: d.number_in_job,
-    originalAttemptRunId: d.original_attempt_run_id,
-    state: d.state,
-    schedule: d.schedule,
-    clusterSpec: d.cluster_spec,
-    clusterInstance: d.cluster_instance,
-    jobParameters: d.job_parameters,
-    overridingParameters: d.overriding_parameters,
-    trigger: d.trigger,
-    triggerInfo: d.trigger_info,
-    runName: d.run_name,
-    runPageUrl: d.run_page_url,
-    runType: d.run_type,
-    tasks: d.tasks,
-    description: d.description,
-    attemptNumber: d.attempt_number,
-    jobClusters: d.job_clusters,
-    gitSource: d.git_source,
-    repairHistory: d.repair_history,
-    status: d.status,
-    jobRunId: d.job_run_id,
-    hasMore: d.has_more,
-    effectivePerformanceTarget: d.effective_performance_target,
-    effectiveUsagePolicyId: d.effective_usage_policy_id,
-    startTime: d.start_time,
-    setupDuration: d.setup_duration,
-    executionDuration: d.execution_duration,
-    cleanupDuration: d.cleanup_duration,
-    endTime: d.end_time,
-    runDuration: d.run_duration,
-    queueDuration: d.queue_duration,
-  }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetRunOutput_ResponseSchema: z.ZodType<GetRunOutput_Response> =
+export const unmarshalGetRunOutputRequest_ResponseSchema: z.ZodType<GetRunOutputRequest_Response> =
   z
     .object({
       metadata: z.lazy(() => unmarshalRunSchema).optional(),
@@ -5937,6 +5877,90 @@ export const unmarshalGetRunOutput_ResponseSchema: z.ZodType<GetRunOutput_Respon
       logs: d.logs,
       logsTruncated: d.logs_truncated,
       errorTrace: d.error_trace,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalGetRunRequest_ResponseSchema: z.ZodType<GetRunRequest_Response> =
+  z
+    .object({
+      next_page_token: z.string().optional(),
+      job_id: z.number().optional(),
+      run_id: z.number().optional(),
+      creator_user_name: z.string().optional(),
+      number_in_job: z.number().optional(),
+      original_attempt_run_id: z.number().optional(),
+      state: z.lazy(() => unmarshalRunStateSchema).optional(),
+      schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
+      cluster_spec: z.lazy(() => unmarshalClusterSpecSchema).optional(),
+      cluster_instance: z.lazy(() => unmarshalClusterInstanceSchema).optional(),
+      job_parameters: z
+        .array(z.lazy(() => unmarshalRun_JobLevelParametersSchema))
+        .optional(),
+      overriding_parameters: z
+        .lazy(() => unmarshalRunParametersSchema)
+        .optional(),
+      trigger: z.enum(TriggerType).optional(),
+      trigger_info: z.lazy(() => unmarshalRunTriggerInfoSchema).optional(),
+      run_name: z.string().optional(),
+      run_page_url: z.string().optional(),
+      run_type: z.enum(RunType).optional(),
+      tasks: z.array(z.lazy(() => unmarshalRunTaskSchema)).optional(),
+      description: z.string().optional(),
+      attempt_number: z.number().optional(),
+      job_clusters: z.array(z.lazy(() => unmarshalJobClusterSchema)).optional(),
+      git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
+      repair_history: z.array(z.lazy(() => unmarshalRepairSchema)).optional(),
+      status: z.lazy(() => unmarshalRunStatusSchema).optional(),
+      job_run_id: z.number().optional(),
+      has_more: z.boolean().optional(),
+      effective_performance_target: z
+        .enum(PerformanceTarget_PerformanceTarget)
+        .optional(),
+      effective_usage_policy_id: z.string().optional(),
+      start_time: z.number().optional(),
+      setup_duration: z.number().optional(),
+      execution_duration: z.number().optional(),
+      cleanup_duration: z.number().optional(),
+      end_time: z.number().optional(),
+      run_duration: z.number().optional(),
+      queue_duration: z.number().optional(),
+    })
+    .transform(d => ({
+      nextPageToken: d.next_page_token,
+      jobId: d.job_id,
+      runId: d.run_id,
+      creatorUserName: d.creator_user_name,
+      numberInJob: d.number_in_job,
+      originalAttemptRunId: d.original_attempt_run_id,
+      state: d.state,
+      schedule: d.schedule,
+      clusterSpec: d.cluster_spec,
+      clusterInstance: d.cluster_instance,
+      jobParameters: d.job_parameters,
+      overridingParameters: d.overriding_parameters,
+      trigger: d.trigger,
+      triggerInfo: d.trigger_info,
+      runName: d.run_name,
+      runPageUrl: d.run_page_url,
+      runType: d.run_type,
+      tasks: d.tasks,
+      description: d.description,
+      attemptNumber: d.attempt_number,
+      jobClusters: d.job_clusters,
+      gitSource: d.git_source,
+      repairHistory: d.repair_history,
+      status: d.status,
+      jobRunId: d.job_run_id,
+      hasMore: d.has_more,
+      effectivePerformanceTarget: d.effective_performance_target,
+      effectiveUsagePolicyId: d.effective_usage_policy_id,
+      startTime: d.start_time,
+      setupDuration: d.setup_duration,
+      executionDuration: d.execution_duration,
+      cleanupDuration: d.cleanup_duration,
+      endTime: d.end_time,
+      runDuration: d.run_duration,
+      queueDuration: d.queue_duration,
     }));
 
 export const unmarshalGitMetadataSnapshotSchema: z.ZodType<GitMetadataSnapshot> =
@@ -6261,34 +6285,36 @@ export const unmarshalListJobComplianceForPolicy_ResponseSchema: z.ZodType<ListJ
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListJobs_ResponseSchema: z.ZodType<ListJobs_Response> = z
-  .object({
-    jobs: z.array(z.lazy(() => unmarshalBaseJobSchema)).optional(),
-    has_more: z.boolean().optional(),
-    next_page_token: z.string().optional(),
-    prev_page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    jobs: d.jobs,
-    hasMore: d.has_more,
-    nextPageToken: d.next_page_token,
-    prevPageToken: d.prev_page_token,
-  }));
+export const unmarshalListJobsRequest_ResponseSchema: z.ZodType<ListJobsRequest_Response> =
+  z
+    .object({
+      jobs: z.array(z.lazy(() => unmarshalBaseJobSchema)).optional(),
+      has_more: z.boolean().optional(),
+      next_page_token: z.string().optional(),
+      prev_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      jobs: d.jobs,
+      hasMore: d.has_more,
+      nextPageToken: d.next_page_token,
+      prevPageToken: d.prev_page_token,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListRuns_ResponseSchema: z.ZodType<ListRuns_Response> = z
-  .object({
-    runs: z.array(z.lazy(() => unmarshalBaseRunSchema)).optional(),
-    has_more: z.boolean().optional(),
-    next_page_token: z.string().optional(),
-    prev_page_token: z.string().optional(),
-  })
-  .transform(d => ({
-    runs: d.runs,
-    hasMore: d.has_more,
-    nextPageToken: d.next_page_token,
-    prevPageToken: d.prev_page_token,
-  }));
+export const unmarshalListRunsRequest_ResponseSchema: z.ZodType<ListRunsRequest_Response> =
+  z
+    .object({
+      runs: z.array(z.lazy(() => unmarshalBaseRunSchema)).optional(),
+      has_more: z.boolean().optional(),
+      next_page_token: z.string().optional(),
+      prev_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      runs: d.runs,
+      hasMore: d.has_more,
+      nextPageToken: d.next_page_token,
+      prevPageToken: d.prev_page_token,
+    }));
 
 export const unmarshalLocalFileInfoSchema: z.ZodType<LocalFileInfo> = z
   .object({
@@ -6414,19 +6440,35 @@ export const unmarshalPipelineParametersSchema: z.ZodType<PipelineParameters> =
   z
     .object({
       full_refresh: z.boolean().optional(),
+      refresh_selection: z.array(z.string()).optional(),
+      full_refresh_selection: z.array(z.string()).optional(),
+      reset_checkpoint_selection: z.array(z.string()).optional(),
+      refresh_flow_selection: z.array(z.string()).optional(),
     })
     .transform(d => ({
       fullRefresh: d.full_refresh,
+      refreshSelection: d.refresh_selection,
+      fullRefreshSelection: d.full_refresh_selection,
+      resetCheckpointSelection: d.reset_checkpoint_selection,
+      refreshFlowSelection: d.refresh_flow_selection,
     }));
 
 export const unmarshalPipelineTaskSchema: z.ZodType<PipelineTask> = z
   .object({
     pipeline_id: z.string().optional(),
     full_refresh: z.boolean().optional(),
+    refresh_selection: z.array(z.string()).optional(),
+    full_refresh_selection: z.array(z.string()).optional(),
+    reset_checkpoint_selection: z.array(z.string()).optional(),
+    refresh_flow_selection: z.array(z.string()).optional(),
   })
   .transform(d => ({
     pipelineId: d.pipeline_id,
     fullRefresh: d.full_refresh,
+    refreshSelection: d.refresh_selection,
+    fullRefreshSelection: d.full_refresh_selection,
+    resetCheckpointSelection: d.reset_checkpoint_selection,
+    refreshFlowSelection: d.refresh_flow_selection,
   }));
 
 export const unmarshalPowerBiModelSchema: z.ZodType<PowerBiModel> = z
@@ -6577,7 +6619,7 @@ export const unmarshalRepairSchema: z.ZodType<Repair> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRepairRun_ResponseSchema: z.ZodType<RepairRun_Response> =
+export const unmarshalRepairRunRequest_ResponseSchema: z.ZodType<RepairRunRequest_Response> =
   z
     .object({
       repair_id: z.number().optional(),
@@ -6587,7 +6629,7 @@ export const unmarshalRepairRun_ResponseSchema: z.ZodType<RepairRun_Response> =
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalResetJob_ResponseSchema: z.ZodType<ResetJob_Response> =
+export const unmarshalResetJobRequest_ResponseSchema: z.ZodType<ResetJobRequest_Response> =
   z.object({});
 
 export const unmarshalResolvedValuesSchema: z.ZodType<ResolvedValues> = z
@@ -6891,15 +6933,16 @@ export const unmarshalRunJobTask_RunJobTaskOutputSchema: z.ZodType<RunJobTask_Ru
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRunNow_ResponseSchema: z.ZodType<RunNow_Response> = z
-  .object({
-    run_id: z.number().optional(),
-    number_in_job: z.number().optional(),
-  })
-  .transform(d => ({
-    runId: d.run_id,
-    numberInJob: d.number_in_job,
-  }));
+export const unmarshalRunNowRequest_ResponseSchema: z.ZodType<RunNowRequest_Response> =
+  z
+    .object({
+      run_id: z.number().optional(),
+      number_in_job: z.number().optional(),
+    })
+    .transform(d => ({
+      runId: d.run_id,
+      numberInJob: d.number_in_job,
+    }));
 
 export const unmarshalRunParametersSchema: z.ZodType<RunParameters> = z
   .object({
@@ -7451,7 +7494,7 @@ export const unmarshalSqlTaskSubscriptionSchema: z.ZodType<SqlTaskSubscription> 
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSubmitRun_ResponseSchema: z.ZodType<SubmitRun_Response> =
+export const unmarshalSubmitRunRequest_ResponseSchema: z.ZodType<SubmitRunRequest_Response> =
   z
     .object({
       run_id: z.number().optional(),
@@ -7775,7 +7818,7 @@ export const unmarshalTriggerStateProtoSchema: z.ZodType<TriggerStateProto> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateJob_ResponseSchema: z.ZodType<UpdateJob_Response> =
+export const unmarshalUpdateJobRequest_ResponseSchema: z.ZodType<UpdateJobRequest_Response> =
   z.object({});
 
 export const unmarshalViewItemSchema: z.ZodType<ViewItem> = z
@@ -7988,7 +8031,7 @@ export const marshalAzureAttributesSchema: z.ZodType = z
     spot_bid_max_price: d.spotBidMaxPrice,
   }));
 
-export const marshalCancelAllRunsSchema: z.ZodType = z
+export const marshalCancelAllRunsRequestSchema: z.ZodType = z
   .object({
     jobId: z.number().optional(),
     allQueuedRuns: z.boolean().optional(),
@@ -7998,7 +8041,7 @@ export const marshalCancelAllRunsSchema: z.ZodType = z
     all_queued_runs: d.allQueuedRuns,
   }));
 
-export const marshalCancelRunSchema: z.ZodType = z
+export const marshalCancelRunRequestSchema: z.ZodType = z
   .object({
     runId: z.number().optional(),
   })
@@ -8175,7 +8218,7 @@ export const marshalContinuousSettingsSchema: z.ZodType = z
     task_retry_mode: d.taskRetryMode,
   }));
 
-export const marshalCreateJobSchema: z.ZodType = z
+export const marshalCreateJobRequestSchema: z.ZodType = z
   .object({
     accessControlList: z
       .array(z.lazy(() => marshalAccessControlRequestSchema))
@@ -8325,7 +8368,7 @@ export const marshalDbtTaskSchema: z.ZodType = z
     source: d.source,
   }));
 
-export const marshalDeleteJobSchema: z.ZodType = z
+export const marshalDeleteJobRequestSchema: z.ZodType = z
   .object({
     jobId: z.number().optional(),
   })
@@ -8333,7 +8376,7 @@ export const marshalDeleteJobSchema: z.ZodType = z
     job_id: d.jobId,
   }));
 
-export const marshalDeleteRunSchema: z.ZodType = z
+export const marshalDeleteRunRequestSchema: z.ZodType = z
   .object({
     runId: z.number().optional(),
   })
@@ -8880,19 +8923,35 @@ export const marshalPeriodicTriggerConfigurationSchema: z.ZodType = z
 export const marshalPipelineParametersSchema: z.ZodType = z
   .object({
     fullRefresh: z.boolean().optional(),
+    refreshSelection: z.array(z.string()).optional(),
+    fullRefreshSelection: z.array(z.string()).optional(),
+    resetCheckpointSelection: z.array(z.string()).optional(),
+    refreshFlowSelection: z.array(z.string()).optional(),
   })
   .transform(d => ({
     full_refresh: d.fullRefresh,
+    refresh_selection: d.refreshSelection,
+    full_refresh_selection: d.fullRefreshSelection,
+    reset_checkpoint_selection: d.resetCheckpointSelection,
+    refresh_flow_selection: d.refreshFlowSelection,
   }));
 
 export const marshalPipelineTaskSchema: z.ZodType = z
   .object({
     pipelineId: z.string().optional(),
     fullRefresh: z.boolean().optional(),
+    refreshSelection: z.array(z.string()).optional(),
+    fullRefreshSelection: z.array(z.string()).optional(),
+    resetCheckpointSelection: z.array(z.string()).optional(),
+    refreshFlowSelection: z.array(z.string()).optional(),
   })
   .transform(d => ({
     pipeline_id: d.pipelineId,
     full_refresh: d.fullRefresh,
+    refresh_selection: d.refreshSelection,
+    full_refresh_selection: d.fullRefreshSelection,
+    reset_checkpoint_selection: d.resetCheckpointSelection,
+    refresh_flow_selection: d.refreshFlowSelection,
   }));
 
 export const marshalPowerBiModelSchema: z.ZodType = z
@@ -9006,7 +9065,7 @@ export const marshalRCranLibrarySchema: z.ZodType = z
     repo: d.repo,
   }));
 
-export const marshalRepairRunSchema: z.ZodType = z
+export const marshalRepairRunRequestSchema: z.ZodType = z
   .object({
     runId: z.number().optional(),
     latestRepairId: z.number().optional(),
@@ -9042,7 +9101,7 @@ export const marshalRepairRunSchema: z.ZodType = z
     dbt_commands: d.dbtCommands,
   }));
 
-export const marshalResetJobSchema: z.ZodType = z
+export const marshalResetJobRequestSchema: z.ZodType = z
   .object({
     jobId: z.number().optional(),
     newSettings: z.lazy(() => marshalJobSettingsSchema).optional(),
@@ -9078,7 +9137,7 @@ export const marshalRunJobTaskSchema: z.ZodType = z
     dbt_commands: d.dbtCommands,
   }));
 
-export const marshalRunNowSchema: z.ZodType = z
+export const marshalRunNowRequestSchema: z.ZodType = z
   .object({
     jobId: z.number().optional(),
     jobParameters: z.record(z.string(), z.string()).optional(),
@@ -9488,7 +9547,7 @@ export const marshalSqlTaskSubscriptionSchema: z.ZodType = z
     }),
   }));
 
-export const marshalSubmitRunSchema: z.ZodType = z
+export const marshalSubmitRunRequestSchema: z.ZodType = z
   .object({
     accessControlList: z
       .array(z.lazy(() => marshalAccessControlRequestSchema))
@@ -9837,7 +9896,7 @@ export const marshalTriggerSettingsSchema: z.ZodType = z
     ...(d.configuration?.$case === 'model' && {model: d.configuration.model}),
   }));
 
-export const marshalUpdateJobSchema: z.ZodType = z
+export const marshalUpdateJobRequestSchema: z.ZodType = z
   .object({
     jobId: z.number().optional(),
     newSettings: z.lazy(() => marshalJobSettingsSchema).optional(),

@@ -26,7 +26,7 @@ export enum VolumeOperation {
 
 /** A enum represents the result of the file operation */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ValidateCredential_Result {
+export enum ValidateCredentialRequest_Result {
   PASS = 'PASS',
   FAIL = 'FAIL',
   SKIP = 'SKIP',
@@ -37,7 +37,7 @@ export enum ValidateCredential_Result {
  * with the storage credential
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ValidateStorageCredential_FileOperation {
+export enum ValidateStorageCredentialRequest_FileOperation {
   LIST = 'LIST',
   READ = 'READ',
   WRITE = 'WRITE',
@@ -47,13 +47,13 @@ export enum ValidateStorageCredential_FileOperation {
 
 /** A enum represents the result of the file operation */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ValidateStorageCredential_Result {
+export enum ValidateStorageCredentialRequest_Result {
   PASS = 'PASS',
   FAIL = 'FAIL',
   SKIP = 'SKIP',
 }
 
-export interface AccountsCreateStorageCredentialPublic {
+export interface AccountsCreateStorageCredentialPublicRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
   accountId?: string | undefined;
   /** Unity Catalog metastore ID */
@@ -67,12 +67,12 @@ export interface AccountsCreateStorageCredentialPublic {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface AccountsCreateStorageCredentialPublic_Response {
+export interface AccountsCreateStorageCredentialPublicRequest_Response {
   credentialInfo?: StorageCredentialInfo | undefined;
 }
 
 /** Deletes a storage credential for an account */
-export interface AccountsDeleteStorageCredentialPublic {
+export interface AccountsDeleteStorageCredentialPublicRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
   accountId?: string | undefined;
   /** Unity Catalog metastore ID */
@@ -85,10 +85,10 @@ export interface AccountsDeleteStorageCredentialPublic {
 
 /** The storage credential was successfully deleted. */
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface AccountsDeleteStorageCredentialPublic_Response {}
+export interface AccountsDeleteStorageCredentialPublicRequest_Response {}
 
 /** Retrieves a single storage credential */
-export interface AccountsGetStorageCredentialPublic {
+export interface AccountsGetStorageCredentialPublicRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
   accountId?: string | undefined;
   /** Unity Catalog metastore ID */
@@ -99,12 +99,12 @@ export interface AccountsGetStorageCredentialPublic {
 
 /** The storage credential was successfully retrieved. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface AccountsGetStorageCredentialPublic_Response {
+export interface AccountsGetStorageCredentialPublicRequest_Response {
   credentialInfo?: StorageCredentialInfo | undefined;
 }
 
 /** Lists all storage credentials for the given account and metastore */
-export interface AccountsListStorageCredentialsPublic {
+export interface AccountsListStorageCredentialsPublicRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
   accountId?: string | undefined;
   /** Unity Catalog metastore ID */
@@ -113,13 +113,13 @@ export interface AccountsListStorageCredentialsPublic {
 
 /** The metastore storage credentials were successfully returned. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface AccountsListStorageCredentialsPublic_Response {
+export interface AccountsListStorageCredentialsPublicRequest_Response {
   /** An array of metastore storage credentials. */
   storageCredentials?: StorageCredentialInfo[] | undefined;
 }
 
 /** The storage credential to update. */
-export interface AccountsUpdateStorageCredentialPublic {
+export interface AccountsUpdateStorageCredentialPublicRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
   accountId?: string | undefined;
   /** Unity Catalog metastore ID */
@@ -133,7 +133,7 @@ export interface AccountsUpdateStorageCredentialPublic {
 
 /** The storage credential was successfully updated. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface AccountsUpdateStorageCredentialPublic_Response {
+export interface AccountsUpdateStorageCredentialPublicRequest_Response {
   credentialInfo?: StorageCredentialInfo | undefined;
 }
 
@@ -293,7 +293,11 @@ export interface CreateAccountsStorageCredential {
   isolationMode?: IsolationMode | undefined;
 }
 
-export interface CreateCredential {
+export interface CreateCredentialAwsCredentials {
+  creds?: {$case: 'stsRole'; stsRole: AwsCredentials_StsRole} | undefined;
+}
+
+export interface CreateCredentialRequest {
   /**
    * Optional. Supplying true to this argument skips validation of the created
    * set of credentials.
@@ -371,10 +375,6 @@ export interface CreateCredential {
   isolationMode?: IsolationMode | undefined;
 }
 
-export interface CreateCredentialAwsCredentials {
-  creds?: {$case: 'stsRole'; stsRole: AwsCredentials_StsRole} | undefined;
-}
-
 export interface CreateCredentialsPublicRequest {
   accountId?: string | undefined;
   /** The human-readable name of the credential configuration object. */
@@ -385,7 +385,7 @@ export interface CreateCredentialsPublicRequest {
     | undefined;
 }
 
-export interface CreateStorageCredential {
+export interface CreateStorageCredentialRequest {
   /** Supplying true to this argument skips validation of the created credential. */
   skipValidation?: boolean | undefined;
   /**
@@ -561,7 +561,7 @@ export interface DatabricksGcpServiceAccount {
   credentialId?: string | undefined;
 }
 
-export interface DeleteCredential {
+export interface DeleteCredentialRequest {
   /** Name of the credential. */
   nameArg?: string | undefined;
   /**
@@ -573,7 +573,7 @@ export interface DeleteCredential {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteCredential_Response {}
+export interface DeleteCredentialRequest_Response {}
 
 export interface DeleteCredentialsPublicRequest {
   /** Databricks Account API credential configuration ID */
@@ -581,7 +581,7 @@ export interface DeleteCredentialsPublicRequest {
   accountId?: string | undefined;
 }
 
-export interface DeleteStorageCredential {
+export interface DeleteStorageCredentialRequest {
   /** Name of the storage credential. */
   nameArg?: string | undefined;
   /**
@@ -593,7 +593,7 @@ export interface DeleteStorageCredential {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteStorageCredential_Response {}
+export interface DeleteStorageCredentialRequest_Response {}
 
 /**
  * GCP temporary credentials for API authentication.
@@ -616,7 +616,7 @@ export interface GcpServiceAccountKey {
   privateKey?: string | undefined;
 }
 
-export interface GenerateTemporaryPathCredential {
+export interface GenerateTemporaryPathCredentialRequest {
   /** URL for path-based access. */
   url?: string | undefined;
   /** The operation being performed on the path. */
@@ -630,7 +630,7 @@ export interface GenerateTemporaryPathCredential {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GenerateTemporaryPathCredential_Response {
+export interface GenerateTemporaryPathCredentialRequest_Response {
   /** The temporary credential. */
   credentials?:
     | {$case: 'awsTempCredentials'; awsTempCredentials: TemporaryAwsCredentials}
@@ -651,24 +651,24 @@ export interface GenerateTemporaryPathCredential_Response {
   url?: string | undefined;
 }
 
-export interface GenerateTemporaryServiceCredential {
+export interface GenerateTemporaryServiceCredentialRequest {
   /** The name of the service credential used to generate a temporary credential */
   credentialName?: string | undefined;
   options?:
     | {
         $case: 'azureOptions';
-        azureOptions: GenerateTemporaryServiceCredential_AzureOptions;
+        azureOptions: GenerateTemporaryServiceCredentialRequest_AzureOptions;
       }
     | {
         $case: 'gcpOptions';
-        gcpOptions: GenerateTemporaryServiceCredential_GcpOptions;
+        gcpOptions: GenerateTemporaryServiceCredentialRequest_GcpOptions;
       }
     | undefined;
 }
 
 /** The Azure cloud options to customize the requested temporary credential */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GenerateTemporaryServiceCredential_AzureOptions {
+export interface GenerateTemporaryServiceCredentialRequest_AzureOptions {
   /**
    * The resources to which the temporary Azure credential should apply. These resources
    * are the scopes that are passed to the token provider (see https://learn.microsoft.com/python/api/azure-core/azure.core.credentials.tokencredential?view=azure-python)
@@ -678,7 +678,7 @@ export interface GenerateTemporaryServiceCredential_AzureOptions {
 
 /** The GCP cloud options to customize the requested temporary credential */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GenerateTemporaryServiceCredential_GcpOptions {
+export interface GenerateTemporaryServiceCredentialRequest_GcpOptions {
   /**
    * The scopes to which the temporary GCP credential should apply. These resources
    * are the scopes that are passed to the token provider (see
@@ -687,7 +687,7 @@ export interface GenerateTemporaryServiceCredential_GcpOptions {
   scopes?: string[] | undefined;
 }
 
-export interface GenerateTemporaryTableCredential {
+export interface GenerateTemporaryTableCredentialRequest {
   /** UUID of the table to read or write. */
   tableId?: string | undefined;
   /**
@@ -698,7 +698,7 @@ export interface GenerateTemporaryTableCredential {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GenerateTemporaryTableCredential_Response {
+export interface GenerateTemporaryTableCredentialRequest_Response {
   /** The temporary credential. */
   credentials?:
     | {$case: 'awsTempCredentials'; awsTempCredentials: TemporaryAwsCredentials}
@@ -720,7 +720,7 @@ export interface GenerateTemporaryTableCredential_Response {
 }
 
 /** Generate volume credentials RPC */
-export interface GenerateTemporaryVolumeCredential {
+export interface GenerateTemporaryVolumeCredentialRequest {
   /** Id of the volume to read or write. */
   volumeId?: string | undefined;
   /**
@@ -731,7 +731,7 @@ export interface GenerateTemporaryVolumeCredential {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GenerateTemporaryVolumeCredential_Response {
+export interface GenerateTemporaryVolumeCredentialRequest_Response {
   /** The temporary credential. */
   credentials?:
     | {$case: 'awsTempCredentials'; awsTempCredentials: TemporaryAwsCredentials}
@@ -752,7 +752,7 @@ export interface GenerateTemporaryVolumeCredential_Response {
   url?: string | undefined;
 }
 
-export interface GetCredential {
+export interface GetCredentialRequest {
   /** Name of the credential. */
   nameArg?: string | undefined;
 }
@@ -768,9 +768,17 @@ export interface GetCredentialsPublicRequest {
  * Please use the new consolidated /credentials API instead.
  * See https://github.com/databricks-eng/universe/pull/857047#discussion_r1924779791 for an example of a case when that wasn't possible.
  */
-export interface GetStorageCredential {
+export interface GetStorageCredentialRequest {
   /** Name of the storage credential. */
   nameArg?: string | undefined;
+}
+
+export interface ListCredentialsPublicRequest {
+  accountId?: string | undefined;
+}
+
+export interface ListCredentialsPublicResponse {
+  credentials?: Credentials[] | undefined;
 }
 
 /**
@@ -781,7 +789,7 @@ export interface GetStorageCredential {
  *
  * There is no guarantee of a specific ordering of the elements in the array.
  */
-export interface ListCredentials {
+export interface ListCredentialsRequest {
   /**
    * Whether to include credentials not bound to the workspace.
    * Effective only if the user has permission to update the credential–workspace binding.
@@ -803,7 +811,7 @@ export interface ListCredentials {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListCredentials_Response {
+export interface ListCredentialsRequest_Response {
   credentials?: CredentialInfo[] | undefined;
   /**
    * Opaque token to retrieve the next page of results. Absent if there are no
@@ -814,15 +822,7 @@ export interface ListCredentials_Response {
   nextPageToken?: string | undefined;
 }
 
-export interface ListCredentialsPublicRequest {
-  accountId?: string | undefined;
-}
-
-export interface ListCredentialsPublicResponse {
-  credentials?: Credentials[] | undefined;
-}
-
-export interface ListStorageCredentials {
+export interface ListStorageCredentialsRequest {
   /**
    * Whether to include credentials not bound to the workspace.
    * Effective only if the user has permission to update the credential–workspace binding.
@@ -843,7 +843,7 @@ export interface ListStorageCredentials {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListStorageCredentials_Response {
+export interface ListStorageCredentialsRequest_Response {
   storageCredentials?: StorageCredentialInfo[] | undefined;
   /**
    * Opaque token to retrieve the next page of results. Absent if there are no
@@ -1052,7 +1052,7 @@ export interface UpdateAccountsStorageCredential {
   isolationMode?: IsolationMode | undefined;
 }
 
-export interface UpdateCredential {
+export interface UpdateCredentialRequest {
   /** Name of the credential. */
   nameArg?: string | undefined;
   /** New name of credential. */
@@ -1137,7 +1137,7 @@ export interface UpdateCredential {
   isolationMode?: IsolationMode | undefined;
 }
 
-export interface UpdateStorageCredential {
+export interface UpdateStorageCredentialRequest {
   /** Name of the storage credential. */
   nameArg?: string | undefined;
   /** New name for the storage credential. */
@@ -1222,7 +1222,7 @@ export interface UpdateStorageCredential {
 }
 
 /** Next ID: 18 */
-export interface ValidateCredential {
+export interface ValidateCredentialRequest {
   credential?:
     | {
         $case: 'credentialName';
@@ -1262,9 +1262,9 @@ export interface ValidateCredential {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ValidateCredential_Response {
+export interface ValidateCredentialRequest_Response {
   /** The results of the validation check. */
-  results?: ValidateCredential_ValidationResult[] | undefined;
+  results?: ValidateCredentialRequest_ValidationResult[] | undefined;
   /**
    * Whether the tested location is a directory in cloud storage. Only
    * applicable for when purpose is **STORAGE**.
@@ -1273,14 +1273,14 @@ export interface ValidateCredential_Response {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ValidateCredential_ValidationResult {
+export interface ValidateCredentialRequest_ValidationResult {
   /** The results of the tested operation. */
-  result?: ValidateCredential_Result | undefined;
+  result?: ValidateCredentialRequest_Result | undefined;
   /** Error message would exist when the result does not equal to **PASS**. */
   message?: string | undefined;
 }
 
-export interface ValidateStorageCredential {
+export interface ValidateStorageCredentialRequest {
   credential?:
     | {
         $case: 'storageCredentialName';
@@ -1325,25 +1325,25 @@ export interface ValidateStorageCredential {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ValidateStorageCredential_Response {
+export interface ValidateStorageCredentialRequest_Response {
   /** Whether the tested location is a directory in cloud storage. */
   isDir?: boolean | undefined;
   /** The results of the validation check. */
-  results?: ValidateStorageCredential_ValidationResult[] | undefined;
+  results?: ValidateStorageCredentialRequest_ValidationResult[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ValidateStorageCredential_ValidationResult {
+export interface ValidateStorageCredentialRequest_ValidationResult {
   /** The operation tested. */
-  operation?: ValidateStorageCredential_FileOperation | undefined;
+  operation?: ValidateStorageCredentialRequest_FileOperation | undefined;
   /** The results of the tested operation. */
-  result?: ValidateStorageCredential_Result | undefined;
+  result?: ValidateStorageCredentialRequest_Result | undefined;
   /** Error message would exist when the result does not equal to **PASS**. */
   message?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsCreateStorageCredentialPublic_ResponseSchema: z.ZodType<AccountsCreateStorageCredentialPublic_Response> =
+export const unmarshalAccountsCreateStorageCredentialPublicRequest_ResponseSchema: z.ZodType<AccountsCreateStorageCredentialPublicRequest_Response> =
   z
     .object({
       credential_info: z
@@ -1355,11 +1355,11 @@ export const unmarshalAccountsCreateStorageCredentialPublic_ResponseSchema: z.Zo
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsDeleteStorageCredentialPublic_ResponseSchema: z.ZodType<AccountsDeleteStorageCredentialPublic_Response> =
+export const unmarshalAccountsDeleteStorageCredentialPublicRequest_ResponseSchema: z.ZodType<AccountsDeleteStorageCredentialPublicRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsGetStorageCredentialPublic_ResponseSchema: z.ZodType<AccountsGetStorageCredentialPublic_Response> =
+export const unmarshalAccountsGetStorageCredentialPublicRequest_ResponseSchema: z.ZodType<AccountsGetStorageCredentialPublicRequest_Response> =
   z
     .object({
       credential_info: z
@@ -1371,7 +1371,7 @@ export const unmarshalAccountsGetStorageCredentialPublic_ResponseSchema: z.ZodTy
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsListStorageCredentialsPublic_ResponseSchema: z.ZodType<AccountsListStorageCredentialsPublic_Response> =
+export const unmarshalAccountsListStorageCredentialsPublicRequest_ResponseSchema: z.ZodType<AccountsListStorageCredentialsPublicRequest_Response> =
   z
     .object({
       storage_credentials: z
@@ -1383,7 +1383,7 @@ export const unmarshalAccountsListStorageCredentialsPublic_ResponseSchema: z.Zod
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsUpdateStorageCredentialPublic_ResponseSchema: z.ZodType<AccountsUpdateStorageCredentialPublic_Response> =
+export const unmarshalAccountsUpdateStorageCredentialPublicRequest_ResponseSchema: z.ZodType<AccountsUpdateStorageCredentialPublicRequest_Response> =
   z
     .object({
       credential_info: z
@@ -1595,11 +1595,11 @@ export const unmarshalDatabricksGcpServiceAccountSchema: z.ZodType<DatabricksGcp
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteCredential_ResponseSchema: z.ZodType<DeleteCredential_Response> =
+export const unmarshalDeleteCredentialRequest_ResponseSchema: z.ZodType<DeleteCredentialRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteStorageCredential_ResponseSchema: z.ZodType<DeleteStorageCredential_Response> =
+export const unmarshalDeleteStorageCredentialRequest_ResponseSchema: z.ZodType<DeleteStorageCredentialRequest_Response> =
   z.object({});
 
 export const unmarshalGcpOauthTokenSchema: z.ZodType<GcpOauthToken> = z
@@ -1624,7 +1624,7 @@ export const unmarshalGcpServiceAccountKeySchema: z.ZodType<GcpServiceAccountKey
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGenerateTemporaryPathCredential_ResponseSchema: z.ZodType<GenerateTemporaryPathCredential_Response> =
+export const unmarshalGenerateTemporaryPathCredentialRequest_ResponseSchema: z.ZodType<GenerateTemporaryPathCredentialRequest_Response> =
   z
     .object({
       aws_temp_credentials: z
@@ -1673,7 +1673,7 @@ export const unmarshalGenerateTemporaryPathCredential_ResponseSchema: z.ZodType<
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGenerateTemporaryTableCredential_ResponseSchema: z.ZodType<GenerateTemporaryTableCredential_Response> =
+export const unmarshalGenerateTemporaryTableCredentialRequest_ResponseSchema: z.ZodType<GenerateTemporaryTableCredentialRequest_Response> =
   z
     .object({
       aws_temp_credentials: z
@@ -1722,7 +1722,7 @@ export const unmarshalGenerateTemporaryTableCredential_ResponseSchema: z.ZodType
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGenerateTemporaryVolumeCredential_ResponseSchema: z.ZodType<GenerateTemporaryVolumeCredential_Response> =
+export const unmarshalGenerateTemporaryVolumeCredentialRequest_ResponseSchema: z.ZodType<GenerateTemporaryVolumeCredentialRequest_Response> =
   z
     .object({
       aws_temp_credentials: z
@@ -1771,7 +1771,7 @@ export const unmarshalGenerateTemporaryVolumeCredential_ResponseSchema: z.ZodTyp
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListCredentials_ResponseSchema: z.ZodType<ListCredentials_Response> =
+export const unmarshalListCredentialsRequest_ResponseSchema: z.ZodType<ListCredentialsRequest_Response> =
   z
     .object({
       credentials: z
@@ -1785,7 +1785,7 @@ export const unmarshalListCredentials_ResponseSchema: z.ZodType<ListCredentials_
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListStorageCredentials_ResponseSchema: z.ZodType<ListStorageCredentials_Response> =
+export const unmarshalListStorageCredentialsRequest_ResponseSchema: z.ZodType<ListStorageCredentialsRequest_Response> =
   z
     .object({
       storage_credentials: z
@@ -1953,11 +1953,15 @@ export const unmarshalTemporaryCredentialsSchema: z.ZodType<TemporaryCredentials
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalValidateCredential_ResponseSchema: z.ZodType<ValidateCredential_Response> =
+export const unmarshalValidateCredentialRequest_ResponseSchema: z.ZodType<ValidateCredentialRequest_Response> =
   z
     .object({
       results: z
-        .array(z.lazy(() => unmarshalValidateCredential_ValidationResultSchema))
+        .array(
+          z.lazy(
+            () => unmarshalValidateCredentialRequest_ValidationResultSchema
+          )
+        )
         .optional(),
       isDir: z.boolean().optional(),
     })
@@ -1967,10 +1971,10 @@ export const unmarshalValidateCredential_ResponseSchema: z.ZodType<ValidateCrede
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalValidateCredential_ValidationResultSchema: z.ZodType<ValidateCredential_ValidationResult> =
+export const unmarshalValidateCredentialRequest_ValidationResultSchema: z.ZodType<ValidateCredentialRequest_ValidationResult> =
   z
     .object({
-      result: z.enum(ValidateCredential_Result).optional(),
+      result: z.enum(ValidateCredentialRequest_Result).optional(),
       message: z.string().optional(),
     })
     .transform(d => ({
@@ -1979,14 +1983,15 @@ export const unmarshalValidateCredential_ValidationResultSchema: z.ZodType<Valid
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalValidateStorageCredential_ResponseSchema: z.ZodType<ValidateStorageCredential_Response> =
+export const unmarshalValidateStorageCredentialRequest_ResponseSchema: z.ZodType<ValidateStorageCredentialRequest_Response> =
   z
     .object({
       isDir: z.boolean().optional(),
       results: z
         .array(
           z.lazy(
-            () => unmarshalValidateStorageCredential_ValidationResultSchema
+            () =>
+              unmarshalValidateStorageCredentialRequest_ValidationResultSchema
           )
         )
         .optional(),
@@ -1997,11 +2002,13 @@ export const unmarshalValidateStorageCredential_ResponseSchema: z.ZodType<Valida
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalValidateStorageCredential_ValidationResultSchema: z.ZodType<ValidateStorageCredential_ValidationResult> =
+export const unmarshalValidateStorageCredentialRequest_ValidationResultSchema: z.ZodType<ValidateStorageCredentialRequest_ValidationResult> =
   z
     .object({
-      operation: z.enum(ValidateStorageCredential_FileOperation).optional(),
-      result: z.enum(ValidateStorageCredential_Result).optional(),
+      operation: z
+        .enum(ValidateStorageCredentialRequest_FileOperation)
+        .optional(),
+      result: z.enum(ValidateStorageCredentialRequest_Result).optional(),
       message: z.string().optional(),
     })
     .transform(d => ({
@@ -2010,39 +2017,41 @@ export const unmarshalValidateStorageCredential_ValidationResultSchema: z.ZodTyp
       message: d.message,
     }));
 
-export const marshalAccountsCreateStorageCredentialPublicSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    metastoreId: z.string().optional(),
-    credentialInfo: z
-      .lazy(() => marshalCreateAccountsStorageCredentialSchema)
-      .optional(),
-    skipValidation: z.boolean().optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    metastore_id: d.metastoreId,
-    credential_info: d.credentialInfo,
-    skip_validation: d.skipValidation,
-  }));
+export const marshalAccountsCreateStorageCredentialPublicRequestSchema: z.ZodType =
+  z
+    .object({
+      accountId: z.string().optional(),
+      metastoreId: z.string().optional(),
+      credentialInfo: z
+        .lazy(() => marshalCreateAccountsStorageCredentialSchema)
+        .optional(),
+      skipValidation: z.boolean().optional(),
+    })
+    .transform(d => ({
+      account_id: d.accountId,
+      metastore_id: d.metastoreId,
+      credential_info: d.credentialInfo,
+      skip_validation: d.skipValidation,
+    }));
 
-export const marshalAccountsUpdateStorageCredentialPublicSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    metastoreId: z.string().optional(),
-    nameArg: z.string().optional(),
-    credentialInfo: z
-      .lazy(() => marshalUpdateAccountsStorageCredentialSchema)
-      .optional(),
-    skipValidation: z.boolean().optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    metastore_id: d.metastoreId,
-    name_arg: d.nameArg,
-    credential_info: d.credentialInfo,
-    skip_validation: d.skipValidation,
-  }));
+export const marshalAccountsUpdateStorageCredentialPublicRequestSchema: z.ZodType =
+  z
+    .object({
+      accountId: z.string().optional(),
+      metastoreId: z.string().optional(),
+      nameArg: z.string().optional(),
+      credentialInfo: z
+        .lazy(() => marshalUpdateAccountsStorageCredentialSchema)
+        .optional(),
+      skipValidation: z.boolean().optional(),
+    })
+    .transform(d => ({
+      account_id: d.accountId,
+      metastore_id: d.metastoreId,
+      name_arg: d.nameArg,
+      credential_info: d.credentialInfo,
+      skip_validation: d.skipValidation,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalAwsCredentials_StsRoleSchema: z.ZodType = z
@@ -2183,7 +2192,22 @@ export const marshalCreateAccountsStorageCredentialSchema: z.ZodType = z
     isolation_mode: d.isolationMode,
   }));
 
-export const marshalCreateCredentialSchema: z.ZodType = z
+export const marshalCreateCredentialAwsCredentialsSchema: z.ZodType = z
+  .object({
+    creds: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('stsRole'),
+          stsRole: z.lazy(() => marshalAwsCredentials_StsRoleSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.creds?.$case === 'stsRole' && {sts_role: d.creds.stsRole}),
+  }));
+
+export const marshalCreateCredentialRequestSchema: z.ZodType = z
   .object({
     skipValidation: z.boolean().optional(),
     name: z.string().optional(),
@@ -2267,21 +2291,6 @@ export const marshalCreateCredentialSchema: z.ZodType = z
     isolation_mode: d.isolationMode,
   }));
 
-export const marshalCreateCredentialAwsCredentialsSchema: z.ZodType = z
-  .object({
-    creds: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('stsRole'),
-          stsRole: z.lazy(() => marshalAwsCredentials_StsRoleSchema),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    ...(d.creds?.$case === 'stsRole' && {sts_role: d.creds.stsRole}),
-  }));
-
 export const marshalCreateCredentialsPublicRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
@@ -2305,7 +2314,7 @@ export const marshalCreateCredentialsPublicRequestSchema: z.ZodType = z
     }),
   }));
 
-export const marshalCreateStorageCredentialSchema: z.ZodType = z
+export const marshalCreateStorageCredentialRequestSchema: z.ZodType = z
   .object({
     skipValidation: z.boolean().optional(),
     name: z.string().optional(),
@@ -2413,7 +2422,7 @@ export const marshalGcpServiceAccountKeySchema: z.ZodType = z
     private_key: d.privateKey,
   }));
 
-export const marshalGenerateTemporaryPathCredentialSchema: z.ZodType = z
+export const marshalGenerateTemporaryPathCredentialRequestSchema: z.ZodType = z
   .object({
     url: z.string().optional(),
     operation: z.enum(PathOperation).optional(),
@@ -2425,38 +2434,41 @@ export const marshalGenerateTemporaryPathCredentialSchema: z.ZodType = z
     dry_run: d.dryRun,
   }));
 
-export const marshalGenerateTemporaryServiceCredentialSchema: z.ZodType = z
-  .object({
-    credentialName: z.string().optional(),
-    options: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('azureOptions'),
-          azureOptions: z.lazy(
-            () => marshalGenerateTemporaryServiceCredential_AzureOptionsSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('gcpOptions'),
-          gcpOptions: z.lazy(
-            () => marshalGenerateTemporaryServiceCredential_GcpOptionsSchema
-          ),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    credential_name: d.credentialName,
-    ...(d.options?.$case === 'azureOptions' && {
-      azure_options: d.options.azureOptions,
-    }),
-    ...(d.options?.$case === 'gcpOptions' && {
-      gcp_options: d.options.gcpOptions,
-    }),
-  }));
+export const marshalGenerateTemporaryServiceCredentialRequestSchema: z.ZodType =
+  z
+    .object({
+      credentialName: z.string().optional(),
+      options: z
+        .discriminatedUnion('$case', [
+          z.object({
+            $case: z.literal('azureOptions'),
+            azureOptions: z.lazy(
+              () =>
+                marshalGenerateTemporaryServiceCredentialRequest_AzureOptionsSchema
+            ),
+          }),
+          z.object({
+            $case: z.literal('gcpOptions'),
+            gcpOptions: z.lazy(
+              () =>
+                marshalGenerateTemporaryServiceCredentialRequest_GcpOptionsSchema
+            ),
+          }),
+        ])
+        .optional(),
+    })
+    .transform(d => ({
+      credential_name: d.credentialName,
+      ...(d.options?.$case === 'azureOptions' && {
+        azure_options: d.options.azureOptions,
+      }),
+      ...(d.options?.$case === 'gcpOptions' && {
+        gcp_options: d.options.gcpOptions,
+      }),
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalGenerateTemporaryServiceCredential_AzureOptionsSchema: z.ZodType =
+export const marshalGenerateTemporaryServiceCredentialRequest_AzureOptionsSchema: z.ZodType =
   z
     .object({
       resources: z.array(z.string()).optional(),
@@ -2466,7 +2478,7 @@ export const marshalGenerateTemporaryServiceCredential_AzureOptionsSchema: z.Zod
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalGenerateTemporaryServiceCredential_GcpOptionsSchema: z.ZodType =
+export const marshalGenerateTemporaryServiceCredentialRequest_GcpOptionsSchema: z.ZodType =
   z
     .object({
       scopes: z.array(z.string()).optional(),
@@ -2475,7 +2487,7 @@ export const marshalGenerateTemporaryServiceCredential_GcpOptionsSchema: z.ZodTy
       scopes: d.scopes,
     }));
 
-export const marshalGenerateTemporaryTableCredentialSchema: z.ZodType = z
+export const marshalGenerateTemporaryTableCredentialRequestSchema: z.ZodType = z
   .object({
     tableId: z.string().optional(),
     operation: z.enum(TableOperation).optional(),
@@ -2485,15 +2497,16 @@ export const marshalGenerateTemporaryTableCredentialSchema: z.ZodType = z
     operation: d.operation,
   }));
 
-export const marshalGenerateTemporaryVolumeCredentialSchema: z.ZodType = z
-  .object({
-    volumeId: z.string().optional(),
-    operation: z.enum(VolumeOperation).optional(),
-  })
-  .transform(d => ({
-    volume_id: d.volumeId,
-    operation: d.operation,
-  }));
+export const marshalGenerateTemporaryVolumeCredentialRequestSchema: z.ZodType =
+  z
+    .object({
+      volumeId: z.string().optional(),
+      operation: z.enum(VolumeOperation).optional(),
+    })
+    .transform(d => ({
+      volume_id: d.volumeId,
+      operation: d.operation,
+    }));
 
 export const marshalUpdateAccountsStorageCredentialSchema: z.ZodType = z
   .object({
@@ -2577,7 +2590,7 @@ export const marshalUpdateAccountsStorageCredentialSchema: z.ZodType = z
     isolation_mode: d.isolationMode,
   }));
 
-export const marshalUpdateCredentialSchema: z.ZodType = z
+export const marshalUpdateCredentialRequestSchema: z.ZodType = z
   .object({
     nameArg: z.string().optional(),
     newName: z.string().optional(),
@@ -2667,7 +2680,7 @@ export const marshalUpdateCredentialSchema: z.ZodType = z
     isolation_mode: d.isolationMode,
   }));
 
-export const marshalUpdateStorageCredentialSchema: z.ZodType = z
+export const marshalUpdateStorageCredentialRequestSchema: z.ZodType = z
   .object({
     nameArg: z.string().optional(),
     newName: z.string().optional(),
@@ -2757,7 +2770,7 @@ export const marshalUpdateStorageCredentialSchema: z.ZodType = z
     isolation_mode: d.isolationMode,
   }));
 
-export const marshalValidateCredentialSchema: z.ZodType = z
+export const marshalValidateCredentialRequestSchema: z.ZodType = z
   .object({
     credential: z
       .discriminatedUnion('$case', [
@@ -2803,7 +2816,7 @@ export const marshalValidateCredentialSchema: z.ZodType = z
     read_only: d.readOnly,
   }));
 
-export const marshalValidateStorageCredentialSchema: z.ZodType = z
+export const marshalValidateStorageCredentialRequestSchema: z.ZodType = z
   .object({
     credential: z
       .discriminatedUnion('$case', [

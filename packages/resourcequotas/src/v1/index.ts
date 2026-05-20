@@ -5,9 +5,9 @@ export {Client} from './client';
 export {SecurableType} from './model';
 
 export type {
-  GetQuota,
-  GetQuota_Response,
-  ListQuotas,
-  ListQuotas_Response,
+  GetQuotaRequest,
+  GetQuotaRequest_Response,
+  ListQuotasRequest,
+  ListQuotasRequest_Response,
   QuotaInfo,
 } from './model';

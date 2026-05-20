@@ -2,7 +2,7 @@
 
 import {z} from 'zod';
 
-export interface DisableSystemSchema {
+export interface DisableSystemSchemaRequest {
   /** Full name of the system schema. */
   schema?: string | undefined;
   /** The metastore ID under which the system schema lives. */
@@ -10,9 +10,9 @@ export interface DisableSystemSchema {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DisableSystemSchema_Response {}
+export interface DisableSystemSchemaRequest_Response {}
 
-export interface EnableSystemSchema {
+export interface EnableSystemSchemaRequest {
   /** Full name of the system schema. */
   schema?: string | undefined;
   /** The metastore ID under which the system schema lives. */
@@ -22,9 +22,9 @@ export interface EnableSystemSchema {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface EnableSystemSchema_Response {}
+export interface EnableSystemSchemaRequest_Response {}
 
-export interface ListSystemSchemas {
+export interface ListSystemSchemasRequest {
   /** The ID for the metastore in which the system schema resides. */
   metastoreId?: string | undefined;
   /**
@@ -40,7 +40,7 @@ export interface ListSystemSchemas {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListSystemSchemas_Response {
+export interface ListSystemSchemasRequest_Response {
   /** An array of system schema information objects. */
   schemas?: SystemSchemaInfo[] | undefined;
   /**
@@ -61,15 +61,15 @@ export interface SystemSchemaInfo {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDisableSystemSchema_ResponseSchema: z.ZodType<DisableSystemSchema_Response> =
+export const unmarshalDisableSystemSchemaRequest_ResponseSchema: z.ZodType<DisableSystemSchemaRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEnableSystemSchema_ResponseSchema: z.ZodType<EnableSystemSchema_Response> =
+export const unmarshalEnableSystemSchemaRequest_ResponseSchema: z.ZodType<EnableSystemSchemaRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListSystemSchemas_ResponseSchema: z.ZodType<ListSystemSchemas_Response> =
+export const unmarshalListSystemSchemasRequest_ResponseSchema: z.ZodType<ListSystemSchemasRequest_Response> =
   z
     .object({
       schemas: z
@@ -92,7 +92,7 @@ export const unmarshalSystemSchemaInfoSchema: z.ZodType<SystemSchemaInfo> = z
     state: d.state,
   }));
 
-export const marshalEnableSystemSchemaSchema: z.ZodType = z
+export const marshalEnableSystemSchemaRequestSchema: z.ZodType = z
   .object({
     schema: z.string().optional(),
     metastoreId: z.string().optional(),

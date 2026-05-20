@@ -17,13 +17,13 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  GetPolicyFamily,
-  ListPolicyFamilies,
-  ListPolicyFamilies_Response,
+  GetPolicyFamilyRequest,
+  ListPolicyFamiliesRequest,
+  ListPolicyFamiliesRequest_Response,
   PolicyFamily,
 } from './model';
 import {
-  unmarshalListPolicyFamilies_ResponseSchema,
+  unmarshalListPolicyFamiliesRequest_ResponseSchema,
   unmarshalPolicyFamilySchema,
 } from './model';
 
@@ -60,7 +60,7 @@ export class Client {
 
   /** Retrieve the information for an policy family based on its identifier and version */
   async getPolicyFamily(
-    req: GetPolicyFamily,
+    req: GetPolicyFamilyRequest,
     options?: CallOptions
   ): Promise<PolicyFamily> {
     const url = `${this.host}/api/2.0/policy-families/${req.policyFamilyId ?? ''}`;
@@ -91,9 +91,9 @@ export class Client {
 
   /** Returns the list of policy definition types available to use at their latest version. This API is paginated. */
   async listPolicyFamilies(
-    req: ListPolicyFamilies,
+    req: ListPolicyFamiliesRequest,
     options?: CallOptions
-  ): Promise<ListPolicyFamilies_Response> {
+  ): Promise<ListPolicyFamiliesRequest_Response> {
     const url = `${this.host}/api/2.0/policy-families`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -104,7 +104,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListPolicyFamilies_Response | undefined;
+    let resp: ListPolicyFamiliesRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -116,7 +116,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListPolicyFamilies_ResponseSchema
+        unmarshalListPolicyFamiliesRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -127,10 +127,10 @@ export class Client {
   }
 
   async *listPolicyFamiliesIter(
-    req: ListPolicyFamilies,
+    req: ListPolicyFamiliesRequest,
     options?: CallOptions
   ): AsyncGenerator<PolicyFamily> {
-    const pageReq: ListPolicyFamilies = {...req};
+    const pageReq: ListPolicyFamiliesRequest = {...req};
     for (;;) {
       const resp = await this.listPolicyFamilies(pageReq, options);
       for (const item of resp.policyFamilies ?? []) {

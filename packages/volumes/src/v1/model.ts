@@ -13,7 +13,7 @@ export enum VolumeType {
   EXTERNAL = 'EXTERNAL',
 }
 
-export interface CreateVolume {
+export interface CreateVolumeRequest {
   /** The name of the volume */
   name?: string | undefined;
   /** The name of the catalog where the schema and the volume are */
@@ -51,13 +51,13 @@ export interface CreateVolume {
   browseOnly?: boolean | undefined;
 }
 
-export interface DeleteVolume {
+export interface DeleteVolumeRequest {
   /** The three-level (fully qualified) name of the volume */
   fullNameArg?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteVolume_Response {}
+export interface DeleteVolumeRequest_Response {}
 
 /** Encryption options that apply to clients connecting to cloud storage. */
 export interface EncryptionDetails {
@@ -70,14 +70,14 @@ export interface EncryptionDetails {
     | undefined;
 }
 
-export interface GetVolume {
+export interface GetVolumeRequest {
   /** The three-level (fully qualified) name of the volume */
   fullNameArg?: string | undefined;
   /** Whether to include volumes in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
 }
 
-export interface ListVolumes {
+export interface ListVolumesRequest {
   /** The identifier of the catalog */
   catalogName?: string | undefined;
   /** The identifier of the schema */
@@ -101,7 +101,7 @@ export interface ListVolumes {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListVolumes_Response {
+export interface ListVolumesRequest_Response {
   volumes?: VolumeInfo[] | undefined;
   /**
    * Opaque token to retrieve the next page of results. Absent if there are no more pages.
@@ -121,7 +121,7 @@ export interface SseEncryptionDetails {
   awsKmsKeyArn?: string | undefined;
 }
 
-export interface UpdateVolume {
+export interface UpdateVolumeRequest {
   /** The three-level (fully qualified) name of the volume */
   fullNameArg?: string | undefined;
   /** New name for the volume. */
@@ -202,7 +202,7 @@ export interface VolumeInfo {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteVolume_ResponseSchema: z.ZodType<DeleteVolume_Response> =
+export const unmarshalDeleteVolumeRequest_ResponseSchema: z.ZodType<DeleteVolumeRequest_Response> =
   z.object({});
 
 export const unmarshalEncryptionDetailsSchema: z.ZodType<EncryptionDetails> = z
@@ -222,7 +222,7 @@ export const unmarshalEncryptionDetailsSchema: z.ZodType<EncryptionDetails> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListVolumes_ResponseSchema: z.ZodType<ListVolumes_Response> =
+export const unmarshalListVolumesRequest_ResponseSchema: z.ZodType<ListVolumesRequest_Response> =
   z
     .object({
       volumes: z.array(z.lazy(() => unmarshalVolumeInfoSchema)).optional(),
@@ -286,7 +286,7 @@ export const unmarshalVolumeInfoSchema: z.ZodType<VolumeInfo> = z
     browseOnly: d.browse_only,
   }));
 
-export const marshalCreateVolumeSchema: z.ZodType = z
+export const marshalCreateVolumeRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     catalogName: z.string().optional(),
@@ -353,7 +353,7 @@ export const marshalSseEncryptionDetailsSchema: z.ZodType = z
     aws_kms_key_arn: d.awsKmsKeyArn,
   }));
 
-export const marshalUpdateVolumeSchema: z.ZodType = z
+export const marshalUpdateVolumeRequestSchema: z.ZodType = z
   .object({
     fullNameArg: z.string().optional(),
     newName: z.string().optional(),

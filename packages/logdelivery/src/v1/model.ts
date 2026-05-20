@@ -62,20 +62,6 @@ export enum LogDeliveryType {
 
 /**
  * *
- * Properties of the new log delivery configuration.
- */
-export interface CreateLogDeliveryConfiguration {
-  logDeliveryConfiguration?: CreateLogDeliveryConfigurationParams | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateLogDeliveryConfiguration_Response {
-  /** The created log delivery configuration */
-  logDeliveryConfiguration?: LogDeliveryConfiguration | undefined;
-}
-
-/**
- * *
  * Log Delivery Configuration
  */
 export interface CreateLogDeliveryConfigurationParams {
@@ -119,9 +105,23 @@ export interface CreateLogDeliveryConfigurationParams {
 
 /**
  * *
+ * Properties of the new log delivery configuration.
+ */
+export interface CreateLogDeliveryConfigurationRequest {
+  logDeliveryConfiguration?: CreateLogDeliveryConfigurationParams | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface CreateLogDeliveryConfigurationRequest_Response {
+  /** The created log delivery configuration */
+  logDeliveryConfiguration?: LogDeliveryConfiguration | undefined;
+}
+
+/**
+ * *
  * Get Log Delivery Configuration
  */
-export interface GetLogDeliveryConfiguration {
+export interface GetLogDeliveryConfigurationRequest {
   /** The log delivery configuration id of customer */
   configId?: string | undefined;
   /** <Databricks> account ID. */
@@ -129,7 +129,7 @@ export interface GetLogDeliveryConfiguration {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetLogDeliveryConfiguration_Response {
+export interface GetLogDeliveryConfigurationRequest_Response {
   /** The fetched log delivery configuration */
   logDeliveryConfiguration?: LogDeliveryConfiguration | undefined;
 }
@@ -138,7 +138,7 @@ export interface GetLogDeliveryConfiguration_Response {
  * *
  * List Log Delivery Configuration
  */
-export interface ListLogDeliveryConfiguration {
+export interface ListLogDeliveryConfigurationRequest {
   /** <Databricks> account ID. */
   accountId?: string | undefined;
   /** The Credentials id to filter the search results with */
@@ -155,7 +155,7 @@ export interface ListLogDeliveryConfiguration {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListLogDeliveryConfiguration_Response {
+export interface ListLogDeliveryConfigurationRequest_Response {
   /** Log delivery configurations were returned successfully. */
   logDeliveryConfigurations?: LogDeliveryConfiguration[] | undefined;
   /** Token which can be sent as `page_token` to retrieve the next page of results. If this field is omitted, there are no subsequent budgets. */
@@ -227,7 +227,7 @@ export interface LogDeliveryStatus {
  * *
  * Update Log Delivery Configuration
  */
-export interface UpdateLogDeliveryConfiguration {
+export interface UpdateLogDeliveryConfigurationRequest {
   /** The log delivery configuration id of customer */
   configId?: string | undefined;
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html). */
@@ -237,10 +237,10 @@ export interface UpdateLogDeliveryConfiguration {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface UpdateLogDeliveryConfiguration_Response {}
+export interface UpdateLogDeliveryConfigurationRequest_Response {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateLogDeliveryConfiguration_ResponseSchema: z.ZodType<CreateLogDeliveryConfiguration_Response> =
+export const unmarshalCreateLogDeliveryConfigurationRequest_ResponseSchema: z.ZodType<CreateLogDeliveryConfigurationRequest_Response> =
   z
     .object({
       log_delivery_configuration: z
@@ -252,7 +252,7 @@ export const unmarshalCreateLogDeliveryConfiguration_ResponseSchema: z.ZodType<C
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetLogDeliveryConfiguration_ResponseSchema: z.ZodType<GetLogDeliveryConfiguration_Response> =
+export const unmarshalGetLogDeliveryConfigurationRequest_ResponseSchema: z.ZodType<GetLogDeliveryConfigurationRequest_Response> =
   z
     .object({
       log_delivery_configuration: z
@@ -264,7 +264,7 @@ export const unmarshalGetLogDeliveryConfiguration_ResponseSchema: z.ZodType<GetL
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListLogDeliveryConfiguration_ResponseSchema: z.ZodType<ListLogDeliveryConfiguration_Response> =
+export const unmarshalListLogDeliveryConfigurationRequest_ResponseSchema: z.ZodType<ListLogDeliveryConfigurationRequest_Response> =
   z
     .object({
       log_delivery_configurations: z
@@ -329,18 +329,8 @@ export const unmarshalLogDeliveryStatusSchema: z.ZodType<LogDeliveryStatus> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateLogDeliveryConfiguration_ResponseSchema: z.ZodType<UpdateLogDeliveryConfiguration_Response> =
+export const unmarshalUpdateLogDeliveryConfigurationRequest_ResponseSchema: z.ZodType<UpdateLogDeliveryConfigurationRequest_Response> =
   z.object({});
-
-export const marshalCreateLogDeliveryConfigurationSchema: z.ZodType = z
-  .object({
-    logDeliveryConfiguration: z
-      .lazy(() => marshalCreateLogDeliveryConfigurationParamsSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    log_delivery_configuration: d.logDeliveryConfiguration,
-  }));
 
 export const marshalCreateLogDeliveryConfigurationParamsSchema: z.ZodType = z
   .object({
@@ -376,6 +366,16 @@ export const marshalCreateLogDeliveryConfigurationParamsSchema: z.ZodType = z
     log_delivery_status: d.logDeliveryStatus,
   }));
 
+export const marshalCreateLogDeliveryConfigurationRequestSchema: z.ZodType = z
+  .object({
+    logDeliveryConfiguration: z
+      .lazy(() => marshalCreateLogDeliveryConfigurationParamsSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    log_delivery_configuration: d.logDeliveryConfiguration,
+  }));
+
 export const marshalLogDeliveryStatusSchema: z.ZodType = z
   .object({
     status: z.enum(LogDeliveryStatusEnum).optional(),
@@ -390,7 +390,7 @@ export const marshalLogDeliveryStatusSchema: z.ZodType = z
     message: d.message,
   }));
 
-export const marshalUpdateLogDeliveryConfigurationSchema: z.ZodType = z
+export const marshalUpdateLogDeliveryConfigurationRequestSchema: z.ZodType = z
   .object({
     configId: z.string().optional(),
     accountId: z.string().optional(),

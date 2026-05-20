@@ -278,7 +278,13 @@ export interface ConnectionDependency {
   connectionName?: string | undefined;
 }
 
-export interface CreateTable {
+export interface CreateTableConstraintRequest {
+  /** The full name of the table referenced by the constraint. */
+  fullNameArg?: string | undefined;
+  constraint?: TableConstraint | undefined;
+}
+
+export interface CreateTableRequest {
   /** Name of table, relative to parent schema. */
   name?: string | undefined;
   /** Name of parent catalog. */
@@ -350,15 +356,9 @@ export interface CreateTable {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateTable_PropertiesEntry {
+export interface CreateTableRequest_PropertiesEntry {
   key?: string | undefined;
   value?: string | undefined;
-}
-
-export interface CreateTableConstraint {
-  /** The full name of the table referenced by the constraint. */
-  fullNameArg?: string | undefined;
-  constraint?: TableConstraint | undefined;
 }
 
 /** A credential that is dependent on a SQL object. */
@@ -367,15 +367,7 @@ export interface CredentialDependency {
   credentialName?: string | undefined;
 }
 
-export interface DeleteTable {
-  /** Full name of the table. */
-  fullNameArg?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteTable_Response {}
-
-export interface DeleteTableConstraint {
+export interface DeleteTableConstraintRequest {
   /** Full name of the table referenced by the constraint. */
   fullNameArg?: string | undefined;
   /** The name of the constraint to delete. */
@@ -388,7 +380,15 @@ export interface DeleteTableConstraint {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteTableConstraint_Response {}
+export interface DeleteTableConstraintRequest_Response {}
+
+export interface DeleteTableRequest {
+  /** Full name of the table. */
+  fullNameArg?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
+export interface DeleteTableRequest_Response {}
 
 /**
  * Properties pertaining to the current state of the delta table as given by the commit server.
@@ -463,7 +463,7 @@ export interface FunctionDependency {
   functionFullName?: string | undefined;
 }
 
-export interface GetTable {
+export interface GetTableRequest {
   /** Full name of the table. */
   fullNameArg?: string | undefined;
   /** Whether delta metadata should be included in the response. */
@@ -474,7 +474,7 @@ export interface GetTable {
   includeManifestCapabilities?: boolean | undefined;
 }
 
-export interface ListTableSummaries {
+export interface ListTableSummariesRequest {
   /** Name of parent catalog for tables of interest. */
   catalogName?: string | undefined;
   /**
@@ -502,7 +502,7 @@ export interface ListTableSummaries {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListTableSummaries_Response {
+export interface ListTableSummariesRequest_Response {
   /** List of table summaries. */
   tables?: TableSummary[] | undefined;
   /**
@@ -512,7 +512,7 @@ export interface ListTableSummaries_Response {
   nextPageToken?: string | undefined;
 }
 
-export interface ListTables {
+export interface ListTablesRequest {
   /** Name of parent catalog for tables of interest. */
   catalogName?: string | undefined;
   /** Parent schema of tables. */
@@ -540,7 +540,7 @@ export interface ListTables {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListTables_Response {
+export interface ListTablesRequest_Response {
   /** An array of table information objects. */
   tables?: TableInfo[] | undefined;
   /**
@@ -696,13 +696,13 @@ export interface TableDependency {
   tableFullName?: string | undefined;
 }
 
-export interface TableExists {
+export interface TableExistsRequest {
   /** Full name of the table. */
   fullNameArg?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface TableExists_Response {
+export interface TableExistsRequest_Response {
   /** Whether the table exists or not. */
   tableExists?: boolean | undefined;
 }
@@ -792,7 +792,7 @@ export interface TableSummary {
   securableKindManifest?: SecurableKindManifest | undefined;
 }
 
-export interface UpdateTable {
+export interface UpdateTableRequest {
   /** Full name of the table. */
   fullNameArg?: string | undefined;
   /** Name of table, relative to parent schema. */
@@ -866,13 +866,13 @@ export interface UpdateTable {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateTable_PropertiesEntry {
+export interface UpdateTableRequest_PropertiesEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface UpdateTable_Response {}
+export interface UpdateTableRequest_Response {}
 
 export const unmarshalColumnInfoSchema: z.ZodType<ColumnInfo> = z
   .object({
@@ -937,11 +937,11 @@ export const unmarshalCredentialDependencySchema: z.ZodType<CredentialDependency
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteTable_ResponseSchema: z.ZodType<DeleteTable_Response> =
+export const unmarshalDeleteTableConstraintRequest_ResponseSchema: z.ZodType<DeleteTableConstraintRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteTableConstraint_ResponseSchema: z.ZodType<DeleteTableConstraint_Response> =
+export const unmarshalDeleteTableRequest_ResponseSchema: z.ZodType<DeleteTableRequest_Response> =
   z.object({});
 
 export const unmarshalDeltaRuntimePropertiesKvPairsSchema: z.ZodType<DeltaRuntimePropertiesKvPairs> =
@@ -1037,7 +1037,7 @@ export const unmarshalFunctionDependencySchema: z.ZodType<FunctionDependency> =
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListTableSummaries_ResponseSchema: z.ZodType<ListTableSummaries_Response> =
+export const unmarshalListTableSummariesRequest_ResponseSchema: z.ZodType<ListTableSummariesRequest_Response> =
   z
     .object({
       tables: z.array(z.lazy(() => unmarshalTableSummarySchema)).optional(),
@@ -1049,7 +1049,7 @@ export const unmarshalListTableSummaries_ResponseSchema: z.ZodType<ListTableSumm
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListTables_ResponseSchema: z.ZodType<ListTables_Response> =
+export const unmarshalListTablesRequest_ResponseSchema: z.ZodType<ListTablesRequest_Response> =
   z
     .object({
       tables: z.array(z.lazy(() => unmarshalTableInfoSchema)).optional(),
@@ -1216,7 +1216,7 @@ export const unmarshalTableDependencySchema: z.ZodType<TableDependency> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalTableExists_ResponseSchema: z.ZodType<TableExists_Response> =
+export const unmarshalTableExistsRequest_ResponseSchema: z.ZodType<TableExistsRequest_Response> =
   z
     .object({
       table_exists: z.boolean().optional(),
@@ -1323,7 +1323,7 @@ export const unmarshalTableSummarySchema: z.ZodType<TableSummary> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateTable_ResponseSchema: z.ZodType<UpdateTable_Response> =
+export const unmarshalUpdateTableRequest_ResponseSchema: z.ZodType<UpdateTableRequest_Response> =
   z.object({});
 
 export const marshalColumnInfoSchema: z.ZodType = z
@@ -1378,7 +1378,17 @@ export const marshalConnectionDependencySchema: z.ZodType = z
     connection_name: d.connectionName,
   }));
 
-export const marshalCreateTableSchema: z.ZodType = z
+export const marshalCreateTableConstraintRequestSchema: z.ZodType = z
+  .object({
+    fullNameArg: z.string().optional(),
+    constraint: z.lazy(() => marshalTableConstraintSchema).optional(),
+  })
+  .transform(d => ({
+    full_name_arg: d.fullNameArg,
+    constraint: d.constraint,
+  }));
+
+export const marshalCreateTableRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     catalogName: z.string().optional(),
@@ -1457,16 +1467,6 @@ export const marshalCreateTableSchema: z.ZodType = z
     securable_kind_manifest: d.securableKindManifest,
     columns: d.columns,
     properties: d.properties,
-  }));
-
-export const marshalCreateTableConstraintSchema: z.ZodType = z
-  .object({
-    fullNameArg: z.string().optional(),
-    constraint: z.lazy(() => marshalTableConstraintSchema).optional(),
-  })
-  .transform(d => ({
-    full_name_arg: d.fullNameArg,
-    constraint: d.constraint,
   }));
 
 export const marshalCredentialDependencySchema: z.ZodType = z
@@ -1725,7 +1725,7 @@ export const marshalTableDependencySchema: z.ZodType = z
     table_full_name: d.tableFullName,
   }));
 
-export const marshalUpdateTableSchema: z.ZodType = z
+export const marshalUpdateTableRequestSchema: z.ZodType = z
   .object({
     fullNameArg: z.string().optional(),
     name: z.string().optional(),

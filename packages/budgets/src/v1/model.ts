@@ -95,17 +95,6 @@ export interface BudgetConfigurationFilter_WorkspaceIdClause {
   values?: number[] | undefined;
 }
 
-export interface CreateBudgetConfiguration {
-  /** Properties of the new budget configuration. */
-  budget?: CreateBudgetConfigurationBudget | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateBudgetConfiguration_Response {
-  /** The created budget configuration. */
-  budget?: BudgetConfiguration | undefined;
-}
-
 export interface CreateBudgetConfigurationBudget {
   /** <Databricks> budget configuration ID. */
   budgetConfigurationId?: string | undefined;
@@ -126,11 +115,22 @@ export interface CreateBudgetConfigurationBudget {
   displayName?: string | undefined;
 }
 
+export interface CreateBudgetConfigurationRequest {
+  /** Properties of the new budget configuration. */
+  budget?: CreateBudgetConfigurationBudget | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface CreateBudgetConfigurationRequest_Response {
+  /** The created budget configuration. */
+  budget?: BudgetConfiguration | undefined;
+}
+
 /**
  * *
  * Delete budget
  */
-export interface DeleteBudgetConfiguration {
+export interface DeleteBudgetConfigurationRequest {
   /** The <Databricks> budget configuration ID. */
   budgetId?: string | undefined;
   /** <Databricks> account ID. */
@@ -138,9 +138,9 @@ export interface DeleteBudgetConfiguration {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteBudgetConfiguration_Response {}
+export interface DeleteBudgetConfigurationRequest_Response {}
 
-export interface GetBudgetConfiguration {
+export interface GetBudgetConfigurationRequest {
   /** The budget configuration ID */
   budgetId?: string | undefined;
   /** <Databricks> account ID. */
@@ -149,11 +149,11 @@ export interface GetBudgetConfiguration {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetBudgetConfiguration_Response {
+export interface GetBudgetConfigurationRequest_Response {
   budget?: BudgetConfiguration | undefined;
 }
 
-export interface ListBudgetConfigurations {
+export interface ListBudgetConfigurationsRequest {
   /** <Databricks> account ID. */
   accountId?: string | undefined;
   /**
@@ -166,23 +166,10 @@ export interface ListBudgetConfigurations {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListBudgetConfigurations_Response {
+export interface ListBudgetConfigurationsRequest_Response {
   budgets?: BudgetConfiguration[] | undefined;
   /** Token which can be sent as `page_token` to retrieve the next page of results. If this field is omitted, there are no subsequent budgets. */
   nextPageToken?: string | undefined;
-}
-
-export interface UpdateBudgetConfiguration {
-  /** The <Databricks> budget configuration ID. */
-  budgetId?: string | undefined;
-  /** The updated budget. This will overwrite the budget specified by the budget ID. */
-  budget?: UpdateBudgetConfigurationBudget | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateBudgetConfiguration_Response {
-  /** The updated budget. */
-  budget?: BudgetConfiguration | undefined;
 }
 
 export interface UpdateBudgetConfigurationBudget {
@@ -203,6 +190,19 @@ export interface UpdateBudgetConfigurationBudget {
   filter?: BudgetConfigurationFilter | undefined;
   /** Human-readable name of budget configuration. Max Length: 128 */
   displayName?: string | undefined;
+}
+
+export interface UpdateBudgetConfigurationRequest {
+  /** The <Databricks> budget configuration ID. */
+  budgetId?: string | undefined;
+  /** The updated budget. This will overwrite the budget specified by the budget ID. */
+  budget?: UpdateBudgetConfigurationBudget | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface UpdateBudgetConfigurationRequest_Response {
+  /** The updated budget. */
+  budget?: BudgetConfiguration | undefined;
 }
 
 export const unmarshalActionConfigurationSchema: z.ZodType<ActionConfiguration> =
@@ -316,7 +316,7 @@ export const unmarshalBudgetConfigurationFilter_WorkspaceIdClauseSchema: z.ZodTy
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateBudgetConfiguration_ResponseSchema: z.ZodType<CreateBudgetConfiguration_Response> =
+export const unmarshalCreateBudgetConfigurationRequest_ResponseSchema: z.ZodType<CreateBudgetConfigurationRequest_Response> =
   z
     .object({
       budget: z.lazy(() => unmarshalBudgetConfigurationSchema).optional(),
@@ -326,11 +326,11 @@ export const unmarshalCreateBudgetConfiguration_ResponseSchema: z.ZodType<Create
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteBudgetConfiguration_ResponseSchema: z.ZodType<DeleteBudgetConfiguration_Response> =
+export const unmarshalDeleteBudgetConfigurationRequest_ResponseSchema: z.ZodType<DeleteBudgetConfigurationRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetBudgetConfiguration_ResponseSchema: z.ZodType<GetBudgetConfiguration_Response> =
+export const unmarshalGetBudgetConfigurationRequest_ResponseSchema: z.ZodType<GetBudgetConfigurationRequest_Response> =
   z
     .object({
       budget: z.lazy(() => unmarshalBudgetConfigurationSchema).optional(),
@@ -340,7 +340,7 @@ export const unmarshalGetBudgetConfiguration_ResponseSchema: z.ZodType<GetBudget
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListBudgetConfigurations_ResponseSchema: z.ZodType<ListBudgetConfigurations_Response> =
+export const unmarshalListBudgetConfigurationsRequest_ResponseSchema: z.ZodType<ListBudgetConfigurationsRequest_Response> =
   z
     .object({
       budgets: z
@@ -354,7 +354,7 @@ export const unmarshalListBudgetConfigurations_ResponseSchema: z.ZodType<ListBud
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateBudgetConfiguration_ResponseSchema: z.ZodType<UpdateBudgetConfiguration_Response> =
+export const unmarshalUpdateBudgetConfigurationRequest_ResponseSchema: z.ZodType<UpdateBudgetConfigurationRequest_Response> =
   z
     .object({
       budget: z.lazy(() => unmarshalBudgetConfigurationSchema).optional(),
@@ -445,16 +445,6 @@ export const marshalBudgetConfigurationFilter_WorkspaceIdClauseSchema: z.ZodType
       values: d.values,
     }));
 
-export const marshalCreateBudgetConfigurationSchema: z.ZodType = z
-  .object({
-    budget: z
-      .lazy(() => marshalCreateBudgetConfigurationBudgetSchema)
-      .optional(),
-  })
-  .transform(d => ({
-    budget: d.budget,
-  }));
-
 export const marshalCreateBudgetConfigurationBudgetSchema: z.ZodType = z
   .object({
     budgetConfigurationId: z.string().optional(),
@@ -477,15 +467,13 @@ export const marshalCreateBudgetConfigurationBudgetSchema: z.ZodType = z
     display_name: d.displayName,
   }));
 
-export const marshalUpdateBudgetConfigurationSchema: z.ZodType = z
+export const marshalCreateBudgetConfigurationRequestSchema: z.ZodType = z
   .object({
-    budgetId: z.string().optional(),
     budget: z
-      .lazy(() => marshalUpdateBudgetConfigurationBudgetSchema)
+      .lazy(() => marshalCreateBudgetConfigurationBudgetSchema)
       .optional(),
   })
   .transform(d => ({
-    budget_id: d.budgetId,
     budget: d.budget,
   }));
 
@@ -509,4 +497,16 @@ export const marshalUpdateBudgetConfigurationBudgetSchema: z.ZodType = z
     alert_configurations: d.alertConfigurations,
     filter: d.filter,
     display_name: d.displayName,
+  }));
+
+export const marshalUpdateBudgetConfigurationRequestSchema: z.ZodType = z
+  .object({
+    budgetId: z.string().optional(),
+    budget: z
+      .lazy(() => marshalUpdateBudgetConfigurationBudgetSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    budget_id: d.budgetId,
+    budget: d.budget,
   }));

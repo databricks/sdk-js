@@ -19,20 +19,20 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   ConnectionInfo,
-  CreateConnection,
-  DeleteConnection,
-  DeleteConnection_Response,
-  GetConnection,
-  ListConnections,
-  ListConnections_Response,
-  UpdateConnection,
+  CreateConnectionRequest,
+  DeleteConnectionRequest,
+  DeleteConnectionRequest_Response,
+  GetConnectionRequest,
+  ListConnectionsRequest,
+  ListConnectionsRequest_Response,
+  UpdateConnectionRequest,
 } from './model';
 import {
-  marshalCreateConnectionSchema,
-  marshalUpdateConnectionSchema,
+  marshalCreateConnectionRequestSchema,
+  marshalUpdateConnectionRequestSchema,
   unmarshalConnectionInfoSchema,
-  unmarshalDeleteConnection_ResponseSchema,
-  unmarshalListConnections_ResponseSchema,
+  unmarshalDeleteConnectionRequest_ResponseSchema,
+  unmarshalListConnectionsRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -73,11 +73,11 @@ export class Client {
    * configurations for interaction with the external server.
    */
   async createConnection(
-    req: CreateConnection,
+    req: CreateConnectionRequest,
     options?: CallOptions
   ): Promise<ConnectionInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/connections`;
-    const body = marshalRequest(req, marshalCreateConnectionSchema);
+    const body = marshalRequest(req, marshalCreateConnectionRequestSchema);
     let resp: ConnectionInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -99,11 +99,11 @@ export class Client {
 
   /** Deletes the connection that matches the supplied name. */
   async deleteConnection(
-    req: DeleteConnection,
+    req: DeleteConnectionRequest,
     options?: CallOptions
-  ): Promise<DeleteConnection_Response> {
+  ): Promise<DeleteConnectionRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/connections/${req.nameArg ?? ''}`;
-    let resp: DeleteConnection_Response | undefined;
+    let resp: DeleteConnectionRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -113,7 +113,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteConnection_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalDeleteConnectionRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -124,7 +127,7 @@ export class Client {
 
   /** Gets a connection from it's name. */
   async getConnection(
-    req: GetConnection,
+    req: GetConnectionRequest,
     options?: CallOptions
   ): Promise<ConnectionInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/connections/${req.nameArg ?? ''}`;
@@ -156,9 +159,9 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listConnections(
-    req: ListConnections,
+    req: ListConnectionsRequest,
     options?: CallOptions
-  ): Promise<ListConnections_Response> {
+  ): Promise<ListConnectionsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/connections`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -169,7 +172,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListConnections_Response | undefined;
+    let resp: ListConnectionsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -179,7 +182,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListConnections_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalListConnectionsRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -189,10 +195,10 @@ export class Client {
   }
 
   async *listConnectionsIter(
-    req: ListConnections,
+    req: ListConnectionsRequest,
     options?: CallOptions
   ): AsyncGenerator<ConnectionInfo> {
-    const pageReq: ListConnections = {...req};
+    const pageReq: ListConnectionsRequest = {...req};
     for (;;) {
       const resp = await this.listConnections(pageReq, options);
       for (const item of resp.connections ?? []) {
@@ -207,11 +213,11 @@ export class Client {
 
   /** Updates the connection that matches the supplied name. */
   async updateConnection(
-    req: UpdateConnection,
+    req: UpdateConnectionRequest,
     options?: CallOptions
   ): Promise<ConnectionInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/connections/${req.nameArg ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateConnectionSchema);
+    const body = marshalRequest(req, marshalUpdateConnectionRequestSchema);
     let resp: ConnectionInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

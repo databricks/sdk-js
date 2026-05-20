@@ -36,12 +36,12 @@ export interface ArtifactMatcher {
   matchType?: ArtifactMatcher_MatchType | undefined;
 }
 
-export interface GetArtifactAllowlist {
+export interface GetArtifactAllowlistRequest {
   /** The artifact type of the allowlist. */
   artifactType?: ArtifactType | undefined;
 }
 
-export interface SetArtifactAllowlist {
+export interface SetArtifactAllowlistRequest {
   /** The artifact type of the allowlist. */
   artifactType?: ArtifactType | undefined;
   /** A list of allowed artifact match patterns. */
@@ -91,7 +91,7 @@ export const marshalArtifactMatcherSchema: z.ZodType = z
     match_type: d.matchType,
   }));
 
-export const marshalSetArtifactAllowlistSchema: z.ZodType = z
+export const marshalSetArtifactAllowlistRequestSchema: z.ZodType = z
   .object({
     artifactType: z.enum(ArtifactType).optional(),
     artifactMatchers: z
