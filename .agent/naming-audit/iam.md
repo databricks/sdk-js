@@ -11,24 +11,23 @@ and resolve-by-external-id flows that bridge the customer IdP to Databricks.
 
 | Severity | Count |
 | -------- | ----- |
-| High     |    18 |
-| Medium   |    22 |
-| Low      |    16 |
+| High     |    15 |
+| Medium   |    21 |
+| Low      |    15 |
 | Observation | 5 |
-| **Total** | **61** |
+| **Total** | **56** |
 
 Three dominant themes emerged. **First, the package ships every method,
 request, and a handful of enums in two parallel forms — `*` and `*Proxy` —
 that differ only in whether `accountId` is supplied by the caller or by the
 URL routing layer.** Roughly 40% of the public type surface is mechanical
 duplication (44 request types collapse to about 22 unique shapes). **Second,
-the package leaks proto conventions deep into TypeScript:** every enum has a
-`<NAME>_UNSPECIFIED` zero value, two enums use Proto-style nested names with
-underscores (`WorkspaceAccessDetail_AccessType`, `User_Name`), and 31 of 38
-JSDoc blocks contain literal `<Databricks>` markup. **Third, naming is
-inconsistent across status fields, parent-account fields, and the `Detail`
-suffix** — `accountUserStatus`, `accountSpStatus`, `workspaceIdentityStatus`,
-and `status` all describe the same `State` enum across types; `accountId` is
+the package leaks proto conventions into JSDoc and method shape:** every enum
+has a `<NAME>_UNSPECIFIED` zero value and 31 of 38 JSDoc blocks contain
+literal `<Databricks>` markup. **Third, naming is inconsistent across status
+fields, parent-account fields, and the `Detail` suffix** —
+`accountUserStatus`, `accountSpStatus`, `workspaceIdentityStatus`, and
+`status` all describe the same `State` enum across types; `accountId` is
 documented as "parent account ID for X" inconsistently; and the `Detail`
 suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 `WorkspaceIdentityDetail` adds no information beyond Java-RPC habit.
@@ -102,7 +101,7 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
   the same enum domain across five types.
 - **Suggestion:** Rename the enum to `ActivityStatus` (or `PrincipalStatus`).
   Standardize the field name to `status` everywhere. Drop the
-  `STATE_UNSPECIFIED` value (see H10).
+  `STATE_UNSPECIFIED` value (see H9).
 - **Rationale:** A 3-letter enum with 2 values and the name `State` is a
   textbook example of a name that says nothing about the domain. JSDoc-only
   context is not enough.
@@ -118,63 +117,27 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
   type-suffix tautology, while `PrincipalType.USER` reads cleanly. The two
   styles in one enum are inconsistent.
 - **Suggestion:** Drop the `PRINCIPAL_TYPE_` prefix from UNSPECIFIED (or
-  drop the whole UNSPECIFIED member — see H10). Standardize on
+  drop the whole UNSPECIFIED member — see H9). Standardize on
   `PrincipalType.USER` / `.SERVICE_PRINCIPAL` / `.GROUP`.
 - **Rationale:** TypeScript already namespaces values under the enum type.
   Repeating the enum name in one member only is worse than either
   consistently prefixing or consistently bare.
 
-### H5. `WorkspaceAccessDetail_AccessType` and `WorkspaceIdentityDetail_AssignmentType` use proto-style underscored names
-- **File:** `model.ts:67-74, 78-85`, `index.ts:13-14`
-- **Category:** 4, 14 (underscore in TS identifier; Go/Java/proto-style)
-- **Issue:** Two enums with proto-style nested names use underscore
-  separators in the TS identifier:
-  `WorkspaceAccessDetail_AccessType`, `WorkspaceIdentityDetail_AssignmentType`.
-  Both require a `// eslint-disable-next-line @typescript-eslint/naming-convention`
-  comment to compile, which signals the convention is wrong. They are also
-  re-exported by name from `index.ts`. The two enums also have identical
-  value sets — `ACCESS_TYPE_UNSPECIFIED`/`ASSIGNMENT_TYPE_UNSPECIFIED`,
-  `DIRECT`, `INDIRECT` — and identical JSDoc semantics ("direct" =
-  principal is assigned, "indirect" = via group). They are the same enum
-  conceptually.
-- **Suggestion:** Flatten and unify. `type AssignmentMode = 'DIRECT' | 'INDIRECT'`
-  (a union type or a single enum `AssignmentMode`). Use it for both
-  `WorkspaceAccessDetail.accessType` and
-  `WorkspaceIdentityDetail.assignmentType` (and rename the fields to
-  `mode` or both to `assignmentMode`).
-- **Rationale:** Two enums with the same shape and the same meaning, both
-  spelled with proto-style underscores, is duplication on top of
-  convention-violation.
-
-### H6. `User_Name` nested type uses proto-style underscored name
-- **File:** `model.ts:961-964`, `index.ts:18` (exported as `User_Name`)
-- **Category:** 4, 14 (underscore in TS identifier; proto-style)
-- **Issue:** `User_Name` is a nested message type carrying `givenName` and
-  `familyName`. The name violates TS conventions (requires
-  `// eslint-disable-next-line` to compile).
-- **Suggestion:** Rename to `UserName` or, better, `PersonName` (since
-  `userName` is overloaded with `username` two lines up — see H7). Even
-  inlining `givenName?: string; familyName?: string` onto `User` would be
-  cleaner since the nested type has no other use.
-- **Rationale:** Proto nested-message names should be flattened in TS. The
-  underscore is the strongest visual cue that the generator did not idiomatize.
-
-### H7. `User.username` vs `User.name: User_Name` — name field collision
+### H5. `User.username` vs `User.name` — name field collision
 - **File:** `model.ts:946-958, 961-964`
 - **Category:** 6, 10 (misleading; reserved-word-style collision)
 - **Issue:** `User` has both `username` (string, email-like login identifier
-  per the JSDoc) and `name` (a `User_Name` struct with `givenName`/`familyName`).
+  per the JSDoc) and `name` (a nested struct with `givenName`/`familyName`).
   In English `name` and `username` are near-synonyms and users routinely
-  conflate them. Worse, `User_Name` is a separate type whose name is itself
-  `Name`. A developer auto-completing `user.` sees two `*name*` fields with
-  no hint at the difference.
-- **Suggestion:** Rename `User.name` to `User.fullName` (or `personName`,
-  matching the suggested type rename in H6). Rename `User.username` to
-  `User.email` if the value is always an email (the JSDoc says
-  "Username/email of the user"), or `User.loginName` otherwise.
+  conflate them. A developer auto-completing `user.` sees two `*name*`
+  fields with no hint at the difference.
+- **Suggestion:** Rename `User.name` to `User.fullName` (or `personName`).
+  Rename `User.username` to `User.email` if the value is always an email
+  (the JSDoc says "Username/email of the user"), or `User.loginName`
+  otherwise.
 - **Rationale:** Disambiguates two semantically distinct identifiers.
 
-### H8. `accountSpStatus` field uses cryptic abbreviation `Sp`
+### H6. `accountSpStatus` field uses cryptic abbreviation `Sp`
 - **File:** `model.ts:818`
 - **Category:** 5, 6 (cryptic abbreviation; misleading)
 - **Issue:** `ServicePrincipal.accountSpStatus?: State`. `Sp` is a Databricks
@@ -189,7 +152,7 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 - **Rationale:** Abbreviation `Sp` is opaque to external developers and
   inconsistent with the spelled-out `User` and `Identity` siblings.
 
-### H9. `WorkspaceAccessDetail`, `WorkspaceAssignmentDetail`, `WorkspaceIdentityDetail` — three overlapping "Detail" types
+### H7. `WorkspaceAccessDetail`, `WorkspaceAssignmentDetail`, `WorkspaceIdentityDetail` — three overlapping "Detail" types
 - **File:** `model.ts:967-1004`, plus all 17 method types they appear in
 - **Category:** 1, 12, 7 (vague generic suffix; duplicate concept; verbose)
 - **Issue:** Three top-level types with the `Detail` suffix model overlapping
@@ -212,7 +175,7 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
   (`getWorkspaceAccessDetail`, `listWorkspaceAssignmentDetails`,
   `updateWorkspaceIdentityDetail`, …) inherit the noise.
 
-### H10. Every enum has a `<NAME>_UNSPECIFIED` zero value
+### H8. Every enum has a `<NAME>_UNSPECIFIED` zero value
 - **File:** `model.ts:9, 14, 25, 34, 43, 52, 59, 69, 80`
 - **Category:** 2, 18 (redundant enum prefix; long enum values)
 - **Issue:** Nine of nine enums in the package have an `UNSPECIFIED` member
@@ -231,7 +194,7 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 - **Rationale:** This is the single highest-impact reduction in the package.
   9 enum members removed × every enum value enumeration in user code.
 
-### H11. `WorkspaceAccessDetailView` is a Google-style "view" enum but named oddly
+### H9. `WorkspaceAccessDetailView` is a Google-style "view" enum but named oddly
 - **File:** `model.ts:51-55`
 - **Category:** 1, 14 (vague; Google/proto-style)
 - **Issue:** Values are `WORKSPACE_ACCESS_DETAIL_VIEW_UNSPECIFIED`, `BASIC`,
@@ -244,10 +207,10 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 - **Suggestion:** `enum FieldView { BASIC = 'BASIC', FULL = 'FULL' }`,
   reusable across the SDK. Or rename to `WorkspaceAccessView` and document
   what each enum value includes/excludes.
-- **Rationale:** `Detail` in the name is the same `Detail` flagged in H9 and
+- **Rationale:** `Detail` in the name is the same `Detail` flagged in H7 and
   carries no extra meaning.
 
-### H12. `internalId` vs `principalId` vs `groupId` — three overlapping ID names for "the Databricks-internal numeric ID"
+### H10. `internalId` vs `principalId` vs `groupId` — three overlapping ID names for "the Databricks-internal numeric ID"
 - **File:** `model.ts:122, 226, 228, 244, 252, 260, 271, 285, 296, 326, 329, 344, 353, 386, 407, 412, 423, 432, 442, 448, 583, 597, 833, 845, 855, 867, 884, 903`
 - **Category:** 6, 19 (misleading; underspecified ID)
 - **Issue:** Same numeric ID concept appears under three different field
@@ -270,7 +233,7 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
   of which name refers to what; the wire is consistent (`principal_id`,
   `group_id`, `internal_id`), so the TS field name choices are real.
 
-### H13. `principalType: PrincipalType` — type-suffix tautology pattern
+### H11. `principalType: PrincipalType` — type-suffix tautology pattern
 - **File:** `model.ts:99, 304, 974, 990, 999`
 - **Category:** 20 (type-suffix tautology)
 - **Issue:** The field `principalType: PrincipalType | undefined` appears on
@@ -283,7 +246,7 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
   `principal: PrincipalKind` is even cleaner).
 - **Rationale:** Tautology adds visual noise without adding meaning.
 
-### H14. `Group.groupName` — same kind of tautology
+### H12. `Group.groupName` — same kind of tautology
 - **File:** `model.ts:461`
 - **Category:** 20 (type-suffix tautology)
 - **Issue:** `Group.groupName` reads `group.groupName`. The `group` prefix is
@@ -297,7 +260,7 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
   wire form is `group_name` but the TS field name need not echo it. The
   field is also used as `displayName` in JSDoc.
 
-### H15. `ServicePrincipal.internalId` doc says `Internal service principal ID of the service principal` — tautology + comment problem
+### H13. `ServicePrincipal.internalId` doc says `Internal service principal ID of the service principal` — tautology + comment problem
 - **File:** `model.ts:809-810`
 - **Category:** 20, 6 (tautology; misleading)
 - **Issue:** The JSDoc on `ServicePrincipal.internalId` reads "Internal
@@ -310,7 +273,7 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 - **Rationale:** Three sibling doc strings should not each repeat the
   resource name inside themselves.
 
-### H16. `AccountAccessIdentityRule.name` is a URL path, not a name
+### H14. `AccountAccessIdentityRule.name` is a URL path, not a name
 - **File:** `model.ts:100-104`
 - **Category:** 6, 15, 16, 19 (misleading; generic field losing meaning; field contradicting domain; underspecified)
 - **Issue:** `name` is documented as
@@ -323,22 +286,7 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 - **Rationale:** Half the IAM-API integration bugs are wrong-format resource
   paths; the type system can encode this.
 
-### H17. `Group.externalId` doc capitalization `ExternalId` (sentence-case identifier name)
-- **File:** `model.ts:459, 952, 828, 811`
-- **Category:** 3, 14 (acronym casing; Go-style)
-- **Issue:** The JSDoc on `Group.externalId`, `User.externalId`,
-  `ServicePrincipal.externalId`, and `TransitiveParentGroup.externalId` begins
-  with the literal `ExternalId of the X in the customer's IdP.` — capitalized
-  identifier name as the first word, not English. The same pattern bleeds
-  through to the Go-style sentence comment. Should be either "External ID
-  of …" (English) or use the TS field name as code (`externalId`) in
-  backticks.
-- **Suggestion:** Rewrite as "External ID of the {resource} in the
-  customer's identity provider." consistently across all four types.
-- **Rationale:** A small but persistent rendering issue across the type
-  surface.
-
-### H18. `parent` field name on rule endpoints — Google AIP convention leaks into TS
+### H15. `parent` field name on rule endpoints — Google AIP convention leaks into TS
 - **File:** `model.ts:113, 219, 318, 470`
 - **Category:** 1, 14, 19 (vague/generic; Google-style; underspecified ID)
 - **Issue:** `CreateAccountAccessIdentityRuleRequest.parent`,
@@ -369,7 +317,7 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
   `ListWorkspaceAssignmentDetailsProxyRequest` (42),
   `GetWorkspaceAssignmentDetailProxyRequest` (40). Plus the imports list in
   `client.ts` repeats them, doubling the noise.
-- **Suggestion:** Once H1 collapses the proxy duplication and H9 drops
+- **Suggestion:** Once H1 collapses the proxy duplication and H7 drops
   `Detail`, these become `CreateWorkspaceAssignmentRequest` etc. — about 30
   chars each.
 - **Rationale:** Length itself is not a sin, but `42 chars × 2 ×
@@ -454,7 +402,7 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 - **File:** `model.ts:199, 209, 916, 930`
 - **Category:** 20 (type-suffix tautology)
 - **Issue:** `CreateWorkspaceAssignmentDetailRequest.workspaceAssignmentDetail?: WorkspaceAssignmentDetail | undefined`.
-- **Suggestion:** Rename field to `assignment` (after H9 drops `Detail`,
+- **Suggestion:** Rename field to `assignment` (after H7 drops `Detail`,
   the type is `WorkspaceAssignment` and `assignment` reads naturally).
 - **Rationale:** Same as M6.
 
@@ -485,7 +433,7 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 - **Suggestion:** Standardize to "Databricks account ID of the parent
   account." or just "Parent Databricks account ID."
 - **Rationale:** Consistency + grammar; the `<Databricks>` template marker
-  also needs to go (see M13).
+  also needs to go (see M12).
 
 ### M12. `<Databricks>` proto template markup in 31 of 38 JSDoc blocks
 - **File:** `model.ts` everywhere, e.g. `122, 140, 148, 154, 161, 175-185`
@@ -521,7 +469,7 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
   account for which to ..." — no mention of "parent". A consumer reading
   IntelliSense gets `parent: string` plus "The account ...", which is
   confusing.
-- **Suggestion:** Make the JSDoc echo the AIP convention or rename per H18.
+- **Suggestion:** Make the JSDoc echo the AIP convention or rename per H15.
 - **Rationale:** Field and docstring should agree on naming.
 
 ### M15. `UpdateWorkspaceAssignmentDetailRequest` doc body says `TBD since the only updatable field is permissions`
@@ -576,7 +524,7 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 - **File:** `model.ts:529, 540`
 - **Category:** 6 (misleading)
 - **Issue:** Doc says "group name", but the actual field name is `groupName`
-  on `Group` (per H14) and the JSON wire is `group_name`. The SCIM-style
+  on `Group` (per H12) and the JSON wire is `group_name`. The SCIM-style
   filter syntax (`groupName eq "engineering"`) is not documented. A consumer
   must guess.
 - **Suggestion:** Document the filter language with one example.
@@ -603,19 +551,6 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
   request type, or `getOrCreateByExternalId`. Document the create-on-miss
   semantic prominently.
 - **Rationale:** Method names should not hide write side-effects.
-
-### M22. `ListWorkspaceAccessDetailsLocalRequest` paginates but has no filter — asymmetric with `ListWorkspaceAccessDetailsRequest`
-- **File:** `model.ts:677-694`
-- **Category:** 6 (misleading)
-- **Issue:** `ListWorkspaceAccessDetailsLocalRequest` has `pageSize` +
-  `pageToken` but no `filter`. The non-local variant also has no `filter`,
-  but every other `List*` request in the file does. The "Local" variant
-  description is also the placeholder "TODO: Write description later" with
-  zero documentation of what it lists.
-- **Suggestion:** Document explicitly; add `filter` if the server supports
-  it on the local route; document the difference between the two list
-  endpoints.
-- **Rationale:** API completeness.
 
 ---
 
@@ -698,8 +633,8 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 - **File:** `model.ts:460-461`
 - **Category:** 6 (misleading)
 - **Issue:** The field is `groupName` but the doc calls it `displayName`.
-  See H14.
-- **Suggestion:** Rename per H14.
+  See H12.
+- **Suggestion:** Rename per H12.
 - **Rationale:** Consistency.
 
 ### L9. `ServicePrincipal` JSDoc — "The details of a ServicePrincipal resource."
@@ -770,18 +705,6 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 - **Suggestion:** Change docs to say `pageToken`.
 - **Rationale:** Public doc should match public field name.
 
-### L16. `assignmentType` on `WorkspaceIdentityDetail` vs `accessType` on `WorkspaceAccessDetail`
-- **File:** `model.ts:975, 1003`
-- **Category:** 12, 17 (duplicate concept; verb inconsistency)
-- **Issue:** Two sibling types with similar fields:
-  `WorkspaceAccessDetail.accessType: WorkspaceAccessDetail_AccessType`,
-  `WorkspaceIdentityDetail.assignmentType: WorkspaceIdentityDetail_AssignmentType`.
-  Both enums have values `DIRECT`/`INDIRECT`. Field names disagree;
-  enum names disagree; enum values agree.
-- **Suggestion:** Per H5, unify the enum. Then pick one field name
-  (`assignmentMode` or just `mode`).
-- **Rationale:** Same as H5 — at the field level.
-
 ---
 
 ## Observations (not findings, but worth noting)
@@ -790,7 +713,7 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 - **File:** `client.ts:1682, 1719, 1750, 1829, 1864, 1898, 1922, 1941, 1966, 1991, 2028, 2070, 2116, 2157, 2182`
 - **Issue:** The server URL paths use `workspaceAccessDetails`,
   `workspaceAssignmentDetails`, `workspaceIdentityDetails` — proto/Go RPC
-  pattern. The SDK reflects the server names. Renaming the TS types per H9
+  pattern. The SDK reflects the server names. Renaming the TS types per H7
   does not change the wire; the SDK can have nicer TS names while still
   hitting `workspaceAccessDetails` URLs.
 
@@ -829,16 +752,12 @@ suffix on `WorkspaceAssignmentDetail` / `WorkspaceAccessDetail` /
 
 1. **Collapse `*Proxy` and `*Local` variants (H1, M2, L3, O4, O5).** This
    is the largest single improvement and ~halves the public type surface.
-2. **Drop `<NAME>_UNSPECIFIED` enum members (H10, H4).** 9 dead enum values
+2. **Drop `<NAME>_UNSPECIFIED` enum members (H8, H4).** 9 dead enum values
    removed; users no longer write `=== State.STATE_UNSPECIFIED` accidentally.
 3. **Replace `<Databricks>` template markup (M12).** Generator-side fix.
-4. **Flatten proto-style nested names (`User_Name`, `WorkspaceAccessDetail_AccessType`,
-   `WorkspaceIdentityDetail_AssignmentType`) (H5, H6).** Removes
-   eslint-disable comments and underscore-in-identifier violations.
-5. **Standardize ID field names (H12, L1, L11) and status field names (H3,
-   H8).** One name per concept.
-6. **Remove type-suffix tautology fields (H13, H14, M6–M10).** Single-token
+4. **Standardize ID field names (H10, L1, L11) and status field names (H3,
+   H6).** One name per concept.
+5. **Remove type-suffix tautology fields (H11, H12, M6–M10).** Single-token
    field names where the type already carries the kind.
-7. **Drop the `Detail` suffix from the Workspace* types (H9).** And add an
-   `assignmentMode`/`mode` field via H5.
-8. **Rewrite the placeholder TODO JSDocs (M13, M15).** Generator + spec fix.
+6. **Drop the `Detail` suffix from the Workspace* types (H7).**
+7. **Rewrite the placeholder TODO JSDocs (M13, M15).** Generator + spec fix.

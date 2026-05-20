@@ -14,11 +14,7 @@ checklist plus a special section on the package name itself, which is
 the single most problematic naming choice in the whole package. Each
 finding lists the offending identifier(s), the category number,
 severity (`HIGH` / `MEDIUM` / `LOW`), and a concrete rename
-suggestion. Findings are grouped by category. Generator-driven items
-(such as the `_State` underscore on proto-style nested enums) are
-flagged as `LOW` because they are codified across the entire
-generated SDK surface — they should be fixed at the generator, not by
-hand-editing this package.
+suggestion. Findings are grouped by category.
 
 ---
 
@@ -104,13 +100,12 @@ each category.
 - **Why flagged:** "Endpoint" is one of the most overloaded nouns in
   the Databricks API surface. Concrete evidence from this monorepo:
   - `packages/warehouses/src/v1` exports `EndpointSecurityPolicy`,
-    `EndpointSpotInstancePolicy`, `EndpointState`, `EndpointHealth_Status`
+    `EndpointSpotInstancePolicy`, `EndpointState`
     — SQL Warehouses are internally called "endpoints" (and SQL endpoint
     is a legacy term for warehouse).
   - `packages/modelservingmanagement/src/v1` exports
     `InferenceEndpoint`, `ServingEndpointDetailedPermissionLevel`,
-    `InferenceEndpointState_*`, with waiters
-    `CreateInferenceEndpointWaiter`,
+    with waiters `CreateInferenceEndpointWaiter`,
     `PutInferenceEndpointConfigWaiter`, etc. — model serving uses
     "endpoint" as its primary noun.
   - **This** package: vector-search endpoints, evidenced by
@@ -175,8 +170,7 @@ each category.
 - **Where:** `model.ts:6, 153`; `index.ts:7, 20`.
 - **Why flagged:** Same generic-noun problem as F1.1. `Endpoint*`
   symbols collide across the monorepo (cf. `warehouses.EndpointState`,
-  `warehouses.EndpointHealth_Status`,
-  `modelservingmanagement.InferenceEndpointState_ReadyState`).
+  `modelservingmanagement.InferenceEndpoint`).
 - **Suggestion:** Qualify with `VectorSearch` prefix —
   `VectorSearchEndpointType`, `VectorSearchEndpointStatus`. Or move
   these into a namespace `VectorSearchEndpoint.Status` /
@@ -351,34 +345,7 @@ each category.
 
 ### 4. Underscores in TS identifiers
 
-> The TypeScript style guide (Google) and the SDK's own
-> `typescript.mdc` disallow `snake_case` and underscores in
-> identifiers. The generator emits proto-style "outer_inner" names
-> as `Outer_Inner` to disambiguate nested messages.
-
-#### F4.1 — `EndpointStatus_State` enum (HIGH, generator concern)
-- **Where:** `model.ts:46-65`, `client.ts:36, 335, 338, 376, 377`,
-  `index.ts:10`.
-  ```ts
-  // eslint-disable-next-line @typescript-eslint/naming-convention --
-  //   Proto-style nested enum name.
-  export enum EndpointStatus_State { … }
-  ```
-- **Why flagged:** Requires an `eslint-disable-next-line` to compile —
-  always a smell. The TS-idiomatic equivalents are namespace nesting
-  (`namespace EndpointStatus { export enum State { … } }`) or flat
-  PascalCase (`EndpointStatusState`).
-- **Suggestion:** Drop the underscore at the generator level. Two
-  viable shapes:
-  1. Flat PascalCase — `EndpointStatusState`.
-  2. Namespace nesting — `EndpointStatus.State`.
-  With the F1.2 rename, this becomes `VectorSearchEndpointStatusState`
-  (long) or `VectorSearchEndpointStatus.State` (cleaner).
-
-#### F4.2 — Schema names contain `_` indirectly (LOW)
-- **Where:** No `_` in this package's schema names (it has no
-  `*_Response`/`*_State` schemas other than the enum above). This
-  package is lighter on the underscore problem than `budgets`.
+_None._
 
 ---
 
@@ -645,10 +612,8 @@ each category.
 
 #### F8.1 — `Request` / `Response` suffixes (LOW, conventional)
 - **Where:** All request/response types.
-- **Why flagged:** Conventional in this SDK. Note: this package
-  does NOT have the `_Response` underscore problem the `budgets`
-  package has — names are flat (`CreateEndpointRequest`,
-  `DeleteEndpointResponse`). Good.
+- **Why flagged:** Conventional in this SDK. Names are flat
+  (`CreateEndpointRequest`, `DeleteEndpointResponse`). Good.
 - **Suggestion:** No change.
 
 #### F8.2 — `EndpointType` enum tautology (LOW)
@@ -1150,11 +1115,9 @@ This SDK exposes *three* distinct "endpoint" packages plus a sibling
 - **Where:**
   - `packages/endpoints/src/v1` exports `Endpoint`
   - `packages/warehouses/src/v1` exports `EndpointState`,
-    `EndpointSecurityPolicy`, `EndpointSpotInstancePolicy`,
-    `EndpointHealth_Status`
+    `EndpointSecurityPolicy`, `EndpointSpotInstancePolicy`
   - `packages/modelservingmanagement/src/v1` exports
-    `InferenceEndpoint`, `ServingEndpointDetailedPermissionLevel`,
-    `InferenceEndpointState_*`
+    `InferenceEndpoint`, `ServingEndpointDetailedPermissionLevel`
 - **Why flagged:** Project-wide `grep -r Endpoint` returns hits across
   all three packages. Autocomplete on "Endpoint" collides. Even with
   qualified imports, mental load is high.
@@ -1192,7 +1155,7 @@ This SDK exposes *three* distinct "endpoint" packages plus a sibling
 | 1 | Vague / generic                         | 9        |
 | 2 | Redundant enum prefixes                 | 5        |
 | 3 | Acronym casing                          | 4 (3 acceptable) |
-| 4 | Underscores in TS identifiers           | 2        |
+| 4 | Underscores in TS identifiers           | 0        |
 | 5 | Cryptic abbreviations                   | 10       |
 | 6 | Misleading names                        | 9        |
 | 7 | Overly verbose                          | 8        |
@@ -1210,7 +1173,7 @@ This SDK exposes *three* distinct "endpoint" packages plus a sibling
 | 19 | Underspecified IDs                     | 3 (2 acceptable) |
 | 20 | Type-suffix tautology                  | 6 (3 acceptable) |
 | OVERLAP | endpoints vs warehouses vs serving | 4 |
-| **Total** |                                     | **112**  |
+| **Total** |                                     | **111**  |
 
 ---
 
@@ -1227,21 +1190,18 @@ This SDK exposes *three* distinct "endpoint" packages plus a sibling
    `ThroughputPatchStatus` (`PATCH_*`).
 3. **F9.1 / F9.2:** Pluralize the list method, request, and response:
    `listEndpoints`, `ListEndpointsRequest`, `ListEndpointsResponse`.
-4. **F4.1:** Replace `EndpointStatus_State` with namespace
-   nesting or flat PascalCase (`EndpointStatusState`); eliminate
-   the `eslint-disable-next-line` for `naming-convention`.
-5. **F6.5:** Rename `minimalConcurrencyAllowed →
+4. **F6.5:** Rename `minimalConcurrencyAllowed →
    minimumConcurrencyAllowed` (the existing name is grammatically
    wrong English).
-6. **F12.3 / F1.4 / F6.1 / F19.2:** Resolve the `Endpoint.name` vs
+5. **F12.3 / F1.4 / F6.1 / F19.2:** Resolve the `Endpoint.name` vs
    `Endpoint.id` duality — either document the distinction
    prominently or unify at the API level.
-7. **F8.2 / F20.1 / F20.2:** Drop redundant tokens from
+6. **F8.2 / F20.1 / F20.2:** Drop redundant tokens from
    `Endpoint.endpointType` and `Endpoint.endpointStatus` to bare
    `type` / `status`.
-8. **F14.1 / F5.x:** Spell out `req`/`resp`/`err`/`opts`/
+7. **F14.1 / F5.x:** Spell out `req`/`resp`/`err`/`opts`/
    `pkgJson`/`msg` across the generated code.
-9. **F12.2:** Resolve the `targetQps` / `replicationFactor` /
+8. **F12.2:** Resolve the `targetQps` / `replicationFactor` /
    `numReplicas` overlap at the API spec level — three names for
    related concepts, with JSDoc cross-references between them, is
    a strong smell.

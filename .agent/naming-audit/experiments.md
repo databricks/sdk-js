@@ -3,12 +3,12 @@
 **Path:** `packages/experiments/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** MLflow Experiments — track Experiments (named containers), Runs (single executions, with metrics/params/tags/artifacts/datasets/model inputs/outputs), LoggedModels (versioned model artifacts attached to a Run), and the surrounding CRUD (create/get/list/search/restore/delete/update/log).
-**Total weird names flagged:** 55
+**Total weird names flagged:** 53
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 17 |
+| High | 15 |
 | Medium | 24 |
 | Low | 9 |
 | Observation | 5 |
@@ -76,42 +76,30 @@
 - **Rationale:** Same as #9.
 
 ### 11. `GetLoggedModelsRequest` — only request type with a `Request` suffix — `src/v1/model.ts:314, client.ts:578`
-- **Why weird:** Every other request type drops the `Request` suffix: `GetExperiment`, `GetRun`, `CreateRun`, `DeleteRuns`, `SearchRuns`, etc. Then `GetLoggedModelsRequest` (and its response `GetLoggedModelsRequest_Response` — note the double "Request" in the response name) breaks the pattern. `LogLoggedModelParamsRequest` (model.ts:475) and its `Request_Response` companion break it the same way.
-- **Category:** 20 (type-suffix tautology), 17 (inconsistent action verbs / suffix policy), 7 (verbose).
-- **Suggested name:** `GetLoggedModels` + `GetLoggedModels_Response`. `LogLoggedModelParams` + `LogLoggedModelParams_Response`.
-- **Rationale:** Inconsistency within the same file. `GetLoggedModelsRequest_Response` literally reads "request's response" which is a tautology — the request shape and the response shape are different objects.
+- **Why weird:** Every other request type drops the `Request` suffix: `GetExperiment`, `GetRun`, `CreateRun`, `DeleteRuns`, `SearchRuns`, etc. Then `GetLoggedModelsRequest` breaks the pattern. `LogLoggedModelParamsRequest` (model.ts:475) breaks it the same way.
+- **Category:** 17 (inconsistent action verbs / suffix policy), 7 (verbose).
+- **Suggested name:** `GetLoggedModels`. `LogLoggedModelParams`.
+- **Rationale:** Inconsistency within the same file — most request types use the bare verb-noun form, and these two are the outliers.
 
-### 12. `GetLoggedModelsRequest_Response` (and `LogLoggedModelParamsRequest_Response`) double-tautology — `src/v1/model.ts:320, 483`
-- **Why weird:** Combining #11 with the proto `_Response` convention produces these absurd names. The exported identifier `GetLoggedModelsRequest_Response` contains both the `Request` suffix (#11) and the `_Response` suffix — "the request's response".
-- **Category:** 20 (suffix tautology), 4 (underscore).
-- **Suggested name:** `GetLoggedModels_Response` (drop the `Request`).
-- **Rationale:** Pure word salad.
-
-### 13. `_Response` underscore convention — 32 types — `src/v1/model.ts` throughout
-- **Why weird:** Every response type uses `Foo_Response` with a literal underscore: `CreateExperiment_Response`, `CreateLoggedModel_Response`, `CreateRun_Response`, `DeleteExperiment_Response`, `DeleteLoggedModel_Response`, `DeleteLoggedModelTag_Response`, `DeleteRun_Response`, `DeleteRuns_Response`, `DeleteTag_Response`, `FinalizeLoggedModel_Response`, `GetExperiment_Response`, `GetExperimentByName_Response`, `GetLoggedModel_Response`, `GetLoggedModelsRequest_Response`, `GetMetricHistory_Response`, `GetRun_Response`, `ListArtifacts_Response`, `ListExperiments_Response`, `LogBatch_Response`, `LogInputs_Response`, `LogLoggedModelParamsRequest_Response`, `LogMetric_Response`, `LogModel_Response`, `LogOutputs_Response`, `LogParam_Response`, `RestoreExperiment_Response`, `RestoreRun_Response`, `RestoreRuns_Response`, `SearchExperiments_Response`, `SearchLoggedModels_Response`, `SearchRuns_Response`, `SetExperimentTag_Response`, `SetLoggedModelTags_Response`, `SetTag_Response`, `UpdateExperiment_Response`, `UpdateRun_Response`. Each carries an `eslint-disable-next-line @typescript-eslint/naming-convention` comment, and many that are empty also disable `@typescript-eslint/no-empty-object-type`.
-- **Category:** 4 (underscores in TS identifiers), 14 (Go/proto-style names), 7 (verbose).
-- **Suggested name:** `CreateExperimentResponse` (no underscore). Or, in TS, declare them as a namespace: `namespace CreateExperiment { export interface Response {…} }`. Or flatten with descriptive suffix: `CreateExperimentResult`, `CreateRunResult`.
-- **Rationale:** 32 lint suppressions in a single file. The convention is leaking proto naming into TS. Google TS style guide § 9.2 forbids underscores in type names.
-
-### 14. `LoggedModelStatus` enum members all prefixed `LOGGED_MODEL_` — `src/v1/model.ts:9-23`
+### 12. `LoggedModelStatus` enum members all prefixed `LOGGED_MODEL_` — `src/v1/model.ts:9-23`
 - **Why weird:** Enum `LoggedModelStatus` has members `LOGGED_MODEL_STATUS_UNSPECIFIED`, `LOGGED_MODEL_PENDING`, `LOGGED_MODEL_READY`, `LOGGED_MODEL_UPLOAD_FAILED`. The enum is already `LoggedModelStatus` — every member re-states `LOGGED_MODEL_`. The first member doubles down: `LOGGED_MODEL_STATUS_UNSPECIFIED`. The others lose the `STATUS_` infix but still keep `LOGGED_MODEL_`.
 - **Category:** 2 (redundant enum prefix), 17 (inconsistency: only `UNSPECIFIED` carries the full `LOGGED_MODEL_STATUS_` prefix), 18 (long enum values).
 - **Suggested name:** `LoggedModelStatus.Unspecified | Pending | Ready | UploadFailed`. Or drop `Unspecified` entirely (TS supports optional fields natively).
 - **Rationale:** `LoggedModelStatus.LOGGED_MODEL_UPLOAD_FAILED` reads as "logged model status: logged model upload failed" — the type name is repeated twice. Inconsistent prefix between `UNSPECIFIED` and the rest is jarring.
 
-### 15. `RunStatus` enum has no `UNSPECIFIED` value — inconsistent with `LoggedModelStatus` and `ViewType` — `src/v1/model.ts:26-37`
+### 13. `RunStatus` enum has no `UNSPECIFIED` value — inconsistent with `LoggedModelStatus` and `ViewType` — `src/v1/model.ts:26-37`
 - **Why weird:** Two of the three enums in the file follow the proto-style "include UNSPECIFIED sentinel" pattern. `RunStatus` does not. Five values: `RUNNING`, `SCHEDULED`, `FINISHED`, `FAILED`, `KILLED`. Either the Run state machine has no "unknown" — fine — but the inconsistency reduces grep-ability.
 - **Category:** 17 (inconsistency across enums in same file).
 - **Suggested name:** Either drop `UNSPECIFIED` from `LoggedModelStatus` and `ViewType` too (best — TS uses `undefined`), or add `RunStatus.UNSPECIFIED` for symmetry.
 - **Rationale:** Pick one policy. Sibling enums disagreeing on the sentinel makes patterns hard to learn.
 
-### 16. `KILLED` enum value — `src/v1/model.ts:36`
+### 14. `KILLED` enum value — `src/v1/model.ts:36`
 - **Why weird:** `RunStatus.KILLED` reads aggressively. MLflow's own term is `KILLED` (preserved here from the wire format), but "killed" is uncommon in API-design vocabulary outside of Unix signals. `Cancelled`, `Aborted`, `Stopped` are typical English equivalents. The JSDoc says "Run killed by user."
 - **Category:** 6 (misleading — sounds like an error, but it is a user-initiated state), 18 (uncommon enum value), 17 (inconsistent verb tense with `RUNNING` / `SCHEDULED` — `KILLED` is past tense of an active verb).
 - **Suggested name:** `RunStatus.Cancelled` (TS) with wire-value remaining `KILLED`. Match the rest: `Running`, `Scheduled`, `Finished`, `Failed`, `Cancelled`.
 - **Rationale:** `Cancelled` is the dominant industry term for user-initiated termination (HTTP `499 Client Closed Request`, GRPC `CANCELLED`, etc.).
 
-### 17. `ViewType` enum — generic name + redundant value names — `src/v1/model.ts:40-47`
+### 15. `ViewType` enum — generic name + redundant value names — `src/v1/model.ts:40-47`
 - **Why weird:** Type name `ViewType` is meaningless on its own ("a type of view"). Three values are `ACTIVE_ONLY`, `DELETED_ONLY`, `ALL` — all SCREAMING_SNAKE_CASE TS identifiers when most TS enums use PascalCase. Plus `ALL` is a built-in reserved-feeling word and a poor key. The same enum is used as `viewType` on `ListExperiments` (model.ts:416), `runViewType` on `SearchRuns` (model.ts:897), and `viewType` on `SearchExperiments` (model.ts:800) — two fields named `viewType` and one named `runViewType` for the same enum.
 - **Category:** 1 (generic name), 17 (inconsistent field names — `viewType` vs `runViewType` for the same enum).
 - **Suggested name:** Type: `ExperimentVisibility` or `LifecycleFilter`. Values: `ActiveOnly | DeletedOnly | All`. Field name: pick one (`viewType` everywhere, or rename uniformly).
@@ -119,107 +107,107 @@
 
 ## Medium severity
 
-### 18. `GetLoggedModels` method returns `GetLoggedModelsRequest_Response` — `src/v1/client.ts:577-608`
+### 16. `GetLoggedModels` method returns request type with `Request` suffix — `src/v1/client.ts:577-608`
 - **Why weird:** The method is `getLoggedModels(req: GetLoggedModelsRequest)`. Method name has no `Request` suffix, but the parameter type does. Compare to `getExperiment(req: GetExperiment)` two methods up. Same problem with `logLoggedModelParams(req: LogLoggedModelParamsRequest)` (`client.ts:921`).
-- **Category:** 17 (inconsistency), 20 (suffix tautology).
+- **Category:** 17 (inconsistency).
 - **Suggested name:** Drop the `Request` suffix on the type names to match the method names. Already raised in #11.
 
-### 19. `getMetricHistory` / `GetMetricHistory` — request type uses verb-noun, response is paginated metrics — `src/v1/model.ts:325, client.ts:611`
+### 17. `getMetricHistory` / `GetMetricHistory` — request type uses verb-noun, response is paginated metrics — `src/v1/model.ts:325, client.ts:611`
 - **Why weird:** Type name `GetMetricHistory` reads as a verb phrase, not a noun. All other request types use verb-phrase names (`GetRun`, `DeleteExperiment`) so this is internally consistent, but it does conflict with the convention `Verb + EntityName` (because "history" is not the entity — `Metric` is). The response field is `metrics: Metric[]` — so "metric history" really means "page of historical metric values for a single metric_key".
 - **Category:** 1 (vague: "history" is non-specific), 6 (misleading: "metric history" sounds like an aggregate, returns a page of `Metric` rows).
 - **Suggested name:** `GetMetricValues` / `getMetricValues`, or `ListMetricHistory` / `listMetricHistory` (since it paginates).
 - **Rationale:** The verb `get` paired with a paginated response is misleading — all other paginated endpoints use `list` or `search` (e.g. `listExperiments`, `searchRuns`). This one is the odd one out.
 
-### 20. `LogModel` is deprecated and method docs say so — `src/v1/client.ts:978-984`
+### 18. `LogModel` is deprecated and method docs say so — `src/v1/client.ts:978-984`
 - **Why weird:** The docstring literally starts with "**Note:** the [Create a logged model](...) API replaces this endpoint." But `logModel` is still exported with no `@deprecated` JSDoc tag. Same for `LogModel` and `LogModel_Response`. The method `createLoggedModel` is the replacement.
 - **Category:** 6 (misleading — exported as if it were current).
 - **Suggested name:** Add `@deprecated Use createLoggedModel instead.` JSDoc to `logModel`, `LogModel`, `LogModel_Response`.
 - **Rationale:** A linter or IDE that reads `@deprecated` will warn users; a plaintext note in the markdown JSDoc body will not.
 
-### 21. `runUuid` deprecated field appears on 6 types — `src/v1/model.ts:332, 365, 389, 492, 546, 739, 949, 976`
+### 19. `runUuid` deprecated field appears on 6 types — `src/v1/model.ts:332, 365, 389, 492, 546, 739, 949, 976`
 - **Why weird:** Eight different types/methods carry a `runUuid?: string` field with the comment `[Deprecated, use 'run_id' instead] ID of the run ...`. There is no `@deprecated` JSDoc tag — the deprecation is buried in prose. The TS port translated `run_uuid` (snake_case wire) into `runUuid` (camelCase) so the deprecation comment's `run_id` reference does not match the TS field name (`runId`) the user would actually use.
 - **Category:** 6 (misleading prose), 19 (underspecified ID: `runUuid` vs `runId` for the same thing), 17 (inconsistent ID style).
 - **Suggested name:** Either remove the deprecated field from the TS surface (since the Go SDK keeps it for wire-compat, TS could omit) or add `@deprecated` JSDoc.
 - **Rationale:** If a user passes both `runId` and `runUuid` the API picks `runId`; the TS surface should make `runUuid` impossible to autocomplete.
 
-### 22. `userId` deprecated — `src/v1/model.ts:101, 749`
-- **Why weird:** Same problem as #21 but for `userId` on `CreateRun.userId` and `RunInfo.userId`. JSDoc: "This field is deprecated as of MLflow 1.0, and will be removed in a future MLflow release. Use 'mlflow.user' tag instead." No `@deprecated` tag.
+### 20. `userId` deprecated — `src/v1/model.ts:101, 749`
+- **Why weird:** Same problem as #19 but for `userId` on `CreateRun.userId` and `RunInfo.userId`. JSDoc: "This field is deprecated as of MLflow 1.0, and will be removed in a future MLflow release. Use 'mlflow.user' tag instead." No `@deprecated` tag.
 - **Category:** 6.
-- **Suggested name:** Add `@deprecated`. Same as #21.
+- **Suggested name:** Add `@deprecated`. Same as #19.
 
-### 23. `creationTimestampMs` / `lastUpdatedTimestampMs` vs `creationTime` / `lastUpdateTime` — same concept, two namings — `src/v1/model.ts:232-234, 587-589`
+### 21. `creationTimestampMs` / `lastUpdatedTimestampMs` vs `creationTime` / `lastUpdateTime` — same concept, two namings — `src/v1/model.ts:232-234, 587-589`
 - **Why weird:** `Experiment` uses `lastUpdateTime` and `creationTime` (no unit suffix). `LoggedModelInfo` uses `creationTimestampMs` and `lastUpdatedTimestampMs` (with unit suffix). Both are Unix ms timestamps. Three things vary: (a) `Time` vs `Timestamp`, (b) `Update` vs `Updated`, (c) presence of `Ms` unit suffix.
 - **Category:** 17 (inconsistency in field naming for the same concept), 3 (casing inconsistency), 9 (singular/plural-ish noun tense `Update` vs `Updated`).
 - **Suggested name:** Pick one: `createdAt` / `updatedAt` (typical JS), or `creationTimeMs` / `lastUpdateTimeMs` (explicit unit). Match across `Experiment`, `LoggedModelInfo`, `RunInfo`, etc.
 - **Rationale:** Three timestamp formats in one package means users guess which type uses which.
 
-### 24. `RunInfo` uses `startTime` / `endTime` (no unit suffix) — `src/v1/model.ts:753, 755`
+### 22. `RunInfo` uses `startTime` / `endTime` (no unit suffix) — `src/v1/model.ts:753, 755`
 - **Why weird:** Adds a fourth timestamp naming style to the package: bare `startTime` / `endTime` with no unit. JSDoc says "Unix timestamp of when the run started in milliseconds" — buried in prose.
 - **Category:** 17 (inconsistency).
-- **Suggested name:** `startTimeMs` / `endTimeMs`. Same as #23.
+- **Suggested name:** `startTimeMs` / `endTimeMs`. Same as #21.
 
-### 25. `maxTimestampMillis` / `minTimestampMillis` — yet another timestamp suffix `Millis` — `src/v1/model.ts:194, 697`
+### 23. `maxTimestampMillis` / `minTimestampMillis` — yet another timestamp suffix `Millis` — `src/v1/model.ts:194, 697`
 - **Why weird:** Fifth style: `DeleteRuns.maxTimestampMillis` and `RestoreRuns.minTimestampMillis` use `Millis` suffix (not `Ms`, not unsuffixed). Same package. Five different naming choices for unix-ms timestamps: `creationTime`, `lastUpdateTime`, `startTime`/`endTime`, `creationTimestampMs`/`lastUpdatedTimestampMs`, `maxTimestampMillis`/`minTimestampMillis`.
 - **Category:** 17 (inconsistency × 5), 3 (casing inconsistency — `Ms` vs `Millis`).
 - **Suggested name:** Pick one suffix (`Ms` is common, `Millis` is rarer) and apply uniformly.
-- **Rationale:** Same as #23.
+- **Rationale:** Same as #21.
 
-### 26. `creatorId: number` (not string) — `src/v1/model.ts:595`
+### 24. `creatorId: number` (not string) — `src/v1/model.ts:595`
 - **Why weird:** `LoggedModelInfo.creatorId` is typed as `number | undefined` — every other ID in the package is `string` (`experimentId`, `runId`, `modelId`, `sourceRunId`). The JSDoc says "The ID of the user or principal that created the model."
 - **Category:** 16 (field contradicting type domain), 17 (inconsistent ID type), 19 (underspecified ID).
 - **Suggested name:** Either align as `string` (most likely the wire really is a numeric user-id but TS-side string is safer for large ints) or rename to `creatorIdNumeric` to flag the divergence.
 - **Rationale:** If the user-id ever exceeds `Number.MAX_SAFE_INTEGER`, this field silently corrupts. All other Databricks SDK packages use `string` for IDs (e.g. `databricks/sdk-iam` uses `id: string`).
 
-### 27. `experimentId` vs `modelId` vs `runId` vs `creatorId` vs `userId` — five different ID fields with no shared naming pattern — `src/v1/model.ts` throughout
-- **Why weird:** The package has multiple ID kinds that coexist on the same types. `Metric` (`model.ts:622`) has `modelId` AND `runId`. `LoggedModelInfo` has `modelId`, `experimentId`, `sourceRunId`, `creatorId`. No naming scheme says "this is the model's own ID vs a referenced model's ID". `sourceRunId` (the run that produced this model) and `runId` (the run owning this metric) — both are "run IDs" semantically but named differently. `creatorId` (`number`) is yet another shape (#26).
+### 25. `experimentId` vs `modelId` vs `runId` vs `creatorId` vs `userId` — five different ID fields with no shared naming pattern — `src/v1/model.ts` throughout
+- **Why weird:** The package has multiple ID kinds that coexist on the same types. `Metric` (`model.ts:622`) has `modelId` AND `runId`. `LoggedModelInfo` has `modelId`, `experimentId`, `sourceRunId`, `creatorId`. No naming scheme says "this is the model's own ID vs a referenced model's ID". `sourceRunId` (the run that produced this model) and `runId` (the run owning this metric) — both are "run IDs" semantically but named differently. `creatorId` (`number`) is yet another shape (#24).
 - **Category:** 19 (underspecified IDs coexist), 16 (`creatorId` is `number`, others `string`).
 - **Suggested name:** Add prefix discipline: the model's own ID is `id` (or `modelId` everywhere); a referenced ID is `<role><Entity>Id` (`sourceRunId`, `parentExperimentId`). Document the convention.
 - **Rationale:** Today, every type has its own private convention; users must check each schema.
 
-### 28. `modelId` ambiguity in `Metric` — `src/v1/model.ts:643-647`
+### 26. `modelId` ambiguity in `Metric` — `src/v1/model.ts:643-647`
 - **Why weird:** `Metric.modelId` doc: "The ID of the **logged model or registered model version** associated with the metric, if applicable." So one field carries IDs from two different domains (LoggedModel from this package + RegisteredModelVersion from `mlmodels`/`modelregistry` package). The type cannot tell them apart.
 - **Category:** 6 (misleading — same string field holds two ID kinds), 19 (underspecified ID).
 - **Suggested name:** Split into `loggedModelId?: string` and `registeredModelVersionId?: string`, or carry a discriminator (`{kind: 'logged' | 'registered', id: string}`).
 - **Rationale:** Heterogeneous string ID fields are debugging traps.
 
-### 29. `LoggedModelInfo.modelId` doc vs `LoggedModel.info.modelId` access pattern — `src/v1/model.ts:560-565, 579-583`
+### 27. `LoggedModelInfo.modelId` doc vs `LoggedModel.info.modelId` access pattern — `src/v1/model.ts:560-565, 579-583`
 - **Why weird:** To get a model's own ID, you have to write `loggedModel.info?.modelId`. The natural place would be `loggedModel.id` or `loggedModel.modelId`. The split between `info` and `data` (#10) buries the ID one level deep.
 - **Category:** 15 (generic field name losing meaning), 7 (verbose access).
 - **Suggested name:** Hoist `modelId` to `LoggedModel.id` (typescript can keep `info` for the rest).
 - **Rationale:** Awkward access pattern.
 
-### 30. `RunInfo.experimentId` is bare while `LoggedModelInfo.experimentId` doc says "The ID of the experiment that owns the model" — `src/v1/model.ts:741, 583`
+### 28. `RunInfo.experimentId` is bare while `LoggedModelInfo.experimentId` doc says "The ID of the experiment that owns the model" — `src/v1/model.ts:741, 583`
 - **Why weird:** Two fields named `experimentId`, two completely different relationships. On `RunInfo` the field connects the run to its parent experiment. On `LoggedModelInfo` it connects the model to its owning experiment. JSDoc only on one of them.
 - **Category:** 15 (generic name losing meaning across contexts).
 - **Suggested name:** Both are fine as `experimentId` if doc consistently says "parent experiment". The issue is uneven JSDoc.
 
-### 31. Method names `getLoggedModels` / `getLoggedModelsRequest` mismatch — type is `GetLoggedModelsRequest`, method is `getLoggedModels` — `src/v1/client.ts:577`
+### 29. Method names `getLoggedModels` / `getLoggedModelsRequest` mismatch — type is `GetLoggedModelsRequest`, method is `getLoggedModels` — `src/v1/client.ts:577`
 - **Why weird:** Caller writes `client.getLoggedModels({...})` — but the type the request maps to is `GetLoggedModelsRequest`. Looking at the method name alone you wouldn't guess the type carries the `Request` suffix.
 - **Category:** 17 (inconsistency).
 - **Suggested name:** Already covered by #11 — drop `Request`.
 
-### 32. `LogLoggedModelParamsRequest` — verb-noun-verb compound — `src/v1/model.ts:475`
+### 30. `LogLoggedModelParamsRequest` — verb-noun-verb compound — `src/v1/model.ts:475`
 - **Why weird:** Parses as: Log (verb) + LoggedModel (noun) + Params (noun) + Request (suffix). Read aloud as "Log Logged Model Params Request". Three nouns/verbs strung together. The verb `Log` collides with the participle adjective `Logged` (they have the same root) inside the same identifier. Method is `logLoggedModelParams` (`client.ts:921`).
 - **Category:** 7 (overly verbose), 17 (verb collision), 6 (reads awkwardly).
 - **Suggested name:** `AddMlflowModelParams` + `addMlflowModelParams`, or `LogParamsForModel` + `logParamsForModel`, or drop `Logged` once the rename in #6 is applied: `LogMlflowModelParams`.
 - **Rationale:** The double-Log is jarring on read.
 
-### 33. `setLoggedModelTags` is plural but `setExperimentTag` is singular — `src/v1/client.ts:1276, 1302`
+### 31. `setLoggedModelTags` is plural but `setExperimentTag` is singular — `src/v1/client.ts:1276, 1302`
 - **Why weird:** `setExperimentTag(req: SetExperimentTag)` sets **one** tag. `setLoggedModelTags(req: SetLoggedModelTags)` sets a batch. Same verb, different cardinality. Method `setTag` (run tag) is also singular. No `setExperimentTags` or `setRunTags` exists.
 - **Category:** 9 (singular/plural mismatch), 17 (inconsistent action verb cardinality).
 - **Suggested name:** Either add bulk variants for experiment/run, or rename to be explicit: `setLoggedModelTagsBatch`, or pluralise all (`setExperimentTags`, `setRunTags`, `setLoggedModelTags`).
 - **Rationale:** Cardinality should be predictable from the method name.
 
-### 34. `setExperimentTag` URL has double "set-experiment-tag" — `src/v1/client.ts:1280`
+### 32. `setExperimentTag` URL has double "set-experiment-tag" — `src/v1/client.ts:1280`
 - **Why weird:** URL is `/api/2.0/mlflow/experiments/set-experiment-tag`. The path already says `experiments/` so the segment `set-experiment-tag` repeats "experiment". Other methods use `experiments/set` / `experiments/create` style. Not a TS naming issue per se but caller-visible if someone logs the URL.
 - **Category:** Observation (URL design upstream).
 
-### 35. `logBatch` does not say "log run batch" — `src/v1/client.ts:865`
+### 33. `logBatch` does not say "log run batch" — `src/v1/client.ts:865`
 - **Why weird:** `logBatch` is a batch-write of metrics/params/tags **to a run**. Name says "batch" but not "what gets batched" or "what scope". From the method name alone, a user might think this is "batch-log many experiments" or "batch-log many metrics across many runs". JSDoc clarifies.
 - **Category:** 1 (vague), 15 (generic name).
 - **Suggested name:** `logRunBatch`, `logRunMetadata`, or `logRunMeasurements`.
 
-### 36. `logInputs` vs `logOutputs` vs `logParam` vs `logMetric` vs `logBatch` vs `logModel` vs `logLoggedModelParams` — 7 different `log*` verbs — `src/v1/client.ts`
+### 34. `logInputs` vs `logOutputs` vs `logParam` vs `logMetric` vs `logBatch` vs `logModel` vs `logLoggedModelParams` — 7 different `log*` verbs — `src/v1/client.ts`
 - **Why weird:** Seven log* methods with no consistent grammar:
   - `logBatch` (multiple of {metric, param, tag} on a run)
   - `logInputs` (datasets + models for a run)
@@ -233,86 +221,84 @@
 - **Suggested name:** Adopt a `log<Entity>[ToRun|ToModel]` pattern uniformly. e.g. `logMetricToRun`, `logParamToRun`, `logBatchToRun`, `logInputsToRun`, `logOutputsFromRun`, `logParamsToModel`. Verbose, but unambiguous.
 - **Rationale:** The current set is internally inconsistent. The Go SDK has the same problem; TS can normalize.
 
-### 37. `LogInputs.datasets` vs `LogInputs.models` field names — `src/v1/model.ts:463-470`
+### 35. `LogInputs.datasets` vs `LogInputs.models` field names — `src/v1/model.ts:463-470`
 - **Why weird:** Two parallel fields with different abstraction levels: `datasets` is `DatasetInput[]` (carries tags + dataset), `models` is `ModelInput[]` (only model id). The names don't hint at this asymmetry.
 - **Category:** 15 (generic field name losing structure).
 
-### 38. `datasetInputs` vs `modelInputs` on `RunInputs` — `src/v1/model.ts:770, 772`
+### 36. `datasetInputs` vs `modelInputs` on `RunInputs` — `src/v1/model.ts:770, 772`
 - **Why weird:** `RunInputs.datasetInputs: DatasetInput[]` and `RunInputs.modelInputs: ModelInput[]`. The field name and the element type both carry `Input`. So a user reads `runInputs.datasetInputs[0].tags` — the word "input" appears three times in a single access path.
 - **Category:** 20 (suffix tautology), 7 (verbose).
 - **Suggested name:** `RunInputs.datasets: DatasetInput[]` and `RunInputs.models: ModelInput[]`.
 
-### 39. `Dataset.profile` vs `Dataset.schema` — both `string` — `src/v1/model.ts:131-142`
+### 37. `Dataset.profile` vs `Dataset.schema` — both `string` — `src/v1/model.ts:131-142`
 - **Why weird:** Both fields are typed `string` and named with generic English words. JSDoc shows the wire format is freeform JSON-stringified content. The field types don't help.
 - **Category:** 15 (generic field name losing meaning), 6 (misleading: schema is freeform stringified JSON, not a real schema).
 - **Suggested name:** `schemaJson` / `profileJson` (mirrors `LogModel.modelJson`) so the user knows to JSON-parse them. Already see the pattern at `LogModel.modelJson` (model.ts:523).
 
-### 40. `LogModel.modelJson` — bare json string field — `src/v1/model.ts:519-524`
+### 38. `LogModel.modelJson` — bare json string field — `src/v1/model.ts:519-524`
 - **Why weird:** `LogModel.modelJson` is "MLmodel file in json format." Field name OK but content is a serialized MLmodel YAML/JSON file — the user must construct an MLmodel doc. The SDK does no parsing or validation.
 - **Category:** Observation (an opaque blob field could carry doc).
 
-### 41. `Dataset.digest` — `src/v1/model.ts:124-124`
+### 39. `Dataset.digest` — `src/v1/model.ts:124-124`
 - **Why weird:** `digest` is technical jargon (cryptographic hash). MLflow uses it; consumers may not. JSDoc: "Dataset digest, e.g. an md5 hash". Could be `contentHash` or `fingerprint`.
 - **Category:** 5 (cryptic abbreviation — `digest` is industry-specific).
 
 ## Low severity
 
-### 42. `RunInfo.lifecycleStage` doc says "the experiment" but field is on a Run — `src/v1/model.ts:764`
+### 40. `RunInfo.lifecycleStage` doc says "the experiment" but field is on a Run — `src/v1/model.ts:764`
 - **Why weird:** `RunInfo.lifecycleStage` JSDoc says: "Current life cycle stage of the experiment : OneOf("active", "deleted")". But this is a `Run`'s `lifecycleStage`, not the experiment's. Same field on `Experiment.lifecycleStage` (model.ts:230) is correctly described.
 - **Category:** 6 (misleading doc — wrong entity name in description).
 - **Suggested name:** Fix doc to say "Current life cycle stage of the run".
 
-### 43. `Experiment.tags` / `LoggedModelInfo.tags` / `RunData.tags` / `RunInputs` no tags — `src/v1/model.ts:236, 603, 728`
+### 41. `Experiment.tags` / `LoggedModelInfo.tags` / `RunData.tags` / `RunInputs` no tags — `src/v1/model.ts:236, 603, 728`
 - **Why weird:** Three top-level types have a `tags` field but each uses a different element type (`ExperimentTag` / `LoggedModelTag` / `RunTag`) — see #8. The field is consistently `tags`, but the element type is not unifiable in TS without changes.
 - **Category:** 17 (inconsistency at the element-type level).
 
-### 44. Boolean field `FileInfo.isDir` — `src/v1/model.ts:252`
+### 42. Boolean field `FileInfo.isDir` — `src/v1/model.ts:252`
 - **Why weird:** Naming-wise `isDir` is fine, but the boolean is paired with `fileSize?: number | undefined` where the JSDoc says "Unset for directories" — i.e. `fileSize` is a discriminator partner that should be excluded when `isDir === true`. No discriminated union enforces this.
 - **Category:** 6 (misleading optionality), 16 (field contradicts domain in the file-vs-directory case).
 - **Suggested name:** Model as `type FileInfo = { path: string } & ({ isDir: true } | { isDir: false; fileSize: number })`.
 
-### 45. `FileInfo` itself is a generic name — `src/v1/model.ts:247`
+### 43. `FileInfo` itself is a generic name — `src/v1/model.ts:247`
 - **Why weird:** `FileInfo` is generic — many SDKs have a `FileInfo` type. This one is specifically an MLflow Run artifact entry.
 - **Category:** 1 (generic), 12 (likely duplicate of `dbsql/v1` or `workspace/v1` FileInfo).
 - **Suggested name:** `RunArtifact` or `ArtifactFileInfo`.
 
-### 46. `executeCall` / `executeHttpCall` — two execute verbs in `utils.ts` — `src/v1/utils.ts:26, 65`
+### 44. `executeCall` / `executeHttpCall` — two execute verbs in `utils.ts` — `src/v1/utils.ts:26, 65`
 - **Why weird:** `executeCall` is the public retrier+rate-limit wrapper; `executeHttpCall` is the inner HTTP send. The names differ by one word and roles are not obvious from the name.
 - **Category:** 17 (inconsistency), 6 (misleading: both look like the entry point).
 - **Suggested name:** `executeWithRetry` and `sendHttpRequest` (or `dispatch`).
 
-### 47. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 45. `HttpCallOptions` — `src/v1/utils.ts:15`
 - **Why weird:** `HttpCallOptions` is the parameter bag for `executeHttpCall`; it carries a `request`, `httpClient`, `logger`. Name is fine but `Options` is a common suffix that may collide with `CallOptions` from `@databricks/sdk-options/call` imported on the same file (line 12).
 - **Category:** 17 (collision risk with `CallOptions`).
 
-### 48. `flattenQueryParams` — only used internally — `src/v1/utils.ts:123`
+### 46. `flattenQueryParams` — only used internally — `src/v1/utils.ts:123`
 - **Why weird:** Exported `flattenQueryParams` is dead code in `experiments` — no method in `client.ts` calls it. (Searched the file; query string assembly is done inline in `getMetricHistory`, `listArtifacts`, etc.)
 - **Category:** Observation (dead export).
 
-### 49. `PACKAGE_SEGMENT` constant in `client.ts:164` — `src/v1/client.ts:164`
+### 47. `PACKAGE_SEGMENT` constant in `client.ts:164` — `src/v1/client.ts:164`
 - **Why weird:** Top-level constant `PACKAGE_SEGMENT` is SCREAMING_SNAKE_CASE — the only TS identifier in `client.ts` using that style. Comment on the line says it's used for the User-Agent header.
 - **Category:** 17 (inconsistency in identifier case across the file).
 - **Suggested name:** `packageSegment` per TS conventions.
 
-### 50. `PACKAGE_SEGMENT.key` derived by regex from `pkgJson.name` — `src/v1/client.ts:165`
+### 48. `PACKAGE_SEGMENT.key` derived by regex from `pkgJson.name` — `src/v1/client.ts:165`
 - **Why weird:** The expression `pkgJson.name.replace(/^@[^/]+\//, '')` extracts `sdk-experiments` from `@databricks/sdk-experiments`. The resulting User-Agent segment is `sdk-experiments/0.0.0`. The literal `sdk-experiments` is then user-visible in HTTP traces. The same generic-name problem as #1.
 - **Category:** 1 (generic name leaking into observability).
 
 ## Observations (non-actionable but noted)
 
-### 51. `getLoggedModels` (batch get) has no `*Iter` — `src/v1/client.ts:577`
+### 49. `getLoggedModels` (batch get) has no `*Iter` — `src/v1/client.ts:577`
 - **Note:** A batch endpoint that takes a list of IDs and returns a list. No pagination → no `Iter`. Fine. Worth noting that this is `getLoggedModels` (plural) — but `getLoggedModel` (singular, line 552) is the single-fetch. Two methods that differ only by `s` is grep-hostile.
 
-### 52. `Dataset.name` examples include emoji "fantastic-elk-3" — `src/v1/model.ts:121, 504, 633`
+### 50. `Dataset.name` examples include emoji "fantastic-elk-3" — `src/v1/model.ts:121, 504, 633`
 - **Note:** JSDoc on `Dataset.name`, `LogMetric.datasetName`, `Metric.datasetName` includes the literal example `“fantastic-elk-3”` (with smart quotes) — a generated mlflow run-name example. Looks like documentation noise that survived the port.
 
-### 53. `Dataset.source` doc — "Note that the source may not exactly reproduce..." — `src/v1/model.ts:127-129`
+### 51. `Dataset.source` doc — "Note that the source may not exactly reproduce..." — `src/v1/model.ts:127-129`
 - **Note:** The field name `source` is generic; JSDoc says it may not actually be reproducible. The name does not warn the user that the field is best-effort.
 
-### 54. `Experiment.lifecycleStage` is typed as `string` not `enum` — `src/v1/model.ts:230`
+### 52. `Experiment.lifecycleStage` is typed as `string` not `enum` — `src/v1/model.ts:230`
 - **Note:** Doc says: `Current life cycle stage of the experiment: "active" or "deleted"`. Wire returns a closed set. TS type is `string | undefined` — no enum. Suggested: `lifecycleStage?: 'active' | 'deleted'` or `LifecycleStage` enum.
 
-### 55. `RUNNING` / `SCHEDULED` / `FINISHED` / `FAILED` / `KILLED` — wire-stable enum values — `src/v1/model.ts:28-36`
+### 53. `RUNNING` / `SCHEDULED` / `FINISHED` / `FAILED` / `KILLED` — wire-stable enum values — `src/v1/model.ts:28-36`
 - **Note:** Wire values match the server's MLflow contract — they cannot be renamed without a wire-protocol break. Any rename would need to be TS-side only (with a marshaller mapping).
-</content>
-</invoke>

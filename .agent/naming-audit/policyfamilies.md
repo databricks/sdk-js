@@ -101,14 +101,7 @@ The package defines no enums.
 
 ### 2.4 Underscores in TS identifiers — High
 
-| ID    | Symbol                                               | Severity | Issue |
-| ----- | ---------------------------------------------------- | -------- | ----- |
-| U-01  | `ListPolicyFamilies_Response`                        | High     | Underscores in TS type names violate Google TypeScript style (`UpperCamelCase` only — see https://google.github.io/styleguide/tsguide.html#naming-style). The codebase even disables ESLint on the line: `// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.`. Should be `ListPolicyFamiliesResponse`. |
-| U-02  | Imports/exports of `ListPolicyFamilies_Response`     | High     | `client.ts` and `index.ts` both import/re-export the underscored name, propagating the violation across the public surface (see `index.ts` line 10). |
-
-No enum-member identifiers exist in this package, so the
-`SCREAMING_SNAKE_CASE` exception (which is permitted by Google style for
-enum members) does not apply here.
+_None._
 
 ### 2.5 Cryptic abbreviations — Medium
 
@@ -179,10 +172,9 @@ _None._
 
 | ID    | Symbol                                               | Severity | Issue |
 | ----- | ---------------------------------------------------- | -------- | ----- |
-| G-01  | `ListPolicyFamilies_Response` (proto nested-message style) | High | Direct port of Go's `pb.ListPolicyFamiliesResponse` / protobuf naming. TypeScript ecosystems do not use `_` separators between message and nested-message names; the codebase even disables ESLint for each occurrence. Should adopt the TS-idiomatic `ListPolicyFamiliesResponse`. |
-| G-02  | `HttpClient`, `HttpRequest`, `HttpResponse`          | Low      | Google TS style uses `Http` (lowercased acronym) — consistent. Not a Go-style violation. |
-| G-03  | `executeCall`, `executeHttpCall`                     | Medium   | The dual-naming (`Call` vs `HttpCall`) communicates the wrapping relationship in a Go-style "the inner one is HTTP-specific, the outer one is a generic retry/timeout decorator" idiom. Acceptable; common pattern in the Go SDK at `databricks/sdk-go/transport/`. |
-| G-04  | `buildHttpRequest`                                   | Low      | "Build" is fine in TS; the naming is broadly used. |
+| G-01  | `HttpClient`, `HttpRequest`, `HttpResponse`          | Low      | Google TS style uses `Http` (lowercased acronym) — consistent. Not a Go-style violation. |
+| G-02  | `executeCall`, `executeHttpCall`                     | Medium   | The dual-naming (`Call` vs `HttpCall`) communicates the wrapping relationship in a Go-style "the inner one is HTTP-specific, the outer one is a generic retry/timeout decorator" idiom. Acceptable; common pattern in the Go SDK at `databricks/sdk-go/transport/`. |
+| G-03  | `buildHttpRequest`                                   | Low      | "Build" is fine in TS; the naming is broadly used. |
 
 ### 2.14 Generic field names losing meaning — Medium
 
@@ -225,7 +217,7 @@ _None._
 | ID    | Symbol                                               | Severity | Issue |
 | ----- | ---------------------------------------------------- | -------- | ----- |
 | TS-01 | `PolicyFamily` — does the `Family` suffix double up with `Policy`? | Low | `PolicyFamily` is the domain term used in the Databricks docs (cf. https://docs.databricks.com/en/admin/clusters/policy-families.html). The "Family" here means *grouping/template*, not a `*Family` type-suffix tautology. OK. |
-| TS-02 | `GetPolicyFamily`, `ListPolicyFamilies`, `ListPolicyFamilies_Response` — all carry the resource noun | Low | Standard request/response naming; the resource noun is essential for disambiguation across the SDK. OK. |
+| TS-02 | `GetPolicyFamily`, `ListPolicyFamilies` — all carry the resource noun | Low | Standard request/response naming; the resource noun is essential for disambiguation across the SDK. OK. |
 | TS-03 | `HttpCallOptions` (utils)                            | Low      | The `Options` suffix is a standard TS pattern (`fetch` accepts `RequestInit`, but `Options` is widespread). OK. |
 
 ### 2.20 Other observations
@@ -253,30 +245,20 @@ _None._
 
 | Severity | Count |
 | -------- | ----- |
-| High     | 4     |
-| Medium   | 12    |
+| High     | 0     |
+| Medium   | 10    |
 | Low      | 28    |
-| **Total**| **44**|
-
-(Counted unique IDs across all categories. The total double-counts cross-referenced symbols
-intentionally — e.g. `ListPolicyFamilies_Response` appears in U-01, U-02, and G-01.)
+| **Total**| **38**|
 
 ### 3.2 Top themes
 
-1. **Proto-style `_Response` suffix.** `ListPolicyFamilies_Response`
-   violates Google TS style (no underscores in `UpperCamelCase` identifiers)
-   and requires an `eslint-disable @typescript-eslint/naming-convention`
-   annotation. Renaming to `ListPolicyFamiliesResponse` would remove the
-   disables and align with TS conventions. This is the package's only
-   **High**-severity cluster.
-
-2. **Read-only API ⇒ minimal naming surface.** With only two endpoints
+1. **Read-only API ⇒ minimal naming surface.** With only two endpoints
    (`getPolicyFamily`, `listPolicyFamilies`) and one entity (`PolicyFamily`),
-   the package introduces almost no domain-specific naming. The vast
-   majority of issues are repo-wide patterns (the bare `Client` class name,
-   the underscored `_Response` suffix) rather than per-package mistakes.
+   the package introduces almost no domain-specific naming. The majority of
+   issues are repo-wide patterns (the bare `Client` class name) rather than
+   per-package mistakes.
 
-3. **`definition` and `version` are over-generic on a generic entity.**
+2. **`definition` and `version` are over-generic on a generic entity.**
    `PolicyFamily.definition` and `GetPolicyFamily.version` are the two
    fields whose meaning is best inferred from the JSDoc rather than from
    the field name itself. Renaming to `policyDefinition` /
@@ -286,8 +268,6 @@ intentionally — e.g. `ListPolicyFamilies_Response` appears in U-01, U-02, and 
 (non-breaking renames are not possible — this section is advisory for the
 codegen owners)
 
-- Drop `_Response` suffix → `ListPolicyFamiliesResponse`. Removes one
-  ESLint-disable comment and one Google-style violation.
 - Rename `PolicyFamily.definition` → `policyDefinition` (matches the
   sibling field `policyFamilyDefinitionOverrides` in the
   `clusterpolicies` package).
@@ -299,8 +279,6 @@ codegen owners)
 
 ### 3.4 Cross-package consistency notes
 
-- The `_Response` proto-style suffix is consistent with peers; addressing
-  at the codegen level would fix all packages in one sweep.
 - The bare `Client` class name is consistent with peers; a codegen-level
   rename to `<Resource>Client` would help all packages.
 - `PolicyFamily.policyFamilyId` matches `Policy.policyFamilyId` in the

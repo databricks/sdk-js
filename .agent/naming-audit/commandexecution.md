@@ -24,44 +24,42 @@ The domain centres on a `Command` (Python/SQL/Scala/R code), executed inside a
 | 1 | high | 2. Redundant enum prefix | `model.ts:21-29` | `CommandStatus.COMMAND_*` | `CommandStatus.Cancelled`, etc. |
 | 2 | high | 2. Redundant enum prefix | `model.ts:31-36` | `ContextStatus.CONTEXT_*` | `ContextStatus.Running`, etc. |
 | 3 | high | 2. Redundant enum prefix + 18. Long enum values | `model.ts:46-53` | `ResultType.*_RESULT` | `ResultType.Error`, etc. |
-| 4 | high | 4. Underscores in TS identifiers | `model.ts:22,32,39,47` | `*_UNSPECIFIED` enum members | Omit altogether (idiomatic TS) |
-| 5 | high | 4. Underscores in TS identifiers | every enum member | `COMMAND_CANCELLED`, `PYTHON`, `IMAGES_RESULT` | `Cancelled`, `Python`, `Images` |
-| 6 | high | 12. Duplicate concepts | `model.ts:70` vs `client.ts:286-309` | `CreateResponse` reused for `execute()` | Split: `CreateContextResponse`, `ExecuteCommandResponse` |
-| 7 | high | 15. Generic field on container | `model.ts:71`, `model.ts:100,112` | `id?: string` (three different IDs) | `contextId`, `commandId` (typed by domain) |
-| 8 | high | 17. Inconsistent action verbs | `client.ts:256` vs URL `contexts/destroy` | `destroy()` vs Go SDK convention `delete` | Pick one; SDK-wide rule should drive choice |
-| 9 | high | 17. Inconsistent action verbs | `client.ts:139,176` | `commandStatus()`, `contextStatus()` | `getCommandStatus()`, `getContextStatus()` (matches request-type prefix) |
-| 10 | high | 1. Vague/generic | `model.ts:89` | `command?: string` (field, inside `ExecuteCommandRequest`) | `code` |
-| 11 | high | 16. Field contradicts type domain | `model.ts:117-143` | `Results` (plural) for single-command result | `Result` |
-| 12 | medium | 9. Singular/plural mismatch | `model.ts:102,116-143` | `results?: Results` (`Results` is one object) | `result?: Result` |
-| 13 | medium | 1. Vague/generic | `model.ts:119` | `data?: JsonValue` | Inline rename to domain (e.g. `tableData`), or document semantics |
-| 14 | medium | 16. Field contradicts type domain | `model.ts:129,131` | `fileName`, `fileNames` (used for image data URLs) | `imageData`, `imageDataList` (or `image`, `images`) |
-| 15 | medium | 1. Vague/generic | `model.ts:135` | `pos?: number` | `position` (also rename comment to public-friendly) |
-| 16 | medium | 1. Vague/generic | `model.ts:138` | `schema?: JsonObject[]` | `tableSchema` (qualify what schema) |
-| 17 | medium | 19. Underspecified IDs | `model.ts:71,100,112` | `id?: string` | `contextId` / `commandId` per response |
-| 18 | medium | 19. Underspecified IDs | `client.ts:336,337,338` | `clusterId`, `contextId`, `commandId` (fine, but match in `Results.id`) | Audit pass for consistency |
-| 19 | medium | 7. Overly verbose | `model.ts:99,111` | `GetCommandStatusResponse`, `GetContextStatusResponse` | `CommandStatusResponse`, `ContextStatusResponse` (HTTP verb shouldn't leak into type) |
-| 20 | medium | 20. Type-suffix tautology | `model.ts:55,82,93,106` | `CancelCommandRequest`, `ExecuteCommandRequest`, etc. | Acceptable here (request DTOs); flagged for review only |
-| 21 | medium | 13. Verb-tense inconsistency | `model.ts:23-28` | `CANCELLED`, `CANCELLING`, `ERROR`, `FINISHED`, `QUEUED`, `RUNNING` | Mix of past, present, and noun. Normalise to present participle or to noun (e.g. `Cancelled`, `Cancelling`, `Failed`, `Finished`, `Queued`, `Running`) |
-| 22 | medium | 3. Acronym casing inconsistency | `model.ts:133` | `isJsonSchema` | OK (Json compound); contrast with `JsonValue`, `JsonObject` from wkt — confirm casing rule |
-| 23 | medium | 12. Duplicate concepts | `client.ts:286,289` | `execute()` returns `CreateResponse` | Type repurpose conflates "context created" vs "command queued" |
-| 24 | medium | 14. Go/Java-style names | `model.ts:74` + `client.ts:256` | `DestroyContextRequest` / `destroy()` | "Destroy" is unusual in JS/TS REST clients; `delete` is more idiomatic — but match Go SDK |
-| 25 | medium | 8. Redundant suffix — call-out | `client.ts:333, 417, 498` | `CancelWaiter`, `CreateWaiter`, `ExecuteWaiter` | OK if intentional waiter pattern, but `CreateWaiter` is for *context* creation not command creation; ambiguous |
-| 26 | medium | 6. Misleading name | `client.ts:417` | `CreateWaiter` | Waits for **context** to become RUNNING; not for "create" success. Rename `CreateContextWaiter`. |
-| 27 | medium | 6. Misleading name | `client.ts:333` | `CancelWaiter` | Waits for **command** cancellation. Rename `CancelCommandWaiter`. |
-| 28 | medium | 6. Misleading name | `client.ts:498` | `ExecuteWaiter` | Waits for **command** completion. Rename `ExecuteCommandWaiter`. |
-| 29 | medium | 17. Inconsistent action verbs | `client.ts:86,256` | `cancel()` vs `destroy()` | Two destroy-like verbs for different resources (cancel command, destroy context). Acceptable but tone-deaf for JS users. |
-| 30 | medium | 18. Long enum values | `model.ts:22-28` | `COMMAND_STATUS_UNSPECIFIED` | Drop the `*_UNSPECIFIED` sentinel in TS (TS represents absence via `undefined`) |
-| 31 | low | 1. Vague/generic | `model.ts:118` | `cause?: string` | Acceptable, but JSDoc says "The cause of the error" — better as `errorCause` or document under `Results.cause` |
-| 32 | low | 1. Vague/generic | `model.ts:140` | `summary?: string` | Doc says "summary of the error" — rename `errorSummary` or move into a nested `error` object |
-| 33 | low | 1. Vague/generic | `model.ts:142` | `truncated?: boolean` | OK, but document what is truncated |
-| 34 | low | 1. Vague/generic | `client.ts:54` | `StillRunningError` | Acceptable; private |
-| 35 | low | 3. Acronym casing | `client.ts:50,77` | `userAgent` (good) but the package-segment key is `'sdk-auth'` and `'auth'` — distinct from camelCase API conventions | Hyphenated identifier-like keys are intentional (HTTP User-Agent tokens) — leave |
-| 36 | low | 10. Reserved-word collision | `model.ts:138` | `schema` as field name | Not reserved, but very generic globally — see #16 |
-| 37 | low | 14. Go/Java-style | `client.ts:54` | `StillRunningError` | Idiomatic JS uses suffix `Error`; this is fine |
-| 38 | low | 15. Generic field losing meaning | `model.ts:89` | `command` inside `ExecuteCommandRequest` | The string is the *source code*, not "the command" — see #10 |
-| 39 | low | 15. Generic field losing meaning | `model.ts:67,87` | `language?: Language` | OK, but pair the values `R`, `SQL` (single-letter / acronym) — call out below |
-| 40 | low | 3. Acronym casing | `model.ts:42-43` | `SQL`, `R` enum values | Mixed-length acronym/single-letter values; `Sql` and `R` if camelCased — keep all-caps consistently |
-| 41 | low | 9. Singular/plural mismatch | `model.ts:131` | `fileNames?: string[]` (plural) but used for *images*, not arbitrary files | See #14 |
+| 4 | high | 4. Underscores in TS identifiers | every enum member | `COMMAND_CANCELLED`, `PYTHON`, `IMAGES_RESULT` | `Cancelled`, `Python`, `Images` |
+| 5 | high | 12. Duplicate concepts | `model.ts:70` vs `client.ts:286-309` | `CreateResponse` reused for `execute()` | Split: `CreateContextResponse`, `ExecuteCommandResponse` |
+| 6 | high | 15. Generic field on container | `model.ts:71`, `model.ts:100,112` | `id?: string` (three different IDs) | `contextId`, `commandId` (typed by domain) |
+| 7 | high | 17. Inconsistent action verbs | `client.ts:256` vs URL `contexts/destroy` | `destroy()` vs Go SDK convention `delete` | Pick one; SDK-wide rule should drive choice |
+| 8 | high | 17. Inconsistent action verbs | `client.ts:139,176` | `commandStatus()`, `contextStatus()` | `getCommandStatus()`, `getContextStatus()` (matches request-type prefix) |
+| 9 | high | 1. Vague/generic | `model.ts:89` | `command?: string` (field, inside `ExecuteCommandRequest`) | `code` |
+| 10 | high | 16. Field contradicts type domain | `model.ts:117-143` | `Results` (plural) for single-command result | `Result` |
+| 11 | medium | 9. Singular/plural mismatch | `model.ts:102,116-143` | `results?: Results` (`Results` is one object) | `result?: Result` |
+| 12 | medium | 1. Vague/generic | `model.ts:119` | `data?: JsonValue` | Inline rename to domain (e.g. `tableData`), or document semantics |
+| 13 | medium | 16. Field contradicts type domain | `model.ts:129,131` | `fileName`, `fileNames` (used for image data URLs) | `imageData`, `imageDataList` (or `image`, `images`) |
+| 14 | medium | 1. Vague/generic | `model.ts:135` | `pos?: number` | `position` (also rename comment to public-friendly) |
+| 15 | medium | 1. Vague/generic | `model.ts:138` | `schema?: JsonObject[]` | `tableSchema` (qualify what schema) |
+| 16 | medium | 19. Underspecified IDs | `model.ts:71,100,112` | `id?: string` | `contextId` / `commandId` per response |
+| 17 | medium | 19. Underspecified IDs | `client.ts:336,337,338` | `clusterId`, `contextId`, `commandId` (fine, but match in `Results.id`) | Audit pass for consistency |
+| 18 | medium | 7. Overly verbose | `model.ts:99,111` | `GetCommandStatusResponse`, `GetContextStatusResponse` | `CommandStatusResponse`, `ContextStatusResponse` (HTTP verb shouldn't leak into type) |
+| 19 | medium | 20. Type-suffix tautology | `model.ts:55,82,93,106` | `CancelCommandRequest`, `ExecuteCommandRequest`, etc. | Acceptable here (request DTOs); flagged for review only |
+| 20 | medium | 13. Verb-tense inconsistency | `model.ts:23-28` | `CANCELLED`, `CANCELLING`, `ERROR`, `FINISHED`, `QUEUED`, `RUNNING` | Mix of past, present, and noun. Normalise to present participle or to noun (e.g. `Cancelled`, `Cancelling`, `Failed`, `Finished`, `Queued`, `Running`) |
+| 21 | medium | 3. Acronym casing inconsistency | `model.ts:133` | `isJsonSchema` | OK (Json compound); contrast with `JsonValue`, `JsonObject` from wkt — confirm casing rule |
+| 22 | medium | 12. Duplicate concepts | `client.ts:286,289` | `execute()` returns `CreateResponse` | Type repurpose conflates "context created" vs "command queued" |
+| 23 | medium | 14. Go/Java-style names | `model.ts:74` + `client.ts:256` | `DestroyContextRequest` / `destroy()` | "Destroy" is unusual in JS/TS REST clients; `delete` is more idiomatic — but match Go SDK |
+| 24 | medium | 8. Redundant suffix — call-out | `client.ts:333, 417, 498` | `CancelWaiter`, `CreateWaiter`, `ExecuteWaiter` | OK if intentional waiter pattern, but `CreateWaiter` is for *context* creation not command creation; ambiguous |
+| 25 | medium | 6. Misleading name | `client.ts:417` | `CreateWaiter` | Waits for **context** to become RUNNING; not for "create" success. Rename `CreateContextWaiter`. |
+| 26 | medium | 6. Misleading name | `client.ts:333` | `CancelWaiter` | Waits for **command** cancellation. Rename `CancelCommandWaiter`. |
+| 27 | medium | 6. Misleading name | `client.ts:498` | `ExecuteWaiter` | Waits for **command** completion. Rename `ExecuteCommandWaiter`. |
+| 28 | medium | 17. Inconsistent action verbs | `client.ts:86,256` | `cancel()` vs `destroy()` | Two destroy-like verbs for different resources (cancel command, destroy context). Acceptable but tone-deaf for JS users. |
+| 29 | low | 1. Vague/generic | `model.ts:118` | `cause?: string` | Acceptable, but JSDoc says "The cause of the error" — better as `errorCause` or document under `Results.cause` |
+| 30 | low | 1. Vague/generic | `model.ts:140` | `summary?: string` | Doc says "summary of the error" — rename `errorSummary` or move into a nested `error` object |
+| 31 | low | 1. Vague/generic | `model.ts:142` | `truncated?: boolean` | OK, but document what is truncated |
+| 32 | low | 1. Vague/generic | `client.ts:54` | `StillRunningError` | Acceptable; private |
+| 33 | low | 3. Acronym casing | `client.ts:50,77` | `userAgent` (good) but the package-segment key is `'sdk-auth'` and `'auth'` — distinct from camelCase API conventions | Hyphenated identifier-like keys are intentional (HTTP User-Agent tokens) — leave |
+| 34 | low | 10. Reserved-word collision | `model.ts:138` | `schema` as field name | Not reserved, but very generic globally — see #15 |
+| 35 | low | 14. Go/Java-style | `client.ts:54` | `StillRunningError` | Idiomatic JS uses suffix `Error`; this is fine |
+| 36 | low | 15. Generic field losing meaning | `model.ts:89` | `command` inside `ExecuteCommandRequest` | The string is the *source code*, not "the command" — see #9 |
+| 37 | low | 15. Generic field losing meaning | `model.ts:67,87` | `language?: Language` | OK, but pair the values `R`, `SQL` (single-letter / acronym) — call out below |
+| 38 | low | 3. Acronym casing | `model.ts:42-43` | `SQL`, `R` enum values | Mixed-length acronym/single-letter values; `Sql` and `R` if camelCased — keep all-caps consistently |
+| 39 | low | 9. Singular/plural mismatch | `model.ts:131` | `fileNames?: string[]` (plural) but used for *images*, not arbitrary files | See #13 |
 
 ---
 
@@ -85,7 +83,7 @@ Every member begins with `COMMAND_`. At a callsite this becomes
 namespacing already makes the prefix redundant.
 **Proposed:** strip the `COMMAND_` prefix; use idiomatic PascalCase:
 `CommandStatus.Cancelled`, `Cancelling`, `Failed`, `Finished`, `Queued`,
-`Running`. (See also #5 for casing.)
+`Running`. (See also #4 for casing.)
 
 ---
 
@@ -119,26 +117,11 @@ export enum ResultType {
 Members carry `_RESULT` suffix; the enum is *already* called `ResultType`.
 Tautology.
 **Proposed:** `ResultType.Error`, `Image`, `Images`, `Table`, `Text` (see also
-#5 for casing; #4 for sentinel).
+#4 for casing).
 
 ---
 
-### Finding 4 — High — Cat 4 (Underscores) + redundancy
-**Location:** all four enums.
-**Issue:** `*_UNSPECIFIED` sentinel members on every enum
-(`COMMAND_STATUS_UNSPECIFIED`, `CONTEXT_STATUS_UNSPECIFIED`,
-`LANGUAGE_UNSPECIFIED`, `RESULT_TYPE_UNSPECIFIED`). Sentinel-style
-"unspecified" values come from protobuf/Go and have no TypeScript audience
-— TS uses `undefined` natively. They surface in `?: Status | undefined`
-fields, so consumers will either ignore them or accidentally compare against
-them.
-**Proposed:** omit the `*_UNSPECIFIED` members from the TS-facing enum; the
-wire-level deserialiser may still tolerate them, but the public type should
-not advertise a "no value selected" *value*.
-
----
-
-### Finding 5 — High — Cat 4 (Underscores in TS identifiers)
+### Finding 4 — High — Cat 4 (Underscores in TS identifiers)
 **Location:** every enum member in `model.ts:22-53`.
 **Issue:** TS identifier convention is PascalCase for type-namespace
 members. `COMMAND_CANCELLED`, `IMAGES_RESULT`, `PYTHON`, `SCALA` are all
@@ -160,7 +143,7 @@ export enum CommandStatus {
 
 ---
 
-### Finding 6 — High — Cat 12 (Duplicate concepts)
+### Finding 5 — High — Cat 12 (Duplicate concepts)
 **Location:** `src/v2/model.ts:70` and `src/v2/client.ts:289`
 ```ts
 export interface CreateResponse {
@@ -176,11 +159,11 @@ shared shape is incidental, not semantic. Reusing the type forces a
 caller reading `response.id` to know the operation to interpret it.
 **Proposed:** split into `CreateContextResponse { contextId?: string }` and
 `ExecuteCommandResponse { commandId?: string }`. Each typed `id` field by
-its true domain (see #7/#17).
+its true domain (see #6/#16).
 
 ---
 
-### Finding 7 — High — Cat 15 (Generic field loses meaning)
+### Finding 6 — High — Cat 15 (Generic field loses meaning)
 **Location:** `src/v2/model.ts:71, 100, 112`
 ```ts
 export interface CreateResponse { id?: string | undefined; }
@@ -189,14 +172,14 @@ export interface GetContextStatusResponse { id?: string | undefined; ... }
 ```
 The field name `id` is meaning-free outside its container, and the
 container's name doesn't disambiguate (`CreateResponse` is used for two
-different create-like operations — see #6). A caller writing `resp.id`
+different create-like operations — see #5). A caller writing `resp.id`
 cannot tell whether it is a command id or a context id.
 **Proposed:** rename per-response: `contextId` / `commandId`. This couples
 the schema to the resource, eliminating ambiguity.
 
 ---
 
-### Finding 8 — High — Cat 17 (Inconsistent action verbs)
+### Finding 7 — High — Cat 17 (Inconsistent action verbs)
 **Location:** `src/v2/client.ts:256`
 ```ts
 /** Deletes an execution context. */
@@ -211,7 +194,7 @@ align with the Go SDK convention. At minimum, edit the JSDoc to say
 
 ---
 
-### Finding 9 — High — Cat 17 (Inconsistent action verbs)
+### Finding 8 — High — Cat 17 (Inconsistent action verbs)
 **Location:** `src/v2/client.ts:139, 176`
 ```ts
 async commandStatus(req: GetCommandStatusRequest, ...)
@@ -226,7 +209,7 @@ the request-type name and is verb-led like the other methods.
 
 ---
 
-### Finding 10 — High — Cat 1 & Cat 15 (Vague / generic field name)
+### Finding 9 — High — Cat 1 & Cat 15 (Vague / generic field name)
 **Location:** `src/v2/model.ts:89`
 ```ts
 /** Executable code */
@@ -242,7 +225,7 @@ also matches the conceptual model: a `Command` *contains* `code`.
 
 ---
 
-### Finding 11 — High — Cat 16 (Field contradicts type domain) & Cat 9 (Plural mismatch)
+### Finding 10 — High — Cat 16 (Field contradicts type domain) & Cat 9 (Plural mismatch)
 **Location:** `src/v2/model.ts:117-143`
 ```ts
 export interface Results { ... }
@@ -252,22 +235,22 @@ result — a single `cause`, single `summary`, single `resultType`, single
 `data` object. The plurality comes from the wire-level `fileNames` array
 inside it, not from multiple results.
 **Proposed:** rename to `Result` (singular). The field
-`GetCommandStatusResponse.results` becomes `result` (see #12).
+`GetCommandStatusResponse.results` becomes `result` (see #11).
 
 ---
 
-### Finding 12 — Medium — Cat 9 (Singular/plural mismatch)
+### Finding 11 — Medium — Cat 9 (Singular/plural mismatch)
 **Location:** `src/v2/model.ts:102` (field) and `model.ts:116` (type)
 ```ts
 results?: Results | undefined;
 ```
-Pairs with #11. The field name and the type are both pluralised but
+Pairs with #10. The field name and the type are both pluralised but
 represent a singular result.
-**Proposed:** `result?: Result;` once #11 is applied.
+**Proposed:** `result?: Result;` once #10 is applied.
 
 ---
 
-### Finding 13 — Medium — Cat 1 (Vague/generic)
+### Finding 12 — Medium — Cat 1 (Vague/generic)
 **Location:** `src/v2/model.ts:119`
 ```ts
 data?: JsonValue | undefined;
@@ -281,7 +264,7 @@ returned by the command.
 
 ---
 
-### Finding 14 — Medium — Cat 16 (Field contradicts type domain)
+### Finding 13 — Medium — Cat 16 (Field contradicts type domain)
 **Location:** `src/v2/model.ts:129, 131`
 ```ts
 /** The image data in one of the following formats:
@@ -301,7 +284,7 @@ is a public API; mis-named fields will outlive their fix window.
 
 ---
 
-### Finding 15 — Medium — Cat 1 (Cryptic abbreviation / vague)
+### Finding 14 — Medium — Cat 1 (Cryptic abbreviation / vague)
 **Location:** `src/v2/model.ts:135`
 ```ts
 /** internal field used by SDK */
@@ -314,7 +297,7 @@ public interface entirely. Internal fields belong on private types.
 
 ---
 
-### Finding 16 — Medium — Cat 1 (Vague/generic)
+### Finding 15 — Medium — Cat 1 (Vague/generic)
 **Location:** `src/v2/model.ts:138`
 ```ts
 /** The table schema */
@@ -328,25 +311,25 @@ populated for non-table result types.
 
 ---
 
-### Finding 17 — Medium — Cat 19 (Underspecified IDs)
+### Finding 16 — Medium — Cat 19 (Underspecified IDs)
 **Location:** `src/v2/model.ts:71, 100, 112`
-**Issue:** Same as #7. Every response that carries an identifier uses
+**Issue:** Same as #6. Every response that carries an identifier uses
 `id?: string` with no domain qualifier.
 **Proposed:** Rename per-response (`contextId`, `commandId`). Public-API
 clarity outweighs minor breakage.
 
 ---
 
-### Finding 18 — Medium — Cat 19 (Underspecified IDs) — consistency only
+### Finding 17 — Medium — Cat 19 (Underspecified IDs) — consistency only
 **Location:** `src/v2/client.ts:336-338, 417-422, 498-503` (Waiter fields)
 **Issue:** Waiter classes correctly use `clusterId`, `contextId`,
-`commandId`. The inconsistency is only in `Results` / `*Response` (#7/#17).
+`commandId`. The inconsistency is only in `Results` / `*Response` (#6/#16).
 **Proposed:** apply the same explicit-id pattern to all response types so
 the public surface is uniform.
 
 ---
 
-### Finding 19 — Medium — Cat 7 (Overly verbose)
+### Finding 18 — Medium — Cat 7 (Overly verbose)
 **Location:** `src/v2/model.ts:99, 111`
 ```ts
 export interface GetCommandStatusResponse { ... }
@@ -360,7 +343,7 @@ returned", not "the response to a GET".
 
 ---
 
-### Finding 20 — Medium — Cat 20 (Type-suffix tautology) — call-out only
+### Finding 19 — Medium — Cat 20 (Type-suffix tautology) — call-out only
 **Location:** `src/v2/model.ts:55, 64, 74, 82, 93, 106`
 ```ts
 CancelCommandRequest, CreateContextRequest, DestroyContextRequest,
@@ -373,7 +356,7 @@ convention is widely accepted across REST SDKs.
 
 ---
 
-### Finding 21 — Medium — Cat 13 (Verb-tense inconsistency)
+### Finding 20 — Medium — Cat 13 (Verb-tense inconsistency)
 **Location:** `src/v2/model.ts:23-28`
 ```ts
 COMMAND_CANCELLED   // past participle
@@ -390,7 +373,7 @@ COMMAND_RUNNING     // present participle
 
 ---
 
-### Finding 22 — Medium — Cat 3 (Acronym casing)
+### Finding 21 — Medium — Cat 3 (Acronym casing)
 **Location:** `src/v2/model.ts:133`
 ```ts
 isJsonSchema?: boolean | undefined;
@@ -403,14 +386,14 @@ recorded in `.agent/rules/typescript.mdc`.
 
 ---
 
-### Finding 23 — Medium — Cat 12 (Duplicate concepts)
+### Finding 22 — Medium — Cat 12 (Duplicate concepts)
 **Location:** `src/v2/client.ts:286-309`
 **Issue:** `execute()` returns `Promise<CreateResponse>`. The conflation
-of "create a context" and "execute returns an id" is artificial. See #6.
+of "create a context" and "execute returns an id" is artificial. See #5.
 
 ---
 
-### Finding 24 — Medium — Cat 14 (Go/Java-style names)
+### Finding 23 — Medium — Cat 14 (Go/Java-style names)
 **Location:** `src/v2/model.ts:74` + `client.ts:256`
 **Issue:** `destroy` is unusual for a REST SDK. JS conventions favour
 `delete` (e.g. `clusters.delete`, `jobs.delete`). However the backend
@@ -421,15 +404,15 @@ reserved word in expressions — typically requires bracket access).
 
 ---
 
-### Finding 25 — Medium — Cat 8 (Redundant suffix) — call-out
+### Finding 24 — Medium — Cat 8 (Redundant suffix) — call-out
 **Location:** `src/v2/client.ts:333, 417, 498`
 **Issue:** Three classes named `*Waiter`. Acceptable if waiter is a
 recognised pattern in this SDK (it is, see Go SDK `awaitable.go`). The
-issue is what they wait *for*: see #26-#28.
+issue is what they wait *for*: see #25-#27.
 
 ---
 
-### Finding 26 — Medium — Cat 6 (Misleading name)
+### Finding 25 — Medium — Cat 6 (Misleading name)
 **Location:** `src/v2/client.ts:417`
 ```ts
 export class CreateWaiter { ... }
@@ -444,21 +427,21 @@ target endpoint).
 
 ---
 
-### Finding 27 — Medium — Cat 6 (Misleading name)
+### Finding 26 — Medium — Cat 6 (Misleading name)
 **Location:** `src/v2/client.ts:333`
 **Issue:** `CancelWaiter` waits for *command* cancellation.
 **Proposed:** `CancelCommandWaiter`.
 
 ---
 
-### Finding 28 — Medium — Cat 6 (Misleading name)
+### Finding 27 — Medium — Cat 6 (Misleading name)
 **Location:** `src/v2/client.ts:498`
 **Issue:** `ExecuteWaiter` waits for *command* completion.
 **Proposed:** `ExecuteCommandWaiter`.
 
 ---
 
-### Finding 29 — Medium — Cat 17 (Inconsistent action verbs) — call-out
+### Finding 28 — Medium — Cat 17 (Inconsistent action verbs) — call-out
 **Location:** `src/v2/client.ts:86, 256`
 **Issue:** This package uses three lifecycle verbs:
 - `cancel()` on a command,
@@ -471,17 +454,7 @@ Go-SDK alignment decision.
 
 ---
 
-### Finding 30 — Medium — Cat 18 (Long enum values)
-**Location:** `src/v2/model.ts:22, 32, 39, 47`
-**Issue:** `COMMAND_STATUS_UNSPECIFIED`, `CONTEXT_STATUS_UNSPECIFIED`,
-`LANGUAGE_UNSPECIFIED`, `RESULT_TYPE_UNSPECIFIED`. Long sentinel value
-strings expose the protobuf convention to JS consumers. TS uses
-`undefined` for unspecified.
-**Proposed:** drop the members entirely (see #4).
-
----
-
-### Finding 31 — Low — Cat 1 (Vague/generic)
+### Finding 29 — Low — Cat 1 (Vague/generic)
 **Location:** `src/v2/model.ts:117-118`
 ```ts
 /** The cause of the error */
@@ -495,18 +468,18 @@ sub-object; or keep flat and document conditional presence.
 
 ---
 
-### Finding 32 — Low — Cat 1 (Vague/generic)
+### Finding 30 — Low — Cat 1 (Vague/generic)
 **Location:** `src/v2/model.ts:139-140`
 ```ts
 /** The summary of the error */
 summary?: string | undefined;
 ```
-Same as #31. The field is generic; the JSDoc reveals it's
+Same as #29. The field is generic; the JSDoc reveals it's
 error-specific.
 
 ---
 
-### Finding 33 — Low — Cat 1 (Underspecified)
+### Finding 31 — Low — Cat 1 (Underspecified)
 **Location:** `src/v2/model.ts:141-142`
 ```ts
 /** true if partial results are returned. */
@@ -517,7 +490,7 @@ Acceptable but ambiguous: truncated *what*? table rows? text length?
 
 ---
 
-### Finding 34 — Low — Cat 1 (Vague/generic) — call-out
+### Finding 32 — Low — Cat 1 (Vague/generic) — call-out
 **Location:** `src/v2/client.ts:54`
 ```ts
 class StillRunningError extends Error {}
@@ -526,7 +499,7 @@ Private, OK. Idiomatic for waiter polling patterns.
 
 ---
 
-### Finding 35 — Low — Cat 3 (Acronym casing) — non-issue
+### Finding 33 — Low — Cat 3 (Acronym casing) — non-issue
 **Location:** `src/v2/client.ts:49-52`
 ```ts
 const PACKAGE_SEGMENT = { key: pkgJson.name.replace(...), value: pkgJson.version };
@@ -537,33 +510,33 @@ correctly cased per the project rules.
 
 ---
 
-### Finding 36 — Low — Cat 10 (Reserved-word collision) — borderline
+### Finding 34 — Low — Cat 10 (Reserved-word collision) — borderline
 **Location:** `src/v2/model.ts:138`
 **Issue:** `schema` is not a TS reserved word but is heavily aliased
-across libraries (zod, JSON schema, table schema, GraphQL schema). See #16.
+across libraries (zod, JSON schema, table schema, GraphQL schema). See #15.
 
 ---
 
-### Finding 37 — Low — Cat 14 — non-issue
+### Finding 35 — Low — Cat 14 — non-issue
 **Location:** `src/v2/client.ts:54`
 **Issue:** `StillRunningError` is named in idiomatic TS style
 (`*Error` suffix on classes extending Error).
 
 ---
 
-### Finding 38 — Low — duplicate of #10
+### Finding 36 — Low — duplicate of #9
 **Location:** `src/v2/model.ts:89`
-Same finding as #10.
+Same finding as #9.
 
 ---
 
-### Finding 39 — Low — Cat 15 (Generic field) — call-out
+### Finding 37 — Low — Cat 15 (Generic field) — call-out
 **Location:** `src/v2/model.ts:67, 87`
 `language?: Language` is correct.
 
 ---
 
-### Finding 40 — Low — Cat 3 (Acronym casing in enum string values)
+### Finding 38 — Low — Cat 3 (Acronym casing in enum string values)
 **Location:** `src/v2/model.ts:42-43`
 ```ts
 SQL = 'SQL',
@@ -571,35 +544,34 @@ R = 'R',
 ```
 Identifier `SQL` is all-caps (3 letters → standard "≤3 letter acronym
 all caps") in the language enum. `R` is single-letter — naturally all
-caps. Apply the casing rule (#5) and these become `Sql` (if the rule is
+caps. Apply the casing rule (#4) and these become `Sql` (if the rule is
 "acronyms PascalCase") or remain `SQL`/`R` (if "≤3 letters all caps").
 **Proposed:** consult `typescript.mdc`; pick a rule and apply globally.
 
 ---
 
-### Finding 41 — Low — duplicate of #14
+### Finding 39 — Low — duplicate of #13
 **Location:** `src/v2/model.ts:131`
-`fileNames?: string[]` for images — same as #14.
+`fileNames?: string[]` for images — same as #13.
 
 ---
 
 ## Top Themes
 
-1. **Wire-format leakage** — protobuf casing, `*_UNSPECIFIED` sentinels,
-   and redundant enum-prefix members all bleed from the source IDL into
-   the public TS surface. The fix is a project-wide style rule applied at
-   the generator level:
-   - PascalCase enum identifiers with wire-string values preserved;
-   - drop `*_UNSPECIFIED`.
-
-2. **Three-resource ambiguity** — `Cluster`, `Context`, `Command` are easy
+1. **Three-resource ambiguity** — `Cluster`, `Context`, `Command` are easy
    to confuse, but the public types use the generic field `id` and reuse
-   `CreateResponse` for two unrelated operations. Findings #6, #7, #10,
-   #11, #12, #14, #17, #19, #26-#28 all stem from one decision: **never
+   `CreateResponse` for two unrelated operations. Findings #5, #6, #9,
+   #10, #11, #13, #16, #18, #25-#27 all stem from one decision: **never
    say "id" when "commandId" or "contextId" would do, and never reuse a
    response shape across resources**. Splitting `CreateResponse` into
    `CreateContextResponse` and `ExecuteCommandResponse` cascades to fix
    four other findings.
+
+2. **Enum-value style** — SHOUTY_SNAKE_CASE enum identifiers with
+   redundant resource prefixes (`COMMAND_*`, `CONTEXT_*`, `*_RESULT`)
+   produce verbose callsites like `CommandStatus.COMMAND_CANCELLED`.
+   PascalCase identifiers with the wire string preserved as the value
+   restore idiomatic TS while keeping serialisation intact.
 
 3. **Verb inconsistency** — `cancel` (command), `destroy` (context),
    `commandStatus` (no verb), `contextStatus` (no verb), `execute` (vs

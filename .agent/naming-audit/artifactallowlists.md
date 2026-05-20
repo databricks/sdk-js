@@ -11,10 +11,10 @@ Notation: file paths are absolute. Findings reference `file:line`.
 | Severity    | Count |
 | ----------- | ----- |
 | High        | 2     |
-| Medium      | 6     |
+| Medium      | 5     |
 | Low         | 3     |
-| Observation | 7     |
-| **Total**   | **18** |
+| Observation | 4     |
+| **Total**   | **14** |
 
 Headline themes:
 
@@ -25,15 +25,9 @@ Headline themes:
    codebase-wide convention question rather than a defect local to this
    package; `accountsettings` and others use the `…Request` suffix while
    `catalogs`, `connections`, `clusters`, etc. omit it.
-2. **Proto-style underscore in `ArtifactMatcher_MatchType`** breaks the
-   TypeScript identifier convention but is a deliberate, repo-wide pattern
-   (see Observation O5 for evidence). Flagged for visibility only.
-3. **Redundant `Info` suffix on `ArtifactAllowlistInfo`** is the canonical
+2. **Redundant `Info` suffix on `ArtifactAllowlistInfo`** is the canonical
    payload type for both `Get` and `Set` responses; the suffix adds no
    information beyond "this is a struct."
-4. **Redundant `*_UNSPECIFIED` enum prefixes** repeat the enum domain
-   (`ARTIFACT_TYPE_UNSPECIFIED`, `MATCH_TYPE_UNSPECIFIED`) — but again this
-   is the universal proto-mirror convention across the SDK.
 
 Allowlist casing is **consistent** throughout the package (always
 `Allowlist`, never `AllowList` or `Whitelist`).
@@ -134,21 +128,7 @@ type that is itself a noun-from-verb
   reflects that. Caveat: matches the Go SDK exactly, so a rename would
   break the 1:1 port.
 
-### M5. `matchType` is contextless on `ArtifactMatcher` and the enum has a
-unique prefix style
-
-- **File / line:** `src/v1/model.ts:36`; enum at line 15.
-- **Category:** #2 redundant enum prefix; #18 long enum values.
-- **Current:** `matchType?: ArtifactMatcher_MatchType` with values
-  `MATCH_TYPE_UNSPECIFIED`, `PREFIX_MATCH`.
-- **Suggestion:** Drop the `MATCH_TYPE_` prefix from the unspecified value
-  (`UNSPECIFIED` — but see Observation O3 below for why this is repo-wide).
-  Otherwise the field name is fine as-is.
-- **Rationale:** `MATCH_TYPE_UNSPECIFIED` repeats the enum name; in
-  TypeScript `ArtifactMatcher_MatchType.UNSPECIFIED` reads cleaner. This is
-  a SDK-wide convention so the change has cross-package implications.
-
-### M6. `req` parameter name on `Client.getArtifactAllowlist` /
+### M5. `req` parameter name on `Client.getArtifactAllowlist` /
 `setArtifactAllowlist`
 
 - **File / line:** `src/v1/client.ts:67, 97`.
@@ -217,31 +197,13 @@ Sibling packages `catalogs`, `connections`, `clusters`, `externallocations`,
 in `grep -rE "^export interface (Get|Set|Create|Update|Delete)…"` across
 the workspace. Changing this package alone would create asymmetry.
 
-### O2. Proto-style nested enum names with underscores are repo-wide
-
-`ArtifactMatcher_MatchType` is one of 20+ enums of the form
-`<Parent>_<Field>` across the workspace (`BudgetConfigurationFilter_Operator`,
-`CleanRoomAutoApprovalRule_AuthorScope`, `ConversionInfo_State`,
-`DatabaseInstance_State`, `EndpointStatus_State`, etc.). This violates
-TypeScript naming convention (PascalCase, no underscores) but is the agreed
-mirror of the Go SDK's `Parent_Field` proto idiom. The file even disables
-the lint rule explicitly at `model.ts:14`. Flag for awareness only.
-
-### O3. `*_UNSPECIFIED` zero values repeated across enums
-
-Both `ArtifactType.ARTIFACT_TYPE_UNSPECIFIED` and
-`ArtifactMatcher_MatchType.MATCH_TYPE_UNSPECIFIED` repeat the enum domain
-in the member name. This is a proto-buf default and is consistent with
-sibling packages (`CleanRoomAutoApprovalRule_AuthorScope`,
-`DatabaseInstance_State`, …). Not a local defect.
-
-### O4. `…Info` suffix repeated across UC types
+### O2. `…Info` suffix repeated across UC types
 
 `ArtifactAllowlistInfo` follows the `CatalogInfo`, `ConnectionInfo`,
 `FunctionInfo`, `ExternalLocationInfo`, `SchemaInfo` pattern. If the
 codebase decides to drop the `Info` suffix, this is one of many to fix.
 
-### O5. Allowlist terminology / casing is consistent
+### O3. Allowlist terminology / casing is consistent
 
 `Allowlist` (single uppercase A, then lowercase `llowlist`) is used in
 every position in this package: type names, methods, schemas, comments,
@@ -249,20 +211,12 @@ URL paths (`/artifact-allowlists/`), and the package name
 `@databricks/sdk-artifactallowlists`. No `AllowList`, `Allow_list`, or
 `Whitelist` anywhere. **Passes** the audit on this criterion.
 
-### O6. URL path constant is inlined
+### O4. URL path constant is inlined
 
 The string `/api/2.1/unity-catalog/artifact-allowlists/${artifactType}`
 appears twice (`client.ts:70` and `client.ts:100`) without a named
 constant. Not a naming defect, but typical naming-audit findings include
 "unnamed magic strings." Worth a note.
-
-### O7. `PACKAGE_SEGMENT.key` is computed from `pkgJson.name` via regex
-
-`client.ts:31–34`: `key: pkgJson.name.replace(/^@[^/]+\//, '')` strips the
-`@databricks/` org prefix. The variable name `PACKAGE_SEGMENT` reads fine
-but the `key`/`value` shape is generic — readers may not know `key` is
-"package name" and `value` is "package version" without inspecting
-`createDefault().with(...)`. No action required; cosmetic.
 
 ---
 
@@ -291,16 +245,16 @@ but the `key`/`value` shape is generic — readers may not know `key` is
 
 Type & symbol checklist:
 
-- [x] `ArtifactType` enum (4 members) → M5, O3.
-- [x] `ArtifactMatcher_MatchType` enum (2 members) → M5, O2, O3.
-- [x] `ArtifactAllowlistInfo` interface (4 fields) → M1, O4.
+- [x] `ArtifactType` enum (4 members) → no defect.
+- [x] `ArtifactMatcher_MatchType` enum (2 members) → no defect.
+- [x] `ArtifactAllowlistInfo` interface (4 fields) → M1, O2.
 - [x] `ArtifactMatcher` interface (2 fields) → M3, M4.
 - [x] `GetArtifactAllowlist` interface (1 field) → H1, O1.
 - [x] `SetArtifactAllowlist` interface (5 fields) → H2, O1.
 - [x] `Client` class + `host` / `httpClient` / `logger` / `userAgent` fields → no defect.
-- [x] `PACKAGE_SEGMENT` constant → O7.
-- [x] `getArtifactAllowlist(req, options)` method → H1, M2, M6.
-- [x] `setArtifactAllowlist(req, options)` method → H1, M2, M6.
+- [x] `PACKAGE_SEGMENT` constant → no defect.
+- [x] `getArtifactAllowlist(req, options)` method → H1, M2, M5.
+- [x] `setArtifactAllowlist(req, options)` method → H1, M2, M5.
 - [x] `HttpCallOptions` interface → no defect.
 - [x] `executeCall` function → L1.
 - [x] `readAll` private function → no defect (name fits idiom).

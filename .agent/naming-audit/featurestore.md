@@ -74,54 +74,7 @@
 
 ## Findings
 
-### 1. `OnlineStore_State` proto-style underscored type name — category 4 (Underscores in TS identifiers) and category 14 (Go/Java-style names)
-
-**Symbol:** `OnlineStore_State` (model.ts:9), and identically
-`PublishSpec_PublishMode` (model.ts:27).
-
-**Issue:** TS identifiers should not contain underscores
-(`.agent/rules/typescript.mdc` § *Identifiers*; Google TS Style Guide § 5.3,
-which mandates `UpperCamelCase` for types). The `Parent_Child` form is a
-proto-buf code-generator artefact for nested messages/enums. The file even
-suppresses the lint rule explicitly:
-
-```ts
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum OnlineStore_State {
-```
-
-That comment is the audit signal: the project's lint rule disagrees with the
-chosen name, and every other package in the SDK with the same pattern carries
-the same suppression. The proto namespace is not preserved in TS modules — the
-enum lives in the same module as `OnlineStore`, so the qualification is
-redundant.
-
-**Suggested:** `OnlineStoreState` and `PublishMode`. The neighbouring
-`onlinetables` package solves this exactly: `OnlineTableState` (no underscore,
-no nested namespace prefix). See `onlinetables/v1/model.ts:7`. This is also
-how `ProvisioningInfo_State` is solved one line below (it is the *only*
-`X_Y` enum in `onlinetables`, and it lives next to flat `OnlineTableState` —
-mixed conventions in the same file).
-
-This is a generator-level fix coordinated SDK-wide, not a unilateral change.
-
----
-
-### 2. `PublishSpec_PublishMode` doubled noun — category 8 (Redundant suffixes)
-
-**Symbol:** `PublishSpec_PublishMode` (model.ts:27).
-
-**Issue:** Combine with finding 1: when the underscore namespace is stripped,
-the name becomes `PublishSpecPublishMode`, which contains "Publish" twice. The
-natural collapse is `PublishMode`, which is what the field `publishMode`
-already uses (model.ts:105). No information is lost — the enum is in the same
-module as `PublishSpec` and is the only `*Mode` enum in the package.
-
-**Suggested:** `PublishMode`.
-
----
-
-### 3. Enum-value prefixes repeat the enum name — category 2 (Redundant enum prefixes) and category 18 (Long enum values)
+### 1. Enum-value prefixes repeat the enum name — category 2 (Redundant enum prefixes) and category 18 (Long enum values)
 
 **Symbols:** `OnlineStore_State.STATE_UNSPECIFIED` (model.ts:11),
 `PublishSpec_PublishMode.PUBLISH_MODE_UNSPECIFIED` (model.ts:28).
@@ -142,15 +95,15 @@ However, the values here double as on-the-wire JSON strings (the same Zod
 schema parses raw API strings into these identifiers, model.ts:150, 184), so
 renaming requires server acceptance and is a behavioural change. **Flag for
 the API team / generator.** TS-side identifier can be split from wire string
-(see finding 5) as a safe local fix.
+(see finding 2) as a safe local fix.
 
 **Suggested wire-level (coordinated with API):** plain `UNSPECIFIED`.
-**Suggested TS-level only (safe, see finding 5):**
+**Suggested TS-level only (safe, see finding 2):**
 `Unspecified = 'STATE_UNSPECIFIED'`.
 
 ---
 
-### 4. SCREAMING_SNAKE_CASE enum values — category 4 (Underscores in TS identifiers)
+### 2. SCREAMING_SNAKE_CASE enum values — category 4 (Underscores in TS identifiers)
 
 **Symbols:** Every value in both enums (model.ts:11–23, 28–44).
 
@@ -194,7 +147,7 @@ unilateral change here would diverge from sibling packages.
 
 ---
 
-### 5. `FAILING_OVER` present-tense vs. `STOPPED`/`UPDATING` mixed — category 13 (Verb-tense inconsistency)
+### 3. `FAILING_OVER` present-tense vs. `STOPPED`/`UPDATING` mixed — category 13 (Verb-tense inconsistency)
 
 **Symbols:** `OnlineStore_State.FAILING_OVER` (model.ts:23), `STARTING`,
 `DELETING`, `UPDATING` (model.ts:13, 17, 21) vs. `STOPPED`, `AVAILABLE`
@@ -206,11 +159,11 @@ mixes a participle with a particle preposition; the canonical
 network/database term is `FAILOVER` (noun) or `FAILING_OVER` (verb-phrase).
 Compare: AWS RDS uses `failing-over` as a state, Postgres uses
 `failover`. Mark as a wire-level concern — TS identifier `FailingOver` is
-fine under finding 4. **Pass at the TS level**, flag at the wire level.
+fine under finding 2. **Pass at the TS level**, flag at the wire level.
 
 ---
 
-### 6. `DeleteOnlineTableRequest.onlineTableName` diverges from sibling package — category 12 (Duplicate concepts) and category 19 (Underspecified IDs)
+### 4. `DeleteOnlineTableRequest.onlineTableName` diverges from sibling package — category 12 (Duplicate concepts) and category 19 (Underspecified IDs)
 
 **Symbol:** `DeleteOnlineTableRequest.onlineTableName` (model.ts:59), wire
 field `online_table_name` (the field appears in the URL path, not JSON).
@@ -248,7 +201,7 @@ divergence.
 
 ---
 
-### 7. `OnlineStore.name` is the *unique identifier*, not a display name — category 19 (Underspecified IDs)
+### 5. `OnlineStore.name` is the *unique identifier*, not a display name — category 19 (Underspecified IDs)
 
 **Symbol:** `OnlineStore.name` (model.ts:84). JSDoc: "The name of the online
 store. This is the unique identifier for the online store."
@@ -275,7 +228,7 @@ arbitrary strings.
 
 ---
 
-### 8. `OnlineStore.creator` is an email, not a name — category 1 (Vague/generic) and category 17 (Inconsistent action verbs)
+### 6. `OnlineStore.creator` is an email, not a name — category 1 (Vague/generic) and category 17 (Inconsistent action verbs)
 
 **Symbol:** `OnlineStore.creator` (model.ts:86). JSDoc: "The email of the
 creator of the online store."
@@ -299,7 +252,7 @@ fix in isolation. **Pass with a recommendation.**
 
 ---
 
-### 9. `OnlineStore.creationTime` vs. `…At` pattern — category 17 (Inconsistent action verbs) and category 7 (Overly verbose)
+### 7. `OnlineStore.creationTime` vs. `…At` pattern — category 17 (Inconsistent action verbs) and category 7 (Overly verbose)
 
 **Symbol:** `OnlineStore.creationTime` (model.ts:88). Type: `Temporal.Instant`.
 
@@ -321,18 +274,7 @@ not a unilateral fix.**
 
 ---
 
-### 10. `OnlineStore.state` field name vs `OnlineStore_State` type — category 20 (Type-suffix tautology) — *pass*
-
-**Symbol:** `OnlineStore.state: OnlineStore_State` (model.ts:90).
-
-The field name `state` and the type `OnlineStore_State` are appropriately
-named — the field is *the* state, and the type qualifies it with its owner.
-No issue. (Under finding 1's recommended rename to `OnlineStoreState` this
-remains fine.)
-
----
-
-### 11. `OnlineStore.capacity: string` with comment specifying valid values — category 1 (Vague/generic) and category 6 (Misleading names)
+### 8. `OnlineStore.capacity: string` with comment specifying valid values — category 1 (Vague/generic) and category 6 (Misleading names)
 
 **Symbol:** `OnlineStore.capacity?: string` (model.ts:92). JSDoc: "The
 capacity of the online store. Valid values are "CU_1", "CU_2", "CU_4",
@@ -355,11 +297,11 @@ current shape — bare `string` with a JSDoc note — provides no compile-time
 help. **Flag for SDK-wide policy on open enums** (categories 1 + 6).
 
 Also: "CU" is unexplained (probably "Compute Unit"). Audit category 5
-(cryptic abbreviation) — see finding 12.
+(cryptic abbreviation) — see finding 9.
 
 ---
 
-### 12. `"CU_1"` is a cryptic literal — category 5 (Cryptic abbreviations)
+### 9. `"CU_1"` is a cryptic literal — category 5 (Cryptic abbreviations)
 
 **Symbol:** `OnlineStore.capacity` valid values `"CU_1"`–`"CU_8"`
 (model.ts:91).
@@ -375,7 +317,7 @@ Valid values: …".
 
 ---
 
-### 13. `OnlineStore.readReplicaCount` defaults documented in JSDoc only — category 6 (Misleading names) — *partial pass*
+### 10. `OnlineStore.readReplicaCount` defaults documented in JSDoc only — category 6 (Misleading names) — *partial pass*
 
 **Symbol:** `OnlineStore.readReplicaCount?: number` (model.ts:94). JSDoc:
 "The number of read replicas for the online store. Defaults to 0."
@@ -386,7 +328,7 @@ naming bug per se — flag JSDoc.
 
 ---
 
-### 14. `OnlineStore.usagePolicyId` underspecified — category 19 (Underspecified IDs)
+### 11. `OnlineStore.usagePolicyId` underspecified — category 19 (Underspecified IDs)
 
 **Symbol:** `OnlineStore.usagePolicyId?: string` (model.ts:96).
 
@@ -399,7 +341,7 @@ referring to a usage policy defined in the budget-policy service."
 
 ---
 
-### 15. `PublishSpec.onlineStore` is a *name* (string), not an `OnlineStore` — category 15 (Generic field names losing meaning) and category 16 (Field contradicting type domain)
+### 12. `PublishSpec.onlineStore` is a *name* (string), not an `OnlineStore` — category 15 (Generic field names losing meaning) and category 16 (Field contradicting type domain)
 
 **Symbol:** `PublishSpec.onlineStore?: string` (model.ts:101). JSDoc: "The
 name of the target online store."
@@ -421,7 +363,7 @@ correctness opportunity, not a coordination issue with upstream Go fields.
 
 ---
 
-### 16. `PublishSpec` is vague — category 1 (Vague/generic)
+### 13. `PublishSpec` is vague — category 1 (Vague/generic)
 
 **Symbol:** `PublishSpec` (model.ts:99).
 
@@ -439,27 +381,13 @@ which has more room because it lives in the `featurestore` Go package.
 
 ---
 
-### 17. `PublishSpec.publishMode` repeats `Publish` — category 8 (Redundant suffixes)
-
-**Symbol:** `PublishSpec.publishMode` (model.ts:105).
-
-**Issue:** Within `PublishSpec`, the `publish` prefix is implicit. `mode`
-alone would suffice — but is too short and reads as generic. The enum it
-refers to is `PublishSpec_PublishMode` which compounds the redundancy.
-
-**Suggested:** keep as `mode` *only if* the enum is renamed to `PublishMode`
-(finding 2). Otherwise the field name reasonably mirrors the enum name. This
-is a coupled fix; do not change in isolation.
-
----
-
-### 18. `PublishTableRequest`/`Response.onlineTableName` underspecified — category 19 (Underspecified IDs)
+### 14. `PublishTableRequest`/`Response.onlineTableName` underspecified — category 19 (Underspecified IDs)
 
 **Symbols:** `PublishTableRequest.publishSpec.onlineTableName`,
 `PublishTableResponse.onlineTableName` (model.ts:103, 117).
 
 **Issue:** The JSDoc on both reads "The full three-part (catalog, schema,
-table) name of the online table." — same finding as #6: the field is a
+table) name of the online table." — same finding as #4: the field is a
 specific structured string. Currently typed `string`. No compile-time
 safety. Cross-SDK pattern is to leave as `string` with JSDoc — accept that
 trade-off, but the JSDoc spelling should be canonical and consistent. The
@@ -477,14 +405,14 @@ different doc strings:
 
 ---
 
-### 19. `PublishTableResponse.pipelineId` — *pass*
+### 15. `PublishTableResponse.pipelineId` — *pass*
 
 Format is documented as a pipeline ID; aligns with `pipelines/v2` naming.
 No issue.
 
 ---
 
-### 20. `UpdateOnlineStoreRequest.updateMask` — category 7 (Overly verbose) — *pass*
+### 16. `UpdateOnlineStoreRequest.updateMask` — category 7 (Overly verbose) — *pass*
 
 **Symbol:** `UpdateOnlineStoreRequest.updateMask: FieldMask<OnlineStore>`
 (model.ts:126).
@@ -495,7 +423,7 @@ naming is SDK-wide and idiomatic. **Pass.**
 
 ---
 
-### 21. `Client.publishTable` semantically publishes *features*, not a table — category 6 (Misleading names) and category 17 (Inconsistent action verbs)
+### 17. `Client.publishTable` semantically publishes *features*, not a table — category 6 (Misleading names) and category 17 (Inconsistent action verbs)
 
 **Symbol:** `Client.publishTable` (client.ts:212). JSDoc: "Publish features."
 
@@ -518,7 +446,7 @@ the URL — but diverges from Go. **Pass on the name, flag the JSDoc.**
 
 ---
 
-### 22. `Client.deleteOnlineTable` is in `featurestore` but `onlinetables` has its own — category 12 (Duplicate concepts)
+### 18. `Client.deleteOnlineTable` is in `featurestore` but `onlinetables` has its own — category 12 (Duplicate concepts)
 
 **Symbols:** `Client.deleteOnlineTable` (client.ts:117, featurestore) vs.
 `Client.deleteOnlineTable` (client.ts:108, onlinetables).
@@ -533,7 +461,7 @@ The semantic is "delete an online table" in both cases, but the endpoints
 are separate. This is a *backend* concern, but at the SDK level a TS user
 will import both `@databricks/sdk-featurestore/v1.Client` and
 `@databricks/sdk-onlinetables/v1.Client` and find two identically-named
-methods that do related but distinct things. Compounded by finding 6 where
+methods that do related but distinct things. Compounded by finding 4 where
 the *request types* are also identically named but field-incompatible.
 
 **Suggested at the SDK level:** in `featurestore`, rename the method to
@@ -543,7 +471,7 @@ the *request types* are also identically named but field-incompatible.
 
 ---
 
-### 23. `onlineStoreFieldMaskSchema` private but exported via `onlineStoreFieldMask()` — *pass*
+### 19. `onlineStoreFieldMaskSchema` private but exported via `onlineStoreFieldMask()` — *pass*
 
 **Symbols:** `onlineStoreFieldMaskSchema` (model.ts:221, internal) and
 `onlineStoreFieldMask()` (model.ts:231, public). Clean separation: the
@@ -552,14 +480,14 @@ Google AIP-134 update-mask vocabulary. **Pass.**
 
 ---
 
-### 24. `Client` class name — category 1 (Vague/generic) — *pass*
+### 20. `Client` class name — category 1 (Vague/generic) — *pass*
 
 Package convention. Every TS package exports a single `Client` class scoped
 to its import path (e.g. `@databricks/sdk-featurestore/v1`). **Pass.**
 
 ---
 
-### 25. `PACKAGE_SEGMENT` constant — category 4 (Underscores in TS identifiers)
+### 21. `PACKAGE_SEGMENT` constant — category 4 (Underscores in TS identifiers)
 
 **Symbol:** `PACKAGE_SEGMENT` (client.ts:41).
 
@@ -575,7 +503,7 @@ do not fix in isolation.**
 
 ---
 
-### 26. `userAgent` / `httpClient` / `host` / `logger` — *pass*
+### 22. `userAgent` / `httpClient` / `host` / `logger` — *pass*
 
 Standard private field names. Acronym handling matches the project rule
 (`HttpClient`, `Url` would be flagged, but `HttpClient` matches the imported
@@ -583,14 +511,14 @@ type `HttpClient`). **Pass.**
 
 ---
 
-### 27. `readAll` — *pass*
+### 23. `readAll` — *pass*
 
 Helper does what its name says (reads a `ReadableStream<Uint8Array>` to
 completion). Conventional in the Node `stream/promises` ecosystem. **Pass.**
 
 ---
 
-### 28. `buildHttpRequest` — category 17 (Inconsistent action verbs) — *pass*
+### 24. `buildHttpRequest` — category 17 (Inconsistent action verbs) — *pass*
 
 Verb-prefix matches the function's role (constructs an `HttpRequest`
 object). Naming is fine. Note however the *file* mixes `build…`,
@@ -599,7 +527,7 @@ seven functions. Not unique to this package. **Pass.**
 
 ---
 
-### 29. `ListOnlineStoresRequest`/`Response` — category 7 (Overly verbose) — *pass with note*
+### 25. `ListOnlineStoresRequest`/`Response` — category 7 (Overly verbose) — *pass with note*
 
 **Symbols:** `ListOnlineStoresRequest` (model.ts:67),
 `ListOnlineStoresResponse` (model.ts:74).
@@ -611,7 +539,7 @@ package qualifies. **Pass on package consistency.**
 
 ---
 
-### 30. `Client.listOnlineStores` doc says "List Online Feature Stores" — category 6 (Misleading names)
+### 26. `Client.listOnlineStores` doc says "List Online Feature Stores" — category 6 (Misleading names)
 
 **Symbol:** `Client.listOnlineStores` (client.ts:160).
 
@@ -639,14 +567,14 @@ and update JSDocs to drop "Feature" (already redundant since the package is
 
 ---
 
-### 31. Singular `OnlineStore` ⇔ plural `onlineStores` consistency — category 9 (Singular/plural mismatch) — *pass*
+### 27. Singular `OnlineStore` ⇔ plural `onlineStores` consistency — category 9 (Singular/plural mismatch) — *pass*
 
 `ListOnlineStoresResponse.onlineStores: OnlineStore[]` (model.ts:76) is the
 canonical pattern. **Pass.**
 
 ---
 
-### 32. `creator` vs `pipelineId` casing — category 3 (Acronym/compound-word casing) — *pass*
+### 28. `creator` vs `pipelineId` casing — category 3 (Acronym/compound-word casing) — *pass*
 
 `pipelineId` correctly camelCases the two-letter "ID"; `creator` is a
 plain word. **Pass.**
@@ -667,12 +595,12 @@ but distinct types live in two packages:
   by name.
 - `featurestore.OnlineStore.name: string` — is the store's identifier.
 - `featurestore.PublishSpec.onlineStore: string` — also references a store
-  by name (but with no `…Name` suffix — see finding 15).
+  by name (but with no `…Name` suffix — see finding 12).
 
 **Recommendation:** harmonise. Either:
 1. All references to an online-store identifier use `onlineStoreName`
    (so rename `PublishSpec.onlineStore` to `onlineStoreName` — matches
-   finding 15).
+   finding 12).
 2. Or all references use `onlineStore` and the type is `string` with a
    marker (e.g. `type OnlineStoreName = string`).
 
@@ -682,7 +610,7 @@ Option 1 is cheaper. **P1 cross-package alignment fix.**
 
 ### `DeleteOnlineTableRequest` name collision with `onlinetables/v1`
 
-Already covered in finding 6. Two distinct request types share the same
+Already covered in finding 4. Two distinct request types share the same
 type name across packages, with different field names. A consumer who
 imports both packages (likely — they are complementary) writes:
 
@@ -698,21 +626,7 @@ Friction-heavy. **Strong recommendation:** rename
 `DeletePublishedOnlineTableRequest` (it deletes a table created by
 `publishTable`) — or rename `featurestore.deleteOnlineTable` method to
 `deletePublishedOnlineTable` and follow with the request type. Aligns with
-finding 22.
-
----
-
-### Enum-naming convention divergence: `OnlineStore_State` vs `OnlineTableState`
-
-| Pkg              | Enum name           | TS validity         |
-|------------------|---------------------|---------------------|
-| `featurestore`   | `OnlineStore_State` | Underscore — needs lint suppression. |
-| `onlinetables`   | `OnlineTableState`  | Clean.              |
-| `onlinetables`   | `ProvisioningInfo_State` | Underscore — needs lint suppression. |
-
-The generator emits both flat and underscored forms for nested-vs-flat
-proto enums. The right SDK-wide policy is to always emit flat names in TS
-(strip the proto namespace). **Flag for generator.**
+finding 18.
 
 ---
 
@@ -730,21 +644,20 @@ approaches (string enum vs. discriminated union). Plus there is no
 
 ## Summary (counts)
 
-- **Critical / cross-package consistency:** 2 findings (#15
-  `PublishSpec.onlineStore` should be `onlineStoreName`; #6
+- **Critical / cross-package consistency:** 2 findings (#12
+  `PublishSpec.onlineStore` should be `onlineStoreName`; #4
   `DeleteOnlineTableRequest` shape collision with `onlinetables`).
-- **High (style guide violations):** 4 findings (#1 `OnlineStore_State`
-  underscore; #2 `PublishSpec_PublishMode` doubled noun; #4 enum SCREAMING
-  casing; #25 `PACKAGE_SEGMENT` casing).
-- **Medium (naming clarity, JSDoc drift):** 10 findings (#3, #7, #8, #11,
-  #12, #14, #16, #21, #22, #30).
-- **Low / project-wide convention notes (generator-level):** 4 findings
-  (#9, #13, #17, #29).
-- **Pass / acceptable as-is:** 11 findings (#5, #10, #18, #19, #20, #23,
-  #24, #26, #27, #28, #31, #32 — partial pass with notes).
+- **High (style guide violations):** 2 findings (#2 enum SCREAMING
+  casing; #21 `PACKAGE_SEGMENT` casing).
+- **Medium (naming clarity, JSDoc drift):** 9 findings (#1, #5, #6, #8,
+  #9, #11, #13, #17, #18, #26).
+- **Low / project-wide convention notes (generator-level):** 3 findings
+  (#7, #10, #25).
+- **Pass / acceptable as-is:** 11 findings (#3, #14, #15, #16, #19, #20,
+  #22, #23, #24, #27, #28 — partial pass with notes).
 
-**Total flagged findings: 32** distinct items across the audit categories
+**Total flagged findings: 28** distinct items across the audit categories
 (several findings touch multiple categories). Many issues are
 generator-emitted boilerplate inherited from the Go SDK; the cleanest local
-fixes are findings 15, 21 (JSDoc), 22, 30 (JSDoc), and the cross-package
+fixes are findings 12, 17 (JSDoc), 18, 26 (JSDoc), and the cross-package
 alignments noted above.

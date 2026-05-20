@@ -3,7 +3,7 @@
 **Path:** `packages/qualitymonitors/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Lakehouse Monitoring on Unity Catalog tables (legacy/deprecated surface). The package models a `Monitor` per UC table with an `analysisConfig` chosen from `InferenceLog` / `TimeSeries` / `Snapshot`, scheduled refreshes (`Cancel` / `Get` / `List` / `Run`), Quartz cron scheduling, custom metric definitions (`Aggregate`/`Derived`/`Drift`), data classification toggles, dashboard regeneration, and notification routing on failure and on new classification tags. **Every** client method JSDoc starts with "Deprecated: Use Data Quality Monitors API instead (/api/data-quality/v1/monitors)" — this entire package is a deprecated wire-compatible facade for the `dataquality` package.
-**Total weird names flagged:** 50
+**Total weird names flagged:** 52
 
 ## CRITICAL: TWO co-existing packages with the same domain
 
@@ -27,8 +27,8 @@ Three packages in this repository overlap on the same domain at the wire level:
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 13 |
-| Medium | 21 |
+| High | 12 |
+| Medium | 24 |
 | Low | 10 |
 | Observation | 6 |
 
@@ -94,19 +94,13 @@ Three packages in this repository overlap on the same domain at the wire level:
 - **Suggested name:** Collapse to `paused?: boolean` on `MonitorCronSchedule`, or rename to `PauseStatus.{Paused, Unpaused}`.
 - **Rationale:** "Paused" is binary. Other packages (`jobs`, `alerts`) already use `paused: boolean`.
 
-### 11. `CancelRefresh_Response` / `DeleteMonitor_Response` / `ListRefreshes_Response` / `RegenerateDashboard_Response` — `src/v1/model.ts:100,290,338,388`
-- **Why weird:** Four interfaces use the `_` underscore separator in their identifier (`CancelRefresh_Response`). The eslint comments on each (`@typescript-eslint/naming-convention`) confirm that this style violates the project's own naming rules and is whitelisted only because the proto generator emits "nested message" names this way. In TS, underscores in PascalCase identifiers are wrong — the convention is camelCase/PascalCase, no separators.
-- **Category:** 4 (underscores in TS identifiers).
-- **Suggested name:** `CancelRefreshResponse` / `DeleteMonitorResponse` / `ListRefreshesResponse` / `RegenerateDashboardResponse`.
-- **Rationale:** The eslint disable comment is a smoking gun that the names violate the project's own rules. Sister packages (e.g., `dataquality`) use unsuffixed PascalCase like `CancelRefreshResponse`.
-
-### 12. `analysisConfig` discriminated union with `$case` discriminator — `src/v1/model.ts:122-135,221-234,432-444`
+### 11. `analysisConfig` discriminated union with `$case` discriminator — `src/v1/model.ts:122-135,221-234,432-444`
 - **Why weird:** Same shape as `dataquality.DataProfilingConfig.analysisConfig` (audit #10 in that package). The field is named `analysisConfig`, but its arms are types named `InferenceLogAnalysisConfig`, `TimeSeriesAnalysisConfig`, `SnapshotAnalysisConfig` — three names ending in `AnalysisConfig`. The discriminator is `$case`, the arm key matches the arm payload type's prefix (e.g., `inferenceLog` for `InferenceLogAnalysisConfig`). Naming the variants `$case` is a ts-proto convention foreign to TypeScript culture; the more idiomatic discriminator is `kind` or `type`.
 - **Category:** 1 (vague — `$case` is unusual TS), 12 (duplicate concept — `AnalysisConfig` repeated 3 times), 20 (type-suffix tautology — `AnalysisConfig` on every arm).
 - **Suggested name:** Field name: `analysis`. Discriminator: `kind: 'inferenceLog' | 'timeSeries' | 'snapshot'`. Arm payloads: keep `InferenceLogAnalysisConfig` or rename to `InferenceLogAnalysis` / `TimeSeriesAnalysis` / `SnapshotAnalysis`.
 - **Rationale:** `$case` is a ts-proto idiom; in idiomatic TS you write `if (config.analysis.kind === 'inferenceLog')`, not `if (config.analysisConfig?.$case === 'inferenceLog')`.
 
-### 13. `CreateMonitor`, `UpdateMonitor`, `DataMonitorInfo` carry **17 duplicated fields** — `src/v1/model.ts:102-180,213-279,418-489`
+### 12. `CreateMonitor`, `UpdateMonitor`, `DataMonitorInfo` carry **17 duplicated fields** — `src/v1/model.ts:102-180,213-279,418-489`
 - **Why weird:** Three types share a 17-field overlap (outputSchemaName, assetsDir, analysisConfig, slicingExprs, customMetrics, baselineTableName, schedule, notifications, dataClassificationConfig, tableName, status, latestMonitorFailureMsg, profileMetricsTableName, driftMetricsTableName, dashboardId, monitorVersion, fullTableNameArg). Each is copy-pasted with the same JSDoc and the same `[Create:REQ Update:REQ]`-style annotation in the comment. The "annotation in the comment" tells the reader which fields are required at create vs update vs read — but is never enforced by the type system.
 - **Category:** 6 (misleading — type says optional, semantics say required-at-create), 7 (overly verbose — three nearly-identical types where one with a generic param could do).
 - **Suggested name:** One `Monitor` interface for the read shape; `CreateMonitor` and `UpdateMonitor` carry only their differences (e.g., `CreateMonitor` has the input-only `skipBuiltinDashboard` and `warehouseId`). Or use TypeScript's `Pick`/`Omit`/`Partial` to derive types from a base. Encode `[Create:REQ Update:IGN]` in the type system (not the doc): non-optional in `CreateMonitor`, omitted in `UpdateMonitor`.
@@ -114,145 +108,145 @@ Three packages in this repository overlap on the same domain at the wire level:
 
 ## Medium severity
 
-### 14. `[Create:REQ Update:REQ]` doc-comment annotations — `src/v1/model.ts:115,118,122,136,145,148,153,155,157,159,161,163,165,167,169,174` (and again for `DataMonitorInfo` and `UpdateMonitor`)
+### 13. `[Create:REQ Update:REQ]` doc-comment annotations — `src/v1/model.ts:115,118,122,136,145,148,153,155,157,159,161,163,165,167,169,174` (and again for `DataMonitorInfo` and `UpdateMonitor`)
 - **Why weird:** Every field on `CreateMonitor` / `UpdateMonitor` / `DataMonitorInfo` has a prefix annotation in its JSDoc — `[Create:REQ Update:REQ]`, `[Create:OPT Update:OPT]`, `[Create:ERR Update:IGN]` — that encodes per-operation requirement semantics in the comment. These are generator markers, not human-friendly. A user opening the JSDoc tooltip sees `[Create:ERR Update:IGN]` and must decode "ERR means errors if you pass this, IGN means it's ignored on update". The TypeScript type does not enforce any of this.
 - **Category:** 6 (misleading — comment marker pretends to be authoritative but is not enforced), 18 (long, noisy comment prefix).
 - **Suggested name:** Remove the markers from comments. Encode the semantics in the type (separate `CreateMonitor` vs `UpdateMonitor` vs `Monitor` types with the right optionality and field presence).
 - **Rationale:** Doc markers are not type-checked. They look like type annotations but are inert.
 
-### 15. `latestMonitorFailureMsg` — `src/v1/model.ts:164,263,473`
+### 14. `latestMonitorFailureMsg` — `src/v1/model.ts:164,263,473`
 - **Why weird:** Three problems in one field name. (a) `Msg` is an abbreviation for `Message` — sister field on `RefreshInfo` is `message` (full word), and `dataquality.DataProfilingConfig` uses `latestMonitorFailureMessage` (full word). Inconsistency within the SDK. (b) `Monitor` is in the path — `monitor.latestMonitorFailureMsg` repeats "monitor". (c) The field is documented as `[Create:ERR Update:IGN]` (read-only, server-populated), but the type does not mark it.
 - **Category:** 5 (cryptic abbreviation — `Msg`), 7 (overly verbose), 8 (redundant `Monitor` in path), 17 (inconsistent with sibling `message` and with `dataquality`).
 - **Suggested name:** `latestFailureMessage`.
 - **Rationale:** Full word, no redundant prefix; matches `dataquality`.
 
-### 16. `profileMetricsTableName` and `driftMetricsTableName` — `src/v1/model.ts:166,168,265,267,475,477`
+### 15. `profileMetricsTableName` and `driftMetricsTableName` — `src/v1/model.ts:166,168,265,267,475,477`
 - **Why weird:** Pair of fields with the suffix `TableName`. Sibling Zod field is `profile_metrics_table_name` — six tokens on the wire. JSDoc on both: identical except for the leading noun. The naming pattern is consistent within the pair but verbose. Compare with `dataquality.DataProfilingConfig.{profileMetricsTableName, driftMetricsTableName}` (same names — at least consistent across packages).
 - **Category:** 7 (overly verbose).
 - **Suggested name:** `profileMetricsTable` / `driftMetricsTable` (drop `Name` — these are reference fields, not column names).
 - **Rationale:** "Table" is sufficient context.
 
-### 17. `outputSchemaName` field — `src/v1/model.ts:116,215,425`
+### 16. `outputSchemaName` field — `src/v1/model.ts:116,215,425`
 - **Why weird:** JSDoc says "Schema where output tables are created. Needs to be in 2-level format `{catalog}.{schema}`." So `outputSchemaName` is a two-part UC reference, not just a name. Sister field `baselineTableName` is a three-part UC reference; `tableName` is also three-part. The naming gives no cue about which "name" shape applies.
 - **Category:** 19 (underspecified — name vs full name vs two-part), 15 (generic name).
 - **Suggested name:** `outputSchemaFullName` (matches UC vocabulary; the value is `catalog.schema`).
 - **Rationale:** The "Name" suffix is ambiguous in UC contexts where the term `FullName` is reserved for fully qualified references.
 
-### 18. `assetsDir` — `src/v1/model.ts:121,220,430`
+### 17. `assetsDir` — `src/v1/model.ts:121,220,430`
 - **Why weird:** Identical to `dataquality.DataProfilingConfig.assetsDir` (audit #12 in that package). `assets` is generic ("which assets?"), and `Dir` is an abbreviation. JSDoc says "absolute path to a custom directory to store data-monitoring assets".
 - **Category:** 1 (vague), 5 (cryptic abbreviation — `Dir`).
 - **Suggested name:** `assetsDirectory` or `monitoringAssetsPath`.
 - **Rationale:** Same as `dataquality` #12.
 
-### 19. `slicingExprs` — `src/v1/model.ts:144,243,453`
+### 18. `slicingExprs` — `src/v1/model.ts:144,243,453`
 - **Why weird:** Identical to `dataquality.DataProfilingConfig.slicingExprs` (audit #25 in that package). `Exprs` truncates "Expressions".
 - **Category:** 5 (cryptic abbreviation).
 - **Suggested name:** `slicingExpressions` (or, for clarity, `columnSlicingExpressions`).
 - **Rationale:** Same as `dataquality` #25.
 
-### 20. `skipBuiltinDashboard` (negative boolean) — `src/v1/model.ts:109`
+### 19. `skipBuiltinDashboard` (negative boolean) — `src/v1/model.ts:109`
 - **Why weird:** Same pattern as `dataquality.DataProfilingConfig.skipBuiltinDashboard` (audit #11 in that package). Negative boolean field name. Reading `skipBuiltinDashboard: true` requires a mental NOT-flip.
 - **Category:** 6 (misleading), 13 (verb-tense — `skip` is action-y, field is state-y).
 - **Suggested name:** `disableBuiltinDashboard` or invert to `createBuiltinDashboard: boolean`.
 - **Rationale:** Same as `dataquality` #11.
 
-### 21. `baselineTableName` — `src/v1/model.ts:152,251,461`
+### 20. `baselineTableName` — `src/v1/model.ts:152,251,461`
 - **Why weird:** A three-part UC reference (per JSDoc: "Baseline table name") but the name says only `Name`. Same shape concern as #17.
 - **Category:** 19 (underspecified ID — wire-side three-part name, not flagged as such).
 - **Suggested name:** `baselineTableFullName`.
 - **Rationale:** UC vocabulary uses `FullName` for three-part references.
 
-### 22. `tableName` — `src/v1/model.ts:160,259,469`
+### 21. `tableName` — `src/v1/model.ts:160,259,469`
 - **Why weird:** Three-part UC reference per JSDoc ("UC table to monitor. Format: `catalog.schema.table_name`"), but the name says only `Name`. Compare with `fullTableNameArg` on the same types — *two* fields representing essentially the same UC table reference, one called `tableName` (`[Create:ERR Update:IGN]`) and one called `fullTableNameArg` (the URL path param). This is the same data appearing under two field names in the same interface.
 - **Category:** 12 (duplicate concept — two fields for the same table reference), 19 (underspecified — three-part wire format hidden behind `Name`).
 - **Suggested name:** Drop one of the two. If `tableName` (the body field) is truly read-only and copied from the URL path, remove it. Otherwise, rename to `tableFullName`.
 - **Rationale:** Having both `tableName` and `fullTableNameArg` in the same type forces a caller to choose which to populate.
 
-### 23. `dashboardId` is read-only at create, optional at update — `src/v1/model.ts:173,272,482`
+### 22. `dashboardId` is read-only at create, optional at update — `src/v1/model.ts:173,272,482`
 - **Why weird:** JSDoc reads `[Create:ERR Update:OPT]`, meaning the field errors if set on create but is optional on update. Type marks both as optional. A caller writing `createMonitor({dashboardId: 'x', ...})` gets a runtime error from the API but no type-time signal. Same pattern as #14 in general; called out separately because `dashboardId` is one of the most likely fields to be mistakenly set.
 - **Category:** 6 (misleading optionality).
 - **Suggested name:** Move `dashboardId` out of `CreateMonitor` entirely. Keep in `UpdateMonitor` and `DataMonitorInfo`.
 - **Rationale:** Type-level enforcement of "ERR" semantics.
 
-### 24. `monitorVersion: number` — `src/v1/model.ts:179,278,488`
+### 23. `monitorVersion: number` — `src/v1/model.ts:179,278,488`
 - **Why weird:** Field name says "monitor version" but on a type called `CreateMonitor` / `UpdateMonitor` / `DataMonitorInfo`, the `monitor` part is dead context. JSDoc also notes the field "has flexibility to take on negative values, which can indicate corrupted monitor_version numbers" — using a magic-value (negative) to indicate corruption is a code smell (the type should be `number | 'corrupted'` or split into `version: number` + `corrupted: boolean`).
 - **Category:** 7 (overly verbose — `monitor` in path), 6 (misleading — magic-value encoding of corruption state).
 - **Suggested name:** `version: number`.
 - **Rationale:** Field path already gives Monitor context.
 
-### 25. `warehouseId` only on `CreateMonitor` and `RegenerateDashboard`, not on `DataMonitorInfo` — `src/v1/model.ts:114,384`
+### 24. `warehouseId` only on `CreateMonitor` and `RegenerateDashboard`, not on `DataMonitorInfo` — `src/v1/model.ts:114,384`
 - **Why weird:** `warehouseId` is an input-only field for picking a SQL warehouse to render the dashboard. Not on the response (`DataMonitorInfo`) — so a caller has no way to see which warehouse was actually chosen if they left this blank. Sibling `dataquality.DataProfilingConfig` has both `warehouseId` (input) and `effectiveWarehouseId` (output) — the latter is missing here. Inconsistent across two near-identical packages.
 - **Category:** 17 (inconsistent — input-only vs input+output across sibling packages).
 - **Suggested name:** Add `effectiveWarehouseId` to `DataMonitorInfo` to match `dataquality`.
 - **Rationale:** Cross-package parity.
 
-### 26. `Notifications` vs `dataquality.NotificationSettings` — `src/v1/model.ts:352`
+### 25. `Notifications` vs `dataquality.NotificationSettings` — `src/v1/model.ts:352`
 - **Why weird:** Sister package uses `NotificationSettings`; this package uses just `Notifications`. The plural noun is fine, but the sister naming differs. Also: only one nested type, `Destination` (vs `dataquality.NotificationDestination`) — again one is shorter and one is longer.
 - **Category:** 17 (inconsistent — sibling package uses different type names for the same concept).
 - **Suggested name:** Pick one: either `Notifications` + `Destination` (this package's form) or `NotificationSettings` + `NotificationDestination` (sibling's form), and apply uniformly across both packages.
 - **Rationale:** Consistency across sibling packages.
 
-### 27. `Destination` — `src/v1/model.ts:292`
+### 26. `Destination` — `src/v1/model.ts:292`
 - **Why weird:** The `Destination` type holds only `emailAddresses?: string[]`. Naming a type for an email recipient list as `Destination` is generic. Compare with sister `dataquality.NotificationDestination` which has the same shape. The name `Destination` reads as "a place"; the content is "a list of email addresses".
 - **Category:** 1 (vague), 15 (generic field name).
 - **Suggested name:** `EmailDestination` (matches content), or merge with `Notifications` if there's only one channel.
 - **Rationale:** Generic noun for a specific data shape.
 
-### 28. `onNewClassificationTagDetected` field — `src/v1/model.ts:356`
+### 27. `onNewClassificationTagDetected` field — `src/v1/model.ts:356`
 - **Why weird:** Five-word field name (`on` + `New` + `Classification` + `Tag` + `Detected`) — past-tense verb at the end of a noun phrase. The doc says "Destinations to send notifications on new classification tag detected." The grammatical structure is awkward English. Sister `Notifications.onFailure` is concise (two words, no verb tense problem).
 - **Category:** 7 (overly verbose), 13 (verb tense — past-participle at the end of a field name).
 - **Suggested name:** `onNewClassificationTag` (drop `Detected`; the field is on `Notifications` so the verb is implicit).
 - **Rationale:** Length and clarity. The `Detected` adds no information.
 
-### 29. `Notifications.onFailure: Destination` — `src/v1/model.ts:354`
+### 28. `Notifications.onFailure: Destination` — `src/v1/model.ts:354`
 - **Why weird:** Field name says only "failure"; the comment hints at more ("notifications on failure/timeout") — same caveat as `dataquality.NotificationSettings.onFailure` (audit #33 in that package). Field name and JSDoc disagree on whether timeouts are included.
 - **Category:** 1 (vague), 17 (inconsistent doc/name).
 - **Suggested name:** `onFailureOrTimeout` (matches doc) or `onFailure` (matches name; update doc).
 - **Rationale:** Same as `dataquality` #33.
 
-### 30. `Notifications` field name uses plural but each value is a single `Destination` — `src/v1/model.ts:352-357`
+### 29. `Notifications` field name uses plural but each value is a single `Destination` — `src/v1/model.ts:352-357`
 - **Why weird:** The type is plural (`Notifications`) but each field (`onFailure`, `onNewClassificationTagDetected`) holds a single `Destination`, not an array. The plural-vs-singular doesn't match the content. Compare: `dataquality.NotificationSettings` (singular type, singular fields).
 - **Category:** 9 (singular/plural mismatch — type plural, content singular).
 - **Suggested name:** `NotificationSettings` (matches `dataquality`).
 - **Rationale:** Same as `dataquality` parity.
 
-### 31. `InferenceLogAnalysisConfig.problemType: ProblemType` — `src/v1/model.ts:314`
+### 30. `InferenceLogAnalysisConfig.problemType: ProblemType` — `src/v1/model.ts:314`
 - **Why weird:** Field name does not say "ML"; type is the generic `ProblemType` (#7). The reader has no cue from the field name that this is ML-specific.
 - **Category:** 1 (vague — `problemType` alone is generic).
 - **Suggested name:** `mlProblemType: MlProblemType` (or rely on rename of the enum to `InferenceProblemType` per #7).
 - **Rationale:** Disambiguate from generic English meaning.
 
-### 32. `predictionProbaCol` — `src/v1/model.ts:326`
+### 31. `predictionProbaCol` — `src/v1/model.ts:326`
 - **Why weird:** `Proba` is a Python ML idiom for "probability" — sklearn `predict_proba` etc. In a TS API, the name leaks the upstream Python convention. JSDoc says "Column for prediction probabilities" — uses the full word.
 - **Category:** 5 (cryptic Python-ML abbreviation), 14 (foreign-ecosystem idiom).
 - **Suggested name:** `predictionProbabilityCol` (or `predictionProbabilitiesCol`).
 - **Rationale:** Python's `predict_proba` is sklearn vocabulary; a TS SDK should not require knowing sklearn to read field names.
 
-### 33. `timestampCol`, `predictionCol`, `labelCol`, `modelIdCol`, `predictionProbaCol` (Col suffix) — `src/v1/model.ts:316,320,322,324,326`
+### 32. `timestampCol`, `predictionCol`, `labelCol`, `modelIdCol`, `predictionProbaCol` (Col suffix) — `src/v1/model.ts:316,320,322,324,326`
 - **Why weird:** `Col` is an abbreviation for `Column`. Five fields on `InferenceLogAnalysisConfig` use it. Same in `TimeSeriesAnalysisConfig.timestampCol`. TS has no length constraint.
 - **Category:** 5 (cryptic abbreviation — `Col`).
 - **Suggested name:** `timestampColumn`, `predictionColumn`, `labelColumn`, `modelIdColumn`, `predictionProbabilityColumn`.
 - **Rationale:** Full words; matches `dataquality.InferenceLogConfig` if that package has the same pattern (worth cross-checking).
 
-### 34. `modelIdCol` — `src/v1/model.ts:324`
+### 33. `modelIdCol` — `src/v1/model.ts:324`
 - **Why weird:** `Id` ambiguity flagged across the SDK. `modelIdCol` — the column in the user's table that holds a model identifier — could be any UC ID or a free-form model version string. JSDoc says only "Column for the model identifier."
 - **Category:** 19 (underspecified ID — what *kind* of model ID?).
 - **Suggested name:** Document, or rename to `modelVersionColumn` if that is what the wire expects.
 - **Rationale:** "Model ID" in Databricks could mean MLflow run ID, MLflow model version, registered model name, or a customer-chosen string.
 
-### 35. `MonitorCronSchedule` vs `dataquality.CronSchedule` — `src/v1/model.ts:343`
+### 34. `MonitorCronSchedule` vs `dataquality.CronSchedule` — `src/v1/model.ts:343`
 - **Why weird:** Same wire shape, different type names. Sister `dataquality.CronSchedule` drops the `Monitor` prefix. The prefix here is dead context — this type only ever lives on a `Monitor`.
 - **Category:** 8 (redundant prefix — `Monitor` is in the access path).
 - **Suggested name:** `CronSchedule` (matches `dataquality`).
 - **Rationale:** Cross-package consistency.
 
-### 36. `quartzCronExpression` (leaks library name) — `src/v1/model.ts:345`
+### 35. `quartzCronExpression` (leaks library name) — `src/v1/model.ts:345`
 - **Why weird:** Same as `dataquality.CronSchedule.quartzCronExpression` (audit #30 in that package). `Quartz` is a Java scheduling library; users do not need to know that.
 - **Category:** 14 (implementation-detail leak).
 - **Suggested name:** `cronExpression`.
 - **Rationale:** Same as `dataquality` #30.
 
-### 37. `timezoneId` — `src/v1/model.ts:347`
+### 36. `timezoneId` — `src/v1/model.ts:347`
 - **Why weird:** Same as `dataquality.CronSchedule.timezoneId` (audit #30 in that package). `Id` for what is in fact an IANA timezone name (e.g., `America/New_York`) — the field is a tz name, not an "ID" in the database sense.
 - **Category:** 19 (misnamed — calling a tz name an `Id`), 5 (jargon).
 - **Suggested name:** `timezone` (matches JS-standard `Intl.DateTimeFormat.timeZone`).
@@ -260,61 +254,61 @@ Three packages in this repository overlap on the same domain at the wire level:
 
 ## Low severity
 
-### 38. `flattenQueryParams` exported but unused — `src/v1/utils.ts:123`
+### 37. `flattenQueryParams` exported but unused — `src/v1/utils.ts:123`
 - **Why weird:** Same as `dataquality` audit #35. Helper exported but never called from `client.ts`.
 - **Category:** 6 (misleading — looks used; isn't).
 - **Suggested name:** N/A — unexport.
 - **Rationale:** Dead exported surface.
 
-### 39. `executeCall` vs `executeHttpCall` — `src/v1/utils.ts:26,65`
+### 38. `executeCall` vs `executeHttpCall` — `src/v1/utils.ts:26,65`
 - **Why weird:** Same as `dataquality` audit #36.
 - **Category:** 1, 12, 17.
 - **Suggested name:** `runWithRetry` (outer) + `sendHttpRequest` (inner).
 - **Rationale:** Layering should be readable from names.
 
-### 40. `buildHttpRequest` — `src/v1/utils.ts:96`
+### 39. `buildHttpRequest` — `src/v1/utils.ts:96`
 - **Why weird:** Same as `dataquality` audit #37 — "build" hints at builder pattern, function spreads literals.
 - **Category:** 1, 6.
 - **Suggested name:** `makeHttpRequest`.
 - **Rationale:** "Make" matches the reality.
 
-### 41. `readAll` — `src/v1/utils.ts:40`
+### 40. `readAll` — `src/v1/utils.ts:40`
 - **Why weird:** Same as `dataquality` audit #39. "ReadAll" does not say "drain a stream".
 - **Category:** 1, 5.
 - **Suggested name:** `drainStream`.
 - **Rationale:** Self-describing.
 
-### 42. `HttpCallOptions` — `src/v1/utils.ts:15`
+### 41. `HttpCallOptions` — `src/v1/utils.ts:15`
 - **Why weird:** Same as `dataquality` audit #40. Internal context bag named `Options` — collides with the public `CallOptions` /  `ClientOptions` semantics.
 - **Category:** 1, 8.
 - **Suggested name:** `HttpCallContext`.
 - **Rationale:** Reserve `Options` for user-tunable knobs.
 
-### 43. `PACKAGE_SEGMENT` — `src/v1/client.ts:52`
+### 42. `PACKAGE_SEGMENT` — `src/v1/client.ts:52`
 - **Why weird:** Same as `dataquality` audit #41.
 - **Category:** 1.
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
 - **Rationale:** Domain-word missing.
 
-### 44. `Call` type + `call` variable name collision in every method — `src/v1/client.ts:93,133,174,214,252,290,330,373,415`
+### 43. `Call` type + `call` variable name collision in every method — `src/v1/client.ts:93,133,174,214,252,290,330,373,415`
 - **Why weird:** Same as `dataquality` audit #42. Variable `call: Call` in 9 methods.
 - **Category:** 1, 12.
 - **Suggested name:** `request` (variable).
 - **Rationale:** Type/variable collision.
 
-### 45. `respBody` vs `resp` — every method in `client.ts`
+### 44. `respBody` vs `resp` — every method in `client.ts`
 - **Why weird:** Same as `dataquality` audit #44. Two variables differ only by `Body`.
 - **Category:** 5, 17.
 - **Suggested name:** `rawBody` + `result`.
 - **Rationale:** Distinguish by meaningful nouns.
 
-### 46. `httpReq` local — every method in `client.ts`
+### 45. `httpReq` local — every method in `client.ts`
 - **Why weird:** Same as `dataquality` audit #45.
 - **Category:** 5, 12.
 - **Suggested name:** `httpRequest`.
 - **Rationale:** No abbreviation.
 
-### 47. `req.fullTableNameArg ?? ''` URL composition — `src/v1/client.ts:90,130,172,212,250,288,327,370,412`
+### 46. `req.fullTableNameArg ?? ''` URL composition — `src/v1/client.ts:90,130,172,212,250,288,327,370,412`
 - **Why weird:** Same as `dataquality` audit #43. `fullTableNameArg` typed optional but required in practice; silent empty-string substitution yields URLs like `/api/2.1/unity-catalog/tables//monitor`.
 - **Category:** 6.
 - **Suggested name:** Make `fullTableNameArg` non-optional on every request type.
@@ -322,25 +316,25 @@ Three packages in this repository overlap on the same domain at the wire level:
 
 ## Observations
 
-### 48. Every method's first JSDoc line is "Deprecated: Use Data Quality Monitors API instead"
+### 47. Every method's first JSDoc line is "Deprecated: Use Data Quality Monitors API instead"
 - **Note:** All 9 client methods (`cancelRefresh`, `createMonitor`, `deleteMonitor`, `getMonitor`, `getRefresh`, `listRefreshes`, `regenerateDashboard`, `runRefresh`, `updateMonitor`) start their JSDoc with that sentence. None uses the `@deprecated` JSDoc tag, so editors do not render the deprecation visually. The package is deprecated in spirit, but live in build.
 
-### 49. Acronym casing
+### 48. Acronym casing
 - `Id` (capital-then-lower in `refreshId`, `dashboardId`, `warehouseId`, `monitorVersion`); `Ms` (`startTimeMs`, `endTimeMs`); `Http` (in imported types). No within-package collisions, all generator-emitted.
 - **Category:** 3 (acronym casing).
 
-### 50. URL paths mix `unity-catalog` and `quality-monitoring`
+### 49. URL paths mix `unity-catalog` and `quality-monitoring`
 - **Note:** Eight of nine methods use `/api/2.1/unity-catalog/tables/{}/monitor[/...]`; one (`regenerateDashboard`) uses `/api/2.1/quality-monitoring/tables/{}/monitor/dashboard`. The package name does not match either prefix. The sister `dataquality` package uses `/api/data-quality/v1/monitors`.
 - **Category:** 17 (inconsistent — package name vs wire path).
 
-### 51. No `FieldMask` types
+### 50. No `FieldMask` types
 - This package does not have any `FieldMask<...>` types (unlike `dataquality`). The deprecated API does not support partial updates via field masks; the entire monitor body is replaced on `PUT`. (Listed as observation to contrast with sibling packages.)
 
-### 52. Verb consistency
+### 51. Verb consistency
 - `Cancel`, `Create`, `Delete`, `Get`, `List`, `Regenerate`, `Run`, `Update` — eight different verbs in nine methods. Within the package the verbs are appropriate and consistent. The unusual one is `Regenerate` (vs `Recreate` or `RebuildDashboard`) — generator-driven choice, fine in context.
 - **Category:** 17 (verb inventory, none inconsistent).
 
-### 53. `Notifications` is a slim type with two channel fields
+### 52. `Notifications` is a slim type with two channel fields
 - Two-channel `Notifications` (`onFailure`, `onNewClassificationTagDetected`) follows the proto shape. A TS-idiomatic shape might be `notifications: Array<{channel: 'failure' | 'newClassificationTag', destination: Destination}>` to allow future expansion. Listed as observation, not a flag.
 
 ## Domain glossary

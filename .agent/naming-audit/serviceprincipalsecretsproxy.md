@@ -6,7 +6,7 @@
 service principal (create, list, delete), exposed as a "proxy" variant whose
 surface area is byte-identical to the sibling `serviceprincipalsecrets`
 package.
-**Total weird names flagged:** 26
+**Total weird names flagged:** 22
 
 ---
 
@@ -17,29 +17,26 @@ package.
 | 1 | package `serviceprincipalsecretsproxy` | (package) | package | High | 12 Duplicate concepts | Byte-identical to sibling `serviceprincipalsecrets` — every v1 source file (`client.ts`, `model.ts`, `utils.ts`, `index.ts`) has the same MD5; only the npm package name differs. |
 | 2 | package `serviceprincipalsecretsproxy` | (package) | package | High | 7 Overly verbose, 14 Go/Java-style names not idiomatic TS | 33-character, undelimited compound. Already the longest package name in the SDK; the "proxy" suffix piles onto an already-long base. Consider `sp-secrets-proxy` or a subpath of `serviceprincipalsecrets`. |
 | 3 | package `serviceprincipalsecretsproxy` | (package) | package | Medium | 6 Misleading names | "Proxy" appears nowhere in the model, client, or URL (`/api/2.0/accounts/.../servicePrincipals/.../credentials/secrets` is the same path used by the non-proxy package). The package name promises a different transport that does not exist in the code. |
-| 4 | `CreateServicePrincipalSecret` | model.ts:6 | interface | Medium | 7 Overly verbose, 13 Verb-tense inconsistency | 29-char identifier; lacks the `Request` suffix that the rest of the SDK uses for input shapes (`DeleteServicePrincipalSecret` and `ListServicePrincipalSecrets` have the same problem — see #11/#16). The name reads like an action (verb phrase) rather than a request payload. |
+| 4 | `CreateServicePrincipalSecret` | model.ts:6 | interface | Medium | 7 Overly verbose, 13 Verb-tense inconsistency | 29-char identifier; lacks the `Request` suffix that the rest of the SDK uses for input shapes (`DeleteServicePrincipalSecret` and `ListServicePrincipalSecrets` have the same problem — see #12/#14). The name reads like an action (verb phrase) rather than a request payload. |
 | 5 | `CreateServicePrincipalSecret.servicePrincipal` | model.ts:10 | field | High | 19 Underspecified IDs, 15 Generic field names losing meaning, 16 Field contradicting type domain | Field is `servicePrincipal: string` but the JSDoc says "The service principal ID" — the value is an ID, not the full SP object. Should be `servicePrincipalId`. Same offender in `DeleteServicePrincipalSecret` and `ListServicePrincipalSecrets`. |
 | 6 | `CreateServicePrincipalSecret.lifetime` | model.ts:12 | field | Low | 1 Vague/generic without domain context | `lifetime: Temporal.Duration` — generic; `secretLifetime` or `ttl` would be clearer. The default-730-days note is essential and lives only in JSDoc. |
 | 7 | `CreateServicePrincipalSecretResponse` | model.ts:15 | interface | Medium | 7 Overly verbose, 12 Duplicate concepts | 37-char identifier and structurally identical to `ServicePrincipalSecret` (model.ts:66) — same seven fields in the same order with the same JSDoc. One of the two is redundant; the response wrapper could be `type CreateServicePrincipalSecretResponse = ServicePrincipalSecret`. |
 | 8 | `CreateServicePrincipalSecretResponse.id` | model.ts:17 | field | Medium | 19 Underspecified IDs, 15 Generic field names losing meaning | `id?: string` — what is the ID of? The JSDoc clarifies "ID of the secret"; rename to `secretId` to match `DeleteServicePrincipalSecret.secretId`. Same issue in `ServicePrincipalSecret.id`. |
 | 9 | `CreateServicePrincipalSecretResponse.secret` | model.ts:19 | field | Medium | 1 Vague/generic without domain context, 15 Generic field names losing meaning | `secret?: string` inside `ServicePrincipalSecret` reads as `ServicePrincipalSecret.secret` — meaningless self-reference. Rename to `secretValue` (the JSDoc already calls it "Secret Value"). |
 | 10 | `CreateServicePrincipalSecretResponse.secretHash` | model.ts:21 | field | Low | 1 Vague/generic without domain context | Plain `secretHash: string` — no hash algorithm noted. The wire JSON sends `secret_hash`; doc does not specify SHA-256, SHA-512, etc. |
-| 11 | `CreateServicePrincipalSecretResponse.status` | model.ts:27 | field | Medium | 1 Vague/generic without domain context, 4 Underscores in TS identifiers (wire) | `status?: string` — completely untyped. Likely an enum on the server (`ACTIVE`/`REVOKED`/`EXPIRED`), but TS callers see a free-form string with zero discoverability. |
+| 11 | `CreateServicePrincipalSecretResponse.status` | model.ts:27 | field | Medium | 1 Vague/generic without domain context | `status?: string` — completely untyped. Likely an enum on the server (`ACTIVE`/`REVOKED`/`EXPIRED`), but TS callers see a free-form string with zero discoverability. |
 | 12 | `CreateServicePrincipalSecretResponse.createTime` / `updateTime` | model.ts:23, 25 | field | Medium | 16 Field contradicting type domain | Typed as `string` while the sibling `expireTime` (model.ts:29) is `Temporal.Instant`. Wire form is the same ISO-8601 timestamp for all three — the asymmetric typing is a generator bug, not an intentional API choice. |
 | 13 | `CreateServicePrincipalSecretResponse.expireTime` | model.ts:29 | field | Low | 3 Acronym casing inconsistencies | Inconsistent with `createTime` / `updateTime` typing (see #12). |
 | 14 | `DeleteServicePrincipalSecret` | model.ts:32 | interface | Medium | 7 Overly verbose, 13 Verb-tense inconsistency | Same problem as #4: name is a verb phrase ("Delete a SP secret"), not a payload type; lacks `Request` suffix. |
 | 15 | `DeleteServicePrincipalSecret.secretId` | model.ts:38 | field | Low | 19 Underspecified IDs | Good in isolation, but the request also carries `servicePrincipal: string` which is *also* an ID — naming asymmetry: one field has `Id`, the other doesn't (see #5). |
-| 16 | `DeleteServicePrincipalSecret_Response` | model.ts:42 | interface | High | 4 Underscores in TS identifiers, 14 Go/Java-style names not idiomatic TS | Protobuf-style underscore in the TS identifier; requires `eslint-disable-next-line @typescript-eslint/naming-convention`. Should be `DeleteServicePrincipalSecretResponse` (PascalCase, no underscore). |
-| 17 | `ListServicePrincipalSecrets` | model.ts:44 | interface | Medium | 7 Overly verbose, 13 Verb-tense inconsistency, 9 Singular/plural mismatches | Plural form ("ListServicePrincipalSecret*s*") is a verb phrase, not a request payload type. Singular vs plural inconsistency with the other two requests in the same file. Rename to `ListServicePrincipalSecretsRequest`. |
-| 18 | `ListServicePrincipalSecrets.pageToken` | model.ts:54 | field | Low | 18 Long enum values (analogous) | Field is fine, but the JSDoc is 358 chars long for one field — out of proportion. Worth surfacing on the type itself or in package docs. |
-| 19 | `ListServicePrincipalSecrets.pageSize` | model.ts:55 | field | Low | 1 Vague/generic without domain context | Field has no JSDoc at all (unlike `pageToken` which has 4 lines). Inconsistent within the same interface. |
-| 20 | `ListServicePrincipalSecrets_Response` | model.ts:59 | interface | High | 4 Underscores in TS identifiers, 14 Go/Java-style names not idiomatic TS | Protobuf-style underscore in TS identifier; needs an `eslint-disable-next-line` for `@typescript-eslint/naming-convention`. Should be `ListServicePrincipalSecretsResponse`. |
-| 21 | `ListServicePrincipalSecrets_Response.secrets` | model.ts:61 | field | Low | 9 Singular/plural mismatches | Plural is correct. JSDoc says "List of the secrets" — phrasing nit, "List of secrets" would read better. |
-| 22 | `ServicePrincipalSecret` | model.ts:66 | interface | Medium | 12 Duplicate concepts | Structurally identical to `CreateServicePrincipalSecretResponse` (see #7). Two names for one shape. |
-| 23 | `ServicePrincipalSecret.id` / `secret` / `secretHash` / `status` | model.ts:68, 70, 72, 78 | field | Medium | 1 Vague/generic without domain context | Same vague-field issues as the response copy (#8-#11). |
-| 24 | `Client` | client.ts:42 | class | Medium | 1 Vague/generic without domain context | Top-level `Client` with no qualifier. Once two Databricks clients are imported in the same module, every one is just `Client`. Should be `ServicePrincipalSecretsProxyClient` or aliased on export. |
-| 25 | `Client.createServicePrincipalSecret` / `deleteServicePrincipalSecret` / `listServicePrincipalSecrets` | client.ts:72, 101, 129 | method | Medium | 7 Overly verbose | Inside a class named `Client` (let alone a class that should be `ServicePrincipalSecretsClient`), repeating `ServicePrincipalSecret` in every method name is stutter. `create(req)` / `delete(req)` / `list(req)` would read cleanly. |
-| 26 | `PACKAGE_SEGMENT` | client.ts:37 | const | Low | 1 Vague/generic without domain context | Used only to assemble the User-Agent header. `USER_AGENT_PACKAGE_SEGMENT` makes the call site self-explanatory. |
+| 16 | `ListServicePrincipalSecrets` | model.ts:44 | interface | Medium | 7 Overly verbose, 13 Verb-tense inconsistency, 9 Singular/plural mismatches | Plural form ("ListServicePrincipalSecret*s*") is a verb phrase, not a request payload type. Singular vs plural inconsistency with the other two requests in the same file. Rename to `ListServicePrincipalSecretsRequest`. |
+| 17 | `ListServicePrincipalSecrets.pageToken` | model.ts:54 | field | Low | 18 Long enum values (analogous) | Field is fine, but the JSDoc is 358 chars long for one field — out of proportion. Worth surfacing on the type itself or in package docs. |
+| 18 | `ListServicePrincipalSecrets.pageSize` | model.ts:55 | field | Low | 1 Vague/generic without domain context | Field has no JSDoc at all (unlike `pageToken` which has 4 lines). Inconsistent within the same interface. |
+| 19 | `ServicePrincipalSecret` | model.ts:66 | interface | Medium | 12 Duplicate concepts | Structurally identical to `CreateServicePrincipalSecretResponse` (see #7). Two names for one shape. |
+| 20 | `ServicePrincipalSecret.id` / `secret` / `secretHash` / `status` | model.ts:68, 70, 72, 78 | field | Medium | 1 Vague/generic without domain context | Same vague-field issues as the response copy (#8-#11). |
+| 21 | `Client` | client.ts:42 | class | Medium | 1 Vague/generic without domain context | Top-level `Client` with no qualifier. Once two Databricks clients are imported in the same module, every one is just `Client`. Should be `ServicePrincipalSecretsProxyClient` or aliased on export. |
+| 22 | `Client.createServicePrincipalSecret` / `deleteServicePrincipalSecret` / `listServicePrincipalSecrets` | client.ts:72, 101, 129 | method | Medium | 7 Overly verbose | Inside a class named `Client` (let alone a class that should be `ServicePrincipalSecretsClient`), repeating `ServicePrincipalSecret` in every method name is stutter. `create(req)` / `delete(req)` / `list(req)` would read cleanly. |
+| 23 | `PACKAGE_SEGMENT` | client.ts:37 | const | Low | 1 Vague/generic without domain context | Used only to assemble the User-Agent header. `USER_AGENT_PACKAGE_SEGMENT` makes the call site self-explanatory. |
 
 ---
 
@@ -103,22 +100,6 @@ also internally inconsistent with `DeleteServicePrincipalSecret.secretId`
 (model.ts:38) — same file, one ID field has `Id`, another doesn't.
 
 Rename to `servicePrincipalId` everywhere.
-
-### H3. Protobuf-style underscore identifiers leak into TS
-
-Two identifiers carry an embedded `_` that requires `eslint-disable-next-line`
-comments at every declaration:
-
-- `DeleteServicePrincipalSecret_Response` (model.ts:42)
-- `ListServicePrincipalSecrets_Response` (model.ts:59)
-
-This is category 4 (underscores in TS identifiers) and category 14
-(Go/Java-style names not idiomatic TS). The inline comments
-(`// Proto-style nested message name.`) acknowledge that the names exist only
-to preserve the wire-message hierarchy from protobuf — there is no TS-side
-reason to keep them. Rename to PascalCase
-(`DeleteServicePrincipalSecretResponse`, `ListServicePrincipalSecretsResponse`)
-and drop the eslint disables.
 
 ---
 
@@ -286,7 +267,7 @@ validation error. Not a naming issue per se, but a result of the underspecified
   naming issues must be fixed upstream in the generator / OpenAPI spec.
 - **No enums.** The package has zero enum types, so categories 2 (redundant
   enum prefixes) and 18 (long enum values) do not apply. The `status` field
-  (#11/#23) is a likely enum that was generated as a free-form string.
+  (#11/#20) is a likely enum that was generated as a free-form string.
 - **No `Url`/`URL`, `Sql`, `Json`, `Oauth` casing collisions.** `accountId`
   (camelCase) and `secretId` are the only acronyms in the public surface.
 - **No reserved-word collisions** — no `delete`, `class`, `new`, etc. as

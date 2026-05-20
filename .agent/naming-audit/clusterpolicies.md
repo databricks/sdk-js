@@ -147,15 +147,9 @@ abbreviations and don't repeat the enum prefix.
 | A-03  | `RCranLibrary` — prefix `R` | Low | The leading lone `R` (the language) is awkward; the Go SDK uses the same name so this is a porting constraint. |
 | A-04  | `pypi` discriminator case (`Library.lib.$case === 'pypi'`) | Low | Lowercased, matching API wire format; consistent with `jar`, `egg`, `cran`, `maven`. Acceptable. |
 
-### 2.4 Underscores in TS identifiers — High
+### 2.4 Underscores in TS identifiers
 
-| ID    | Symbol                              | Severity | Issue |
-| ----- | ----------------------------------- | -------- | ----- |
-| U-01  | `CreatePolicy_Response`             | High     | Underscores in TS type names violate Google TypeScript style (`UpperCamelCase` only — see https://google.github.io/styleguide/tsguide.html#naming-style). Every occurrence requires an `eslint-disable @typescript-eslint/naming-convention` annotation. Should be `CreatePolicyResponse`. |
-| U-02  | `DeletePolicy_Response`             | High     | Same as U-01. |
-| U-03  | `EditPolicy_Response`               | High     | Same as U-01. |
-| U-04  | `ListPolicies_Response`             | High     | Same as U-01. |
-| U-05  | Enum member identifiers (`POLICY_CREATION_TIME`, `POLICY_NAME`) | Low | `SCREAMING_SNAKE_CASE` is acceptable for enum members under Google style (matches API wire values). Not a violation, just noted. |
+_None._
 
 ### 2.5 Cryptic abbreviations — Medium
 
@@ -225,9 +219,8 @@ _None._
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| G-01  | `CreatePolicy_Response` (proto nested-message style) | High | This is a direct port of Go's `pb.CreatePolicyResponse` / protobuf naming. TypeScript ecosystems do not use `_` separators between message and nested-message names; the codebase even disables ESLint for each occurrence. Should adopt the TS-idiomatic `CreatePolicyResponse`. |
-| G-02  | `MavenLibrary`, `PythonPyPiLibrary`, `RCranLibrary` (suffix `Library` repeated) | Low | Java-style "TypeNameTypeSuffix" pattern. See § 2.19 for the type-suffix tautology angle. |
-| G-03  | `httpClient`, `HttpClient` (vs `HTTPClient`) | Low | Google TS style uses `Http` (lowercased acronym) — consistent. |
+| G-01  | `MavenLibrary`, `PythonPyPiLibrary`, `RCranLibrary` (suffix `Library` repeated) | Low | Java-style "TypeNameTypeSuffix" pattern. See § 2.19 for the type-suffix tautology angle. |
+| G-02  | `httpClient`, `HttpClient` (vs `HTTPClient`) | Low | Google TS style uses `Http` (lowercased acronym) — consistent. |
 
 ### 2.14 Generic field names losing meaning — Medium
 
@@ -296,39 +289,31 @@ _None._
 
 | Severity | Count |
 | -------- | ----- |
-| High     | 10    |
-| Medium   | 18    |
-| Low      | 23    |
-| **Total**| **51**|
+| High     | 6     |
+| Medium   | 17    |
+| Low      | 22    |
+| **Total**| **45**|
 
 ### 3.2 Top themes
 
-1. **Proto-style `_Response` suffix pollutes every CRUD response type.**
-   Four interfaces (`CreatePolicy_Response`, `DeletePolicy_Response`,
-   `EditPolicy_Response`, `ListPolicies_Response`) each require an
-   `eslint-disable` for the naming-convention rule. Renaming to TS-idiomatic
-   `CreatePolicyResponse` etc. would eliminate disable-comments and a
-   Google-style violation in one sweep.
-
-2. **`Library.lib` repeats the type stem in its discriminator field.**
+1. **`Library.lib` repeats the type stem in its discriminator field.**
    Callers write `library.lib?.$case` — `lib` adds no information the type
    name doesn't. A concrete name like `source` / `kind` / `spec` reads
    better at call sites.
 
-3. **`PolicySortColumn.POLICY_*` repeats the enum prefix**; trimming to
+2. **`PolicySortColumn.POLICY_*` repeats the enum prefix**; trimming to
    `CREATION_TIME` / `NAME` shortens call sites and matches enum-design
    guidance.
 
-4. **`PyPi` casing should be `PyPI`** (acronym), and `package` fields collide
+3. **`PyPi` casing should be `PyPI`** (acronym), and `package` fields collide
    with a JS strict-mode reserved word in `PythonPyPiLibrary` / `RCranLibrary`.
 
-5. **`createdAtTimestamp` is a tautology**; `createdAt` is the SDK-wide and
+4. **`createdAtTimestamp` is a tautology**; `createdAt` is the SDK-wide and
    ecosystem-wide convention for epoch-millisecond fields.
 
 ### 3.3 Suggested quick wins (non-breaking renames are not possible — this
 section is advisory for the codegen owners)
 
-- Drop `_Response` suffix in all four response interfaces.
 - Rename `Library.lib` -> `Library.source` (concrete discriminator name).
 - Trim `PolicySortColumn` members.
 - `PythonPyPiLibrary` -> `PythonPyPILibrary`.
@@ -337,7 +322,5 @@ section is advisory for the codegen owners)
 
 ### 3.4 Cross-package consistency notes
 
-- The `Proto-style nested message name` `_Response` suffix is consistent
-  with peers and should be addressed at the codegen level.
 - `editPolicy` (vs `updatePolicy`) is a per-API decision driven by the
   upstream REST verb; flag for upstream alignment but no per-package fix.

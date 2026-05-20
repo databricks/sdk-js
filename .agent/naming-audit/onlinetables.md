@@ -92,11 +92,11 @@
 
 | Severity              | Count |
 | --------------------- | ----- |
-| High                  | 7     |
+| High                  | 5     |
 | Medium                | 13    |
 | Low / SDK-wide note   | 9     |
 | Pass / acceptable     | 9     |
-| **Total findings**    | **38** |
+| **Total findings**    | **36** |
 
 (Several findings touch multiple audit categories; counts above are unique
 findings.)
@@ -105,55 +105,7 @@ findings.)
 
 ## Findings
 
-### 1. `ProvisioningInfo_State` underscore in type name — category 4 (Underscores in TS identifiers) and category 14 (Go/Java-style names)
-
-**Symbol:** `ProvisioningInfo_State` (model.ts:57).
-
-**Issue:** The enum name carries a `_` underscore separating the parent
-message name (`ProvisioningInfo`) and the nested-enum name (`State`). This is
-a proto-buf code-generator artefact for nested messages/enums (`ParentMessage.NestedEnum`
-in `.proto` becomes `ParentMessage_NestedEnum` in some Go codegens) and is not
-idiomatic TypeScript. The Google TS Style Guide § 5.3 mandates `UpperCamelCase`
-for type names with no underscores; the project's own lint rule
-(`.agent/rules/typescript.mdc` § *Identifiers*) enforces the same. The file
-even has to suppress the lint for this identifier (model.ts:56):
-
-```ts
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
-export enum ProvisioningInfo_State {
-```
-
-The suppression comment is itself the audit signal: lint disagrees, and the
-suppression is hard-coded across the SDK for every proto-nested enum.
-
-**Suggested:** `ProvisioningState`. Folding the nested-enum name to a flat
-`ProvisioningState` loses no information.
-
-**Note on inconsistency *within this file*:** the file uses *both* the flat
-name (`OnlineTableState`, model.ts:7) and the underscored form
-(`ProvisioningInfo_State`, model.ts:57). Same generator, same package, two
-conventions in 50 lines. **Flag for generator-wide cleanup.**
-
----
-
-### 2. `OnlineTableSpec_ContinuousSchedulingPolicy` and `OnlineTableSpec_TriggeredSchedulingPolicy` underscored type names — category 4 (Underscores in TS identifiers)
-
-**Symbols:** `OnlineTableSpec_ContinuousSchedulingPolicy` (model.ts:175),
-`OnlineTableSpec_TriggeredSchedulingPolicy` (model.ts:178).
-
-**Issue:** Underscored type names (same root cause as finding 1). Lint
-suppression at model.ts:174 and 177 marks the violation. The proto-namespace
-underscore separates the parent message name (`OnlineTableSpec`) from the
-nested-message name (`ContinuousSchedulingPolicy` / `TriggeredSchedulingPolicy`).
-This is a proto-buf code-generator artefact, not idiomatic TypeScript.
-
-**Suggested at the TS level:** strip the proto namespace, yielding flat type
-names `ContinuousSchedulingPolicy` and `TriggeredSchedulingPolicy`. **Flag for
-generator-wide cleanup.**
-
----
-
-### 3. `OnlineTableState.ONLINE_TABLE_STATE_UNSPECIFIED` value prefix repeats the enum name — category 2 (Redundant enum prefixes) and category 18 (Long enum values)
+### 1. `OnlineTableState.ONLINE_TABLE_STATE_UNSPECIFIED` value prefix repeats the enum name — category 2 (Redundant enum prefixes) and category 18 (Long enum values)
 
 **Symbol:** `OnlineTableState.ONLINE_TABLE_STATE_UNSPECIFIED` (model.ts:9).
 
@@ -169,37 +121,33 @@ Note: the values double as on-the-wire JSON strings (`z.enum(OnlineTableState)`
 at model.ts:341 parses raw API strings directly into these identifiers), so
 renaming the wire string requires server acceptance and is a behavioural
 change. The TS-side identifier can be split from the wire string (see
-finding 5) for a safe local fix.
+finding 3) for a safe local fix.
 
 **Suggested wire-level (coordinated with API):** plain `UNSPECIFIED`.
-**Suggested TS-level only (safe — see finding 5):** `Unspecified =
+**Suggested TS-level only (safe — see finding 3):** `Unspecified =
 'ONLINE_TABLE_STATE_UNSPECIFIED'`.
 
 ---
 
-### 4. `ProvisioningInfo_State.STATE_UNSPECIFIED` value prefix repeats half the enum name — category 2 (Redundant enum prefixes)
+### 2. `ProvisioningInfo_State.STATE_UNSPECIFIED` value prefix repeats half the enum name — category 2 (Redundant enum prefixes)
 
 **Symbol:** `ProvisioningInfo_State.STATE_UNSPECIFIED` (model.ts:58).
 
-**Issue:** Same family as finding 3. The `STATE_` prefix repeats the trailing
-half of the enum name. After applying finding 1 (rename to
-`ProvisioningState`), the duplication is even more visible:
-`ProvisioningState.STATE_UNSPECIFIED`.
+**Issue:** Same family as finding 1. The `STATE_` prefix repeats the trailing
+half of the enum name.
 
 **Suggested:** TS-side identifier `Unspecified`. Wire string remains
 `STATE_UNSPECIFIED` if upstream still emits it.
 
 ---
 
-### 5. SCREAMING_SNAKE_CASE enum members — category 4 (Underscores in TS identifiers)
+### 3. SCREAMING_SNAKE_CASE enum members (value-level) — category 4
 
 **Symbols:** Every value in both enums (model.ts:9–53 and 58–64).
 
 **Issue:** The project's `.agent/skills/google-ts-styleguide` (and Google TS
-Style Guide § 5.3) mandates `UpperCamelCase` for enum members, not
-`SCREAMING_SNAKE_CASE`. The project's own `typescript.mdc` enforces no
-underscores in TS identifiers. Every enum value here contains underscores
-and is SCREAMING-cased.
+Style Guide § 5.3) mandates `UpperCamelCase` for enum *members*, not
+`SCREAMING_SNAKE_CASE`. Every enum value here is SCREAMING-cased.
 
 Enum string *values* double as the on-the-wire representation here (the Zod
 schemas parse raw API strings into these identifiers — `z.enum(OnlineTableState)`
@@ -226,7 +174,7 @@ export enum OnlineTableState {
   OnlineUpdatingPipelineResources = 'ONLINE_UPDATING_PIPELINE_RESOURCES',
 }
 
-export enum ProvisioningState {
+export enum ProvisioningInfo_State {
   Unspecified = 'STATE_UNSPECIFIED',
   Provisioning = 'PROVISIONING',
   Active = 'ACTIVE',
@@ -242,7 +190,7 @@ and `database.md` finding 6.
 
 ---
 
-### 6. `OnlineTableState.ONLINE_UPDATING_PIPELINE_RESOURCES` value too long — category 18 (Long enum values)
+### 4. `OnlineTableState.ONLINE_UPDATING_PIPELINE_RESOURCES` value too long — category 18 (Long enum values)
 
 **Symbol:** `OnlineTableState.ONLINE_UPDATING_PIPELINE_RESOURCES` (model.ts:53)
 and `PROVISIONING_PIPELINE_RESOURCES` (model.ts:16).
@@ -254,11 +202,11 @@ hard to read.
 
 **Suggested:** at the TS level, `OnlineUpdatingPipelineResources` shortens to
 30 chars while preserving meaning. The wire form is fixed by upstream. **Pass
-in isolation if finding 5 is applied; flag as a long-name observation.**
+in isolation if finding 3 is applied; flag as a long-name observation.**
 
 ---
 
-### 7. `OnlineTableState` modelled as one enum, two semantic groups — category 6 (Misleading names) and category 12 (Duplicate concepts)
+### 5. `OnlineTableState` modelled as one enum, two semantic groups — category 6 (Misleading names) and category 12 (Duplicate concepts)
 
 **Symbol:** `OnlineTableState` (model.ts:7), 12 values.
 
@@ -276,7 +224,7 @@ This is a wire-level concern, but in TS it reads as a single enum doing two
 jobs — top-level lifecycle and one-level-down detail. Compare to
 `database.SyncedTableState` which has the same 12 values prefixed
 `SYNCED_TABLE_…` (with a famous typo `SYNCED_TABLED_OFFLINE`). The duplication
-*across packages* is also a flag — see finding 8.
+*across packages* is also a flag — see finding 6.
 
 **Suggested:** push back upstream — split into `OnlineTableLifecycle` (a few
 top-level states) and use `detailedStatus.$case` as the substate identifier.
@@ -284,32 +232,34 @@ top-level states) and use `detailedStatus.$case` as the substate identifier.
 
 ---
 
-### 8. Cross-package collision: `OnlineTableState` ↔ `database.SyncedTableState` — category 12 (Duplicate concepts) and category 17 (Inconsistent action verbs)
+### 6. Cross-package collision: `OnlineTableState` ↔ `database.SyncedTableState` (wire-level typo) — category 12 (Duplicate concepts) and category 17 (Inconsistent action verbs)
 
 **Symbol:** `OnlineTableState` (here, model.ts:7) and `SyncedTableState`
 (`database/v1/model.ts:55`, `postgres/v1/model.ts`).
 
 **Issue:** Two SDK packages model essentially the same lifecycle concept —
 the state of a UC-managed Delta-to-managed-store sync table — with two
-*different enum names* and one is misspelled (`SYNCED_TABLED_OFFLINE`).
-Looking at the values:
+*different enum names* and one is misspelled at the **wire-string** level
+(`SYNCED_TABLED_OFFLINE`). Looking at the values:
 
 - `onlinetables.OnlineTableState`: 12 values, prefix `ONLINE_TABLE_STATE_…`
   on `UNSPECIFIED` only.
 - `database.SyncedTableState`: 12 values, prefix `SYNCED_TABLE_…` on **all
-  values** plus the famous typo `SYNCED_TABLED_OFFLINE`.
+  values** plus the famous wire-string typo `SYNCED_TABLED_OFFLINE`.
 
 These enums describe the *same machine*. A consumer who uses both packages
 will write a lookup table or branch on `$case` differently in each package.
+The `SYNCED_TABLED_OFFLINE` typo is on the wire and locks consumers into
+the misspelling.
 
 **Suggested at the SDK level:** harmonise the type names (drop one in favour
 of the other, with an alias for backward compatibility). The wire-level
-fix is a protocol-team decision. **Strongly flag for SDK-wide alignment**;
-do not fix unilaterally in this package.
+typo fix is a protocol-team decision and a behavioural change. **Strongly
+flag for SDK-wide alignment**; do not fix unilaterally in this package.
 
 ---
 
-### 9. Cross-package collision: `PipelineProgress` ↔ `database.SyncedTablePipelineProgress` — category 12 (Duplicate concepts)
+### 7. Cross-package collision: `PipelineProgress` ↔ `database.SyncedTablePipelineProgress` — category 12 (Duplicate concepts)
 
 **Symbol:** `PipelineProgress` (here, model.ts:202) and
 `database.SyncedTablePipelineProgress` (`database/v1/model.ts:744`,
@@ -329,20 +279,19 @@ or extract both into `@databricks/sdk-core` if the dependency is acceptable.
 
 ---
 
-### 10. Cross-package collision: `ProvisioningInfo_State` defined in 4+ packages — category 12 (Duplicate concepts)
+### 8. Cross-package collision: `ProvisioningInfo` defined in 4+ packages — category 12 (Duplicate concepts)
 
-**Symbol:** `ProvisioningInfo_State` (here, model.ts:57). Also defined in:
+**Symbol:** `ProvisioningInfo` (here, model.ts:220) and its sibling state
+enum. Also defined in:
 
-- `database/v1/model.ts:148`
-- `postgres/v1/model.ts:654`
-- `catalogs/v1/model.ts:57`
-- `connections/v1/model.ts:131`
+- `database/v1/model.ts`
+- `postgres/v1/model.ts`
+- `catalogs/v1/model.ts`
+- `connections/v1/model.ts`
 
-**Issue:** Five separate copies of an enum with mostly-identical values
-(`PROVISIONING`, `ACTIVE`, `FAILED`, `DELETING`, `UPDATING`, `DEGRADED` —
-`onlinetables` is missing `STATE_UNSPECIFIED` placeholder behaviour vs.
-others; pairwise identical in shape). Each carries its own underscore-style
-name (finding 1).
+**Issue:** Five separate copies of the same provisioning-info concept with
+mostly-identical state values (`PROVISIONING`, `ACTIVE`, `FAILED`, `DELETING`,
+`UPDATING`, `DEGRADED`). Each package re-declares the type.
 
 **Suggested:** hoist to a shared `@databricks/sdk-core/provisioning` module
 (if cross-cutting), or keep duplicates with **value-level type-checked**
@@ -350,7 +299,7 @@ union to guarantee parity. **SDK-wide cleanup.**
 
 ---
 
-### 11. Cross-package collision: `DeleteOnlineTableRequest` defined in two packages with different fields — category 12 (Duplicate concepts) and category 19 (Underspecified IDs)
+### 9. Cross-package collision: `DeleteOnlineTableRequest` defined in two packages with different fields — category 12 (Duplicate concepts) and category 19 (Underspecified IDs)
 
 **Symbol:** `DeleteOnlineTableRequest` (here, model.ts:93) and
 `featurestore.DeleteOnlineTableRequest` (`featurestore/v1/model.ts:57`).
@@ -384,7 +333,7 @@ sibling `GetOnlineTableRequest.name` (model.ts:119) in this very package.
 
 ---
 
-### 12. `CreateOnlineTableRequest.table` field name is too generic — category 1 (Vague/generic) and category 15 (Generic field names losing meaning)
+### 10. `CreateOnlineTableRequest.table` field name is too generic — category 1 (Vague/generic) and category 15 (Generic field names losing meaning)
 
 **Symbol:** `CreateOnlineTableRequest.table?: OnlineTable | undefined`
 (model.ts:89).
@@ -399,7 +348,7 @@ time.**
 
 ---
 
-### 13. `OnlineTable.name` is a three-part UC name, not a free-text name — category 19 (Underspecified IDs) and category 1 (Vague/generic)
+### 11. `OnlineTable.name` is a three-part UC name, not a free-text name — category 19 (Underspecified IDs) and category 1 (Vague/generic)
 
 **Symbol:** `OnlineTable.name?: string | undefined` (model.ts:125). JSDoc:
 "Full three-part (catalog, schema, table) name of the table."
@@ -437,7 +386,7 @@ inconsistency.**
 
 ---
 
-### 14. `OnlineTable.tableServingUrl` repeats "table" — category 8 (Redundant suffixes)
+### 12. `OnlineTable.tableServingUrl` repeats "table" — category 8 (Redundant suffixes)
 
 **Symbol:** `OnlineTable.tableServingUrl?: string | undefined` (model.ts:131).
 
@@ -452,7 +401,7 @@ this table" — `servingUrl` reads the same.
 
 ---
 
-### 15. `OnlineTable.unityCatalogProvisioningState` is overly verbose — category 7 (Overly verbose)
+### 13. `OnlineTable.unityCatalogProvisioningState` is overly verbose — category 7 (Overly verbose)
 
 **Symbol:** `OnlineTable.unityCatalogProvisioningState?: ProvisioningInfo_State | undefined`
 (model.ts:137). 31 characters.
@@ -472,12 +421,10 @@ Reasonable parallel names would be:
   is shorter and the JSDoc covers the UC scoping.
 
 **Suggested:** `provisioningState`. The JSDoc retains the disambiguation.
-This also lines up with finding 1 (rename of the enum type to
-`ProvisioningState`) — the field and type names become naturally consistent.
 
 ---
 
-### 16. `OnlineTable.status` vs `OnlineTable.unityCatalogProvisioningState` — category 17 (Inconsistent action verbs) and category 6 (Misleading names)
+### 14. `OnlineTable.status` vs `OnlineTable.unityCatalogProvisioningState` — category 17 (Inconsistent action verbs) and category 6 (Misleading names)
 
 **Symbols:** `OnlineTable.status` (model.ts:129),
 `OnlineTable.unityCatalogProvisioningState` (model.ts:137).
@@ -496,11 +443,11 @@ not `status` — surprising.
 
 **Suggested:** rename `status` to `syncStatus` or `dataSyncStatus` to make
 clear it is about the *data pipeline*, not the entity. Pair with
-`provisioningState` (finding 15) for the UC-side entity state.
+`provisioningState` (finding 13) for the UC-side entity state.
 
 ---
 
-### 17. `OnlineTableStatus.detailedState` vs `OnlineTableStatus.detailedStatus` — category 17 (Inconsistent action verbs) and category 12 (Duplicate concepts)
+### 15. `OnlineTableStatus.detailedState` vs `OnlineTableStatus.detailedStatus` — category 17 (Inconsistent action verbs) and category 12 (Duplicate concepts)
 
 **Symbols:** `OnlineTableStatus.detailedState` (model.ts:183),
 `OnlineTableStatus.detailedStatus` (model.ts:187).
@@ -525,7 +472,7 @@ forms a coherent shape. **Flag at port time.**
 
 ---
 
-### 18. `ContinuousUpdateStatus`, `TriggeredUpdateStatus`, `FailedStatus`, `ProvisioningStatus` all share `…Status` suffix — category 20 (Type-suffix tautology) — *pass with note*
+### 16. `ContinuousUpdateStatus`, `TriggeredUpdateStatus`, `FailedStatus`, `ProvisioningStatus` all share `…Status` suffix — category 20 (Type-suffix tautology) — *pass with note*
 
 **Symbols:** `ContinuousUpdateStatus`, `TriggeredUpdateStatus`,
 `FailedStatus`, `ProvisioningStatus` (model.ts:71, 238, 102, 226).
@@ -539,7 +486,7 @@ disambiguate from `OnlineTableSpec`/state enums.
 The `Failed` and `Provisioning` variants are also generic when read in
 isolation — there could be many "failed status" or "provisioning status"
 types in the SDK (and there are — see `database.SyncedTableProvisioningStatus`,
-finding 19 below).
+finding 17 below).
 
 **Suggested:** consider prefixing with the parent concept — e.g.
 `OnlineTableContinuousUpdate`, `OnlineTableTriggeredUpdate`,
@@ -548,7 +495,7 @@ with note**, flag cross-package overlap below.
 
 ---
 
-### 19. Cross-package overlap: `ContinuousUpdateStatus`, `TriggeredUpdateStatus`, `FailedStatus`, `ProvisioningStatus` ↔ `database.SyncedTable*Status` — category 12 (Duplicate concepts)
+### 17. Cross-package overlap: `ContinuousUpdateStatus`, `TriggeredUpdateStatus`, `FailedStatus`, `ProvisioningStatus` ↔ `database.SyncedTable*Status` — category 12 (Duplicate concepts)
 
 **Symbols:**
 - `onlinetables.ContinuousUpdateStatus` ↔ `database.SyncedTableContinuousUpdateStatus`
@@ -559,7 +506,7 @@ with note**, flag cross-package overlap below.
 **Issue:** All four pairs model the same shape (fields are identical or
 near-identical). `database` adds a `SyncedTable` prefix to each — disambiguates
 within `@databricks/sdk-core` if these were merged, but creates a duplicate
-type surface across packages. Same root cause as finding 8 (`OnlineTableState`
+type surface across packages. Same root cause as finding 6 (`OnlineTableState`
 ↔ `SyncedTableState`).
 
 **Suggested:** harmonise — define once in `@databricks/sdk-onlinetables` or
@@ -567,7 +514,7 @@ in `@databricks/sdk-core` and re-export. **SDK-wide cleanup.**
 
 ---
 
-### 20. `PipelineProgress.latestVersionCurrentlyProcessing` is awkward — category 7 (Overly verbose) and category 13 (Verb-tense inconsistency)
+### 18. `PipelineProgress.latestVersionCurrentlyProcessing` is awkward — category 7 (Overly verbose) and category 13 (Verb-tense inconsistency)
 
 **Symbol:** `PipelineProgress.latestVersionCurrentlyProcessing?: number | undefined`
 (model.ts:207). 32 characters.
@@ -600,7 +547,7 @@ upstream and port-time fix.**
 
 ---
 
-### 21. `PipelineProgress.syncedRowCount` / `totalRowCount` / `syncProgressCompletion` mixed nouns — category 17 (Inconsistent action verbs) and category 8 (Redundant suffixes)
+### 19. `PipelineProgress.syncedRowCount` / `totalRowCount` / `syncProgressCompletion` mixed nouns — category 17 (Inconsistent action verbs) and category 8 (Redundant suffixes)
 
 **Symbols:** `PipelineProgress.syncedRowCount` (model.ts:209),
 `PipelineProgress.totalRowCount` (model.ts:211),
@@ -629,7 +576,7 @@ the parent type name `PipelineProgress` — though circular).
 
 ---
 
-### 22. `PipelineProgress.estimatedCompletionTimeSeconds` unit-suffix is fine — *pass*
+### 20. `PipelineProgress.estimatedCompletionTimeSeconds` unit-suffix is fine — *pass*
 
 **Symbol:** `PipelineProgress.estimatedCompletionTimeSeconds` (model.ts:215).
 
@@ -643,19 +590,19 @@ preference. **Pass.**)
 
 ---
 
-### 23. `OnlineTableSpec.sourceTableFullName` — category 8 (Redundant suffixes) and category 19 (Underspecified IDs) — see finding 13
+### 21. `OnlineTableSpec.sourceTableFullName` — category 8 (Redundant suffixes) and category 19 (Underspecified IDs) — see finding 11
 
 **Symbol:** `OnlineTableSpec.sourceTableFullName?: string | undefined`
 (model.ts:156).
 
-Already covered in finding 13. **Pass with note** — `Full` qualifier is
+Already covered in finding 11. **Pass with note** — `Full` qualifier is
 redundant when JSDoc already specifies "Three-part (catalog, schema, table)
 name". `sourceTableName` would suffice. Cross-reference
 `featurestore.PublishTableRequest.sourceTableName` (no `Full`).
 
 ---
 
-### 24. `OnlineTableSpec.timeseriesKey` vs `OnlineTableSpec.primaryKeyColumns` (singular vs plural) — category 9 (Singular/plural mismatch)
+### 22. `OnlineTableSpec.timeseriesKey` vs `OnlineTableSpec.primaryKeyColumns` (singular vs plural) — category 9 (Singular/plural mismatch)
 
 **Symbols:** `OnlineTableSpec.primaryKeyColumns?: string[]` (model.ts:158),
 `OnlineTableSpec.timeseriesKey?: string` (model.ts:160).
@@ -676,7 +623,7 @@ single-column scalar.
 
 ---
 
-### 25. `OnlineTableSpec.performFullCopy` is a verb-as-field — category 13 (Verb-tense inconsistency) and category 6 (Misleading names)
+### 23. `OnlineTableSpec.performFullCopy` is a verb-as-field — category 13 (Verb-tense inconsistency) and category 6 (Misleading names)
 
 **Symbol:** `OnlineTableSpec.performFullCopy?: boolean | undefined`
 (model.ts:169).
@@ -694,7 +641,7 @@ SDK-wide `enable*` boolean pattern). Cross-reference
 
 ---
 
-### 26. `OnlineTableSpec.pipelineId` is server-generated — category 6 (Misleading names) — *pass with note*
+### 24. `OnlineTableSpec.pipelineId` is server-generated — category 6 (Misleading names) — *pass with note*
 
 **Symbol:** `OnlineTableSpec.pipelineId?: string | undefined` (model.ts:171).
 JSDoc: "ID of the associated pipeline. Generated by the server - cannot be
@@ -711,34 +658,29 @@ input/output), not a naming bug.
 
 ---
 
-### 27. `OnlineTableSpec.schedulingPolicy` discriminated-union case names use verb prefixes — category 13 (Verb-tense inconsistency) and category 17 (Inconsistent action verbs)
+### 25. `OnlineTableSpec.schedulingPolicy` discriminated-union case names use verb prefixes — category 13 (Verb-tense inconsistency) and category 17 (Inconsistent action verbs)
 
 **Symbol:** `OnlineTableSpec.schedulingPolicy` $case literals
 `'runContinuously'` / `'runTriggered'` (model.ts:145, 150).
 
 **Issue:** Each `$case` literal is a verb phrase: `runContinuously` (verb +
-adverb), `runTriggered` (verb + past-participle). The companion types are
-`OnlineTableSpec_ContinuousSchedulingPolicy` and
-`OnlineTableSpec_TriggeredSchedulingPolicy` (noun-suffixed).
+adverb), `runTriggered` (verb + past-participle). The verb-phrase form
+mirrors the wire field names `run_continuously` / `run_triggered` — which
+themselves model the operation ("run continuously vs. run triggered").
 
-The mixed POS (case name is a verb-phrase, type name is a noun-phrase) is
-ungrammatical. Reading code:
+Reading code:
 ```ts
 spec.schedulingPolicy = { $case: 'runContinuously', runContinuously: {} };
 //                                ^^^^^^^^^^^^^^^^^
 //                                verb phrase used as a literal key
 ```
 
-The verb-phrase form mirrors the wire field names `run_continuously` /
-`run_triggered` — which themselves model the operation ("run continuously
-vs. run triggered").
-
 **Suggested:** rename `$case` literals to noun-phrase form (`'continuous'` /
-`'triggered'`) to match the companion type names. **Flag at port time.**
+`'triggered'`). **Flag at port time.**
 
 ---
 
-### 28. `CreateOnlineTableRequest` and `GetOnlineTableRequest` and `DeleteOnlineTableRequest` repeat `OnlineTable` — category 7 (Overly verbose) — *pass, SDK-wide pattern*
+### 26. `CreateOnlineTableRequest` and `GetOnlineTableRequest` and `DeleteOnlineTableRequest` repeat `OnlineTable` — category 7 (Overly verbose) — *pass, SDK-wide pattern*
 
 **Symbols:** `CreateOnlineTableRequest`, `DeleteOnlineTableRequest`,
 `GetOnlineTableRequest` (model.ts:87, 93, 117).
@@ -750,14 +692,14 @@ package qualifies. **Pass on package consistency.**
 
 ---
 
-### 29. `Client` class name — category 1 (Vague/generic) — *pass*
+### 27. `Client` class name — category 1 (Vague/generic) — *pass*
 
 Package convention. Every TS package exports a single `Client` class scoped
 to its import path (e.g. `@databricks/sdk-onlinetables/v1.Client`). **Pass.**
 
 ---
 
-### 30. `Client.createOnlineTable` etc. — *pass*
+### 28. `Client.createOnlineTable` etc. — *pass*
 
 **Symbols:** `Client.createOnlineTable` (client.ts:67),
 `Client.deleteOnlineTable` (client.ts:108), `Client.getOnlineTable`
@@ -773,7 +715,7 @@ SDK-wide convention. **Pass.**
 
 ---
 
-### 31. `Client.createOnlineTableWaiter` returns a `CreateOnlineTableWaiter` — category 14 (Go/Java-style names)
+### 29. `Client.createOnlineTableWaiter` returns a `CreateOnlineTableWaiter` — category 14 (Go/Java-style names)
 
 **Symbol:** `Client.createOnlineTableWaiter` (client.ts:92), returns
 `CreateOnlineTableWaiter` (client.ts:152).
@@ -797,7 +739,7 @@ waiter naming policy.**
 
 ---
 
-### 32. `CreateOnlineTableWaiter.wait` and `CreateOnlineTableWaiter.done` — *pass*
+### 30. `CreateOnlineTableWaiter.wait` and `CreateOnlineTableWaiter.done` — *pass*
 
 **Symbols:** `CreateOnlineTableWaiter.wait` (client.ts:163),
 `CreateOnlineTableWaiter.done` (client.ts:207).
@@ -806,7 +748,7 @@ Standard. **Pass.**
 
 ---
 
-### 33. `StillRunningError` class is internal but module-scoped — category 4 (Underscores in TS identifiers) — *pass*
+### 31. `StillRunningError` class is internal but module-scoped — *pass*
 
 **Symbol:** `class StillRunningError extends Error {}` (client.ts:39).
 
@@ -815,7 +757,7 @@ retry"). **Pass.**
 
 ---
 
-### 34. `host` / `httpClient` / `logger` / `userAgent` private fields — *pass*
+### 32. `host` / `httpClient` / `logger` / `userAgent` private fields — *pass*
 
 **Symbols:** Private fields on `Client` (client.ts:42–48). Acronym handling
 matches the project rule (`HttpClient`, `Url` would be flagged, but
@@ -823,7 +765,7 @@ matches the project rule (`HttpClient`, `Url` would be flagged, but
 
 ---
 
-### 35. `PACKAGE_SEGMENT` constant SCREAMING_SNAKE — category 4 (Underscores in TS identifiers)
+### 33. `PACKAGE_SEGMENT` constant SCREAMING_SNAKE — category 4
 
 **Symbol:** `PACKAGE_SEGMENT` (client.ts:34).
 
@@ -839,7 +781,7 @@ SDK-wide cleanup**, do not fix in isolation.
 
 ---
 
-### 36. Comment on `PACKAGE_SEGMENT` is a sentence-fragment in lowercase — category 14 (Go/Java-style names) — *pass*
+### 34. Comment on `PACKAGE_SEGMENT` is a sentence-fragment in lowercase — category 14 (Go/Java-style names) — *pass*
 
 The JSDoc comment at client.ts:33 ("Package identity segment for this client
 to be used in the User-Agent header.") is fine — proper sentence, ends with
@@ -847,7 +789,7 @@ a period (matches `.agent/rules` / user CLAUDE.md style).
 
 ---
 
-### 37. `HttpCallOptions` interface — category 1 (Vague/generic) and category 20 (Type-suffix tautology)
+### 35. `HttpCallOptions` interface — category 1 (Vague/generic) and category 20 (Type-suffix tautology)
 
 **Symbol:** `HttpCallOptions` interface (utils.ts:15).
 
@@ -861,7 +803,7 @@ any fix must apply everywhere).
 
 ---
 
-### 38. `executeCall` vs `executeHttpCall` verb collision — category 17 (Inconsistent action verbs)
+### 36. `executeCall` vs `executeHttpCall` verb collision — category 17 (Inconsistent action verbs)
 
 **Symbols:** `executeCall` (utils.ts:26) and `executeHttpCall` (utils.ts:65).
 
@@ -887,23 +829,21 @@ store) under two type families. Cross-package collisions in this audit:
 | ---------------------------------- | --------------------------------------------- |
 | `OnlineTable`                      | `SyncedDatabaseTable` / `SyncedTable`         |
 | `OnlineTableSpec`                  | `SyncedTableSpec`                             |
-| `OnlineTableState`                 | `SyncedTableState` (12 values, has a typo)    |
+| `OnlineTableState`                 | `SyncedTableState` (12 values, wire-typo)     |
 | `OnlineTableStatus`                | `SyncedTableStatus`                           |
 | `ContinuousUpdateStatus`           | `SyncedTableContinuousUpdateStatus`           |
 | `TriggeredUpdateStatus`            | `SyncedTableTriggeredUpdateStatus`            |
 | `FailedStatus`                     | `SyncedTableFailedStatus`                     |
 | `ProvisioningStatus`               | `SyncedTableProvisioningStatus`               |
 | `PipelineProgress`                 | `SyncedTablePipelineProgress`                 |
-| `ProvisioningInfo_State`           | `ProvisioningInfo_State` (also in 4 pkgs)     |
 | `ProvisioningInfo` (empty)         | `ProvisioningInfo` (empty)                    |
 
 This is the highest-cost duplication observed in the audit. **Strong P0
 recommendation:** consolidate. Options:
 
 1. **Pick one canonical package** (`onlinetables` is the shorter, cleaner
-   surface — no `SyncedTable` prefix, no spelling typos, no SCREAMING_SNAKE
-   on most values). Have `database` re-export from `onlinetables` with
-   deprecation notes.
+   surface — no `SyncedTable` prefix, no wire-string typos). Have
+   `database` re-export from `onlinetables` with deprecation notes.
 2. **Hoist all `Online/Synced{Table…}` types** into
    `@databricks/sdk-core/synctables` (or similar) and re-export from both
    service packages.
@@ -916,21 +856,16 @@ recommendation:** consolidate. Options:
 
 `onlinetables.DeleteOnlineTableRequest.name` vs.
 `featurestore.DeleteOnlineTableRequest.onlineTableName`. Already covered in
-finding 11. Harmonise on `name`.
+finding 9. Harmonise on `name`.
 
 ---
 
-### C. Enum-naming convention divergence: `OnlineTableState` (flat) vs `ProvisioningInfo_State` (underscored)
+### C. `SYNCED_TABLED_OFFLINE` wire-level typo
 
-Both enums in **the same file** use different naming conventions:
-
-```ts
-export enum OnlineTableState { ... }              // model.ts:7 — flat
-export enum ProvisioningInfo_State { ... }        // model.ts:57 — underscored
-```
-
-Same generator, same file. The right SDK-wide policy is to always emit flat
-names (strip the proto namespace). **Flag for generator.**
+`database.SyncedTableState` includes the value `SYNCED_TABLED_OFFLINE`
+(extra `D`). This is on the wire and locks consumers into the misspelling.
+Coordinate a protocol-level fix with the API team; the SDK alone cannot
+correct it without breaking compatibility. **Flag for protocol team.**
 
 ---
 
@@ -938,31 +873,31 @@ names (strip the proto namespace). **Flag for generator.**
 
 | Severity | Count | Findings |
 | -------- | ----- | -------- |
-| **High** (style guide violations, cross-package collisions) | 7 | #1, #2, #5, #11, #17, #25, #35, **and** cross-package A |
-| **Medium** (naming clarity, verbose, redundant suffixes, JSDoc drift) | 13 | #3, #4, #6, #7, #8, #12, #13, #14, #15, #16, #19, #20, #21, #23, #27 |
-| **Low / SDK-wide note** (generator boilerplate, not local fix) | 9 | #9, #10, #18, #24, #26, #28, #31, #37, #38 |
-| **Pass / acceptable** | 9 | #18, #22, #24, #26, #28, #29, #30, #32, #33, #34, #36 |
+| **High** (style guide violations, cross-package collisions) | 5 | #3, #9, #15, #23, #33, **and** cross-package A |
+| **Medium** (naming clarity, verbose, redundant suffixes, JSDoc drift) | 13 | #1, #2, #4, #5, #6, #10, #11, #12, #13, #14, #17, #18, #19, #21, #25 |
+| **Low / SDK-wide note** (generator boilerplate, not local fix) | 9 | #7, #8, #16, #22, #24, #26, #29, #35, #36 |
+| **Pass / acceptable** | 9 | #16, #20, #22, #24, #26, #27, #28, #30, #31, #32, #34 |
 
 ---
 
 ## Top fixes (highest local return)
 
-1. **#11** — harmonise `DeleteOnlineTableRequest.name` vs.
+1. **#9** — harmonise `DeleteOnlineTableRequest.name` vs.
    `featurestore.DeleteOnlineTableRequest.onlineTableName` field name. Quick
    cross-package fix.
-2. **#14** — rename `OnlineTable.tableServingUrl` → `servingUrl`. Local,
+2. **#12** — rename `OnlineTable.tableServingUrl` → `servingUrl`. Local,
    no other consumers.
-3. **#15** — rename `OnlineTable.unityCatalogProvisioningState` →
+3. **#13** — rename `OnlineTable.unityCatalogProvisioningState` →
    `provisioningState`. Local.
-4. **#12** — rename `CreateOnlineTableRequest.table` → `onlineTable`. Local
+4. **#10** — rename `CreateOnlineTableRequest.table` → `onlineTable`. Local
    port-time fix.
-5. **#17** — rename `OnlineTableStatus.detailedState` → `state` and
+5. **#15** — rename `OnlineTableStatus.detailedState` → `state` and
    `detailedStatus` → `statusDetails` / `details`. Local readability win.
-6. **#20** — rename `PipelineProgress.latestVersionCurrentlyProcessing` →
+6. **#18** — rename `PipelineProgress.latestVersionCurrentlyProcessing` →
    `lastProcessedVersion`. Matches sibling `lastProcessedCommitVersion`.
-7. **#21** — rename `PipelineProgress.syncProgressCompletion` →
+7. **#19** — rename `PipelineProgress.syncProgressCompletion` →
    `completionRatio`. Local.
-8. **#25** — rename `OnlineTableSpec.performFullCopy` → `enableFullCopy`
+8. **#23** — rename `OnlineTableSpec.performFullCopy` → `enableFullCopy`
    (matches SDK `enable*` boolean pattern).
 
 ---
@@ -971,12 +906,10 @@ names (strip the proto namespace). **Flag for generator.**
 
 1. **Cross-package A** — consolidate `OnlineTable` vs `SyncedTable` type
    families into one canonical surface.
-2. **#1** — strip proto-namespace underscores from generated enum types
-   (`ProvisioningInfo_State` → `ProvisioningState`).
-3. **#5** — `UpperCamelCase` enum members (string value preserved as wire
+2. **Cross-package C** — fix the `SYNCED_TABLED_OFFLINE` wire-string typo
+   at the protocol layer.
+3. **#3** — `UpperCamelCase` enum members (string value preserved as wire
    form).
-4. **#35** — `PACKAGE_SEGMENT` → `packageSegment`.
-5. **#31** — settle waiter naming convention (`*Waiter` vs `*Poller` vs
+4. **#33** — `PACKAGE_SEGMENT` → `packageSegment`.
+5. **#29** — settle waiter naming convention (`*Waiter` vs `*Poller` vs
    inline `*AndWait`).
-
----

@@ -10,11 +10,11 @@ Notation: file paths are absolute. Findings reference `file:line`.
 
 | Severity    | Count |
 | ----------- | ----- |
-| High        | 4     |
+| High        | 2     |
 | Medium      | 7     |
 | Low         | 6     |
-| Observation | 8     |
-| **Total**   | **25** |
+| Observation | 7     |
+| **Total**   | **22** |
 
 Headline themes:
 
@@ -37,9 +37,6 @@ Headline themes:
    single zero-valued member** and shouts `AWS_SSE_S3` / `AWS_SSE_KMS` in
    SCREAMING_SNAKE on the two real values — the SDK-wide proto-mirror
    convention but jarring for TS readers.
-5. **`DeleteVolume_Response`** uses an underscore separator that breaks
-   TypeScript naming convention, mirroring the proto-style nested message
-   name.
 
 ---
 
@@ -90,38 +87,6 @@ Headline themes:
   message for request + response, the audit recommends a TS-specific
   request type — name suggestions: `CreateVolumeRequest`,
   `UpdateVolumeRequest`.)
-
-### H3. `DeleteVolume_Response` — underscore in TS identifier
-
-- **File / line:** `src/v1/model.ts:59–60`; cross-ref
-  `src/v1/client.ts:122, 124` (return type), `src/v1/index.ts:10`.
-- **Category:** #4 underscores in TS identifiers; #14 Go/Java-style name.
-- **Current:** `export interface DeleteVolume_Response {}` returned by
-  `deleteVolume(...)`.
-- **Suggestion:** Rename to `DeleteVolumeResponse` (no underscore). Today
-  the lint rule has to be silenced inline (`// eslint-disable-next-line
-  @typescript-eslint/naming-convention`) which is itself a smell that the
-  name is wrong.
-- **Rationale:** `Foo_Bar` is the proto-buf-generator idiom for nested
-  messages. TypeScript naming convention is PascalCase with no
-  underscores (Google TypeScript Style Guide §5.3.1). The same pattern is
-  used across the workspace (e.g. `catalogs.DeleteCatalog_Response`,
-  `connections.DeleteConnection_Response`) so this is a repo-wide call.
-
-### H4. `ListVolumes_Response` — underscore in TS identifier
-
-- **File / line:** `src/v1/model.ts:103–111`; cross-ref
-  `src/v1/client.ts:199`, `src/v1/index.ts:14`.
-- **Category:** #4 underscores in TS identifiers; #14 Go/Java-style name.
-- **Current:** `export interface ListVolumes_Response { volumes?:
-  VolumeInfo[]; nextPageToken?: string }`.
-- **Suggestion:** `ListVolumesResponse` (no underscore). The inline
-  `eslint-disable-next-line @typescript-eslint/naming-convention`
-  acknowledges the violation.
-- **Rationale:** Same as H3. Note also that the `ListVolumes` request
-  type and `ListVolumes_Response` response type share a stem — naming
-  them `ListVolumesRequest` / `ListVolumesResponse` would also resolve
-  the request-type-as-verb-phrase issue (M1 below).
 
 ---
 
@@ -342,18 +307,7 @@ types. Changing this package alone would create asymmetry. See
 `grep -rE "^export interface (Get|Set|Create|Update|Delete|List)" packages/`
 for the workspace inventory. (M1 above flags it locally.)
 
-### O2. Proto-style nested message names with underscores are repo-wide
-
-`DeleteVolume_Response` and `ListVolumes_Response` follow the same pattern
-as `ArtifactMatcher_MatchType`, `BudgetConfigurationFilter_Operator`,
-`CleanRoomAutoApprovalRule_AuthorScope`, `ConversionInfo_State`,
-`DatabaseInstance_State`, `EndpointStatus_State`, and 20+ other types
-across the workspace. This violates TypeScript naming convention but is
-the agreed mirror of the Go SDK's `Parent_Field` proto idiom. The file
-disables the lint rules explicitly at `model.ts:59, 103, 204, 224`. Flag
-for awareness only.
-
-### O3. `*_UNSPECIFIED` zero values repeated across enums
+### O2. `*_UNSPECIFIED` zero values repeated across enums
 
 `SseEncryptionAlgorithm.SSE_ENCRYPTION_ALGORITHM_UNSPECIFIED`
 (`model.ts:6`) repeats the enum domain (`SSE_ENCRYPTION_ALGORITHM_`) in
@@ -362,14 +316,14 @@ sibling packages. The duplication makes `SseEncryptionAlgorithm.SSE_ENCRYPTION_A
 60 characters long for what should read as `UNSPECIFIED`. Not a local
 defect; would need a workspace-wide convention change.
 
-### O4. `…Info` suffix repeated across UC types
+### O3. `…Info` suffix repeated across UC types
 
 `VolumeInfo` follows the `CatalogInfo`, `ConnectionInfo`,
 `FunctionInfo`, `ExternalLocationInfo`, `SchemaInfo` pattern. If the
 codebase decides to drop the `Info` suffix, this is one of many to fix
 (M2 above flags it locally).
 
-### O5. `_Arg` suffix on path parameter fields is a generator-wide artifact
+### O4. `_Arg` suffix on path parameter fields is a generator-wide artifact
 
 `fullNameArg` (H1) is not unique to volumes — the workspace contains
 fields like `nameArg`, `idArg`, `fullNameArg` across packages that take a
@@ -377,7 +331,7 @@ URL path parameter. Search:
 `grep -rE "fullNameArg|nameArg|idArg" packages/*/src/`. Documented here
 because the fix has cross-package implications.
 
-### O6. `VolumeType` enum members are clean
+### O5. `VolumeType` enum members are clean
 
 `VolumeType.MANAGED` and `VolumeType.EXTERNAL` (`model.ts:11–14`) avoid
 the SCREAMING_SNAKE_CASE long-form variant (no `VOLUME_TYPE_*` prefix).
@@ -385,14 +339,14 @@ This enum is the cleanest in the file and shows that the proto-mirror
 pattern is not mandatory — `SseEncryptionAlgorithm` could have been
 written this way too.
 
-### O7. URL path string repeated across methods without a named constant
+### O6. URL path string repeated across methods without a named constant
 
 The base path `/api/2.1/unity-catalog/volumes` (and the suffixed
 variant with `${req.fullNameArg ?? ''}`) appears five times in
 `client.ts:93, 125, 154, 200, 268`. Not a naming defect, but typical
 naming-audit findings include "unnamed magic strings." Worth a note.
 
-### O8. `PACKAGE_SEGMENT.key` / `.value` carry no descriptive name
+### O7. `PACKAGE_SEGMENT.key` / `.value` carry no descriptive name
 
 `client.ts:39–42`: `{key: pkgJson.name.replace(/^@[^/]+\//, ''), value:
 pkgJson.version}`. The variable name `PACKAGE_SEGMENT` reads fine but
@@ -433,24 +387,22 @@ identical across every generated client in the workspace.
 
 Type & symbol checklist:
 
-- [x] `SseEncryptionAlgorithm` enum (3 members) → O3.
-- [x] `VolumeType` enum (2 members) → O6 (clean).
+- [x] `SseEncryptionAlgorithm` enum (3 members) → O2.
+- [x] `VolumeType` enum (2 members) → O5 (clean).
 - [x] `CreateVolume` interface (17 fields) → H2, M1, M5, M6.
 - [x] `DeleteVolume` interface (1 field) → H1, M1, L5.
-- [x] `DeleteVolume_Response` empty interface → H3.
 - [x] `EncryptionDetails` interface → no additional defect.
 - [x] `GetVolume` interface (2 fields) → H1, M1, L5.
 - [x] `ListVolumes` interface (5 fields) → M1.
-- [x] `ListVolumes_Response` interface (2 fields) → H4.
 - [x] `SseEncryptionDetails` interface (2 fields) → M3, M4, M5.
 - [x] `UpdateVolume` interface (18 fields) → H1, H2, M1, M5, M6, L5.
-- [x] `VolumeInfo` interface (16 fields) → M2, M5, M6, L5, O4.
+- [x] `VolumeInfo` interface (16 fields) → M2, M5, M6, L5, O3.
 - [x] `Client` class + `host` / `httpClient` / `logger` / `userAgent` fields → no defect.
-- [x] `PACKAGE_SEGMENT` constant → O8.
+- [x] `PACKAGE_SEGMENT` constant → O7.
 - [x] `createVolume(req, options)` method → H2, M1, M7, L2.
-- [x] `deleteVolume(req, options)` method → H1, H3, M1, M7, L2.
+- [x] `deleteVolume(req, options)` method → H1, M1, M7, L2.
 - [x] `getVolume(req, options)` method → H1, M1, M7, L2.
-- [x] `listVolumes(req, options)` method → H4, M1, M7, L2.
+- [x] `listVolumes(req, options)` method → M1, M7, L2.
 - [x] `listVolumesIter(req, options)` async generator → M1, M7, L6.
 - [x] `updateVolume(req, options)` method → H1, H2, M1, M7, L2.
 - [x] `HttpCallOptions` interface → no defect.

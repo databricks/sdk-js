@@ -11,7 +11,7 @@ update / delete) at `/api/2.1/unity-catalog/external-locations`. The interesting
 sub-structure is `FileEventQueue` — an oneof-of-oneofs across four cloud
 providers (Azure AQS, AWS SQS, GCP Pub/Sub, OneLake Fabric Eventstream) with a
 parallel "provided" vs "managed" axis (8 cases total).
-**Total weird names flagged:** 57
+**Total weird names flagged:** 15
 
 ---
 
@@ -32,10 +32,8 @@ parallel "provided" vs "managed" axis (8 cases total).
 | 11  | `AzureQueueStorage`                                                           | model.ts:28       | type               | Medium   | 6 Misleading names                                  | The Azure product is "Azure Queue Storage", which the wire/`provided_aqs`/`managed_aqs` shortens to AQS. So `AzureQueueStorage` is the long name, but two of its callers (`providedAqs`/`managedAqs` fields and case literals) use the AQS abbreviation. Pick one canonical form. |
 | 12  | `OneLakeEventQueue` vs `OneLake` (no Azure/Fabric prefix)                     | model.ts:240      | type               | Low      | 3 Acronym casing, 1 Vague/generic                   | OneLake is a Microsoft Fabric product. Other Azure-side types in the file lead with `Azure`. `OneLake` requires Fabric product knowledge to recognize.                                                                                                                       |
 | 13  | `Pubsub` casing inside `GcpPubsub`                                            | model.ts:186      | type               | Low      | 3 Acronym casing                                    | GCP's product brand is "Pub/Sub". The TS type uses `Pubsub`. Consistent with field names but not with marketing. Same applies to `providedPubsub`/`managedPubsub`.                                                                                                          |
-| 14  | `DeleteExternalLocation_Response` underscore                                  | model.ts:109      | interface          | High     | 4 Underscores in TS identifiers                     | Proto-style nested-message encoded as `Parent_Child` with a literal underscore. Requires `// eslint-disable-next-line @typescript-eslint/naming-convention` (file already has the disable on line 108).                                                                     |
-| 15  | `ListExternalLocations_Response` underscore                                   | model.ts:224      | interface          | High     | 4 Underscores in TS identifiers                     | Same as #14. Disable on line 223. Underscore identifiers also propagate to related helpers downstream.                                                                                                                                                                       |
-| 16  | `nameArg` field                                                                | model.ts:103, 198, 263 | field             | High     | 5 Cryptic abbreviations, 14 Go/Java-style names    | Three request types (`DeleteExternalLocation`, `GetExternalLocation`, `UpdateExternalLocation`) carry a field named `nameArg`. The `Arg` suffix is a generator artifact (it exists because some envelopes also carry a body-level `name`). TS callers reading `req.nameArg = 'my-loc'` get no hint of why it isn't `name`. |
-| 17  | `providedOnelake` / `managedOnelake` (case key spelling)                       | model.ts:176, 182 | field              | Medium   | 3 Acronym casing                                    | OneLake is officially "OneLake" (camelCase capitalized "L"). The case key spells it `Onelake` (one capital). The interface name uses `OneLake` (two capitals). Inconsistent within the same file.                                                                            |
+| 14  | `nameArg` field                                                                | model.ts:103, 198, 263 | field             | High     | 5 Cryptic abbreviations, 14 Go/Java-style names    | Three request types (`DeleteExternalLocation`, `GetExternalLocation`, `UpdateExternalLocation`) carry a field named `nameArg`. The `Arg` suffix is a generator artifact (it exists because some envelopes also carry a body-level `name`). TS callers reading `req.nameArg = 'my-loc'` get no hint of why it isn't `name`. |
+| 15  | `providedOnelake` / `managedOnelake` (case key spelling)                       | model.ts:176, 182 | field              | Medium   | 3 Acronym casing                                    | OneLake is officially "OneLake" (camelCase capitalized "L"). The case key spells it `Onelake` (one capital). The interface name uses `OneLake` (two capitals). Inconsistent within the same file.                                                                            |
 
 ---
 
@@ -103,26 +101,6 @@ await client.deleteExternalLocation({name: 'my-loc', force: true});
 ```
 
 This finding mirrors `credentials.md` H4 and applies generator-wide.
-
-### H3. Two `_Response` types use underscore identifiers
-
-```ts
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteExternalLocation_Response {}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListExternalLocations_Response { ... }
-```
-
-Both names use `Parent_Child` underscore encoding (proto-style nested message
-names). Each requires a `// eslint-disable-next-line` because the project's
-linter forbids underscores. The presence of those disables is the loudest
-possible signal that the names violate the codebase's own conventions.
-
-Idiomatic alternatives:
-
-- TS namespaces: `namespace DeleteExternalLocation { interface Response {} }`
-- Top-level domain names: `ExternalLocationsPage` for the list response.
 
 ---
 
@@ -230,10 +208,9 @@ The following acronyms appear:
 
 ## Summary
 
-17 findings:
+15 findings:
 
-- **3 High severity** — enum stutter, `nameArg` artifact, underscore TS
-  identifiers.
+- **2 High severity** — enum stutter, `nameArg` artifact.
 - **5 Medium severity** — `AQS` JSDoc copy-paste error in AWS type,
   naming-pattern inconsistency across the four queue types, OneLake casing
   inconsistency, AQS abbreviation, Pubsub casing.
@@ -241,10 +218,9 @@ The following acronyms appear:
 
 Primary themes:
 
-1. **Generator-encoded proto patterns dominate**: underscore-named nested
-   message types, SCREAMING_SNAKE enum members, and the `nameArg` path-vs-body
-   disambiguation are all proto/Go-SDK artifacts that idiomatic TS would
-   express differently.
+1. **Generator-encoded proto patterns**: SCREAMING_SNAKE enum members and the
+   `nameArg` path-vs-body disambiguation are proto/Go-SDK artifacts that
+   idiomatic TS would express differently.
 2. **Cloud-provider naming is internally inconsistent**: four queue-config
    types with four different naming conventions, OneLake spelled three ways,
    AQS abbreviation that isn't Microsoft canonical, copy-paste error mixing

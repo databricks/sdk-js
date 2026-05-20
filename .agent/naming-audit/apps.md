@@ -9,25 +9,22 @@ with deployments, custom templates, app spaces, and resource bindings.
 
 | Severity | Count |
 | -------- | ----- |
-| High     |    14 |
+| High     |    11 |
 | Medium   |    26 |
-| Low      |    21 |
-| Observation | 11 |
-| **Total** | **72** |
+| Low      |    20 |
+| Observation | 10 |
+| **Total** | **67** |
 
-The audit found two dominant themes. First, the package leaks proto/Go
-conventions deep into the public surface: every nested message keeps its
-Proto-style `Outer_Inner` name (`AppManifest_AppResourceSecretSpec_SecretPermission`,
-`AppUpdate_UpdateStatus_UpdateState`), enums repeat the parent type in each
-value (`SPACE_UPDATE_STATE_UNSPECIFIED`, `APPLICATION_STATE_UNSPECIFIED`), and
-the package re-exports an `ErrorCode` enum with >70 cross-product codes whose
-relevance to Apps is unclear. Second, the domain has two overlapping
-"application" vocabularies — `App` vs `Application` (`ApplicationStatus`,
-`ApplicationStatus_ApplicationState`) — and three overlapping "space"
-vocabularies (`Space`, `AppResourceGenieSpace`, `space` as a string field on
-`App`/`ListAppsRequest`). These collisions produce both type-suffix tautology
-(`AppResourceApp.AppPermission.CAN_USE`) and outright ambiguity (`Space`
-versus Genie Space).
+The audit found one dominant theme: the domain has overlapping vocabularies for
+the same concept. `App` vs `Application` (`ApplicationStatus`,
+`ApplicationStatus_ApplicationState`) collide on the same entity, and three
+overlapping "space" vocabularies (`Space`, `AppResourceGenieSpace`, `space` as
+a string field on `App`/`ListAppsRequest`) produce outright ambiguity (`Space`
+versus Genie Space). Field-level confusion compounds the issue: `App.name` is
+the primary key while `App.id` is a separate unique identifier, and a bare
+`space` field sits next to `spaceId` on the same type. The package also
+re-exports an `ErrorCode` enum with 76 cross-product values whose relevance to
+Apps is unclear.
 
 ---
 
@@ -49,46 +46,7 @@ versus Genie Space).
 - **Rationale:** A consumer reading `app.appStatus: ApplicationStatus` has to
   prove to themselves that "application" and "app" refer to the same thing.
 
-### H2. `AppResourceApp` and `AppResourceApp_AppPermission.CAN_USE` — App-on-App tautology
-- **File:** `model.ts:606, 962`
-- **Category:** Type-suffix tautology (20), Redundant suffixes (8)
-- **Issue:** A binding from one app to another app is `AppResourceApp` with
-  enum `AppResourceApp_AppPermission`. The `App` token appears three times.
-- **Suggestion:** The outer wrapper is fine as-is (since other variants are
-  `AppResourceJob`, `AppResourceSecret`), but the inner enum should drop the
-  redundant `App` prefix: `AppResourceApp.Permission` with a single value
-  `CAN_USE`. Same treatment for every `AppResource<Foo>_<Foo>Permission`
-  pairing (Database, Experiment, GenieSpace, Job, Postgres, Secret,
-  ServingEndpoint, SqlWarehouse, UcSecurable).
-- **Rationale:** The enum is reached as `AppResourceJob_JobPermission.CAN_VIEW`
-  — the `Job` is already implied by the outer enum's prefix. The repeated
-  token adds zero information.
-
-### H3. Proto-style nested names leaked into public TS API
-- **File:** `model.ts:524, 540, 545, 552, 560, 566, 573, 580, 587, 598, 606,
-  611, 616, 623, 631, 639, 645, 652, 659, 666, 676, 684, 693, 702, 714, 851,
-  859, 866, 872, 881, 887, 896, 926, 934, 1037, 1049`
-- **Category:** Underscores in TS identifiers (4), Go/Java-style names (14)
-- **Issue:** Every nested proto type is exported with its `Outer_Inner` proto
-  name (e.g. `AppManifest_AppResourceUcSecurableSpec_UcSecurablePermission`,
-  `SpaceStatus_SpaceState`, `AppUpdate_UpdateStatus`, `AppDeployment_State`,
-  etc.). Each requires an eslint-disable for `naming-convention`. The names
-  combine three style violations: underscores in identifiers, length, and
-  proto-isms unfamiliar to TS consumers. The longest is 67 characters:
-  `AppManifest_AppResourceServingEndpointSpec_ServingEndpointPermission`.
-- **Suggestion:** Either (a) flatten to a single top-level name
-  (`UcSecurablePermission`, `SpaceState`, `AppUpdateState`,
-  `AppDeploymentState`), or (b) use TS namespace nesting (`namespace
-  AppManifest { export interface ResourceUcSecurableSpec { ... } }`) to keep
-  the hierarchy without underscores. Option (a) matches how nested-message
-  types are typically projected into TS by `ts-proto`'s `useDeclaredAt = false`
-  mode and matches the style used elsewhere in the SDK.
-- **Rationale:** TS naming conventions (PascalCase types, no underscores in
-  identifiers) are violated by every nested type. Each disable comment is a
-  symptom that the convention rules see the smell too. ts-proto and Buf's
-  ES code generators both produce flat names by default for this reason.
-
-### H4. Enum-value prefix repetition (proto-style)
+### H2. Enum-value prefix repetition
 - **File:** `model.ts:516-521, 525-528, 685-690, 694-699, 703-711, 715-722`
 - **Category:** Redundant enum prefixes (2), Long enum values (18)
 - **Issue:** Multiple enums repeat their type name in every value:
@@ -111,7 +69,7 @@ versus Genie Space).
   `@typescript-eslint/naming-convention` rule both prefer un-prefixed enum
   values.
 
-### H5. `ErrorCode` (76 values) shipped from a package whose surface is Apps
+### H3. `ErrorCode` (76 values) shipped from a package whose surface is Apps
 - **File:** `model.ts:15-513`, also `index.ts:17`
 - **Category:** Vague/generic without domain context (1), Duplicate concepts (12)
 - **Issue:** The `ErrorCode` enum has 76 values, the majority of which are
@@ -129,20 +87,7 @@ versus Genie Space).
   is being inlined into a service-specific package. This is the canonical case
   the project's own `apierr/codes` directory was created to avoid.
 
-### H6. `DatabricksServiceExceptionWithDetailsProto` — Java-/Proto-style verbose name
-- **File:** `model.ts:1125`, also `index.ts:84`
-- **Category:** Go/Java-style names (14), Overly verbose (7), Type-suffix tautology (20)
-- **Issue:** Name is 41 chars and carries three artifacts of the underlying
-  wire format: `Service`, `Exception`, `WithDetailsProto`. In a TS API,
-  consumers don't think of failures as "Java service exceptions"; they think of
-  them as errors.
-- **Suggestion:** Rename to `ApiError` or `OperationError` (the only use site
-  is `Operation.result.error`). If a wire-faithful name is needed in
-  marshal-only contexts, restrict its export.
-- **Rationale:** The current name reads like a leaked Java class name; the
-  trailing `Proto` is a wire-format hint that has no meaning post-decoding.
-
-### H7. `Operation` — generic name with no domain prefix
+### H4. `Operation` — generic name with no domain prefix
 - **File:** `model.ts:1318`, also `index.ts:106`, `client.ts:309, 408, 536, 951`
 - **Category:** Vague/generic without domain context (1)
 - **Issue:** `Operation` is exported as a top-level type. There is no Apps
@@ -160,7 +105,7 @@ versus Genie Space).
   and they will collide on import. Either a shared canonical type or a
   domain-specific rename is required.
 
-### H8. `space` string field on `App` vs `spaceId` — which is the identifier?
+### H5. `space` string field on `App` vs `spaceId` — which is the identifier?
 - **File:** `model.ts:786-790`, `client.ts:624-626`
 - **Category:** Underspecified IDs (19), Misleading names (6), Generic field names (15)
 - **Issue:** `App` has two fields:
@@ -176,7 +121,7 @@ versus Genie Space).
 - **Rationale:** A field literally named after a type (`space: string` next to
   `interface Space`) violates the "field contradicting type domain" rule.
 
-### H9. `name` is the App's primary key, not `id` — ambiguous identifier
+### H6. `name` is the App's primary key, not `id` — ambiguous identifier
 - **File:** `model.ts:725-729, 768-769, 1132-1135, 1176-1180`
 - **Category:** Underspecified IDs (19), Misleading names (6)
 - **Issue:** `App.name` is the URL-path identifier used by all client methods
@@ -195,25 +140,26 @@ versus Genie Space).
   renamed via the marshal/unmarshal mapping. Mixing `name` and `appName` for
   the same role across request types makes the API harder to discover.
 
-### H10. `AppDeployment_State` vs `AppUpdate_UpdateStatus_UpdateState` vs `SpaceUpdateState` — three different conventions for "state of an async op"
+### H7. Inconsistent value sets across sibling "state of an async op" enums
 - **File:** `model.ts:524, 684, 515`
 - **Category:** Verb-tense inconsistency (13), Duplicate concepts (12)
-- **Issue:** Three sibling state enums in the same file follow three different
-  naming conventions:
-  - `AppDeployment_State` — type nested under parent.
-  - `AppUpdate_UpdateStatus_UpdateState` — type doubly-nested.
-  - `SpaceUpdateState` — flat.
-  Their values are also inconsistent (`SUCCEEDED/FAILED/IN_PROGRESS/CANCELLED`
-  vs `SUCCEEDED/FAILED/IN_PROGRESS` vs `NOT_UPDATED/IN_PROGRESS/SUCCEEDED/FAILED`).
-- **Suggestion:** Pick one shape for state enums and apply to all three.
-  Suggested target: `AppDeploymentState`, `AppUpdateState`, `SpaceUpdateState`
-  (all flat, no underscores). Consider sharing a `LongRunningState` enum if
-  the value sets actually align.
-- **Rationale:** A consumer trying to discover the "state" enum of an Apps
-  async operation can't predict the spelling pattern from one example to the
-  next.
+- **Issue:** Three sibling state enums in the same file have inconsistent
+  value sets:
+  - `AppDeployment_State` — `SUCCEEDED/FAILED/IN_PROGRESS/CANCELLED`.
+  - `AppUpdate_UpdateStatus_UpdateState` —
+    `SUCCEEDED/FAILED/IN_PROGRESS`.
+  - `SpaceUpdateState` —
+    `NOT_UPDATED/IN_PROGRESS/SUCCEEDED/FAILED`.
+  A consumer can't predict which terminal/non-terminal states are reachable
+  from one async op to the next.
+- **Suggestion:** Align the value sets where the underlying state machines
+  actually agree. Consider sharing a `LongRunningState` enum if the lifecycles
+  truly match across the three operations.
+- **Rationale:** Sibling state enums in the same domain should expose the
+  same value vocabulary unless the underlying state machines genuinely
+  differ — and if they differ, the doc should say why.
 
-### H11. `oauth2AppIntegrationId` / `oauth2AppClientId` — digit-embedded acronym
+### H8. `oauth2AppIntegrationId` / `oauth2AppClientId` — digit-embedded acronym
 - **File:** `model.ts:772-773`
 - **Category:** Acronym casing inconsistencies (3)
 - **Issue:** The fields use `oauth2` (all-lowercase) embedded with PascalCase.
@@ -226,7 +172,7 @@ versus Genie Space).
 - **Rationale:** Inconsistent with how the SDK treats other acronyms (e.g.
   `Url` in `thumbnailUrl`, `Id` in many fields).
 
-### H12. `defaultGitSource` / `defaultSourceCodePath` / `gitRepository` — three coexisting "source" concepts on `App`
+### H9. `defaultGitSource` / `defaultSourceCodePath` / `gitRepository` — three coexisting "source" concepts on `App`
 - **File:** `model.ts:760-763, 776-781, 786-794`
 - **Category:** Duplicate concepts (12), Misleading names (6)
 - **Issue:** `App` has all of:
@@ -245,7 +191,7 @@ versus Genie Space).
   registered repo. The Go doc comment on the field clarifies it tracks the
   last active deployment, but the name does not.
 
-### H13. `noCompute` boolean on `CreateAppRequest`
+### H10. `noCompute` boolean on `CreateAppRequest`
 - **File:** `model.ts:1091-1095`
 - **Category:** Misleading names (6)
 - **Issue:** `noCompute?: boolean` with doc "If true, the app will not be
@@ -261,7 +207,7 @@ versus Genie Space).
   also describes a behaviour ("start") rather than its surface effect ("no
   compute").
 
-### H14. Singular `permission` field holding a single value but documented as plural permissions
+### H11. Singular `permission` field holding a single value but documented as plural permissions
 - **File:** `model.ts:866-869, 984-989`
 - **Category:** Singular/plural mismatches (9)
 - **Issue:** `AppManifest_AppResourceJobSpec.permission?: ...JobPermission`
@@ -417,18 +363,17 @@ versus Genie Space).
   semantic change; flag for discussion. Alternative: keep both and document
   which wins on conflict.
 
-### M15. `AppManifest_AppResourceUcSecurableSpec_UcSecurableType` and
-       `AppResourceUcSecurable_UcSecurableType` — duplicated enum
+### M15. `UcSecurableType` duplicated across manifest spec and runtime resource
 - **File:** `model.ts:598-603, 676-681`
 - **Category:** Duplicate concepts (12)
 - **Issue:** Two identical enums (`VOLUME`, `TABLE`, `FUNCTION`, `CONNECTION`)
   — one for the manifest spec, one for the runtime resource. Same value set,
-  different name.
+  different declaration.
 - **Suggestion:** Consolidate to a single `UcSecurableType` enum and reference
-  it from both `AppManifest_AppResourceUcSecurableSpec` and
-  `AppResourceUcSecurable`.
+  it from both the manifest UC securable spec and the runtime UC securable
+  resource.
 
-### M16. `AppResourceUcSecurable_UcSecurablePermission` is a strict subset of `AppManifest_AppResourceUcSecurableSpec_UcSecurablePermission`
+### M16. UC securable permission enum on the runtime resource is a strict subset of the manifest-spec enum
 - **File:** `model.ts:587-595, 666-673`
 - **Category:** Duplicate concepts (12)
 - **Issue:** Spec enum has 7 values (`READ_VOLUME`, `WRITE_VOLUME`, `MANAGE`,
@@ -444,11 +389,9 @@ versus Genie Space).
 - **Category:** Type-suffix tautology (20)
 - **Issue:** Within the `AppDeployment` interface, `deploymentId` repeats the
   outer name. Inside `AppDeployment` the unqualified `id` would suffice and
-  matches the pattern in `App.id`, `Space.id`, `AppResourceExperiment.experimentId`
-  (also tautological), and `AppResourceJob.id` (correctly unqualified).
-- **Suggestion:** Rename `AppDeployment.deploymentId` -> `id`. Same for
-  `AppResourceExperiment.experimentId` -> `id`, `AppResourceGenieSpace.spaceId`
-  -> `id`.
+  matches the pattern in `App.id`, `Space.id`, and `AppResourceJob.id`
+  (correctly unqualified).
+- **Suggestion:** Rename `AppDeployment.deploymentId` -> `id`.
 
 ### M18. `AppResourceSqlWarehouse.id` vs `App.id`, `Space.id` — `id` overloaded across types
 - **File:** `model.ts:1015, 769, 1368, 1900`
@@ -546,63 +489,57 @@ versus Genie Space).
 
 ## Low-severity findings
 
-### L1. `AppDeployment_Mode.MODE_UNSPECIFIED` — `MODE_` prefix redundant
-- **File:** `model.ts:525`
-- **Category:** Redundant enum prefixes (2)
-- **Suggestion:** `MODE_UNSPECIFIED` -> `UNSPECIFIED`. Already covered in H4
-  but called out separately for tracking.
-
-### L2. `AppDeployment.mode` doc: "The mode of which the deployment will manage the source code."
+### L1. `AppDeployment.mode` doc: "The mode of which the deployment will manage the source code."
 - **File:** `model.ts:809`
 - **Category:** Grammar / clarity (not in numbered categories but flagged)
 - **Suggestion:** "of which" should be "in which" or "by which". A nit, not a
   rename, but flagged because it appears in the public API docs.
 
-### L3. `App.creator` and `App.updater` — `updater` is a real English word but commonly used for libraries/tools
+### L2. `App.creator` and `App.updater` — `updater` is a real English word but commonly used for libraries/tools
 - **File:** `model.ts:746-748`
 - **Category:** Misleading names (6)
 - **Issue:** Outside of CRUD-stamp contexts, "updater" often denotes a
   software-update agent (e.g. Sparkle). Pair with M1 — both should become
   `*Email` if that's the value type.
 
-### L4. `App.creator` doc says "email"; `App.updater` doc agrees — but `creator` field type is just `string`
+### L3. `App.creator` doc says "email"; `App.updater` doc agrees — but `creator` field type is just `string`
 - **File:** `model.ts:743-748`
 - **Category:** Field contradicting type domain (16)
 - **Suggestion:** No type change available short of a branded type; document
   the format in JSDoc.
 
-### L5. `App.url` doc: "URL of the app once it is deployed"
+### L4. `App.url` doc: "URL of the app once it is deployed"
 - **File:** `model.ts:734-735`
 - **Category:** Misleading names (6)
 - **Suggestion:** Rename `App.url` -> `App.appUrl` or `App.deploymentUrl` for
   clarity, especially because `GitRepository.url` is also called `url` in the
   same file. (Currently both are bare `url`.)
 
-### L6. `GitRepository.url` — same generic `url` as `App.url`
+### L5. `GitRepository.url` — same generic `url` as `App.url`
 - **File:** `model.ts:1205`
 - **Category:** Generic field names (15)
 - **Suggestion:** Rename to `repositoryUrl` (mirror with `GitRepository.provider`
   named more specifically).
 
-### L7. `GitSource.resolvedCommit` — does it carry SHA or ref?
+### L6. `GitSource.resolvedCommit` — does it carry SHA or ref?
 - **File:** `model.ts:1248-1253`
 - **Category:** Vague/generic (1)
 - **Suggestion:** Rename to `resolvedCommitSha` to match the doc, which says
   "the resolved commit SHA".
 
-### L8. `GitSource.sourceCodePath` — verbose
+### L7. `GitSource.sourceCodePath` — verbose
 - **File:** `model.ts:1242-1246`
 - **Category:** Overly verbose (7)
 - **Suggestion:** Inside `GitSource`, simply `path` would be unambiguous (the
   whole interface is about source location).
 
-### L9. `AppManifest_AppResourceSpec` documentation typo: "AppResource related fields are copied from app.proto"
+### L8. `AppManifest_AppResourceSpec` documentation typo: "AppResource related fields are copied from app.proto"
 - **File:** `model.ts:894-895`
 - **Category:** Doc / clarity
 - **Suggestion:** Drop or rephrase the reference to `app.proto`; in TS the
   reference is meaningless.
 
-### L10. `appFieldMask(...paths)` and `spaceFieldMask(...paths)` — global helpers
+### L9. `appFieldMask(...paths)` and `spaceFieldMask(...paths)` — global helpers
 - **File:** `model.ts:3131, 3211`
 - **Category:** Vague/generic (1) — qualified by entity, but
 - **Issue:** Inconsistent that only `App` and `Space` get an exported helper —
@@ -611,21 +548,21 @@ versus Genie Space).
 - **Suggestion:** Either expose helpers for every entity with a field-mask
   schema, or none.
 
-### L11. `App.thumbnailUrl: string` vs `AppThumbnail.thumbnail: Uint8Array` — different mental models
+### L10. `App.thumbnailUrl: string` vs `AppThumbnail.thumbnail: Uint8Array` — different mental models
 - **File:** `model.ts:783-784, 1032-1035`
 - **Category:** Duplicate concepts (12)
 - **Suggestion:** Document that `thumbnailUrl` is the display URL and
   `AppThumbnail.thumbnail` is the byte content (used in
   update/delete-thumbnail requests).
 
-### L12. `AppDeployment.envVars` carries a list of `EnvVar`, each with a `source` union — discriminator `'value'` vs `'valueFrom'`
+### L11. `AppDeployment.envVars` carries a list of `EnvVar`, each with a `source` union — discriminator `'value'` vs `'valueFrom'`
 - **File:** `model.ts:1156-1166`
 - **Category:** Vague/generic (1)
 - **Suggestion:** Discriminator `'value'` and `'valueFrom'` are short; consider
   `'literal'` and `'reference'` to make intent clearer. (Wire field names
   unchanged.)
 
-### L13. `Space` interface — same name as the Genie product `AppResourceGenieSpace`
+### L12. `Space` interface — same name as the Genie product `AppResourceGenieSpace`
 - **File:** `model.ts:1357, 978-982`
 - **Category:** Duplicate concepts (12)
 - **Issue:** `Space` (an Apps Space) and `GenieSpace` (the Genie product) share
@@ -637,25 +574,25 @@ versus Genie Space).
   is the outlier. This realignment also clarifies the wire URLs
   (`/api/2.0/app-spaces/...`).
 
-### L14. `CreateSpaceRequest`, `DeleteSpaceRequest`, `GetSpaceRequest`,
+### L13. `CreateSpaceRequest`, `DeleteSpaceRequest`, `GetSpaceRequest`,
   `ListSpacesRequest`, etc., do not mention "App"
 - **File:** `model.ts:1101, 1147, 1197, 1301`, also `index.ts:82-88, 105`
 - **Category:** Vague/generic (1)
-- **Suggestion:** Tied to L13 — rename these to `CreateAppSpaceRequest`, etc.
+- **Suggestion:** Tied to L12 — rename these to `CreateAppSpaceRequest`, etc.
 
-### L15. `ListSpacesResponse.spaces` plural is fine, but consistent with `ListAppsResponse.apps`?
+### L14. `ListSpacesResponse.spaces` plural is fine, but consistent with `ListAppsResponse.apps`?
 - **File:** `model.ts:1308-1312, 1282-1286`
-- **Category:** Observation — both follow the same pattern. Tied to L13 again
+- **Category:** Observation — both follow the same pattern. Tied to L12 again
   for the entity rename.
 
-### L16. `CreateAppDeploymentRequest.autoDeploy` doc: "Whether to enable automatic deployments on push events to the git repository"
+### L15. `CreateAppDeploymentRequest.autoDeploy` doc: "Whether to enable automatic deployments on push events to the git repository"
 - **File:** `model.ts:1086-1089`
 - **Category:** Misleading names (6)
 - **Issue:** The field name suggests "deploy automatically now". The doc says
   it sets up a webhook. These are very different ideas.
 - **Suggestion:** Rename to `enableAutoDeploy` or `webhookAutoDeploy`.
 
-### L17. `GitRepository.autoDeploy` vs `CreateAppDeploymentRequest.autoDeploy`
+### L16. `GitRepository.autoDeploy` vs `CreateAppDeploymentRequest.autoDeploy`
 - **File:** `model.ts:1086, 1211`
 - **Category:** Duplicate concepts (12)
 - **Issue:** Two `autoDeploy` fields in the same file: one on the deployment
@@ -664,7 +601,7 @@ versus Genie Space).
 - **Suggestion:** Document the relationship in JSDoc; if they're the same
   state, only one should exist.
 
-### L18. `Operation.name` — server-assigned UNIQUE name, not human-readable
+### L17. `Operation.name` — server-assigned UNIQUE name, not human-readable
 - **File:** `model.ts:1319-1324`
 - **Category:** Misleading names (6)
 - **Issue:** `Operation.name` is the operation *identifier* path
@@ -673,7 +610,7 @@ versus Genie Space).
   package.
 - **Suggestion:** Rename to `operationName` or, given the format, just `path`.
 
-### L19. `Client` class — exported as bare `Client`
+### L18. `Client` class — exported as bare `Client`
 - **File:** `client.ts:95`, also `index.ts:4`
 - **Category:** Vague/generic (1)
 - **Issue:** `import {Client} from '@databricks/sdk-apps/v1'`. Reads as "the
@@ -681,7 +618,7 @@ versus Genie Space).
   `@databricks/sdk-jobs`, they need an alias.
 - **Suggestion:** Rename to `AppsClient`. Common SDK convention.
 
-### L20. `host` (private field on `Client`)
+### L19. `host` (private field on `Client`)
 - **File:** `client.ts:96`
 - **Category:** Vague/generic (1)
 - **Issue:** `private readonly host: string`. The doc on the workspace
@@ -689,7 +626,7 @@ versus Genie Space).
 - **Suggestion:** Rename to `workspaceUrl` or `workspaceHost`. Internal-only,
   cosmetic.
 
-### L21. `getSpaceOperation` (method) vs `GetOperationRequest`
+### L20. `getSpaceOperation` (method) vs `GetOperationRequest`
 - **File:** `client.ts:536-558`
 - **Category:** Type-suffix tautology (20)
 - **Issue:** `getSpaceOperation(req: GetOperationRequest)` — the method tells
@@ -739,17 +676,14 @@ Two related counts, different verbs. `runningInstances` for app process,
 `activeInstances` for compute resources. Document the distinction.
 
 ### O8. `ListAppsRequest.space` filters by space name (string), not by
-`Space` object — consistent with H8 issue.
+`Space` object — consistent with H5 issue.
 
 ### O9. The package re-exports the `apierr` enum locally
-Per H5, this enum should live in `@databricks/sdk-databricks/apierror/codes`.
+Per H3, this enum should live in `@databricks/sdk-databricks/apierror/codes`.
 The project memory note already calls this out
 (`packages/databricks/src/apierror/codes/`).
 
-### O10. Files use `// eslint-disable-next-line` for every Proto-style nested name
-60+ disables across `model.ts`. Fixing H3 eliminates the disables.
-
-### O11. `index.ts` exports
+### O10. `index.ts` exports
 - 18 enums
 - 51 type aliases
 - 8 named exports from `./client` (1 class + 7 wrapper classes)
@@ -769,13 +703,13 @@ detail.
 | `AppDeployment` | A specific deployment (source-code + config snapshot) | Has its own `id`, status, lifecycle. |
 | `AppManifest` | Schema describing required resources for an app | Used by `CustomTemplate`. |
 | `AppResource` | A binding from an App to another Databricks resource | Discriminated union of 10 cases. |
-| `Space` (`AppSpace`) | A workspace-scoped grouping of Apps | Recommended rename: `AppSpace`. See L13. |
-| `GenieSpace` | Databricks Genie product — *unrelated* to App Spaces | Confusion source; see L13. |
+| `Space` (`AppSpace`) | A workspace-scoped grouping of Apps | Recommended rename: `AppSpace`. See L12. |
+| `GenieSpace` | Databricks Genie product — *unrelated* to App Spaces | Confusion source; see L12. |
 | `CustomTemplate` | An installable app template stored in Git | Lives under `/api/2.0/apps-settings/`. |
-| `Operation` | google.longrunning.Operation for Space CRUD | Only used by Space operations. See H7. |
+| `Operation` | google.longrunning.Operation for Space CRUD | Only used by Space operations. See H4. |
 | `Waiter` | Locally-driven status poller for App/Deployment lifecycle | Distinct from `Operation`. See O2. |
 | `UcSecurable` | A Unity Catalog securable (table/volume/function/connection) | Two duplicate enums. See M15/M16. |
-| `Thumbnail` | An app's display image (bytes) plus its URL | Two fields, two concepts. See L11. |
+| `Thumbnail` | An app's display image (bytes) plus its URL | Two fields, two concepts. See L10. |
 | `EnvVar` | Environment variable for the deployed app process | Short for "EnvironmentVariable". See M6. |
 | `GitRepository` | Repository configuration (URL + provider + credentials) | Top-level Git config on App. |
 | `GitSource` | Specific commit/branch/tag + path within a `GitRepository` | Used by deployments. |

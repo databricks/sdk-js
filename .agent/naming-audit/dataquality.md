@@ -29,25 +29,25 @@
 
 ### 3. `RefreshState` enum members `MONITOR_REFRESH_STATE_*` — `src/v1/model.ts:80-90`
 - **Why weird:** Enum is called `RefreshState`, but every member is prefixed `MONITOR_REFRESH_STATE_` — three levels of redundancy in one token (the enum name says it, the type appears as `state?: RefreshState`, and the value is fully namespaced as `RefreshState.MONITOR_REFRESH_STATE_RUNNING`). Members also include `MONITOR_REFRESH_STATE_UNKNOWN` while every other enum in this file uses `_UNSPECIFIED` — inconsistent sentinel naming.
-- **Category:** 2 (redundant enum prefixes), 14 (proto/Go-style names), 17 (inconsistent sentinel — `UNKNOWN` vs `UNSPECIFIED` in sibling enums), 18 (overly long enum values).
+- **Category:** 2 (redundant enum prefixes), 17 (inconsistent sentinel — `UNKNOWN` vs `UNSPECIFIED` in sibling enums), 18 (overly long enum values).
 - **Suggested name:** `RefreshState.{Pending, Running, Success, Failed, Canceled}` and drop the unset sentinel (rely on `state?: RefreshState | undefined`). At minimum, normalise to `REFRESH_STATE_*` (drop `MONITOR_`).
 - **Rationale:** The TS enum already namespaces values (`RefreshState.RUNNING`). `MONITOR_` is doubly redundant because the enum is only ever reached from `Refresh.state`, which is owned by a `Monitor`. The `UNKNOWN`/`UNSPECIFIED` inconsistency with `RefreshTrigger.MONITOR_REFRESH_TRIGGER_UNKNOWN` vs `AnomalyDetectionJobType.ANOMALY_DETECTION_JOB_TYPE_UNSPECIFIED` will trip API users who write `===` checks.
 
 ### 4. `RefreshTrigger` enum members `MONITOR_REFRESH_TRIGGER_*` — `src/v1/model.ts:94-101`
 - **Why weird:** Same shape as #3. Six-token names (`MONITOR_REFRESH_TRIGGER_DATA_CHANGE`) where two tokens (`DataChange`) would suffice. Also uses `_UNKNOWN` rather than the more common `_UNSPECIFIED`.
-- **Category:** 2 (redundant enum prefix), 14 (proto-style), 17 (sentinel inconsistency), 18 (long enum values).
+- **Category:** 2 (redundant enum prefix), 17 (sentinel inconsistency), 18 (long enum values).
 - **Suggested name:** `RefreshTrigger.{Manual, Schedule, DataChange}`.
 - **Rationale:** Same as #3.
 
 ### 5. `AggregationGranularity` enum members `AGGREGATION_GRANULARITY_N_*` — `src/v1/model.ts:8-30`
 - **Why weird:** Every value re-states the enum name and then mixes digits with words (`AGGREGATION_GRANULARITY_5_MINUTES`, `AGGREGATION_GRANULARITY_2_WEEKS`). The digit-then-unit form does not map to any TS identifier convention. `_UNSPECIFIED` is the bottom value, so a user must read past it to see `_5_MINUTES` is the smallest real granularity.
-- **Category:** 2 (redundant enum prefix), 14 (proto-style), 18 (overly long enum values).
+- **Category:** 2 (redundant enum prefix), 18 (overly long enum values).
 - **Suggested name:** `AggregationGranularity.{FiveMinutes, ThirtyMinutes, OneHour, OneDay, OneWeek, TwoWeeks, ThreeWeeks, FourWeeks, OneMonth, OneYear}` — or, better, drop the numeric quantum entirely and use an ISO-8601 duration string (`PT5M`, `P1D`) so the enum is open to new granularities without code changes.
 - **Rationale:** TS enums forbid leading digits in member names, which is why this enum carries the `AGGREGATION_GRANULARITY_` prefix — to make `_5_MINUTES` syntactically legal. That's a tell that the names are working around a language limit. Rename to spelled-out words.
 
 ### 6. `DataProfilingCustomMetricType` enum members — `src/v1/model.ts:49-57`
 - **Why weird:** Six tokens per member (`DATA_PROFILING_CUSTOM_METRIC_TYPE_AGGREGATE`). The enum itself is `DataProfilingCustomMetricType` — at the field site you'd write `DataProfilingCustomMetricType.DATA_PROFILING_CUSTOM_METRIC_TYPE_AGGREGATE`, six redundant tokens visible at the call site.
-- **Category:** 2 (redundant enum prefix), 14 (proto-style), 18 (long enum values).
+- **Category:** 2 (redundant enum prefix), 18 (long enum values).
 - **Suggested name:** `DataProfilingCustomMetricType.{Aggregate, Derived, Drift}`.
 - **Rationale:** Same as #3-#5.
 

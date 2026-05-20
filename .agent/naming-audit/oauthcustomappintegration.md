@@ -3,15 +3,15 @@
 **Path:** `packages/oauthcustomappintegration/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Account-level CRUD for OAuth App Integrations. Two flavours of integration are managed by the same service: *Custom* (caller-owned OAuth clients with their own redirect URLs and scopes) and *Published* (catalog of Databricks-blessed third-party apps such as Power BI or Tableau Desktop, identified by a stable `appId`). Both share the `TokenAccessPolicy` configuration. The package is the Databricks account-side complement of the `RFC 6749`/`OAuth 2.0` client registration concept.
-**Total weird names flagged:** 17
+**Total weird names flagged:** 15
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 5 |
+| High | 4 |
 | Medium | 5 |
 | Low | 4 |
-| Observation | 3 |
+| Observation | 2 |
 
 ## High severity
 
@@ -21,36 +21,29 @@
 - **Suggested name:** `@databricks/sdk-oauthappintegrations` (plural; drops the misleading "custom" since the package also covers published). Or split into two packages: `oauthcustomappintegrations` and `oauthpublishedappintegrations`, each plural.
 - **Rationale:** The Go SDK reference path is `databricks/api/oauth2` (umbrella for all OAuth concerns), which suggests the cross-service grouping is the natural one. The current TS name picks one half of the surface and elevates it to the package title, which is actively misleading. Pluralizing avoids the "what does one integration mean?" confusion at the import line.
 
-### 2. Every domain type re-states `OAuthAppIntegration` — model.ts:6, 29, 41, 46, 73, 92, 100, 108, 115, 120, 128, 134, 141, 147, 185, 206, 208, 216
+### 2. Every domain type re-states `OAuthAppIntegration` — model.ts:6, 29, 46, 73, 92, 100, 108, 115, 120, 134, 147, 185, 208
 - **Why weird:** Inside a package called `oauthcustomappintegration`, *every* type name still spells "OAuthAppIntegration" in full. Imports look like this:
   ```ts
   import {
     CreateCustomOAuthAppIntegration,
     CreatePublishedOAuthAppIntegration,
-    CreatePublishedOAuthAppIntegration_Response,
     CustomOAuthAppIntegration,
     CustomOAuthAppIntegrationSecret,
     DeleteCustomOAuthAppIntegration,
-    DeleteCustomOAuthAppIntegration_Response,
     DeletePublishedOAuthAppIntegration,
-    DeletePublishedOAuthAppIntegration_Response,
     GetCustomOAuthAppIntegration,
     GetPublishedOAuthAppIntegration,
     ListCustomOAuthAppIntegrations,
-    ListCustomOAuthAppIntegrations_Response,
     ListPublishedOAuthAppIntegrations,
-    ListPublishedOAuthAppIntegrations_Response,
     PublishedOAuthAppIntegration,
     UpdateCustomOAuthAppIntegration,
-    UpdateCustomOAuthAppIntegration_Response,
     UpdatePublishedOAuthAppIntegration,
-    UpdatePublishedOAuthAppIntegration_Response,
   } from '@databricks/sdk-oauthcustomappintegration/v1';
   ```
-  Eighteen of the 21 exported types are >25 characters long; nine are >35 characters. The package name already declares the namespace, so the type names need not re-declare it. Compare what the same code would look like with shorter names: `CreateCustom`, `CreatePublished`, `Custom`, `Published`, `CustomSecret`, `DeleteCustom`, … (still readable when paired with the package import).
+  Most exported types are >25 characters long; several are >35 characters. The package name already declares the namespace, so the type names need not re-declare it. Compare what the same code would look like with shorter names: `CreateCustom`, `CreatePublished`, `Custom`, `Published`, `CustomSecret`, `DeleteCustom`, … (still readable when paired with the package import).
 - **Category:** 7, 8, 20 (overly verbose; redundant suffix; type-suffix tautology — every type ends with the package domain noun)
-- **Suggested name:** Drop the `OAuthAppIntegration` suffix from every type. With a namespace import the call site reads `oauth.CreateCustom`, `oauth.Custom`, `oauth.CustomSecret`, `oauth.ListPublished_Response`. With named imports, alias if needed.
-- **Rationale:** TypeScript module imports already qualify the namespace. Repeating it 19 times in type names produces walls of identifiers where the eye has to skip 19 redundant characters to find the discriminator (`Create` vs `Update` vs `Delete` vs `List` vs `Get`, and `Custom` vs `Published`). The redundancy is a Go convention port: in Go `oauthcustomappintegration.CreateCustomAppIntegrationRequest` is necessary because Go has no struct-level method namespacing. TS does not have that constraint. See the Go reference at `databricks/api/oauth2/oauthcustomappintegration` where the Go names are necessarily fully qualified — but a 1:1 port should adapt to TS naming, not blindly copy.
+- **Suggested name:** Drop the `OAuthAppIntegration` suffix from every type. With a namespace import the call site reads `oauth.CreateCustom`, `oauth.Custom`, `oauth.CustomSecret`, `oauth.ListPublished`. With named imports, alias if needed.
+- **Rationale:** TypeScript module imports already qualify the namespace. Repeating it across every type produces walls of identifiers where the eye has to skip redundant characters to find the discriminator (`Create` vs `Update` vs `Delete` vs `List` vs `Get`, and `Custom` vs `Published`). The redundancy is a Go convention port: in Go `oauthcustomappintegration.CreateCustomAppIntegrationRequest` is necessary because Go has no struct-level method namespacing. TS does not have that constraint. See the Go reference at `databricks/api/oauth2/oauthcustomappintegration` where the Go names are necessarily fully qualified — but a 1:1 port should adapt to TS naming, not blindly copy.
 
 ### 3. Type names use `OAuthAppIntegration` but methods use `OAuthAppIntegration` while doc cross-refs use `CustomAppIntegration` / `PublishedAppIntegration` — `client.ts:97, 133, 168, 199`
 - **Why weird:** JSDoc on `createCustomOAuthAppIntegration` says:
@@ -67,41 +60,33 @@
 - **Suggested name:** `appSlug` or `publishedAppKey` with type narrowed to a string literal union or enum: `'power-bi' | 'tableau-desktop' | 'looker' | ...`. At minimum, fix the `tableau-deskop` typo and document the format ("dash-separated lowercase slug from the Databricks published-app catalog").
 - **Rationale:** "ID" in this codebase otherwise means opaque UUID/integer (`integrationId`, `clientId`, `principalId`, `accountId`). Mixing in a human-readable slug under the same suffix is a teaching trap for callers.
 
-### 5. `_Response` underscore convention violates TS naming rules — `model.ts:41, 98, 106, 128, 141, 206, 216`
-- **Why weird:** Seven types use the `_Response` suffix: `CreatePublishedOAuthAppIntegration_Response`, `DeleteCustomOAuthAppIntegration_Response`, `DeletePublishedOAuthAppIntegration_Response`, `ListCustomOAuthAppIntegrations_Response`, `ListPublishedOAuthAppIntegrations_Response`, `UpdateCustomOAuthAppIntegration_Response`, `UpdatePublishedOAuthAppIntegration_Response`. Each one is preceded by an `eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.` comment, acknowledging the violation. The underscore is a proto-message nesting convention (`CreatePublished.Response` in proto → `CreatePublished_Response` in the generated Go), but TS does not have a "nested message" concept and the underscore form is alien to TS idioms.
-- **Category:** 4, 20 (underscores in TS identifiers; type-suffix tautology — `…AppIntegration_Response`)
-- **Suggested name:** Two options:
-  - `CreatePublishedOAuthAppIntegrationResponse` (drop underscore, accept verbosity).
-  - `CreatePublishedResponse` (drop underscore and the redundant domain suffix; pair with category 2 simplification).
-- **Rationale:** The escape-hatch ESLint disables show the codebase already knows these names violate convention. Pick a TS-native form.
-
 ## Medium severity
 
-### 6. `createdBy: number` is a user ID hidden as a numeric — `model.ts:60, 156`
+### 5. `createdBy: number` is a user ID hidden as a numeric — `model.ts:60, 156`
 - **Why weird:** Used in both `CustomOAuthAppIntegration` and `PublishedOAuthAppIntegration`. The field doc is empty, but it pairs with `creatorUsername: string` on `CustomOAuthAppIntegration`, so `createdBy` is the *user ID* of the creator. Calling it `createdBy` and typing it as `number` (rather than `creatorUserId` typed as `number` or `string`) hides the meaning. `principalId: number` next door has the same problem.
 - **Category:** 1, 15, 19 (vague; generic field; underspecified ID)
 - **Suggested name:** `createdByUserId: number` or just `creatorUserId: number`. Document explicitly that this is the numeric Databricks user ID (note: many other places in the codebase use `string` for user IDs).
 - **Rationale:** A bare `createdBy: number` is the worst kind of numeric ID — no type information, no doc, and a name that reads as an activity verb. The asymmetry with `creatorUsername: string` (which sits 2 lines below in `CustomOAuthAppIntegration` but is missing from `PublishedOAuthAppIntegration`) compounds the confusion.
 
-### 7. `createTime: string` vs `clientSecretExpireTime: Temporal.Instant` — type inconsistency — `model.ts:61, 89, 157`
+### 6. `createTime: string` vs `clientSecretExpireTime: Temporal.Instant` — type inconsistency — `model.ts:61, 89, 157`
 - **Why weird:** Both fields are timestamps. `createTime` is typed as `string` (raw ISO 8601, unparsed). `clientSecretExpireTime` is typed as `Temporal.Instant` (parsed via `Temporal.Instant.from`). Same package, same wire format, two different deserialization choices. Callers have to remember which fields are parsed and which are not. Looking at the unmarshal code at line 270, `client_secret_expire_time` gets `.transform(s => Temporal.Instant.from(s))` while `create_time` (line 241, 327) does not.
 - **Category:** 16 (field contradicting type domain — both timestamps, different types)
 - **Suggested name:** Names are fine; the *types* are inconsistent. Either both `Temporal.Instant` (preferred — this is the post-Temporal TS world) or both `string`. Apply consistently across the package.
 - **Rationale:** A consumer doing `if (integration.createTime < other.createTime)` will get string comparison silently; if they did the same with `Temporal.Instant` they would get a type error and use `Temporal.Instant.compare`. The current state is a footgun.
 
-### 8. `clientSecretExpireTime` verb tense — `model.ts:89`
+### 7. `clientSecretExpireTime` verb tense — `model.ts:89`
 - **Why weird:** "Expire" is the bare infinitive — should be "expires" (third-person singular: "the secret expires at T") or "expiry"/"expiration" (noun). The Go side likely has `ClientSecretExpireTime` because Go traditionally uses verb-first compound nouns (`expireTime`, `createTime`), but TS/JS naming tends to use either the noun (`expirationTime`, `expirationDate`) or the inflected verb (`expiresAt`). `createTime`/`createdBy` next door have the same issue (should be `createdAt`/`creator`).
 - **Category:** 13, 14 (verb-tense inconsistency; Go/Java-style names)
 - **Suggested name:** `clientSecretExpiresAt`, `createdAt`, `creator` (or `creatorUserId`).
 - **Rationale:** TypeScript ecosystem standard is `xAt` for timestamps and inflected verbs in field names. The Go form `xTime` reads as a Go transliteration.
 
-### 9. `confidential: boolean` — too generic for "requires-secret" flag — `model.ts:13, 56`
+### 8. `confidential: boolean` — too generic for "requires-secret" flag — `model.ts:13, 56`
 - **Why weird:** The doc comment is informative ("indicates whether an OAuth client secret is required to authenticate this client"), but the field name `confidential` is ambiguous outside RFC 6749 context. A reader has to know OAuth specifically (RFC 6749 §2.1 distinguishes "confidential" vs "public" clients) to decode this. The field doesn't follow a `requires…` or `is…` convention used elsewhere in the codebase.
 - **Category:** 1, 5 (vague/generic; cryptic abbreviation of a spec term)
 - **Suggested name:** `isConfidentialClient`, `requiresClientSecret`, or `confidentialClient`. If keeping `confidential`, add the RFC 6749 link in the doc.
 - **Rationale:** Half of OAuth API consumers will not recognize "confidential" as the RFC 6749 client-type discriminator.
 
-### 10. `userAuthorizedScopes` vs `scopes` overlap — `model.ts:20, 26, 59, 68, 196, 202`
+### 9. `userAuthorizedScopes` vs `scopes` overlap — `model.ts:20, 26, 59, 68, 196, 202`
 - **Why weird:** Two scope fields that look unrelated by name but the doc explicitly says `userAuthorizedScopes` "must be a subset of `scopes`". The relationship is invisible from the type — a caller could set `scopes = ["all-apis"]` and `userAuthorizedScopes = ["sql"]` and the type system won't help. `scopes` is the *requested* scope set, `userAuthorizedScopes` is the *user-consent gate* subset. Names do not encode this subset relationship.
 - **Category:** 1, 6 (vague; misleading — `scopes` doesn't say "requested")
 - **Suggested name:** `requestedScopes` (rename `scopes`) and `consentRequiredScopes` (rename `userAuthorizedScopes`). Or document the subset relationship inline on `scopes` with a backreference.
@@ -109,13 +94,13 @@
 
 ## Low severity
 
-### 11. `OAuth` casing is consistent — `model.ts:throughout`
+### 10. `OAuth` casing is consistent — `model.ts:throughout`
 - **Why weird:** Worth flagging for completeness: this package uses `OAuth` consistently (capital O, capital A, lowercase uth). No `OAUTH`, `Oauth`, or `oAuth` variants appear. This matches Google TS style guide guidance for trade-mark casing and matches RFC 6749 ("OAuth 2.0"). No action.
 - **Category:** 3 (acronym casing — flagged as compliant)
 - **Suggested name:** None — confirm the project-wide policy is `OAuth`.
 - **Rationale:** Documenting the convention. Other audits should check sibling packages for `OAuth2` vs `Oauth2` vs `OAUTH2`.
 
-### 12. `accessTokenTtlInMinutes`, `refreshTokenTtlInMinutes`, `absoluteSessionLifetimeInMinutes` — unit suffix bloat — `model.ts:162, 168, 182`
+### 11. `accessTokenTtlInMinutes`, `refreshTokenTtlInMinutes`, `absoluteSessionLifetimeInMinutes` — unit suffix bloat — `model.ts:162, 168, 182`
 - **Why weird:** Three TTL fields, two named `…InMinutes`, one named `…LifetimeInMinutes`. The "InMinutes" suffix is verbose. Three options to consider:
   - Adopt `Temporal.Duration` for the type (no unit in the name needed).
   - Keep the unit in the name but standardise on `Minutes` suffix (`accessTokenTtlMinutes`, `refreshTokenTtlMinutes`, `sessionTtlMinutes`).
@@ -124,13 +109,13 @@
 - **Suggested name:** `accessTokenTtl: Temporal.Duration`, `refreshTokenTtl: Temporal.Duration`, `absoluteSessionLifetime: Temporal.Duration`.
 - **Rationale:** The project already uses `Temporal.Instant` for `clientSecretExpireTime`. Extending to `Temporal.Duration` here removes the need to encode the unit in the field name, and removes the asymmetry between `TtlInMinutes` and `LifetimeInMinutes` (one is "TTL", the other "lifetime" — same concept).
 
-### 13. `enableSingleUseRefreshTokens` boolean naming inconsistency with `confidential` — `model.ts:175`
+### 12. `enableSingleUseRefreshTokens` boolean naming inconsistency with `confidential` — `model.ts:175`
 - **Why weird:** `enableSingleUseRefreshTokens` uses the verb-first `enableX` convention, but `confidential` uses no prefix. Other boolean conventions in the codebase favour `isX`/`hasX`. Three competing patterns on one type.
 - **Category:** 13, 17 (verb-tense inconsistency; inconsistent action verbs)
 - **Suggested name:** Align to one of `singleUseRefreshTokensEnabled` (state), `useSingleUseRefreshTokens` (config), or `rotateRefreshTokens` (behaviour).
 - **Rationale:** "Enable X" reads as an action and slightly suggests a method/mutator. State booleans typically use predicate suffix `isEnabled`/`enabled` or domain noun.
 
-### 14. `includeCreatorUsername: boolean` query param on List Custom only — `model.ts:124`
+### 13. `includeCreatorUsername: boolean` query param on List Custom only — `model.ts:124`
 - **Why weird:** `ListCustomOAuthAppIntegrations` has `includeCreatorUsername` but `ListPublishedOAuthAppIntegrations` does not (line 134). The asymmetry is fine for the API (Published integrations don't track creator the same way) but the type-level discoverability is poor. A caller writing both list calls in sequence will not understand why the option is missing from one. The name itself is also a query-flag for *server-side join inclusion*, which is unusual for an SDK to expose verbatim.
 - **Category:** 5 (cryptic — the flag's semantics are non-obvious)
 - **Suggested name:** Keep the field but document explicitly: "When true, the server resolves `createdBy` to `creatorUsername` in the response (extra database lookup)."
@@ -141,10 +126,7 @@
 ### O1. JSDoc literal templating leaks `<Databricks>` and `<Account>` markup — `model.ts:80, 82, 172, 178` and `client.ts:281, 341`
 - The literal tokens `<Databricks>` and `<Account>` appear in seven places in this package. They are proto-doc templating tokens that should have been substituted to "Databricks" / "account" during generation. They render as broken-HTML angle-bracket sequences in TypeScript hover popups. This is a generator bug, not a per-package naming issue, but worth tagging at the project level.
 
-### O2. `_Response` suffix is the only naming-convention violation — `model.ts: throughout`
-- All seven `_Response` types carry an `eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.` Comment. No other naming violations in the package require ESLint disables. This is a single, removable wart that the generator could fix in one place. See finding #5.
-
-### O3. `flattenQueryParams` is exported but unused — `utils.ts:123`
+### O2. `flattenQueryParams` is exported but unused — `utils.ts:123`
 - This package never builds nested query parameters (`ListCustomOAuthAppIntegrations` uses three flat scalars), so `flattenQueryParams` is dead in this build. Same as in many sibling packages. Either drop the `export` or move the helper to `@databricks/sdk-core`.
 
 ## Domain glossary

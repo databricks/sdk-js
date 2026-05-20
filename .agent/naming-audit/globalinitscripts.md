@@ -31,7 +31,7 @@ None. This package defines no enums.
 | Name                                  | Purpose                                       |
 | ------------------------------------- | --------------------------------------------- |
 | `CreateGlobalInitScript`              | Request body for create.                      |
-| `CreateGlobalInitScript_Response`     | Response from create (proto-style suffix).    |
+| `CreateGlobalInitScript_Response`     | Response from create.                         |
 | `DeleteGlobalInitScript`              | Request body (path param wrapper) for delete. |
 | `DeleteGlobalInitScript_Response`     | Empty response from delete.                   |
 | `GetGlobalInitScript`                 | Request body (path param wrapper) for get.    |
@@ -109,15 +109,11 @@ No enums are declared in this package; this rubric category does not apply.
 | A-02  | `Uint8Array` | Low | Standard Web/TC39 typed-array name; OK. |
 | A-03  | "Base64" in JSDoc | Low | The JSDoc on `CreateGlobalInitScript.script` writes "Base64" with mixed case — this is correct (the format name is `Base64`, not `BASE64`). Acceptable. |
 
-### 2.4 Underscores in TS identifiers — High
+### 2.4 Underscores in TS identifiers — Low
 
 | ID    | Symbol                                     | Severity | Issue |
 | ----- | ------------------------------------------ | -------- | ----- |
-| U-01  | `CreateGlobalInitScript_Response`          | High     | Underscores in TS type names violate Google TypeScript style (`UpperCamelCase` only — see https://google.github.io/styleguide/tsguide.html#naming-style). Each occurrence requires an `eslint-disable @typescript-eslint/naming-convention` annotation. Should be `CreateGlobalInitScriptResponse`. |
-| U-02  | `DeleteGlobalInitScript_Response`          | High     | Same as U-01. |
-| U-03  | `ListGlobalInitScripts_Response`           | High     | Same as U-01. |
-| U-04  | `UpdateGlobalInitScript_Response`          | High     | Same as U-01. |
-| U-05  | Wire-format keys (`script_id`, `created_by`, `created_at`, `updated_by`, `updated_at`) inside Zod schemas | Low | These are string literals inside `z.object({...})` — they are JSON keys on the wire, not TS identifiers. Not a naming-convention violation; correctly mapped to camelCase via `.transform`. |
+| U-01  | Wire-format keys (`script_id`, `created_by`, `created_at`, `updated_by`, `updated_at`) inside Zod schemas | Low | These are string literals inside `z.object({...})` — they are JSON keys on the wire, not TS identifiers. Not a naming-convention violation; correctly mapped to camelCase via `.transform`. |
 
 ### 2.5 Cryptic abbreviations — Low
 
@@ -176,13 +172,12 @@ _None._
 | T-02  | `createdBy`, `createdAt`, `updatedBy`, `updatedAt` | Low | Past participles for audit fields — correct convention. |
 | T-03  | `enabled` (past participle / adjective) | Low | Consistent with the rest of the SDK (`enabled` boolean state). |
 
-### 2.13 Go / Java-style names — High
+### 2.13 Go / Java-style names — Medium
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| G-01  | `CreateGlobalInitScript_Response` (proto nested-message style) | High | Direct port of Go / protobuf `pb.CreateGlobalInitScriptResponse` naming. TypeScript ecosystems do not use `_` between message and nested-message names; the file disables ESLint for each occurrence. Should adopt the TS-idiomatic `CreateGlobalInitScriptResponse`. Applies to all four `*_Response` interfaces. |
-| G-02  | `GlobalInitScriptDetails` (Java-style "Details" suffix) | Medium | Suffix `Details` is reminiscent of Java DTO conventions (`UserDetails`, `OrderDetails`). TS/JS naming tends to use the bare entity noun. See O-02. |
-| G-03  | `req: CreateGlobalInitScript` (parameter named `req`) | Low | Go-style parameter abbreviation. JS/TS convention is `request` for a parameter; `req` is also common in Express but uncommon as an SDK method parameter. |
+| G-01  | `GlobalInitScriptDetails` (Java-style "Details" suffix) | Medium | Suffix `Details` is reminiscent of Java DTO conventions (`UserDetails`, `OrderDetails`). TS/JS naming tends to use the bare entity noun. See O-02. |
+| G-02  | `req: CreateGlobalInitScript` (parameter named `req`) | Low | Go-style parameter abbreviation. JS/TS convention is `request` for a parameter; `req` is also common in Express but uncommon as an SDK method parameter. |
 
 ### 2.14 Generic field names losing meaning — Medium
 
@@ -221,7 +216,7 @@ No enums declared; not applicable.
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| TS-01 | `GlobalInitScriptDetails`           | Medium   | The entity name encodes both the resource (`GlobalInitScript`) and a descriptive suffix (`Details`). With no peer `GlobalInitScript` type to distinguish from, the suffix is purely redundant. See O-02 / G-02. |
+| TS-01 | `GlobalInitScriptDetails`           | Medium   | The entity name encodes both the resource (`GlobalInitScript`) and a descriptive suffix (`Details`). With no peer `GlobalInitScript` type to distinguish from, the suffix is purely redundant. See O-02 / G-01. |
 | TS-02 | `HttpCallOptions` (utils) | Low | "Options" is conventional for option-bag types; not tautological. |
 | TS-03 | `CallOptions` (imported) | Low | Same. |
 
@@ -244,44 +239,33 @@ No enums declared; not applicable.
 
 | Severity | Count |
 | -------- | ----- |
-| High     | 11    |
-| Medium   | 12    |
-| Low      | 27    |
-| **Total**| **50**|
+| High     | 6     |
+| Medium   | 11    |
+| Low      | 23    |
+| **Total**| **40**|
 
 ### 3.2 Top themes
 
-1. **Proto-style `_Response` suffix pollutes every CRUD response type.**
-   Four interfaces (`CreateGlobalInitScript_Response`,
-   `DeleteGlobalInitScript_Response`, `ListGlobalInitScripts_Response`,
-   `UpdateGlobalInitScript_Response`) each require an `eslint-disable`
-   for the naming-convention rule. Renaming to TS-idiomatic
-   `CreateGlobalInitScriptResponse` etc. would eliminate the
-   disable-comments and a Google-style violation in one sweep.
-
-2. **`script` field overload conflates "script bytes" with "the entity".**
+1. **`script` field overload conflates "script bytes" with "the entity".**
    The field is typed as `Uint8Array` (raw bytes), documented as
    "Base64-encoded content" (the wire format), and lives on a type
    already called `GlobalInitScript`. Renaming the field to `content`
    (or `scriptBytes`) — and clarifying the JSDoc — removes both the
    self-reference ("script.script") and the format-vs-runtime confusion.
 
-3. **`GlobalInitScriptDetails` should just be `GlobalInitScript`.**
+2. **`GlobalInitScriptDetails` should just be `GlobalInitScript`.**
    The `Details` suffix is a Java-style hangover with no peer type to
    disambiguate from. The method JSDoc also claims to return Base64
    content while the entity has no content field — a documentation /
    shape inconsistency.
 
-4. **`createdAt`/`updatedAt` naming is good** — unlike sibling packages
+3. **`createdAt`/`updatedAt` naming is good** — unlike sibling packages
    that use `createdAtTimestamp`, this package uses the cleaner
    `createdAt` / `updatedAt`. Worth keeping as the cross-package
    reference.
 
 ### 3.3 Suggested quick wins (advisory — codegen-level)
 
-- Drop the `_Response` underscore: `CreateGlobalInitScriptResponse`,
-  `DeleteGlobalInitScriptResponse`, `ListGlobalInitScriptsResponse`,
-  `UpdateGlobalInitScriptResponse`. Removes ESLint disables.
 - Rename `script` field to `content` (or `scriptContent`).
 - Rename entity `GlobalInitScriptDetails` -> `GlobalInitScript`.
 - Add the missing content field on the entity (or fix the JSDoc on
@@ -289,8 +273,6 @@ No enums declared; not applicable.
 
 ### 3.4 Cross-package consistency notes
 
-- The `Proto-style nested message name` `_Response` suffix is consistent
-  with peers and should be addressed at the codegen level.
 - `position` field semantics are unique to this resource; no other
   package collides on the name with a different meaning.
 - The clean `createdAt` / `updatedAt` naming here contrasts with

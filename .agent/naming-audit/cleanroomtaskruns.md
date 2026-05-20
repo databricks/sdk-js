@@ -76,41 +76,7 @@ surface a TS consumer calls. It is also inconsistent across the SDK; this is a
 **P0 fix** for cross-package consistency (audit category 14: every other package uses
 camelCase `listX` style without Java/Go-style `Handler` decoration).
 
-### 2. `SCREAMING_SNAKE_CASE` enum values — category 4 (Underscores in TS identifiers)
-
-**Symbols:** Every value in both enums (model.ts:10–19, 27–40).
-
-**Issue:** The Google TypeScript Style Guide (the project's `.agent/skills/google-ts-styleguide`)
-mandates `UPPER_CAMEL_CASE` for enum members, not `SCREAMING_SNAKE_CASE`. The
-project's own `.agent/rules/typescript.mdc` enforces "no underscores in TS
-identifiers" (category 4). However, enum *string* values double as the on-the-wire
-representation here (the `z.enum` parses raw API strings into these identifiers).
-Splitting the TS-side identifier from the wire literal — e.g.
-`Terminated = 'TERMINATED'` — is the idiomatic TS fix while preserving wire
-compatibility.
-
-**Suggested (TS side only, no wire change):**
-
-```ts
-export enum CleanRoomTaskRunLifeCycleState {
-  Unspecified = 'RUN_LIFE_CYCLE_STATE_UNSPECIFIED',
-  Pending = 'PENDING',
-  Running = 'RUNNING',
-  Terminating = 'TERMINATING',
-  Terminated = 'TERMINATED',
-  Skipped = 'SKIPPED',
-  InternalError = 'INTERNAL_ERROR',
-  Blocked = 'BLOCKED',
-  WaitingForRetry = 'WAITING_FOR_RETRY',
-  Queued = 'QUEUED',
-}
-```
-
-Same shape for `CleanRoomTaskRunResultState`. This is consistent with the way the
-project's `.agent/rules/typescript.mdc` treats other enums (e.g. status enums in
-`apierror/codes`).
-
-### 3. `LifeCycleState` vs `lifecycle` casing — category 3 (Acronym/compound-word casing)
+### 2. `LifeCycleState` vs `lifecycle` casing — category 3 (Acronym/compound-word casing)
 
 **Symbols:** Enum `CleanRoomTaskRunLifeCycleState` and field
 `CleanRoomTaskRunState.lifeCycleState` (model.ts:9, 80).
@@ -126,18 +92,16 @@ midword capital.
 Cross-check: the same `LifeCycle` casing exists in `jobs/v2/model.ts` (line 389)
 and other "Run" types across the SDK, so a fix must be globally coordinated.
 
-### 4. `TIMEDOUT` is a non-word — category 6 (Misleading names) and category 13
-(Verb tense inconsistency)
+### 3. `TIMEDOUT` is a non-word — category 6 (Misleading names) and category 13 (Verb tense inconsistency)
 
 **Symbol:** `CleanRoomTaskRunResultState.TIMEDOUT` (model.ts:30).
 
 **Issue:** `TIMEDOUT` mashes "timed out" into one token and drops the space without
 forming a real word. Adjacent values use correct past-tense English
 (`CANCELED`, `EVICTED`, `FAILED`, `SUCCEEDED`-style). The Go reference also uses
-`TIMEDOUT`, so this originates upstream; flag for protocol fix. The TS identifier
-should be `TimedOut` regardless (combine with finding 2).
+`TIMEDOUT`, so this originates upstream; flag for protocol fix.
 
-### 5. `etag` lowercase abbreviation — category 3 (Acronym casing)
+### 4. `etag` lowercase abbreviation — category 3 (Acronym casing)
 
 **Symbol:** `CleanRoomNotebookTaskRun.notebookEtag` (model.ts:65) and wire field
 `notebook_etag` (line 133).
@@ -151,8 +115,7 @@ elsewhere in the codebase (search `Etag|ETag` in `cleanrooms/v1`) the same
 lowercase form is used for the `etag` field on `CleanRoomsNotebookTask`. Mark as
 consistent within the codebase but worth re-examining at the SDK level.
 
-### 6. `notebookEtag` belongs to the notebook, not the task run — category 16
-(Field contradicting type domain)
+### 5. `notebookEtag` belongs to the notebook, not the task run — category 16 (Field contradicting type domain)
 
 **Symbol:** `CleanRoomNotebookTaskRun.notebookEtag` (model.ts:65).
 
@@ -163,8 +126,7 @@ struct is mixing notebook metadata with run metadata. Consider whether these
 should live under a nested `notebook` sub-object (`notebook.etag`,
 `notebook.updatedAt`) in a future revision. Flag only — current shape mirrors Go.
 
-### 7. `notebookJobRunState` is unclear naming — category 1 (Vague/generic) and 12
-(Duplicate concepts)
+### 6. `notebookJobRunState` is unclear naming — category 1 (Vague/generic) and 12 (Duplicate concepts)
 
 **Symbol:** `CleanRoomNotebookTaskRun.notebookJobRunState` (model.ts:52).
 
@@ -181,12 +143,10 @@ the Go SDK source field is also `notebook_job_run_state` (i.e. the messiness is
 inherited).
 
 **Suggested:** `state` or `taskRunState`. Cross-reference with `jobs/v2`
-`CleanRoomsNotebookTask_CleanRoomsNotebookTaskOutput.cleanRoomJobRunState`
-(jobs/v2/model.ts:1158) which has the same shape with yet *another* spelling —
-flag both for coordinated renaming.
+`cleanRoomJobRunState` (jobs/v2/model.ts:1158) which has the same shape with yet
+*another* spelling — flag both for coordinated renaming.
 
-### 8. `runDuration` vs implicit "task run" — category 15 (Generic field names
-losing meaning)
+### 7. `runDuration` vs implicit "task run" — category 15 (Generic field names losing meaning)
 
 **Symbol:** `CleanRoomNotebookTaskRun.runDuration` (model.ts:50).
 
@@ -198,8 +158,7 @@ yet duration carries it. Inconsistent.
 milliseconds"). Or rename `startTime` → `runStartTime` for consistency — pick one
 side.
 
-### 9. `outputSchemaExpirationTime` / `sharedOutputSchemaExpirationTime` —
-verbose — category 7 (Overly verbose)
+### 8. `outputSchemaExpirationTime` / `sharedOutputSchemaExpirationTime` — verbose — category 7 (Overly verbose)
 
 **Symbols:** model.ts:63, model.ts:73.
 
@@ -213,8 +172,7 @@ coexist: `…Time`, `…At`, and `runDuration` (numeric duration). Pick one.
 `startedAt` — or normalise all three to `…Time`. The `Run` pattern in other
 Databricks APIs leans toward `…At`.
 
-### 10. `sharedOutputSchemaName` doc references missing `enable_shared_output`
-flag — category 6 (Misleading names)
+### 9. `sharedOutputSchemaName` doc references missing `enable_shared_output` flag — category 6 (Misleading names)
 
 **Symbol:** `CleanRoomNotebookTaskRun.sharedOutputSchemaName` (model.ts:72).
 
@@ -224,8 +182,7 @@ on the run struct. Either the doc references state stored elsewhere (probably on
 the clean-room asset config), or the field is missing. Not a naming bug, but
 flag for a doc rewording.
 
-### 11. `CollaboratorJobRunInfo` repeats "collaborator" in every field —
-category 8 (Redundant suffixes) and category 2 (Redundant prefixes)
+### 10. `CollaboratorJobRunInfo` repeats "collaborator" in every field — category 8 (Redundant suffixes) and category 2 (Redundant prefixes)
 
 **Symbol:** `CollaboratorJobRunInfo` (model.ts:85). Fields: `collaboratorJobId`,
 `collaboratorJobRunId`, `collaboratorTaskRunId`, `collaboratorWorkspaceId`,
@@ -241,9 +198,7 @@ where the prefix is meaningful at the *top* level (`run.collaboratorJobRunInfo.c
 TS access lands one level deeper than the natural reading; the prefix is
 duplicate. Match the JS idiom: drop the prefix on the nested fields.
 
-### 12. Type name `CollaboratorJobRunInfo` mixes "Job Run" and the rest of the
-package speaks "Task Run" — category 12 (Duplicate concepts) and category 9
-(Singular/plural mismatch on the broader concept)
+### 11. Type name `CollaboratorJobRunInfo` mixes "Job Run" and the rest of the package speaks "Task Run" — category 12 (Duplicate concepts) and category 9 (Singular/plural mismatch on the broader concept)
 
 **Symbol:** `CollaboratorJobRunInfo` (model.ts:85).
 
@@ -256,17 +211,7 @@ the struct *name* is therefore misleading; a more accurate name is
 `CollaboratorTaskRunRef` or `CollaboratorRunRef`. Flag for coordination with API
 team — the Go SDK has the same name. Cross-reference `jobs/v2` to align.
 
-### 13. `Etag` doc text — category 4 (Underscores) and category 17 (Inconsistent
-action verbs)
-
-**Symbol:** Doc comment for `notebookEtag` (model.ts:64): "used to identify the
-notebook version".
-
-Not a naming issue per se, but the wire field is `notebook_etag`, surface field
-`notebookEtag`, and JSDoc uses "Etag" — three spellings in one field. Minor.
-
-### 14. `CleanRoomTaskRunState` and the field `notebookJobRunState` of type
-`CleanRoomTaskRunState` — category 6 (Misleading names)
+### 12. `CleanRoomTaskRunState` and the field `notebookJobRunState` of type `CleanRoomTaskRunState` — category 6 (Misleading names)
 
 **Symbols:** model.ts:78, model.ts:52.
 
@@ -279,7 +224,7 @@ calls the same thing `NotebookTaskRunOutput.runState`. Suggest aligning on
 keep the type name as-is (the wider SDK uses `…State` types throughout, e.g.
 `RunState`, `JobState`).
 
-### 15. `pageSize` doc contradicts behaviour — category 6 (Misleading names)
+### 13. `pageSize` doc contradicts behaviour — category 6 (Misleading names)
 
 **Symbol:** `ListCleanRoomNotebookTaskRunsRequest.pageSize` (model.ts:104).
 
@@ -291,8 +236,7 @@ in JSDoc with a `@deprecated` tag so IDEs show strike-through. Naming-wise:
 `pageSize` is fine *if* it works; document the no-op via the deprecation tag,
 not just a sentence inside the doc.
 
-### 16. `runs` field in response — category 15 (Generic field names losing
-meaning) — borderline acceptable
+### 14. `runs` field in response — category 15 (Generic field names losing meaning) — borderline acceptable
 
 **Symbol:** `ListCleanRoomNotebookTaskRunsResponse.runs` (model.ts:111).
 
@@ -302,34 +246,21 @@ of the clean room.") is *wrong* — copy-paste error from the request struct's
 `cleanRoomName` doc. Doc-text bug, not a naming bug, but worth flagging during a
 naming pass since reviewers will notice the field while reading docs.
 
-### 17. `nextPageToken` is the canonical name — pass.
+### 15. `nextPageToken` is the canonical name — pass.
 
 No issue. Matches all other listing responses in the SDK.
 
-### 18. `Client` class name — category 1 (Vague/generic) — *pass*
+### 16. `Client` class name — category 1 (Vague/generic) — *pass*
 
 Package convention. Every TS package exports a single `Client` class scoped to its
 import path (e.g. `@databricks/sdk-cleanroomtaskruns/v1`).
 
-### 19. `PACKAGE_SEGMENT` constant — category 4 (Underscores in TS identifiers)
-
-**Symbol:** `PACKAGE_SEGMENT` (client.ts:27).
-
-**Issue:** TS style for module-level constants is `camelCase` for runtime values
-that aren't true primitive constants. Google TS Style Guide §5.1
-("const enums and constants must use UPPER_SNAKE_CASE only when they refer to
-true constant values… else use camelCase"). `PACKAGE_SEGMENT` is a runtime object
-(`{key, value}`) and is `const` only by declaration. However, the same name is
-used in every package's client.ts (verify: ran into it in `cleanrooms`,
-`cleanroomassets`, …) — it is a convention. Flag only for consistency, do not
-fix in isolation.
-
-### 20. `userAgent` and `httpClient` — *pass*
+### 17. `userAgent` and `httpClient` — *pass*
 
 Standard names; acronym handling is consistent (`Url` would be flagged but
 `HttpClient` is acceptable under the project rule and matches the imported type).
 
-### 21. `flattenQueryParams` — *pass*, but unused (dead code)
+### 18. `flattenQueryParams` — *pass*, but unused (dead code)
 
 **Symbol:** `flattenQueryParams` (utils.ts:123).
 
@@ -338,7 +269,7 @@ its querystring inline at client.ts:64–72). The helper is dead code in this
 package. Naming itself is fine. Suggest deleting or extracting to a shared utility
 in `@databricks/sdk-core/http`.
 
-### 22. `readAll(body)` — *pass*
+### 19. `readAll(body)` — *pass*
 
 Helper does what its name says.
 
@@ -346,25 +277,13 @@ Helper does what its name says.
 
 ## Cross-package notes (per audit instructions)
 
-### `TaskRun` concept divergence between `cleanroomtaskruns` and `jobs/v2`
+### `TaskRun` field-name divergence between `cleanroomtaskruns` and `jobs/v2`
 
-| Aspect | `cleanroomtaskruns/v1` | `jobs/v2` |
-|--------|------------------------|-----------|
-| LifeCycle enum name | `CleanRoomTaskRunLifeCycleState` | `CleanRoomTaskRunLifeCycleState_CleanRoomTaskRunLifeCycleState` |
-| Result enum name    | `CleanRoomTaskRunResultState`    | `CleanRoomTaskRunResultState_CleanRoomTaskRunResultState` |
-| State struct        | `CleanRoomTaskRunState`          | `CleanRoomTaskRunState` (same name, identical shape) |
-| Field referencing state | `notebookJobRunState`        | `cleanRoomJobRunState` (jobs/v2/model.ts:1158) |
-
-The proto-style nested enum name `X_X` exists only in `jobs/v2`; the
-`cleanroomtaskruns/v1` flat name is cleaner. Audit categories 12 (duplicate
-concepts) and 2 (redundant prefixes) — strong recommendation: the generator
-should reuse the `cleanroomtaskruns` flat names from `jobs/v2` (or both packages
-should re-export from a single shared module) to avoid the doubled-prefix
-oddity in `jobs`. This is a *generator* concern, not a `cleanroomtaskruns`
-package concern — flag for the SDK platform team.
-
-Same goes for the state-field name: `notebookJobRunState` here, `cleanRoomJobRunState`
-in jobs/v2 — two names for one wire-level concept.
+The state field that holds a `CleanRoomTaskRunState` is named `notebookJobRunState`
+in this package (model.ts:52) and `cleanRoomJobRunState` in `jobs/v2`
+(jobs/v2/model.ts:1158). Two names for one wire-level concept across the two
+packages that talk about the same run object. Audit category 12 (duplicate
+concepts) — coordinate a single field name across both packages.
 
 ### `NotebookTask` concept
 
@@ -382,12 +301,12 @@ service name — but a reader is left to guess.
 ## Summary (counts)
 
 - **Critical / cross-package consistency:** 1 finding (#1 `Handler` suffix).
-- **High (style guide violations):** 3 findings (#2 enum casing, #3 LifeCycle
-  casing, #11 collaborator prefix repetition).
-- **Medium (naming clarity):** 7 findings (#4, #7, #8, #9, #12, #14, #15).
-- **Low / project-wide convention notes:** 7 findings (#5, #6, #10, #13, #16,
-  #19, #21) — some inherited from generator.
-- **Pass / acceptable as-is:** 4 findings (#17, #18, #20, #22).
+- **High (style guide violations):** 2 findings (#2 LifeCycle casing, #10
+  collaborator prefix repetition).
+- **Medium (naming clarity):** 7 findings (#3, #6, #7, #8, #11, #12, #13).
+- **Low / project-wide convention notes:** 5 findings (#4, #5, #9, #14, #18) —
+  some inherited from generator.
+- **Pass / acceptable as-is:** 4 findings (#15, #16, #17, #19).
 
-**Total flagged findings: 18** distinct items across audit categories (some
+**Total flagged findings: 15** distinct items across audit categories (some
 findings touch multiple categories).

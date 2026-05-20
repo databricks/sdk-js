@@ -35,11 +35,11 @@ are graded:
 | Name                              | Purpose                                                  |
 | --------------------------------- | -------------------------------------------------------- |
 | `AddInstanceProfile`              | Request body for register/add.                           |
-| `AddInstanceProfile_Response`     | Empty response from add (proto-style suffix).            |
+| `AddInstanceProfile_Response`     | Empty response from add.                                 |
 | `EditInstanceProfile`             | Request body for edit/update.                            |
 | `EditInstanceProfile_Response`    | Empty response from edit.                                |
 | `InstanceProfile`                 | The instance-profile entity (AWS-scoped).                |
-| `ListInstanceProfiles`            | Empty request body for list (proto-style empty type).    |
+| `ListInstanceProfiles`            | Empty request body for list.                             |
 | `ListInstanceProfiles_Response`   | Response from list.                                      |
 | `RemoveInstanceProfile`           | Request body for unregister/remove.                      |
 | `RemoveInstanceProfile_Response`  | Empty response from remove.                              |
@@ -110,15 +110,11 @@ are graded:
 | A-03  | `isMetaInstanceProfile`           | Low      | No acronym issues. |
 | A-04  | `Aws` / `Iam` / `Arn` not appearing as type prefixes | Low | The package doesn't have a type-name acronym to test (e.g. no `AWSInstanceProfile`). If the type were renamed per V-01, the chosen casing should be `AwsInstanceProfile` to match Google TS style. |
 
-### 2.4 Underscores in TS identifiers — High
+### 2.4 Underscores in TS identifiers — Low
 
 | ID    | Symbol                                          | Severity | Issue |
 | ----- | ----------------------------------------------- | -------- | ----- |
-| U-01  | `AddInstanceProfile_Response`                   | High     | Underscores in TS type names violate Google TypeScript style (`UpperCamelCase` only — see https://google.github.io/styleguide/tsguide.html#naming-style). Every occurrence requires an `eslint-disable @typescript-eslint/naming-convention` annotation. Should be `AddInstanceProfileResponse`. |
-| U-02  | `EditInstanceProfile_Response`                  | High     | Same as U-01. |
-| U-03  | `ListInstanceProfiles_Response`                 | High     | Same as U-01. |
-| U-04  | `RemoveInstanceProfile_Response`                | High     | Same as U-01. |
-| U-05  | Wire-format snake-case in zod schemas (`instance_profile_arn`, `is_meta_instance_profile`, `iam_role_arn`, `instance_profiles`, `skip_validation`) | Low | Underscores in *string literals* are correct — they match the JSON wire format. Not a violation. Noted for completeness. |
+| U-01  | Wire-format snake-case in zod schemas (`instance_profile_arn`, `is_meta_instance_profile`, `iam_role_arn`, `instance_profiles`, `skip_validation`) | Low | Underscores in *string literals* are correct — they match the JSON wire format. Not a violation. Noted for completeness. |
 
 ### 2.5 Cryptic abbreviations — Medium
 
@@ -188,12 +184,11 @@ revisions can add fields without breaking the type signature. Not flagged.
 | T-02  | `isMetaInstanceProfile` (boolean) | Low | Standard `is*` boolean prefix. |
 | T-03  | `skipValidation` (boolean)        | Low | Imperative — consistent boolean style. |
 
-### 2.13 Go / Java-style names — Medium
+### 2.13 Go / Java-style names — Low
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| G-01  | `AddInstanceProfile_Response` (proto nested-message style) | High | Direct port of Go's `pb.AddInstanceProfileResponse` / protobuf naming. TypeScript ecosystems do not use `_` separators between message and nested-message names; the codebase even disables ESLint for each occurrence. Should adopt the TS-idiomatic `AddInstanceProfileResponse`. |
-| G-02  | `RemoveInstanceProfile`            | Low | Pairs with `addInstanceProfile`. The "add/remove" pair is idiomatic in many languages; OK. |
+| G-01  | `RemoveInstanceProfile`            | Low | Pairs with `addInstanceProfile`. The "add/remove" pair is idiomatic in many languages; OK. |
 
 ### 2.14 Generic field names losing meaning — Low
 
@@ -267,44 +262,36 @@ package is exemplary in using ARNs as identifiers.)
 
 | Severity | Count |
 | -------- | ----- |
-| High     | 14    |
+| High     | 9     |
 | Medium   | 19    |
 | Low      | 25    |
-| **Total**| **58**|
+| **Total**| **53**|
 
 ### 3.2 Top themes
 
-1. **Proto-style `_Response` suffix pollutes every response type.**
-   Four interfaces (`AddInstanceProfile_Response`, `EditInstanceProfile_Response`,
-   `ListInstanceProfiles_Response`, `RemoveInstanceProfile_Response`) each
-   require an `eslint-disable` for the naming rule. Renaming to TS-idiomatic
-   `AddInstanceProfileResponse` etc. would eliminate the disable-comments and
-   the Google-style violation in one sweep.
-
-2. **`add` / `remove` verbs mislead about scope.** The methods **register** /
+1. **`add` / `remove` verbs mislead about scope.** The methods **register** /
    **unregister** an existing AWS instance profile with Databricks — neither
    creates nor deletes the underlying AWS resource. `register*` / `unregister*`
    would be more accurate. Compounded by `edit*` (instead of `update*`) breaking
    the CRUD verb consistency.
 
-3. **`InstanceProfile` is AWS-specific but not cloud-prefixed.** In a
+2. **`InstanceProfile` is AWS-specific but not cloud-prefixed.** In a
    multi-cloud SDK, an unqualified name implies a cross-cloud concept it
    doesn't represent. `AwsInstanceProfile` (matching `AzureServicePrincipal`,
    `GcpAttributes`) would prevent future ambiguity.
 
-4. **Tautological field naming inside `InstanceProfile`.**
+3. **Tautological field naming inside `InstanceProfile`.**
    `instanceProfile.instanceProfileArn` and
    `instanceProfile.isMetaInstanceProfile` repeat the type name. Inside the
    entity, `arn` and `isMeta` (or `isCredentialPassthrough`) would suffice.
 
-5. **`isMetaInstanceProfile` and `skipValidation` need their JSDoc to be
+4. **`isMetaInstanceProfile` and `skipValidation` need their JSDoc to be
    intelligible.** "Meta instance profile" is a Databricks-specific term;
    "validation" is overloaded. `isCredentialPassthrough` /
    `skipIamValidation` (or similar) would be self-documenting.
 
 ### 3.3 Suggested quick wins (non-breaking renames are not possible — this section is advisory for the codegen owners)
 
-- Drop `_Response` suffix in all four response interfaces.
 - Rename `InstanceProfile` → `AwsInstanceProfile` to scope to the cloud.
 - Rename `addInstanceProfile` → `registerInstanceProfile` and
   `removeInstanceProfile` → `unregisterInstanceProfile` to match actual
@@ -317,8 +304,6 @@ package is exemplary in using ARNs as identifiers.)
 
 ### 3.4 Cross-package consistency notes
 
-- The proto-style `_Response` suffix is consistent with peers and should be
-  addressed at the codegen level.
 - `editInstanceProfile` (vs `updateInstanceProfile`) is a per-API decision
   driven by the upstream REST verb; flag for upstream alignment but no
   per-package fix.

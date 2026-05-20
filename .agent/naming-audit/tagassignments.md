@@ -105,7 +105,7 @@
 
 ### 14. `Call` type and `call` variable — `src/v1/client.ts:74,98,118,152,201` and `src/v1/utils.ts:27`
 - **Why weird:** Variable `call` of type `Call`, passed to `executeCall`. Same word as variable, type, and verb. Inside one method scope we have `req`, `call`, `httpReq`, `resp` — four roles, three of which abbreviate.
-- **Category:** 1 (vague), 12 (duplicate concept), 4 (no underscore — but the name collision compensates).
+- **Category:** 1 (vague), 12 (duplicate concept).
 - **Suggested name:** `runRequest`/`sendRequest` for the variable; keep `Call` as the type.
 - **Rationale:** Variable-type collisions are tolerable but obscure prose.
 

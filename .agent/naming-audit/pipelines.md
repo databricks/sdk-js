@@ -14,11 +14,11 @@
 
 | Severity     | Count | Notes                                                                                       |
 | ------------ | ----- | ------------------------------------------------------------------------------------------- |
-| High         | 26    | Verb/noun overloading (`Update`), DLT-era rebrand leakage, identifier collisions, plural `Pipelines` prefix. |
-| Medium       | 38    | Underscores, redundant prefixes/suffixes, vague names, acronym casing, generic IDs.         |
+| High         | 23    | Verb/noun overloading (`Update`), DLT-era rebrand leakage, identifier collisions, plural `Pipelines` prefix. |
+| Medium       | 38    | Redundant enum prefixes, vague names, acronym casing, generic IDs.                          |
 | Low          | 21    | Mild verbosity, plural mismatches, stylistic inconsistencies.                               |
-| Observations | 7     | Patterns spanning the whole file (proto leakage, branding history).                         |
-| **Total**    | **92** | |
+| Observations | 6     | Patterns spanning the whole file (branding history, plural/singular split).                 |
+| **Total**    | **88** | |
 
 Issues are catalogued below by severity, then by file/line. Throughout this document I use **"Update" (proper noun)** to refer to the DLT/Lakeflow concept of a pipeline run, since that overload is the most pervasive and most confusing naming choice in the package.
 
@@ -86,97 +86,85 @@ Issues are catalogued below by severity, then by file/line. Throughout this docu
 - **Suggestion:** Rename to `listPipelines()` to match the request type `ListPipelines` and to disambiguate from `listUpdates`/`listEvents`.
 - **Rationale:** `client.list(req)` requires the user to remember `list` of *what*. Adjacent methods are `listUpdates`, `events` (sic), and the request type is already `ListPipelines`. Bare `list` is a Go-SDK convention (where the package name disambiguates) but loses information in TS.
 
-### H11. `PipelineState_PipelineState` enum — underscore suffix tautology
-- **Location:** `model.ts:392` (`export enum PipelineState_PipelineState`).
-- **Category:** 20 (type-suffix tautology), 4 (underscores).
-- **Suggestion:** Rename the enum to `PipelineState`.
-- **Rationale:** `PipelineState_PipelineState.RUNNING` reads as "state.state.RUNNING". Same pattern as `ScdType_ScdType` (H12).
+### H11. `ScdType_ScdType` enum uses the cryptic acronym SCD
+- **Locations:** `model.ts:415` (`ScdType_ScdType`), `index.ts:32`, `index.ts:150`.
+- **Category:** 5 (cryptic abbreviation).
+- **Suggestion:** Rename to `SlowlyChangingDimensionType` since "SCD" is jargon for "Slowly Changing Dimension" — the values themselves are `SCD_TYPE_1` / `SCD_TYPE_2` (Kimball-style dimensional modeling).
+- **Rationale:** SCD is a dimensional-modelling acronym (slowly-changing dimensions, from Kimball's data-warehousing canon). A casual reader does not know that. The enum values then re-spell `SCD_TYPE_*` redundantly (`SCD_TYPE_1`, `SCD_TYPE_2`, `APPEND_ONLY`).
 
-### H12. `ScdType_ScdType` enum — underscore suffix tautology and cryptic acronym
-- **Locations:** `model.ts:415` (`export enum ScdType_ScdType`), `index.ts:32`, `index.ts:150`.
-- **Category:** 20 (suffix tautology), 4 (underscores), 5 (cryptic abbreviation).
-- **Suggestion:** Rename `ScdType_ScdType` → `ScdType`. Better: rename to `SlowlyChangingDimensionType` since "SCD" is jargon for "Slowly Changing Dimension" — and the values themselves are `SCD_TYPE_1` / `SCD_TYPE_2` (Kimball-style dimensional modeling).
-- **Rationale:** Same issue as H11. SCD is a dimensional-modelling acronym (slowly-changing dimensions, from Kimball's data-warehousing canon). A casual reader does not know that. The enum values then re-spell `SCD_TYPE_*` redundantly (`SCD_TYPE_1`, `SCD_TYPE_2`, `APPEND_ONLY`).
-
-### H13. `StorageMode` enum is a parallel of `ScdType_ScdType` with three overlapping values — duplicate concept
+### H12. `StorageMode` enum is a parallel of `ScdType` with three overlapping values — duplicate concept
 - **Locations:** `model.ts:263` (`StorageMode.SCD_TYPE_1` / `SCD_TYPE_2` / `APPEND_ONLY`), `model.ts:415` (`ScdType_ScdType.SCD_TYPE_1` / `SCD_TYPE_2` / `APPEND_ONLY`).
 - **Category:** 12 (duplicate concepts).
 - **Suggestion:** Delete one. The JSDoc on `IngestionPipelineDefinition_TableSpecificConfig.storageMode` (`model.ts:1437-1440`) literally says "Mutually exclusive with scd_type — a 400 error is returned if both are set." This is two names for the same field. Pick one (probably `StorageMode` since it includes a meaningful `UNSPECIFIED`).
 - **Rationale:** Forcing the client to choose between two synonymous enums based on which one the field is typed as is the worst possible API ergonomic. Users will set both and get a 400.
 
-### H14. `PipelineState_PipelineState.IDLE` is the terminal state — but the JSDoc says "Pipeline is stopped and is not processing data. Can be resumed by calling `run`"
+### H13. `PipelineState_PipelineState.IDLE` is the terminal state — but the JSDoc says "Pipeline is stopped and is not processing data. Can be resumed by calling `run`"
 - **Location:** `model.ts:410`.
 - **Category:** 6 (misleading — references method `run` that does not exist; the method is `start`).
 - **Suggestion:** Fix JSDoc to reference `start()`. After H3, both will line up at `run()`.
 - **Rationale:** Currently the user reads "call `run`" and finds no `run()` method on `Client`.
 
-### H15. `client.delete()` collides with JS `delete` keyword
+### H14. `client.delete()` collides with JS `delete` keyword
 - **Location:** `client.ts:204`.
 - **Category:** 10 (reserved-word collision).
 - **Suggestion:** Rename to `deletePipeline()` (matching `restorePipeline()` already at `client.ts:475`). Alternatively, `remove()`.
 - **Rationale:** `delete` is a JS reserved keyword. While methods can be named `delete` since ES5, every IDE highlights it and parsers in some contexts choke. `restorePipeline()` already uses the verbose form, so the asymmetry is jarring (`client.delete` vs `client.restorePipeline`).
 
-### H16. `client.restorePipeline()` is verbose, but its siblings are short (`delete`, `get`, `clone`)
+### H15. `client.restorePipeline()` is verbose, but its siblings are short (`delete`, `get`, `clone`)
 - **Location:** `client.ts:475`.
 - **Category:** 7 (overly verbose), 17 (inconsistent verbs).
 - **Suggestion:** Either shorten to `restore()` (parallel with `clone()`, `delete()`, `get()`) or lengthen the siblings to `deletePipeline()`, `getPipeline()`, `clonePipeline()`. The request type is already named `RestorePipelineRequest` — which is itself inconsistent with sibling request types (`DeletePipeline`, `GetPipeline`, `ClonePipeline` have no `Request` suffix).
 - **Rationale:** Pick one suffix convention and apply it. Mixing methods on the same client is the smell.
 
-### H17. `RestorePipelineRequest` ends in `Request` but other request types do not
-- **Locations:** `model.ts:2618` (`RestorePipelineRequest`), `model.ts:2624` (`RestorePipelineRequest_Response`), `model.ts:477` (`ApplyEnvironmentRequest`), `model.ts:482` (`ApplyEnvironmentRequest_Response`).
+### H16. `RestorePipelineRequest` ends in `Request` but other request types do not
+- **Locations:** `model.ts:2618` (`RestorePipelineRequest`), `model.ts:477` (`ApplyEnvironmentRequest`), and all other request types without the suffix (`DeletePipeline`, `GetPipeline`, `ClonePipeline`, `EditPipeline`, `CreatePipeline`, `StartUpdate`, `StopPipeline`, ...).
 - **Category:** 8 (redundant suffix), 17 (inconsistent).
 - **Suggestion:** Pick one convention and stick to it. Either drop `Request` everywhere (so this becomes `RestorePipeline`, `ApplyEnvironment`) or add it everywhere (`DeletePipelineRequest`, `EditPipelineRequest`, ...).
-- **Rationale:** Two named conventions in the same file confuse every reader. `RestorePipelineRequest_Response` is doubly bad: the underscore says it is a proto-nested name (intended to be `RestorePipelineRequest.Response`) but a response shape suffixed `RequestRequest_Response` is bizarre.
+- **Rationale:** Two named conventions in the same file confuse every reader.
 
-### H18. `EventLevel.METRICS` — value on a "severity level" enum that is not a severity
+### H17. `EventLevel.METRICS` — value on a "severity level" enum that is not a severity
 - **Location:** `model.ts:56`.
 - **Category:** 6 (misleading), 16 (field contradicts type domain).
 - **Suggestion:** Either move `METRICS` to a separate `EventCategory` enum or rename the enum to `EventKind`. The JSDoc says "The severity level of the event" — but `METRICS` is a category, not a severity.
 - **Rationale:** Filtering `where level='ERROR'` makes sense; `where level='METRICS'` is "where this event is a metric measurement, regardless of severity." Mixing the two leads to user mistakes.
 
-### H19. `UpdateState.QUEUED` description references the wrong noun ("update") instead of "run"
+### H18. `UpdateState.QUEUED` description references the wrong noun ("update") instead of "run"
 - **Location:** `model.ts:313` ("Update is waiting for previous update to finish.").
 - **Category:** 6 (misleading).
 - **Suggestion:** Doc rewrite (English) after H1: "Run is waiting for previous run to finish."
 - **Rationale:** Same as H1 — once `Update` is renamed to `Run`, every JSDoc that mentions "update" in this enum needs to follow.
 
-### H20. `StartUpdate.fullRefresh` / `refreshSelection` / `fullRefreshSelection` / `resetCheckpointSelection` / `refreshFlowSelection` — 5 booleans-or-arrays describing overlapping concepts
+### H19. `StartUpdate.fullRefresh` / `refreshSelection` / `fullRefreshSelection` / `resetCheckpointSelection` / `refreshFlowSelection` — 5 booleans-or-arrays describing overlapping concepts
 - **Location:** `model.ts:2738-2780`.
 - **Category:** 12 (duplicate concepts), 17 (inconsistent verbs).
 - **Suggestion:** Collapse into a single discriminated union `refreshMode: FullGraph | FullRefresh | TableSelection | FlowSelection | RewindMode` (analogous to existing `RewindSpec`). At minimum, document the precedence rules in JSDoc.
 - **Rationale:** The combinatorial space is currently five fields × two values each = 32 combinations, of which JSDoc clarifies only "if both refresh_selection and full_refresh_selection are empty, this is a full graph update." The other 30 combinations are undefined.
 
-### H21. `Notifications` (plural type, singular plural-prefixed) — a single-notification spec named in plural
+### H20. `Notifications` (plural type, singular plural-prefixed) — a single-notification spec named in plural
 - **Locations:** `model.ts:1746`, `model.ts:556` (`notifications?: Notifications[]`), etc.
 - **Category:** 9 (singular/plural mismatch).
 - **Suggestion:** Rename to `NotificationRule` (singular). The field becomes `notificationRules?: NotificationRule[]`.
 - **Rationale:** `notifications: Notifications[]` reads as "a list of lists of notifications". The type holds one `{emailRecipients, alerts}` pair — singular by definition.
 
-### H22. `connectorOptions` field-name reuses parent-type token (`ConnectorOptions.connectorOptions`)
+### H21. `connectorOptions` field-name reuses parent-type token (`ConnectorOptions.connectorOptions`)
 - **Locations:** `model.ts:644-670`, `model.ts:1323`, `model.ts:1357`.
 - **Category:** 20 (type-suffix tautology), 12 (duplicate naming).
 - **Suggestion:** Rename the outer interface to `ConnectorOptions` and the inner discriminator to `options` (or `payload`). Then `connectorOptions: {payload: {...}}` reads cleanly.
 - **Rationale:** Currently `ConnectorOptions.connectorOptions.googleAdsOptions` requires four nested identifiers all containing "options".
 
-### H23. `PipelinesEnvironment` vs `IngestionPipelineDefinition` — two `Pipeline*` namespaces, only one is plural
+### H22. `PipelinesEnvironment` vs `IngestionPipelineDefinition` — two `Pipeline*` namespaces, only one is plural
 - **Locations:** `model.ts:2382` (`PipelinesEnvironment`), `model.ts:1173` (`IngestionPipelineDefinition`).
 - **Category:** 9 (singular/plural mismatch), 17 (inconsistent prefix).
 - **Suggestion:** Drop the prefix on `PipelinesEnvironment` (see H4). Or rename to `PipelineEnvironment` (singular). Match `PipelineCluster`, `PipelineDeployment`, `PipelineEvent`, `PipelineLibrary`, `PipelineSpec`, `PipelineStateInfo`, `PipelineTrigger` — all singular.
 - **Rationale:** Out of 22 pipeline-prefixed types, 8 use plural (`Pipelines*`) and 14 use singular (`Pipeline*`). No domain reason for the split; pure generator artifact.
 
-### H24. Underscore-named proto nested types — 27 separate identifiers with `eslint-disable`
-- **Locations:** 27 lines, each tagged `// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.` Notable: `ApplyEnvironmentRequest_Response` (`model.ts:482`), `ClonePipeline_ConfigurationEntry` (`model.ts:591`), `ClonePipeline_Response` (`model.ts:597`), `ClonePipeline_TagsEntry` (`model.ts:604`), `CommunityConnectorOptions_OptionsEntry` (`model.ts:622`), `CreatePipeline_ConfigurationEntry`, `CreatePipeline_ParametersEntry`, `CreatePipeline_Response`, `CreatePipeline_TagsEntry`, `DeletePipeline_Response`, `EditPipeline_ConfigurationEntry`, `EditPipeline_ParametersEntry`, `EditPipeline_Response`, `EditPipeline_TagsEntry`, `FileIngestionOptions_FileFormat`, `FileIngestionOptions_FormatOptionsEntry`, `FileIngestionOptions_SchemaEvolutionMode`, `GetPipeline_Response`, `GetPipeline_Response_ParametersEntry`, `GetUpdate_Response`, `GoogleDriveOptions_GoogleDriveEntityType`, `GoogleDriveOptions_GoogleDriveIngestionScope`, `IngestionPipelineDefinition_*` (10 nested), `KafkaOptions_ClientConfigEntry`, `ListPipelineEvents_Response`, `ListPipelines_Response`, `ListUpdates_Response`, `PeriodicTrigger_TimeUnit`, `PipelineCluster_CustomTagsEntry`, `PipelineCluster_SparkConfEntry`, `PipelineCluster_SparkEnvVarsEntry`, `PipelineSpec_ConfigurationEntry`, `PipelineSpec_TagsEntry`, `PipelineState_PipelineState`, `RestorePipelineRequest_Response`, `ScdType_ScdType`, `SharepointOptions_SharepointEntityType`, `StartUpdate_ParametersEntry`, `StartUpdate_Response`, `StopPipeline_Response`, `TikTokAdsOptions_TikTokDataLevel`, `TikTokAdsOptions_TikTokReportType`, `Transformer_Format`, `Truncation_TruncationDetail`, `UpdateInfo_ParametersEntry`.
-- **Category:** 4 (underscores in TS identifiers), 14 (Go/Java-style names).
-- **Suggestion:** Flatten everywhere. `PipelineState_PipelineState` → `PipelineState`, `IngestionPipelineDefinition_TableSpec` → `IngestionTableSpec`, etc. Use TS namespace-style with dot notation only where it disambiguates (e.g., `IngestionPipelineDefinition.TableSpec` via namespace export — but TS namespace exports inside modules are non-idiomatic).
-- **Rationale:** TS identifiers conventionally use camelCase / PascalCase; underscores are reserved for special names (private fields by convention). 27 `eslint-disable` lines = 27 fights with the linter. The Generator should be re-targeted.
-
-### H25. `Sequencing.controlPlaneSeqNo` — abbreviated/cryptic identifier
+### H23. `Sequencing.controlPlaneSeqNo` — abbreviated/cryptic identifier
 - **Locations:** `model.ts:2661` (`Sequencing`), `model.ts:2665` (`controlPlaneSeqNo`).
 - **Category:** 5 (cryptic abbreviations), 15 (generic field names).
 - **Suggestion:** Rename to `controlPlaneSequenceNumber`. The JSDoc already calls it "A sequence number" — TS has no character budget. Sibling type `DataPlaneId.seqNo` (`model.ts:792`) has the same issue.
 - **Rationale:** "SeqNo" is a Go/Java abbreviation. The wire JSON is `seq_no`, so the TS field rename is purely a surface improvement.
 
-### H26. `DataPlaneId` reads like a string but is actually `{instance, seqNo}`
+### H24. `DataPlaneId` reads like a string but is actually `{instance, seqNo}`
 - **Location:** `model.ts:788`.
 - **Category:** 6 (misleading: name implies a scalar ID, but the type is a compound).
 - **Suggestion:** Rename to `DataPlaneSequence` or `DataPlaneCoordinate`. The actual ID is `{instance, seqNo}` — a coordinate, not an identifier.
@@ -488,32 +476,28 @@ Issues are catalogued below by severity, then by file/line. Throughout this docu
 
 ## Observations
 
-### O1. The whole file is one giant proto port — 27 `eslint-disable` lines for underscore-named nested types
-- **Files:** `model.ts` throughout.
-- **Cross-reference:** This is the same pattern flagged in `jobs.md`. The pipelines package compounds it with the plural `Pipelines*` prefix (H4 here).
-
-### O2. Branding history (DLT → Lakeflow Declarative Pipelines → Spark Declarative Pipelines) leaks into 6 different abbreviations across the public API
+### O1. Branding history (DLT → Lakeflow Declarative Pipelines → Spark Declarative Pipelines) leaks into 6 different abbreviations across the public API
 - **Search:** `DLT`, `SDP`, `LDP`, `Lakeflow`, `Spark Declarative Pipelines`, `Delta Live Tables`, `DAB`.
 - **Locations:** `model.ts:48` (`DAB` in DeploymentKind comment), `model.ts:551` (`SDP` in `channel` JSDoc), `model.ts:804` (`Spark Declarative Pipelines` in JSDoc), `model.ts:1175` (`Lakeflow Connect`), `model.ts:2063` (`https://docs.databricks.com/en/ldp/`), `model.ts:2379` (`SDP's environment`), `client.ts:376` (`Spark Declarative Pipelines`).
 - **Suggestion:** Settle on one product name in JSDoc. The TS types should be backwards-compatible (no rename) but the docstrings should agree.
 
-### O3. `Pipelines*` (plural) vs `Pipeline*` (singular) split: 8 plural-prefixed vs 14 singular-prefixed types
-- **Cross-reference:** H4, H23.
+### O2. `Pipelines*` (plural) vs `Pipeline*` (singular) split: 8 plural-prefixed vs 14 singular-prefixed types
+- **Cross-reference:** H4, H22.
 
-### O4. There are FIVE separate `connectorOptions` / `sourceOptions` discriminators in the ingestion pipeline definition — connector wiring is too nested
+### O3. There are FIVE separate `connectorOptions` / `sourceOptions` discriminators in the ingestion pipeline definition — connector wiring is too nested
 - **Locations:** `IngestionPipelineDefinition.connectorType`, `IngestionPipelineDefinition.sourceConfigurations[].catalog.options`, `IngestionPipelineDefinition_SchemaSpec.sourceOptions`, `IngestionPipelineDefinition_SchemaSpec.connectorOptions`, `IngestionPipelineDefinition_TableSpec.sourceOptions`, `IngestionPipelineDefinition_TableSpec.connectorOptions`.
 - **Suggestion:** Document the resolution order between schema-level and table-level options. JSDoc currently fragments the rules across multiple types.
 
-### O5. JSDoc uses `<Databricks>` placeholder — leak from the Go SDK's template substitution
+### O4. JSDoc uses `<Databricks>` placeholder — leak from the Go SDK's template substitution
 - **Search:** `<Databricks>` appears 19 times in `model.ts`.
 - **Suggestion:** Replace with literal "Databricks" before TS compilation.
 
-### O6. `Notifications.alerts: string[]` is a hand-rolled enum of `on-update-success`, `on-update-failure`, `on-update-fatal-failure`, `on-flow-failure`
+### O5. `Notifications.alerts: string[]` is a hand-rolled enum of `on-update-success`, `on-update-failure`, `on-update-fatal-failure`, `on-flow-failure`
 - **Location:** `model.ts:1758`.
 - **Category:** 16.
 - **Suggestion:** Define `AlertCondition` enum. Currently typed `string[]` with values listed only in JSDoc.
 
-### O7. `OutlookOptions` carries three `*Filter` fields marked deprecated (`folderFilter`, `senderFilter`, `subjectFilter`) plus the new `include*` versions side-by-side
+### O6. `OutlookOptions` carries three `*Filter` fields marked deprecated (`folderFilter`, `senderFilter`, `subjectFilter`) plus the new `include*` versions side-by-side
 - **Locations:** `model.ts:1831-1881`.
 - **Category:** Generator artifact / Go-SDK fidelity issue.
 - **Suggestion:** Mark deprecated fields with `@deprecated` JSDoc tag (currently only mentioned in plain text).

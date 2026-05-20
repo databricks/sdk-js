@@ -8,15 +8,15 @@ Staging / Production / Archived), transition-approval workflow, comments,
 tags, latest-version lookups, registry webhooks, and Databricks-specific
 permission/ACL extensions. Distinct from `registeredmodels` package which
 is the Unity-Catalog-scoped successor.
-**Total weird names flagged:** 61
+**Total weird names flagged:** 59
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 21 |
+| High | 20 |
 | Medium | 24 |
 | Low | 12 |
-| Observation | 4 |
+| Observation | 3 |
 
 ## High severity
 
@@ -142,21 +142,7 @@ is the Unity-Catalog-scoped successor.
 - **Suggested name:** `Comment` — or fold into `Activity` per #7.
 - **Rationale:** `Object` adds nothing; the type is already a TS object.
 
-### 9. `*_Response` suffix on dozens of interfaces — `model.ts:217, 280, 307, 322, 375, 402, 413, 423, 434, 443, 453, 464, 491, 509, 525, 537, 548, 590, 638, 653, 853, 866, 890, 917, 943, 962, 973, 1005, 1066, 1081, 1094, 1137`
-- **Why weird:** Underscore in TS identifiers (proto-style nested
-  type). Every declaration carries an `eslint-disable
-  @typescript-eslint/naming-convention` comment. 33 such offenders in
-  one file.
-- **Category:** 4 (underscores in TS identifiers), 14 (Go/Java
-  naming style).
-- **Suggested name:** Drop the underscore: `ApproveTransitionRequestResponse`,
-  `CreateCommentResponse`, etc.
-- **Rationale:** The underscore exists only to mirror protobuf nested
-  message names. TypeScript convention rejects it (the lint rule has to
-  be disabled for every single one), and `Foo_Response` reads as a
-  private/internal field by JS convention.
-
-### 10. `GetRegisteredModelDatabricks`, `RegisteredModelDatabricks`,
+### 9. `GetRegisteredModelDatabricks`, `RegisteredModelDatabricks`,
    `TransitionModelVersionStageDatabricks`, `ModelVersionDatabricks` —
    `model.ts:542, 549, 690, 758, 981, 1005`
 - **Why weird:** `Databricks` as a type suffix. The whole SDK is the
@@ -174,7 +160,7 @@ is the Unity-Catalog-scoped successor.
   (then split by capability). The current "shadow type per extension"
   is a generator artefact, not a user-friendly API.
 
-### 11. `TransitionModelVersionStageDatabricks` — `model.ts:981`
+### 10. `TransitionModelVersionStageDatabricks` — `model.ts:981`
 - **Why weird:** Five-word PascalCase identifier with awkward word
   order. Reads as "transition[verb]
   model-version-stage[object]-databricks[suffix]". For a TS type, it
@@ -190,7 +176,7 @@ is the Unity-Catalog-scoped successor.
   performing similar workspace operations; the asymmetric names obscure
   this.
 
-### 12. `GetRegisteredModelDatabricks` request DTO — `model.ts:542`
+### 11. `GetRegisteredModelDatabricks` request DTO — `model.ts:542`
 - **Why weird:** Verb-phrase request type name (`GetX`) is OK if used
   consistently, but `GetRegisteredModelDatabricks` is the only method
   the SDK exposes to fetch a registered model — there is no plain
@@ -201,7 +187,7 @@ is the Unity-Catalog-scoped successor.
 - **Rationale:** No need for the disambiguation suffix when there's no
   sibling.
 
-### 13. `client.listTransitionsRequest` method vs `ListTransitionRequest`
+### 12. `client.listTransitionsRequest` method vs `ListTransitionRequest`
    request type — `client.ts:507, model.ts:645`
 - **Why weird:** The method is `listTransitionsRequest` (plural
   "Transitions") but the request type is `ListTransitionRequest`
@@ -218,7 +204,7 @@ is the Unity-Catalog-scoped successor.
 - **Rationale:** The method name in JS conventions describes the
   collection being listed; here that's "transition requests", plural.
 
-### 14. `RegistryWebhook` vs `Webhook` — `model.ts:787`
+### 13. `RegistryWebhook` vs `Webhook` — `model.ts:787`
 - **Why weird:** Type is `RegistryWebhook` but client methods, paths,
   and request types alternate: `CreateRegistryWebhook`,
   `ListRegistryWebhooks`, `UpdateRegistryWebhook`,
@@ -230,7 +216,7 @@ is the Unity-Catalog-scoped successor.
   `UpdateWebhook`, `DeleteWebhook`, `TestWebhook`.
 - **Rationale:** Package name already establishes the registry context.
 
-### 15. `HttpUrlSpec` / `JobSpec` — `model.ts:552, 563`
+### 14. `HttpUrlSpec` / `JobSpec` — `model.ts:552, 563`
 - **Why weird:** `Spec` is a vague suffix shared by every config-bag
   in the SDK. Two sibling types in the same package, only the `Spec`
   suffix distinguishing them. `HttpUrlSpec` is the *target* of a webhook
@@ -243,7 +229,7 @@ is the Unity-Catalog-scoped successor.
 - **Rationale:** The two together discriminate the webhook
   destination kind; the naming should make that obvious.
 
-### 16. `LinkedFeature` — `model.ts:573`
+### 15. `LinkedFeature` — `model.ts:573`
 - **Why weird:** Doc comment says "Feature for model version. ([ML-57150]
   Renamed from Feature to LinkedFeature)". The ticket number leaks into
   the public docstring. Type name was changed for internal reasons
@@ -256,7 +242,7 @@ is the Unity-Catalog-scoped successor.
   type; the fields are just identifiers pointing at a feature in the
   feature store.
 
-### 17. `userId: string` field documented as username — `model.ts:154,
+### 16. `userId: string` field documented as username — `model.ts:154,
    231, 668, 700, 766, 1018`
 - **Why weird:** Field is named `userId` but every doc-comment for it
   reads "The username of the user that created the object." So the
@@ -269,7 +255,7 @@ is the Unity-Catalog-scoped successor.
 - **Rationale:** Calling a username `userId` will trip every caller who
   tries to use it as an ID for IAM lookups.
 
-### 18. `stage: string` field on `ApproveTransitionRequest`,
+### 17. `stage: string` field on `ApproveTransitionRequest`,
    `CreateTransitionRequest`, `DeleteTransitionRequest`,
    `RejectTransitionRequest`, `TransitionModelVersionStageDatabricks` —
    `model.ts:209, 396, 483, 847, 997`
@@ -285,9 +271,9 @@ is the Unity-Catalog-scoped successor.
   to a type. Currently every transition method takes `stage: string`
   with no type-level validation.
 
-### 19. `currentStage: string` field on `ModelVersion`,
+### 18. `currentStage: string` field on `ModelVersion`,
    `ModelVersionDatabricks` — `model.ts:670, 701`
-- **Why weird:** Same as #18 — typed as `string`, valid values
+- **Why weird:** Same as #17 — typed as `string`, valid values
   enumerated only in docs. Also called `currentStage` here but `stage`
   on request DTOs (no prefix). Inconsistent.
 - **Category:** 6 (misleading), 16 (type contradicts domain), 17
@@ -296,7 +282,7 @@ is the Unity-Catalog-scoped successor.
 - **Rationale:** "Current" is implicit (it's the *current* stage of
   this version).
 
-### 20. `fromStage`, `toStage` fields — `model.ts:171, 183, 248, 260, 1036, 1048`
+### 19. `fromStage`, `toStage` fields — `model.ts:171, 183, 248, 260, 1036, 1048`
 - **Why weird:** Three different `Activity`-shaped types each duplicate
   `fromStage: string | undefined`, `toStage: string | undefined`,
   again stringly typed. Identical doc-comments paste the same four-value
@@ -304,19 +290,19 @@ is the Unity-Catalog-scoped successor.
 - **Category:** 16 (type contradicts domain), 12 (duplicate concept), 7
   (overly verbose docs).
 - **Suggested name:** `fromStage: Stage`, `toStage: Stage`.
-- **Rationale:** Same as #18.
+- **Rationale:** Same as #17.
 
-### 21. `Databricks` as a suffix is overused
-- **Why weird:** 6 distinct type names end in `Databricks` (see #10).
+### 20. `Databricks` as a suffix is overused
+- **Why weird:** 6 distinct type names end in `Databricks` (see #9).
   Each one is a workspace-specific extension. The `Databricks` suffix
   appearing inside the *Databricks SDK* is tautological.
 - **Category:** 8 (redundant suffix), 20 (type-suffix tautology).
-- **Suggested name:** See #10.
-- **Rationale:** See #10.
+- **Suggested name:** See #9.
+- **Rationale:** See #9.
 
 ## Medium severity
 
-### 22. `comment: string` field overloaded across types — `model.ts:213, 234, 276, 398, 487, 849, 1001, 1022, 1062`
+### 21. `comment: string` field overloaded across types — `model.ts:213, 234, 276, 398, 487, 849, 1001, 1022, 1062`
 - **Why weird:** Same field name (`comment`) appears with three
   different meanings: (a) on `Activity` it is "user-provided comment
   associated with the activity"; (b) on `CreateComment` it is "user-
@@ -331,17 +317,17 @@ is the Unity-Catalog-scoped successor.
 - **Rationale:** A grep for `comment` in a calling project will return
   9 unrelated meanings.
 
-### 23. `creator: string` field on `DeleteTransitionRequest` — `model.ts:485`
+### 22. `creator: string` field on `DeleteTransitionRequest` — `model.ts:485`
 - **Why weird:** Field doc says "Username of the user who created this
   request." So this is a username, not a user object. Same anti-pattern
-  as #17 but with a different field name. The same concept is named
+  as #16 but with a different field name. The same concept is named
   `userId` elsewhere.
 - **Category:** 17 (inconsistent action/identifier prefix).
 - **Suggested name:** `creatorUsername` (and align with `userId` ->
-  `userName` per #17).
+  `userName` per #16).
 - **Rationale:** Two different field names for the same concept.
 
-### 24. `id: string` field — `model.ts:189, 266, 408, 461, 772, 789, 967, 1054, 1060`
+### 23. `id: string` field — `model.ts:189, 266, 408, 461, 772, 789, 967, 1054, 1060`
 - **Why weird:** Bare `id` appears on `Activity`, `CommentObject`,
   `DeleteComment`, `DeleteRegistryWebhook`, `RegisteredModelDatabricks`,
   `RegistryWebhook`, `TestRegistryWebhook`, `TransitionRequest`,
@@ -356,7 +342,7 @@ is the Unity-Catalog-scoped successor.
   remember which kind of ID this DTO wants. The wire field can stay
   `id`; the TS field should be specific.
 
-### 25. `name: string` field overloaded — many — `model.ts:195, 271, 287, 314, 382, 417, 426, 438, 447, 468, 519, 531, 543, 583, 600, 647, 660, 691, 740, 759, 832, 859, 925, 946, 982, 1072, 1087, 1100`
+### 24. `name: string` field overloaded — many — `model.ts:195, 271, 287, 314, 382, 417, 426, 438, 447, 468, 519, 531, 543, 583, 600, 647, 660, 691, 740, 759, 832, 859, 925, 946, 982, 1072, 1087, 1100`
 - **Why weird:** `name` appears on ~28 request/response types meaning
   "name of the registered model". Doc-comments mostly say "Name of the
   model" or "Registered model unique name identifier." Always the
@@ -369,7 +355,7 @@ is the Unity-Catalog-scoped successor.
 - **Rationale:** Disambiguates request structures from entity
   structures.
 
-### 26. `version: string` field overloaded — `model.ts:197, 273, 419, 428, 470, 521, 533, 649, 662, 693, 834, 927, 984, 1074`
+### 25. `version: string` field overloaded — `model.ts:197, 273, 419, 428, 470, 521, 533, 649, 662, 693, 834, 927, 984, 1074`
 - **Why weird:** Stored as a string but docs say "Model version number"
   (a number). Field is sometimes called `version`, sometimes
   `currentStage` is the contextual sibling — but never typed as a
@@ -381,7 +367,7 @@ is the Unity-Catalog-scoped successor.
 - **Rationale:** `version` is too generic a noun for a primary key in a
   package.
 
-### 27. `runId: string` field — `model.ts:294, 679, 707`
+### 26. `runId: string` field — `model.ts:294, 679, 707`
 - **Why weird:** `runId` is the MLflow tracking run that produced the
   model. The package never explains this; without prior MLflow
   knowledge `runId` is opaque.
@@ -390,7 +376,7 @@ is the Unity-Catalog-scoped successor.
 - **Rationale:** Disambiguates from any other "run" concept in the
   SDK (jobs runs, etc.).
 
-### 28. `jobId: string` on `JobSpec` — `model.ts:565`
+### 27. `jobId: string` on `JobSpec` — `model.ts:565`
 - **Why weird:** Doc says "ID of the job that the webhook runs." This is
   a Databricks Jobs job ID. `jobId` is fine but lives in a model that
   duplicates the documentation in the comment for `CreateRegistryWebhook.jobSpec`
@@ -401,7 +387,7 @@ is the Unity-Catalog-scoped successor.
   `CreateRegistryWebhook.jobSpec`.
 - **Rationale:** Doc-comment mismatch is a generator bug.
 
-### 29. `accessToken: string` on `JobSpec` — `model.ts:569`
+### 28. `accessToken: string` on `JobSpec` — `model.ts:569`
 - **Why weird:** Doc says "The personal access token used to authorize
   webhook's job runs." Shipping a PAT in a webhook config is a security
   red flag; field name should signal that. Compare to `secret` on
@@ -413,7 +399,7 @@ is the Unity-Catalog-scoped successor.
 - **Rationale:** Aligns with other Databricks SDK fields named `token`
   / `pat`.
 
-### 30. `enableSslVerification: boolean` — `model.ts:556`
+### 29. `enableSslVerification: boolean` — `model.ts:556`
 - **Why weird:** Doc-comment is 4 lines describing why you should never
   disable this. The boolean has a default (true) per the docs but the
   field is `boolean | undefined`. So `undefined` and `true` mean the
@@ -422,7 +408,7 @@ is the Unity-Catalog-scoped successor.
 - **Suggested name:** Field name OK; add `@default true` JSDoc tag.
 - **Rationale:** Make default-truthy fields clearer.
 
-### 31. `authorization: string` — `model.ts:560`
+### 30. `authorization: string` — `model.ts:560`
 - **Why weird:** "Value of the authorization header" — should probably
   be named `authorizationHeader` (since `authorization` looks like an
   abstract noun, not the actual header value).
@@ -431,7 +417,7 @@ is the Unity-Catalog-scoped successor.
 - **Rationale:** Clarifies the field stores the wire-format header
   value.
 
-### 32. `event: RegistryWebhookEvent | undefined` (singular) on
+### 31. `event: RegistryWebhookEvent | undefined` (singular) on
    `TestRegistryWebhook` — `model.ts:969`
 - **Why weird:** Singular `event` while every other type uses
   `events: RegistryWebhookEvent[]`. Inconsistent.
@@ -442,7 +428,7 @@ is the Unity-Catalog-scoped successor.
   with `event` and document the asymmetry.
 - **Rationale:** Asymmetry across sibling types causes refactor errors.
 
-### 33. `modelName: string` field on `CreateRegistryWebhook`,
+### 32. `modelName: string` field on `CreateRegistryWebhook`,
    `ListRegistryWebhooks`, `RegistryWebhook` — `model.ts:329, 601, 827`
 - **Why weird:** This is the *registered model* name. Elsewhere in the
   same model the same concept is called `name` (on requests scoped to a
@@ -453,7 +439,7 @@ is the Unity-Catalog-scoped successor.
   with package context — but consistent.
 - **Rationale:** Same concept, two names.
 
-### 34. `events: RegistryWebhookEvent[]` doc paste — `model.ts:331-355,
+### 33. `events: RegistryWebhookEvent[]` doc paste — `model.ts:331-355,
    602-630, 791-815, 1102-1127`
 - **Why weird:** The 25-line "Events that can trigger a registry
   webhook" doc block is copy-pasted at least 4 times across types
@@ -464,7 +450,7 @@ is the Unity-Catalog-scoped successor.
   signature plus a one-line description should remain.
 - **Rationale:** Quality-of-life for consumers reading JSDoc.
 
-### 35. `tags?: ModelVersionTag[] | undefined` and
+### 34. `tags?: ModelVersionTag[] | undefined` and
    `tags?: RegisteredModelTag[] | undefined` — `model.ts:296, 316, 685,
    719, 755, 776`
 - **Why weird:** Two parallel `*Tag` types (`ModelVersionTag`,
@@ -475,7 +461,7 @@ is the Unity-Catalog-scoped successor.
 - **Suggested name:** Single `Tag` type with `{ key, value }`.
 - **Rationale:** Identical structure should have identical type.
 
-### 36. `availableActions: ActivityAction[]` doc — `model.ts:187`
+### 35. `availableActions: ActivityAction[]` doc — `model.ts:187`
 - **Why weird:** Field comment "Array of actions on the activity
   allowed for the current viewer." So `availableActions` actually means
   "allowed actions for current viewer", which differs from "available
@@ -484,7 +470,7 @@ is the Unity-Catalog-scoped successor.
 - **Suggested name:** `allowedActions` or `permittedActions`.
 - **Rationale:** Encodes the viewer-permission semantics.
 
-### 37. `systemComment: string | undefined` — `model.ts:185, 262, 1050`
+### 36. `systemComment: string | undefined` — `model.ts:185, 262, 1050`
 - **Why weird:** The same paragraph-long doc-comment is pasted on three
   identical fields across three identical types. "Comment made by
   system, for example explaining an activity of type
@@ -494,7 +480,7 @@ is the Unity-Catalog-scoped successor.
   consolidation via #7.
 - **Rationale:** Same as #7.
 
-### 38. `openRequests: Activity[]` on `ModelVersionDatabricks` — `model.ts:716`
+### 37. `openRequests: Activity[]` on `ModelVersionDatabricks` — `model.ts:716`
 - **Why weird:** Typed as `Activity[]` but the field is documented as
   "Open requests for this `model_versions`" — they are transition
   *requests* (not arbitrary activities). The reason is the
@@ -504,15 +490,16 @@ is the Unity-Catalog-scoped successor.
   (post-rename per #7).
 - **Rationale:** Restores the intent.
 
-### 39. `requests: Activity[]` on `ListTransitionRequest_Response` —
+### 38. `requests: Activity[]` on list-transition-requests response —
    `model.ts:655`
-- **Why weird:** Same problem: stored as `Activity[]` but the response
-  is documented as "Array of open transition requests."
+- **Why weird:** Stored as `Activity[]` but the response is documented
+  as "Array of open transition requests."
 - **Category:** 6 (misleading type), 15 (generic field name).
 - **Suggested name:** `transitionRequests: TransitionRequest[]`.
-- **Rationale:** Same as #38.
+- **Rationale:** Same as #37 — type contradicts domain because of the
+  identical-shape problem (#7).
 
-### 40. `request: TransitionRequest` on `CreateTransitionRequest_Response` —
+### 39. `request: TransitionRequest` on create-transition-request response —
    `model.ts:404`
 - **Why weird:** Field `request` on a response is contradictory — a
   response holds a "request"? In context, the wrapped object is the
@@ -523,23 +510,23 @@ is the Unity-Catalog-scoped successor.
 - **Rationale:** Removes the "request inside a response" cognitive
   stumble.
 
-### 41. `registeredModelDatabricks: RegisteredModelDatabricks` —
+### 40. `registeredModelDatabricks: RegisteredModelDatabricks` —
    `model.ts:549`
 - **Why weird:** Field name *is* the type name verbatim. The `Databricks`
-  suffix problem (#10) cascades into the field name.
+  suffix problem (#9) cascades into the field name.
 - **Category:** 20 (type-suffix tautology).
 - **Suggested name:** After dropping the `Databricks` suffix from the
   type: `registeredModel: RegisteredModel`. Or just return the type
   directly without a wrapper.
 - **Rationale:** Reduces verbosity by removing the wrapper.
 
-### 42. `modelVersionDatabricks: ModelVersionDatabricks` — `model.ts:1007`
-- **Why weird:** Same as #41 for `ModelVersionDatabricks`.
+### 41. `modelVersionDatabricks: ModelVersionDatabricks` — `model.ts:1007`
+- **Why weird:** Same as #40 for `ModelVersionDatabricks`.
 - **Category:** 20.
 - **Suggested name:** `modelVersion: ModelVersion`.
 - **Rationale:** Same.
 
-### 43. `getLatestVersions` / `GetLatestVersions` — `client.ts:908`,
+### 42. `getLatestVersions` / `GetLatestVersions` — `client.ts:908`,
    `model.ts:501`
 - **Why weird:** The method returns *one* version per stage, not "the
   latest version" globally. The name reads as "give me the latest
@@ -552,16 +539,16 @@ is the Unity-Catalog-scoped successor.
   `getLatestVersionsByStage`.
 - **Rationale:** Conveys the per-stage semantics.
 
-### 44. `latestVersions: ModelVersion[]` on `RegisteredModel`,
+### 43. `latestVersions: ModelVersion[]` on `RegisteredModel`,
    `RegisteredModelDatabricks` — `model.ts:753, 770`
 - **Why weird:** Plural array but the doc says "Collection of latest
-  model versions for each stage". Same ambiguity as #43.
+  model versions for each stage". Same ambiguity as #42.
 - **Category:** 6 (misleading), 15 (generic).
 - **Suggested name:** `latestVersionsByStage` (and consider returning a
   map keyed by stage name).
 - **Rationale:** Same.
 
-### 45. `featureTableId`, `featureTableName`, `featureName` on
+### 44. `featureTableId`, `featureTableName`, `featureName` on
    `LinkedFeature` — `model.ts:575, 577, 579`
 - **Why weird:** Both `featureTableId` and `featureTableName` are
   exposed — primary key duplication. Doc-comments are bare ("Feature
@@ -572,7 +559,7 @@ is the Unity-Catalog-scoped successor.
   relationship.
 - **Rationale:** Without docs, callers won't know which to populate.
 
-### 46. `body: string` on `TestRegistryWebhook_Response` — `model.ts:977`
+### 45. `body: string` on test-registry-webhook response — `model.ts:977`
 - **Why weird:** Field `body` typed as `string`. Webhook test results
   could return any payload. `body` is too generic; could be
   `responseBody`.
@@ -580,7 +567,7 @@ is the Unity-Catalog-scoped successor.
 - **Suggested name:** `responseBody`.
 - **Rationale:** Clearer pair with `statusCode`.
 
-### 47. `statusCode: number` on `TestRegistryWebhook_Response` —
+### 46. `statusCode: number` on test-registry-webhook response —
    `model.ts:975`
 - **Why weird:** Could be `httpStatusCode` for clarity (it's the HTTP
   status the test got back).
@@ -588,7 +575,7 @@ is the Unity-Catalog-scoped successor.
 - **Suggested name:** `httpStatusCode`.
 - **Rationale:** Matches typical Web API vocabulary.
 
-### 48. `archiveExistingVersions: boolean` — `model.ts:211, 999`
+### 47. `archiveExistingVersions: boolean` — `model.ts:211, 999`
 - **Why weird:** Field documented "Specifies whether to archive all
   current model versions in the target stage." The word "current"
   appears in the doc but not the field; the boolean reads as "archive
@@ -597,7 +584,7 @@ is the Unity-Catalog-scoped successor.
 - **Suggested name:** `archiveExistingVersionsInTargetStage`.
 - **Rationale:** Captures the location semantics.
 
-### 49. `description: string` overloaded — `model.ts:302, 318, 358, 672,
+### 48. `description: string` overloaded — `model.ts:302, 318, 358, 672,
    703, 748, 768, 822, 1077, 1090, 1129`
 - **Why weird:** Same field on 11 types, each meaning slightly different
   things (registered-model description, model-version description,
@@ -608,7 +595,7 @@ is the Unity-Catalog-scoped successor.
   clear; flag for consistency.
 - **Rationale:** Common across SDK; low cost to leave alone.
 
-### 50. `secret: string` on `HttpUrlSpec` — `model.ts:558`
+### 49. `secret: string` on `HttpUrlSpec` — `model.ts:558`
 - **Why weird:** Bare `secret` is generic; doc says it's the "Shared
   secret required for HMAC encoding payload."
 - **Category:** 1 (vague), 15 (generic).
@@ -617,7 +604,7 @@ is the Unity-Catalog-scoped successor.
 
 ## Low severity
 
-### 51. `creationTimestamp: number` — `model.ts:152, 229, 664, 696, 742,
+### 50. `creationTimestamp: number` — `model.ts:152, 229, 664, 696, 742,
    761, 818, 1017`
 - **Why weird:** Field is repeated across types with identical
   `Unix timestamp in milliseconds` doc. Naming OK but could be
@@ -626,14 +613,14 @@ is the Unity-Catalog-scoped successor.
 - **Suggested name:** `createdAt`.
 - **Rationale:** Aligns with JS conventions; flag as observation only.
 
-### 52. `lastUpdatedTimestamp: number` — `model.ts:159, 236, 666, 698, 744,
+### 51. `lastUpdatedTimestamp: number` — `model.ts:159, 236, 666, 698, 744,
    763, 820, 1024`
-- **Why weird:** Same as #51; `updatedAt` is more idiomatic.
+- **Why weird:** Same as #50; `updatedAt` is more idiomatic.
 - **Category:** 14.
 - **Suggested name:** `updatedAt`.
-- **Rationale:** Same as #51.
+- **Rationale:** Same as #50.
 
-### 53. `statusMessage: string` — `model.ts:683, 710`
+### 52. `statusMessage: string` — `model.ts:683, 710`
 - **Why weird:** Field name fine but doc says it's only set "if it is
   pending or failed", so the field is conditionally meaningful — not in
   the type signature.
@@ -641,7 +628,7 @@ is the Unity-Catalog-scoped successor.
 - **Suggested name:** Field name OK; document the conditional.
 - **Rationale:** Low priority.
 
-### 54. `source: string` on `ModelVersion`, `ModelVersionDatabricks`,
+### 53. `source: string` on `ModelVersion`, `ModelVersionDatabricks`,
    `CreateModelVersion` — `model.ts:289, 674, 704`
 - **Why weird:** "URI indicating the location of the source model
   artifacts." Just `source` is vague; `sourceUri` or `artifactUri` would
@@ -650,7 +637,7 @@ is the Unity-Catalog-scoped successor.
 - **Suggested name:** `sourceUri`.
 - **Rationale:** Companion field is `runLink` (already specific).
 
-### 55. `runLink: string` — `model.ts:301, 687, 720`
+### 54. `runLink: string` — `model.ts:301, 687, 720`
 - **Why weird:** "MLflow run link - this is the exact link of the run".
   `runLink` is OK but `runUrl` would be more idiomatic for a URL.
 - **Category:** 14 (Java-style "link" vs JS "url").
@@ -658,7 +645,7 @@ is the Unity-Catalog-scoped successor.
 - **Rationale:** "Link" is HTML/UI vocabulary; URL is what's actually
   stored.
 
-### 56. `key: string` and `value: string` on `ModelVersionTag`,
+### 55. `key: string` and `value: string` on `ModelVersionTag`,
    `RegisteredModelTag` — `model.ts:733, 735, 782, 784`
 - **Why weird:** `key`/`value` are extremely generic and reused across
   many SDK packages. Not really wrong, just observation.
@@ -667,7 +654,7 @@ is the Unity-Catalog-scoped successor.
   preferred).
 - **Rationale:** Trade-off vs verbosity. Low priority.
 
-### 57. `pageToken`, `nextPageToken`, `maxResults` — `model.ts:586, 593,
+### 56. `pageToken`, `nextPageToken`, `maxResults` — `model.ts:586, 593,
    633, 642, 877, 893, 905, 921`
 - **Why weird:** Consistent across the package — good. Noted for
   completeness.
@@ -675,7 +662,7 @@ is the Unity-Catalog-scoped successor.
 - **Suggested name:** No change.
 - **Rationale:** Observation.
 
-### 58. `orderBy: string[]` on `SearchModelVersions`,
+### 57. `orderBy: string[]` on `SearchModelVersions`,
    `SearchRegisteredModels` — `model.ts:884, 911`
 - **Why weird:** Stringly-typed sort spec; doc says values are like
   `"name DESC"` or `"version ASC"`. Could be a typed `Sort` struct, but
@@ -684,14 +671,14 @@ is the Unity-Catalog-scoped successor.
 - **Suggested name:** Field name OK; flag the stringly-typed pattern.
 - **Rationale:** Matches REST API conventions; low cost.
 
-### 59. `filter: string` on `SearchModelVersions`,
+### 58. `filter: string` on `SearchModelVersions`,
    `SearchRegisteredModels` — `model.ts:875, 903`
-- **Why weird:** Stringly-typed search filter (SQL-like). Same as #58.
+- **Why weird:** Stringly-typed search filter (SQL-like). Same as #57.
 - **Category:** 16.
 - **Suggested name:** No change; could be `filterExpression`.
 - **Rationale:** REST convention.
 
-### 60. `newName: string` on `RenameRegisteredModel` — `model.ts:862`
+### 59. `newName: string` on `RenameRegisteredModel` — `model.ts:862`
 - **Why weird:** Field doc says "If provided, updates the name for this
   `registered_model`." Slightly confusing because `RenameRegisteredModel`
   is *the* rename operation — "if provided" implies optional, but rename
@@ -701,7 +688,7 @@ is the Unity-Catalog-scoped successor.
   omission is a no-op.
 - **Rationale:** Optional-but-required-in-practice fields confuse users.
 
-### 61. `name: string` on `RenameRegisteredModel` — `model.ts:859`
+### 60. `name: string` on `RenameRegisteredModel` — `model.ts:859`
 - **Why weird:** Field doc "Registered model unique name identifier." -
   duplicates the type name semantics. Could be `currentName` to pair with
   `newName` for clarity.
@@ -709,7 +696,7 @@ is the Unity-Catalog-scoped successor.
 - **Suggested name:** `currentName` + `newName`.
 - **Rationale:** Symmetry improves readability of rename payloads.
 
-### 62. `httpUrlSpec` / `jobSpec` doc on `CreateRegistryWebhook` —
+### 61. `httpUrlSpec` / `jobSpec` doc on `CreateRegistryWebhook` —
    `model.ts:369-371`
 - **Why weird:** Doc-comment on `jobSpec` (line 371) is literally just
   "ID of the job that the webhook runs." — wrong, since `jobSpec` is a
@@ -720,14 +707,7 @@ is the Unity-Catalog-scoped successor.
 
 ## Observations
 
-### 63. `*_Response` underscore lint-disable density
-The model file has 33 `*_Response` types, each carrying an
-`eslint-disable @typescript-eslint/naming-convention` comment to permit
-the underscore. This is the highest disable-count-per-type density I've
-seen — a sign the generator's proto idioms are fighting TS conventions.
-- **Category:** Observation.
-
-### 64. Both `modelregistry` and `registeredmodels` exist as packages
+### 62. Both `modelregistry` and `registeredmodels` exist as packages
 The user instruction calls out this duplication. Cross-package overlap:
 - `RegisteredModel` (modelregistry) vs `RegisteredModelInfo`
   (registeredmodels) — same concept, different names.
@@ -745,7 +725,7 @@ The user instruction calls out this duplication. Cross-package overlap:
   Documentation does not direct users to one or the other.
 - **Category:** 12 (duplicate concepts — across packages).
 
-### 65. Action-verb conventions in `Client`
+### 63. Action-verb conventions in `Client`
 The client mixes `Approve` / `Reject` (active verbs for transition-
 request lifecycle) with `Set` / `Delete` (CRUD) and `Test` (verb for
 webhook health) and `Transition` (verb-as-method-name for state
@@ -754,7 +734,7 @@ reasonably motivated by the underlying state model. Not a defect, but
 worth noting.
 - **Category:** 17 (mixed but justified).
 
-### 66. Acronym casing inside doc-comments
+### 64. Acronym casing inside doc-comments
 `MLflow` is consistent throughout (good). `HTTP` appears as `HTTPS`
 (`HttpUrlSpec` doc, model.ts:553) and `HTTPS` (doc, model.ts:368). Type
 names use `Http` (Pascal). Standard JS-ecosystem split between Pascal-Http

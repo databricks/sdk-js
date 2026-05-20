@@ -21,11 +21,11 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 
 | Severity     | Count |
 | ------------ | ----- |
-| High         | 16    |
-| Medium       | 18    |
+| High         | 9     |
+| Medium       | 16    |
 | Low          | 18    |
 | Observation  | 7     |
-| **Total**    | **59**|
+| **Total**    | **50**|
 
 ### Top themes
 
@@ -33,13 +33,11 @@ configuration, idle / used statistics, and pending-instance failure reporting.
    `EditInstancePool` (29 fields), `GetInstancePool_Response` (30 fields), and
    `InstancePoolAndStats` (30 fields) are byte-identical apart from one or two
    fields. They could share a single base type.
-2. **Proto-style `_Response` and `_*Entry` types pollute the public surface.**
-   12 type names use `_` separators, each requiring an `eslint-disable`.
-3. **`InstancePool*` prefix on every type is redundant** — the package is
+2. **`InstancePool*` prefix on every type is redundant** — the package is
    already `instancepools`; the v2 namespace is even smaller. `Pool` (or even
    nothing) would do for `InstancePoolStats`, `InstancePoolStatus`,
    `InstancePoolAndStats`.
-4. **Per-cloud enum-prefix inconsistency** — `AwsAvailability` members are
+3. **Per-cloud enum-prefix inconsistency** — `AwsAvailability` members are
    unprefixed (`SPOT`, `ON_DEMAND`), but `AzureAvailability` (`SPOT_AZURE`)
    and `GcpAvailability` (`PREEMPTIBLE_GCP`) repeat the enum's cloud. The
    same defect exists in `clusters` (see `clusters.md` #3) — fix once at
@@ -143,23 +141,7 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | A-04  | `InstancePoolGcpAttributes.localSsdCount` | Low | "Ssd" is 3 letters; same casing rule. OK. |
 | A-05  | `InstancePoolAzureAttributes.spotBidMaxPrice` vs `InstancePoolAwsAttributes.spotBidPricePercent` | Medium | Sibling fields describe the same concept (max price for spot bid) in opposite shapes. `MaxPrice` is an absolute USD value; `PricePercent` is relative. Names obscure this — `azureSpotBidMaxPriceUsd` and `awsSpotBidPricePercent` (or any clarifying suffix) would help. |
 
-### 2.4 Underscores in TS identifiers — High
-
-| ID    | Symbol                                              | Severity | Issue |
-| ----- | --------------------------------------------------- | -------- | ----- |
-| U-01  | `CreateInstancePool_CustomTagsEntry` (`model.ts:175`) | High   | Proto-nested name carries the `_` separator that Google TS style forbids (https://google.github.io/styleguide/tsguide.html#naming-style). Each occurrence requires an `eslint-disable @typescript-eslint/naming-convention`. |
-| U-02  | `CreateInstancePool_Response` (`model.ts:191`)      | High     | Same as U-01. |
-| U-03  | `DeleteInstancePool_Response` (`model.ts:202`)      | High     | Same as U-01. |
-| U-04  | `EditInstancePool_CustomTagsEntry` (`model.ts:364`) | High     | Same as U-01. |
-| U-05  | `EditInstancePool_Response` (`model.ts:380`)        | High     | Same as U-01. |
-| U-06  | `GetInstancePool_Response` (`model.ts:388`)         | High     | Same as U-01. |
-| U-07  | `GetInstancePool_Response_CustomTagsEntry` (`model.ts:493`) — *double underscore* | High | The proto-nesting compounds: `Response` is itself nested, and `CustomTagsEntry` is nested inside `Response`. 40-char identifier. |
-| U-08  | `GetInstancePool_Response_DefaultTagsEntry` (`model.ts:509`) — *double underscore* | High | Same as U-07. |
-| U-09  | `InstancePoolAndStats_CustomTagsEntry` (`model.ts:629`) | High | Same as U-01. |
-| U-10  | `InstancePoolAndStats_DefaultTagsEntry` (`model.ts:645`) | High | Same as U-01. |
-| U-11  | `ListInstancePools_Response` (`model.ts:762`)        | High     | Same as U-01. |
-
-### 2.5 Cryptic abbreviations — Medium
+### 2.4 Cryptic abbreviations — Medium
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
@@ -173,7 +155,7 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | C-08  | `Fleet-V2` in JSDoc `"For pools with node type flexibility (Fleet-V2)"` | Medium | Internal codename leaking into public docs. |
 | C-09  | `Mb/s` in JSDoc `"configurable throughput (in Mb/s)"` (`model.ts:168, 357, 486, 622`) | Low | Likely intended `MB/s` (megabytes per second) given the cloud-disk-throughput context; `Mb/s` (megabits) is unusual for disk throughput. Possible casing typo upstream. |
 
-### 2.6 Misleading names — High
+### 2.5 Misleading names — High
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
@@ -187,7 +169,7 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | M-08  | `preloadedSparkVersions: string[]` with JSDoc "A list containing at most one preloaded Spark image version" | High | Type is `string[]` but the JSDoc enforces a max length of 1. If only one value is allowed, the field should be `preloadedSparkVersion?: string` (singular). The array shape misleads callers into thinking they can pass several. |
 | M-09  | `InstancePoolStats.usedCount` / `idleCount` / `pendingUsedCount` / `pendingIdleCount` | Low | Adequate, but `usedCount` is ambiguous about what "used" means. JSDoc clarifies ("part of a cluster") — without it, readers might think "used = ever used". |
 
-### 2.7 Overly verbose / Redundant suffixes — Medium
+### 2.6 Overly verbose / Redundant suffixes — Medium
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
@@ -199,7 +181,7 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | O-06  | `totalInitialRemoteDiskSize`        | Low      | 25-char field, four concept words. Reasonable but heavy. |
 | O-07  | `spotBidPricePercent`               | Low      | Five concept words crammed into one camelCase identifier. The JSDoc explains what each part means. |
 
-### 2.8 Singular / plural mismatches — Low / High
+### 2.7 Singular / plural mismatches — Low / High
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
@@ -207,51 +189,41 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | P-02  | `preloadedDockerImages: DockerImage[]` | Low | Plural array; JSDoc says "Custom Docker Image BYOC" but the field accepts multiple. OK. |
 | P-03  | `ListInstancePools` (request) vs `listInstancePools()` (method) | Low | Consistent plural. |
 | P-04  | `ListInstancePools_Response.instancePools: InstancePoolAndStats[]` | Low | Plural array — correct. |
-| P-05  | `customTags` is `Record<string, string>` but the proto-side schema also exposes `_CustomTagsEntry` interface | Observation | TS uses the record. See W-01 for the underscore-naming concern. |
 
-### 2.9 Reserved-word collisions — Medium
+### 2.8 Reserved-word collisions — Medium
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | R-01  | `DockerImage.credsOneof.$case === 'basicAuth'.basicAuth: DockerBasicAuth` | Low | `basicAuth` is not a reserved word but is duplicated across the `$case` discriminator and the embedded field — `library.lib.basicAuth.basicAuth` style access. |
 | R-02  | None of the type names collide with TS reserved words. | — | OK. |
 
-### 2.10 Underscore-laden wrapper types — High
-
-| ID    | Symbol                              | Severity | Issue |
-| ----- | ----------------------------------- | -------- | ----- |
-| W-01  | `*_CustomTagsEntry` (six occurrences: 175, 364, 493, 629) and `*_DefaultTagsEntry` (two occurrences: 509, 645) | High | These eight interfaces are proto-internal map-entry shapes whose underscore-laden names (`CreateInstancePool_CustomTagsEntry` etc.) each require an `eslint-disable @typescript-eslint/naming-convention`. They are exported via `index.ts` (8 names) under proto-style identifiers that violate Google TS style. |
-| W-02  | `InstancePoolStatus` (`model.ts:748-756`) | Medium | The type's name promises a general "status" but its shape exposes only `pendingInstanceErrors`. Misleading (see also M-02). |
-
-### 2.11 Duplicate concepts — Highest in repo
+### 2.9 Duplicate concepts — Highest in repo
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | D-01  | `CreateInstancePool` (28 fields, lines 90-172) vs `EditInstancePool` (29 fields, lines 277-361) | High | Identical except `EditInstancePool` adds `instancePoolId`. Could share a base type. |
 | D-02  | `GetInstancePool_Response` (30 fields, lines 388-490) vs `InstancePoolAndStats` (30 fields, lines 524-626) | High | **Byte-identical** apart from the type name. Compare line-by-line: identical field set, identical order, identical JSDoc. Two names for the same shape. |
-| D-03  | `*_CustomTagsEntry` types (six declared, lines 175, 364, 493, 629) vs `*_DefaultTagsEntry` types (two declared, lines 509, 645) | High | All eight are byte-identical `{ key?: string; value?: string }`. One shared type would do. Same as `clusterpolicies` (clusterpolicies.md #W-04) and other packages — codegen-wide issue. |
-| D-04  | `CreateInstancePool` vs the `Pool` body inside `InstancePoolAndStats` | High | All 28 config fields appear three times: once on Create, once on Edit (29), once on the entity. Codegen could project from a shared base. |
-| D-05  | `InstancePoolAwsAttributes` (this package) vs `AwsAttributes` (`clusters` package) | High | Same domain (AWS attributes for a compute pool / cluster). `clusters` calls them `AwsAttributes`; this package calls them `InstancePoolAwsAttributes`. Both share many fields (availability, zoneId, instanceProfileArn, spotBid…) but `clusters` has additional fields (`ebsVolumeCount`, etc.). Cross-package duplication; a shared `compute` module would fix both. |
-| D-06  | `InstancePoolAzureAttributes` / `InstancePoolGcpAttributes` vs `clusters.AzureAttributes` / `clusters.GcpAttributes` | High | Same as D-05 for Azure / GCP. |
-| D-07  | `EbsVolumeType`, `AzureDiskVolumeType`, `AwsAvailability`, `AzureAvailability`, `GcpAvailability`, `DockerImage`, `DockerBasicAuth`, `DiskSpec`, `DiskType`, `NodeTypeFlexibility`, `PendingInstanceError` | High | All eleven types/enums are duplicated verbatim in `clusters/src/v2/model.ts` (verified via `grep`). Two packages ship eleven identical shapes. |
+| D-03  | `CreateInstancePool` vs the `Pool` body inside `InstancePoolAndStats` | High | All 28 config fields appear three times: once on Create, once on Edit (29), once on the entity. Codegen could project from a shared base. |
+| D-04  | `InstancePoolAwsAttributes` (this package) vs `AwsAttributes` (`clusters` package) | High | Same domain (AWS attributes for a compute pool / cluster). `clusters` calls them `AwsAttributes`; this package calls them `InstancePoolAwsAttributes`. Both share many fields (availability, zoneId, instanceProfileArn, spotBid…) but `clusters` has additional fields (`ebsVolumeCount`, etc.). Cross-package duplication; a shared `compute` module would fix both. |
+| D-05  | `InstancePoolAzureAttributes` / `InstancePoolGcpAttributes` vs `clusters.AzureAttributes` / `clusters.GcpAttributes` | High | Same as D-04 for Azure / GCP. |
+| D-06  | `EbsVolumeType`, `AzureDiskVolumeType`, `AwsAvailability`, `AzureAvailability`, `GcpAvailability`, `DockerImage`, `DockerBasicAuth`, `DiskSpec`, `DiskType`, `NodeTypeFlexibility`, `PendingInstanceError` | High | All eleven types/enums are duplicated verbatim in `clusters/src/v2/model.ts` (verified via `grep`). Two packages ship eleven identical shapes. |
 
-### 2.12 Verb-tense inconsistency — Low
+### 2.10 Verb-tense inconsistency — Low
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | T-01  | `createInstancePool`, `deleteInstancePool`, `editInstancePool`, `getInstancePool`, `listInstancePools` | Low | All present-tense imperative — consistent. |
 | T-02  | `preloadedDockerImages`, `preloadedSparkVersions` (past participle) | Low | Standard for fields that describe a pre-applied state. OK. |
 
-### 2.13 Go / Java-style names — High
+### 2.11 Go / Java-style names — High
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
-| G-01  | `CreateInstancePool_Response`, `EditInstancePool_Response`, ... (proto-nested message style) | High | Direct port of Go `pb.CreateInstancePoolResponse`. Every occurrence requires `eslint-disable`. Repo-wide concern; flagged here. |
-| G-02  | `DockerImage.credsOneof`            | High     | `Oneof` is a literal proto-keyword leak. No TS reader expects this. See V-01. |
-| G-03  | `InstancePoolAndStats` (the "X-AndY" naming pattern) | Medium | "And" combinators in type names are a Go-isms (e.g., `ResultAndError`). TS usually picks a concept name. |
-| G-04  | `httpClient`, `HttpClient` (vs `HTTPClient`) | Low | Google TS style uses `Http` (lowercased acronym) — consistent. |
+| G-01  | `DockerImage.credsOneof`            | High     | `Oneof` is a literal proto-keyword leak. No TS reader expects this. See V-01. |
+| G-02  | `InstancePoolAndStats` (the "X-AndY" naming pattern) | Medium | "And" combinators in type names are a Go-isms (e.g., `ResultAndError`). TS usually picks a concept name. |
+| G-03  | `httpClient`, `HttpClient` (vs `HTTPClient`) | Low | Google TS style uses `Http` (lowercased acronym) — consistent. |
 
-### 2.14 Generic field names losing meaning — Medium
+### 2.12 Generic field names losing meaning — Medium
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
@@ -261,16 +233,15 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | F-04  | `PendingInstanceError.message`      | Medium (also V-02) | When destructured, an error `message` field is the generic-est possible name. Adding `instanceMessage` would help. |
 | F-05  | `InstancePoolStatus.pendingInstanceErrors[]` | Low | OK. |
 | F-06  | `NodeTypeFlexibility.alternateNodeTypeIds` (outside the wrapper) | Low | Standalone, `alternateNodeTypeIds: string[]` is clear. OK. |
-| F-07  | `*_CustomTagsEntry.key` / `*_CustomTagsEntry.value` | Medium | Outside the entry type, `key` and `value` are the genericest possible field names. (See W-01 for the underscore-naming concern on the entry types.) |
-| F-08  | `httpReq`, `respBody`, `params` (locals in `client.ts`) | Low | Locals only. |
+| F-07  | `httpReq`, `respBody`, `params` (locals in `client.ts`) | Low | Locals only. |
 
-### 2.15 Field contradicting type domain — Low
+### 2.13 Field contradicting type domain — Low
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
 | K-01  | None observed. All fields are within their type's domain. | — | OK. |
 
-### 2.16 Inconsistent action verbs — Medium
+### 2.14 Inconsistent action verbs — Medium
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
@@ -278,7 +249,7 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | AV-02 | `getInstancePool()` (singular) vs `listInstancePools()` (plural) | Low | Correct REST convention. OK. |
 | AV-03 | `createInstancePool()` / `deleteInstancePool()` / `editInstancePool()` / `getInstancePool()` / `listInstancePools()` — only five verbs | Low | No `start`, `stop`, `pin`, etc. — instance pools are stateless from the API standpoint; the lifecycle is implicit via fewer endpoints than `clusters`. Consistent. |
 
-### 2.17 Long enum values — Low
+### 2.15 Long enum values — Low
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
@@ -287,7 +258,7 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | L-03  | `EbsVolumeType.THROUGHPUT_OPTIMIZED_HDD` (24 chars) | Low | Standard AWS terminology; OK. |
 | L-04  | `AzureDiskVolumeType.STANDARD_LRS` (12 chars) | Low | Short. OK. |
 
-### 2.18 Underspecified IDs — Medium
+### 2.16 Underspecified IDs — Medium
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
@@ -298,7 +269,7 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | I-05  | `NodeTypeFlexibility.alternateNodeTypeIds: string[]` | Low | Plural array of node-type IDs; scoped. OK. |
 | I-06  | `InstancePoolAwsAttributes.zoneId` / `InstancePoolGcpAttributes.zoneId` | Low | Both reuse `zoneId` for the AWS availability zone ("us-west-2a") and GCP availability zone ("us-west1-a"). Same name, two slightly different value formats. Acceptable cross-cloud abstraction. |
 
-### 2.19 Type-suffix tautology — Medium
+### 2.17 Type-suffix tautology — Medium
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
@@ -306,12 +277,12 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | TS-02 | `InstancePoolStats`                 | Medium   | `Stats` is already abbreviated; the `InstancePool` prefix is redundant inside this package. |
 | TS-03 | `InstancePoolStatus`                | Medium   | Same as TS-02. |
 | TS-04 | `InstancePoolState` (enum)          | Medium   | Same. Could be `State` or `PoolState`. |
-| TS-05 | `InstancePoolAndStats`              | High     | Tautological + Go-style "And"-joiner (G-03). Doubly off. |
+| TS-05 | `InstancePoolAndStats`              | High     | Tautological + Go-style "And"-joiner (G-02). Doubly off. |
 | TS-06 | `NodeTypeFlexibility`               | Low      | "Flexibility" is the noun-form of a feature, not a type-suffix tautology. OK. |
 | TS-07 | `DiskSpec`                          | Low      | `Spec` is acceptable, but combined with each field's `disk*` prefix (M-05) the type-name still echoes. |
 | TS-08 | `EbsVolumeType`, `AzureDiskVolumeType` | Low | `VolumeType` / `DiskVolumeType` — standard cloud-storage terminology. OK. |
 
-### 2.20 Other observations
+### 2.18 Other observations
 
 | ID    | Symbol                              | Severity | Issue |
 | ----- | ----------------------------------- | -------- | ----- |
@@ -321,7 +292,6 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 | X-04  | `client.ts:165-167` builds query manually inside `getInstancePool`. `utils.ts:123` exports `flattenQueryParams` but it is unused. | Observation | Dead exported helper. Same observation as in `abacpolicies.md` and other audits. |
 | X-05  | `client.ts:191` `_req: ListInstancePools` for empty request type | Observation | Generator artefact: empty request type still produced and prefixed `_` to satisfy lint. |
 | X-06  | `executeCall` / `executeHttpCall` pair (`utils.ts:26, 65`) | Observation | Same name-pair concern as in other audits (`abacpolicies.md` #36, `clusters.md` #90). One function name differs from the other only by `Http`. |
-| X-07  | `index.ts` re-exports 28 type symbols and 6 enum symbols. The `_CustomTagsEntry`/`_DefaultTagsEntry` types (8 names) *are* re-exported under proto-style underscore names. See W-01. | Observation | Public surface area carries the underscore-named entry types. |
 
 ---
 
@@ -329,11 +299,11 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 
 | Severity     | Count |
 | ------------ | ----- |
-| High         | 16    |
-| Medium       | 18    |
+| High         | 9     |
+| Medium       | 16    |
 | Low          | 18    |
 | Observation  | 7     |
-| **Total**    | **59**|
+| **Total**    | **50**|
 
 ## 4. Cross-package consistency notes
 
@@ -346,9 +316,6 @@ configuration, idle / used statistics, and pending-instance failure reporting.
 - The `*Attributes` types (`InstancePoolAwsAttributes` etc.) overlap heavily
   with `clusters` `AwsAttributes` etc., but the field sets differ. A common
   base + extension would still help.
-- The `_Response` / `_*Entry` proto-nesting concern is identical to that flagged in
-  every other audit in this directory; it is a codegen-wide issue, not a
-  per-package fix.
 
 ## 5. File coverage
 

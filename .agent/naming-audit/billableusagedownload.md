@@ -126,7 +126,7 @@ The field is typed `ReadableStream` (no type parameter) rather than `ReadableStr
 The TS field `personalData` maps to wire `personal_data`, `startMonth` -> `start_month`, etc. The query-param construction in `client.ts:70-79` does it manually and correctly. Good — no naming bug here, just noting that no schema/codec layer is needed because this is a query-string-only request.
 
 ### 19. No enums, no list-types, no FieldMask
-This package is one of the simplest in the SDK: zero enums, zero list/paginated types, zero proto-nested `_Response` types. Audit-rule categories 2 (redundant enum prefix), 4 (underscore identifiers from proto nesting), 18 (long enum values), and 13 (verb tense inconsistency) do not apply here. That's why the finding count is comparatively low.
+This package is one of the simplest in the SDK: zero enums, zero list/paginated types. Audit-rule categories 2 (redundant enum prefix), 18 (long enum values), and 13 (verb tense inconsistency) do not apply here. That's why the finding count is comparatively low.
 
 ### 20. CSV body is undocumented in types
 `DownloadResponse.contents` is `ReadableStream` (untyped) but the JSDoc on `Client.download` (`client.ts:51-64`) makes clear the body is CSV. There is no type-level hint or branded type to mark this — a caller might treat the stream as JSON. Worth considering a documented branded type (`type CsvStream = ReadableStream<Uint8Array> & {readonly _csvBrand: unique symbol}`) or, more practically, a Content-Type assertion. Not a name problem; flagged because the response shape is uninformative.

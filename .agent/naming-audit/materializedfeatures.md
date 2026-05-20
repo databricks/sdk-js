@@ -123,58 +123,7 @@ This is a wire-and-generator-level concern. **Flag SDK-wide / upstream Go.**
 
 ---
 
-### 2. `FeatureLineage_FeatureSpec`, `FeatureLineage_Model`, `FeatureLineage_OnlineFeature` proto-style underscored type names — category 4 (Underscores in TS identifiers) and category 14 (Go/Java-style names)
-
-**Symbols:** `FeatureLineage_FeatureSpec` (model.ts:34),
-`FeatureLineage_Model` (model.ts:40), `FeatureLineage_OnlineFeature`
-(model.ts:48).
-
-**Issue:** TS identifiers must not contain underscores
-(`.agent/rules/typescript.mdc`; Google TS Style Guide § 5.3, which mandates
-`UpperCamelCase` for types). The `Parent_Child` form is a proto-buf code
-generator artefact for nested messages. The file even suppresses the lint
-rule explicitly for each one:
-
-```ts
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface FeatureLineage_FeatureSpec {
-```
-
-That comment is the audit signal: the project's lint rule disagrees with the
-chosen name. The proto namespace is not preserved in TS modules — every nested
-type lives in the same module as `FeatureLineage`, so the qualification is
-syntactic noise.
-
-**Suggested:** flat names that drop the underscore and prefix only where
-disambiguation is needed:
-
-- `FeatureLineage_Model` → `FeatureLineageModel` (or `LineageModel`).
-- `FeatureLineage_FeatureSpec` → `FeatureLineageFeatureSpec`. Note this becomes
-  doubled-noun (see finding 3) and should likely shorten to `LineageFeatureSpec`
-  or simply `FeatureSpec` (also flagged in finding 4 for cross-pkg collision).
-- `FeatureLineage_OnlineFeature` → `FeatureLineageOnlineFeature` (or
-  `LineageOnlineFeature`, or `OnlineFeatureRef`).
-
-This is a generator-level fix coordinated SDK-wide.
-
----
-
-### 3. `FeatureLineage_FeatureSpec` doubled noun once flattened — category 8 (Redundant suffixes)
-
-**Symbol:** `FeatureLineage_FeatureSpec` (model.ts:34).
-
-**Issue:** After applying finding 2 to strip the underscore, the result is
-`FeatureLineageFeatureSpec` — "Feature" appears twice. Within the
-`FeatureLineage` parent type, the prefix `FeatureLineage` is already implied.
-
-**Suggested:** `LineageFeatureSpec` or shorter `FeatureSpec` (the latter has
-the cross-package risk noted in finding 4). The parent prefix in TS nested
-types serves to namespace; here it duplicates a concept that is already
-unambiguous.
-
----
-
-### 4. `FeatureLineage_FeatureSpec` and `featurestore.PublishSpec` overlap "Spec" semantics — category 12 (Duplicate concepts)
+### 2. `FeatureLineage_FeatureSpec` is a reference, not a spec — category 12 (Duplicate concepts)
 
 **Symbol:** `FeatureLineage_FeatureSpec` (model.ts:34); compare
 `featurestore.PublishSpec` and `onlinetables.OnlineTableSpec`.
@@ -193,14 +142,14 @@ different roles:
 A TS reader importing both packages cannot tell from the type name which is
 which.
 
-**Suggested:** rename `FeatureLineage_FeatureSpec` → `FeatureSpecRef` or
-`FeatureSpecReference` to signal it is a reference. The `FeatureSpec` concept
-itself (an actual feature-spec configuration) lives elsewhere in Databricks
-APIs; this is just a pointer to one. **Flag for SDK-wide cleanup.**
+**Suggested:** clarify that the nested type is a reference (e.g. via JSDoc).
+The `FeatureSpec` concept itself (an actual feature-spec configuration) lives
+elsewhere in Databricks APIs; this is just a pointer to one. **Flag for
+SDK-wide cleanup.**
 
 ---
 
-### 5. `FeatureLineage_Model` semantic conflict with `modelregistry`, `modelservingmanagement` — category 6 (Misleading names) and category 12 (Duplicate concepts)
+### 3. `FeatureLineage_Model` semantic conflict with `modelregistry`, `modelservingmanagement` — category 6 (Misleading names) and category 12 (Duplicate concepts)
 
 **Symbol:** `FeatureLineage_Model` (model.ts:40); doc: "List of Unity Catalog
 models that were trained on this feature."
@@ -222,13 +171,14 @@ The type has two fields:
 
 Naming-wise this is a *model reference*, not a model.
 
-**Suggested:** `LineageModelRef`, `ModelReference`, or `RegisteredModelRef`.
-This avoids importing `FeatureLineage_Model` next to `modelregistry.Model` and
-having two `Model`-shaped types in the same file.
+**Suggested:** strengthen JSDoc to indicate this is a reference (the type
+name itself follows the proto-nesting convention and is intentional). This
+avoids importing `FeatureLineage_Model` next to `modelregistry.Model` and
+confusing the two shapes.
 
 ---
 
-### 6. `FeatureLineage_OnlineFeature` is a reference, not a feature — category 6 (Misleading names)
+### 4. `FeatureLineage_OnlineFeature` is a reference, not a feature — category 6 (Misleading names)
 
 **Symbol:** `FeatureLineage_OnlineFeature` (model.ts:48); doc on the type-level
 JSDoc on the parent says "List of online features that use this feature as
@@ -244,18 +194,17 @@ source."
 ```
 
 This is *not* an online feature — it is a `(tableName, featureName)` pair
-identifying one. Naming-wise the type should reflect "reference":
-`OnlineFeatureRef` or `OnlineFeatureRef`.
+identifying one. Additionally, the doc-string contradiction: outer JSDoc says
+"online features that use this feature as source," but the inner field doc
+says "online feature (column name)." The type is a coordinate, not the
+feature itself.
 
-Additionally, the doc-string contradiction: outer JSDoc says "online features
-that use this feature as source," but the inner field doc says "online feature
-(column name)." The type is a coordinate, not the feature itself.
-
-**Suggested:** `LineageOnlineFeatureRef` or `OnlineFeatureRef`.
+**Suggested:** strengthen JSDoc to indicate this is a reference. Update the
+inner field doc to match the outer JSDoc's intent.
 
 ---
 
-### 7. `FeatureLineage_OnlineFeature.tableName` is the *online table name*, generic-named — category 1 (Vague/generic) and category 15 (Generic field names losing meaning)
+### 5. `FeatureLineage_OnlineFeature.tableName` is the *online table name*, generic-named — category 1 (Vague/generic) and category 15 (Generic field names losing meaning)
 
 **Symbol:** `FeatureLineage_OnlineFeature.tableName` (model.ts:52).
 
@@ -276,7 +225,7 @@ in the file. **P1 fix candidate.**
 
 ---
 
-### 8. `FeatureTag` is too generic — category 1 (Vague/generic) and category 12 (Duplicate concepts)
+### 6. `FeatureTag` is too generic — category 1 (Vague/generic) and category 12 (Duplicate concepts)
 
 **Symbol:** `FeatureTag` (model.ts:56). JSDoc: "Represents a tag on a feature
 in a feature table."
@@ -312,7 +261,7 @@ duplicates the conceptual boundary.
 
 ---
 
-### 9. `FeatureTag.key` and `value` underspecified — category 19 (Underspecified IDs) and category 1 (Vague/generic)
+### 7. `FeatureTag.key` and `value` underspecified — category 19 (Underspecified IDs) and category 1 (Vague/generic)
 
 **Symbols:** `FeatureTag.key`, `FeatureTag.value` (model.ts:57–58).
 
@@ -329,7 +278,7 @@ convention for tag pairs — pass on name, fix the docs.
 
 ---
 
-### 10. `CreateFeatureTagRequest`, `GetFeatureTagRequest`, `ListFeatureTagsRequest`, `UpdateFeatureTagRequest` carry `tableName` and `featureName` undocumented in some — category 6 (Misleading names) and JSDoc drift
+### 8. `CreateFeatureTagRequest`, `GetFeatureTagRequest`, `ListFeatureTagsRequest`, `UpdateFeatureTagRequest` carry `tableName` and `featureName` undocumented in some — category 6 (Misleading names) and JSDoc drift
 
 **Symbols:** `CreateFeatureTagRequest.tableName` (model.ts:9),
 `GetFeatureTagRequest.tableName` (model.ts:70),
@@ -359,7 +308,7 @@ the four types currently missing it. **Pass on naming, flag JSDoc drift.**
 
 ---
 
-### 11. `ListFeatureTagsResponse` not `ListFeatureTagResponse` — category 9 (Singular/plural mismatch) and JSDoc drift
+### 9. `ListFeatureTagsResponse` not `ListFeatureTagResponse` — category 9 (Singular/plural mismatch) and JSDoc drift
 
 **Symbol:** `ListFeatureTagsResponse` (model.ts:86). JSDoc reads "Response
 message for ListFeatureTag." (singular!) while the type is plural.
@@ -371,7 +320,7 @@ Pass on naming, **fix the JSDoc** ("Response message for ListFeatureTags.").
 
 ---
 
-### 12. `UpdateFeatureTagRequest.featureTag.key` is also the path key — category 16 (Field contradicting type domain) and category 19 (Underspecified IDs)
+### 10. `UpdateFeatureTagRequest.featureTag.key` is also the path key — category 16 (Field contradicting type domain) and category 19 (Underspecified IDs)
 
 **Symbol:** `UpdateFeatureTagRequest.featureTag` (model.ts:96) +
 `client.updateFeatureTag` URL builder (client.ts:220).
@@ -403,7 +352,7 @@ The naming is fine; the structural choice is misleading. **Flag for upstream.**
 
 ---
 
-### 13. `GetFeatureLineageRequest` has fields ordered `featureName, tableName` — category 10 (Reserved-word collisions, by association) and JSDoc drift
+### 11. `GetFeatureLineageRequest` has fields ordered `featureName, tableName` — category 10 (Reserved-word collisions, by association) and JSDoc drift
 
 **Symbol:** `GetFeatureLineageRequest` (model.ts:61).
 
@@ -418,7 +367,7 @@ This is a cosmetic but reader-facing inconsistency.
 
 ---
 
-### 14. `Client.getFeatureLineage` JSDoc reads "Get Feature Lineage." with title case — JSDoc drift and category 17 (Inconsistent action verbs)
+### 12. `Client.getFeatureLineage` JSDoc reads "Get Feature Lineage." with title case — JSDoc drift and category 17 (Inconsistent action verbs)
 
 **Symbol:** `Client.getFeatureLineage` (client.ts:115).
 
@@ -439,7 +388,7 @@ name, fix JSDoc** to read "Gets a FeatureLineage." or "Gets feature lineage."
 
 ---
 
-### 15. Method-name verbs `creates`/`deletes`/`gets`/`lists`/`updates` are consistent — category 17 (Inconsistent action verbs) — *pass*
+### 13. Method-name verbs `creates`/`deletes`/`gets`/`lists`/`updates` are consistent — category 17 (Inconsistent action verbs) — *pass*
 
 **Symbols:** `createFeatureTag`, `deleteFeatureTag`, `getFeatureLineage`,
 `getFeatureTag`, `listFeatureTags`, `updateFeatureTag` (client.ts).
@@ -449,14 +398,14 @@ or `remove…` mixed in. **Pass.**
 
 ---
 
-### 16. `Client` class name — category 1 (Vague/generic) — *pass*
+### 14. `Client` class name — category 1 (Vague/generic) — *pass*
 
 Package convention. Every TS package exports a single `Client` class scoped to
 its import path (e.g. `@databricks/sdk-materializedfeatures/v1`). **Pass.**
 
 ---
 
-### 17. `PACKAGE_SEGMENT` constant — category 4 (Underscores in TS identifiers)
+### 15. `PACKAGE_SEGMENT` constant — category 4 (Underscores in TS identifiers)
 
 **Symbol:** `PACKAGE_SEGMENT` (client.ts:39).
 
@@ -471,21 +420,21 @@ for SDK-wide cleanup, do not fix in isolation.**
 
 ---
 
-### 18. `userAgent` / `httpClient` / `host` / `logger` — *pass*
+### 16. `userAgent` / `httpClient` / `host` / `logger` — *pass*
 
 Standard private field names. Acronym handling matches the project rule.
 **Pass.**
 
 ---
 
-### 19. `readAll` — *pass*
+### 17. `readAll` — *pass*
 
 Helper does what its name says (reads a `ReadableStream<Uint8Array>` to
 completion). Conventional in the Node `stream/promises` ecosystem. **Pass.**
 
 ---
 
-### 20. `buildHttpRequest` — category 17 (Inconsistent action verbs) — *pass*
+### 18. `buildHttpRequest` — category 17 (Inconsistent action verbs) — *pass*
 
 Verb-prefix matches the function's role (constructs an `HttpRequest` object).
 Naming is fine. The file mixes `build…`, `execute…`, `marshal…`, `parse…`,
@@ -494,7 +443,7 @@ for its purpose. **Pass.**
 
 ---
 
-### 21. `featureTagFieldMaskSchema` private but exported via `featureTagFieldMask()` — *pass*
+### 19. `featureTagFieldMaskSchema` private but exported via `featureTagFieldMask()` — *pass*
 
 **Symbols:** `featureTagFieldMaskSchema` (model.ts:184, internal) and
 `featureTagFieldMask()` (model.ts:189, public). Clean separation: schema is
@@ -503,7 +452,7 @@ update-mask vocabulary. **Pass.**
 
 ---
 
-### 22. `UpdateFeatureTagRequest.updateMask` — category 7 (Overly verbose) — *pass*
+### 20. `UpdateFeatureTagRequest.updateMask` — category 7 (Overly verbose) — *pass*
 
 **Symbol:** `UpdateFeatureTagRequest.updateMask: FieldMask<FeatureTag>`
 (model.ts:98).
@@ -514,14 +463,14 @@ naming is SDK-wide and idiomatic. **Pass.**
 
 ---
 
-### 23. Singular `FeatureTag` ⇔ plural `featureTags` — category 9 (Singular/plural mismatch) — *pass*
+### 21. Singular `FeatureTag` ⇔ plural `featureTags` — category 9 (Singular/plural mismatch) — *pass*
 
 `ListFeatureTagsResponse.featureTags: FeatureTag[]` (model.ts:87) is the
 canonical pattern. **Pass.**
 
 ---
 
-### 24. `FeatureLineage.models` field name does not describe content — category 6 (Misleading names) and category 15 (Generic field names losing meaning)
+### 22. `FeatureLineage.models` field name does not describe content — category 6 (Misleading names) and category 15 (Generic field names losing meaning)
 
 **Symbol:** `FeatureLineage.models?: FeatureLineage_Model[]` (model.ts:26).
 
@@ -532,12 +481,11 @@ model objects (with fields like `creator`, `description`, etc.). They actually
 get bare `{name, version}` pairs.
 
 **Suggested:** rename to `modelRefs`, `trainedModels`, or `modelReferences`.
-Pairs with the finding-5 rename of `FeatureLineage_Model` →
-`LineageModelRef` / `RegisteredModelRef`.
+Signals that these are references rather than full model records.
 
 ---
 
-### 25. `FeatureLineage.featureSpecs` vs `FeatureLineage.onlineFeatures` plural-singular mismatch — category 9 (Singular/plural mismatch) — *partial pass*
+### 23. `FeatureLineage.featureSpecs` vs `FeatureLineage.onlineFeatures` plural-singular mismatch — category 9 (Singular/plural mismatch) — *partial pass*
 
 **Symbols:** `FeatureLineage.featureSpecs`, `FeatureLineage.onlineFeatures`
 (model.ts:28, 30).
@@ -546,7 +494,7 @@ Both are arrays — plural form is consistent. No issue. **Pass.**
 
 ---
 
-### 26. `LineageContext` from `features` package vs `FeatureLineage` from this package — category 12 (Duplicate concepts)
+### 24. `LineageContext` from `features` package vs `FeatureLineage` from this package — category 12 (Duplicate concepts)
 
 **Symbol:** `FeatureLineage` (model.ts:24); compare
 `features.LineageContext` (`packages/features/src/v1/model.ts:465`).
@@ -571,18 +519,18 @@ vs. dependents (Lineage). **Flag for upstream Go SDK / generator.**
 
 ---
 
-### 27. `GetFeatureLineageRequest` is `GetFeature…`, returns `FeatureLineage` — *pass*
+### 25. `GetFeatureLineageRequest` is `GetFeature…`, returns `FeatureLineage` — *pass*
 
 **Symbol:** `Client.getFeatureLineage` (client.ts:115), return type
 `FeatureLineage` (model.ts:24).
 
 The method name uses verb `get` consistently; the return type name is the
 resource. No issue at the method-name layer. (Underlying naming smells of
-`FeatureLineage` itself are covered in findings 25, 27.) **Pass.**
+`FeatureLineage` itself are covered in findings 22, 24.) **Pass.**
 
 ---
 
-### 28. `BatchCreateMaterializedFeatures*` types live in `features` not this package — category 12 (Duplicate concepts) — cross-package
+### 26. `BatchCreateMaterializedFeatures*` types live in `features` not this package — category 12 (Duplicate concepts) — cross-package
 
 **Symbols (cross-package):** `BatchCreateMaterializedFeaturesRequest`,
 `BatchCreateMaterializedFeaturesResponse` live in `features/v1/model.ts:146,
@@ -596,32 +544,7 @@ coordination.**
 
 ---
 
-### 29. `index.ts` re-exports underscore types — category 4 (Underscores in TS identifiers)
-
-**Symbol:** `index.ts:7–20`.
-
-**Issue:** The package surface re-exports the proto-style nested names:
-
-```ts
-export type {
-  CreateFeatureTagRequest,
-  DeleteFeatureTagRequest,
-  FeatureLineage,
-  FeatureLineage_FeatureSpec,
-  FeatureLineage_Model,
-  FeatureLineage_OnlineFeature,
-  FeatureTag,
-  ...
-};
-```
-
-Three of the eleven exported types contain underscores. These are the same
-identifiers flagged in finding 2 — but at the *package surface* level, every
-consumer sees them. **Pass at the index.ts layer**, fix follows from finding 2.
-
----
-
-### 30. `index.ts:5` empty re-export — *pass with note*
+### 27. `index.ts:5` empty re-export — *pass with note*
 
 **Symbol:** `export {} from './model';` (index.ts:5).
 
@@ -631,7 +554,7 @@ on naming**, flag for generator cleanup.
 
 ---
 
-### 31. URL path constants spread inline in `Client` methods — code-quality (out of scope) — *pass*
+### 28. URL path constants spread inline in `Client` methods — code-quality (out of scope) — *pass*
 
 **Symbols:** every method constructs a URL via template literal embedding
 `req.tableName ?? ''` and `req.featureName ?? ''` (client.ts:74, 100, 119,
@@ -642,7 +565,7 @@ concern, not naming. **Pass.**
 
 ---
 
-### 32. `req`/`resp`/`pageReq` Go-style short variable names — category 14 (Go/Java-style names)
+### 29. `req`/`resp`/`pageReq` Go-style short variable names — category 14 (Go/Java-style names)
 
 **Symbols:** local variables `req` (every method parameter), `resp` (every
 method local), `pageReq` (client.ts:202).
@@ -654,7 +577,7 @@ convention is mixed. **Pass with note — flag for SDK-wide style decision.**
 
 ---
 
-### 33. Generator-comment "DO NOT EDIT." header — *pass*
+### 30. Generator-comment "DO NOT EDIT." header — *pass*
 
 Every file begins with `// Code generated from API definition by Databricks
 SDK Generator. DO NOT EDIT.` Naming-irrelevant, but informs the scope of any
@@ -704,7 +627,7 @@ itself.
 
 The package-local `tableName` (used here) is fine *inside* the request types
 because the URL grammar disambiguates, but `FeatureLineage_OnlineFeature.tableName`
-should definitely be `onlineTableName` (finding 7).
+should definitely be `onlineTableName` (finding 5).
 
 **Flag for SDK-wide policy.**
 
@@ -767,22 +690,21 @@ guidance.**
 
 - **Critical / cross-package consistency:** 2 findings (#1 package name
   mis-scope `materializedfeatures` does not contain materialized features;
-  #7 `FeatureLineage_OnlineFeature.tableName` should be `onlineTableName`).
-- **High (style guide violations):** 3 findings (#2 three underscore types
-  `FeatureLineage_FeatureSpec/Model/OnlineFeature`; #17 `PACKAGE_SEGMENT`
-  casing; #29 surface re-exports underscore types).
-- **Medium (naming clarity, JSDoc drift):** 13 findings (#3, #4, #5, #6, #8,
-  #9, #10, #11, #12, #13, #14, #24, #26).
-- **Low / project-wide convention notes (generator-level):** 2 findings (#28,
-  #32).
-- **Pass / acceptable as-is:** 13 findings (#15, #16, #18, #19, #20, #21,
-  #22, #23, #25, #27, #30, #31, #33 — many partial passes with notes).
+  #5 `FeatureLineage_OnlineFeature.tableName` should be `onlineTableName`).
+- **High (style guide violations):** 1 finding (#15 `PACKAGE_SEGMENT`
+  casing).
+- **Medium (naming clarity, JSDoc drift):** 11 findings (#2, #3, #4, #6,
+  #7, #8, #9, #10, #11, #12, #22, #24).
+- **Low / project-wide convention notes (generator-level):** 2 findings (#26,
+  #29).
+- **Pass / acceptable as-is:** 11 findings (#13, #14, #16, #17, #18, #19,
+  #20, #21, #23, #25, #27, #28, #30 — many partial passes with notes).
 
-**Total flagged findings: 33** distinct items. The dominant theme is **package
-mis-naming** (the package does not contain what its name advertises) and
-**proto-style underscore identifier names** for nested types (`FeatureLineage_*`).
-Many issues are generator-emitted boilerplate inherited from the Go SDK;
-the cleanest local fixes are findings 1 (package rename), 7
-(`onlineTableName` field), 10 (JSDoc on `tableName`/`featureName`), 11
-(JSDoc plural form), 12 (top-level `key` for update), 13 (field order in
-`GetFeatureLineageRequest`), and 14 (`getFeatureLineage` JSDoc casing).
+**Total flagged findings: 30** distinct items. The dominant themes are
+**package mis-naming** (the package does not contain what its name advertises)
+and **cross-package mis-allocation** (materialized-feature types live in the
+`features` package, not here). Many issues are generator-emitted boilerplate
+inherited from the Go SDK; the cleanest local fixes are findings 1 (package
+rename), 5 (`onlineTableName` field), 8 (JSDoc on `tableName`/`featureName`),
+9 (JSDoc plural form), 10 (top-level `key` for update), 11 (field order in
+`GetFeatureLineageRequest`), and 12 (`getFeatureLineage` JSDoc casing).

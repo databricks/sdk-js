@@ -13,6 +13,7 @@
 | Low | 6 |
 | Observation | 1 |
 
+
 ## High severity
 
 ### 1. Package name `workspaceassignment` (singular) vs API path `/permissionassignments` — package directory / `src/v1/client.ts:78,106,146,174`
@@ -88,9 +89,9 @@
 - **Rationale:** Public Databricks workspace IDs cross 2^53 in account-level deployments; silent rounding bugs are a real risk. Same concern applies to `principalId`.
 
 ### 12. `permissionAssignments` vs `permissions` field names on response types — `src/v1/model.ts:42 vs 60,119`
-- **Why weird:** `GetWorkspacePermissionAssignments_Response.permissionAssignments` is the list of assigned-principal records (with role). `ListWorkspacePermissions_Response.permissions` is the list of *permission types*. `WorkspacePermissionAssignmentOutput.permissions` is the *roles a single principal holds*. Three different things, two of them just called `permissions`.
+- **Why weird:** The response for `getWorkspacePermissionAssignments` carries `permissionAssignments` (list of assigned-principal records with role). The response for `listWorkspacePermissions` carries `permissions` (list of *permission types*). `WorkspacePermissionAssignmentOutput.permissions` is the *roles a single principal holds*. Three different things, two of them just called `permissions`.
 - **Category:** 1 (vague), 15 (generic field name loses meaning), 17 (inconsistent label across siblings).
-- **Suggested name:** On `ListWorkspacePermissions_Response`, rename `permissions` to `supportedPermissions` or `availablePermissions`. On `WorkspacePermissionAssignmentOutput`, rename `permissions` to `permissionLevels` or `grantedPermissions` to match the singular `permissionLevel` in `PermissionOutput`.
+- **Suggested name:** On the list-permissions response, rename `permissions` to `supportedPermissions` or `availablePermissions`. On `WorkspacePermissionAssignmentOutput`, rename `permissions` to `permissionLevels` or `grantedPermissions` to match the singular `permissionLevel` in `PermissionOutput`.
 - **Rationale:** A user holding the response sees `.permissions` and can't tell whether it's "permissions held" or "permission types defined".
 
 ### 13. `PermissionOutput.permissionLevel` singular vs `WorkspacePermissionAssignmentOutput.permissions` plural — `src/v1/model.ts:64 vs 119`
@@ -194,7 +195,7 @@
 - **Rationale:** Cf. finding 5 + 6. Worth flagging once more as a pair-level observation.
 
 ## Cross-cutting themes
-1. **Proto/Go-style names leak through generation.** Findings 3, 4, 7, 9 trace to the upstream Go SDK's protobuf-derived shapes: `*_UNSPECIFIED` / `UNKNOWN` enum sentinels, `*Output` suffixes, verb-phrase request type names, and double-wrapped oneof discriminators. None are idiomatic TS.
+1. **Non-idiomatic TS shapes.** Findings 3, 4, 7, 9 — `UNKNOWN` enum sentinel, verb-phrase request type names, `*Output` suffixes, and double-wrapped oneof discriminators. None are idiomatic TS.
 2. **Duplicated domain modelling with `iam` package.** Findings 1, 2, 8, 9, 19 highlight that `iam.WorkspaceAssignmentDetail`, `iam.WorkspacePermission`, and `iam.PrincipalType` already model the same concepts under different names and shapes. The two packages should either share types or one should redirect to the other.
 3. **Misleading verb assignment for list vs get.** Findings 5, 6, 28 — the paginated method is named `get*`, the static-catalog method is named `list*`. This inverts the REST-list convention used elsewhere in the SDK.
 4. **Underspecified IDs and weak typing.** Findings 10, 11, 17, 24 — IDs are `number` (precision risk) or thinly typed `string`, with critical fallback / serialisation behaviour hidden in client.ts comments rather than the type.

@@ -4,12 +4,12 @@
 **Package name:** `@databricks/sdk-modelservingdebug`
 **Versions audited:** v1
 **Inferred domain:** Diagnostic / troubleshooting endpoints carved out of the Model Serving API. Three HTTP GETs hanging off `/api/2.0/serving-endpoints/{name}`: `GET /metrics` returns a Prometheus/OpenMetrics text blob (streamed body), `GET /served-models/{servedModelName}/logs` returns the most recent server stdout lines, and `GET /served-models/{servedModelName}/build-logs` returns the served-entity environment build logs.
-**Total weird names flagged:** 22
+**Total weird names flagged:** 21
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 8 |
+| High | 7 |
 | Medium | 7 |
 | Low | 6 |
 | Observation | 1 |
@@ -178,52 +178,21 @@ suggestion below.
   `patchInferenceEndpointTags`. None of them prefix the noun with the
   output format.
 
-### 3. `ExportMetricsResponse` lives in a debug package but the JSDoc says "Proto version of com.databricks.rpc.HttpOverRpcResponse" — `model.ts:5-15`
-- **Why weird:** This type name claims to be a "metrics" response,
-  but its JSDoc reveals it's a generic
-  `com.databricks.rpc.HttpOverRpcResponse` envelope — a wire-level
-  HTTP tunnelling primitive whose only field is `contents: ReadableStream`.
-  The Java/proto plumbing (UnaryRpcService, JettyRPC,
-  `CustomHandlingForHttpOverRpcProtoResponse`) is leaking into the
-  user-facing TS surface. Consumers do not need to know that
-  Databricks' RPC layer special-cases HTTP-over-RPC.
-- **Category:** 14 (Go/Java/proto-style names leaking into TS), 6
-  (misleading — the comment describes RPC, not metrics), 1 (vague —
-  `ExportMetricsResponse` could mean "response from any export-metrics
-  call", which is exactly what `HttpOverRpcResponse` is at the proto
-  layer).
+### 3. `ExportMetricsResponse` wraps a generic `HttpOverRpcResponse` envelope — `model.ts:5-15`
+- **Why weird:** This type advertises itself as a "metrics" response,
+  but its only field is `contents: ReadableStream` — the generic
+  HTTP-over-RPC envelope shape. A reader expecting structured metrics
+  fields gets an opaque stream, and the type name does not warn them.
+- **Category:** 6 (misleading — name says "metrics", shape says
+  "raw body"), 1 (vague — `ExportMetricsResponse` could mean any
+  metrics export call).
 - **Suggested name:** `EndpointMetrics` with a single field `body:
-  ReadableStream` (or `text: string` after consumption). Strip the
-  proto JSDoc entirely; the consumer should be told "Prometheus or
-  OpenMetrics text in the body stream" instead. The doc warning
-  "Don't add/modify the fields before being aware of the implications"
-  is a server-team note that does not belong in a public TS SDK.
+  ReadableStream` (or `text: string` after consumption). Document
+  that the body is Prometheus/OpenMetrics text.
 - **Rationale:** Public SDK types should describe the user's mental
-  model ("here are the metrics"), not the server's wire envelope.
+  model ("here are the metrics"), not double as a generic envelope.
 
-### 4. `GetServedModelBuildLogs_Response` and `GetServedModelLogs_Response` underscore-suffixed pseudo-nested types — `model.ts:32,45`
-- **Why weird:** The trailing `_Response` with an underscore is a
-  proto convention encoding nested message names
-  (`GetServedModelLogs.Response`). TypeScript has no nesting at the
-  type level, so the generator produced `GetServedModelLogs_Response`.
-  Each occurrence has to carry an
-  `eslint-disable-next-line @typescript-eslint/naming-convention --
-  Proto-style nested message name.` directive (lines 31, 44, 50, 60).
-  The eslint suppression count alone (4 in a 69-line file) is a
-  smell.
-- **Category:** 4 (underscores in TS identifiers), 14 (proto-style
-  names in TS).
-- **Suggested name:** `ServedModelBuildLogs`, `ServedModelLogs`
-  (request types stay `GetServedModelBuildLogsRequest`,
-  `GetServedModelLogsRequest`, see #5). The generator should be
-  fixed once, project-wide.
-- **Rationale:** `_Response` with an underscore is rule-4 violation
-  per the audit checklist; the broader rule is "underscores belong
-  to proto messages, not TS identifiers" — Google TypeScript Style
-  Guide § Identifiers
-  (https://google.github.io/styleguide/tsguide.html#identifiers).
-
-### 5. `name` field on every request — `model.ts:21,26,39`
+### 4. `name` field on every request — `model.ts:21,26,39`
 - **Why weird:** All three request types have `name?: string` and the
   JSDoc has to spell out "The name of the serving endpoint" each time.
   Bare `name` is the most generic identifier possible — readers without
@@ -243,7 +212,7 @@ suggestion below.
   makes the pairing with `servedModelName` parallel (`endpointName` +
   `servedModelName`).
 
-### 6. `name ?? ''` empty-string fallback when the field is "required" — `client.ts:69,96,124`
+### 5. `name ?? ''` empty-string fallback when the field is "required" — `client.ts:69,96,124`
 - **Why weird:** The JSDoc on each request says "This field is
   required" yet the type marks `name?: string | undefined` *optional*
   and the URL is built with `${req.name ?? ''}` — meaning if the caller
@@ -262,7 +231,7 @@ suggestion below.
   (https://google.aip.dev/122) which mandates path parameters be
   required.
 
-### 7. `servedModelName` doc echoes the field name three times — `model.ts:27-28,40-41`
+### 6. `servedModelName` doc echoes the field name three times — `model.ts:27-28,40-41`
 - **Why weird:** JSDoc on `GetServedModelBuildLogs.servedModelName`
   reads "The name of the served model that build logs will be
   retrieved for. This field is required." The field name already
@@ -280,7 +249,7 @@ suggestion below.
   identifier + JSDoc; the doc carrying no information beyond what
   the name says is a footgun for consumers.
 
-### 8. `GetServedModelLogs_Response.logs: string` is a single blob — `model.ts:47`
+### 7. `GetServedModelLogs_Response.logs: string` is a single blob — `model.ts:47`
 - **Why weird:** The field is named `logs` (plural) but typed as a
   single `string`. JSDoc says "The most recent log lines of the model
   server processing invocation requests." So it's many log *lines*
@@ -299,7 +268,7 @@ suggestion below.
 
 ## Medium severity
 
-### 9. `GetServedModelBuildLogs.name` clashes with `GetServedModelBuildLogs.servedModelName` — `model.ts:26,28`
+### 8. `GetServedModelBuildLogs.name` clashes with `GetServedModelBuildLogs.servedModelName` — `model.ts:26,28`
 - **Why weird:** Two name fields on one struct: `name` (endpoint name)
   and `servedModelName` (served model name). The bare `name` looks like
   *the* name of the request entity (which a reader would assume is the
@@ -312,7 +281,7 @@ suggestion below.
 - **Rationale:** When two `*Name` fields exist on one struct, neither
   should be bare `name`.
 
-### 10. `ExportMetricsResponse.contents` vs convention `body` — `model.ts:16`
+### 9. `ExportMetricsResponse.contents` vs convention `body` — `model.ts:16`
 - **Why weird:** The only field is `contents?: ReadableStream | undefined`.
   Web Fetch standard
   (https://fetch.spec.whatwg.org/#bodyinit-unions) and the SDK's own
@@ -326,7 +295,7 @@ suggestion below.
 - **Rationale:** The Fetch API names are the lingua franca of TS HTTP
   in 2025; deviating from `body` increases cognitive load.
 
-### 11. `getExportEndpointMetrics` returns `ExportMetricsResponse` (no `Endpoint`) — `client.ts:65-68`
+### 10. `getExportEndpointMetrics` returns `ExportMetricsResponse` (no `Endpoint`) — `client.ts:65-68`
 - **Why weird:** The method name says `EndpointMetrics`, the response
   type says `ExportMetricsResponse` (no `Endpoint`). Inconsistent
   qualifier between method and return type. A reader greping for
@@ -341,7 +310,7 @@ suggestion below.
 - **Rationale:** Symmetry between method and return type aids
   IDE autocomplete and grep-ability.
 
-### 12. `Get*` prefix on three of three methods — `client.ts:65,92,120`
+### 11. `Get*` prefix on three of three methods — `client.ts:65,92,120`
 - **Why weird:** Every method here is a GET. The `Get*` verb prefix on
   TS methods is a Go/Java/.NET pattern; in TS, a noun method `endpointMetrics()`
   or `metrics()` is more idiomatic for read operations
@@ -358,7 +327,7 @@ suggestion below.
   (https://google.github.io/styleguide/tsguide.html#methods) prefers
   imperative verbs, but does not mandate `get*` for retrievals.
 
-### 13. `getServedModelLogs` vs `getServedModelBuildLogs` — duplicate concept "logs" — `client.ts:92,120`
+### 12. `getServedModelLogs` vs `getServedModelBuildLogs` — duplicate concept "logs" — `client.ts:92,120`
 - **Why weird:** Two methods, both retrieve logs, distinguished only
   by what *kind* of logs (runtime "service" logs vs container "build"
   logs). The build/service axis is a sub-attribute of "logs", not a
@@ -375,7 +344,7 @@ suggestion below.
   and `getServedModelBuildLogs` is the special case; the API doesn't
   advertise the asymmetry.
 
-### 14. `GetServedModelLogs.servedModelName` doc says "The name of the served model that logs will be retrieved for" — passive voice — `model.ts:41`
+### 13. `GetServedModelLogs.servedModelName` doc says "The name of the served model that logs will be retrieved for" — passive voice — `model.ts:41`
 - **Why weird:** Passive voice "that logs will be retrieved for"
   reads like a phrase translated from a proto comment. Active voice
   is shorter: "The served model whose logs to retrieve." Pure JSDoc
@@ -386,7 +355,7 @@ suggestion below.
 - **Suggested name:** No rename; rewrite JSDoc in active voice.
 - **Rationale:** API surface clarity. Not blocking.
 
-### 15. `PACKAGE_SEGMENT` const is unsized — `client.ts:34-37`
+### 14. `PACKAGE_SEGMENT` const is unsized — `client.ts:34-37`
 - **Why weird:** SCREAMING_SNAKE_CASE in TS is a Go/Python carryover.
   Google TS Style Guide
   (https://google.github.io/styleguide/tsguide.html#identifiers)
@@ -402,7 +371,7 @@ suggestion below.
 
 ## Low severity
 
-### 16. `Call` type aliased to `Promise<void>` in `utils.ts` import — `utils.ts:3`
+### 15. `Call` type aliased to `Promise<void>` in `utils.ts` import — `utils.ts:3`
 - **Why weird:** `Call` is one of the most generic names imaginable.
   Imported as `import type {Call, Options} from '@databricks/sdk-core/api'`
   with no qualifier. Inside the client `const call: Call = async ...`
@@ -416,8 +385,8 @@ suggestion below.
   that survives review only because nobody wants to argue with the
   framework.
 
-### 17. `Options` type aliased to internal options shape — `utils.ts:3,30`
-- **Why weird:** Same as #16 but for `Options`. `Options` is generic
+### 16. `Options` type aliased to internal options shape — `utils.ts:3,30`
+- **Why weird:** Same as #15 but for `Options`. `Options` is generic
   to the point of meaninglessness. The translation step in
   `executeCall` exists *because* the public `CallOptions` and the
   internal `Options` are two different "options" types that happen
@@ -429,7 +398,7 @@ suggestion below.
 - **Rationale:** Two adjacent "Options" types in 35 lines of code is
   the classic accidental-collision pattern.
 
-### 18. `userAgent` is built once in the constructor and never refreshed — `client.ts:46,60`
+### 17. `userAgent` is built once in the constructor and never refreshed — `client.ts:46,60`
 - **Why weird:** Not a name bug per se, but the field name `userAgent`
   suggests a dynamic property, while the construction reads
   `this.userAgent = info.toString();` once at construction time. If
@@ -440,16 +409,16 @@ suggestion below.
   freeze in the JSDoc on line 43-46.
 - **Rationale:** Worth a comment; not a rename target.
 
-### 19. `host` is normalised by trailing-slash strip — `client.ts:52`
+### 18. `host` is normalised by trailing-slash strip — `client.ts:52`
 - **Why weird:** `this.host = options.host.replace(/\/$/, '');`
   silently rewrites the input. The field name `host` doesn't tell
   the consumer "we normalise this to no trailing slash". If a debug
   log later prints `client.host`, it won't match what was passed in.
 - **Category:** Observation, 6 (mildly misleading).
 - **Suggested name:** No rename. Add a JSDoc note.
-- **Rationale:** Same pattern as #18; cross-package.
+- **Rationale:** Same pattern as #17; cross-package.
 
-### 20. `info` local var in the constructor — `client.ts:54,56,57,58,60`
+### 19. `info` local var in the constructor — `client.ts:54,56,57,58,60`
 - **Why weird:** `let info = createDefault().with(PACKAGE_SEGMENT);`
   then more `info = info.with(...)` chains. The name `info` is
   category-5 (cryptic abbreviation of "information") and category-1
@@ -461,7 +430,7 @@ suggestion below.
   `createDefault` factory and the SDK convention).
 - **Rationale:** Local-scope, low-impact rename. Cross-package.
 
-### 21. `pkgJson` import alias for package.json — `client.ts:19,35,36`
+### 20. `pkgJson` import alias for package.json — `client.ts:19,35,36`
 - **Why weird:** `import pkgJson from '../../package.json' with {type:
   'json'};`. The alias name `pkgJson` is cryptic; readers who don't
   know `pkg` is "package" will guess. The line is unique-per-package
@@ -472,7 +441,7 @@ suggestion below.
 
 ## Observation
 
-### 22. `getReader()` chunk-accumulator in `readAll` is a hot-path candidate — `utils.ts:46-62`
+### 21. `getReader()` chunk-accumulator in `readAll` is a hot-path candidate — `utils.ts:46-62`
 - **Why weird:** `readAll` is the buffering implementation used by
   every method (including `getServedModelLogs` which can return many
   KB of text). The chunk-collection loop allocates many intermediate

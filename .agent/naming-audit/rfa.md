@@ -3,13 +3,13 @@
 **Path:** `packages/rfa/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Unity Catalog **R**equest **F**or **A**ccess — manage where access-request notifications are routed (the destinations: email addresses, Slack channels, Microsoft Teams webhooks, generic webhooks, or URLs) when end-users request access to a UC securable (catalog/schema/table/etc.). Also exposes a batched create endpoint that lets a caller fire one or more access requests on behalf of principals against a list of securables, returning the destinations the request will be sent to. URL prefix is `/api/3.0/rfa/...`.
-**Total weird names flagged:** 41
+**Total weird names flagged:** 40
 
 ## Summary
 | Severity | Count |
 | --- | --- |
 | High | 10 |
-| Medium | 18 |
+| Medium | 17 |
 | Low | 8 |
 | Observation | 5 |
 
@@ -155,37 +155,31 @@
 - **Suggested name:** Either hide until promotion (`@experimental`), or remove the inline TODO and document the constraint in the doc-comment proper.
 - **Rationale:** Public SDK enums shouldn't carry internal JIRA references. Same pattern as `connections#29` and `dataclassification`.
 
-### 23. `SecurableType.CLEAN_ROOM` with underscore vs `STORAGE_CREDENTIAL`, `EXTERNAL_LOCATION` etc — `model.ts:24-43`
-- **Why weird:** Mostly consistent SCREAMING_SNAKE, but `CLEAN_ROOM` is one of several where the underlying domain noun is two words. Compare `STORAGE_CREDENTIAL` (two-word: "storage credential"), `EXTERNAL_LOCATION` (two-word: "external location"), `CLEAN_ROOM` (two-word: "clean room"), `STAGING_TABLE` (two-word: "staging table"), `EXTERNAL_METADATA` (two-word: "external metadata"). All these are consistent — flagging only because the package surfaces the same SCREAMING_SNAKE compound style without a TS-flavour alternative. The two-word compound makes member access very long: `SecurableType.STORAGE_CREDENTIAL` reads 27 chars.
-- **Category:** Observation / 18 (long enum value set).
-- **Suggested name:** PascalCase variant would shorten: `SecurableType.StorageCredential`, `SecurableType.CleanRoom`. Generator-locked.
-- **Rationale:** Naming is internally consistent; flagging only as a style observation versus PascalCase TS conventions.
-
-### 24. `SecurableType.EXTERNAL_METADATA` lacks doc — `model.ts:40`
+### 23. `SecurableType.EXTERNAL_METADATA` lacks doc — `model.ts:40`
 - **Why weird:** `EXTERNAL_METADATA` is undocumented. Neighbouring `STAGING_TABLE` carries a TODO/comment, but `EXTERNAL_METADATA` doesn't even say what it is. Unity Catalog has `externalmetadata` as its own package (`packages/externalmetadata/`), but this RFA enum member exists in isolation.
 - **Category:** 1 (vague; no doc disambiguating).
 - **Suggested name:** Keep name; add doc comment.
 - **Rationale:** Naming OK, but undocumented enum members in a 17-element enum mean readers must cross-reference to other packages.
 
-### 25. `Principal` is exported but `principalType` field has no doc — `model.ts:148`
+### 24. `Principal` is exported but `principalType` field has no doc — `model.ts:148`
 - **Why weird:** `principalType?: PrincipalType | undefined` has no JSDoc. Sibling `id` has a doc. The PrincipalType enum has only an `_UNSPECIFIED` sentinel + three values, none of which clarify when each applies. Caller has to guess by inspecting the IAM service.
 - **Category:** 1 (vague).
 - **Suggested name:** Keep name; add doc.
 - **Rationale:** Mechanical.
 
-### 26. `SecurablePermissions.permissions: string[]` — `model.ts:173-178`
+### 25. `SecurablePermissions.permissions: string[]` — `model.ts:173-178`
 - **Why weird:** `permissions` is `string[]` rather than an enum. Doc says "List of requested Unity Catalog permissions" — UC permissions are a known closed set (`SELECT`, `MODIFY`, `USAGE`, `READ_VOLUME`, etc.), so this should be a typed enum or branded string. Bare `string[]` loses any compile-time guard against typos.
 - **Category:** 16 (field type contradicts domain — should be enum or branded string).
 - **Suggested name:** Keep name; type as `UnityCatalogPermission[]` (new enum). Or document the closed set inline.
 - **Rationale:** Same problem as #10. The wire is string, but TS could narrow it.
 
-### 27. Method `batchCreateAccessRequests` on `Client` — `client.ts:74`
+### 26. Method `batchCreateAccessRequests` on `Client` — `client.ts:74`
 - **Why weird:** Method name redundantly carries `batch` even though it's the only create method. There's no non-batched alternative. The `batch` prefix is descriptive of the request body shape (an array), not a distinct API mode.
 - **Category:** 7 (overly verbose), 17 (action verb inconsistency — sibling methods are `getAccessRequestDestinations`/`updateAccessRequestDestinations` with no analogous prefix).
 - **Suggested name:** `createAccessRequests` (the plural already conveys batch semantics).
 - **Rationale:** The "batch" prefix is API-design vocabulary leaking into the SDK surface. If the only way to create is batched, the prefix carries zero information.
 
-### 28. Three Client methods, three different domain entity names — `client.ts:74,113,147`
+### 27. Three Client methods, three different domain entity names — `client.ts:74,113,147`
 - **Why weird:** `Client.batchCreateAccessRequests` works on `requests`. `Client.getAccessRequestDestinations` works on `destinations`. `Client.updateAccessRequestDestinations` works on `destinations`. The first method creates *requests*; the other two manage *destinations*. The class has two distinct subdomains (request creation, destination routing) fused into one client surface with no separation.
 - **Category:** 17 (action verb inconsistency across cohesion boundary), 12 (duplicate concepts — two separate resources blended).
 - **Suggested name:** Split into two clients: `AccessRequestClient` (create) and `AccessRequestDestinationsClient` (get/update). Or rename `batchCreateAccessRequests` → `createRequests` (singular noun "request" in the URL `/api/3.0/rfa/requests`).
@@ -193,49 +187,49 @@
 
 ## Low severity
 
-### 29. `executeCall` / `executeHttpCall` naming pair — `utils.ts:26,65`
+### 28. `executeCall` / `executeHttpCall` naming pair — `utils.ts:26,65`
 - **Why weird:** Two functions distinguished only by an `Http` infix. `executeCall` wraps retry/rate-limit/timeout; `executeHttpCall` does the actual fetch + logging + error throw. Easy to confuse at call site.
 - **Category:** 1 (vague), 17.
 - **Suggested name:** `runWithCallOptions` / `sendHttp`, or `wrapCall` / `dispatchHttp`.
 - **Rationale:** Same as `connections#40`.
 
-### 30. `HttpCallOptions` — `utils.ts:15`
+### 29. `HttpCallOptions` — `utils.ts:15`
 - **Why weird:** Yet another `Options` suffix; the file imports `Options` from `@databricks/sdk-core/api` and `CallOptions` from `@databricks/sdk-options/call`. Three `Options` types in scope. `HttpCallOptions` is internal — purely a context bag for `executeHttpCall`.
 - **Category:** 1 (vague suffix).
 - **Suggested name:** `HttpCallContext` (it's a context bag, not user-tunable options).
 - **Rationale:** Same as `connections#41`.
 
-### 31. `readAll` — `utils.ts:40`
+### 30. `readAll` — `utils.ts:40`
 - **Why weird:** Internal helper name is generic; clashes cognitively with `Array.prototype` / stream utilities.
 - **Category:** 1 (vague).
 - **Suggested name:** `readStreamToEnd` / `drainStream`.
 - **Rationale:** Same as `connections#38`.
 
-### 32. `flattenQueryParams` — `utils.ts:123`
+### 31. `flattenQueryParams` — `utils.ts:123`
 - **Why weird:** Exported but unused in this package (`client.ts` builds query strings inline with `URLSearchParams.append`). Dead-looking export.
 - **Category:** Observation / 11 (unused public helper).
 - **Suggested name:** Remove from utils if it's a generator default.
 - **Rationale:** Generator emits the same helper into every package even when unused. Same as `connections#37`.
 
-### 33. `PACKAGE_SEGMENT` constant — `client.ts:35`
+### 32. `PACKAGE_SEGMENT` constant — `client.ts:35`
 - **Why weird:** `Segment` is a generic word; without the comment the constant doesn't communicate User-Agent identity.
 - **Category:** 1 (vague), 15 (generic name).
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
 - **Rationale:** Same as `connections#36`.
 
-### 34. `Client` class — `client.ts:40`
+### 33. `Client` class — `client.ts:40`
 - **Why weird:** Top-level class literally named `Client`. Re-exported through `index.ts` as just `Client`. Two RFA packages co-existing in user code would clash on import (`import {Client} from '@databricks/sdk-rfa/v1'` vs `import {Client} from '@databricks/sdk-accounts/v1'`).
 - **Category:** 1 (vague).
 - **Suggested name:** `RfaClient` or `AccessRequestClient` (better — see #1).
 - **Rationale:** Same finding as `dataclassification`. Recurs across all generated packages.
 
-### 35. `buildHttpRequest` parameter list — `utils.ts:96-102`
+### 34. `buildHttpRequest` parameter list — `utils.ts:96-102`
 - **Why weird:** Five positional parameters (`method`, `url`, `headers`, `signal`, `body`) with the optional ones at the end. The function name `buildHttpRequest` doesn't communicate the parameter order; callers in `client.ts:87,122,166` pass them positionally. Easy to confuse `signal` and `body` (both optional, both at the end).
 - **Category:** 1 (vague — five-positional builder).
 - **Suggested name:** Keep name; accept a single options object `{ method, url, headers, signal?, body? }`.
 - **Rationale:** Five-positional builders without object syntax are an anti-pattern in modern TS.
 
-### 36. Loose typing for `executeCall(call, options)` `Options` field copying — `utils.ts:30-37`
+### 35. Loose typing for `executeCall(call, options)` `Options` field copying — `utils.ts:30-37`
 - **Why weird:** The `Options` shape is built with a series of `...(options?.foo !== undefined && {foo: options.foo})` spreads. The pattern is a TS-idiom for conditional spread of optional fields. Naming-wise: the local `opts` variable is intentionally one letter shorter than `options` to disambiguate — but the shadowing convention isn't documented.
 - **Category:** Observation.
 - **Suggested name:** Rename inner `opts` → `internalOptions` (or the outer parameter to `callOptions`).
@@ -243,23 +237,23 @@
 
 ## Observations
 
-### 37. `index.ts` is exhaustive but doesn't re-export schemas — `index.ts:1-24`
+### 36. `index.ts` is exhaustive but doesn't re-export schemas — `index.ts:1-24`
 The index file exports the `Client`, all four enums, and all nine model interfaces (`AccessRequestDestinations`, `BatchCreateAccessRequestsRequest`, `BatchCreateAccessRequestsResponse`, `CreateAccessRequest`, `CreateAccessRequestResponse`, `GetAccessRequestDestinationsRequest`, `NotificationDestination`, `Principal`, `Securable`, `SecurablePermissions`, `UpdateAccessRequestDestinationsRequest`). It does *not* export the `marshal*`/`unmarshal*` schemas or the `accessRequestDestinationsFieldMask` helper. Consistent with the other packages but means the field-mask helper isn't available to consumers.
 - **Category:** Observation.
 
-### 38. Comment-tag inconsistency — `client.ts:78,117,151` vs URL
+### 37. Comment-tag inconsistency — `client.ts:78,117,151` vs URL
 The URL constant `/api/3.0/rfa/...` (lower-case "rfa") is the only place the package name appears outside of imports — the entire SDK surface otherwise uses spelled-out names. Suggests the API itself owns the `rfa` shortname and the SDK is mechanically reflecting it. Worth confirming with the API team whether the URL prefix is intended to stay `/rfa/` or migrate to `/access-requests/`.
 - **Category:** Observation.
 
-### 39. No tests in the package
+### 38. No tests in the package
 `package.json` line 24-25: `"test": "echo 'no tests'"`, `"test:browser": "echo 'no tests'"`. The package ships untested. Not a naming issue, but cross-package noise — same as several other newly generated packages.
 - **Category:** Observation.
 
-### 40. Action-verb conventions on `Client`
-`batchCreateAccessRequests`, `getAccessRequestDestinations`, `updateAccessRequestDestinations` — three different verbs across two resources. Verbs themselves match REST convention (`create`/`get`/`update`); the naming inconsistency is that the verb's target switches mid-class (see #28).
+### 39. Action-verb conventions on `Client`
+`batchCreateAccessRequests`, `getAccessRequestDestinations`, `updateAccessRequestDestinations` — three different verbs across two resources. Verbs themselves match REST convention (`create`/`get`/`update`); the naming inconsistency is that the verb's target switches mid-class (see #27).
 - **Category:** Observation.
 
-### 41. `package.json` description is empty string — `package.json:4`
+### 40. `package.json` description is empty string — `package.json:4`
 `"description": ""`. The npm package has no public description string. Combined with the cryptic `rfa` name (see #1), this leaves users with no metadata to identify the package's purpose when browsing npm.
 - **Category:** Observation.
 

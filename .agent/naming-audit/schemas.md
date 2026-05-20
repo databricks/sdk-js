@@ -12,15 +12,12 @@ The `schemas` package exposes the standard five UC schema operations
 (`createSchema`, `deleteSchema`, `getSchema`, `listSchemas`,
 `updateSchema`). The package is small (one
 enum, one nested-flag type, the schema info type, five request types,
-two response types, six map-entry wrapper types). Because it is a 1:1
+two response types). Because it is a 1:1
 port of the Go SDK, most issues are inherited from upstream proto
-definitions: the most pervasive problems are (1) proto-style
-underscore-suffixed identifiers in the public TS surface
-(`DeleteSchema_Response`, `ListSchemas_Response`, six `*_OptionsEntry`/
-`*_PropertiesEntry` wrappers), (2) `fullNameArg` as a cryptic path
-parameter that coexists with `fullName` on the same type, (3)
-`CreateSchema`/`UpdateSchema` carrying read-only server-populated
-fields, and (4) the `CatalogType` enum living on a schema-only type
+definitions: the most pervasive problems are (1) `fullNameArg` as a
+cryptic path parameter that coexists with `fullName` on the same type,
+(2) `CreateSchema`/`UpdateSchema` carrying read-only server-populated
+fields, and (3) the `CatalogType` enum living on a schema-only type
 even though every variant duplicates the `_CATALOG` suffix that the
 enum name already provides. There is also significant duplicate-concept
 overlap with the sibling `systemschemas` package (separate types
@@ -42,26 +39,19 @@ tri-state (enable / disable / inherit). A reader has to read the doc
 to discover what is in it. Better: `enabled`, `setting`, or
 `predictiveOptimization`.
 
-#### 1.2 `*_OptionsEntry.value` / `*_PropertiesEntry.value` (model.ts:59-66, 167-175, 225-232)
-Six proto-generated map-entry wrappers exporting `{ key?: string;
-value?: string }`. The field names `key` and `value` are maximally
-generic. The wrapper types themselves are dead in the v1 surface
-(`SchemaInfo.options`/`.properties` are typed as
-`Record<string,string>`, not arrays of these wrappers). See also §11.1.
-
-#### 1.3 `EffectivePredictiveOptimizationFlag.inheritedFromType` and `.inheritedFromName` (model.ts:83, 85)
+#### 1.2 `EffectivePredictiveOptimizationFlag.inheritedFromType` and `.inheritedFromName` (model.ts:83, 85)
 `inheritedFromType` is `string`, not an enum — the name suggests a
 typed handle but the value is human-readable text. Same problem for
 `inheritedFromName`: "the name of the object" — of *what* object?
 Without context (`catalog`, `schema`, `metastore`?) the field is
 opaque. See also §6.1.
 
-#### 1.4 `name` on `CreateSchema`, `SchemaInfo`, `UpdateSchema` (model.ts:17, 126, 184)
+#### 1.3 `name` on `CreateSchema`, `SchemaInfo`, `UpdateSchema` (model.ts:17, 126, 184)
 `name` alone is generic in the context of UC where there's also
 `fullName`, `catalogName`, `newName`, and `metastoreId`. The doc
 qualifies it as "Name of schema, relative to parent catalog", but the
 identifier itself doesn't say that. Compare to `catalogName` on the
-same shape which is unambiguous. See also §10.2 and §12.2.
+same shape which is unambiguous. See also §8.2 and §10.2.
 
 ---
 
@@ -83,7 +73,7 @@ redundant — `MANAGED`, `DELTA_SHARING`, `SYSTEM`, `INTERNAL`,
 also runs two words together — see §3.1.) The enum is duplicated
 verbatim from the `catalogs` package — even though *this* package is
 about schemas, it imports the catalog-type enum and exposes it as
-`SchemaInfo.catalogType`. See §12.4 for the duplication.
+`SchemaInfo.catalogType`. See §10.4 for the duplication.
 
 ---
 
@@ -103,197 +93,159 @@ review.
 
 ---
 
-### 4. Underscores in TypeScript identifiers
+### 4. Cryptic abbreviations
 
-The package's most widespread cosmetic issue. Six exported types use
-proto-style `Parent_Child` names with
-`@typescript-eslint/naming-convention` suppression comments — i.e. the
-lint rule already disagrees with these names.
-
-#### 4.1 `CreateSchema_OptionsEntry` (model.ts:58)
-Proto map-entry. Should be `CreateSchemaOptionsEntry`, but the wrapper
-itself should not exist (see §11.1).
-
-#### 4.2 `CreateSchema_PropertiesEntry` (model.ts:64)
-Same as 4.1.
-
-#### 4.3 `DeleteSchema_Response` (model.ts:77)
-Proto-style underscore identifier. Should be `DeleteSchemaResponse`.
-
-#### 4.4 `ListSchemas_Response` (model.ts:113)
-Should be `ListSchemasResponse`. (Standard top-level response type;
-underscore is a Go/proto artefact.)
-
-#### 4.5 `SchemaInfo_OptionsEntry` (model.ts:167)
-Same as 4.1.
-
-#### 4.6 `SchemaInfo_PropertiesEntry` (model.ts:173)
-Same as 4.1.
-
-#### 4.7 `UpdateSchema_OptionsEntry` (model.ts:225)
-Same as 4.1.
-
-#### 4.8 `UpdateSchema_PropertiesEntry` (model.ts:231)
-Same as 4.1.
-
----
-
-### 5. Cryptic abbreviations
-
-#### 5.1 `fullNameArg` (model.ts:71, 90, 180)
+#### 4.1 `fullNameArg` (model.ts:71, 90, 180)
 Path-parameter field on `DeleteSchema`, `GetSchema`, and
 `UpdateSchema`. The `Arg` suffix is Go-generator jargon distinguishing
 path arguments from request-body fields with the same key. TypeScript
 callers have no need for this distinction — the field *is* the schema
 identifier and should just be `fullName` (or `name`). Even worse:
 `UpdateSchema` has *both* `fullNameArg` (path) and `fullName` (body)
-on the same type, with no obvious difference in semantics. See §16.1.
+on the same type, with no obvious difference in semantics. See §14.1.
 
-#### 5.2 `pkgJson` (client.ts:19)
+#### 4.2 `pkgJson` (client.ts:19)
 Variable name `pkgJson` for `package.json` import. Mostly internal —
 minor — but worth noting for consistency.
 
-#### 5.3 `req`, `resp`, `opts` (client.ts and utils.ts throughout)
+#### 4.3 `req`, `resp`, `opts` (client.ts and utils.ts throughout)
 Internal abbreviations. Conventional, but worth flagging for the
 broader audit.
 
 ---
 
-### 6. Misleading names
+### 5. Misleading names
 
-#### 6.1 `EffectivePredictiveOptimizationFlag.value` is a tri-state encoded as `string` (model.ts:81)
+#### 5.1 `EffectivePredictiveOptimizationFlag.value` is a tri-state encoded as `string` (model.ts:81)
 Field is typed `string | undefined` but the doc comment ("Whether
 predictive optimization should be enabled…") implies a small discrete
 set of values (enable / disable / inherit). Either expose an enum or
 rename the field to make it clear it's a setting key. See also §1.1.
 
-#### 6.2 `SchemaInfo.fullName` corresponds with `name` + `catalogName` (model.ts:139)
+#### 5.2 `SchemaInfo.fullName` corresponds with `name` + `catalogName` (model.ts:139)
 The doc is honest: "Full name of schema, in form of
 __catalog_name__.__schema_name__". But the field name `fullName`
 suggests it might carry additional information not available from
-`name`+`catalogName`. It doesn't. See also §12.2.
+`name`+`catalogName`. It doesn't. See also §10.2.
 
-#### 6.3 `SchemaInfo.options` vs `SchemaInfo.properties` (model.ts:161-164)
+#### 5.3 `SchemaInfo.options` vs `SchemaInfo.properties` (model.ts:161-164)
 Both are `Record<string, string>` with identical doc comments ("A map
 of key-value properties attached to the securable."). There is no way
 for a caller to know which to use for what. The doc duplication recurs
 verbatim in `CreateSchema` (model.ts:51-54) and `UpdateSchema`
 (model.ts:218-221). Either is underspecified or one of them is
-misnamed. See §12.1.
+misnamed. See §10.1.
 
 ---
 
-### 7. Overly verbose
+### 6. Overly verbose
 
-#### 7.1 `EffectivePredictiveOptimizationFlag` type name (model.ts:79)
+#### 6.1 `EffectivePredictiveOptimizationFlag` type name (model.ts:79)
 39 characters. Compounded by `effectivePredictiveOptimizationFlag` as
 a field name on three different request/response shapes (model.ts:44,
 153, 211). Consider `EffectivePredictiveOptimization` (drop the
 `Flag` suffix — the type already wraps the flag) or
-`EffectivePOSetting` if shortening is acceptable. See also §8.4.
+`EffectivePOSetting` if shortening is acceptable. See also §7.2.
 
-#### 7.2 `enablePredictiveOptimization: string` (model.ts:27, 136, 194)
+#### 6.2 `enablePredictiveOptimization: string` (model.ts:27, 136, 194)
 Long field name for what is effectively a flag value. Acceptable, but
-pairs with §7.1 to make every schema shape verbose.
+pairs with §6.1 to make every schema shape verbose.
 
-#### 7.3 `MANAGED_ONLINE_CATALOG` enum value (model.ts:12) — 22 characters; redundant `_CATALOG` per §2.1.
+#### 6.3 `MANAGED_ONLINE_CATALOG` enum value (model.ts:12) — 22 characters; redundant `_CATALOG` per §2.1.
 
 ---
 
-### 8. Redundant suffixes
+### 7. Redundant suffixes
 
-#### 8.1 `SchemaInfo` type name (model.ts:124)
+#### 7.1 `SchemaInfo` type name (model.ts:124)
 "Info" is a non-suffix — it carries no semantic content. In the Go SDK
 this distinguishes the entity type from a resource handle; in TS the
 convention is to drop it (`Schema`). Compare with `Catalog`, `Table`,
-etc. in other packages.
+etc. in other packages. Note: dropping `Info` produces `Schema`, which
+collides with the zod artifact `Schema` (a runtime validator type in
+common use across the JS ecosystem) — the rename must consider that
+collision before landing.
 
-#### 8.2 `Flag` suffix on `EffectivePredictiveOptimizationFlag` (model.ts:79)
-The whole type *is* the flag; the suffix is redundant. See §7.1.
+#### 7.2 `Flag` suffix on `EffectivePredictiveOptimizationFlag` (model.ts:79)
+The whole type *is* the flag; the suffix is redundant. See §6.1.
 
-#### 8.3 `Arg` suffix on `fullNameArg` — see §5.1 and §16.1.
+#### 7.3 `Arg` suffix on `fullNameArg` — see §4.1 and §14.1.
 
 ---
 
-### 9. Singular / plural mismatches
+### 8. Singular / plural mismatches
 
 _None._
 
 ---
 
-### 10. Reserved-word collisions
+### 9. Reserved-word collisions
 
-#### 10.1 `options` field on `CreateSchema`, `UpdateSchema`, `SchemaInfo` (model.ts:54, 163, 221)
+#### 9.1 `options` field on `CreateSchema`, `UpdateSchema`, `SchemaInfo` (model.ts:54, 163, 221)
 `options` collides with the SDK's own `CallOptions` parameter name
 used throughout the client (`createSchema(req, options)`, client.ts:74,
 etc.). Not a compile error but creates cognitive load — inside
 `createSchema(req, options)` the reader sees both `req.options`
 (schema metadata) and `options` (call options). The cleanest fix is to
-rename the client parameter to `callOptions`. See also §12.1 for the
+rename the client parameter to `callOptions`. See also §10.1 for the
 duplicate-with-`properties` concern.
 
-#### 10.2 `name` field is generic and shadows `Function.prototype.name`
+#### 9.2 `name` field is generic and shadows `Function.prototype.name`
 Used on `CreateSchema`, `UpdateSchema`, `SchemaInfo` (model.ts:17, 184,
 126). Not a reserved word, but commonly shadows the standard
 `Function.prototype.name` and routinely confuses callers who spread
-request objects. See also §1.4.
+request objects. See also §1.3.
 
-#### 10.3 `value` field on `EffectivePredictiveOptimizationFlag.value` (model.ts:81)
+#### 9.3 `value` field on `EffectivePredictiveOptimizationFlag.value` (model.ts:81)
 Generic field name, frequently shadows local variables. See §1.1.
 
-#### 10.4 `properties` is not reserved but conflicts with `Object` semantics
+#### 9.4 `properties` is not reserved but conflicts with `Object` semantics
 `SchemaInfo.properties` (model.ts:161) is fine but worth noting that
 `properties` is a heavily-overloaded term in JS (object properties,
 descriptor properties, etc.). Combined with the duplicate-with-`options`
-problem in §12.1, the name is doubly overloaded.
+problem in §10.1, the name is doubly overloaded.
 
 ---
 
-### 11. Empty / trivial wrapper types
+### 10. Duplicate concepts
 
-_None._
-
----
-
-### 12. Duplicate concepts
-
-#### 12.1 `properties` vs `options` (model.ts:51-54, 161-164, 218-221)
+#### 10.1 `properties` vs `options` (model.ts:51-54, 161-164, 218-221)
 Both `Record<string, string>` on every schema shape, with identical
 doc comments ("A map of key-value properties attached to the
 securable."). Either the documentation needs to differentiate them or
-one is redundant. See also §6.4.
+one is redundant. See also §5.3.
 
-#### 12.2 `name` vs `fullName` on `SchemaInfo` (model.ts:126, 139)
+#### 10.2 `name` vs `fullName` on `SchemaInfo` (model.ts:126, 139)
 `name` is the schema name "relative to parent catalog"; `fullName` is
 "in form of __catalog_name__.__schema_name__". These two fields are
 deterministically derivable from each other (given `catalogName`).
 Mirror issue in `CreateSchema` (model.ts:17, 31) and `UpdateSchema`
-(model.ts:184, 197). See also §6.2.
+(model.ts:184, 197). See also §5.2.
 
-#### 12.3 `fullName` vs `fullNameArg` on `UpdateSchema` (model.ts:180, 197)
+#### 10.3 `fullName` vs `fullNameArg` on `UpdateSchema` (model.ts:180, 197)
 The `UpdateSchema` request has **both** `fullNameArg` (the existing
 schema identifier, path param) and `fullName` (the same field name on
 the body) — plus `newName` for renaming. Three fields all touching
-the schema's identity. See §16.1.
+the schema's identity. See §14.1.
 
-#### 12.4 `CatalogType` is re-implemented across packages
+#### 10.4 `CatalogType` is re-implemented across packages
 The exact `CatalogType` enum (with all six variants) is defined here
 (model.ts:6-13) and also in `catalogs` (and likely in several other UC
 packages). A consumer touching both packages gets two unrelated TS
 types named `CatalogType`. Cross-package duplication — flagged in
 this audit for the broader review.
 
-#### 12.5 `EffectivePredictiveOptimizationFlag` may be duplicated
+#### 10.5 `EffectivePredictiveOptimizationFlag` may be duplicated
 This type is identical to the one in `catalogs` (and probably in any
 UC securable package). Cross-package duplication.
 
-#### 12.6 `CreateSchema`, `UpdateSchema`, and `SchemaInfo` share ~21 fields verbatim
+#### 10.6 `CreateSchema`, `UpdateSchema`, and `SchemaInfo` share ~21 fields verbatim
 All three types are 95% identical with identical doc strings. This is
 a generator artefact, but any rename of `storageRoot` must happen in
 three places. Recommend basing `CreateSchema`/`UpdateSchema` on
 `Partial<SchemaInfo>` or a shared `SchemaProperties` mixin.
 
-#### 12.7 Overlap with `systemschemas` package
+#### 10.7 Overlap with `systemschemas` package
 The sibling `systemschemas` package operates on a completely different
 shape (`SystemSchemaInfo` has only `schema` and `state` — no overlap
 with `SchemaInfo`). Same noun, different types, different clients,
@@ -307,61 +259,52 @@ will be surprised to find that system schemas live elsewhere.
 
 ---
 
-### 13. Verb-tense inconsistency
+### 11. Verb-tense inconsistency
 
-#### 13.1 Client methods: `createSchema`, `deleteSchema`, `getSchema`, `listSchemas`, `updateSchema`, `listSchemasIter`. Imperative present, consistent.
+#### 11.1 Client methods: `createSchema`, `deleteSchema`, `getSchema`, `listSchemas`, `updateSchema`, `listSchemasIter`. Imperative present, consistent.
 
-#### 13.2 `executeCall`, `executeHttpCall`, `buildHttpRequest`, `readAll`, `flattenQueryParams` (utils.ts) — all imperative present, consistent.
+#### 11.2 `executeCall`, `executeHttpCall`, `buildHttpRequest`, `readAll`, `flattenQueryParams` (utils.ts) — all imperative present, consistent.
 
 No verb-tense inconsistencies found across the package.
 
 ---
 
-### 14. Go / Java-style names
+### 12. Go / Java-style names
 
-#### 14.1 `…_Response` suffix on response types (`DeleteSchema_Response`, `ListSchemas_Response`)
-Proto / gRPC convention `Method_Response`. In TS this should be
-`DeleteSchemaResponse` / `ListSchemasResponse`. See §4.3-4.4.
+#### 12.1 `…Info` suffix (`SchemaInfo`, `EffectivePredictiveOptimizationFlag`)
+Java/Go style. TS convention is to drop it. See §7.1.
 
-#### 14.2 `…_OptionsEntry` / `…_PropertiesEntry` map-entry wrappers (six occurrences)
-Proto map-entry idiom doesn't exist in TS. See §4.1-4.8.
-
-#### 14.3 `…Info` suffix (`SchemaInfo`, `EffectivePredictiveOptimizationFlag`)
-Java/Go style. TS convention is to drop it. See §8.1.
-
-#### 14.4 `Client` class name (client.ts:44)
+#### 12.2 `Client` class name (client.ts:44)
 Bare `Client` (rather than `SchemasClient`) is a Go-idiom: package
 qualifies the type. JS consumers commonly import as
 `import {Client} from '@databricks/sdk-schemas/v1'` and have to alias.
 Package-wide convention; flagged for the broader review.
 
-#### 14.5 `fullNameArg` — Go-generator naming. See §5.1.
+#### 12.3 `fullNameArg` — Go-generator naming. See §4.1.
 
-#### 14.6 `package_segment` / `PACKAGE_SEGMENT` (client.ts:39)
+#### 12.4 `package_segment` / `PACKAGE_SEGMENT` (client.ts:39)
 Constant naming is fine; flagged for completeness.
 
 ---
 
-### 15. Generic field names losing meaning
+### 13. Generic field names losing meaning
 
-#### 15.1 `value` on `EffectivePredictiveOptimizationFlag` — see §1.1.
+#### 13.1 `value` on `EffectivePredictiveOptimizationFlag` — see §1.1.
 
-#### 15.2 `key`, `value` on map-entry wrappers — see §1.2.
+#### 13.2 `name` on three different schema shapes — see §1.3.
 
-#### 15.3 `name` on three different schema shapes — see §1.4.
+#### 13.3 `properties`, `options` (model.ts:51, 53, 161, 163, 218, 220) — see §5.3, §10.1.
 
-#### 15.4 `properties`, `options` (model.ts:51, 53, 161, 163, 218, 220) — see §6.3, §12.1.
-
-#### 15.5 `comment` (model.ts:23, 132, 190)
+#### 13.4 `comment` (model.ts:23, 132, 190)
 "User-provided free-form text description." `comment` is too informal
 for a documented free-text description on a metadata API.
 `description` would be more honest about its purpose.
 
 ---
 
-### 16. Field contradicting type domain
+### 14. Field contradicting type domain
 
-#### 16.1 `UpdateSchema` has `fullNameArg`, `fullName`, `name`, and `newName` (model.ts:180, 184, 197, 182)
+#### 14.1 `UpdateSchema` has `fullNameArg`, `fullName`, `name`, and `newName` (model.ts:180, 184, 197, 182)
 Four name-bearing fields on a single update request:
 
 - `fullNameArg` — existing schema identifier (path param).
@@ -375,7 +318,7 @@ identifying the existing schema; the others are vestigial in the
 update context.) This is the single most user-hostile naming pattern
 in the package — and it sits on the most-used mutation method.
 
-#### 16.2 `CreateSchema` contains read-only output fields (model.ts:32-50)
+#### 14.2 `CreateSchema` contains read-only output fields (model.ts:32-50)
 `createdAt`, `createdBy`, `updatedAt`, `updatedBy`, `metastoreId`,
 `fullName`, `catalogType`, `effectivePredictiveOptimizationFlag`,
 `schemaId`, `browseOnly`. These are server-populated; a creator
@@ -383,14 +326,14 @@ setting them is at best ignored. The type's domain is "create
 request", but its shape contradicts that. Same mirror issue in
 `UpdateSchema` (model.ts:199-217).
 
-#### 16.3 `DeleteSchema.fullNameArg` — see §5.1.
+#### 14.3 `DeleteSchema.fullNameArg` — see §4.1.
 
-#### 16.4 `GetSchema.fullNameArg` (model.ts:90)
-Same as 16.3.
+#### 14.4 `GetSchema.fullNameArg` (model.ts:90)
+Same as 14.3.
 
 ---
 
-### 17. Inconsistent action verbs
+### 15. Inconsistent action verbs
 
 Method verbs in `Client`: `createSchema`, `deleteSchema`, `getSchema`,
 `listSchemas`, `updateSchema`. Verbs are consistent — standard CRUD.
@@ -398,65 +341,65 @@ No `fetch…` / `retrieve…` / `read…` outliers. No issues found.
 
 ---
 
-### 18. Long enum values
+### 16. Long enum values
 
-#### 18.1 `CatalogType.MANAGED_ONLINE_CATALOG` (model.ts:12)
+#### 16.1 `CatalogType.MANAGED_ONLINE_CATALOG` (model.ts:12)
 22-character enum value. Should be `MANAGED_ONLINE` after dropping the
 redundant `_CATALOG` suffix (§2.1).
 
-#### 18.2 `CatalogType.DELTASHARING_CATALOG` (model.ts:8)
+#### 16.2 `CatalogType.DELTASHARING_CATALOG` (model.ts:8)
 20-character value; redundant suffix + run-together words. See §3.1.
 
-#### 18.3 Other `CatalogType` variants
+#### 16.3 Other `CatalogType` variants
 `MANAGED_CATALOG` (15), `SYSTEM_CATALOG` (14), `INTERNAL_CATALOG`
 (16), `FOREIGN_CATALOG` (15). All have redundant `_CATALOG` suffix.
 See §2.1.
 
 ---
 
-### 19. Underspecified IDs
+### 17. Underspecified IDs
 
-#### 19.1 `metastoreId` (model.ts:29, 138, 196)
+#### 17.1 `metastoreId` (model.ts:29, 138, 196)
 Documented as "unique identifier of parent metastore". Format opaque
 (UUID? slug?). Acceptable but unspecified.
 
-#### 19.2 `schemaId` (model.ts:48, 157, 215)
+#### 17.2 `schemaId` (model.ts:48, 157, 215)
 "The unique identifier of the schema." No format hint (UUID?). The
 field exists alongside `fullName` (which is also a unique identifier
 in a different sense). Two simultaneous IDs without disambiguation.
 
-#### 19.3 `createdAt` / `updatedAt` (model.ts:33, 37, 142, 146, 200, 204)
+#### 17.3 `createdAt` / `updatedAt` (model.ts:33, 37, 142, 146, 200, 204)
 Type is `number` (epoch milliseconds, per the doc). The unit is not
 encoded in the field name. `createdAtMs` / `updatedAtMs` would be
 more honest. (Compare to `lastFailoverTimeMs` in `catalogs`, which
 gets this right — see catalogs.md §19.7.)
 
-#### 19.4 `createdBy` / `updatedBy` (model.ts:35, 39, 144, 148, 202, 206)
+#### 17.4 `createdBy` / `updatedBy` (model.ts:35, 39, 144, 148, 202, 206)
 Type is `string` — "Username of schema creator" / "Username of user
 who last modified schema". Underspecified: is this a username, an
 email, a principal ID? `createdByUsername` would be clearer.
 
-#### 19.5 `inheritedFromType` / `inheritedFromName` on `EffectivePredictiveOptimizationFlag` (model.ts:83, 85)
+#### 17.5 `inheritedFromType` / `inheritedFromName` on `EffectivePredictiveOptimizationFlag` (model.ts:83, 85)
 Both `string`. `inheritedFromType` could be one of the UC securable
 types, but the field is not enum-typed. `inheritedFromName` is opaque
-text. See also §1.3, §1.5.
+text. See also §1.2.
 
 ---
 
-### 20. Type-suffix tautology
+### 18. Type-suffix tautology
 
-#### 20.1 `CatalogType` enum with field `catalogType: CatalogType`
+#### 18.1 `CatalogType` enum with field `catalogType: CatalogType`
 (model.ts:6, 41, 150, 208) — field name tautological with type name.
 Defensible (field carries the dynamic value) but worth flagging.
 
-#### 20.2 `SchemaInfo` doesn't carry a `schemaType` field — no tautology there, which is a relief.
+#### 18.2 `SchemaInfo` doesn't carry a `schemaType` field — no tautology there, which is a relief.
 
-#### 20.3 `EffectivePredictiveOptimizationFlag` with field `effectivePredictiveOptimizationFlag: EffectivePredictiveOptimizationFlag`
+#### 18.3 `EffectivePredictiveOptimizationFlag` with field `effectivePredictiveOptimizationFlag: EffectivePredictiveOptimizationFlag`
 (model.ts:44, 153, 211) — field repeats type name verbatim, 35
 characters each. Severe tautology, but defensible because the field
 is the only instance of that type in each parent. Could be shortened
 to `predictiveOptimization: EffectivePredictiveOptimization` (drop
-"Flag" per §8.3 and "effective" per §7.1).
+"Flag" per §7.2 and "effective" per §6.1).
 
 ---
 
@@ -482,17 +425,7 @@ operationally required.
 "Host is required." — bare `Error`. Not a naming issue, flagged in
 passing for the broader review.
 
-### D. `index.ts` re-exports proto-style names verbatim (lines 9, 10, 11, 12, 14, 15, 16, 19, 20, 21)
-Every underscore-bearing identifier surfaces in the package's public
-API. A consumer of `@databricks/sdk-schemas/v1` sees
-`CreateSchema_OptionsEntry`, `CreateSchema_PropertiesEntry`,
-`DeleteSchema_Response`, `ListSchemas_Response`,
-`SchemaInfo_OptionsEntry`, `SchemaInfo_PropertiesEntry`,
-`UpdateSchema_OptionsEntry`, `UpdateSchema_PropertiesEntry` as
-first-class exports. This is the highest-leverage place to clean
-naming.
-
-### E. The package name is plural; the entity types are singular
+### D. The package name is plural; the entity types are singular
 The package is `schemas` (plural); the model types are `Schema` (well,
 `SchemaInfo` — singular). The five client methods mix:
 `createSchema`/`deleteSchema`/`getSchema`/`updateSchema` (singular —
@@ -500,21 +433,21 @@ they act on one) and `listSchemas` (plural — returns many). This is
 the same pattern as `catalogs`, `tables`, etc. — consistent across
 the SDK.
 
-### F. `SchemaInfo`'s "Next ID: 45" comment (model.ts:123)
+### E. `SchemaInfo`'s "Next ID: 45" comment (model.ts:123)
 The doc comment is a leftover proto field-number management note. It
 has no consumer-facing meaning. Should be stripped on the way to TS.
 
-### G. Doc comment for `effectivePredictiveOptimizationFlag` is missing (model.ts:44-46, 153-155, 211-213)
+### F. Doc comment for `effectivePredictiveOptimizationFlag` is missing (model.ts:44-46, 153-155, 211-213)
 The field has no JSDoc, even though the type has a doc. Three
 occurrences. Consistency: every other field has a doc comment.
 
-### H. `enablePredictiveOptimization` is typed `string` not `boolean` (model.ts:27, 136, 194)
+### G. `enablePredictiveOptimization` is typed `string` not `boolean` (model.ts:27, 136, 194)
 The field name says "enable" — suggesting boolean — but the type is
 `string`. The actual value is presumably `'ENABLE' | 'DISABLE' |
-'INHERIT'` or similar. The name lies about the type. See also §6.1
+'INHERIT'` or similar. The name lies about the type. See also §5.1
 for the related `EffectivePredictiveOptimizationFlag.value`.
 
-### I. Overlap with `systemschemas` package — see §12.7
+### H. Overlap with `systemschemas` package — see §10.7
 A consumer reading "schemas" reasonably expects to find all schema
 operations here. They will not find `disableSystemSchema`,
 `enableSystemSchema`, or `listSystemSchemas` — those live in
@@ -527,72 +460,63 @@ upstream API surface, but the seam is non-obvious to discover.
 
 | Identifier                                                  | Location              | Finding              |
 | ----------------------------------------------------------- | --------------------- | -------------------- |
-| `CatalogType`                                               | model.ts:6            | 2.1, 12.4, 18.x, 20.1|
-| `CatalogType.MANAGED_CATALOG`                               | model.ts:7            | 2.1, 18.3            |
-| `CatalogType.DELTASHARING_CATALOG`                          | model.ts:8            | 2.1, 3.1, 18.2       |
-| `CatalogType.SYSTEM_CATALOG`                                | model.ts:9            | 2.1, 18.3            |
-| `CatalogType.INTERNAL_CATALOG`                              | model.ts:10           | 2.1, 18.3            |
-| `CatalogType.FOREIGN_CATALOG`                               | model.ts:11           | 2.1, 18.3            |
-| `CatalogType.MANAGED_ONLINE_CATALOG`                        | model.ts:12           | 2.1, 18.1            |
-| `CreateSchema`                                              | model.ts:15           | 12.6, 16.2           |
-| `CreateSchema.name`                                         | model.ts:17           | 1.4, 10.2            |
-| `CreateSchema.catalogType`                                  | model.ts:41           | 20.1                 |
-| `CreateSchema.effectivePredictiveOptimizationFlag`          | model.ts:44           | 7.1, 20.3, G         |
-| `CreateSchema.properties` / `.options`                      | model.ts:52, 54       | 6.3, 10.1, 12.1, 15.4|
-| `CreateSchema_OptionsEntry`                                 | model.ts:58           | 1.2, 4.1, 14.2       |
-| `CreateSchema_PropertiesEntry`                              | model.ts:64           | 1.2, 4.2, 14.2       |
-| `DeleteSchema`                                              | model.ts:69           | 16.3                 |
-| `DeleteSchema.fullNameArg`                                  | model.ts:71           | 5.1, 14.5, 16.3, B   |
-| `DeleteSchema_Response`                                     | model.ts:77           | 4.3, 14.1            |
-| `EffectivePredictiveOptimizationFlag`                       | model.ts:79           | 7.1, 8.2, 14.3, 20.3 |
-| `EffectivePredictiveOptimizationFlag.value`                 | model.ts:81           | 1.1, 6.1, 10.3, 15.1 |
-| `EffectivePredictiveOptimizationFlag.inheritedFromType`     | model.ts:83           | 1.3, 19.5            |
-| `EffectivePredictiveOptimizationFlag.inheritedFromName`     | model.ts:85           | 1.3, 19.5            |
-| `GetSchema.fullNameArg`                                     | model.ts:90           | 5.1, 14.5, 16.4, B   |
+| `CatalogType`                                               | model.ts:6            | 2.1, 10.4, 16.x, 18.1|
+| `CatalogType.MANAGED_CATALOG`                               | model.ts:7            | 2.1, 16.3            |
+| `CatalogType.DELTASHARING_CATALOG`                          | model.ts:8            | 2.1, 3.1, 16.2       |
+| `CatalogType.SYSTEM_CATALOG`                                | model.ts:9            | 2.1, 16.3            |
+| `CatalogType.INTERNAL_CATALOG`                              | model.ts:10           | 2.1, 16.3            |
+| `CatalogType.FOREIGN_CATALOG`                               | model.ts:11           | 2.1, 16.3            |
+| `CatalogType.MANAGED_ONLINE_CATALOG`                        | model.ts:12           | 2.1, 16.1            |
+| `CreateSchema`                                              | model.ts:15           | 10.6, 14.2           |
+| `CreateSchema.name`                                         | model.ts:17           | 1.3, 9.2             |
+| `CreateSchema.catalogType`                                  | model.ts:41           | 18.1                 |
+| `CreateSchema.effectivePredictiveOptimizationFlag`          | model.ts:44           | 6.1, 18.3, F         |
+| `CreateSchema.properties` / `.options`                      | model.ts:52, 54       | 5.3, 9.1, 10.1, 13.3 |
+| `DeleteSchema`                                              | model.ts:69           | 14.3                 |
+| `DeleteSchema.fullNameArg`                                  | model.ts:71           | 4.1, 12.3, 14.3, B   |
+| `EffectivePredictiveOptimizationFlag`                       | model.ts:79           | 6.1, 7.2, 12.1, 18.3 |
+| `EffectivePredictiveOptimizationFlag.value`                 | model.ts:81           | 1.1, 5.1, 9.3, 13.1  |
+| `EffectivePredictiveOptimizationFlag.inheritedFromType`     | model.ts:83           | 1.2, 17.5            |
+| `EffectivePredictiveOptimizationFlag.inheritedFromName`     | model.ts:85           | 1.2, 17.5            |
+| `GetSchema.fullNameArg`                                     | model.ts:90           | 4.1, 12.3, 14.4, B   |
 | `ListSchemas`                                               | model.ts:95           | —                    |
 | `ListSchemas.maxResults`                                    | model.ts:105          | —                    |
 | `ListSchemas.pageToken`                                     | model.ts:107          | —                    |
 | `ListSchemas.includeBrowse`                                 | model.ts:109          | —                    |
-| `ListSchemas_Response`                                      | model.ts:113          | 4.4, 14.1            |
-| `SchemaInfo`                                                | model.ts:124          | 8.1, 12.6, 14.3, F   |
-| `SchemaInfo.name`                                           | model.ts:126          | 1.4, 10.2            |
-| `SchemaInfo.fullName`                                       | model.ts:139          | 6.2, 12.2            |
-| `SchemaInfo.createdAt` / `.updatedAt`                       | model.ts:142, 146     | 19.3                 |
-| `SchemaInfo.createdBy` / `.updatedBy`                       | model.ts:144, 148     | 19.4                 |
-| `SchemaInfo.catalogType`                                    | model.ts:150          | 20.1                 |
-| `SchemaInfo.effectivePredictiveOptimizationFlag`            | model.ts:153          | 7.1, 20.3, G         |
-| `SchemaInfo.schemaId`                                       | model.ts:157          | 19.2                 |
-| `SchemaInfo.properties` / `.options`                        | model.ts:161, 163     | 6.3, 10.1, 12.1, 15.4|
-| `SchemaInfo_OptionsEntry`                                   | model.ts:167          | 1.2, 4.5, 14.2       |
-| `SchemaInfo_PropertiesEntry`                                | model.ts:173          | 1.2, 4.6, 14.2       |
-| `UpdateSchema`                                              | model.ts:178          | 12.3, 12.6, 16.1, 16.2 |
-| `UpdateSchema.fullNameArg`                                  | model.ts:180          | 5.1, 12.3, 14.5, 16.1, B |
-| `UpdateSchema.newName`                                      | model.ts:182          | 16.1                 |
-| `UpdateSchema.name`                                         | model.ts:184          | 1.4, 10.2, 16.1      |
-| `UpdateSchema.fullName`                                     | model.ts:197          | 12.2, 12.3, 16.1     |
-| `UpdateSchema.effectivePredictiveOptimizationFlag`          | model.ts:211          | 7.1, 20.3, G         |
-| `UpdateSchema_OptionsEntry`                                 | model.ts:225          | 1.2, 4.7, 14.2       |
-| `UpdateSchema_PropertiesEntry`                              | model.ts:231          | 1.2, 4.8, 14.2       |
-| `enablePredictiveOptimization` (string-typed bool)          | model.ts:27, 136, 194 | H                    |
-| `comment` field                                             | model.ts:23, 132, 190 | 15.5                 |
-| `Client` (bare name)                                        | client.ts:44          | 14.4                 |
+| `SchemaInfo`                                                | model.ts:124          | 7.1, 10.6, 12.1, E   |
+| `SchemaInfo.name`                                           | model.ts:126          | 1.3, 9.2             |
+| `SchemaInfo.fullName`                                       | model.ts:139          | 5.2, 10.2            |
+| `SchemaInfo.createdAt` / `.updatedAt`                       | model.ts:142, 146     | 17.3                 |
+| `SchemaInfo.createdBy` / `.updatedBy`                       | model.ts:144, 148     | 17.4                 |
+| `SchemaInfo.catalogType`                                    | model.ts:150          | 18.1                 |
+| `SchemaInfo.effectivePredictiveOptimizationFlag`            | model.ts:153          | 6.1, 18.3, F         |
+| `SchemaInfo.schemaId`                                       | model.ts:157          | 17.2                 |
+| `SchemaInfo.properties` / `.options`                        | model.ts:161, 163     | 5.3, 9.1, 10.1, 13.3 |
+| `UpdateSchema`                                              | model.ts:178          | 10.3, 10.6, 14.1, 14.2 |
+| `UpdateSchema.fullNameArg`                                  | model.ts:180          | 4.1, 10.3, 12.3, 14.1, B |
+| `UpdateSchema.newName`                                      | model.ts:182          | 14.1                 |
+| `UpdateSchema.name`                                         | model.ts:184          | 1.3, 9.2, 14.1       |
+| `UpdateSchema.fullName`                                     | model.ts:197          | 10.2, 10.3, 14.1     |
+| `UpdateSchema.effectivePredictiveOptimizationFlag`          | model.ts:211          | 6.1, 18.3, F         |
+| `enablePredictiveOptimization` (string-typed bool)          | model.ts:27, 136, 194 | G                    |
+| `comment` field                                             | model.ts:23, 132, 190 | 13.4                 |
+| `Client` (bare name)                                        | client.ts:44          | 12.2                 |
 | `${req.fullNameArg ?? ''}` URL substitution                 | client.ts:106, 137, 239 | B                  |
 | `flattenQueryParams` (unused export)                        | utils.ts:123          | A                    |
-| `index.ts` re-exports                                       | index.ts:7-23         | D                    |
-| Cross-package overlap with `systemschemas`                  | (package boundary)    | 12.7, I              |
+| Cross-package overlap with `systemschemas`                  | (package boundary)    | 10.7, H              |
 
 ---
 
 ## Recommended priority order
 
-1. **Fix `fullNameArg` / `fullName` / `name` / `newName` on `UpdateSchema`** — four name-like fields on the same request, the worst user-facing trap in the package. (§16.1, §5.1, §12.3)
-2. **Strip the redundant `_CATALOG` suffix from every `CatalogType` variant.** (§2.1, §18.x)
-3. **Drop proto-style `Parent_Child` identifiers** (`DeleteSchema_Response`, `ListSchemas_Response`, six `*_OptionsEntry`/`*_PropertiesEntry`). (§4)
-4. **Distinguish or merge `options` and `properties`.** (§12.1, §6.3)
-5. **Type `enablePredictiveOptimization` and `EffectivePredictiveOptimizationFlag.value` honestly** — either enum or boolean, not `string`. (§6.1, H)
-6. **Strip read-only fields from `CreateSchema`/`UpdateSchema`.** (§16.2)
-7. **Either document or remove the unused `flattenQueryParams` export.** (Cross-cutting A)
-8. **Encode timestamp units in field names** (`createdAtMs`, `updatedAtMs`). (§19.3)
-9. **Disambiguate `schemaId` vs `fullName` as identifiers** — document which is canonical. (§19.2, §12.2)
-10. **Drop the `Next ID: 45` proto leftover from `SchemaInfo` JSDoc.** (F)
-11. **Decide cross-package strategy with `systemschemas`** — at minimum document the seam. (§12.7, I)
+1. **Fix `fullNameArg` / `fullName` / `name` / `newName` on `UpdateSchema`** — four name-like fields on the same request, the worst user-facing trap in the package. (§14.1, §4.1, §10.3)
+2. **Strip the redundant `_CATALOG` suffix from every `CatalogType` variant.** (§2.1, §16.x)
+3. **Distinguish or merge `options` and `properties`.** (§10.1, §5.3)
+4. **Type `enablePredictiveOptimization` and `EffectivePredictiveOptimizationFlag.value` honestly** — either enum or boolean, not `string`. (§5.1, G)
+5. **Strip read-only fields from `CreateSchema`/`UpdateSchema`.** (§14.2)
+6. **Either document or remove the unused `flattenQueryParams` export.** (Cross-cutting A)
+7. **Encode timestamp units in field names** (`createdAtMs`, `updatedAtMs`). (§17.3)
+8. **Disambiguate `schemaId` vs `fullName` as identifiers** — document which is canonical. (§17.2, §10.2)
+9. **Resolve the `Schema` vs zod `Schema` collision before renaming `SchemaInfo` to `Schema`.** (§7.1)
+10. **Strip the `Next ID: 45` leftover from `SchemaInfo` JSDoc.** (E)
+11. **Decide cross-package strategy with `systemschemas`** — at minimum document the seam. (§10.7, H)

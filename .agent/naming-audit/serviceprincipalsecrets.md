@@ -5,7 +5,7 @@
 **Inferred domain:** Account-level CRUD over OAuth client secrets attached to
 a service principal. Endpoints sit under
 `/api/2.0/accounts/<ACCOUNT_ID>/servicePrincipals/<SP_ID>/credentials/secrets`.
-**Total weird names flagged:** 26
+**Total weird names flagged:** 23
 
 ---
 
@@ -18,27 +18,24 @@ a service principal. Endpoints sit under
 | 3 | `CreateServicePrincipalSecret` | model.ts:6 | interface | Medium | 8 Redundant suffixes, 14 Go/Java-style names | Request type named after the verb-noun phrase. TS norm is `CreateServicePrincipalSecretRequest` (which is what every other generated package uses — see `*Request` convention). Bare `CreateServicePrincipalSecret` reads like a resource, not an action. |
 | 4 | `DeleteServicePrincipalSecret` | model.ts:32 | interface | Medium | 8 Redundant suffixes, 14 Go/Java-style names | Same as #3 — verb-name without `Request` suffix; collides semantically with `ServicePrincipalSecret` (the resource). |
 | 5 | `ListServicePrincipalSecrets` | model.ts:44 | interface | Medium | 8 Redundant suffixes, 14 Go/Java-style names, 9 Singular/plural mismatches | Same as #3. Plural `Secrets` further blurs the request/resource boundary — caller sees `ListServicePrincipalSecrets` and the response type `ServicePrincipalSecret[]`. |
-| 6 | `DeleteServicePrincipalSecret_Response` | model.ts:42 | interface | High | 4 Underscores in TS identifiers, 14 Go/Java-style names | Underscore-separated identifier (only of its kind in the file). Should be `DeleteServicePrincipalSecretResponse`. Flagged in `naming-convention` eslint disable comment so the generator knows it's odd. |
-| 7 | `ListServicePrincipalSecrets_Response` | model.ts:59 | interface | High | 4 Underscores in TS identifiers, 14 Go/Java-style names | Same underscore issue as #6. The TS convention is `ListServicePrincipalSecretsResponse` (matching `CreateServicePrincipalSecretResponse`). Generator deliberately retains the proto-message nesting (`Foo_Response`); consumer-facing types should not leak that. |
-| 8 | `CreateServicePrincipalSecret.servicePrincipal` | model.ts:10 | field | High | 1 Vague/generic without domain context, 15 Generic field names losing meaning, 19 Underspecified IDs | Field is the service principal **ID** (per JSDoc `The service principal ID.`) but the field name implies the principal object itself. Should be `servicePrincipalId`. Same problem in `DeleteServicePrincipalSecret` (model.ts:35) and `ListServicePrincipalSecrets` (model.ts:47). |
-| 9 | `CreateServicePrincipalSecret.lifetime` | model.ts:12 | field | Low | 1 Vague/generic without domain context | `lifetime: Temporal.Duration` — fine, but the default ("730 days") is documented in JSDoc only; no constant exposed. `secretLifetime` would tie the field to the resource it bounds. |
-| 10 | `CreateServicePrincipalSecretResponse` vs `ServicePrincipalSecret` | model.ts:15, 66 | interface pair | High | 12 Duplicate concepts | Both interfaces have identical fields (`id`, `secret`, `secretHash`, `createTime`, `updateTime`, `status`, `expireTime`). One of them is redundant — `CreateServicePrincipalSecretResponse` could `extends ServicePrincipalSecret` or be a type alias. |
-| 11 | `ServicePrincipalSecret.secret` | model.ts:69 | field | Medium | 1 Vague/generic without domain context, 15 Generic field names losing meaning | `secret.secret` is a stutter. JSDoc says `Secret Value`. Rename to `value` or `clearTextValue`; `ServicePrincipalSecret.value` is unambiguous. Same field appears in `CreateServicePrincipalSecretResponse.secret` (model.ts:19). |
-| 12 | `ServicePrincipalSecret.secretHash` | model.ts:71 | field | Low | 1 Vague/generic without domain context | `secret.secretHash` is also a stutter. `hash` is enough. (Both `secret` and `secretHash` then need renaming; otherwise drop just the `secret` prefix here.) |
-| 13 | `ServicePrincipalSecret.id` | model.ts:68 | field | Medium | 19 Underspecified IDs, 15 Generic field names losing meaning | Top-level `id: string` is the secret's ID. Should be `secretId` to match `DeleteServicePrincipalSecret.secretId` (model.ts:38), which refers to the same value. The asymmetry forces callers to remember the mapping. |
-| 14 | `ServicePrincipalSecret.status` | model.ts:78 | field | High | 1 Vague/generic without domain context, 18 Long enum values | `status: string` — open string with no enum, no JSDoc enumeration of possible values. The Go SDK likely encodes this as `ACTIVE`/`PENDING`/`REVOKED` etc. but TS is left with a stringly-typed field. Should be a `ServicePrincipalSecretStatus` string-literal union. |
-| 15 | `ServicePrincipalSecret.createTime` | model.ts:74 | field | Medium | 1 Vague/generic without domain context, 16 Field contradicting type domain | Typed `string \| undefined` but JSDoc says `UTC time when the secret was created`. Sibling `expireTime` (model.ts:80) is `Temporal.Instant`. The two date fields have **different runtime types** for the same semantic. Pick one (likely `Temporal.Instant` for both). |
-| 16 | `ServicePrincipalSecret.updateTime` | model.ts:76 | field | Medium | 16 Field contradicting type domain | Same problem as #15 — `string` instead of `Temporal.Instant`. |
-| 17 | `CreateServicePrincipalSecretResponse.createTime` / `.updateTime` | model.ts:23, 25 | field | Medium | 16 Field contradicting type domain | Mirrors #15/#16 in the response shape (since the two shapes are duplicates). |
-| 18 | `ServicePrincipalSecret.expireTime` | model.ts:80 | field | Low | 13 Verb-tense inconsistency | Sibling fields use past tense (`createTime`, `updateTime` — when the action happened). `expireTime` is future tense. Either rename to `expiresAt` / `expirationTime`, or keep all three with consistent grammar (`createdAt`/`updatedAt`/`expiresAt`). |
-| 19 | `ListServicePrincipalSecrets.accountId` / `.servicePrincipal` | model.ts:46, 48 | field | Medium | 16 Field contradicting type domain | These are URL path parameters, not list filters. Other SDK packages document this; here the request shape mixes path params (`accountId`, `servicePrincipal`) and query params (`pageToken`, `pageSize`) with no distinction. Caller sees one bag-of-fields. |
-| 20 | `ListServicePrincipalSecrets_Response.secrets` | model.ts:61 | field | Low | 9 Singular/plural mismatches | Plural is correct (`secrets: ServicePrincipalSecret[]`), but the wire form is `secrets` (model.ts:115) — no underscore split. Clean. (Flagged only because nextPageToken below is the underscore case.) |
-| 21 | `ListServicePrincipalSecrets_Response.nextPageToken` | model.ts:63 | field | Low | 3 Acronym casing inconsistencies | Field is `nextPageToken` (camelCase) and the wire form is `next_page_token` (model.ts:118, 122). Consistent with the SDK norm; no real issue. Listed only because the JSDoc (model.ts:62) uses backticked `page_token` not `pageToken`, which is the wire spelling — confusing for TS consumers. |
-| 22 | `ListServicePrincipalSecrets.pageToken` JSDoc | model.ts:50-54 | comment | Low | 3 Acronym casing inconsistencies | The JSDoc says `next_page_token`, `page_token`, and `nextPageToken` — three spellings of two fields in one comment. Doc generator should normalise to the TS field names. |
-| 23 | `Client` | client.ts:42 | class | Medium | 1 Vague/generic without domain context | Top-level `Client` with no qualifier. A consumer that imports `{Client}` from this package and from any other SDK package has to alias each one. Suggest `ServicePrincipalSecretsClient` (or a namespace re-export). |
-| 24 | `Client.createServicePrincipalSecret` etc. | client.ts:72, 101, 129 | method | Medium | 7 Overly verbose | Method names repeat the package name (`createServicePrincipalSecret` inside the `serviceprincipalsecrets` package). After namespacing it becomes `serviceprincipalsecrets.Client.createServicePrincipalSecret(...)` — `create(req)` would suffice if the package boundary is preserved. |
-| 25 | `executeCall` vs `executeHttpCall` | utils.ts:26, 65 | function pair | Medium | 17 Inconsistent action verbs | Same shared-utils issue across the SDK: two `execute*` functions in one file with overlapping vocabulary. `executeCall` orchestrates retries/timeouts via the public `CallOptions`; `executeHttpCall` does one HTTP roundtrip and converts errors. Names should distinguish them — e.g. `runWithOptions` / `sendRequest`. |
-| 26 | `flattenQueryParams` (dead code) | utils.ts:123 | function | Low | 10 Dead code | Exported from `utils.ts` but never imported in `client.ts` (which builds query strings inline via `URLSearchParams` at client.ts:134-142). Either remove or use it. |
+| 6 | `CreateServicePrincipalSecret.servicePrincipal` | model.ts:10 | field | High | 1 Vague/generic without domain context, 15 Generic field names losing meaning, 19 Underspecified IDs | Field is the service principal **ID** (per JSDoc `The service principal ID.`) but the field name implies the principal object itself. Should be `servicePrincipalId`. Same problem in `DeleteServicePrincipalSecret` (model.ts:35) and `ListServicePrincipalSecrets` (model.ts:47). |
+| 7 | `CreateServicePrincipalSecret.lifetime` | model.ts:12 | field | Low | 1 Vague/generic without domain context | `lifetime: Temporal.Duration` — fine, but the default ("730 days") is documented in JSDoc only; no constant exposed. `secretLifetime` would tie the field to the resource it bounds. |
+| 8 | `CreateServicePrincipalSecretResponse` vs `ServicePrincipalSecret` | model.ts:15, 66 | interface pair | High | 12 Duplicate concepts | Both interfaces have identical fields (`id`, `secret`, `secretHash`, `createTime`, `updateTime`, `status`, `expireTime`). One of them is redundant — `CreateServicePrincipalSecretResponse` could `extends ServicePrincipalSecret` or be a type alias. |
+| 9 | `ServicePrincipalSecret.secret` | model.ts:69 | field | Medium | 1 Vague/generic without domain context, 15 Generic field names losing meaning | `secret.secret` is a stutter. JSDoc says `Secret Value`. Rename to `value` or `clearTextValue`; `ServicePrincipalSecret.value` is unambiguous. Same field appears in `CreateServicePrincipalSecretResponse.secret` (model.ts:19). |
+| 10 | `ServicePrincipalSecret.secretHash` | model.ts:71 | field | Low | 1 Vague/generic without domain context | `secret.secretHash` is also a stutter. `hash` is enough. (Both `secret` and `secretHash` then need renaming; otherwise drop just the `secret` prefix here.) |
+| 11 | `ServicePrincipalSecret.id` | model.ts:68 | field | Medium | 19 Underspecified IDs, 15 Generic field names losing meaning | Top-level `id: string` is the secret's ID. Should be `secretId` to match `DeleteServicePrincipalSecret.secretId` (model.ts:38), which refers to the same value. The asymmetry forces callers to remember the mapping. |
+| 12 | `ServicePrincipalSecret.status` | model.ts:78 | field | High | 1 Vague/generic without domain context, 18 Long enum values | `status: string` — open string with no enum, no JSDoc enumeration of possible values. The Go SDK likely encodes this as `ACTIVE`/`PENDING`/`REVOKED` etc. but TS is left with a stringly-typed field. Should be a `ServicePrincipalSecretStatus` string-literal union. |
+| 13 | `ServicePrincipalSecret.createTime` | model.ts:74 | field | Medium | 1 Vague/generic without domain context, 16 Field contradicting type domain | Typed `string \| undefined` but JSDoc says `UTC time when the secret was created`. Sibling `expireTime` (model.ts:80) is `Temporal.Instant`. The two date fields have **different runtime types** for the same semantic. Pick one (likely `Temporal.Instant` for both). |
+| 14 | `ServicePrincipalSecret.updateTime` | model.ts:76 | field | Medium | 16 Field contradicting type domain | Same problem as #13 — `string` instead of `Temporal.Instant`. |
+| 15 | `CreateServicePrincipalSecretResponse.createTime` / `.updateTime` | model.ts:23, 25 | field | Medium | 16 Field contradicting type domain | Mirrors #13/#14 in the response shape (since the two shapes are duplicates). |
+| 16 | `ServicePrincipalSecret.expireTime` | model.ts:80 | field | Low | 13 Verb-tense inconsistency | Sibling fields use past tense (`createTime`, `updateTime` — when the action happened). `expireTime` is future tense. Either rename to `expiresAt` / `expirationTime`, or keep all three with consistent grammar (`createdAt`/`updatedAt`/`expiresAt`). |
+| 17 | `ListServicePrincipalSecrets.accountId` / `.servicePrincipal` | model.ts:46, 48 | field | Medium | 16 Field contradicting type domain | These are URL path parameters, not list filters. Other SDK packages document this; here the request shape mixes path params (`accountId`, `servicePrincipal`) and query params (`pageToken`, `pageSize`) with no distinction. Caller sees one bag-of-fields. |
+| 18 | `ListServicePrincipalSecrets.nextPageToken` JSDoc | model.ts:62 | comment | Low | 3 Acronym casing inconsistencies | The JSDoc (model.ts:62) uses backticked `page_token` not `pageToken`, which is the wire spelling — confusing for TS consumers. |
+| 19 | `ListServicePrincipalSecrets.pageToken` JSDoc | model.ts:50-54 | comment | Low | 3 Acronym casing inconsistencies | The JSDoc says `next_page_token`, `page_token`, and `nextPageToken` — three spellings of two fields in one comment. Doc generator should normalise to the TS field names. |
+| 20 | `Client` | client.ts:42 | class | Medium | 1 Vague/generic without domain context | Top-level `Client` with no qualifier. A consumer that imports `{Client}` from this package and from any other SDK package has to alias each one. Suggest `ServicePrincipalSecretsClient` (or a namespace re-export). |
+| 21 | `Client.createServicePrincipalSecret` etc. | client.ts:72, 101, 129 | method | Medium | 7 Overly verbose | Method names repeat the package name (`createServicePrincipalSecret` inside the `serviceprincipalsecrets` package). After namespacing it becomes `serviceprincipalsecrets.Client.createServicePrincipalSecret(...)` — `create(req)` would suffice if the package boundary is preserved. |
+| 22 | `executeCall` vs `executeHttpCall` | utils.ts:26, 65 | function pair | Medium | 17 Inconsistent action verbs | Same shared-utils issue across the SDK: two `execute*` functions in one file with overlapping vocabulary. `executeCall` orchestrates retries/timeouts via the public `CallOptions`; `executeHttpCall` does one HTTP roundtrip and converts errors. Names should distinguish them — e.g. `runWithOptions` / `sendRequest`. |
+| 23 | `flattenQueryParams` (dead code) | utils.ts:123 | function | Low | 10 Dead code | Exported from `utils.ts` but never imported in `client.ts` (which builds query strings inline via `URLSearchParams` at client.ts:134-142). Either remove or use it. |
 
 ---
 
@@ -75,27 +72,7 @@ Until that is done, every consumer must read the docs to decide which
 package to import. Once both are imported, all symbols collide on
 re-export.
 
-### H2. `*_Response` underscore types
-
-Two public symbols carry a literal underscore, retained from
-proto-message nesting and ESLint-disabled at each site:
-
-```ts
-// model.ts:42
-export interface DeleteServicePrincipalSecret_Response {}
-
-// model.ts:59
-export interface ListServicePrincipalSecrets_Response { ... }
-```
-
-These are the only underscored identifiers in the package and the generator
-already flags them with `eslint-disable @typescript-eslint/naming-convention`.
-The Google TypeScript style guide explicitly disallows underscores in
-identifiers (§5.3.1). Rename to camelCase:
-`DeleteServicePrincipalSecretResponse`,
-`ListServicePrincipalSecretsResponse`.
-
-### H3. `CreateServicePrincipalSecretResponse` is structurally `ServicePrincipalSecret`
+### H2. `CreateServicePrincipalSecretResponse` is structurally `ServicePrincipalSecret`
 
 ```ts
 // model.ts:15
@@ -118,7 +95,7 @@ and the **same** JSDoc. One of them is redundant. Options:
 
 Either way the duplicated shape is wasted bundle size.
 
-### H4. `*.servicePrincipal` is misleading
+### H3. `*.servicePrincipal` is misleading
 
 ```ts
 // model.ts:10, 35, 48
@@ -132,7 +109,7 @@ Rename the TS field to `servicePrincipalId` and let the wire spelling be
 preserved at the transport layer. Same fix is needed for the URL
 parameter use at client.ts:76, 105, 133.
 
-### H5. `ServicePrincipalSecret.status: string` should be a string-literal union
+### H4. `ServicePrincipalSecret.status: string` should be a string-literal union
 
 ```ts
 status?: string | undefined;  // JSDoc: "Status of the secret"
@@ -353,10 +330,7 @@ Unreachable branch for `delete*` (response is always parseable as
 - **No enums.** The package has zero `enum` types, so categories 2
   (redundant enum prefixes) and 18 (long enum values) apply only to
   `ServicePrincipalSecret.status` which is a `string`, not a literal
-  union (flagged as H5).
-- **Underscores in identifiers.** Only the `*_Response` types use them
-  (model.ts:42, 59, 108, 112). The generator already flags each one
-  with `eslint-disable @typescript-eslint/naming-convention`. See H2.
+  union (flagged as H4).
 - **Acronym casing.** Only `accountId` (camelCase, idiomatic) and
   `nextPageToken` (camelCase, idiomatic) appear. No `Url`/`URL`,
   `Sql`/`SQL`, `Json`/`JSON`, `Oauth`/`OAuth` collisions.

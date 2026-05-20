@@ -39,11 +39,11 @@
 - **Suggested name:** `TagSource` (drop both `Assignment` and `Type`). Field becomes `source: TagSource`.
 - **Rationale:** The shorter name is unambiguous in context (`EntityTagAssignment.source` reads better than `EntityTagAssignment.sourceType`). Sister Unity Catalog packages have analogous enums like `Privilege`, `SchemaType` — `Type` suffix is used inconsistently across the SDK.
 
-### 5. `TagAssignmentSourceType.TAG_ASSIGNMENT_SOURCE_TYPE_UNSPECIFIED` / `TAG_ASSIGNMENT_SOURCE_TYPE_SYSTEM_DATA_CLASSIFICATION` — `src/v1/model.ts:11-13`
-- **Why weird:** Both enum members carry the entire enum name as prefix, then `_UNSPECIFIED` (a protobuf sentinel) or `_SYSTEM_DATA_CLASSIFICATION` (a 24-character SCREAMING_SNAKE value). The TS access is `TagAssignmentSourceType.TAG_ASSIGNMENT_SOURCE_TYPE_SYSTEM_DATA_CLASSIFICATION` — the user types `TagAssignmentSourceType` *twice* in a single expression.
-- **Category:** 2 (redundant enum prefix on every member), 14 (proto/Go-style names — TS enum members do not need self-prefixing), 18 (long enum values — 38 chars).
-- **Suggested name:** `TagSource.Unspecified` and `TagSource.SystemDataClassification` (drop the redundant prefix; use PascalCase per TS enum conventions). Better: omit `Unspecified` and let `source?: TagSource | undefined` express "not set".
-- **Rationale:** TS enum members are already namespaced by the enum identifier; the proto-emitted `ENUM_NAME_VALUE` pattern adds nothing. The `Unspecified` sentinel is a proto-mandated zero-value that has no role in TS where `undefined` is first-class. Compare canonical TS enums (`Severity.High`, `Color.Red`).
+### 5. `TagAssignmentSourceType` enum members carry the full enum name as prefix — `src/v1/model.ts:11-13`
+- **Why weird:** Every enum member is prefixed with `TAG_ASSIGNMENT_SOURCE_TYPE_*`. The TS access is `TagAssignmentSourceType.TAG_ASSIGNMENT_SOURCE_TYPE_SYSTEM_DATA_CLASSIFICATION` — the user types `TagAssignmentSourceType` twice in one expression.
+- **Category:** 2 (redundant enum prefix on every member).
+- **Suggested name:** Drop the redundant prefix from each member so access reads `TagAssignmentSourceType.SystemDataClassification`.
+- **Rationale:** TS enum members are already namespaced by the enum identifier; re-prefixing every value with the enum name adds nothing. Compare canonical TS enums (`Severity.High`, `Color.Red`).
 
 ### 6. `entityName: string` doc says "fully qualified name" but type does not enforce — `src/v1/model.ts:24,34,53,66`
 - **Why weird:** Five places in this file have a field called `entityName` whose JSDoc says "The fully qualified name of the entity to which the tag is assigned". The shape `name?: string | undefined` cannot enforce qualification; users will pass bare names. Compare Unity Catalog convention `fullName` (used in `catalogs`, `schemas`, `tables`).

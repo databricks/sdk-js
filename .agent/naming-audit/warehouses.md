@@ -13,8 +13,7 @@ This audit applies the 20 numbered concern categories from the audit
 checklist. Each finding lists the offending identifier(s), the
 category number, severity (`HIGH` / `MEDIUM` / `LOW`), and a concrete
 rename suggestion. Findings are grouped by category. Generator-driven
-items (such as `_Response` underscore on proto-style nested messages)
-are flagged as `LOW` because they are codified across the entire
+items are flagged as `LOW` because they are codified across the entire
 generated SDK surface — they should be fixed at the generator, not by
 hand-editing this package.
 
@@ -231,8 +230,7 @@ compatibility while updating the customer-visible type names.
   `pollResp.health?.summary` (`client.ts:661`) — a warehouse
   health message.
 - **Suggestion:** Rename to `WarehouseHealth` /
-  `WarehouseHealth_Status`. The proto-nested style of
-  `_Status` is a separate finding (F4.x).
+  `WarehouseHealth_Status`.
 
 #### F1.4 — `EndpointTags`, `EndpointTagPair` interface names (HIGH)
 - **Where:** `model.ts:1115, 1120`, `index.ts:31, 32`. Field
@@ -253,8 +251,7 @@ compatibility while updating the customer-visible type names.
   conflates the legacy "endpoint" term with workspace config.
 - **Suggestion:** Rename `EndpointConfPair` → `ConfigPair` or
   `WarehouseConfigPair`. `RepeatedEndpointConfPairs` →
-  `RepeatedConfigPairs` (the "Repeated" prefix is also a
-  Go/proto-ism — see F14.3).
+  `RepeatedConfigPairs`.
 
 #### F1.6 — `EndpointSecurityPolicy`, `EndpointSpotInstancePolicy` (HIGH)
 - **Where:** `model.ts:26, 55`, `index.ts:14, 15`. Field on
@@ -532,33 +529,7 @@ compatibility while updating the customer-visible type names.
 
 ### 4. Underscores in TS identifiers
 
-#### F4.1 — Proto-nested message naming with underscore (HIGH, generator-driven)
-- **Where:**
-  - `CreateWarehouse_Response` (`model.ts:842`)
-  - `EditWarehouseRequest_Response` (`model.ts:986`)
-  - `GetWarehouse_Response` (`model.ts:1141`)
-  - `GetWorkspaceWarehouseConfigRequest_Response` (`model.ts:1258`)
-  - `SetWorkspaceWarehouseConfigRequest_Response` (`model.ts:1389`)
-  - `DeleteWarehouseRequest_Response` (`model.ts:1453`)
-  - `ListWarehousesRequest_Response` (`model.ts:1480`)
-  - `StartRequest_Response` (`model.ts:1500`)
-  - `StopRequest_Response` (`model.ts:1512`)
-  - `TerminationReason_ParametersEntry` (`model.ts:1401`)
-  - `EndpointHealth_Status` (`model.ts:713`)
-- **Why flagged:** Underscores are not idiomatic in TS
-  identifiers. The `Foo_Response` convention is leaked from the
-  protobuf nested-message representation. Each affected line has
-  an `eslint-disable @typescript-eslint/naming-convention` comment
-  acknowledging this.
-- **Suggestion:** Generator-level. Replace with namespaces:
-  ```ts
-  export namespace CreateWarehouse {
-    export interface Response { id?: string }
-  }
-  ```
-  Or pure name concatenation: `CreateWarehouseResponse`,
-  `EditWarehouseResponse`, etc. — this matches the convention
-  used by the rest of the JS SDK for top-level types.
+_None._
 
 ---
 
@@ -743,11 +714,9 @@ compatibility while updating the customer-visible type names.
   belt-and-suspenders signal. Note the inconsistency: some types
   drop the suffix entirely (`CreateWarehouse`, `GetWarehouse`),
   others keep it.
-- **Suggestion:** Standardize. The `_Response` underscore type
-  pattern (F4.1) ties the request name to the response name —
-  if request is `Foo`, response is `Foo_Response`. So
-  `EditWarehouseRequest` should be `EditWarehouse` for symmetry
-  with `CreateWarehouse` / `GetWarehouse`. Generator-level.
+- **Suggestion:** Standardize. `EditWarehouseRequest` should be
+  `EditWarehouse` for symmetry with `CreateWarehouse` /
+  `GetWarehouse`. Generator-level.
 
 #### F8.2 — `Name` suffix on `ChannelName` enum (MEDIUM)
 - **Where:** `model.ts:7`.
@@ -770,10 +739,7 @@ compatibility while updating the customer-visible type names.
   `WarehouseTypeAvailability` (or similar) — wire-aligned but
   semantically clearer than the `Pair` suffix.
 
-#### F8.4 — `_Response` underscore suffix (HIGH, generator-driven)
-- Covered in F4.1.
-
-#### F8.5 — `Params` suffix on `OdbcParams` (LOW)
+#### F8.4 — `Params` suffix on `OdbcParams` (LOW)
 - **Where:** `model.ts:1329`.
 - **Why flagged:** Mild noise. Type has `hostname`, `path`,
   `protocol`, `port` — `OdbcConnectionInfo` would be more
@@ -939,14 +905,6 @@ _None. Wrappers are retained for forward compatibility._
     `deleteDefaultWarehouseOverride`. Standard CRUD verbs.
 - **Suggestion:** See F17 below — same root cause.
 
-#### F13.2 — `Repeated` adjective on `RepeatedEndpointConfPairs` (LOW, proto-ism)
-- **Where:** `model.ts:1336`.
-- **Why flagged:** "Repeated" is proto vocabulary; not English
-  vocabulary. It means "list of". Reads as "repeated endpoint
-  conf pairs".
-- **Suggestion:** Drop the `Repeated` prefix. Rename to
-  `EndpointConfPairList` (or `ConfigPairList` per F1.5).
-
 ---
 
 ### 14. Go/Java-style names
@@ -959,17 +917,7 @@ _None. Wrappers are retained for forward compatibility._
   within the same method signature.
 - **Suggestion:** Generator-level.
 
-#### F14.2 — `Repeated` proto-prefix (LOW)
-- Covered in F13.2.
-
-#### F14.3 — `Params` suffix on types (Java-ish) (LOW)
-- `OdbcParams` — minor. See F8.5.
-
-#### F14.4 — `Pair` suffix (Java-ish) (LOW)
-- `EndpointTagPair`, `EndpointConfPair`, `WarehouseTypePair`.
-  Covered in F8.3.
-
-#### F14.5 — `for (;;)` C-style infinite loop (LOW, generator-driven)
+#### F14.2 — `for (;;)` C-style infinite loop (LOW, generator-driven)
 - **Where:** `client.ts:405, 462`, `utils.ts:48`.
 - **Why flagged:** `for (;;)` is C/Go idiom; TS prefers
   `while (true)` for readability. Minor.
@@ -1113,34 +1061,7 @@ _None. Wrappers are retained for forward compatibility._
 
 ### 18. Long enum values
 
-#### F18.1 — `TerminationCode` — many >40-char identifiers (HIGH)
-- **Where:** `model.ts:103-687`. Examples:
-  - `AWS_INSUFFICIENT_FREE_ADDRESSES_IN_SUBNET_FAILURE` (50)
-  - `AZURE_UNEXPECTED_DEPLOYMENT_TEMPLATE_FAILURE` (44)
-  - `AZURE_PACKED_DEPLOYMENT_PARTIAL_FAILURE` (38)
-  - `BOOTSTRAP_TIMEOUT_CLOUD_PROVIDER_EXCEPTION` (42)
-  - `BUDGET_POLICY_LIMIT_ENFORCEMENT_ACTIVATED` (41)
-  - `ALLOCATION_TIMEOUT_NO_HEALTHY_AND_WARMED_UP_CLUSTERS` (52)
-  - `NETWORK_CHECK_METADATA_ENDPOINT_FAILURE_DUE_TO_MISCONFIG` (56)
-  - `SECURITY_AGENTS_FAILED_INITIAL_VERIFICATION` (43)
-- **Why flagged:** Identifier readability suffers; switch
-  statements become unwieldy. Some have `_DUE_TO_MISCONFIG`
-  suffix that is essentially a sub-category.
-- **Suggestion:** Acceptable for backwards compat. Consider
-  refactoring to a nested enum (category + subcategory) at the
-  spec level. Generator-driven.
-
-#### F18.2 — `EndpointSpotInstancePolicy.RELIABILITY_OPTIMIZED` / `COST_OPTIMIZED` (LOW)
-- **Where:** `model.ts:78, 80`.
-- **Why flagged:** 21-22 char values. Acceptable; descriptive.
-
-#### F18.3 — `ChannelName.CHANNEL_NAME_*` (LOW, covered by F2.1)
-- **Where:** `model.ts:9-12`.
-- **Why flagged:** With the prefix stripped (per F2.1), values
-  become short. Otherwise 23-25 chars.
-
-#### F18.4 — `DefaultWarehouseOverrideType.DEFAULT_WAREHOUSE_OVERRIDE_TYPE_UNSPECIFIED` (LOW, covered by F2.2)
-- 43 chars. Strip prefix to fix.
+_None._
 
 ---
 
@@ -1259,19 +1180,16 @@ _None. Wrappers are retained for forward compatibility._
 3. **Strip redundant enum prefixes (F2.1, F2.2, F2.3, F2.4,
    F2.5)** — `ChannelName.CHANNEL_NAME_PREVIEW` etc. Trivial
    generator-level fix; massive readability win.
-4. **Drop `_Response` underscore convention (F4.1)** —
-   namespace or naked concatenation. Generator-level.
-5. **Collapse duplicate types (F12.1, F12.2, F12.3)** —
+4. **Collapse duplicate types (F12.1, F12.2, F12.3)** —
    `EndpointInfo` + `GetWarehouse_Response`,
    `CreateWarehouse` + `EditWarehouseRequest`,
    `Set*Config` + `Get*Config_Response`.
 
 ### Recurring themes
 
-- **Generator-driven proto-isms** (`Repeated`, `_Response`,
-  `req`/`resp`, `for(;;)`) are the largest single category.
-  Most are LOW because they are consistent across the entire
-  SDK; fix at the generator.
+- **Generator-driven Go/proto idioms** (`req`/`resp`,
+  `for(;;)`) are LOW because they are consistent across the
+  entire SDK; fix at the generator.
 - **Legacy `Endpoint*` naming** is the package-specific issue.
   It causes the most readability harm because the package
   brand is "warehouse" while half the types still say

@@ -19,11 +19,11 @@ Notation: file paths are relative to the package root. Findings reference
 
 | Severity    | Count |
 | ----------- | ----- |
-| High        | 8     |
+| High        | 5     |
 | Medium      | 14    |
 | Low         | 9     |
 | Observation | 5     |
-| **Total**   | **36** |
+| **Total**   | **33** |
 
 Headline themes:
 
@@ -34,23 +34,17 @@ Headline themes:
    and `serviceprincipalsecretsproxy` (workspace-level proxy for the same).
    All four export a class literally named `Client` and types with the noun
    `Secret`. Cross-package usage is opaque without aliasing.
-2. **Pervasive proto-style `Parent_Response` underscore identifiers.** Every
-   non-`Get` operation produces an empty `_Response` envelope
-   (`CreateScope_Response`, `DeleteAcl_Response`, ...). Eleven of the
-   thirteen public types in `model.ts` carry an underscore, and every one of
-   them sits behind an `eslint-disable @typescript-eslint/naming-convention`
-   comment.
-3. **Action-verb request types collide with same-named client methods.**
+2. **Action-verb request types collide with same-named client methods.**
    `interface CreateScope` describes the request body; `client.createScope`
    performs the action. The reader has to mentally distinguish the noun-from-
    verb each time. Six pairs in this file (`CreateScope`, `DeleteAcl`,
    `DeleteScope`, `DeleteSecret`, `GetAcl`, `GetSecret`, `ListAcls`,
    `ListScopes`, `ListSecrets`, `PutAcl`, `PutSecret`).
-4. **Inconsistent action verb across mutating operations.** `Put` for
+3. **Inconsistent action verb across mutating operations.** `Put` for
    creating/updating ACLs and secrets, `Create` for scopes, `Delete` for
    all three. There is no `Update`. Go's REST SDK adopts the same shape, but
    `Put` reads as Go/HTTP-method jargon rather than a TS-side action verb.
-5. **`scope: string | undefined` everywhere — but required in practice.**
+4. **`scope: string | undefined` everywhere — but required in practice.**
    Eleven of twelve operation request types have `scope?: string | undefined`
    as their primary identifier. Every server endpoint will reject an absent
    scope. The "optional" marker is a generator artifact (all proto fields
@@ -90,39 +84,21 @@ Headline themes:
   appear bare in any of them. Document the four-package matrix in each
   package's README.
 
-### H2. `Client` is unqualified; collides on import with every other package
+### H2. `Client` is unqualified; overlaps with `Secret*` types in the same package
 
 - **File / line:** `src/v1/client.ts:70` (`export class Client`); re-exported
   from `src/v1/index.ts:3`.
 - **Category:** #1 vague/generic.
 - **Current:** `export class Client`.
 - **Suggestion:** `export class SecretsClient`.
-- **Rationale:** Per repo-wide pattern, every package exports `Client`. Once
-  two such packages are imported into the same file the user must alias one
-  of them. Same defect flagged in `credentials.md` #10, `resourcequotas.md`
-  (implicit), and others. Self-identifying class names eliminate the alias
-  dance entirely.
+- **Rationale:** The package exports `SecretScope`, `SecretMetadata`, and
+  numerous `Secret*` operation types alongside the bare `Client`. A consumer
+  importing several symbols from this package gets a mix of self-identifying
+  `Secret*` names plus an undifferentiated `Client`. Self-identifying the
+  class name (`SecretsClient`) aligns it with the rest of the package's
+  exports and also eliminates the cross-package alias dance flagged in H1.
 
-### H3. Eleven proto-style `Parent_Response` types violate TS identifier convention
-
-- **Files / lines:** `src/v1/model.ts:63, 73, 81, 91, 108, 121, 130, 141,
-  156, 178`. Schema constants mirror them: `model.ts:227, 231, 235, 239,
-  243, 258, 267, 277, 287, 291`. All eleven sit behind
-  `// eslint-disable-next-line @typescript-eslint/naming-convention` comments.
-- **Category:** #4 underscore in TS identifier, #14 Go/Java-style name.
-- **Current:** `CreateScope_Response`, `DeleteAcl_Response`,
-  `DeleteScope_Response`, `DeleteSecret_Response`, `GetSecret_Response`,
-  `ListAcls_Response`, `ListScopes_Response`, `ListSecrets_Response`,
-  `PutAcl_Response`, `PutSecret_Response`. Schemas
-  `unmarshalCreateScope_ResponseSchema`, etc.
-- **Suggestion:** `CreateScopeResponse`, ..., `unmarshalCreateScopeResponseSchema`,
-  etc. (collapse the underscore).
-- **Rationale:** Same defect class as `resourcequotas.md` H2 and
-  `credentials.md` #18. The codebase itself rejects this convention — every
-  declaration carries an ESLint disable annotation. Eleven disables in one
-  file is a strong signal that the generator is producing wrong identifiers.
-
-### H4. Six request types are verb phrases (action collision with client methods)
+### H3. Six request types are verb phrases (action collision with client methods)
 
 - **Files / lines:** `src/v1/model.ts:51` (`CreateScope`), `:65` (`DeleteAcl`),
   `:75` (`DeleteScope`), `:83` (`DeleteSecret`), `:93` (`GetAcl`), `:100`
@@ -142,7 +118,7 @@ Headline themes:
   repo: `CreateSecretRequest`, `GetSecretRequest`, `ListSecretsRequest`,
   etc. Two sibling packages, two conventions. Pick one.
 
-### H5. Inconsistent action verb: `Put*` mixed with `Create*` and `Delete*`
+### H4. Inconsistent action verb: `Put*` mixed with `Create*` and `Delete*`
 
 - **Files / lines:** `src/v1/client.ts:584` (`putAcl`), `:638` (`putSecret`);
   contrast `:137` (`createScope`), `:262` (`deleteSecret`), `:220`
@@ -163,7 +139,7 @@ Headline themes:
   `/secrets/put` — so the wire format is *also* inconsistent and the
   generator is faithfully reproducing it.
 
-### H6. Scope name field `scope` is severely overloaded across types
+### H5. Scope name field `scope` is severely overloaded across types
 
 - **Files / lines:** `src/v1/model.ts:53` (`CreateScope.scope`), `:67`
   (`DeleteAcl.scope`), `:77` (`DeleteScope.scope`), `:85`
@@ -188,45 +164,6 @@ Headline themes:
   sibling `serviceprincipalsecrets` uses (`ServicePrincipalSecret.secretId`
   vs request `id`). The Go SDK uses the same `Scope` field name, but TS
   conventions favour explicitness over brevity.
-
-### H7. `PutSecret.value` discriminated union has cryptic `$case` discriminator field
-
-- **File / line:** `src/v1/model.ts:163-174`.
-- **Category:** #14 Go/Java-style name, #15 generic field names.
-- **Current:**
-  ```ts
-  value?:
-    | { $case: 'stringValue'; stringValue: string }
-    | { $case: 'bytesValue'; bytesValue: Uint8Array }
-    | undefined;
-  ```
-- **Issue:** `$case` is the ts-proto-style discriminator marker, not a TS
-  convention. Idiomatic TS uses a domain-specific tag (`type`, `kind`,
-  `format`). Worse, the *case names* (`stringValue`, `bytesValue`) duplicate
-  the *property names* (`stringValue`, `bytesValue`) — so
-  `value.stringValue` is the read path, `value.$case === 'stringValue'` is
-  the guard. The redundancy makes the union three things in one (`$case`,
-  the value, the type) where one would suffice.
-- **Suggestion:** either a plain union
-  `value: { format: 'string'; data: string } | { format: 'bytes'; data: Uint8Array }`
-  or, since at the wire level the server expects one of two top-level
-  fields `string_value` / `bytes_value`, model it as two optional fields
-  with an exactly-one-of constraint enforced at runtime.
-- **See also:** Repo-wide pattern; the `credentials` audit catalogues the
-  same `$case` discriminator in many places.
-
-### H8. `value` field on `PutSecret` and `GetSecret_Response` carries no domain hint
-
-- **Files / lines:** `src/v1/model.ts:112` (`GetSecret_Response.value:
-  Uint8Array`); `:163-174` (`PutSecret.value`).
-- **Category:** #1 vague/generic, #15 generic field names.
-- **Issue:** A field literally named `value` on a `Uint8Array` is the
-  flattest possible name. With nothing to disambiguate, the reader has to
-  read the JSDoc to know it is *the secret payload* (not a metadata value,
-  a hash, etc.). Compare with `SecretMetadata.lastUpdatedTimestamp` (#L10
-  below) which is fully qualified.
-- **Suggestion:** `secretValue` or `secretBytes`. The JSDoc itself says
-  "The value of the secret" — fold that into the identifier.
 
 ---
 
@@ -548,7 +485,7 @@ Headline themes:
 
 ### O1. `scope` is optional on every request type, but required at the server
 
-- **Files / lines:** see H6.
+- **Files / lines:** see H5.
 - The generator marks every proto field optional. The runtime contract
   requires `scope` for ten of eleven operations. Not a naming defect but
   worth noting: the type is wider than the API allows.
@@ -596,28 +533,24 @@ Headline themes:
 
 ## Recommended renames (high-confidence, in priority order)
 
-1. `Client` → `SecretsClient` (H2).
-2. `CreateScope_Response`, `DeleteAcl_Response`, `DeleteScope_Response`,
-   `DeleteSecret_Response`, `GetSecret_Response`, `ListAcls_Response`,
-   `ListScopes_Response`, `ListSecrets_Response`, `PutAcl_Response`,
-   `PutSecret_Response` → strip underscore (H3).
-3. `CreateScope`, `DeleteAcl`, `DeleteScope`, `DeleteSecret`, `GetAcl`,
+1. `Client` → `SecretsClient` (H1, H2).
+2. `CreateScope`, `DeleteAcl`, `DeleteScope`, `DeleteSecret`, `GetAcl`,
    `GetSecret`, `ListAcls`, `ListScopes`, `ListSecrets`, `PutAcl`,
    `PutSecret` → suffix with `Request` to match sibling
-   `secretsuc` (H4).
-4. Verb harmonization: pick `Create`/`Update` *or* `Put` and apply
-   consistently across all mutating methods (H5).
-5. `scope: string` field on every request type → `scopeName: string` (H6).
-6. `AclItem` → `Acl` or `AclEntry`; `ListAcls_Response.items` →
+   `secretsuc` (H3).
+3. Verb harmonization: pick `Create`/`Update` *or* `Put` and apply
+   consistently across all mutating methods (H4).
+4. `scope: string` field on every request type → `scopeName: string` (H5).
+5. `AclItem` → `Acl` or `AclEntry`; `ListAcls_Response.items` →
    `ListAclsResponse.acls` (M7, M14).
-7. `SecretMetadata` → `SecretSummary` or `SecretInfo` (M8).
-8. `SecretMetadata.lastUpdatedTimestamp` → `lastUpdatedAt` (M9).
-9. Casing standardization: `KeyVault` everywhere (`keyVaultMetadata`,
+6. `SecretMetadata` → `SecretSummary` or `SecretInfo` (M8).
+7. `SecretMetadata.lastUpdatedTimestamp` → `lastUpdatedAt` (M9).
+8. Casing standardization: `KeyVault` everywhere (`keyVaultMetadata`,
    `backendAzureKeyVault`) (M3).
-10. `AzureKeyVaultSecretScopeMetadata.dnsName` → `vaultUri` (M6).
-11. `AzureKeyVaultSecretScopeMetadata.resourceId` → `azureResourceId` or
+9. `AzureKeyVaultSecretScopeMetadata.dnsName` → `vaultUri` (M6).
+10. `AzureKeyVaultSecretScopeMetadata.resourceId` → `azureResourceId` or
     `keyVaultResourceId` (M5).
-12. `SecretScope.backendType` ↔ `CreateScope.scopeBackendType` → pick one
+11. `SecretScope.backendType` ↔ `CreateScope.scopeBackendType` → pick one
     (`backendType`) (M10).
-13. `CreateScope.backendAzureKeyvault` ↔ `SecretScope.keyvaultMetadata`
+12. `CreateScope.backendAzureKeyvault` ↔ `SecretScope.keyvaultMetadata`
     → pick one (`keyVaultBackend`) (M11).

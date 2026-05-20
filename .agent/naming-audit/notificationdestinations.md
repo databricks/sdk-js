@@ -3,7 +3,7 @@
 **Path:** `packages/notificationdestinations/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Workspace-level CRUD over "notification destinations" — named, persisted records that pair a `displayName` with one config out of five wire-format channels (Slack, Email, GenericWebhook, PagerDuty, MicrosoftTeams). The REST surface is `/api/2.0/notification-destinations`, with the usual `create` / `get` / `list` / `update` / `delete` plus a paged async iterator. Every channel-config carries the same `*Set: boolean` companion shape: secret fields are write-only on input and the server echoes only a "is it set?" mirror on output. There are zero typed timestamps, zero enum sub-types beyond `DestinationType`, and the only oneof is the discriminated `Config` union.
-**Total weird names flagged:** 24
+**Total weird names flagged:** 22
 
 ## Summary
 
@@ -11,14 +11,14 @@
 | --- | --- |
 | High | 6 |
 | Medium | 8 |
-| Low | 6 |
+| Low | 4 |
 | Observation | 4 |
 
 ## Summary table
 
 | # | Severity | Location | Name | Category |
 |---|----------|----------|------|----------|
-| 1 | High | `model.ts:5-11` | `DestinationType` | 1 (vague), 2 (redundant enum prefix) |
+| 1 | High | `model.ts:5-11` | `DestinationType` | 1 (vague) |
 | 2 | High | `model.ts:5-11` | `DestinationType.PAGERDUTY` / `MICROSOFT_TEAMS` | 3 (acronym casing inconsistency) |
 | 3 | High | `model.ts:8` | `DestinationType.WEBHOOK` (vs `GenericWebhookConfig`) | 6 (misleading), 12 (duplicate concept name mismatch) |
 | 4 | High | `model.ts:13-21` | `Config` (type) and `Config.config` (field) | 1 (vague), 9 (self-referential) |
@@ -32,16 +32,16 @@
 | 12 | Medium | `model.ts:73`, `:107` | `id` (UUID) | 19 (underspecified ID) |
 | 13 | Medium | `model.ts:118` | `PagerdutyConfig.integrationKey` (vs `*Set` companion) | 6 (misleading optionality semantics, output-only mirror) |
 | 14 | Medium | `model.ts:78`, `:112` | `destinationType` field | 20 (type-suffix tautology when combined with the type name) |
-| 15 | Low | `model.ts:5-11` | enum values are SCREAMING_SNAKE_CASE in TS | 4 (underscores in TS identifier strings) |
-| 16 | Low | `model.ts:8` | `WEBHOOK` enum singular while wire-config implies "generic" | 9 (singular/plural / qualifier mismatch with `GenericWebhookConfig`) |
-| 17 | Low | `client.ts:71`, `:100`, `:125`, `:150`, `:204` | `createNotificationDestination` / `deleteNotificationDestination` / `getNotificationDestination` / `listNotificationDestinations` / `updateNotificationDestination` | 7 (overly verbose method names) |
-| 18 | Low | `client.ts:40-43` | `PACKAGE_SEGMENT` | 1 (vague), 15 (generic) |
-| 19 | Low | `utils.ts:15-19` | `HttpCallOptions` | 1 (vague), 12 (duplicate `Options`) |
-| 20 | Low | `utils.ts:26` / `:65` | `executeCall` / `executeHttpCall` near-duplicate | 1 (vague), 17 (inconsistent layer naming) |
-| 21 | Low | `client.ts:80`, `:105`, etc. | `req` / `resp` / `opts` / `httpReq` abbreviations | 5 (cryptic abbreviation) |
-| 22 | Obs | `model.ts:43-54` | `[Input-Only]` / `[Output-Only]` doc convention is not encoded in types | 6 (type-level dishonesty) |
-| 23 | Obs | `index.ts:5-23` | Re-exports the verbose names verbatim, no friendlier aliases | — |
-| 24 | Obs | — | `NEXT_CHANGELOG.md` and pre-existing build/lint workflows | — |
+| 15 | Low | `model.ts:8` | `WEBHOOK` enum singular while wire-config implies "generic" | 9 (singular/plural / qualifier mismatch with `GenericWebhookConfig`) |
+| 16 | Low | `client.ts:71`, `:100`, `:125`, `:150`, `:204` | `createNotificationDestination` / `deleteNotificationDestination` / `getNotificationDestination` / `listNotificationDestinations` / `updateNotificationDestination` | 7 (overly verbose method names) |
+| 17 | Low | `client.ts:40-43` | `PACKAGE_SEGMENT` | 1 (vague), 15 (generic) |
+| 18 | Low | `utils.ts:15-19` | `HttpCallOptions` | 1 (vague), 12 (duplicate `Options`) |
+| 19 | Low | `utils.ts:26` / `:65` | `executeCall` / `executeHttpCall` near-duplicate | 1 (vague), 17 (inconsistent layer naming) |
+| 20 | Low | `client.ts:80`, `:105`, etc. | `req` / `resp` / `opts` / `httpReq` abbreviations | 5 (cryptic abbreviation) |
+| 21 | Obs | `model.ts:43-54` | `[Input-Only]` / `[Output-Only]` doc convention is not encoded in types | 6 (type-level dishonesty) |
+| 22 | Obs | `index.ts:5-23` | Re-exports the verbose names verbatim, no friendlier aliases | — |
+| 23 | Obs | — | `NEXT_CHANGELOG.md` and pre-existing build/lint workflows | — |
+| 24 | Obs | `model.ts:47`, `:51` | `[Input-Only][Optional]` doc marker inconsistency | — |
 
 ## High severity
 
@@ -57,8 +57,8 @@
   }
   ```
 - **Why weird:** Exported at package root as just `DestinationType`. The word "destination" is overloaded across the SDK — there is a `destination` concept in jobs (`webhook destination`), workflows (`sink destination`), and infra (`DBFS destination`). A user `import { DestinationType } from '@databricks/sdk-notificationdestinations/v1'` and then mixing it with `import { DestinationType } from '@databricks/sdk-pipelines/v1'` (if it existed) will get a name collision. Also, the values are not "destination types" but "notification channels"; the enum mixes the term-of-art ("destination" = the addressable target) with the type-of-target. Compare with `notification-destinations` REST path: the enum could be `NotificationChannel` or `NotificationDestinationKind`.
-- **Category:** 1 (vague/generic), 2 (the enum prefix `Destination` is redundant with the field name `destinationType` — see also finding 14).
-- **Suggested name:** `NotificationChannel` (mirrors how the Go SDK names protobuf enums for kindred resources) or, less invasive, `NotificationDestinationType`.
+- **Category:** 1 (vague/generic).
+- **Suggested name:** `NotificationChannel` or, less invasive, `NotificationDestinationType`.
 - **Rationale:** Domain-anchored enum names protect users from cross-package collisions and read better in IDE autocomplete (`NotificationChannel.SLACK` vs `DestinationType.SLACK`).
 
 ### 2. `DestinationType.PAGERDUTY` and `.MICROSOFT_TEAMS` — acronym/brand casing inconsistency — `src/v1/model.ts:9-10`
@@ -73,10 +73,10 @@
   - `PagerdutyConfig` (TitleCase but **not** `PagerDutyConfig`) — interface name (line 117).
   - `pagerduty` (wire) — JSON key (lines 155, 172, 282).
   - `PagerDuty` (TitleCase with internal D) — JSDoc prose only (line 118 "Integration key for PagerDuty").
-  
+
   The same applies to Microsoft Teams: `MICROSOFT_TEAMS`, `microsoftTeams` ($case), `MicrosoftTeamsConfig`, `microsoft_teams` (wire). Only the wire and JSDoc are externally fixed; the TS identifier choices `Pagerduty` (vs `PagerDuty`) and `MicrosoftTeams` (already correct) are an internal choice — and they are not consistent with the brand. The TS Style Guide is explicit: brand acronyms keep their canonical casing in identifiers (PagerDuty, GitHub, GraphQL). `Pagerduty` reads as a typo.
 - **Category:** 3 (acronym casing inconsistency).
-- **Suggested name:** `PagerDutyConfig` (interface), `PagerDuty = 'PAGERDUTY'` (enum value can keep wire string but the **identifier** should be `PagerDuty` if mixed-case enum names were used; SCREAMING_SNAKE is wire-faithful, see finding 15). For consistency at minimum rename `PagerdutyConfig` → `PagerDutyConfig` and the `$case: 'pagerduty'` → `$case: 'pagerDuty'`.
+- **Suggested name:** `PagerDutyConfig` (interface). For consistency at minimum rename `PagerdutyConfig` → `PagerDutyConfig` and the `$case: 'pagerduty'` → `$case: 'pagerDuty'`.
 - **Rationale:** Brand names are part of the public API surface; users reading IDE autocomplete should see `PagerDutyConfig` matching the company's own capitalisation. The cost is one schema rename across `unmarshalConfigSchema`'s discriminator strings — the wire JSON key stays `pagerduty`.
 
 ### 3. `DestinationType.WEBHOOK` corresponds to `GenericWebhookConfig` — misleading enum vs config asymmetry — `src/v1/model.ts:8`, `:42-55`, `:17`
@@ -109,8 +109,8 @@
   ```
 - **Why weird:** The type name `Config` is one of the most generic identifiers in software. A package-root `Config` export means an app barrel re-exporting `@databricks/sdk-notificationdestinations/v1` collides instantly with any other `Config` (web framework configs, app configs, build configs, …). The user must alias it. Compounding the vagueness, the field inside `Config` is also named `config`, so you read `notificationDestination.config.config.email.addresses` — the same identifier appears twice along the path.
 - **Category:** 1 (vague/generic top-level name), 9 (self-referential field name).
-- **Suggested name:** Rename the type to `NotificationDestinationConfig` (matches the package's domain prefix). The `$case` discriminator is a generator-specific convention (proto-loader's oneof shape) — a hand-written API would use `kind` or `type`. Flagging because it's user-visible.
-- **Rationale:** Discriminated unions are first-class in TS; protobuf oneof wrappers are not. The 1:1 port philosophy preserves the wrapper for marshalling fidelity, but the *name* of the wrapper should at least not be `Config`.
+- **Suggested name:** Rename the type to `NotificationDestinationConfig` (matches the package's domain prefix).
+- **Rationale:** A domain-anchored type name eliminates the cross-package collision risk and the `config.config` repetition along the property path.
 
 ### 5. `PagerdutyConfig` and `pagerduty` — see #2, separate finding because the `$case` discriminant is also visible to users — `src/v1/model.ts:18`, `:117`, `:280`
 - **Code:** see #2.
@@ -136,7 +136,7 @@
     ...
   }
   ```
-- **Why weird:** The qualifier "generic" tells the user nothing concrete. It means "this is the webhook config that is *not* the Microsoft Teams webhook config" — a knowledge that requires reading the whole file. A user looking at IDE autocomplete sees `GenericWebhookConfig` and `MicrosoftTeamsConfig` side-by-side and has to guess that MS-Teams is also a webhook channel that just has more fields. The Go SDK likely also names this type `GenericWebhook` for proto symmetry, but in TS this needs better disambiguation.
+- **Why weird:** The qualifier "generic" tells the user nothing concrete. It means "this is the webhook config that is *not* the Microsoft Teams webhook config" — a knowledge that requires reading the whole file. A user looking at IDE autocomplete sees `GenericWebhookConfig` and `MicrosoftTeamsConfig` side-by-side and has to guess that MS-Teams is also a webhook channel that just has more fields.
 - **Category:** 1 (vague — "generic" carries no positive information).
 - **Suggested name:** `WebhookConfig` (and rename the enum value to `GENERIC_WEBHOOK` per #3 if you want to preserve the disambiguation from the MS-Teams-webhook). Or be honest and call it `IncomingWebhookConfig` (the actual term-of-art used by Slack/Teams/Discord for this shape).
 - **Rationale:** "Generic" is a code smell whenever it appears in a public type name. It usually means "this is the default, but there might be variants" — and TypeScript already has `extends`, intersections, and unions for variants. If the shape is the default, drop the qualifier; if there are real variants, name them after what makes them different (`AuthenticatedWebhookConfig`, etc.).
@@ -157,7 +157,7 @@
   3. The paired fields are **modal** — on input you set `url`, on output you read `urlSet`. The type system has no way to express this; both fields are simultaneously optional, so a user could try to set `urlSet: true` on input and the server will silently ignore it.
 - **Category:** 6 (misleading — three-valued boolean), 15 (generic field-naming pattern losing meaning).
 - **Suggested name:** Rename the pattern to `hasUrl`, `hasUsername`, etc. (English-correct boolean predicates). Better: split the input and output types so input has `url` only and output has `hasUrl` only. Or merge into a union: `url?: { write: string } | { read: { isSet: boolean } }`.
-- **Rationale:** This is the dominant naming smell in the file — it occurs ten times. Worth a coordinated rename across all config types, not piecemeal. The `[Input-Only]`/`[Output-Only]` JSDoc markers (finding 22) hint that the type was originally split in the API spec and was flattened for TS.
+- **Rationale:** This is the dominant naming smell in the file — it occurs ten times. Worth a coordinated rename across all config types, not piecemeal. The `[Input-Only]`/`[Output-Only]` JSDoc markers (finding 21) hint that the type was originally split in the API spec and was flattened for TS.
 
 ### 8. `CreateNotificationDestinationRequest` / `UpdateNotificationDestinationRequest` — overly verbose — `src/v1/model.ts:23-28`, `:139-146`
 - **Code:**
@@ -248,26 +248,12 @@
 
 ## Low severity
 
-### 15. SCREAMING_SNAKE_CASE enum values — `src/v1/model.ts:5-11`
-- **Code:**
-  ```ts
-  SLACK = 'SLACK',
-  EMAIL = 'EMAIL',
-  WEBHOOK = 'WEBHOOK',
-  PAGERDUTY = 'PAGERDUTY',
-  MICROSOFT_TEAMS = 'MICROSOFT_TEAMS',
-  ```
-- **Why weird:** The TS Style Guide section "Enums" prefers UpperCamelCase identifiers for both name and members; SCREAMING_SNAKE values are a wire-format leak. `MICROSOFT_TEAMS` has an underscore in a TS identifier, which is also discouraged.
-- **Category:** 4 (underscores in TS identifiers — strictly speaking, both identifier and value).
-- **Suggested name:** `Slack = 'SLACK'`, `Email = 'EMAIL'`, `Webhook = 'WEBHOOK'`, `PagerDuty = 'PAGERDUTY'`, `MicrosoftTeams = 'MICROSOFT_TEAMS'`. The string literals (the wire representation) stay; only the TS identifier changes.
-- **Rationale:** Generator-level decision. Hand-written SDKs typically use UpperCamelCase enum members; the SCREAMING_SNAKE form makes it look like the type is C/Java. Demoted to low because it's a global convention and changing it would break every existing user.
-
-### 16. `WEBHOOK` enum value drops the qualifier "generic" — `src/v1/model.ts:8`
+### 15. `WEBHOOK` enum value drops the qualifier "generic" — `src/v1/model.ts:8`
 - See #3 (high). Listed separately as a low-severity naming-only issue: even if the enum name stays, the value `WEBHOOK` is **singular** while the config name `GenericWebhookConfig` is **qualifier-prefixed**. The qualifier is lost in transit between enum and config.
 - **Category:** 9 (qualifier mismatch).
 - **Suggested name:** `GENERIC_WEBHOOK = 'GENERIC_WEBHOOK'`. See #3 for the rationale.
 
-### 17. `createNotificationDestination` / etc. — overly verbose method names — `src/v1/client.ts:71, 100, 125, 150, 204`
+### 16. `createNotificationDestination` / etc. — overly verbose method names — `src/v1/client.ts:71, 100, 125, 150, 204`
 - **Code:**
   ```ts
   async createNotificationDestination(...)
@@ -281,7 +267,7 @@
 - **Suggested name:** Drop the suffix: `create`, `delete`, `get`, `list`, `update`. The class name (`Client` or `NotificationDestinationsClient`) supplies the domain context.
 - **Rationale:** Conventions differ across SDKs. AWS uses verbose method names; GCP / Azure use shorter. Demoted to low because the existing convention is consistent across the SDK and changing it is disruptive. Flagging for completeness.
 
-### 18. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:40-43`
+### 17. `PACKAGE_SEGMENT` constant — `src/v1/client.ts:40-43`
 - **Code:**
   ```ts
   // Package identity segment for this client to be used in the User-Agent header.
@@ -295,7 +281,7 @@
 - **Suggested name:** `USER_AGENT_PACKAGE_INFO` or `PACKAGE_USER_AGENT`.
 - **Rationale:** Cross-package — same finding appears in every audited file.
 
-### 19. `HttpCallOptions` — `src/v1/utils.ts:15-19`
+### 18. `HttpCallOptions` — `src/v1/utils.ts:15-19`
 - **Code:**
   ```ts
   export interface HttpCallOptions {
@@ -308,13 +294,13 @@
 - **Category:** 1 (vague suffix), 12 (duplicate `Options` naming).
 - **Suggested name:** `HttpCallContext` (it is an internal context bag, not user-tunable options).
 
-### 20. `executeCall` vs `executeHttpCall` — near-duplicate function names — `src/v1/utils.ts:26`, `:65`
+### 19. `executeCall` vs `executeHttpCall` — near-duplicate function names — `src/v1/utils.ts:26`, `:65`
 - **Code:** lines 26-38 and 65-94.
 - **Why weird:** Two functions named almost identically, doing very different things: `executeCall` wraps in retry/rate-limit/timeout semantics, `executeHttpCall` does the raw HTTP send + decode + APIError check.
 - **Category:** 1 (vague), 17 (inconsistent layer naming).
 - **Suggested name:** `runWithCallOptions` (the wrapper) and `sendHttpRequest` (the executor).
 
-### 21. `req` / `resp` / `opts` / `httpReq` abbreviations — `src/v1/client.ts:72, 80, 88, 105, 130, 165, 187, 190, 209`
+### 20. `req` / `resp` / `opts` / `httpReq` abbreviations — `src/v1/client.ts:72, 80, 88, 105, 130, 165, 187, 190, 209`
 - **Code:** parameter and local-variable names throughout the client.
 - **Why weird:** Three-to-five-letter abbreviations everywhere. Project rules (typescript.mdc) discourage cryptic abbreviations.
 - **Category:** 5 (cryptic abbreviation).
@@ -322,13 +308,13 @@
 
 ## Observations
 
-### 22. `[Input-Only]` / `[Output-Only]` doc markers — convention not encoded in types — `src/v1/model.ts:43-99`, `:117-136`
+### 21. `[Input-Only]` / `[Output-Only]` doc markers — convention not encoded in types — `src/v1/model.ts:43-99`, `:117-136`
 JSDoc bracket prefixes mark every secret-bearing field as either input-only or output-only. The TS type system makes both fields `... | undefined` simultaneously, so callers can construct an object that sets both a secret and its `*Set` mirror; the latter is silently ignored on the wire. A cleaner design splits the input and output types or uses TS template literal types / branded types to enforce the modality.
 - **Category:** 6 (type-level dishonesty).
 - **Suggested:** Split `SlackConfigInput` / `SlackConfigOutput`, etc. Or accept that secrets cannot round-trip and document at type level (`type Secret<T> = T | { isSet: boolean }`).
 - **Rationale:** Improvement opportunity. Not strictly a naming issue, hence observation.
 
-### 23. `index.ts` re-exports verbose names verbatim — `src/v1/index.ts:5-23`
+### 22. `index.ts` re-exports verbose names verbatim — `src/v1/index.ts:5-23`
 The barrel re-exports every type with its long generated name. An opportunity to expose friendlier aliases:
 ```ts
 export type {
@@ -340,10 +326,10 @@ export type {
 Not done. So consumers always work with the verbose names. The 1:1 port philosophy probably prohibits this, but flagging as an observation — the barrel could improve ergonomics without removing the underlying names.
 - **Category:** 7 (verbose), Observation.
 
-### 24. `NEXT_CHANGELOG.md` and pre-existing build/lint workflows
+### 23. `NEXT_CHANGELOG.md` and pre-existing build/lint workflows
 Out of scope for naming but worth noting: the package has both a `CHANGELOG.md` and `NEXT_CHANGELOG.md` — the duplicate-file convention is a project-wide pattern, not a naming bug.
 
-### 25. JSDoc inconsistency in `[Input-Only][Optional]` markers
+### 24. JSDoc inconsistency in `[Input-Only][Optional]` markers
 The `GenericWebhookConfig.username` (line 47) and `.password` (line 51) use the marker `[Input-Only][Optional]` — concatenating two brackets — while every other field uses single-bracket markers. The `[Optional]` is also redundant because the TS type already shows `?: undefined`. Minor doc inconsistency.
 
 ## Domain glossary

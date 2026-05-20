@@ -3,12 +3,12 @@
 **Path:** `packages/tokens/src/v1/`
 **Versions audited:** v1
 **Inferred domain:** Databricks workspace Personal Access Token (PAT) management — the *end-user-facing* surface for a workspace user to create/list/revoke/update their own tokens. Endpoints live under `/api/2.0/token/...`. Pairs with the *admin-facing* `tokenmanagement` package at `/api/2.0/token-management/...` which lets workspace administrators inspect and revoke tokens owned by *other* users (including on-behalf-of service principal tokens). The two packages share an `AutoscopeState` enum and a near-identical "token info" record, but the auth/audience boundary makes them distinct services.
-**Total weird names flagged:** 31
+**Total weird names flagged:** 30
 
 ## Summary
 | Severity | Count |
 | --- | --- |
-| High | 9 |
+| High | 8 |
 | Medium | 10 |
 | Low | 7 |
 | Observation | 5 |
@@ -58,20 +58,14 @@
   2. Merge to a single `TokenInfo` with all fields optional, and document which subset the server populates for each endpoint.
 - **Rationale:** A caller doing token introspection on the workspace needs to pick a package; the type-name doesn't tell them which fields they'll get.
 
-### 7. `CreateToken_Response` and `RevokeToken_Response` with proto-style underscore — `model.ts:42, 85`
-- **Why weird:** Type names `CreateToken_Response`, `ListTokens_Response`, `RevokeToken_Response` use proto-style nested-message underscores. Each carries `// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.` to silence the linter. Compare with `UpdateTokenResponse` (`model.ts:96`) — same package, same generator, *no* underscore. Generator inconsistency: three methods get `Foo_Response`, one gets `FooResponse`. (The Go SDK convention exposes `CreateTokenResponse`-style names in `*Service.Response` pattern; here the TS port has reproduced the underscore literally.)
-- **Category:** 4 (underscores in TS identifiers), 13 (inconsistency — same package mixes `_Response` and `Response`), 14 (Go/proto-style name).
-- **Suggested name:** Drop underscore consistently: `CreateTokenResponse`, `ListTokensResponse`, `RevokeTokenResponse`. The `eslint-disable` line vanishes with the underscore.
-- **Rationale:** Mixing `CreateToken_Response` (underscore) with `UpdateTokenResponse` (no underscore) in the same `index.ts` export block is a discoverability bug — a reader autocompleting `CreateTokenR...` gets nothing because the actual name has an underscore.
-
-### 8. `ListTokens` and `RevokeToken` request types are misnamed as actions, not requests — `model.ts:50, 79`
-- **Why weird:** Type names `ListTokens` and `RevokeToken` are bare verbs/verb-phrases that *look like methods*. A TS reader sees `import type {ListTokens, RevokeToken} from './model'` and reasonably guesses these are *functions or actions*. Instead, they're request DTOs. (`CreateToken` and `UpdateToken` have the same problem.) The corresponding response types correctly carry the `_Response` suffix; the request types should carry `Request`. The `tokenmanagement` package does the same. The Go SDK uses `CreateTokenRequest`/`RevokeTokenRequest` in idiomatic Go.
+### 7. `ListTokens` and `RevokeToken` request types are misnamed as actions, not requests — `model.ts:50, 79`
+- **Why weird:** Type names `ListTokens` and `RevokeToken` are bare verbs/verb-phrases that *look like methods*. A TS reader sees `import type {ListTokens, RevokeToken} from './model'` and reasonably guesses these are *functions or actions*. Instead, they're request DTOs. (`CreateToken` and `UpdateToken` have the same problem.) The corresponding response types correctly carry a response suffix; the request types should carry `Request`. The `tokenmanagement` package does the same. The Go SDK uses `CreateTokenRequest`/`RevokeTokenRequest` in idiomatic Go.
 - **Category:** 8 (missing/asymmetric suffix), 6 (misleading — looks like a callable), 13 (asymmetry — response types are suffixed but request types aren't).
 - **Suggested name:** `CreateTokenRequest`, `ListTokensRequest`, `RevokeTokenRequest`, `UpdateTokenRequest`. Pairs symmetrically with `CreateTokenResponse`, `ListTokensResponse`, `RevokeTokenResponse`, `UpdateTokenResponse`.
 - **Rationale:** Most TS SDKs (AWS, GCP, Azure) name request DTOs with an explicit `*Request` suffix or `*Input`. The current asymmetry is a Go-port artefact.
 
-### 9. `Client.revokeToken` method paired with URL `/api/2.0/token/delete` — `client.ts:131,135`
-- **Why weird:** Method on `Client` is `revokeToken`, but the wire URL it hits is `/api/2.0/token/delete`. Sibling `tokenmanagement.Client.deleteToken` (line 103) maps `RevokeToken`/`RevokeToken_Response` to URL `/api/2.0/token-management/tokens/{id}` via HTTP `DELETE`. So:
+### 8. `Client.revokeToken` method paired with URL `/api/2.0/token/delete` — `client.ts:131,135`
+- **Why weird:** Method on `Client` is `revokeToken`, but the wire URL it hits is `/api/2.0/token/delete`. Sibling `tokenmanagement.Client.deleteToken` (line 103) maps `RevokeToken`/`RevokeTokenResponse` to URL `/api/2.0/token-management/tokens/{id}` via HTTP `DELETE`. So:
   - `tokens.revokeToken` → request type `RevokeToken` → URL ends in `/delete` → HTTP `POST` (revoke = delete on wire, named "revoke" in SDK).
   - `tokenmanagement.deleteToken` → request type `RevokeToken` → URL ends in `/tokens/{id}` → HTTP `DELETE` (delete on wire, named "delete" in SDK, request type still `Revoke*`).
 - **Category:** 17 (inconsistent action verbs for the same conceptual operation), 13 (inconsistency between packages), 6 (misleading — the request type doesn't match the method verb).
@@ -80,25 +74,25 @@
 
 ## Medium severity
 
-### 10. `CreateToken.lifetimeSeconds` — unit smuggled into name, not type — `model.ts:29`
+### 9. `CreateToken.lifetimeSeconds` — unit smuggled into name, not type — `model.ts:29`
 - **Why weird:** `lifetimeSeconds?: number | undefined`. Unit (seconds) lives in the field name, not the type. The doc says "in seconds". TS has no native duration type, so a unit-bearing field name is conventional, but the rest of the package uses `*Time` (`creationTime`, `expiryTime`, `lastAccessedTime`) which are *epoch milliseconds* (verified by doc strings on `model.ts:62-69`). Same `number` type, two different units, two different naming conventions.
 - **Category:** 15 (unit-bearing field-name vs typed wrapper), 13 (intra-package inconsistency — `lifetimeSeconds` vs `creationTime`).
 - **Suggested name:** Acceptable as-is, but consider `lifetimeMs` (or `lifetime: Duration`) for parity with `creationTime` etc. The Temporal API (`@js-temporal/polyfill` is already a package.json dep) has `Temporal.Duration` which would be domain-correct.
 - **Rationale:** Within one struct, two number fields use different time units. Caller must read docs to avoid bugs.
 
-### 11. `CreateToken.autoscopeEnabled` — naming inconsistent with response — `model.ts:38`
+### 10. `CreateToken.autoscopeEnabled` — naming inconsistent with response — `model.ts:38`
 - **Why weird:** Request flag is `autoscopeEnabled?: boolean` ("enabled" suffix). The response carries `autoscopeState?: AutoscopeState` (a state enum, not a boolean). Same conceptual feature, different abstraction levels and names. A TS user thinking "I'll just check the value I set" would write `req.autoscopeEnabled` then later expect `info.autoscopeEnabled` but instead has to translate via `info.autoscopeState === 'AUTOSCOPE_STATE_RUNNING' || …`. The mapping (which states correspond to "enabled") is undocumented in the SDK surface.
 - **Category:** 12 (duplicate concept — `autoscopeEnabled` ↔ `autoscopeState`), 17 (boolean vs enum for the same feature), 1 (vague — what counts as "enabled"?).
 - **Suggested name:** Either accept the asymmetry but document the mapping, or rename request to `autoscopeMode?: AutoscopeMode` with an enum (`ENABLED` / `DISABLED`), so the surface is symmetric.
 - **Rationale:** A boolean request and an enum response for "the same setting" is a known leaky abstraction.
 
-### 12. `PublicTokenInfo.scopes` doc grammar — singular vs plural — `model.ts:67-68`
+### 11. `PublicTokenInfo.scopes` doc grammar — singular vs plural — `model.ts:67-68`
 - **Why weird:** Doc reads "Scope of the token was created with, if applicable" — but the field is `scopes?: string[] | undefined` (plural, array). The doc says "Scope" (singular) and "the token was created with" (drops the "that"). Compare with `CreateToken.scopes` doc: "Optional scopes of the token." — different wording, different singular/plural usage.
 - **Category:** 9 (singular/plural mismatch), 6 (misleading doc), 13 (inconsistency — same field documented differently across types).
 - **Suggested name:** Fix doc to "The scopes the token was created with, if applicable." Same in `AdminTokenInfo.scopes` (`tokenmanagement/model.ts:42-43` has the same typo).
 - **Rationale:** Doc grammar shapes the mental model. Singular "scope" suggests a single value; the type is an array.
 
-### 13. `PublicTokenInfo.inferredScopes` and `backfillScopes` — overlapping arrays of strings — `model.ts:73-76`
+### 12. `PublicTokenInfo.inferredScopes` and `backfillScopes` — overlapping arrays of strings — `model.ts:73-76`
 - **Why weird:** Three different scope arrays in one struct:
   - `scopes?: string[]` — "Scope of the token was created with, if applicable."
   - `inferredScopes?: string[]` — "Inferred API path scopes collected for this token when autoscope is enabled."
@@ -109,9 +103,9 @@
 - **Suggested name:** Group them: `declaredScopes`, `inferredScopes`, `backfillInferredScopes`. Add an `effectiveScopes` computed-on-server field that the caller actually wants. Or model as `{ source: 'declared' | 'inferred' | 'backfill'; value: string }[]` so the source is part of the data.
 - **Rationale:** Three string-array fields with overlapping semantics is a discoverability bug. A new user has to read all three docs to understand the policy.
 
-### 14. `UpdateToken.tokenId` doc says "SHA-256 hash" but other types say "ID" — `model.ts:88`
+### 13. `UpdateToken.tokenId` doc says "SHA-256 hash" but other types say "ID" — `model.ts:88`
 - **Why weird:** Doc on `UpdateToken.tokenId`: "The SHA-256 hash of the token to be updated." But every other `tokenId` doc in the package (and in `tokenmanagement`) says variants of "The ID of the token". So readers comparing the types see:
-  - `CreateToken_Response.tokenInfo.tokenId` (line 46+59) — "The ID of this token."
+  - `CreateTokenResponse.tokenInfo.tokenId` (line 46+59) — "The ID of this token."
   - `PublicTokenInfo.tokenId` (line 60) — "The ID of this token."
   - `RevokeToken.tokenId` (line 81) — "The ID of the token to be revoked."
   - `UpdateToken.tokenId` (line 89) — "The SHA-256 hash of the token to be updated."
@@ -119,19 +113,19 @@
 - **Suggested name:** Either (a) reconcile the docs — if `tokenId` is the SHA-256 hash everywhere, say so consistently; or (b) if `UpdateToken.tokenId` actually expects a different format than the others, rename or document the divergence loudly.
 - **Rationale:** The doc disagreement implies either a stale comment or a real wire-protocol quirk. Either way, a caller can't tell which.
 
-### 15. `UpdateToken.token` field name shadows the package name — `model.ts:90`
+### 14. `UpdateToken.token` field name shadows the package name — `model.ts:90`
 - **Why weird:** `UpdateToken.token?: PublicTokenInfo`. The field `token` inside the type `UpdateToken` in the package `tokens` carries the entire updated payload. Reads `updateReq.token.tokenId` — the word "token" appears three times in five characters. The same package has `Client.updateToken` method which takes `UpdateToken` which has a `token` field of type `PublicTokenInfo`. Layer cake.
 - **Category:** 20 (type-suffix tautology), 1 (vague).
 - **Suggested name:** Field as `info` (since the inner type is `PublicTokenInfo`/`TokenInfo`) or `data`. Wire stays `token`. So `updateReq.info.tokenId`.
 - **Rationale:** The wire field is `token` because the proto message wraps a `TokenInfo`; in TS, the field name can clarify intent without changing the wire.
 
-### 16. `UpdateToken` has BOTH `tokenId` and `token.tokenId` — duplicate IDs — `model.ts:87-93`
+### 15. `UpdateToken` has BOTH `tokenId` and `token.tokenId` — duplicate IDs — `model.ts:87-93`
 - **Why weird:** The request carries `tokenId?: string` (top-level) *and* `token?: PublicTokenInfo` which itself has `tokenId?: string`. Two fields for the same logical ID, easy to set inconsistently. The Client method uses `req.tokenId ?? ''` (`client.ts:165`) — so the top-level wins. But the `PublicTokenInfo.tokenId` inside `token` is still serialised on the wire (per `marshalUpdateTokenSchema` on `model.ts:200-202`).
 - **Category:** 12 (duplicate concept), 6 (misleading — which one is authoritative?), 11 (the inner one is dead-ish data).
 - **Suggested name:** Drop one. Either: (a) make `token` exclude `tokenId` (`Omit<PublicTokenInfo, 'tokenId'>`) and keep the top-level; or (b) drop the top-level and use `req.token.tokenId` in the client.
 - **Rationale:** Two fields for the same identifier invite subtle bugs (server may pick the inner one if the top-level is empty).
 
-### 17. `Client` class name — colliding namespace — `client.ts:46`
+### 16. `Client` class name — colliding namespace — `client.ts:46`
 - **Why weird:** Top-level class literally named `Client`. Re-exported in `index.ts` as just `Client`. A consumer importing from both `@databricks/sdk-tokens/v1` and `@databricks/sdk-tokenmanagement/v1` faces an identical name clash:
   ```
   import {Client} from '@databricks/sdk-tokens/v1';
@@ -142,13 +136,13 @@
 - **Suggested name:** `TokensClient`, `UserTokensClient`, or `MyTokensClient`. Mirror with `TokenManagementClient`/`AdminTokensClient`.
 - **Rationale:** Same finding as `rfa#37`, recurs across all packages — but particularly painful here given the `tokens`/`tokenmanagement` overlap.
 
-### 18. `executeCall` / `executeHttpCall` naming pair — `utils.ts:26,65`
+### 17. `executeCall` / `executeHttpCall` naming pair — `utils.ts:26,65`
 - **Why weird:** Two functions distinguished only by an `Http` infix. `executeCall` wraps retry/rate-limit/timeout; `executeHttpCall` does the actual fetch + logging + error throw. Easy to confuse at call site (`client.ts:87,114` use them within four lines of each other).
 - **Category:** 1 (vague), 17 (inconsistent action verbs).
 - **Suggested name:** `runWithCallOptions` / `sendHttp`, or `wrapCall` / `dispatchHttp`.
 - **Rationale:** Cross-package: same as `rfa#32`, recurs everywhere.
 
-### 19. `HttpCallOptions` shadows package's other `Options` types — `utils.ts:15`
+### 18. `HttpCallOptions` shadows package's other `Options` types — `utils.ts:15`
 - **Why weird:** The file imports `Options` from `@databricks/sdk-core/api` (line 3) and `CallOptions` from `@databricks/sdk-options/call` (line 12). Three `Options`-suffixed types in scope. `HttpCallOptions` is internal — purely a context bag passed to `executeHttpCall`.
 - **Category:** 1 (vague suffix).
 - **Suggested name:** `HttpCallContext` (it's a context bag, not user-tunable options).
@@ -156,37 +150,37 @@
 
 ## Low severity
 
-### 20. `publicTokenInfoFieldMask` exported helper — public-API field-mask builder — `model.ts:226`
+### 19. `publicTokenInfoFieldMask` exported helper — public-API field-mask builder — `model.ts:226`
 - **Why weird:** The package exports `publicTokenInfoFieldMask(...)` as a top-level helper alongside the `Client`. Field-mask builders are an SDK-shape choice: making one a public export per type bakes the proto-FieldMask convention into the public API surface. Consumers writing `UpdateToken` payloads must learn this helper.
-- **Category:** 8 (helper-as-public-API), 13 (intra-package inconsistency — see #26 re-export gap).
+- **Category:** 8 (helper-as-public-API), 13 (intra-package inconsistency — see #25 re-export gap).
 - **Suggested name:** Either hoist into a single `Client.updateToken` overload that accepts a partial payload and derives the mask, or document the helper prominently in `index.ts`.
 - **Rationale:** Exporting per-type mask builders is a Go-port artefact; native TS would lean on `Partial<T>` + key inference.
 
-### 21. `readAll` — generic helper name — `utils.ts:40`
+### 20. `readAll` — generic helper name — `utils.ts:40`
 - **Why weird:** Internal helper name is generic; clashes cognitively with `Array.prototype` / stream utilities.
 - **Category:** 1 (vague).
 - **Suggested name:** `readStreamToEnd` / `drainStream`.
 - **Rationale:** Same as `rfa#34`.
 
-### 22. `flattenQueryParams` — `utils.ts:123`
+### 21. `flattenQueryParams` — `utils.ts:123`
 - **Why weird:** Exported but unused in this package (`client.ts` only ever builds JSON bodies). Dead-looking export.
 - **Category:** Observation / 11 (unused public helper).
 - **Suggested name:** Remove from utils if it's a generator default; or keep, but stop emitting it for body-only services.
 - **Rationale:** Same as `rfa#35`.
 
-### 23. `PACKAGE_SEGMENT` constant — `client.ts:41`
+### 22. `PACKAGE_SEGMENT` constant — `client.ts:41`
 - **Why weird:** `Segment` is a generic word; without the inline comment the constant doesn't communicate User-Agent identity.
 - **Category:** 1 (vague), 15 (generic name).
 - **Suggested name:** `USER_AGENT_PACKAGE_SEGMENT`.
 - **Rationale:** Same as `rfa#36`.
 
-### 24. `buildHttpRequest` parameter list — five positional args — `utils.ts:96-102`
+### 23. `buildHttpRequest` parameter list — five positional args — `utils.ts:96-102`
 - **Why weird:** Five positional parameters (`method`, `url`, `headers`, `signal`, `body`) with the optional ones at the end. Callers in `client.ts:86,111,141,171` pass them positionally; the order is non-obvious from the name. Easy to confuse `signal` and `body` (both optional, both at the end).
 - **Category:** 1 (vague — five-positional builder).
 - **Suggested name:** Keep name; accept a single options object `{ method, url, headers, signal?, body? }`.
 - **Rationale:** Same as `rfa#38`.
 
-### 25. `executeCall` `opts` local shadows `options` parameter — `utils.ts:30-37`
+### 24. `executeCall` `opts` local shadows `options` parameter — `utils.ts:30-37`
 - **Why weird:** Local `opts` variable is one letter shorter than the parameter `options` to disambiguate. The shadowing convention isn't documented.
 - **Category:** Observation.
 - **Suggested name:** Rename inner `opts` → `internalOptions`.
@@ -194,19 +188,19 @@
 
 ## Observations
 
-### 26. `index.ts` re-exports interfaces but not the `publicTokenInfoFieldMask` helper
+### 25. `index.ts` re-exports interfaces but not the `publicTokenInfoFieldMask` helper
 The index file exports the `Client`, the `AutoscopeState` enum, and nine model interfaces. It does *not* export the `publicTokenInfoFieldMask` helper. Consistent with sibling packages but means a downstream consumer cannot build field masks without reaching into `./model` directly. Same finding as `rfa#43`.
 
-### 27. `package.json` description is empty string — `package.json:4`
+### 26. `package.json` description is empty string — `package.json:4`
 `"description": ""`. The npm package has no public description string. Combined with the ambiguous `tokens` name (see #1) and the parallel `tokenmanagement` package, this leaves users without any registry-level metadata to disambiguate the two packages.
 
-### 28. No tests in the package
+### 27. No tests in the package
 `package.json` line 24-25: `"test": "echo 'no tests'"`, `"test:browser": "echo 'no tests'"`. Same as `tokenmanagement` and most newly-generated packages. Not a naming issue, but the wire-format guarantees (`AutoscopeState` proto-link in the doc) deserve a contract test.
 
-### 29. Doc comments leak proto file paths and internal commentary
+### 28. Doc comments leak proto file paths and internal commentary
 The `AutoscopeState` doc (model.ts:7-12) references `common/principal-context/api/proto/tokendetails.proto` and `Principal context proto should NOT depend on this proto definitions` — internal architecture commentary that leaks into the public SDK surface. Similar pattern in `tokenmanagement`. Acceptable for now, but a polish pass should strip internal proto-tree paths from the user-facing JSDoc.
 
-### 30. Method `updateToken` uses URL path interpolation on a potentially empty string — `client.ts:165`
+### 29. Method `updateToken` uses URL path interpolation on a potentially empty string — `client.ts:165`
 `const url = \`${this.host}/api/2.0/token/${req.tokenId ?? ''}\`;` — when `req.tokenId` is unset, the URL becomes `${host}/api/2.0/token/` with a trailing slash, which the server may treat differently than a missing ID. Naming-adjacent: the type makes `tokenId` optional (`model.ts:89`), but the endpoint requires it. The TS surface doesn't enforce the required-ness. Not a naming issue per se — but a type-name fix (`tokenId: string` — required) would prevent the silent empty path.
 
 ## Domain glossary
@@ -225,4 +219,4 @@ The `AutoscopeState` doc (model.ts:7-12) references `common/principal-context/ap
 - `src/v1/client.ts` (186 lines): read fully.
 - `src/v1/utils.ts` (151 lines): read fully.
 - `src/v1/index.ts` (18 lines): read fully.
-- Cross-referenced `packages/tokenmanagement/src/v1/model.ts`, `client.ts`, `index.ts` for overlap analysis (see findings #1, #2, #6, #9, #17).
+- Cross-referenced `packages/tokenmanagement/src/v1/model.ts`, `client.ts`, `index.ts` for overlap analysis (see findings #1, #2, #6, #8, #16).

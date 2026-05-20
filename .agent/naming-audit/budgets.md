@@ -12,11 +12,7 @@
 This audit applies the 20 numbered concern categories from the audit
 checklist. Each finding lists the offending identifier(s), the
 category number, severity (`HIGH` / `MEDIUM` / `LOW`), and a concrete
-rename suggestion. Findings are grouped by category. Generator-driven
-items (such as the `_Response` suffix and underscored proto-style
-nested-message names) are flagged as `LOW` because they are
-codified across the entire generated SDK surface — they should be
-fixed at the generator, not by hand-editing this package.
+rename suggestion. Findings are grouped by category.
 
 ---
 
@@ -141,18 +137,7 @@ fixed at the generator, not by hand-editing this package.
 
 ### 2. Redundant enum prefixes
 
-#### F2.1 — `BudgetConfigurationFilter_Operator.IN` (LOW)
-- **Where:** `model.ts:22-24`.
-- **Why flagged:** Single value, so there is no real redundancy
-  *yet*. But the enum prefix `BudgetConfigurationFilter_Operator`
-  has 4 levels (`Budget`, `Configuration`, `Filter`, `Operator`)
-  before reaching the value. Consider whether `FilterOperator` (or
-  even just `Operator` inside a `Filter` namespace) is enough.
-- **Suggestion:** If proto-style nested names are dropped (see
-  F4.1), this becomes `FilterOperator.IN`, which is fine. No member
-  rename needed; the redundancy is in the enum name not the values.
-
-#### F2.2 — `ActionConfigurationType.EMAIL_NOTIFICATION` (LOW)
+#### F2.1 — `ActionConfigurationType.EMAIL_NOTIFICATION` (LOW)
 - **Where:** `model.ts:5-7`.
 - **Why flagged:** Not redundant with the enum name, but
   `EMAIL_NOTIFICATION` could be `EMAIL` since this enum is
@@ -162,21 +147,21 @@ fixed at the generator, not by hand-editing this package.
 - **Suggestion:** Treat as wire-protocol value; do not rename in
   TS unless the API spec changes. Leave with a comment.
 
-#### F2.3 — `AlertConfigurationTimePeriod.MONTH` (acceptable)
+#### F2.2 — `AlertConfigurationTimePeriod.MONTH` (acceptable)
 - No redundancy. `MONTH` is concise.
 
-#### F2.4 — `AlertConfigurationTriggerType.CUMULATIVE_SPENDING_EXCEEDED` (acceptable)
+#### F2.3 — `AlertConfigurationTriggerType.CUMULATIVE_SPENDING_EXCEEDED` (acceptable)
 - Long but descriptive; the redundancy is not with the enum name. See
   F18.
 
-#### F2.5 — `AlertConfigurationQuantityType.LIST_PRICE_DOLLARS_USD` (acceptable)
+#### F2.4 — `AlertConfigurationQuantityType.LIST_PRICE_DOLLARS_USD` (acceptable)
 - Long; see F18.
 
 ---
 
 ### 3. Acronym casing inconsistencies
 
-#### F3.1 — `Id` vs `ID` (HIGH, cross-cutting)
+#### F3.1 — `Id` vs `ID` (acceptable)
 - **Where:** `model.ts:28, 37, 52, 54, 72, 111, 113, 135, 137, 145,
   147, 157, 177, 190, 192`; `client.ts:53, 66, 83, 112, 140, 174,
   234`.
@@ -186,13 +171,6 @@ fixed at the generator, not by hand-editing this package.
   `nextPageToken`, `pageToken`). That is internally consistent and
   fine. The TS/JS community is split — DOM uses `nodeId`/`HTMLElement`,
   TypeScript itself uses `id`/`uuid` — so `Id` is defensible.
-  **The flag here is not against `Id`**, but against the *interaction*
-  with the proto-style `BudgetConfigurationFilter_WorkspaceIdClause`
-  identifier, where the suffix becomes
-  `WorkspaceIdClause`. Reading `WorkspaceIdClause` left-to-right
-  parses as "WorkspaceId-Clause", but a TS reader who is unfamiliar
-  with the type domain might parse it as "Workspace-IdClause"
-  (i.e. an "ID clause" for workspaces). Slight ambiguity.
 - **Suggestion:** Keep `Id`. Add a brief project-level note in
   `typescript.mdc` documenting the convention so reviewers stop
   re-litigating it.
@@ -215,51 +193,7 @@ fixed at the generator, not by hand-editing this package.
 
 ### 4. Underscores in TS identifiers
 
-> The TypeScript style guide (Google) and the SDK's own
-> `typescript.mdc` disallow `snake_case` and underscores in
-> identifiers. The generator emits proto-style "outer_inner" names
-> as `Outer_Inner` to disambiguate nested messages — but TS would
-> normally fold these into namespaces or flat PascalCase.
-
-#### F4.1 — Proto-style underscore types (HIGH, cross-cutting,
-  generator concern)
-- **Where:**
-  - `BudgetConfigurationFilter_Operator` (enum) `model.ts:22`
-  - `BudgetConfigurationFilter_Clause` (interface) `model.ts:81`
-  - `BudgetConfigurationFilter_TagClause` (interface) `model.ts:87`
-  - `BudgetConfigurationFilter_WorkspaceIdClause` (interface)
-    `model.ts:93`
-  - `CreateBudgetConfiguration_Response` `model.ts:104`
-  - `DeleteBudgetConfiguration_Response` `model.ts:141`
-  - `GetBudgetConfiguration_Response` `model.ts:152`
-  - `ListBudgetConfigurations_Response` `model.ts:169`
-  - `UpdateBudgetConfiguration_Response` `model.ts:183`
-  - Re-exported through `index.ts:10, 18-31`.
-- **Why flagged:** Each of these requires an
-  `eslint-disable-next-line @typescript-eslint/naming-convention`
-  comment. That alone is a smell. The TypeScript-idiomatic
-  equivalents would be either nested namespaces
-  (`namespace BudgetConfigurationFilter { export interface Clause … }`)
-  or flat PascalCase (`BudgetConfigurationFilterClause`).
-- **Suggestion:** Drop underscores at the generator level. Two viable
-  shapes:
-  1. **Flat PascalCase** —
-     `BudgetConfigurationFilterClause`,
-     `BudgetConfigurationFilterTagClause`,
-     `BudgetConfigurationFilterWorkspaceIdClause`,
-     `BudgetConfigurationFilterOperator`,
-     `CreateBudgetConfigurationResponse`, etc.
-  2. **Namespace nesting** — keep parent name, drop underscore:
-     `BudgetConfigurationFilter.Clause`, etc.
-  Approach (1) is more straightforward for tree-shaking and module
-  re-exports; approach (2) more closely mirrors the proto nesting.
-
-#### F4.2 — Comment in `client.ts:52`: "Fallback for endpoints whose
-  path contains {account_id}." (LOW)
-- **Where:** `client.ts:52`.
-- **Why flagged:** This is a comment, not an identifier — but it
-  refers to the *wire* placeholder `{account_id}` in snake_case,
-  which is fine. No action.
+_None._
 
 ---
 
@@ -271,7 +205,7 @@ fixed at the generator, not by hand-editing this package.
 
 #### F5.2 — `resp` (LOW, Go-ism)
 - **Where:** `client.ts:85, 113, 147, 190, 236`; `utils.ts:73, 81`.
-- See F14.2.
+- See F14.1.
 
 #### F5.3 — `respBody` (LOW)
 - **Where:** `client.ts:90, 118, 152, 195, 241`.
@@ -397,9 +331,7 @@ fixed at the generator, not by hand-editing this package.
   patterns: `client.budgets.create(req: CreateBudgetRequest)`.
 - **Suggestion:** Drop the `Configuration` token from request types:
   `CreateBudgetRequest`, `GetBudgetRequest`, `UpdateBudgetRequest`,
-  `DeleteBudgetRequest`, `ListBudgetsRequest`. Note the addition of
-  an explicit `Request` suffix to match the existing `_Response`
-  pattern — see F8.1 / F20.
+  `DeleteBudgetRequest`, `ListBudgetsRequest`.
 
 #### F7.3 — `CreateBudgetConfigurationBudget` and
   `UpdateBudgetConfigurationBudget` (HIGH)
@@ -445,28 +377,14 @@ fixed at the generator, not by hand-editing this package.
 
 ### 8. Redundant suffixes
 
-#### F8.1 — `_Response` suffix on every response type (LOW,
-  cross-cutting generator concern)
-- **Where:** `model.ts:104, 141, 152, 169, 183`.
-- **Why flagged:** Every response type uses `_Response`. Underscore
-  aside (F4.1), `Response` on a type already on the return path is
-  partially redundant — but here it disambiguates from the
-  same-named request type, which is fine. The flag is on the
-  *underscore*, not the suffix itself.
-- **Suggestion:** Drop the underscore (`CreateBudgetResponse`,
-  `DeleteBudgetResponse`, etc.) or drop the request token entirely
-  (just `BudgetResponse`, `BudgetListResponse`). With F7.2 the
-  request types become `CreateBudgetRequest` etc., so this
-  resolves naturally.
-
-#### F8.2 — `LIST_PRICE_DOLLARS_USD` (LOW)
+#### F8.1 — `LIST_PRICE_DOLLARS_USD` (LOW)
 - **Where:** `model.ts:10`.
 - **Why flagged:** `DOLLARS_USD` is tautological — USD *is* dollars.
   This is a wire-protocol value, so the SDK cannot change it
   unilaterally, but worth noting upstream.
 - **Suggestion:** Wire protocol; leave with a comment.
 
-#### F8.3 — `ActionConfigurationType` enum name (LOW)
+#### F8.2 — `ActionConfigurationType` enum name (LOW)
 - **Where:** `model.ts:5`.
 - **Why flagged:** `ConfigurationType` is partially tautological with
   the wrapping `ActionConfiguration` type — `ActionConfiguration.actionType:
@@ -477,10 +395,10 @@ fixed at the generator, not by hand-editing this package.
   `BudgetAlertAction`, the enum becomes `BudgetAlertAction.Type` or
   simply `BudgetAlertActionType`).
 
-#### F8.4 — `AlertConfigurationQuantityType`,
+#### F8.3 — `AlertConfigurationQuantityType`,
   `AlertConfigurationTimePeriod`, `AlertConfigurationTriggerType` (LOW)
 - **Where:** `model.ts:9, 13, 17`.
-- **Why flagged:** Same pattern as F8.3 — `AlertConfiguration` parent +
+- **Why flagged:** Same pattern as F8.2 — `AlertConfiguration` parent +
   `QuantityType`/`TimePeriod`/`TriggerType` suffix. With parent renamed to
   `BudgetAlert` (see F7), suffixes become reasonable:
   `BudgetAlertQuantityType`, `BudgetAlertTimePeriod`,
@@ -686,10 +604,7 @@ _None._
   gain. This is a porting-convention decision and should be made
   globally at the generator level.
 
-#### F14.2 — `_Response` (and other) underscore-pseudo-nesting (HIGH)
-- See F4.1. Underscores are foreign to TS.
-
-#### F14.3 — Comment style (acceptable)
+#### F14.2 — Comment style (acceptable)
 - Comments are sentences. Good — but the file-top comment is the
   generator banner.
 
@@ -764,7 +679,7 @@ _None._
 #### F18.2 — `LIST_PRICE_DOLLARS_USD` (MEDIUM)
 - **Where:** `model.ts:10`.
 - **Why flagged:** 22 characters; `DOLLARS_USD` is doubly redundant
-  (F8.2). Could be `LIST_PRICE_USD` or `USD`.
+  (F8.1). Could be `LIST_PRICE_USD` or `USD`.
 - **Suggestion:** Wire value; report upstream.
 
 #### F18.3 — `EMAIL_NOTIFICATION` (LOW)
@@ -881,19 +796,19 @@ This SDK exposes two separate packages whose names both start with
 | # | Category                                | Findings |
 | - | --------------------------------------- | -------- |
 | 1 | Vague / generic                         | 7        |
-| 2 | Redundant enum prefixes                 | 5 (3 acceptable) |
-| 3 | Acronym casing                          | 4 (3 acceptable) |
-| 4 | Underscores in TS identifiers           | 2 |
+| 2 | Redundant enum prefixes                 | 4 (3 acceptable) |
+| 3 | Acronym casing                          | 4 (4 acceptable) |
+| 4 | Underscores in TS identifiers           | 0 |
 | 5 | Cryptic abbreviations                   | 7 |
 | 6 | Misleading names                        | 5 |
 | 7 | Overly verbose                          | 4 |
-| 8 | Redundant suffixes                      | 4 |
+| 8 | Redundant suffixes                      | 3 |
 | 9 | Singular / plural mismatch              | 5 (3 acceptable) |
 | 10 | Reserved-word collisions               | 5 (3 acceptable) |
 | 11 | Empty / trivial wrappers               | 0 |
 | 12 | Duplicate concepts                     | 5 |
 | 13 | Verb-tense inconsistency               | 2 (1 acceptable) |
-| 14 | Go / Java-style names                  | 3 (1 acceptable) |
+| 14 | Go / Java-style names                  | 2 (1 acceptable) |
 | 15 | Generic field names                    | 5 |
 | 16 | Field contradicting type domain        | 3 |
 | 17 | Inconsistent action verbs              | 1 (1 acceptable) |
@@ -920,14 +835,10 @@ This SDK exposes two separate packages whose names both start with
    `ActionConfigurationType` to `BudgetAlertActionType`.
 5. **F7.2 / F7.4:** Drop "Configuration" from request type names
    (`CreateBudgetRequest`) and method names
-   (`budgets.create(...)`); document explicit `Request`/`Response`
-   suffix convention.
-6. **F4.1:** Replace underscored proto-style names with
-   flat PascalCase or namespaces; eliminates all
-   `eslint-disable-next-line` for `naming-convention`.
-7. **F12.4:** Lift `accountId` to top-level on all request types
+   (`budgets.create(...)`).
+6. **F12.4:** Lift `accountId` to top-level on all request types
    (currently nested under `budget` for create/update only).
-8. **F14.1 / F5.x:** Spell out `req`/`resp`/`err`/`opts`/
+7. **F14.1 / F5.x:** Spell out `req`/`resp`/`err`/`opts`/
    `pkgJson` etc. across all generated code.
 
 ---

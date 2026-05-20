@@ -18,13 +18,13 @@ cleanroom packages (`cleanrooms`, `cleanroomassets`, `cleanroomautoapprovalrules
 | #  | Category                                  | Count |
 | -- | ----------------------------------------- | ----- |
 | 1  | Vague / generic names                     | 7     |
-| 2  | Redundant enum prefixes                   | 5     |
+| 2  | Redundant enum prefixes                   | 4     |
 | 3  | Acronym casing inconsistencies            | 0     |
-| 4  | Underscores in TS identifiers             | 17    |
+| 4  | Underscores in TS identifiers             | 0     |
 | 5  | Cryptic abbreviations                     | 2     |
 | 6  | Misleading names                          | 3     |
-| 7  | Overly verbose names                      | 6     |
-| 8  | Redundant suffixes                        | 2     |
+| 7  | Overly verbose names                      | 5     |
+| 8  | Redundant suffixes                        | 0     |
 | 9  | Singular / plural mismatches              | 2     |
 | 10 | Reserved-word / built-in collisions       | 1     |
 | 11 | Empty / trivial wrapper types             | 0     |
@@ -36,9 +36,9 @@ cleanroom packages (`cleanrooms`, `cleanroomassets`, `cleanroomautoapprovalrules
 | 17 | Inconsistent action verbs                 | 1     |
 | 18 | Long enum values                          | 6     |
 | 19 | Underspecified IDs                        | 2     |
-| 20 | Type-suffix tautology                     | 3     |
+| 20 | Type-suffix tautology                     | 1     |
 | -- | Cross-cutting: `CleanRoom` redundancy     | 1     |
-| -- | **Total findings**                        | **71** |
+| -- | **Total findings**                        | **48** |
 
 ---
 
@@ -115,17 +115,13 @@ the suffix (`NotebookReviewState`). Suggested rename: `UNSPECIFIED`.
 
 Five words of prefix on a single literal. Suggested rename: `UNSPECIFIED`.
 
-### 2.5 `PartitionSpecification_Partition_PartitionValue_PartitionValueOp` (model.ts:69)
-
-Members `EQUAL` / `LIKE` are fine; the enum *name* repeats `Partition` three
-times and `PartitionValue` twice (see 7.1). Members themselves are not
-redundant.
-
 ---
 
 ## 3. Acronym casing inconsistencies
 
-None found. `etag` (lower-case in model.ts:194, 370, 410) is consistently
+_None._
+
+`etag` (lower-case in model.ts:194, 370, 410) is consistently
 lower-cased everywhere; `Json` is title-case in `typeJson` (model.ts:282) and
 appears nowhere else as `JSON`. `UDF` and `SQL` appear only in JSDoc prose, not
 in identifiers. `URL` appears only in helper variable names inside `client.ts`
@@ -135,38 +131,12 @@ in identifiers. `URL` appears only in helper variable names inside `client.ts`
 
 ## 4. Underscores in TS identifiers
 
-The proto-style `_` segregator is suppressed with explicit
-`@typescript-eslint/naming-convention` exemptions. While this preserves
-parity with the Go SDK, every such name is an underscore-in-identifier
-violation by TypeScript conventions ([TypeScript Handbook — Names use camelCase
-or PascalCase](https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html)).
-The following identifiers should be reviewed at the porting layer:
+_None._
 
-| #     | Identifier                                                                       | File:line          |
-| ----- | -------------------------------------------------------------------------------- | ------------------ |
-| 4.1   | `CleanRoomAsset_AssetType`                                                       | model.ts:36        |
-| 4.2   | `CleanRoomAsset_Status_Enum`                                                     | model.ts:46        |
-| 4.3   | `CleanRoomNotebookReview_NotebookReviewState`                                    | model.ts:54        |
-| 4.4   | `CleanRoomNotebookReview_NotebookReviewSubReason`                                | model.ts:62        |
-| 4.5   | `PartitionSpecification_Partition_PartitionValue_PartitionValueOp`               | model.ts:69        |
-| 4.6   | `CleanRoomAsset_ForeignTable`                                                    | model.ts:172       |
-| 4.7   | `CleanRoomAsset_ForeignTableLocalDetails`                                        | model.ts:178       |
-| 4.8   | `CleanRoomAsset_Notebook`                                                        | model.ts:187       |
-| 4.9   | `CleanRoomAsset_Status`                                                          | model.ts:211       |
-| 4.10  | `CleanRoomAsset_Table`                                                           | model.ts:214       |
-| 4.11  | `CleanRoomAsset_TableLocalDetails`                                               | model.ts:220       |
-| 4.12  | `CleanRoomAsset_View`                                                            | model.ts:231       |
-| 4.13  | `CleanRoomAsset_ViewLocalDetails`                                                | model.ts:237       |
-| 4.14  | `CleanRoomAsset_VolumeLocalDetails`                                              | model.ts:246       |
-| 4.15  | `PartitionSpecification_Partition`                                               | model.ts:428       |
-| 4.16  | `PartitionSpecification_Partition_PartitionValue`                                | model.ts:434       |
-| 4.17  | All proto `$case` discriminator values use camelCase (good), but underlying serialized fields use `snake_case` (e.g. `clean_room_name`, `notebook_review_state`) — fine for wire format, just calling out the boundary | model.ts:484+    |
-
-Suggested approach: drop the underscore and concatenate
-(`CleanRoomAssetAssetType` → still ugly; `CleanRoomAssetTableLocalDetails` is
-acceptable). Alternative: extract nested types under a namespace
-(`namespace CleanRoomAsset { export interface Notebook {} }`), eliminating both
-the underscore and the parent-name repetition.
+The serialized wire format uses `snake_case` field names
+(e.g. `clean_room_name`, `notebook_review_state`); this is intentional and
+required for protocol compatibility, and remains scoped to schema bodies, not
+TypeScript identifiers.
 
 ---
 
@@ -213,50 +183,37 @@ only `EQUAL` / `LIKE` — those are not arithmetic *operators* but partition
 
 ## 7. Overly verbose names
 
-### 7.1 `PartitionSpecification_Partition_PartitionValue_PartitionValueOp` (model.ts:69)
-
-47-character enum name with `Partition`/`PartitionValue` repeated. Suggested
-rename: `PartitionMatchOperator`. In a flattened namespace, the parent context
-adds no value here.
-
-### 7.2 `CreateCleanRoomAssetReviewResponse.notebookReviewState` discriminator key (model.ts:330)
+### 7.1 `CreateCleanRoomAssetReviewResponse.notebookReviewState` discriminator key (model.ts:330)
 
 The discriminated-union variant name *and* the inner property name are both
 `notebookReviewState`. Redundancy of `notebookReviewState` against the parent
 `reviewState` field could be elided. Suggested: `{$case: 'notebook', state:
 NotebookReviewState}`.
 
-### 7.3 `runnerCollaboratorAliases` (model.ts:196)
+### 7.2 `runnerCollaboratorAliases` (model.ts:196)
 
 Long composite, but accurate. Acceptable.
 
-### 7.4 `reviewerCollaboratorAlias` (model.ts:256)
+### 7.3 `reviewerCollaboratorAlias` (model.ts:256)
 
 Same. Acceptable.
 
-### 7.5 `ownerCollaboratorAlias` (model.ts:98)
+### 7.4 `ownerCollaboratorAlias` (model.ts:98)
 
 Same. Acceptable.
 
-### 7.6 `recipientPropertyKey` (model.ts:446)
+### 7.5 `recipientPropertyKey` (model.ts:446)
 
 Acceptable; needs the `recipient`/`property`/`key` qualifiers for accuracy.
 
-(7.3–7.6 are kept under this category for completeness, but only flagged as
+(7.2–7.5 are kept under this category for completeness, but only flagged as
 borderline — none should change.)
 
 ---
 
 ## 8. Redundant suffixes
 
-### 8.1 `CleanRoomNotebookReview_NotebookReviewState` (model.ts:54)
-
-`NotebookReview` is repeated immediately after the underscore. Suggested
-rename: `CleanRoomNotebookReview_State`.
-
-### 8.2 `CleanRoomNotebookReview_NotebookReviewSubReason` (model.ts:62)
-
-Same redundancy. Suggested: `CleanRoomNotebookReview_SubReason`.
+_None._
 
 ---
 
@@ -428,16 +385,7 @@ Suggested rename: `assetName` everywhere — eliminates the cross-reference.
 
 ## 20. Type-suffix tautology
 
-### 20.1 `CleanRoomNotebookReview_NotebookReviewState` (model.ts:54)
-
-Enum *name* contains the type-suffix `State` while the parent already conveys
-that this is the *state* of a notebook review. See 8.1.
-
-### 20.2 `CleanRoomNotebookReview_NotebookReviewSubReason` (model.ts:62)
-
-Same — `SubReason` is suffix-tautology with the parent's `Review`.
-
-### 20.3 `ColumnTypeName` (model.ts:5)
+### 20.1 `ColumnTypeName` (model.ts:5)
 
 `TypeName` is *almost* tautology with `Column`; a column's type-name is just
 its *type*. Suggested rename: `ColumnType`.
@@ -464,7 +412,7 @@ collapses naturally into the *package* boundary.
 Affected exports (all in `model.ts` and re-exported by `index.ts`):
 
 - `CleanRoomAsset` → `Asset`
-- `CleanRoomAsset_AssetType` → `AssetType` (which is itself redundant; see 8/20)
+- `CleanRoomAsset_AssetType` → `AssetType`
 - `CleanRoomAsset_Status` / `_Status_Enum` → `Status` / `StatusEnum`
 - `CleanRoomAsset_ForeignTable` / `_ForeignTableLocalDetails` → `ForeignTable` /
   `ForeignTableLocalDetails`
@@ -473,8 +421,6 @@ Affected exports (all in `model.ts` and re-exported by `index.ts`):
 - `CleanRoomAsset_View` / `_ViewLocalDetails` → `View` / `ViewLocalDetails`
 - `CleanRoomAsset_VolumeLocalDetails` → `VolumeLocalDetails`
 - `CleanRoomNotebookReview` → `NotebookReview`
-- `CleanRoomNotebookReview_NotebookReviewState` → `NotebookReview.State`
-- `CleanRoomNotebookReview_NotebookReviewSubReason` → `NotebookReview.SubReason`
 - `CreateCleanRoomAssetRequest` → `CreateAssetRequest` (or just `CreateRequest`)
 - `CreateCleanRoomAssetReviewRequest` / `Response` → `CreateAssetReviewRequest`
 - `DeleteCleanRoomAssetRequest` / `Response` → `DeleteAssetRequest`
@@ -499,23 +445,23 @@ If the codegen template can't drop the prefix everywhere uniformly, the
 
 | Symbol | File:line | Issues |
 | ------ | --------- | ------ |
-| `ColumnTypeName` | model.ts:5 | 20.3 (TypeName tautology), 16.1 (`TABLE_TYPE` / `TABLEREF_TYPE` contradict domain) |
+| `ColumnTypeName` | model.ts:5 | 20.1 (TypeName tautology), 16.1 (`TABLE_TYPE` / `TABLEREF_TYPE` contradict domain) |
 | `ColumnTypeName.BOOLEAN`..`GEOGRAPHY` | model.ts:6–28 | clean |
 | `ColumnTypeName.TABLE_TYPE` | model.ts:31 | 16.1 |
 | `ColumnTypeName.TABLEREF_TYPE` | model.ts:32 | 16.1, also redundant `_TYPE` suffix on a value inside `ColumnTypeName` |
-| `CleanRoomAsset_AssetType` | model.ts:36 | 4.1, 20.x cross-cutting `CleanRoom` |
+| `CleanRoomAsset_AssetType` | model.ts:36 | cross-cutting `CleanRoom` |
 | `CleanRoomAsset_AssetType.ASSET_TYPE_UNSPECIFIED` | model.ts:37 | 2.1, 18.3 |
 | `CleanRoomAsset_AssetType.TABLE`..`FOREIGN_TABLE` | model.ts:38–42 | clean |
 | `CleanRoomAsset_Status_Enum` | model.ts:46 | cross-cutting |
 | `CleanRoomAsset_Status_Enum.ENUM_UNSPECIFIED` | model.ts:47 | 2.2, 18.4 |
 | `CleanRoomAsset_Status_Enum.ACTIVE`/`PERMISSION_DENIED`/`PENDING` | model.ts:48–50 | clean |
-| `CleanRoomNotebookReview_NotebookReviewState` | model.ts:54 | 8.1, 20.1, cross-cutting |
+| `CleanRoomNotebookReview_NotebookReviewState` | model.ts:54 | cross-cutting |
 | `…_NotebookReviewState.NOTEBOOK_REVIEW_STATE_UNSPECIFIED` | model.ts:55 | 2.3, 18.1 |
 | `…_NotebookReviewState.APPROVED`/`REJECTED`/`PENDING` | model.ts:56–58 | clean |
-| `CleanRoomNotebookReview_NotebookReviewSubReason` | model.ts:62 | 8.2, 20.2, cross-cutting |
+| `CleanRoomNotebookReview_NotebookReviewSubReason` | model.ts:62 | cross-cutting |
 | `…_NotebookReviewSubReason.NOTEBOOK_REVIEW_SUB_REASON_UNSPECIFIED` | model.ts:63 | 2.4, 18.2 |
 | `…_NotebookReviewSubReason.BACKFILLED`/`AUTO_APPROVED` | model.ts:64–65 | clean |
-| `PartitionSpecification_Partition_PartitionValue_PartitionValueOp` | model.ts:69 | 7.1 |
+| `PartitionSpecification_Partition_PartitionValue_PartitionValueOp` | model.ts:69 | clean |
 | `…_PartitionValueOp.EQUAL`/`LIKE` | model.ts:70–71 | clean |
 
 ### Interfaces
@@ -536,7 +482,7 @@ If the codegen template can't drop the prefix everywhere uniformly, the
 | `CleanRoomAsset_ForeignTableLocalDetails.localName` | model.ts:183 | clean (would be `ownerLocalName` to match `localDetails` semantics) |
 | `CleanRoomAsset_Notebook.notebookContent` | model.ts:192 | redundant `notebook` prefix inside `…_Notebook` — `content` suffices |
 | `CleanRoomAsset_Notebook.etag` | model.ts:194 | 19.1 |
-| `CleanRoomAsset_Notebook.runnerCollaboratorAliases` | model.ts:196 | clean (verbose 7.3, acceptable) |
+| `CleanRoomAsset_Notebook.runnerCollaboratorAliases` | model.ts:196 | clean (verbose 7.2, acceptable) |
 | `CleanRoomAsset_Notebook.reviews` | model.ts:198 | clean |
 | `CleanRoomAsset_Notebook.reviewState` | model.ts:200 | clean |
 | `CleanRoomAsset_Notebook.description` | model.ts:202 | clean |
@@ -548,7 +494,7 @@ If the codegen template can't drop the prefix everywhere uniformly, the
 | `CleanRoomAsset_ViewLocalDetails.localName` | model.ts:242 | clean |
 | `CleanRoomAsset_VolumeLocalDetails.localName` | model.ts:251 | clean |
 | `CleanRoomNotebookReview` | model.ts:254 | cross-cutting |
-| `CleanRoomNotebookReview.reviewerCollaboratorAlias` | model.ts:256 | clean (verbose 7.4) |
+| `CleanRoomNotebookReview.reviewerCollaboratorAlias` | model.ts:256 | clean (verbose 7.3) |
 | `CleanRoomNotebookReview.createdAtMillis` | model.ts:258 | 13.1 |
 | `CleanRoomNotebookReview.reviewState` | model.ts:260 | clean |
 | `CleanRoomNotebookReview.comment` | model.ts:262 | 15.5 |
@@ -556,7 +502,7 @@ If the codegen template can't drop the prefix everywhere uniformly, the
 | `ColumnInfo` | model.ts:267 | clean |
 | `ColumnInfo.name` | model.ts:269 | 1.4, 15.2 |
 | `ColumnInfo.typeText` | model.ts:271 | clean |
-| `ColumnInfo.typeName` | model.ts:272 | 20.3 (carries from enum) |
+| `ColumnInfo.typeName` | model.ts:272 | 20.1 (carries from enum) |
 | `ColumnInfo.position` | model.ts:274 | clean |
 | `ColumnInfo.typePrecision` | model.ts:276 | clean |
 | `ColumnInfo.typeScale` | model.ts:278 | clean |
@@ -579,7 +525,7 @@ If the codegen template can't drop the prefix everywhere uniformly, the
 | `…ReviewRequest.review` | model.ts:320 | discriminated union with one variant (`notebookReview`); see 6.1 |
 | `CreateCleanRoomAssetReviewResponse` | model.ts:325 | cross-cutting |
 | `…ReviewResponse.notebookReviews` | model.ts:327 | clean |
-| `…ReviewResponse.reviewState` | model.ts:328 | discriminated union with one variant (`notebookReviewState`); see 7.2 |
+| `…ReviewResponse.reviewState` | model.ts:328 | discriminated union with one variant (`notebookReviewState`); see 7.1 |
 | `DeleteCleanRoomAssetRequest` | model.ts:337 | cross-cutting |
 | `…DeleteRequest.cleanRoomName`/`assetType`/`name` | model.ts:339–343 | 12.x, 19.2 |
 | `GetCleanRoomAssetRequest` / `…RevisionRequest` | model.ts:353, 362 | cross-cutting |
@@ -593,10 +539,10 @@ If the codegen template can't drop the prefix everywhere uniformly, the
 | `NotebookVersionReview` | model.ts:408 | name reads like a noun-from-Go (Java-style); `NotebookReviewSubmission` or `PendingReview` would feel more native. Single-use in `CreateCleanRoomAssetReviewRequest.review.notebookReview` |
 | `NotebookVersionReview.etag`/`reviewState`/`comment` | model.ts:410–414 | 19.1, 15.5 |
 | `PartitionSpecification_Partition.values` | model.ts:430 | clean |
-| `PartitionSpecification_Partition_PartitionValue` | model.ts:434 | 4.x, 7.1 |
+| `PartitionSpecification_Partition_PartitionValue` | model.ts:434 | clean |
 | `…PartitionValue.name` | model.ts:436 | 1.5, 15.3 |
 | `…PartitionValue.value` | model.ts:441 | 1.6, 15.4 |
-| `…PartitionValue.recipientPropertyKey` | model.ts:446 | clean (verbose 7.6) |
+| `…PartitionValue.recipientPropertyKey` | model.ts:446 | clean (verbose 7.5) |
 | `…PartitionValue.op` | model.ts:448 | 5.2, 6.3, 10.1 |
 | `PolicyFunctionArgument` | model.ts:457 | name "Argument" inside `PolicyFunction*` could be `PolicyFunctionArg` to align with field name `arg` (line 458) — currently inconsistent |
 | `PolicyFunctionArgument.arg` | model.ts:458 | abbreviation `arg` vs. parent `Argument`; pick one |
@@ -633,15 +579,12 @@ Re-exports only. All concerns flow from `model.ts` / `client.ts`.
    or keep it in the canonical `model.ts` and provide unprefixed aliases in
    `index.ts`. Pick one. (Cross-cutting redundancy is the single biggest
    source of name length.)
-2. **Collapse proto-nested types under namespaces or rename without
-   underscores.** All 17 `_`-bearing identifiers should follow the same
-   convention as the rest of `@databricks/sdk-databricks`.
-3. **Reconcile the `revisions: CleanRoomAsset[]` mismatch on
+2. **Reconcile the `revisions: CleanRoomAsset[]` mismatch on
    `ListCleanRoomAssetRevisionsResponse`.** Either rename to `assets` or
    introduce a distinct revision type.
-4. **Fix the `JAR_ANALYSIS` / `assetType` JSDoc discrepancy.** Either the
+3. **Fix the `JAR_ANALYSIS` / `assetType` JSDoc discrepancy.** Either the
    enum is missing a value or the doc is stale.
-5. **Strip the `_UNSPECIFIED` boilerplate prefixes** (`NOTEBOOK_REVIEW_STATE_…`
+4. **Strip the `_UNSPECIFIED` boilerplate prefixes** (`NOTEBOOK_REVIEW_STATE_…`
    etc.) — six enum literals become two-word strings.
-6. **Rename `op` → `operator` and `etag` → `revisionEtag`** in user-facing
+5. **Rename `op` → `operator` and `etag` → `revisionEtag`** in user-facing
    request types.
