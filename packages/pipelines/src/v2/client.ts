@@ -21,51 +21,51 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   ApplyEnvironmentRequest,
   ApplyEnvironmentRequest_Response,
-  ClonePipeline,
-  ClonePipeline_Response,
-  CreatePipeline,
-  CreatePipeline_Response,
-  DeletePipeline,
-  DeletePipeline_Response,
-  EditPipeline,
-  EditPipeline_Response,
-  GetPipeline,
-  GetPipeline_Response,
-  GetUpdate,
-  GetUpdate_Response,
-  ListPipelineEvents,
-  ListPipelineEvents_Response,
-  ListPipelines,
-  ListPipelines_Response,
-  ListUpdates,
-  ListUpdates_Response,
+  ClonePipelineRequest,
+  ClonePipelineRequest_Response,
+  CreatePipelineRequest,
+  CreatePipelineRequest_Response,
+  DeletePipelineRequest,
+  DeletePipelineRequest_Response,
+  EditPipelineRequest,
+  EditPipelineRequest_Response,
+  GetPipelineRequest,
+  GetPipelineRequest_Response,
+  GetUpdateRequest,
+  GetUpdateRequest_Response,
+  ListPipelineEventsRequest,
+  ListPipelineEventsRequest_Response,
+  ListPipelinesRequest,
+  ListPipelinesRequest_Response,
+  ListUpdatesRequest,
+  ListUpdatesRequest_Response,
   PipelineEvent,
   PipelineStateInfo,
-  StartUpdate,
-  StartUpdate_Response,
-  StopPipeline,
-  StopPipeline_Response,
+  StartUpdateRequest,
+  StartUpdateRequest_Response,
+  StopPipelineRequest,
+  StopPipelineRequest_Response,
 } from './model';
 import {
   PipelineState_PipelineState,
   marshalApplyEnvironmentRequestSchema,
-  marshalClonePipelineSchema,
-  marshalCreatePipelineSchema,
-  marshalEditPipelineSchema,
-  marshalStartUpdateSchema,
-  marshalStopPipelineSchema,
+  marshalClonePipelineRequestSchema,
+  marshalCreatePipelineRequestSchema,
+  marshalEditPipelineRequestSchema,
+  marshalStartUpdateRequestSchema,
+  marshalStopPipelineRequestSchema,
   unmarshalApplyEnvironmentRequest_ResponseSchema,
-  unmarshalClonePipeline_ResponseSchema,
-  unmarshalCreatePipeline_ResponseSchema,
-  unmarshalDeletePipeline_ResponseSchema,
-  unmarshalEditPipeline_ResponseSchema,
-  unmarshalGetPipeline_ResponseSchema,
-  unmarshalGetUpdate_ResponseSchema,
-  unmarshalListPipelineEvents_ResponseSchema,
-  unmarshalListPipelines_ResponseSchema,
-  unmarshalListUpdates_ResponseSchema,
-  unmarshalStartUpdate_ResponseSchema,
-  unmarshalStopPipeline_ResponseSchema,
+  unmarshalClonePipelineRequest_ResponseSchema,
+  unmarshalCreatePipelineRequest_ResponseSchema,
+  unmarshalDeletePipelineRequest_ResponseSchema,
+  unmarshalEditPipelineRequest_ResponseSchema,
+  unmarshalGetPipelineRequest_ResponseSchema,
+  unmarshalGetUpdateRequest_ResponseSchema,
+  unmarshalListPipelineEventsRequest_ResponseSchema,
+  unmarshalListPipelinesRequest_ResponseSchema,
+  unmarshalListUpdatesRequest_ResponseSchema,
+  unmarshalStartUpdateRequest_ResponseSchema,
+  unmarshalStopPipelineRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -140,12 +140,12 @@ export class Client {
    * Additionally, this method starts an update for the newly created pipeline.
    */
   async clone(
-    req: ClonePipeline,
+    req: ClonePipelineRequest,
     options?: CallOptions
-  ): Promise<ClonePipeline_Response> {
+  ): Promise<ClonePipelineRequest_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}/clone`;
-    const body = marshalRequest(req, marshalClonePipelineSchema);
-    let resp: ClonePipeline_Response | undefined;
+    const body = marshalRequest(req, marshalClonePipelineRequestSchema);
+    let resp: ClonePipelineRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -155,7 +155,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalClonePipeline_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalClonePipelineRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -169,12 +172,12 @@ export class Client {
    * the ID of the new pipeline.
    */
   async create(
-    req: CreatePipeline,
+    req: CreatePipelineRequest,
     options?: CallOptions
-  ): Promise<CreatePipeline_Response> {
+  ): Promise<CreatePipelineRequest_Response> {
     const url = `${this.host}/api/2.0/pipelines`;
-    const body = marshalRequest(req, marshalCreatePipelineSchema);
-    let resp: CreatePipeline_Response | undefined;
+    const body = marshalRequest(req, marshalCreatePipelineRequestSchema);
+    let resp: CreatePipelineRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -184,7 +187,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCreatePipeline_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalCreatePipelineRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -198,9 +204,9 @@ export class Client {
    * all pipeline tables. Please reach out to <Databricks> support for assistance to undo this action.
    */
   async delete(
-    req: DeletePipeline,
+    req: DeletePipelineRequest,
     options?: CallOptions
-  ): Promise<DeletePipeline_Response> {
+  ): Promise<DeletePipelineRequest_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -211,7 +217,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: DeletePipeline_Response | undefined;
+    let resp: DeletePipelineRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -221,7 +227,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeletePipeline_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalDeletePipelineRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -232,12 +241,12 @@ export class Client {
 
   /** Updates a pipeline with the supplied configuration. */
   async edit(
-    req: EditPipeline,
+    req: EditPipelineRequest,
     options?: CallOptions
-  ): Promise<EditPipeline_Response> {
+  ): Promise<EditPipelineRequest_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}`;
-    const body = marshalRequest(req, marshalEditPipelineSchema);
-    let resp: EditPipeline_Response | undefined;
+    const body = marshalRequest(req, marshalEditPipelineRequestSchema);
+    let resp: EditPipelineRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -247,7 +256,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalEditPipeline_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalEditPipelineRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -258,9 +270,9 @@ export class Client {
 
   /** Retrieves events for a pipeline. */
   async events(
-    req: ListPipelineEvents,
+    req: ListPipelineEventsRequest,
     options?: CallOptions
-  ): Promise<ListPipelineEvents_Response> {
+  ): Promise<ListPipelineEventsRequest_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}/events`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -277,7 +289,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListPipelineEvents_Response | undefined;
+    let resp: ListPipelineEventsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -289,7 +301,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListPipelineEvents_ResponseSchema
+        unmarshalListPipelineEventsRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -300,10 +312,10 @@ export class Client {
   }
 
   async *eventsIter(
-    req: ListPipelineEvents,
+    req: ListPipelineEventsRequest,
     options?: CallOptions
   ): AsyncGenerator<PipelineEvent> {
-    const pageReq: ListPipelineEvents = {...req};
+    const pageReq: ListPipelineEventsRequest = {...req};
     for (;;) {
       const resp = await this.events(pageReq, options);
       for (const item of resp.events ?? []) {
@@ -318,11 +330,11 @@ export class Client {
 
   /** Get a pipeline. */
   async get(
-    req: GetPipeline,
+    req: GetPipelineRequest,
     options?: CallOptions
-  ): Promise<GetPipeline_Response> {
+  ): Promise<GetPipelineRequest_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}`;
-    let resp: GetPipeline_Response | undefined;
+    let resp: GetPipelineRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -332,7 +344,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetPipeline_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalGetPipelineRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -343,11 +358,11 @@ export class Client {
 
   /** Gets an update from an active pipeline. */
   async getUpdate(
-    req: GetUpdate,
+    req: GetUpdateRequest,
     options?: CallOptions
-  ): Promise<GetUpdate_Response> {
+  ): Promise<GetUpdateRequest_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}/updates/${req.updateId ?? ''}`;
-    let resp: GetUpdate_Response | undefined;
+    let resp: GetUpdateRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -357,7 +372,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetUpdate_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalGetUpdateRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -368,9 +383,9 @@ export class Client {
 
   /** Lists pipelines defined in the Spark Declarative Pipelines system. */
   async list(
-    req: ListPipelines,
+    req: ListPipelinesRequest,
     options?: CallOptions
-  ): Promise<ListPipelines_Response> {
+  ): Promise<ListPipelinesRequest_Response> {
     const url = `${this.host}/api/2.0/pipelines`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -387,7 +402,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListPipelines_Response | undefined;
+    let resp: ListPipelinesRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -397,7 +412,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListPipelines_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalListPipelinesRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -407,10 +425,10 @@ export class Client {
   }
 
   async *listIter(
-    req: ListPipelines,
+    req: ListPipelinesRequest,
     options?: CallOptions
   ): AsyncGenerator<PipelineStateInfo> {
-    const pageReq: ListPipelines = {...req};
+    const pageReq: ListPipelinesRequest = {...req};
     for (;;) {
       const resp = await this.list(pageReq, options);
       for (const item of resp.statuses ?? []) {
@@ -425,9 +443,9 @@ export class Client {
 
   /** List updates for an active pipeline. */
   async listUpdates(
-    req: ListUpdates,
+    req: ListUpdatesRequest,
     options?: CallOptions
-  ): Promise<ListUpdates_Response> {
+  ): Promise<ListUpdatesRequest_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}/updates`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -441,7 +459,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListUpdates_Response | undefined;
+    let resp: ListUpdatesRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -451,7 +469,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListUpdates_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalListUpdatesRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -462,12 +483,12 @@ export class Client {
 
   /** Starts a new update for the pipeline. If there is already an active update for the pipeline, the request will fail and the active update will remain running. */
   async start(
-    req: StartUpdate,
+    req: StartUpdateRequest,
     options?: CallOptions
-  ): Promise<StartUpdate_Response> {
+  ): Promise<StartUpdateRequest_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}/updates`;
-    const body = marshalRequest(req, marshalStartUpdateSchema);
-    let resp: StartUpdate_Response | undefined;
+    const body = marshalRequest(req, marshalStartUpdateRequestSchema);
+    let resp: StartUpdateRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -477,7 +498,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalStartUpdate_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalStartUpdateRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -488,12 +512,12 @@ export class Client {
 
   /** Stops the pipeline by canceling the active update. If there is no active update for the pipeline, this request is a no-op. */
   async stop(
-    req: StopPipeline,
+    req: StopPipelineRequest,
     options?: CallOptions
-  ): Promise<StopPipeline_Response> {
+  ): Promise<StopPipelineRequest_Response> {
     const url = `${this.host}/api/2.0/pipelines/${req.pipelineId ?? ''}/stop`;
-    const body = marshalRequest(req, marshalStopPipelineSchema);
-    let resp: StopPipeline_Response | undefined;
+    const body = marshalRequest(req, marshalStopPipelineRequestSchema);
+    let resp: StopPipelineRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -503,7 +527,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalStopPipeline_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalStopPipelineRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -513,7 +540,7 @@ export class Client {
   }
 
   async stopWaiter(
-    req: StopPipeline,
+    req: StopPipelineRequest,
     options?: CallOptions
   ): Promise<StopWaiter> {
     await this.stop(req, options);
@@ -537,8 +564,8 @@ export class StopWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: CallOptions): Promise<GetPipeline_Response> {
-    let result: GetPipeline_Response | undefined;
+  async wait(options?: CallOptions): Promise<GetPipelineRequest_Response> {
+    let result: GetPipelineRequest_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.get(

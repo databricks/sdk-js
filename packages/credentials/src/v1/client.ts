@@ -19,82 +19,82 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import {z} from 'zod';
 import type {
-  AccountsCreateStorageCredentialPublic,
-  AccountsCreateStorageCredentialPublic_Response,
-  AccountsDeleteStorageCredentialPublic,
-  AccountsDeleteStorageCredentialPublic_Response,
-  AccountsGetStorageCredentialPublic,
-  AccountsGetStorageCredentialPublic_Response,
-  AccountsListStorageCredentialsPublic,
-  AccountsListStorageCredentialsPublic_Response,
-  AccountsUpdateStorageCredentialPublic,
-  AccountsUpdateStorageCredentialPublic_Response,
-  CreateCredential,
+  AccountsCreateStorageCredentialPublicRequest,
+  AccountsCreateStorageCredentialPublicRequest_Response,
+  AccountsDeleteStorageCredentialPublicRequest,
+  AccountsDeleteStorageCredentialPublicRequest_Response,
+  AccountsGetStorageCredentialPublicRequest,
+  AccountsGetStorageCredentialPublicRequest_Response,
+  AccountsListStorageCredentialsPublicRequest,
+  AccountsListStorageCredentialsPublicRequest_Response,
+  AccountsUpdateStorageCredentialPublicRequest,
+  AccountsUpdateStorageCredentialPublicRequest_Response,
+  CreateCredentialRequest,
   CreateCredentialsPublicRequest,
-  CreateStorageCredential,
+  CreateStorageCredentialRequest,
   CredentialInfo,
   Credentials,
-  DeleteCredential,
-  DeleteCredential_Response,
+  DeleteCredentialRequest,
+  DeleteCredentialRequest_Response,
   DeleteCredentialsPublicRequest,
-  DeleteStorageCredential,
-  DeleteStorageCredential_Response,
-  GenerateTemporaryPathCredential,
-  GenerateTemporaryPathCredential_Response,
-  GenerateTemporaryServiceCredential,
-  GenerateTemporaryTableCredential,
-  GenerateTemporaryTableCredential_Response,
-  GenerateTemporaryVolumeCredential,
-  GenerateTemporaryVolumeCredential_Response,
-  GetCredential,
+  DeleteStorageCredentialRequest,
+  DeleteStorageCredentialRequest_Response,
+  GenerateTemporaryPathCredentialRequest,
+  GenerateTemporaryPathCredentialRequest_Response,
+  GenerateTemporaryServiceCredentialRequest,
+  GenerateTemporaryTableCredentialRequest,
+  GenerateTemporaryTableCredentialRequest_Response,
+  GenerateTemporaryVolumeCredentialRequest,
+  GenerateTemporaryVolumeCredentialRequest_Response,
+  GetCredentialRequest,
   GetCredentialsPublicRequest,
-  GetStorageCredential,
-  ListCredentials,
+  GetStorageCredentialRequest,
   ListCredentialsPublicRequest,
   ListCredentialsPublicResponse,
-  ListCredentials_Response,
-  ListStorageCredentials,
-  ListStorageCredentials_Response,
+  ListCredentialsRequest,
+  ListCredentialsRequest_Response,
+  ListStorageCredentialsRequest,
+  ListStorageCredentialsRequest_Response,
   StorageCredentialInfo,
   TemporaryCredentials,
-  UpdateCredential,
-  UpdateStorageCredential,
-  ValidateCredential,
-  ValidateCredential_Response,
-  ValidateStorageCredential,
-  ValidateStorageCredential_Response,
+  UpdateCredentialRequest,
+  UpdateStorageCredentialRequest,
+  ValidateCredentialRequest,
+  ValidateCredentialRequest_Response,
+  ValidateStorageCredentialRequest,
+  ValidateStorageCredentialRequest_Response,
 } from './model';
 import {
-  marshalAccountsCreateStorageCredentialPublicSchema,
-  marshalAccountsUpdateStorageCredentialPublicSchema,
-  marshalCreateCredentialSchema,
+  marshalAccountsCreateStorageCredentialPublicRequestSchema,
+  marshalAccountsUpdateStorageCredentialPublicRequestSchema,
+  marshalCreateCredentialRequestSchema,
   marshalCreateCredentialsPublicRequestSchema,
-  marshalCreateStorageCredentialSchema,
-  marshalGenerateTemporaryPathCredentialSchema,
-  marshalGenerateTemporaryServiceCredentialSchema,
-  marshalGenerateTemporaryTableCredentialSchema,
-  marshalGenerateTemporaryVolumeCredentialSchema,
-  marshalUpdateCredentialSchema,
-  marshalUpdateStorageCredentialSchema,
-  marshalValidateCredentialSchema,
-  marshalValidateStorageCredentialSchema,
-  unmarshalAccountsCreateStorageCredentialPublic_ResponseSchema,
-  unmarshalAccountsDeleteStorageCredentialPublic_ResponseSchema,
-  unmarshalAccountsGetStorageCredentialPublic_ResponseSchema,
-  unmarshalAccountsListStorageCredentialsPublic_ResponseSchema,
-  unmarshalAccountsUpdateStorageCredentialPublic_ResponseSchema,
+  marshalCreateStorageCredentialRequestSchema,
+  marshalGenerateTemporaryPathCredentialRequestSchema,
+  marshalGenerateTemporaryServiceCredentialRequestSchema,
+  marshalGenerateTemporaryTableCredentialRequestSchema,
+  marshalGenerateTemporaryVolumeCredentialRequestSchema,
+  marshalUpdateCredentialRequestSchema,
+  marshalUpdateStorageCredentialRequestSchema,
+  marshalValidateCredentialRequestSchema,
+  marshalValidateStorageCredentialRequestSchema,
+  unmarshalAccountsCreateStorageCredentialPublicRequest_ResponseSchema,
+  unmarshalAccountsDeleteStorageCredentialPublicRequest_ResponseSchema,
+  unmarshalAccountsGetStorageCredentialPublicRequest_ResponseSchema,
+  unmarshalAccountsListStorageCredentialsPublicRequest_ResponseSchema,
+  unmarshalAccountsUpdateStorageCredentialPublicRequest_ResponseSchema,
   unmarshalCredentialsSchema,
-  unmarshalDeleteCredential_ResponseSchema,
-  unmarshalDeleteStorageCredential_ResponseSchema,
-  unmarshalGenerateTemporaryPathCredential_ResponseSchema,
-  unmarshalGenerateTemporaryTableCredential_ResponseSchema,
-  unmarshalGenerateTemporaryVolumeCredential_ResponseSchema,
-  unmarshalListCredentials_ResponseSchema,
-  unmarshalListStorageCredentials_ResponseSchema,
+  unmarshalDeleteCredentialRequest_ResponseSchema,
+  unmarshalDeleteStorageCredentialRequest_ResponseSchema,
+  unmarshalGenerateTemporaryPathCredentialRequest_ResponseSchema,
+  unmarshalGenerateTemporaryTableCredentialRequest_ResponseSchema,
+  unmarshalGenerateTemporaryVolumeCredentialRequest_ResponseSchema,
+  unmarshalListCredentialsRequest_ResponseSchema,
+  unmarshalListStorageCredentialsRequest_ResponseSchema,
   unmarshalStorageCredentialInfoSchema,
   unmarshalTemporaryCredentialsSchema,
-  unmarshalValidateCredential_ResponseSchema,
-  unmarshalValidateStorageCredential_ResponseSchema,
+  unmarshalValidateCredentialRequest_ResponseSchema,
+  unmarshalValidateStorageCredentialRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -141,15 +141,15 @@ export class Client {
    * The caller must be a metastore admin and have the `CREATE_STORAGE_CREDENTIAL` privilege on the metastore.
    */
   async createAccountsStorageCredential(
-    req: AccountsCreateStorageCredentialPublic,
+    req: AccountsCreateStorageCredentialPublicRequest,
     options?: CallOptions
-  ): Promise<AccountsCreateStorageCredentialPublic_Response> {
+  ): Promise<AccountsCreateStorageCredentialPublicRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials`;
     const body = marshalRequest(
       req,
-      marshalAccountsCreateStorageCredentialPublicSchema
+      marshalAccountsCreateStorageCredentialPublicRequestSchema
     );
-    let resp: AccountsCreateStorageCredentialPublic_Response | undefined;
+    let resp: AccountsCreateStorageCredentialPublicRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -161,7 +161,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsCreateStorageCredentialPublic_ResponseSchema
+        unmarshalAccountsCreateStorageCredentialPublicRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -173,9 +173,9 @@ export class Client {
 
   /** Deletes a storage credential from the metastore. The caller must be an owner of the storage credential. */
   async deleteAccountsStorageCredential(
-    req: AccountsDeleteStorageCredentialPublic,
+    req: AccountsDeleteStorageCredentialPublicRequest,
     options?: CallOptions
-  ): Promise<AccountsDeleteStorageCredentialPublic_Response> {
+  ): Promise<AccountsDeleteStorageCredentialPublicRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -183,7 +183,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: AccountsDeleteStorageCredentialPublic_Response | undefined;
+    let resp: AccountsDeleteStorageCredentialPublicRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -195,7 +195,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsDeleteStorageCredentialPublic_ResponseSchema
+        unmarshalAccountsDeleteStorageCredentialPublicRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -210,11 +210,11 @@ export class Client {
    * storage credential, or have a level of privilege on the storage credential.
    */
   async getAccountsStorageCredential(
-    req: AccountsGetStorageCredentialPublic,
+    req: AccountsGetStorageCredentialPublicRequest,
     options?: CallOptions
-  ): Promise<AccountsGetStorageCredentialPublic_Response> {
+  ): Promise<AccountsGetStorageCredentialPublicRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
-    let resp: AccountsGetStorageCredentialPublic_Response | undefined;
+    let resp: AccountsGetStorageCredentialPublicRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -226,7 +226,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsGetStorageCredentialPublic_ResponseSchema
+        unmarshalAccountsGetStorageCredentialPublicRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -238,11 +238,11 @@ export class Client {
 
   /** Gets a list of all storage credentials that have been assigned to given metastore. */
   async listAccountsStorageCredentials(
-    req: AccountsListStorageCredentialsPublic,
+    req: AccountsListStorageCredentialsPublicRequest,
     options?: CallOptions
-  ): Promise<AccountsListStorageCredentialsPublic_Response> {
+  ): Promise<AccountsListStorageCredentialsPublicRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials`;
-    let resp: AccountsListStorageCredentialsPublic_Response | undefined;
+    let resp: AccountsListStorageCredentialsPublicRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -254,7 +254,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsListStorageCredentialsPublic_ResponseSchema
+        unmarshalAccountsListStorageCredentialsPublicRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -269,15 +269,15 @@ export class Client {
    * If the caller is a metastore admin, only the **owner** credential can be changed.
    */
   async updateAccountsStorageCredential(
-    req: AccountsUpdateStorageCredentialPublic,
+    req: AccountsUpdateStorageCredentialPublicRequest,
     options?: CallOptions
-  ): Promise<AccountsUpdateStorageCredentialPublic_Response> {
+  ): Promise<AccountsUpdateStorageCredentialPublicRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
     const body = marshalRequest(
       req,
-      marshalAccountsUpdateStorageCredentialPublicSchema
+      marshalAccountsUpdateStorageCredentialPublicRequestSchema
     );
-    let resp: AccountsUpdateStorageCredentialPublic_Response | undefined;
+    let resp: AccountsUpdateStorageCredentialPublicRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -289,7 +289,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsUpdateStorageCredentialPublic_ResponseSchema
+        unmarshalAccountsUpdateStorageCredentialPublicRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -307,11 +307,11 @@ export class Client {
    * credentials, or **CREATE_SERVICE_CREDENTIAL** for service credentials.
    */
   async createCredential(
-    req: CreateCredential,
+    req: CreateCredentialRequest,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/credentials`;
-    const body = marshalRequest(req, marshalCreateCredentialSchema);
+    const body = marshalRequest(req, marshalCreateCredentialRequestSchema);
     let resp: StorageCredentialInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -337,11 +337,14 @@ export class Client {
    * The caller must be a metastore admin or have the **CREATE_STORAGE_CREDENTIAL** privilege on the metastore.
    */
   async createStorageCredential(
-    req: CreateStorageCredential,
+    req: CreateStorageCredentialRequest,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/storage-credentials`;
-    const body = marshalRequest(req, marshalCreateStorageCredentialSchema);
+    const body = marshalRequest(
+      req,
+      marshalCreateStorageCredentialRequestSchema
+    );
     let resp: StorageCredentialInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -363,9 +366,9 @@ export class Client {
 
   /** Deletes a service or storage credential from the metastore. The caller must be an owner of the credential. */
   async deleteCredential(
-    req: DeleteCredential,
+    req: DeleteCredentialRequest,
     options?: CallOptions
-  ): Promise<DeleteCredential_Response> {
+  ): Promise<DeleteCredentialRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/credentials/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -373,38 +376,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: DeleteCredential_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalDeleteCredential_ResponseSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  /** Deletes a storage credential from the metastore. The caller must be an owner of the storage credential. */
-  async deleteStorageCredential(
-    req: DeleteStorageCredential,
-    options?: CallOptions
-  ): Promise<DeleteStorageCredential_Response> {
-    const url = `${this.host}/api/2.1/unity-catalog/storage-credentials/${req.nameArg ?? ''}`;
-    const params = new URLSearchParams();
-    if (req.force !== undefined) {
-      params.append('force', String(req.force));
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: DeleteStorageCredential_Response | undefined;
+    let resp: DeleteCredentialRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -416,7 +388,41 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeleteStorageCredential_ResponseSchema
+        unmarshalDeleteCredentialRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Deletes a storage credential from the metastore. The caller must be an owner of the storage credential. */
+  async deleteStorageCredential(
+    req: DeleteStorageCredentialRequest,
+    options?: CallOptions
+  ): Promise<DeleteStorageCredentialRequest_Response> {
+    const url = `${this.host}/api/2.1/unity-catalog/storage-credentials/${req.nameArg ?? ''}`;
+    const params = new URLSearchParams();
+    if (req.force !== undefined) {
+      params.append('force', String(req.force));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: DeleteStorageCredentialRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalDeleteStorageCredentialRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -437,15 +443,15 @@ export class Client {
    * this privilege can only be granted by catalog owners.
    */
   async generateTemporaryPathCredential(
-    req: GenerateTemporaryPathCredential,
+    req: GenerateTemporaryPathCredentialRequest,
     options?: CallOptions
-  ): Promise<GenerateTemporaryPathCredential_Response> {
+  ): Promise<GenerateTemporaryPathCredentialRequest_Response> {
     const url = `${this.host}/api/2.0/unity-catalog/temporary-path-credentials`;
     const body = marshalRequest(
       req,
-      marshalGenerateTemporaryPathCredentialSchema
+      marshalGenerateTemporaryPathCredentialRequestSchema
     );
-    let resp: GenerateTemporaryPathCredential_Response | undefined;
+    let resp: GenerateTemporaryPathCredentialRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -457,7 +463,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGenerateTemporaryPathCredential_ResponseSchema
+        unmarshalGenerateTemporaryPathCredentialRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -472,13 +478,13 @@ export class Client {
    * The caller must be a metastore admin or have the metastore privilege **ACCESS** on the service credential.
    */
   async generateTemporaryServiceCredential(
-    req: GenerateTemporaryServiceCredential,
+    req: GenerateTemporaryServiceCredentialRequest,
     options?: CallOptions
   ): Promise<TemporaryCredentials> {
     const url = `${this.host}/api/2.1/unity-catalog/temporary-service-credentials`;
     const body = marshalRequest(
       req,
-      marshalGenerateTemporaryServiceCredentialSchema
+      marshalGenerateTemporaryServiceCredentialRequestSchema
     );
     let resp: TemporaryCredentials | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -506,15 +512,15 @@ export class Client {
    * by catalog owners.
    */
   async generateTemporaryTableCredential(
-    req: GenerateTemporaryTableCredential,
+    req: GenerateTemporaryTableCredentialRequest,
     options?: CallOptions
-  ): Promise<GenerateTemporaryTableCredential_Response> {
+  ): Promise<GenerateTemporaryTableCredentialRequest_Response> {
     const url = `${this.host}/api/2.0/unity-catalog/temporary-table-credentials`;
     const body = marshalRequest(
       req,
-      marshalGenerateTemporaryTableCredentialSchema
+      marshalGenerateTemporaryTableCredentialRequestSchema
     );
-    let resp: GenerateTemporaryTableCredential_Response | undefined;
+    let resp: GenerateTemporaryTableCredentialRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -526,7 +532,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGenerateTemporaryTableCredential_ResponseSchema
+        unmarshalGenerateTemporaryTableCredentialRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -543,15 +549,15 @@ export class Client {
    * by catalog owners.
    */
   async generateTemporaryVolumeCredential(
-    req: GenerateTemporaryVolumeCredential,
+    req: GenerateTemporaryVolumeCredentialRequest,
     options?: CallOptions
-  ): Promise<GenerateTemporaryVolumeCredential_Response> {
+  ): Promise<GenerateTemporaryVolumeCredentialRequest_Response> {
     const url = `${this.host}/api/2.0/unity-catalog/temporary-volume-credentials`;
     const body = marshalRequest(
       req,
-      marshalGenerateTemporaryVolumeCredentialSchema
+      marshalGenerateTemporaryVolumeCredentialRequestSchema
     );
-    let resp: GenerateTemporaryVolumeCredential_Response | undefined;
+    let resp: GenerateTemporaryVolumeCredentialRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -563,7 +569,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGenerateTemporaryVolumeCredential_ResponseSchema
+        unmarshalGenerateTemporaryVolumeCredentialRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -578,7 +584,7 @@ export class Client {
    * The caller must be a metastore admin, the owner of the credential, or have any permission on the credential.
    */
   async getCredential(
-    req: GetCredential,
+    req: GetCredentialRequest,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/credentials/${req.nameArg ?? ''}`;
@@ -606,7 +612,7 @@ export class Client {
    * The caller must be a metastore admin, the owner of the storage credential, or have some permission on the storage credential.
    */
   async getStorageCredential(
-    req: GetStorageCredential,
+    req: GetStorageCredentialRequest,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/storage-credentials/${req.nameArg ?? ''}`;
@@ -640,9 +646,9 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listCredentials(
-    req: ListCredentials,
+    req: ListCredentialsRequest,
     options?: CallOptions
-  ): Promise<ListCredentials_Response> {
+  ): Promise<ListCredentialsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/credentials`;
     const params = new URLSearchParams();
     if (req.includeUnbound !== undefined) {
@@ -656,7 +662,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListCredentials_Response | undefined;
+    let resp: ListCredentialsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -666,7 +672,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListCredentials_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalListCredentialsRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -676,10 +685,10 @@ export class Client {
   }
 
   async *listCredentialsIter(
-    req: ListCredentials,
+    req: ListCredentialsRequest,
     options?: CallOptions
   ): AsyncGenerator<CredentialInfo> {
-    const pageReq: ListCredentials = {...req};
+    const pageReq: ListCredentialsRequest = {...req};
     for (;;) {
       const resp = await this.listCredentials(pageReq, options);
       for (const item of resp.credentials ?? []) {
@@ -704,9 +713,9 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listStorageCredentials(
-    req: ListStorageCredentials,
+    req: ListStorageCredentialsRequest,
     options?: CallOptions
-  ): Promise<ListStorageCredentials_Response> {
+  ): Promise<ListStorageCredentialsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/storage-credentials`;
     const params = new URLSearchParams();
     if (req.includeUnbound !== undefined) {
@@ -720,7 +729,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListStorageCredentials_Response | undefined;
+    let resp: ListStorageCredentialsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -732,7 +741,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListStorageCredentials_ResponseSchema
+        unmarshalListStorageCredentialsRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -743,10 +752,10 @@ export class Client {
   }
 
   async *listStorageCredentialsIter(
-    req: ListStorageCredentials,
+    req: ListStorageCredentialsRequest,
     options?: CallOptions
   ): AsyncGenerator<StorageCredentialInfo> {
-    const pageReq: ListStorageCredentials = {...req};
+    const pageReq: ListStorageCredentialsRequest = {...req};
     for (;;) {
       const resp = await this.listStorageCredentials(pageReq, options);
       for (const item of resp.storageCredentials ?? []) {
@@ -766,11 +775,11 @@ export class Client {
    * a metastore admin, only the __owner__ field can be changed.
    */
   async updateCredential(
-    req: UpdateCredential,
+    req: UpdateCredentialRequest,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/credentials/${req.nameArg ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateCredentialSchema);
+    const body = marshalRequest(req, marshalUpdateCredentialRequestSchema);
     let resp: StorageCredentialInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -797,11 +806,14 @@ export class Client {
    * If the caller is a metastore admin, only the **owner** field can be changed.
    */
   async updateStorageCredential(
-    req: UpdateStorageCredential,
+    req: UpdateStorageCredentialRequest,
     options?: CallOptions
   ): Promise<StorageCredentialInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/storage-credentials/${req.nameArg ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateStorageCredentialSchema);
+    const body = marshalRequest(
+      req,
+      marshalUpdateStorageCredentialRequestSchema
+    );
     let resp: StorageCredentialInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -836,12 +848,12 @@ export class Client {
    * the credential (e.g., **CREATE_EXTERNAL_LOCATION** when purpose is **STORAGE**).
    */
   async validateCredential(
-    req: ValidateCredential,
+    req: ValidateCredentialRequest,
     options?: CallOptions
-  ): Promise<ValidateCredential_Response> {
+  ): Promise<ValidateCredentialRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/validate-credentials`;
-    const body = marshalRequest(req, marshalValidateCredentialSchema);
-    let resp: ValidateCredential_Response | undefined;
+    const body = marshalRequest(req, marshalValidateCredentialRequestSchema);
+    let resp: ValidateCredentialRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -853,7 +865,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalValidateCredential_ResponseSchema
+        unmarshalValidateCredentialRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -875,12 +887,15 @@ export class Client {
    * have the **CREATE_EXTERNAL_LOCATION** privilege on the metastore and the storage credential.
    */
   async validateStorageCredential(
-    req: ValidateStorageCredential,
+    req: ValidateStorageCredentialRequest,
     options?: CallOptions
-  ): Promise<ValidateStorageCredential_Response> {
+  ): Promise<ValidateStorageCredentialRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/validate-storage-credentials`;
-    const body = marshalRequest(req, marshalValidateStorageCredentialSchema);
-    let resp: ValidateStorageCredential_Response | undefined;
+    const body = marshalRequest(
+      req,
+      marshalValidateStorageCredentialRequestSchema
+    );
+    let resp: ValidateStorageCredentialRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -892,7 +907,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalValidateStorageCredential_ResponseSchema
+        unmarshalValidateStorageCredentialRequest_ResponseSchema
       );
     };
     await executeCall(call, options);

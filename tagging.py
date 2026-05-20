@@ -475,7 +475,7 @@ def get_next_tag_info(package: Package) -> Optional[TagInfo]:
 
     # By default, packages whose NEXT_CHANGELOG.md has no populated
     # sections are skipped — there's nothing meaningful to release.
-    # Repos like sdk-js which are still in development can opt in 
+    # Repos like sdk-js which are still in development can opt in
     # by setting ``allow_empty_changelog: true`` in .codegen.json.
     if not re.search(r"###", next_changelog) and not _load_codegen_config().get("allow_empty_changelog", False):
         print("All sections are empty. No changes will be made to the changelog.")
@@ -725,19 +725,8 @@ def generate_commit_message(tag_infos: List[TagInfo]) -> str:
             raise Exception("Multiple packages found in legacy mode")
         return f"[Release] Release v{info.version}\n\n{info.content}"
 
-    # Sort tag_infos by package name for consistency
+    # Sort tag_infos by package name for consistency.
     tag_infos.sort(key=lambda info: info.package.name)
-
-    # Single-package release: use the tag name as the commit title so
-    # the package and version appear in ``git log --oneline`` and
-    # GitHub's commit list, matching the style used by the legacy
-    # branch above (``[Release] Release v0.126.0``).
-    if len(tag_infos) == 1:
-        info = tag_infos[0]
-        return f"[Release] {info.package.name}/v{info.version}\n\n{info.content}"
-
-    # Multi-package release: list every tag in the title and include a
-    # per-package section in the body.
     titles = ", ".join(f"{info.package.name}/v{info.version}" for info in tag_infos)
     body = "\n\n".join(f"## {info.package.name}/v{info.version}\n\n{info.content}" for info in tag_infos)
     return f"[Release] {titles}\n\n{body}"

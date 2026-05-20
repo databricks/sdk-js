@@ -121,7 +121,7 @@ export interface CatalogInfo_PropertiesEntry {
   value?: string | undefined;
 }
 
-export interface CreateCatalog {
+export interface CreateCatalogRequest {
   /** Name of catalog. */
   name?: string | undefined;
   /** Username of current owner of catalog. */
@@ -175,18 +175,18 @@ export interface CreateCatalog {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateCatalog_OptionsEntry {
+export interface CreateCatalogRequest_OptionsEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateCatalog_PropertiesEntry {
+export interface CreateCatalogRequest_PropertiesEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
-export interface DeleteCatalog {
+export interface DeleteCatalogRequest {
   /** The name of the catalog. */
   nameArg?: string | undefined;
   /** Force deletion even if the catalog is not empty. */
@@ -194,7 +194,7 @@ export interface DeleteCatalog {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteCatalog_Response {}
+export interface DeleteCatalogRequest_Response {}
 
 export interface EffectivePredictiveOptimizationFlag {
   /** Whether predictive optimization should be enabled for this object and objects under it. */
@@ -218,14 +218,14 @@ export interface EncryptionSettings {
   azureEncryptionSettings?: AzureEncryptionSettings | undefined;
 }
 
-export interface GetCatalog {
+export interface GetCatalogRequest {
   /** The name of the catalog. */
   nameArg?: string | undefined;
   /** Whether to include catalogs in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
 }
 
-export interface ListCatalogs {
+export interface ListCatalogsRequest {
   /** Whether to include catalogs in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
   /**
@@ -248,7 +248,7 @@ export interface ListCatalogs {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListCatalogs_Response {
+export interface ListCatalogsRequest_Response {
   /** An array of catalog information objects. */
   catalogs?: CatalogInfo[] | undefined;
   /**
@@ -264,7 +264,7 @@ export interface ProvisioningInfo {
   state?: ProvisioningInfo_State | undefined;
 }
 
-export interface UpdateCatalog {
+export interface UpdateCatalogRequest {
   /** The name of the catalog. */
   nameArg?: string | undefined;
   /** New name for the catalog. */
@@ -322,13 +322,13 @@ export interface UpdateCatalog {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateCatalog_OptionsEntry {
+export interface UpdateCatalogRequest_OptionsEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateCatalog_PropertiesEntry {
+export interface UpdateCatalogRequest_PropertiesEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
@@ -406,7 +406,7 @@ export const unmarshalCatalogInfoSchema: z.ZodType<CatalogInfo> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteCatalog_ResponseSchema: z.ZodType<DeleteCatalog_Response> =
+export const unmarshalDeleteCatalogRequest_ResponseSchema: z.ZodType<DeleteCatalogRequest_Response> =
   z.object({});
 
 export const unmarshalEffectivePredictiveOptimizationFlagSchema: z.ZodType<EffectivePredictiveOptimizationFlag> =
@@ -438,7 +438,7 @@ export const unmarshalEncryptionSettingsSchema: z.ZodType<EncryptionSettings> =
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListCatalogs_ResponseSchema: z.ZodType<ListCatalogs_Response> =
+export const unmarshalListCatalogsRequest_ResponseSchema: z.ZodType<ListCatalogsRequest_Response> =
   z
     .object({
       catalogs: z.array(z.lazy(() => unmarshalCatalogInfoSchema)).optional(),
@@ -469,7 +469,7 @@ export const marshalAzureEncryptionSettingsSchema: z.ZodType = z
     azure_cmk_managed_identity_id: d.azureCmkManagedIdentityId,
   }));
 
-export const marshalCreateCatalogSchema: z.ZodType = z
+export const marshalCreateCatalogRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     owner: z.string().optional(),
@@ -562,7 +562,7 @@ export const marshalProvisioningInfoSchema: z.ZodType = z
     state: d.state,
   }));
 
-export const marshalUpdateCatalogSchema: z.ZodType = z
+export const marshalUpdateCatalogRequestSchema: z.ZodType = z
   .object({
     nameArg: z.string().optional(),
     newName: z.string().optional(),

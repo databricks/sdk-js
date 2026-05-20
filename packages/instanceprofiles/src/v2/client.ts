@@ -18,23 +18,23 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  AddInstanceProfile,
-  AddInstanceProfile_Response,
-  EditInstanceProfile,
-  EditInstanceProfile_Response,
-  ListInstanceProfiles,
-  ListInstanceProfiles_Response,
-  RemoveInstanceProfile,
-  RemoveInstanceProfile_Response,
+  AddInstanceProfileRequest,
+  AddInstanceProfileRequest_Response,
+  EditInstanceProfileRequest,
+  EditInstanceProfileRequest_Response,
+  ListInstanceProfilesRequest,
+  ListInstanceProfilesRequest_Response,
+  RemoveInstanceProfileRequest,
+  RemoveInstanceProfileRequest_Response,
 } from './model';
 import {
-  marshalAddInstanceProfileSchema,
-  marshalEditInstanceProfileSchema,
-  marshalRemoveInstanceProfileSchema,
-  unmarshalAddInstanceProfile_ResponseSchema,
-  unmarshalEditInstanceProfile_ResponseSchema,
-  unmarshalListInstanceProfiles_ResponseSchema,
-  unmarshalRemoveInstanceProfile_ResponseSchema,
+  marshalAddInstanceProfileRequestSchema,
+  marshalEditInstanceProfileRequestSchema,
+  marshalRemoveInstanceProfileRequestSchema,
+  unmarshalAddInstanceProfileRequest_ResponseSchema,
+  unmarshalEditInstanceProfileRequest_ResponseSchema,
+  unmarshalListInstanceProfilesRequest_ResponseSchema,
+  unmarshalRemoveInstanceProfileRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -75,12 +75,12 @@ export class Client {
    * This API is only available to admin users.
    */
   async addInstanceProfile(
-    req: AddInstanceProfile,
+    req: AddInstanceProfileRequest,
     options?: CallOptions
-  ): Promise<AddInstanceProfile_Response> {
+  ): Promise<AddInstanceProfileRequest_Response> {
     const url = `${this.host}/api/2.0/instance-profiles/add`;
-    const body = marshalRequest(req, marshalAddInstanceProfileSchema);
-    let resp: AddInstanceProfile_Response | undefined;
+    const body = marshalRequest(req, marshalAddInstanceProfileRequestSchema);
+    let resp: AddInstanceProfileRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -92,7 +92,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAddInstanceProfile_ResponseSchema
+        unmarshalAddInstanceProfileRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -117,12 +117,12 @@ export class Client {
    * This API is only available to admin users.
    */
   async editInstanceProfile(
-    req: EditInstanceProfile,
+    req: EditInstanceProfileRequest,
     options?: CallOptions
-  ): Promise<EditInstanceProfile_Response> {
+  ): Promise<EditInstanceProfileRequest_Response> {
     const url = `${this.host}/api/2.0/instance-profiles/edit`;
-    const body = marshalRequest(req, marshalEditInstanceProfileSchema);
-    let resp: EditInstanceProfile_Response | undefined;
+    const body = marshalRequest(req, marshalEditInstanceProfileRequestSchema);
+    let resp: EditInstanceProfileRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -134,7 +134,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalEditInstanceProfile_ResponseSchema
+        unmarshalEditInstanceProfileRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -150,11 +150,11 @@ export class Client {
    * This API is available to all users.
    */
   async listInstanceProfiles(
-    _req: ListInstanceProfiles,
+    _req: ListInstanceProfilesRequest,
     options?: CallOptions
-  ): Promise<ListInstanceProfiles_Response> {
+  ): Promise<ListInstanceProfilesRequest_Response> {
     const url = `${this.host}/api/2.0/instance-profiles/list`;
-    let resp: ListInstanceProfiles_Response | undefined;
+    let resp: ListInstanceProfilesRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -166,7 +166,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListInstanceProfiles_ResponseSchema
+        unmarshalListInstanceProfilesRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -183,12 +183,12 @@ export class Client {
    * This API is only accessible to admin users.
    */
   async removeInstanceProfile(
-    req: RemoveInstanceProfile,
+    req: RemoveInstanceProfileRequest,
     options?: CallOptions
-  ): Promise<RemoveInstanceProfile_Response> {
+  ): Promise<RemoveInstanceProfileRequest_Response> {
     const url = `${this.host}/api/2.0/instance-profiles/remove`;
-    const body = marshalRequest(req, marshalRemoveInstanceProfileSchema);
-    let resp: RemoveInstanceProfile_Response | undefined;
+    const body = marshalRequest(req, marshalRemoveInstanceProfileRequestSchema);
+    let resp: RemoveInstanceProfileRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -200,7 +200,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalRemoveInstanceProfile_ResponseSchema
+        unmarshalRemoveInstanceProfileRequest_ResponseSchema
       );
     };
     await executeCall(call, options);

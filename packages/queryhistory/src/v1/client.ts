@@ -17,10 +17,10 @@ import {
   flattenQueryParams,
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
-import type {ListQueries, ListQueries_Response} from './model';
+import type {ListQueriesRequest, ListQueriesRequest_Response} from './model';
 import {
   marshalQueryFilterSchema,
-  unmarshalListQueries_ResponseSchema,
+  unmarshalListQueriesRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -62,9 +62,9 @@ export class Client {
    * The pagination token returned in response can be used to list subsequent query statuses.
    */
   async listQueries(
-    req: ListQueries,
+    req: ListQueriesRequest,
     options?: CallOptions
-  ): Promise<ListQueries_Response> {
+  ): Promise<ListQueriesRequest_Response> {
     const url = `${this.host}/api/2.0/sql/history/queries`;
     const params = new URLSearchParams();
     if (req.filterBy !== undefined) {
@@ -85,7 +85,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListQueries_Response | undefined;
+    let resp: ListQueriesRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -95,7 +95,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListQueries_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalListQueriesRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {

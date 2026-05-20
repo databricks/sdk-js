@@ -55,7 +55,7 @@ export enum ObjectType {
   DASHBOARD = 'DASHBOARD',
 }
 
-export interface Delete {
+export interface DeleteRequest {
   /** The absolute path of the notebook or directory. */
   path?: string | undefined;
   /**
@@ -67,9 +67,9 @@ export interface Delete {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface Delete_Response {}
+export interface DeleteRequest_Response {}
 
-export interface Export {
+export interface ExportRequest {
   /** The absolute path of the object or directory. Exporting a directory is only supported for the `DBC`, `SOURCE`, and `AUTO` format. */
   path?: string | undefined;
   /**
@@ -94,7 +94,7 @@ export interface Export {
 
 /** The request field `direct_download` determines whether a JSON response or binary contents are returned by this endpoint. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface Export_Response {
+export interface ExportRequest_Response {
   /**
    * The base64-encoded content.
    * If the limit (10MB) is exceeded, exception with error code **MAX_NOTEBOOK_SIZE_EXCEEDED** is thrown.
@@ -104,12 +104,12 @@ export interface Export_Response {
   fileType?: string | undefined;
 }
 
-export interface GetStatus {
+export interface GetStatusRequest {
   /** The absolute path of the notebook or directory. */
   path?: string | undefined;
 }
 
-export interface Import {
+export interface ImportRequest {
   /** The absolute path of the object or directory. Importing a directory is only supported for the `DBC` and `SOURCE` formats. */
   path?: string | undefined;
   /**
@@ -144,9 +144,9 @@ export interface Import {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface Import_Response {}
+export interface ImportRequest_Response {}
 
-export interface List {
+export interface ListRequest {
   /** The absolute path of the notebook or directory. */
   path?: string | undefined;
   /** UTC timestamp in milliseconds */
@@ -154,12 +154,12 @@ export interface List {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface List_Response {
+export interface ListRequest_Response {
   /** List of objects. */
   objects?: ObjectInfo[] | undefined;
 }
 
-export interface Mkdirs {
+export interface MkdirsRequest {
   /**
    * The absolute path of the directory. If the parent directories do not exist, it will also create them.
    * If the directory already exists, this command will do nothing and succeed.
@@ -168,7 +168,7 @@ export interface Mkdirs {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface Mkdirs_Response {}
+export interface MkdirsRequest_Response {}
 
 /** The information of the object in workspace. It will be returned by ``list`` and ``get-status``. */
 export interface ObjectInfo {
@@ -200,38 +200,40 @@ export interface ObjectInfo {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDelete_ResponseSchema: z.ZodType<Delete_Response> =
+export const unmarshalDeleteRequest_ResponseSchema: z.ZodType<DeleteRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalExport_ResponseSchema: z.ZodType<Export_Response> = z
-  .object({
-    content: z
-      .string()
-      .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
-      .optional(),
-    file_type: z.string().optional(),
-  })
-  .transform(d => ({
-    content: d.content,
-    fileType: d.file_type,
-  }));
+export const unmarshalExportRequest_ResponseSchema: z.ZodType<ExportRequest_Response> =
+  z
+    .object({
+      content: z
+        .string()
+        .transform(s => Uint8Array.from(atob(s), c => c.charCodeAt(0)))
+        .optional(),
+      file_type: z.string().optional(),
+    })
+    .transform(d => ({
+      content: d.content,
+      fileType: d.file_type,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalImport_ResponseSchema: z.ZodType<Import_Response> =
+export const unmarshalImportRequest_ResponseSchema: z.ZodType<ImportRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalList_ResponseSchema: z.ZodType<List_Response> = z
-  .object({
-    objects: z.array(z.lazy(() => unmarshalObjectInfoSchema)).optional(),
-  })
-  .transform(d => ({
-    objects: d.objects,
-  }));
+export const unmarshalListRequest_ResponseSchema: z.ZodType<ListRequest_Response> =
+  z
+    .object({
+      objects: z.array(z.lazy(() => unmarshalObjectInfoSchema)).optional(),
+    })
+    .transform(d => ({
+      objects: d.objects,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalMkdirs_ResponseSchema: z.ZodType<Mkdirs_Response> =
+export const unmarshalMkdirsRequest_ResponseSchema: z.ZodType<MkdirsRequest_Response> =
   z.object({});
 
 export const unmarshalObjectInfoSchema: z.ZodType<ObjectInfo> = z
@@ -256,7 +258,7 @@ export const unmarshalObjectInfoSchema: z.ZodType<ObjectInfo> = z
     resourceId: d.resource_id,
   }));
 
-export const marshalDeleteSchema: z.ZodType = z
+export const marshalDeleteRequestSchema: z.ZodType = z
   .object({
     path: z.string().optional(),
     recursive: z.boolean().optional(),
@@ -266,7 +268,7 @@ export const marshalDeleteSchema: z.ZodType = z
     recursive: d.recursive,
   }));
 
-export const marshalImportSchema: z.ZodType = z
+export const marshalImportRequestSchema: z.ZodType = z
   .object({
     path: z.string().optional(),
     format: z.enum(ExportFormat).optional(),
@@ -287,7 +289,7 @@ export const marshalImportSchema: z.ZodType = z
     overwrite: d.overwrite,
   }));
 
-export const marshalMkdirsSchema: z.ZodType = z
+export const marshalMkdirsRequestSchema: z.ZodType = z
   .object({
     path: z.string().optional(),
   })

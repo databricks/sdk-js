@@ -7,12 +7,12 @@ export {} from './model';
 export type {
   EffectivePrivilege,
   EffectivePrivilegeAssignment,
-  GetEffectivePermissions,
-  GetEffectivePermissions_Response,
-  GetPermissions,
-  GetPermissions_Response,
+  GetEffectivePermissionsRequest,
+  GetEffectivePermissionsRequest_Response,
+  GetPermissionsRequest,
+  GetPermissionsRequest_Response,
   PermissionsChange,
   PrivilegeAssignment,
-  UpdatePermissions,
-  UpdatePermissions_Response,
+  UpdatePermissionsRequest,
+  UpdatePermissionsRequest_Response,
 } from './model';

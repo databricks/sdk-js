@@ -105,6 +105,11 @@ export interface AuthConfig {
         /** Name of the Unity Catalog service credential. This value will be set under the option databricks.serviceCredential */
         ucServiceCredentialName: string;
       }
+    | {
+        $case: 'mtlsConfig';
+        /** Mutual-TLS authentication. See MtlsConfig. */
+        mtlsConfig: MtlsConfig;
+      }
     | undefined;
 }
 
@@ -562,6 +567,55 @@ export interface MinFunction {
   input?: string | undefined;
 }
 
+/**
+ * Mutual-TLS (mTLS) authentication configuration. The keystore (client certificate +
+ * private key) and truststore (CAs trusted to verify the broker) live as JKS files on
+ * Unity Catalog volumes, with their passwords stored in <Databricks> secret scopes. This
+ * matches the SSL setup pattern documented at
+ * https://docs.databricks.com/en/connect/streaming/kafka/authentication#use-ssl-to-connect-databricks-to-kafka.
+ *
+ * At materialization time, the generated PySpark code passes the JKS file paths and
+ * resolved passwords through to the Kafka SSL options (kafka.ssl.keystore.location,
+ * kafka.ssl.keystore.password, kafka.ssl.key.password, kafka.ssl.truststore.location,
+ * kafka.ssl.truststore.password). Passwords are resolved on the Spark cluster via
+ * dbutils.secrets.get; this message stores only references, never password values.
+ */
+export interface MtlsConfig {
+  /**
+   * Unity Catalog volume path to the JKS keystore file containing the client certificate
+   * and private key. e.g. "/Volumes/<catalog>/<schema>/<volume>/client.jks". The
+   * materialization compute must have read permission on this volume.
+   */
+  keystoreLocation?: string | undefined;
+  /** Secret-scope reference for the JKS keystore password. */
+  keystorePasswordRef?: SecretScopeReference | undefined;
+  /**
+   * Secret-scope reference for the private key password. Often the same value as the
+   * keystore password (keytool's default), but provided as a separate field because
+   * Apache Kafka requires it as a distinct option (kafka.ssl.key.password).
+   */
+  keyPasswordRef?: SecretScopeReference | undefined;
+  /**
+   * Unity Catalog volume path to the JKS truststore file containing the CA certificate(s)
+   * trusted to verify the Kafka broker's server certificate.
+   * e.g. "/Volumes/<catalog>/<schema>/<volume>/truststore.jks".
+   */
+  truststoreLocation?: string | undefined;
+  /** Secret-scope reference for the JKS truststore password. */
+  truststorePasswordRef?: SecretScopeReference | undefined;
+  /**
+   * Set to true only when the broker certificate's SAN intentionally does not match
+   * the connection endpoint — for example when reaching the cluster through a
+   * PrivateLink endpoint whose DNS name is not in the broker certificate. Skipping
+   * the hostname check removes a defense against man-in-the-middle attacks; do not
+   * enable casually. mTLS client authentication is unaffected by this option.
+   *
+   * See the Apache Kafka SSL security guide for background on this check:
+   * https://kafka.apache.org/42/security/encryption-and-authentication-using-ssl/#host-name-verification
+   */
+  disableHostnameVerification?: boolean | undefined;
+}
+
 /** Configuration for offline store destination. */
 export interface OfflineStoreConfig {
   /** The Unity Catalog catalog name. */
@@ -631,6 +685,17 @@ export interface SchemaConfig {
         jsonSchema: string;
       }
     | undefined;
+}
+
+/**
+ * Reference to an entry in a <Databricks> secret scope. The referenced value is fetched
+ * on the Spark cluster at materialization time via dbutils.secrets.get(scope, key).
+ */
+export interface SecretScopeReference {
+  /** The <Databricks> secret scope name. */
+  scope?: string | undefined;
+  /** The key within the scope. */
+  key?: string | undefined;
 }
 
 export interface SlidingWindow {
@@ -851,6 +916,7 @@ export const unmarshalApproxPercentileFunctionSchema: z.ZodType<ApproxPercentile
 export const unmarshalAuthConfigSchema: z.ZodType<AuthConfig> = z
   .object({
     uc_service_credential_name: z.string().optional(),
+    mtls_config: z.lazy(() => unmarshalMtlsConfigSchema).optional(),
   })
   .transform(d => ({
     authConfig:
@@ -859,7 +925,9 @@ export const unmarshalAuthConfigSchema: z.ZodType<AuthConfig> = z
             $case: 'ucServiceCredentialName' as const,
             ucServiceCredentialName: d.uc_service_credential_name,
           }
-        : undefined,
+        : d.mtls_config !== undefined
+          ? {$case: 'mtlsConfig' as const, mtlsConfig: d.mtls_config}
+          : undefined,
   }));
 
 export const unmarshalAvgFunctionSchema: z.ZodType<AvgFunction> = z
@@ -1261,6 +1329,30 @@ export const unmarshalMinFunctionSchema: z.ZodType<MinFunction> = z
     input: d.input,
   }));
 
+export const unmarshalMtlsConfigSchema: z.ZodType<MtlsConfig> = z
+  .object({
+    keystore_location: z.string().optional(),
+    keystore_password_ref: z
+      .lazy(() => unmarshalSecretScopeReferenceSchema)
+      .optional(),
+    key_password_ref: z
+      .lazy(() => unmarshalSecretScopeReferenceSchema)
+      .optional(),
+    truststore_location: z.string().optional(),
+    truststore_password_ref: z
+      .lazy(() => unmarshalSecretScopeReferenceSchema)
+      .optional(),
+    disable_hostname_verification: z.boolean().optional(),
+  })
+  .transform(d => ({
+    keystoreLocation: d.keystore_location,
+    keystorePasswordRef: d.keystore_password_ref,
+    keyPasswordRef: d.key_password_ref,
+    truststoreLocation: d.truststore_location,
+    truststorePasswordRef: d.truststore_password_ref,
+    disableHostnameVerification: d.disable_hostname_verification,
+  }));
+
 export const unmarshalOfflineStoreConfigSchema: z.ZodType<OfflineStoreConfig> =
   z
     .object({
@@ -1325,6 +1417,17 @@ export const unmarshalSchemaConfigSchema: z.ZodType<SchemaConfig> = z
         ? {$case: 'jsonSchema' as const, jsonSchema: d.json_schema}
         : undefined,
   }));
+
+export const unmarshalSecretScopeReferenceSchema: z.ZodType<SecretScopeReference> =
+  z
+    .object({
+      scope: z.string().optional(),
+      key: z.string().optional(),
+    })
+    .transform(d => ({
+      scope: d.scope,
+      key: d.key,
+    }));
 
 export const unmarshalSlidingWindowSchema: z.ZodType<SlidingWindow> = z
   .object({
@@ -1561,12 +1664,19 @@ export const marshalAuthConfigSchema: z.ZodType = z
           $case: z.literal('ucServiceCredentialName'),
           ucServiceCredentialName: z.string(),
         }),
+        z.object({
+          $case: z.literal('mtlsConfig'),
+          mtlsConfig: z.lazy(() => marshalMtlsConfigSchema),
+        }),
       ])
       .optional(),
   })
   .transform(d => ({
     ...(d.authConfig?.$case === 'ucServiceCredentialName' && {
       uc_service_credential_name: d.authConfig.ucServiceCredentialName,
+    }),
+    ...(d.authConfig?.$case === 'mtlsConfig' && {
+      mtls_config: d.authConfig.mtlsConfig,
     }),
   }));
 
@@ -1952,6 +2062,28 @@ export const marshalMinFunctionSchema: z.ZodType = z
     input: d.input,
   }));
 
+export const marshalMtlsConfigSchema: z.ZodType = z
+  .object({
+    keystoreLocation: z.string().optional(),
+    keystorePasswordRef: z
+      .lazy(() => marshalSecretScopeReferenceSchema)
+      .optional(),
+    keyPasswordRef: z.lazy(() => marshalSecretScopeReferenceSchema).optional(),
+    truststoreLocation: z.string().optional(),
+    truststorePasswordRef: z
+      .lazy(() => marshalSecretScopeReferenceSchema)
+      .optional(),
+    disableHostnameVerification: z.boolean().optional(),
+  })
+  .transform(d => ({
+    keystore_location: d.keystoreLocation,
+    keystore_password_ref: d.keystorePasswordRef,
+    key_password_ref: d.keyPasswordRef,
+    truststore_location: d.truststoreLocation,
+    truststore_password_ref: d.truststorePasswordRef,
+    disable_hostname_verification: d.disableHostnameVerification,
+  }));
+
 export const marshalOfflineStoreConfigSchema: z.ZodType = z
   .object({
     catalogName: z.string().optional(),
@@ -2019,6 +2151,16 @@ export const marshalSchemaConfigSchema: z.ZodType = z
   })
   .transform(d => ({
     ...(d.schema?.$case === 'jsonSchema' && {json_schema: d.schema.jsonSchema}),
+  }));
+
+export const marshalSecretScopeReferenceSchema: z.ZodType = z
+  .object({
+    scope: z.string().optional(),
+    key: z.string().optional(),
+  })
+  .transform(d => ({
+    scope: d.scope,
+    key: d.key,
   }));
 
 export const marshalSlidingWindowSchema: z.ZodType = z
@@ -2199,6 +2341,7 @@ const approxPercentileFunctionFieldMaskSchema: FieldMaskSchema = {
 };
 
 const authConfigFieldMaskSchema: FieldMaskSchema = {
+  mtlsConfig: {wire: 'mtls_config', children: () => mtlsConfigFieldMaskSchema},
   ucServiceCredentialName: {wire: 'uc_service_credential_name'},
 };
 
@@ -2389,6 +2532,24 @@ const minFunctionFieldMaskSchema: FieldMaskSchema = {
   input: {wire: 'input'},
 };
 
+const mtlsConfigFieldMaskSchema: FieldMaskSchema = {
+  disableHostnameVerification: {wire: 'disable_hostname_verification'},
+  keyPasswordRef: {
+    wire: 'key_password_ref',
+    children: () => secretScopeReferenceFieldMaskSchema,
+  },
+  keystoreLocation: {wire: 'keystore_location'},
+  keystorePasswordRef: {
+    wire: 'keystore_password_ref',
+    children: () => secretScopeReferenceFieldMaskSchema,
+  },
+  truststoreLocation: {wire: 'truststore_location'},
+  truststorePasswordRef: {
+    wire: 'truststore_password_ref',
+    children: () => secretScopeReferenceFieldMaskSchema,
+  },
+};
+
 const offlineStoreConfigFieldMaskSchema: FieldMaskSchema = {
   catalogName: {wire: 'catalog_name'},
   schemaName: {wire: 'schema_name'},
@@ -2413,6 +2574,11 @@ const rollingWindowFieldMaskSchema: FieldMaskSchema = {
 
 const schemaConfigFieldMaskSchema: FieldMaskSchema = {
   jsonSchema: {wire: 'json_schema'},
+};
+
+const secretScopeReferenceFieldMaskSchema: FieldMaskSchema = {
+  key: {wire: 'key'},
+  scope: {wire: 'scope'},
 };
 
 const slidingWindowFieldMaskSchema: FieldMaskSchema = {

@@ -25,56 +25,56 @@ import type {
   CreateExchangeFilterResponse,
   CreateExchangeRequest,
   CreateExchangeResponse,
-  CreateFile,
-  CreateFile_Response,
-  CreateListing,
-  CreateListing_Response,
-  CreateProvider,
-  CreateProviderAnalyticsDashboard,
-  CreateProviderAnalyticsDashboard_Response,
-  CreateProvider_Response,
+  CreateFileRequest,
+  CreateFileRequest_Response,
+  CreateListingRequest,
+  CreateListingRequest_Response,
+  CreateProviderAnalyticsDashboardRequest,
+  CreateProviderAnalyticsDashboardRequest_Response,
+  CreateProviderRequest,
+  CreateProviderRequest_Response,
   DeleteExchangeFilterRequest,
   DeleteExchangeFilterResponse,
   DeleteExchangeRequest,
   DeleteExchangeResponse,
-  DeleteFile,
-  DeleteFile_Response,
-  DeleteListing,
-  DeleteListing_Response,
-  DeleteProvider,
-  DeleteProvider_Response,
+  DeleteFileRequest,
+  DeleteFileRequest_Response,
+  DeleteListingRequest,
+  DeleteListingRequest_Response,
+  DeleteProviderRequest,
+  DeleteProviderRequest_Response,
   Exchange,
   ExchangeFilter,
   ExchangeListing,
   FileInfo,
   GetExchangeRequest,
   GetExchangeResponse,
-  GetFile,
-  GetFile_Response,
-  GetLatestVersionProviderAnalyticsDashboard,
-  GetLatestVersionProviderAnalyticsDashboard_Response,
-  GetListing,
-  GetListing_Response,
-  GetListings,
-  GetListings_Response,
-  GetPersonalizationRequestsForProvider,
-  GetPersonalizationRequestsForProvider_Response,
-  GetProvider,
-  GetProvider_Response,
+  GetFileRequest,
+  GetFileRequest_Response,
+  GetLatestVersionProviderAnalyticsDashboardRequest,
+  GetLatestVersionProviderAnalyticsDashboardRequest_Response,
+  GetListingRequest,
+  GetListingRequest_Response,
+  GetListingsRequest,
+  GetListingsRequest_Response,
+  GetPersonalizationRequestsForProviderRequest,
+  GetPersonalizationRequestsForProviderRequest_Response,
+  GetProviderRequest,
+  GetProviderRequest_Response,
   ListExchangeFiltersRequest,
   ListExchangeFiltersResponse,
   ListExchangesForListingRequest,
   ListExchangesForListingResponse,
   ListExchangesRequest,
   ListExchangesResponse,
-  ListFiles,
-  ListFiles_Response,
+  ListFilesRequest,
+  ListFilesRequest_Response,
   ListListingsForExchangeRequest,
   ListListingsForExchangeResponse,
-  ListProviderAnalyticsDashboard,
-  ListProviderAnalyticsDashboard_Response,
-  ListProviders,
-  ListProviders_Response,
+  ListProviderAnalyticsDashboardRequest,
+  ListProviderAnalyticsDashboardRequest_Response,
+  ListProvidersRequest,
+  ListProvidersRequest_Response,
   Listing,
   PersonalizationRequest,
   ProviderInfo,
@@ -84,63 +84,63 @@ import type {
   UpdateExchangeFilterResponse,
   UpdateExchangeRequest,
   UpdateExchangeResponse,
-  UpdateListing,
-  UpdateListing_Response,
-  UpdatePersonalizationRequestStatus,
-  UpdatePersonalizationRequestStatus_Response,
-  UpdateProvider,
-  UpdateProviderAnalyticsDashboard,
-  UpdateProviderAnalyticsDashboard_Response,
-  UpdateProvider_Response,
+  UpdateListingRequest,
+  UpdateListingRequest_Response,
+  UpdatePersonalizationRequestStatusRequest,
+  UpdatePersonalizationRequestStatusRequest_Response,
+  UpdateProviderAnalyticsDashboardRequest,
+  UpdateProviderAnalyticsDashboardRequest_Response,
+  UpdateProviderRequest,
+  UpdateProviderRequest_Response,
 } from './model';
 import {
   marshalAddExchangeForListingRequestSchema,
   marshalCreateExchangeFilterRequestSchema,
   marshalCreateExchangeRequestSchema,
-  marshalCreateFileSchema,
-  marshalCreateListingSchema,
-  marshalCreateProviderAnalyticsDashboardSchema,
-  marshalCreateProviderSchema,
+  marshalCreateFileRequestSchema,
+  marshalCreateListingRequestSchema,
+  marshalCreateProviderAnalyticsDashboardRequestSchema,
+  marshalCreateProviderRequestSchema,
   marshalFileParentSchema,
   marshalUpdateExchangeFilterRequestSchema,
   marshalUpdateExchangeRequestSchema,
-  marshalUpdateListingSchema,
-  marshalUpdatePersonalizationRequestStatusSchema,
-  marshalUpdateProviderAnalyticsDashboardSchema,
-  marshalUpdateProviderSchema,
+  marshalUpdateListingRequestSchema,
+  marshalUpdatePersonalizationRequestStatusRequestSchema,
+  marshalUpdateProviderAnalyticsDashboardRequestSchema,
+  marshalUpdateProviderRequestSchema,
   unmarshalAddExchangeForListingResponseSchema,
   unmarshalCreateExchangeFilterResponseSchema,
   unmarshalCreateExchangeResponseSchema,
-  unmarshalCreateFile_ResponseSchema,
-  unmarshalCreateListing_ResponseSchema,
-  unmarshalCreateProviderAnalyticsDashboard_ResponseSchema,
-  unmarshalCreateProvider_ResponseSchema,
+  unmarshalCreateFileRequest_ResponseSchema,
+  unmarshalCreateListingRequest_ResponseSchema,
+  unmarshalCreateProviderAnalyticsDashboardRequest_ResponseSchema,
+  unmarshalCreateProviderRequest_ResponseSchema,
   unmarshalDeleteExchangeFilterResponseSchema,
   unmarshalDeleteExchangeResponseSchema,
-  unmarshalDeleteFile_ResponseSchema,
-  unmarshalDeleteListing_ResponseSchema,
-  unmarshalDeleteProvider_ResponseSchema,
+  unmarshalDeleteFileRequest_ResponseSchema,
+  unmarshalDeleteListingRequest_ResponseSchema,
+  unmarshalDeleteProviderRequest_ResponseSchema,
   unmarshalGetExchangeResponseSchema,
-  unmarshalGetFile_ResponseSchema,
-  unmarshalGetLatestVersionProviderAnalyticsDashboard_ResponseSchema,
-  unmarshalGetListing_ResponseSchema,
-  unmarshalGetListings_ResponseSchema,
-  unmarshalGetPersonalizationRequestsForProvider_ResponseSchema,
-  unmarshalGetProvider_ResponseSchema,
+  unmarshalGetFileRequest_ResponseSchema,
+  unmarshalGetLatestVersionProviderAnalyticsDashboardRequest_ResponseSchema,
+  unmarshalGetListingRequest_ResponseSchema,
+  unmarshalGetListingsRequest_ResponseSchema,
+  unmarshalGetPersonalizationRequestsForProviderRequest_ResponseSchema,
+  unmarshalGetProviderRequest_ResponseSchema,
   unmarshalListExchangeFiltersResponseSchema,
   unmarshalListExchangesForListingResponseSchema,
   unmarshalListExchangesResponseSchema,
-  unmarshalListFiles_ResponseSchema,
+  unmarshalListFilesRequest_ResponseSchema,
   unmarshalListListingsForExchangeResponseSchema,
-  unmarshalListProviderAnalyticsDashboard_ResponseSchema,
-  unmarshalListProviders_ResponseSchema,
+  unmarshalListProviderAnalyticsDashboardRequest_ResponseSchema,
+  unmarshalListProvidersRequest_ResponseSchema,
   unmarshalRemoveExchangeForListingResponseSchema,
   unmarshalUpdateExchangeFilterResponseSchema,
   unmarshalUpdateExchangeResponseSchema,
-  unmarshalUpdateListing_ResponseSchema,
-  unmarshalUpdatePersonalizationRequestStatus_ResponseSchema,
-  unmarshalUpdateProviderAnalyticsDashboard_ResponseSchema,
-  unmarshalUpdateProvider_ResponseSchema,
+  unmarshalUpdateListingRequest_ResponseSchema,
+  unmarshalUpdatePersonalizationRequestStatusRequest_ResponseSchema,
+  unmarshalUpdateProviderAnalyticsDashboardRequest_ResponseSchema,
+  unmarshalUpdateProviderRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -260,12 +260,12 @@ export class Client {
 
   /** Create a file. Currently, only provider icons and attached notebooks are supported. */
   async createFile(
-    req: CreateFile,
+    req: CreateFileRequest,
     options?: CallOptions
-  ): Promise<CreateFile_Response> {
+  ): Promise<CreateFileRequest_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/files`;
-    const body = marshalRequest(req, marshalCreateFileSchema);
-    let resp: CreateFile_Response | undefined;
+    const body = marshalRequest(req, marshalCreateFileRequestSchema);
+    let resp: CreateFileRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -275,7 +275,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCreateFile_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalCreateFileRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -286,67 +286,12 @@ export class Client {
 
   /** Create a new listing */
   async createListing(
-    req: CreateListing,
+    req: CreateListingRequest,
     options?: CallOptions
-  ): Promise<CreateListing_Response> {
+  ): Promise<CreateListingRequest_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/listing`;
-    const body = marshalRequest(req, marshalCreateListingSchema);
-    let resp: CreateListing_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers({'Content-Type': 'application/json'});
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalCreateListing_ResponseSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  /** Create a provider */
-  async createProvider(
-    req: CreateProvider,
-    options?: CallOptions
-  ): Promise<CreateProvider_Response> {
-    const url = `${this.host}/api/2.0/marketplace-provider/provider`;
-    const body = marshalRequest(req, marshalCreateProviderSchema);
-    let resp: CreateProvider_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers({'Content-Type': 'application/json'});
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalCreateProvider_ResponseSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  /** Create provider analytics dashboard. Returns Marketplace specific `id`. Not to be confused with the Lakeview dashboard id. */
-  async createProviderAnalyticsDashboard(
-    req: CreateProviderAnalyticsDashboard,
-    options?: CallOptions
-  ): Promise<CreateProviderAnalyticsDashboard_Response> {
-    const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard`;
-    const body = marshalRequest(
-      req,
-      marshalCreateProviderAnalyticsDashboardSchema
-    );
-    let resp: CreateProviderAnalyticsDashboard_Response | undefined;
+    const body = marshalRequest(req, marshalCreateListingRequestSchema);
+    let resp: CreateListingRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -358,7 +303,68 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalCreateProviderAnalyticsDashboard_ResponseSchema
+        unmarshalCreateListingRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Create a provider */
+  async createProvider(
+    req: CreateProviderRequest,
+    options?: CallOptions
+  ): Promise<CreateProviderRequest_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/provider`;
+    const body = marshalRequest(req, marshalCreateProviderRequestSchema);
+    let resp: CreateProviderRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalCreateProviderRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Create provider analytics dashboard. Returns Marketplace specific `id`. Not to be confused with the Lakeview dashboard id. */
+  async createProviderAnalyticsDashboard(
+    req: CreateProviderAnalyticsDashboardRequest,
+    options?: CallOptions
+  ): Promise<CreateProviderAnalyticsDashboardRequest_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard`;
+    const body = marshalRequest(
+      req,
+      marshalCreateProviderAnalyticsDashboardRequestSchema
+    );
+    let resp: CreateProviderAnalyticsDashboardRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalCreateProviderAnalyticsDashboardRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -423,11 +429,11 @@ export class Client {
 
   /** Delete a file */
   async deleteFile(
-    req: DeleteFile,
+    req: DeleteFileRequest,
     options?: CallOptions
-  ): Promise<DeleteFile_Response> {
+  ): Promise<DeleteFileRequest_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/files/${req.fileId ?? ''}`;
-    let resp: DeleteFile_Response | undefined;
+    let resp: DeleteFileRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -437,7 +443,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteFile_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalDeleteFileRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -448,11 +454,11 @@ export class Client {
 
   /** Delete a listing */
   async deleteListing(
-    req: DeleteListing,
+    req: DeleteListingRequest,
     options?: CallOptions
-  ): Promise<DeleteListing_Response> {
+  ): Promise<DeleteListingRequest_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
-    let resp: DeleteListing_Response | undefined;
+    let resp: DeleteListingRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -462,7 +468,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteListing_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalDeleteListingRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -473,11 +482,11 @@ export class Client {
 
   /** Delete provider */
   async deleteProvider(
-    req: DeleteProvider,
+    req: DeleteProviderRequest,
     options?: CallOptions
-  ): Promise<DeleteProvider_Response> {
+  ): Promise<DeleteProviderRequest_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
-    let resp: DeleteProvider_Response | undefined;
+    let resp: DeleteProviderRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -487,7 +496,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteProvider_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalDeleteProviderRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -523,11 +535,11 @@ export class Client {
 
   /** Get a file */
   async getFile(
-    req: GetFile,
+    req: GetFileRequest,
     options?: CallOptions
-  ): Promise<GetFile_Response> {
+  ): Promise<GetFileRequest_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/files/${req.fileId ?? ''}`;
-    let resp: GetFile_Response | undefined;
+    let resp: GetFileRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -537,7 +549,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetFile_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalGetFileRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -548,11 +560,13 @@ export class Client {
 
   /** Get latest version of provider analytics dashboard. */
   async getLatestVersionProviderAnalyticsDashboard(
-    _req: GetLatestVersionProviderAnalyticsDashboard,
+    _req: GetLatestVersionProviderAnalyticsDashboardRequest,
     options?: CallOptions
-  ): Promise<GetLatestVersionProviderAnalyticsDashboard_Response> {
+  ): Promise<GetLatestVersionProviderAnalyticsDashboardRequest_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard/latest`;
-    let resp: GetLatestVersionProviderAnalyticsDashboard_Response | undefined;
+    let resp:
+      | GetLatestVersionProviderAnalyticsDashboardRequest_Response
+      | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -564,7 +578,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetLatestVersionProviderAnalyticsDashboard_ResponseSchema
+        unmarshalGetLatestVersionProviderAnalyticsDashboardRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -576,11 +590,11 @@ export class Client {
 
   /** Get a listing */
   async getListing(
-    req: GetListing,
+    req: GetListingRequest,
     options?: CallOptions
-  ): Promise<GetListing_Response> {
+  ): Promise<GetListingRequest_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
-    let resp: GetListing_Response | undefined;
+    let resp: GetListingRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -590,7 +604,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetListing_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalGetListingRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -601,9 +615,9 @@ export class Client {
 
   /** List listings owned by this provider */
   async getListings(
-    req: GetListings,
+    req: GetListingsRequest,
     options?: CallOptions
-  ): Promise<GetListings_Response> {
+  ): Promise<GetListingsRequest_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/listings`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -614,7 +628,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetListings_Response | undefined;
+    let resp: GetListingsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -624,7 +638,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetListings_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalGetListingsRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -634,10 +651,10 @@ export class Client {
   }
 
   async *getListingsIter(
-    req: GetListings,
+    req: GetListingsRequest,
     options?: CallOptions
   ): AsyncGenerator<Listing> {
-    const pageReq: GetListings = {...req};
+    const pageReq: GetListingsRequest = {...req};
     for (;;) {
       const resp = await this.getListings(pageReq, options);
       for (const item of resp.listings ?? []) {
@@ -655,9 +672,9 @@ export class Client {
    * This will return all personalization requests, regardless of which listing they are for.
    */
   async getPersonalizationRequestsForProvider(
-    req: GetPersonalizationRequestsForProvider,
+    req: GetPersonalizationRequestsForProviderRequest,
     options?: CallOptions
-  ): Promise<GetPersonalizationRequestsForProvider_Response> {
+  ): Promise<GetPersonalizationRequestsForProviderRequest_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/personalization-requests`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -668,7 +685,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetPersonalizationRequestsForProvider_Response | undefined;
+    let resp: GetPersonalizationRequestsForProviderRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -680,7 +697,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetPersonalizationRequestsForProvider_ResponseSchema
+        unmarshalGetPersonalizationRequestsForProviderRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -691,10 +708,10 @@ export class Client {
   }
 
   async *getPersonalizationRequestsForProviderIter(
-    req: GetPersonalizationRequestsForProvider,
+    req: GetPersonalizationRequestsForProviderRequest,
     options?: CallOptions
   ): AsyncGenerator<PersonalizationRequest> {
-    const pageReq: GetPersonalizationRequestsForProvider = {...req};
+    const pageReq: GetPersonalizationRequestsForProviderRequest = {...req};
     for (;;) {
       const resp = await this.getPersonalizationRequestsForProvider(
         pageReq,
@@ -712,11 +729,11 @@ export class Client {
 
   /** Get provider profile */
   async getProvider(
-    req: GetProvider,
+    req: GetProviderRequest,
     options?: CallOptions
-  ): Promise<GetProvider_Response> {
+  ): Promise<GetProviderRequest_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
-    let resp: GetProvider_Response | undefined;
+    let resp: GetProviderRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -726,7 +743,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetProvider_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalGetProviderRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -902,9 +922,9 @@ export class Client {
 
   /** List files attached to a parent entity. */
   async listFiles(
-    req: ListFiles,
+    req: ListFilesRequest,
     options?: CallOptions
-  ): Promise<ListFiles_Response> {
+  ): Promise<ListFilesRequest_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/files`;
     const params = new URLSearchParams();
     if (req.fileParent !== undefined) {
@@ -922,7 +942,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListFiles_Response | undefined;
+    let resp: ListFilesRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -932,7 +952,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListFiles_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListFilesRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -942,10 +962,10 @@ export class Client {
   }
 
   async *listFilesIter(
-    req: ListFiles,
+    req: ListFilesRequest,
     options?: CallOptions
   ): AsyncGenerator<FileInfo> {
-    const pageReq: ListFiles = {...req};
+    const pageReq: ListFilesRequest = {...req};
     for (;;) {
       const resp = await this.listFiles(pageReq, options);
       for (const item of resp.fileInfos ?? []) {
@@ -1017,11 +1037,11 @@ export class Client {
 
   /** Get provider analytics dashboard. */
   async listProviderAnalyticsDashboard(
-    _req: ListProviderAnalyticsDashboard,
+    _req: ListProviderAnalyticsDashboardRequest,
     options?: CallOptions
-  ): Promise<ListProviderAnalyticsDashboard_Response> {
+  ): Promise<ListProviderAnalyticsDashboardRequest_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard`;
-    let resp: ListProviderAnalyticsDashboard_Response | undefined;
+    let resp: ListProviderAnalyticsDashboardRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -1033,7 +1053,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListProviderAnalyticsDashboard_ResponseSchema
+        unmarshalListProviderAnalyticsDashboardRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -1045,9 +1065,9 @@ export class Client {
 
   /** List provider profiles for account. */
   async listProviders(
-    req: ListProviders,
+    req: ListProvidersRequest,
     options?: CallOptions
-  ): Promise<ListProviders_Response> {
+  ): Promise<ListProvidersRequest_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/providers`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -1058,7 +1078,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListProviders_Response | undefined;
+    let resp: ListProvidersRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -1068,7 +1088,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListProviders_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalListProvidersRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1078,10 +1101,10 @@ export class Client {
   }
 
   async *listProvidersIter(
-    req: ListProviders,
+    req: ListProvidersRequest,
     options?: CallOptions
   ): AsyncGenerator<ProviderInfo> {
-    const pageReq: ListProviders = {...req};
+    const pageReq: ListProvidersRequest = {...req};
     for (;;) {
       const resp = await this.listProviders(pageReq, options);
       for (const item of resp.providers ?? []) {
@@ -1179,41 +1202,12 @@ export class Client {
 
   /** Update a listing */
   async updateListing(
-    req: UpdateListing,
+    req: UpdateListingRequest,
     options?: CallOptions
-  ): Promise<UpdateListing_Response> {
+  ): Promise<UpdateListingRequest_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/listings/${req.id ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateListingSchema);
-    let resp: UpdateListing_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers({'Content-Type': 'application/json'});
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalUpdateListing_ResponseSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  /** Update personalization request. This method only permits updating the status of the request. */
-  async updatePersonalizationRequestStatus(
-    req: UpdatePersonalizationRequestStatus,
-    options?: CallOptions
-  ): Promise<UpdatePersonalizationRequestStatus_Response> {
-    const url = `${this.host}/api/marketplace-provider/listings/${req.listingId ?? ''}/personalization-requests/${req.requestId ?? ''}/request-status`;
-    const body = marshalRequest(
-      req,
-      marshalUpdatePersonalizationRequestStatusSchema
-    );
-    let resp: UpdatePersonalizationRequestStatus_Response | undefined;
+    const body = marshalRequest(req, marshalUpdateListingRequestSchema);
+    let resp: UpdateListingRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -1225,7 +1219,39 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalUpdatePersonalizationRequestStatus_ResponseSchema
+        unmarshalUpdateListingRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Update personalization request. This method only permits updating the status of the request. */
+  async updatePersonalizationRequestStatus(
+    req: UpdatePersonalizationRequestStatusRequest,
+    options?: CallOptions
+  ): Promise<UpdatePersonalizationRequestStatusRequest_Response> {
+    const url = `${this.host}/api/marketplace-provider/listings/${req.listingId ?? ''}/personalization-requests/${req.requestId ?? ''}/request-status`;
+    const body = marshalRequest(
+      req,
+      marshalUpdatePersonalizationRequestStatusRequestSchema
+    );
+    let resp: UpdatePersonalizationRequestStatusRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalUpdatePersonalizationRequestStatusRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -1237,41 +1263,12 @@ export class Client {
 
   /** Update provider profile */
   async updateProvider(
-    req: UpdateProvider,
+    req: UpdateProviderRequest,
     options?: CallOptions
-  ): Promise<UpdateProvider_Response> {
+  ): Promise<UpdateProviderRequest_Response> {
     const url = `${this.host}/api/2.0/marketplace-provider/providers/${req.id ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateProviderSchema);
-    let resp: UpdateProvider_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers({'Content-Type': 'application/json'});
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalUpdateProvider_ResponseSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  /** Update provider analytics dashboard. */
-  async updateProviderAnalyticsDashboard(
-    req: UpdateProviderAnalyticsDashboard,
-    options?: CallOptions
-  ): Promise<UpdateProviderAnalyticsDashboard_Response> {
-    const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard/${req.id ?? ''}`;
-    const body = marshalRequest(
-      req,
-      marshalUpdateProviderAnalyticsDashboardSchema
-    );
-    let resp: UpdateProviderAnalyticsDashboard_Response | undefined;
+    const body = marshalRequest(req, marshalUpdateProviderRequestSchema);
+    let resp: UpdateProviderRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -1283,7 +1280,39 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalUpdateProviderAnalyticsDashboard_ResponseSchema
+        unmarshalUpdateProviderRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Update provider analytics dashboard. */
+  async updateProviderAnalyticsDashboard(
+    req: UpdateProviderAnalyticsDashboardRequest,
+    options?: CallOptions
+  ): Promise<UpdateProviderAnalyticsDashboardRequest_Response> {
+    const url = `${this.host}/api/2.0/marketplace-provider/analytics_dashboard/${req.id ?? ''}`;
+    const body = marshalRequest(
+      req,
+      marshalUpdateProviderAnalyticsDashboardRequestSchema
+    );
+    let resp: UpdateProviderAnalyticsDashboardRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalUpdateProviderAnalyticsDashboardRequest_ResponseSchema
       );
     };
     await executeCall(call, options);

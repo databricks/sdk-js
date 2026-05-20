@@ -7,6 +7,6 @@ export {ArtifactType, ArtifactMatcher_MatchType} from './model';
 export type {
   ArtifactAllowlistInfo,
   ArtifactMatcher,
-  GetArtifactAllowlist,
-  SetArtifactAllowlist,
+  GetArtifactAllowlistRequest,
+  SetArtifactAllowlistRequest,
 } from './model';

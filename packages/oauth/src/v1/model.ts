@@ -2,7 +2,7 @@
 
 import {z} from 'zod';
 
-export interface CreateCustomOAuthAppIntegration {
+export interface CreateCustomOAuthAppIntegrationRequest {
   accountId?: string | undefined;
   /** List of OAuth redirect urls */
   redirectUrls?: string[] | undefined;
@@ -25,7 +25,7 @@ export interface CreateCustomOAuthAppIntegration {
   userAuthorizedScopes?: string[] | undefined;
 }
 
-export interface CreatePublishedOAuthAppIntegration {
+export interface CreatePublishedOAuthAppIntegrationRequest {
   accountId?: string | undefined;
   /**
    * App id of the OAuth published app integration.
@@ -37,7 +37,7 @@ export interface CreatePublishedOAuthAppIntegration {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreatePublishedOAuthAppIntegration_Response {
+export interface CreatePublishedOAuthAppIntegrationRequest_Response {
   /** Unique integration id for the published OAuth app */
   integrationId?: string | undefined;
 }
@@ -79,35 +79,35 @@ export interface CustomOAuthAppIntegrationSecret {
   clientSecret?: string | undefined;
 }
 
-export interface DeleteCustomOAuthAppIntegration {
+export interface DeleteCustomOAuthAppIntegrationRequest {
   accountId?: string | undefined;
   integrationId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteCustomOAuthAppIntegration_Response {}
+export interface DeleteCustomOAuthAppIntegrationRequest_Response {}
 
-export interface DeletePublishedOAuthAppIntegration {
+export interface DeletePublishedOAuthAppIntegrationRequest {
   accountId?: string | undefined;
   integrationId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeletePublishedOAuthAppIntegration_Response {}
+export interface DeletePublishedOAuthAppIntegrationRequest_Response {}
 
-export interface GetCustomOAuthAppIntegration {
+export interface GetCustomOAuthAppIntegrationRequest {
   /** The account ID. */
   accountId?: string | undefined;
   /** The OAuth app integration ID. */
   integrationId?: string | undefined;
 }
 
-export interface GetPublishedOAuthAppIntegration {
+export interface GetPublishedOAuthAppIntegrationRequest {
   accountId?: string | undefined;
   integrationId?: string | undefined;
 }
 
-export interface ListCustomOAuthAppIntegrations {
+export interface ListCustomOAuthAppIntegrationsRequest {
   accountId?: string | undefined;
   pageToken?: string | undefined;
   pageSize?: number | undefined;
@@ -115,26 +115,26 @@ export interface ListCustomOAuthAppIntegrations {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListCustomOAuthAppIntegrations_Response {
+export interface ListCustomOAuthAppIntegrationsRequest_Response {
   /** List of Custom OAuth App Integrations defined for the account. */
   apps?: CustomOAuthAppIntegration[] | undefined;
   nextPageToken?: string | undefined;
 }
 
-export interface ListPublishedOAuthAppIntegrations {
+export interface ListPublishedOAuthAppIntegrationsRequest {
   accountId?: string | undefined;
   pageToken?: string | undefined;
   pageSize?: number | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListPublishedOAuthAppIntegrations_Response {
+export interface ListPublishedOAuthAppIntegrationsRequest_Response {
   /** List of Published OAuth App Integrations defined for the account. */
   apps?: PublishedOAuthAppIntegration[] | undefined;
   nextPageToken?: string | undefined;
 }
 
-export interface ListPublishedOAuthApps {
+export interface ListPublishedOAuthAppsRequest {
   /** The account ID. */
   accountId?: string | undefined;
   /** A token that can be used to get the next page of results. */
@@ -144,7 +144,7 @@ export interface ListPublishedOAuthApps {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListPublishedOAuthApps_Response {
+export interface ListPublishedOAuthAppsRequest_Response {
   /** List of Published OAuth Apps. */
   apps?: PublishedOAuthApp[] | undefined;
   /** A token that can be used to get the next page of results. If not present, there are no more results to show. */
@@ -206,7 +206,7 @@ export interface TokenAccessPolicy {
   absoluteSessionLifetimeInMinutes?: number | undefined;
 }
 
-export interface UpdateCustomOAuthAppIntegration {
+export interface UpdateCustomOAuthAppIntegrationRequest {
   accountId?: string | undefined;
   integrationId?: string | undefined;
   /** List of OAuth redirect urls to be updated in the custom OAuth app integration */
@@ -227,9 +227,9 @@ export interface UpdateCustomOAuthAppIntegration {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface UpdateCustomOAuthAppIntegration_Response {}
+export interface UpdateCustomOAuthAppIntegrationRequest_Response {}
 
-export interface UpdatePublishedOAuthAppIntegration {
+export interface UpdatePublishedOAuthAppIntegrationRequest {
   accountId?: string | undefined;
   integrationId?: string | undefined;
   /** Token access policy to be updated in the published OAuth app integration */
@@ -237,10 +237,10 @@ export interface UpdatePublishedOAuthAppIntegration {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface UpdatePublishedOAuthAppIntegration_Response {}
+export interface UpdatePublishedOAuthAppIntegrationRequest_Response {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreatePublishedOAuthAppIntegration_ResponseSchema: z.ZodType<CreatePublishedOAuthAppIntegration_Response> =
+export const unmarshalCreatePublishedOAuthAppIntegrationRequest_ResponseSchema: z.ZodType<CreatePublishedOAuthAppIntegrationRequest_Response> =
   z
     .object({
       integration_id: z.string().optional(),
@@ -294,15 +294,15 @@ export const unmarshalCustomOAuthAppIntegrationSecretSchema: z.ZodType<CustomOAu
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteCustomOAuthAppIntegration_ResponseSchema: z.ZodType<DeleteCustomOAuthAppIntegration_Response> =
+export const unmarshalDeleteCustomOAuthAppIntegrationRequest_ResponseSchema: z.ZodType<DeleteCustomOAuthAppIntegrationRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeletePublishedOAuthAppIntegration_ResponseSchema: z.ZodType<DeletePublishedOAuthAppIntegration_Response> =
+export const unmarshalDeletePublishedOAuthAppIntegrationRequest_ResponseSchema: z.ZodType<DeletePublishedOAuthAppIntegrationRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListCustomOAuthAppIntegrations_ResponseSchema: z.ZodType<ListCustomOAuthAppIntegrations_Response> =
+export const unmarshalListCustomOAuthAppIntegrationsRequest_ResponseSchema: z.ZodType<ListCustomOAuthAppIntegrationsRequest_Response> =
   z
     .object({
       apps: z
@@ -316,7 +316,7 @@ export const unmarshalListCustomOAuthAppIntegrations_ResponseSchema: z.ZodType<L
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListPublishedOAuthAppIntegrations_ResponseSchema: z.ZodType<ListPublishedOAuthAppIntegrations_Response> =
+export const unmarshalListPublishedOAuthAppIntegrationsRequest_ResponseSchema: z.ZodType<ListPublishedOAuthAppIntegrationsRequest_Response> =
   z
     .object({
       apps: z
@@ -330,7 +330,7 @@ export const unmarshalListPublishedOAuthAppIntegrations_ResponseSchema: z.ZodTyp
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListPublishedOAuthApps_ResponseSchema: z.ZodType<ListPublishedOAuthApps_Response> =
+export const unmarshalListPublishedOAuthAppsRequest_ResponseSchema: z.ZodType<ListPublishedOAuthAppsRequest_Response> =
   z
     .object({
       apps: z.array(z.lazy(() => unmarshalPublishedOAuthAppSchema)).optional(),
@@ -397,14 +397,14 @@ export const unmarshalTokenAccessPolicySchema: z.ZodType<TokenAccessPolicy> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateCustomOAuthAppIntegration_ResponseSchema: z.ZodType<UpdateCustomOAuthAppIntegration_Response> =
+export const unmarshalUpdateCustomOAuthAppIntegrationRequest_ResponseSchema: z.ZodType<UpdateCustomOAuthAppIntegrationRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdatePublishedOAuthAppIntegration_ResponseSchema: z.ZodType<UpdatePublishedOAuthAppIntegration_Response> =
+export const unmarshalUpdatePublishedOAuthAppIntegrationRequest_ResponseSchema: z.ZodType<UpdatePublishedOAuthAppIntegrationRequest_Response> =
   z.object({});
 
-export const marshalCreateCustomOAuthAppIntegrationSchema: z.ZodType = z
+export const marshalCreateCustomOAuthAppIntegrationRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     redirectUrls: z.array(z.string()).optional(),
@@ -424,17 +424,20 @@ export const marshalCreateCustomOAuthAppIntegrationSchema: z.ZodType = z
     user_authorized_scopes: d.userAuthorizedScopes,
   }));
 
-export const marshalCreatePublishedOAuthAppIntegrationSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    appId: z.string().optional(),
-    tokenAccessPolicy: z.lazy(() => marshalTokenAccessPolicySchema).optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    app_id: d.appId,
-    token_access_policy: d.tokenAccessPolicy,
-  }));
+export const marshalCreatePublishedOAuthAppIntegrationRequestSchema: z.ZodType =
+  z
+    .object({
+      accountId: z.string().optional(),
+      appId: z.string().optional(),
+      tokenAccessPolicy: z
+        .lazy(() => marshalTokenAccessPolicySchema)
+        .optional(),
+    })
+    .transform(d => ({
+      account_id: d.accountId,
+      app_id: d.appId,
+      token_access_policy: d.tokenAccessPolicy,
+    }));
 
 export const marshalTokenAccessPolicySchema: z.ZodType = z
   .object({
@@ -450,7 +453,7 @@ export const marshalTokenAccessPolicySchema: z.ZodType = z
     absolute_session_lifetime_in_minutes: d.absoluteSessionLifetimeInMinutes,
   }));
 
-export const marshalUpdateCustomOAuthAppIntegrationSchema: z.ZodType = z
+export const marshalUpdateCustomOAuthAppIntegrationRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     integrationId: z.string().optional(),
@@ -468,14 +471,17 @@ export const marshalUpdateCustomOAuthAppIntegrationSchema: z.ZodType = z
     user_authorized_scopes: d.userAuthorizedScopes,
   }));
 
-export const marshalUpdatePublishedOAuthAppIntegrationSchema: z.ZodType = z
-  .object({
-    accountId: z.string().optional(),
-    integrationId: z.string().optional(),
-    tokenAccessPolicy: z.lazy(() => marshalTokenAccessPolicySchema).optional(),
-  })
-  .transform(d => ({
-    account_id: d.accountId,
-    integration_id: d.integrationId,
-    token_access_policy: d.tokenAccessPolicy,
-  }));
+export const marshalUpdatePublishedOAuthAppIntegrationRequestSchema: z.ZodType =
+  z
+    .object({
+      accountId: z.string().optional(),
+      integrationId: z.string().optional(),
+      tokenAccessPolicy: z
+        .lazy(() => marshalTokenAccessPolicySchema)
+        .optional(),
+    })
+    .transform(d => ({
+      account_id: d.accountId,
+      integration_id: d.integrationId,
+      token_access_policy: d.tokenAccessPolicy,
+    }));

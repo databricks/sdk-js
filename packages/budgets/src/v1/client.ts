@@ -19,25 +19,25 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   BudgetConfiguration,
-  CreateBudgetConfiguration,
-  CreateBudgetConfiguration_Response,
-  DeleteBudgetConfiguration,
-  DeleteBudgetConfiguration_Response,
-  GetBudgetConfiguration,
-  GetBudgetConfiguration_Response,
-  ListBudgetConfigurations,
-  ListBudgetConfigurations_Response,
-  UpdateBudgetConfiguration,
-  UpdateBudgetConfiguration_Response,
+  CreateBudgetConfigurationRequest,
+  CreateBudgetConfigurationRequest_Response,
+  DeleteBudgetConfigurationRequest,
+  DeleteBudgetConfigurationRequest_Response,
+  GetBudgetConfigurationRequest,
+  GetBudgetConfigurationRequest_Response,
+  ListBudgetConfigurationsRequest,
+  ListBudgetConfigurationsRequest_Response,
+  UpdateBudgetConfigurationRequest,
+  UpdateBudgetConfigurationRequest_Response,
 } from './model';
 import {
-  marshalCreateBudgetConfigurationSchema,
-  marshalUpdateBudgetConfigurationSchema,
-  unmarshalCreateBudgetConfiguration_ResponseSchema,
-  unmarshalDeleteBudgetConfiguration_ResponseSchema,
-  unmarshalGetBudgetConfiguration_ResponseSchema,
-  unmarshalListBudgetConfigurations_ResponseSchema,
-  unmarshalUpdateBudgetConfiguration_ResponseSchema,
+  marshalCreateBudgetConfigurationRequestSchema,
+  marshalUpdateBudgetConfigurationRequestSchema,
+  unmarshalCreateBudgetConfigurationRequest_ResponseSchema,
+  unmarshalDeleteBudgetConfigurationRequest_ResponseSchema,
+  unmarshalGetBudgetConfigurationRequest_ResponseSchema,
+  unmarshalListBudgetConfigurationsRequest_ResponseSchema,
+  unmarshalUpdateBudgetConfigurationRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -77,12 +77,15 @@ export class Client {
 
   /** Create a new budget configuration for an account. For full details, see https://docs.databricks.com/en/admin/account-settings/budgets.html. */
   async createBudgetConfiguration(
-    req: CreateBudgetConfiguration,
+    req: CreateBudgetConfigurationRequest,
     options?: CallOptions
-  ): Promise<CreateBudgetConfiguration_Response> {
+  ): Promise<CreateBudgetConfigurationRequest_Response> {
     const url = `${this.host}/api/2.1/accounts/${req.budget?.accountId ?? ''}/budgets`;
-    const body = marshalRequest(req, marshalCreateBudgetConfigurationSchema);
-    let resp: CreateBudgetConfiguration_Response | undefined;
+    const body = marshalRequest(
+      req,
+      marshalCreateBudgetConfigurationRequestSchema
+    );
+    let resp: CreateBudgetConfigurationRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -94,7 +97,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalCreateBudgetConfiguration_ResponseSchema
+        unmarshalCreateBudgetConfigurationRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -106,11 +109,11 @@ export class Client {
 
   /** Deletes a budget configuration for an account. Both account and budget configuration are specified by ID. This cannot be undone. */
   async deleteBudgetConfiguration(
-    req: DeleteBudgetConfiguration,
+    req: DeleteBudgetConfigurationRequest,
     options?: CallOptions
-  ): Promise<DeleteBudgetConfiguration_Response> {
+  ): Promise<DeleteBudgetConfigurationRequest_Response> {
     const url = `${this.host}/api/2.1/accounts/${req.accountId ?? this.accountId ?? ''}/budgets/${req.budgetId ?? ''}`;
-    let resp: DeleteBudgetConfiguration_Response | undefined;
+    let resp: DeleteBudgetConfigurationRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -122,7 +125,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeleteBudgetConfiguration_ResponseSchema
+        unmarshalDeleteBudgetConfigurationRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -134,9 +137,9 @@ export class Client {
 
   /** Gets a budget configuration for an account. Both account and budget configuration are specified by ID. */
   async getBudgetConfiguration(
-    req: GetBudgetConfiguration,
+    req: GetBudgetConfigurationRequest,
     options?: CallOptions
-  ): Promise<GetBudgetConfiguration_Response> {
+  ): Promise<GetBudgetConfigurationRequest_Response> {
     const url = `${this.host}/api/2.1/accounts/${req.accountId ?? this.accountId ?? ''}/budgets/${req.budgetId ?? ''}`;
     const params = new URLSearchParams();
     if (req.includeSpendStatus !== undefined) {
@@ -144,7 +147,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetBudgetConfiguration_Response | undefined;
+    let resp: GetBudgetConfigurationRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -156,7 +159,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetBudgetConfiguration_ResponseSchema
+        unmarshalGetBudgetConfigurationRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -168,9 +171,9 @@ export class Client {
 
   /** Gets all budgets associated with this account. */
   async listBudgetConfigurations(
-    req: ListBudgetConfigurations,
+    req: ListBudgetConfigurationsRequest,
     options?: CallOptions
-  ): Promise<ListBudgetConfigurations_Response> {
+  ): Promise<ListBudgetConfigurationsRequest_Response> {
     const url = `${this.host}/api/2.1/accounts/${req.accountId ?? this.accountId ?? ''}/budgets`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -187,7 +190,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListBudgetConfigurations_Response | undefined;
+    let resp: ListBudgetConfigurationsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -199,7 +202,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListBudgetConfigurations_ResponseSchema
+        unmarshalListBudgetConfigurationsRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -210,10 +213,10 @@ export class Client {
   }
 
   async *listBudgetConfigurationsIter(
-    req: ListBudgetConfigurations,
+    req: ListBudgetConfigurationsRequest,
     options?: CallOptions
   ): AsyncGenerator<BudgetConfiguration> {
-    const pageReq: ListBudgetConfigurations = {...req};
+    const pageReq: ListBudgetConfigurationsRequest = {...req};
     for (;;) {
       const resp = await this.listBudgetConfigurations(pageReq, options);
       for (const item of resp.budgets ?? []) {
@@ -228,12 +231,15 @@ export class Client {
 
   /** Updates a budget configuration for an account. Both account and budget configuration are specified by ID. */
   async updateBudgetConfiguration(
-    req: UpdateBudgetConfiguration,
+    req: UpdateBudgetConfigurationRequest,
     options?: CallOptions
-  ): Promise<UpdateBudgetConfiguration_Response> {
+  ): Promise<UpdateBudgetConfigurationRequest_Response> {
     const url = `${this.host}/api/2.1/accounts/${req.budget?.accountId ?? ''}/budgets/${req.budgetId ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateBudgetConfigurationSchema);
-    let resp: UpdateBudgetConfiguration_Response | undefined;
+    const body = marshalRequest(
+      req,
+      marshalUpdateBudgetConfigurationRequestSchema
+    );
+    let resp: UpdateBudgetConfigurationRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -245,7 +251,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalUpdateBudgetConfiguration_ResponseSchema
+        unmarshalUpdateBudgetConfigurationRequest_ResponseSchema
       );
     };
     await executeCall(call, options);

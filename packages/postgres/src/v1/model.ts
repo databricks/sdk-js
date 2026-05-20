@@ -591,6 +591,8 @@ export enum BranchStatus_State {
   READY = 'READY',
   /** The branch is stored in cost-effective archival storage. Expect slow query response times. */
   ARCHIVED = 'ARCHIVED',
+  /** The branch is deleted and is not available for querying, but can be undeleted. */
+  DELETED = 'DELETED',
 }
 
 /** The state of the compute endpoint. */
@@ -793,6 +795,16 @@ export interface BranchStatus {
    * which follows the `projects/{project_id}/branches/{branch_id}` format and is not user-friendly.
    */
   branchId?: string | undefined;
+  /**
+   * A timestamp indicating when the branch was deleted.
+   * Empty if the branch is not deleted.
+   */
+  deleteTime?: Temporal.Instant | undefined;
+  /**
+   * A timestamp indicating when the branch is scheduled to be purged.
+   * Empty if the branch is not deleted, otherwise set to a timestamp in the future.
+   */
+  purgeTime?: Temporal.Instant | undefined;
 }
 
 export interface Catalog {
@@ -1088,6 +1100,8 @@ export interface DeleteBranchRequest {
    * Format: projects/{project_id}/branches/{branch_id}
    */
   name?: string | undefined;
+  /** If true, permanently delete the branch; if false, soft delete. */
+  purge?: boolean | undefined;
 }
 
 export interface DeleteCatalogRequest {
@@ -1434,6 +1448,12 @@ export interface ListBranchesRequest {
   pageToken?: string | undefined;
   /** Upper bound for items returned. Cannot be negative. */
   pageSize?: number | undefined;
+  /**
+   * Whether to include soft-deleted branches in the response.
+   * When true, deleted branches are included alongside active branches.
+   * Purged branches are never returned.
+   */
+  showDeleted?: boolean | undefined;
 }
 
 export interface ListBranchesResponse {
@@ -2008,6 +2028,14 @@ export interface SyncedTablePosition {
     | undefined;
 }
 
+export interface UndeleteBranchRequest {
+  /**
+   * The full resource path of the branch to undelete.
+   * Format: projects/{project_id}/branches/{branch_id}
+   */
+  name?: string | undefined;
+}
+
 /** Request to restore a soft-deleted project within its retention period. */
 export interface UndeleteProjectRequest {
   /**
@@ -2165,6 +2193,14 @@ export const unmarshalBranchStatusSchema: z.ZodType<BranchStatus> = z
       .transform(s => Temporal.Instant.from(s))
       .optional(),
     branch_id: z.string().optional(),
+    delete_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    purge_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
   })
   .transform(d => ({
     sourceBranch: d.source_branch,
@@ -2178,6 +2214,8 @@ export const unmarshalBranchStatusSchema: z.ZodType<BranchStatus> = z
     logicalSizeBytes: d.logical_size_bytes,
     expireTime: d.expire_time,
     branchId: d.branch_id,
+    deleteTime: d.delete_time,
+    purgeTime: d.purge_time,
   }));
 
 export const unmarshalCatalogSchema: z.ZodType<Catalog> = z
@@ -3007,6 +3045,14 @@ export const marshalBranchStatusSchema: z.ZodType = z
       .transform((d: Temporal.Instant) => d.toString())
       .optional(),
     branchId: z.string().optional(),
+    deleteTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    purgeTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
   })
   .transform(d => ({
     source_branch: d.sourceBranch,
@@ -3020,6 +3066,8 @@ export const marshalBranchStatusSchema: z.ZodType = z
     logical_size_bytes: d.logicalSizeBytes,
     expire_time: d.expireTime,
     branch_id: d.branchId,
+    delete_time: d.deleteTime,
+    purge_time: d.purgeTime,
   }));
 
 export const marshalCatalogSchema: z.ZodType = z
@@ -3660,6 +3708,14 @@ export const marshalSyncedTablePositionSchema: z.ZodType = z
     }),
   }));
 
+export const marshalUndeleteBranchRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+  }));
+
 export const marshalUndeleteProjectRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
@@ -3696,10 +3752,12 @@ const branchStatusFieldMaskSchema: FieldMaskSchema = {
   branchId: {wire: 'branch_id'},
   currentState: {wire: 'current_state'},
   default: {wire: 'default'},
+  deleteTime: {wire: 'delete_time'},
   expireTime: {wire: 'expire_time'},
   isProtected: {wire: 'is_protected'},
   logicalSizeBytes: {wire: 'logical_size_bytes'},
   pendingState: {wire: 'pending_state'},
+  purgeTime: {wire: 'purge_time'},
   sourceBranch: {wire: 'source_branch'},
   sourceBranchLsn: {wire: 'source_branch_lsn'},
   sourceBranchTime: {wire: 'source_branch_time'},

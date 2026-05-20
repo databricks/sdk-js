@@ -18,72 +18,72 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  AccountsCreateMetastoreAssignmentPublic,
-  AccountsCreateMetastoreAssignmentPublic_Response,
-  AccountsCreateMetastorePublic,
-  AccountsCreateMetastorePublic_Response,
-  AccountsDeleteMetastoreAssignmentPublic,
-  AccountsDeleteMetastoreAssignmentPublic_Response,
-  AccountsDeleteMetastorePublic,
-  AccountsDeleteMetastorePublic_Response,
-  AccountsGetMetastoreAssignmentPublic,
-  AccountsGetMetastoreAssignmentPublic_Response,
-  AccountsGetMetastorePublic,
-  AccountsGetMetastorePublic_Response,
-  AccountsListMetastoresPublic,
-  AccountsListMetastoresPublic_Response,
-  AccountsListWorkspaceIdsForMetastorePublic,
-  AccountsListWorkspaceIdsForMetastorePublic_Response,
-  AccountsUpdateMetastoreAssignmentPublic,
-  AccountsUpdateMetastoreAssignmentPublic_Response,
-  AccountsUpdateMetastorePublic,
-  AccountsUpdateMetastorePublic_Response,
-  CreateMetastore,
-  CreateMetastoreAssignment,
-  CreateMetastoreAssignment_Response,
-  DeleteMetastore,
-  DeleteMetastoreAssignment,
-  DeleteMetastoreAssignment_Response,
-  DeleteMetastore_Response,
-  GetCurrentMetastoreAssignment,
-  GetMetastore,
-  GetMetastoreSummary,
-  GetMetastoreSummary_Response,
-  ListMetastores,
-  ListMetastores_Response,
+  AccountsCreateMetastoreAssignmentPublicRequest,
+  AccountsCreateMetastoreAssignmentPublicRequest_Response,
+  AccountsCreateMetastorePublicRequest,
+  AccountsCreateMetastorePublicRequest_Response,
+  AccountsDeleteMetastoreAssignmentPublicRequest,
+  AccountsDeleteMetastoreAssignmentPublicRequest_Response,
+  AccountsDeleteMetastorePublicRequest,
+  AccountsDeleteMetastorePublicRequest_Response,
+  AccountsGetMetastoreAssignmentPublicRequest,
+  AccountsGetMetastoreAssignmentPublicRequest_Response,
+  AccountsGetMetastorePublicRequest,
+  AccountsGetMetastorePublicRequest_Response,
+  AccountsListMetastoresPublicRequest,
+  AccountsListMetastoresPublicRequest_Response,
+  AccountsListWorkspaceIdsForMetastorePublicRequest,
+  AccountsListWorkspaceIdsForMetastorePublicRequest_Response,
+  AccountsUpdateMetastoreAssignmentPublicRequest,
+  AccountsUpdateMetastoreAssignmentPublicRequest_Response,
+  AccountsUpdateMetastorePublicRequest,
+  AccountsUpdateMetastorePublicRequest_Response,
+  CreateMetastoreAssignmentRequest,
+  CreateMetastoreAssignmentRequest_Response,
+  CreateMetastoreRequest,
+  DeleteMetastoreAssignmentRequest,
+  DeleteMetastoreAssignmentRequest_Response,
+  DeleteMetastoreRequest,
+  DeleteMetastoreRequest_Response,
+  GetCurrentMetastoreAssignmentRequest,
+  GetMetastoreRequest,
+  GetMetastoreSummaryRequest,
+  GetMetastoreSummaryRequest_Response,
+  ListMetastoresRequest,
+  ListMetastoresRequest_Response,
   MetastoreAssignment,
   MetastoreInfo,
-  UpdateMetastore,
-  UpdateMetastoreAssignment,
-  UpdateMetastoreAssignment_Response,
+  UpdateMetastoreAssignmentRequest,
+  UpdateMetastoreAssignmentRequest_Response,
+  UpdateMetastoreRequest,
 } from './model';
 import {
-  marshalAccountsCreateMetastoreAssignmentPublicSchema,
-  marshalAccountsCreateMetastorePublicSchema,
-  marshalAccountsUpdateMetastoreAssignmentPublicSchema,
-  marshalAccountsUpdateMetastorePublicSchema,
-  marshalCreateMetastoreAssignmentSchema,
-  marshalCreateMetastoreSchema,
-  marshalUpdateMetastoreAssignmentSchema,
-  marshalUpdateMetastoreSchema,
-  unmarshalAccountsCreateMetastoreAssignmentPublic_ResponseSchema,
-  unmarshalAccountsCreateMetastorePublic_ResponseSchema,
-  unmarshalAccountsDeleteMetastoreAssignmentPublic_ResponseSchema,
-  unmarshalAccountsDeleteMetastorePublic_ResponseSchema,
-  unmarshalAccountsGetMetastoreAssignmentPublic_ResponseSchema,
-  unmarshalAccountsGetMetastorePublic_ResponseSchema,
-  unmarshalAccountsListMetastoresPublic_ResponseSchema,
-  unmarshalAccountsListWorkspaceIdsForMetastorePublic_ResponseSchema,
-  unmarshalAccountsUpdateMetastoreAssignmentPublic_ResponseSchema,
-  unmarshalAccountsUpdateMetastorePublic_ResponseSchema,
-  unmarshalCreateMetastoreAssignment_ResponseSchema,
-  unmarshalDeleteMetastoreAssignment_ResponseSchema,
-  unmarshalDeleteMetastore_ResponseSchema,
-  unmarshalGetMetastoreSummary_ResponseSchema,
-  unmarshalListMetastores_ResponseSchema,
+  marshalAccountsCreateMetastoreAssignmentPublicRequestSchema,
+  marshalAccountsCreateMetastorePublicRequestSchema,
+  marshalAccountsUpdateMetastoreAssignmentPublicRequestSchema,
+  marshalAccountsUpdateMetastorePublicRequestSchema,
+  marshalCreateMetastoreAssignmentRequestSchema,
+  marshalCreateMetastoreRequestSchema,
+  marshalUpdateMetastoreAssignmentRequestSchema,
+  marshalUpdateMetastoreRequestSchema,
+  unmarshalAccountsCreateMetastoreAssignmentPublicRequest_ResponseSchema,
+  unmarshalAccountsCreateMetastorePublicRequest_ResponseSchema,
+  unmarshalAccountsDeleteMetastoreAssignmentPublicRequest_ResponseSchema,
+  unmarshalAccountsDeleteMetastorePublicRequest_ResponseSchema,
+  unmarshalAccountsGetMetastoreAssignmentPublicRequest_ResponseSchema,
+  unmarshalAccountsGetMetastorePublicRequest_ResponseSchema,
+  unmarshalAccountsListMetastoresPublicRequest_ResponseSchema,
+  unmarshalAccountsListWorkspaceIdsForMetastorePublicRequest_ResponseSchema,
+  unmarshalAccountsUpdateMetastoreAssignmentPublicRequest_ResponseSchema,
+  unmarshalAccountsUpdateMetastorePublicRequest_ResponseSchema,
+  unmarshalCreateMetastoreAssignmentRequest_ResponseSchema,
+  unmarshalDeleteMetastoreAssignmentRequest_ResponseSchema,
+  unmarshalDeleteMetastoreRequest_ResponseSchema,
+  unmarshalGetMetastoreSummaryRequest_ResponseSchema,
+  unmarshalListMetastoresRequest_ResponseSchema,
   unmarshalMetastoreAssignmentSchema,
   unmarshalMetastoreInfoSchema,
-  unmarshalUpdateMetastoreAssignment_ResponseSchema,
+  unmarshalUpdateMetastoreAssignmentRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -123,15 +123,15 @@ export class Client {
 
   /** Creates a Unity Catalog metastore. */
   async createAccountsMetastore(
-    req: AccountsCreateMetastorePublic,
+    req: AccountsCreateMetastorePublicRequest,
     options?: CallOptions
-  ): Promise<AccountsCreateMetastorePublic_Response> {
+  ): Promise<AccountsCreateMetastorePublicRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores`;
     const body = marshalRequest(
       req,
-      marshalAccountsCreateMetastorePublicSchema
+      marshalAccountsCreateMetastorePublicRequestSchema
     );
-    let resp: AccountsCreateMetastorePublic_Response | undefined;
+    let resp: AccountsCreateMetastorePublicRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -143,7 +143,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsCreateMetastorePublic_ResponseSchema
+        unmarshalAccountsCreateMetastorePublicRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -155,15 +155,17 @@ export class Client {
 
   /** Creates an assignment to a metastore for a workspace */
   async createAccountsMetastoreAssignment(
-    req: AccountsCreateMetastoreAssignmentPublic,
+    req: AccountsCreateMetastoreAssignmentPublicRequest,
     options?: CallOptions
-  ): Promise<AccountsCreateMetastoreAssignmentPublic_Response> {
+  ): Promise<AccountsCreateMetastoreAssignmentPublicRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/metastores/${req.metastoreId ?? ''}`;
     const body = marshalRequest(
       req,
-      marshalAccountsCreateMetastoreAssignmentPublicSchema
+      marshalAccountsCreateMetastoreAssignmentPublicRequestSchema
     );
-    let resp: AccountsCreateMetastoreAssignmentPublic_Response | undefined;
+    let resp:
+      | AccountsCreateMetastoreAssignmentPublicRequest_Response
+      | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -175,7 +177,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsCreateMetastoreAssignmentPublic_ResponseSchema
+        unmarshalAccountsCreateMetastoreAssignmentPublicRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -187,9 +189,9 @@ export class Client {
 
   /** Deletes a Unity Catalog metastore for an account, both specified by ID. */
   async deleteAccountsMetastore(
-    req: AccountsDeleteMetastorePublic,
+    req: AccountsDeleteMetastorePublicRequest,
     options?: CallOptions
-  ): Promise<AccountsDeleteMetastorePublic_Response> {
+  ): Promise<AccountsDeleteMetastorePublicRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -197,7 +199,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: AccountsDeleteMetastorePublic_Response | undefined;
+    let resp: AccountsDeleteMetastorePublicRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -209,7 +211,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsDeleteMetastorePublic_ResponseSchema
+        unmarshalAccountsDeleteMetastorePublicRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -221,11 +223,13 @@ export class Client {
 
   /** Deletes a metastore assignment to a workspace, leaving the workspace with no metastore. */
   async deleteAccountsMetastoreAssignment(
-    req: AccountsDeleteMetastoreAssignmentPublic,
+    req: AccountsDeleteMetastoreAssignmentPublicRequest,
     options?: CallOptions
-  ): Promise<AccountsDeleteMetastoreAssignmentPublic_Response> {
+  ): Promise<AccountsDeleteMetastoreAssignmentPublicRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/metastores/${req.metastoreId ?? ''}`;
-    let resp: AccountsDeleteMetastoreAssignmentPublic_Response | undefined;
+    let resp:
+      | AccountsDeleteMetastoreAssignmentPublicRequest_Response
+      | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -237,7 +241,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsDeleteMetastoreAssignmentPublic_ResponseSchema
+        unmarshalAccountsDeleteMetastoreAssignmentPublicRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -249,11 +253,11 @@ export class Client {
 
   /** Gets a Unity Catalog metastore from an account, both specified by ID. */
   async getAccountsMetastore(
-    req: AccountsGetMetastorePublic,
+    req: AccountsGetMetastorePublicRequest,
     options?: CallOptions
-  ): Promise<AccountsGetMetastorePublic_Response> {
+  ): Promise<AccountsGetMetastorePublicRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}`;
-    let resp: AccountsGetMetastorePublic_Response | undefined;
+    let resp: AccountsGetMetastorePublicRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -265,7 +269,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsGetMetastorePublic_ResponseSchema
+        unmarshalAccountsGetMetastorePublicRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -282,11 +286,11 @@ export class Client {
    * found and a 404 returned.
    */
   async getMetastoreAssignment(
-    req: AccountsGetMetastoreAssignmentPublic,
+    req: AccountsGetMetastoreAssignmentPublicRequest,
     options?: CallOptions
-  ): Promise<AccountsGetMetastoreAssignmentPublic_Response> {
+  ): Promise<AccountsGetMetastoreAssignmentPublicRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/metastore`;
-    let resp: AccountsGetMetastoreAssignmentPublic_Response | undefined;
+    let resp: AccountsGetMetastoreAssignmentPublicRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -298,7 +302,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsGetMetastoreAssignmentPublic_ResponseSchema
+        unmarshalAccountsGetMetastoreAssignmentPublicRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -310,11 +314,11 @@ export class Client {
 
   /** Gets all Unity Catalog metastores associated with an account specified by ID. */
   async listAccountsMetastores(
-    req: AccountsListMetastoresPublic,
+    req: AccountsListMetastoresPublicRequest,
     options?: CallOptions
-  ): Promise<AccountsListMetastoresPublic_Response> {
+  ): Promise<AccountsListMetastoresPublicRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores`;
-    let resp: AccountsListMetastoresPublic_Response | undefined;
+    let resp: AccountsListMetastoresPublicRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -326,7 +330,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsListMetastoresPublic_ResponseSchema
+        unmarshalAccountsListMetastoresPublicRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -338,11 +342,13 @@ export class Client {
 
   /** Gets a list of all <Databricks> workspace IDs that have been assigned to given metastore. */
   async listMetastoreAssignments(
-    req: AccountsListWorkspaceIdsForMetastorePublic,
+    req: AccountsListWorkspaceIdsForMetastorePublicRequest,
     options?: CallOptions
-  ): Promise<AccountsListWorkspaceIdsForMetastorePublic_Response> {
+  ): Promise<AccountsListWorkspaceIdsForMetastorePublicRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/workspaces`;
-    let resp: AccountsListWorkspaceIdsForMetastorePublic_Response | undefined;
+    let resp:
+      | AccountsListWorkspaceIdsForMetastorePublicRequest_Response
+      | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -354,7 +360,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsListWorkspaceIdsForMetastorePublic_ResponseSchema
+        unmarshalAccountsListWorkspaceIdsForMetastorePublicRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -366,15 +372,15 @@ export class Client {
 
   /** Updates an existing Unity Catalog metastore. */
   async updateAccountsMetastore(
-    req: AccountsUpdateMetastorePublic,
+    req: AccountsUpdateMetastorePublicRequest,
     options?: CallOptions
-  ): Promise<AccountsUpdateMetastorePublic_Response> {
+  ): Promise<AccountsUpdateMetastorePublicRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}`;
     const body = marshalRequest(
       req,
-      marshalAccountsUpdateMetastorePublicSchema
+      marshalAccountsUpdateMetastorePublicRequestSchema
     );
-    let resp: AccountsUpdateMetastorePublic_Response | undefined;
+    let resp: AccountsUpdateMetastorePublicRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -386,7 +392,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsUpdateMetastorePublic_ResponseSchema
+        unmarshalAccountsUpdateMetastorePublicRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -398,15 +404,17 @@ export class Client {
 
   /** Updates an assignment to a metastore for a workspace. Currently, only the default catalog may be updated. */
   async updateAccountsMetastoreAssignment(
-    req: AccountsUpdateMetastoreAssignmentPublic,
+    req: AccountsUpdateMetastoreAssignmentPublicRequest,
     options?: CallOptions
-  ): Promise<AccountsUpdateMetastoreAssignmentPublic_Response> {
+  ): Promise<AccountsUpdateMetastoreAssignmentPublicRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/metastores/${req.metastoreId ?? ''}`;
     const body = marshalRequest(
       req,
-      marshalAccountsUpdateMetastoreAssignmentPublicSchema
+      marshalAccountsUpdateMetastoreAssignmentPublicRequestSchema
     );
-    let resp: AccountsUpdateMetastoreAssignmentPublic_Response | undefined;
+    let resp:
+      | AccountsUpdateMetastoreAssignmentPublicRequest_Response
+      | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -418,7 +426,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsUpdateMetastoreAssignmentPublic_ResponseSchema
+        unmarshalAccountsUpdateMetastoreAssignmentPublicRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -435,11 +443,11 @@ export class Client {
    * assigned to the System User instead.
    */
   async createMetastore(
-    req: CreateMetastore,
+    req: CreateMetastoreRequest,
     options?: CallOptions
   ): Promise<MetastoreInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores`;
-    const body = marshalRequest(req, marshalCreateMetastoreSchema);
+    const body = marshalRequest(req, marshalCreateMetastoreRequestSchema);
     let resp: MetastoreInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -465,12 +473,15 @@ export class Client {
    * __default_catalog_name__. The caller must be an account admin.
    */
   async createMetastoreAssignment(
-    req: CreateMetastoreAssignment,
+    req: CreateMetastoreAssignmentRequest,
     options?: CallOptions
-  ): Promise<CreateMetastoreAssignment_Response> {
+  ): Promise<CreateMetastoreAssignmentRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/workspaces/${String(req.workspaceId ?? '')}/metastore`;
-    const body = marshalRequest(req, marshalCreateMetastoreAssignmentSchema);
-    let resp: CreateMetastoreAssignment_Response | undefined;
+    const body = marshalRequest(
+      req,
+      marshalCreateMetastoreAssignmentRequestSchema
+    );
+    let resp: CreateMetastoreAssignmentRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -482,7 +493,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalCreateMetastoreAssignment_ResponseSchema
+        unmarshalCreateMetastoreAssignmentRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -494,9 +505,9 @@ export class Client {
 
   /** Deletes a metastore. The caller must be a metastore admin. */
   async deleteMetastore(
-    req: DeleteMetastore,
+    req: DeleteMetastoreRequest,
     options?: CallOptions
-  ): Promise<DeleteMetastore_Response> {
+  ): Promise<DeleteMetastoreRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.id ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -504,38 +515,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: DeleteMetastore_Response | undefined;
-    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
-      const headers = new Headers();
-      headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalDeleteMetastore_ResponseSchema);
-    };
-    await executeCall(call, options);
-    if (resp === undefined) {
-      throw new Error('API call completed without a result.');
-    }
-    return resp;
-  }
-
-  /** Deletes a metastore assignment. The caller must be an account administrator. */
-  async deleteMetastoreAssignment(
-    req: DeleteMetastoreAssignment,
-    options?: CallOptions
-  ): Promise<DeleteMetastoreAssignment_Response> {
-    const url = `${this.host}/api/2.1/unity-catalog/workspaces/${String(req.workspaceId ?? '')}/metastore`;
-    const params = new URLSearchParams();
-    if (req.metastoreId !== undefined) {
-      params.append('metastore_id', req.metastoreId);
-    }
-    const query = params.toString();
-    const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: DeleteMetastoreAssignment_Response | undefined;
+    let resp: DeleteMetastoreRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -547,7 +527,41 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeleteMetastoreAssignment_ResponseSchema
+        unmarshalDeleteMetastoreRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Deletes a metastore assignment. The caller must be an account administrator. */
+  async deleteMetastoreAssignment(
+    req: DeleteMetastoreAssignmentRequest,
+    options?: CallOptions
+  ): Promise<DeleteMetastoreAssignmentRequest_Response> {
+    const url = `${this.host}/api/2.1/unity-catalog/workspaces/${String(req.workspaceId ?? '')}/metastore`;
+    const params = new URLSearchParams();
+    if (req.metastoreId !== undefined) {
+      params.append('metastore_id', req.metastoreId);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: DeleteMetastoreAssignmentRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalDeleteMetastoreAssignmentRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -559,7 +573,7 @@ export class Client {
 
   /** Gets the metastore assignment for the workspace being accessed. */
   async getCurrentMetastoreAssignment(
-    _req: GetCurrentMetastoreAssignment,
+    _req: GetCurrentMetastoreAssignmentRequest,
     options?: CallOptions
   ): Promise<MetastoreAssignment> {
     const url = `${this.host}/api/2.1/unity-catalog/current-metastore-assignment`;
@@ -584,7 +598,7 @@ export class Client {
 
   /** Gets a metastore that matches the supplied ID. The caller must be a metastore admin to retrieve this info. */
   async getMetastore(
-    req: GetMetastore,
+    req: GetMetastoreRequest,
     options?: CallOptions
   ): Promise<MetastoreInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.id ?? ''}`;
@@ -612,11 +626,11 @@ export class Client {
    * This summary includes the storage credential, the cloud vendor, the cloud region, and the global metastore ID.
    */
   async getMetastoreSummary(
-    _req: GetMetastoreSummary,
+    _req: GetMetastoreSummaryRequest,
     options?: CallOptions
-  ): Promise<GetMetastoreSummary_Response> {
+  ): Promise<GetMetastoreSummaryRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/metastore_summary`;
-    let resp: GetMetastoreSummary_Response | undefined;
+    let resp: GetMetastoreSummaryRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -628,7 +642,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetMetastoreSummary_ResponseSchema
+        unmarshalGetMetastoreSummaryRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -648,9 +662,9 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listMetastores(
-    req: ListMetastores,
+    req: ListMetastoresRequest,
     options?: CallOptions
-  ): Promise<ListMetastores_Response> {
+  ): Promise<ListMetastoresRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -661,7 +675,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListMetastores_Response | undefined;
+    let resp: ListMetastoresRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -671,7 +685,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListMetastores_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalListMetastoresRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -681,10 +698,10 @@ export class Client {
   }
 
   async *listMetastoresIter(
-    req: ListMetastores,
+    req: ListMetastoresRequest,
     options?: CallOptions
   ): AsyncGenerator<MetastoreInfo> {
-    const pageReq: ListMetastores = {...req};
+    const pageReq: ListMetastoresRequest = {...req};
     for (;;) {
       const resp = await this.listMetastores(pageReq, options);
       for (const item of resp.metastores ?? []) {
@@ -703,11 +720,11 @@ export class Client {
    * to the System User.
    */
   async updateMetastore(
-    req: UpdateMetastore,
+    req: UpdateMetastoreRequest,
     options?: CallOptions
   ): Promise<MetastoreInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.id ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateMetastoreSchema);
+    const body = marshalRequest(req, marshalUpdateMetastoreRequestSchema);
     let resp: MetastoreInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -733,12 +750,15 @@ export class Client {
    * The caller must be an account admin to update __metastore_id__; otherwise, the caller can be a Workspace admin.
    */
   async updateMetastoreAssignment(
-    req: UpdateMetastoreAssignment,
+    req: UpdateMetastoreAssignmentRequest,
     options?: CallOptions
-  ): Promise<UpdateMetastoreAssignment_Response> {
+  ): Promise<UpdateMetastoreAssignmentRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/workspaces/${String(req.workspaceId ?? '')}/metastore`;
-    const body = marshalRequest(req, marshalUpdateMetastoreAssignmentSchema);
-    let resp: UpdateMetastoreAssignment_Response | undefined;
+    const body = marshalRequest(
+      req,
+      marshalUpdateMetastoreAssignmentRequestSchema
+    );
+    let resp: UpdateMetastoreAssignmentRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -750,7 +770,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalUpdateMetastoreAssignment_ResponseSchema
+        unmarshalUpdateMetastoreAssignmentRequest_ResponseSchema
       );
     };
     await executeCall(call, options);

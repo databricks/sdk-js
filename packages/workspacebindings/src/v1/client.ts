@@ -18,23 +18,23 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  GetCatalogWorkspaceBindings,
-  GetCatalogWorkspaceBindings_Response,
-  GetWorkspaceBindings,
-  GetWorkspaceBindings_Response,
-  UpdateCatalogWorkspaceBindings,
-  UpdateCatalogWorkspaceBindings_Response,
-  UpdateWorkspaceBindings,
-  UpdateWorkspaceBindings_Response,
+  GetCatalogWorkspaceBindingsRequest,
+  GetCatalogWorkspaceBindingsRequest_Response,
+  GetWorkspaceBindingsRequest,
+  GetWorkspaceBindingsRequest_Response,
+  UpdateCatalogWorkspaceBindingsRequest,
+  UpdateCatalogWorkspaceBindingsRequest_Response,
+  UpdateWorkspaceBindingsRequest,
+  UpdateWorkspaceBindingsRequest_Response,
   WorkspaceBindingInfo,
 } from './model';
 import {
-  marshalUpdateCatalogWorkspaceBindingsSchema,
-  marshalUpdateWorkspaceBindingsSchema,
-  unmarshalGetCatalogWorkspaceBindings_ResponseSchema,
-  unmarshalGetWorkspaceBindings_ResponseSchema,
-  unmarshalUpdateCatalogWorkspaceBindings_ResponseSchema,
-  unmarshalUpdateWorkspaceBindings_ResponseSchema,
+  marshalUpdateCatalogWorkspaceBindingsRequestSchema,
+  marshalUpdateWorkspaceBindingsRequestSchema,
+  unmarshalGetCatalogWorkspaceBindingsRequest_ResponseSchema,
+  unmarshalGetWorkspaceBindingsRequest_ResponseSchema,
+  unmarshalUpdateCatalogWorkspaceBindingsRequest_ResponseSchema,
+  unmarshalUpdateWorkspaceBindingsRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -73,11 +73,11 @@ export class Client {
    * The caller must be a metastore admin or an owner of the catalog.
    */
   async getCatalogWorkspaceBindings(
-    req: GetCatalogWorkspaceBindings,
+    req: GetCatalogWorkspaceBindingsRequest,
     options?: CallOptions
-  ): Promise<GetCatalogWorkspaceBindings_Response> {
+  ): Promise<GetCatalogWorkspaceBindingsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/workspace-bindings/catalogs/${req.catalogName ?? ''}`;
-    let resp: GetCatalogWorkspaceBindings_Response | undefined;
+    let resp: GetCatalogWorkspaceBindingsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -89,7 +89,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetCatalogWorkspaceBindings_ResponseSchema
+        unmarshalGetCatalogWorkspaceBindingsRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -109,9 +109,9 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async getWorkspaceBindings(
-    req: GetWorkspaceBindings,
+    req: GetWorkspaceBindingsRequest,
     options?: CallOptions
-  ): Promise<GetWorkspaceBindings_Response> {
+  ): Promise<GetWorkspaceBindingsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/bindings/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -122,7 +122,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetWorkspaceBindings_Response | undefined;
+    let resp: GetWorkspaceBindingsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -134,7 +134,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetWorkspaceBindings_ResponseSchema
+        unmarshalGetWorkspaceBindingsRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -145,10 +145,10 @@ export class Client {
   }
 
   async *getWorkspaceBindingsIter(
-    req: GetWorkspaceBindings,
+    req: GetWorkspaceBindingsRequest,
     options?: CallOptions
   ): AsyncGenerator<WorkspaceBindingInfo> {
-    const pageReq: GetWorkspaceBindings = {...req};
+    const pageReq: GetWorkspaceBindingsRequest = {...req};
     for (;;) {
       const resp = await this.getWorkspaceBindings(pageReq, options);
       for (const item of resp.bindings ?? []) {
@@ -166,15 +166,15 @@ export class Client {
    * The caller must be a metastore admin or an owner of the catalog.
    */
   async updateCatalogWorkspaceBindings(
-    req: UpdateCatalogWorkspaceBindings,
+    req: UpdateCatalogWorkspaceBindingsRequest,
     options?: CallOptions
-  ): Promise<UpdateCatalogWorkspaceBindings_Response> {
+  ): Promise<UpdateCatalogWorkspaceBindingsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/workspace-bindings/catalogs/${req.catalogName ?? ''}`;
     const body = marshalRequest(
       req,
-      marshalUpdateCatalogWorkspaceBindingsSchema
+      marshalUpdateCatalogWorkspaceBindingsRequestSchema
     );
-    let resp: UpdateCatalogWorkspaceBindings_Response | undefined;
+    let resp: UpdateCatalogWorkspaceBindingsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -186,7 +186,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalUpdateCatalogWorkspaceBindings_ResponseSchema
+        unmarshalUpdateCatalogWorkspaceBindingsRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -201,12 +201,15 @@ export class Client {
    * The caller must be a metastore admin or an owner of the securable.
    */
   async updateWorkspaceBindings(
-    req: UpdateWorkspaceBindings,
+    req: UpdateWorkspaceBindingsRequest,
     options?: CallOptions
-  ): Promise<UpdateWorkspaceBindings_Response> {
+  ): Promise<UpdateWorkspaceBindingsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/bindings/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateWorkspaceBindingsSchema);
-    let resp: UpdateWorkspaceBindings_Response | undefined;
+    const body = marshalRequest(
+      req,
+      marshalUpdateWorkspaceBindingsRequestSchema
+    );
+    let resp: UpdateWorkspaceBindingsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -218,7 +221,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalUpdateWorkspaceBindings_ResponseSchema
+        unmarshalUpdateWorkspaceBindingsRequest_ResponseSchema
       );
     };
     await executeCall(call, options);

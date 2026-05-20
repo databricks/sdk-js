@@ -24,7 +24,7 @@ export interface EffectivePrivilegeAssignment {
   privileges?: EffectivePrivilege[] | undefined;
 }
 
-export interface GetEffectivePermissions {
+export interface GetEffectivePermissionsRequest {
   /** Type of securable. */
   securableType?: string | undefined;
   /** Full name of securable. */
@@ -50,7 +50,7 @@ export interface GetEffectivePermissions {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetEffectivePermissions_Response {
+export interface GetEffectivePermissionsRequest_Response {
   /**
    * Opaque token to retrieve the next page of results. Absent if there are no more pages.
    * __page_token__ should be set to this value for the next request (for the next page of results).
@@ -60,7 +60,7 @@ export interface GetEffectivePermissions_Response {
   privilegeAssignments?: EffectivePrivilegeAssignment[] | undefined;
 }
 
-export interface GetPermissions {
+export interface GetPermissionsRequest {
   /** Type of securable. */
   securableType?: string | undefined;
   /** Full name of securable. */
@@ -86,7 +86,7 @@ export interface GetPermissions {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetPermissions_Response {
+export interface GetPermissionsRequest_Response {
   /**
    * Opaque token to retrieve the next page of results. Absent if there are no more pages.
    * __page_token__ should be set to this value for the next request (for the next page of results).
@@ -118,7 +118,7 @@ export interface PrivilegeAssignment {
   privileges?: string[] | undefined;
 }
 
-export interface UpdatePermissions {
+export interface UpdatePermissionsRequest {
   /** Type of securable. */
   securableType?: string | undefined;
   /** Full name of securable. */
@@ -128,7 +128,7 @@ export interface UpdatePermissions {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdatePermissions_Response {
+export interface UpdatePermissionsRequest_Response {
   /** The privileges assigned to each principal */
   privilegeAssignments?: PrivilegeAssignment[] | undefined;
 }
@@ -160,7 +160,7 @@ export const unmarshalEffectivePrivilegeAssignmentSchema: z.ZodType<EffectivePri
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetEffectivePermissions_ResponseSchema: z.ZodType<GetEffectivePermissions_Response> =
+export const unmarshalGetEffectivePermissionsRequest_ResponseSchema: z.ZodType<GetEffectivePermissionsRequest_Response> =
   z
     .object({
       next_page_token: z.string().optional(),
@@ -174,7 +174,7 @@ export const unmarshalGetEffectivePermissions_ResponseSchema: z.ZodType<GetEffec
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetPermissions_ResponseSchema: z.ZodType<GetPermissions_Response> =
+export const unmarshalGetPermissionsRequest_ResponseSchema: z.ZodType<GetPermissionsRequest_Response> =
   z
     .object({
       next_page_token: z.string().optional(),
@@ -199,7 +199,7 @@ export const unmarshalPrivilegeAssignmentSchema: z.ZodType<PrivilegeAssignment> 
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdatePermissions_ResponseSchema: z.ZodType<UpdatePermissions_Response> =
+export const unmarshalUpdatePermissionsRequest_ResponseSchema: z.ZodType<UpdatePermissionsRequest_Response> =
   z
     .object({
       privilege_assignments: z
@@ -222,7 +222,7 @@ export const marshalPermissionsChangeSchema: z.ZodType = z
     remove: d.remove,
   }));
 
-export const marshalUpdatePermissionsSchema: z.ZodType = z
+export const marshalUpdatePermissionsRequestSchema: z.ZodType = z
   .object({
     securableType: z.string().optional(),
     securableFullName: z.string().optional(),

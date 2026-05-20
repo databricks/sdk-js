@@ -3,7 +3,7 @@
 import {z} from 'zod';
 
 /** Returns the details of a policy family at a specific version */
-export interface GetPolicyFamily {
+export interface GetPolicyFamilyRequest {
   /** The family ID about which to retrieve information. */
   policyFamilyId?: string | undefined;
   /** The version number for the family to fetch. Defaults to the latest version. */
@@ -11,7 +11,7 @@ export interface GetPolicyFamily {
 }
 
 /** Returns the list of policy families available to use at their latest version */
-export interface ListPolicyFamilies {
+export interface ListPolicyFamiliesRequest {
   /** Maximum number of policy families to return. */
   maxResults?: number | undefined;
   /** A token that can be used to get the next page of results. */
@@ -19,7 +19,7 @@ export interface ListPolicyFamilies {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListPolicyFamilies_Response {
+export interface ListPolicyFamiliesRequest_Response {
   /** List of policy families. */
   policyFamilies?: PolicyFamily[] | undefined;
   /** A token that can be used to get the next page of results. If not present, there are no more results to show. */
@@ -38,7 +38,7 @@ export interface PolicyFamily {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListPolicyFamilies_ResponseSchema: z.ZodType<ListPolicyFamilies_Response> =
+export const unmarshalListPolicyFamiliesRequest_ResponseSchema: z.ZodType<ListPolicyFamiliesRequest_Response> =
   z
     .object({
       policy_families: z

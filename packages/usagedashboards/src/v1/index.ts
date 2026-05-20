@@ -5,8 +5,8 @@ export {Client} from './client';
 export {UsageDashboardMajorVersion, UsageDashboardType} from './model';
 
 export type {
-  CreateBillingUsageDashboard,
-  CreateBillingUsageDashboard_Response,
-  GetBillingUsageDashboard,
-  GetBillingUsageDashboard_Response,
+  CreateBillingUsageDashboardRequest,
+  CreateBillingUsageDashboardRequest_Response,
+  GetBillingUsageDashboardRequest,
+  GetBillingUsageDashboardRequest_Response,
 } from './model';

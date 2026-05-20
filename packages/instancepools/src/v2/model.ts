@@ -87,7 +87,7 @@ export enum InstancePoolState {
   DELETED = 'DELETED',
 }
 
-export interface CreateInstancePool {
+export interface CreateInstancePoolRequest {
   /**
    * Pool name requested by the user. Pool name must be unique. Length must be between 1 and 100
    * characters.
@@ -165,7 +165,7 @@ export interface CreateInstancePool {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateInstancePool_CustomTagsEntry {
+export interface CreateInstancePoolRequest_CustomTagsEntry {
   /**
    * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
    * For a list of all restrictions, see the AWS docs here:
@@ -181,18 +181,18 @@ export interface CreateInstancePool_CustomTagsEntry {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateInstancePool_Response {
+export interface CreateInstancePoolRequest_Response {
   /** The ID of the created instance pool. */
   instancePoolId?: string | undefined;
 }
 
-export interface DeleteInstancePool {
+export interface DeleteInstancePoolRequest {
   /** The instance pool to be terminated. */
   instancePoolId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteInstancePool_Response {}
+export interface DeleteInstancePoolRequest_Response {}
 
 /**
  * Describes the disks that are launched for each instance in the spark cluster.
@@ -267,7 +267,7 @@ export interface DockerImage {
     | undefined;
 }
 
-export interface EditInstancePool {
+export interface EditInstancePoolRequest {
   /** Instance pool ID */
   instancePoolId?: string | undefined;
   /**
@@ -347,7 +347,7 @@ export interface EditInstancePool {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface EditInstancePool_CustomTagsEntry {
+export interface EditInstancePoolRequest_CustomTagsEntry {
   /**
    * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
    * For a list of all restrictions, see the AWS docs here:
@@ -363,15 +363,15 @@ export interface EditInstancePool_CustomTagsEntry {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface EditInstancePool_Response {}
+export interface EditInstancePoolRequest_Response {}
 
-export interface GetInstancePool {
+export interface GetInstancePoolRequest {
   /** The canonical unique identifier for the instance pool. */
   instancePoolId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetInstancePool_Response {
+export interface GetInstancePoolRequest_Response {
   /** Usage statistics about the instance pool. */
   stats?: InstancePoolStats | undefined;
   /** Status of failed pending instances in the pool. */
@@ -469,7 +469,7 @@ export interface GetInstancePool_Response {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetInstancePool_Response_CustomTagsEntry {
+export interface GetInstancePoolRequest_Response_CustomTagsEntry {
   /**
    * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
    * For a list of all restrictions, see the AWS docs here:
@@ -485,7 +485,7 @@ export interface GetInstancePool_Response_CustomTagsEntry {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetInstancePool_Response_DefaultTagsEntry {
+export interface GetInstancePoolRequest_Response_DefaultTagsEntry {
   /**
    * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
    * For a list of all restrictions, see the AWS docs here:
@@ -728,10 +728,10 @@ export interface InstancePoolStatus {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ListInstancePools {}
+export interface ListInstancePoolsRequest {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListInstancePools_Response {
+export interface ListInstancePoolsRequest_Response {
   instancePools?: InstancePoolAndStats[] | undefined;
 }
 
@@ -748,7 +748,7 @@ export interface PendingInstanceError {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateInstancePool_ResponseSchema: z.ZodType<CreateInstancePool_Response> =
+export const unmarshalCreateInstancePoolRequest_ResponseSchema: z.ZodType<CreateInstancePoolRequest_Response> =
   z
     .object({
       instance_pool_id: z.string().optional(),
@@ -758,7 +758,7 @@ export const unmarshalCreateInstancePool_ResponseSchema: z.ZodType<CreateInstanc
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteInstancePool_ResponseSchema: z.ZodType<DeleteInstancePool_Response> =
+export const unmarshalDeleteInstancePoolRequest_ResponseSchema: z.ZodType<DeleteInstancePoolRequest_Response> =
   z.object({});
 
 export const unmarshalDiskSpecSchema: z.ZodType<DiskSpec> = z
@@ -818,11 +818,11 @@ export const unmarshalDockerImageSchema: z.ZodType<DockerImage> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEditInstancePool_ResponseSchema: z.ZodType<EditInstancePool_Response> =
+export const unmarshalEditInstancePoolRequest_ResponseSchema: z.ZodType<EditInstancePoolRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetInstancePool_ResponseSchema: z.ZodType<GetInstancePool_Response> =
+export const unmarshalGetInstancePoolRequest_ResponseSchema: z.ZodType<GetInstancePoolRequest_Response> =
   z
     .object({
       stats: z.lazy(() => unmarshalInstancePoolStatsSchema).optional(),
@@ -1007,7 +1007,7 @@ export const unmarshalInstancePoolStatusSchema: z.ZodType<InstancePoolStatus> =
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListInstancePools_ResponseSchema: z.ZodType<ListInstancePools_Response> =
+export const unmarshalListInstancePoolsRequest_ResponseSchema: z.ZodType<ListInstancePoolsRequest_Response> =
   z
     .object({
       instance_pools: z
@@ -1038,7 +1038,7 @@ export const unmarshalPendingInstanceErrorSchema: z.ZodType<PendingInstanceError
       message: d.message,
     }));
 
-export const marshalCreateInstancePoolSchema: z.ZodType = z
+export const marshalCreateInstancePoolRequestSchema: z.ZodType = z
   .object({
     instancePoolName: z.string().optional(),
     minIdleInstances: z.number().optional(),
@@ -1086,7 +1086,7 @@ export const marshalCreateInstancePoolSchema: z.ZodType = z
     total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
   }));
 
-export const marshalDeleteInstancePoolSchema: z.ZodType = z
+export const marshalDeleteInstancePoolRequestSchema: z.ZodType = z
   .object({
     instancePoolId: z.string().optional(),
   })
@@ -1163,7 +1163,7 @@ export const marshalDockerImageSchema: z.ZodType = z
     }),
   }));
 
-export const marshalEditInstancePoolSchema: z.ZodType = z
+export const marshalEditInstancePoolRequestSchema: z.ZodType = z
   .object({
     instancePoolId: z.string().optional(),
     instancePoolName: z.string().optional(),

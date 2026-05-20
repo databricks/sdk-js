@@ -5,13 +5,13 @@ export {Client} from './client';
 export {} from './model';
 
 export type {
-  CreateToken,
-  CreateToken_Response,
-  ListTokens,
-  ListTokens_Response,
+  CreateTokenRequest,
+  CreateTokenRequest_Response,
+  ListTokensRequest,
+  ListTokensRequest_Response,
   PublicTokenInfo,
-  RevokeToken,
-  RevokeToken_Response,
-  UpdateToken,
+  RevokeTokenRequest,
+  RevokeTokenRequest_Response,
+  UpdateTokenRequest,
   UpdateTokenResponse,
 } from './model';

@@ -20,8 +20,8 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateDefaultWarehouseOverrideRequest,
-  CreateWarehouse,
-  CreateWarehouse_Response,
+  CreateWarehouseRequest,
+  CreateWarehouseRequest_Response,
   DefaultWarehouseOverride,
   DeleteDefaultWarehouseOverrideRequest,
   DeleteWarehouseRequest,
@@ -30,8 +30,8 @@ import type {
   EditWarehouseRequest_Response,
   EndpointInfo,
   GetDefaultWarehouseOverrideRequest,
-  GetWarehouse,
-  GetWarehouse_Response,
+  GetWarehouseRequest,
+  GetWarehouseRequest_Response,
   GetWorkspaceWarehouseConfigRequest,
   GetWorkspaceWarehouseConfigRequest_Response,
   ListDefaultWarehouseOverridesRequest,
@@ -48,17 +48,17 @@ import type {
 } from './model';
 import {
   EndpointState,
-  marshalCreateWarehouseSchema,
+  marshalCreateWarehouseRequestSchema,
   marshalDefaultWarehouseOverrideSchema,
   marshalEditWarehouseRequestSchema,
   marshalSetWorkspaceWarehouseConfigRequestSchema,
   marshalStartRequestSchema,
   marshalStopRequestSchema,
-  unmarshalCreateWarehouse_ResponseSchema,
+  unmarshalCreateWarehouseRequest_ResponseSchema,
   unmarshalDefaultWarehouseOverrideSchema,
   unmarshalDeleteWarehouseRequest_ResponseSchema,
   unmarshalEditWarehouseRequest_ResponseSchema,
-  unmarshalGetWarehouse_ResponseSchema,
+  unmarshalGetWarehouseRequest_ResponseSchema,
   unmarshalGetWorkspaceWarehouseConfigRequest_ResponseSchema,
   unmarshalListDefaultWarehouseOverridesResponseSchema,
   unmarshalListWarehousesRequest_ResponseSchema,
@@ -149,12 +149,12 @@ export class Client {
 
   /** Creates a new SQL warehouse. */
   async createWarehouse(
-    req: CreateWarehouse,
+    req: CreateWarehouseRequest,
     options?: CallOptions
-  ): Promise<CreateWarehouse_Response> {
+  ): Promise<CreateWarehouseRequest_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses`;
-    const body = marshalRequest(req, marshalCreateWarehouseSchema);
-    let resp: CreateWarehouse_Response | undefined;
+    const body = marshalRequest(req, marshalCreateWarehouseRequestSchema);
+    let resp: CreateWarehouseRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -164,7 +164,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCreateWarehouse_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalCreateWarehouseRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -174,7 +177,7 @@ export class Client {
   }
 
   async createWarehouseWaiter(
-    req: CreateWarehouse,
+    req: CreateWarehouseRequest,
     options?: CallOptions
   ): Promise<CreateWarehouseWaiter> {
     const resp = await this.createWarehouse(req, options);
@@ -306,11 +309,11 @@ export class Client {
 
   /** Gets the information for a single SQL warehouse. */
   async getWarehouse(
-    req: GetWarehouse,
+    req: GetWarehouseRequest,
     options?: CallOptions
-  ): Promise<GetWarehouse_Response> {
+  ): Promise<GetWarehouseRequest_Response> {
     const url = `${this.host}/api/2.0/sql/warehouses/${req.id ?? ''}`;
-    let resp: GetWarehouse_Response | undefined;
+    let resp: GetWarehouseRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -320,7 +323,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetWarehouse_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalGetWarehouseRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -636,8 +642,8 @@ export class CreateWarehouseWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: CallOptions): Promise<GetWarehouse_Response> {
-    let result: GetWarehouse_Response | undefined;
+  async wait(options?: CallOptions): Promise<GetWarehouseRequest_Response> {
+    let result: GetWarehouseRequest_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getWarehouse(
@@ -716,8 +722,8 @@ export class EditWarehouseWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: CallOptions): Promise<GetWarehouse_Response> {
-    let result: GetWarehouse_Response | undefined;
+  async wait(options?: CallOptions): Promise<GetWarehouseRequest_Response> {
+    let result: GetWarehouseRequest_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getWarehouse(
@@ -796,8 +802,8 @@ export class StartWarehouseWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: CallOptions): Promise<GetWarehouse_Response> {
-    let result: GetWarehouse_Response | undefined;
+  async wait(options?: CallOptions): Promise<GetWarehouseRequest_Response> {
+    let result: GetWarehouseRequest_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getWarehouse(
@@ -876,8 +882,8 @@ export class StopWarehouseWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: CallOptions): Promise<GetWarehouse_Response> {
-    let result: GetWarehouse_Response | undefined;
+  async wait(options?: CallOptions): Promise<GetWarehouseRequest_Response> {
+    let result: GetWarehouseRequest_Response | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getWarehouse(

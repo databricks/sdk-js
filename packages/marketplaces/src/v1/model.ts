@@ -162,7 +162,7 @@ export interface CreateExchangeResponse {
   exchangeId?: string | undefined;
 }
 
-export interface CreateFile {
+export interface CreateFileRequest {
   fileParent?: FileParent | undefined;
   marketplaceFileType?: MarketplaceFileType | undefined;
   mimeType?: string | undefined;
@@ -170,35 +170,35 @@ export interface CreateFile {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateFile_Response {
+export interface CreateFileRequest_Response {
   /** Pre-signed POST URL to blob storage */
   uploadUrl?: string | undefined;
   fileInfo?: FileInfo | undefined;
 }
 
-export interface CreateListing {
+export interface CreateListingRequest {
   listing?: Listing | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateListing_Response {
+export interface CreateListingRequest_Response {
   listingId?: string | undefined;
 }
 
-export interface CreateProvider {
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface CreateProviderAnalyticsDashboardRequest {}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface CreateProviderAnalyticsDashboardRequest_Response {
+  id?: string | undefined;
+}
+
+export interface CreateProviderRequest {
   provider?: ProviderInfo | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateProvider_Response {
-  id?: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface CreateProviderAnalyticsDashboard {}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateProviderAnalyticsDashboard_Response {
+export interface CreateProviderRequest_Response {
   id?: string | undefined;
 }
 
@@ -221,26 +221,26 @@ export interface DeleteExchangeRequest {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface DeleteExchangeResponse {}
 
-export interface DeleteFile {
+export interface DeleteFileRequest {
   fileId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteFile_Response {}
+export interface DeleteFileRequest_Response {}
 
-export interface DeleteListing {
+export interface DeleteListingRequest {
   id?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteListing_Response {}
+export interface DeleteListingRequest_Response {}
 
-export interface DeleteProvider {
+export interface DeleteProviderRequest {
   id?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteProvider_Response {}
+export interface DeleteProviderRequest_Response {}
 
 export interface Exchange {
   id?: string | undefined;
@@ -305,12 +305,12 @@ export interface GetExchangeResponse {
   exchange?: Exchange | undefined;
 }
 
-export interface GetFile {
+export interface GetFileRequest {
   fileId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetFile_Response {
+export interface GetFileRequest_Response {
   fileInfo?: FileInfo | undefined;
 }
 
@@ -319,51 +319,51 @@ export interface GetFile_Response {
  * that exists on server.
  */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface GetLatestVersionProviderAnalyticsDashboard {}
+export interface GetLatestVersionProviderAnalyticsDashboardRequest {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetLatestVersionProviderAnalyticsDashboard_Response {
+export interface GetLatestVersionProviderAnalyticsDashboardRequest_Response {
   /** version here is latest logical version of the dashboard template */
   version?: number | undefined;
 }
 
-export interface GetListing {
+export interface GetListingRequest {
   id?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetListing_Response {
+export interface GetListingRequest_Response {
   listing?: Listing | undefined;
 }
 
-export interface GetListings {
+export interface GetListingsRequest {
   pageToken?: string | undefined;
   pageSize?: number | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetListings_Response {
+export interface GetListingsRequest_Response {
   listings?: Listing[] | undefined;
   nextPageToken?: string | undefined;
 }
 
-export interface GetPersonalizationRequestsForProvider {
+export interface GetPersonalizationRequestsForProviderRequest {
   pageToken?: string | undefined;
   pageSize?: number | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetPersonalizationRequestsForProvider_Response {
+export interface GetPersonalizationRequestsForProviderRequest_Response {
   personalizationRequests?: PersonalizationRequest[] | undefined;
   nextPageToken?: string | undefined;
 }
 
-export interface GetProvider {
+export interface GetProviderRequest {
   id?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetProvider_Response {
+export interface GetProviderRequest_Response {
   provider?: ProviderInfo | undefined;
 }
 
@@ -399,14 +399,14 @@ export interface ListExchangesResponse {
   nextPageToken?: string | undefined;
 }
 
-export interface ListFiles {
+export interface ListFilesRequest {
   fileParent?: FileParent | undefined;
   pageToken?: string | undefined;
   pageSize?: number | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListFiles_Response {
+export interface ListFilesRequest_Response {
   fileInfos?: FileInfo[] | undefined;
   nextPageToken?: string | undefined;
 }
@@ -423,23 +423,23 @@ export interface ListListingsForExchangeResponse {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ListProviderAnalyticsDashboard {}
+export interface ListProviderAnalyticsDashboardRequest {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListProviderAnalyticsDashboard_Response {
+export interface ListProviderAnalyticsDashboardRequest_Response {
   id?: string | undefined;
   version?: number | undefined;
   /** dashboard_id will be used to open Lakeview dashboard. */
   dashboardId?: string | undefined;
 }
 
-export interface ListProviders {
+export interface ListProvidersRequest {
   pageToken?: string | undefined;
   pageSize?: number | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListProviders_Response {
+export interface ListProvidersRequest_Response {
   providers?: ProviderInfo[] | undefined;
   nextPageToken?: string | undefined;
 }
@@ -615,17 +615,17 @@ export interface UpdateExchangeResponse {
   exchange?: Exchange | undefined;
 }
 
-export interface UpdateListing {
+export interface UpdateListingRequest {
   id?: string | undefined;
   listing?: Listing | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateListing_Response {
+export interface UpdateListingRequest_Response {
   listing?: Listing | undefined;
 }
 
-export interface UpdatePersonalizationRequestStatus {
+export interface UpdatePersonalizationRequestStatusRequest {
   listingId?: string | undefined;
   requestId?: string | undefined;
   status?: PersonalizationRequestStatus | undefined;
@@ -634,21 +634,11 @@ export interface UpdatePersonalizationRequestStatus {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdatePersonalizationRequestStatus_Response {
+export interface UpdatePersonalizationRequestStatusRequest_Response {
   request?: PersonalizationRequest | undefined;
 }
 
-export interface UpdateProvider {
-  id?: string | undefined;
-  provider?: ProviderInfo | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateProvider_Response {
-  provider?: ProviderInfo | undefined;
-}
-
-export interface UpdateProviderAnalyticsDashboard {
+export interface UpdateProviderAnalyticsDashboardRequest {
   /** id is immutable property and can't be updated. */
   id?: string | undefined;
   /**
@@ -659,12 +649,22 @@ export interface UpdateProviderAnalyticsDashboard {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateProviderAnalyticsDashboard_Response {
+export interface UpdateProviderAnalyticsDashboardRequest_Response {
   /** id & version should be the same as the request */
   id?: string | undefined;
   version?: number | undefined;
   /** this is newly created Lakeview dashboard for the user */
   dashboardId?: string | undefined;
+}
+
+export interface UpdateProviderRequest {
+  id?: string | undefined;
+  provider?: ProviderInfo | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface UpdateProviderRequest_Response {
+  provider?: ProviderInfo | undefined;
 }
 
 export const unmarshalAddExchangeForListingResponseSchema: z.ZodType<AddExchangeForListingResponse> =
@@ -711,7 +711,7 @@ export const unmarshalCreateExchangeResponseSchema: z.ZodType<CreateExchangeResp
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateFile_ResponseSchema: z.ZodType<CreateFile_Response> =
+export const unmarshalCreateFileRequest_ResponseSchema: z.ZodType<CreateFileRequest_Response> =
   z
     .object({
       upload_url: z.string().optional(),
@@ -723,7 +723,7 @@ export const unmarshalCreateFile_ResponseSchema: z.ZodType<CreateFile_Response> 
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateListing_ResponseSchema: z.ZodType<CreateListing_Response> =
+export const unmarshalCreateListingRequest_ResponseSchema: z.ZodType<CreateListingRequest_Response> =
   z
     .object({
       listing_id: z.string().optional(),
@@ -733,7 +733,7 @@ export const unmarshalCreateListing_ResponseSchema: z.ZodType<CreateListing_Resp
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateProvider_ResponseSchema: z.ZodType<CreateProvider_Response> =
+export const unmarshalCreateProviderAnalyticsDashboardRequest_ResponseSchema: z.ZodType<CreateProviderAnalyticsDashboardRequest_Response> =
   z
     .object({
       id: z.string().optional(),
@@ -743,7 +743,7 @@ export const unmarshalCreateProvider_ResponseSchema: z.ZodType<CreateProvider_Re
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateProviderAnalyticsDashboard_ResponseSchema: z.ZodType<CreateProviderAnalyticsDashboard_Response> =
+export const unmarshalCreateProviderRequest_ResponseSchema: z.ZodType<CreateProviderRequest_Response> =
   z
     .object({
       id: z.string().optional(),
@@ -769,15 +769,15 @@ export const unmarshalDeleteExchangeResponseSchema: z.ZodType<DeleteExchangeResp
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteFile_ResponseSchema: z.ZodType<DeleteFile_Response> =
+export const unmarshalDeleteFileRequest_ResponseSchema: z.ZodType<DeleteFileRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteListing_ResponseSchema: z.ZodType<DeleteListing_Response> =
+export const unmarshalDeleteListingRequest_ResponseSchema: z.ZodType<DeleteListingRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteProvider_ResponseSchema: z.ZodType<DeleteProvider_Response> =
+export const unmarshalDeleteProviderRequest_ResponseSchema: z.ZodType<DeleteProviderRequest_Response> =
   z.object({});
 
 export const unmarshalExchangeSchema: z.ZodType<Exchange> = z
@@ -896,16 +896,17 @@ export const unmarshalGetExchangeResponseSchema: z.ZodType<GetExchangeResponse> 
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetFile_ResponseSchema: z.ZodType<GetFile_Response> = z
-  .object({
-    file_info: z.lazy(() => unmarshalFileInfoSchema).optional(),
-  })
-  .transform(d => ({
-    fileInfo: d.file_info,
-  }));
+export const unmarshalGetFileRequest_ResponseSchema: z.ZodType<GetFileRequest_Response> =
+  z
+    .object({
+      file_info: z.lazy(() => unmarshalFileInfoSchema).optional(),
+    })
+    .transform(d => ({
+      fileInfo: d.file_info,
+    }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetLatestVersionProviderAnalyticsDashboard_ResponseSchema: z.ZodType<GetLatestVersionProviderAnalyticsDashboard_Response> =
+export const unmarshalGetLatestVersionProviderAnalyticsDashboardRequest_ResponseSchema: z.ZodType<GetLatestVersionProviderAnalyticsDashboardRequest_Response> =
   z
     .object({
       version: z.number().optional(),
@@ -915,7 +916,7 @@ export const unmarshalGetLatestVersionProviderAnalyticsDashboard_ResponseSchema:
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetListing_ResponseSchema: z.ZodType<GetListing_Response> =
+export const unmarshalGetListingRequest_ResponseSchema: z.ZodType<GetListingRequest_Response> =
   z
     .object({
       listing: z.lazy(() => unmarshalListingSchema).optional(),
@@ -925,7 +926,7 @@ export const unmarshalGetListing_ResponseSchema: z.ZodType<GetListing_Response> 
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetListings_ResponseSchema: z.ZodType<GetListings_Response> =
+export const unmarshalGetListingsRequest_ResponseSchema: z.ZodType<GetListingsRequest_Response> =
   z
     .object({
       listings: z.array(z.lazy(() => unmarshalListingSchema)).optional(),
@@ -937,7 +938,7 @@ export const unmarshalGetListings_ResponseSchema: z.ZodType<GetListings_Response
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetPersonalizationRequestsForProvider_ResponseSchema: z.ZodType<GetPersonalizationRequestsForProvider_Response> =
+export const unmarshalGetPersonalizationRequestsForProviderRequest_ResponseSchema: z.ZodType<GetPersonalizationRequestsForProviderRequest_Response> =
   z
     .object({
       personalization_requests: z
@@ -951,7 +952,7 @@ export const unmarshalGetPersonalizationRequestsForProvider_ResponseSchema: z.Zo
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetProvider_ResponseSchema: z.ZodType<GetProvider_Response> =
+export const unmarshalGetProviderRequest_ResponseSchema: z.ZodType<GetProviderRequest_Response> =
   z
     .object({
       provider: z.lazy(() => unmarshalProviderInfoSchema).optional(),
@@ -996,7 +997,7 @@ export const unmarshalListExchangesResponseSchema: z.ZodType<ListExchangesRespon
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListFiles_ResponseSchema: z.ZodType<ListFiles_Response> =
+export const unmarshalListFilesRequest_ResponseSchema: z.ZodType<ListFilesRequest_Response> =
   z
     .object({
       file_infos: z.array(z.lazy(() => unmarshalFileInfoSchema)).optional(),
@@ -1021,7 +1022,7 @@ export const unmarshalListListingsForExchangeResponseSchema: z.ZodType<ListListi
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListProviderAnalyticsDashboard_ResponseSchema: z.ZodType<ListProviderAnalyticsDashboard_Response> =
+export const unmarshalListProviderAnalyticsDashboardRequest_ResponseSchema: z.ZodType<ListProviderAnalyticsDashboardRequest_Response> =
   z
     .object({
       id: z.string().optional(),
@@ -1035,7 +1036,7 @@ export const unmarshalListProviderAnalyticsDashboard_ResponseSchema: z.ZodType<L
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListProviders_ResponseSchema: z.ZodType<ListProviders_Response> =
+export const unmarshalListProvidersRequest_ResponseSchema: z.ZodType<ListProvidersRequest_Response> =
   z
     .object({
       providers: z.array(z.lazy(() => unmarshalProviderInfoSchema)).optional(),
@@ -1291,7 +1292,7 @@ export const unmarshalUpdateExchangeResponseSchema: z.ZodType<UpdateExchangeResp
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateListing_ResponseSchema: z.ZodType<UpdateListing_Response> =
+export const unmarshalUpdateListingRequest_ResponseSchema: z.ZodType<UpdateListingRequest_Response> =
   z
     .object({
       listing: z.lazy(() => unmarshalListingSchema).optional(),
@@ -1301,7 +1302,7 @@ export const unmarshalUpdateListing_ResponseSchema: z.ZodType<UpdateListing_Resp
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdatePersonalizationRequestStatus_ResponseSchema: z.ZodType<UpdatePersonalizationRequestStatus_Response> =
+export const unmarshalUpdatePersonalizationRequestStatusRequest_ResponseSchema: z.ZodType<UpdatePersonalizationRequestStatusRequest_Response> =
   z
     .object({
       request: z.lazy(() => unmarshalPersonalizationRequestSchema).optional(),
@@ -1311,17 +1312,7 @@ export const unmarshalUpdatePersonalizationRequestStatus_ResponseSchema: z.ZodTy
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateProvider_ResponseSchema: z.ZodType<UpdateProvider_Response> =
-  z
-    .object({
-      provider: z.lazy(() => unmarshalProviderInfoSchema).optional(),
-    })
-    .transform(d => ({
-      provider: d.provider,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateProviderAnalyticsDashboard_ResponseSchema: z.ZodType<UpdateProviderAnalyticsDashboard_Response> =
+export const unmarshalUpdateProviderAnalyticsDashboardRequest_ResponseSchema: z.ZodType<UpdateProviderAnalyticsDashboardRequest_Response> =
   z
     .object({
       id: z.string().optional(),
@@ -1332,6 +1323,16 @@ export const unmarshalUpdateProviderAnalyticsDashboard_ResponseSchema: z.ZodType
       id: d.id,
       version: d.version,
       dashboardId: d.dashboard_id,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalUpdateProviderRequest_ResponseSchema: z.ZodType<UpdateProviderRequest_Response> =
+  z
+    .object({
+      provider: z.lazy(() => unmarshalProviderInfoSchema).optional(),
+    })
+    .transform(d => ({
+      provider: d.provider,
     }));
 
 export const marshalAddExchangeForListingRequestSchema: z.ZodType = z
@@ -1360,7 +1361,7 @@ export const marshalCreateExchangeRequestSchema: z.ZodType = z
     exchange: d.exchange,
   }));
 
-export const marshalCreateFileSchema: z.ZodType = z
+export const marshalCreateFileRequestSchema: z.ZodType = z
   .object({
     fileParent: z.lazy(() => marshalFileParentSchema).optional(),
     marketplaceFileType: z.enum(MarketplaceFileType).optional(),
@@ -1374,7 +1375,7 @@ export const marshalCreateFileSchema: z.ZodType = z
     display_name: d.displayName,
   }));
 
-export const marshalCreateListingSchema: z.ZodType = z
+export const marshalCreateListingRequestSchema: z.ZodType = z
   .object({
     listing: z.lazy(() => marshalListingSchema).optional(),
   })
@@ -1382,16 +1383,16 @@ export const marshalCreateListingSchema: z.ZodType = z
     listing: d.listing,
   }));
 
-export const marshalCreateProviderSchema: z.ZodType = z
+export const marshalCreateProviderAnalyticsDashboardRequestSchema: z.ZodType =
+  z.object({});
+
+export const marshalCreateProviderRequestSchema: z.ZodType = z
   .object({
     provider: z.lazy(() => marshalProviderInfoSchema).optional(),
   })
   .transform(d => ({
     provider: d.provider,
   }));
-
-export const marshalCreateProviderAnalyticsDashboardSchema: z.ZodType =
-  z.object({});
 
 export const marshalDataRefreshInfoSchema: z.ZodType = z
   .object({
@@ -1713,7 +1714,7 @@ export const marshalUpdateExchangeRequestSchema: z.ZodType = z
     exchange: d.exchange,
   }));
 
-export const marshalUpdateListingSchema: z.ZodType = z
+export const marshalUpdateListingRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     listing: z.lazy(() => marshalListingSchema).optional(),
@@ -1723,33 +1724,24 @@ export const marshalUpdateListingSchema: z.ZodType = z
     listing: d.listing,
   }));
 
-export const marshalUpdatePersonalizationRequestStatusSchema: z.ZodType = z
-  .object({
-    listingId: z.string().optional(),
-    requestId: z.string().optional(),
-    status: z.enum(PersonalizationRequestStatus).optional(),
-    reason: z.string().optional(),
-    share: z.lazy(() => marshalShareInfoSchema).optional(),
-  })
-  .transform(d => ({
-    listing_id: d.listingId,
-    request_id: d.requestId,
-    status: d.status,
-    reason: d.reason,
-    share: d.share,
-  }));
+export const marshalUpdatePersonalizationRequestStatusRequestSchema: z.ZodType =
+  z
+    .object({
+      listingId: z.string().optional(),
+      requestId: z.string().optional(),
+      status: z.enum(PersonalizationRequestStatus).optional(),
+      reason: z.string().optional(),
+      share: z.lazy(() => marshalShareInfoSchema).optional(),
+    })
+    .transform(d => ({
+      listing_id: d.listingId,
+      request_id: d.requestId,
+      status: d.status,
+      reason: d.reason,
+      share: d.share,
+    }));
 
-export const marshalUpdateProviderSchema: z.ZodType = z
-  .object({
-    id: z.string().optional(),
-    provider: z.lazy(() => marshalProviderInfoSchema).optional(),
-  })
-  .transform(d => ({
-    id: d.id,
-    provider: d.provider,
-  }));
-
-export const marshalUpdateProviderAnalyticsDashboardSchema: z.ZodType = z
+export const marshalUpdateProviderAnalyticsDashboardRequestSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     version: z.number().optional(),
@@ -1757,4 +1749,14 @@ export const marshalUpdateProviderAnalyticsDashboardSchema: z.ZodType = z
   .transform(d => ({
     id: d.id,
     version: d.version,
+  }));
+
+export const marshalUpdateProviderRequestSchema: z.ZodType = z
+  .object({
+    id: z.string().optional(),
+    provider: z.lazy(() => marshalProviderInfoSchema).optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    provider: d.provider,
   }));

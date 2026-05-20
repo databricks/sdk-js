@@ -147,7 +147,7 @@ export interface CredentialDependency {
   credentialName?: string | undefined;
 }
 
-export interface DeleteFunction {
+export interface DeleteFunctionRequest {
   /** The fully-qualified name of the function (of the form __catalog_name__.__schema_name__.__function__name__) . */
   fullNameArg?: string | undefined;
   /** Force deletion even if the function is notempty. */
@@ -155,7 +155,7 @@ export interface DeleteFunction {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteFunction_Response {}
+export interface DeleteFunctionRequest_Response {}
 
 /**
  * A dependency of a SQL object. One of the following fields must be defined:
@@ -276,14 +276,14 @@ export interface FunctionParameterInfos {
   parameters?: FunctionParameterInfo[] | undefined;
 }
 
-export interface GetFunction {
+export interface GetFunctionRequest {
   /** The fully-qualified name of the function (of the form __catalog_name__.__schema_name__.__function__name__). */
   fullNameArg?: string | undefined;
   /** Whether to include functions in the response for which the principal can only access selective metadata for */
   includeBrowse?: boolean | undefined;
 }
 
-export interface ListFunctions {
+export interface ListFunctionsRequest {
   /** Name of parent catalog for functions of interest. */
   catalogName?: string | undefined;
   /** Parent schema of functions. */
@@ -303,7 +303,7 @@ export interface ListFunctions {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListFunctions_Response {
+export interface ListFunctionsRequest_Response {
   /** An array of function information objects. */
   functions?: FunctionInfo[] | undefined;
   /**
@@ -319,7 +319,7 @@ export interface TableDependency {
   tableFullName?: string | undefined;
 }
 
-export interface UpdateFunction {
+export interface UpdateFunctionRequest {
   /** The fully-qualified name of the function (of the form __catalog_name__.__schema_name__.__function__name__). */
   fullNameArg?: string | undefined;
   /** Name of function, relative to parent schema. */
@@ -403,7 +403,7 @@ export const unmarshalCredentialDependencySchema: z.ZodType<CredentialDependency
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteFunction_ResponseSchema: z.ZodType<DeleteFunction_Response> =
+export const unmarshalDeleteFunctionRequest_ResponseSchema: z.ZodType<DeleteFunctionRequest_Response> =
   z.object({});
 
 export const unmarshalDependencySchema: z.ZodType<Dependency> = z
@@ -558,7 +558,7 @@ export const unmarshalFunctionParameterInfosSchema: z.ZodType<FunctionParameterI
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListFunctions_ResponseSchema: z.ZodType<ListFunctions_Response> =
+export const unmarshalListFunctionsRequest_ResponseSchema: z.ZodType<ListFunctionsRequest_Response> =
   z
     .object({
       functions: z.array(z.lazy(() => unmarshalFunctionInfoSchema)).optional(),
@@ -761,7 +761,7 @@ export const marshalTableDependencySchema: z.ZodType = z
     table_full_name: d.tableFullName,
   }));
 
-export const marshalUpdateFunctionSchema: z.ZodType = z
+export const marshalUpdateFunctionRequestSchema: z.ZodType = z
   .object({
     fullNameArg: z.string().optional(),
     name: z.string().optional(),

@@ -70,6 +70,11 @@ export enum ConfidentialComputeType {
   SEV_SNP = 'SEV_SNP',
 }
 
+export enum DataPlaneClusterEventType {
+  NODE_BLACKLISTED = 'NODE_BLACKLISTED',
+  NODE_EXCLUDED_DECOMMISSIONED = 'NODE_EXCLUDED_DECOMMISSIONED',
+}
+
 /**
  * Data security mode decides what data governance model to use when accessing data
  * from a cluster.
@@ -147,6 +152,11 @@ export enum GcpAvailability {
   PREEMPTIBLE_GCP = 'PREEMPTIBLE_GCP',
   ON_DEMAND_GCP = 'ON_DEMAND_GCP',
   PREEMPTIBLE_WITH_FALLBACK_GCP = 'PREEMPTIBLE_WITH_FALLBACK_GCP',
+}
+
+export enum GetEventsOrder {
+  DESC = 'DESC',
+  ASC = 'ASC',
 }
 
 export enum RuntimeEngine {
@@ -735,6 +745,98 @@ export enum TerminationType {
   CLOUD_FAILURE = 'CLOUD_FAILURE',
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export enum ClusterEventType_ClusterEventType {
+  /** Indicates that the cluster is being created by someone. */
+  CREATING = 'CREATING',
+  /** Indicates that the cluster is being started by someone. */
+  STARTING = 'STARTING',
+  /** Indicates that the cluster is being started by someone. */
+  RESTARTING = 'RESTARTING',
+  /** Indicates that the cluster is being terminating. */
+  TERMINATING = 'TERMINATING',
+  /** Indicates that the cluster has been edited by someone. */
+  EDITED = 'EDITED',
+  /**
+   * Indicates the cluster finished creating, starting, or restarting. Includes the number of
+   * nodes in the cluster, and a failure reason if some nodes could not be acquired.
+   */
+  RUNNING = 'RUNNING',
+  /** Indicates a change in the target size of the cluster (upsize or downsize). */
+  RESIZING = 'RESIZING',
+  /** Indicates that some nodes were lost from the cluster. */
+  NODES_LOST = 'NODES_LOST',
+  /**
+   * Indicates that nodes finished to be added to the cluster. Includes the number of
+   * nodes in the cluster, and a failure reason if some nodes could not be acquired.
+   */
+  UPSIZE_COMPLETED = 'UPSIZE_COMPLETED',
+  /**
+   * Init Scripts V2 have started executing. Includes the list of Global and Cluster scoped
+   * init scripts that are about to be fetched & executed.
+   */
+  INIT_SCRIPTS_STARTED = 'INIT_SCRIPTS_STARTED',
+  /** Init Scripts V2 have finished executing. */
+  INIT_SCRIPTS_FINISHED = 'INIT_SCRIPTS_FINISHED',
+  /** Indicates that a disk is low on space, but adding disks would put it over the max capacity */
+  DID_NOT_EXPAND_DISK = 'DID_NOT_EXPAND_DISK',
+  /** Indicates that a disk is low on space, and we did expand its disks. */
+  EXPANDED_DISK = 'EXPANDED_DISK',
+  /** Indicates we failed to expand the disk space */
+  FAILED_TO_EXPAND_DISK = 'FAILED_TO_EXPAND_DISK',
+  /** Indicates that driver is up and running */
+  DRIVER_HEALTHY = 'DRIVER_HEALTHY',
+  /** Indicates that driver is overloaded(one case is when it is GCing) */
+  DRIVER_NOT_RESPONDING = 'DRIVER_NOT_RESPONDING',
+  /** Indicates that the container that hosts driver and chauffeur is unavailable */
+  DRIVER_UNAVAILABLE = 'DRIVER_UNAVAILABLE',
+  /** Indicates that spark context is null or there was a spark exception thrown from driver */
+  SPARK_EXCEPTION = 'SPARK_EXCEPTION',
+  /** Indicates that driver is up but metastore is down */
+  METASTORE_DOWN = 'METASTORE_DOWN',
+  /** Indicates that driver is up but dbfs is down */
+  DBFS_DOWN = 'DBFS_DOWN',
+  /** Autoscaling stat, including wasted instance minutes, reported */
+  AUTOSCALING_STATS_REPORT = 'AUTOSCALING_STATS_REPORT',
+  /** Indicates that a node has been blacklisted. */
+  NODE_BLACKLISTED = 'NODE_BLACKLISTED',
+  /** Indicates the cluster was pinned. */
+  PINNED = 'PINNED',
+  /** Indicates the cluster was unpinned. */
+  UNPINNED = 'UNPINNED',
+  /** Indicates that a node has been decommissioned because of exclusion */
+  NODE_EXCLUDED_DECOMMISSIONED = 'NODE_EXCLUDED_DECOMMISSIONED',
+  /** Indicates add node failure */
+  ADD_NODES_FAILED = 'ADD_NODES_FAILED',
+  /**
+   * Indicates the cluster autoscaling has been retried several times. The waiting time has reached
+   * the max waiting time.
+   */
+  AUTOSCALING_BACKOFF = 'AUTOSCALING_BACKOFF',
+  /**
+   * Indicates that the cluster is going to be restarted because of the automatic
+   * worker image update
+   */
+  AUTOMATIC_CLUSTER_UPDATE = 'AUTOMATIC_CLUSTER_UPDATE',
+  /**
+   * Indicates there was a failure during autoscaling of a cluster. These are failures that we
+   * may want to surface to the customer such as:
+   * - DatabricksServiceException(REQUEST_LIMIT_EXCEEDED)
+   */
+  AUTOSCALING_FAILED = 'AUTOSCALING_FAILED',
+  /**
+   * Indicates that the cluster was migrated for the GCP CMv1 migration. The cluster may be migrated from GKE architecture to GCE or
+   * rolled back from GCE to GKE.
+   */
+  CLUSTER_MIGRATED = 'CLUSTER_MIGRATED',
+  /** Indicates that decommission started. */
+  DECOMMISSION_STARTED = 'DECOMMISSION_STARTED',
+  /** Indicates that decommission ended. */
+  DECOMMISSION_ENDED = 'DECOMMISSION_ENDED',
+  /** Indicates that the configured UC volume for log delivery is misconfigured (permission does not exist or volume is invalid) */
+  UC_VOLUME_MISCONFIGURED = 'UC_VOLUME_MISCONFIGURED',
+}
+
 /**
  * The state of a Cluster. The current allowable state transitions are as follows:
  *
@@ -770,6 +872,45 @@ export enum ClusterState_ClusterState {
   ERROR = 'ERROR',
   /** Indicates a cluster which is an unknown state. A cluster should never be in this state. */
   UNKNOWN = 'UNKNOWN',
+}
+
+/** Result of attempted script execution */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export enum InitScriptExecutionDetails_InitScriptExecutionStatus {
+  /** The script's execution status is unknown */
+  UNKNOWN = 'UNKNOWN',
+  /** The NodeDaemon failed to fetch the script */
+  FAILED_FETCH = 'FAILED_FETCH',
+  /** The script returned a non-zero exit code after execution */
+  FAILED_EXECUTION = 'FAILED_EXECUTION',
+  /** The script was successfully fetched but was not executed */
+  NOT_EXECUTED = 'NOT_EXECUTED',
+  /**
+   * The NodeDaemon failed to fetch the script, and the script was skippable
+   * (i.e. skip_if_fetch_fails was true) so it was skipped without triggering any errors.
+   */
+  SKIPPED = 'SKIPPED',
+  /** The script was successfully executed */
+  SUCCEEDED = 'SUCCEEDED',
+  /** For FUSE mount init scripts (WSFS & Volumes): the fuse mounting was unsuccessful */
+  FUSE_MOUNT_FAILED = 'FUSE_MOUNT_FAILED',
+}
+
+/** The cause of a change in target size. */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
+export enum ResizeCause_ResizeCause {
+  /** Automatically resized based on load. */
+  AUTOSCALE = 'AUTOSCALE',
+  /** User requested a new size. */
+  USER_REQUEST = 'USER_REQUEST',
+  /** Autorecovery monitor resized the cluster after it lost a nodes. */
+  AUTORECOVERY = 'AUTORECOVERY',
+  /** Terminate bad nodes and spawn new ones */
+  REPLACE_BAD_NODES = 'REPLACE_BAD_NODES',
+  /** V2 autoscaler automatically resized based on load (internal use only, events show as AUTOSCALE). */
+  AUTOSCALE_V2 = 'AUTOSCALE_V2',
+  /** Automatically resized based on decision from the DBR Autoscaler service. */
+  DBR_AUTOSCALE = 'DBR_AUTOSCALE',
 }
 
 /** A storage location in Adls Gen2 */
@@ -900,14 +1041,14 @@ export interface AzureAttributes {
   spotBidMaxPrice?: number | undefined;
 }
 
-export interface ChangeClusterOwner {
+export interface ChangeClusterOwnerRequest {
   clusterId?: string | undefined;
   /** New owner of the cluster_id after this RPC. */
   ownerUsername?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface ChangeClusterOwner_Response {}
+export interface ChangeClusterOwnerRequest_Response {}
 
 export interface CloneCluster {
   /** The cluster that is being cloned. */
@@ -917,6 +1058,196 @@ export interface CloneCluster {
 export interface CloudProviderNodeInfo {
   /** Status as reported by the cloud provider */
   status?: CloudProviderNodeStatus[] | undefined;
+}
+
+/**
+ * Common set of attributes set during cluster creation. These attributes cannot be changed
+ * over the lifetime of a cluster.
+ */
+export interface ClusterAttributes {
+  /**
+   * Cluster name requested by the user. This doesn't have to be unique.
+   * If not specified at creation, the cluster name will be an empty string.
+   * For job clusters, the cluster name is automatically set based on the job and job run IDs.
+   */
+  clusterName?: string | undefined;
+  /**
+   * The Spark version of the cluster, e.g. `3.3.x-scala2.11`.
+   * A list of available Spark versions can be retrieved by using
+   * the :method:clusters/sparkVersions API call.
+   */
+  sparkVersion?: string | undefined;
+  /**
+   * An object containing a set of optional, user-specified Spark configuration key-value pairs.
+   * Users can also pass in a string of extra JVM options to the driver and the executors via
+   * `spark.driver.extraJavaOptions` and `spark.executor.extraJavaOptions` respectively.
+   */
+  sparkConf?: Record<string, string> | undefined;
+  /**
+   * Attributes related to clusters running on Amazon Web Services.
+   * If not specified at cluster creation, a set of default values will be used.
+   */
+  awsAttributes?: AwsAttributes | undefined;
+  /**
+   * Attributes related to clusters running on Microsoft Azure.
+   * If not specified at cluster creation, a set of default values will be used.
+   */
+  azureAttributes?: AzureAttributes | undefined;
+  /**
+   * Attributes related to clusters running on Google Cloud Platform.
+   * If not specified at cluster creation, a set of default values will be used.
+   */
+  gcpAttributes?: GcpAttributes | undefined;
+  /**
+   * This field encodes, through a single value, the resources available to each of
+   * the Spark nodes in this cluster. For example, the Spark nodes can be provisioned
+   * and optimized for memory or compute intensive workloads. A list of available node
+   * types can be retrieved by using the :method:clusters/listNodeTypes API call.
+   */
+  nodeTypeId?: string | undefined;
+  /**
+   * The node type of the Spark driver.
+   * Note that this field is optional; if unset, the driver node type will be set as the same value
+   * as `node_type_id` defined above.
+   *
+   * This field, along with node_type_id, should not be set if virtual_cluster_size is set.
+   * If both driver_node_type_id, node_type_id, and virtual_cluster_size are specified, driver_node_type_id and node_type_id take precedence.
+   */
+  driverNodeTypeId?: string | undefined;
+  /** Flexible node type configuration for worker nodes. */
+  workerNodeTypeFlexibility?: NodeTypeFlexibility | undefined;
+  /** Flexible node type configuration for the driver node. */
+  driverNodeTypeFlexibility?: NodeTypeFlexibility | undefined;
+  /**
+   * SSH public key contents that will be added to each Spark node in this cluster. The
+   * corresponding private keys can be used to login with the user name `ubuntu` on port `2200`.
+   * Up to 10 keys can be specified.
+   */
+  sshPublicKeys?: string[] | undefined;
+  /**
+   * Additional tags for cluster resources. <Databricks> will tag all cluster resources (e.g., AWS
+   * instances and EBS volumes) with these tags in addition to `default_tags`. Notes:
+   *
+   * - Currently, <Databricks> allows at most 45 custom tags
+   *
+   * - Clusters can only reuse cloud resources if the resources' tags are a subset of the cluster tags
+   */
+  customTags?: Record<string, string> | undefined;
+  /**
+   * The configuration for delivering spark logs to a long-term storage destination.
+   * Three kinds of destinations (DBFS, S3 and Unity Catalog volumes) are supported. Only one destination can be specified
+   * for one cluster. If the conf is given, the logs will be delivered to the destination every
+   * `5 mins`. The destination of driver logs is `$destination/$clusterId/driver`, while
+   * the destination of executor logs is `$destination/$clusterId/executor`.
+   */
+  clusterLogConf?: ClusterLogConf | undefined;
+  /**
+   * An object containing a set of optional, user-specified environment variable key-value pairs.
+   * Please note that key-value pair of the form (X,Y) will be exported as is (i.e.,
+   * `export X='Y'`) while launching the driver and workers.
+   *
+   * In order to specify an additional set of `SPARK_DAEMON_JAVA_OPTS`, we recommend appending
+   * them to `$SPARK_DAEMON_JAVA_OPTS` as shown in the example below. This ensures that all
+   * default databricks managed environmental variables are included as well.
+   *
+   * Example Spark environment variables:
+   * `{"SPARK_WORKER_MEMORY": "28000m", "SPARK_LOCAL_DIRS": "/local_disk0"}` or
+   * `{"SPARK_DAEMON_JAVA_OPTS": "$SPARK_DAEMON_JAVA_OPTS -Dspark.shuffle.service.enabled=true"}`
+   */
+  sparkEnvVars?: Record<string, string> | undefined;
+  /**
+   * Automatically terminates the cluster after it is inactive for this time in minutes. If not set,
+   * this cluster will not be automatically terminated. If specified, the threshold must be between
+   * 10 and 10000 minutes.
+   * Users can also set this value to 0 to explicitly disable automatic termination.
+   */
+  autoterminationMinutes?: number | undefined;
+  /**
+   * Autoscaling Local Storage: when enabled, this cluster will dynamically acquire additional disk
+   * space when its Spark workers are running low on disk space.
+   */
+  enableElasticDisk?: boolean | undefined;
+  /**
+   * The configuration for storing init scripts. Any number of destinations can be specified.
+   * The scripts are executed sequentially in the order provided.
+   * If `cluster_log_conf` is specified, init script logs are sent to `<destination>/<cluster-ID>/init_scripts`.
+   */
+  initScripts?: InitScriptInfo[] | undefined;
+  /** Custom docker image BYOC */
+  dockerImage?: DockerImage | undefined;
+  /** The optional ID of the instance pool to which the cluster belongs. */
+  instancePoolId?: string | undefined;
+  /** Single user name if data_security_mode is `SINGLE_USER` */
+  singleUserName?: string | undefined;
+  /** The ID of the cluster policy used to create the cluster if applicable. */
+  policyId?: string | undefined;
+  /** Whether to enable LUKS on cluster VMs' local disks */
+  enableLocalDiskEncryption?: boolean | undefined;
+  /**
+   * The optional ID of the instance pool for the driver of the cluster belongs.
+   * The pool cluster uses the instance pool with id (instance_pool_id) if the driver pool is not
+   * assigned.
+   */
+  driverInstancePoolId?: string | undefined;
+  workloadType?: WorkloadType | undefined;
+  dataSecurityMode?: DataSecurityMode | undefined;
+  /**
+   * Determines the cluster's runtime engine, either standard or Photon.
+   *
+   * This field is not compatible with legacy `spark_version` values that contain `-photon-`.
+   * Remove `-photon-` from the `spark_version` and set `runtime_engine` to `PHOTON`.
+   *
+   * If left unspecified, the runtime engine defaults to standard unless the spark_version
+   * contains -photon-, in which case Photon will be used.
+   */
+  runtimeEngine?: RuntimeEngine | undefined;
+  kind?: ComputeKind | undefined;
+  /**
+   * This field can only be used when `kind = CLASSIC_PREVIEW`.
+   *
+   * `effective_spark_version` is determined by `spark_version` (DBR release), this field `use_ml_runtime`, and whether `node_type_id` is gpu node or not.
+   */
+  useMlRuntime?: boolean | undefined;
+  /**
+   * This field can only be used when `kind = CLASSIC_PREVIEW`.
+   *
+   * When set to true, <Databricks> will automatically set single node related `custom_tags`, `spark_conf`, and `num_workers`
+   */
+  isSingleNode?: boolean | undefined;
+  /** If set, what the configurable throughput (in Mb/s) for the remote disk is. Currently only supported for GCP HYPERDISK_BALANCED disks. */
+  remoteDiskThroughput?: number | undefined;
+  /** If set, what the total initial volume size (in GB) of the remote disks should be. Currently only supported for GCP HYPERDISK_BALANCED disks. */
+  totalInitialRemoteDiskSize?: number | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ClusterAttributes_CustomTagsEntry {
+  /**
+   * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
+   * For a list of all restrictions, see the AWS docs here:
+   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
+   */
+  key?: string | undefined;
+  /**
+   * The value of the tag. The value length must be less than or equal to 255 UTF-8 characters.
+   * For a list of all restrictions, see the AWS docs here:
+   * http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
+   */
+  value?: string | undefined;
+}
+
+/** Spark configuration key-value pairs */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ClusterAttributes_SparkConfEntry {
+  key?: string | undefined;
+  value?: string | undefined;
+}
+
+/** Spark environment variable key-value pairs */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface ClusterAttributes_SparkEnvVarsEntry {
+  key?: string | undefined;
+  value?: string | undefined;
 }
 
 export interface ClusterCompliance {
@@ -938,6 +1269,21 @@ export interface ClusterCompliance_ViolationsEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
+
+export interface ClusterEvent {
+  clusterId?: string | undefined;
+  /**
+   * The timestamp when the event occurred, stored as the number of milliseconds since
+   * the Unix epoch. If not provided, this will be assigned by the Timeline service.
+   */
+  timestamp?: number | undefined;
+  type?: ClusterEventType_ClusterEventType | undefined;
+  details?: EventDetails | undefined;
+  dataPlaneEventDetails?: DataPlaneEventDetails | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface ClusterEventType {}
 
 /** Describes all of the metadata about a single Spark cluster in <Databricks>. */
 export interface ClusterInfo {
@@ -1492,10 +1838,37 @@ export interface ClusterLogConf {
     | undefined;
 }
 
+export interface ClusterSize {
+  size?:
+    | {
+        $case: 'numWorkers';
+        /**
+         * Number of worker nodes that this cluster should have. A cluster has one Spark Driver
+         * and `num_workers` Executors for a total of `num_workers` + 1 Spark nodes.
+         *
+         * Note: When reading the properties of a cluster, this field reflects the desired number
+         * of workers rather than the actual current number of workers. For instance, if a cluster
+         * is resized from 5 to 10 workers, this field will immediately be updated to reflect
+         * the target size of 10 workers, whereas the workers listed in `spark_info` will gradually
+         * increase from 5 to 10 as the new nodes are provisioned.
+         */
+        numWorkers: number;
+      }
+    | {
+        $case: 'autoscale';
+        /**
+         * Parameters needed in order to automatically scale clusters up and down based on load.
+         * Note: autoscaling works best with DB runtime versions 3.0 or later.
+         */
+        autoscale: AutoScale;
+      }
+    | undefined;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ClusterState {}
 
-export interface CreateCluster {
+export interface CreateClusterRequest {
   /**
    * When set to true, fixed and default values from the policy will be used for fields that are omitted.
    * When set to false, only fixed values from the policy will be applied.
@@ -1683,7 +2056,7 @@ export interface CreateCluster {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateCluster_CustomTagsEntry {
+export interface CreateClusterRequest_CustomTagsEntry {
   /**
    * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
    * For a list of all restrictions, see the AWS docs here:
@@ -1699,22 +2072,29 @@ export interface CreateCluster_CustomTagsEntry {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateCluster_Response {
+export interface CreateClusterRequest_Response {
   clusterId?: string | undefined;
 }
 
 /** Spark configuration key-value pairs */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateCluster_SparkConfEntry {
+export interface CreateClusterRequest_SparkConfEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
 /** Spark environment variable key-value pairs */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateCluster_SparkEnvVarsEntry {
+export interface CreateClusterRequest_SparkEnvVarsEntry {
   key?: string | undefined;
   value?: string | undefined;
+}
+
+export interface DataPlaneEventDetails {
+  eventType?: DataPlaneClusterEventType | undefined;
+  timestamp?: number | undefined;
+  hostId?: string | undefined;
+  executorFailures?: number | undefined;
 }
 
 /** A storage location in DBFS */
@@ -1723,13 +2103,13 @@ export interface DbfsStorageInfo {
   destination?: string | undefined;
 }
 
-export interface DeleteCluster {
+export interface DeleteClusterRequest {
   /** The cluster to be terminated. */
   clusterId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteCluster_Response {}
+export interface DeleteClusterRequest_Response {}
 
 export interface DockerBasicAuth {
   /** Name of the user */
@@ -1750,7 +2130,7 @@ export interface DockerImage {
     | undefined;
 }
 
-export interface EditCluster {
+export interface EditClusterRequest {
   /** ID of the cluster */
   clusterId?: string | undefined;
   /** When set to true, fixed and default values from the policy will be used for fields that are omitted. When set to false, only fixed values from the policy will be applied. */
@@ -1935,7 +2315,7 @@ export interface EditCluster {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface EditCluster_CustomTagsEntry {
+export interface EditClusterRequest_CustomTagsEntry {
   /**
    * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
    * For a list of all restrictions, see the AWS docs here:
@@ -1951,23 +2331,23 @@ export interface EditCluster_CustomTagsEntry {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface EditCluster_Response {}
+export interface EditClusterRequest_Response {}
 
 /** Spark configuration key-value pairs */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface EditCluster_SparkConfEntry {
+export interface EditClusterRequest_SparkConfEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
 /** Spark environment variable key-value pairs */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface EditCluster_SparkEnvVarsEntry {
+export interface EditClusterRequest_SparkEnvVarsEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
-export interface EnforcePolicyComplianceForCluster {
+export interface EnforcePolicyComplianceForClusterRequest {
   /** The ID of the cluster you want to enforce policy compliance on. */
   clusterId?: string | undefined;
   /**
@@ -1978,7 +2358,7 @@ export interface EnforcePolicyComplianceForCluster {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface EnforcePolicyComplianceForCluster_Response {
+export interface EnforcePolicyComplianceForClusterRequest_Response {
   /**
    * Whether any changes have been made to the cluster settings for the cluster
    * to become compliant with its policy.
@@ -1989,7 +2369,7 @@ export interface EnforcePolicyComplianceForCluster_Response {
    * the cluster to become compliant with its policy.
    */
   changes?:
-    | EnforcePolicyComplianceForCluster_Response_ClusterSettingsChange[]
+    | EnforcePolicyComplianceForClusterRequest_Response_ClusterSettingsChange[]
     | undefined;
 }
 
@@ -1998,7 +2378,7 @@ export interface EnforcePolicyComplianceForCluster_Response {
  * to become compliant with its policy.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface EnforcePolicyComplianceForCluster_Response_ClusterSettingsChange {
+export interface EnforcePolicyComplianceForClusterRequest_Response_ClusterSettingsChange {
   /** The field where this change would be made. */
   field?: string | undefined;
   /**
@@ -2015,6 +2395,57 @@ export interface EnforcePolicyComplianceForCluster_Response_ClusterSettingsChang
    * can be retrieved by reading the settings field in the API response.
    */
   newValue?: string | undefined;
+}
+
+export interface EventDetails {
+  /** The current number of nodes in the cluster. */
+  currentNumWorkers?: number | undefined;
+  /** The targeted number of nodes in the cluster. */
+  targetNumWorkers?: number | undefined;
+  /** The cluster attributes before a cluster was edited. */
+  previousAttributes?: ClusterAttributes | undefined;
+  /**
+   * * For created clusters, the attributes of the cluster.
+   * * For edited clusters, the new attributes of the cluster.
+   */
+  attributes?: ClusterAttributes | undefined;
+  /** The size of the cluster before an edit or resize. */
+  previousClusterSize?: ClusterSize | undefined;
+  /** The actual cluster size that was set in the cluster creation or edit. */
+  clusterSize?: ClusterSize | undefined;
+  /** The cause of a change in target size. */
+  cause?: ResizeCause_ResizeCause | undefined;
+  /**
+   * A termination reason:
+   * * On a TERMINATED event, this is the reason of the termination.
+   * * On a RESIZE_COMPLETE event, this indicates the reason that we failed to acquire some nodes.
+   */
+  reason?: TerminationReason | undefined;
+  /** The user that caused the event to occur. (Empty if it was done by the control plane.) */
+  user?: string | undefined;
+  /** Previous disk size in bytes */
+  previousDiskSize?: number | undefined;
+  /** Current disk size in bytes */
+  diskSize?: number | undefined;
+  freeSpace?: number | undefined;
+  /** Instance Id where the event originated from */
+  instanceId?: string | undefined;
+  didNotExpandReason?: string | undefined;
+  /** More details about the change in driver's state */
+  driverStateMessage?: string | undefined;
+  /**
+   * Unique identifier of the specific job run associated with this cluster event
+   * * For clusters created for jobs, this will be the same as the cluster name
+   */
+  jobRunName?: string | undefined;
+  /** List of global and cluster init scripts associated with this cluster event. */
+  initScripts?: InitScriptEventDetails | undefined;
+  /** Whether or not a blocklisted node should be terminated. For ClusterEventType NODE_BLACKLISTED. */
+  enableTerminationForNodeBlocklisted?: boolean | undefined;
+  /** The current number of vCPUs in the cluster. */
+  currentNumVcpus?: number | undefined;
+  /** The targeted number of vCPUs in the cluster. */
+  targetNumVcpus?: number | undefined;
 }
 
 /** Attributes set during cluster creation which are related to GCP. */
@@ -2080,18 +2511,94 @@ export interface GcsStorageInfo {
   destination?: string | undefined;
 }
 
-export interface GetCluster {
+export interface GetClusterRequest {
   /** The cluster about which to retrieve information. */
   clusterId?: string | undefined;
 }
 
-export interface GetPolicyComplianceForCluster {
+export interface GetEvents {
+  /** The ID of the cluster to retrieve events about. */
+  clusterId?: string | undefined;
+  /**
+   * The start time in epoch milliseconds.
+   * If empty, returns events starting from the beginning of time.
+   */
+  startTime?: number | undefined;
+  /**
+   * The end time in epoch milliseconds.
+   * If empty, returns events up to the current time.
+   */
+  endTime?: number | undefined;
+  /** The order to list events in; either "ASC" or "DESC". Defaults to "DESC". */
+  order?: GetEventsOrder | undefined;
+  /**
+   * An optional set of event types to filter on.
+   * If empty, all event types are returned.
+   */
+  eventTypes?: ClusterEventType_ClusterEventType[] | undefined;
+  /**
+   * Deprecated: use page_token in combination with page_size instead.
+   *
+   * The offset in the result set. Defaults to 0 (no offset). When an offset is specified
+   * and the results are requested in descending order, the end_time field is required.
+   */
+  offset?: number | undefined;
+  /**
+   * Deprecated: use page_token in combination with page_size instead.
+   *
+   * The maximum number of events to include in a page of events.
+   * Defaults to 50, and maximum allowed value is 500.
+   */
+  limit?: number | undefined;
+  /**
+   * Use next_page_token or prev_page_token returned from the previous request to list the next or previous page of events respectively.
+   * If page_token is empty, the first page is returned.
+   */
+  pageToken?: string | undefined;
+  /**
+   * The maximum number of events to include in a page of events.
+   * The server may further constrain the maximum number of results returned in a single page.
+   * If the page_size is empty or 0, the server will decide the number of results to be returned.
+   * The field has to be in the range [0,500]. If the value is outside the range, the server enforces 0 or 500.
+   */
+  pageSize?: number | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface GetEvents_Response {
+  events?: ClusterEvent[] | undefined;
+  /**
+   * Deprecated: use next_page_token or prev_page_token instead.
+   *
+   * The parameters required to retrieve the next page of events.
+   * Omitted if there are no more events to read.
+   */
+  nextPage?: GetEvents | undefined;
+  /**
+   * Deprecated: Returns 0 when request uses page_token. Will start returning zero when request uses offset/limit soon.
+   *
+   * The total number of events filtered by the start_time, end_time, and event_types.
+   */
+  totalCount?: number | undefined;
+  /**
+   * This field represents the pagination token to retrieve the next page of results.
+   * If the value is "", it means no further results for the request.
+   */
+  nextPageToken?: string | undefined;
+  /**
+   * This field represents the pagination token to retrieve the previous page of results.
+   * If the value is "", it means no further results for the request.
+   */
+  prevPageToken?: string | undefined;
+}
+
+export interface GetPolicyComplianceForClusterRequest {
   /** The ID of the cluster to get the compliance status */
   clusterId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetPolicyComplianceForCluster_Response {
+export interface GetPolicyComplianceForClusterRequest_Response {
   /**
    * Whether the cluster is compliant with its policy or not. Clusters could be out
    * of compliance if the policy was updated after the cluster was last edited.
@@ -2107,20 +2614,122 @@ export interface GetPolicyComplianceForCluster_Response {
 
 /** Proto defined to model a mapping from string to string. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetPolicyComplianceForCluster_Response_ViolationsEntry {
+export interface GetPolicyComplianceForClusterRequest_Response_ViolationsEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
 /** Returns the list of all Spark versions that can be used to create clusters. */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface GetSparkVersions {}
+export interface GetSparkVersionsRequest {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetSparkVersions_Response {
+export interface GetSparkVersionsRequest_Response {
   /** All the available Spark versions. */
   versions?: SparkVersion[] | undefined;
 }
+
+export interface InitScriptEventDetails {
+  /**
+   * The private ip of the node we are reporting init script execution details for
+   * (we will select the execution details from only one node rather than
+   * reporting the execution details from every node to keep these event
+   * details small)
+   *
+   * This should only be defined for the INIT_SCRIPTS_FINISHED event
+   */
+  reportedForNode?: string | undefined;
+  /** The global init scripts associated with this cluster event. */
+  global?:
+    | InitScriptEventDetails_InitScriptInfoAndExecutionDetails[]
+    | undefined;
+  /** The cluster scoped init scripts associated with this cluster event. */
+  cluster?:
+    | InitScriptEventDetails_InitScriptInfoAndExecutionDetails[]
+    | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface InitScriptEventDetails_InitScriptInfoAndExecutionDetails {
+  storageInfo?:
+    | {
+        $case: 'dbfs';
+        /**
+         * destination needs to be provided. e.g.
+         * `{ "dbfs": { "destination" : "dbfs:/home/cluster_log" } }`
+         */
+        dbfs: DbfsStorageInfo;
+      }
+    | {
+        $case: 's3';
+        /**
+         * destination and either the region or endpoint need to be provided. e.g.
+         * `{ \"s3\": { \"destination\": \"s3://cluster_log_bucket/prefix\", \"region\": \"us-west-2\" } }`
+         * Cluster iam role is used to access s3, please make sure the cluster iam role in
+         * `instance_profile_arn` has permission to write data to the s3 destination.
+         */
+        s3: S3StorageInfo;
+      }
+    | {
+        $case: 'file';
+        /**
+         * destination needs to be provided, e.g.
+         * `{ "file": { "destination": "file:/my/local/file.sh" } }`
+         */
+        file: LocalFileInfo;
+      }
+    | {
+        $case: 'gcs';
+        /**
+         * destination needs to be provided, e.g.
+         * `{ "gcs": { "destination": "gs://my-bucket/file.sh" } }`
+         */
+        gcs: GcsStorageInfo;
+      }
+    | {
+        $case: 'abfss';
+        /**
+         * destination needs to be provided, e.g.
+         * `abfss://<container-name>@<storage-account-name>.dfs.core.windows.net/<directory-name>`
+         */
+        abfss: Adlsgen2Info;
+      }
+    | {
+        $case: 'workspace';
+        /**
+         * destination needs to be provided, e.g.
+         * `{ "workspace": { "destination": "/cluster-init-scripts/setup-datadog.sh" } }`
+         */
+        workspace: WorkspaceStorageInfo;
+      }
+    | {
+        $case: 'volumes';
+        /**
+         * destination needs to be provided. e.g.
+         * `{ \"volumes\" : { \"destination\" : \"/Volumes/my-init.sh\" } }`
+         */
+        volumes: VolumesStorageInfo;
+      }
+    | undefined;
+  /** The current status of the script */
+  status?: InitScriptExecutionDetails_InitScriptExecutionStatus | undefined;
+  /** The number duration of the script execution in seconds */
+  executionDurationSeconds?: number | undefined;
+  /**
+   * Additional details regarding errors (such as a file not found message
+   * if the status is FAILED_FETCH). This field should only be used to
+   * provide *additional* information to the status field, not duplicate it.
+   */
+  errorMessage?: string | undefined;
+  /**
+   * The stderr output from the init script execution.
+   * Only populated when init scripts debug is enabled and script execution fails.
+   */
+  stderr?: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface InitScriptExecutionDetails {}
 
 /**
  * Config for an individual init script
@@ -2190,17 +2799,17 @@ export interface InitScriptInfo {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ListAvailableZones {}
+export interface ListAvailableZonesRequest {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListAvailableZones_Response {
+export interface ListAvailableZonesRequest_Response {
   /** The list of available zones (e.g., ['us-west-2c', 'us-east-2']). */
   zones?: string[] | undefined;
   /** The availability zone if no ``zone_id`` is provided in the cluster creation request. */
   defaultZone?: string | undefined;
 }
 
-export interface ListClusterComplianceForPolicy {
+export interface ListClusterComplianceForPolicyRequest {
   /** Canonical unique identifier for the cluster policy. */
   policyId?: string | undefined;
   /**
@@ -2217,7 +2826,7 @@ export interface ListClusterComplianceForPolicy {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListClusterComplianceForPolicy_Response {
+export interface ListClusterComplianceForPolicyRequest_Response {
   /** A list of clusters and their policy compliance statuses. */
   clusters?: ClusterCompliance[] | undefined;
   /**
@@ -2232,7 +2841,7 @@ export interface ListClusterComplianceForPolicy_Response {
   prevPageToken?: string | undefined;
 }
 
-export interface ListClusters {
+export interface ListClustersRequest {
   /** Use next_page_token or prev_page_token returned from the previous request to list the next or previous page of clusters respectively. */
   pageToken?: string | undefined;
   /** Use this field to specify the maximum number of results to be returned by the server. The server may further constrain the maximum number of results returned in a single page. */
@@ -2240,7 +2849,7 @@ export interface ListClusters {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListClusters_Response {
+export interface ListClustersRequest_Response {
   clusters?: ClusterInfo[] | undefined;
   /**
    * This field represents the pagination token to retrieve the next page of results.
@@ -2255,10 +2864,10 @@ export interface ListClusters_Response {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ListNodeTypes {}
+export interface ListNodeTypesRequest {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListNodeTypes_Response {
+export interface ListNodeTypesRequest_Response {
   /** The list of available Spark node types. */
   nodeTypes?: NodeType[] | undefined;
 }
@@ -2372,22 +2981,25 @@ export interface NodeTypeFlexibility {
   alternateNodeTypeIds?: string[] | undefined;
 }
 
-export interface PermanentDeleteCluster {
+export interface PermanentDeleteClusterRequest {
   /** The cluster to be deleted. */
   clusterId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface PermanentDeleteCluster_Response {}
+export interface PermanentDeleteClusterRequest_Response {}
 
-export interface PinCluster {
+export interface PinClusterRequest {
   clusterId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface PinCluster_Response {}
+export interface PinClusterRequest_Response {}
 
-export interface ResizeCluster {
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface ResizeCause {}
+
+export interface ResizeClusterRequest {
   /** The cluster to be resized. */
   clusterId?: string | undefined;
   size?:
@@ -2417,16 +3029,16 @@ export interface ResizeCluster {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface ResizeCluster_Response {}
+export interface ResizeClusterRequest_Response {}
 
-export interface RestartCluster {
+export interface RestartClusterRequest {
   /** The cluster to be started. */
   clusterId?: string | undefined;
   restartUser?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface RestartCluster_Response {}
+export interface RestartClusterRequest_Response {}
 
 /** A storage location in Amazon S3 */
 export interface S3StorageInfo {
@@ -2520,13 +3132,13 @@ export interface SparkVersion {
   name?: string | undefined;
 }
 
-export interface StartCluster {
+export interface StartClusterRequest {
   /** The cluster to be started. */
   clusterId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface StartCluster_Response {}
+export interface StartClusterRequest_Response {}
 
 export interface TerminationReason {
   /** status code indicating why the cluster was terminated */
@@ -2543,27 +3155,29 @@ export interface TerminationReason_ParametersEntry {
   value?: string | undefined;
 }
 
-export interface UnpinCluster {
+export interface UnpinClusterRequest {
   clusterId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface UnpinCluster_Response {}
+export interface UnpinClusterRequest_Response {}
 
-export interface UpdateCluster {
+export interface UpdateClusterRequest {
   /** ID of the cluster. */
   clusterId?: string | undefined;
   /** The cluster to be updated. */
-  cluster?: UpdateCluster_UpdateClusterResource | undefined;
+  cluster?: UpdateClusterRequest_UpdateClusterResource | undefined;
   /** Used to specify which cluster attributes and size fields to update. See https://google.aip.dev/161 for more details. */
-  updateMask?: FieldMask<UpdateCluster_UpdateClusterResource> | undefined;
+  updateMask?:
+    | FieldMask<UpdateClusterRequest_UpdateClusterResource>
+    | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface UpdateCluster_Response {}
+export interface UpdateClusterRequest_Response {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateCluster_UpdateClusterResource {
+export interface UpdateClusterRequest_UpdateClusterResource {
   size?:
     | {
         $case: 'numWorkers';
@@ -2744,7 +3358,7 @@ export interface UpdateCluster_UpdateClusterResource {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateCluster_UpdateClusterResource_CustomTagsEntry {
+export interface UpdateClusterRequest_UpdateClusterResource_CustomTagsEntry {
   /**
    * The key of the tag. The key length must be between 1 and 127 UTF-8 characters, inclusive.
    * For a list of all restrictions, see the AWS docs here:
@@ -2761,14 +3375,14 @@ export interface UpdateCluster_UpdateClusterResource_CustomTagsEntry {
 
 /** Spark configuration key-value pairs */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateCluster_UpdateClusterResource_SparkConfEntry {
+export interface UpdateClusterRequest_UpdateClusterResource_SparkConfEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
 /** Spark environment variable key-value pairs */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateCluster_UpdateClusterResource_SparkEnvVarsEntry {
+export interface UpdateClusterRequest_UpdateClusterResource_SparkEnvVarsEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
@@ -2863,7 +3477,7 @@ export const unmarshalAzureAttributesSchema: z.ZodType<AzureAttributes> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalChangeClusterOwner_ResponseSchema: z.ZodType<ChangeClusterOwner_Response> =
+export const unmarshalChangeClusterOwnerRequest_ResponseSchema: z.ZodType<ChangeClusterOwnerRequest_Response> =
   z.object({});
 
 export const unmarshalCloudProviderNodeInfoSchema: z.ZodType<CloudProviderNodeInfo> =
@@ -2875,6 +3489,80 @@ export const unmarshalCloudProviderNodeInfoSchema: z.ZodType<CloudProviderNodeIn
       status: d.status,
     }));
 
+export const unmarshalClusterAttributesSchema: z.ZodType<ClusterAttributes> = z
+  .object({
+    cluster_name: z.string().optional(),
+    spark_version: z.string().optional(),
+    spark_conf: z.record(z.string(), z.string()).optional(),
+    aws_attributes: z.lazy(() => unmarshalAwsAttributesSchema).optional(),
+    azure_attributes: z.lazy(() => unmarshalAzureAttributesSchema).optional(),
+    gcp_attributes: z.lazy(() => unmarshalGcpAttributesSchema).optional(),
+    node_type_id: z.string().optional(),
+    driver_node_type_id: z.string().optional(),
+    worker_node_type_flexibility: z
+      .lazy(() => unmarshalNodeTypeFlexibilitySchema)
+      .optional(),
+    driver_node_type_flexibility: z
+      .lazy(() => unmarshalNodeTypeFlexibilitySchema)
+      .optional(),
+    ssh_public_keys: z.array(z.string()).optional(),
+    custom_tags: z.record(z.string(), z.string()).optional(),
+    cluster_log_conf: z.lazy(() => unmarshalClusterLogConfSchema).optional(),
+    spark_env_vars: z.record(z.string(), z.string()).optional(),
+    autotermination_minutes: z.number().optional(),
+    enable_elastic_disk: z.boolean().optional(),
+    init_scripts: z
+      .array(z.lazy(() => unmarshalInitScriptInfoSchema))
+      .optional(),
+    docker_image: z.lazy(() => unmarshalDockerImageSchema).optional(),
+    instance_pool_id: z.string().optional(),
+    single_user_name: z.string().optional(),
+    policy_id: z.string().optional(),
+    enable_local_disk_encryption: z.boolean().optional(),
+    driver_instance_pool_id: z.string().optional(),
+    workload_type: z.lazy(() => unmarshalWorkloadTypeSchema).optional(),
+    data_security_mode: z.enum(DataSecurityMode).optional(),
+    runtime_engine: z.enum(RuntimeEngine).optional(),
+    kind: z.enum(ComputeKind).optional(),
+    use_ml_runtime: z.boolean().optional(),
+    is_single_node: z.boolean().optional(),
+    remote_disk_throughput: z.number().optional(),
+    total_initial_remote_disk_size: z.number().optional(),
+  })
+  .transform(d => ({
+    clusterName: d.cluster_name,
+    sparkVersion: d.spark_version,
+    sparkConf: d.spark_conf,
+    awsAttributes: d.aws_attributes,
+    azureAttributes: d.azure_attributes,
+    gcpAttributes: d.gcp_attributes,
+    nodeTypeId: d.node_type_id,
+    driverNodeTypeId: d.driver_node_type_id,
+    workerNodeTypeFlexibility: d.worker_node_type_flexibility,
+    driverNodeTypeFlexibility: d.driver_node_type_flexibility,
+    sshPublicKeys: d.ssh_public_keys,
+    customTags: d.custom_tags,
+    clusterLogConf: d.cluster_log_conf,
+    sparkEnvVars: d.spark_env_vars,
+    autoterminationMinutes: d.autotermination_minutes,
+    enableElasticDisk: d.enable_elastic_disk,
+    initScripts: d.init_scripts,
+    dockerImage: d.docker_image,
+    instancePoolId: d.instance_pool_id,
+    singleUserName: d.single_user_name,
+    policyId: d.policy_id,
+    enableLocalDiskEncryption: d.enable_local_disk_encryption,
+    driverInstancePoolId: d.driver_instance_pool_id,
+    workloadType: d.workload_type,
+    dataSecurityMode: d.data_security_mode,
+    runtimeEngine: d.runtime_engine,
+    kind: d.kind,
+    useMlRuntime: d.use_ml_runtime,
+    isSingleNode: d.is_single_node,
+    remoteDiskThroughput: d.remote_disk_throughput,
+    totalInitialRemoteDiskSize: d.total_initial_remote_disk_size,
+  }));
+
 export const unmarshalClusterComplianceSchema: z.ZodType<ClusterCompliance> = z
   .object({
     cluster_id: z.string().optional(),
@@ -2885,6 +3573,24 @@ export const unmarshalClusterComplianceSchema: z.ZodType<ClusterCompliance> = z
     clusterId: d.cluster_id,
     isCompliant: d.is_compliant,
     violations: d.violations,
+  }));
+
+export const unmarshalClusterEventSchema: z.ZodType<ClusterEvent> = z
+  .object({
+    cluster_id: z.string().optional(),
+    timestamp: z.number().optional(),
+    type: z.enum(ClusterEventType_ClusterEventType).optional(),
+    details: z.lazy(() => unmarshalEventDetailsSchema).optional(),
+    data_plane_event_details: z
+      .lazy(() => unmarshalDataPlaneEventDetailsSchema)
+      .optional(),
+  })
+  .transform(d => ({
+    clusterId: d.cluster_id,
+    timestamp: d.timestamp,
+    type: d.type,
+    details: d.details,
+    dataPlaneEventDetails: d.data_plane_event_details,
   }));
 
 export const unmarshalClusterInfoSchema: z.ZodType<ClusterInfo> = z
@@ -3112,14 +3818,43 @@ export const unmarshalClusterLogConfSchema: z.ZodType<ClusterLogConf> = z
             : undefined,
   }));
 
+export const unmarshalClusterSizeSchema: z.ZodType<ClusterSize> = z
+  .object({
+    num_workers: z.number().optional(),
+    autoscale: z.lazy(() => unmarshalAutoScaleSchema).optional(),
+  })
+  .transform(d => ({
+    size:
+      d.num_workers !== undefined
+        ? {$case: 'numWorkers' as const, numWorkers: d.num_workers}
+        : d.autoscale !== undefined
+          ? {$case: 'autoscale' as const, autoscale: d.autoscale}
+          : undefined,
+  }));
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateCluster_ResponseSchema: z.ZodType<CreateCluster_Response> =
+export const unmarshalCreateClusterRequest_ResponseSchema: z.ZodType<CreateClusterRequest_Response> =
   z
     .object({
       cluster_id: z.string().optional(),
     })
     .transform(d => ({
       clusterId: d.cluster_id,
+    }));
+
+export const unmarshalDataPlaneEventDetailsSchema: z.ZodType<DataPlaneEventDetails> =
+  z
+    .object({
+      event_type: z.enum(DataPlaneClusterEventType).optional(),
+      timestamp: z.number().optional(),
+      host_id: z.string().optional(),
+      executor_failures: z.number().optional(),
+    })
+    .transform(d => ({
+      eventType: d.event_type,
+      timestamp: d.timestamp,
+      hostId: d.host_id,
+      executorFailures: d.executor_failures,
     }));
 
 export const unmarshalDbfsStorageInfoSchema: z.ZodType<DbfsStorageInfo> = z
@@ -3131,7 +3866,7 @@ export const unmarshalDbfsStorageInfoSchema: z.ZodType<DbfsStorageInfo> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteCluster_ResponseSchema: z.ZodType<DeleteCluster_Response> =
+export const unmarshalDeleteClusterRequest_ResponseSchema: z.ZodType<DeleteClusterRequest_Response> =
   z.object({});
 
 export const unmarshalDockerBasicAuthSchema: z.ZodType<DockerBasicAuth> = z
@@ -3158,11 +3893,11 @@ export const unmarshalDockerImageSchema: z.ZodType<DockerImage> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEditCluster_ResponseSchema: z.ZodType<EditCluster_Response> =
+export const unmarshalEditClusterRequest_ResponseSchema: z.ZodType<EditClusterRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEnforcePolicyComplianceForCluster_ResponseSchema: z.ZodType<EnforcePolicyComplianceForCluster_Response> =
+export const unmarshalEnforcePolicyComplianceForClusterRequest_ResponseSchema: z.ZodType<EnforcePolicyComplianceForClusterRequest_Response> =
   z
     .object({
       has_changes: z.boolean().optional(),
@@ -3170,7 +3905,7 @@ export const unmarshalEnforcePolicyComplianceForCluster_ResponseSchema: z.ZodTyp
         .array(
           z.lazy(
             () =>
-              unmarshalEnforcePolicyComplianceForCluster_Response_ClusterSettingsChangeSchema
+              unmarshalEnforcePolicyComplianceForClusterRequest_Response_ClusterSettingsChangeSchema
           )
         )
         .optional(),
@@ -3181,7 +3916,7 @@ export const unmarshalEnforcePolicyComplianceForCluster_ResponseSchema: z.ZodTyp
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEnforcePolicyComplianceForCluster_Response_ClusterSettingsChangeSchema: z.ZodType<EnforcePolicyComplianceForCluster_Response_ClusterSettingsChange> =
+export const unmarshalEnforcePolicyComplianceForClusterRequest_Response_ClusterSettingsChangeSchema: z.ZodType<EnforcePolicyComplianceForClusterRequest_Response_ClusterSettingsChange> =
   z
     .object({
       field: z.string().optional(),
@@ -3193,6 +3928,57 @@ export const unmarshalEnforcePolicyComplianceForCluster_Response_ClusterSettings
       previousValue: d.previous_value,
       newValue: d.new_value,
     }));
+
+export const unmarshalEventDetailsSchema: z.ZodType<EventDetails> = z
+  .object({
+    current_num_workers: z.number().optional(),
+    target_num_workers: z.number().optional(),
+    previous_attributes: z
+      .lazy(() => unmarshalClusterAttributesSchema)
+      .optional(),
+    attributes: z.lazy(() => unmarshalClusterAttributesSchema).optional(),
+    previous_cluster_size: z.lazy(() => unmarshalClusterSizeSchema).optional(),
+    cluster_size: z.lazy(() => unmarshalClusterSizeSchema).optional(),
+    cause: z.enum(ResizeCause_ResizeCause).optional(),
+    reason: z.lazy(() => unmarshalTerminationReasonSchema).optional(),
+    user: z.string().optional(),
+    previous_disk_size: z.number().optional(),
+    disk_size: z.number().optional(),
+    free_space: z.number().optional(),
+    instance_id: z.string().optional(),
+    did_not_expand_reason: z.string().optional(),
+    driver_state_message: z.string().optional(),
+    job_run_name: z.string().optional(),
+    init_scripts: z
+      .lazy(() => unmarshalInitScriptEventDetailsSchema)
+      .optional(),
+    enable_termination_for_node_blocklisted: z.boolean().optional(),
+    current_num_vcpus: z.number().optional(),
+    target_num_vcpus: z.number().optional(),
+  })
+  .transform(d => ({
+    currentNumWorkers: d.current_num_workers,
+    targetNumWorkers: d.target_num_workers,
+    previousAttributes: d.previous_attributes,
+    attributes: d.attributes,
+    previousClusterSize: d.previous_cluster_size,
+    clusterSize: d.cluster_size,
+    cause: d.cause,
+    reason: d.reason,
+    user: d.user,
+    previousDiskSize: d.previous_disk_size,
+    diskSize: d.disk_size,
+    freeSpace: d.free_space,
+    instanceId: d.instance_id,
+    didNotExpandReason: d.did_not_expand_reason,
+    driverStateMessage: d.driver_state_message,
+    jobRunName: d.job_run_name,
+    initScripts: d.init_scripts,
+    enableTerminationForNodeBlocklisted:
+      d.enable_termination_for_node_blocklisted,
+    currentNumVcpus: d.current_num_vcpus,
+    targetNumVcpus: d.target_num_vcpus,
+  }));
 
 export const unmarshalGcpAttributesSchema: z.ZodType<GcpAttributes> = z
   .object({
@@ -3224,8 +4010,50 @@ export const unmarshalGcsStorageInfoSchema: z.ZodType<GcsStorageInfo> = z
     destination: d.destination,
   }));
 
+export const unmarshalGetEventsSchema: z.ZodType<GetEvents> = z
+  .object({
+    cluster_id: z.string().optional(),
+    start_time: z.number().optional(),
+    end_time: z.number().optional(),
+    order: z.enum(GetEventsOrder).optional(),
+    event_types: z.array(z.enum(ClusterEventType_ClusterEventType)).optional(),
+    offset: z.number().optional(),
+    limit: z.number().optional(),
+    page_token: z.string().optional(),
+    page_size: z.number().optional(),
+  })
+  .transform(d => ({
+    clusterId: d.cluster_id,
+    startTime: d.start_time,
+    endTime: d.end_time,
+    order: d.order,
+    eventTypes: d.event_types,
+    offset: d.offset,
+    limit: d.limit,
+    pageToken: d.page_token,
+    pageSize: d.page_size,
+  }));
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetPolicyComplianceForCluster_ResponseSchema: z.ZodType<GetPolicyComplianceForCluster_Response> =
+export const unmarshalGetEvents_ResponseSchema: z.ZodType<GetEvents_Response> =
+  z
+    .object({
+      events: z.array(z.lazy(() => unmarshalClusterEventSchema)).optional(),
+      next_page: z.lazy(() => unmarshalGetEventsSchema).optional(),
+      total_count: z.number().optional(),
+      next_page_token: z.string().optional(),
+      prev_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      events: d.events,
+      nextPage: d.next_page,
+      totalCount: d.total_count,
+      nextPageToken: d.next_page_token,
+      prevPageToken: d.prev_page_token,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalGetPolicyComplianceForClusterRequest_ResponseSchema: z.ZodType<GetPolicyComplianceForClusterRequest_Response> =
   z
     .object({
       is_compliant: z.boolean().optional(),
@@ -3237,13 +4065,81 @@ export const unmarshalGetPolicyComplianceForCluster_ResponseSchema: z.ZodType<Ge
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetSparkVersions_ResponseSchema: z.ZodType<GetSparkVersions_Response> =
+export const unmarshalGetSparkVersionsRequest_ResponseSchema: z.ZodType<GetSparkVersionsRequest_Response> =
   z
     .object({
       versions: z.array(z.lazy(() => unmarshalSparkVersionSchema)).optional(),
     })
     .transform(d => ({
       versions: d.versions,
+    }));
+
+export const unmarshalInitScriptEventDetailsSchema: z.ZodType<InitScriptEventDetails> =
+  z
+    .object({
+      reported_for_node: z.string().optional(),
+      global: z
+        .array(
+          z.lazy(
+            () =>
+              unmarshalInitScriptEventDetails_InitScriptInfoAndExecutionDetailsSchema
+          )
+        )
+        .optional(),
+      cluster: z
+        .array(
+          z.lazy(
+            () =>
+              unmarshalInitScriptEventDetails_InitScriptInfoAndExecutionDetailsSchema
+          )
+        )
+        .optional(),
+    })
+    .transform(d => ({
+      reportedForNode: d.reported_for_node,
+      global: d.global,
+      cluster: d.cluster,
+    }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalInitScriptEventDetails_InitScriptInfoAndExecutionDetailsSchema: z.ZodType<InitScriptEventDetails_InitScriptInfoAndExecutionDetails> =
+  z
+    .object({
+      dbfs: z.lazy(() => unmarshalDbfsStorageInfoSchema).optional(),
+      s3: z.lazy(() => unmarshalS3StorageInfoSchema).optional(),
+      file: z.lazy(() => unmarshalLocalFileInfoSchema).optional(),
+      gcs: z.lazy(() => unmarshalGcsStorageInfoSchema).optional(),
+      abfss: z.lazy(() => unmarshalAdlsgen2InfoSchema).optional(),
+      workspace: z.lazy(() => unmarshalWorkspaceStorageInfoSchema).optional(),
+      volumes: z.lazy(() => unmarshalVolumesStorageInfoSchema).optional(),
+      status: z
+        .enum(InitScriptExecutionDetails_InitScriptExecutionStatus)
+        .optional(),
+      execution_duration_seconds: z.number().optional(),
+      error_message: z.string().optional(),
+      stderr: z.string().optional(),
+    })
+    .transform(d => ({
+      storageInfo:
+        d.dbfs !== undefined
+          ? {$case: 'dbfs' as const, dbfs: d.dbfs}
+          : d.s3 !== undefined
+            ? {$case: 's3' as const, s3: d.s3}
+            : d.file !== undefined
+              ? {$case: 'file' as const, file: d.file}
+              : d.gcs !== undefined
+                ? {$case: 'gcs' as const, gcs: d.gcs}
+                : d.abfss !== undefined
+                  ? {$case: 'abfss' as const, abfss: d.abfss}
+                  : d.workspace !== undefined
+                    ? {$case: 'workspace' as const, workspace: d.workspace}
+                    : d.volumes !== undefined
+                      ? {$case: 'volumes' as const, volumes: d.volumes}
+                      : undefined,
+      status: d.status,
+      executionDurationSeconds: d.execution_duration_seconds,
+      errorMessage: d.error_message,
+      stderr: d.stderr,
     }));
 
 export const unmarshalInitScriptInfoSchema: z.ZodType<InitScriptInfo> = z
@@ -3276,7 +4172,7 @@ export const unmarshalInitScriptInfoSchema: z.ZodType<InitScriptInfo> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListAvailableZones_ResponseSchema: z.ZodType<ListAvailableZones_Response> =
+export const unmarshalListAvailableZonesRequest_ResponseSchema: z.ZodType<ListAvailableZonesRequest_Response> =
   z
     .object({
       zones: z.array(z.string()).optional(),
@@ -3288,7 +4184,7 @@ export const unmarshalListAvailableZones_ResponseSchema: z.ZodType<ListAvailable
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListClusterComplianceForPolicy_ResponseSchema: z.ZodType<ListClusterComplianceForPolicy_Response> =
+export const unmarshalListClusterComplianceForPolicyRequest_ResponseSchema: z.ZodType<ListClusterComplianceForPolicyRequest_Response> =
   z
     .object({
       clusters: z
@@ -3304,7 +4200,7 @@ export const unmarshalListClusterComplianceForPolicy_ResponseSchema: z.ZodType<L
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListClusters_ResponseSchema: z.ZodType<ListClusters_Response> =
+export const unmarshalListClustersRequest_ResponseSchema: z.ZodType<ListClustersRequest_Response> =
   z
     .object({
       clusters: z.array(z.lazy(() => unmarshalClusterInfoSchema)).optional(),
@@ -3318,7 +4214,7 @@ export const unmarshalListClusters_ResponseSchema: z.ZodType<ListClusters_Respon
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListNodeTypes_ResponseSchema: z.ZodType<ListNodeTypes_Response> =
+export const unmarshalListNodeTypesRequest_ResponseSchema: z.ZodType<ListNodeTypesRequest_Response> =
   z
     .object({
       node_types: z.array(z.lazy(() => unmarshalNodeTypeSchema)).optional(),
@@ -3429,19 +4325,19 @@ export const unmarshalNodeTypeFlexibilitySchema: z.ZodType<NodeTypeFlexibility> 
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPermanentDeleteCluster_ResponseSchema: z.ZodType<PermanentDeleteCluster_Response> =
+export const unmarshalPermanentDeleteClusterRequest_ResponseSchema: z.ZodType<PermanentDeleteClusterRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPinCluster_ResponseSchema: z.ZodType<PinCluster_Response> =
+export const unmarshalPinClusterRequest_ResponseSchema: z.ZodType<PinClusterRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalResizeCluster_ResponseSchema: z.ZodType<ResizeCluster_Response> =
+export const unmarshalResizeClusterRequest_ResponseSchema: z.ZodType<ResizeClusterRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRestartCluster_ResponseSchema: z.ZodType<RestartCluster_Response> =
+export const unmarshalRestartClusterRequest_ResponseSchema: z.ZodType<RestartClusterRequest_Response> =
   z.object({});
 
 export const unmarshalS3StorageInfoSchema: z.ZodType<S3StorageInfo> = z
@@ -3509,7 +4405,7 @@ export const unmarshalSparkVersionSchema: z.ZodType<SparkVersion> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalStartCluster_ResponseSchema: z.ZodType<StartCluster_Response> =
+export const unmarshalStartClusterRequest_ResponseSchema: z.ZodType<StartClusterRequest_Response> =
   z.object({});
 
 export const unmarshalTerminationReasonSchema: z.ZodType<TerminationReason> = z
@@ -3525,11 +4421,11 @@ export const unmarshalTerminationReasonSchema: z.ZodType<TerminationReason> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUnpinCluster_ResponseSchema: z.ZodType<UnpinCluster_Response> =
+export const unmarshalUnpinClusterRequest_ResponseSchema: z.ZodType<UnpinClusterRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateCluster_ResponseSchema: z.ZodType<UpdateCluster_Response> =
+export const unmarshalUpdateClusterRequest_ResponseSchema: z.ZodType<UpdateClusterRequest_Response> =
   z.object({});
 
 export const unmarshalVolumesStorageInfoSchema: z.ZodType<VolumesStorageInfo> =
@@ -3628,7 +4524,7 @@ export const marshalAzureAttributesSchema: z.ZodType = z
     spot_bid_max_price: d.spotBidMaxPrice,
   }));
 
-export const marshalChangeClusterOwnerSchema: z.ZodType = z
+export const marshalChangeClusterOwnerRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
     ownerUsername: z.string().optional(),
@@ -3671,7 +4567,7 @@ export const marshalClusterLogConfSchema: z.ZodType = z
     ...(d.storageInfo?.$case === 'volumes' && {volumes: d.storageInfo.volumes}),
   }));
 
-export const marshalCreateClusterSchema: z.ZodType = z
+export const marshalCreateClusterRequestSchema: z.ZodType = z
   .object({
     applyPolicyDefaultValues: z.boolean().optional(),
     cloneFrom: z.lazy(() => marshalCloneClusterSchema).optional(),
@@ -3766,7 +4662,7 @@ export const marshalDbfsStorageInfoSchema: z.ZodType = z
     destination: d.destination,
   }));
 
-export const marshalDeleteClusterSchema: z.ZodType = z
+export const marshalDeleteClusterRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
   })
@@ -3803,7 +4699,7 @@ export const marshalDockerImageSchema: z.ZodType = z
     }),
   }));
 
-export const marshalEditClusterSchema: z.ZodType = z
+export const marshalEditClusterRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
     applyPolicyDefaultValues: z.boolean().optional(),
@@ -3890,15 +4786,16 @@ export const marshalEditClusterSchema: z.ZodType = z
     total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
   }));
 
-export const marshalEnforcePolicyComplianceForClusterSchema: z.ZodType = z
-  .object({
-    clusterId: z.string().optional(),
-    validateOnly: z.boolean().optional(),
-  })
-  .transform(d => ({
-    cluster_id: d.clusterId,
-    validate_only: d.validateOnly,
-  }));
+export const marshalEnforcePolicyComplianceForClusterRequestSchema: z.ZodType =
+  z
+    .object({
+      clusterId: z.string().optional(),
+      validateOnly: z.boolean().optional(),
+    })
+    .transform(d => ({
+      cluster_id: d.clusterId,
+      validate_only: d.validateOnly,
+    }));
 
 export const marshalGcpAttributesSchema: z.ZodType = z
   .object({
@@ -3928,6 +4825,30 @@ export const marshalGcsStorageInfoSchema: z.ZodType = z
   })
   .transform(d => ({
     destination: d.destination,
+  }));
+
+export const marshalGetEventsSchema: z.ZodType = z
+  .object({
+    clusterId: z.string().optional(),
+    startTime: z.number().optional(),
+    endTime: z.number().optional(),
+    order: z.enum(GetEventsOrder).optional(),
+    eventTypes: z.array(z.enum(ClusterEventType_ClusterEventType)).optional(),
+    offset: z.number().optional(),
+    limit: z.number().optional(),
+    pageToken: z.string().optional(),
+    pageSize: z.number().optional(),
+  })
+  .transform(d => ({
+    cluster_id: d.clusterId,
+    start_time: d.startTime,
+    end_time: d.endTime,
+    order: d.order,
+    event_types: d.eventTypes,
+    offset: d.offset,
+    limit: d.limit,
+    page_token: d.pageToken,
+    page_size: d.pageSize,
   }));
 
 export const marshalInitScriptInfoSchema: z.ZodType = z
@@ -4003,7 +4924,7 @@ export const marshalNodeTypeFlexibilitySchema: z.ZodType = z
     alternate_node_type_ids: d.alternateNodeTypeIds,
   }));
 
-export const marshalPermanentDeleteClusterSchema: z.ZodType = z
+export const marshalPermanentDeleteClusterRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
   })
@@ -4011,7 +4932,7 @@ export const marshalPermanentDeleteClusterSchema: z.ZodType = z
     cluster_id: d.clusterId,
   }));
 
-export const marshalPinClusterSchema: z.ZodType = z
+export const marshalPinClusterRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
   })
@@ -4019,7 +4940,7 @@ export const marshalPinClusterSchema: z.ZodType = z
     cluster_id: d.clusterId,
   }));
 
-export const marshalResizeClusterSchema: z.ZodType = z
+export const marshalResizeClusterRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
     size: z
@@ -4038,7 +4959,7 @@ export const marshalResizeClusterSchema: z.ZodType = z
     ...(d.size?.$case === 'autoscale' && {autoscale: d.size.autoscale}),
   }));
 
-export const marshalRestartClusterSchema: z.ZodType = z
+export const marshalRestartClusterRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
     restartUser: z.string().optional(),
@@ -4068,7 +4989,7 @@ export const marshalS3StorageInfoSchema: z.ZodType = z
     canned_acl: d.cannedAcl,
   }));
 
-export const marshalStartClusterSchema: z.ZodType = z
+export const marshalStartClusterRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
   })
@@ -4076,7 +4997,7 @@ export const marshalStartClusterSchema: z.ZodType = z
     cluster_id: d.clusterId,
   }));
 
-export const marshalUnpinClusterSchema: z.ZodType = z
+export const marshalUnpinClusterRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
   })
@@ -4084,11 +5005,11 @@ export const marshalUnpinClusterSchema: z.ZodType = z
     cluster_id: d.clusterId,
   }));
 
-export const marshalUpdateClusterSchema: z.ZodType = z
+export const marshalUpdateClusterRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
     cluster: z
-      .lazy(() => marshalUpdateCluster_UpdateClusterResourceSchema)
+      .lazy(() => marshalUpdateClusterRequest_UpdateClusterResourceSchema)
       .optional(),
     updateMask: z
       .any()
@@ -4102,88 +5023,91 @@ export const marshalUpdateClusterSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalUpdateCluster_UpdateClusterResourceSchema: z.ZodType = z
-  .object({
-    size: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('numWorkers'), numWorkers: z.number()}),
-        z.object({
-          $case: z.literal('autoscale'),
-          autoscale: z.lazy(() => marshalAutoScaleSchema),
-        }),
-      ])
-      .optional(),
-    clusterName: z.string().optional(),
-    sparkVersion: z.string().optional(),
-    sparkConf: z.record(z.string(), z.string()).optional(),
-    awsAttributes: z.lazy(() => marshalAwsAttributesSchema).optional(),
-    azureAttributes: z.lazy(() => marshalAzureAttributesSchema).optional(),
-    gcpAttributes: z.lazy(() => marshalGcpAttributesSchema).optional(),
-    nodeTypeId: z.string().optional(),
-    driverNodeTypeId: z.string().optional(),
-    workerNodeTypeFlexibility: z
-      .lazy(() => marshalNodeTypeFlexibilitySchema)
-      .optional(),
-    driverNodeTypeFlexibility: z
-      .lazy(() => marshalNodeTypeFlexibilitySchema)
-      .optional(),
-    sshPublicKeys: z.array(z.string()).optional(),
-    customTags: z.record(z.string(), z.string()).optional(),
-    clusterLogConf: z.lazy(() => marshalClusterLogConfSchema).optional(),
-    sparkEnvVars: z.record(z.string(), z.string()).optional(),
-    autoterminationMinutes: z.number().optional(),
-    enableElasticDisk: z.boolean().optional(),
-    initScripts: z.array(z.lazy(() => marshalInitScriptInfoSchema)).optional(),
-    dockerImage: z.lazy(() => marshalDockerImageSchema).optional(),
-    instancePoolId: z.string().optional(),
-    singleUserName: z.string().optional(),
-    policyId: z.string().optional(),
-    enableLocalDiskEncryption: z.boolean().optional(),
-    driverInstancePoolId: z.string().optional(),
-    workloadType: z.lazy(() => marshalWorkloadTypeSchema).optional(),
-    dataSecurityMode: z.enum(DataSecurityMode).optional(),
-    runtimeEngine: z.enum(RuntimeEngine).optional(),
-    kind: z.enum(ComputeKind).optional(),
-    useMlRuntime: z.boolean().optional(),
-    isSingleNode: z.boolean().optional(),
-    remoteDiskThroughput: z.number().optional(),
-    totalInitialRemoteDiskSize: z.number().optional(),
-  })
-  .transform(d => ({
-    ...(d.size?.$case === 'numWorkers' && {num_workers: d.size.numWorkers}),
-    ...(d.size?.$case === 'autoscale' && {autoscale: d.size.autoscale}),
-    cluster_name: d.clusterName,
-    spark_version: d.sparkVersion,
-    spark_conf: d.sparkConf,
-    aws_attributes: d.awsAttributes,
-    azure_attributes: d.azureAttributes,
-    gcp_attributes: d.gcpAttributes,
-    node_type_id: d.nodeTypeId,
-    driver_node_type_id: d.driverNodeTypeId,
-    worker_node_type_flexibility: d.workerNodeTypeFlexibility,
-    driver_node_type_flexibility: d.driverNodeTypeFlexibility,
-    ssh_public_keys: d.sshPublicKeys,
-    custom_tags: d.customTags,
-    cluster_log_conf: d.clusterLogConf,
-    spark_env_vars: d.sparkEnvVars,
-    autotermination_minutes: d.autoterminationMinutes,
-    enable_elastic_disk: d.enableElasticDisk,
-    init_scripts: d.initScripts,
-    docker_image: d.dockerImage,
-    instance_pool_id: d.instancePoolId,
-    single_user_name: d.singleUserName,
-    policy_id: d.policyId,
-    enable_local_disk_encryption: d.enableLocalDiskEncryption,
-    driver_instance_pool_id: d.driverInstancePoolId,
-    workload_type: d.workloadType,
-    data_security_mode: d.dataSecurityMode,
-    runtime_engine: d.runtimeEngine,
-    kind: d.kind,
-    use_ml_runtime: d.useMlRuntime,
-    is_single_node: d.isSingleNode,
-    remote_disk_throughput: d.remoteDiskThroughput,
-    total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
-  }));
+export const marshalUpdateClusterRequest_UpdateClusterResourceSchema: z.ZodType =
+  z
+    .object({
+      size: z
+        .discriminatedUnion('$case', [
+          z.object({$case: z.literal('numWorkers'), numWorkers: z.number()}),
+          z.object({
+            $case: z.literal('autoscale'),
+            autoscale: z.lazy(() => marshalAutoScaleSchema),
+          }),
+        ])
+        .optional(),
+      clusterName: z.string().optional(),
+      sparkVersion: z.string().optional(),
+      sparkConf: z.record(z.string(), z.string()).optional(),
+      awsAttributes: z.lazy(() => marshalAwsAttributesSchema).optional(),
+      azureAttributes: z.lazy(() => marshalAzureAttributesSchema).optional(),
+      gcpAttributes: z.lazy(() => marshalGcpAttributesSchema).optional(),
+      nodeTypeId: z.string().optional(),
+      driverNodeTypeId: z.string().optional(),
+      workerNodeTypeFlexibility: z
+        .lazy(() => marshalNodeTypeFlexibilitySchema)
+        .optional(),
+      driverNodeTypeFlexibility: z
+        .lazy(() => marshalNodeTypeFlexibilitySchema)
+        .optional(),
+      sshPublicKeys: z.array(z.string()).optional(),
+      customTags: z.record(z.string(), z.string()).optional(),
+      clusterLogConf: z.lazy(() => marshalClusterLogConfSchema).optional(),
+      sparkEnvVars: z.record(z.string(), z.string()).optional(),
+      autoterminationMinutes: z.number().optional(),
+      enableElasticDisk: z.boolean().optional(),
+      initScripts: z
+        .array(z.lazy(() => marshalInitScriptInfoSchema))
+        .optional(),
+      dockerImage: z.lazy(() => marshalDockerImageSchema).optional(),
+      instancePoolId: z.string().optional(),
+      singleUserName: z.string().optional(),
+      policyId: z.string().optional(),
+      enableLocalDiskEncryption: z.boolean().optional(),
+      driverInstancePoolId: z.string().optional(),
+      workloadType: z.lazy(() => marshalWorkloadTypeSchema).optional(),
+      dataSecurityMode: z.enum(DataSecurityMode).optional(),
+      runtimeEngine: z.enum(RuntimeEngine).optional(),
+      kind: z.enum(ComputeKind).optional(),
+      useMlRuntime: z.boolean().optional(),
+      isSingleNode: z.boolean().optional(),
+      remoteDiskThroughput: z.number().optional(),
+      totalInitialRemoteDiskSize: z.number().optional(),
+    })
+    .transform(d => ({
+      ...(d.size?.$case === 'numWorkers' && {num_workers: d.size.numWorkers}),
+      ...(d.size?.$case === 'autoscale' && {autoscale: d.size.autoscale}),
+      cluster_name: d.clusterName,
+      spark_version: d.sparkVersion,
+      spark_conf: d.sparkConf,
+      aws_attributes: d.awsAttributes,
+      azure_attributes: d.azureAttributes,
+      gcp_attributes: d.gcpAttributes,
+      node_type_id: d.nodeTypeId,
+      driver_node_type_id: d.driverNodeTypeId,
+      worker_node_type_flexibility: d.workerNodeTypeFlexibility,
+      driver_node_type_flexibility: d.driverNodeTypeFlexibility,
+      ssh_public_keys: d.sshPublicKeys,
+      custom_tags: d.customTags,
+      cluster_log_conf: d.clusterLogConf,
+      spark_env_vars: d.sparkEnvVars,
+      autotermination_minutes: d.autoterminationMinutes,
+      enable_elastic_disk: d.enableElasticDisk,
+      init_scripts: d.initScripts,
+      docker_image: d.dockerImage,
+      instance_pool_id: d.instancePoolId,
+      single_user_name: d.singleUserName,
+      policy_id: d.policyId,
+      enable_local_disk_encryption: d.enableLocalDiskEncryption,
+      driver_instance_pool_id: d.driverInstancePoolId,
+      workload_type: d.workloadType,
+      data_security_mode: d.dataSecurityMode,
+      runtime_engine: d.runtimeEngine,
+      kind: d.kind,
+      use_ml_runtime: d.useMlRuntime,
+      is_single_node: d.isSingleNode,
+      remote_disk_throughput: d.remoteDiskThroughput,
+      total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
+    }));
 
 export const marshalVolumesStorageInfoSchema: z.ZodType = z
   .object({
@@ -4302,73 +5226,74 @@ const s3StorageInfoFieldMaskSchema: FieldMaskSchema = {
 };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-const updateCluster_UpdateClusterResourceFieldMaskSchema: FieldMaskSchema = {
-  autoscale: {wire: 'autoscale', children: () => autoScaleFieldMaskSchema},
-  autoterminationMinutes: {wire: 'autotermination_minutes'},
-  awsAttributes: {
-    wire: 'aws_attributes',
-    children: () => awsAttributesFieldMaskSchema,
-  },
-  azureAttributes: {
-    wire: 'azure_attributes',
-    children: () => azureAttributesFieldMaskSchema,
-  },
-  clusterLogConf: {
-    wire: 'cluster_log_conf',
-    children: () => clusterLogConfFieldMaskSchema,
-  },
-  clusterName: {wire: 'cluster_name'},
-  customTags: {wire: 'custom_tags'},
-  dataSecurityMode: {wire: 'data_security_mode'},
-  dockerImage: {
-    wire: 'docker_image',
-    children: () => dockerImageFieldMaskSchema,
-  },
-  driverInstancePoolId: {wire: 'driver_instance_pool_id'},
-  driverNodeTypeFlexibility: {
-    wire: 'driver_node_type_flexibility',
-    children: () => nodeTypeFlexibilityFieldMaskSchema,
-  },
-  driverNodeTypeId: {wire: 'driver_node_type_id'},
-  enableElasticDisk: {wire: 'enable_elastic_disk'},
-  enableLocalDiskEncryption: {wire: 'enable_local_disk_encryption'},
-  gcpAttributes: {
-    wire: 'gcp_attributes',
-    children: () => gcpAttributesFieldMaskSchema,
-  },
-  initScripts: {wire: 'init_scripts'},
-  instancePoolId: {wire: 'instance_pool_id'},
-  isSingleNode: {wire: 'is_single_node'},
-  kind: {wire: 'kind'},
-  nodeTypeId: {wire: 'node_type_id'},
-  numWorkers: {wire: 'num_workers'},
-  policyId: {wire: 'policy_id'},
-  remoteDiskThroughput: {wire: 'remote_disk_throughput'},
-  runtimeEngine: {wire: 'runtime_engine'},
-  singleUserName: {wire: 'single_user_name'},
-  sparkConf: {wire: 'spark_conf'},
-  sparkEnvVars: {wire: 'spark_env_vars'},
-  sparkVersion: {wire: 'spark_version'},
-  sshPublicKeys: {wire: 'ssh_public_keys'},
-  totalInitialRemoteDiskSize: {wire: 'total_initial_remote_disk_size'},
-  useMlRuntime: {wire: 'use_ml_runtime'},
-  workerNodeTypeFlexibility: {
-    wire: 'worker_node_type_flexibility',
-    children: () => nodeTypeFlexibilityFieldMaskSchema,
-  },
-  workloadType: {
-    wire: 'workload_type',
-    children: () => workloadTypeFieldMaskSchema,
-  },
-};
+const updateClusterRequest_UpdateClusterResourceFieldMaskSchema: FieldMaskSchema =
+  {
+    autoscale: {wire: 'autoscale', children: () => autoScaleFieldMaskSchema},
+    autoterminationMinutes: {wire: 'autotermination_minutes'},
+    awsAttributes: {
+      wire: 'aws_attributes',
+      children: () => awsAttributesFieldMaskSchema,
+    },
+    azureAttributes: {
+      wire: 'azure_attributes',
+      children: () => azureAttributesFieldMaskSchema,
+    },
+    clusterLogConf: {
+      wire: 'cluster_log_conf',
+      children: () => clusterLogConfFieldMaskSchema,
+    },
+    clusterName: {wire: 'cluster_name'},
+    customTags: {wire: 'custom_tags'},
+    dataSecurityMode: {wire: 'data_security_mode'},
+    dockerImage: {
+      wire: 'docker_image',
+      children: () => dockerImageFieldMaskSchema,
+    },
+    driverInstancePoolId: {wire: 'driver_instance_pool_id'},
+    driverNodeTypeFlexibility: {
+      wire: 'driver_node_type_flexibility',
+      children: () => nodeTypeFlexibilityFieldMaskSchema,
+    },
+    driverNodeTypeId: {wire: 'driver_node_type_id'},
+    enableElasticDisk: {wire: 'enable_elastic_disk'},
+    enableLocalDiskEncryption: {wire: 'enable_local_disk_encryption'},
+    gcpAttributes: {
+      wire: 'gcp_attributes',
+      children: () => gcpAttributesFieldMaskSchema,
+    },
+    initScripts: {wire: 'init_scripts'},
+    instancePoolId: {wire: 'instance_pool_id'},
+    isSingleNode: {wire: 'is_single_node'},
+    kind: {wire: 'kind'},
+    nodeTypeId: {wire: 'node_type_id'},
+    numWorkers: {wire: 'num_workers'},
+    policyId: {wire: 'policy_id'},
+    remoteDiskThroughput: {wire: 'remote_disk_throughput'},
+    runtimeEngine: {wire: 'runtime_engine'},
+    singleUserName: {wire: 'single_user_name'},
+    sparkConf: {wire: 'spark_conf'},
+    sparkEnvVars: {wire: 'spark_env_vars'},
+    sparkVersion: {wire: 'spark_version'},
+    sshPublicKeys: {wire: 'ssh_public_keys'},
+    totalInitialRemoteDiskSize: {wire: 'total_initial_remote_disk_size'},
+    useMlRuntime: {wire: 'use_ml_runtime'},
+    workerNodeTypeFlexibility: {
+      wire: 'worker_node_type_flexibility',
+      children: () => nodeTypeFlexibilityFieldMaskSchema,
+    },
+    workloadType: {
+      wire: 'workload_type',
+      children: () => workloadTypeFieldMaskSchema,
+    },
+  };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export function updateCluster_UpdateClusterResourceFieldMask(
+export function updateClusterRequest_UpdateClusterResourceFieldMask(
   ...paths: string[]
-): FieldMask<UpdateCluster_UpdateClusterResource> {
-  return FieldMask.build<UpdateCluster_UpdateClusterResource>(
+): FieldMask<UpdateClusterRequest_UpdateClusterResource> {
+  return FieldMask.build<UpdateClusterRequest_UpdateClusterResource>(
     paths,
-    updateCluster_UpdateClusterResourceFieldMaskSchema
+    updateClusterRequest_UpdateClusterResourceFieldMaskSchema
   );
 }
 

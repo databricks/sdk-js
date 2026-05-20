@@ -9,18 +9,18 @@ export enum BindingType {
   BINDING_TYPE_READ_ONLY = 'BINDING_TYPE_READ_ONLY',
 }
 
-export interface GetCatalogWorkspaceBindings {
+export interface GetCatalogWorkspaceBindingsRequest {
   /** The name of the catalog. */
   catalogName?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetCatalogWorkspaceBindings_Response {
+export interface GetCatalogWorkspaceBindingsRequest_Response {
   /** A list of workspace IDs */
   workspaces?: number[] | undefined;
 }
 
-export interface GetWorkspaceBindings {
+export interface GetWorkspaceBindingsRequest {
   /** The type of the securable to bind to a workspace (catalog, storage_credential, credential, or external_location). */
   securableType?: string | undefined;
   /** The name of the securable. */
@@ -38,7 +38,7 @@ export interface GetWorkspaceBindings {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetWorkspaceBindings_Response {
+export interface GetWorkspaceBindingsRequest_Response {
   /** List of workspace bindings */
   bindings?: WorkspaceBindingInfo[] | undefined;
   /**
@@ -48,7 +48,7 @@ export interface GetWorkspaceBindings_Response {
   nextPageToken?: string | undefined;
 }
 
-export interface UpdateCatalogWorkspaceBindings {
+export interface UpdateCatalogWorkspaceBindingsRequest {
   /** The name of the catalog. */
   catalogName?: string | undefined;
   /** A list of workspace IDs. */
@@ -58,12 +58,12 @@ export interface UpdateCatalogWorkspaceBindings {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateCatalogWorkspaceBindings_Response {
+export interface UpdateCatalogWorkspaceBindingsRequest_Response {
   /** A list of workspace IDs */
   workspaces?: number[] | undefined;
 }
 
-export interface UpdateWorkspaceBindings {
+export interface UpdateWorkspaceBindingsRequest {
   /** The type of the securable to bind to a workspace (catalog, storage_credential, credential, or external_location). */
   securableType?: string | undefined;
   /** The name of the securable. */
@@ -80,7 +80,7 @@ export interface UpdateWorkspaceBindings {
 
 /** A list of workspace IDs that are bound to the securable */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateWorkspaceBindings_Response {
+export interface UpdateWorkspaceBindingsRequest_Response {
   /** List of workspace bindings. */
   bindings?: WorkspaceBindingInfo[] | undefined;
 }
@@ -93,7 +93,7 @@ export interface WorkspaceBindingInfo {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetCatalogWorkspaceBindings_ResponseSchema: z.ZodType<GetCatalogWorkspaceBindings_Response> =
+export const unmarshalGetCatalogWorkspaceBindingsRequest_ResponseSchema: z.ZodType<GetCatalogWorkspaceBindingsRequest_Response> =
   z
     .object({
       workspaces: z.array(z.number()).optional(),
@@ -103,7 +103,7 @@ export const unmarshalGetCatalogWorkspaceBindings_ResponseSchema: z.ZodType<GetC
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetWorkspaceBindings_ResponseSchema: z.ZodType<GetWorkspaceBindings_Response> =
+export const unmarshalGetWorkspaceBindingsRequest_ResponseSchema: z.ZodType<GetWorkspaceBindingsRequest_Response> =
   z
     .object({
       bindings: z
@@ -117,7 +117,7 @@ export const unmarshalGetWorkspaceBindings_ResponseSchema: z.ZodType<GetWorkspac
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateCatalogWorkspaceBindings_ResponseSchema: z.ZodType<UpdateCatalogWorkspaceBindings_Response> =
+export const unmarshalUpdateCatalogWorkspaceBindingsRequest_ResponseSchema: z.ZodType<UpdateCatalogWorkspaceBindingsRequest_Response> =
   z
     .object({
       workspaces: z.array(z.number()).optional(),
@@ -127,7 +127,7 @@ export const unmarshalUpdateCatalogWorkspaceBindings_ResponseSchema: z.ZodType<U
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateWorkspaceBindings_ResponseSchema: z.ZodType<UpdateWorkspaceBindings_Response> =
+export const unmarshalUpdateWorkspaceBindingsRequest_ResponseSchema: z.ZodType<UpdateWorkspaceBindingsRequest_Response> =
   z
     .object({
       bindings: z
@@ -149,7 +149,7 @@ export const unmarshalWorkspaceBindingInfoSchema: z.ZodType<WorkspaceBindingInfo
       bindingType: d.binding_type,
     }));
 
-export const marshalUpdateCatalogWorkspaceBindingsSchema: z.ZodType = z
+export const marshalUpdateCatalogWorkspaceBindingsRequestSchema: z.ZodType = z
   .object({
     catalogName: z.string().optional(),
     assignWorkspaces: z.array(z.number()).optional(),
@@ -161,7 +161,7 @@ export const marshalUpdateCatalogWorkspaceBindingsSchema: z.ZodType = z
     unassign_workspaces: d.unassignWorkspaces,
   }));
 
-export const marshalUpdateWorkspaceBindingsSchema: z.ZodType = z
+export const marshalUpdateWorkspaceBindingsRequestSchema: z.ZodType = z
   .object({
     securableType: z.string().optional(),
     securableFullName: z.string().optional(),

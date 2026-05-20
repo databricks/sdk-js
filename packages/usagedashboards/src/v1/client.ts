@@ -18,15 +18,15 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  CreateBillingUsageDashboard,
-  CreateBillingUsageDashboard_Response,
-  GetBillingUsageDashboard,
-  GetBillingUsageDashboard_Response,
+  CreateBillingUsageDashboardRequest,
+  CreateBillingUsageDashboardRequest_Response,
+  GetBillingUsageDashboardRequest,
+  GetBillingUsageDashboardRequest_Response,
 } from './model';
 import {
-  marshalCreateBillingUsageDashboardSchema,
-  unmarshalCreateBillingUsageDashboard_ResponseSchema,
-  unmarshalGetBillingUsageDashboard_ResponseSchema,
+  marshalCreateBillingUsageDashboardRequestSchema,
+  unmarshalCreateBillingUsageDashboardRequest_ResponseSchema,
+  unmarshalGetBillingUsageDashboardRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -66,12 +66,15 @@ export class Client {
 
   /** Create a usage dashboard specified by workspaceId, accountId, and dashboard type. */
   async createBillingUsageDashboard(
-    req: CreateBillingUsageDashboard,
+    req: CreateBillingUsageDashboardRequest,
     options?: CallOptions
-  ): Promise<CreateBillingUsageDashboard_Response> {
+  ): Promise<CreateBillingUsageDashboardRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/dashboard`;
-    const body = marshalRequest(req, marshalCreateBillingUsageDashboardSchema);
-    let resp: CreateBillingUsageDashboard_Response | undefined;
+    const body = marshalRequest(
+      req,
+      marshalCreateBillingUsageDashboardRequestSchema
+    );
+    let resp: CreateBillingUsageDashboardRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -83,7 +86,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalCreateBillingUsageDashboard_ResponseSchema
+        unmarshalCreateBillingUsageDashboardRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -95,9 +98,9 @@ export class Client {
 
   /** Get a usage dashboard specified by workspaceId, accountId, and dashboard type. */
   async getBillingUsageDashboard(
-    req: GetBillingUsageDashboard,
+    req: GetBillingUsageDashboardRequest,
     options?: CallOptions
-  ): Promise<GetBillingUsageDashboard_Response> {
+  ): Promise<GetBillingUsageDashboardRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/dashboard`;
     const params = new URLSearchParams();
     if (req.workspaceId !== undefined) {
@@ -108,7 +111,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetBillingUsageDashboard_Response | undefined;
+    let resp: GetBillingUsageDashboardRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -120,7 +123,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetBillingUsageDashboard_ResponseSchema
+        unmarshalGetBillingUsageDashboardRequest_ResponseSchema
       );
     };
     await executeCall(call, options);

@@ -18,22 +18,22 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  CreateToken,
-  CreateToken_Response,
-  ListTokens,
-  ListTokens_Response,
-  RevokeToken,
-  RevokeToken_Response,
-  UpdateToken,
+  CreateTokenRequest,
+  CreateTokenRequest_Response,
+  ListTokensRequest,
+  ListTokensRequest_Response,
+  RevokeTokenRequest,
+  RevokeTokenRequest_Response,
+  UpdateTokenRequest,
   UpdateTokenResponse,
 } from './model';
 import {
-  marshalCreateTokenSchema,
-  marshalRevokeTokenSchema,
-  marshalUpdateTokenSchema,
-  unmarshalCreateToken_ResponseSchema,
-  unmarshalListTokens_ResponseSchema,
-  unmarshalRevokeToken_ResponseSchema,
+  marshalCreateTokenRequestSchema,
+  marshalRevokeTokenRequestSchema,
+  marshalUpdateTokenRequestSchema,
+  unmarshalCreateTokenRequest_ResponseSchema,
+  unmarshalListTokensRequest_ResponseSchema,
+  unmarshalRevokeTokenRequest_ResponseSchema,
   unmarshalUpdateTokenResponseSchema,
 } from './model';
 
@@ -74,12 +74,12 @@ export class Client {
    * returns an error **QUOTA_EXCEEDED**.
    */
   async createToken(
-    req: CreateToken,
+    req: CreateTokenRequest,
     options?: CallOptions
-  ): Promise<CreateToken_Response> {
+  ): Promise<CreateTokenRequest_Response> {
     const url = `${this.host}/api/2.0/token/create`;
-    const body = marshalRequest(req, marshalCreateTokenSchema);
-    let resp: CreateToken_Response | undefined;
+    const body = marshalRequest(req, marshalCreateTokenRequestSchema);
+    let resp: CreateTokenRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -89,7 +89,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCreateToken_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalCreateTokenRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -100,11 +103,11 @@ export class Client {
 
   /** Lists all the valid tokens for a user-workspace pair. */
   async listTokens(
-    _req: ListTokens,
+    _req: ListTokensRequest,
     options?: CallOptions
-  ): Promise<ListTokens_Response> {
+  ): Promise<ListTokensRequest_Response> {
     const url = `${this.host}/api/2.0/token/list`;
-    let resp: ListTokens_Response | undefined;
+    let resp: ListTokensRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -114,7 +117,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListTokens_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListTokensRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -129,12 +132,12 @@ export class Client {
    * If a token with the specified ID is not valid, this call returns an error **RESOURCE_DOES_NOT_EXIST**.
    */
   async revokeToken(
-    req: RevokeToken,
+    req: RevokeTokenRequest,
     options?: CallOptions
-  ): Promise<RevokeToken_Response> {
+  ): Promise<RevokeTokenRequest_Response> {
     const url = `${this.host}/api/2.0/token/delete`;
-    const body = marshalRequest(req, marshalRevokeTokenSchema);
-    let resp: RevokeToken_Response | undefined;
+    const body = marshalRequest(req, marshalRevokeTokenRequestSchema);
+    let resp: RevokeTokenRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -144,7 +147,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalRevokeToken_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalRevokeTokenRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -159,11 +165,11 @@ export class Client {
    * If a token with the specified ID is not valid, this call returns an error **RESOURCE_DOES_NOT_EXIST**.
    */
   async updateToken(
-    req: UpdateToken,
+    req: UpdateTokenRequest,
     options?: CallOptions
   ): Promise<UpdateTokenResponse> {
     const url = `${this.host}/api/2.0/token/${req.tokenId ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateTokenSchema);
+    const body = marshalRequest(req, marshalUpdateTokenRequestSchema);
     let resp: UpdateTokenResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});

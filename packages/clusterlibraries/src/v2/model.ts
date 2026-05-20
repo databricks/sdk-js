@@ -42,12 +42,12 @@ export interface ClusterLibraryStatuses {
   libraryStatuses?: LibraryFullStatus[] | undefined;
 }
 
-export interface ClusterStatus {
+export interface ClusterStatusRequest {
   /** Unique identifier of the cluster whose status should be retrieved. */
   clusterId?: string | undefined;
 }
 
-export interface InstallLibraries {
+export interface InstallLibrariesRequest {
   /** Unique identifier for the cluster on which to install these libraries. */
   clusterId?: string | undefined;
   /** The libraries to install. */
@@ -55,7 +55,7 @@ export interface InstallLibraries {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface InstallLibraries_Response {}
+export interface InstallLibrariesRequest_Response {}
 
 export interface Library {
   lib?:
@@ -131,10 +131,10 @@ export interface LibraryFullStatus {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ListAllClusterLibraryStatuses {}
+export interface ListAllClusterLibraryStatusesRequest {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListAllClusterLibraryStatuses_Response {
+export interface ListAllClusterLibraryStatusesRequest_Response {
   /** A list of cluster statuses. */
   statuses?: ClusterLibraryStatuses[] | undefined;
 }
@@ -176,7 +176,7 @@ export interface RCranLibrary {
   repo?: string | undefined;
 }
 
-export interface UninstallLibraries {
+export interface UninstallLibrariesRequest {
   /** Unique identifier for the cluster on which to uninstall these libraries. */
   clusterId?: string | undefined;
   /** The libraries to uninstall. */
@@ -184,7 +184,7 @@ export interface UninstallLibraries {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface UninstallLibraries_Response {}
+export interface UninstallLibrariesRequest_Response {}
 
 export const unmarshalClusterLibraryStatusesSchema: z.ZodType<ClusterLibraryStatuses> =
   z
@@ -200,7 +200,7 @@ export const unmarshalClusterLibraryStatusesSchema: z.ZodType<ClusterLibraryStat
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalInstallLibraries_ResponseSchema: z.ZodType<InstallLibraries_Response> =
+export const unmarshalInstallLibrariesRequest_ResponseSchema: z.ZodType<InstallLibrariesRequest_Response> =
   z.object({});
 
 export const unmarshalLibrarySchema: z.ZodType<Library> = z
@@ -250,7 +250,7 @@ export const unmarshalLibraryFullStatusSchema: z.ZodType<LibraryFullStatus> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListAllClusterLibraryStatuses_ResponseSchema: z.ZodType<ListAllClusterLibraryStatuses_Response> =
+export const unmarshalListAllClusterLibraryStatusesRequest_ResponseSchema: z.ZodType<ListAllClusterLibraryStatusesRequest_Response> =
   z
     .object({
       statuses: z
@@ -294,10 +294,10 @@ export const unmarshalRCranLibrarySchema: z.ZodType<RCranLibrary> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUninstallLibraries_ResponseSchema: z.ZodType<UninstallLibraries_Response> =
+export const unmarshalUninstallLibrariesRequest_ResponseSchema: z.ZodType<UninstallLibrariesRequest_Response> =
   z.object({});
 
-export const marshalInstallLibrariesSchema: z.ZodType = z
+export const marshalInstallLibrariesRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
     libraries: z.array(z.lazy(() => marshalLibrarySchema)).optional(),
@@ -372,7 +372,7 @@ export const marshalRCranLibrarySchema: z.ZodType = z
     repo: d.repo,
   }));
 
-export const marshalUninstallLibrariesSchema: z.ZodType = z
+export const marshalUninstallLibrariesRequestSchema: z.ZodType = z
   .object({
     clusterId: z.string().optional(),
     libraries: z.array(z.lazy(() => marshalLibrarySchema)).optional(),

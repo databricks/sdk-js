@@ -17,15 +17,15 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  GetQuota,
-  GetQuota_Response,
-  ListQuotas,
-  ListQuotas_Response,
+  GetQuotaRequest,
+  GetQuotaRequest_Response,
+  ListQuotasRequest,
+  ListQuotasRequest_Response,
   QuotaInfo,
 } from './model';
 import {
-  unmarshalGetQuota_ResponseSchema,
-  unmarshalListQuotas_ResponseSchema,
+  unmarshalGetQuotaRequest_ResponseSchema,
+  unmarshalListQuotasRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -65,11 +65,11 @@ export class Client {
    * Refreshes are triggered asynchronously. The updated count might not be returned in the first call.
    */
   async getQuota(
-    req: GetQuota,
+    req: GetQuotaRequest,
     options?: CallOptions
-  ): Promise<GetQuota_Response> {
+  ): Promise<GetQuotaRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/resource-quotas/${req.parentSecurableType ?? ''}/${req.parentFullName ?? ''}/${req.quotaName ?? ''}`;
-    let resp: GetQuota_Response | undefined;
+    let resp: GetQuotaRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -79,7 +79,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetQuota_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalGetQuotaRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -96,9 +96,9 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listQuota(
-    req: ListQuotas,
+    req: ListQuotasRequest,
     options?: CallOptions
-  ): Promise<ListQuotas_Response> {
+  ): Promise<ListQuotasRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/resource-quotas/all-resource-quotas`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -109,7 +109,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListQuotas_Response | undefined;
+    let resp: ListQuotasRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -119,7 +119,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListQuotas_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListQuotasRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -129,10 +129,10 @@ export class Client {
   }
 
   async *listQuotaIter(
-    req: ListQuotas,
+    req: ListQuotasRequest,
     options?: CallOptions
   ): AsyncGenerator<QuotaInfo> {
-    const pageReq: ListQuotas = {...req};
+    const pageReq: ListQuotasRequest = {...req};
     for (;;) {
       const resp = await this.listQuota(pageReq, options);
       for (const item of resp.quotas ?? []) {

@@ -126,7 +126,7 @@ export interface ExternalQuerySource_JobInfo {
  * If the the number of queries to return takes > 10 seconds, the request will timeout.
  * In that case, please reduce the time range to ensure ListQueries conforms to the 10 second max query time limit.
  */
-export interface ListQueries {
+export interface ListQueriesRequest {
   /**
    * An optional filter object to limit query history results. Accepts parameters such as user IDs, endpoint IDs, and statuses to narrow the returned data.
    * In a URL, the parameters of this filter are specified with dot notation. For example: `filter_by.statement_ids`.
@@ -148,7 +148,7 @@ export interface ListQueries {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListQueries_Response {
+export interface ListQueriesRequest_Response {
   /** A token that can be used to get the next page of results. */
   nextPageToken?: string | undefined;
   /** Whether there is another page of results. */
@@ -415,7 +415,7 @@ export const unmarshalExternalQuerySource_JobInfoSchema: z.ZodType<ExternalQuery
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListQueries_ResponseSchema: z.ZodType<ListQueries_Response> =
+export const unmarshalListQueriesRequest_ResponseSchema: z.ZodType<ListQueriesRequest_Response> =
   z
     .object({
       next_page_token: z.string().optional(),

@@ -5,13 +5,13 @@ export {Client} from './client';
 export {} from './model';
 
 export type {
-  AddInstanceProfile,
-  AddInstanceProfile_Response,
-  EditInstanceProfile,
-  EditInstanceProfile_Response,
+  AddInstanceProfileRequest,
+  AddInstanceProfileRequest_Response,
+  EditInstanceProfileRequest,
+  EditInstanceProfileRequest_Response,
   InstanceProfile,
-  ListInstanceProfiles,
-  ListInstanceProfiles_Response,
-  RemoveInstanceProfile,
-  RemoveInstanceProfile_Response,
+  ListInstanceProfilesRequest,
+  ListInstanceProfilesRequest_Response,
+  RemoveInstanceProfileRequest,
+  RemoveInstanceProfileRequest_Response,
 } from './model';

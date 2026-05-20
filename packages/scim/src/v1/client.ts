@@ -721,13 +721,22 @@ export class Client {
   }
 
   /** Get details about the current method caller's identity. */
-  async me(_req: MeRequest, options?: CallOptions): Promise<User> {
+  async me(req: MeRequest, options?: CallOptions): Promise<User> {
     const url = `${this.host}/api/2.0/preview/scim/v2/Me`;
+    const params = new URLSearchParams();
+    if (req.attributes !== undefined) {
+      params.append('attributes', req.attributes);
+    }
+    if (req.excludedAttributes !== undefined) {
+      params.append('excludedAttributes', req.excludedAttributes);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: User | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
       const respBody = await executeHttpCall({
         request: httpReq,
         httpClient: this.httpClient,

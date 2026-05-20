@@ -6,22 +6,23 @@ export interface GetWorkspaceConfRequest {
   keys?: string | undefined;
 }
 
-export interface WorkspaceConf {
+export interface WorkspaceConfRequest {
   key?: string | undefined;
   value?: string | undefined;
 }
 
-export const unmarshalWorkspaceConfSchema: z.ZodType<WorkspaceConf> = z
-  .object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  })
-  .transform(d => ({
-    key: d.key,
-    value: d.value,
-  }));
+export const unmarshalWorkspaceConfRequestSchema: z.ZodType<WorkspaceConfRequest> =
+  z
+    .object({
+      key: z.string().optional(),
+      value: z.string().optional(),
+    })
+    .transform(d => ({
+      key: d.key,
+      value: d.value,
+    }));
 
-export const marshalWorkspaceConfSchema: z.ZodType = z
+export const marshalWorkspaceConfRequestSchema: z.ZodType = z
   .object({
     key: z.string().optional(),
     value: z.string().optional(),

@@ -18,37 +18,37 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  CreateTable,
-  CreateTableConstraint,
-  DeleteTable,
-  DeleteTableConstraint,
-  DeleteTableConstraint_Response,
-  DeleteTable_Response,
-  GetTable,
-  ListTableSummaries,
-  ListTableSummaries_Response,
-  ListTables,
-  ListTables_Response,
+  CreateTableConstraintRequest,
+  CreateTableRequest,
+  DeleteTableConstraintRequest,
+  DeleteTableConstraintRequest_Response,
+  DeleteTableRequest,
+  DeleteTableRequest_Response,
+  GetTableRequest,
+  ListTableSummariesRequest,
+  ListTableSummariesRequest_Response,
+  ListTablesRequest,
+  ListTablesRequest_Response,
   TableConstraint,
-  TableExists,
-  TableExists_Response,
+  TableExistsRequest,
+  TableExistsRequest_Response,
   TableInfo,
   TableSummary,
-  UpdateTable,
-  UpdateTable_Response,
+  UpdateTableRequest,
+  UpdateTableRequest_Response,
 } from './model';
 import {
-  marshalCreateTableConstraintSchema,
-  marshalCreateTableSchema,
-  marshalUpdateTableSchema,
-  unmarshalDeleteTableConstraint_ResponseSchema,
-  unmarshalDeleteTable_ResponseSchema,
-  unmarshalListTableSummaries_ResponseSchema,
-  unmarshalListTables_ResponseSchema,
+  marshalCreateTableConstraintRequestSchema,
+  marshalCreateTableRequestSchema,
+  marshalUpdateTableRequestSchema,
+  unmarshalDeleteTableConstraintRequest_ResponseSchema,
+  unmarshalDeleteTableRequest_ResponseSchema,
+  unmarshalListTableSummariesRequest_ResponseSchema,
+  unmarshalListTablesRequest_ResponseSchema,
   unmarshalTableConstraintSchema,
-  unmarshalTableExists_ResponseSchema,
+  unmarshalTableExistsRequest_ResponseSchema,
   unmarshalTableInfoSchema,
-  unmarshalUpdateTable_ResponseSchema,
+  unmarshalUpdateTableRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -109,11 +109,11 @@ export class Client {
    * are not supported when creating tables through this API.
    */
   async createTable(
-    req: CreateTable,
+    req: CreateTableRequest,
     options?: CallOptions
   ): Promise<TableInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/tables`;
-    const body = marshalRequest(req, marshalCreateTableSchema);
+    const body = marshalRequest(req, marshalCreateTableRequestSchema);
     let resp: TableInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -145,11 +145,11 @@ export class Client {
    * and be the owner of the referenced parent table.
    */
   async createTableConstraint(
-    req: CreateTableConstraint,
+    req: CreateTableConstraintRequest,
     options?: CallOptions
   ): Promise<TableConstraint> {
     const url = `${this.host}/api/2.1/unity-catalog/constraints`;
-    const body = marshalRequest(req, marshalCreateTableConstraintSchema);
+    const body = marshalRequest(req, marshalCreateTableConstraintRequestSchema);
     let resp: TableConstraint | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -175,11 +175,11 @@ export class Client {
    * or be the owner of the table and have the **USE_CATALOG** privilege on the parent catalog and the **USE_SCHEMA** privilege on the parent schema.
    */
   async deleteTable(
-    req: DeleteTable,
+    req: DeleteTableRequest,
     options?: CallOptions
-  ): Promise<DeleteTable_Response> {
+  ): Promise<DeleteTableRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullNameArg ?? ''}`;
-    let resp: DeleteTable_Response | undefined;
+    let resp: DeleteTableRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -189,7 +189,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteTable_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalDeleteTableRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -210,9 +213,9 @@ export class Client {
    * and be the owner of the table.
    */
   async deleteTableConstraint(
-    req: DeleteTableConstraint,
+    req: DeleteTableConstraintRequest,
     options?: CallOptions
-  ): Promise<DeleteTableConstraint_Response> {
+  ): Promise<DeleteTableConstraintRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/constraints/${req.fullNameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.constraintName !== undefined) {
@@ -223,7 +226,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: DeleteTableConstraint_Response | undefined;
+    let resp: DeleteTableConstraintRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -235,7 +238,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalDeleteTableConstraint_ResponseSchema
+        unmarshalDeleteTableConstraintRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -254,7 +257,10 @@ export class Client {
    * * Have the **USE_CATALOG** privilege on the parent catalog and the **USE_SCHEMA** privilege on the parent schema,
    * and either be the table owner or have the **SELECT** privilege on the table.
    */
-  async getTable(req: GetTable, options?: CallOptions): Promise<TableInfo> {
+  async getTable(
+    req: GetTableRequest,
+    options?: CallOptions
+  ): Promise<TableInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullNameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.includeDeltaMetadata !== undefined) {
@@ -304,9 +310,9 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listTableSummaries(
-    req: ListTableSummaries,
+    req: ListTableSummariesRequest,
     options?: CallOptions
-  ): Promise<ListTableSummaries_Response> {
+  ): Promise<ListTableSummariesRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/table-summaries`;
     const params = new URLSearchParams();
     if (req.catalogName !== undefined) {
@@ -332,7 +338,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListTableSummaries_Response | undefined;
+    let resp: ListTableSummariesRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -344,7 +350,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListTableSummaries_ResponseSchema
+        unmarshalListTableSummariesRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -355,10 +361,10 @@ export class Client {
   }
 
   async *listTableSummariesIter(
-    req: ListTableSummaries,
+    req: ListTableSummariesRequest,
     options?: CallOptions
   ): AsyncGenerator<TableSummary> {
-    const pageReq: ListTableSummaries = {...req};
+    const pageReq: ListTableSummariesRequest = {...req};
     for (;;) {
       const resp = await this.listTableSummaries(pageReq, options);
       for (const item of resp.tables ?? []) {
@@ -385,9 +391,9 @@ export class Client {
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
   async listTables(
-    req: ListTables,
+    req: ListTablesRequest,
     options?: CallOptions
-  ): Promise<ListTables_Response> {
+  ): Promise<ListTablesRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/tables`;
     const params = new URLSearchParams();
     if (req.catalogName !== undefined) {
@@ -422,7 +428,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListTables_Response | undefined;
+    let resp: ListTablesRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -432,7 +438,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListTables_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListTablesRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -442,10 +448,10 @@ export class Client {
   }
 
   async *listTablesIter(
-    req: ListTables,
+    req: ListTablesRequest,
     options?: CallOptions
   ): AsyncGenerator<TableInfo> {
-    const pageReq: ListTables = {...req};
+    const pageReq: ListTablesRequest = {...req};
     for (;;) {
       const resp = await this.listTables(pageReq, options);
       for (const item of resp.tables ?? []) {
@@ -470,11 +476,11 @@ export class Client {
    * * Have **BROWSE** privilege on the parent schema
    */
   async tableExists(
-    req: TableExists,
+    req: TableExistsRequest,
     options?: CallOptions
-  ): Promise<TableExists_Response> {
+  ): Promise<TableExistsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullNameArg ?? ''}/exists`;
-    let resp: TableExists_Response | undefined;
+    let resp: TableExistsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -484,7 +490,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalTableExists_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalTableExistsRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -499,12 +508,12 @@ export class Client {
    * or be the owner of the table and have the **USE_CATALOG** privilege on the parent catalog and the **USE_SCHEMA** privilege on the parent schema.
    */
   async updateTable(
-    req: UpdateTable,
+    req: UpdateTableRequest,
     options?: CallOptions
-  ): Promise<UpdateTable_Response> {
+  ): Promise<UpdateTableRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/tables/${req.fullNameArg ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateTableSchema);
-    let resp: UpdateTable_Response | undefined;
+    const body = marshalRequest(req, marshalUpdateTableRequestSchema);
+    let resp: UpdateTableRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -514,7 +523,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalUpdateTable_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalUpdateTableRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {

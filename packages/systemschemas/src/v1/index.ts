@@ -5,11 +5,11 @@ export {Client} from './client';
 export {} from './model';
 
 export type {
-  DisableSystemSchema,
-  DisableSystemSchema_Response,
-  EnableSystemSchema,
-  EnableSystemSchema_Response,
-  ListSystemSchemas,
-  ListSystemSchemas_Response,
+  DisableSystemSchemaRequest,
+  DisableSystemSchemaRequest_Response,
+  EnableSystemSchemaRequest,
+  EnableSystemSchemaRequest_Response,
+  ListSystemSchemasRequest,
+  ListSystemSchemasRequest_Response,
   SystemSchemaInfo,
 } from './model';

@@ -4,4 +4,4 @@ export {Client} from './client';
 
 export {} from './model';
 
-export type {GetWorkspaceConfRequest, WorkspaceConf} from './model';
+export type {GetWorkspaceConfRequest, WorkspaceConfRequest} from './model';

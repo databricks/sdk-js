@@ -5,14 +5,14 @@ export {Client} from './client';
 export {} from './model';
 
 export type {
-  CreateGlobalInitScript,
-  CreateGlobalInitScript_Response,
-  DeleteGlobalInitScript,
-  DeleteGlobalInitScript_Response,
-  GetGlobalInitScript,
+  CreateGlobalInitScriptRequest,
+  CreateGlobalInitScriptRequest_Response,
+  DeleteGlobalInitScriptRequest,
+  DeleteGlobalInitScriptRequest_Response,
+  GetGlobalInitScriptRequest,
   GlobalInitScriptDetails,
-  ListGlobalInitScripts,
-  ListGlobalInitScripts_Response,
-  UpdateGlobalInitScript,
-  UpdateGlobalInitScript_Response,
+  ListGlobalInitScriptsRequest,
+  ListGlobalInitScriptsRequest_Response,
+  UpdateGlobalInitScriptRequest,
+  UpdateGlobalInitScriptRequest_Response,
 } from './model';

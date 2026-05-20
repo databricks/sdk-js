@@ -10,15 +10,15 @@ export {
 } from './model';
 
 export type {
-  CreateLogDeliveryConfiguration,
-  CreateLogDeliveryConfiguration_Response,
   CreateLogDeliveryConfigurationParams,
-  GetLogDeliveryConfiguration,
-  GetLogDeliveryConfiguration_Response,
-  ListLogDeliveryConfiguration,
-  ListLogDeliveryConfiguration_Response,
+  CreateLogDeliveryConfigurationRequest,
+  CreateLogDeliveryConfigurationRequest_Response,
+  GetLogDeliveryConfigurationRequest,
+  GetLogDeliveryConfigurationRequest_Response,
+  ListLogDeliveryConfigurationRequest,
+  ListLogDeliveryConfigurationRequest_Response,
   LogDeliveryConfiguration,
   LogDeliveryStatus,
-  UpdateLogDeliveryConfiguration,
-  UpdateLogDeliveryConfiguration_Response,
+  UpdateLogDeliveryConfigurationRequest,
+  UpdateLogDeliveryConfigurationRequest_Response,
 } from './model';
