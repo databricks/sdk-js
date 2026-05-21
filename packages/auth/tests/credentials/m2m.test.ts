@@ -23,32 +23,51 @@ function urlOf(input: string | URL | Request): string {
   return input.url;
 }
 
-function stubFetchJson(
-  status: number,
-  body: unknown
-): {captured: CapturedRequest[]; mock: ReturnType<typeof vi.fn>} {
-  const captured: CapturedRequest[] = [];
-  const mock = vi.fn<typeof fetch>((input, init) => {
-    captured.push({url: urlOf(input), init});
-    return Promise.resolve(
-      new Response(JSON.stringify(body), {
-        status,
-        headers: {'Content-Type': 'application/json'},
-      })
-    );
+function jsonResponse(status: number, body: unknown): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {'Content-Type': 'application/json'},
   });
-  vi.stubGlobal('fetch', mock);
-  return {captured, mock};
 }
 
-function stubFetchText(
-  status: number,
-  text: string
-): {captured: CapturedRequest[]; mock: ReturnType<typeof vi.fn>} {
+function textResponse(status: number, text: string): Response {
+  return new Response(text, {status});
+}
+
+const HOST = 'https://workspace.example';
+const HOST_METADATA_URL = `${HOST}/.well-known/databricks-config`;
+const OIDC_ROOT = `${HOST}/oidc`;
+const OAUTH_SERVER_URL = `${OIDC_ROOT}/.well-known/oauth-authorization-server`;
+const TOKEN_ENDPOINT = `${OIDC_ROOT}/v1/token`;
+
+interface FetchStubs {
+  hostMetadata?: () => Response;
+  oauthServer?: () => Response;
+  token?: () => Response;
+}
+
+function stubFetch(stubs: FetchStubs): {
+  captured: CapturedRequest[];
+  mock: ReturnType<typeof vi.fn>;
+} {
   const captured: CapturedRequest[] = [];
+  const defaultHostMetadata = (): Response =>
+    jsonResponse(200, {oidc_endpoint: OIDC_ROOT});
+  const defaultOauthServer = (): Response =>
+    jsonResponse(200, {token_endpoint: TOKEN_ENDPOINT});
   const mock = vi.fn<typeof fetch>((input, init) => {
-    captured.push({url: urlOf(input), init});
-    return Promise.resolve(new Response(text, {status}));
+    const url = urlOf(input);
+    captured.push({url, init});
+    if (url === HOST_METADATA_URL) {
+      return Promise.resolve((stubs.hostMetadata ?? defaultHostMetadata)());
+    }
+    if (url === OAUTH_SERVER_URL) {
+      return Promise.resolve((stubs.oauthServer ?? defaultOauthServer)());
+    }
+    if (url === TOKEN_ENDPOINT && stubs.token !== undefined) {
+      return Promise.resolve(stubs.token());
+    }
+    return Promise.resolve(textResponse(599, `unexpected url: ${url}`));
   });
   vi.stubGlobal('fetch', mock);
   return {captured, mock};
@@ -58,7 +77,6 @@ describe('newM2mCredentials', () => {
   const NOW = 1_700_000_000_000;
   const DEFAULT_CLIENT_ID = 'b';
   const DEFAULT_CLIENT_SECRET = 'c';
-  const TOKEN_ENDPOINT = 'https://localhost/token';
 
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -70,7 +88,7 @@ describe('newM2mCredentials', () => {
     clientId?: string;
     clientSecret?: string;
     scopes?: string[];
-    response: Record<string, unknown>;
+    tokenResponseBody: Record<string, unknown>;
     want: {
       basicAuth: string;
       scope: string;
@@ -81,7 +99,7 @@ describe('newM2mCredentials', () => {
   }[] = [
     {
       name: 'Bearer token with expiry and default scopes',
-      response: {
+      tokenResponseBody: {
         token_type: 'Bearer',
         access_token: 'test-token',
         expires_in: 3600,
@@ -96,7 +114,7 @@ describe('newM2mCredentials', () => {
     },
     {
       name: 'non-Bearer token_type is preserved',
-      response: {token_type: 'Some', access_token: 'cde'},
+      tokenResponseBody: {token_type: 'Some', access_token: 'cde'},
       want: {
         basicAuth: `Basic ${btoa('b:c')}`,
         scope: 'all-apis',
@@ -107,7 +125,7 @@ describe('newM2mCredentials', () => {
     },
     {
       name: 'omitted token_type and expires_in',
-      response: {access_token: 'no-type-token'},
+      tokenResponseBody: {access_token: 'no-type-token'},
       want: {
         basicAuth: `Basic ${btoa('b:c')}`,
         scope: 'all-apis',
@@ -120,7 +138,7 @@ describe('newM2mCredentials', () => {
       name: 'special-character creds are URL-encoded',
       clientId: 'client@id',
       clientSecret: 'secret with spaces',
-      response: {token_type: 'Bearer', access_token: 't'},
+      tokenResponseBody: {token_type: 'Bearer', access_token: 't'},
       want: {
         basicAuth: `Basic ${btoa(`${encodeURIComponent('client@id')}:${encodeURIComponent('secret with spaces')}`)}`,
         scope: 'all-apis',
@@ -132,7 +150,7 @@ describe('newM2mCredentials', () => {
     {
       name: 'empty scopes fall back to the default',
       scopes: [],
-      response: {token_type: 'Bearer', access_token: 't'},
+      tokenResponseBody: {token_type: 'Bearer', access_token: 't'},
       want: {
         basicAuth: `Basic ${btoa('b:c')}`,
         scope: 'all-apis',
@@ -144,7 +162,7 @@ describe('newM2mCredentials', () => {
     {
       name: 'a single scope is sent as-is',
       scopes: ['dashboards'],
-      response: {token_type: 'Bearer', access_token: 't'},
+      tokenResponseBody: {token_type: 'Bearer', access_token: 't'},
       want: {
         basicAuth: `Basic ${btoa('b:c')}`,
         scope: 'dashboards',
@@ -156,7 +174,7 @@ describe('newM2mCredentials', () => {
     {
       name: 'multiple scopes are space-joined',
       scopes: ['files:read', 'jobs', 'mlflow'],
-      response: {token_type: 'Bearer', access_token: 't'},
+      tokenResponseBody: {token_type: 'Bearer', access_token: 't'},
       want: {
         basicAuth: `Basic ${btoa('b:c')}`,
         scope: 'files:read jobs mlflow',
@@ -169,14 +187,16 @@ describe('newM2mCredentials', () => {
 
   it.each(successCases)(
     '$name',
-    async ({clientId, clientSecret, scopes, response, want}) => {
+    async ({clientId, clientSecret, scopes, tokenResponseBody, want}) => {
       vi.setSystemTime(NOW);
-      const {captured} = stubFetchJson(200, response);
+      const {captured} = stubFetch({
+        token: () => jsonResponse(200, tokenResponseBody),
+      });
 
       const creds = newM2mCredentials({
+        host: HOST,
         clientId: clientId ?? DEFAULT_CLIENT_ID,
         clientSecret: clientSecret ?? DEFAULT_CLIENT_SECRET,
-        tokenEndpoint: TOKEN_ENDPOINT,
         ...(scopes !== undefined && {scopes}),
       });
       expect(creds.name()).toBe('oauth-m2m');
@@ -186,10 +206,13 @@ describe('newM2mCredentials', () => {
       expect(token.type).toBe(want.tokenType);
       expect(token.expiry).toEqual(want.expiry);
 
-      expect(captured).toHaveLength(1);
-      const first = captured[0];
-      expect(first.url).toBe(TOKEN_ENDPOINT);
-      const init = first.init;
+      expect(captured.map(c => c.url)).toStrictEqual([
+        HOST_METADATA_URL,
+        OAUTH_SERVER_URL,
+        TOKEN_ENDPOINT,
+      ]);
+      const tokenRequest = captured[2];
+      const init = tokenRequest.init;
       if (init === undefined) {
         expect.fail('expected fetch init to be provided');
       }
@@ -209,6 +232,123 @@ describe('newM2mCredentials', () => {
     }
   );
 
+  it('caches a successful token-endpoint discovery across token() calls', async () => {
+    const {captured} = stubFetch({
+      token: () => jsonResponse(200, {access_token: 't'}),
+    });
+    const creds = newM2mCredentials({
+      host: HOST,
+      clientId: DEFAULT_CLIENT_ID,
+      clientSecret: DEFAULT_CLIENT_SECRET,
+    });
+    await creds.token();
+    await creds.token();
+    // Discovery (2 fetches) happens once; the token grant runs per call.
+    expect(captured.map(c => c.url)).toStrictEqual([
+      HOST_METADATA_URL,
+      OAUTH_SERVER_URL,
+      TOKEN_ENDPOINT,
+      TOKEN_ENDPOINT,
+    ]);
+  });
+
+  it('retries discovery after a failed first call', async () => {
+    let hostMetadataCalls = 0;
+    const {captured} = stubFetch({
+      hostMetadata: () => {
+        hostMetadataCalls++;
+        if (hostMetadataCalls === 1) {
+          return textResponse(500, 'boom');
+        }
+        return jsonResponse(200, {oidc_endpoint: OIDC_ROOT});
+      },
+      token: () => jsonResponse(200, {access_token: 't'}),
+    });
+    const creds = newM2mCredentials({
+      host: HOST,
+      clientId: DEFAULT_CLIENT_ID,
+      clientSecret: DEFAULT_CLIENT_SECRET,
+    });
+    await expect(creds.token()).rejects.toBeInstanceOf(M2mCredentialsError);
+    await creds.token();
+    expect(captured.map(c => c.url)).toStrictEqual([
+      HOST_METADATA_URL,
+      HOST_METADATA_URL,
+      OAUTH_SERVER_URL,
+      TOKEN_ENDPOINT,
+    ]);
+  });
+
+  const substitutionCases: {
+    name: string;
+    optionsAccountId?: string;
+    metaAccountId?: string;
+    wantAccountId: string;
+  }[] = [
+    {
+      name: 'metadata-provided account_id is used when options.accountId is unset',
+      metaAccountId: 'acct-from-metadata',
+      wantAccountId: 'acct-from-metadata',
+    },
+    {
+      name: 'options.accountId is used when the metadata response omits account_id',
+      optionsAccountId: 'acct-from-user',
+      wantAccountId: 'acct-from-user',
+    },
+    {
+      name: 'options.accountId wins over metadata-provided account_id',
+      optionsAccountId: 'acct-from-user',
+      metaAccountId: 'acct-from-metadata',
+      wantAccountId: 'acct-from-user',
+    },
+  ];
+
+  it.each(substitutionCases)(
+    '$name',
+    async ({optionsAccountId, metaAccountId, wantAccountId}) => {
+      const accountHost = 'https://accounts.example';
+      const oidcTemplate = `${accountHost}/oidc/accounts/{account_id}`;
+      const resolvedOidc = `${accountHost}/oidc/accounts/${wantAccountId}`;
+      const resolvedTokenEndpoint = `${resolvedOidc}/v1/token`;
+      const captured: CapturedRequest[] = [];
+      const mock = vi.fn<typeof fetch>((input, init) => {
+        const url = urlOf(input);
+        captured.push({url, init});
+        if (url === `${accountHost}/.well-known/databricks-config`) {
+          return Promise.resolve(
+            jsonResponse(200, {
+              oidc_endpoint: oidcTemplate,
+              ...(metaAccountId !== undefined && {account_id: metaAccountId}),
+            })
+          );
+        }
+        if (url === `${resolvedOidc}/.well-known/oauth-authorization-server`) {
+          return Promise.resolve(
+            jsonResponse(200, {token_endpoint: resolvedTokenEndpoint})
+          );
+        }
+        if (url === resolvedTokenEndpoint) {
+          return Promise.resolve(jsonResponse(200, {access_token: 't'}));
+        }
+        return Promise.resolve(textResponse(599, `unexpected url: ${url}`));
+      });
+      vi.stubGlobal('fetch', mock);
+      const creds = newM2mCredentials({
+        host: accountHost,
+        clientId: DEFAULT_CLIENT_ID,
+        clientSecret: DEFAULT_CLIENT_SECRET,
+        ...(optionsAccountId !== undefined && {accountId: optionsAccountId}),
+      });
+      const token = await creds.token();
+      expect(token.value).toBe('t');
+      expect(captured.map(c => c.url)).toStrictEqual([
+        `${accountHost}/.well-known/databricks-config`,
+        `${resolvedOidc}/.well-known/oauth-authorization-server`,
+        resolvedTokenEndpoint,
+      ]);
+    }
+  );
+
   type ExpectedError =
     | {kind: 'm2m'; code: M2mCredentialsErrorCode; message: RegExp}
     | {kind: 'zod'};
@@ -221,11 +361,11 @@ describe('newM2mCredentials', () => {
     {
       name: 'token endpoint returns non-2xx',
       trigger: async (): Promise<unknown> => {
-        stubFetchText(500, 'boom');
+        stubFetch({token: () => textResponse(500, 'boom')});
         return newM2mCredentials({
+          host: HOST,
           clientId: DEFAULT_CLIENT_ID,
           clientSecret: DEFAULT_CLIENT_SECRET,
-          tokenEndpoint: TOKEN_ENDPOINT,
         }).token();
       },
       want: {
@@ -235,24 +375,110 @@ describe('newM2mCredentials', () => {
       },
     },
     {
-      name: 'response missing access_token',
+      name: 'token response missing access_token',
       trigger: async (): Promise<unknown> => {
-        stubFetchJson(200, {token_type: 'Bearer'});
+        stubFetch({token: () => jsonResponse(200, {token_type: 'Bearer'})});
         return newM2mCredentials({
+          host: HOST,
           clientId: DEFAULT_CLIENT_ID,
           clientSecret: DEFAULT_CLIENT_SECRET,
-          tokenEndpoint: TOKEN_ENDPOINT,
         }).token();
       },
       want: {kind: 'zod'},
     },
     {
+      name: 'host metadata returns non-2xx',
+      trigger: async (): Promise<unknown> => {
+        stubFetch({hostMetadata: () => textResponse(500, 'boom')});
+        return newM2mCredentials({
+          host: HOST,
+          clientId: DEFAULT_CLIENT_ID,
+          clientSecret: DEFAULT_CLIENT_SECRET,
+        }).token();
+      },
+      want: {
+        kind: 'm2m',
+        code: 'DISCOVERY_FAILED',
+        message: /fetching host metadata from .* failed with status 500/,
+      },
+    },
+    {
+      name: 'host metadata missing oidc_endpoint',
+      trigger: async (): Promise<unknown> => {
+        stubFetch({hostMetadata: () => jsonResponse(200, {})});
+        return newM2mCredentials({
+          host: HOST,
+          clientId: DEFAULT_CLIENT_ID,
+          clientSecret: DEFAULT_CLIENT_SECRET,
+        }).token();
+      },
+      want: {
+        kind: 'm2m',
+        code: 'DISCOVERY_FAILED',
+        message: /discovering token endpoint failed/,
+      },
+    },
+    {
+      name: 'oauth server metadata returns non-2xx',
+      trigger: async (): Promise<unknown> => {
+        stubFetch({oauthServer: () => textResponse(404, 'nope')});
+        return newM2mCredentials({
+          host: HOST,
+          clientId: DEFAULT_CLIENT_ID,
+          clientSecret: DEFAULT_CLIENT_SECRET,
+        }).token();
+      },
+      want: {
+        kind: 'm2m',
+        code: 'DISCOVERY_FAILED',
+        message:
+          /fetching oauth authorization server metadata from .* failed with status 404/,
+      },
+    },
+    {
+      name: 'oauth server response missing token_endpoint',
+      trigger: async (): Promise<unknown> => {
+        stubFetch({oauthServer: () => jsonResponse(200, {})});
+        return newM2mCredentials({
+          host: HOST,
+          clientId: DEFAULT_CLIENT_ID,
+          clientSecret: DEFAULT_CLIENT_SECRET,
+        }).token();
+      },
+      want: {
+        kind: 'm2m',
+        code: 'DISCOVERY_FAILED',
+        message: /discovering token endpoint failed/,
+      },
+    },
+    {
+      name: 'oidc_endpoint contains {account_id} but account_id is missing',
+      trigger: async (): Promise<unknown> => {
+        stubFetch({
+          hostMetadata: () =>
+            jsonResponse(200, {
+              oidc_endpoint: 'https://x/oidc/accounts/{account_id}',
+            }),
+        });
+        return newM2mCredentials({
+          host: HOST,
+          clientId: DEFAULT_CLIENT_ID,
+          clientSecret: DEFAULT_CLIENT_SECRET,
+        }).token();
+      },
+      want: {
+        kind: 'm2m',
+        code: 'DISCOVERY_FAILED',
+        message: /\{account_id\} placeholder but no account_id was provided/,
+      },
+    },
+    {
       name: 'empty clientId',
       trigger: async (): Promise<unknown> => {
         newM2mCredentials({
+          host: HOST,
           clientId: '',
           clientSecret: DEFAULT_CLIENT_SECRET,
-          tokenEndpoint: TOKEN_ENDPOINT,
         });
         return Promise.resolve();
       },
@@ -266,9 +492,9 @@ describe('newM2mCredentials', () => {
       name: 'empty clientSecret',
       trigger: async (): Promise<unknown> => {
         newM2mCredentials({
+          host: HOST,
           clientId: DEFAULT_CLIENT_ID,
           clientSecret: '',
-          tokenEndpoint: TOKEN_ENDPOINT,
         });
         return Promise.resolve();
       },
@@ -279,19 +505,19 @@ describe('newM2mCredentials', () => {
       },
     },
     {
-      name: 'empty tokenEndpoint',
+      name: 'empty host',
       trigger: async (): Promise<unknown> => {
         newM2mCredentials({
+          host: '',
           clientId: DEFAULT_CLIENT_ID,
           clientSecret: DEFAULT_CLIENT_SECRET,
-          tokenEndpoint: '',
         });
         return Promise.resolve();
       },
       want: {
         kind: 'm2m',
-        code: 'TOKEN_ENDPOINT_REQUIRED',
-        message: /tokenEndpoint is required/,
+        code: 'HOST_REQUIRED',
+        message: /host is required/,
       },
     },
   ];

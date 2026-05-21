@@ -8,9 +8,16 @@ import type {Token, TokenCredentials} from '../auth';
 import {newTokenCredentials, tokenProviderFn} from '../auth';
 
 import {M2mCredentialsError} from './errors';
+import {resolveTokenEndpoint} from './host-metadata';
 
 /** Options for {@link newM2mCredentials}. */
 export interface M2mCredentialsOptions {
+  /**
+   * Databricks host (workspace or account) used to discover the OAuth token
+   * endpoint.
+   */
+  host: string;
+
   /**
    * OAuth client ID issued to the service principal.
    */
@@ -22,9 +29,9 @@ export interface M2mCredentialsOptions {
   clientSecret: string;
 
   /**
-   * The OAuth token endpoint to request access tokens from.
+   * Databricks account ID. Required for account hosts.
    */
-  tokenEndpoint: string;
+  accountId?: string;
 
   /**
    * OAuth scopes to request. When omitted or empty, defaults to
@@ -39,9 +46,10 @@ const DEFAULT_SCOPES: readonly string[] = ['all-apis'];
  * Creates a TokenCredentials that authenticates as a Databricks service
  * principal using the OAuth client credentials grant.
  *
- * @param options - Client credentials and token endpoint.
- * @throws M2mCredentialsError when clientId, clientSecret, or tokenEndpoint
- * is empty, or when the token endpoint returns an error.
+ * @param options - Host plus client credentials.
+ * @throws M2mCredentialsError when host, clientId, or clientSecret is empty,
+ * when token-endpoint discovery fails, or when the token endpoint returns
+ * an error.
  */
 export function newM2mCredentials(
   options: M2mCredentialsOptions
@@ -55,11 +63,8 @@ export function newM2mCredentials(
       'clientSecret is required'
     );
   }
-  if (options.tokenEndpoint === '') {
-    throw new M2mCredentialsError(
-      'TOKEN_ENDPOINT_REQUIRED',
-      'tokenEndpoint is required'
-    );
+  if (options.host === '') {
+    throw new M2mCredentialsError('HOST_REQUIRED', 'host is required');
   }
 
   const scopes =
@@ -79,9 +84,28 @@ export function newM2mCredentials(
     `${encodeURIComponent(options.clientId)}:${encodeURIComponent(options.clientSecret)}`
   );
 
-  const provider = tokenProviderFn(() =>
-    fetchAccessToken(options.tokenEndpoint, basicAuth, body)
-  );
+  let cachedTokenEndpoint: string | undefined;
+  const getTokenEndpoint = async (): Promise<string> => {
+    if (cachedTokenEndpoint === undefined) {
+      try {
+        cachedTokenEndpoint = await resolveTokenEndpoint(
+          options.host,
+          options.accountId
+        );
+      } catch (e) {
+        throw new M2mCredentialsError(
+          'DISCOVERY_FAILED',
+          `discovering token endpoint failed: ${stringifyError(e)}`
+        );
+      }
+    }
+    return cachedTokenEndpoint;
+  };
+
+  const provider = tokenProviderFn(async () => {
+    const tokenEndpoint = await getTokenEndpoint();
+    return fetchAccessToken(tokenEndpoint, basicAuth, body);
+  });
 
   return newTokenCredentials('oauth-m2m', provider);
 }
@@ -123,3 +147,10 @@ const tokenResponseSchema = z.object({
   token_type: z.string().optional(),
   expires_in: z.number().optional(),
 });
+
+function stringifyError(e: unknown): string {
+  if (e instanceof Error) {
+    return e.message;
+  }
+  return String(e);
+}
