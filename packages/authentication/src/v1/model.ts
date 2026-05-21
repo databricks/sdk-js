@@ -1,7 +1,37 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
 import {Temporal} from '@js-temporal/polyfill';
+import {FieldMask} from '@databricks/sdk-core/wkt';
+import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
+
+export interface CreateAccountFederationPolicyRequest {
+  /** The account id for the federation policy. */
+  accountId?: string | undefined;
+  /** The service principal id for the federation policy. */
+  servicePrincipalId?: number | undefined;
+  /**
+   * The identifier for the federation policy. The identifier must contain only lowercase
+   * alphanumeric characters, numbers, hyphens, and slashes. If unspecified, the id will be
+   * assigned by <Databricks>.
+   */
+  policyId?: string | undefined;
+  policy?: FederationPolicy | undefined;
+}
+
+export interface CreateServicePrincipalFederationPolicyRequest {
+  /** The account id for the federation policy. */
+  accountId?: string | undefined;
+  /** The service principal id for the federation policy. */
+  servicePrincipalId?: number | undefined;
+  /**
+   * The identifier for the federation policy. The identifier must contain only lowercase
+   * alphanumeric characters, numbers, hyphens, and slashes. If unspecified, the id will be
+   * assigned by <Databricks>.
+   */
+  policyId?: string | undefined;
+  policy?: FederationPolicy | undefined;
+}
 
 export interface CreateServicePrincipalSecretRequest {
   /** The account ID. */
@@ -29,6 +59,24 @@ export interface CreateServicePrincipalSecretResponse {
   expireTime?: Temporal.Instant | undefined;
 }
 
+export interface DeleteAccountFederationPolicyRequest {
+  /** The account id for the federation policy. */
+  accountId?: string | undefined;
+  /** The service principal id for the federation policy. */
+  servicePrincipalId?: number | undefined;
+  /** The identifier for the federation policy. */
+  policyId?: string | undefined;
+}
+
+export interface DeleteServicePrincipalFederationPolicyRequest {
+  /** The account id for the federation policy. */
+  accountId?: string | undefined;
+  /** The service principal id for the federation policy. */
+  servicePrincipalId?: number | undefined;
+  /** The identifier for the federation policy. */
+  policyId?: string | undefined;
+}
+
 export interface DeleteServicePrincipalSecretRequest {
   /** The account ID. */
   accountId?: string | undefined;
@@ -40,6 +88,72 @@ export interface DeleteServicePrincipalSecretRequest {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
 export interface DeleteServicePrincipalSecretRequest_Response {}
+
+export interface FederationPolicy {
+  /**
+   * Resource name for the federation policy. Example values include
+   * `accounts/<account-id>/federationPolicies/my-federation-policy` for Account Federation Policies, and
+   * `accounts/<account-id>/servicePrincipals/<service-principal-id>/federationPolicies/my-federation-policy`
+   * for Service Principal Federation Policies. Typically an output parameter, which does not need to be
+   * specified in create or update requests. If specified in a request, must match the value in the
+   * request URL.
+   */
+  name?: string | undefined;
+  /** Description of the federation policy. */
+  description?: string | undefined;
+  policy?: {$case: 'oidcPolicy'; oidcPolicy: OidcFederationPolicy} | undefined;
+  /** Creation time of the federation policy. */
+  createTime?: Temporal.Instant | undefined;
+  /** Last update time of the federation policy. */
+  updateTime?: Temporal.Instant | undefined;
+  /** Unique, immutable id of the federation policy. */
+  uid?: string | undefined;
+  /** The service principal ID that this federation policy applies to. Output only. Only set for service principal federation policies. */
+  servicePrincipalId?: number | undefined;
+  /** The ID of the federation policy. Output only. */
+  policyId?: string | undefined;
+}
+
+export interface GetAccountFederationPolicyRequest {
+  /** The account id for the federation policy. */
+  accountId?: string | undefined;
+  /** The service principal id for the federation policy. */
+  servicePrincipalId?: number | undefined;
+  /** The identifier for the federation policy. */
+  policyId?: string | undefined;
+}
+
+export interface GetServicePrincipalFederationPolicyRequest {
+  /** The account id for the federation policy. */
+  accountId?: string | undefined;
+  /** The service principal id for the federation policy. */
+  servicePrincipalId?: number | undefined;
+  /** The identifier for the federation policy. */
+  policyId?: string | undefined;
+}
+
+export interface ListAccountFederationPoliciesRequest {
+  /** The account id for the federation policy. */
+  accountId?: string | undefined;
+  /** The service principal id for the federation policy. */
+  servicePrincipalId?: number | undefined;
+  pageSize?: number | undefined;
+  pageToken?: string | undefined;
+}
+
+export interface ListFederationPoliciesResponse {
+  policies?: FederationPolicy[] | undefined;
+  nextPageToken?: string | undefined;
+}
+
+export interface ListServicePrincipalFederationPoliciesRequest {
+  /** The account id for the federation policy. */
+  accountId?: string | undefined;
+  /** The service principal id for the federation policy. */
+  servicePrincipalId?: number | undefined;
+  pageSize?: number | undefined;
+  pageToken?: string | undefined;
+}
 
 export interface ListServicePrincipalSecretsRequest {
   /** The account ID. */
@@ -63,6 +177,48 @@ export interface ListServicePrincipalSecretsRequest_Response {
   nextPageToken?: string | undefined;
 }
 
+/** Specifies the policy to use for validating OIDC claims in your federated tokens. */
+export interface OidcFederationPolicy {
+  /** The required token issuer, as specified in the 'iss' claim of federated tokens. */
+  issuer?: string | undefined;
+  /**
+   * The required token subject, as specified in the subject claim of federated tokens.
+   * Must be specified for service principal federation policies. Must not be specified
+   * for account federation policies.
+   */
+  subject?: string | undefined;
+  /**
+   * The allowed token audiences, as specified in the 'aud' claim of federated tokens.
+   * The audience identifier is intended to represent the recipient of the token.
+   * Can be any non-empty string value. As long as the audience in the token matches
+   * at least one audience in the policy, the token is considered a match. If audiences
+   * is unspecified, defaults to your <Databricks> account id.
+   */
+  audiences?: string[] | undefined;
+  /**
+   * The claim that contains the subject of the token. If unspecified, the default value
+   * is 'sub'.
+   */
+  subjectClaim?: string | undefined;
+  /**
+   * URL of the public keys used to validate the signature of federated tokens, in
+   * JWKS format. Most use cases should not need to specify this field. If jwks_uri
+   * and jwks_json are both unspecified (recommended), <Databricks> automatically
+   * fetches the public keys from your issuer’s well known endpoint. Databricks
+   * strongly recommends relying on your issuer’s well known endpoint for discovering
+   * public keys.
+   */
+  jwksUri?: string | undefined;
+  /**
+   * The public keys used to validate the signature of federated tokens, in JWKS format.
+   * Most use cases should not need to specify this field. If jwks_uri and jwks_json
+   * are both unspecified (recommended), <Databricks> automatically fetches the public
+   * keys from your issuer’s well known endpoint. Databricks strongly recommends
+   * relying on your issuer’s well known endpoint for discovering public keys.
+   */
+  jwksJson?: string | undefined;
+}
+
 export interface ServicePrincipalSecret {
   /** ID of the secret */
   id?: string | undefined;
@@ -78,6 +234,42 @@ export interface ServicePrincipalSecret {
   status?: string | undefined;
   /** UTC time when the secret will expire. If the field is not present, the secret does not expire. */
   expireTime?: Temporal.Instant | undefined;
+}
+
+export interface UpdateAccountFederationPolicyRequest {
+  /** The account id for the federation policy. */
+  accountId?: string | undefined;
+  /** The service principal id for the federation policy. */
+  servicePrincipalId?: number | undefined;
+  /** The identifier for the federation policy. */
+  policyId?: string | undefined;
+  policy?: FederationPolicy | undefined;
+  /**
+   * The field mask specifies which fields of the policy to update. To specify multiple fields
+   * in the field mask, use comma as the separator (no space). The special value '*' indicates
+   * that all fields should be updated (full replacement). If unspecified, all fields that are
+   * set in the policy provided in the update request will overwrite the corresponding fields
+   * in the existing policy. Example value: 'description,oidc_policy.audiences'.
+   */
+  updateMask?: FieldMask<FederationPolicy> | undefined;
+}
+
+export interface UpdateServicePrincipalFederationPolicyRequest {
+  /** The account id for the federation policy. */
+  accountId?: string | undefined;
+  /** The service principal id for the federation policy. */
+  servicePrincipalId?: number | undefined;
+  /** The identifier for the federation policy. */
+  policyId?: string | undefined;
+  policy?: FederationPolicy | undefined;
+  /**
+   * The field mask specifies which fields of the policy to update. To specify multiple fields
+   * in the field mask, use comma as the separator (no space). The special value '*' indicates
+   * that all fields should be updated (full replacement). If unspecified, all fields that are
+   * set in the policy provided in the update request will overwrite the corresponding fields
+   * in the existing policy. Example value: 'description,oidc_policy.audiences'.
+   */
+  updateMask?: FieldMask<FederationPolicy> | undefined;
 }
 
 export const unmarshalCreateServicePrincipalSecretResponseSchema: z.ZodType<CreateServicePrincipalSecretResponse> =
@@ -108,6 +300,50 @@ export const unmarshalCreateServicePrincipalSecretResponseSchema: z.ZodType<Crea
 export const unmarshalDeleteServicePrincipalSecretRequest_ResponseSchema: z.ZodType<DeleteServicePrincipalSecretRequest_Response> =
   z.object({});
 
+export const unmarshalFederationPolicySchema: z.ZodType<FederationPolicy> = z
+  .object({
+    name: z.string().optional(),
+    description: z.string().optional(),
+    oidc_policy: z.lazy(() => unmarshalOidcFederationPolicySchema).optional(),
+    create_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    update_time: z
+      .string()
+      .transform(s => Temporal.Instant.from(s))
+      .optional(),
+    uid: z.string().optional(),
+    service_principal_id: z.number().optional(),
+    policy_id: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    description: d.description,
+    policy:
+      d.oidc_policy !== undefined
+        ? {$case: 'oidcPolicy' as const, oidcPolicy: d.oidc_policy}
+        : undefined,
+    createTime: d.create_time,
+    updateTime: d.update_time,
+    uid: d.uid,
+    servicePrincipalId: d.service_principal_id,
+    policyId: d.policy_id,
+  }));
+
+export const unmarshalListFederationPoliciesResponseSchema: z.ZodType<ListFederationPoliciesResponse> =
+  z
+    .object({
+      policies: z
+        .array(z.lazy(() => unmarshalFederationPolicySchema))
+        .optional(),
+      next_page_token: z.string().optional(),
+    })
+    .transform(d => ({
+      policies: d.policies,
+      nextPageToken: d.next_page_token,
+    }));
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalListServicePrincipalSecretsRequest_ResponseSchema: z.ZodType<ListServicePrincipalSecretsRequest_Response> =
   z
@@ -120,6 +356,25 @@ export const unmarshalListServicePrincipalSecretsRequest_ResponseSchema: z.ZodTy
     .transform(d => ({
       secrets: d.secrets,
       nextPageToken: d.next_page_token,
+    }));
+
+export const unmarshalOidcFederationPolicySchema: z.ZodType<OidcFederationPolicy> =
+  z
+    .object({
+      issuer: z.string().optional(),
+      subject: z.string().optional(),
+      audiences: z.array(z.string()).optional(),
+      subject_claim: z.string().optional(),
+      jwks_uri: z.string().optional(),
+      jwks_json: z.string().optional(),
+    })
+    .transform(d => ({
+      issuer: d.issuer,
+      subject: d.subject,
+      audiences: d.audiences,
+      subjectClaim: d.subject_claim,
+      jwksUri: d.jwks_uri,
+      jwksJson: d.jwks_json,
     }));
 
 export const unmarshalServicePrincipalSecretSchema: z.ZodType<ServicePrincipalSecret> =
@@ -160,3 +415,88 @@ export const marshalCreateServicePrincipalSecretRequestSchema: z.ZodType = z
     service_principal: d.servicePrincipal,
     lifetime: d.lifetime,
   }));
+
+export const marshalFederationPolicySchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    description: z.string().optional(),
+    policy: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('oidcPolicy'),
+          oidcPolicy: z.lazy(() => marshalOidcFederationPolicySchema),
+        }),
+      ])
+      .optional(),
+    createTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    updateTime: z
+      .any()
+      .transform((d: Temporal.Instant) => d.toString())
+      .optional(),
+    uid: z.string().optional(),
+    servicePrincipalId: z.number().optional(),
+    policyId: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    description: d.description,
+    ...(d.policy?.$case === 'oidcPolicy' && {oidc_policy: d.policy.oidcPolicy}),
+    create_time: d.createTime,
+    update_time: d.updateTime,
+    uid: d.uid,
+    service_principal_id: d.servicePrincipalId,
+    policy_id: d.policyId,
+  }));
+
+export const marshalOidcFederationPolicySchema: z.ZodType = z
+  .object({
+    issuer: z.string().optional(),
+    subject: z.string().optional(),
+    audiences: z.array(z.string()).optional(),
+    subjectClaim: z.string().optional(),
+    jwksUri: z.string().optional(),
+    jwksJson: z.string().optional(),
+  })
+  .transform(d => ({
+    issuer: d.issuer,
+    subject: d.subject,
+    audiences: d.audiences,
+    subject_claim: d.subjectClaim,
+    jwks_uri: d.jwksUri,
+    jwks_json: d.jwksJson,
+  }));
+
+const federationPolicyFieldMaskSchema: FieldMaskSchema = {
+  createTime: {wire: 'create_time'},
+  description: {wire: 'description'},
+  name: {wire: 'name'},
+  oidcPolicy: {
+    wire: 'oidc_policy',
+    children: () => oidcFederationPolicyFieldMaskSchema,
+  },
+  policyId: {wire: 'policy_id'},
+  servicePrincipalId: {wire: 'service_principal_id'},
+  uid: {wire: 'uid'},
+  updateTime: {wire: 'update_time'},
+};
+
+export function federationPolicyFieldMask(
+  ...paths: string[]
+): FieldMask<FederationPolicy> {
+  return FieldMask.build<FederationPolicy>(
+    paths,
+    federationPolicyFieldMaskSchema
+  );
+}
+
+const oidcFederationPolicyFieldMaskSchema: FieldMaskSchema = {
+  audiences: {wire: 'audiences'},
+  issuer: {wire: 'issuer'},
+  jwksJson: {wire: 'jwks_json'},
+  jwksUri: {wire: 'jwks_uri'},
+  subject: {wire: 'subject'},
+  subjectClaim: {wire: 'subject_claim'},
+};

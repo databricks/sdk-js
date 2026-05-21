@@ -467,6 +467,9 @@ export class Client {
     if (req.jobId !== undefined) {
       params.append('job_id', String(req.jobId));
     }
+    if (req.includeTriggerState !== undefined) {
+      params.append('include_trigger_state', String(req.includeTriggerState));
+    }
     if (req.pageToken !== undefined) {
       params.append('page_token', req.pageToken);
     }

@@ -465,7 +465,7 @@ export interface Operation {
   state?: JsonValue | undefined;
   /**
    * ID reference for the actual resource in the workspace
-   * (e.g. the job ID, pipeline ID). Should be unset for delete operations.
+   * (e.g. the job ID, pipeline ID).
    */
   resourceId?: string | undefined;
   /** When the operation was recorded. */

@@ -74,7 +74,7 @@ export enum DataSourceFormat {
   ICEBERG = 'ICEBERG',
 }
 
-/** Latest kind: CONNECTION_ONEDRIVE_OAUTH_U2M = 329; Next id: 330 */
+/** Latest kind: MODEL_SERVICE_SYSTEM_DELTASHARING = 330; Next id: 331 */
 export enum SecurableKind {
   TABLE_STANDARD = 'TABLE_STANDARD',
   TABLE_EXTERNAL = 'TABLE_EXTERNAL',

@@ -1796,10 +1796,13 @@ export interface Environment {
   /**
    * The base environment this environment is built on top of. A base environment defines the environment version and a
    * list of dependencies for serverless compute. The value can be a file path to a custom `env.yaml` file
-   * (e.g., `/Workspace/path/to/env.yaml`). Support for a Databricks-provided base environment ID
+   * (e.g., `/Workspace/path/to/env.yaml`). Support for a <Databricks>-provided base environment ID
    * (e.g., `workspace-base-environments/databricks_ai_v4`) and workspace base environment ID
    * (e.g., `workspace-base-environments/dbe_b849b66e-b31a-4cb5-b161-1f2b10877fb7`) is in Beta.
-   * Either `environment_version` or `base_environment` can be provided.  For more information, see
+   * Either `environment_version` or `base_environment` can be provided.
+   * For more information about <Databricks>-provided base environments, see the
+   * [list workspace base environments](:method:Environments/ListWorkspaceBaseEnvironments) API.
+   * For more information, see
    */
   baseEnvironment?: string | undefined;
   /**
@@ -1959,6 +1962,8 @@ export interface GenAiComputeTask {
 export interface GetJobRequest {
   /** The canonical identifier of the job to retrieve information about. This field is required. */
   jobId?: number | undefined;
+  /** Flag that indicates that trigger state should be included in the response. */
+  includeTriggerState?: boolean | undefined;
   /** Use `next_page_token` returned from the previous GetJob response to request the next page of the job's array properties. */
   pageToken?: string | undefined;
 }
