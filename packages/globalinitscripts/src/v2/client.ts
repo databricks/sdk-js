@@ -9,34 +9,28 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  CreateGlobalInitScript,
-  CreateGlobalInitScript_Response,
-  DeleteGlobalInitScript,
-  DeleteGlobalInitScript_Response,
-  GetGlobalInitScript,
+  CreateGlobalInitScriptRequest,
+  CreateGlobalInitScriptRequest_Response,
+  DeleteGlobalInitScriptRequest,
+  DeleteGlobalInitScriptRequest_Response,
+  GetGlobalInitScriptRequest,
   GlobalInitScriptDetails,
-  ListGlobalInitScripts,
-  ListGlobalInitScripts_Response,
-  UpdateGlobalInitScript,
-  UpdateGlobalInitScript_Response,
+  ListGlobalInitScriptsRequest,
+  ListGlobalInitScriptsRequest_Response,
+  UpdateGlobalInitScriptRequest,
+  UpdateGlobalInitScriptRequest_Response,
 } from './model';
 import {
-  marshalCreateGlobalInitScriptSchema,
-  marshalUpdateGlobalInitScriptSchema,
-  unmarshalCreateGlobalInitScript_ResponseSchema,
-  unmarshalDeleteGlobalInitScript_ResponseSchema,
+  marshalCreateGlobalInitScriptRequestSchema,
+  marshalUpdateGlobalInitScriptRequestSchema,
+  unmarshalCreateGlobalInitScriptRequest_ResponseSchema,
+  unmarshalDeleteGlobalInitScriptRequest_ResponseSchema,
   unmarshalGlobalInitScriptDetailsSchema,
-  unmarshalListGlobalInitScripts_ResponseSchema,
-  unmarshalUpdateGlobalInitScript_ResponseSchema,
+  unmarshalListGlobalInitScriptsRequest_ResponseSchema,
+  unmarshalUpdateGlobalInitScriptRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -71,26 +65,16 @@ export class Client {
   }
 
   /** Creates a new global init script in this workspace. */
-  async createGlobalInitScript(
-    req: CreateGlobalInitScript,
-    options?: CallOptions
-  ): Promise<CreateGlobalInitScript_Response> {
+  async createGlobalInitScript(req: CreateGlobalInitScriptRequest, options?: CallOptions): Promise<CreateGlobalInitScriptRequest_Response> {
     const url = `${this.host}/api/2.0/global-init-scripts`;
-    const body = marshalRequest(req, marshalCreateGlobalInitScriptSchema);
-    let resp: CreateGlobalInitScript_Response | undefined;
+    const body = marshalRequest(req, marshalCreateGlobalInitScriptRequestSchema);
+    let resp: CreateGlobalInitScriptRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateGlobalInitScript_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalCreateGlobalInitScriptRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -100,25 +84,15 @@ export class Client {
   }
 
   /** Deletes a global init script. */
-  async deleteGlobalInitScript(
-    req: DeleteGlobalInitScript,
-    options?: CallOptions
-  ): Promise<DeleteGlobalInitScript_Response> {
+  async deleteGlobalInitScript(req: DeleteGlobalInitScriptRequest, options?: CallOptions): Promise<DeleteGlobalInitScriptRequest_Response> {
     const url = `${this.host}/api/2.0/global-init-scripts/${req.scriptId ?? ''}`;
-    let resp: DeleteGlobalInitScript_Response | undefined;
+    let resp: DeleteGlobalInitScriptRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteGlobalInitScript_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteGlobalInitScriptRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -128,21 +102,14 @@ export class Client {
   }
 
   /** Gets all the details of a script, including its Base64-encoded contents. */
-  async getGlobalInitScript(
-    req: GetGlobalInitScript,
-    options?: CallOptions
-  ): Promise<GlobalInitScriptDetails> {
+  async getGlobalInitScript(req: GetGlobalInitScriptRequest, options?: CallOptions): Promise<GlobalInitScriptDetails> {
     const url = `${this.host}/api/2.0/global-init-scripts/${req.scriptId ?? ''}`;
     let resp: GlobalInitScriptDetails | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalGlobalInitScriptDetailsSchema);
     };
     await executeCall(call, options);
@@ -156,25 +123,15 @@ export class Client {
    * Get a list of all global init scripts for this workspace. This returns all properties for each script but **not** the script contents.
    * To retrieve the contents of a script, use the [get a global init script](:method:globalinitscripts/get) operation.
    */
-  async listGlobalInitScripts(
-    _req: ListGlobalInitScripts,
-    options?: CallOptions
-  ): Promise<ListGlobalInitScripts_Response> {
+  async listGlobalInitScripts(_req: ListGlobalInitScriptsRequest, options?: CallOptions): Promise<ListGlobalInitScriptsRequest_Response> {
     const url = `${this.host}/api/2.0/global-init-scripts`;
-    let resp: ListGlobalInitScripts_Response | undefined;
+    let resp: ListGlobalInitScriptsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListGlobalInitScripts_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListGlobalInitScriptsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -187,26 +144,16 @@ export class Client {
    * Updates a global init script, specifying only the fields to change. All fields are optional.
    * Unspecified fields retain their current value.
    */
-  async updateGlobalInitScript(
-    req: UpdateGlobalInitScript,
-    options?: CallOptions
-  ): Promise<UpdateGlobalInitScript_Response> {
+  async updateGlobalInitScript(req: UpdateGlobalInitScriptRequest, options?: CallOptions): Promise<UpdateGlobalInitScriptRequest_Response> {
     const url = `${this.host}/api/2.0/global-init-scripts/${req.scriptId ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateGlobalInitScriptSchema);
-    let resp: UpdateGlobalInitScript_Response | undefined;
+    const body = marshalRequest(req, marshalUpdateGlobalInitScriptRequestSchema);
+    let resp: UpdateGlobalInitScriptRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdateGlobalInitScript_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalUpdateGlobalInitScriptRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

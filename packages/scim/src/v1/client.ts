@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   AccountGroup,
@@ -145,10 +139,7 @@ export class Client {
   }
 
   /** Creates a group in the <Databricks> account with a unique name, using the supplied group details. */
-  async createAccountGroup(
-    req: CreateAccountGroupRequest,
-    options?: CallOptions
-  ): Promise<AccountGroup> {
+  async createAccountGroup(req: CreateAccountGroupRequest, options?: CallOptions): Promise<AccountGroup> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Groups`;
     const body = marshalRequest(req, marshalCreateAccountGroupRequestSchema);
     let resp: AccountGroup | undefined;
@@ -156,11 +147,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalAccountGroupSchema);
     };
     await executeCall(call, options);
@@ -171,40 +158,26 @@ export class Client {
   }
 
   /** Deletes a group from the <Databricks> account. */
-  async deleteAccountGroup(
-    req: DeleteAccountGroupRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteAccountGroup(req: DeleteAccountGroupRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Groups/${req.id ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Gets the information for a specific group in the <Databricks> account. */
-  async getAccountGroup(
-    req: GetAccountGroupRequest,
-    options?: CallOptions
-  ): Promise<AccountGroup> {
+  async getAccountGroup(req: GetAccountGroupRequest, options?: CallOptions): Promise<AccountGroup> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Groups/${req.id ?? ''}`;
     let resp: AccountGroup | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalAccountGroupSchema);
     };
     await executeCall(call, options);
@@ -220,10 +193,7 @@ export class Client {
    * iterating through `Get group details`. Existing accounts that rely on this attribute
    * will not be impacted and will continue receiving member data as before.
    */
-  async listAccountGroups(
-    req: ListAccountGroupsRequest,
-    options?: CallOptions
-  ): Promise<ListAccountGroupsResponse> {
+  async listAccountGroups(req: ListAccountGroupsRequest, options?: CallOptions): Promise<ListAccountGroupsResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Groups`;
     const params = new URLSearchParams();
     if (req.filter !== undefined) {
@@ -254,11 +224,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListAccountGroupsResponseSchema);
     };
     await executeCall(call, options);
@@ -268,10 +234,8 @@ export class Client {
     return resp;
   }
 
-  async *listAccountGroupsIter(
-    req: ListAccountGroupsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<AccountGroup> {
+
+  async *listAccountGroupsIter(req: ListAccountGroupsRequest, options?: CallOptions): AsyncGenerator<AccountGroup> {
     const pageReq: ListAccountGroupsRequest = {...req};
     for (;;) {
       const resp = await this.listAccountGroups(pageReq, options);
@@ -286,66 +250,43 @@ export class Client {
     }
   }
 
+
   /** Partially updates the details of a group. */
-  async patchAccountGroup(
-    req: PatchAccountGroupRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async patchAccountGroup(req: PatchAccountGroupRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Groups/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalPatchAccountGroupRequestSchema);
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Updates the details of a group by replacing the entire group entity. */
-  async updateAccountGroup(
-    req: UpdateAccountGroupRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async updateAccountGroup(req: UpdateAccountGroupRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Groups/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateAccountGroupRequestSchema);
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Creates a new service principal in the <Databricks> account. */
-  async createAccountServicePrincipal(
-    req: CreateAccountServicePrincipalRequest,
-    options?: CallOptions
-  ): Promise<AccountServicePrincipal> {
+  async createAccountServicePrincipal(req: CreateAccountServicePrincipalRequest, options?: CallOptions): Promise<AccountServicePrincipal> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/ServicePrincipals`;
-    const body = marshalRequest(
-      req,
-      marshalCreateAccountServicePrincipalRequestSchema
-    );
+    const body = marshalRequest(req, marshalCreateAccountServicePrincipalRequestSchema);
     let resp: AccountServicePrincipal | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalAccountServicePrincipalSchema);
     };
     await executeCall(call, options);
@@ -356,40 +297,26 @@ export class Client {
   }
 
   /** Delete a single service principal in the <Databricks> account. */
-  async deleteAccountServicePrincipal(
-    req: DeleteAccountServicePrincipalRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteAccountServicePrincipal(req: DeleteAccountServicePrincipalRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/ServicePrincipals/${req.id ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Gets the details for a single service principal define in the <Databricks> account. */
-  async getAccountServicePrincipal(
-    req: GetAccountServicePrincipalRequest,
-    options?: CallOptions
-  ): Promise<AccountServicePrincipal> {
+  async getAccountServicePrincipal(req: GetAccountServicePrincipalRequest, options?: CallOptions): Promise<AccountServicePrincipal> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/ServicePrincipals/${req.id ?? ''}`;
     let resp: AccountServicePrincipal | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalAccountServicePrincipalSchema);
     };
     await executeCall(call, options);
@@ -400,10 +327,7 @@ export class Client {
   }
 
   /** Gets the set of service principals associated with a <Databricks> account. */
-  async listAccountServicePrincipals(
-    req: ListAccountServicePrincipalsRequest,
-    options?: CallOptions
-  ): Promise<ListAccountServicePrincipalsResponse> {
+  async listAccountServicePrincipals(req: ListAccountServicePrincipalsRequest, options?: CallOptions): Promise<ListAccountServicePrincipalsResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/ServicePrincipals`;
     const params = new URLSearchParams();
     if (req.attributes !== undefined) {
@@ -434,15 +358,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListAccountServicePrincipalsResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListAccountServicePrincipalsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -451,10 +368,8 @@ export class Client {
     return resp;
   }
 
-  async *listAccountServicePrincipalsIter(
-    req: ListAccountServicePrincipalsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<AccountServicePrincipal> {
+
+  async *listAccountServicePrincipalsIter(req: ListAccountServicePrincipalsRequest, options?: CallOptions): AsyncGenerator<AccountServicePrincipal> {
     const pageReq: ListAccountServicePrincipalsRequest = {...req};
     for (;;) {
       const resp = await this.listAccountServicePrincipals(pageReq, options);
@@ -469,61 +384,39 @@ export class Client {
     }
   }
 
+
   /** Partially updates the details of a single service principal in the <Databricks> account. */
-  async patchAccountServicePrincipal(
-    req: PatchAccountServicePrincipalRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async patchAccountServicePrincipal(req: PatchAccountServicePrincipalRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/ServicePrincipals/${req.id ?? ''}`;
-    const body = marshalRequest(
-      req,
-      marshalPatchAccountServicePrincipalRequestSchema
-    );
+    const body = marshalRequest(req, marshalPatchAccountServicePrincipalRequestSchema);
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /**
    * Updates the details of a single service principal.
-   *
+   * 
    * This action replaces the existing service principal with the same name.
    */
-  async updateAccountServicePrincipal(
-    req: UpdateAccountServicePrincipalRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async updateAccountServicePrincipal(req: UpdateAccountServicePrincipalRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/ServicePrincipals/${req.id ?? ''}`;
-    const body = marshalRequest(
-      req,
-      marshalUpdateAccountServicePrincipalRequestSchema
-    );
+    const body = marshalRequest(req, marshalUpdateAccountServicePrincipalRequestSchema);
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Creates a new user in the <Databricks> account. This new user will also be added to the <Databricks> account. */
-  async createAccountUser(
-    req: CreateAccountUserRequest,
-    options?: CallOptions
-  ): Promise<AccountUser> {
+  async createAccountUser(req: CreateAccountUserRequest, options?: CallOptions): Promise<AccountUser> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Users`;
     const body = marshalRequest(req, marshalCreateAccountUserRequestSchema);
     let resp: AccountUser | undefined;
@@ -531,11 +424,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalAccountUserSchema);
     };
     await executeCall(call, options);
@@ -546,29 +435,19 @@ export class Client {
   }
 
   /** Deletes a user. Deleting a user from a <Databricks> account also removes objects associated with the user. */
-  async deleteAccountUser(
-    req: DeleteAccountUserRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteAccountUser(req: DeleteAccountUserRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Users/${req.id ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Gets information for a specific user in <Databricks> account. */
-  async getAccountUser(
-    req: GetAccountUserRequest,
-    options?: CallOptions
-  ): Promise<AccountUser> {
+  async getAccountUser(req: GetAccountUserRequest, options?: CallOptions): Promise<AccountUser> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Users/${req.id ?? ''}`;
     const params = new URLSearchParams();
     if (req.attributes !== undefined) {
@@ -599,11 +478,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalAccountUserSchema);
     };
     await executeCall(call, options);
@@ -614,10 +489,7 @@ export class Client {
   }
 
   /** Gets details for all the users associated with a <Databricks> account. */
-  async listAccountUsers(
-    req: ListAccountUsersRequest,
-    options?: CallOptions
-  ): Promise<ListAccountUsersResponse> {
+  async listAccountUsers(req: ListAccountUsersRequest, options?: CallOptions): Promise<ListAccountUsersResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Users`;
     const params = new URLSearchParams();
     if (req.attributes !== undefined) {
@@ -648,11 +520,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListAccountUsersResponseSchema);
     };
     await executeCall(call, options);
@@ -662,10 +530,8 @@ export class Client {
     return resp;
   }
 
-  async *listAccountUsersIter(
-    req: ListAccountUsersRequest,
-    options?: CallOptions
-  ): AsyncGenerator<AccountUser> {
+
+  async *listAccountUsersIter(req: ListAccountUsersRequest, options?: CallOptions): AsyncGenerator<AccountUser> {
     const pageReq: ListAccountUsersRequest = {...req};
     for (;;) {
       const resp = await this.listAccountUsers(pageReq, options);
@@ -680,59 +546,51 @@ export class Client {
     }
   }
 
+
   /** Partially updates a user resource by applying the supplied operations on specific user attributes. */
-  async patchAccountUser(
-    req: PatchAccountUserRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async patchAccountUser(req: PatchAccountUserRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Users/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalPatchAccountUserRequestSchema);
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Replaces a user's information with the data supplied in request. */
-  async updateAccountUser(
-    req: UpdateAccountUserRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async updateAccountUser(req: UpdateAccountUserRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/scim/v2/Users/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateAccountUserRequestSchema);
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Get details about the current method caller's identity. */
-  async me(_req: MeRequest, options?: CallOptions): Promise<User> {
+  async me(req: MeRequest, options?: CallOptions): Promise<User> {
     const url = `${this.host}/api/2.0/preview/scim/v2/Me`;
+    const params = new URLSearchParams();
+    if (req.attributes !== undefined) {
+      params.append('attributes', req.attributes);
+    }
+    if (req.excludedAttributes !== undefined) {
+      params.append('excludedAttributes', req.excludedAttributes);
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
     let resp: User | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalUserSchema);
     };
     await executeCall(call, options);
@@ -743,10 +601,7 @@ export class Client {
   }
 
   /** Creates a group in the <Databricks> workspace with a unique name, using the supplied group details. */
-  async createGroup(
-    req: CreateGroupRequest,
-    options?: CallOptions
-  ): Promise<Group> {
+  async createGroup(req: CreateGroupRequest, options?: CallOptions): Promise<Group> {
     const url = `${this.host}/api/2.0/preview/scim/v2/Groups`;
     const body = marshalRequest(req, marshalCreateGroupRequestSchema);
     let resp: Group | undefined;
@@ -754,11 +609,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalGroupSchema);
     };
     await executeCall(call, options);
@@ -769,20 +620,13 @@ export class Client {
   }
 
   /** Deletes a group from the <Databricks> workspace. */
-  async deleteGroup(
-    req: DeleteGroupRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteGroup(req: DeleteGroupRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/preview/scim/v2/Groups/${req.id ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
@@ -795,11 +639,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalGroupSchema);
     };
     await executeCall(call, options);
@@ -810,10 +650,7 @@ export class Client {
   }
 
   /** Gets all details of the groups associated with the <Databricks> workspace. */
-  async listGroups(
-    req: ListGroupsRequest,
-    options?: CallOptions
-  ): Promise<ListGroupsResponse> {
+  async listGroups(req: ListGroupsRequest, options?: CallOptions): Promise<ListGroupsResponse> {
     const url = `${this.host}/api/2.0/preview/scim/v2/Groups`;
     const params = new URLSearchParams();
     if (req.filter !== undefined) {
@@ -844,11 +681,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListGroupsResponseSchema);
     };
     await executeCall(call, options);
@@ -858,10 +691,8 @@ export class Client {
     return resp;
   }
 
-  async *listGroupsIter(
-    req: ListGroupsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<Group> {
+
+  async *listGroupsIter(req: ListGroupsRequest, options?: CallOptions): AsyncGenerator<Group> {
     const pageReq: ListGroupsRequest = {...req};
     for (;;) {
       const resp = await this.listGroups(pageReq, options);
@@ -876,66 +707,43 @@ export class Client {
     }
   }
 
+
   /** Partially updates the details of a group. */
-  async patchGroup(
-    req: PatchGroupRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async patchGroup(req: PatchGroupRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/preview/scim/v2/Groups/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalPatchGroupRequestSchema);
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Updates the details of a group by replacing the entire group entity. */
-  async updateGroup(
-    req: UpdateGroupRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async updateGroup(req: UpdateGroupRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/preview/scim/v2/Groups/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateGroupRequestSchema);
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Creates a new service principal in the <Databricks> workspace. */
-  async createServicePrincipal(
-    req: CreateServicePrincipalRequest,
-    options?: CallOptions
-  ): Promise<ServicePrincipal> {
+  async createServicePrincipal(req: CreateServicePrincipalRequest, options?: CallOptions): Promise<ServicePrincipal> {
     const url = `${this.host}/api/2.0/preview/scim/v2/ServicePrincipals`;
-    const body = marshalRequest(
-      req,
-      marshalCreateServicePrincipalRequestSchema
-    );
+    const body = marshalRequest(req, marshalCreateServicePrincipalRequestSchema);
     let resp: ServicePrincipal | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalServicePrincipalSchema);
     };
     await executeCall(call, options);
@@ -946,40 +754,26 @@ export class Client {
   }
 
   /** Delete a single service principal in the <Databricks> workspace. */
-  async deleteServicePrincipal(
-    req: DeleteServicePrincipalRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteServicePrincipal(req: DeleteServicePrincipalRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/preview/scim/v2/ServicePrincipals/${req.id ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Gets the details for a single service principal define in the <Databricks> workspace. */
-  async getServicePrincipal(
-    req: GetServicePrincipalRequest,
-    options?: CallOptions
-  ): Promise<ServicePrincipal> {
+  async getServicePrincipal(req: GetServicePrincipalRequest, options?: CallOptions): Promise<ServicePrincipal> {
     const url = `${this.host}/api/2.0/preview/scim/v2/ServicePrincipals/${req.id ?? ''}`;
     let resp: ServicePrincipal | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalServicePrincipalSchema);
     };
     await executeCall(call, options);
@@ -990,10 +784,7 @@ export class Client {
   }
 
   /** Gets the set of service principals associated with a <Databricks> workspace. */
-  async listServicePrincipals(
-    req: ListServicePrincipalsRequest,
-    options?: CallOptions
-  ): Promise<ListServicePrincipalResponse> {
+  async listServicePrincipals(req: ListServicePrincipalsRequest, options?: CallOptions): Promise<ListServicePrincipalResponse> {
     const url = `${this.host}/api/2.0/preview/scim/v2/ServicePrincipals`;
     const params = new URLSearchParams();
     if (req.attributes !== undefined) {
@@ -1024,15 +815,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListServicePrincipalResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListServicePrincipalResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1041,10 +825,8 @@ export class Client {
     return resp;
   }
 
-  async *listServicePrincipalsIter(
-    req: ListServicePrincipalsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<ServicePrincipal> {
+
+  async *listServicePrincipalsIter(req: ListServicePrincipalsRequest, options?: CallOptions): AsyncGenerator<ServicePrincipal> {
     const pageReq: ListServicePrincipalsRequest = {...req};
     for (;;) {
       const resp = await this.listServicePrincipals(pageReq, options);
@@ -1059,58 +841,39 @@ export class Client {
     }
   }
 
+
   /** Partially updates the details of a single service principal in the <Databricks> workspace. */
-  async patchServicePrincipal(
-    req: PatchServicePrincipalRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async patchServicePrincipal(req: PatchServicePrincipalRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/preview/scim/v2/ServicePrincipals/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalPatchServicePrincipalRequestSchema);
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /**
    * Updates the details of a single service principal.
-   *
+   * 
    * This action replaces the existing service principal with the same name.
    */
-  async updateServicePrincipal(
-    req: UpdateServicePrincipalRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async updateServicePrincipal(req: UpdateServicePrincipalRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/preview/scim/v2/ServicePrincipals/${req.id ?? ''}`;
-    const body = marshalRequest(
-      req,
-      marshalUpdateServicePrincipalRequestSchema
-    );
+    const body = marshalRequest(req, marshalUpdateServicePrincipalRequestSchema);
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Creates a new user in the <Databricks> workspace. This new user will also be added to the <Databricks> account. */
-  async createUser(
-    req: CreateUserRequest,
-    options?: CallOptions
-  ): Promise<User> {
+  async createUser(req: CreateUserRequest, options?: CallOptions): Promise<User> {
     const url = `${this.host}/api/2.0/preview/scim/v2/Users`;
     const body = marshalRequest(req, marshalCreateUserRequestSchema);
     let resp: User | undefined;
@@ -1118,11 +881,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalUserSchema);
     };
     await executeCall(call, options);
@@ -1133,44 +892,27 @@ export class Client {
   }
 
   /** Deletes a user. Deleting a user from a <Databricks> workspace also removes objects associated with the user. */
-  async deleteUser(
-    req: DeleteUserRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteUser(req: DeleteUserRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/preview/scim/v2/Users/${req.id ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Gets the permission levels that a user can have on an object. */
-  async getPermissionLevels(
-    _req: GetPasswordPermissionLevelsRequest,
-    options?: CallOptions
-  ): Promise<GetPasswordPermissionLevelsResponse> {
+  async getPermissionLevels(_req: GetPasswordPermissionLevelsRequest, options?: CallOptions): Promise<GetPasswordPermissionLevelsResponse> {
     const url = `${this.host}/api/2.0/permissions/authorization/passwords/permissionLevels`;
     let resp: GetPasswordPermissionLevelsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetPasswordPermissionLevelsResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetPasswordPermissionLevelsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1180,21 +922,14 @@ export class Client {
   }
 
   /** Gets the permissions of all passwords. Passwords can inherit permissions from their root object. */
-  async getPermissions(
-    _req: GetPasswordPermissionsRequest,
-    options?: CallOptions
-  ): Promise<PasswordPermissions> {
+  async getPermissions(_req: GetPasswordPermissionsRequest, options?: CallOptions): Promise<PasswordPermissions> {
     const url = `${this.host}/api/2.0/permissions/authorization/passwords`;
     let resp: PasswordPermissions | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalPasswordPermissionsSchema);
     };
     await executeCall(call, options);
@@ -1236,11 +971,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalUserSchema);
     };
     await executeCall(call, options);
@@ -1251,10 +982,7 @@ export class Client {
   }
 
   /** Gets details for all the users associated with a <Databricks> workspace. */
-  async listUsers(
-    req: ListUsersRequest,
-    options?: CallOptions
-  ): Promise<ListUsersResponse> {
+  async listUsers(req: ListUsersRequest, options?: CallOptions): Promise<ListUsersResponse> {
     const url = `${this.host}/api/2.0/preview/scim/v2/Users`;
     const params = new URLSearchParams();
     if (req.attributes !== undefined) {
@@ -1285,11 +1013,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListUsersResponseSchema);
     };
     await executeCall(call, options);
@@ -1299,10 +1023,8 @@ export class Client {
     return resp;
   }
 
-  async *listUsersIter(
-    req: ListUsersRequest,
-    options?: CallOptions
-  ): AsyncGenerator<User> {
+
+  async *listUsersIter(req: ListUsersRequest, options?: CallOptions): AsyncGenerator<User> {
     const pageReq: ListUsersRequest = {...req};
     for (;;) {
       const resp = await this.listUsers(pageReq, options);
@@ -1317,6 +1039,7 @@ export class Client {
     }
   }
 
+
   /** Partially updates a user resource by applying the supplied operations on specific user attributes. */
   async patchUser(req: PatchUserRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/preview/scim/v2/Users/${req.id ?? ''}`;
@@ -1325,20 +1048,13 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Sets permissions on an object, replacing existing permissions if they exist. Deletes all direct permissions if none are specified. Objects can inherit permissions from their root object. */
-  async setPermissions(
-    req: PasswordPermissionsRequest,
-    options?: CallOptions
-  ): Promise<PasswordPermissions> {
+  async setPermissions(req: PasswordPermissionsRequest, options?: CallOptions): Promise<PasswordPermissions> {
     const url = `${this.host}/api/2.0/permissions/authorization/passwords`;
     const body = marshalRequest(req, marshalPasswordPermissionsRequestSchema);
     let resp: PasswordPermissions | undefined;
@@ -1346,11 +1062,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalPasswordPermissionsSchema);
     };
     await executeCall(call, options);
@@ -1361,10 +1073,7 @@ export class Client {
   }
 
   /** Updates the permissions on all passwords. Passwords can inherit permissions from their root object. */
-  async updatePermissions(
-    req: PasswordPermissionsRequest,
-    options?: CallOptions
-  ): Promise<PasswordPermissions> {
+  async updatePermissions(req: PasswordPermissionsRequest, options?: CallOptions): Promise<PasswordPermissions> {
     const url = `${this.host}/api/2.0/permissions/authorization/passwords`;
     const body = marshalRequest(req, marshalPasswordPermissionsRequestSchema);
     let resp: PasswordPermissions | undefined;
@@ -1372,11 +1081,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalPasswordPermissionsSchema);
     };
     await executeCall(call, options);
@@ -1387,21 +1092,14 @@ export class Client {
   }
 
   /** Replaces a user's information with the data supplied in request. */
-  async updateUser(
-    req: UpdateUserRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async updateUser(req: UpdateUserRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/preview/scim/v2/Users/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateUserRequestSchema);
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }

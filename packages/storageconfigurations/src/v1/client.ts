@@ -9,25 +9,19 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import {z} from 'zod';
 import type {
-  CreateStorageConfigurationPublicRequest,
-  DeleteStorageConfigurationPublicRequest,
-  GetStorageConfigurationPublicRequest,
-  ListStorageConfigurationPublicRequest,
-  ListStorageConfigurationPublicResponse,
+  CreateStorageConfigurationRequest,
+  DeleteStorageConfigurationRequest,
+  GetStorageConfigurationRequest,
+  ListStorageConfigurationRequest,
+  ListStorageConfigurationResponse,
   StorageConfiguration,
 } from './model';
 import {
-  marshalCreateStorageConfigurationPublicRequestSchema,
+  marshalCreateStorageConfigurationRequestSchema,
   unmarshalStorageConfigurationSchema,
 } from './model';
 
@@ -67,25 +61,15 @@ export class Client {
   }
 
   /** Creates a <Databricks> storage configuration for an account. */
-  async createStorageConfigurationPublic(
-    req: CreateStorageConfigurationPublicRequest,
-    options?: CallOptions
-  ): Promise<StorageConfiguration> {
+  async createStorageConfigurationPublic(req: CreateStorageConfigurationRequest, options?: CallOptions): Promise<StorageConfiguration> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/storage-configurations`;
-    const body = marshalRequest(
-      req,
-      marshalCreateStorageConfigurationPublicRequestSchema
-    );
+    const body = marshalRequest(req, marshalCreateStorageConfigurationRequestSchema);
     let resp: StorageConfiguration | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalStorageConfigurationSchema);
     };
     await executeCall(call, options);
@@ -96,21 +80,14 @@ export class Client {
   }
 
   /** Deletes a <Databricks> storage configuration. You cannot delete a storage configuration that is associated with any workspace. */
-  async deleteStorageConfigurationPublic(
-    req: DeleteStorageConfigurationPublicRequest,
-    options?: CallOptions
-  ): Promise<StorageConfiguration> {
+  async deleteStorageConfigurationPublic(req: DeleteStorageConfigurationRequest, options?: CallOptions): Promise<StorageConfiguration> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/storage-configurations/${req.storageConfigurationId ?? ''}`;
     let resp: StorageConfiguration | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalStorageConfigurationSchema);
     };
     await executeCall(call, options);
@@ -121,21 +98,14 @@ export class Client {
   }
 
   /** Gets a <Databricks> storage configuration for an account, both specified by ID. */
-  async getStorageConfigurationPublic(
-    req: GetStorageConfigurationPublicRequest,
-    options?: CallOptions
-  ): Promise<StorageConfiguration> {
+  async getStorageConfigurationPublic(req: GetStorageConfigurationRequest, options?: CallOptions): Promise<StorageConfiguration> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/storage-configurations/${req.storageConfigurationId ?? ''}`;
     let resp: StorageConfiguration | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalStorageConfigurationSchema);
     };
     await executeCall(call, options);
@@ -146,26 +116,16 @@ export class Client {
   }
 
   /** Lists <Databricks> storage configurations for an account, specified by ID. */
-  async listStorageConfigurationPublic(
-    req: ListStorageConfigurationPublicRequest,
-    options?: CallOptions
-  ): Promise<ListStorageConfigurationPublicResponse> {
+  async listStorageConfigurationPublic(req: ListStorageConfigurationRequest, options?: CallOptions): Promise<ListStorageConfigurationResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/storage-configurations`;
-    let resp: ListStorageConfigurationPublicResponse | undefined;
+    let resp: ListStorageConfigurationResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = {
-        storageConfigurations: parseResponse(
-          respBody,
-          z.array(z.lazy(() => unmarshalStorageConfigurationSchema))
-        ),
+        storageConfigurations: parseResponse(respBody, z.array(z.lazy(() => unmarshalStorageConfigurationSchema))),
       };
     };
     await executeCall(call, options);

@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export enum CmkUseCase {
   /** Encryption for the control plane resources. */
   MANAGED_SERVICES = 'MANAGED_SERVICES',
@@ -79,16 +80,16 @@ export interface CreateAzureKeyInfo {
   keyAccessConfiguration?: KeyAccessConfiguration | undefined;
 }
 
-export interface CreateCustomerManagedKeyPublicRequest {
+export interface CreateCustomerManagedKeyRequest {
   accountId?: string | undefined;
   /**
    * (-- The key information. Exactly one of aws_key_info, gcp_key_info, or
    * azure_key_info must be set, matching the cloud of the account. --)
    */
   keyInfo?:
-    | {$case: 'awsKeyInfo'; awsKeyInfo: CreateAwsKeyInfo}
-    | {$case: 'gcpKeyInfo'; gcpKeyInfo: CreateGcpKeyInfo}
-    | {$case: 'azureKeyInfo'; azureKeyInfo: CreateAzureKeyInfo}
+    | { $case: 'awsKeyInfo'; awsKeyInfo: CreateAwsKeyInfo }
+    | { $case: 'gcpKeyInfo'; gcpKeyInfo: CreateGcpKeyInfo }
+    | { $case: 'azureKeyInfo'; azureKeyInfo: CreateAzureKeyInfo }
     | undefined;
   /** The cases that the key can be used for. */
   useCases?: CmkUseCase[] | undefined;
@@ -125,15 +126,15 @@ export interface CustomerManagedKey {
    * If azure_key_info is defined, it's an Azure Databricks customer key object. --)
    */
   keyInfo?:
-    | {$case: 'awsKeyInfo'; awsKeyInfo: AwsKeyInfo}
-    | {$case: 'azureKeyInfo'; azureKeyInfo: AzureKeyInfo}
-    | {$case: 'gcpKeyInfo'; gcpKeyInfo: GcpKeyInfo}
+    | { $case: 'awsKeyInfo'; awsKeyInfo: AwsKeyInfo }
+    | { $case: 'azureKeyInfo'; azureKeyInfo: AzureKeyInfo }
+    | { $case: 'gcpKeyInfo'; gcpKeyInfo: GcpKeyInfo }
     | undefined;
   /** The cases that the key can be used for. */
   useCases?: CmkUseCase[] | undefined;
 }
 
-export interface DeleteCustomerManagedKeyPublicRequest {
+export interface DeleteCustomerManagedKeyRequest {
   /** <Databricks> encryption key configuration ID. */
   customerManagedKeyId?: string | undefined;
   accountId?: string | undefined;
@@ -162,7 +163,7 @@ export interface GcpServiceAccount {
   serviceAccountEmail?: string | undefined;
 }
 
-export interface GetCustomerManagedKeyPublicRequest {
+export interface GetCustomerManagedKeyRequest {
   /** <Databricks> encryption key configuration ID. */
   customerManagedKeyId?: string | undefined;
   accountId?: string | undefined;
@@ -173,11 +174,11 @@ export interface KeyAccessConfiguration {
   credentialId?: string | undefined;
 }
 
-export interface ListCustomerManagedKeyPublicRequest {
+export interface ListCustomerManagedKeyRequest {
   accountId?: string | undefined;
 }
 
-export interface ListCustomerManagedKeyPublicResponse {
+export interface ListCustomerManagedKeyResponse {
   customerManagedKeys?: CustomerManagedKey[] | undefined;
 }
 
@@ -202,9 +203,7 @@ export const unmarshalAzureKeyInfoSchema: z.ZodType<AzureKeyInfo> = z
     version: z.string().optional(),
     tenant_id: z.string().optional(),
     disk_encryption_set_id: z.string().optional(),
-    key_access_configuration: z
-      .lazy(() => unmarshalKeyAccessConfigurationSchema)
-      .optional(),
+    key_access_configuration: z.lazy(() => unmarshalKeyAccessConfigurationSchema).optional(),
   })
   .transform(d => ({
     keyVaultUri: d.key_vault_uri,
@@ -215,38 +214,28 @@ export const unmarshalAzureKeyInfoSchema: z.ZodType<AzureKeyInfo> = z
     keyAccessConfiguration: d.key_access_configuration,
   }));
 
-export const unmarshalCustomerManagedKeySchema: z.ZodType<CustomerManagedKey> =
-  z
-    .object({
-      customer_managed_key_id: z.string().optional(),
-      creation_time: z.number().optional(),
-      account_id: z.string().optional(),
-      aws_key_info: z.lazy(() => unmarshalAwsKeyInfoSchema).optional(),
-      azure_key_info: z.lazy(() => unmarshalAzureKeyInfoSchema).optional(),
-      gcp_key_info: z.lazy(() => unmarshalGcpKeyInfoSchema).optional(),
-      use_cases: z.array(z.enum(CmkUseCase)).optional(),
-    })
-    .transform(d => ({
-      customerManagedKeyId: d.customer_managed_key_id,
-      creationTime: d.creation_time,
-      accountId: d.account_id,
-      keyInfo:
-        d.aws_key_info !== undefined
-          ? {$case: 'awsKeyInfo' as const, awsKeyInfo: d.aws_key_info}
-          : d.azure_key_info !== undefined
-            ? {$case: 'azureKeyInfo' as const, azureKeyInfo: d.azure_key_info}
-            : d.gcp_key_info !== undefined
-              ? {$case: 'gcpKeyInfo' as const, gcpKeyInfo: d.gcp_key_info}
-              : undefined,
-      useCases: d.use_cases,
-    }));
+export const unmarshalCustomerManagedKeySchema: z.ZodType<CustomerManagedKey> = z
+  .object({
+    customer_managed_key_id: z.string().optional(),
+    creation_time: z.number().optional(),
+    account_id: z.string().optional(),
+    aws_key_info: z.lazy(() => unmarshalAwsKeyInfoSchema).optional(),
+    azure_key_info: z.lazy(() => unmarshalAzureKeyInfoSchema).optional(),
+    gcp_key_info: z.lazy(() => unmarshalGcpKeyInfoSchema).optional(),
+    use_cases: z.array(z.enum(CmkUseCase)).optional(),
+  })
+  .transform(d => ({
+    customerManagedKeyId: d.customer_managed_key_id,
+    creationTime: d.creation_time,
+    accountId: d.account_id,
+    keyInfo: d.aws_key_info !== undefined ? { $case: 'awsKeyInfo' as const, awsKeyInfo: d.aws_key_info } : d.azure_key_info !== undefined ? { $case: 'azureKeyInfo' as const, azureKeyInfo: d.azure_key_info } : d.gcp_key_info !== undefined ? { $case: 'gcpKeyInfo' as const, gcpKeyInfo: d.gcp_key_info } : undefined,
+    useCases: d.use_cases,
+  }));
 
 export const unmarshalGcpKeyInfoSchema: z.ZodType<GcpKeyInfo> = z
   .object({
     kms_key_id: z.string().optional(),
-    gcp_service_account: z
-      .lazy(() => unmarshalGcpServiceAccountSchema)
-      .optional(),
+    gcp_service_account: z.lazy(() => unmarshalGcpServiceAccountSchema).optional(),
     manual: z.boolean().optional(),
   })
   .transform(d => ({
@@ -263,14 +252,13 @@ export const unmarshalGcpServiceAccountSchema: z.ZodType<GcpServiceAccount> = z
     serviceAccountEmail: d.service_account_email,
   }));
 
-export const unmarshalKeyAccessConfigurationSchema: z.ZodType<KeyAccessConfiguration> =
-  z
-    .object({
-      credential_id: z.string().optional(),
-    })
-    .transform(d => ({
-      credentialId: d.credential_id,
-    }));
+export const unmarshalKeyAccessConfigurationSchema: z.ZodType<KeyAccessConfiguration> = z
+  .object({
+    credential_id: z.string().optional(),
+  })
+  .transform(d => ({
+    credentialId: d.credential_id,
+  }));
 
 export const marshalCreateAwsKeyInfoSchema: z.ZodType = z
   .object({
@@ -293,9 +281,7 @@ export const marshalCreateAzureKeyInfoSchema: z.ZodType = z
     version: z.string().optional(),
     tenantId: z.string().optional(),
     diskEncryptionSetId: z.string().optional(),
-    keyAccessConfiguration: z
-      .lazy(() => marshalKeyAccessConfigurationSchema)
-      .optional(),
+    keyAccessConfiguration: z.lazy(() => marshalKeyAccessConfigurationSchema).optional(),
   })
   .transform(d => ({
     key_vault_uri: d.keyVaultUri,
@@ -306,38 +292,17 @@ export const marshalCreateAzureKeyInfoSchema: z.ZodType = z
     key_access_configuration: d.keyAccessConfiguration,
   }));
 
-export const marshalCreateCustomerManagedKeyPublicRequestSchema: z.ZodType = z
+export const marshalCreateCustomerManagedKeyRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
-    keyInfo: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('awsKeyInfo'),
-          awsKeyInfo: z.lazy(() => marshalCreateAwsKeyInfoSchema),
-        }),
-        z.object({
-          $case: z.literal('gcpKeyInfo'),
-          gcpKeyInfo: z.lazy(() => marshalCreateGcpKeyInfoSchema),
-        }),
-        z.object({
-          $case: z.literal('azureKeyInfo'),
-          azureKeyInfo: z.lazy(() => marshalCreateAzureKeyInfoSchema),
-        }),
-      ])
-      .optional(),
+    keyInfo: z.discriminatedUnion('$case', [z.object({ $case: z.literal('awsKeyInfo'), awsKeyInfo: z.lazy(() => marshalCreateAwsKeyInfoSchema) }), z.object({ $case: z.literal('gcpKeyInfo'), gcpKeyInfo: z.lazy(() => marshalCreateGcpKeyInfoSchema) }), z.object({ $case: z.literal('azureKeyInfo'), azureKeyInfo: z.lazy(() => marshalCreateAzureKeyInfoSchema) })]).optional(),
     useCases: z.array(z.enum(CmkUseCase)).optional(),
   })
   .transform(d => ({
     account_id: d.accountId,
-    ...(d.keyInfo?.$case === 'awsKeyInfo' && {
-      aws_key_info: d.keyInfo.awsKeyInfo,
-    }),
-    ...(d.keyInfo?.$case === 'gcpKeyInfo' && {
-      gcp_key_info: d.keyInfo.gcpKeyInfo,
-    }),
-    ...(d.keyInfo?.$case === 'azureKeyInfo' && {
-      azure_key_info: d.keyInfo.azureKeyInfo,
-    }),
+    ...(d.keyInfo?.$case === 'awsKeyInfo' && { aws_key_info: d.keyInfo.awsKeyInfo }),
+    ...(d.keyInfo?.$case === 'gcpKeyInfo' && { gcp_key_info: d.keyInfo.gcpKeyInfo }),
+    ...(d.keyInfo?.$case === 'azureKeyInfo' && { azure_key_info: d.keyInfo.azureKeyInfo }),
     use_cases: d.useCases,
   }));
 

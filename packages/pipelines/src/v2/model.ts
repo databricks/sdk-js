@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 /** Enum to specify which mode of clone to execute */
 export enum CloneMode {
   /** Data and metadata are copied */
@@ -333,7 +334,7 @@ export interface AutoFullRefreshPolicy {
   minIntervalHours?: number | undefined;
 }
 
-export interface ClonePipeline {
+export interface ClonePipelineRequest {
   /** Source pipeline to clone from */
   pipelineId?: string | undefined;
   /**
@@ -414,20 +415,20 @@ export interface ClonePipeline {
 
 /** Key value pair used to specify configuration parameters to Execution */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ClonePipeline_ConfigurationEntry {
+export interface ClonePipelineRequest_ConfigurationEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ClonePipeline_Response {
+export interface ClonePipelineRequest_Response {
   /** The pipeline id of the cloned pipeline */
   pipelineId?: string | undefined;
 }
 
 /** A key-value entry that defines a single pipeline tags. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ClonePipeline_TagsEntry {
+export interface ClonePipelineRequest_TagsEntry {
   /** Mandatory key for the tag pair. */
   key?: string | undefined;
   /**
@@ -456,27 +457,21 @@ export interface ConnectionParameters {
 /** Wrapper message for source-specific options to support multiple connector types */
 export interface ConnectorOptions {
   connectorOptions?:
-    | {$case: 'googleAdsOptions'; googleAdsOptions: GoogleAdsOptions}
-    | {$case: 'tiktokAdsOptions'; tiktokAdsOptions: TikTokAdsOptions}
-    | {$case: 'sharepointOptions'; sharepointOptions: SharepointOptions}
-    | {$case: 'gdriveOptions'; gdriveOptions: GoogleDriveOptions}
-    | {$case: 'outlookOptions'; outlookOptions: OutlookOptions}
-    | {$case: 'smartsheetOptions'; smartsheetOptions: SmartsheetOptions}
-    | {$case: 'jiraOptions'; jiraOptions: JiraConnectorOptions}
-    | {
-        $case: 'confluenceOptions';
-        confluenceOptions: ConfluenceConnectorOptions;
-      }
-    | {$case: 'metaAdsOptions'; metaAdsOptions: MetaMarketingOptions}
-    | {
-        $case: 'zendeskSupportOptions';
-        zendeskSupportOptions: ZendeskSupportOptions;
-      }
-    | {$case: 'kafkaOptions'; kafkaOptions: KafkaOptions}
+    | { $case: 'googleAdsOptions'; googleAdsOptions: GoogleAdsOptions }
+    | { $case: 'tiktokAdsOptions'; tiktokAdsOptions: TikTokAdsOptions }
+    | { $case: 'sharepointOptions'; sharepointOptions: SharepointOptions }
+    | { $case: 'gdriveOptions'; gdriveOptions: GoogleDriveOptions }
+    | { $case: 'outlookOptions'; outlookOptions: OutlookOptions }
+    | { $case: 'smartsheetOptions'; smartsheetOptions: SmartsheetOptions }
+    | { $case: 'jiraOptions'; jiraOptions: JiraConnectorOptions }
+    | { $case: 'confluenceOptions'; confluenceOptions: ConfluenceConnectorOptions }
+    | { $case: 'metaAdsOptions'; metaAdsOptions: MetaMarketingOptions }
+    | { $case: 'zendeskSupportOptions'; zendeskSupportOptions: ZendeskSupportOptions }
+    | { $case: 'kafkaOptions'; kafkaOptions: KafkaOptions }
     | undefined;
 }
 
-export interface CreatePipeline {
+export interface CreatePipelineRequest {
   /** If false, deployment will fail if name conflicts with that of another pipeline. */
   allowDuplicateNames?: boolean | undefined;
   dryRun?: boolean | undefined;
@@ -549,13 +544,13 @@ export interface CreatePipeline {
 
 /** Key value pair used to specify configuration parameters to Execution */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreatePipeline_ConfigurationEntry {
+export interface CreatePipelineRequest_ConfigurationEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreatePipeline_Response {
+export interface CreatePipelineRequest_Response {
   /** The unique identifier for the newly created pipeline. Only returned when dry_run is false. */
   pipelineId?: string | undefined;
   /** Only returned when dry_run is true. */
@@ -564,7 +559,7 @@ export interface CreatePipeline_Response {
 
 /** A key-value entry that defines a single pipeline tags. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreatePipeline_TagsEntry {
+export interface CreatePipelineRequest_TagsEntry {
   /** Mandatory key for the tag pair. */
   key?: string | undefined;
   /**
@@ -602,7 +597,7 @@ export interface DataStagingOptions {
   volumeName?: string | undefined;
 }
 
-export interface DeletePipeline {
+export interface DeletePipelineRequest {
   pipelineId?: string | undefined;
   /**
    * If true, deletion will proceed even if resource cleanup fails.
@@ -617,9 +612,9 @@ export interface DeletePipeline {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeletePipeline_Response {}
+export interface DeletePipelineRequest_Response {}
 
-export interface EditPipeline {
+export interface EditPipelineRequest {
   /** Unique identifier for this pipeline. */
   pipelineId?: string | undefined;
   /** If false, deployment will fail if name has changed and conflicts the name of another pipeline. */
@@ -699,17 +694,17 @@ export interface EditPipeline {
 
 /** Key value pair used to specify configuration parameters to Execution */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface EditPipeline_ConfigurationEntry {
+export interface EditPipelineRequest_ConfigurationEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface EditPipeline_Response {}
+export interface EditPipelineRequest_Response {}
 
 /** A key-value entry that defines a single pipeline tags. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface EditPipeline_TagsEntry {
+export interface EditPipelineRequest_TagsEntry {
   /** Mandatory key for the tag pair. */
   key?: string | undefined;
   /**
@@ -812,12 +807,12 @@ export interface Filters {
   exclude?: string[] | undefined;
 }
 
-export interface GetPipeline {
+export interface GetPipelineRequest {
   pipelineId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetPipeline_Response {
+export interface GetPipelineRequest_Response {
   /** The ID of the pipeline. */
   pipelineId?: string | undefined;
   /** The pipeline specification. This field is not returned when called by `ListPipelines`. */
@@ -852,7 +847,7 @@ export interface GetPipeline_Response {
   runAs?: PipelinesJobRunAs | undefined;
 }
 
-export interface GetUpdate {
+export interface GetUpdateRequest {
   /** The ID of the pipeline. */
   pipelineId?: string | undefined;
   /** The ID of the update. */
@@ -860,7 +855,7 @@ export interface GetUpdate {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetUpdate_Response {
+export interface GetUpdateRequest_Response {
   /** The current update info. */
   update?: UpdateInfo | undefined;
 }
@@ -977,9 +972,7 @@ export interface IngestionPipelineDefinition {
    */
   sourceType?: IngestionSourceType | undefined;
   /** Configuration settings to control the ingestion of tables. These settings are applied to all tables in the pipeline. */
-  tableConfiguration?:
-    | IngestionPipelineDefinition_TableSpecificConfig
-    | undefined;
+  tableConfiguration?: IngestionPipelineDefinition_TableSpecificConfig | undefined;
   /**
    * Netsuite only configuration. When the field is set for a netsuite connector,
    * the jar stored in the field will be validated and added to the classpath of
@@ -1033,9 +1026,7 @@ export interface IngestionPipelineDefinition_ReportSpec {
   /** Required. Destination table name. The pipeline fails if a table with that name already exists. */
   destinationTable?: string | undefined;
   /** Configuration settings to control the ingestion of tables. These settings override the table_configuration defined in the IngestionPipelineDefinition object. */
-  tableConfiguration?:
-    | IngestionPipelineDefinition_TableSpecificConfig
-    | undefined;
+  tableConfiguration?: IngestionPipelineDefinition_TableSpecificConfig | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1049,9 +1040,7 @@ export interface IngestionPipelineDefinition_SchemaSpec {
   /** Required. Destination schema to store tables in. Tables with the same name as the source tables are created in this destination schema. The pipeline fails If a table with the same name already exists. */
   destinationSchema?: string | undefined;
   /** Configuration settings to control the ingestion of tables. These settings are applied to all tables in this schema and override the table_configuration defined in the IngestionPipelineDefinition object. */
-  tableConfiguration?:
-    | IngestionPipelineDefinition_TableSpecificConfig
-    | undefined;
+  tableConfiguration?: IngestionPipelineDefinition_TableSpecificConfig | undefined;
   /** (Optional) Source Specific Connector Options */
   connectorOptions?: ConnectorOptions | undefined;
 }
@@ -1071,9 +1060,7 @@ export interface IngestionPipelineDefinition_TableSpec {
   /** Optional. Destination table name. The pipeline fails if a table with that name already exists. If not set, the source table name is used. */
   destinationTable?: string | undefined;
   /** Configuration settings to control the ingestion of tables. These settings override the table_configuration defined in the IngestionPipelineDefinition object and the SchemaSpec. */
-  tableConfiguration?:
-    | IngestionPipelineDefinition_TableSpecificConfig
-    | undefined;
+  tableConfiguration?: IngestionPipelineDefinition_TableSpecificConfig | undefined;
   /** (Optional) Source Specific Connector Options */
   connectorOptions?: ConnectorOptions | undefined;
 }
@@ -1103,18 +1090,14 @@ export interface IngestionPipelineDefinition_TableSpecificConfig {
   /** If true, formula fields defined in the table are included in the ingestion. This setting is only valid for the Salesforce connector */
   salesforceIncludeFormulaFields?: boolean | undefined;
   /** (Optional) Additional custom parameters for Workday Report */
-  workdayReportParameters?:
-    | IngestionPipelineDefinition_WorkdayReportParameters
-    | undefined;
+  workdayReportParameters?: IngestionPipelineDefinition_WorkdayReportParameters | undefined;
   /**
    * (Optional, Immutable) The row filter condition to be applied to the table.
    * It must not contain the WHERE keyword, only the actual filter condition.
    * It must be in DBSQL format.
    */
   rowFilter?: string | undefined;
-  queryBasedConnectorConfig?:
-    | IngestionPipelineDefinition_TableSpecificConfig_QueryBasedConnectorConfig
-    | undefined;
+  queryBasedConnectorConfig?: IngestionPipelineDefinition_TableSpecificConfig_QueryBasedConnectorConfig | undefined;
   /**
    * (Optional, Mutable) Policy for auto full refresh, if enabled pipeline will automatically try
    * to fix issues by doing a full refresh on the table in the retry run. auto_full_refresh_policy
@@ -1178,9 +1161,7 @@ export interface IngestionPipelineDefinition_WorkdayReportParameters {
    * (Optional) Additional custom parameters for Workday Report
    * This field is deprecated and should not be used. Use `parameters` instead.
    */
-  reportParameters?:
-    | IngestionPipelineDefinition_WorkdayReportParameters_QueryKeyValue[]
-    | undefined;
+  reportParameters?: IngestionPipelineDefinition_WorkdayReportParameters_QueryKeyValue[] | undefined;
   /**
    * Parameters for the Workday report. Each key represents the parameter name (e.g., "start_date", "end_date"),
    * and the corresponding value is a SQL-like expression used to compute the parameter value at runtime.
@@ -1279,7 +1260,7 @@ export interface KafkaOptions_ClientConfigEntry {
  * The request/response messages for the ListPipelines API. The default behavior is to return
  * the 25 newest events in timestamp descending order for the given pipeline.
  */
-export interface ListPipelineEvents {
+export interface ListPipelineEventsRequest {
   /** The pipeline to return events for. */
   pipelineId?: string | undefined;
   /**
@@ -1307,7 +1288,7 @@ export interface ListPipelineEvents {
    * 2. level in ('INFO', 'WARN')
    * 3. id='[event-id]'
    * 4. timestamp > 'TIMESTAMP' (or >=,<,<=,=)
-   *
+   * 
    * Composite expressions are supported, for example: level in ('ERROR', 'WARN')
    * AND timestamp> '2021-07-22T06:37:33.083Z'
    */
@@ -1315,7 +1296,7 @@ export interface ListPipelineEvents {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListPipelineEvents_Response {
+export interface ListPipelineEventsRequest_Response {
   /** The list of events matching the request criteria. */
   events?: PipelineEvent[] | undefined;
   /** If present, a token to fetch the next page of events. */
@@ -1328,7 +1309,7 @@ export interface ListPipelineEvents_Response {
  * The request/response messages for the ListPipelines API. The default behavior is to return
  * the 25 first pipelines in ascending order of pipeline id.
  */
-export interface ListPipelines {
+export interface ListPipelinesRequest {
   /** Page token returned by previous call */
   pageToken?: string | undefined;
   /**
@@ -1348,18 +1329,18 @@ export interface ListPipelines {
   /**
    * Select a subset of results based on the specified criteria.
    * The supported filters are:
-   *
+   * 
    * * `notebook='<path>'` to select pipelines that reference the provided notebook path.
    * * `name LIKE '[pattern]'` to select pipelines with a name that matches pattern.
    * Wildcards are supported, for example: `name LIKE '%shopping%'`
-   *
+   * 
    * Composite filters are not supported. This field is optional.
    */
   filter?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListPipelines_Response {
+export interface ListPipelinesRequest_Response {
   /** The list of events matching the request criteria. */
   statuses?: PipelineStateInfo[] | undefined;
   /** If present, a token to fetch the next page of events. */
@@ -1371,7 +1352,7 @@ export interface ListPipelines_Response {
  * the 25 most recent updates in timestamp descending order for the given pipeline. No custom
  * sorting or filtering is supported.
  */
-export interface ListUpdates {
+export interface ListUpdatesRequest {
   /** The pipeline to return updates for. */
   pipelineId?: string | undefined;
   /** Page token returned by previous call */
@@ -1383,7 +1364,7 @@ export interface ListUpdates {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListUpdates_Response {
+export interface ListUpdatesRequest_Response {
   updates?: UpdateInfo[] | undefined;
   /**
    * If present, then there are more results, and this a token to be used in a subsequent request
@@ -1434,7 +1415,7 @@ export interface Notifications {
   /**
    * A list of alerts that trigger the sending of notifications to the configured
    * destinations. The supported alerts are:
-   *
+   * 
    * * `on-update-success`: A pipeline update completes successfully.
    * * `on-update-failure`: Each time a pipeline update fails.
    * * `on-update-fatal-failure`: A pipeline update fails with a non-retryable (fatal) error.
@@ -1617,9 +1598,9 @@ export interface PipelineCluster {
   /**
    * Additional tags for cluster resources. <Databricks> will tag all cluster resources (e.g., AWS
    * instances and EBS volumes) with these tags in addition to `default_tags`. Notes:
-   *
+   * 
    * - Currently, <Databricks> allows at most 45 custom tags
-   *
+   * 
    * - Clusters can only reuse cloud resources if the resources' tags are a subset of the cluster tags
    */
   customTags?: Record<string, string> | undefined;
@@ -1635,11 +1616,11 @@ export interface PipelineCluster {
    * An object containing a set of optional, user-specified environment variable key-value pairs.
    * Please note that key-value pair of the form (X,Y) will be exported as is (i.e.,
    * `export X='Y'`) while launching the driver and workers.
-   *
+   * 
    * In order to specify an additional set of `SPARK_DAEMON_JAVA_OPTS`, we recommend appending
    * them to `$SPARK_DAEMON_JAVA_OPTS` as shown in the example below. This ensures that all
    * default databricks managed environmental variables are included as well.
-   *
+   * 
    * Example Spark environment variables:
    * `{"SPARK_WORKER_MEMORY": "28000m", "SPARK_LOCAL_DIRS": "/local_disk0"}` or
    * `{"SPARK_DAEMON_JAVA_OPTS": "$SPARK_DAEMON_JAVA_OPTS -Dspark.shuffle.service.enabled=true"}`
@@ -1665,7 +1646,7 @@ export interface PipelineCluster {
         /**
          * Number of worker nodes that this cluster should have. A cluster has one Spark Driver
          * and `num_workers` Executors for a total of `num_workers` + 1 Spark nodes.
-         *
+         * 
          * Note: When reading the properties of a cluster, this field reflects the desired number
          * of workers rather than the actual current number of workers. For instance, if a cluster
          * is resized from 5 to 10 workers, this field will immediately be updated to reflect
@@ -1889,8 +1870,8 @@ export interface PipelineStateInfo {
 
 export interface PipelineTrigger {
   trigger?:
-    | {$case: 'manual'; manual: ManualTrigger}
-    | {$case: 'cron'; cron: CronTrigger}
+    | { $case: 'manual'; manual: ManualTrigger }
+    | { $case: 'cron'; cron: CronTrigger }
     | undefined;
 }
 
@@ -1947,9 +1928,9 @@ export interface PipelinesAwsAttributes {
    * omitted, nodes will be placed on instances without an IAM instance profile. The instance
    * profile must have previously been added to the <Databricks> environment by an account
    * administrator.
-   *
+   * 
    * This feature may only be available to certain customer plans.
-   *
+   * 
    * ***internal
    * If this field is ommitted, we will pull in the default from the conf if it exists.
    */
@@ -1964,7 +1945,7 @@ export interface PipelinesAwsAttributes {
    * When spot instances are requested for this cluster, only spot instances whose bid price
    * percentage matches this field will be considered.
    * Note that, for safety, we enforce this field to be no more than 10000.
-   *
+   * 
    * ***internal
    * The default value and documentation here should be kept consistent with
    * CommonConf.defaultSpotBidPricePercent and CommonConf.maxSpotBidPricePercent.
@@ -1978,15 +1959,15 @@ export interface PipelinesAwsAttributes {
    * custom EBS volumes.
    * For node types with no instance store, at least one EBS volume needs to be specified;
    * otherwise, cluster creation will fail.
-   *
+   * 
    * These EBS volumes will be mounted at ``/ebs0``, ``/ebs1``, and etc.
    * Instance store volumes will be mounted at ``/local_disk0``, ``/local_disk1``, and etc.
-   *
+   * 
    * If EBS volumes are attached, <Databricks> will configure Spark to use only the EBS volumes for
    * scratch storage because heterogeneously sized scratch devices can lead to inefficient disk
    * utilization. If no EBS volumes are attached, <Databricks> will configure Spark to use instance
    * store volumes.
-   *
+   * 
    * Please note that if EBS volumes are specified, then the Spark configuration ``spark.local.dir``
    * will be overridden.
    */
@@ -2064,11 +2045,11 @@ export interface PipelinesEnvironment {
    * customer Python code. Each environment version includes a specific Python
    * version and a curated set of pre-installed libraries with defined versions,
    * providing a stable and reproducible execution environment.
-   *
+   * 
    * <Databricks> supports a three-year lifecycle for each environment version.
    * For available versions and their included packages, see
    * https://docs.databricks.com/aws/en/release-notes/serverless/environment-version/
-   *
+   * 
    * The value should be a string representing the environment version number, for example: `"4"`.
    */
   environmentVersion?: string | undefined;
@@ -2103,12 +2084,12 @@ export interface PipelinesGcpAttributes {
   /**
    * The number of local SSDs to attach to each worker and driver for this cluster. If left unspecified,
    * the default number of local SSDs for the node type will be used.
-   *
+   * 
    * NOTE: Each instance type can only support a certain number of attached local SSDs. The value
    * specified in local_ssd_count must be valid for BOTH the driver and worker instance type. See
    * GCP docs here:
    * https://cloud.google.com/compute/docs/disks#local_ssd_machine_type_restrictions
-   *
+   * 
    * Validation is performed at the RPC layer and the RPC will be rejected if the specified
    * local_ssd_count is invalid.
    */
@@ -2141,7 +2122,7 @@ export interface PipelinesInitScriptInfo {
 
 /**
  * Write-only setting, available only in Create/Update calls. Specifies the user or service principal that the pipeline runs as. If not specified, the pipeline runs as the user who created the pipeline.
- *
+ * 
  * Only `user_name` or `service_principal_name` can be specified. If both are specified, an error is thrown.
  */
 export interface PipelinesJobRunAs {
@@ -2169,7 +2150,7 @@ export interface PipelinesMavenLibrary {
   repo?: string | undefined;
   /**
    * List of dependencies to exclude. For example: `["slf4j:slf4j", "*:hadoop-client"]`.
-   *
+   * 
    * Maven dependency exclusions:
    * https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html.
    */
@@ -2349,7 +2330,7 @@ export interface SourceConfig {
    * can be overridden by the same field in the object-level connector_options.
    */
   connectorConfig?:
-    | {$case: 'googleAdsConfig'; googleAdsConfig: GoogleAdsConfig}
+    | { $case: 'googleAdsConfig'; googleAdsConfig: GoogleAdsConfig }
     | undefined;
 }
 
@@ -2364,7 +2345,7 @@ export interface StackFrame {
   lineNumber?: number | undefined;
 }
 
-export interface StartUpdate {
+export interface StartUpdateRequest {
   pipelineId?: string | undefined;
   /** If true, this update will reset all tables before running. */
   fullRefresh?: boolean | undefined;
@@ -2403,22 +2384,22 @@ export interface StartUpdate {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface StartUpdate_ParametersEntry {
+export interface StartUpdateRequest_ParametersEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface StartUpdate_Response {
+export interface StartUpdateRequest_Response {
   updateId?: string | undefined;
 }
 
-export interface StopPipeline {
+export interface StopPipelineRequest {
   pipelineId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface StopPipeline_Response {}
+export interface StopPipelineRequest_Response {}
 
 /** TikTok Ads specific options for ingestion */
 export interface TikTokAdsOptions {
@@ -2474,7 +2455,7 @@ export interface Transformer {
    * STRING format requires no additional config.
    */
   config?:
-    | {$case: 'jsonOptions'; jsonOptions: JsonTransformerOptions}
+    | { $case: 'jsonOptions'; jsonOptions: JsonTransformerOptions }
     | undefined;
 }
 
@@ -2557,147 +2538,73 @@ export interface ZendeskSupportOptions {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalApplyEnvironmentRequest_ResponseSchema: z.ZodType<ApplyEnvironmentRequest_Response> =
-  z.object({});
-
-export const unmarshalAutoFullRefreshPolicySchema: z.ZodType<AutoFullRefreshPolicy> =
-  z
-    .object({
-      enabled: z.boolean().optional(),
-      min_interval_hours: z.number().optional(),
-    })
-    .transform(d => ({
-      enabled: d.enabled,
-      minIntervalHours: d.min_interval_hours,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalClonePipeline_ResponseSchema: z.ZodType<ClonePipeline_Response> =
-  z
-    .object({
-      pipeline_id: z.string().optional(),
-    })
-    .transform(d => ({
-      pipelineId: d.pipeline_id,
-    }));
-
-export const unmarshalConfluenceConnectorOptionsSchema: z.ZodType<ConfluenceConnectorOptions> =
-  z
-    .object({
-      include_confluence_spaces: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      includeConfluenceSpaces: d.include_confluence_spaces,
-    }));
-
-export const unmarshalConnectionParametersSchema: z.ZodType<ConnectionParameters> =
-  z
-    .object({
-      source_catalog: z.string().optional(),
-    })
-    .transform(d => ({
-      sourceCatalog: d.source_catalog,
-    }));
-
-export const unmarshalConnectorOptionsSchema: z.ZodType<ConnectorOptions> = z
+export const unmarshalApplyEnvironmentRequest_ResponseSchema: z.ZodType<ApplyEnvironmentRequest_Response> = z
   .object({
-    google_ads_options: z
-      .lazy(() => unmarshalGoogleAdsOptionsSchema)
-      .optional(),
-    tiktok_ads_options: z
-      .lazy(() => unmarshalTikTokAdsOptionsSchema)
-      .optional(),
-    sharepoint_options: z
-      .lazy(() => unmarshalSharepointOptionsSchema)
-      .optional(),
-    gdrive_options: z.lazy(() => unmarshalGoogleDriveOptionsSchema).optional(),
-    outlook_options: z.lazy(() => unmarshalOutlookOptionsSchema).optional(),
-    smartsheet_options: z
-      .lazy(() => unmarshalSmartsheetOptionsSchema)
-      .optional(),
-    jira_options: z.lazy(() => unmarshalJiraConnectorOptionsSchema).optional(),
-    confluence_options: z
-      .lazy(() => unmarshalConfluenceConnectorOptionsSchema)
-      .optional(),
-    meta_ads_options: z
-      .lazy(() => unmarshalMetaMarketingOptionsSchema)
-      .optional(),
-    zendesk_support_options: z
-      .lazy(() => unmarshalZendeskSupportOptionsSchema)
-      .optional(),
-    kafka_options: z.lazy(() => unmarshalKafkaOptionsSchema).optional(),
+  });
+
+export const unmarshalAutoFullRefreshPolicySchema: z.ZodType<AutoFullRefreshPolicy> = z
+  .object({
+    enabled: z.boolean().optional(),
+    min_interval_hours: z.number().optional(),
   })
   .transform(d => ({
-    connectorOptions:
-      d.google_ads_options !== undefined
-        ? {
-            $case: 'googleAdsOptions' as const,
-            googleAdsOptions: d.google_ads_options,
-          }
-        : d.tiktok_ads_options !== undefined
-          ? {
-              $case: 'tiktokAdsOptions' as const,
-              tiktokAdsOptions: d.tiktok_ads_options,
-            }
-          : d.sharepoint_options !== undefined
-            ? {
-                $case: 'sharepointOptions' as const,
-                sharepointOptions: d.sharepoint_options,
-              }
-            : d.gdrive_options !== undefined
-              ? {
-                  $case: 'gdriveOptions' as const,
-                  gdriveOptions: d.gdrive_options,
-                }
-              : d.outlook_options !== undefined
-                ? {
-                    $case: 'outlookOptions' as const,
-                    outlookOptions: d.outlook_options,
-                  }
-                : d.smartsheet_options !== undefined
-                  ? {
-                      $case: 'smartsheetOptions' as const,
-                      smartsheetOptions: d.smartsheet_options,
-                    }
-                  : d.jira_options !== undefined
-                    ? {
-                        $case: 'jiraOptions' as const,
-                        jiraOptions: d.jira_options,
-                      }
-                    : d.confluence_options !== undefined
-                      ? {
-                          $case: 'confluenceOptions' as const,
-                          confluenceOptions: d.confluence_options,
-                        }
-                      : d.meta_ads_options !== undefined
-                        ? {
-                            $case: 'metaAdsOptions' as const,
-                            metaAdsOptions: d.meta_ads_options,
-                          }
-                        : d.zendesk_support_options !== undefined
-                          ? {
-                              $case: 'zendeskSupportOptions' as const,
-                              zendeskSupportOptions: d.zendesk_support_options,
-                            }
-                          : d.kafka_options !== undefined
-                            ? {
-                                $case: 'kafkaOptions' as const,
-                                kafkaOptions: d.kafka_options,
-                              }
-                            : undefined,
+    enabled: d.enabled,
+    minIntervalHours: d.min_interval_hours,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreatePipeline_ResponseSchema: z.ZodType<CreatePipeline_Response> =
-  z
-    .object({
-      pipeline_id: z.string().optional(),
-      effective_settings: z.lazy(() => unmarshalPipelineSpecSchema).optional(),
-    })
-    .transform(d => ({
-      pipelineId: d.pipeline_id,
-      effectiveSettings: d.effective_settings,
-    }));
+export const unmarshalClonePipelineRequest_ResponseSchema: z.ZodType<ClonePipelineRequest_Response> = z
+  .object({
+    pipeline_id: z.string().optional(),
+  })
+  .transform(d => ({
+    pipelineId: d.pipeline_id,
+  }));
+
+export const unmarshalConfluenceConnectorOptionsSchema: z.ZodType<ConfluenceConnectorOptions> = z
+  .object({
+    include_confluence_spaces: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    includeConfluenceSpaces: d.include_confluence_spaces,
+  }));
+
+export const unmarshalConnectionParametersSchema: z.ZodType<ConnectionParameters> = z
+  .object({
+    source_catalog: z.string().optional(),
+  })
+  .transform(d => ({
+    sourceCatalog: d.source_catalog,
+  }));
+
+export const unmarshalConnectorOptionsSchema: z.ZodType<ConnectorOptions> = z
+  .object({
+    google_ads_options: z.lazy(() => unmarshalGoogleAdsOptionsSchema).optional(),
+    tiktok_ads_options: z.lazy(() => unmarshalTikTokAdsOptionsSchema).optional(),
+    sharepoint_options: z.lazy(() => unmarshalSharepointOptionsSchema).optional(),
+    gdrive_options: z.lazy(() => unmarshalGoogleDriveOptionsSchema).optional(),
+    outlook_options: z.lazy(() => unmarshalOutlookOptionsSchema).optional(),
+    smartsheet_options: z.lazy(() => unmarshalSmartsheetOptionsSchema).optional(),
+    jira_options: z.lazy(() => unmarshalJiraConnectorOptionsSchema).optional(),
+    confluence_options: z.lazy(() => unmarshalConfluenceConnectorOptionsSchema).optional(),
+    meta_ads_options: z.lazy(() => unmarshalMetaMarketingOptionsSchema).optional(),
+    zendesk_support_options: z.lazy(() => unmarshalZendeskSupportOptionsSchema).optional(),
+    kafka_options: z.lazy(() => unmarshalKafkaOptionsSchema).optional(),
+  })
+  .transform(d => ({
+    connectorOptions: d.google_ads_options !== undefined ? { $case: 'googleAdsOptions' as const, googleAdsOptions: d.google_ads_options } : d.tiktok_ads_options !== undefined ? { $case: 'tiktokAdsOptions' as const, tiktokAdsOptions: d.tiktok_ads_options } : d.sharepoint_options !== undefined ? { $case: 'sharepointOptions' as const, sharepointOptions: d.sharepoint_options } : d.gdrive_options !== undefined ? { $case: 'gdriveOptions' as const, gdriveOptions: d.gdrive_options } : d.outlook_options !== undefined ? { $case: 'outlookOptions' as const, outlookOptions: d.outlook_options } : d.smartsheet_options !== undefined ? { $case: 'smartsheetOptions' as const, smartsheetOptions: d.smartsheet_options } : d.jira_options !== undefined ? { $case: 'jiraOptions' as const, jiraOptions: d.jira_options } : d.confluence_options !== undefined ? { $case: 'confluenceOptions' as const, confluenceOptions: d.confluence_options } : d.meta_ads_options !== undefined ? { $case: 'metaAdsOptions' as const, metaAdsOptions: d.meta_ads_options } : d.zendesk_support_options !== undefined ? { $case: 'zendeskSupportOptions' as const, zendeskSupportOptions: d.zendesk_support_options } : d.kafka_options !== undefined ? { $case: 'kafkaOptions' as const, kafkaOptions: d.kafka_options } : undefined,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalCreatePipelineRequest_ResponseSchema: z.ZodType<CreatePipelineRequest_Response> = z
+  .object({
+    pipeline_id: z.string().optional(),
+    effective_settings: z.lazy(() => unmarshalPipelineSpecSchema).optional(),
+  })
+  .transform(d => ({
+    pipelineId: d.pipeline_id,
+    effectiveSettings: d.effective_settings,
+  }));
 
 export const unmarshalCronTriggerSchema: z.ZodType<CronTrigger> = z
   .object({
@@ -2719,32 +2626,31 @@ export const unmarshalDataPlaneIdSchema: z.ZodType<DataPlaneId> = z
     seqNo: d.seq_no,
   }));
 
-export const unmarshalDataStagingOptionsSchema: z.ZodType<DataStagingOptions> =
-  z
-    .object({
-      catalog_name: z.string().optional(),
-      schema_name: z.string().optional(),
-      volume_name: z.string().optional(),
-    })
-    .transform(d => ({
-      catalogName: d.catalog_name,
-      schemaName: d.schema_name,
-      volumeName: d.volume_name,
-    }));
+export const unmarshalDataStagingOptionsSchema: z.ZodType<DataStagingOptions> = z
+  .object({
+    catalog_name: z.string().optional(),
+    schema_name: z.string().optional(),
+    volume_name: z.string().optional(),
+  })
+  .transform(d => ({
+    catalogName: d.catalog_name,
+    schemaName: d.schema_name,
+    volumeName: d.volume_name,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeletePipeline_ResponseSchema: z.ZodType<DeletePipeline_Response> =
-  z.object({});
+export const unmarshalDeletePipelineRequest_ResponseSchema: z.ZodType<DeletePipelineRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEditPipeline_ResponseSchema: z.ZodType<EditPipeline_Response> =
-  z.object({});
+export const unmarshalEditPipelineRequest_ResponseSchema: z.ZodType<EditPipelineRequest_Response> = z
+  .object({
+  });
 
 export const unmarshalErrorDetailSchema: z.ZodType<ErrorDetail> = z
   .object({
-    exceptions: z
-      .array(z.lazy(() => unmarshalSerializedExceptionSchema))
-      .optional(),
+    exceptions: z.array(z.lazy(() => unmarshalSerializedExceptionSchema)).optional(),
     fatal: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2771,49 +2677,36 @@ export const unmarshalFileFilterSchema: z.ZodType<FileFilter> = z
     modified_after: z.string().optional(),
   })
   .transform(d => ({
-    filter:
-      d.path_filter !== undefined
-        ? {$case: 'pathFilter' as const, pathFilter: d.path_filter}
-        : d.modified_before !== undefined
-          ? {
-              $case: 'modifiedBefore' as const,
-              modifiedBefore: d.modified_before,
-            }
-          : d.modified_after !== undefined
-            ? {$case: 'modifiedAfter' as const, modifiedAfter: d.modified_after}
-            : undefined,
+    filter: d.path_filter !== undefined ? { $case: 'pathFilter' as const, pathFilter: d.path_filter } : d.modified_before !== undefined ? { $case: 'modifiedBefore' as const, modifiedBefore: d.modified_before } : d.modified_after !== undefined ? { $case: 'modifiedAfter' as const, modifiedAfter: d.modified_after } : undefined,
   }));
 
-export const unmarshalFileIngestionOptionsSchema: z.ZodType<FileIngestionOptions> =
-  z
-    .object({
-      format: z.enum(FileIngestionOptions_FileFormat).optional(),
-      file_filters: z.array(z.lazy(() => unmarshalFileFilterSchema)).optional(),
-      infer_column_types: z.boolean().optional(),
-      schema_evolution_mode: z
-        .enum(FileIngestionOptions_SchemaEvolutionMode)
-        .optional(),
-      schema_hints: z.string().optional(),
-      ignore_corrupt_files: z.boolean().optional(),
-      corrupt_record_column: z.string().optional(),
-      rescued_data_column: z.string().optional(),
-      single_variant_column: z.string().optional(),
-      reader_case_sensitive: z.boolean().optional(),
-      format_options: z.record(z.string(), z.string()).optional(),
-    })
-    .transform(d => ({
-      format: d.format,
-      fileFilters: d.file_filters,
-      inferColumnTypes: d.infer_column_types,
-      schemaEvolutionMode: d.schema_evolution_mode,
-      schemaHints: d.schema_hints,
-      ignoreCorruptFiles: d.ignore_corrupt_files,
-      corruptRecordColumn: d.corrupt_record_column,
-      rescuedDataColumn: d.rescued_data_column,
-      singleVariantColumn: d.single_variant_column,
-      readerCaseSensitive: d.reader_case_sensitive,
-      formatOptions: d.format_options,
-    }));
+export const unmarshalFileIngestionOptionsSchema: z.ZodType<FileIngestionOptions> = z
+  .object({
+    format: z.enum(FileIngestionOptions_FileFormat).optional(),
+    file_filters: z.array(z.lazy(() => unmarshalFileFilterSchema)).optional(),
+    infer_column_types: z.boolean().optional(),
+    schema_evolution_mode: z.enum(FileIngestionOptions_SchemaEvolutionMode).optional(),
+    schema_hints: z.string().optional(),
+    ignore_corrupt_files: z.boolean().optional(),
+    corrupt_record_column: z.string().optional(),
+    rescued_data_column: z.string().optional(),
+    single_variant_column: z.string().optional(),
+    reader_case_sensitive: z.boolean().optional(),
+    format_options: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    format: d.format,
+    fileFilters: d.file_filters,
+    inferColumnTypes: d.infer_column_types,
+    schemaEvolutionMode: d.schema_evolution_mode,
+    schemaHints: d.schema_hints,
+    ignoreCorruptFiles: d.ignore_corrupt_files,
+    corruptRecordColumn: d.corrupt_record_column,
+    rescuedDataColumn: d.rescued_data_column,
+    singleVariantColumn: d.single_variant_column,
+    readerCaseSensitive: d.reader_case_sensitive,
+    formatOptions: d.format_options,
+  }));
 
 export const unmarshalFiltersSchema: z.ZodType<Filters> = z
   .object({
@@ -2826,52 +2719,48 @@ export const unmarshalFiltersSchema: z.ZodType<Filters> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetPipeline_ResponseSchema: z.ZodType<GetPipeline_Response> =
-  z
-    .object({
-      pipeline_id: z.string().optional(),
-      spec: z.lazy(() => unmarshalPipelineSpecSchema).optional(),
-      state: z.enum(PipelineState_PipelineState).optional(),
-      cause: z.string().optional(),
-      cluster_id: z.string().optional(),
-      name: z.string().optional(),
-      health: z.enum(PipelineHealthStatus).optional(),
-      creator_user_name: z.string().optional(),
-      latest_updates: z
-        .array(z.lazy(() => unmarshalUpdateStateInfoSchema))
-        .optional(),
-      last_modified: z.number().optional(),
-      run_as_user_name: z.string().optional(),
-      effective_budget_policy_id: z.string().optional(),
-      effective_publishing_mode: z.enum(PublishingMode).optional(),
-      run_as: z.lazy(() => unmarshalPipelinesJobRunAsSchema).optional(),
-    })
-    .transform(d => ({
-      pipelineId: d.pipeline_id,
-      spec: d.spec,
-      state: d.state,
-      cause: d.cause,
-      clusterId: d.cluster_id,
-      name: d.name,
-      health: d.health,
-      creatorUserName: d.creator_user_name,
-      latestUpdates: d.latest_updates,
-      lastModified: d.last_modified,
-      runAsUserName: d.run_as_user_name,
-      effectiveBudgetPolicyId: d.effective_budget_policy_id,
-      effectivePublishingMode: d.effective_publishing_mode,
-      runAs: d.run_as,
-    }));
+export const unmarshalGetPipelineRequest_ResponseSchema: z.ZodType<GetPipelineRequest_Response> = z
+  .object({
+    pipeline_id: z.string().optional(),
+    spec: z.lazy(() => unmarshalPipelineSpecSchema).optional(),
+    state: z.enum(PipelineState_PipelineState).optional(),
+    cause: z.string().optional(),
+    cluster_id: z.string().optional(),
+    name: z.string().optional(),
+    health: z.enum(PipelineHealthStatus).optional(),
+    creator_user_name: z.string().optional(),
+    latest_updates: z.array(z.lazy(() => unmarshalUpdateStateInfoSchema)).optional(),
+    last_modified: z.number().optional(),
+    run_as_user_name: z.string().optional(),
+    effective_budget_policy_id: z.string().optional(),
+    effective_publishing_mode: z.enum(PublishingMode).optional(),
+    run_as: z.lazy(() => unmarshalPipelinesJobRunAsSchema).optional(),
+  })
+  .transform(d => ({
+    pipelineId: d.pipeline_id,
+    spec: d.spec,
+    state: d.state,
+    cause: d.cause,
+    clusterId: d.cluster_id,
+    name: d.name,
+    health: d.health,
+    creatorUserName: d.creator_user_name,
+    latestUpdates: d.latest_updates,
+    lastModified: d.last_modified,
+    runAsUserName: d.run_as_user_name,
+    effectiveBudgetPolicyId: d.effective_budget_policy_id,
+    effectivePublishingMode: d.effective_publishing_mode,
+    runAs: d.run_as,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetUpdate_ResponseSchema: z.ZodType<GetUpdate_Response> =
-  z
-    .object({
-      update: z.lazy(() => unmarshalUpdateInfoSchema).optional(),
-    })
-    .transform(d => ({
-      update: d.update,
-    }));
+export const unmarshalGetUpdateRequest_ResponseSchema: z.ZodType<GetUpdateRequest_Response> = z
+  .object({
+    update: z.lazy(() => unmarshalUpdateInfoSchema).optional(),
+  })
+  .transform(d => ({
+    update: d.update,
+  }));
 
 export const unmarshalGoogleAdsConfigSchema: z.ZodType<GoogleAdsConfig> = z
   .object({
@@ -2893,319 +2782,219 @@ export const unmarshalGoogleAdsOptionsSchema: z.ZodType<GoogleAdsOptions> = z
     syncStartDate: d.sync_start_date,
   }));
 
-export const unmarshalGoogleDriveOptionsSchema: z.ZodType<GoogleDriveOptions> =
-  z
-    .object({
-      url: z.string().optional(),
-      entity_type: z.enum(GoogleDriveOptions_GoogleDriveEntityType).optional(),
-      file_ingestion_options: z
-        .lazy(() => unmarshalFileIngestionOptionsSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      url: d.url,
-      entityType: d.entity_type,
-      fileIngestionOptions: d.file_ingestion_options,
-    }));
+export const unmarshalGoogleDriveOptionsSchema: z.ZodType<GoogleDriveOptions> = z
+  .object({
+    url: z.string().optional(),
+    entity_type: z.enum(GoogleDriveOptions_GoogleDriveEntityType).optional(),
+    file_ingestion_options: z.lazy(() => unmarshalFileIngestionOptionsSchema).optional(),
+  })
+  .transform(d => ({
+    url: d.url,
+    entityType: d.entity_type,
+    fileIngestionOptions: d.file_ingestion_options,
+  }));
 
-export const unmarshalIngestionGatewayPipelineDefinitionSchema: z.ZodType<IngestionGatewayPipelineDefinition> =
-  z
-    .object({
-      connection_name: z.string().optional(),
-      connection_id: z.string().optional(),
-      gateway_storage_catalog: z.string().optional(),
-      gateway_storage_schema: z.string().optional(),
-      gateway_storage_name: z.string().optional(),
-      connection_parameters: z
-        .lazy(() => unmarshalConnectionParametersSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      connectionName: d.connection_name,
-      connectionId: d.connection_id,
-      gatewayStorageCatalog: d.gateway_storage_catalog,
-      gatewayStorageSchema: d.gateway_storage_schema,
-      gatewayStorageName: d.gateway_storage_name,
-      connectionParameters: d.connection_parameters,
-    }));
+export const unmarshalIngestionGatewayPipelineDefinitionSchema: z.ZodType<IngestionGatewayPipelineDefinition> = z
+  .object({
+    connection_name: z.string().optional(),
+    connection_id: z.string().optional(),
+    gateway_storage_catalog: z.string().optional(),
+    gateway_storage_schema: z.string().optional(),
+    gateway_storage_name: z.string().optional(),
+    connection_parameters: z.lazy(() => unmarshalConnectionParametersSchema).optional(),
+  })
+  .transform(d => ({
+    connectionName: d.connection_name,
+    connectionId: d.connection_id,
+    gatewayStorageCatalog: d.gateway_storage_catalog,
+    gatewayStorageSchema: d.gateway_storage_schema,
+    gatewayStorageName: d.gateway_storage_name,
+    connectionParameters: d.connection_parameters,
+  }));
 
-export const unmarshalIngestionPipelineDefinitionSchema: z.ZodType<IngestionPipelineDefinition> =
-  z
-    .object({
-      connection_name: z.string().optional(),
-      ingestion_gateway_id: z.string().optional(),
-      ingest_from_uc_foreign_catalog: z.boolean().optional(),
-      objects: z
-        .array(
-          z.lazy(
-            () => unmarshalIngestionPipelineDefinition_IngestionConfigSchema
-          )
-        )
-        .optional(),
-      source_type: z.enum(IngestionSourceType).optional(),
-      table_configuration: z
-        .lazy(
-          () => unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema
-        )
-        .optional(),
-      netsuite_jar_path: z.string().optional(),
-      source_configurations: z
-        .array(z.lazy(() => unmarshalSourceConfigSchema))
-        .optional(),
-      full_refresh_window: z
-        .lazy(() => unmarshalOperationTimeWindowSchema)
-        .optional(),
-      connector_type: z.enum(ConnectorType).optional(),
-      data_staging_options: z
-        .lazy(() => unmarshalDataStagingOptionsSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      source:
-        d.connection_name !== undefined
-          ? {
-              $case: 'connectionName' as const,
-              connectionName: d.connection_name,
-            }
-          : d.ingestion_gateway_id !== undefined
-            ? {
-                $case: 'ingestionGatewayId' as const,
-                ingestionGatewayId: d.ingestion_gateway_id,
-              }
-            : d.ingest_from_uc_foreign_catalog !== undefined
-              ? {
-                  $case: 'ingestFromUcForeignCatalog' as const,
-                  ingestFromUcForeignCatalog: d.ingest_from_uc_foreign_catalog,
-                }
-              : undefined,
-      objects: d.objects,
-      sourceType: d.source_type,
-      tableConfiguration: d.table_configuration,
-      netsuiteJarPath: d.netsuite_jar_path,
-      sourceConfigurations: d.source_configurations,
-      fullRefreshWindow: d.full_refresh_window,
-      connectorType: d.connector_type,
-      dataStagingOptions: d.data_staging_options,
-    }));
+export const unmarshalIngestionPipelineDefinitionSchema: z.ZodType<IngestionPipelineDefinition> = z
+  .object({
+    connection_name: z.string().optional(),
+    ingestion_gateway_id: z.string().optional(),
+    ingest_from_uc_foreign_catalog: z.boolean().optional(),
+    objects: z.array(z.lazy(() => unmarshalIngestionPipelineDefinition_IngestionConfigSchema)).optional(),
+    source_type: z.enum(IngestionSourceType).optional(),
+    table_configuration: z.lazy(() => unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema).optional(),
+    netsuite_jar_path: z.string().optional(),
+    source_configurations: z.array(z.lazy(() => unmarshalSourceConfigSchema)).optional(),
+    full_refresh_window: z.lazy(() => unmarshalOperationTimeWindowSchema).optional(),
+    connector_type: z.enum(ConnectorType).optional(),
+    data_staging_options: z.lazy(() => unmarshalDataStagingOptionsSchema).optional(),
+  })
+  .transform(d => ({
+    source: d.connection_name !== undefined ? { $case: 'connectionName' as const, connectionName: d.connection_name } : d.ingestion_gateway_id !== undefined ? { $case: 'ingestionGatewayId' as const, ingestionGatewayId: d.ingestion_gateway_id } : d.ingest_from_uc_foreign_catalog !== undefined ? { $case: 'ingestFromUcForeignCatalog' as const, ingestFromUcForeignCatalog: d.ingest_from_uc_foreign_catalog } : undefined,
+    objects: d.objects,
+    sourceType: d.source_type,
+    tableConfiguration: d.table_configuration,
+    netsuiteJarPath: d.netsuite_jar_path,
+    sourceConfigurations: d.source_configurations,
+    fullRefreshWindow: d.full_refresh_window,
+    connectorType: d.connector_type,
+    dataStagingOptions: d.data_staging_options,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalIngestionPipelineDefinition_IngestionConfigSchema: z.ZodType<IngestionPipelineDefinition_IngestionConfig> =
-  z
-    .object({
-      schema: z
-        .lazy(() => unmarshalIngestionPipelineDefinition_SchemaSpecSchema)
-        .optional(),
-      table: z
-        .lazy(() => unmarshalIngestionPipelineDefinition_TableSpecSchema)
-        .optional(),
-      report: z
-        .lazy(() => unmarshalIngestionPipelineDefinition_ReportSpecSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      sourceTables:
-        d.schema !== undefined
-          ? {$case: 'schema' as const, schema: d.schema}
-          : d.table !== undefined
-            ? {$case: 'table' as const, table: d.table}
-            : d.report !== undefined
-              ? {$case: 'report' as const, report: d.report}
-              : undefined,
-    }));
+export const unmarshalIngestionPipelineDefinition_IngestionConfigSchema: z.ZodType<IngestionPipelineDefinition_IngestionConfig> = z
+  .object({
+    schema: z.lazy(() => unmarshalIngestionPipelineDefinition_SchemaSpecSchema).optional(),
+    table: z.lazy(() => unmarshalIngestionPipelineDefinition_TableSpecSchema).optional(),
+    report: z.lazy(() => unmarshalIngestionPipelineDefinition_ReportSpecSchema).optional(),
+  })
+  .transform(d => ({
+    sourceTables: d.schema !== undefined ? { $case: 'schema' as const, schema: d.schema } : d.table !== undefined ? { $case: 'table' as const, table: d.table } : d.report !== undefined ? { $case: 'report' as const, report: d.report } : undefined,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalIngestionPipelineDefinition_ReportSpecSchema: z.ZodType<IngestionPipelineDefinition_ReportSpec> =
-  z
-    .object({
-      source_url: z.string().optional(),
-      destination_catalog: z.string().optional(),
-      destination_schema: z.string().optional(),
-      destination_table: z.string().optional(),
-      table_configuration: z
-        .lazy(
-          () => unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      sourceUrl: d.source_url,
-      destinationCatalog: d.destination_catalog,
-      destinationSchema: d.destination_schema,
-      destinationTable: d.destination_table,
-      tableConfiguration: d.table_configuration,
-    }));
+export const unmarshalIngestionPipelineDefinition_ReportSpecSchema: z.ZodType<IngestionPipelineDefinition_ReportSpec> = z
+  .object({
+    source_url: z.string().optional(),
+    destination_catalog: z.string().optional(),
+    destination_schema: z.string().optional(),
+    destination_table: z.string().optional(),
+    table_configuration: z.lazy(() => unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema).optional(),
+  })
+  .transform(d => ({
+    sourceUrl: d.source_url,
+    destinationCatalog: d.destination_catalog,
+    destinationSchema: d.destination_schema,
+    destinationTable: d.destination_table,
+    tableConfiguration: d.table_configuration,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalIngestionPipelineDefinition_SchemaSpecSchema: z.ZodType<IngestionPipelineDefinition_SchemaSpec> =
-  z
-    .object({
-      source_catalog: z.string().optional(),
-      source_schema: z.string().optional(),
-      destination_catalog: z.string().optional(),
-      destination_schema: z.string().optional(),
-      table_configuration: z
-        .lazy(
-          () => unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema
-        )
-        .optional(),
-      connector_options: z
-        .lazy(() => unmarshalConnectorOptionsSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      sourceCatalog: d.source_catalog,
-      sourceSchema: d.source_schema,
-      destinationCatalog: d.destination_catalog,
-      destinationSchema: d.destination_schema,
-      tableConfiguration: d.table_configuration,
-      connectorOptions: d.connector_options,
-    }));
+export const unmarshalIngestionPipelineDefinition_SchemaSpecSchema: z.ZodType<IngestionPipelineDefinition_SchemaSpec> = z
+  .object({
+    source_catalog: z.string().optional(),
+    source_schema: z.string().optional(),
+    destination_catalog: z.string().optional(),
+    destination_schema: z.string().optional(),
+    table_configuration: z.lazy(() => unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema).optional(),
+    connector_options: z.lazy(() => unmarshalConnectorOptionsSchema).optional(),
+  })
+  .transform(d => ({
+    sourceCatalog: d.source_catalog,
+    sourceSchema: d.source_schema,
+    destinationCatalog: d.destination_catalog,
+    destinationSchema: d.destination_schema,
+    tableConfiguration: d.table_configuration,
+    connectorOptions: d.connector_options,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalIngestionPipelineDefinition_TableSpecSchema: z.ZodType<IngestionPipelineDefinition_TableSpec> =
-  z
-    .object({
-      source_catalog: z.string().optional(),
-      source_schema: z.string().optional(),
-      source_table: z.string().optional(),
-      destination_catalog: z.string().optional(),
-      destination_schema: z.string().optional(),
-      destination_table: z.string().optional(),
-      table_configuration: z
-        .lazy(
-          () => unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema
-        )
-        .optional(),
-      connector_options: z
-        .lazy(() => unmarshalConnectorOptionsSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      sourceCatalog: d.source_catalog,
-      sourceSchema: d.source_schema,
-      sourceTable: d.source_table,
-      destinationCatalog: d.destination_catalog,
-      destinationSchema: d.destination_schema,
-      destinationTable: d.destination_table,
-      tableConfiguration: d.table_configuration,
-      connectorOptions: d.connector_options,
-    }));
+export const unmarshalIngestionPipelineDefinition_TableSpecSchema: z.ZodType<IngestionPipelineDefinition_TableSpec> = z
+  .object({
+    source_catalog: z.string().optional(),
+    source_schema: z.string().optional(),
+    source_table: z.string().optional(),
+    destination_catalog: z.string().optional(),
+    destination_schema: z.string().optional(),
+    destination_table: z.string().optional(),
+    table_configuration: z.lazy(() => unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema).optional(),
+    connector_options: z.lazy(() => unmarshalConnectorOptionsSchema).optional(),
+  })
+  .transform(d => ({
+    sourceCatalog: d.source_catalog,
+    sourceSchema: d.source_schema,
+    sourceTable: d.source_table,
+    destinationCatalog: d.destination_catalog,
+    destinationSchema: d.destination_schema,
+    destinationTable: d.destination_table,
+    tableConfiguration: d.table_configuration,
+    connectorOptions: d.connector_options,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.ZodType<IngestionPipelineDefinition_TableSpecificConfig> =
-  z
-    .object({
-      scd_type: z.enum(ScdType_ScdType).optional(),
-      primary_keys: z.array(z.string()).optional(),
-      sequence_by: z.array(z.string()).optional(),
-      include_columns: z.array(z.string()).optional(),
-      exclude_columns: z.array(z.string()).optional(),
-      salesforce_include_formula_fields: z.boolean().optional(),
-      workday_report_parameters: z
-        .lazy(
-          () =>
-            unmarshalIngestionPipelineDefinition_WorkdayReportParametersSchema
-        )
-        .optional(),
-      row_filter: z.string().optional(),
-      query_based_connector_config: z
-        .lazy(
-          () =>
-            unmarshalIngestionPipelineDefinition_TableSpecificConfig_QueryBasedConnectorConfigSchema
-        )
-        .optional(),
-      auto_full_refresh_policy: z
-        .lazy(() => unmarshalAutoFullRefreshPolicySchema)
-        .optional(),
-    })
-    .transform(d => ({
-      scdType: d.scd_type,
-      primaryKeys: d.primary_keys,
-      sequenceBy: d.sequence_by,
-      includeColumns: d.include_columns,
-      excludeColumns: d.exclude_columns,
-      salesforceIncludeFormulaFields: d.salesforce_include_formula_fields,
-      workdayReportParameters: d.workday_report_parameters,
-      rowFilter: d.row_filter,
-      queryBasedConnectorConfig: d.query_based_connector_config,
-      autoFullRefreshPolicy: d.auto_full_refresh_policy,
-    }));
+export const unmarshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.ZodType<IngestionPipelineDefinition_TableSpecificConfig> = z
+  .object({
+    scd_type: z.enum(ScdType_ScdType).optional(),
+    primary_keys: z.array(z.string()).optional(),
+    sequence_by: z.array(z.string()).optional(),
+    include_columns: z.array(z.string()).optional(),
+    exclude_columns: z.array(z.string()).optional(),
+    salesforce_include_formula_fields: z.boolean().optional(),
+    workday_report_parameters: z.lazy(() => unmarshalIngestionPipelineDefinition_WorkdayReportParametersSchema).optional(),
+    row_filter: z.string().optional(),
+    query_based_connector_config: z.lazy(() => unmarshalIngestionPipelineDefinition_TableSpecificConfig_QueryBasedConnectorConfigSchema).optional(),
+    auto_full_refresh_policy: z.lazy(() => unmarshalAutoFullRefreshPolicySchema).optional(),
+  })
+  .transform(d => ({
+    scdType: d.scd_type,
+    primaryKeys: d.primary_keys,
+    sequenceBy: d.sequence_by,
+    includeColumns: d.include_columns,
+    excludeColumns: d.exclude_columns,
+    salesforceIncludeFormulaFields: d.salesforce_include_formula_fields,
+    workdayReportParameters: d.workday_report_parameters,
+    rowFilter: d.row_filter,
+    queryBasedConnectorConfig: d.query_based_connector_config,
+    autoFullRefreshPolicy: d.auto_full_refresh_policy,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalIngestionPipelineDefinition_TableSpecificConfig_QueryBasedConnectorConfigSchema: z.ZodType<IngestionPipelineDefinition_TableSpecificConfig_QueryBasedConnectorConfig> =
-  z
-    .object({
-      cursor_columns: z.array(z.string()).optional(),
-      deletion_condition: z.string().optional(),
-      hard_deletion_sync_min_interval_in_seconds: z.number().optional(),
-    })
-    .transform(d => ({
-      cursorColumns: d.cursor_columns,
-      deletionCondition: d.deletion_condition,
-      hardDeletionSyncMinIntervalInSeconds:
-        d.hard_deletion_sync_min_interval_in_seconds,
-    }));
+export const unmarshalIngestionPipelineDefinition_TableSpecificConfig_QueryBasedConnectorConfigSchema: z.ZodType<IngestionPipelineDefinition_TableSpecificConfig_QueryBasedConnectorConfig> = z
+  .object({
+    cursor_columns: z.array(z.string()).optional(),
+    deletion_condition: z.string().optional(),
+    hard_deletion_sync_min_interval_in_seconds: z.number().optional(),
+  })
+  .transform(d => ({
+    cursorColumns: d.cursor_columns,
+    deletionCondition: d.deletion_condition,
+    hardDeletionSyncMinIntervalInSeconds: d.hard_deletion_sync_min_interval_in_seconds,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalIngestionPipelineDefinition_WorkdayReportParametersSchema: z.ZodType<IngestionPipelineDefinition_WorkdayReportParameters> =
-  z
-    .object({
-      incremental: z.boolean().optional(),
-      report_parameters: z
-        .array(
-          z.lazy(
-            () =>
-              unmarshalIngestionPipelineDefinition_WorkdayReportParameters_QueryKeyValueSchema
-          )
-        )
-        .optional(),
-      parameters: z.record(z.string(), z.string()).optional(),
-    })
-    .transform(d => ({
-      incremental: d.incremental,
-      reportParameters: d.report_parameters,
-      parameters: d.parameters,
-    }));
+export const unmarshalIngestionPipelineDefinition_WorkdayReportParametersSchema: z.ZodType<IngestionPipelineDefinition_WorkdayReportParameters> = z
+  .object({
+    incremental: z.boolean().optional(),
+    report_parameters: z.array(z.lazy(() => unmarshalIngestionPipelineDefinition_WorkdayReportParameters_QueryKeyValueSchema)).optional(),
+    parameters: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    incremental: d.incremental,
+    reportParameters: d.report_parameters,
+    parameters: d.parameters,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalIngestionPipelineDefinition_WorkdayReportParameters_QueryKeyValueSchema: z.ZodType<IngestionPipelineDefinition_WorkdayReportParameters_QueryKeyValue> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalIngestionPipelineDefinition_WorkdayReportParameters_QueryKeyValueSchema: z.ZodType<IngestionPipelineDefinition_WorkdayReportParameters_QueryKeyValue> = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
-export const unmarshalJiraConnectorOptionsSchema: z.ZodType<JiraConnectorOptions> =
-  z
-    .object({
-      include_jira_spaces: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      includeJiraSpaces: d.include_jira_spaces,
-    }));
+export const unmarshalJiraConnectorOptionsSchema: z.ZodType<JiraConnectorOptions> = z
+  .object({
+    include_jira_spaces: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    includeJiraSpaces: d.include_jira_spaces,
+  }));
 
-export const unmarshalJsonTransformerOptionsSchema: z.ZodType<JsonTransformerOptions> =
-  z
-    .object({
-      as_variant: z.boolean().optional(),
-      schema: z.string().optional(),
-      schema_file_path: z.string().optional(),
-      schema_evolution_mode: z
-        .enum(FileIngestionOptions_SchemaEvolutionMode)
-        .optional(),
-      schema_hints: z.string().optional(),
-    })
-    .transform(d => ({
-      asVariant: d.as_variant,
-      schema: d.schema,
-      schemaFilePath: d.schema_file_path,
-      schemaEvolutionMode: d.schema_evolution_mode,
-      schemaHints: d.schema_hints,
-    }));
+export const unmarshalJsonTransformerOptionsSchema: z.ZodType<JsonTransformerOptions> = z
+  .object({
+    as_variant: z.boolean().optional(),
+    schema: z.string().optional(),
+    schema_file_path: z.string().optional(),
+    schema_evolution_mode: z.enum(FileIngestionOptions_SchemaEvolutionMode).optional(),
+    schema_hints: z.string().optional(),
+  })
+  .transform(d => ({
+    asVariant: d.as_variant,
+    schema: d.schema,
+    schemaFilePath: d.schema_file_path,
+    schemaEvolutionMode: d.schema_evolution_mode,
+    schemaHints: d.schema_hints,
+  }));
 
 export const unmarshalKafkaOptionsSchema: z.ZodType<KafkaOptions> = z
   .object({
@@ -3228,73 +3017,67 @@ export const unmarshalKafkaOptionsSchema: z.ZodType<KafkaOptions> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListPipelineEvents_ResponseSchema: z.ZodType<ListPipelineEvents_Response> =
-  z
-    .object({
-      events: z.array(z.lazy(() => unmarshalPipelineEventSchema)).optional(),
-      next_page_token: z.string().optional(),
-      prev_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      events: d.events,
-      nextPageToken: d.next_page_token,
-      prevPageToken: d.prev_page_token,
-    }));
+export const unmarshalListPipelineEventsRequest_ResponseSchema: z.ZodType<ListPipelineEventsRequest_Response> = z
+  .object({
+    events: z.array(z.lazy(() => unmarshalPipelineEventSchema)).optional(),
+    next_page_token: z.string().optional(),
+    prev_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    events: d.events,
+    nextPageToken: d.next_page_token,
+    prevPageToken: d.prev_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListPipelines_ResponseSchema: z.ZodType<ListPipelines_Response> =
-  z
-    .object({
-      statuses: z
-        .array(z.lazy(() => unmarshalPipelineStateInfoSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      statuses: d.statuses,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListPipelinesRequest_ResponseSchema: z.ZodType<ListPipelinesRequest_Response> = z
+  .object({
+    statuses: z.array(z.lazy(() => unmarshalPipelineStateInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    statuses: d.statuses,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListUpdates_ResponseSchema: z.ZodType<ListUpdates_Response> =
-  z
-    .object({
-      updates: z.array(z.lazy(() => unmarshalUpdateInfoSchema)).optional(),
-      next_page_token: z.string().optional(),
-      prev_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      updates: d.updates,
-      nextPageToken: d.next_page_token,
-      prevPageToken: d.prev_page_token,
-    }));
+export const unmarshalListUpdatesRequest_ResponseSchema: z.ZodType<ListUpdatesRequest_Response> = z
+  .object({
+    updates: z.array(z.lazy(() => unmarshalUpdateInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+    prev_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    updates: d.updates,
+    nextPageToken: d.next_page_token,
+    prevPageToken: d.prev_page_token,
+  }));
 
-export const unmarshalManualTriggerSchema: z.ZodType<ManualTrigger> = z.object(
-  {}
-);
+export const unmarshalManualTriggerSchema: z.ZodType<ManualTrigger> = z
+  .object({
+  });
 
-export const unmarshalMetaMarketingOptionsSchema: z.ZodType<MetaMarketingOptions> =
-  z
-    .object({
-      level: z.string().optional(),
-      breakdowns: z.array(z.string()).optional(),
-      action_breakdowns: z.array(z.string()).optional(),
-      action_report_time: z.string().optional(),
-      start_date: z.string().optional(),
-      custom_insights_lookback_window: z.number().optional(),
-      time_increment: z.string().optional(),
-      action_attribution_windows: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      level: d.level,
-      breakdowns: d.breakdowns,
-      actionBreakdowns: d.action_breakdowns,
-      actionReportTime: d.action_report_time,
-      startDate: d.start_date,
-      customInsightsLookbackWindow: d.custom_insights_lookback_window,
-      timeIncrement: d.time_increment,
-      actionAttributionWindows: d.action_attribution_windows,
-    }));
+export const unmarshalMetaMarketingOptionsSchema: z.ZodType<MetaMarketingOptions> = z
+  .object({
+    level: z.string().optional(),
+    breakdowns: z.array(z.string()).optional(),
+    action_breakdowns: z.array(z.string()).optional(),
+    action_report_time: z.string().optional(),
+    start_date: z.string().optional(),
+    custom_insights_lookback_window: z.number().optional(),
+    time_increment: z.string().optional(),
+    action_attribution_windows: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    level: d.level,
+    breakdowns: d.breakdowns,
+    actionBreakdowns: d.action_breakdowns,
+    actionReportTime: d.action_report_time,
+    startDate: d.start_date,
+    customInsightsLookbackWindow: d.custom_insights_lookback_window,
+    timeIncrement: d.time_increment,
+    actionAttributionWindows: d.action_attribution_windows,
+  }));
 
 export const unmarshalNotebookLibrarySchema: z.ZodType<NotebookLibrary> = z
   .object({
@@ -3314,18 +3097,17 @@ export const unmarshalNotificationsSchema: z.ZodType<Notifications> = z
     alerts: d.alerts,
   }));
 
-export const unmarshalOperationTimeWindowSchema: z.ZodType<OperationTimeWindow> =
-  z
-    .object({
-      start_hour: z.number().optional(),
-      days_of_week: z.array(z.enum(DayOfWeek)).optional(),
-      time_zone_id: z.string().optional(),
-    })
-    .transform(d => ({
-      startHour: d.start_hour,
-      daysOfWeek: d.days_of_week,
-      timeZoneId: d.time_zone_id,
-    }));
+export const unmarshalOperationTimeWindowSchema: z.ZodType<OperationTimeWindow> = z
+  .object({
+    start_hour: z.number().optional(),
+    days_of_week: z.array(z.enum(DayOfWeek)).optional(),
+    time_zone_id: z.string().optional(),
+  })
+  .transform(d => ({
+    startHour: d.start_hour,
+    daysOfWeek: d.days_of_week,
+    timeZoneId: d.time_zone_id,
+  }));
 
 export const unmarshalOriginSchema: z.ZodType<Origin> = z
   .object({
@@ -3416,26 +3198,16 @@ export const unmarshalPipelineClusterSchema: z.ZodType<PipelineCluster> = z
     label: z.string().optional(),
     apply_policy_default_values: z.boolean().optional(),
     spark_conf: z.record(z.string(), z.string()).optional(),
-    aws_attributes: z
-      .lazy(() => unmarshalPipelinesAwsAttributesSchema)
-      .optional(),
-    azure_attributes: z
-      .lazy(() => unmarshalPipelinesAzureAttributesSchema)
-      .optional(),
-    gcp_attributes: z
-      .lazy(() => unmarshalPipelinesGcpAttributesSchema)
-      .optional(),
+    aws_attributes: z.lazy(() => unmarshalPipelinesAwsAttributesSchema).optional(),
+    azure_attributes: z.lazy(() => unmarshalPipelinesAzureAttributesSchema).optional(),
+    gcp_attributes: z.lazy(() => unmarshalPipelinesGcpAttributesSchema).optional(),
     node_type_id: z.string().optional(),
     driver_node_type_id: z.string().optional(),
     ssh_public_keys: z.array(z.string()).optional(),
     custom_tags: z.record(z.string(), z.string()).optional(),
-    cluster_log_conf: z
-      .lazy(() => unmarshalPipelinesClusterLogConfSchema)
-      .optional(),
+    cluster_log_conf: z.lazy(() => unmarshalPipelinesClusterLogConfSchema).optional(),
     spark_env_vars: z.record(z.string(), z.string()).optional(),
-    init_scripts: z
-      .array(z.lazy(() => unmarshalPipelinesInitScriptInfoSchema))
-      .optional(),
+    init_scripts: z.array(z.lazy(() => unmarshalPipelinesInitScriptInfoSchema)).optional(),
     instance_pool_id: z.string().optional(),
     policy_id: z.string().optional(),
     enable_local_disk_encryption: z.boolean().optional(),
@@ -3461,24 +3233,18 @@ export const unmarshalPipelineClusterSchema: z.ZodType<PipelineCluster> = z
     policyId: d.policy_id,
     enableLocalDiskEncryption: d.enable_local_disk_encryption,
     driverInstancePoolId: d.driver_instance_pool_id,
-    size:
-      d.num_workers !== undefined
-        ? {$case: 'numWorkers' as const, numWorkers: d.num_workers}
-        : d.autoscale !== undefined
-          ? {$case: 'autoscale' as const, autoscale: d.autoscale}
-          : undefined,
+    size: d.num_workers !== undefined ? { $case: 'numWorkers' as const, numWorkers: d.num_workers } : d.autoscale !== undefined ? { $case: 'autoscale' as const, autoscale: d.autoscale } : undefined,
   }));
 
-export const unmarshalPipelineDeploymentSchema: z.ZodType<PipelineDeployment> =
-  z
-    .object({
-      kind: z.enum(DeploymentKind).optional(),
-      metadata_file_path: z.string().optional(),
-    })
-    .transform(d => ({
-      kind: d.kind,
-      metadataFilePath: d.metadata_file_path,
-    }));
+export const unmarshalPipelineDeploymentSchema: z.ZodType<PipelineDeployment> = z
+  .object({
+    kind: z.enum(DeploymentKind).optional(),
+    metadata_file_path: z.string().optional(),
+  })
+  .transform(d => ({
+    kind: d.kind,
+    metadataFilePath: d.metadata_file_path,
+  }));
 
 export const unmarshalPipelineEventSchema: z.ZodType<PipelineEvent> = z
   .object({
@@ -3516,20 +3282,7 @@ export const unmarshalPipelineLibrarySchema: z.ZodType<PipelineLibrary> = z
     glob: z.lazy(() => unmarshalPathPatternSchema).optional(),
   })
   .transform(d => ({
-    lib:
-      d.jar !== undefined
-        ? {$case: 'jar' as const, jar: d.jar}
-        : d.maven !== undefined
-          ? {$case: 'maven' as const, maven: d.maven}
-          : d.whl !== undefined
-            ? {$case: 'whl' as const, whl: d.whl}
-            : d.notebook !== undefined
-              ? {$case: 'notebook' as const, notebook: d.notebook}
-              : d.file !== undefined
-                ? {$case: 'file' as const, file: d.file}
-                : d.glob !== undefined
-                  ? {$case: 'glob' as const, glob: d.glob}
-                  : undefined,
+    lib: d.jar !== undefined ? { $case: 'jar' as const, jar: d.jar } : d.maven !== undefined ? { $case: 'maven' as const, maven: d.maven } : d.whl !== undefined ? { $case: 'whl' as const, whl: d.whl } : d.notebook !== undefined ? { $case: 'notebook' as const, notebook: d.notebook } : d.file !== undefined ? { $case: 'file' as const, file: d.file } : d.glob !== undefined ? { $case: 'glob' as const, glob: d.glob } : undefined,
   }));
 
 export const unmarshalPipelineSpecSchema: z.ZodType<PipelineSpec> = z
@@ -3540,12 +3293,8 @@ export const unmarshalPipelineSpecSchema: z.ZodType<PipelineSpec> = z
     configuration: z.record(z.string(), z.string()).optional(),
     clusters: z.array(z.lazy(() => unmarshalPipelineClusterSchema)).optional(),
     libraries: z.array(z.lazy(() => unmarshalPipelineLibrarySchema)).optional(),
-    ingestion_definition: z
-      .lazy(() => unmarshalIngestionPipelineDefinitionSchema)
-      .optional(),
-    gateway_definition: z
-      .lazy(() => unmarshalIngestionGatewayPipelineDefinitionSchema)
-      .optional(),
+    ingestion_definition: z.lazy(() => unmarshalIngestionPipelineDefinitionSchema).optional(),
+    gateway_definition: z.lazy(() => unmarshalIngestionGatewayPipelineDefinitionSchema).optional(),
     trigger: z.lazy(() => unmarshalPipelineTriggerSchema).optional(),
     target: z.string().optional(),
     schema: z.string().optional(),
@@ -3556,9 +3305,7 @@ export const unmarshalPipelineSpecSchema: z.ZodType<PipelineSpec> = z
     edition: z.string().optional(),
     channel: z.string().optional(),
     catalog: z.string().optional(),
-    notifications: z
-      .array(z.lazy(() => unmarshalNotificationsSchema))
-      .optional(),
+    notifications: z.array(z.lazy(() => unmarshalNotificationsSchema)).optional(),
     serverless: z.boolean().optional(),
     deployment: z.lazy(() => unmarshalPipelineDeploymentSchema).optional(),
     restart_window: z.lazy(() => unmarshalRestartWindowSchema).optional(),
@@ -3606,9 +3353,7 @@ export const unmarshalPipelineStateInfoSchema: z.ZodType<PipelineStateInfo> = z
     state: z.enum(PipelineState_PipelineState).optional(),
     cluster_id: z.string().optional(),
     name: z.string().optional(),
-    latest_updates: z
-      .array(z.lazy(() => unmarshalUpdateStateInfoSchema))
-      .optional(),
+    latest_updates: z.array(z.lazy(() => unmarshalUpdateStateInfoSchema)).optional(),
     creator_user_name: z.string().optional(),
     run_as_user_name: z.string().optional(),
     health: z.enum(PipelineHealthStatus).optional(),
@@ -3630,130 +3375,109 @@ export const unmarshalPipelineTriggerSchema: z.ZodType<PipelineTrigger> = z
     cron: z.lazy(() => unmarshalCronTriggerSchema).optional(),
   })
   .transform(d => ({
-    trigger:
-      d.manual !== undefined
-        ? {$case: 'manual' as const, manual: d.manual}
-        : d.cron !== undefined
-          ? {$case: 'cron' as const, cron: d.cron}
-          : undefined,
+    trigger: d.manual !== undefined ? { $case: 'manual' as const, manual: d.manual } : d.cron !== undefined ? { $case: 'cron' as const, cron: d.cron } : undefined,
   }));
 
-export const unmarshalPipelinesAutoScaleSchema: z.ZodType<PipelinesAutoScale> =
-  z
-    .object({
-      min_workers: z.number().optional(),
-      max_workers: z.number().optional(),
-      mode: z.string().optional(),
-    })
-    .transform(d => ({
-      minWorkers: d.min_workers,
-      maxWorkers: d.max_workers,
-      mode: d.mode,
-    }));
+export const unmarshalPipelinesAutoScaleSchema: z.ZodType<PipelinesAutoScale> = z
+  .object({
+    min_workers: z.number().optional(),
+    max_workers: z.number().optional(),
+    mode: z.string().optional(),
+  })
+  .transform(d => ({
+    minWorkers: d.min_workers,
+    maxWorkers: d.max_workers,
+    mode: d.mode,
+  }));
 
-export const unmarshalPipelinesAwsAttributesSchema: z.ZodType<PipelinesAwsAttributes> =
-  z
-    .object({
-      first_on_demand: z.number().optional(),
-      availability: z.enum(PipelinesAwsAvailability).optional(),
-      zone_id: z.string().optional(),
-      instance_profile_arn: z.string().optional(),
-      spot_bid_price_percent: z.number().optional(),
-      ebs_volume_type: z.enum(PipelinesEbsVolumeType).optional(),
-      ebs_volume_count: z.number().optional(),
-      ebs_volume_size: z.number().optional(),
-      ebs_volume_iops: z.number().optional(),
-      ebs_volume_throughput: z.number().optional(),
-    })
-    .transform(d => ({
-      firstOnDemand: d.first_on_demand,
-      availability: d.availability,
-      zoneId: d.zone_id,
-      instanceProfileArn: d.instance_profile_arn,
-      spotBidPricePercent: d.spot_bid_price_percent,
-      ebsVolumeType: d.ebs_volume_type,
-      ebsVolumeCount: d.ebs_volume_count,
-      ebsVolumeSize: d.ebs_volume_size,
-      ebsVolumeIops: d.ebs_volume_iops,
-      ebsVolumeThroughput: d.ebs_volume_throughput,
-    }));
+export const unmarshalPipelinesAwsAttributesSchema: z.ZodType<PipelinesAwsAttributes> = z
+  .object({
+    first_on_demand: z.number().optional(),
+    availability: z.enum(PipelinesAwsAvailability).optional(),
+    zone_id: z.string().optional(),
+    instance_profile_arn: z.string().optional(),
+    spot_bid_price_percent: z.number().optional(),
+    ebs_volume_type: z.enum(PipelinesEbsVolumeType).optional(),
+    ebs_volume_count: z.number().optional(),
+    ebs_volume_size: z.number().optional(),
+    ebs_volume_iops: z.number().optional(),
+    ebs_volume_throughput: z.number().optional(),
+  })
+  .transform(d => ({
+    firstOnDemand: d.first_on_demand,
+    availability: d.availability,
+    zoneId: d.zone_id,
+    instanceProfileArn: d.instance_profile_arn,
+    spotBidPricePercent: d.spot_bid_price_percent,
+    ebsVolumeType: d.ebs_volume_type,
+    ebsVolumeCount: d.ebs_volume_count,
+    ebsVolumeSize: d.ebs_volume_size,
+    ebsVolumeIops: d.ebs_volume_iops,
+    ebsVolumeThroughput: d.ebs_volume_throughput,
+  }));
 
-export const unmarshalPipelinesAzureAttributesSchema: z.ZodType<PipelinesAzureAttributes> =
-  z
-    .object({
-      first_on_demand: z.number().optional(),
-      availability: z.enum(PipelinesAzureAvailability).optional(),
-      spot_bid_max_price: z.number().optional(),
-    })
-    .transform(d => ({
-      firstOnDemand: d.first_on_demand,
-      availability: d.availability,
-      spotBidMaxPrice: d.spot_bid_max_price,
-    }));
+export const unmarshalPipelinesAzureAttributesSchema: z.ZodType<PipelinesAzureAttributes> = z
+  .object({
+    first_on_demand: z.number().optional(),
+    availability: z.enum(PipelinesAzureAvailability).optional(),
+    spot_bid_max_price: z.number().optional(),
+  })
+  .transform(d => ({
+    firstOnDemand: d.first_on_demand,
+    availability: d.availability,
+    spotBidMaxPrice: d.spot_bid_max_price,
+  }));
 
-export const unmarshalPipelinesClusterLogConfSchema: z.ZodType<PipelinesClusterLogConf> =
-  z
-    .object({
-      dbfs: z.lazy(() => unmarshalPipelinesDbfsStorageInfoSchema).optional(),
-    })
-    .transform(d => ({
-      storageInfo:
-        d.dbfs !== undefined
-          ? {$case: 'dbfs' as const, dbfs: d.dbfs}
-          : undefined,
-    }));
+export const unmarshalPipelinesClusterLogConfSchema: z.ZodType<PipelinesClusterLogConf> = z
+  .object({
+    dbfs: z.lazy(() => unmarshalPipelinesDbfsStorageInfoSchema).optional(),
+  })
+  .transform(d => ({
+    storageInfo: d.dbfs !== undefined ? { $case: 'dbfs' as const, dbfs: d.dbfs } : undefined,
+  }));
 
-export const unmarshalPipelinesDbfsStorageInfoSchema: z.ZodType<PipelinesDbfsStorageInfo> =
-  z
-    .object({
-      destination: z.string().optional(),
-    })
-    .transform(d => ({
-      destination: d.destination,
-    }));
+export const unmarshalPipelinesDbfsStorageInfoSchema: z.ZodType<PipelinesDbfsStorageInfo> = z
+  .object({
+    destination: z.string().optional(),
+  })
+  .transform(d => ({
+    destination: d.destination,
+  }));
 
-export const unmarshalPipelinesEnvironmentSchema: z.ZodType<PipelinesEnvironment> =
-  z
-    .object({
-      dependencies: z.array(z.string()).optional(),
-      environment_version: z.string().optional(),
-    })
-    .transform(d => ({
-      dependencies: d.dependencies,
-      environmentVersion: d.environment_version,
-    }));
+export const unmarshalPipelinesEnvironmentSchema: z.ZodType<PipelinesEnvironment> = z
+  .object({
+    dependencies: z.array(z.string()).optional(),
+    environment_version: z.string().optional(),
+  })
+  .transform(d => ({
+    dependencies: d.dependencies,
+    environmentVersion: d.environment_version,
+  }));
 
-export const unmarshalPipelinesGcpAttributesSchema: z.ZodType<PipelinesGcpAttributes> =
-  z
-    .object({
-      google_service_account: z.string().optional(),
-      boot_disk_size: z.number().optional(),
-      availability: z.enum(PipelinesGcpAvailability).optional(),
-      zone_id: z.string().optional(),
-      local_ssd_count: z.number().optional(),
-    })
-    .transform(d => ({
-      googleServiceAccount: d.google_service_account,
-      bootDiskSize: d.boot_disk_size,
-      availability: d.availability,
-      zoneId: d.zone_id,
-      localSsdCount: d.local_ssd_count,
-    }));
+export const unmarshalPipelinesGcpAttributesSchema: z.ZodType<PipelinesGcpAttributes> = z
+  .object({
+    google_service_account: z.string().optional(),
+    boot_disk_size: z.number().optional(),
+    availability: z.enum(PipelinesGcpAvailability).optional(),
+    zone_id: z.string().optional(),
+    local_ssd_count: z.number().optional(),
+  })
+  .transform(d => ({
+    googleServiceAccount: d.google_service_account,
+    bootDiskSize: d.boot_disk_size,
+    availability: d.availability,
+    zoneId: d.zone_id,
+    localSsdCount: d.local_ssd_count,
+  }));
 
-export const unmarshalPipelinesInitScriptInfoSchema: z.ZodType<PipelinesInitScriptInfo> =
-  z
-    .object({
-      dbfs: z.lazy(() => unmarshalPipelinesDbfsStorageInfoSchema).optional(),
-      s3: z.lazy(() => unmarshalPipelinesS3StorageInfoSchema).optional(),
-    })
-    .transform(d => ({
-      storageInfo:
-        d.dbfs !== undefined
-          ? {$case: 'dbfs' as const, dbfs: d.dbfs}
-          : d.s3 !== undefined
-            ? {$case: 's3' as const, s3: d.s3}
-            : undefined,
-    }));
+export const unmarshalPipelinesInitScriptInfoSchema: z.ZodType<PipelinesInitScriptInfo> = z
+  .object({
+    dbfs: z.lazy(() => unmarshalPipelinesDbfsStorageInfoSchema).optional(),
+    s3: z.lazy(() => unmarshalPipelinesS3StorageInfoSchema).optional(),
+  })
+  .transform(d => ({
+    storageInfo: d.dbfs !== undefined ? { $case: 'dbfs' as const, dbfs: d.dbfs } : d.s3 !== undefined ? { $case: 's3' as const, s3: d.s3 } : undefined,
+  }));
 
 export const unmarshalPipelinesJobRunAsSchema: z.ZodType<PipelinesJobRunAs> = z
   .object({
@@ -3761,70 +3485,58 @@ export const unmarshalPipelinesJobRunAsSchema: z.ZodType<PipelinesJobRunAs> = z
     service_principal_name: z.string().optional(),
   })
   .transform(d => ({
-    identity:
-      d.user_name !== undefined
-        ? {$case: 'userName' as const, userName: d.user_name}
-        : d.service_principal_name !== undefined
-          ? {
-              $case: 'servicePrincipalName' as const,
-              servicePrincipalName: d.service_principal_name,
-            }
-          : undefined,
+    identity: d.user_name !== undefined ? { $case: 'userName' as const, userName: d.user_name } : d.service_principal_name !== undefined ? { $case: 'servicePrincipalName' as const, servicePrincipalName: d.service_principal_name } : undefined,
   }));
 
-export const unmarshalPipelinesMavenLibrarySchema: z.ZodType<PipelinesMavenLibrary> =
-  z
-    .object({
-      coordinates: z.string().optional(),
-      repo: z.string().optional(),
-      exclusions: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      coordinates: d.coordinates,
-      repo: d.repo,
-      exclusions: d.exclusions,
-    }));
+export const unmarshalPipelinesMavenLibrarySchema: z.ZodType<PipelinesMavenLibrary> = z
+  .object({
+    coordinates: z.string().optional(),
+    repo: z.string().optional(),
+    exclusions: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    coordinates: d.coordinates,
+    repo: d.repo,
+    exclusions: d.exclusions,
+  }));
 
-export const unmarshalPipelinesS3StorageInfoSchema: z.ZodType<PipelinesS3StorageInfo> =
-  z
-    .object({
-      destination: z.string().optional(),
-      region: z.string().optional(),
-      endpoint: z.string().optional(),
-      enable_encryption: z.boolean().optional(),
-      encryption_type: z.string().optional(),
-      kms_key: z.string().optional(),
-      canned_acl: z.string().optional(),
-    })
-    .transform(d => ({
-      destination: d.destination,
-      region: d.region,
-      endpoint: d.endpoint,
-      enableEncryption: d.enable_encryption,
-      encryptionType: d.encryption_type,
-      kmsKey: d.kms_key,
-      cannedAcl: d.canned_acl,
-    }));
+export const unmarshalPipelinesS3StorageInfoSchema: z.ZodType<PipelinesS3StorageInfo> = z
+  .object({
+    destination: z.string().optional(),
+    region: z.string().optional(),
+    endpoint: z.string().optional(),
+    enable_encryption: z.boolean().optional(),
+    encryption_type: z.string().optional(),
+    kms_key: z.string().optional(),
+    canned_acl: z.string().optional(),
+  })
+  .transform(d => ({
+    destination: d.destination,
+    region: d.region,
+    endpoint: d.endpoint,
+    enableEncryption: d.enable_encryption,
+    encryptionType: d.encryption_type,
+    kmsKey: d.kms_key,
+    cannedAcl: d.canned_acl,
+  }));
 
-export const unmarshalPostgresCatalogConfigSchema: z.ZodType<PostgresCatalogConfig> =
-  z
-    .object({
-      slot_config: z.lazy(() => unmarshalPostgresSlotConfigSchema).optional(),
-    })
-    .transform(d => ({
-      slotConfig: d.slot_config,
-    }));
+export const unmarshalPostgresCatalogConfigSchema: z.ZodType<PostgresCatalogConfig> = z
+  .object({
+    slot_config: z.lazy(() => unmarshalPostgresSlotConfigSchema).optional(),
+  })
+  .transform(d => ({
+    slotConfig: d.slot_config,
+  }));
 
-export const unmarshalPostgresSlotConfigSchema: z.ZodType<PostgresSlotConfig> =
-  z
-    .object({
-      slot_name: z.string().optional(),
-      publication_name: z.string().optional(),
-    })
-    .transform(d => ({
-      slotName: d.slot_name,
-      publicationName: d.publication_name,
-    }));
+export const unmarshalPostgresSlotConfigSchema: z.ZodType<PostgresSlotConfig> = z
+  .object({
+    slot_name: z.string().optional(),
+    publication_name: z.string().optional(),
+  })
+  .transform(d => ({
+    slotName: d.slot_name,
+    publicationName: d.publication_name,
+  }));
 
 export const unmarshalRestartWindowSchema: z.ZodType<RestartWindow> = z
   .object({
@@ -3848,26 +3560,23 @@ export const unmarshalSequencingSchema: z.ZodType<Sequencing> = z
     controlPlaneSeqNo: d.control_plane_seq_no,
   }));
 
-export const unmarshalSerializedExceptionSchema: z.ZodType<SerializedException> =
-  z
-    .object({
-      class_name: z.string().optional(),
-      message: z.string().optional(),
-      stack: z.array(z.lazy(() => unmarshalStackFrameSchema)).optional(),
-    })
-    .transform(d => ({
-      className: d.class_name,
-      message: d.message,
-      stack: d.stack,
-    }));
+export const unmarshalSerializedExceptionSchema: z.ZodType<SerializedException> = z
+  .object({
+    class_name: z.string().optional(),
+    message: z.string().optional(),
+    stack: z.array(z.lazy(() => unmarshalStackFrameSchema)).optional(),
+  })
+  .transform(d => ({
+    className: d.class_name,
+    message: d.message,
+    stack: d.stack,
+  }));
 
 export const unmarshalSharepointOptionsSchema: z.ZodType<SharepointOptions> = z
   .object({
     url: z.string().optional(),
     entity_type: z.enum(SharepointOptions_SharepointEntityType).optional(),
-    file_ingestion_options: z
-      .lazy(() => unmarshalFileIngestionOptionsSchema)
-      .optional(),
+    file_ingestion_options: z.lazy(() => unmarshalFileIngestionOptionsSchema).optional(),
   })
   .transform(d => ({
     url: d.url,
@@ -3883,19 +3592,15 @@ export const unmarshalSmartsheetOptionsSchema: z.ZodType<SmartsheetOptions> = z
     enforceSchema: d.enforce_schema,
   }));
 
-export const unmarshalSourceCatalogConfigSchema: z.ZodType<SourceCatalogConfig> =
-  z
-    .object({
-      source_catalog: z.string().optional(),
-      postgres: z.lazy(() => unmarshalPostgresCatalogConfigSchema).optional(),
-    })
-    .transform(d => ({
-      sourceCatalog: d.source_catalog,
-      options:
-        d.postgres !== undefined
-          ? {$case: 'postgres' as const, postgres: d.postgres}
-          : undefined,
-    }));
+export const unmarshalSourceCatalogConfigSchema: z.ZodType<SourceCatalogConfig> = z
+  .object({
+    source_catalog: z.string().optional(),
+    postgres: z.lazy(() => unmarshalPostgresCatalogConfigSchema).optional(),
+  })
+  .transform(d => ({
+    sourceCatalog: d.source_catalog,
+    options: d.postgres !== undefined ? { $case: 'postgres' as const, postgres: d.postgres } : undefined,
+  }));
 
 export const unmarshalSourceConfigSchema: z.ZodType<SourceConfig> = z
   .object({
@@ -3904,13 +3609,7 @@ export const unmarshalSourceConfigSchema: z.ZodType<SourceConfig> = z
   })
   .transform(d => ({
     catalog: d.catalog,
-    connectorConfig:
-      d.google_ads_config !== undefined
-        ? {
-            $case: 'googleAdsConfig' as const,
-            googleAdsConfig: d.google_ads_config,
-          }
-        : undefined,
+    connectorConfig: d.google_ads_config !== undefined ? { $case: 'googleAdsConfig' as const, googleAdsConfig: d.google_ads_config } : undefined,
   }));
 
 export const unmarshalStackFrameSchema: z.ZodType<StackFrame> = z
@@ -3928,18 +3627,18 @@ export const unmarshalStackFrameSchema: z.ZodType<StackFrame> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalStartUpdate_ResponseSchema: z.ZodType<StartUpdate_Response> =
-  z
-    .object({
-      update_id: z.string().optional(),
-    })
-    .transform(d => ({
-      updateId: d.update_id,
-    }));
+export const unmarshalStartUpdateRequest_ResponseSchema: z.ZodType<StartUpdateRequest_Response> = z
+  .object({
+    update_id: z.string().optional(),
+  })
+  .transform(d => ({
+    updateId: d.update_id,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalStopPipeline_ResponseSchema: z.ZodType<StopPipeline_Response> =
-  z.object({});
+export const unmarshalStopPipelineRequest_ResponseSchema: z.ZodType<StopPipelineRequest_Response> = z
+  .object({
+  });
 
 export const unmarshalTikTokAdsOptionsSchema: z.ZodType<TikTokAdsOptions> = z
   .object({
@@ -3964,37 +3663,29 @@ export const unmarshalTikTokAdsOptionsSchema: z.ZodType<TikTokAdsOptions> = z
 export const unmarshalTransformerSchema: z.ZodType<Transformer> = z
   .object({
     format: z.enum(Transformer_Format).optional(),
-    json_options: z
-      .lazy(() => unmarshalJsonTransformerOptionsSchema)
-      .optional(),
+    json_options: z.lazy(() => unmarshalJsonTransformerOptionsSchema).optional(),
   })
   .transform(d => ({
     format: d.format,
-    config:
-      d.json_options !== undefined
-        ? {$case: 'jsonOptions' as const, jsonOptions: d.json_options}
-        : undefined,
+    config: d.json_options !== undefined ? { $case: 'jsonOptions' as const, jsonOptions: d.json_options } : undefined,
   }));
 
 export const unmarshalTruncationSchema: z.ZodType<Truncation> = z
   .object({
-    truncated_fields: z
-      .array(z.lazy(() => unmarshalTruncation_TruncationDetailSchema))
-      .optional(),
+    truncated_fields: z.array(z.lazy(() => unmarshalTruncation_TruncationDetailSchema)).optional(),
   })
   .transform(d => ({
     truncatedFields: d.truncated_fields,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalTruncation_TruncationDetailSchema: z.ZodType<Truncation_TruncationDetail> =
-  z
-    .object({
-      field_name: z.string().optional(),
-    })
-    .transform(d => ({
-      fieldName: d.field_name,
-    }));
+export const unmarshalTruncation_TruncationDetailSchema: z.ZodType<Truncation_TruncationDetail> = z
+  .object({
+    field_name: z.string().optional(),
+  })
+  .transform(d => ({
+    fieldName: d.field_name,
+  }));
 
 export const unmarshalUpdateInfoSchema: z.ZodType<UpdateInfo> = z
   .object({
@@ -4038,14 +3729,13 @@ export const unmarshalUpdateStateInfoSchema: z.ZodType<UpdateStateInfo> = z
     creationTime: d.creation_time,
   }));
 
-export const unmarshalZendeskSupportOptionsSchema: z.ZodType<ZendeskSupportOptions> =
-  z
-    .object({
-      start_date: z.string().optional(),
-    })
-    .transform(d => ({
-      startDate: d.start_date,
-    }));
+export const unmarshalZendeskSupportOptionsSchema: z.ZodType<ZendeskSupportOptions> = z
+  .object({
+    start_date: z.string().optional(),
+  })
+  .transform(d => ({
+    startDate: d.start_date,
+  }));
 
 export const marshalApplyEnvironmentRequestSchema: z.ZodType = z
   .object({
@@ -4065,7 +3755,7 @@ export const marshalAutoFullRefreshPolicySchema: z.ZodType = z
     min_interval_hours: d.minIntervalHours,
   }));
 
-export const marshalClonePipelineSchema: z.ZodType = z
+export const marshalClonePipelineRequestSchema: z.ZodType = z
   .object({
     pipelineId: z.string().optional(),
     expectedLastModified: z.number().optional(),
@@ -4076,12 +3766,8 @@ export const marshalClonePipelineSchema: z.ZodType = z
     configuration: z.record(z.string(), z.string()).optional(),
     clusters: z.array(z.lazy(() => marshalPipelineClusterSchema)).optional(),
     libraries: z.array(z.lazy(() => marshalPipelineLibrarySchema)).optional(),
-    ingestionDefinition: z
-      .lazy(() => marshalIngestionPipelineDefinitionSchema)
-      .optional(),
-    gatewayDefinition: z
-      .lazy(() => marshalIngestionGatewayPipelineDefinitionSchema)
-      .optional(),
+    ingestionDefinition: z.lazy(() => marshalIngestionPipelineDefinitionSchema).optional(),
+    gatewayDefinition: z.lazy(() => marshalIngestionGatewayPipelineDefinitionSchema).optional(),
     trigger: z.lazy(() => marshalPipelineTriggerSchema).optional(),
     target: z.string().optional(),
     schema: z.string().optional(),
@@ -4157,96 +3843,23 @@ export const marshalConnectionParametersSchema: z.ZodType = z
 
 export const marshalConnectorOptionsSchema: z.ZodType = z
   .object({
-    connectorOptions: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('googleAdsOptions'),
-          googleAdsOptions: z.lazy(() => marshalGoogleAdsOptionsSchema),
-        }),
-        z.object({
-          $case: z.literal('tiktokAdsOptions'),
-          tiktokAdsOptions: z.lazy(() => marshalTikTokAdsOptionsSchema),
-        }),
-        z.object({
-          $case: z.literal('sharepointOptions'),
-          sharepointOptions: z.lazy(() => marshalSharepointOptionsSchema),
-        }),
-        z.object({
-          $case: z.literal('gdriveOptions'),
-          gdriveOptions: z.lazy(() => marshalGoogleDriveOptionsSchema),
-        }),
-        z.object({
-          $case: z.literal('outlookOptions'),
-          outlookOptions: z.lazy(() => marshalOutlookOptionsSchema),
-        }),
-        z.object({
-          $case: z.literal('smartsheetOptions'),
-          smartsheetOptions: z.lazy(() => marshalSmartsheetOptionsSchema),
-        }),
-        z.object({
-          $case: z.literal('jiraOptions'),
-          jiraOptions: z.lazy(() => marshalJiraConnectorOptionsSchema),
-        }),
-        z.object({
-          $case: z.literal('confluenceOptions'),
-          confluenceOptions: z.lazy(
-            () => marshalConfluenceConnectorOptionsSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('metaAdsOptions'),
-          metaAdsOptions: z.lazy(() => marshalMetaMarketingOptionsSchema),
-        }),
-        z.object({
-          $case: z.literal('zendeskSupportOptions'),
-          zendeskSupportOptions: z.lazy(
-            () => marshalZendeskSupportOptionsSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('kafkaOptions'),
-          kafkaOptions: z.lazy(() => marshalKafkaOptionsSchema),
-        }),
-      ])
-      .optional(),
+    connectorOptions: z.discriminatedUnion('$case', [z.object({ $case: z.literal('googleAdsOptions'), googleAdsOptions: z.lazy(() => marshalGoogleAdsOptionsSchema) }), z.object({ $case: z.literal('tiktokAdsOptions'), tiktokAdsOptions: z.lazy(() => marshalTikTokAdsOptionsSchema) }), z.object({ $case: z.literal('sharepointOptions'), sharepointOptions: z.lazy(() => marshalSharepointOptionsSchema) }), z.object({ $case: z.literal('gdriveOptions'), gdriveOptions: z.lazy(() => marshalGoogleDriveOptionsSchema) }), z.object({ $case: z.literal('outlookOptions'), outlookOptions: z.lazy(() => marshalOutlookOptionsSchema) }), z.object({ $case: z.literal('smartsheetOptions'), smartsheetOptions: z.lazy(() => marshalSmartsheetOptionsSchema) }), z.object({ $case: z.literal('jiraOptions'), jiraOptions: z.lazy(() => marshalJiraConnectorOptionsSchema) }), z.object({ $case: z.literal('confluenceOptions'), confluenceOptions: z.lazy(() => marshalConfluenceConnectorOptionsSchema) }), z.object({ $case: z.literal('metaAdsOptions'), metaAdsOptions: z.lazy(() => marshalMetaMarketingOptionsSchema) }), z.object({ $case: z.literal('zendeskSupportOptions'), zendeskSupportOptions: z.lazy(() => marshalZendeskSupportOptionsSchema) }), z.object({ $case: z.literal('kafkaOptions'), kafkaOptions: z.lazy(() => marshalKafkaOptionsSchema) })]).optional(),
   })
   .transform(d => ({
-    ...(d.connectorOptions?.$case === 'googleAdsOptions' && {
-      google_ads_options: d.connectorOptions.googleAdsOptions,
-    }),
-    ...(d.connectorOptions?.$case === 'tiktokAdsOptions' && {
-      tiktok_ads_options: d.connectorOptions.tiktokAdsOptions,
-    }),
-    ...(d.connectorOptions?.$case === 'sharepointOptions' && {
-      sharepoint_options: d.connectorOptions.sharepointOptions,
-    }),
-    ...(d.connectorOptions?.$case === 'gdriveOptions' && {
-      gdrive_options: d.connectorOptions.gdriveOptions,
-    }),
-    ...(d.connectorOptions?.$case === 'outlookOptions' && {
-      outlook_options: d.connectorOptions.outlookOptions,
-    }),
-    ...(d.connectorOptions?.$case === 'smartsheetOptions' && {
-      smartsheet_options: d.connectorOptions.smartsheetOptions,
-    }),
-    ...(d.connectorOptions?.$case === 'jiraOptions' && {
-      jira_options: d.connectorOptions.jiraOptions,
-    }),
-    ...(d.connectorOptions?.$case === 'confluenceOptions' && {
-      confluence_options: d.connectorOptions.confluenceOptions,
-    }),
-    ...(d.connectorOptions?.$case === 'metaAdsOptions' && {
-      meta_ads_options: d.connectorOptions.metaAdsOptions,
-    }),
-    ...(d.connectorOptions?.$case === 'zendeskSupportOptions' && {
-      zendesk_support_options: d.connectorOptions.zendeskSupportOptions,
-    }),
-    ...(d.connectorOptions?.$case === 'kafkaOptions' && {
-      kafka_options: d.connectorOptions.kafkaOptions,
-    }),
+    ...(d.connectorOptions?.$case === 'googleAdsOptions' && { google_ads_options: d.connectorOptions.googleAdsOptions }),
+    ...(d.connectorOptions?.$case === 'tiktokAdsOptions' && { tiktok_ads_options: d.connectorOptions.tiktokAdsOptions }),
+    ...(d.connectorOptions?.$case === 'sharepointOptions' && { sharepoint_options: d.connectorOptions.sharepointOptions }),
+    ...(d.connectorOptions?.$case === 'gdriveOptions' && { gdrive_options: d.connectorOptions.gdriveOptions }),
+    ...(d.connectorOptions?.$case === 'outlookOptions' && { outlook_options: d.connectorOptions.outlookOptions }),
+    ...(d.connectorOptions?.$case === 'smartsheetOptions' && { smartsheet_options: d.connectorOptions.smartsheetOptions }),
+    ...(d.connectorOptions?.$case === 'jiraOptions' && { jira_options: d.connectorOptions.jiraOptions }),
+    ...(d.connectorOptions?.$case === 'confluenceOptions' && { confluence_options: d.connectorOptions.confluenceOptions }),
+    ...(d.connectorOptions?.$case === 'metaAdsOptions' && { meta_ads_options: d.connectorOptions.metaAdsOptions }),
+    ...(d.connectorOptions?.$case === 'zendeskSupportOptions' && { zendesk_support_options: d.connectorOptions.zendeskSupportOptions }),
+    ...(d.connectorOptions?.$case === 'kafkaOptions' && { kafka_options: d.connectorOptions.kafkaOptions }),
   }));
 
-export const marshalCreatePipelineSchema: z.ZodType = z
+export const marshalCreatePipelineRequestSchema: z.ZodType = z
   .object({
     allowDuplicateNames: z.boolean().optional(),
     dryRun: z.boolean().optional(),
@@ -4257,12 +3870,8 @@ export const marshalCreatePipelineSchema: z.ZodType = z
     configuration: z.record(z.string(), z.string()).optional(),
     clusters: z.array(z.lazy(() => marshalPipelineClusterSchema)).optional(),
     libraries: z.array(z.lazy(() => marshalPipelineLibrarySchema)).optional(),
-    ingestionDefinition: z
-      .lazy(() => marshalIngestionPipelineDefinitionSchema)
-      .optional(),
-    gatewayDefinition: z
-      .lazy(() => marshalIngestionGatewayPipelineDefinitionSchema)
-      .optional(),
+    ingestionDefinition: z.lazy(() => marshalIngestionPipelineDefinitionSchema).optional(),
+    gatewayDefinition: z.lazy(() => marshalIngestionGatewayPipelineDefinitionSchema).optional(),
     trigger: z.lazy(() => marshalPipelineTriggerSchema).optional(),
     target: z.string().optional(),
     schema: z.string().optional(),
@@ -4340,7 +3949,7 @@ export const marshalDataStagingOptionsSchema: z.ZodType = z
     volume_name: d.volumeName,
   }));
 
-export const marshalEditPipelineSchema: z.ZodType = z
+export const marshalEditPipelineRequestSchema: z.ZodType = z
   .object({
     pipelineId: z.string().optional(),
     allowDuplicateNames: z.boolean().optional(),
@@ -4352,12 +3961,8 @@ export const marshalEditPipelineSchema: z.ZodType = z
     configuration: z.record(z.string(), z.string()).optional(),
     clusters: z.array(z.lazy(() => marshalPipelineClusterSchema)).optional(),
     libraries: z.array(z.lazy(() => marshalPipelineLibrarySchema)).optional(),
-    ingestionDefinition: z
-      .lazy(() => marshalIngestionPipelineDefinitionSchema)
-      .optional(),
-    gatewayDefinition: z
-      .lazy(() => marshalIngestionGatewayPipelineDefinitionSchema)
-      .optional(),
+    ingestionDefinition: z.lazy(() => marshalIngestionPipelineDefinitionSchema).optional(),
+    gatewayDefinition: z.lazy(() => marshalIngestionGatewayPipelineDefinitionSchema).optional(),
     trigger: z.lazy(() => marshalPipelineTriggerSchema).optional(),
     target: z.string().optional(),
     schema: z.string().optional(),
@@ -4428,28 +4033,12 @@ export const marshalEventLogSpecSchema: z.ZodType = z
 
 export const marshalFileFilterSchema: z.ZodType = z
   .object({
-    filter: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('pathFilter'), pathFilter: z.string()}),
-        z.object({
-          $case: z.literal('modifiedBefore'),
-          modifiedBefore: z.string(),
-        }),
-        z.object({
-          $case: z.literal('modifiedAfter'),
-          modifiedAfter: z.string(),
-        }),
-      ])
-      .optional(),
+    filter: z.discriminatedUnion('$case', [z.object({ $case: z.literal('pathFilter'), pathFilter: z.string() }), z.object({ $case: z.literal('modifiedBefore'), modifiedBefore: z.string() }), z.object({ $case: z.literal('modifiedAfter'), modifiedAfter: z.string() })]).optional(),
   })
   .transform(d => ({
-    ...(d.filter?.$case === 'pathFilter' && {path_filter: d.filter.pathFilter}),
-    ...(d.filter?.$case === 'modifiedBefore' && {
-      modified_before: d.filter.modifiedBefore,
-    }),
-    ...(d.filter?.$case === 'modifiedAfter' && {
-      modified_after: d.filter.modifiedAfter,
-    }),
+    ...(d.filter?.$case === 'pathFilter' && { path_filter: d.filter.pathFilter }),
+    ...(d.filter?.$case === 'modifiedBefore' && { modified_before: d.filter.modifiedBefore }),
+    ...(d.filter?.$case === 'modifiedAfter' && { modified_after: d.filter.modifiedAfter }),
   }));
 
 export const marshalFileIngestionOptionsSchema: z.ZodType = z
@@ -4457,9 +4046,7 @@ export const marshalFileIngestionOptionsSchema: z.ZodType = z
     format: z.enum(FileIngestionOptions_FileFormat).optional(),
     fileFilters: z.array(z.lazy(() => marshalFileFilterSchema)).optional(),
     inferColumnTypes: z.boolean().optional(),
-    schemaEvolutionMode: z
-      .enum(FileIngestionOptions_SchemaEvolutionMode)
-      .optional(),
+    schemaEvolutionMode: z.enum(FileIngestionOptions_SchemaEvolutionMode).optional(),
     schemaHints: z.string().optional(),
     ignoreCorruptFiles: z.boolean().optional(),
     corruptRecordColumn: z.string().optional(),
@@ -4516,9 +4103,7 @@ export const marshalGoogleDriveOptionsSchema: z.ZodType = z
   .object({
     url: z.string().optional(),
     entityType: z.enum(GoogleDriveOptions_GoogleDriveEntityType).optional(),
-    fileIngestionOptions: z
-      .lazy(() => marshalFileIngestionOptionsSchema)
-      .optional(),
+    fileIngestionOptions: z.lazy(() => marshalFileIngestionOptionsSchema).optional(),
   })
   .transform(d => ({
     url: d.url,
@@ -4533,9 +4118,7 @@ export const marshalIngestionGatewayPipelineDefinitionSchema: z.ZodType = z
     gatewayStorageCatalog: z.string().optional(),
     gatewayStorageSchema: z.string().optional(),
     gatewayStorageName: z.string().optional(),
-    connectionParameters: z
-      .lazy(() => marshalConnectionParametersSchema)
-      .optional(),
+    connectionParameters: z.lazy(() => marshalConnectionParametersSchema).optional(),
   })
   .transform(d => ({
     connection_name: d.connectionName,
@@ -4548,53 +4131,20 @@ export const marshalIngestionGatewayPipelineDefinitionSchema: z.ZodType = z
 
 export const marshalIngestionPipelineDefinitionSchema: z.ZodType = z
   .object({
-    source: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('connectionName'),
-          connectionName: z.string(),
-        }),
-        z.object({
-          $case: z.literal('ingestionGatewayId'),
-          ingestionGatewayId: z.string(),
-        }),
-        z.object({
-          $case: z.literal('ingestFromUcForeignCatalog'),
-          ingestFromUcForeignCatalog: z.boolean(),
-        }),
-      ])
-      .optional(),
-    objects: z
-      .array(
-        z.lazy(() => marshalIngestionPipelineDefinition_IngestionConfigSchema)
-      )
-      .optional(),
+    source: z.discriminatedUnion('$case', [z.object({ $case: z.literal('connectionName'), connectionName: z.string() }), z.object({ $case: z.literal('ingestionGatewayId'), ingestionGatewayId: z.string() }), z.object({ $case: z.literal('ingestFromUcForeignCatalog'), ingestFromUcForeignCatalog: z.boolean() })]).optional(),
+    objects: z.array(z.lazy(() => marshalIngestionPipelineDefinition_IngestionConfigSchema)).optional(),
     sourceType: z.enum(IngestionSourceType).optional(),
-    tableConfiguration: z
-      .lazy(() => marshalIngestionPipelineDefinition_TableSpecificConfigSchema)
-      .optional(),
+    tableConfiguration: z.lazy(() => marshalIngestionPipelineDefinition_TableSpecificConfigSchema).optional(),
     netsuiteJarPath: z.string().optional(),
-    sourceConfigurations: z
-      .array(z.lazy(() => marshalSourceConfigSchema))
-      .optional(),
-    fullRefreshWindow: z
-      .lazy(() => marshalOperationTimeWindowSchema)
-      .optional(),
+    sourceConfigurations: z.array(z.lazy(() => marshalSourceConfigSchema)).optional(),
+    fullRefreshWindow: z.lazy(() => marshalOperationTimeWindowSchema).optional(),
     connectorType: z.enum(ConnectorType).optional(),
-    dataStagingOptions: z
-      .lazy(() => marshalDataStagingOptionsSchema)
-      .optional(),
+    dataStagingOptions: z.lazy(() => marshalDataStagingOptionsSchema).optional(),
   })
   .transform(d => ({
-    ...(d.source?.$case === 'connectionName' && {
-      connection_name: d.source.connectionName,
-    }),
-    ...(d.source?.$case === 'ingestionGatewayId' && {
-      ingestion_gateway_id: d.source.ingestionGatewayId,
-    }),
-    ...(d.source?.$case === 'ingestFromUcForeignCatalog' && {
-      ingest_from_uc_foreign_catalog: d.source.ingestFromUcForeignCatalog,
-    }),
+    ...(d.source?.$case === 'connectionName' && { connection_name: d.source.connectionName }),
+    ...(d.source?.$case === 'ingestionGatewayId' && { ingestion_gateway_id: d.source.ingestionGatewayId }),
+    ...(d.source?.$case === 'ingestFromUcForeignCatalog' && { ingest_from_uc_foreign_catalog: d.source.ingestFromUcForeignCatalog }),
     objects: d.objects,
     source_type: d.sourceType,
     table_configuration: d.tableConfiguration,
@@ -4606,41 +4156,15 @@ export const marshalIngestionPipelineDefinitionSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngestionPipelineDefinition_IngestionConfigSchema: z.ZodType =
-  z
-    .object({
-      sourceTables: z
-        .discriminatedUnion('$case', [
-          z.object({
-            $case: z.literal('schema'),
-            schema: z.lazy(
-              () => marshalIngestionPipelineDefinition_SchemaSpecSchema
-            ),
-          }),
-          z.object({
-            $case: z.literal('table'),
-            table: z.lazy(
-              () => marshalIngestionPipelineDefinition_TableSpecSchema
-            ),
-          }),
-          z.object({
-            $case: z.literal('report'),
-            report: z.lazy(
-              () => marshalIngestionPipelineDefinition_ReportSpecSchema
-            ),
-          }),
-        ])
-        .optional(),
-    })
-    .transform(d => ({
-      ...(d.sourceTables?.$case === 'schema' && {
-        schema: d.sourceTables.schema,
-      }),
-      ...(d.sourceTables?.$case === 'table' && {table: d.sourceTables.table}),
-      ...(d.sourceTables?.$case === 'report' && {
-        report: d.sourceTables.report,
-      }),
-    }));
+export const marshalIngestionPipelineDefinition_IngestionConfigSchema: z.ZodType = z
+  .object({
+    sourceTables: z.discriminatedUnion('$case', [z.object({ $case: z.literal('schema'), schema: z.lazy(() => marshalIngestionPipelineDefinition_SchemaSpecSchema) }), z.object({ $case: z.literal('table'), table: z.lazy(() => marshalIngestionPipelineDefinition_TableSpecSchema) }), z.object({ $case: z.literal('report'), report: z.lazy(() => marshalIngestionPipelineDefinition_ReportSpecSchema) })]).optional(),
+  })
+  .transform(d => ({
+    ...(d.sourceTables?.$case === 'schema' && { schema: d.sourceTables.schema }),
+    ...(d.sourceTables?.$case === 'table' && { table: d.sourceTables.table }),
+    ...(d.sourceTables?.$case === 'report' && { report: d.sourceTables.report }),
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalIngestionPipelineDefinition_ReportSpecSchema: z.ZodType = z
@@ -4649,9 +4173,7 @@ export const marshalIngestionPipelineDefinition_ReportSpecSchema: z.ZodType = z
     destinationCatalog: z.string().optional(),
     destinationSchema: z.string().optional(),
     destinationTable: z.string().optional(),
-    tableConfiguration: z
-      .lazy(() => marshalIngestionPipelineDefinition_TableSpecificConfigSchema)
-      .optional(),
+    tableConfiguration: z.lazy(() => marshalIngestionPipelineDefinition_TableSpecificConfigSchema).optional(),
   })
   .transform(d => ({
     source_url: d.sourceUrl,
@@ -4668,9 +4190,7 @@ export const marshalIngestionPipelineDefinition_SchemaSpecSchema: z.ZodType = z
     sourceSchema: z.string().optional(),
     destinationCatalog: z.string().optional(),
     destinationSchema: z.string().optional(),
-    tableConfiguration: z
-      .lazy(() => marshalIngestionPipelineDefinition_TableSpecificConfigSchema)
-      .optional(),
+    tableConfiguration: z.lazy(() => marshalIngestionPipelineDefinition_TableSpecificConfigSchema).optional(),
     connectorOptions: z.lazy(() => marshalConnectorOptionsSchema).optional(),
   })
   .transform(d => ({
@@ -4691,9 +4211,7 @@ export const marshalIngestionPipelineDefinition_TableSpecSchema: z.ZodType = z
     destinationCatalog: z.string().optional(),
     destinationSchema: z.string().optional(),
     destinationTable: z.string().optional(),
-    tableConfiguration: z
-      .lazy(() => marshalIngestionPipelineDefinition_TableSpecificConfigSchema)
-      .optional(),
+    tableConfiguration: z.lazy(() => marshalIngestionPipelineDefinition_TableSpecificConfigSchema).optional(),
     connectorOptions: z.lazy(() => marshalConnectorOptionsSchema).optional(),
   })
   .transform(d => ({
@@ -4708,91 +4226,68 @@ export const marshalIngestionPipelineDefinition_TableSpecSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.ZodType =
-  z
-    .object({
-      scdType: z.enum(ScdType_ScdType).optional(),
-      primaryKeys: z.array(z.string()).optional(),
-      sequenceBy: z.array(z.string()).optional(),
-      includeColumns: z.array(z.string()).optional(),
-      excludeColumns: z.array(z.string()).optional(),
-      salesforceIncludeFormulaFields: z.boolean().optional(),
-      workdayReportParameters: z
-        .lazy(
-          () => marshalIngestionPipelineDefinition_WorkdayReportParametersSchema
-        )
-        .optional(),
-      rowFilter: z.string().optional(),
-      queryBasedConnectorConfig: z
-        .lazy(
-          () =>
-            marshalIngestionPipelineDefinition_TableSpecificConfig_QueryBasedConnectorConfigSchema
-        )
-        .optional(),
-      autoFullRefreshPolicy: z
-        .lazy(() => marshalAutoFullRefreshPolicySchema)
-        .optional(),
-    })
-    .transform(d => ({
-      scd_type: d.scdType,
-      primary_keys: d.primaryKeys,
-      sequence_by: d.sequenceBy,
-      include_columns: d.includeColumns,
-      exclude_columns: d.excludeColumns,
-      salesforce_include_formula_fields: d.salesforceIncludeFormulaFields,
-      workday_report_parameters: d.workdayReportParameters,
-      row_filter: d.rowFilter,
-      query_based_connector_config: d.queryBasedConnectorConfig,
-      auto_full_refresh_policy: d.autoFullRefreshPolicy,
-    }));
+export const marshalIngestionPipelineDefinition_TableSpecificConfigSchema: z.ZodType = z
+  .object({
+    scdType: z.enum(ScdType_ScdType).optional(),
+    primaryKeys: z.array(z.string()).optional(),
+    sequenceBy: z.array(z.string()).optional(),
+    includeColumns: z.array(z.string()).optional(),
+    excludeColumns: z.array(z.string()).optional(),
+    salesforceIncludeFormulaFields: z.boolean().optional(),
+    workdayReportParameters: z.lazy(() => marshalIngestionPipelineDefinition_WorkdayReportParametersSchema).optional(),
+    rowFilter: z.string().optional(),
+    queryBasedConnectorConfig: z.lazy(() => marshalIngestionPipelineDefinition_TableSpecificConfig_QueryBasedConnectorConfigSchema).optional(),
+    autoFullRefreshPolicy: z.lazy(() => marshalAutoFullRefreshPolicySchema).optional(),
+  })
+  .transform(d => ({
+    scd_type: d.scdType,
+    primary_keys: d.primaryKeys,
+    sequence_by: d.sequenceBy,
+    include_columns: d.includeColumns,
+    exclude_columns: d.excludeColumns,
+    salesforce_include_formula_fields: d.salesforceIncludeFormulaFields,
+    workday_report_parameters: d.workdayReportParameters,
+    row_filter: d.rowFilter,
+    query_based_connector_config: d.queryBasedConnectorConfig,
+    auto_full_refresh_policy: d.autoFullRefreshPolicy,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngestionPipelineDefinition_TableSpecificConfig_QueryBasedConnectorConfigSchema: z.ZodType =
-  z
-    .object({
-      cursorColumns: z.array(z.string()).optional(),
-      deletionCondition: z.string().optional(),
-      hardDeletionSyncMinIntervalInSeconds: z.number().optional(),
-    })
-    .transform(d => ({
-      cursor_columns: d.cursorColumns,
-      deletion_condition: d.deletionCondition,
-      hard_deletion_sync_min_interval_in_seconds:
-        d.hardDeletionSyncMinIntervalInSeconds,
-    }));
+export const marshalIngestionPipelineDefinition_TableSpecificConfig_QueryBasedConnectorConfigSchema: z.ZodType = z
+  .object({
+    cursorColumns: z.array(z.string()).optional(),
+    deletionCondition: z.string().optional(),
+    hardDeletionSyncMinIntervalInSeconds: z.number().optional(),
+  })
+  .transform(d => ({
+    cursor_columns: d.cursorColumns,
+    deletion_condition: d.deletionCondition,
+    hard_deletion_sync_min_interval_in_seconds: d.hardDeletionSyncMinIntervalInSeconds,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngestionPipelineDefinition_WorkdayReportParametersSchema: z.ZodType =
-  z
-    .object({
-      incremental: z.boolean().optional(),
-      reportParameters: z
-        .array(
-          z.lazy(
-            () =>
-              marshalIngestionPipelineDefinition_WorkdayReportParameters_QueryKeyValueSchema
-          )
-        )
-        .optional(),
-      parameters: z.record(z.string(), z.string()).optional(),
-    })
-    .transform(d => ({
-      incremental: d.incremental,
-      report_parameters: d.reportParameters,
-      parameters: d.parameters,
-    }));
+export const marshalIngestionPipelineDefinition_WorkdayReportParametersSchema: z.ZodType = z
+  .object({
+    incremental: z.boolean().optional(),
+    reportParameters: z.array(z.lazy(() => marshalIngestionPipelineDefinition_WorkdayReportParameters_QueryKeyValueSchema)).optional(),
+    parameters: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    incremental: d.incremental,
+    report_parameters: d.reportParameters,
+    parameters: d.parameters,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalIngestionPipelineDefinition_WorkdayReportParameters_QueryKeyValueSchema: z.ZodType =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const marshalIngestionPipelineDefinition_WorkdayReportParameters_QueryKeyValueSchema: z.ZodType = z
+  .object({
+    key: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 export const marshalJiraConnectorOptionsSchema: z.ZodType = z
   .object({
@@ -4807,9 +4302,7 @@ export const marshalJsonTransformerOptionsSchema: z.ZodType = z
     asVariant: z.boolean().optional(),
     schema: z.string().optional(),
     schemaFilePath: z.string().optional(),
-    schemaEvolutionMode: z
-      .enum(FileIngestionOptions_SchemaEvolutionMode)
-      .optional(),
+    schemaEvolutionMode: z.enum(FileIngestionOptions_SchemaEvolutionMode).optional(),
     schemaHints: z.string().optional(),
   })
   .transform(d => ({
@@ -4840,7 +4333,9 @@ export const marshalKafkaOptionsSchema: z.ZodType = z
     client_config: d.clientConfig,
   }));
 
-export const marshalManualTriggerSchema: z.ZodType = z.object({});
+export const marshalManualTriggerSchema: z.ZodType = z
+  .object({
+  });
 
 export const marshalMetaMarketingOptionsSchema: z.ZodType = z
   .object({
@@ -4934,34 +4429,20 @@ export const marshalPipelineClusterSchema: z.ZodType = z
     applyPolicyDefaultValues: z.boolean().optional(),
     sparkConf: z.record(z.string(), z.string()).optional(),
     awsAttributes: z.lazy(() => marshalPipelinesAwsAttributesSchema).optional(),
-    azureAttributes: z
-      .lazy(() => marshalPipelinesAzureAttributesSchema)
-      .optional(),
+    azureAttributes: z.lazy(() => marshalPipelinesAzureAttributesSchema).optional(),
     gcpAttributes: z.lazy(() => marshalPipelinesGcpAttributesSchema).optional(),
     nodeTypeId: z.string().optional(),
     driverNodeTypeId: z.string().optional(),
     sshPublicKeys: z.array(z.string()).optional(),
     customTags: z.record(z.string(), z.string()).optional(),
-    clusterLogConf: z
-      .lazy(() => marshalPipelinesClusterLogConfSchema)
-      .optional(),
+    clusterLogConf: z.lazy(() => marshalPipelinesClusterLogConfSchema).optional(),
     sparkEnvVars: z.record(z.string(), z.string()).optional(),
-    initScripts: z
-      .array(z.lazy(() => marshalPipelinesInitScriptInfoSchema))
-      .optional(),
+    initScripts: z.array(z.lazy(() => marshalPipelinesInitScriptInfoSchema)).optional(),
     instancePoolId: z.string().optional(),
     policyId: z.string().optional(),
     enableLocalDiskEncryption: z.boolean().optional(),
     driverInstancePoolId: z.string().optional(),
-    size: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('numWorkers'), numWorkers: z.number()}),
-        z.object({
-          $case: z.literal('autoscale'),
-          autoscale: z.lazy(() => marshalPipelinesAutoScaleSchema),
-        }),
-      ])
-      .optional(),
+    size: z.discriminatedUnion('$case', [z.object({ $case: z.literal('numWorkers'), numWorkers: z.number() }), z.object({ $case: z.literal('autoscale'), autoscale: z.lazy(() => marshalPipelinesAutoScaleSchema) })]).optional(),
   })
   .transform(d => ({
     label: d.label,
@@ -4981,8 +4462,8 @@ export const marshalPipelineClusterSchema: z.ZodType = z
     policy_id: d.policyId,
     enable_local_disk_encryption: d.enableLocalDiskEncryption,
     driver_instance_pool_id: d.driverInstancePoolId,
-    ...(d.size?.$case === 'numWorkers' && {num_workers: d.size.numWorkers}),
-    ...(d.size?.$case === 'autoscale' && {autoscale: d.size.autoscale}),
+    ...(d.size?.$case === 'numWorkers' && { num_workers: d.size.numWorkers }),
+    ...(d.size?.$case === 'autoscale' && { autoscale: d.size.autoscale }),
   }));
 
 export const marshalPipelineDeploymentSchema: z.ZodType = z
@@ -4997,56 +4478,24 @@ export const marshalPipelineDeploymentSchema: z.ZodType = z
 
 export const marshalPipelineLibrarySchema: z.ZodType = z
   .object({
-    lib: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('jar'), jar: z.string()}),
-        z.object({
-          $case: z.literal('maven'),
-          maven: z.lazy(() => marshalPipelinesMavenLibrarySchema),
-        }),
-        z.object({$case: z.literal('whl'), whl: z.string()}),
-        z.object({
-          $case: z.literal('notebook'),
-          notebook: z.lazy(() => marshalNotebookLibrarySchema),
-        }),
-        z.object({
-          $case: z.literal('file'),
-          file: z.lazy(() => marshalNotebookLibrarySchema),
-        }),
-        z.object({
-          $case: z.literal('glob'),
-          glob: z.lazy(() => marshalPathPatternSchema),
-        }),
-      ])
-      .optional(),
+    lib: z.discriminatedUnion('$case', [z.object({ $case: z.literal('jar'), jar: z.string() }), z.object({ $case: z.literal('maven'), maven: z.lazy(() => marshalPipelinesMavenLibrarySchema) }), z.object({ $case: z.literal('whl'), whl: z.string() }), z.object({ $case: z.literal('notebook'), notebook: z.lazy(() => marshalNotebookLibrarySchema) }), z.object({ $case: z.literal('file'), file: z.lazy(() => marshalNotebookLibrarySchema) }), z.object({ $case: z.literal('glob'), glob: z.lazy(() => marshalPathPatternSchema) })]).optional(),
   })
   .transform(d => ({
-    ...(d.lib?.$case === 'jar' && {jar: d.lib.jar}),
-    ...(d.lib?.$case === 'maven' && {maven: d.lib.maven}),
-    ...(d.lib?.$case === 'whl' && {whl: d.lib.whl}),
-    ...(d.lib?.$case === 'notebook' && {notebook: d.lib.notebook}),
-    ...(d.lib?.$case === 'file' && {file: d.lib.file}),
-    ...(d.lib?.$case === 'glob' && {glob: d.lib.glob}),
+    ...(d.lib?.$case === 'jar' && { jar: d.lib.jar }),
+    ...(d.lib?.$case === 'maven' && { maven: d.lib.maven }),
+    ...(d.lib?.$case === 'whl' && { whl: d.lib.whl }),
+    ...(d.lib?.$case === 'notebook' && { notebook: d.lib.notebook }),
+    ...(d.lib?.$case === 'file' && { file: d.lib.file }),
+    ...(d.lib?.$case === 'glob' && { glob: d.lib.glob }),
   }));
 
 export const marshalPipelineTriggerSchema: z.ZodType = z
   .object({
-    trigger: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('manual'),
-          manual: z.lazy(() => marshalManualTriggerSchema),
-        }),
-        z.object({
-          $case: z.literal('cron'),
-          cron: z.lazy(() => marshalCronTriggerSchema),
-        }),
-      ])
-      .optional(),
+    trigger: z.discriminatedUnion('$case', [z.object({ $case: z.literal('manual'), manual: z.lazy(() => marshalManualTriggerSchema) }), z.object({ $case: z.literal('cron'), cron: z.lazy(() => marshalCronTriggerSchema) })]).optional(),
   })
   .transform(d => ({
-    ...(d.trigger?.$case === 'manual' && {manual: d.trigger.manual}),
-    ...(d.trigger?.$case === 'cron' && {cron: d.trigger.cron}),
+    ...(d.trigger?.$case === 'manual' && { manual: d.trigger.manual }),
+    ...(d.trigger?.$case === 'cron' && { cron: d.trigger.cron }),
   }));
 
 export const marshalPipelinesAutoScaleSchema: z.ZodType = z
@@ -5101,17 +4550,10 @@ export const marshalPipelinesAzureAttributesSchema: z.ZodType = z
 
 export const marshalPipelinesClusterLogConfSchema: z.ZodType = z
   .object({
-    storageInfo: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('dbfs'),
-          dbfs: z.lazy(() => marshalPipelinesDbfsStorageInfoSchema),
-        }),
-      ])
-      .optional(),
+    storageInfo: z.discriminatedUnion('$case', [z.object({ $case: z.literal('dbfs'), dbfs: z.lazy(() => marshalPipelinesDbfsStorageInfoSchema) })]).optional(),
   })
   .transform(d => ({
-    ...(d.storageInfo?.$case === 'dbfs' && {dbfs: d.storageInfo.dbfs}),
+    ...(d.storageInfo?.$case === 'dbfs' && { dbfs: d.storageInfo.dbfs }),
   }));
 
 export const marshalPipelinesDbfsStorageInfoSchema: z.ZodType = z
@@ -5150,41 +4592,20 @@ export const marshalPipelinesGcpAttributesSchema: z.ZodType = z
 
 export const marshalPipelinesInitScriptInfoSchema: z.ZodType = z
   .object({
-    storageInfo: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('dbfs'),
-          dbfs: z.lazy(() => marshalPipelinesDbfsStorageInfoSchema),
-        }),
-        z.object({
-          $case: z.literal('s3'),
-          s3: z.lazy(() => marshalPipelinesS3StorageInfoSchema),
-        }),
-      ])
-      .optional(),
+    storageInfo: z.discriminatedUnion('$case', [z.object({ $case: z.literal('dbfs'), dbfs: z.lazy(() => marshalPipelinesDbfsStorageInfoSchema) }), z.object({ $case: z.literal('s3'), s3: z.lazy(() => marshalPipelinesS3StorageInfoSchema) })]).optional(),
   })
   .transform(d => ({
-    ...(d.storageInfo?.$case === 'dbfs' && {dbfs: d.storageInfo.dbfs}),
-    ...(d.storageInfo?.$case === 's3' && {s3: d.storageInfo.s3}),
+    ...(d.storageInfo?.$case === 'dbfs' && { dbfs: d.storageInfo.dbfs }),
+    ...(d.storageInfo?.$case === 's3' && { s3: d.storageInfo.s3 }),
   }));
 
 export const marshalPipelinesJobRunAsSchema: z.ZodType = z
   .object({
-    identity: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('userName'), userName: z.string()}),
-        z.object({
-          $case: z.literal('servicePrincipalName'),
-          servicePrincipalName: z.string(),
-        }),
-      ])
-      .optional(),
+    identity: z.discriminatedUnion('$case', [z.object({ $case: z.literal('userName'), userName: z.string() }), z.object({ $case: z.literal('servicePrincipalName'), servicePrincipalName: z.string() })]).optional(),
   })
   .transform(d => ({
-    ...(d.identity?.$case === 'userName' && {user_name: d.identity.userName}),
-    ...(d.identity?.$case === 'servicePrincipalName' && {
-      service_principal_name: d.identity.servicePrincipalName,
-    }),
+    ...(d.identity?.$case === 'userName' && { user_name: d.identity.userName }),
+    ...(d.identity?.$case === 'servicePrincipalName' && { service_principal_name: d.identity.servicePrincipalName }),
   }));
 
 export const marshalPipelinesMavenLibrarySchema: z.ZodType = z
@@ -5287,9 +4708,7 @@ export const marshalSharepointOptionsSchema: z.ZodType = z
   .object({
     url: z.string().optional(),
     entityType: z.enum(SharepointOptions_SharepointEntityType).optional(),
-    fileIngestionOptions: z
-      .lazy(() => marshalFileIngestionOptionsSchema)
-      .optional(),
+    fileIngestionOptions: z.lazy(() => marshalFileIngestionOptionsSchema).optional(),
   })
   .transform(d => ({
     url: d.url,
@@ -5308,40 +4727,24 @@ export const marshalSmartsheetOptionsSchema: z.ZodType = z
 export const marshalSourceCatalogConfigSchema: z.ZodType = z
   .object({
     sourceCatalog: z.string().optional(),
-    options: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('postgres'),
-          postgres: z.lazy(() => marshalPostgresCatalogConfigSchema),
-        }),
-      ])
-      .optional(),
+    options: z.discriminatedUnion('$case', [z.object({ $case: z.literal('postgres'), postgres: z.lazy(() => marshalPostgresCatalogConfigSchema) })]).optional(),
   })
   .transform(d => ({
     source_catalog: d.sourceCatalog,
-    ...(d.options?.$case === 'postgres' && {postgres: d.options.postgres}),
+    ...(d.options?.$case === 'postgres' && { postgres: d.options.postgres }),
   }));
 
 export const marshalSourceConfigSchema: z.ZodType = z
   .object({
     catalog: z.lazy(() => marshalSourceCatalogConfigSchema).optional(),
-    connectorConfig: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('googleAdsConfig'),
-          googleAdsConfig: z.lazy(() => marshalGoogleAdsConfigSchema),
-        }),
-      ])
-      .optional(),
+    connectorConfig: z.discriminatedUnion('$case', [z.object({ $case: z.literal('googleAdsConfig'), googleAdsConfig: z.lazy(() => marshalGoogleAdsConfigSchema) })]).optional(),
   })
   .transform(d => ({
     catalog: d.catalog,
-    ...(d.connectorConfig?.$case === 'googleAdsConfig' && {
-      google_ads_config: d.connectorConfig.googleAdsConfig,
-    }),
+    ...(d.connectorConfig?.$case === 'googleAdsConfig' && { google_ads_config: d.connectorConfig.googleAdsConfig }),
   }));
 
-export const marshalStartUpdateSchema: z.ZodType = z
+export const marshalStartUpdateRequestSchema: z.ZodType = z
   .object({
     pipelineId: z.string().optional(),
     fullRefresh: z.boolean().optional(),
@@ -5352,9 +4755,7 @@ export const marshalStartUpdateSchema: z.ZodType = z
     validateOnly: z.boolean().optional(),
     rewindSpec: z.lazy(() => marshalRewindSpecSchema).optional(),
     parameters: z.record(z.string(), z.string()).optional(),
-    replaceWhereOverrides: z
-      .array(z.lazy(() => marshalReplaceWhereOverrideSchema))
-      .optional(),
+    replaceWhereOverrides: z.array(z.lazy(() => marshalReplaceWhereOverrideSchema)).optional(),
   })
   .transform(d => ({
     pipeline_id: d.pipelineId,
@@ -5369,7 +4770,7 @@ export const marshalStartUpdateSchema: z.ZodType = z
     replace_where_overrides: d.replaceWhereOverrides,
   }));
 
-export const marshalStopPipelineSchema: z.ZodType = z
+export const marshalStopPipelineRequestSchema: z.ZodType = z
   .object({
     pipelineId: z.string().optional(),
   })
@@ -5400,20 +4801,11 @@ export const marshalTikTokAdsOptionsSchema: z.ZodType = z
 export const marshalTransformerSchema: z.ZodType = z
   .object({
     format: z.enum(Transformer_Format).optional(),
-    config: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('jsonOptions'),
-          jsonOptions: z.lazy(() => marshalJsonTransformerOptionsSchema),
-        }),
-      ])
-      .optional(),
+    config: z.discriminatedUnion('$case', [z.object({ $case: z.literal('jsonOptions'), jsonOptions: z.lazy(() => marshalJsonTransformerOptionsSchema) })]).optional(),
   })
   .transform(d => ({
     format: d.format,
-    ...(d.config?.$case === 'jsonOptions' && {
-      json_options: d.config.jsonOptions,
-    }),
+    ...(d.config?.$case === 'jsonOptions' && { json_options: d.config.jsonOptions }),
   }));
 
 export const marshalZendeskSupportOptionsSchema: z.ZodType = z

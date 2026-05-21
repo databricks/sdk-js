@@ -5,6 +5,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 /** The compute endpoint type. Either `read_write` or `read_only`. */
 export enum EndpointType {
   /** Default value, not used */
@@ -18,10 +19,10 @@ export enum ErrorCode {
   /**
    * Unknown error. This error generally should not be returned explicitly, but will be used
    * as a fallback if the error enum is missing from the message for some reason.
-   *
+   * 
    * It's assigned tag 0 to follow the best practice from
    * https://developers.google.com/protocol-buffers/docs/style#enums
-   *
+   * 
    * TODO(PLAT-55898): Add custom option to declare HTTP and gRPC mappings.
    * Maps to:
    * - google.rpc.Code: UNKNOWN = 2;
@@ -32,10 +33,10 @@ export enum ErrorCode {
    * Internal error. This means that some invariants expected by the underlying system have been
    * broken. This error code is reserved for serious errors, which generally cannot be resolved
    * by the user.
-   *
+   * 
    * Prefer this over all kinds of detailed error messages (e.g IO_ERROR), unless there's some
    * automation that relies on the custom error code.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: INTERNAL = 13;
    * - HTTP code: 500 Internal Server Error
@@ -45,12 +46,12 @@ export enum ErrorCode {
    * The service is currently unavailable. This is most likely a transient condition, which can be
    * corrected by retrying with a backoff. Note that it is not always safe to retry non-idempotent
    * operations.
-   *
+   * 
    * Prefer this over SERVICE_UNDER_MAINTENANCE, WORKSPACE_TEMPORARILY_UNAVAILABLE.
-   *
+   * 
    * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
    * for guideline on how to pick this vs RESOURCE_EXHAUSTED.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: UNAVAILABLE = 14;
    * - HTTP code: 503 Service Unavailable
@@ -65,9 +66,9 @@ export enum ErrorCode {
   /**
    * The request is invalid. Prefer more specific error code whenever possible.
    * Also see similar recommendation for the google.rpc.Code.FAILED_PRECONDITION.
-   *
+   * 
    * Prefer this error code over MALFORMED_REQUEST, INVALID_STATE, UNPARSEABLE_HTTP_ERROR.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: FAILED_PRECONDITION = 9;
    * - HTTP code: 400 Bad Request
@@ -87,7 +88,7 @@ export enum ErrorCode {
    * the deadline to expire. When possible - implementations should make sure further processing of
    * the request is aborted, e.g. by throwing an exception instead of making the RPC request,
    * making the database query, etc.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: DEADLINE_EXCEEDED = 4;
    * - HTTP code: 504 Gateway Timeout
@@ -96,7 +97,7 @@ export enum ErrorCode {
   /**
    * The operation was canceled by the caller. An example - client closed the connection without
    * waiting for a response.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: CANCELLED = 1;
    * - HTTP code: 499 Client Closed Request
@@ -106,10 +107,10 @@ export enum ErrorCode {
    * The operation is rejected because of either rate limiting or resource quota,
    * such as the client has sent too many requests recently or the client has allocated too many
    * resources.
-   *
+   * 
    * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
    * for guideline on how to pick this vs TEMPORARILY_UNAVAILABLE.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
    * - HTTP code: 429 Too Many Requests
@@ -118,7 +119,7 @@ export enum ErrorCode {
   /**
    * The operation was aborted, typically due to a concurrency issue such as a sequencer
    * check failure, transaction abort, or transaction conflict.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: ABORTED = 10;
    * - HTTP code: 409 Conflict
@@ -127,7 +128,7 @@ export enum ErrorCode {
   /**
    * Operation was performed on a resource that does not exist,
    * e.g. file or directory was not found.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
@@ -136,9 +137,9 @@ export enum ErrorCode {
   /**
    * Operation was rejected due a conflict with an existing resource, e.g. attempted to create
    * file or directory that already exists.
-   *
+   * 
    * Prefer this over RESOURCE_CONFLICT.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: ALREADY_EXISTS = 6;
    * - HTTP code: 409 Conflict
@@ -146,11 +147,11 @@ export enum ErrorCode {
   ALREADY_EXISTS = 'ALREADY_EXISTS',
   /**
    * The request does not have valid authentication (AuthN) credentials for the operation.
-   *
+   * 
    * Prefer this over CUSTOMER_UNAUTHORIZED, unless you need to keep consistent behavior with legacy
    * code.
    * For authorization (AuthZ) errors use PERMISSION_DENIED.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: UNAUTHENTICATED = 16;
    * - HTTP code: 401 Unauthorized
@@ -165,7 +166,7 @@ export enum ErrorCode {
    * not know whether it is because the domain name is completely wrong (non-transient situation) or
    * the domain name is valid but the DNS server does not have an entry for this domain name yet (transient
    * situation). Hence, `UNAVAILABLE`  is suitable for this case.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: UNAVAILABLE = 14;
    * - HTTP code: 503 Service Unavailable
@@ -173,7 +174,7 @@ export enum ErrorCode {
   UNAVAILABLE = 'UNAVAILABLE',
   /**
    * Supplied value for a parameter was invalid (e.g., giving a number for a string parameter).
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: INVALID_ARGUMENT = 3;
    * - HTTP code: 400 Bad Request
@@ -182,7 +183,7 @@ export enum ErrorCode {
   /**
    * Indicates that the given API endpoint does not exist. Legacy, when possible - NOT_IMPLEMENTED
    * should be used instead to indicate that API doesn't exist.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
@@ -204,7 +205,7 @@ export enum ErrorCode {
    * use CUSTOMER_UNAUTHORIZED instead for those errors.
    * This error code does not imply the request is valid or the requested entity exists or
    * satisfies other pre-conditions.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: PERMISSION_DENIED = 7;
    * - HTTP code: 403 Forbidden
@@ -214,9 +215,9 @@ export enum ErrorCode {
    * NOTE: Deprecated due to inconsistent mapping in legacy code, see
    * https://docs.google.com/document/d/17TZIKX_Y39cJMBr333lc-d5dTvvBLSu3DPUyGU5eMJg/edit?disco=AAAAzVGt6FA.
    * Prefer using NOT_FOUND or PERMISSION_DENIED.
-   *
+   * 
    * If a given user/entity is trying to use a feature which has been disabled.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: NOT_FOUND = 5;
    * - HTTP code: 404 Not Found
@@ -224,20 +225,20 @@ export enum ErrorCode {
   FEATURE_DISABLED = 'FEATURE_DISABLED',
   /**
    * The request does not have valid authentication (AuthN) credentials for the operation.
-   *
+   * 
    * For authentication (AuthN) errors prefer using UNAUTHENTICATED, unless you need to keep
    * consistent behavior with legacy code.
    * For authorization (AuthZ) errors use PERMISSION_DENIED.
-   *
+   * 
    * Important: name is confusing, this error code is for authentication (AuthN) errors, not
    * authorization (AuthZ) errors. It maps to 401 Unauthorized and suffers from the same confusing
    * naming. See https://datatracker.ietf.org/doc/html/rfc7235#section-3.1 - "[...] status code
    * indicates that the request has not been applied because it lacks valid authentication
    * credentials for the target resource. [...] If the request included authentication credentials,
    * then the 401 response indicates that authorization has been refused for those credentials."
-   *
+   * 
    * Also, see https://stackoverflow.com/a/6937030/16352922, it covers it pretty well.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: UNAUTHENTICATED = 16;
    * - HTTP code: 401 Unauthorized
@@ -246,12 +247,12 @@ export enum ErrorCode {
   /**
    * The operation is rejected because of request rate limit, for example rate limiting applied to
    * users, workspaces, IP addresses, etc.
-   *
+   * 
    * Prefer a more generic RESOURCE_EXHAUSTED for the new use cases.
-   *
+   * 
    * See https://docs.google.com/document/d/1FL8p2sbYWqBPL-UvhzI7uXAw4EoLG7Rj6PAOQWZRSOk/edit#
    * for guideline on the rate limiting vs throttling.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: RESOURCE_EXHAUSTED = 8;
    * - HTTP code: 429 Too Many Requests
@@ -268,7 +269,7 @@ export enum ErrorCode {
   UNPARSEABLE_HTTP_ERROR = 'UNPARSEABLE_HTTP_ERROR',
   /**
    * The operation is not implemented or is not supported/enabled in this service.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: UNIMPLEMENTED = 12;
    * - HTTP code: 501 Not Implemented
@@ -276,14 +277,14 @@ export enum ErrorCode {
   NOT_IMPLEMENTED = 'NOT_IMPLEMENTED',
   /**
    * Unrecoverable data loss or corruption.
-   *
+   * 
    * One of the major use cases is to indicate that server failed to validate the integrity of
    * the request. This error can occur when the checksum specified in the `X-Databricks-Checksum`
    * request header (or trailer) doesn't match the actual request content checksum.
-   *
+   * 
    * Note, in case of the severe corruption that results in a malformed request, the server may
    * send a generic `400 Bad Request` response rather than sending this error code.
-   *
+   * 
    * Maps to:
    * - google.rpc.Code: DATA_LOSS = 15;
    * - HTTP code: 500 Internal Server Error
@@ -301,7 +302,7 @@ export enum ErrorCode {
    * NOTE: Deprecated, prefer using ALREADY_EXISTS.
    * Unlike ALREADY_EXISTS - this maps to HTTP code 400 Bad Request due to legacy reasons,
    * remapping will be a backwards incompatible change.
-   *
+   * 
    * Operation was performed on a resource that already exists.
    */
   RESOURCE_ALREADY_EXISTS = 'RESOURCE_ALREADY_EXISTS',
@@ -309,7 +310,7 @@ export enum ErrorCode {
    * NOTE: Deprecated, prefer using NOT_FOUND - see the note for the RESOURCE_ALREADY_EXISTS,
    * because this pair of codes is related and RESOURCE_ALREADY_EXISTS has bad mapping to the HTTP
    * codes we added new error codes NOT_FOUND and ALREADY_EXISTS, and recommend to use them instead.
-   *
+   * 
    * Operation was performed on a resource that does not exist.
    */
   RESOURCE_DOES_NOT_EXIST = 'RESOURCE_DOES_NOT_EXIST',
@@ -591,6 +592,8 @@ export enum BranchStatus_State {
   READY = 'READY',
   /** The branch is stored in cost-effective archival storage. Expect slow query response times. */
   ARCHIVED = 'ARCHIVED',
+  /** The branch is deleted and is not available for querying, but can be undeleted. */
+  DELETED = 'DELETED',
 }
 
 /** The state of the compute endpoint. */
@@ -694,7 +697,7 @@ export interface Branch {
   /**
    * The project containing this branch (API resource hierarchy).
    * Format: projects/{project_id}
-   *
+   * 
    * Note: This field indicates where the branch exists in the resource hierarchy.
    * For point-in-time branching from another branch, see `status.source_branch`.
    */
@@ -728,7 +731,7 @@ export interface BranchSpec {
   /**
    * Expiration configuration for the branch. One of expire_time, ttl, or no_expiry must be provided.
    * To disable expiration, set no_expiry to true.
-   *
+   * 
    * When updating this field, use "spec.expiration" in the update_mask.
    */
   expiration?:
@@ -787,18 +790,28 @@ export interface BranchStatus {
   /**
    * The short identifier of the branch, suitable for showing to the users.
    * For a branch with name `projects/my-project/branches/my-branch`, the branch_id is `my-branch`.
-   *
+   * 
    * Use this field when building UI components that display branches to users (e.g., a drop-down
    * selector). Prefer showing `branch_id` instead of the full resource name from `Branch.name`,
    * which follows the `projects/{project_id}/branches/{branch_id}` format and is not user-friendly.
    */
   branchId?: string | undefined;
+  /**
+   * A timestamp indicating when the branch was deleted.
+   * Empty if the branch is not deleted.
+   */
+  deleteTime?: Temporal.Instant | undefined;
+  /**
+   * A timestamp indicating when the branch is scheduled to be purged.
+   * Empty if the branch is not deleted, otherwise set to a timestamp in the future.
+   */
+  purgeTime?: Temporal.Instant | undefined;
 }
 
 export interface Catalog {
   /**
    * Output only. The full resource path of the catalog.
-   *
+   * 
    * Format: "catalogs/{catalog_id}".
    */
   name?: string | undefined;
@@ -820,16 +833,16 @@ export interface Catalog_CatalogSpec {
   /**
    * The name of the Postgres database inside the specified Lakebase project and branch to be associated with the UC catalog.
    * This database must already exist, unless create_database_if_missing is set to true on creation.
-   *
+   * 
    * A database can only be registered with one UC catalog at a time.
    * To re-register a database with a different catalog, the existing catalog must be deleted first.
-   *
+   * 
    * A child branch inherits the fact of parent's registration. This means the same-named database
    * in a child branch cannot be registered with a second catalog
    * while the parent's registration exists. To allow registering the database of a child branch,
    * drop and recreate the database on the child branch.
    * This removes the fact of parent's registration from this branch only.
-   *
+   * 
    * Doing Point In Time Restore (PITR) prior to the moment before the Postgres DB was registered
    * in the Catalog drops the fact of registration of the database. So the user should avoid doing so.
    */
@@ -838,13 +851,13 @@ export interface Catalog_CatalogSpec {
    * If set to true, the specified postgres_database is created on behalf of the calling user
    * if it does not already exist. In this case, the calling user has a role created for
    * them in Postgres if they do not already have one.
-   *
+   * 
    * Defaults to false, meaning that the request fails if the specified postgres_database does not already exist.
    */
   createDatabaseIfMissing?: boolean | undefined;
   /**
    * The resource path of the branch associated with the catalog.
-   *
+   * 
    * Format: projects/{project_id}/branches/{branch_id}.
    */
   branch?: string | undefined;
@@ -857,20 +870,20 @@ export interface Catalog_CatalogStatus {
   postgresDatabase?: string | undefined;
   /**
    * The resource path of the project associated with the catalog.
-   *
+   * 
    * Format: projects/{project_id}.
    */
   project?: string | undefined;
   /**
    * The resource path of the branch associated with the catalog.
-   *
+   * 
    * Format: projects/{project_id}/branches/{branch_id}.
    */
   branch?: string | undefined;
   /**
    * The short identifier of the catalog, suitable for showing to the users.
    * For a catalog with name `catalogs/my-catalog`, the catalog_id is `my-catalog`.
-   *
+   * 
    * Use this field when building UI components that display catalogs to users (e.g., a drop-down
    * selector). Prefer showing `catalog_id` instead of the full resource name from `Catalog.name`,
    * which follows the `catalogs/{catalog_id}` format and is not user-friendly.
@@ -918,10 +931,10 @@ export interface CreateDatabaseRequest {
    * The ID to use for the Database, which will become the final component of
    * the database's resource name.
    * This ID becomes the database name in postgres.
-   *
+   * 
    * This value should be 4-63 characters, and only use characters available in DNS names,
    * as defined by RFC-1123
-   *
+   * 
    * If database_id is not specified in the request, it is generated automatically.
    */
   databaseId?: string | undefined;
@@ -968,10 +981,10 @@ export interface CreateRoleRequest {
    * The ID to use for the Role, which will become the final component of
    * the role's resource name.
    * This ID becomes the role in Postgres.
-   *
+   * 
    * This value should be 4-63 characters, and valid characters
    * are lowercase letters, numbers, and hyphens, as defined by RFC 1123.
-   *
+   * 
    * If role_id is not specified in the request, it is generated automatically.
    */
   roleId?: string | undefined;
@@ -985,11 +998,11 @@ export interface CreateSyncedTableRequest {
    * The ID to use for the Synced Table. This becomes the final component of the SyncedTable's resource name.
    * ID is required and is the synced table name, containing (catalog, schema, table) tuple.
    * Elements of the tuple are the UC entity names.
-   *
+   * 
    * Example: "{catalog}.{schema}.{table}"
-   *
+   * 
    * synced_table_id represents both of the following:
-   *
+   * 
    * 1. An online VIEW virtual table in the Unity Catalog accessible via the Lakehouse Federation.
    * 2. Postgres table named "{table}" in schema "{schema}" in the connected Postgres database
    */
@@ -1024,19 +1037,19 @@ export interface Database_DatabaseSpec {
   /**
    * The name of the role that owns the database.
    * Format: projects/{project_id}/branches/{branch_id}/roles/{role_id}
-   *
+   * 
    * To change the owner, pass valid existing Role name when updating the Database
-   *
+   * 
    * A database always has an owner.
    */
   role?: string | undefined;
   /**
    * The name of the Postgres database.
-   *
+   * 
    * This expects a valid Postgres identifier as specified in the link below.
    * https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
    * Required when creating the Database.
-   *
+   * 
    * To rename, pass a valid postgres identifier when updating the Database.
    */
   postgresDatabase?: string | undefined;
@@ -1055,7 +1068,7 @@ export interface Database_DatabaseStatus {
    * The short identifier of the database, suitable for showing to the users.
    * For a database with name `projects/my-project/branches/my-branch/databases/my-db`,
    * the database_id is `my-db`.
-   *
+   * 
    * Use this field when building UI components that display databases to users (e.g., a drop-down
    * selector). Prefer showing `database_id` instead of the full resource name from `Database.name`,
    * which follows the `projects/{project_id}/branches/{branch_id}/databases/{database_id}` format
@@ -1088,12 +1101,14 @@ export interface DeleteBranchRequest {
    * Format: projects/{project_id}/branches/{branch_id}
    */
   name?: string | undefined;
+  /** If true, permanently delete the branch; if false, soft delete. */
+  purge?: boolean | undefined;
 }
 
 export interface DeleteCatalogRequest {
   /**
    * The full resource path of the catalog to delete.
-   *
+   * 
    * Format: "catalogs/{catalog_id}".
    */
   name?: string | undefined;
@@ -1137,7 +1152,7 @@ export interface DeleteRoleRequest {
   /**
    * Reassign objects. If this is set, all objects owned by the role are
    * reassigned to the role specified in this parameter.
-   *
+   * 
    * NOTE: setting this requires spinning up a compute to succeed, since it involves running
    * SQL queries.
    */
@@ -1273,7 +1288,7 @@ export interface EndpointSpec {
   /**
    * Duration of inactivity after which the compute endpoint is automatically suspended. One of suspend_timeout_duration or no_suspension can be provided.
    * When not specified default suspension behavior will be used (consult with documentation).
-   *
+   * 
    * When updating this field, use "spec.suspension" in the update_mask.
    */
   suspension?:
@@ -1335,7 +1350,7 @@ export interface EndpointStatus {
    * The short identifier of the endpoint, suitable for showing to the users.
    * For an endpoint with name `projects/my-project/branches/my-branch/endpoints/my-endpoint`,
    * the endpoint_id is `my-endpoint`.
-   *
+   * 
    * Use this field when building UI components that display endpoints to users (e.g., a drop-down
    * selector). Prefer showing `endpoint_id` instead of the full resource name from `Endpoint.name`,
    * which follows the `projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}` format
@@ -1365,7 +1380,7 @@ export interface GetBranchRequest {
 export interface GetCatalogRequest {
   /**
    * The full resource path of the catalog to retrieve.
-   *
+   * 
    * Format: "catalogs/{catalog_id}".
    */
   name?: string | undefined;
@@ -1434,6 +1449,12 @@ export interface ListBranchesRequest {
   pageToken?: string | undefined;
   /** Upper bound for items returned. Cannot be negative. */
   pageSize?: number | undefined;
+  /**
+   * Whether to include soft-deleted branches in the response.
+   * When true, deleted branches are included alongside active branches.
+   * Purged branches are never returned.
+   */
+  showDeleted?: boolean | undefined;
 }
 
 export interface ListBranchesResponse {
@@ -1680,7 +1701,7 @@ export interface ProjectSpec {
    * To preserve existing tags, omit this field from the update_mask (or use wildcard "*" which auto-excludes empty tags).
    */
   customTags?: ProjectCustomTag[] | undefined;
-  /** Whether to enable PG native password login on all endpoints in this project. Defaults to true. */
+  /** Whether to enable PG native password login on all endpoints in this project. Defaults to false. */
   enablePgNativeLogin?: boolean | undefined;
   /**
    * The full resource path for the default branch of the project
@@ -1715,7 +1736,7 @@ export interface ProjectStatus {
   /**
    * The short identifier of the project, suitable for showing to the users.
    * For a project with name `projects/my-project`, the project_id is `my-project`.
-   *
+   * 
    * Use this field when building UI components that display projects to users (e.g., a drop-down
    * selector). Prefer showing `project_id` instead of the full resource name from `Project.name`,
    * which follows the `projects/{project_id}` format and is not user-friendly.
@@ -1782,7 +1803,7 @@ export interface Role_RoleSpec {
   /**
    * The type of role.
    * When specifying a managed-identity, the chosen role_id must be a valid:
-   *
+   * 
    * * application ID for SERVICE_PRINCIPAL
    * * user email for USER
    * * group name for GROUP
@@ -1793,7 +1814,7 @@ export interface Role_RoleSpec {
   /**
    * Controls how the Postgres role authenticates when a client opens a database
    * connection. Supported values:
-   *
+   * 
    * * LAKEBASE_OAUTH_V1: the role authenticates by presenting a Databricks
    * OAuth access token derived from the backing managed identity (the
    * <Databricks> user, service principal, or group named by the role's
@@ -1804,26 +1825,26 @@ export interface Role_RoleSpec {
    * * NO_LOGIN: the role cannot open a Postgres session at all. Useful for
    * roles that exist only to own objects or to aggregate privileges that
    * are then granted to other, loginable roles.
-   *
+   * 
    * If auth_method is left unspecified, a meaningful authentication method is derived from the identity_type:
    * * For the managed identities, OAUTH is used.
    * * For the regular postgres roles, authentication based on postgres passwords is used.
-   *
+   * 
    * NOTE: for the <Databricks> identity type GROUP, LAKEBASE_OAUTH_V1
    * is the default auth method (group can login as well).
    */
   authMethod?: Role_AuthMethod | undefined;
   /**
    * The name of the Postgres role.
-   *
+   * 
    * This expects a valid Postgres identifier as specified in the link below.
    * https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
-   *
+   * 
    * Required when creating the Role.
-   *
+   * 
    * If you wish to create a Postgres Role backed by a managed <Databricks> identity, then postgres_role
    * must be one of the following:
-   *
+   * 
    * 1. user email for IdentityType.USER
    * 2. app ID for IdentityType.SERVICE_PRINCIPAL
    * 2. group name for IdentityType.GROUP
@@ -1846,7 +1867,7 @@ export interface Role_RoleStatus {
    * The short identifier of the role, suitable for showing to the users.
    * For a role with name `projects/my-project/branches/my-branch/roles/my-role`,
    * the role_id is `my-role`.
-   *
+   * 
    * Use this field when building UI components that display roles to users (e.g., a drop-down
    * selector). Prefer showing `role_id` instead of the full resource name from `Role.name`,
    * which follows the `projects/{project_id}/branches/{branch_id}/roles/{role_id}` format
@@ -1862,9 +1883,9 @@ export interface SyncedTable {
   /**
    * Output only. The Full resource name of the synced table in Postgres
    * where (catalog, schema, table) are the UC entity names.
-   *
+   * 
    * Format "synced_tables/{catalog}.{schema}.{table}"
-   *
+   * 
    * For the corresponding source table in the Unity catalog look for the "source_table_full_name" attribute.
    */
   name?: string | undefined;
@@ -1884,28 +1905,26 @@ export interface SyncedTable {
 export interface SyncedTable_SyncedTableSpec {
   /**
    * The Postgres database name where the synced table will be created in.
-   *
+   * 
    * If this synced table is created inside a Lakebase Catalog, this attribute can be omitted on creation and is inferred
    * from the postgres_database associated with the Lakebase Catalog. If specified when inside a Lakebase Catalog, the value must match.
-   *
+   * 
    * A value must be specified when creating a synced table inside a Standard Catalog.
    */
   postgresDatabase?: string | undefined;
   /**
    * The full resource name the branch associated with the table.
-   *
+   * 
    * Format: "projects/{project_id}/branches/{branch_id}".
    */
   branch?: string | undefined;
   /** Scheduling policy of the underlying pipeline. */
-  schedulingPolicy?:
-    | SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy
-    | undefined;
+  schedulingPolicy?: SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy | undefined;
   /**
    * Three-part (catalog, schema, table) name of the source Delta table.
-   *
+   * 
    * For the corresponding destination table, use any of the two:
-   *
+   * 
    * * synced_table_id used at the creation of the SyncedTable
    * * "name" consisting of "synced_tables/" prefix and the full name of the destination table.
    */
@@ -1917,7 +1936,7 @@ export interface SyncedTable_SyncedTableSpec {
   /**
    * ID of an existing pipeline to bin-pack this synced table into.
    * At most one of existing_pipeline_id and new_pipeline_spec should be defined.
-   *
+   * 
    * The pipeline used for the synced table is returned via the top level pipeline_id attribute.
    */
   existingPipelineId?: string | undefined;
@@ -1925,14 +1944,14 @@ export interface SyncedTable_SyncedTableSpec {
    * If true, the synced table's logical database and schema resources in PG
    * will be created if they do not already exist.
    * The request will fail if this is false and the database/schema do not exist.
-   *
+   * 
    * Defaults to true if omitted.
    */
   createDatabaseObjectsIfMissing?: boolean | undefined;
   /**
    * Specification for creating a new pipeline.
    * At most one of existing_pipeline_id and new_pipeline_spec should be defined.
-   *
+   * 
    * The pipeline used for the synced table is returned via the top level pipeline_id attribute.
    */
   newPipelineSpec?: NewPipelineSpec | undefined;
@@ -1962,7 +1981,7 @@ export interface SyncedTable_SyncedTableStatus {
   unityCatalogProvisioningState?: ProvisioningInfo_State | undefined;
   /**
    * The full resource name of the project associated with the table.
-   *
+   * 
    * Format: "projects/{project_id}".
    */
   project?: string | undefined;
@@ -2004,8 +2023,16 @@ export interface SyncedTablePosition {
   syncEndTime?: Temporal.Instant | undefined;
   /** Information about the source system at the time of the last sync. */
   sourceSyncInfo?:
-    | {$case: 'deltaTableSyncInfo'; deltaTableSyncInfo: DeltaTableSyncInfo}
+    | { $case: 'deltaTableSyncInfo'; deltaTableSyncInfo: DeltaTableSyncInfo }
     | undefined;
+}
+
+export interface UndeleteBranchRequest {
+  /**
+   * The full resource path of the branch to undelete.
+   * Format: projects/{project_id}/branches/{branch_id}
+   */
+  name?: string | undefined;
 }
 
 /** Request to restore a soft-deleted project within its retention period. */
@@ -2020,7 +2047,7 @@ export interface UndeleteProjectRequest {
 export interface UpdateBranchRequest {
   /**
    * The Branch to update.
-   *
+   * 
    * The branch's `name` field is used to identify the branch to update.
    * Format: projects/{project_id}/branches/{branch_id}
    */
@@ -2032,7 +2059,7 @@ export interface UpdateBranchRequest {
 export interface UpdateDatabaseRequest {
   /**
    * The Database to update.
-   *
+   * 
    * The database's `name` field is used to identify the database to update.
    * Format: projects/{project_id}/branches/{branch_id}/databases/{database_id}
    */
@@ -2044,7 +2071,7 @@ export interface UpdateDatabaseRequest {
 export interface UpdateEndpointRequest {
   /**
    * The Endpoint to update.
-   *
+   * 
    * The endpoint's `name` field is used to identify the endpoint to update.
    * Format: projects/{project_id}/branches/{branch_id}/endpoints/{endpoint_id}
    */
@@ -2056,7 +2083,7 @@ export interface UpdateEndpointRequest {
 export interface UpdateProjectRequest {
   /**
    * The Project to update.
-   *
+   * 
    * The project's `name` field is used to identify the project to update.
    * Format: projects/{project_id}
    */
@@ -2068,7 +2095,7 @@ export interface UpdateProjectRequest {
 export interface UpdateRoleRequest {
   /**
    * The Postgres Role to update.
-   *
+   * 
    * The role's `name` field is used to identify the role to update.
    * Format: projects/{project_id}/branches/{branch_id}/roles/{role_id}
    */
@@ -2085,14 +2112,8 @@ export const unmarshalBranchSchema: z.ZodType<Branch> = z
     name: z.string().optional(),
     uid: z.string().optional(),
     parent: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     spec: z.lazy(() => unmarshalBranchSpecSchema).optional(),
     status: z.lazy(() => unmarshalBranchStatusSchema).optional(),
   })
@@ -2106,26 +2127,18 @@ export const unmarshalBranchSchema: z.ZodType<Branch> = z
     status: d.status,
   }));
 
-export const unmarshalBranchOperationMetadataSchema: z.ZodType<BranchOperationMetadata> =
-  z.object({});
+export const unmarshalBranchOperationMetadataSchema: z.ZodType<BranchOperationMetadata> = z
+  .object({
+  });
 
 export const unmarshalBranchSpecSchema: z.ZodType<BranchSpec> = z
   .object({
     source_branch: z.string().optional(),
     source_branch_lsn: z.string().optional(),
-    source_branch_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    source_branch_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     is_protected: z.boolean().optional(),
-    expire_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    ttl: z
-      .string()
-      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-      .optional(),
+    expire_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    ttl: z.string().transform(s => Temporal.Duration.from('PT' + s.toUpperCase())).optional(),
     no_expiry: z.boolean().optional(),
   })
   .transform(d => ({
@@ -2133,38 +2146,24 @@ export const unmarshalBranchSpecSchema: z.ZodType<BranchSpec> = z
     sourceBranchLsn: d.source_branch_lsn,
     sourceBranchTime: d.source_branch_time,
     isProtected: d.is_protected,
-    expiration:
-      d.expire_time !== undefined
-        ? {$case: 'expireTime' as const, expireTime: d.expire_time}
-        : d.ttl !== undefined
-          ? {$case: 'ttl' as const, ttl: d.ttl}
-          : d.no_expiry !== undefined
-            ? {$case: 'noExpiry' as const, noExpiry: d.no_expiry}
-            : undefined,
+    expiration: d.expire_time !== undefined ? { $case: 'expireTime' as const, expireTime: d.expire_time } : d.ttl !== undefined ? { $case: 'ttl' as const, ttl: d.ttl } : d.no_expiry !== undefined ? { $case: 'noExpiry' as const, noExpiry: d.no_expiry } : undefined,
   }));
 
 export const unmarshalBranchStatusSchema: z.ZodType<BranchStatus> = z
   .object({
     source_branch: z.string().optional(),
     source_branch_lsn: z.string().optional(),
-    source_branch_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    source_branch_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     default: z.boolean().optional(),
     is_protected: z.boolean().optional(),
     current_state: z.enum(BranchStatus_State).optional(),
     pending_state: z.enum(BranchStatus_State).optional(),
-    state_change_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    state_change_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     logical_size_bytes: z.number().optional(),
-    expire_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    expire_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     branch_id: z.string().optional(),
+    delete_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    purge_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
   })
   .transform(d => ({
     sourceBranch: d.source_branch,
@@ -2178,6 +2177,8 @@ export const unmarshalBranchStatusSchema: z.ZodType<BranchStatus> = z
     logicalSizeBytes: d.logical_size_bytes,
     expireTime: d.expire_time,
     branchId: d.branch_id,
+    deleteTime: d.delete_time,
+    purgeTime: d.purge_time,
   }));
 
 export const unmarshalCatalogSchema: z.ZodType<Catalog> = z
@@ -2186,14 +2187,8 @@ export const unmarshalCatalogSchema: z.ZodType<Catalog> = z
     uid: z.string().optional(),
     spec: z.lazy(() => unmarshalCatalog_CatalogSpecSchema).optional(),
     status: z.lazy(() => unmarshalCatalog_CatalogStatusSchema).optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2205,50 +2200,43 @@ export const unmarshalCatalogSchema: z.ZodType<Catalog> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCatalog_CatalogSpecSchema: z.ZodType<Catalog_CatalogSpec> =
-  z
-    .object({
-      postgres_database: z.string().optional(),
-      create_database_if_missing: z.boolean().optional(),
-      branch: z.string().optional(),
-    })
-    .transform(d => ({
-      postgresDatabase: d.postgres_database,
-      createDatabaseIfMissing: d.create_database_if_missing,
-      branch: d.branch,
-    }));
+export const unmarshalCatalog_CatalogSpecSchema: z.ZodType<Catalog_CatalogSpec> = z
+  .object({
+    postgres_database: z.string().optional(),
+    create_database_if_missing: z.boolean().optional(),
+    branch: z.string().optional(),
+  })
+  .transform(d => ({
+    postgresDatabase: d.postgres_database,
+    createDatabaseIfMissing: d.create_database_if_missing,
+    branch: d.branch,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCatalog_CatalogStatusSchema: z.ZodType<Catalog_CatalogStatus> =
-  z
-    .object({
-      postgres_database: z.string().optional(),
-      project: z.string().optional(),
-      branch: z.string().optional(),
-      catalog_id: z.string().optional(),
-    })
-    .transform(d => ({
-      postgresDatabase: d.postgres_database,
-      project: d.project,
-      branch: d.branch,
-      catalogId: d.catalog_id,
-    }));
+export const unmarshalCatalog_CatalogStatusSchema: z.ZodType<Catalog_CatalogStatus> = z
+  .object({
+    postgres_database: z.string().optional(),
+    project: z.string().optional(),
+    branch: z.string().optional(),
+    catalog_id: z.string().optional(),
+  })
+  .transform(d => ({
+    postgresDatabase: d.postgres_database,
+    project: d.project,
+    branch: d.branch,
+    catalogId: d.catalog_id,
+  }));
 
-export const unmarshalCatalogOperationMetadataSchema: z.ZodType<CatalogOperationMetadata> =
-  z.object({});
+export const unmarshalCatalogOperationMetadataSchema: z.ZodType<CatalogOperationMetadata> = z
+  .object({
+  });
 
 export const unmarshalDatabaseSchema: z.ZodType<Database> = z
   .object({
     name: z.string().optional(),
     parent: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     spec: z.lazy(() => unmarshalDatabase_DatabaseSpecSchema).optional(),
     status: z.lazy(() => unmarshalDatabase_DatabaseStatusSchema).optional(),
   })
@@ -2262,90 +2250,74 @@ export const unmarshalDatabaseSchema: z.ZodType<Database> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDatabase_DatabaseSpecSchema: z.ZodType<Database_DatabaseSpec> =
-  z
-    .object({
-      role: z.string().optional(),
-      postgres_database: z.string().optional(),
-    })
-    .transform(d => ({
-      role: d.role,
-      postgresDatabase: d.postgres_database,
-    }));
+export const unmarshalDatabase_DatabaseSpecSchema: z.ZodType<Database_DatabaseSpec> = z
+  .object({
+    role: z.string().optional(),
+    postgres_database: z.string().optional(),
+  })
+  .transform(d => ({
+    role: d.role,
+    postgresDatabase: d.postgres_database,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDatabase_DatabaseStatusSchema: z.ZodType<Database_DatabaseStatus> =
-  z
-    .object({
-      role: z.string().optional(),
-      postgres_database: z.string().optional(),
-      database_id: z.string().optional(),
-    })
-    .transform(d => ({
-      role: d.role,
-      postgresDatabase: d.postgres_database,
-      databaseId: d.database_id,
-    }));
+export const unmarshalDatabase_DatabaseStatusSchema: z.ZodType<Database_DatabaseStatus> = z
+  .object({
+    role: z.string().optional(),
+    postgres_database: z.string().optional(),
+    database_id: z.string().optional(),
+  })
+  .transform(d => ({
+    role: d.role,
+    postgresDatabase: d.postgres_database,
+    databaseId: d.database_id,
+  }));
 
-export const unmarshalDatabaseCredentialSchema: z.ZodType<DatabaseCredential> =
-  z
-    .object({
-      token: z.string().optional(),
-      expire_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-    })
-    .transform(d => ({
-      token: d.token,
-      expireTime: d.expire_time,
-    }));
+export const unmarshalDatabaseCredentialSchema: z.ZodType<DatabaseCredential> = z
+  .object({
+    token: z.string().optional(),
+    expire_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+  })
+  .transform(d => ({
+    token: d.token,
+    expireTime: d.expire_time,
+  }));
 
-export const unmarshalDatabaseOperationMetadataSchema: z.ZodType<DatabaseOperationMetadata> =
-  z.object({});
+export const unmarshalDatabaseOperationMetadataSchema: z.ZodType<DatabaseOperationMetadata> = z
+  .object({
+  });
 
-export const unmarshalDatabricksServiceExceptionWithDetailsProtoSchema: z.ZodType<DatabricksServiceExceptionWithDetailsProto> =
-  z
-    .object({
-      error_code: z.enum(ErrorCode).optional(),
-      message: z.string().optional(),
-      stack_trace: z.string().optional(),
-      details: z.array(z.record(z.string(), z.unknown())).optional(),
-    })
-    .transform(d => ({
-      errorCode: d.error_code,
-      message: d.message,
-      stackTrace: d.stack_trace,
-      details: d.details,
-    }));
+export const unmarshalDatabricksServiceExceptionWithDetailsProtoSchema: z.ZodType<DatabricksServiceExceptionWithDetailsProto> = z
+  .object({
+    error_code: z.enum(ErrorCode).optional(),
+    message: z.string().optional(),
+    stack_trace: z.string().optional(),
+    details: z.array(z.record(z.string(), z.unknown())).optional(),
+  })
+  .transform(d => ({
+    errorCode: d.error_code,
+    message: d.message,
+    stackTrace: d.stack_trace,
+    details: d.details,
+  }));
 
-export const unmarshalDeltaTableSyncInfoSchema: z.ZodType<DeltaTableSyncInfo> =
-  z
-    .object({
-      delta_commit_version: z.number().optional(),
-      delta_commit_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-    })
-    .transform(d => ({
-      deltaCommitVersion: d.delta_commit_version,
-      deltaCommitTime: d.delta_commit_time,
-    }));
+export const unmarshalDeltaTableSyncInfoSchema: z.ZodType<DeltaTableSyncInfo> = z
+  .object({
+    delta_commit_version: z.number().optional(),
+    delta_commit_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+  })
+  .transform(d => ({
+    deltaCommitVersion: d.delta_commit_version,
+    deltaCommitTime: d.delta_commit_time,
+  }));
 
 export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
   .object({
     name: z.string().optional(),
     uid: z.string().optional(),
     parent: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     spec: z.lazy(() => unmarshalEndpointSpecSchema).optional(),
     status: z.lazy(() => unmarshalEndpointStatusSchema).optional(),
   })
@@ -2371,18 +2343,17 @@ export const unmarshalEndpointGroupSpecSchema: z.ZodType<EndpointGroupSpec> = z
     enableReadableSecondaries: d.enable_readable_secondaries,
   }));
 
-export const unmarshalEndpointGroupStatusSchema: z.ZodType<EndpointGroupStatus> =
-  z
-    .object({
-      min: z.number().optional(),
-      max: z.number().optional(),
-      enable_readable_secondaries: z.boolean().optional(),
-    })
-    .transform(d => ({
-      min: d.min,
-      max: d.max,
-      enableReadableSecondaries: d.enable_readable_secondaries,
-    }));
+export const unmarshalEndpointGroupStatusSchema: z.ZodType<EndpointGroupStatus> = z
+  .object({
+    min: z.number().optional(),
+    max: z.number().optional(),
+    enable_readable_secondaries: z.boolean().optional(),
+  })
+  .transform(d => ({
+    min: d.min,
+    max: d.max,
+    enableReadableSecondaries: d.enable_readable_secondaries,
+  }));
 
 export const unmarshalEndpointHostsSchema: z.ZodType<EndpointHosts> = z
   .object({
@@ -2394,8 +2365,9 @@ export const unmarshalEndpointHostsSchema: z.ZodType<EndpointHosts> = z
     readOnlyHost: d.read_only_host,
   }));
 
-export const unmarshalEndpointOperationMetadataSchema: z.ZodType<EndpointOperationMetadata> =
-  z.object({});
+export const unmarshalEndpointOperationMetadataSchema: z.ZodType<EndpointOperationMetadata> = z
+  .object({
+  });
 
 export const unmarshalEndpointSettingsSchema: z.ZodType<EndpointSettings> = z
   .object({
@@ -2411,10 +2383,7 @@ export const unmarshalEndpointSpecSchema: z.ZodType<EndpointSpec> = z
     autoscaling_limit_min_cu: z.number().optional(),
     autoscaling_limit_max_cu: z.number().optional(),
     disabled: z.boolean().optional(),
-    suspend_timeout_duration: z
-      .string()
-      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-      .optional(),
+    suspend_timeout_duration: z.string().transform(s => Temporal.Duration.from('PT' + s.toUpperCase())).optional(),
     no_suspension: z.boolean().optional(),
     settings: z.lazy(() => unmarshalEndpointSettingsSchema).optional(),
     group: z.lazy(() => unmarshalEndpointGroupSpecSchema).optional(),
@@ -2424,15 +2393,7 @@ export const unmarshalEndpointSpecSchema: z.ZodType<EndpointSpec> = z
     autoscalingLimitMinCu: d.autoscaling_limit_min_cu,
     autoscalingLimitMaxCu: d.autoscaling_limit_max_cu,
     disabled: d.disabled,
-    suspension:
-      d.suspend_timeout_duration !== undefined
-        ? {
-            $case: 'suspendTimeoutDuration' as const,
-            suspendTimeoutDuration: d.suspend_timeout_duration,
-          }
-        : d.no_suspension !== undefined
-          ? {$case: 'noSuspension' as const, noSuspension: d.no_suspension}
-          : undefined,
+    suspension: d.suspend_timeout_duration !== undefined ? { $case: 'suspendTimeoutDuration' as const, suspendTimeoutDuration: d.suspend_timeout_duration } : d.no_suspension !== undefined ? { $case: 'noSuspension' as const, noSuspension: d.no_suspension } : undefined,
     settings: d.settings,
     group: d.group,
   }));
@@ -2446,10 +2407,7 @@ export const unmarshalEndpointStatusSchema: z.ZodType<EndpointStatus> = z
     current_state: z.enum(EndpointStatus_State).optional(),
     pending_state: z.enum(EndpointStatus_State).optional(),
     disabled: z.boolean().optional(),
-    suspend_timeout_duration: z
-      .string()
-      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-      .optional(),
+    suspend_timeout_duration: z.string().transform(s => Temporal.Duration.from('PT' + s.toUpperCase())).optional(),
     settings: z.lazy(() => unmarshalEndpointSettingsSchema).optional(),
     group: z.lazy(() => unmarshalEndpointGroupStatusSchema).optional(),
     endpoint_id: z.string().optional(),
@@ -2468,58 +2426,53 @@ export const unmarshalEndpointStatusSchema: z.ZodType<EndpointStatus> = z
     endpointId: d.endpoint_id,
   }));
 
-export const unmarshalInitialEndpointSpecSchema: z.ZodType<InitialEndpointSpec> =
-  z
-    .object({
-      group: z.lazy(() => unmarshalEndpointGroupSpecSchema).optional(),
-    })
-    .transform(d => ({
-      group: d.group,
-    }));
+export const unmarshalInitialEndpointSpecSchema: z.ZodType<InitialEndpointSpec> = z
+  .object({
+    group: z.lazy(() => unmarshalEndpointGroupSpecSchema).optional(),
+  })
+  .transform(d => ({
+    group: d.group,
+  }));
 
-export const unmarshalListBranchesResponseSchema: z.ZodType<ListBranchesResponse> =
-  z
-    .object({
-      branches: z.array(z.lazy(() => unmarshalBranchSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      branches: d.branches,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListBranchesResponseSchema: z.ZodType<ListBranchesResponse> = z
+  .object({
+    branches: z.array(z.lazy(() => unmarshalBranchSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    branches: d.branches,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListDatabasesResponseSchema: z.ZodType<ListDatabasesResponse> =
-  z
-    .object({
-      databases: z.array(z.lazy(() => unmarshalDatabaseSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      databases: d.databases,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListDatabasesResponseSchema: z.ZodType<ListDatabasesResponse> = z
+  .object({
+    databases: z.array(z.lazy(() => unmarshalDatabaseSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    databases: d.databases,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListEndpointsResponseSchema: z.ZodType<ListEndpointsResponse> =
-  z
-    .object({
-      endpoints: z.array(z.lazy(() => unmarshalEndpointSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      endpoints: d.endpoints,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListEndpointsResponseSchema: z.ZodType<ListEndpointsResponse> = z
+  .object({
+    endpoints: z.array(z.lazy(() => unmarshalEndpointSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    endpoints: d.endpoints,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListProjectsResponseSchema: z.ZodType<ListProjectsResponse> =
-  z
-    .object({
-      projects: z.array(z.lazy(() => unmarshalProjectSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      projects: d.projects,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListProjectsResponseSchema: z.ZodType<ListProjectsResponse> = z
+  .object({
+    projects: z.array(z.lazy(() => unmarshalProjectSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    projects: d.projects,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalListRolesResponseSchema: z.ZodType<ListRolesResponse> = z
   .object({
@@ -2548,48 +2501,27 @@ export const unmarshalOperationSchema: z.ZodType<Operation> = z
     name: z.string().optional(),
     metadata: z.record(z.string(), z.unknown()).optional(),
     done: z.boolean().optional(),
-    error: z
-      .lazy(() => unmarshalDatabricksServiceExceptionWithDetailsProtoSchema)
-      .optional(),
+    error: z.lazy(() => unmarshalDatabricksServiceExceptionWithDetailsProtoSchema).optional(),
     response: z.record(z.string(), z.unknown()).optional(),
   })
   .transform(d => ({
     name: d.name,
     metadata: d.metadata,
     done: d.done,
-    result:
-      d.error !== undefined
-        ? {$case: 'error' as const, error: d.error}
-        : d.response !== undefined
-          ? {$case: 'response' as const, response: d.response}
-          : undefined,
+    result: d.error !== undefined ? { $case: 'error' as const, error: d.error } : d.response !== undefined ? { $case: 'response' as const, response: d.response } : undefined,
   }));
 
 export const unmarshalProjectSchema: z.ZodType<Project> = z
   .object({
     name: z.string().optional(),
     uid: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     spec: z.lazy(() => unmarshalProjectSpecSchema).optional(),
     status: z.lazy(() => unmarshalProjectStatusSchema).optional(),
-    initial_endpoint_spec: z
-      .lazy(() => unmarshalInitialEndpointSpecSchema)
-      .optional(),
-    delete_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    purge_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    initial_endpoint_spec: z.lazy(() => unmarshalInitialEndpointSpecSchema).optional(),
+    delete_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    purge_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2613,51 +2545,33 @@ export const unmarshalProjectCustomTagSchema: z.ZodType<ProjectCustomTag> = z
     value: d.value,
   }));
 
-export const unmarshalProjectDefaultEndpointSettingsSchema: z.ZodType<ProjectDefaultEndpointSettings> =
-  z
-    .object({
-      autoscaling_limit_min_cu: z.number().optional(),
-      autoscaling_limit_max_cu: z.number().optional(),
-      suspend_timeout_duration: z
-        .string()
-        .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-        .optional(),
-      no_suspension: z.boolean().optional(),
-      pg_settings: z.record(z.string(), z.string()).optional(),
-    })
-    .transform(d => ({
-      autoscalingLimitMinCu: d.autoscaling_limit_min_cu,
-      autoscalingLimitMaxCu: d.autoscaling_limit_max_cu,
-      suspension:
-        d.suspend_timeout_duration !== undefined
-          ? {
-              $case: 'suspendTimeoutDuration' as const,
-              suspendTimeoutDuration: d.suspend_timeout_duration,
-            }
-          : d.no_suspension !== undefined
-            ? {$case: 'noSuspension' as const, noSuspension: d.no_suspension}
-            : undefined,
-      pgSettings: d.pg_settings,
-    }));
+export const unmarshalProjectDefaultEndpointSettingsSchema: z.ZodType<ProjectDefaultEndpointSettings> = z
+  .object({
+    autoscaling_limit_min_cu: z.number().optional(),
+    autoscaling_limit_max_cu: z.number().optional(),
+    suspend_timeout_duration: z.string().transform(s => Temporal.Duration.from('PT' + s.toUpperCase())).optional(),
+    no_suspension: z.boolean().optional(),
+    pg_settings: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    autoscalingLimitMinCu: d.autoscaling_limit_min_cu,
+    autoscalingLimitMaxCu: d.autoscaling_limit_max_cu,
+    suspension: d.suspend_timeout_duration !== undefined ? { $case: 'suspendTimeoutDuration' as const, suspendTimeoutDuration: d.suspend_timeout_duration } : d.no_suspension !== undefined ? { $case: 'noSuspension' as const, noSuspension: d.no_suspension } : undefined,
+    pgSettings: d.pg_settings,
+  }));
 
-export const unmarshalProjectOperationMetadataSchema: z.ZodType<ProjectOperationMetadata> =
-  z.object({});
+export const unmarshalProjectOperationMetadataSchema: z.ZodType<ProjectOperationMetadata> = z
+  .object({
+  });
 
 export const unmarshalProjectSpecSchema: z.ZodType<ProjectSpec> = z
   .object({
     display_name: z.string().optional(),
     pg_version: z.number().optional(),
-    history_retention_duration: z
-      .string()
-      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-      .optional(),
-    default_endpoint_settings: z
-      .lazy(() => unmarshalProjectDefaultEndpointSettingsSchema)
-      .optional(),
+    history_retention_duration: z.string().transform(s => Temporal.Duration.from('PT' + s.toUpperCase())).optional(),
+    default_endpoint_settings: z.lazy(() => unmarshalProjectDefaultEndpointSettingsSchema).optional(),
     budget_policy_id: z.string().optional(),
-    custom_tags: z
-      .array(z.lazy(() => unmarshalProjectCustomTagSchema))
-      .optional(),
+    custom_tags: z.array(z.lazy(() => unmarshalProjectCustomTagSchema)).optional(),
     enable_pg_native_login: z.boolean().optional(),
     default_branch: z.string().optional(),
   })
@@ -2676,19 +2590,12 @@ export const unmarshalProjectStatusSchema: z.ZodType<ProjectStatus> = z
   .object({
     display_name: z.string().optional(),
     pg_version: z.number().optional(),
-    history_retention_duration: z
-      .string()
-      .transform(s => Temporal.Duration.from('PT' + s.toUpperCase()))
-      .optional(),
-    default_endpoint_settings: z
-      .lazy(() => unmarshalProjectDefaultEndpointSettingsSchema)
-      .optional(),
+    history_retention_duration: z.string().transform(s => Temporal.Duration.from('PT' + s.toUpperCase())).optional(),
+    default_endpoint_settings: z.lazy(() => unmarshalProjectDefaultEndpointSettingsSchema).optional(),
     branch_logical_size_limit_bytes: z.number().optional(),
     synthetic_storage_size_bytes: z.number().optional(),
     budget_policy_id: z.string().optional(),
-    custom_tags: z
-      .array(z.lazy(() => unmarshalProjectCustomTagSchema))
-      .optional(),
+    custom_tags: z.array(z.lazy(() => unmarshalProjectCustomTagSchema)).optional(),
     owner: z.string().optional(),
     enable_pg_native_login: z.boolean().optional(),
     default_branch: z.string().optional(),
@@ -2713,14 +2620,8 @@ export const unmarshalRoleSchema: z.ZodType<Role> = z
   .object({
     name: z.string().optional(),
     parent: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     spec: z.lazy(() => unmarshalRole_RoleSpecSchema).optional(),
     status: z.lazy(() => unmarshalRole_RoleStatusSchema).optional(),
   })
@@ -2782,21 +2683,17 @@ export const unmarshalRole_RoleStatusSchema: z.ZodType<Role_RoleStatus> = z
     roleId: d.role_id,
   }));
 
-export const unmarshalRoleOperationMetadataSchema: z.ZodType<RoleOperationMetadata> =
-  z.object({});
+export const unmarshalRoleOperationMetadataSchema: z.ZodType<RoleOperationMetadata> = z
+  .object({
+  });
 
 export const unmarshalSyncedTableSchema: z.ZodType<SyncedTable> = z
   .object({
     name: z.string().optional(),
     uid: z.string().optional(),
     spec: z.lazy(() => unmarshalSyncedTable_SyncedTableSpecSchema).optional(),
-    status: z
-      .lazy(() => unmarshalSyncedTable_SyncedTableStatusSchema)
-      .optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    status: z.lazy(() => unmarshalSyncedTable_SyncedTableStatusSchema).optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2807,130 +2704,96 @@ export const unmarshalSyncedTableSchema: z.ZodType<SyncedTable> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSyncedTable_SyncedTableSpecSchema: z.ZodType<SyncedTable_SyncedTableSpec> =
-  z
-    .object({
-      postgres_database: z.string().optional(),
-      branch: z.string().optional(),
-      scheduling_policy: z
-        .enum(SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy)
-        .optional(),
-      source_table_full_name: z.string().optional(),
-      primary_key_columns: z.array(z.string()).optional(),
-      timeseries_key: z.string().optional(),
-      existing_pipeline_id: z.string().optional(),
-      create_database_objects_if_missing: z.boolean().optional(),
-      new_pipeline_spec: z
-        .lazy(() => unmarshalNewPipelineSpecSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      postgresDatabase: d.postgres_database,
-      branch: d.branch,
-      schedulingPolicy: d.scheduling_policy,
-      sourceTableFullName: d.source_table_full_name,
-      primaryKeyColumns: d.primary_key_columns,
-      timeseriesKey: d.timeseries_key,
-      existingPipelineId: d.existing_pipeline_id,
-      createDatabaseObjectsIfMissing: d.create_database_objects_if_missing,
-      newPipelineSpec: d.new_pipeline_spec,
-    }));
+export const unmarshalSyncedTable_SyncedTableSpecSchema: z.ZodType<SyncedTable_SyncedTableSpec> = z
+  .object({
+    postgres_database: z.string().optional(),
+    branch: z.string().optional(),
+    scheduling_policy: z.enum(SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy).optional(),
+    source_table_full_name: z.string().optional(),
+    primary_key_columns: z.array(z.string()).optional(),
+    timeseries_key: z.string().optional(),
+    existing_pipeline_id: z.string().optional(),
+    create_database_objects_if_missing: z.boolean().optional(),
+    new_pipeline_spec: z.lazy(() => unmarshalNewPipelineSpecSchema).optional(),
+  })
+  .transform(d => ({
+    postgresDatabase: d.postgres_database,
+    branch: d.branch,
+    schedulingPolicy: d.scheduling_policy,
+    sourceTableFullName: d.source_table_full_name,
+    primaryKeyColumns: d.primary_key_columns,
+    timeseriesKey: d.timeseries_key,
+    existingPipelineId: d.existing_pipeline_id,
+    createDatabaseObjectsIfMissing: d.create_database_objects_if_missing,
+    newPipelineSpec: d.new_pipeline_spec,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSyncedTable_SyncedTableStatusSchema: z.ZodType<SyncedTable_SyncedTableStatus> =
-  z
-    .object({
-      message: z.string().optional(),
-      detailed_state: z.enum(SyncedTableState).optional(),
-      last_sync: z.lazy(() => unmarshalSyncedTablePositionSchema).optional(),
-      ongoing_sync_progress: z
-        .lazy(() => unmarshalSyncedTablePipelineProgressSchema)
-        .optional(),
-      provisioning_phase: z.enum(ProvisioningPhase).optional(),
-      last_processed_commit_version: z.number().optional(),
-      last_sync_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      pipeline_id: z.string().optional(),
-      unity_catalog_provisioning_state: z
-        .enum(ProvisioningInfo_State)
-        .optional(),
-      project: z.string().optional(),
-    })
-    .transform(d => ({
-      message: d.message,
-      detailedState: d.detailed_state,
-      lastSync: d.last_sync,
-      ongoingSyncProgress: d.ongoing_sync_progress,
-      provisioningPhase: d.provisioning_phase,
-      lastProcessedCommitVersion: d.last_processed_commit_version,
-      lastSyncTime: d.last_sync_time,
-      pipelineId: d.pipeline_id,
-      unityCatalogProvisioningState: d.unity_catalog_provisioning_state,
-      project: d.project,
-    }));
+export const unmarshalSyncedTable_SyncedTableStatusSchema: z.ZodType<SyncedTable_SyncedTableStatus> = z
+  .object({
+    message: z.string().optional(),
+    detailed_state: z.enum(SyncedTableState).optional(),
+    last_sync: z.lazy(() => unmarshalSyncedTablePositionSchema).optional(),
+    ongoing_sync_progress: z.lazy(() => unmarshalSyncedTablePipelineProgressSchema).optional(),
+    provisioning_phase: z.enum(ProvisioningPhase).optional(),
+    last_processed_commit_version: z.number().optional(),
+    last_sync_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    pipeline_id: z.string().optional(),
+    unity_catalog_provisioning_state: z.enum(ProvisioningInfo_State).optional(),
+    project: z.string().optional(),
+  })
+  .transform(d => ({
+    message: d.message,
+    detailedState: d.detailed_state,
+    lastSync: d.last_sync,
+    ongoingSyncProgress: d.ongoing_sync_progress,
+    provisioningPhase: d.provisioning_phase,
+    lastProcessedCommitVersion: d.last_processed_commit_version,
+    lastSyncTime: d.last_sync_time,
+    pipelineId: d.pipeline_id,
+    unityCatalogProvisioningState: d.unity_catalog_provisioning_state,
+    project: d.project,
+  }));
 
-export const unmarshalSyncedTableOperationMetadataSchema: z.ZodType<SyncedTableOperationMetadata> =
-  z.object({});
+export const unmarshalSyncedTableOperationMetadataSchema: z.ZodType<SyncedTableOperationMetadata> = z
+  .object({
+  });
 
-export const unmarshalSyncedTablePipelineProgressSchema: z.ZodType<SyncedTablePipelineProgress> =
-  z
-    .object({
-      latest_version_currently_processing: z.number().optional(),
-      synced_row_count: z.number().optional(),
-      total_row_count: z.number().optional(),
-      sync_progress_completion: z.number().optional(),
-      estimated_completion_time_seconds: z.number().optional(),
-    })
-    .transform(d => ({
-      latestVersionCurrentlyProcessing: d.latest_version_currently_processing,
-      syncedRowCount: d.synced_row_count,
-      totalRowCount: d.total_row_count,
-      syncProgressCompletion: d.sync_progress_completion,
-      estimatedCompletionTimeSeconds: d.estimated_completion_time_seconds,
-    }));
+export const unmarshalSyncedTablePipelineProgressSchema: z.ZodType<SyncedTablePipelineProgress> = z
+  .object({
+    latest_version_currently_processing: z.number().optional(),
+    synced_row_count: z.number().optional(),
+    total_row_count: z.number().optional(),
+    sync_progress_completion: z.number().optional(),
+    estimated_completion_time_seconds: z.number().optional(),
+  })
+  .transform(d => ({
+    latestVersionCurrentlyProcessing: d.latest_version_currently_processing,
+    syncedRowCount: d.synced_row_count,
+    totalRowCount: d.total_row_count,
+    syncProgressCompletion: d.sync_progress_completion,
+    estimatedCompletionTimeSeconds: d.estimated_completion_time_seconds,
+  }));
 
-export const unmarshalSyncedTablePositionSchema: z.ZodType<SyncedTablePosition> =
-  z
-    .object({
-      sync_start_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      sync_end_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      delta_table_sync_info: z
-        .lazy(() => unmarshalDeltaTableSyncInfoSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      syncStartTime: d.sync_start_time,
-      syncEndTime: d.sync_end_time,
-      sourceSyncInfo:
-        d.delta_table_sync_info !== undefined
-          ? {
-              $case: 'deltaTableSyncInfo' as const,
-              deltaTableSyncInfo: d.delta_table_sync_info,
-            }
-          : undefined,
-    }));
+export const unmarshalSyncedTablePositionSchema: z.ZodType<SyncedTablePosition> = z
+  .object({
+    sync_start_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    sync_end_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    delta_table_sync_info: z.lazy(() => unmarshalDeltaTableSyncInfoSchema).optional(),
+  })
+  .transform(d => ({
+    syncStartTime: d.sync_start_time,
+    syncEndTime: d.sync_end_time,
+    sourceSyncInfo: d.delta_table_sync_info !== undefined ? { $case: 'deltaTableSyncInfo' as const, deltaTableSyncInfo: d.delta_table_sync_info } : undefined,
+  }));
 
 export const marshalBranchSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     uid: z.string().optional(),
     parent: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     spec: z.lazy(() => marshalBranchSpecSchema).optional(),
     status: z.lazy(() => marshalBranchStatusSchema).optional(),
   })
@@ -2948,65 +2811,35 @@ export const marshalBranchSpecSchema: z.ZodType = z
   .object({
     sourceBranch: z.string().optional(),
     sourceBranchLsn: z.string().optional(),
-    sourceBranchTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    sourceBranchTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     isProtected: z.boolean().optional(),
-    expiration: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('expireTime'),
-          expireTime: z.any().transform((d: Temporal.Instant) => d.toString()),
-        }),
-        z.object({
-          $case: z.literal('ttl'),
-          ttl: z
-            .any()
-            .transform((d: Temporal.Duration) =>
-              d.toString().slice(2).toLowerCase()
-            ),
-        }),
-        z.object({$case: z.literal('noExpiry'), noExpiry: z.boolean()}),
-      ])
-      .optional(),
+    expiration: z.discriminatedUnion('$case', [z.object({ $case: z.literal('expireTime'), expireTime: z.any().transform((d: Temporal.Instant) => d.toString()) }), z.object({ $case: z.literal('ttl'), ttl: z.any().transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase()) }), z.object({ $case: z.literal('noExpiry'), noExpiry: z.boolean() })]).optional(),
   })
   .transform(d => ({
     source_branch: d.sourceBranch,
     source_branch_lsn: d.sourceBranchLsn,
     source_branch_time: d.sourceBranchTime,
     is_protected: d.isProtected,
-    ...(d.expiration?.$case === 'expireTime' && {
-      expire_time: d.expiration.expireTime,
-    }),
-    ...(d.expiration?.$case === 'ttl' && {ttl: d.expiration.ttl}),
-    ...(d.expiration?.$case === 'noExpiry' && {
-      no_expiry: d.expiration.noExpiry,
-    }),
+    ...(d.expiration?.$case === 'expireTime' && { expire_time: d.expiration.expireTime }),
+    ...(d.expiration?.$case === 'ttl' && { ttl: d.expiration.ttl }),
+    ...(d.expiration?.$case === 'noExpiry' && { no_expiry: d.expiration.noExpiry }),
   }));
 
 export const marshalBranchStatusSchema: z.ZodType = z
   .object({
     sourceBranch: z.string().optional(),
     sourceBranchLsn: z.string().optional(),
-    sourceBranchTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    sourceBranchTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     default: z.boolean().optional(),
     isProtected: z.boolean().optional(),
     currentState: z.enum(BranchStatus_State).optional(),
     pendingState: z.enum(BranchStatus_State).optional(),
-    stateChangeTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    stateChangeTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     logicalSizeBytes: z.number().optional(),
-    expireTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    expireTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     branchId: z.string().optional(),
+    deleteTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    purgeTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
   })
   .transform(d => ({
     source_branch: d.sourceBranch,
@@ -3020,6 +2853,8 @@ export const marshalBranchStatusSchema: z.ZodType = z
     logical_size_bytes: d.logicalSizeBytes,
     expire_time: d.expireTime,
     branch_id: d.branchId,
+    delete_time: d.deleteTime,
+    purge_time: d.purgeTime,
   }));
 
 export const marshalCatalogSchema: z.ZodType = z
@@ -3028,14 +2863,8 @@ export const marshalCatalogSchema: z.ZodType = z
     uid: z.string().optional(),
     spec: z.lazy(() => marshalCatalog_CatalogSpecSchema).optional(),
     status: z.lazy(() => marshalCatalog_CatalogStatusSchema).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3078,14 +2907,8 @@ export const marshalDatabaseSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     parent: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     spec: z.lazy(() => marshalDatabase_DatabaseSpecSchema).optional(),
     status: z.lazy(() => marshalDatabase_DatabaseStatusSchema).optional(),
   })
@@ -3125,10 +2948,7 @@ export const marshalDatabase_DatabaseStatusSchema: z.ZodType = z
 export const marshalDeltaTableSyncInfoSchema: z.ZodType = z
   .object({
     deltaCommitVersion: z.number().optional(),
-    deltaCommitTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    deltaCommitTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
   })
   .transform(d => ({
     delta_commit_version: d.deltaCommitVersion,
@@ -3140,14 +2960,8 @@ export const marshalEndpointSchema: z.ZodType = z
     name: z.string().optional(),
     uid: z.string().optional(),
     parent: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     spec: z.lazy(() => marshalEndpointSpecSchema).optional(),
     status: z.lazy(() => marshalEndpointStatusSchema).optional(),
   })
@@ -3209,19 +3023,7 @@ export const marshalEndpointSpecSchema: z.ZodType = z
     autoscalingLimitMinCu: z.number().optional(),
     autoscalingLimitMaxCu: z.number().optional(),
     disabled: z.boolean().optional(),
-    suspension: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('suspendTimeoutDuration'),
-          suspendTimeoutDuration: z
-            .any()
-            .transform((d: Temporal.Duration) =>
-              d.toString().slice(2).toLowerCase()
-            ),
-        }),
-        z.object({$case: z.literal('noSuspension'), noSuspension: z.boolean()}),
-      ])
-      .optional(),
+    suspension: z.discriminatedUnion('$case', [z.object({ $case: z.literal('suspendTimeoutDuration'), suspendTimeoutDuration: z.any().transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase()) }), z.object({ $case: z.literal('noSuspension'), noSuspension: z.boolean() })]).optional(),
     settings: z.lazy(() => marshalEndpointSettingsSchema).optional(),
     group: z.lazy(() => marshalEndpointGroupSpecSchema).optional(),
   })
@@ -3230,12 +3032,8 @@ export const marshalEndpointSpecSchema: z.ZodType = z
     autoscaling_limit_min_cu: d.autoscalingLimitMinCu,
     autoscaling_limit_max_cu: d.autoscalingLimitMaxCu,
     disabled: d.disabled,
-    ...(d.suspension?.$case === 'suspendTimeoutDuration' && {
-      suspend_timeout_duration: d.suspension.suspendTimeoutDuration,
-    }),
-    ...(d.suspension?.$case === 'noSuspension' && {
-      no_suspension: d.suspension.noSuspension,
-    }),
+    ...(d.suspension?.$case === 'suspendTimeoutDuration' && { suspend_timeout_duration: d.suspension.suspendTimeoutDuration }),
+    ...(d.suspension?.$case === 'noSuspension' && { no_suspension: d.suspension.noSuspension }),
     settings: d.settings,
     group: d.group,
   }));
@@ -3249,10 +3047,7 @@ export const marshalEndpointStatusSchema: z.ZodType = z
     currentState: z.enum(EndpointStatus_State).optional(),
     pendingState: z.enum(EndpointStatus_State).optional(),
     disabled: z.boolean().optional(),
-    suspendTimeoutDuration: z
-      .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
-      .optional(),
+    suspendTimeoutDuration: z.any().transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase()).optional(),
     settings: z.lazy(() => marshalEndpointSettingsSchema).optional(),
     group: z.lazy(() => marshalEndpointGroupStatusSchema).optional(),
     endpointId: z.string().optional(),
@@ -3305,27 +3100,13 @@ export const marshalProjectSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     uid: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     spec: z.lazy(() => marshalProjectSpecSchema).optional(),
     status: z.lazy(() => marshalProjectStatusSchema).optional(),
-    initialEndpointSpec: z
-      .lazy(() => marshalInitialEndpointSpecSchema)
-      .optional(),
-    deleteTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    purgeTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    initialEndpointSpec: z.lazy(() => marshalInitialEndpointSpecSchema).optional(),
+    deleteTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    purgeTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3353,30 +3134,14 @@ export const marshalProjectDefaultEndpointSettingsSchema: z.ZodType = z
   .object({
     autoscalingLimitMinCu: z.number().optional(),
     autoscalingLimitMaxCu: z.number().optional(),
-    suspension: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('suspendTimeoutDuration'),
-          suspendTimeoutDuration: z
-            .any()
-            .transform((d: Temporal.Duration) =>
-              d.toString().slice(2).toLowerCase()
-            ),
-        }),
-        z.object({$case: z.literal('noSuspension'), noSuspension: z.boolean()}),
-      ])
-      .optional(),
+    suspension: z.discriminatedUnion('$case', [z.object({ $case: z.literal('suspendTimeoutDuration'), suspendTimeoutDuration: z.any().transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase()) }), z.object({ $case: z.literal('noSuspension'), noSuspension: z.boolean() })]).optional(),
     pgSettings: z.record(z.string(), z.string()).optional(),
   })
   .transform(d => ({
     autoscaling_limit_min_cu: d.autoscalingLimitMinCu,
     autoscaling_limit_max_cu: d.autoscalingLimitMaxCu,
-    ...(d.suspension?.$case === 'suspendTimeoutDuration' && {
-      suspend_timeout_duration: d.suspension.suspendTimeoutDuration,
-    }),
-    ...(d.suspension?.$case === 'noSuspension' && {
-      no_suspension: d.suspension.noSuspension,
-    }),
+    ...(d.suspension?.$case === 'suspendTimeoutDuration' && { suspend_timeout_duration: d.suspension.suspendTimeoutDuration }),
+    ...(d.suspension?.$case === 'noSuspension' && { no_suspension: d.suspension.noSuspension }),
     pg_settings: d.pgSettings,
   }));
 
@@ -3384,13 +3149,8 @@ export const marshalProjectSpecSchema: z.ZodType = z
   .object({
     displayName: z.string().optional(),
     pgVersion: z.number().optional(),
-    historyRetentionDuration: z
-      .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
-      .optional(),
-    defaultEndpointSettings: z
-      .lazy(() => marshalProjectDefaultEndpointSettingsSchema)
-      .optional(),
+    historyRetentionDuration: z.any().transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase()).optional(),
+    defaultEndpointSettings: z.lazy(() => marshalProjectDefaultEndpointSettingsSchema).optional(),
     budgetPolicyId: z.string().optional(),
     customTags: z.array(z.lazy(() => marshalProjectCustomTagSchema)).optional(),
     enablePgNativeLogin: z.boolean().optional(),
@@ -3411,13 +3171,8 @@ export const marshalProjectStatusSchema: z.ZodType = z
   .object({
     displayName: z.string().optional(),
     pgVersion: z.number().optional(),
-    historyRetentionDuration: z
-      .any()
-      .transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase())
-      .optional(),
-    defaultEndpointSettings: z
-      .lazy(() => marshalProjectDefaultEndpointSettingsSchema)
-      .optional(),
+    historyRetentionDuration: z.any().transform((d: Temporal.Duration) => d.toString().slice(2).toLowerCase()).optional(),
+    defaultEndpointSettings: z.lazy(() => marshalProjectDefaultEndpointSettingsSchema).optional(),
     branchLogicalSizeLimitBytes: z.number().optional(),
     syntheticStorageSizeBytes: z.number().optional(),
     budgetPolicyId: z.string().optional(),
@@ -3454,30 +3209,18 @@ export const marshalRequestedClaimsSchema: z.ZodType = z
 
 export const marshalRequestedResourceSchema: z.ZodType = z
   .object({
-    resourceName: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('tableName'), tableName: z.string()}),
-      ])
-      .optional(),
+    resourceName: z.discriminatedUnion('$case', [z.object({ $case: z.literal('tableName'), tableName: z.string() })]).optional(),
   })
   .transform(d => ({
-    ...(d.resourceName?.$case === 'tableName' && {
-      table_name: d.resourceName.tableName,
-    }),
+    ...(d.resourceName?.$case === 'tableName' && { table_name: d.resourceName.tableName }),
   }));
 
 export const marshalRoleSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     parent: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     spec: z.lazy(() => marshalRole_RoleSpecSchema).optional(),
     status: z.lazy(() => marshalRole_RoleStatusSchema).optional(),
   })
@@ -3545,10 +3288,7 @@ export const marshalSyncedTableSchema: z.ZodType = z
     uid: z.string().optional(),
     spec: z.lazy(() => marshalSyncedTable_SyncedTableSpecSchema).optional(),
     status: z.lazy(() => marshalSyncedTable_SyncedTableStatusSchema).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -3563,9 +3303,7 @@ export const marshalSyncedTable_SyncedTableSpecSchema: z.ZodType = z
   .object({
     postgresDatabase: z.string().optional(),
     branch: z.string().optional(),
-    schedulingPolicy: z
-      .enum(SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy)
-      .optional(),
+    schedulingPolicy: z.enum(SyncedTable_SyncedTableSpec_SyncedTableSchedulingPolicy).optional(),
     sourceTableFullName: z.string().optional(),
     primaryKeyColumns: z.array(z.string()).optional(),
     timeseriesKey: z.string().optional(),
@@ -3591,15 +3329,10 @@ export const marshalSyncedTable_SyncedTableStatusSchema: z.ZodType = z
     message: z.string().optional(),
     detailedState: z.enum(SyncedTableState).optional(),
     lastSync: z.lazy(() => marshalSyncedTablePositionSchema).optional(),
-    ongoingSyncProgress: z
-      .lazy(() => marshalSyncedTablePipelineProgressSchema)
-      .optional(),
+    ongoingSyncProgress: z.lazy(() => marshalSyncedTablePipelineProgressSchema).optional(),
     provisioningPhase: z.enum(ProvisioningPhase).optional(),
     lastProcessedCommitVersion: z.number().optional(),
-    lastSyncTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    lastSyncTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     pipelineId: z.string().optional(),
     unityCatalogProvisioningState: z.enum(ProvisioningInfo_State).optional(),
     project: z.string().optional(),
@@ -3635,29 +3368,22 @@ export const marshalSyncedTablePipelineProgressSchema: z.ZodType = z
 
 export const marshalSyncedTablePositionSchema: z.ZodType = z
   .object({
-    syncStartTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    syncEndTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    sourceSyncInfo: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('deltaTableSyncInfo'),
-          deltaTableSyncInfo: z.lazy(() => marshalDeltaTableSyncInfoSchema),
-        }),
-      ])
-      .optional(),
+    syncStartTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    syncEndTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    sourceSyncInfo: z.discriminatedUnion('$case', [z.object({ $case: z.literal('deltaTableSyncInfo'), deltaTableSyncInfo: z.lazy(() => marshalDeltaTableSyncInfoSchema) })]).optional(),
   })
   .transform(d => ({
     sync_start_time: d.syncStartTime,
     sync_end_time: d.syncEndTime,
-    ...(d.sourceSyncInfo?.$case === 'deltaTableSyncInfo' && {
-      delta_table_sync_info: d.sourceSyncInfo.deltaTableSyncInfo,
-    }),
+    ...(d.sourceSyncInfo?.$case === 'deltaTableSyncInfo' && { delta_table_sync_info: d.sourceSyncInfo.deltaTableSyncInfo }),
+  }));
+
+export const marshalUndeleteBranchRequestSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
   }));
 
 export const marshalUndeleteProjectRequestSchema: z.ZodType = z
@@ -3696,10 +3422,12 @@ const branchStatusFieldMaskSchema: FieldMaskSchema = {
   branchId: {wire: 'branch_id'},
   currentState: {wire: 'current_state'},
   default: {wire: 'default'},
+  deleteTime: {wire: 'delete_time'},
   expireTime: {wire: 'expire_time'},
   isProtected: {wire: 'is_protected'},
   logicalSizeBytes: {wire: 'logical_size_bytes'},
   pendingState: {wire: 'pending_state'},
+  purgeTime: {wire: 'purge_time'},
   sourceBranch: {wire: 'source_branch'},
   sourceBranchLsn: {wire: 'source_branch_lsn'},
   sourceBranchTime: {wire: 'source_branch_time'},
@@ -3711,10 +3439,7 @@ const databaseFieldMaskSchema: FieldMaskSchema = {
   name: {wire: 'name'},
   parent: {wire: 'parent'},
   spec: {wire: 'spec', children: () => database_DatabaseSpecFieldMaskSchema},
-  status: {
-    wire: 'status',
-    children: () => database_DatabaseStatusFieldMaskSchema,
-  },
+  status: {wire: 'status', children: () => database_DatabaseStatusFieldMaskSchema},
   updateTime: {wire: 'update_time'},
 };
 
@@ -3802,10 +3527,7 @@ const initialEndpointSpecFieldMaskSchema: FieldMaskSchema = {
 const projectFieldMaskSchema: FieldMaskSchema = {
   createTime: {wire: 'create_time'},
   deleteTime: {wire: 'delete_time'},
-  initialEndpointSpec: {
-    wire: 'initial_endpoint_spec',
-    children: () => initialEndpointSpecFieldMaskSchema,
-  },
+  initialEndpointSpec: {wire: 'initial_endpoint_spec', children: () => initialEndpointSpecFieldMaskSchema},
   name: {wire: 'name'},
   purgeTime: {wire: 'purge_time'},
   spec: {wire: 'spec', children: () => projectSpecFieldMaskSchema},
@@ -3830,10 +3552,7 @@ const projectSpecFieldMaskSchema: FieldMaskSchema = {
   budgetPolicyId: {wire: 'budget_policy_id'},
   customTags: {wire: 'custom_tags'},
   defaultBranch: {wire: 'default_branch'},
-  defaultEndpointSettings: {
-    wire: 'default_endpoint_settings',
-    children: () => projectDefaultEndpointSettingsFieldMaskSchema,
-  },
+  defaultEndpointSettings: {wire: 'default_endpoint_settings', children: () => projectDefaultEndpointSettingsFieldMaskSchema},
   displayName: {wire: 'display_name'},
   enablePgNativeLogin: {wire: 'enable_pg_native_login'},
   historyRetentionDuration: {wire: 'history_retention_duration'},
@@ -3845,10 +3564,7 @@ const projectStatusFieldMaskSchema: FieldMaskSchema = {
   budgetPolicyId: {wire: 'budget_policy_id'},
   customTags: {wire: 'custom_tags'},
   defaultBranch: {wire: 'default_branch'},
-  defaultEndpointSettings: {
-    wire: 'default_endpoint_settings',
-    children: () => projectDefaultEndpointSettingsFieldMaskSchema,
-  },
+  defaultEndpointSettings: {wire: 'default_endpoint_settings', children: () => projectDefaultEndpointSettingsFieldMaskSchema},
   displayName: {wire: 'display_name'},
   enablePgNativeLogin: {wire: 'enable_pg_native_login'},
   historyRetentionDuration: {wire: 'history_retention_duration'},
@@ -3880,10 +3596,7 @@ const role_AttributesFieldMaskSchema: FieldMaskSchema = {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 const role_RoleSpecFieldMaskSchema: FieldMaskSchema = {
-  attributes: {
-    wire: 'attributes',
-    children: () => role_AttributesFieldMaskSchema,
-  },
+  attributes: {wire: 'attributes', children: () => role_AttributesFieldMaskSchema},
   authMethod: {wire: 'auth_method'},
   identityType: {wire: 'identity_type'},
   membershipRoles: {wire: 'membership_roles'},
@@ -3892,10 +3605,7 @@ const role_RoleSpecFieldMaskSchema: FieldMaskSchema = {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 const role_RoleStatusFieldMaskSchema: FieldMaskSchema = {
-  attributes: {
-    wire: 'attributes',
-    children: () => role_AttributesFieldMaskSchema,
-  },
+  attributes: {wire: 'attributes', children: () => role_AttributesFieldMaskSchema},
   authMethod: {wire: 'auth_method'},
   identityType: {wire: 'identity_type'},
   membershipRoles: {wire: 'membership_roles'},

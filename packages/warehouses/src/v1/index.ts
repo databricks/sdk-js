@@ -1,12 +1,7 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
-export {
-  Client,
-  CreateWarehouseWaiter,
-  EditWarehouseWaiter,
-  StartWarehouseWaiter,
-  StopWarehouseWaiter,
-} from './client';
+
+export {Client, CreateWarehouseWaiter, EditWarehouseWaiter, StartWarehouseWaiter, StopWarehouseWaiter} from './client';
 
 export {
   ChannelName,
@@ -23,8 +18,8 @@ export {
 export type {
   Channel,
   CreateDefaultWarehouseOverrideRequest,
-  CreateWarehouse,
-  CreateWarehouse_Response,
+  CreateWarehouseRequest,
+  CreateWarehouseRequest_Response,
   DefaultWarehouseOverride,
   DeleteDefaultWarehouseOverrideRequest,
   EditWarehouseRequest,
@@ -35,8 +30,8 @@ export type {
   EndpointTagPair,
   EndpointTags,
   GetDefaultWarehouseOverrideRequest,
-  GetWarehouse,
-  GetWarehouse_Response,
+  GetWarehouseRequest,
+  GetWarehouseRequest_Response,
   GetWorkspaceWarehouseConfigRequest,
   GetWorkspaceWarehouseConfigRequest_Response,
   ListDefaultWarehouseOverridesRequest,

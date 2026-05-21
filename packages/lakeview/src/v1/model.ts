@@ -3,6 +3,7 @@
 import {Temporal} from '@js-temporal/polyfill';
 import {z} from 'zod';
 
+
 export enum DashboardView {
   /** Includes summary metadata from the dashboard. */
   DASHBOARD_VIEW_BASIC = 'DASHBOARD_VIEW_BASIC',
@@ -437,32 +438,28 @@ export interface UpdateScheduleRequest {
   schedule?: Schedule | undefined;
 }
 
-export const unmarshalAuthorizationDetailsSchema: z.ZodType<AuthorizationDetails> =
-  z
-    .object({
-      type: z.string().optional(),
-      resource_name: z.string().optional(),
-      resource_legacy_acl_path: z.string().optional(),
-      grant_rules: z
-        .array(z.lazy(() => unmarshalAuthorizationDetails_GrantRuleSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      type: d.type,
-      resourceName: d.resource_name,
-      resourceLegacyAclPath: d.resource_legacy_acl_path,
-      grantRules: d.grant_rules,
-    }));
+export const unmarshalAuthorizationDetailsSchema: z.ZodType<AuthorizationDetails> = z
+  .object({
+    type: z.string().optional(),
+    resource_name: z.string().optional(),
+    resource_legacy_acl_path: z.string().optional(),
+    grant_rules: z.array(z.lazy(() => unmarshalAuthorizationDetails_GrantRuleSchema)).optional(),
+  })
+  .transform(d => ({
+    type: d.type,
+    resourceName: d.resource_name,
+    resourceLegacyAclPath: d.resource_legacy_acl_path,
+    grantRules: d.grant_rules,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAuthorizationDetails_GrantRuleSchema: z.ZodType<AuthorizationDetails_GrantRule> =
-  z
-    .object({
-      permission_set: z.string().optional(),
-    })
-    .transform(d => ({
-      permissionSet: d.permission_set,
-    }));
+export const unmarshalAuthorizationDetails_GrantRuleSchema: z.ZodType<AuthorizationDetails_GrantRule> = z
+  .object({
+    permission_set: z.string().optional(),
+  })
+  .transform(d => ({
+    permissionSet: d.permission_set,
+  }));
 
 export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
   .object({
@@ -479,14 +476,8 @@ export const unmarshalDashboardSchema: z.ZodType<Dashboard> = z
     dashboard_id: z.string().optional(),
     display_name: z.string().optional(),
     path: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     warehouse_id: z.string().optional(),
     etag: z.string().optional(),
     serialized_dashboard: z.string().optional(),
@@ -506,73 +497,61 @@ export const unmarshalDashboardSchema: z.ZodType<Dashboard> = z
     parentPath: d.parent_path,
   }));
 
-export const unmarshalGetPublishedDashboardTokenInfoResponseSchema: z.ZodType<GetPublishedDashboardTokenInfoResponse> =
-  z
-    .object({
-      custom_claim: z.string().optional(),
-      scope: z.string().optional(),
-      authorization_details: z
-        .array(z.lazy(() => unmarshalAuthorizationDetailsSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      customClaim: d.custom_claim,
-      scope: d.scope,
-      authorizationDetails: d.authorization_details,
-    }));
+export const unmarshalGetPublishedDashboardTokenInfoResponseSchema: z.ZodType<GetPublishedDashboardTokenInfoResponse> = z
+  .object({
+    custom_claim: z.string().optional(),
+    scope: z.string().optional(),
+    authorization_details: z.array(z.lazy(() => unmarshalAuthorizationDetailsSchema)).optional(),
+  })
+  .transform(d => ({
+    customClaim: d.custom_claim,
+    scope: d.scope,
+    authorizationDetails: d.authorization_details,
+  }));
 
-export const unmarshalListDashboardsResponseSchema: z.ZodType<ListDashboardsResponse> =
-  z
-    .object({
-      dashboards: z.array(z.lazy(() => unmarshalDashboardSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      dashboards: d.dashboards,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListDashboardsResponseSchema: z.ZodType<ListDashboardsResponse> = z
+  .object({
+    dashboards: z.array(z.lazy(() => unmarshalDashboardSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboards: d.dashboards,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListSchedulesResponseSchema: z.ZodType<ListSchedulesResponse> =
-  z
-    .object({
-      schedules: z.array(z.lazy(() => unmarshalScheduleSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      schedules: d.schedules,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListSchedulesResponseSchema: z.ZodType<ListSchedulesResponse> = z
+  .object({
+    schedules: z.array(z.lazy(() => unmarshalScheduleSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    schedules: d.schedules,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListSubscriptionsResponseSchema: z.ZodType<ListSubscriptionsResponse> =
-  z
-    .object({
-      subscriptions: z
-        .array(z.lazy(() => unmarshalSubscriptionSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      subscriptions: d.subscriptions,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListSubscriptionsResponseSchema: z.ZodType<ListSubscriptionsResponse> = z
+  .object({
+    subscriptions: z.array(z.lazy(() => unmarshalSubscriptionSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    subscriptions: d.subscriptions,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalPublishedDashboardSchema: z.ZodType<PublishedDashboard> =
-  z
-    .object({
-      display_name: z.string().optional(),
-      warehouse_id: z.string().optional(),
-      embed_credentials: z.boolean().optional(),
-      revision_create_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-    })
-    .transform(d => ({
-      displayName: d.display_name,
-      warehouseId: d.warehouse_id,
-      embedCredentials: d.embed_credentials,
-      revisionCreateTime: d.revision_create_time,
-    }));
+export const unmarshalPublishedDashboardSchema: z.ZodType<PublishedDashboard> = z
+  .object({
+    display_name: z.string().optional(),
+    warehouse_id: z.string().optional(),
+    embed_credentials: z.boolean().optional(),
+    revision_create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+  })
+  .transform(d => ({
+    displayName: d.display_name,
+    warehouseId: d.warehouse_id,
+    embedCredentials: d.embed_credentials,
+    revisionCreateTime: d.revision_create_time,
+  }));
 
 export const unmarshalScheduleSchema: z.ZodType<Schedule> = z
   .object({
@@ -582,14 +561,8 @@ export const unmarshalScheduleSchema: z.ZodType<Schedule> = z
     pause_status: z.enum(SchedulePauseStatus).optional(),
     display_name: z.string().optional(),
     etag: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     warehouse_id: z.string().optional(),
   })
   .transform(d => ({
@@ -612,14 +585,8 @@ export const unmarshalSubscriptionSchema: z.ZodType<Subscription> = z
     subscriber: z.lazy(() => unmarshalSubscription_SubscriberSchema).optional(),
     created_by_user_id: z.number().optional(),
     etag: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     skip_notify: z.boolean().optional(),
   })
   .transform(d => ({
@@ -635,46 +602,41 @@ export const unmarshalSubscriptionSchema: z.ZodType<Subscription> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSubscription_SubscriberSchema: z.ZodType<Subscription_Subscriber> =
-  z
-    .object({
-      user_subscriber: z
-        .lazy(() => unmarshalSubscription_Subscriber_UserSchema)
-        .optional(),
-      destination_subscriber: z
-        .lazy(() => unmarshalSubscription_Subscriber_DestinationSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      userSubscriber: d.user_subscriber,
-      destinationSubscriber: d.destination_subscriber,
-    }));
+export const unmarshalSubscription_SubscriberSchema: z.ZodType<Subscription_Subscriber> = z
+  .object({
+    user_subscriber: z.lazy(() => unmarshalSubscription_Subscriber_UserSchema).optional(),
+    destination_subscriber: z.lazy(() => unmarshalSubscription_Subscriber_DestinationSchema).optional(),
+  })
+  .transform(d => ({
+    userSubscriber: d.user_subscriber,
+    destinationSubscriber: d.destination_subscriber,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSubscription_Subscriber_DestinationSchema: z.ZodType<Subscription_Subscriber_Destination> =
-  z
-    .object({
-      destination_id: z.string().optional(),
-    })
-    .transform(d => ({
-      destinationId: d.destination_id,
-    }));
+export const unmarshalSubscription_Subscriber_DestinationSchema: z.ZodType<Subscription_Subscriber_Destination> = z
+  .object({
+    destination_id: z.string().optional(),
+  })
+  .transform(d => ({
+    destinationId: d.destination_id,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSubscription_Subscriber_UserSchema: z.ZodType<Subscription_Subscriber_User> =
-  z
-    .object({
-      user_id: z.number().optional(),
-    })
-    .transform(d => ({
-      userId: d.user_id,
-    }));
+export const unmarshalSubscription_Subscriber_UserSchema: z.ZodType<Subscription_Subscriber_User> = z
+  .object({
+    user_id: z.number().optional(),
+  })
+  .transform(d => ({
+    userId: d.user_id,
+  }));
 
-export const unmarshalTrashDashboardResponseSchema: z.ZodType<TrashDashboardResponse> =
-  z.object({});
+export const unmarshalTrashDashboardResponseSchema: z.ZodType<TrashDashboardResponse> = z
+  .object({
+  });
 
-export const unmarshalUnpublishDashboardResponseSchema: z.ZodType<UnpublishDashboardResponse> =
-  z.object({});
+export const unmarshalUnpublishDashboardResponseSchema: z.ZodType<UnpublishDashboardResponse> = z
+  .object({
+  });
 
 export const marshalCronScheduleSchema: z.ZodType = z
   .object({
@@ -691,14 +653,8 @@ export const marshalDashboardSchema: z.ZodType = z
     dashboardId: z.string().optional(),
     displayName: z.string().optional(),
     path: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     warehouseId: z.string().optional(),
     etag: z.string().optional(),
     serializedDashboard: z.string().optional(),
@@ -752,14 +708,8 @@ export const marshalScheduleSchema: z.ZodType = z
     pauseStatus: z.enum(SchedulePauseStatus).optional(),
     displayName: z.string().optional(),
     etag: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     warehouseId: z.string().optional(),
   })
   .transform(d => ({
@@ -782,14 +732,8 @@ export const marshalSubscriptionSchema: z.ZodType = z
     subscriber: z.lazy(() => marshalSubscription_SubscriberSchema).optional(),
     createdByUserId: z.number().optional(),
     etag: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     skipNotify: z.boolean().optional(),
   })
   .transform(d => ({
@@ -807,12 +751,8 @@ export const marshalSubscriptionSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalSubscription_SubscriberSchema: z.ZodType = z
   .object({
-    userSubscriber: z
-      .lazy(() => marshalSubscription_Subscriber_UserSchema)
-      .optional(),
-    destinationSubscriber: z
-      .lazy(() => marshalSubscription_Subscriber_DestinationSchema)
-      .optional(),
+    userSubscriber: z.lazy(() => marshalSubscription_Subscriber_UserSchema).optional(),
+    destinationSubscriber: z.lazy(() => marshalSubscription_Subscriber_DestinationSchema).optional(),
   })
   .transform(d => ({
     user_subscriber: d.userSubscriber,

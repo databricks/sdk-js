@@ -10,13 +10,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CancelCommandRequest,
@@ -80,13 +74,10 @@ export class Client {
 
   /**
    * Cancels a currently running command within an execution context.
-   *
+   * 
    * The command ID is obtained from a prior successful call to __execute__.
    */
-  async cancel(
-    req: CancelCommandRequest,
-    options?: CallOptions
-  ): Promise<CancelResponse> {
+  async cancel(req: CancelCommandRequest, options?: CallOptions): Promise<CancelResponse> {
     const url = `${this.host}/api/1.2/commands/cancel`;
     const body = marshalRequest(req, marshalCancelCommandRequestSchema);
     let resp: CancelResponse | undefined;
@@ -94,11 +85,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCancelResponseSchema);
     };
     await executeCall(call, options);
@@ -108,7 +95,7 @@ export class Client {
     return resp;
   }
 
-  async cancelWaiter(
+async cancelWaiter(
     req: CancelCommandRequest,
     options?: CallOptions
   ): Promise<CancelWaiter> {
@@ -128,18 +115,20 @@ export class Client {
         'request field commandId required for polling is missing'
       );
     }
-    return new CancelWaiter(this, req.clusterId, req.contextId, req.commandId);
+    return new CancelWaiter(
+      this,
+      req.clusterId,
+      req.contextId,
+      req.commandId,
+    );
   }
 
   /**
    * Gets the status of and, if available, the results from a currently executing command.
-   *
+   * 
    * The command ID is obtained from a prior successful call to __execute__.
    */
-  async commandStatus(
-    req: GetCommandStatusRequest,
-    options?: CallOptions
-  ): Promise<GetCommandStatusResponse> {
+  async commandStatus(req: GetCommandStatusRequest, options?: CallOptions): Promise<GetCommandStatusResponse> {
     const url = `${this.host}/api/1.2/commands/status`;
     const params = new URLSearchParams();
     if (req.clusterId !== undefined) {
@@ -158,11 +147,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalGetCommandStatusResponseSchema);
     };
     await executeCall(call, options);
@@ -173,10 +158,7 @@ export class Client {
   }
 
   /** Gets the status for an execution context. */
-  async contextStatus(
-    req: GetContextStatusRequest,
-    options?: CallOptions
-  ): Promise<GetContextStatusResponse> {
+  async contextStatus(req: GetContextStatusRequest, options?: CallOptions): Promise<GetContextStatusResponse> {
     const url = `${this.host}/api/1.2/contexts/status`;
     const params = new URLSearchParams();
     if (req.clusterId !== undefined) {
@@ -192,11 +174,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalGetContextStatusResponseSchema);
     };
     await executeCall(call, options);
@@ -208,13 +186,10 @@ export class Client {
 
   /**
    * Creates an execution context for running cluster commands.
-   *
+   * 
    * If successful, this method returns the ID of the new execution context.
    */
-  async create(
-    req: CreateContextRequest,
-    options?: CallOptions
-  ): Promise<CreateResponse> {
+  async create(req: CreateContextRequest, options?: CallOptions): Promise<CreateResponse> {
     const url = `${this.host}/api/1.2/contexts/create`;
     const body = marshalRequest(req, marshalCreateContextRequestSchema);
     let resp: CreateResponse | undefined;
@@ -222,11 +197,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCreateResponseSchema);
     };
     await executeCall(call, options);
@@ -236,7 +207,7 @@ export class Client {
     return resp;
   }
 
-  async createWaiter(
+async createWaiter(
     req: CreateContextRequest,
     options?: CallOptions
   ): Promise<CreateWaiter> {
@@ -247,16 +218,19 @@ export class Client {
       );
     }
     if (resp.id === undefined) {
-      throw new Error('response field id required for polling is missing');
+      throw new Error(
+        'response field id required for polling is missing'
+      );
     }
-    return new CreateWaiter(this, req.clusterId, resp.id);
+    return new CreateWaiter(
+      this,
+      req.clusterId,
+      resp.id,
+    );
   }
 
   /** Deletes an execution context. */
-  async destroy(
-    req: DestroyContextRequest,
-    options?: CallOptions
-  ): Promise<DestroyResponse> {
+  async destroy(req: DestroyContextRequest, options?: CallOptions): Promise<DestroyResponse> {
     const url = `${this.host}/api/1.2/contexts/destroy`;
     const body = marshalRequest(req, marshalDestroyContextRequestSchema);
     let resp: DestroyResponse | undefined;
@@ -264,11 +238,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDestroyResponseSchema);
     };
     await executeCall(call, options);
@@ -280,13 +250,10 @@ export class Client {
 
   /**
    * Runs a cluster command in the given execution context, using the provided language.
-   *
+   * 
    * If successful, it returns an ID for tracking the status of the command's execution.
    */
-  async execute(
-    req: ExecuteCommandRequest,
-    options?: CallOptions
-  ): Promise<CreateResponse> {
+  async execute(req: ExecuteCommandRequest, options?: CallOptions): Promise<CreateResponse> {
     const url = `${this.host}/api/1.2/commands/execute`;
     const body = marshalRequest(req, marshalExecuteCommandRequestSchema);
     let resp: CreateResponse | undefined;
@@ -294,11 +261,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCreateResponseSchema);
     };
     await executeCall(call, options);
@@ -308,7 +271,7 @@ export class Client {
     return resp;
   }
 
-  async executeWaiter(
+async executeWaiter(
     req: ExecuteCommandRequest,
     options?: CallOptions
   ): Promise<ExecuteWaiter> {
@@ -324,9 +287,16 @@ export class Client {
       );
     }
     if (resp.id === undefined) {
-      throw new Error('response field id required for polling is missing');
+      throw new Error(
+        'response field id required for polling is missing'
+      );
     }
-    return new ExecuteWaiter(this, req.clusterId, req.contextId, resp.id);
+    return new ExecuteWaiter(
+      this,
+      req.clusterId,
+      req.contextId,
+      resp.id,
+    );
   }
 }
 
@@ -335,7 +305,7 @@ export class CancelWaiter {
     private readonly client: Client,
     readonly clusterId: string,
     readonly contextId: string,
-    readonly commandId: string
+    readonly commandId: string,
   ) {}
 
   /**
@@ -365,7 +335,8 @@ export class CancelWaiter {
         case CommandStatus.COMMAND_CANCELLED:
           result = pollResp;
           return;
-        case CommandStatus.COMMAND_ERROR: {
+        case CommandStatus.COMMAND_ERROR:
+        {
           const msg = pollResp.results?.cause ?? '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }
@@ -418,7 +389,7 @@ export class CreateWaiter {
   constructor(
     private readonly client: Client,
     readonly clusterId: string,
-    readonly contextId: string
+    readonly contextId: string,
   ) {}
 
   /**
@@ -447,7 +418,8 @@ export class CreateWaiter {
         case ContextStatus.CONTEXT_RUNNING:
           result = pollResp;
           return;
-        case ContextStatus.CONTEXT_ERROR: {
+        case ContextStatus.CONTEXT_ERROR:
+        {
           const msg = '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }
@@ -500,7 +472,7 @@ export class ExecuteWaiter {
     private readonly client: Client,
     readonly clusterId: string,
     readonly contextId: string,
-    readonly commandId: string
+    readonly commandId: string,
   ) {}
 
   /**
@@ -532,7 +504,8 @@ export class ExecuteWaiter {
           result = pollResp;
           return;
         case CommandStatus.COMMAND_CANCELLED:
-        case CommandStatus.COMMAND_CANCELLING: {
+        case CommandStatus.COMMAND_CANCELLING:
+        {
           const msg = '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }

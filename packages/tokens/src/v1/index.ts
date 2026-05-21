@@ -1,17 +1,19 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+
 export {Client} from './client';
 
-export {} from './model';
+export {
+} from './model';
 
 export type {
-  CreateToken,
-  CreateToken_Response,
-  ListTokens,
-  ListTokens_Response,
+  CreateTokenRequest,
+  CreateTokenRequest_Response,
+  ListTokensRequest,
+  ListTokensRequest_Response,
   PublicTokenInfo,
-  RevokeToken,
-  RevokeToken_Response,
-  UpdateToken,
+  RevokeTokenRequest,
+  RevokeTokenRequest_Response,
+  UpdateTokenRequest,
   UpdateTokenResponse,
 } from './model';

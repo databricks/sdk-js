@@ -9,35 +9,29 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  CreateRepo,
-  CreateRepo_Response,
-  DeleteProject,
-  DeleteProject_Response,
-  GetRepo,
-  GetRepo_Response,
-  ListRepos,
-  ListRepos_Response,
+  CreateRepoRequest,
+  CreateRepoRequest_Response,
+  DeleteProjectRequest,
+  DeleteProjectRequest_Response,
+  GetRepoRequest,
+  GetRepoRequest_Response,
+  ListReposRequest,
+  ListReposRequest_Response,
   RepoInfo,
-  UpdateRepo,
-  UpdateRepo_Response,
+  UpdateRepoRequest,
+  UpdateRepoRequest_Response,
 } from './model';
 import {
-  marshalCreateRepoSchema,
-  marshalUpdateRepoSchema,
-  unmarshalCreateRepo_ResponseSchema,
-  unmarshalDeleteProject_ResponseSchema,
-  unmarshalGetRepo_ResponseSchema,
-  unmarshalListRepos_ResponseSchema,
-  unmarshalUpdateRepo_ResponseSchema,
+  marshalCreateRepoRequestSchema,
+  marshalUpdateRepoRequestSchema,
+  unmarshalCreateRepoRequest_ResponseSchema,
+  unmarshalDeleteProjectRequest_ResponseSchema,
+  unmarshalGetRepoRequest_ResponseSchema,
+  unmarshalListReposRequest_ResponseSchema,
+  unmarshalUpdateRepoRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -76,23 +70,16 @@ export class Client {
    * Note that repos created programmatically must be linked to a remote Git repo, unlike repos
    * created in the browser.
    */
-  async createRepo(
-    req: CreateRepo,
-    options?: CallOptions
-  ): Promise<CreateRepo_Response> {
+  async createRepo(req: CreateRepoRequest, options?: CallOptions): Promise<CreateRepoRequest_Response> {
     const url = `${this.host}/api/2.0/repos`;
-    const body = marshalRequest(req, marshalCreateRepoSchema);
-    let resp: CreateRepo_Response | undefined;
+    const body = marshalRequest(req, marshalCreateRepoRequestSchema);
+    let resp: CreateRepoRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalCreateRepo_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalCreateRepoRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -102,22 +89,15 @@ export class Client {
   }
 
   /** Deletes the specified repo. */
-  async deleteProject(
-    req: DeleteProject,
-    options?: CallOptions
-  ): Promise<DeleteProject_Response> {
+  async deleteProject(req: DeleteProjectRequest, options?: CallOptions): Promise<DeleteProjectRequest_Response> {
     const url = `${this.host}/api/2.0/repos/${String(req.id ?? '')}`;
-    let resp: DeleteProject_Response | undefined;
+    let resp: DeleteProjectRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalDeleteProject_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteProjectRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -127,22 +107,15 @@ export class Client {
   }
 
   /** Returns the repo with the given repo ID. */
-  async getRepo(
-    req: GetRepo,
-    options?: CallOptions
-  ): Promise<GetRepo_Response> {
+  async getRepo(req: GetRepoRequest, options?: CallOptions): Promise<GetRepoRequest_Response> {
     const url = `${this.host}/api/2.0/repos/${String(req.id ?? '')}`;
-    let resp: GetRepo_Response | undefined;
+    let resp: GetRepoRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalGetRepo_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetRepoRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -155,10 +128,7 @@ export class Client {
    * Returns repos that the calling user has Manage permissions on.
    * Use `next_page_token` to iterate through additional pages.
    */
-  async listRepos(
-    req: ListRepos,
-    options?: CallOptions
-  ): Promise<ListRepos_Response> {
+  async listRepos(req: ListReposRequest, options?: CallOptions): Promise<ListReposRequest_Response> {
     const url = `${this.host}/api/2.0/repos`;
     const params = new URLSearchParams();
     if (req.pathPrefix !== undefined) {
@@ -169,17 +139,13 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListRepos_Response | undefined;
+    let resp: ListReposRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalListRepos_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListReposRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -188,11 +154,9 @@ export class Client {
     return resp;
   }
 
-  async *listReposIter(
-    req: ListRepos,
-    options?: CallOptions
-  ): AsyncGenerator<RepoInfo> {
-    const pageReq: ListRepos = {...req};
+
+  async *listReposIter(req: ListReposRequest, options?: CallOptions): AsyncGenerator<RepoInfo> {
+    const pageReq: ListReposRequest = {...req};
     for (;;) {
       const resp = await this.listRepos(pageReq, options);
       for (const item of resp.repos ?? []) {
@@ -205,27 +169,21 @@ export class Client {
     }
   }
 
+
   /**
    * Updates the repo to a different branch or tag, or updates the repo to the latest commit on
    * the same branch.
    */
-  async updateRepo(
-    req: UpdateRepo,
-    options?: CallOptions
-  ): Promise<UpdateRepo_Response> {
+  async updateRepo(req: UpdateRepoRequest, options?: CallOptions): Promise<UpdateRepoRequest_Response> {
     const url = `${this.host}/api/2.0/repos/${String(req.id ?? '')}`;
-    const body = marshalRequest(req, marshalUpdateRepoSchema);
-    let resp: UpdateRepo_Response | undefined;
+    const body = marshalRequest(req, marshalUpdateRepoRequestSchema);
+    let resp: UpdateRepoRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalUpdateRepo_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalUpdateRepoRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateQueryRequest,
@@ -72,10 +66,7 @@ export class Client {
   }
 
   /** Creates a query. */
-  async createQuery(
-    req: CreateQueryRequest,
-    options?: CallOptions
-  ): Promise<Query> {
+  async createQuery(req: CreateQueryRequest, options?: CallOptions): Promise<Query> {
     const url = `${this.host}/api/2.0/sql/queries`;
     const body = marshalRequest(req, marshalCreateQueryRequestSchema);
     let resp: Query | undefined;
@@ -83,11 +74,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalQuerySchema);
     };
     await executeCall(call, options);
@@ -105,11 +92,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalQuerySchema);
     };
     await executeCall(call, options);
@@ -120,10 +103,7 @@ export class Client {
   }
 
   /** Gets a list of queries accessible to the user, ordered by creation time. **Warning:** Calling this API concurrently 10 or more times could result in throttling, service degradation, or a temporary ban. */
-  async listQueries(
-    req: ListQueriesRequest,
-    options?: CallOptions
-  ): Promise<ListQueriesResponse> {
+  async listQueries(req: ListQueriesRequest, options?: CallOptions): Promise<ListQueriesResponse> {
     const url = `${this.host}/api/2.0/sql/queries`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -139,11 +119,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListQueriesResponseSchema);
     };
     await executeCall(call, options);
@@ -153,10 +129,8 @@ export class Client {
     return resp;
   }
 
-  async *listQueriesIter(
-    req: ListQueriesRequest,
-    options?: CallOptions
-  ): AsyncGenerator<ListQueryObjectsResponseQuery> {
+
+  async *listQueriesIter(req: ListQueriesRequest, options?: CallOptions): AsyncGenerator<ListQueryObjectsResponseQuery> {
     const pageReq: ListQueriesRequest = {...req};
     for (;;) {
       const resp = await this.listQueries(pageReq, options);
@@ -170,11 +144,9 @@ export class Client {
     }
   }
 
+
   /** Gets a list of visualizations on a query. */
-  async listVisualizationsForQuery(
-    req: ListVisualizationsForQueryRequest,
-    options?: CallOptions
-  ): Promise<ListVisualizationsForQueryResponse> {
+  async listVisualizationsForQuery(req: ListVisualizationsForQueryRequest, options?: CallOptions): Promise<ListVisualizationsForQueryResponse> {
     const url = `${this.host}/api/2.0/sql/queries/${req.id ?? ''}/visualizations`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -190,15 +162,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListVisualizationsForQueryResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListVisualizationsForQueryResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -207,10 +172,8 @@ export class Client {
     return resp;
   }
 
-  async *listVisualizationsForQueryIter(
-    req: ListVisualizationsForQueryRequest,
-    options?: CallOptions
-  ): AsyncGenerator<Visualization> {
+
+  async *listVisualizationsForQueryIter(req: ListVisualizationsForQueryRequest, options?: CallOptions): AsyncGenerator<Visualization> {
     const pageReq: ListVisualizationsForQueryRequest = {...req};
     for (;;) {
       const resp = await this.listVisualizationsForQuery(pageReq, options);
@@ -224,22 +187,16 @@ export class Client {
     }
   }
 
+
   /** Moves a query to the trash. Trashed queries immediately disappear from searches and list views, and cannot be used for alerts. You can restore a trashed query through the UI. A trashed query is permanently deleted after 30 days. */
-  async trashQuery(
-    req: TrashQueryRequest,
-    options?: CallOptions
-  ): Promise<Empty> {
+  async trashQuery(req: TrashQueryRequest, options?: CallOptions): Promise<Empty> {
     const url = `${this.host}/api/2.0/sql/queries/${req.id ?? ''}`;
     let resp: Empty | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalEmptySchema);
     };
     await executeCall(call, options);
@@ -250,10 +207,7 @@ export class Client {
   }
 
   /** Updates a query. */
-  async updateQuery(
-    req: UpdateQueryRequest,
-    options?: CallOptions
-  ): Promise<Query> {
+  async updateQuery(req: UpdateQueryRequest, options?: CallOptions): Promise<Query> {
     const url = `${this.host}/api/2.0/sql/queries/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateQueryRequestSchema);
     let resp: Query | undefined;
@@ -261,11 +215,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalQuerySchema);
     };
     await executeCall(call, options);

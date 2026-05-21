@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export enum ActionConfigurationType {
   EMAIL_NOTIFICATION = 'EMAIL_NOTIFICATION',
 }
@@ -95,17 +96,6 @@ export interface BudgetConfigurationFilter_WorkspaceIdClause {
   values?: number[] | undefined;
 }
 
-export interface CreateBudgetConfiguration {
-  /** Properties of the new budget configuration. */
-  budget?: CreateBudgetConfigurationBudget | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateBudgetConfiguration_Response {
-  /** The created budget configuration. */
-  budget?: BudgetConfiguration | undefined;
-}
-
 export interface CreateBudgetConfigurationBudget {
   /** <Databricks> budget configuration ID. */
   budgetConfigurationId?: string | undefined;
@@ -126,11 +116,22 @@ export interface CreateBudgetConfigurationBudget {
   displayName?: string | undefined;
 }
 
+export interface CreateBudgetConfigurationRequest {
+  /** Properties of the new budget configuration. */
+  budget?: CreateBudgetConfigurationBudget | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface CreateBudgetConfigurationRequest_Response {
+  /** The created budget configuration. */
+  budget?: BudgetConfiguration | undefined;
+}
+
 /**
  * *
  * Delete budget
  */
-export interface DeleteBudgetConfiguration {
+export interface DeleteBudgetConfigurationRequest {
   /** The <Databricks> budget configuration ID. */
   budgetId?: string | undefined;
   /** <Databricks> account ID. */
@@ -138,9 +139,9 @@ export interface DeleteBudgetConfiguration {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteBudgetConfiguration_Response {}
+export interface DeleteBudgetConfigurationRequest_Response {}
 
-export interface GetBudgetConfiguration {
+export interface GetBudgetConfigurationRequest {
   /** The budget configuration ID */
   budgetId?: string | undefined;
   /** <Databricks> account ID. */
@@ -149,11 +150,11 @@ export interface GetBudgetConfiguration {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetBudgetConfiguration_Response {
+export interface GetBudgetConfigurationRequest_Response {
   budget?: BudgetConfiguration | undefined;
 }
 
-export interface ListBudgetConfigurations {
+export interface ListBudgetConfigurationsRequest {
   /** <Databricks> account ID. */
   accountId?: string | undefined;
   /**
@@ -166,23 +167,10 @@ export interface ListBudgetConfigurations {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListBudgetConfigurations_Response {
+export interface ListBudgetConfigurationsRequest_Response {
   budgets?: BudgetConfiguration[] | undefined;
   /** Token which can be sent as `page_token` to retrieve the next page of results. If this field is omitted, there are no subsequent budgets. */
   nextPageToken?: string | undefined;
-}
-
-export interface UpdateBudgetConfiguration {
-  /** The <Databricks> budget configuration ID. */
-  budgetId?: string | undefined;
-  /** The updated budget. This will overwrite the budget specified by the budget ID. */
-  budget?: UpdateBudgetConfigurationBudget | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface UpdateBudgetConfiguration_Response {
-  /** The updated budget. */
-  budget?: BudgetConfiguration | undefined;
 }
 
 export interface UpdateBudgetConfigurationBudget {
@@ -205,163 +193,154 @@ export interface UpdateBudgetConfigurationBudget {
   displayName?: string | undefined;
 }
 
-export const unmarshalActionConfigurationSchema: z.ZodType<ActionConfiguration> =
-  z
-    .object({
-      action_configuration_id: z.string().optional(),
-      action_type: z.enum(ActionConfigurationType).optional(),
-      target: z.string().optional(),
-    })
-    .transform(d => ({
-      actionConfigurationId: d.action_configuration_id,
-      actionType: d.action_type,
-      target: d.target,
-    }));
-
-export const unmarshalAlertConfigurationSchema: z.ZodType<AlertConfiguration> =
-  z
-    .object({
-      alert_configuration_id: z.string().optional(),
-      time_period: z.enum(AlertConfigurationTimePeriod).optional(),
-      trigger_type: z.enum(AlertConfigurationTriggerType).optional(),
-      quantity_type: z.enum(AlertConfigurationQuantityType).optional(),
-      quantity_threshold: z.string().optional(),
-      action_configurations: z
-        .array(z.lazy(() => unmarshalActionConfigurationSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      alertConfigurationId: d.alert_configuration_id,
-      timePeriod: d.time_period,
-      triggerType: d.trigger_type,
-      quantityType: d.quantity_type,
-      quantityThreshold: d.quantity_threshold,
-      actionConfigurations: d.action_configurations,
-    }));
-
-export const unmarshalBudgetConfigurationSchema: z.ZodType<BudgetConfiguration> =
-  z
-    .object({
-      budget_configuration_id: z.string().optional(),
-      account_id: z.string().optional(),
-      create_time: z.number().optional(),
-      update_time: z.number().optional(),
-      alert_configurations: z
-        .array(z.lazy(() => unmarshalAlertConfigurationSchema))
-        .optional(),
-      filter: z.lazy(() => unmarshalBudgetConfigurationFilterSchema).optional(),
-      display_name: z.string().optional(),
-    })
-    .transform(d => ({
-      budgetConfigurationId: d.budget_configuration_id,
-      accountId: d.account_id,
-      createTime: d.create_time,
-      updateTime: d.update_time,
-      alertConfigurations: d.alert_configurations,
-      filter: d.filter,
-      displayName: d.display_name,
-    }));
-
-export const unmarshalBudgetConfigurationFilterSchema: z.ZodType<BudgetConfigurationFilter> =
-  z
-    .object({
-      workspace_id: z
-        .lazy(() => unmarshalBudgetConfigurationFilter_WorkspaceIdClauseSchema)
-        .optional(),
-      tags: z
-        .array(z.lazy(() => unmarshalBudgetConfigurationFilter_TagClauseSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      workspaceId: d.workspace_id,
-      tags: d.tags,
-    }));
+export interface UpdateBudgetConfigurationRequest {
+  /** The <Databricks> budget configuration ID. */
+  budgetId?: string | undefined;
+  /** The updated budget. This will overwrite the budget specified by the budget ID. */
+  budget?: UpdateBudgetConfigurationBudget | undefined;
+}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalBudgetConfigurationFilter_ClauseSchema: z.ZodType<BudgetConfigurationFilter_Clause> =
-  z
-    .object({
-      operator: z.enum(BudgetConfigurationFilter_Operator).optional(),
-      values: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      operator: d.operator,
-      values: d.values,
-    }));
+export interface UpdateBudgetConfigurationRequest_Response {
+  /** The updated budget. */
+  budget?: BudgetConfiguration | undefined;
+}
+
+export const unmarshalActionConfigurationSchema: z.ZodType<ActionConfiguration> = z
+  .object({
+    action_configuration_id: z.string().optional(),
+    action_type: z.enum(ActionConfigurationType).optional(),
+    target: z.string().optional(),
+  })
+  .transform(d => ({
+    actionConfigurationId: d.action_configuration_id,
+    actionType: d.action_type,
+    target: d.target,
+  }));
+
+export const unmarshalAlertConfigurationSchema: z.ZodType<AlertConfiguration> = z
+  .object({
+    alert_configuration_id: z.string().optional(),
+    time_period: z.enum(AlertConfigurationTimePeriod).optional(),
+    trigger_type: z.enum(AlertConfigurationTriggerType).optional(),
+    quantity_type: z.enum(AlertConfigurationQuantityType).optional(),
+    quantity_threshold: z.string().optional(),
+    action_configurations: z.array(z.lazy(() => unmarshalActionConfigurationSchema)).optional(),
+  })
+  .transform(d => ({
+    alertConfigurationId: d.alert_configuration_id,
+    timePeriod: d.time_period,
+    triggerType: d.trigger_type,
+    quantityType: d.quantity_type,
+    quantityThreshold: d.quantity_threshold,
+    actionConfigurations: d.action_configurations,
+  }));
+
+export const unmarshalBudgetConfigurationSchema: z.ZodType<BudgetConfiguration> = z
+  .object({
+    budget_configuration_id: z.string().optional(),
+    account_id: z.string().optional(),
+    create_time: z.number().optional(),
+    update_time: z.number().optional(),
+    alert_configurations: z.array(z.lazy(() => unmarshalAlertConfigurationSchema)).optional(),
+    filter: z.lazy(() => unmarshalBudgetConfigurationFilterSchema).optional(),
+    display_name: z.string().optional(),
+  })
+  .transform(d => ({
+    budgetConfigurationId: d.budget_configuration_id,
+    accountId: d.account_id,
+    createTime: d.create_time,
+    updateTime: d.update_time,
+    alertConfigurations: d.alert_configurations,
+    filter: d.filter,
+    displayName: d.display_name,
+  }));
+
+export const unmarshalBudgetConfigurationFilterSchema: z.ZodType<BudgetConfigurationFilter> = z
+  .object({
+    workspace_id: z.lazy(() => unmarshalBudgetConfigurationFilter_WorkspaceIdClauseSchema).optional(),
+    tags: z.array(z.lazy(() => unmarshalBudgetConfigurationFilter_TagClauseSchema)).optional(),
+  })
+  .transform(d => ({
+    workspaceId: d.workspace_id,
+    tags: d.tags,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalBudgetConfigurationFilter_TagClauseSchema: z.ZodType<BudgetConfigurationFilter_TagClause> =
-  z
-    .object({
-      key: z.string().optional(),
-      value: z
-        .lazy(() => unmarshalBudgetConfigurationFilter_ClauseSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      key: d.key,
-      value: d.value,
-    }));
+export const unmarshalBudgetConfigurationFilter_ClauseSchema: z.ZodType<BudgetConfigurationFilter_Clause> = z
+  .object({
+    operator: z.enum(BudgetConfigurationFilter_Operator).optional(),
+    values: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    operator: d.operator,
+    values: d.values,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalBudgetConfigurationFilter_WorkspaceIdClauseSchema: z.ZodType<BudgetConfigurationFilter_WorkspaceIdClause> =
-  z
-    .object({
-      operator: z.enum(BudgetConfigurationFilter_Operator).optional(),
-      values: z.array(z.number()).optional(),
-    })
-    .transform(d => ({
-      operator: d.operator,
-      values: d.values,
-    }));
+export const unmarshalBudgetConfigurationFilter_TagClauseSchema: z.ZodType<BudgetConfigurationFilter_TagClause> = z
+  .object({
+    key: z.string().optional(),
+    value: z.lazy(() => unmarshalBudgetConfigurationFilter_ClauseSchema).optional(),
+  })
+  .transform(d => ({
+    key: d.key,
+    value: d.value,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateBudgetConfiguration_ResponseSchema: z.ZodType<CreateBudgetConfiguration_Response> =
-  z
-    .object({
-      budget: z.lazy(() => unmarshalBudgetConfigurationSchema).optional(),
-    })
-    .transform(d => ({
-      budget: d.budget,
-    }));
+export const unmarshalBudgetConfigurationFilter_WorkspaceIdClauseSchema: z.ZodType<BudgetConfigurationFilter_WorkspaceIdClause> = z
+  .object({
+    operator: z.enum(BudgetConfigurationFilter_Operator).optional(),
+    values: z.array(z.number()).optional(),
+  })
+  .transform(d => ({
+    operator: d.operator,
+    values: d.values,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteBudgetConfiguration_ResponseSchema: z.ZodType<DeleteBudgetConfiguration_Response> =
-  z.object({});
+export const unmarshalCreateBudgetConfigurationRequest_ResponseSchema: z.ZodType<CreateBudgetConfigurationRequest_Response> = z
+  .object({
+    budget: z.lazy(() => unmarshalBudgetConfigurationSchema).optional(),
+  })
+  .transform(d => ({
+    budget: d.budget,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetBudgetConfiguration_ResponseSchema: z.ZodType<GetBudgetConfiguration_Response> =
-  z
-    .object({
-      budget: z.lazy(() => unmarshalBudgetConfigurationSchema).optional(),
-    })
-    .transform(d => ({
-      budget: d.budget,
-    }));
+export const unmarshalDeleteBudgetConfigurationRequest_ResponseSchema: z.ZodType<DeleteBudgetConfigurationRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListBudgetConfigurations_ResponseSchema: z.ZodType<ListBudgetConfigurations_Response> =
-  z
-    .object({
-      budgets: z
-        .array(z.lazy(() => unmarshalBudgetConfigurationSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      budgets: d.budgets,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalGetBudgetConfigurationRequest_ResponseSchema: z.ZodType<GetBudgetConfigurationRequest_Response> = z
+  .object({
+    budget: z.lazy(() => unmarshalBudgetConfigurationSchema).optional(),
+  })
+  .transform(d => ({
+    budget: d.budget,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateBudgetConfiguration_ResponseSchema: z.ZodType<UpdateBudgetConfiguration_Response> =
-  z
-    .object({
-      budget: z.lazy(() => unmarshalBudgetConfigurationSchema).optional(),
-    })
-    .transform(d => ({
-      budget: d.budget,
-    }));
+export const unmarshalListBudgetConfigurationsRequest_ResponseSchema: z.ZodType<ListBudgetConfigurationsRequest_Response> = z
+  .object({
+    budgets: z.array(z.lazy(() => unmarshalBudgetConfigurationSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    budgets: d.budgets,
+    nextPageToken: d.next_page_token,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalUpdateBudgetConfigurationRequest_ResponseSchema: z.ZodType<UpdateBudgetConfigurationRequest_Response> = z
+  .object({
+    budget: z.lazy(() => unmarshalBudgetConfigurationSchema).optional(),
+  })
+  .transform(d => ({
+    budget: d.budget,
+  }));
 
 export const marshalActionConfigurationSchema: z.ZodType = z
   .object({
@@ -382,9 +361,7 @@ export const marshalAlertConfigurationSchema: z.ZodType = z
     triggerType: z.enum(AlertConfigurationTriggerType).optional(),
     quantityType: z.enum(AlertConfigurationQuantityType).optional(),
     quantityThreshold: z.string().optional(),
-    actionConfigurations: z
-      .array(z.lazy(() => marshalActionConfigurationSchema))
-      .optional(),
+    actionConfigurations: z.array(z.lazy(() => marshalActionConfigurationSchema)).optional(),
   })
   .transform(d => ({
     alert_configuration_id: d.alertConfigurationId,
@@ -397,12 +374,8 @@ export const marshalAlertConfigurationSchema: z.ZodType = z
 
 export const marshalBudgetConfigurationFilterSchema: z.ZodType = z
   .object({
-    workspaceId: z
-      .lazy(() => marshalBudgetConfigurationFilter_WorkspaceIdClauseSchema)
-      .optional(),
-    tags: z
-      .array(z.lazy(() => marshalBudgetConfigurationFilter_TagClauseSchema))
-      .optional(),
+    workspaceId: z.lazy(() => marshalBudgetConfigurationFilter_WorkspaceIdClauseSchema).optional(),
+    tags: z.array(z.lazy(() => marshalBudgetConfigurationFilter_TagClauseSchema)).optional(),
   })
   .transform(d => ({
     workspace_id: d.workspaceId,
@@ -424,9 +397,7 @@ export const marshalBudgetConfigurationFilter_ClauseSchema: z.ZodType = z
 export const marshalBudgetConfigurationFilter_TagClauseSchema: z.ZodType = z
   .object({
     key: z.string().optional(),
-    value: z
-      .lazy(() => marshalBudgetConfigurationFilter_ClauseSchema)
-      .optional(),
+    value: z.lazy(() => marshalBudgetConfigurationFilter_ClauseSchema).optional(),
   })
   .transform(d => ({
     key: d.key,
@@ -434,25 +405,14 @@ export const marshalBudgetConfigurationFilter_TagClauseSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalBudgetConfigurationFilter_WorkspaceIdClauseSchema: z.ZodType =
-  z
-    .object({
-      operator: z.enum(BudgetConfigurationFilter_Operator).optional(),
-      values: z.array(z.number()).optional(),
-    })
-    .transform(d => ({
-      operator: d.operator,
-      values: d.values,
-    }));
-
-export const marshalCreateBudgetConfigurationSchema: z.ZodType = z
+export const marshalBudgetConfigurationFilter_WorkspaceIdClauseSchema: z.ZodType = z
   .object({
-    budget: z
-      .lazy(() => marshalCreateBudgetConfigurationBudgetSchema)
-      .optional(),
+    operator: z.enum(BudgetConfigurationFilter_Operator).optional(),
+    values: z.array(z.number()).optional(),
   })
   .transform(d => ({
-    budget: d.budget,
+    operator: d.operator,
+    values: d.values,
   }));
 
 export const marshalCreateBudgetConfigurationBudgetSchema: z.ZodType = z
@@ -461,9 +421,7 @@ export const marshalCreateBudgetConfigurationBudgetSchema: z.ZodType = z
     accountId: z.string().optional(),
     createTime: z.number().optional(),
     updateTime: z.number().optional(),
-    alertConfigurations: z
-      .array(z.lazy(() => marshalAlertConfigurationSchema))
-      .optional(),
+    alertConfigurations: z.array(z.lazy(() => marshalAlertConfigurationSchema)).optional(),
     filter: z.lazy(() => marshalBudgetConfigurationFilterSchema).optional(),
     displayName: z.string().optional(),
   })
@@ -477,15 +435,11 @@ export const marshalCreateBudgetConfigurationBudgetSchema: z.ZodType = z
     display_name: d.displayName,
   }));
 
-export const marshalUpdateBudgetConfigurationSchema: z.ZodType = z
+export const marshalCreateBudgetConfigurationRequestSchema: z.ZodType = z
   .object({
-    budgetId: z.string().optional(),
-    budget: z
-      .lazy(() => marshalUpdateBudgetConfigurationBudgetSchema)
-      .optional(),
+    budget: z.lazy(() => marshalCreateBudgetConfigurationBudgetSchema).optional(),
   })
   .transform(d => ({
-    budget_id: d.budgetId,
     budget: d.budget,
   }));
 
@@ -495,9 +449,7 @@ export const marshalUpdateBudgetConfigurationBudgetSchema: z.ZodType = z
     accountId: z.string().optional(),
     createTime: z.number().optional(),
     updateTime: z.number().optional(),
-    alertConfigurations: z
-      .array(z.lazy(() => marshalAlertConfigurationSchema))
-      .optional(),
+    alertConfigurations: z.array(z.lazy(() => marshalAlertConfigurationSchema)).optional(),
     filter: z.lazy(() => marshalBudgetConfigurationFilterSchema).optional(),
     displayName: z.string().optional(),
   })
@@ -509,4 +461,14 @@ export const marshalUpdateBudgetConfigurationBudgetSchema: z.ZodType = z
     alert_configurations: d.alertConfigurations,
     filter: d.filter,
     display_name: d.displayName,
+  }));
+
+export const marshalUpdateBudgetConfigurationRequestSchema: z.ZodType = z
+  .object({
+    budgetId: z.string().optional(),
+    budget: z.lazy(() => marshalUpdateBudgetConfigurationBudgetSchema).optional(),
+  })
+  .transform(d => ({
+    budget_id: d.budgetId,
+    budget: d.budget,
   }));

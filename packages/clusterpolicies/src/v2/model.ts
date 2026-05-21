@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export enum ListOrder {
   DESC = 'DESC',
   ASC = 'ASC',
@@ -14,7 +15,7 @@ export enum PolicySortColumn {
   POLICY_NAME = 'POLICY_NAME',
 }
 
-export interface CreatePolicy {
+export interface CreatePolicyRequest {
   /**
    * Cluster Policy name requested by the user. This has to be unique. Length must be between 1 and 100
    * characters.
@@ -27,7 +28,7 @@ export interface CreatePolicy {
   /**
    * ID of the policy family. The cluster policy's policy definition inherits the policy
    * family's policy definition.
-   *
+   * 
    * Cannot be used with `definition`. Use `policy_family_definition_overrides` instead to
    * customize the policy definition.
    */
@@ -35,7 +36,7 @@ export interface CreatePolicy {
   /**
    * Policy definition JSON document expressed in [Databricks Policy Definition Language](https://docs.databricks.com/administration-guide/clusters/policy-definition.html).
    * The JSON document must be passed as a string and cannot be embedded in the requests.
-   *
+   * 
    * You can use this to customize the policy definition inherited from the policy family.
    * Policy rules specified here are merged into the inherited policy definition.
    */
@@ -47,20 +48,20 @@ export interface CreatePolicy {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreatePolicy_Response {
+export interface CreatePolicyRequest_Response {
   /** Canonical unique identifier for the cluster policy. */
   policyId?: string | undefined;
 }
 
-export interface DeletePolicy {
+export interface DeletePolicyRequest {
   /** The ID of the policy to delete. */
   policyId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeletePolicy_Response {}
+export interface DeletePolicyRequest_Response {}
 
-export interface EditPolicy {
+export interface EditPolicyRequest {
   /** The ID of the policy to update. */
   policyId?: string | undefined;
   /**
@@ -75,7 +76,7 @@ export interface EditPolicy {
   /**
    * ID of the policy family. The cluster policy's policy definition inherits the policy
    * family's policy definition.
-   *
+   * 
    * Cannot be used with `definition`. Use `policy_family_definition_overrides` instead to
    * customize the policy definition.
    */
@@ -83,7 +84,7 @@ export interface EditPolicy {
   /**
    * Policy definition JSON document expressed in [Databricks Policy Definition Language](https://docs.databricks.com/administration-guide/clusters/policy-definition.html).
    * The JSON document must be passed as a string and cannot be embedded in the requests.
-   *
+   * 
    * You can use this to customize the policy definition inherited from the policy family.
    * Policy rules specified here are merged into the inherited policy definition.
    */
@@ -95,9 +96,9 @@ export interface EditPolicy {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface EditPolicy_Response {}
+export interface EditPolicyRequest_Response {}
 
-export interface GetPolicy {
+export interface GetPolicyRequest {
   /** Canonical unique identifier for the Cluster Policy. */
   policyId?: string | undefined;
 }
@@ -163,7 +164,7 @@ export interface Library {
     | undefined;
 }
 
-export interface ListPolicies {
+export interface ListPoliciesRequest {
   /**
    * The order in which the policies get listed.
    * * `DESC` - Sort result list in descending order.
@@ -179,7 +180,7 @@ export interface ListPolicies {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListPolicies_Response {
+export interface ListPoliciesRequest_Response {
   /** List of policies. */
   policies?: Policy[] | undefined;
 }
@@ -194,7 +195,7 @@ export interface MavenLibrary {
   repo?: string | undefined;
   /**
    * List of dependences to exclude. For example: `["slf4j:slf4j", "*:hadoop-client"]`.
-   *
+   * 
    * Maven dependency exclusions:
    * https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html.
    */
@@ -229,7 +230,7 @@ export interface Policy {
   /**
    * ID of the policy family. The cluster policy's policy definition inherits the policy
    * family's policy definition.
-   *
+   * 
    * Cannot be used with `definition`. Use `policy_family_definition_overrides` instead to
    * customize the policy definition.
    */
@@ -237,7 +238,7 @@ export interface Policy {
   /**
    * Policy definition JSON document expressed in [Databricks Policy Definition Language](https://docs.databricks.com/administration-guide/clusters/policy-definition.html).
    * The JSON document must be passed as a string and cannot be embedded in the requests.
-   *
+   * 
    * You can use this to customize the policy definition inherited from the policy family.
    * Policy rules specified here are merged into the inherited policy definition.
    */
@@ -269,22 +270,23 @@ export interface RCranLibrary {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreatePolicy_ResponseSchema: z.ZodType<CreatePolicy_Response> =
-  z
-    .object({
-      policy_id: z.string().optional(),
-    })
-    .transform(d => ({
-      policyId: d.policy_id,
-    }));
+export const unmarshalCreatePolicyRequest_ResponseSchema: z.ZodType<CreatePolicyRequest_Response> = z
+  .object({
+    policy_id: z.string().optional(),
+  })
+  .transform(d => ({
+    policyId: d.policy_id,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeletePolicy_ResponseSchema: z.ZodType<DeletePolicy_Response> =
-  z.object({});
+export const unmarshalDeletePolicyRequest_ResponseSchema: z.ZodType<DeletePolicyRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEditPolicy_ResponseSchema: z.ZodType<EditPolicy_Response> =
-  z.object({});
+export const unmarshalEditPolicyRequest_ResponseSchema: z.ZodType<EditPolicyRequest_Response> = z
+  .object({
+  });
 
 export const unmarshalLibrarySchema: z.ZodType<Library> = z
   .object({
@@ -297,36 +299,17 @@ export const unmarshalLibrarySchema: z.ZodType<Library> = z
     requirements: z.string().optional(),
   })
   .transform(d => ({
-    lib:
-      d.jar !== undefined
-        ? {$case: 'jar' as const, jar: d.jar}
-        : d.egg !== undefined
-          ? {$case: 'egg' as const, egg: d.egg}
-          : d.pypi !== undefined
-            ? {$case: 'pypi' as const, pypi: d.pypi}
-            : d.maven !== undefined
-              ? {$case: 'maven' as const, maven: d.maven}
-              : d.cran !== undefined
-                ? {$case: 'cran' as const, cran: d.cran}
-                : d.whl !== undefined
-                  ? {$case: 'whl' as const, whl: d.whl}
-                  : d.requirements !== undefined
-                    ? {
-                        $case: 'requirements' as const,
-                        requirements: d.requirements,
-                      }
-                    : undefined,
+    lib: d.jar !== undefined ? { $case: 'jar' as const, jar: d.jar } : d.egg !== undefined ? { $case: 'egg' as const, egg: d.egg } : d.pypi !== undefined ? { $case: 'pypi' as const, pypi: d.pypi } : d.maven !== undefined ? { $case: 'maven' as const, maven: d.maven } : d.cran !== undefined ? { $case: 'cran' as const, cran: d.cran } : d.whl !== undefined ? { $case: 'whl' as const, whl: d.whl } : d.requirements !== undefined ? { $case: 'requirements' as const, requirements: d.requirements } : undefined,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListPolicies_ResponseSchema: z.ZodType<ListPolicies_Response> =
-  z
-    .object({
-      policies: z.array(z.lazy(() => unmarshalPolicySchema)).optional(),
-    })
-    .transform(d => ({
-      policies: d.policies,
-    }));
+export const unmarshalListPoliciesRequest_ResponseSchema: z.ZodType<ListPoliciesRequest_Response> = z
+  .object({
+    policies: z.array(z.lazy(() => unmarshalPolicySchema)).optional(),
+  })
+  .transform(d => ({
+    policies: d.policies,
+  }));
 
 export const unmarshalMavenLibrarySchema: z.ZodType<MavenLibrary> = z
   .object({
@@ -388,7 +371,7 @@ export const unmarshalRCranLibrarySchema: z.ZodType<RCranLibrary> = z
     repo: d.repo,
   }));
 
-export const marshalCreatePolicySchema: z.ZodType = z
+export const marshalCreatePolicyRequestSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     definition: z.string().optional(),
@@ -408,7 +391,7 @@ export const marshalCreatePolicySchema: z.ZodType = z
     libraries: d.libraries,
   }));
 
-export const marshalDeletePolicySchema: z.ZodType = z
+export const marshalDeletePolicyRequestSchema: z.ZodType = z
   .object({
     policyId: z.string().optional(),
   })
@@ -416,7 +399,7 @@ export const marshalDeletePolicySchema: z.ZodType = z
     policy_id: d.policyId,
   }));
 
-export const marshalEditPolicySchema: z.ZodType = z
+export const marshalEditPolicyRequestSchema: z.ZodType = z
   .object({
     policyId: z.string().optional(),
     name: z.string().optional(),
@@ -440,35 +423,16 @@ export const marshalEditPolicySchema: z.ZodType = z
 
 export const marshalLibrarySchema: z.ZodType = z
   .object({
-    lib: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('jar'), jar: z.string()}),
-        z.object({$case: z.literal('egg'), egg: z.string()}),
-        z.object({
-          $case: z.literal('pypi'),
-          pypi: z.lazy(() => marshalPythonPyPiLibrarySchema),
-        }),
-        z.object({
-          $case: z.literal('maven'),
-          maven: z.lazy(() => marshalMavenLibrarySchema),
-        }),
-        z.object({
-          $case: z.literal('cran'),
-          cran: z.lazy(() => marshalRCranLibrarySchema),
-        }),
-        z.object({$case: z.literal('whl'), whl: z.string()}),
-        z.object({$case: z.literal('requirements'), requirements: z.string()}),
-      ])
-      .optional(),
+    lib: z.discriminatedUnion('$case', [z.object({ $case: z.literal('jar'), jar: z.string() }), z.object({ $case: z.literal('egg'), egg: z.string() }), z.object({ $case: z.literal('pypi'), pypi: z.lazy(() => marshalPythonPyPiLibrarySchema) }), z.object({ $case: z.literal('maven'), maven: z.lazy(() => marshalMavenLibrarySchema) }), z.object({ $case: z.literal('cran'), cran: z.lazy(() => marshalRCranLibrarySchema) }), z.object({ $case: z.literal('whl'), whl: z.string() }), z.object({ $case: z.literal('requirements'), requirements: z.string() })]).optional(),
   })
   .transform(d => ({
-    ...(d.lib?.$case === 'jar' && {jar: d.lib.jar}),
-    ...(d.lib?.$case === 'egg' && {egg: d.lib.egg}),
-    ...(d.lib?.$case === 'pypi' && {pypi: d.lib.pypi}),
-    ...(d.lib?.$case === 'maven' && {maven: d.lib.maven}),
-    ...(d.lib?.$case === 'cran' && {cran: d.lib.cran}),
-    ...(d.lib?.$case === 'whl' && {whl: d.lib.whl}),
-    ...(d.lib?.$case === 'requirements' && {requirements: d.lib.requirements}),
+    ...(d.lib?.$case === 'jar' && { jar: d.lib.jar }),
+    ...(d.lib?.$case === 'egg' && { egg: d.lib.egg }),
+    ...(d.lib?.$case === 'pypi' && { pypi: d.lib.pypi }),
+    ...(d.lib?.$case === 'maven' && { maven: d.lib.maven }),
+    ...(d.lib?.$case === 'cran' && { cran: d.lib.cran }),
+    ...(d.lib?.$case === 'whl' && { whl: d.lib.whl }),
+    ...(d.lib?.$case === 'requirements' && { requirements: d.lib.requirements }),
   }));
 
 export const marshalMavenLibrarySchema: z.ZodType = z

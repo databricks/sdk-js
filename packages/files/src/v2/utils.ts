@@ -25,7 +25,7 @@ export interface HttpCallOptions {
  */
 export async function executeCall(
   call: Call,
-  options?: CallOptions
+  options?: CallOptions,
 ): Promise<void> {
   const opts: Options = {
     ...(options?.retrier !== undefined && {retrier: options.retrier}),
@@ -38,7 +38,7 @@ export async function executeCall(
 }
 
 async function readAll(
-  body: ReadableStream<Uint8Array> | null
+  body: ReadableStream<Uint8Array> | null,
 ): Promise<Uint8Array> {
   if (body === null) {
     return new Uint8Array(0);
@@ -63,7 +63,7 @@ async function readAll(
 }
 
 export async function executeHttpCall(
-  opts: HttpCallOptions
+  opts: HttpCallOptions,
 ): Promise<Uint8Array> {
   opts.logger.debug('HTTP request', {
     method: opts.request.method,
@@ -98,8 +98,9 @@ export function buildHttpRequest(
   url: string,
   headers: Headers,
   signal?: AbortSignal,
-  body?: string | ReadableStream<Uint8Array>
+  body?: string | ReadableStream<Uint8Array>,
 ): HttpRequest {
+
   const req: HttpRequest = {url, method, headers};
   if (body !== undefined) {
     req.body = body;
@@ -166,7 +167,7 @@ export function encodeMultiSegmentPath(path: string): string {
  * is returned with the body stream untouched.
  */
 export async function sendAndCheckError(
-  opts: HttpCallOptions
+  opts: HttpCallOptions,
 ): Promise<HttpResponse> {
   opts.logger.debug('HTTP request', {
     method: opts.request.method,

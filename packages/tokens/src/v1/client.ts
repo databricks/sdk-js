@@ -9,31 +9,25 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  CreateToken,
-  CreateToken_Response,
-  ListTokens,
-  ListTokens_Response,
-  RevokeToken,
-  RevokeToken_Response,
-  UpdateToken,
+  CreateTokenRequest,
+  CreateTokenRequest_Response,
+  ListTokensRequest,
+  ListTokensRequest_Response,
+  RevokeTokenRequest,
+  RevokeTokenRequest_Response,
+  UpdateTokenRequest,
   UpdateTokenResponse,
 } from './model';
 import {
-  marshalCreateTokenSchema,
-  marshalRevokeTokenSchema,
-  marshalUpdateTokenSchema,
-  unmarshalCreateToken_ResponseSchema,
-  unmarshalListTokens_ResponseSchema,
-  unmarshalRevokeToken_ResponseSchema,
+  marshalCreateTokenRequestSchema,
+  marshalRevokeTokenRequestSchema,
+  marshalUpdateTokenRequestSchema,
+  unmarshalCreateTokenRequest_ResponseSchema,
+  unmarshalListTokensRequest_ResponseSchema,
+  unmarshalRevokeTokenRequest_ResponseSchema,
   unmarshalUpdateTokenResponseSchema,
 } from './model';
 
@@ -73,23 +67,16 @@ export class Client {
    * a token with the same client ID as the authenticated token. If the user's token quota is exceeded, this call
    * returns an error **QUOTA_EXCEEDED**.
    */
-  async createToken(
-    req: CreateToken,
-    options?: CallOptions
-  ): Promise<CreateToken_Response> {
+  async createToken(req: CreateTokenRequest, options?: CallOptions): Promise<CreateTokenRequest_Response> {
     const url = `${this.host}/api/2.0/token/create`;
-    const body = marshalRequest(req, marshalCreateTokenSchema);
-    let resp: CreateToken_Response | undefined;
+    const body = marshalRequest(req, marshalCreateTokenRequestSchema);
+    let resp: CreateTokenRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalCreateToken_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalCreateTokenRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -99,22 +86,15 @@ export class Client {
   }
 
   /** Lists all the valid tokens for a user-workspace pair. */
-  async listTokens(
-    _req: ListTokens,
-    options?: CallOptions
-  ): Promise<ListTokens_Response> {
+  async listTokens(_req: ListTokensRequest, options?: CallOptions): Promise<ListTokensRequest_Response> {
     const url = `${this.host}/api/2.0/token/list`;
-    let resp: ListTokens_Response | undefined;
+    let resp: ListTokensRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalListTokens_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListTokensRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -125,26 +105,19 @@ export class Client {
 
   /**
    * Revokes an access token.
-   *
+   * 
    * If a token with the specified ID is not valid, this call returns an error **RESOURCE_DOES_NOT_EXIST**.
    */
-  async revokeToken(
-    req: RevokeToken,
-    options?: CallOptions
-  ): Promise<RevokeToken_Response> {
+  async revokeToken(req: RevokeTokenRequest, options?: CallOptions): Promise<RevokeTokenRequest_Response> {
     const url = `${this.host}/api/2.0/token/delete`;
-    const body = marshalRequest(req, marshalRevokeTokenSchema);
-    let resp: RevokeToken_Response | undefined;
+    const body = marshalRequest(req, marshalRevokeTokenRequestSchema);
+    let resp: RevokeTokenRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalRevokeToken_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalRevokeTokenRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -155,25 +128,18 @@ export class Client {
 
   /**
    * Updates the comment or scopes of a token.
-   *
+   * 
    * If a token with the specified ID is not valid, this call returns an error **RESOURCE_DOES_NOT_EXIST**.
    */
-  async updateToken(
-    req: UpdateToken,
-    options?: CallOptions
-  ): Promise<UpdateTokenResponse> {
+  async updateToken(req: UpdateTokenRequest, options?: CallOptions): Promise<UpdateTokenResponse> {
     const url = `${this.host}/api/2.0/token/${req.tokenId ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateTokenSchema);
+    const body = marshalRequest(req, marshalUpdateTokenRequestSchema);
     let resp: UpdateTokenResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalUpdateTokenResponseSchema);
     };
     await executeCall(call, options);

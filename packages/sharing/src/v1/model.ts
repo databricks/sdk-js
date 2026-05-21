@@ -3,6 +3,7 @@
 import {Temporal} from '@js-temporal/polyfill';
 import {z} from 'zod';
 
+
 /**
  * UC supported column types
  * Copied from https://src.dev.databricks.com/databricks/universe@23a85902bb58695ab9293adc9f327b0714b55e72/-/blob/managed-catalog/api/messages/table.proto?L68
@@ -252,8 +253,8 @@ export interface DeleteShareRequest_Response {}
 /** Represents a UC dependency. */
 export interface Dependency {
   value?:
-    | {$case: 'table'; table: TableDependency}
-    | {$case: 'function'; function: FunctionDependency}
+    | { $case: 'table'; table: TableDependency }
+    | { $case: 'function'; function: FunctionDependency }
     | undefined;
 }
 
@@ -641,7 +642,7 @@ export interface OidcFederationPolicy {
    * * U2M flow (user access): Use `oid`.
    * * M2M flow (OAuth App access): Use `azp`.
    * - For other IdPs, refer to the specific IdP documentation.
-   *
+   * 
    * Supported `subject_claim` values are:
    * - `oid`: Object ID of the user.
    * - `azp`: Client ID of the OAuth app.
@@ -697,9 +698,7 @@ export interface PartitionSpecification_Partition_PartitionValue {
    */
   recipientPropertyKey?: string | undefined;
   /** The operator to apply for the value. */
-  op?:
-    | PartitionSpecification_Partition_PartitionValue_PartitionValueOp
-    | undefined;
+  op?: PartitionSpecification_Partition_PartitionValue_PartitionValueOp | undefined;
 }
 
 export interface PermissionsChange {
@@ -945,22 +944,22 @@ export interface SharedDataObject {
   comment?: string | undefined;
   /**
    * A user-provided alias name for table-like data objects within the share.
-   *
+   * 
    * Use this field for table-like objects (for example: TABLE, VIEW, MATERIALIZED_VIEW, STREAMING_TABLE, FOREIGN_TABLE).
    * For non-table objects (for example: VOLUME, MODEL, NOTEBOOK_FILE, FUNCTION), use `string_shared_as` instead.
-   *
+   * 
    * Important: For non-table objects, this field must be omitted entirely.
-   *
+   * 
    * Format: Must be a 2-part name `<schema_name>.<table_name>` (e.g., "sales_schema.orders_table")
    * - Both schema and table names must contain only alphanumeric characters and underscores
    * - No periods, spaces, forward slashes, or control characters are allowed within each part
    * - Do not include the catalog name (use 2 parts, not 3)
-   *
+   * 
    * Behavior:
    * - If not provided, the service automatically generates the alias as `<schema>.<table>` from the object's original name
    * - If you don't want to specify this field, omit it entirely from the request (do not pass an empty string)
    * - The `shared_as` name must be unique within the share
-   *
+   * 
    * Examples:
    * - Valid: "analytics_schema.customer_view"
    * - Invalid: "catalog.analytics_schema.customer_view" (3 parts not allowed)
@@ -970,16 +969,14 @@ export interface SharedDataObject {
   /** Whether to enable cdf or indicate if cdf is enabled on the shared object. */
   cdfEnabled?: boolean | undefined;
   /** Whether to enable or disable sharing of data history. If not specified, the default is **DISABLED**. */
-  historyDataSharingStatus?:
-    | SharedDataObject_HistoryDataSharingStatus_Enum
-    | undefined;
+  historyDataSharingStatus?: SharedDataObject_HistoryDataSharingStatus_Enum | undefined;
   /**
    * The start version associated with the object.
    * This allows data providers to control the lowest object version that is accessible by clients.
    * If specified, clients can query snapshots or changes for versions >= start_version.
    * If not specified, clients can only query starting from the version of the object at the time
    * it was added to the share.
-   *
+   * 
    * NOTE: The start_version should be <= the `current` version of the object.
    */
   startVersion?: number | undefined;
@@ -993,12 +990,12 @@ export interface SharedDataObject {
   content?: string | undefined;
   /**
    * A user-provided alias name for non-table data objects within the share.
-   *
+   * 
    * Use this field for non-table objects (for example: VOLUME, MODEL, NOTEBOOK_FILE, FUNCTION).
    * For table-like objects (for example: TABLE, VIEW, MATERIALIZED_VIEW, STREAMING_TABLE, FOREIGN_TABLE), use `shared_as` instead.
-   *
+   * 
    * Important: For table-like objects, this field must be omitted entirely.
-   *
+   * 
    * Format:
    * - For VOLUME: Must be a 2-part name `<schema_name>.<volume_name>` (e.g., "data_schema.ml_models")
    * - For FUNCTION: Must be a 2-part name `<schema_name>.<function_name>` (e.g., "udf_schema.calculate_tax")
@@ -1006,12 +1003,12 @@ export interface SharedDataObject {
    * - For NOTEBOOK_FILE: Should be the notebook file name (e.g., "analysis_notebook.py")
    * - All names must contain only alphanumeric characters and underscores
    * - No periods, spaces, forward slashes, or control characters are allowed within each part
-   *
+   * 
    * Behavior:
    * - If not provided, the service automatically generates the alias from the object's original name
    * - If you don't want to specify this field, omit it entirely from the request (do not pass an empty string)
    * - The `string_shared_as` name must be unique for objects of the same type within the share
-   *
+   * 
    * Examples:
    * - Valid for VOLUME: "data_schema.training_data"
    * - Valid for FUNCTION: "analytics.calculate_revenue"
@@ -1241,16 +1238,19 @@ export interface Volume {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteProviderRequest_ResponseSchema: z.ZodType<DeleteProviderRequest_Response> =
-  z.object({});
+export const unmarshalDeleteProviderRequest_ResponseSchema: z.ZodType<DeleteProviderRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRecipientRequest_ResponseSchema: z.ZodType<DeleteRecipientRequest_Response> =
-  z.object({});
+export const unmarshalDeleteRecipientRequest_ResponseSchema: z.ZodType<DeleteRecipientRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteShareRequest_ResponseSchema: z.ZodType<DeleteShareRequest_Response> =
-  z.object({});
+export const unmarshalDeleteShareRequest_ResponseSchema: z.ZodType<DeleteShareRequest_Response> = z
+  .object({
+  });
 
 export const unmarshalDependencySchema: z.ZodType<Dependency> = z
   .object({
@@ -1258,12 +1258,7 @@ export const unmarshalDependencySchema: z.ZodType<Dependency> = z
     function: z.lazy(() => unmarshalFunctionDependencySchema).optional(),
   })
   .transform(d => ({
-    value:
-      d.table !== undefined
-        ? {$case: 'table' as const, table: d.table}
-        : d.function !== undefined
-          ? {$case: 'function' as const, function: d.function}
-          : undefined,
+    value: d.table !== undefined ? { $case: 'table' as const, table: d.table } : d.function !== undefined ? { $case: 'function' as const, function: d.function } : undefined,
   }));
 
 export const unmarshalDependencyListSchema: z.ZodType<DependencyList> = z
@@ -1278,23 +1273,14 @@ export const unmarshalFederationPolicySchema: z.ZodType<FederationPolicy> = z
   .object({
     name: z.string().optional(),
     oidc_policy: z.lazy(() => unmarshalOidcFederationPolicySchema).optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     comment: z.string().optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     id: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
-    policy:
-      d.oidc_policy !== undefined
-        ? {$case: 'oidcPolicy' as const, oidcPolicy: d.oidc_policy}
-        : undefined,
+    policy: d.oidc_policy !== undefined ? { $case: 'oidcPolicy' as const, oidcPolicy: d.oidc_policy } : undefined,
     createTime: d.create_time,
     comment: d.comment,
     updateTime: d.update_time,
@@ -1310,17 +1296,13 @@ export const unmarshalFunctionSchema: z.ZodType<Function> = z
     id: z.string().optional(),
     storage_location: z.string().optional(),
     comment: z.string().optional(),
-    aliases: z
-      .array(z.lazy(() => unmarshalRegisteredModelAliasSchema))
-      .optional(),
+    aliases: z.array(z.lazy(() => unmarshalRegisteredModelAliasSchema)).optional(),
     tags: z.array(z.lazy(() => unmarshalTagKeyValueSchema)).optional(),
     securable_kind: z.enum(SharedSecurableKind).optional(),
     full_data_type: z.string().optional(),
     data_type: z.enum(ColumnTypeName).optional(),
     routine_definition: z.string().optional(),
-    input_params: z
-      .lazy(() => unmarshalFunctionParameterInfosSchema)
-      .optional(),
+    input_params: z.lazy(() => unmarshalFunctionParameterInfosSchema).optional(),
     dependency_list: z.lazy(() => unmarshalDependencyListSchema).optional(),
     properties: z.string().optional(),
   })
@@ -1343,90 +1325,80 @@ export const unmarshalFunctionSchema: z.ZodType<Function> = z
     properties: d.properties,
   }));
 
-export const unmarshalFunctionDependencySchema: z.ZodType<FunctionDependency> =
-  z
-    .object({
-      schema_name: z.string().optional(),
-      function_name: z.string().optional(),
-    })
-    .transform(d => ({
-      schemaName: d.schema_name,
-      functionName: d.function_name,
-    }));
+export const unmarshalFunctionDependencySchema: z.ZodType<FunctionDependency> = z
+  .object({
+    schema_name: z.string().optional(),
+    function_name: z.string().optional(),
+  })
+  .transform(d => ({
+    schemaName: d.schema_name,
+    functionName: d.function_name,
+  }));
 
-export const unmarshalFunctionParameterInfoSchema: z.ZodType<FunctionParameterInfo> =
-  z
-    .object({
-      name: z.string().optional(),
-      type_text: z.string().optional(),
-      type_json: z.string().optional(),
-      type_name: z.enum(ColumnTypeName).optional(),
-      type_precision: z.number().optional(),
-      type_scale: z.number().optional(),
-      type_interval_type: z.string().optional(),
-      position: z.number().optional(),
-      parameter_mode: z.enum(FunctionParameterMode).optional(),
-      parameter_type: z.enum(FunctionParameterType).optional(),
-      parameter_default: z.string().optional(),
-      comment: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      typeText: d.type_text,
-      typeJson: d.type_json,
-      typeName: d.type_name,
-      typePrecision: d.type_precision,
-      typeScale: d.type_scale,
-      typeIntervalType: d.type_interval_type,
-      position: d.position,
-      parameterMode: d.parameter_mode,
-      parameterType: d.parameter_type,
-      parameterDefault: d.parameter_default,
-      comment: d.comment,
-    }));
+export const unmarshalFunctionParameterInfoSchema: z.ZodType<FunctionParameterInfo> = z
+  .object({
+    name: z.string().optional(),
+    type_text: z.string().optional(),
+    type_json: z.string().optional(),
+    type_name: z.enum(ColumnTypeName).optional(),
+    type_precision: z.number().optional(),
+    type_scale: z.number().optional(),
+    type_interval_type: z.string().optional(),
+    position: z.number().optional(),
+    parameter_mode: z.enum(FunctionParameterMode).optional(),
+    parameter_type: z.enum(FunctionParameterType).optional(),
+    parameter_default: z.string().optional(),
+    comment: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    typeText: d.type_text,
+    typeJson: d.type_json,
+    typeName: d.type_name,
+    typePrecision: d.type_precision,
+    typeScale: d.type_scale,
+    typeIntervalType: d.type_interval_type,
+    position: d.position,
+    parameterMode: d.parameter_mode,
+    parameterType: d.parameter_type,
+    parameterDefault: d.parameter_default,
+    comment: d.comment,
+  }));
 
-export const unmarshalFunctionParameterInfosSchema: z.ZodType<FunctionParameterInfos> =
-  z
-    .object({
-      parameters: z
-        .array(z.lazy(() => unmarshalFunctionParameterInfoSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      parameters: d.parameters,
-    }));
+export const unmarshalFunctionParameterInfosSchema: z.ZodType<FunctionParameterInfos> = z
+  .object({
+    parameters: z.array(z.lazy(() => unmarshalFunctionParameterInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    parameters: d.parameters,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetActivationUrlInfoRequest_ResponseSchema: z.ZodType<GetActivationUrlInfoRequest_Response> =
-  z.object({});
+export const unmarshalGetActivationUrlInfoRequest_ResponseSchema: z.ZodType<GetActivationUrlInfoRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetRecipientSharePermissionsRequest_ResponseSchema: z.ZodType<GetRecipientSharePermissionsRequest_Response> =
-  z
-    .object({
-      permissions_out: z
-        .array(z.lazy(() => unmarshalShareToPrivilegeAssignmentSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      permissionsOut: d.permissions_out,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalGetRecipientSharePermissionsRequest_ResponseSchema: z.ZodType<GetRecipientSharePermissionsRequest_Response> = z
+  .object({
+    permissions_out: z.array(z.lazy(() => unmarshalShareToPrivilegeAssignmentSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    permissionsOut: d.permissions_out,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetSharePermissionsRequest_ResponseSchema: z.ZodType<GetSharePermissionsRequest_Response> =
-  z
-    .object({
-      next_page_token: z.string().optional(),
-      privilege_assignments: z
-        .array(z.lazy(() => unmarshalPrivilegeAssignmentSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      nextPageToken: d.next_page_token,
-      privilegeAssignments: d.privilege_assignments,
-    }));
+export const unmarshalGetSharePermissionsRequest_ResponseSchema: z.ZodType<GetSharePermissionsRequest_Response> = z
+  .object({
+    next_page_token: z.string().optional(),
+    privilege_assignments: z.array(z.lazy(() => unmarshalPrivilegeAssignmentSchema)).optional(),
+  })
+  .transform(d => ({
+    nextPageToken: d.next_page_token,
+    privilegeAssignments: d.privilege_assignments,
+  }));
 
 export const unmarshalIpAccessListSchema: z.ZodType<IpAccessList> = z
   .object({
@@ -1436,85 +1408,75 @@ export const unmarshalIpAccessListSchema: z.ZodType<IpAccessList> = z
     allowedIpAddresses: d.allowed_ip_addresses,
   }));
 
-export const unmarshalListFederationPoliciesResponseSchema: z.ZodType<ListFederationPoliciesResponse> =
-  z
-    .object({
-      policies: z
-        .array(z.lazy(() => unmarshalFederationPolicySchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      policies: d.policies,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListFederationPoliciesResponseSchema: z.ZodType<ListFederationPoliciesResponse> = z
+  .object({
+    policies: z.array(z.lazy(() => unmarshalFederationPolicySchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    policies: d.policies,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListProviderShareAssetsResponseSchema: z.ZodType<ListProviderShareAssetsResponse> =
-  z
-    .object({
-      tables: z.array(z.lazy(() => unmarshalTableSchema)).optional(),
-      functions: z.array(z.lazy(() => unmarshalFunctionSchema)).optional(),
-      notebooks: z.array(z.lazy(() => unmarshalNotebookFileSchema)).optional(),
-      volumes: z.array(z.lazy(() => unmarshalVolumeSchema)).optional(),
-      share: z.lazy(() => unmarshalShareSchema).optional(),
-    })
-    .transform(d => ({
-      tables: d.tables,
-      functions: d.functions,
-      notebooks: d.notebooks,
-      volumes: d.volumes,
-      share: d.share,
-    }));
+export const unmarshalListProviderShareAssetsResponseSchema: z.ZodType<ListProviderShareAssetsResponse> = z
+  .object({
+    tables: z.array(z.lazy(() => unmarshalTableSchema)).optional(),
+    functions: z.array(z.lazy(() => unmarshalFunctionSchema)).optional(),
+    notebooks: z.array(z.lazy(() => unmarshalNotebookFileSchema)).optional(),
+    volumes: z.array(z.lazy(() => unmarshalVolumeSchema)).optional(),
+    share: z.lazy(() => unmarshalShareSchema).optional(),
+  })
+  .transform(d => ({
+    tables: d.tables,
+    functions: d.functions,
+    notebooks: d.notebooks,
+    volumes: d.volumes,
+    share: d.share,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListProviderSharesRequest_ResponseSchema: z.ZodType<ListProviderSharesRequest_Response> =
-  z
-    .object({
-      shares: z.array(z.lazy(() => unmarshalProviderShareSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      shares: d.shares,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListProviderSharesRequest_ResponseSchema: z.ZodType<ListProviderSharesRequest_Response> = z
+  .object({
+    shares: z.array(z.lazy(() => unmarshalProviderShareSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    shares: d.shares,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListProvidersRequest_ResponseSchema: z.ZodType<ListProvidersRequest_Response> =
-  z
-    .object({
-      providers: z.array(z.lazy(() => unmarshalProviderInfoSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      providers: d.providers,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListProvidersRequest_ResponseSchema: z.ZodType<ListProvidersRequest_Response> = z
+  .object({
+    providers: z.array(z.lazy(() => unmarshalProviderInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    providers: d.providers,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListRecipientsRequest_ResponseSchema: z.ZodType<ListRecipientsRequest_Response> =
-  z
-    .object({
-      recipients: z
-        .array(z.lazy(() => unmarshalRecipientInfoSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      recipients: d.recipients,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListRecipientsRequest_ResponseSchema: z.ZodType<ListRecipientsRequest_Response> = z
+  .object({
+    recipients: z.array(z.lazy(() => unmarshalRecipientInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    recipients: d.recipients,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListSharesRequest_ResponseSchema: z.ZodType<ListSharesRequest_Response> =
-  z
-    .object({
-      shares: z.array(z.lazy(() => unmarshalShareInfoSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      shares: d.shares,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListSharesRequest_ResponseSchema: z.ZodType<ListSharesRequest_Response> = z
+  .object({
+    shares: z.array(z.lazy(() => unmarshalShareInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    shares: d.shares,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalNotebookFileSchema: z.ZodType<NotebookFile> = z
   .object({
@@ -1534,65 +1496,53 @@ export const unmarshalNotebookFileSchema: z.ZodType<NotebookFile> = z
     tags: d.tags,
   }));
 
-export const unmarshalOidcFederationPolicySchema: z.ZodType<OidcFederationPolicy> =
-  z
-    .object({
-      issuer: z.string().optional(),
-      subject_claim: z.string().optional(),
-      subject: z.string().optional(),
-      audiences: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      issuer: d.issuer,
-      subjectClaim: d.subject_claim,
-      subject: d.subject,
-      audiences: d.audiences,
-    }));
+export const unmarshalOidcFederationPolicySchema: z.ZodType<OidcFederationPolicy> = z
+  .object({
+    issuer: z.string().optional(),
+    subject_claim: z.string().optional(),
+    subject: z.string().optional(),
+    audiences: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    issuer: d.issuer,
+    subjectClaim: d.subject_claim,
+    subject: d.subject,
+    audiences: d.audiences,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPartitionSpecification_PartitionSchema: z.ZodType<PartitionSpecification_Partition> =
-  z
-    .object({
-      values: z
-        .array(
-          z.lazy(
-            () => unmarshalPartitionSpecification_Partition_PartitionValueSchema
-          )
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      values: d.values,
-    }));
+export const unmarshalPartitionSpecification_PartitionSchema: z.ZodType<PartitionSpecification_Partition> = z
+  .object({
+    values: z.array(z.lazy(() => unmarshalPartitionSpecification_Partition_PartitionValueSchema)).optional(),
+  })
+  .transform(d => ({
+    values: d.values,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPartitionSpecification_Partition_PartitionValueSchema: z.ZodType<PartitionSpecification_Partition_PartitionValue> =
-  z
-    .object({
-      name: z.string().optional(),
-      value: z.string().optional(),
-      recipient_property_key: z.string().optional(),
-      op: z
-        .enum(PartitionSpecification_Partition_PartitionValue_PartitionValueOp)
-        .optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      value: d.value,
-      recipientPropertyKey: d.recipient_property_key,
-      op: d.op,
-    }));
+export const unmarshalPartitionSpecification_Partition_PartitionValueSchema: z.ZodType<PartitionSpecification_Partition_PartitionValue> = z
+  .object({
+    name: z.string().optional(),
+    value: z.string().optional(),
+    recipient_property_key: z.string().optional(),
+    op: z.enum(PartitionSpecification_Partition_PartitionValue_PartitionValueOp).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    value: d.value,
+    recipientPropertyKey: d.recipient_property_key,
+    op: d.op,
+  }));
 
-export const unmarshalPrivilegeAssignmentSchema: z.ZodType<PrivilegeAssignment> =
-  z
-    .object({
-      principal: z.string().optional(),
-      privileges: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      principal: d.principal,
-      privileges: d.privileges,
-    }));
+export const unmarshalPrivilegeAssignmentSchema: z.ZodType<PrivilegeAssignment> = z
+  .object({
+    principal: z.string().optional(),
+    privileges: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    principal: d.principal,
+    privileges: d.privileges,
+  }));
 
 export const unmarshalPropertiesKvPairsSchema: z.ZodType<PropertiesKvPairs> = z
   .object({
@@ -1653,9 +1603,7 @@ export const unmarshalRecipientInfoSchema: z.ZodType<RecipientInfo> = z
     owner: z.string().optional(),
     comment: z.string().optional(),
     ip_access_list: z.lazy(() => unmarshalIpAccessListSchema).optional(),
-    properties_kvpairs: z
-      .lazy(() => unmarshalPropertiesKvPairsSchema)
-      .optional(),
+    properties_kvpairs: z.lazy(() => unmarshalPropertiesKvPairsSchema).optional(),
     expiration_time: z.number().optional(),
     activation_url: z.string().optional(),
     activated: z.boolean().optional(),
@@ -1704,53 +1652,50 @@ export const unmarshalRecipientProfileSchema: z.ZodType<RecipientProfile> = z
     bearerToken: d.bearer_token,
   }));
 
-export const unmarshalRecipientTokenInfoSchema: z.ZodType<RecipientTokenInfo> =
-  z
-    .object({
-      id: z.string().optional(),
-      created_at: z.number().optional(),
-      created_by: z.string().optional(),
-      activation_url: z.string().optional(),
-      expiration_time: z.number().optional(),
-      updated_at: z.number().optional(),
-      updated_by: z.string().optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      createdAt: d.created_at,
-      createdBy: d.created_by,
-      activationUrl: d.activation_url,
-      expirationTime: d.expiration_time,
-      updatedAt: d.updated_at,
-      updatedBy: d.updated_by,
-    }));
+export const unmarshalRecipientTokenInfoSchema: z.ZodType<RecipientTokenInfo> = z
+  .object({
+    id: z.string().optional(),
+    created_at: z.number().optional(),
+    created_by: z.string().optional(),
+    activation_url: z.string().optional(),
+    expiration_time: z.number().optional(),
+    updated_at: z.number().optional(),
+    updated_by: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    createdAt: d.created_at,
+    createdBy: d.created_by,
+    activationUrl: d.activation_url,
+    expirationTime: d.expiration_time,
+    updatedAt: d.updated_at,
+    updatedBy: d.updated_by,
+  }));
 
-export const unmarshalRegisteredModelAliasSchema: z.ZodType<RegisteredModelAlias> =
-  z
-    .object({
-      alias_name: z.string().optional(),
-      version_num: z.number().optional(),
-    })
-    .transform(d => ({
-      aliasName: d.alias_name,
-      versionNum: d.version_num,
-    }));
+export const unmarshalRegisteredModelAliasSchema: z.ZodType<RegisteredModelAlias> = z
+  .object({
+    alias_name: z.string().optional(),
+    version_num: z.number().optional(),
+  })
+  .transform(d => ({
+    aliasName: d.alias_name,
+    versionNum: d.version_num,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRetrieveToken_ResponseSchema: z.ZodType<RetrieveToken_Response> =
-  z
-    .object({
-      shareCredentialsVersion: z.number().optional(),
-      bearerToken: z.string().optional(),
-      endpoint: z.string().optional(),
-      expirationTime: z.string().optional(),
-    })
-    .transform(d => ({
-      shareCredentialsVersion: d.shareCredentialsVersion,
-      bearerToken: d.bearerToken,
-      endpoint: d.endpoint,
-      expirationTime: d.expirationTime,
-    }));
+export const unmarshalRetrieveToken_ResponseSchema: z.ZodType<RetrieveToken_Response> = z
+  .object({
+    shareCredentialsVersion: z.number().optional(),
+    bearerToken: z.string().optional(),
+    endpoint: z.string().optional(),
+    expirationTime: z.string().optional(),
+  })
+  .transform(d => ({
+    shareCredentialsVersion: d.shareCredentialsVersion,
+    bearerToken: d.bearerToken,
+    endpoint: d.endpoint,
+    expirationTime: d.expirationTime,
+  }));
 
 export const unmarshalShareSchema: z.ZodType<Share> = z
   .object({
@@ -1788,18 +1733,15 @@ export const unmarshalShareInfoSchema: z.ZodType<ShareInfo> = z
     storageLocation: d.storage_location,
   }));
 
-export const unmarshalShareToPrivilegeAssignmentSchema: z.ZodType<ShareToPrivilegeAssignment> =
-  z
-    .object({
-      share_name: z.string().optional(),
-      privilege_assignments: z
-        .array(z.lazy(() => unmarshalPrivilegeAssignmentSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      shareName: d.share_name,
-      privilegeAssignments: d.privilege_assignments,
-    }));
+export const unmarshalShareToPrivilegeAssignmentSchema: z.ZodType<ShareToPrivilegeAssignment> = z
+  .object({
+    share_name: z.string().optional(),
+    privilege_assignments: z.array(z.lazy(() => unmarshalPrivilegeAssignmentSchema)).optional(),
+  })
+  .transform(d => ({
+    shareName: d.share_name,
+    privilegeAssignments: d.privilege_assignments,
+  }));
 
 export const unmarshalSharedDataObjectSchema: z.ZodType<SharedDataObject> = z
   .object({
@@ -1810,16 +1752,12 @@ export const unmarshalSharedDataObjectSchema: z.ZodType<SharedDataObject> = z
     comment: z.string().optional(),
     shared_as: z.string().optional(),
     cdf_enabled: z.boolean().optional(),
-    history_data_sharing_status: z
-      .enum(SharedDataObject_HistoryDataSharingStatus_Enum)
-      .optional(),
+    history_data_sharing_status: z.enum(SharedDataObject_HistoryDataSharingStatus_Enum).optional(),
     start_version: z.number().optional(),
     status: z.enum(SharedDataObject_Status_Enum).optional(),
     content: z.string().optional(),
     string_shared_as: z.string().optional(),
-    partitions: z
-      .array(z.lazy(() => unmarshalPartitionSpecification_PartitionSchema))
-      .optional(),
+    partitions: z.array(z.lazy(() => unmarshalPartitionSpecification_PartitionSchema)).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -1882,16 +1820,13 @@ export const unmarshalTagKeyValueSchema: z.ZodType<TagKeyValue> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateSharePermissionsRequest_ResponseSchema: z.ZodType<UpdateSharePermissionsRequest_Response> =
-  z
-    .object({
-      privilege_assignments: z
-        .array(z.lazy(() => unmarshalPrivilegeAssignmentSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      privilegeAssignments: d.privilege_assignments,
-    }));
+export const unmarshalUpdateSharePermissionsRequest_ResponseSchema: z.ZodType<UpdateSharePermissionsRequest_Response> = z
+  .object({
+    privilege_assignments: z.array(z.lazy(() => unmarshalPrivilegeAssignmentSchema)).optional(),
+  })
+  .transform(d => ({
+    privilegeAssignments: d.privilege_assignments,
+  }));
 
 export const unmarshalVolumeSchema: z.ZodType<Volume> = z
   .object({
@@ -2022,28 +1957,15 @@ export const marshalCreateShareRequestSchema: z.ZodType = z
 export const marshalFederationPolicySchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    policy: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('oidcPolicy'),
-          oidcPolicy: z.lazy(() => marshalOidcFederationPolicySchema),
-        }),
-      ])
-      .optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    policy: z.discriminatedUnion('$case', [z.object({ $case: z.literal('oidcPolicy'), oidcPolicy: z.lazy(() => marshalOidcFederationPolicySchema) })]).optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     comment: z.string().optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     id: z.string().optional(),
   })
   .transform(d => ({
     name: d.name,
-    ...(d.policy?.$case === 'oidcPolicy' && {oidc_policy: d.policy.oidcPolicy}),
+    ...(d.policy?.$case === 'oidcPolicy' && { oidc_policy: d.policy.oidcPolicy }),
     create_time: d.createTime,
     comment: d.comment,
     update_time: d.updateTime,
@@ -2075,35 +1997,26 @@ export const marshalOidcFederationPolicySchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalPartitionSpecification_PartitionSchema: z.ZodType = z
   .object({
-    values: z
-      .array(
-        z.lazy(
-          () => marshalPartitionSpecification_Partition_PartitionValueSchema
-        )
-      )
-      .optional(),
+    values: z.array(z.lazy(() => marshalPartitionSpecification_Partition_PartitionValueSchema)).optional(),
   })
   .transform(d => ({
     values: d.values,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalPartitionSpecification_Partition_PartitionValueSchema: z.ZodType =
-  z
-    .object({
-      name: z.string().optional(),
-      value: z.string().optional(),
-      recipientPropertyKey: z.string().optional(),
-      op: z
-        .enum(PartitionSpecification_Partition_PartitionValue_PartitionValueOp)
-        .optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      value: d.value,
-      recipient_property_key: d.recipientPropertyKey,
-      op: d.op,
-    }));
+export const marshalPartitionSpecification_Partition_PartitionValueSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    value: z.string().optional(),
+    recipientPropertyKey: z.string().optional(),
+    op: z.enum(PartitionSpecification_Partition_PartitionValue_PartitionValueOp).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    value: d.value,
+    recipient_property_key: d.recipientPropertyKey,
+    op: d.op,
+  }));
 
 export const marshalPermissionsChangeSchema: z.ZodType = z
   .object({
@@ -2176,16 +2089,12 @@ export const marshalSharedDataObjectSchema: z.ZodType = z
     comment: z.string().optional(),
     sharedAs: z.string().optional(),
     cdfEnabled: z.boolean().optional(),
-    historyDataSharingStatus: z
-      .enum(SharedDataObject_HistoryDataSharingStatus_Enum)
-      .optional(),
+    historyDataSharingStatus: z.enum(SharedDataObject_HistoryDataSharingStatus_Enum).optional(),
     startVersion: z.number().optional(),
     status: z.enum(SharedDataObject_Status_Enum).optional(),
     content: z.string().optional(),
     stringSharedAs: z.string().optional(),
-    partitions: z
-      .array(z.lazy(() => marshalPartitionSpecification_PartitionSchema))
-      .optional(),
+    partitions: z.array(z.lazy(() => marshalPartitionSpecification_PartitionSchema)).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2307,11 +2216,7 @@ export const marshalUpdateShareRequestSchema: z.ZodType = z
   .object({
     nameArg: z.string().optional(),
     newName: z.string().optional(),
-    updates: z
-      .array(
-        z.lazy(() => marshalUpdateShareRequest_SharedDataObjectUpdateSchema)
-      )
-      .optional(),
+    updates: z.array(z.lazy(() => marshalUpdateShareRequest_SharedDataObjectUpdateSchema)).optional(),
     name: z.string().optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
@@ -2340,15 +2245,12 @@ export const marshalUpdateShareRequestSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalUpdateShareRequest_SharedDataObjectUpdateSchema: z.ZodType =
-  z
-    .object({
-      action: z
-        .enum(UpdateShareRequest_SharedDataObjectUpdate_Action)
-        .optional(),
-      dataObject: z.lazy(() => marshalSharedDataObjectSchema).optional(),
-    })
-    .transform(d => ({
-      action: d.action,
-      data_object: d.dataObject,
-    }));
+export const marshalUpdateShareRequest_SharedDataObjectUpdateSchema: z.ZodType = z
+  .object({
+    action: z.enum(UpdateShareRequest_SharedDataObjectUpdate_Action).optional(),
+    dataObject: z.lazy(() => marshalSharedDataObjectSchema).optional(),
+  })
+  .transform(d => ({
+    action: d.action,
+    data_object: d.dataObject,
+  }));

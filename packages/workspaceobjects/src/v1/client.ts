@@ -9,37 +9,31 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  Delete,
-  Delete_Response,
-  Export,
-  Export_Response,
-  GetStatus,
-  Import,
-  Import_Response,
-  List,
-  List_Response,
-  Mkdirs,
-  Mkdirs_Response,
+  DeleteRequest,
+  DeleteRequest_Response,
+  ExportRequest,
+  ExportRequest_Response,
+  GetStatusRequest,
+  ImportRequest,
+  ImportRequest_Response,
+  ListRequest,
+  ListRequest_Response,
+  MkdirsRequest,
+  MkdirsRequest_Response,
   ObjectInfo,
 } from './model';
 import {
-  marshalDeleteSchema,
-  marshalImportSchema,
-  marshalMkdirsSchema,
-  unmarshalDelete_ResponseSchema,
-  unmarshalExport_ResponseSchema,
-  unmarshalImport_ResponseSchema,
-  unmarshalList_ResponseSchema,
-  unmarshalMkdirs_ResponseSchema,
+  marshalDeleteRequestSchema,
+  marshalImportRequestSchema,
+  marshalMkdirsRequestSchema,
+  unmarshalDeleteRequest_ResponseSchema,
+  unmarshalExportRequest_ResponseSchema,
+  unmarshalImportRequest_ResponseSchema,
+  unmarshalListRequest_ResponseSchema,
+  unmarshalMkdirsRequest_ResponseSchema,
   unmarshalObjectInfoSchema,
 } from './model';
 
@@ -78,23 +72,19 @@ export class Client {
    * Deletes an object or a directory (and optionally recursively deletes all objects in the directory).
    * * If `path` does not exist, this call returns an error `RESOURCE_DOES_NOT_EXIST`.
    * * If `path` is a non-empty directory and `recursive` is set to `false`, this call returns an error `DIRECTORY_NOT_EMPTY`.
-   *
+   * 
    * Object deletion cannot be undone and deleting a directory recursively is not atomic.
    */
-  async delete(req: Delete, options?: CallOptions): Promise<Delete_Response> {
+  async delete(req: DeleteRequest, options?: CallOptions): Promise<DeleteRequest_Response> {
     const url = `${this.host}/api/2.0/workspace/delete`;
-    const body = marshalRequest(req, marshalDeleteSchema);
-    let resp: Delete_Response | undefined;
+    const body = marshalRequest(req, marshalDeleteRequestSchema);
+    let resp: DeleteRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalDelete_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -105,13 +95,13 @@ export class Client {
 
   /**
    * Exports an object or the contents of an entire directory.
-   *
+   * 
    * If `path` does not exist, this call returns an error `RESOURCE_DOES_NOT_EXIST`.
-   *
+   * 
    * If the exported data would exceed size limit, this call returns `MAX_NOTEBOOK_SIZE_EXCEEDED`.
    * Currently, this API does not support exporting a library.
    */
-  async export(req: Export, options?: CallOptions): Promise<Export_Response> {
+  async export(req: ExportRequest, options?: CallOptions): Promise<ExportRequest_Response> {
     const url = `${this.host}/api/2.0/workspace/export`;
     const params = new URLSearchParams();
     if (req.path !== undefined) {
@@ -125,17 +115,13 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: Export_Response | undefined;
+    let resp: ExportRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalExport_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalExportRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -148,7 +134,7 @@ export class Client {
    * Gets the status of an object or a directory.
    * If `path` does not exist, this call returns an error `RESOURCE_DOES_NOT_EXIST`.
    */
-  async getStatus(req: GetStatus, options?: CallOptions): Promise<ObjectInfo> {
+  async getStatus(req: GetStatusRequest, options?: CallOptions): Promise<ObjectInfo> {
     const url = `${this.host}/api/2.0/workspace/get-status`;
     const params = new URLSearchParams();
     if (req.path !== undefined) {
@@ -161,11 +147,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalObjectInfoSchema);
     };
     await executeCall(call, options);
@@ -182,20 +164,16 @@ export class Client {
    * To import a single file as `SOURCE`, you must set the `language` field.
    * Zip files within directories are not supported.
    */
-  async import(req: Import, options?: CallOptions): Promise<Import_Response> {
+  async import(req: ImportRequest, options?: CallOptions): Promise<ImportRequest_Response> {
     const url = `${this.host}/api/2.0/workspace/import`;
-    const body = marshalRequest(req, marshalImportSchema);
-    let resp: Import_Response | undefined;
+    const body = marshalRequest(req, marshalImportRequestSchema);
+    let resp: ImportRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalImport_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalImportRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -208,31 +186,24 @@ export class Client {
    * Lists the contents of a directory, or the object if it is not a directory.
    * If the input path does not exist, this call returns an error `RESOURCE_DOES_NOT_EXIST`.
    */
-  async list(req: List, options?: CallOptions): Promise<List_Response> {
+  async list(req: ListRequest, options?: CallOptions): Promise<ListRequest_Response> {
     const url = `${this.host}/api/2.0/workspace/list`;
     const params = new URLSearchParams();
     if (req.path !== undefined) {
       params.append('path', req.path);
     }
     if (req.notebooksModifiedAfter !== undefined) {
-      params.append(
-        'notebooks_modified_after',
-        String(req.notebooksModifiedAfter)
-      );
+      params.append('notebooks_modified_after', String(req.notebooksModifiedAfter));
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: List_Response | undefined;
+    let resp: ListRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalList_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -245,23 +216,19 @@ export class Client {
    * Creates the specified directory (and necessary parent directories if they do not exist).
    * If there is an object (not a directory) at any prefix of the input path, this call returns
    * an error `RESOURCE_ALREADY_EXISTS`.
-   *
+   * 
    * Note that if this operation fails it may have succeeded in creating some of the necessary parent directories.
    */
-  async mkdirs(req: Mkdirs, options?: CallOptions): Promise<Mkdirs_Response> {
+  async mkdirs(req: MkdirsRequest, options?: CallOptions): Promise<MkdirsRequest_Response> {
     const url = `${this.host}/api/2.0/workspace/mkdirs`;
-    const body = marshalRequest(req, marshalMkdirsSchema);
-    let resp: Mkdirs_Response | undefined;
+    const body = marshalRequest(req, marshalMkdirsRequestSchema);
+    let resp: MkdirsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalMkdirs_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalMkdirsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

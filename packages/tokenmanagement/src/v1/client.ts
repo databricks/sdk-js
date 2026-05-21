@@ -9,30 +9,24 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  CreateOnBehalfOfToken,
-  CreateOnBehalfOfToken_Response,
-  GetToken,
-  GetToken_Response,
-  ListTokens,
-  ListTokens_Response,
-  RevokeToken,
-  RevokeToken_Response,
+  CreateOnBehalfOfTokenRequest,
+  CreateOnBehalfOfTokenRequest_Response,
+  GetTokenRequest,
+  GetTokenRequest_Response,
+  ListTokensRequest,
+  ListTokensRequest_Response,
+  RevokeTokenRequest,
+  RevokeTokenRequest_Response,
 } from './model';
 import {
-  marshalCreateOnBehalfOfTokenSchema,
-  unmarshalCreateOnBehalfOfToken_ResponseSchema,
-  unmarshalGetToken_ResponseSchema,
-  unmarshalListTokens_ResponseSchema,
-  unmarshalRevokeToken_ResponseSchema,
+  marshalCreateOnBehalfOfTokenRequestSchema,
+  unmarshalCreateOnBehalfOfTokenRequest_ResponseSchema,
+  unmarshalGetTokenRequest_ResponseSchema,
+  unmarshalListTokensRequest_ResponseSchema,
+  unmarshalRevokeTokenRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -67,26 +61,16 @@ export class Client {
   }
 
   /** Creates a token on behalf of a service principal. */
-  async createOnBehalfOfToken(
-    req: CreateOnBehalfOfToken,
-    options?: CallOptions
-  ): Promise<CreateOnBehalfOfToken_Response> {
+  async createOnBehalfOfToken(req: CreateOnBehalfOfTokenRequest, options?: CallOptions): Promise<CreateOnBehalfOfTokenRequest_Response> {
     const url = `${this.host}/api/2.0/token-management/on-behalf-of/tokens`;
-    const body = marshalRequest(req, marshalCreateOnBehalfOfTokenSchema);
-    let resp: CreateOnBehalfOfToken_Response | undefined;
+    const body = marshalRequest(req, marshalCreateOnBehalfOfTokenRequestSchema);
+    let resp: CreateOnBehalfOfTokenRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateOnBehalfOfToken_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalCreateOnBehalfOfTokenRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -96,22 +80,15 @@ export class Client {
   }
 
   /** Deletes a token, specified by its ID. */
-  async deleteToken(
-    req: RevokeToken,
-    options?: CallOptions
-  ): Promise<RevokeToken_Response> {
+  async deleteToken(req: RevokeTokenRequest, options?: CallOptions): Promise<RevokeTokenRequest_Response> {
     const url = `${this.host}/api/2.0/token-management/tokens/${req.tokenId ?? ''}`;
-    let resp: RevokeToken_Response | undefined;
+    let resp: RevokeTokenRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalRevokeToken_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalRevokeTokenRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -121,22 +98,15 @@ export class Client {
   }
 
   /** Gets information about a token, specified by its ID. */
-  async getToken(
-    req: GetToken,
-    options?: CallOptions
-  ): Promise<GetToken_Response> {
+  async getToken(req: GetTokenRequest, options?: CallOptions): Promise<GetTokenRequest_Response> {
     const url = `${this.host}/api/2.0/token-management/tokens/${req.tokenId ?? ''}`;
-    let resp: GetToken_Response | undefined;
+    let resp: GetTokenRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalGetToken_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetTokenRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -146,10 +116,7 @@ export class Client {
   }
 
   /** Lists all tokens associated with the specified workspace or user. */
-  async listTokens(
-    req: ListTokens,
-    options?: CallOptions
-  ): Promise<ListTokens_Response> {
+  async listTokens(req: ListTokensRequest, options?: CallOptions): Promise<ListTokensRequest_Response> {
     const url = `${this.host}/api/2.0/token-management/tokens`;
     const params = new URLSearchParams();
     if (req.createdById !== undefined) {
@@ -160,17 +127,13 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListTokens_Response | undefined;
+    let resp: ListTokensRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalListTokens_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListTokensRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

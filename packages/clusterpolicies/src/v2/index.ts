@@ -1,20 +1,24 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+
 export {Client} from './client';
 
-export {ListOrder, PolicySortColumn} from './model';
+export {
+  ListOrder,
+  PolicySortColumn,
+} from './model';
 
 export type {
-  CreatePolicy,
-  CreatePolicy_Response,
-  DeletePolicy,
-  DeletePolicy_Response,
-  EditPolicy,
-  EditPolicy_Response,
-  GetPolicy,
+  CreatePolicyRequest,
+  CreatePolicyRequest_Response,
+  DeletePolicyRequest,
+  DeletePolicyRequest_Response,
+  EditPolicyRequest,
+  EditPolicyRequest_Response,
+  GetPolicyRequest,
   Library,
-  ListPolicies,
-  ListPolicies_Response,
+  ListPoliciesRequest,
+  ListPoliciesRequest_Response,
   MavenLibrary,
   Policy,
   PythonPyPiLibrary,

@@ -1,24 +1,26 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+
 export {Client} from './client';
 
-export {} from './model';
+export {
+} from './model';
 
 export type {
-  AddBlock,
-  AddBlock_Response,
-  Close,
-  Close_Response,
-  Create,
-  Create_Response,
+  AddBlockRequest,
+  AddBlockRequest_Response,
+  CloseRequest,
+  CloseRequest_Response,
   CreateDirectoryRequest,
   CreateDirectoryResponse,
-  Delete,
-  Delete_Response,
+  CreateRequest,
+  CreateRequest_Response,
   DeleteDirectoryRequest,
   DeleteDirectoryResponse,
   DeleteFileRequest,
   DeleteFileResponse,
+  DeleteRequest,
+  DeleteRequest_Response,
   DirectoryEntry,
   DownloadFileRequest,
   DownloadFileResponse,
@@ -27,20 +29,20 @@ export type {
   GetDirectoryMetadataResponse,
   GetFileMetadataRequest,
   GetFileMetadataResponse,
-  GetStatus,
-  GetStatus_Response,
+  GetStatusRequest,
+  GetStatusRequest_Response,
   ListDirectoryContentsRequest,
   ListDirectoryResponse,
-  ListStatus,
-  ListStatus_Response,
-  MkDirs,
-  MkDirs_Response,
-  Move,
-  Move_Response,
-  Put,
-  Put_Response,
-  Read,
-  Read_Response,
+  ListStatusRequest,
+  ListStatusRequest_Response,
+  MkDirsRequest,
+  MkDirsRequest_Response,
+  MoveRequest,
+  MoveRequest_Response,
+  PutRequest,
+  PutRequest_Response,
+  ReadRequest,
+  ReadRequest_Response,
   UploadFileRequest,
   UploadFileResponse,
 } from './model';

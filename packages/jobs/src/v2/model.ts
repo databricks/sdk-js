@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export enum AuthenticationMethod {
   OAUTH = 'OAUTH',
   PAT = 'PAT',
@@ -9,7 +10,7 @@ export enum AuthenticationMethod {
 
 /**
  * Availability type used for all subsequent nodes past the `first_on_demand` ones.
- *
+ * 
  * Note: If `first_on_demand` is zero, this availability type will be used for the entire cluster.
  */
 export enum AwsAvailability {
@@ -42,13 +43,13 @@ export enum AzureAvailability {
 
 /**
  * The kind of compute described by this compute specification.
- *
+ * 
  * Depending on `kind`, different validations and default values will be applied.
- *
+ * 
  * Clusters with `kind = CLASSIC_PREVIEW` support the following fields, whereas clusters with no specified `kind` do not.
  * * [is_single_node](/api/workspace/clusters/create#is_single_node)
  * * [use_ml_runtime](/api/workspace/clusters/create#use_ml_runtime)
- *
+ * 
  * By using the [simple form](https://docs.databricks.com/compute/simple-form.html), your clusters are automatically using `kind = CLASSIC_PREVIEW`.
  */
 export enum ComputeKind {
@@ -71,19 +72,19 @@ export enum ConfidentialComputeType {
 /**
  * Data security mode decides what data governance model to use when accessing data
  * from a cluster.
- *
+ * 
  * * `DATA_SECURITY_MODE_AUTO`: <Databricks> will choose the most appropriate access mode depending on your compute configuration.
  * * `DATA_SECURITY_MODE_STANDARD`: A secure cluster that can be shared by multiple users. Cluster users are fully isolated so that they cannot see each other’s data and credentials. Most data governance features are supported in this mode. But programming languages and cluster features might be limited.
  * * `DATA_SECURITY_MODE_DEDICATED`: A secure cluster that can only be exclusively used by a single user specified in `single_user_name`. Most programming languages, cluster features and data governance features are available in this mode.
- *
+ * 
  * The following modes are legacy aliases for the above modes:
- *
+ * 
  * * `USER_ISOLATION`: Legacy alias for `DATA_SECURITY_MODE_STANDARD`.
  * * `SINGLE_USER`: Legacy alias for `DATA_SECURITY_MODE_DEDICATED`.
- *
+ * 
  * The following modes are deprecated starting with Databricks Runtime 15.0 and
  * will be removed for future Databricks Runtime versions:
- *
+ * 
  * * `LEGACY_TABLE_ACL`: This mode is for users migrating from legacy Table ACL clusters.
  * * `LEGACY_PASSTHROUGH`: This mode is for users migrating from legacy Passthrough on high concurrency clusters.
  * * `LEGACY_SINGLE_USER`: This mode is for users migrating from legacy Passthrough on standard clusters.
@@ -177,7 +178,7 @@ export enum HardwareAcceleratorType {
 
 /**
  * Edit mode of the job.
- *
+ * 
  * * `UI_LOCKED`: The job is in a locked UI state and cannot be modified.
  * * `EDITABLE`: The job is in an editable state and can be modified.
  */
@@ -188,7 +189,7 @@ export enum JobEditMode {
 
 /**
  * Specifies the health metric that is being evaluated for a particular health rule.
- *
+ * 
  * * `RUN_DURATION_SECONDS`: Expected total time for a run in seconds.
  * * `STREAMING_BACKLOG_BYTES`: An estimate of the maximum bytes of data waiting to be consumed across all streams. This metric is in Public Preview.
  * * `STREAMING_BACKLOG_RECORDS`: An estimate of the maximum offset lag across all streams. This metric is in Public Preview.
@@ -250,7 +251,7 @@ export enum SchedulePauseStatus {
  * Optional location type of the SQL file. When set to `WORKSPACE`, the SQL file will be retrieved\
  * from the local <Databricks> workspace. When set to `GIT`, the SQL file will be retrieved from a Git repository
  * defined in `git_source`. If the value is empty, the task will use `GIT` if `git_source` is defined and `WORKSPACE` otherwise.
- *
+ * 
  * * `WORKSPACE`: SQL file is located in <Databricks> workspace.
  * * `GIT`: SQL file is located in cloud Git provider.
  */
@@ -267,7 +268,7 @@ export enum StorageMode {
 
 /**
  * An optional value indicating the condition that determines whether the task should be run once its dependencies have been completed. When omitted, defaults to `ALL_SUCCESS`.
- *
+ * 
  * Possible values are:
  * * `ALL_SUCCESS`: All dependencies have executed and succeeded
  * * `AT_LEAST_ONE_SUCCESS`: At least one dependency has succeeded
@@ -298,7 +299,7 @@ export enum TaskRetryMode {
 
 /**
  * The type of trigger that fired this run.
- *
+ * 
  * * `PERIODIC`: Schedules that periodically trigger runs, such as a cron scheduler.
  * * `ONE_TIME`: One time triggers that fire a single run. This occurs you triggered a single run on demand through the UI or the API.
  * * `RETRY`: Indicates a run that is triggered as a retry of a previously failed run. This occurs when you request to re-run the job in case of failures.
@@ -401,7 +402,7 @@ export enum CleanRoomTaskRunResultState_CleanRoomTaskRunResultState {
 /**
  * * `EQUAL_TO`, `NOT_EQUAL` operators perform string comparison of their operands. This means that `“12.0” == “12”` will evaluate to `false`.
  * * `GREATER_THAN`, `GREATER_THAN_OR_EQUAL`, `LESS_THAN`, `LESS_THAN_OR_EQUAL` operators perform numeric comparison of their operands. `“12.0” >= “12”` will evaluate to `true`, `“10.0” >= “12”` will evaluate to `false`.
- *
+ * 
  * The boolean comparison to task values can be implemented with operators `EQUAL_TO`, `NOT_EQUAL`. If a task value was set to a boolean value, it will be serialized to `“true”` or `“false”` for the comparison.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
@@ -427,7 +428,7 @@ export enum JobDeployment_DeploymentKind {
 /**
  * Dirty state indicates the job is not fully synced with the job specification
  * in the remote repository.
- *
+ * 
  * Possible values are:
  * * `NOT_SYNCED`: The job is not yet synced with the remote job specification. Import the remote job specification from UI to make the job fully synced.
  * * `DISCONNECTED`: The job is temporary disconnected from the remote job specification and is allowed for live edit. Import the remote job specification again from UI to make the job fully synced.
@@ -549,7 +550,7 @@ export enum RunResultState_RunResultState {
 
 /**
  * The state of the SQL alert.
- *
+ * 
  * * UNKNOWN: alert yet to be evaluated
  * * OK: alert evaluated and did not fulfill trigger conditions
  * * TRIGGERED: alert evaluated and fulfilled trigger conditions
@@ -695,9 +696,9 @@ export enum TerminationType_Type {
 
 export interface AccessControlRequest {
   principalName?:
-    | {$case: 'userName'; userName: string}
-    | {$case: 'groupName'; groupName: string}
-    | {$case: 'servicePrincipalName'; servicePrincipalName: string}
+    | { $case: 'userName'; userName: string }
+    | { $case: 'groupName'; groupName: string }
+    | { $case: 'servicePrincipalName'; servicePrincipalName: string }
     | undefined;
   permissionLevel?: AccessControlRequest_JobPermission | undefined;
 }
@@ -745,7 +746,7 @@ export interface AlertTaskSubscriber {
         /** A valid workspace email address. */
         userName: string;
       }
-    | {$case: 'destinationId'; destinationId: string}
+    | { $case: 'destinationId'; destinationId: string }
     | undefined;
 }
 
@@ -783,7 +784,7 @@ export interface AwsAttributes {
    * This is an optional field at cluster creation, and if not specified, the zone "auto" will be used.
    * If the zone specified is "auto", will try to place cluster in a zone with high availability,
    * and will retry placement in a different AZ if there is not enough capacity.
-   *
+   * 
    * The list of available zones as well as the default value can be found by using the
    * `List Zones` method.
    */
@@ -793,7 +794,7 @@ export interface AwsAttributes {
    * ommitted, nodes will be placed on instances without an IAM instance profile. The instance
    * profile must have previously been added to the <Databricks> environment by an account
    * administrator.
-   *
+   * 
    * This feature may only be available to certain customer plans.
    */
   instanceProfileArn?: string | undefined;
@@ -817,15 +818,15 @@ export interface AwsAttributes {
    * custom EBS volumes.
    * For node types with no instance store, at least one EBS volume needs to be specified;
    * otherwise, cluster creation will fail.
-   *
+   * 
    * These EBS volumes will be mounted at `/ebs0`, `/ebs1`, and etc.
    * Instance store volumes will be mounted at `/local_disk0`, `/local_disk1`, and etc.
-   *
+   * 
    * If EBS volumes are attached, <Databricks> will configure Spark to use only the EBS volumes for
    * scratch storage because heterogenously sized scratch devices can lead to inefficient disk
    * utilization. If no EBS volumes are attached, <Databricks> will configure Spark to use instance
    * store volumes.
-   *
+   * 
    * Please note that if EBS volumes are specified, then the Spark configuration `spark.local.dir`
    * will be overridden.
    */
@@ -878,7 +879,7 @@ export interface BaseJob {
   creatorUserName?: string | undefined;
   /**
    * The email of an active workspace user or the application ID of a service principal that the job runs as. This value can be changed by setting the `run_as` field when creating or updating a job.
-   *
+   * 
    * By default, `run_as_user_name` is based on the current job settings and is set to the creator of the job if job access control is disabled or to the user with the `is_owner` permission if job access control is enabled.
    */
   runAsUserName?: string | undefined;
@@ -887,7 +888,7 @@ export interface BaseJob {
   /** The time at which this job was created in epoch milliseconds (milliseconds since 1/1/1970 UTC). */
   createdTime?: number | undefined;
   /** State of the trigger associated with the job. */
-  triggerState?: TriggerStateProto | undefined;
+  triggerState?: TriggerState | undefined;
   /**
    * Indicates if the job has more array properties (`tasks`, `job_clusters`) that are not shown. They can be accessed via :method:jobs/get endpoint.
    * It is only relevant for API 2.2 :method:jobs/list requests with `expand_tasks=true`.
@@ -951,9 +952,9 @@ export interface BaseRun {
   jobClusters?: JobCluster[] | undefined;
   /**
    * An optional specification for a remote Git repository containing the source code used by tasks. Version-controlled source code is supported by notebook, dbt, Python script, and SQL File tasks.
-   *
+   * 
    * If `git_source` is set, these tasks retrieve the file from the remote repository by default. However, this behavior can be overridden by setting `source` to `WORKSPACE` on the task.
-   *
+   * 
    * Note: dbt and SQL File tasks support only version-controlled sources. If dbt or SQL File tasks are used, `git_source` must be defined on the job.
    */
   gitSource?: GitSource | undefined;
@@ -973,7 +974,7 @@ export interface BaseRun {
   hasMore?: boolean | undefined;
   /**
    * The actual performance target used by the serverless run during execution. This can differ from the client-set performance target on the request depending on whether the performance mode is supported by the job type.
-   *
+   * 
    * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
    */
@@ -996,7 +997,7 @@ export interface BaseRun {
   queueDuration?: number | undefined;
 }
 
-export interface CancelAllRuns {
+export interface CancelAllRunsRequest {
   /** The canonical identifier of the job to cancel all runs of. */
   jobId?: number | undefined;
   /** Optional boolean parameter to cancel all queued runs. If no job_id is provided, all queued runs in the workspace are canceled. */
@@ -1005,16 +1006,16 @@ export interface CancelAllRuns {
 
 /** All runs were cancelled successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface CancelAllRuns_Response {}
+export interface CancelAllRunsRequest_Response {}
 
-export interface CancelRun {
+export interface CancelRunRequest {
   /** This field is required. */
   runId?: number | undefined;
 }
 
 /** Run was cancelled successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface CancelRun_Response {}
+export interface CancelRunRequest_Response {}
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface CleanRoomTaskRunLifeCycleState {}
@@ -1025,13 +1026,9 @@ export interface CleanRoomTaskRunResultState {}
 /** Stores the run state of the clean rooms notebook task. */
 export interface CleanRoomTaskRunState {
   /** A value indicating the run's current lifecycle state. This field is always available in the response. Note: Additional states might be introduced in future releases. */
-  lifeCycleState?:
-    | CleanRoomTaskRunLifeCycleState_CleanRoomTaskRunLifeCycleState
-    | undefined;
+  lifeCycleState?: CleanRoomTaskRunLifeCycleState_CleanRoomTaskRunLifeCycleState | undefined;
   /** A value indicating the run's result. This field is only available for terminal lifecycle states. Note: Additional states might be introduced in future releases. */
-  resultState?:
-    | CleanRoomTaskRunResultState_CleanRoomTaskRunResultState
-    | undefined;
+  resultState?: CleanRoomTaskRunResultState_CleanRoomTaskRunResultState | undefined;
 }
 
 /**
@@ -1073,13 +1070,13 @@ export interface CleanRoomsNotebookTask_NotebookBaseParametersEntry {
 export interface ClusterInstance {
   /**
    * The canonical identifier for the cluster used by a run. This field is always available for runs on existing clusters. For runs on new clusters, it becomes available once the cluster is created. This value can be used to view logs by browsing to `/#setting/sparkui/$cluster_id/driver-logs`. The logs continue to be available after the run completes.
-   *
+   * 
    * The response won’t include this field if the identifier is not available yet.
    */
   clusterId?: string | undefined;
   /**
    * The canonical identifier for the Spark context used by a run. This field is filled in once the run begins execution. This value can be used to view the Spark UI by browsing to `/#setting/sparkui/$cluster_id/$spark_context_id`. The Spark UI continues to be available after the run has completed.
-   *
+   * 
    * The response won’t include this field if the identifier is not available yet.
    */
   sparkContextId?: string | undefined;
@@ -1194,7 +1191,7 @@ export interface ClusterSpec_NewCluster {
    * The node type of the Spark driver.
    * Note that this field is optional; if unset, the driver node type will be set as the same value
    * as `node_type_id` defined above.
-   *
+   * 
    * This field, along with node_type_id, should not be set if virtual_cluster_size is set.
    * If both driver_node_type_id, node_type_id, and virtual_cluster_size are specified, driver_node_type_id and node_type_id take precedence.
    */
@@ -1212,9 +1209,9 @@ export interface ClusterSpec_NewCluster {
   /**
    * Additional tags for cluster resources. <Databricks> will tag all cluster resources (e.g., AWS
    * instances and EBS volumes) with these tags in addition to `default_tags`. Notes:
-   *
+   * 
    * - Currently, <Databricks> allows at most 45 custom tags
-   *
+   * 
    * - Clusters can only reuse cloud resources if the resources' tags are a subset of the cluster tags
    */
   customTags?: Record<string, string> | undefined;
@@ -1230,11 +1227,11 @@ export interface ClusterSpec_NewCluster {
    * An object containing a set of optional, user-specified environment variable key-value pairs.
    * Please note that key-value pair of the form (X,Y) will be exported as is (i.e.,
    * `export X='Y'`) while launching the driver and workers.
-   *
+   * 
    * In order to specify an additional set of `SPARK_DAEMON_JAVA_OPTS`, we recommend appending
    * them to `$SPARK_DAEMON_JAVA_OPTS` as shown in the example below. This ensures that all
    * default databricks managed environmental variables are included as well.
-   *
+   * 
    * Example Spark environment variables:
    * `{"SPARK_WORKER_MEMORY": "28000m", "SPARK_LOCAL_DIRS": "/local_disk0"}` or
    * `{"SPARK_DAEMON_JAVA_OPTS": "$SPARK_DAEMON_JAVA_OPTS -Dspark.shuffle.service.enabled=true"}`
@@ -1278,10 +1275,10 @@ export interface ClusterSpec_NewCluster {
   dataSecurityMode?: DataSecurityMode | undefined;
   /**
    * Determines the cluster's runtime engine, either standard or Photon.
-   *
+   * 
    * This field is not compatible with legacy `spark_version` values that contain `-photon-`.
    * Remove `-photon-` from the `spark_version` and set `runtime_engine` to `PHOTON`.
-   *
+   * 
    * If left unspecified, the runtime engine defaults to standard unless the spark_version
    * contains -photon-, in which case Photon will be used.
    */
@@ -1289,13 +1286,13 @@ export interface ClusterSpec_NewCluster {
   kind?: ComputeKind | undefined;
   /**
    * This field can only be used when `kind = CLASSIC_PREVIEW`.
-   *
+   * 
    * `effective_spark_version` is determined by `spark_version` (DBR release), this field `use_ml_runtime`, and whether `node_type_id` is gpu node or not.
    */
   useMlRuntime?: boolean | undefined;
   /**
    * This field can only be used when `kind = CLASSIC_PREVIEW`.
-   *
+   * 
    * When set to true, <Databricks> will automatically set single node related `custom_tags`, `spark_conf`, and `num_workers`
    */
   isSingleNode?: boolean | undefined;
@@ -1309,7 +1306,7 @@ export interface ClusterSpec_NewCluster {
         /**
          * Number of worker nodes that this cluster should have. A cluster has one Spark Driver
          * and `num_workers` Executors for a total of `num_workers` + 1 Spark nodes.
-         *
+         * 
          * Note: When reading the properties of a cluster, this field reflects the desired number
          * of workers rather than the actual current number of workers. For instance, if a cluster
          * is resized from 5 to 10 workers, this field will immediately be updated to reflect
@@ -1377,7 +1374,7 @@ export interface ConditionTask {
   /**
    * * `EQUAL_TO`, `NOT_EQUAL` operators perform string comparison of their operands. This means that `“12.0” == “12”` will evaluate to `false`.
    * * `GREATER_THAN`, `GREATER_THAN_OR_EQUAL`, `LESS_THAN`, `LESS_THAN_OR_EQUAL` operators perform numeric comparison of their operands. `“12.0” >= “12”` will evaluate to `true`, `“10.0” >= “12”` will evaluate to `false`.
-   *
+   * 
    * The boolean comparison to task values can be implemented with operators `EQUAL_TO`, `NOT_EQUAL`. If a task value was set to a boolean value, it will be serialized to `“true”` or `“false”` for the comparison.
    */
   op?: ConditionTask_ConditionTaskOperator | undefined;
@@ -1396,7 +1393,7 @@ export interface ContinuousSettings {
   taskRetryMode?: TaskRetryMode | undefined;
 }
 
-export interface CreateJob {
+export interface CreateJobRequest {
   /** List of permissions to set on the job. */
   accessControlList?: AccessControlRequest[] | undefined;
   /** An optional name for the job. The maximum length is 4096 bytes in UTF-8 encoding. */
@@ -1437,9 +1434,9 @@ export interface CreateJob {
   jobClusters?: JobCluster[] | undefined;
   /**
    * An optional specification for a remote Git repository containing the source code used by tasks. Version-controlled source code is supported by notebook, dbt, Python script, and SQL File tasks.
-   *
+   * 
    * If `git_source` is set, these tasks retrieve the file from the remote repository by default. However, this behavior can be overridden by setting `source` to `WORKSPACE` on the task.
-   *
+   * 
    * Note: dbt and SQL File tasks support only version-controlled sources. If dbt or SQL File tasks are used, `git_source` must be defined on the job.
    */
   gitSource?: GitSource | undefined;
@@ -1459,7 +1456,7 @@ export interface CreateJob {
   runAs?: JobRunAs | undefined;
   /**
    * Edit mode of the job.
-   *
+   * 
    * * `UI_LOCKED`: The job is in a locked UI state and cannot be modified.
    * * `EDITABLE`: The job is in an editable state and can be modified.
    */
@@ -1487,7 +1484,7 @@ export interface CreateJob {
   /**
    * The performance mode on a serverless job. This field determines the level of compute performance or cost-efficiency for the run.
    * The performance target does not apply to tasks that run on Serverless GPU compute.
-   *
+   * 
    * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
    */
@@ -1507,7 +1504,7 @@ export interface CreateJob {
 
 /** Job was created successfully */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateJob_Response {
+export interface CreateJobRequest_Response {
   /** The canonical identifier for the newly created job. */
   jobId?: number | undefined;
 }
@@ -1518,7 +1515,7 @@ export interface CreateJob_Response {
  * See https://developers.google.com/protocol-buffers/docs/proto#backwards_compatibility.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateJob_TagsEntry {
+export interface CreateJobRequest_TagsEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
@@ -1663,7 +1660,7 @@ export interface DbtTask {
    * Optional location type of the project directory. When set to `WORKSPACE`, the project will be retrieved
    * from the local <Databricks> workspace. When set to `GIT`, the project will be retrieved from a Git repository
    * defined in `git_source`. If the value is empty, the task will use `GIT` if `git_source` is defined and `WORKSPACE` otherwise.
-   *
+   * 
    * * `WORKSPACE`: Project is located in <Databricks> workspace.
    * * `GIT`: Project is located in cloud Git provider.
    */
@@ -1684,23 +1681,23 @@ export interface DbtTask_DbtTaskOutput_ArtifactsHeadersEntry {
   value?: string | undefined;
 }
 
-export interface DeleteJob {
+export interface DeleteJobRequest {
   /** The canonical identifier of the job to delete. This field is required. */
   jobId?: number | undefined;
 }
 
 /** Job was deleted successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteJob_Response {}
+export interface DeleteJobRequest_Response {}
 
-export interface DeleteRun {
+export interface DeleteRunRequest {
   /** ID of the run to delete. */
   runId?: number | undefined;
 }
 
 /** Run was deleted successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteRun_Response {}
+export interface DeleteRunRequest_Response {}
 
 export interface DockerBasicAuth {
   /** Name of the user */
@@ -1743,9 +1740,7 @@ export interface EnforcePolicyComplianceForJob_Response {
    * settings in order for all job clusters to become compliant with their
    * policies.
    */
-  jobClusterChanges?:
-    | EnforcePolicyComplianceForJob_Response_JobClusterSettingsChange[]
-    | undefined;
+  jobClusterChanges?: EnforcePolicyComplianceForJob_Response_JobClusterSettingsChange[] | undefined;
   /**
    * Updated job settings after policy enforcement. Policy enforcement only
    * applies to job clusters that are created when running the job (which are
@@ -1796,10 +1791,13 @@ export interface Environment {
   /**
    * The base environment this environment is built on top of. A base environment defines the environment version and a
    * list of dependencies for serverless compute. The value can be a file path to a custom `env.yaml` file
-   * (e.g., `/Workspace/path/to/env.yaml`). Support for a Databricks-provided base environment ID
+   * (e.g., `/Workspace/path/to/env.yaml`). Support for a <Databricks>-provided base environment ID
    * (e.g., `workspace-base-environments/databricks_ai_v4`) and workspace base environment ID
    * (e.g., `workspace-base-environments/dbe_b849b66e-b31a-4cb5-b161-1f2b10877fb7`) is in Beta.
-   * Either `environment_version` or `base_environment` can be provided.  For more information, see
+   * Either `environment_version` or `base_environment` can be provided.
+   * For more information about <Databricks>-provided base environments, see the
+   * [list workspace base environments](:method:Environments/ListWorkspaceBaseEnvironments) API.
+   * For more information, see
    */
   baseEnvironment?: string | undefined;
   /**
@@ -1813,7 +1811,7 @@ export interface Environment {
 }
 
 /** Retrieves the export of a job run task. */
-export interface ExportRun {
+export interface ExportRunRequest {
   /** The canonical identifier for the run. This field is required. */
   runId?: number | undefined;
   /** Which views to export (CODE, DASHBOARDS, or ALL). Defaults to CODE. */
@@ -1822,7 +1820,7 @@ export interface ExportRun {
 
 /** Run was exported successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ExportRun_Response {
+export interface ExportRunRequest_Response {
   /** The exported content in HTML format (one for every view item). To extract the HTML notebook from the JSON response, download and run this [Python script](/_static/examples/extract.py). */
   views?: ViewItem[] | undefined;
 }
@@ -1956,16 +1954,18 @@ export interface GenAiComputeTask {
 }
 
 /** Retrieves information about a single job. */
-export interface GetJob {
+export interface GetJobRequest {
   /** The canonical identifier of the job to retrieve information about. This field is required. */
   jobId?: number | undefined;
+  /** Flag that indicates that trigger state should be included in the response. */
+  includeTriggerState?: boolean | undefined;
   /** Use `next_page_token` returned from the previous GetJob response to request the next page of the job's array properties. */
   pageToken?: string | undefined;
 }
 
 /** Job was retrieved successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetJob_Response {
+export interface GetJobRequest_Response {
   /** A token that can be used to list the next page of array properties. */
   nextPageToken?: string | undefined;
   /** The canonical identifier for this job. */
@@ -1974,7 +1974,7 @@ export interface GetJob_Response {
   creatorUserName?: string | undefined;
   /**
    * The email of an active workspace user or the application ID of a service principal that the job runs as. This value can be changed by setting the `run_as` field when creating or updating a job.
-   *
+   * 
    * By default, `run_as_user_name` is based on the current job settings and is set to the creator of the job if job access control is disabled or to the user with the `is_owner` permission if job access control is enabled.
    */
   runAsUserName?: string | undefined;
@@ -1983,7 +1983,7 @@ export interface GetJob_Response {
   /** The time at which this job was created in epoch milliseconds (milliseconds since 1/1/1970 UTC). */
   createdTime?: number | undefined;
   /** State of the trigger associated with the job. */
-  triggerState?: TriggerStateProto | undefined;
+  triggerState?: TriggerState | undefined;
   /**
    * Indicates if the job has more array properties (`tasks`, `job_clusters`) that are not shown. They can be accessed via :method:jobs/get endpoint.
    * It is only relevant for API 2.2 :method:jobs/list requests with `expand_tasks=true`.
@@ -2032,124 +2032,15 @@ export interface GetPolicyComplianceForJob_Response_ViolationsEntry {
   value?: string | undefined;
 }
 
-export interface GetRun {
-  /**
-   * The canonical identifier of the run for which to retrieve the metadata.
-   * This field is required.
-   */
-  runId?: number | undefined;
-  /** Whether to include the repair history in the response. */
-  includeHistory?: boolean | undefined;
-  /** Whether to include resolved parameter values in the response. */
-  includeResolvedValues?: boolean | undefined;
-  /** Use `next_page_token` returned from the previous GetRun response to request the next page of the run's array properties. */
-  pageToken?: string | undefined;
-}
-
-/** Run was retrieved successfully */
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetRun_Response {
-  /** A token that can be used to list the next page of array properties. */
-  nextPageToken?: string | undefined;
-  /** The canonical identifier of the job that contains this run. */
-  jobId?: number | undefined;
-  /** The canonical identifier of the run. This ID is unique across all runs of all jobs. */
-  runId?: number | undefined;
-  /** The creator user name. This field won’t be included in the response if the user has already been deleted. */
-  creatorUserName?: string | undefined;
-  /** A unique identifier for this job run. This is set to the same value as `run_id`. */
-  numberInJob?: number | undefined;
-  /** If this run is a retry of a prior run attempt, this field contains the run_id of the original attempt; otherwise, it is the same as the run_id. */
-  originalAttemptRunId?: number | undefined;
-  /** Deprecated. Please use the `status` field instead. */
-  state?: RunState | undefined;
-  /** The cron schedule that triggered this run if it was triggered by the periodic scheduler. */
-  schedule?: CronSchedule | undefined;
-  /** A snapshot of the job’s cluster specification when this run was created. */
-  clusterSpec?: ClusterSpec | undefined;
-  /** The cluster used for this run. If the run is specified to use a new cluster, this field is set once the Jobs service has requested a cluster for the run. */
-  clusterInstance?: ClusterInstance | undefined;
-  /** Job-level parameters used in the run */
-  jobParameters?: Run_JobLevelParameters[] | undefined;
-  /** The parameters used for this run. */
-  overridingParameters?: RunParameters | undefined;
-  trigger?: TriggerType | undefined;
-  triggerInfo?: RunTriggerInfo | undefined;
-  /** An optional name for the run. The maximum length is 4096 bytes in UTF-8 encoding. */
-  runName?: string | undefined;
-  /** The URL to the detail page of the run. */
-  runPageUrl?: string | undefined;
-  runType?: RunType | undefined;
-  /**
-   * The list of tasks performed by the run. Each task has its own `run_id` which you can use to call `JobsGetOutput` to retrieve the run resutls.
-   * If more than 100 tasks are available, you can paginate through them using :method:jobs/getrun. Use the `next_page_token` field at the object root to determine if more results are available.
-   */
-  tasks?: RunTask[] | undefined;
-  /** Description of the run */
-  description?: string | undefined;
-  /** The sequence number of this run attempt for a triggered job run. The initial attempt of a run has an attempt_number of 0. If the initial run attempt fails, and the job has a retry policy (`max_retries` > 0), subsequent runs are created with an `original_attempt_run_id` of the original attempt’s ID and an incrementing `attempt_number`. Runs are retried only until they succeed, and the maximum `attempt_number` is the same as the `max_retries` value for the job. */
-  attemptNumber?: number | undefined;
-  /**
-   * A list of job cluster specifications that can be shared and reused by tasks of this job. Libraries cannot be declared in a shared job cluster. You must declare dependent libraries in task settings.
-   * If more than 100 job clusters are available, you can paginate through them using :method:jobs/getrun.
-   */
-  jobClusters?: JobCluster[] | undefined;
-  /**
-   * An optional specification for a remote Git repository containing the source code used by tasks. Version-controlled source code is supported by notebook, dbt, Python script, and SQL File tasks.
-   *
-   * If `git_source` is set, these tasks retrieve the file from the remote repository by default. However, this behavior can be overridden by setting `source` to `WORKSPACE` on the task.
-   *
-   * Note: dbt and SQL File tasks support only version-controlled sources. If dbt or SQL File tasks are used, `git_source` must be defined on the job.
-   */
-  gitSource?: GitSource | undefined;
-  /** The repair history of the run. */
-  repairHistory?: Repair[] | undefined;
-  status?: RunStatus | undefined;
-  /**
-   * ID of the job run that this run belongs to.
-   * For legacy and single-task job runs the field is populated with the job run ID.
-   * For task runs, the field is populated with the ID of the job run that the task run belongs to.
-   */
-  jobRunId?: number | undefined;
-  /**
-   * Indicates if the run has more array properties (`tasks`, `job_clusters`) that are not shown. They can be accessed via :method:jobs/getrun endpoint.
-   * It is only relevant for API 2.2 :method:jobs/listruns requests with `expand_tasks=true`.
-   */
-  hasMore?: boolean | undefined;
-  /**
-   * The actual performance target used by the serverless run during execution. This can differ from the client-set performance target on the request depending on whether the performance mode is supported by the job type.
-   *
-   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
-   * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
-   */
-  effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
-  /** The id of the usage policy used by this run for cost attribution purposes. */
-  effectiveUsagePolicyId?: string | undefined;
-  /** The time at which this run was started in epoch milliseconds (milliseconds since 1/1/1970 UTC). This may not be the time when the job task starts executing, for example, if the job is scheduled to run on a new cluster, this is the time the cluster creation call is issued. */
-  startTime?: number | undefined;
-  /** The time in milliseconds it took to set up the cluster. For runs that run on new clusters this is the cluster creation time, for runs that run on existing clusters this time should be very short. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the `cleanup_duration`. The `setup_duration` field is set to 0 for multitask job runs. The total duration of a multitask job run is the value of the `run_duration` field. */
-  setupDuration?: number | undefined;
-  /** The time in milliseconds it took to execute the commands in the JAR or notebook until they  completed, failed, timed out, were cancelled, or encountered an unexpected error. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the  `cleanup_duration`. The `execution_duration` field is set to 0 for multitask job runs. The total  duration of a multitask job run is the value of the `run_duration` field. */
-  executionDuration?: number | undefined;
-  /** The time in milliseconds it took to terminate the cluster and clean up any associated artifacts. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the `cleanup_duration`. The `cleanup_duration` field is set to 0 for multitask job runs. The total duration of a multitask job run is the value of the `run_duration` field. */
-  cleanupDuration?: number | undefined;
-  /** The time at which this run ended in epoch milliseconds (milliseconds since 1/1/1970 UTC). This field is set to 0 if the job is still running. */
-  endTime?: number | undefined;
-  /** The time in milliseconds it took the job run and all of its repairs to finish. */
-  runDuration?: number | undefined;
-  /** The time in milliseconds that the run has spent in the queue. */
-  queueDuration?: number | undefined;
-}
-
 /** Retrieves both the output and the metadata of a run. */
-export interface GetRunOutput {
+export interface GetRunOutputRequest {
   /** The canonical identifier for the run. */
   runId?: number | undefined;
 }
 
 /** Run output was retrieved successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetRunOutput_Response {
+export interface GetRunOutputRequest_Response {
   /** All details of the run except for its output. */
   metadata?: Run | undefined;
   /** An error message indicating why a task failed or why output is not available. The message is unstructured, and its exact format is subject to change. */
@@ -2197,7 +2088,7 @@ export interface GetRunOutput_Response {
         /** Deprecated in favor of the new dbt_platform_output */
         dbtCloudOutput: DbtCloudTaskOutput;
       }
-    | {$case: 'dbtPlatformOutput'; dbtPlatformOutput: DbtPlatformTaskOutput}
+    | { $case: 'dbtPlatformOutput'; dbtPlatformOutput: DbtPlatformTaskOutput }
     | {
         $case: 'alertOutput';
         /** The output of an alert task, if available */
@@ -2207,9 +2098,9 @@ export interface GetRunOutput_Response {
   /**
    * The output from tasks that write to standard streams (stdout/stderr) such as
    * spark_jar_task, spark_python_task, python_wheel_task.
-   *
+   * 
    * It's not supported for the notebook_task, pipeline_task or spark_submit_task.
-   *
+   * 
    * <Databricks> restricts this API to return the last 5 MB of these logs.
    */
   logs?: string | undefined;
@@ -2217,6 +2108,115 @@ export interface GetRunOutput_Response {
   logsTruncated?: boolean | undefined;
   /** If there was an error executing the run, this field contains any available stack traces. */
   errorTrace?: string | undefined;
+}
+
+export interface GetRunRequest {
+  /**
+   * The canonical identifier of the run for which to retrieve the metadata.
+   * This field is required.
+   */
+  runId?: number | undefined;
+  /** Whether to include the repair history in the response. */
+  includeHistory?: boolean | undefined;
+  /** Whether to include resolved parameter values in the response. */
+  includeResolvedValues?: boolean | undefined;
+  /** Use `next_page_token` returned from the previous GetRun response to request the next page of the run's array properties. */
+  pageToken?: string | undefined;
+}
+
+/** Run was retrieved successfully */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export interface GetRunRequest_Response {
+  /** A token that can be used to list the next page of array properties. */
+  nextPageToken?: string | undefined;
+  /** The canonical identifier of the job that contains this run. */
+  jobId?: number | undefined;
+  /** The canonical identifier of the run. This ID is unique across all runs of all jobs. */
+  runId?: number | undefined;
+  /** The creator user name. This field won’t be included in the response if the user has already been deleted. */
+  creatorUserName?: string | undefined;
+  /** A unique identifier for this job run. This is set to the same value as `run_id`. */
+  numberInJob?: number | undefined;
+  /** If this run is a retry of a prior run attempt, this field contains the run_id of the original attempt; otherwise, it is the same as the run_id. */
+  originalAttemptRunId?: number | undefined;
+  /** Deprecated. Please use the `status` field instead. */
+  state?: RunState | undefined;
+  /** The cron schedule that triggered this run if it was triggered by the periodic scheduler. */
+  schedule?: CronSchedule | undefined;
+  /** A snapshot of the job’s cluster specification when this run was created. */
+  clusterSpec?: ClusterSpec | undefined;
+  /** The cluster used for this run. If the run is specified to use a new cluster, this field is set once the Jobs service has requested a cluster for the run. */
+  clusterInstance?: ClusterInstance | undefined;
+  /** Job-level parameters used in the run */
+  jobParameters?: Run_JobLevelParameters[] | undefined;
+  /** The parameters used for this run. */
+  overridingParameters?: RunParameters | undefined;
+  trigger?: TriggerType | undefined;
+  triggerInfo?: RunTriggerInfo | undefined;
+  /** An optional name for the run. The maximum length is 4096 bytes in UTF-8 encoding. */
+  runName?: string | undefined;
+  /** The URL to the detail page of the run. */
+  runPageUrl?: string | undefined;
+  runType?: RunType | undefined;
+  /**
+   * The list of tasks performed by the run. Each task has its own `run_id` which you can use to call `JobsGetOutput` to retrieve the run resutls.
+   * If more than 100 tasks are available, you can paginate through them using :method:jobs/getrun. Use the `next_page_token` field at the object root to determine if more results are available.
+   */
+  tasks?: RunTask[] | undefined;
+  /** Description of the run */
+  description?: string | undefined;
+  /** The sequence number of this run attempt for a triggered job run. The initial attempt of a run has an attempt_number of 0. If the initial run attempt fails, and the job has a retry policy (`max_retries` > 0), subsequent runs are created with an `original_attempt_run_id` of the original attempt’s ID and an incrementing `attempt_number`. Runs are retried only until they succeed, and the maximum `attempt_number` is the same as the `max_retries` value for the job. */
+  attemptNumber?: number | undefined;
+  /**
+   * A list of job cluster specifications that can be shared and reused by tasks of this job. Libraries cannot be declared in a shared job cluster. You must declare dependent libraries in task settings.
+   * If more than 100 job clusters are available, you can paginate through them using :method:jobs/getrun.
+   */
+  jobClusters?: JobCluster[] | undefined;
+  /**
+   * An optional specification for a remote Git repository containing the source code used by tasks. Version-controlled source code is supported by notebook, dbt, Python script, and SQL File tasks.
+   * 
+   * If `git_source` is set, these tasks retrieve the file from the remote repository by default. However, this behavior can be overridden by setting `source` to `WORKSPACE` on the task.
+   * 
+   * Note: dbt and SQL File tasks support only version-controlled sources. If dbt or SQL File tasks are used, `git_source` must be defined on the job.
+   */
+  gitSource?: GitSource | undefined;
+  /** The repair history of the run. */
+  repairHistory?: Repair[] | undefined;
+  status?: RunStatus | undefined;
+  /**
+   * ID of the job run that this run belongs to.
+   * For legacy and single-task job runs the field is populated with the job run ID.
+   * For task runs, the field is populated with the ID of the job run that the task run belongs to.
+   */
+  jobRunId?: number | undefined;
+  /**
+   * Indicates if the run has more array properties (`tasks`, `job_clusters`) that are not shown. They can be accessed via :method:jobs/getrun endpoint.
+   * It is only relevant for API 2.2 :method:jobs/listruns requests with `expand_tasks=true`.
+   */
+  hasMore?: boolean | undefined;
+  /**
+   * The actual performance target used by the serverless run during execution. This can differ from the client-set performance target on the request depending on whether the performance mode is supported by the job type.
+   * 
+   * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
+   * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
+   */
+  effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
+  /** The id of the usage policy used by this run for cost attribution purposes. */
+  effectiveUsagePolicyId?: string | undefined;
+  /** The time at which this run was started in epoch milliseconds (milliseconds since 1/1/1970 UTC). This may not be the time when the job task starts executing, for example, if the job is scheduled to run on a new cluster, this is the time the cluster creation call is issued. */
+  startTime?: number | undefined;
+  /** The time in milliseconds it took to set up the cluster. For runs that run on new clusters this is the cluster creation time, for runs that run on existing clusters this time should be very short. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the `cleanup_duration`. The `setup_duration` field is set to 0 for multitask job runs. The total duration of a multitask job run is the value of the `run_duration` field. */
+  setupDuration?: number | undefined;
+  /** The time in milliseconds it took to execute the commands in the JAR or notebook until they  completed, failed, timed out, were cancelled, or encountered an unexpected error. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the  `cleanup_duration`. The `execution_duration` field is set to 0 for multitask job runs. The total  duration of a multitask job run is the value of the `run_duration` field. */
+  executionDuration?: number | undefined;
+  /** The time in milliseconds it took to terminate the cluster and clean up any associated artifacts. The duration of a task run is the sum of the `setup_duration`, `execution_duration`, and the `cleanup_duration`. The `cleanup_duration` field is set to 0 for multitask job runs. The total duration of a multitask job run is the value of the `run_duration` field. */
+  cleanupDuration?: number | undefined;
+  /** The time at which this run ended in epoch milliseconds (milliseconds since 1/1/1970 UTC). This field is set to 0 if the job is still running. */
+  endTime?: number | undefined;
+  /** The time in milliseconds it took the job run and all of its repairs to finish. */
+  runDuration?: number | undefined;
+  /** The time in milliseconds that the run has spent in the queue. */
+  queueDuration?: number | undefined;
 }
 
 /** Read-only state of the remote repository at the time the job was run. This field is only included on job runs. */
@@ -2227,9 +2227,9 @@ export interface GitMetadataSnapshot {
 
 /**
  * An optional specification for a remote Git repository containing the source code used by tasks. Version-controlled source code is supported by notebook, dbt, Python script, and SQL File tasks.
- *
+ * 
  * If `git_source` is set, these tasks retrieve the file from the remote repository by default. However, this behavior can be overridden by setting `source` to `WORKSPACE` on the task.
- *
+ * 
  * Note: dbt and SQL File tasks support only version-controlled sources. If dbt or SQL File tasks are used, `git_source` must be defined on the job.
  */
 export interface GitSource {
@@ -2340,7 +2340,7 @@ export interface JobCluster {
 export interface JobDeployment {
   /**
    * The kind of deployment that manages the job.
-   *
+   * 
    * * `BUNDLE`: The job is managed by Databricks Asset Bundle.
    * * `SYSTEM_MANAGED`: The job is managed by <Databricks> and is read-only.
    */
@@ -2386,7 +2386,7 @@ export interface JobLevelParameter {
 
 /**
  * Write-only setting. Specifies the user or service principal that the job runs as. If not specified, the job runs as the user who created the job.
- *
+ * 
  * Either `user_name` or `service_principal_name` should be specified. If not, an error is thrown.
  */
 export interface JobRunAs {
@@ -2448,9 +2448,9 @@ export interface JobSettings {
   jobClusters?: JobCluster[] | undefined;
   /**
    * An optional specification for a remote Git repository containing the source code used by tasks. Version-controlled source code is supported by notebook, dbt, Python script, and SQL File tasks.
-   *
+   * 
    * If `git_source` is set, these tasks retrieve the file from the remote repository by default. However, this behavior can be overridden by setting `source` to `WORKSPACE` on the task.
-   *
+   * 
    * Note: dbt and SQL File tasks support only version-controlled sources. If dbt or SQL File tasks are used, `git_source` must be defined on the job.
    */
   gitSource?: GitSource | undefined;
@@ -2470,7 +2470,7 @@ export interface JobSettings {
   runAs?: JobRunAs | undefined;
   /**
    * Edit mode of the job.
-   *
+   * 
    * * `UI_LOCKED`: The job is in a locked UI state and cannot be modified.
    * * `EDITABLE`: The job is in an editable state and can be modified.
    */
@@ -2498,7 +2498,7 @@ export interface JobSettings {
   /**
    * The performance mode on a serverless job. This field determines the level of compute performance or cost-efficiency for the run.
    * The performance target does not apply to tasks that run on Serverless GPU compute.
-   *
+   * 
    * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
    */
@@ -2540,7 +2540,7 @@ export interface JobSource {
     | undefined;
   /**
    * Dirty state indicates the job is not fully synced with the job specification in the remote repository.
-   *
+   * 
    * Possible values are:
    * * `NOT_SYNCED`: The job is not yet synced with the remote job specification. Import the remote job specification from UI to make the job fully synced.
    * * `DISCONNECTED`: The job is temporary disconnected from the remote job specification and is allowed for live edit. Import the remote job specification again from UI to make the job fully synced.
@@ -2677,7 +2677,7 @@ export interface ListJobComplianceForPolicy_Response {
 }
 
 /** Lists all jobs. */
-export interface ListJobs {
+export interface ListJobsRequest {
   /**
    * The offset of the first job to return, relative to the most recently created job.
    * Deprecated since June 2023. Use `page_token` to iterate through the pages instead.
@@ -2698,7 +2698,7 @@ export interface ListJobs {
 
 /** List of jobs was retrieved successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListJobs_Response {
+export interface ListJobsRequest_Response {
   /** The list of jobs. Only included in the response if there are jobs to list. */
   jobs?: BaseJob[] | undefined;
   /** If true, additional jobs matching the provided filter are available for listing. */
@@ -2710,7 +2710,7 @@ export interface ListJobs_Response {
 }
 
 /** Lists runs from most recently started to least. */
-export interface ListRuns {
+export interface ListRunsRequest {
   /** The job for which to list runs. If omitted, the Jobs service lists runs from all jobs. */
   jobId?: number | undefined;
   stateConstraint?:
@@ -2767,7 +2767,7 @@ export interface ListRuns {
 
 /** List of runs was retrieved successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListRuns_Response {
+export interface ListRunsRequest_Response {
   /** A list of runs, from most recently started to least. Only included in the response if there are runs to list. */
   runs?: BaseRun[] | undefined;
   /** If true, additional runs matching the provided filter are available for listing. */
@@ -2798,7 +2798,7 @@ export interface MavenLibrary {
   repo?: string | undefined;
   /**
    * List of dependences to exclude. For example: `["slf4j:slf4j", "*:hadoop-client"]`.
-   *
+   * 
    * Maven dependency exclusions:
    * https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html.
    */
@@ -2846,12 +2846,12 @@ export interface NotebookTask {
    * Now with parameters specified, the two parameters maps are merged. If the same key is specified in
    * `base_parameters` and in `run-now`, the value from `run-now` is used.
    * Use [Task parameter variables](/jobs.html#parameter-variables) to set parameters containing information about job runs.
-   *
+   * 
    * If the notebook takes a parameter that is not specified in the job’s `base_parameters` or the `run-now` override parameters,
    * the default value from the notebook is used.
-   *
+   * 
    * Retrieve these parameters in a notebook using [dbutils.widgets.get](/dev-tools/databricks-utils.html#dbutils-widgets).
-   *
+   * 
    * The JSON representation of this field cannot exceed 1MB.
    */
   baseParameters?: Record<string, string> | undefined;
@@ -2864,7 +2864,7 @@ export interface NotebookTask {
   source?: Source | undefined;
   /**
    * Optional `warehouse_id` to run the notebook on a SQL warehouse. Classic SQL warehouses are NOT supported, please use serverless or pro SQL warehouses.
-   *
+   * 
    * Note that SQL warehouses only support SQL cells; if the notebook contains non-SQL cells, the run will fail.
    */
   warehouseId?: string | undefined;
@@ -2920,6 +2920,17 @@ export interface PeriodicTriggerConfiguration {
 export interface PipelineParameters {
   /** If true, triggers a full refresh on the spark declarative pipeline. */
   fullRefresh?: boolean | undefined;
+  /** A list of tables to update without fullRefresh. */
+  refreshSelection?: string[] | undefined;
+  /** A list of tables to update with fullRefresh. */
+  fullRefreshSelection?: string[] | undefined;
+  /** A list of streaming flows to reset checkpoints without clearing data. */
+  resetCheckpointSelection?: string[] | undefined;
+  /**
+   * Flow names to selectively refresh. These are unioned with other selective refresh
+   * options (refresh_selection, full_refresh_selection) to determine the final set of flows to refresh.
+   */
+  refreshFlowSelection?: string[] | undefined;
 }
 
 export interface PipelineTask {
@@ -2927,6 +2938,17 @@ export interface PipelineTask {
   pipelineId?: string | undefined;
   /** If true, triggers a full refresh on the spark declarative pipeline. */
   fullRefresh?: boolean | undefined;
+  /** A list of tables to update without fullRefresh. */
+  refreshSelection?: string[] | undefined;
+  /** A list of tables to update with fullRefresh. */
+  fullRefreshSelection?: string[] | undefined;
+  /** A list of streaming flows to reset checkpoints without clearing data. */
+  resetCheckpointSelection?: string[] | undefined;
+  /**
+   * Flow names to selectively refresh. These are unioned with other selective refresh
+   * options (refresh_selection, full_refresh_selection) to determine the final set of flows to refresh.
+   */
+  refreshFlowSelection?: string[] | undefined;
 }
 
 export interface PowerBiModel {
@@ -3057,14 +3079,14 @@ export interface Repair {
   status?: RunStatus | undefined;
   /**
    * The actual performance target used by the serverless run during execution. This can differ from the client-set performance target on the request depending on whether the performance mode is supported by the job type.
-   *
+   * 
    * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
    */
   effectivePerformanceTarget?: PerformanceTarget_PerformanceTarget | undefined;
 }
 
-export interface RepairRun {
+export interface RepairRunRequest {
   /** The job run ID of the run to repair. The run must not be in progress. */
   runId?: number | undefined;
   /** The ID of the latest repair. This parameter is not required when repairing a run for the first time, but must be provided on subsequent requests to repair the same run. */
@@ -3079,7 +3101,7 @@ export interface RepairRun {
   rerunDependentTasks?: boolean | undefined;
   /**
    * The performance mode on a serverless job. The performance target determines the level of compute performance or cost-efficiency for the run. This field overrides the performance target defined on the job level.
-   *
+   * 
    * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
    */
@@ -3092,20 +3114,20 @@ export interface RepairRun {
    * If not specified upon `run-now`, it defaults to an empty list.
    * jar_params cannot be specified in conjunction with notebook_params.
    * The JSON representation of this field (for example `{"jar_params":["john doe","35"]}`) cannot exceed 10,000 bytes.
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   jarParams?: string[] | undefined;
   /**
    * A map from keys to values for jobs with notebook task, for example `"notebook_params": {"name": "john doe", "age": "35"}`.
    * The map is passed to the notebook and is accessible through the [dbutils.widgets.get](/dev-tools/databricks-utils.html) function.
-   *
+   * 
    * If not specified upon `run-now`, the triggered run uses the job’s base parameters.
-   *
+   * 
    * notebook_params cannot be specified in conjunction with jar_params.
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
-   *
+   * 
    * The JSON representation of this field (for example `{"notebook_params":{"name":"john doe","age":"35"}}`) cannot exceed 10,000 bytes.
    */
   notebookParams?: Record<string, string> | undefined;
@@ -3114,11 +3136,11 @@ export interface RepairRun {
    * The parameters are passed to Python file as command-line parameters. If specified upon `run-now`, it would overwrite
    * the parameters specified in job setting. The JSON representation of this field (for example `{"python_params":["john doe","35"]}`)
    * cannot exceed 10,000 bytes.
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
-   *
+   * 
    * Important
-   *
+   * 
    * These parameters accept only Latin characters (ASCII character set). Using non-ASCII characters returns an error.
    * Examples of invalid, non-ASCII characters are Chinese, Japanese kanjis, and emojis.
    */
@@ -3128,11 +3150,11 @@ export interface RepairRun {
    * The parameters are passed to spark-submit script as command-line parameters. If specified upon `run-now`, it would overwrite the
    * parameters specified in job setting. The JSON representation of this field (for example `{"python_params":["john doe","35"]}`)
    * cannot exceed 10,000 bytes.
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
-   *
+   * 
    * Important
-   *
+   * 
    * These parameters accept only Latin characters (ASCII character set). Using non-ASCII characters returns an error.
    * Examples of invalid, non-ASCII characters are Chinese, Japanese kanjis, and emojis.
    */
@@ -3140,13 +3162,13 @@ export interface RepairRun {
   pythonNamedParams?: Record<string, string> | undefined;
   /**
    * A map from keys to values for jobs with SQL task, for example `"sql_params": {"name": "john doe", "age": "35"}`. The SQL alert task does not support custom parameters.
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   sqlParams?: Record<string, string> | undefined;
   /**
    * An array of commands to execute for jobs with the dbt task, for example `"dbt_commands": ["dbt deps", "dbt seed", "dbt deps", "dbt seed", "dbt run"]`
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   dbtCommands?: string[] | undefined;
@@ -3154,7 +3176,7 @@ export interface RepairRun {
 
 /** Name-based parameters for jobs running notebook tasks. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RepairRun_JobParametersEntry {
+export interface RepairRunRequest_JobParametersEntry {
   /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
   key?: string | undefined;
   value?: string | undefined;
@@ -3162,7 +3184,7 @@ export interface RepairRun_JobParametersEntry {
 
 /** Name-based parameters for jobs running notebook tasks. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RepairRun_NotebookParamsEntry {
+export interface RepairRunRequest_NotebookParamsEntry {
   /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
   key?: string | undefined;
   value?: string | undefined;
@@ -3170,7 +3192,7 @@ export interface RepairRun_NotebookParamsEntry {
 
 /** Name-based parameters for jobs running notebook tasks. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RepairRun_PythonNamedParamsEntry {
+export interface RepairRunRequest_PythonNamedParamsEntry {
   /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
   key?: string | undefined;
   value?: string | undefined;
@@ -3178,25 +3200,25 @@ export interface RepairRun_PythonNamedParamsEntry {
 
 /** Run repair was initiated. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RepairRun_Response {
+export interface RepairRunRequest_Response {
   /** The ID of the repair. Must be provided in subsequent repairs using the `latest_repair_id` field to ensure sequential repairs. */
   repairId?: number | undefined;
 }
 
 /** Name-based parameters for jobs running notebook tasks. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RepairRun_SqlParamsEntry {
+export interface RepairRunRequest_SqlParamsEntry {
   /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
   key?: string | undefined;
   value?: string | undefined;
 }
 
-export interface ResetJob {
+export interface ResetJobRequest {
   /** The canonical identifier of the job to reset. This field is required. */
   jobId?: number | undefined;
   /**
    * The new settings of the job. These settings completely replace the old settings.
-   *
+   * 
    * Changes to the field `JobBaseSettings.timeout_seconds` are applied to active runs. Changes to other fields are applied to future runs only.
    */
   newSettings?: JobSettings | undefined;
@@ -3204,41 +3226,20 @@ export interface ResetJob {
 
 /** Job was overwritten successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface ResetJob_Response {}
+export interface ResetJobRequest_Response {}
 
 export interface ResolvedValues {
   resolved?:
-    | {
-        $case: 'notebookTask';
-        notebookTask: ResolvedValues_NotebookTaskResolvedValues;
-      }
-    | {
-        $case: 'sparkJarTask';
-        sparkJarTask: ResolvedValues_SparkJarTaskResolvedValues;
-      }
-    | {
-        $case: 'sparkPythonTask';
-        sparkPythonTask: ResolvedValues_SparkPythonTaskResolvedValues;
-      }
-    | {
-        $case: 'sparkSubmitTask';
-        sparkSubmitTask: ResolvedValues_SparkSubmitTaskResolvedValues;
-      }
-    | {
-        $case: 'pythonWheelTask';
-        pythonWheelTask: ResolvedValues_PythonWheelTaskResolvedValues;
-      }
-    | {$case: 'dbtTask'; dbtTask: ResolvedValues_DbtTaskResolvedValues}
-    | {$case: 'sqlTask'; sqlTask: ResolvedValues_SqlTaskResolvedValues}
-    | {$case: 'runJobTask'; runJobTask: ResolvedValues_RunJobTaskResolvedValues}
-    | {
-        $case: 'conditionTask';
-        conditionTask: ResolvedValues_ConditionTaskResolvedValues;
-      }
-    | {
-        $case: 'simulationTask';
-        simulationTask: ResolvedValues_SimulationTaskResolvedValues;
-      }
+    | { $case: 'notebookTask'; notebookTask: ResolvedValues_NotebookTaskResolvedValues }
+    | { $case: 'sparkJarTask'; sparkJarTask: ResolvedValues_SparkJarTaskResolvedValues }
+    | { $case: 'sparkPythonTask'; sparkPythonTask: ResolvedValues_SparkPythonTaskResolvedValues }
+    | { $case: 'sparkSubmitTask'; sparkSubmitTask: ResolvedValues_SparkSubmitTaskResolvedValues }
+    | { $case: 'pythonWheelTask'; pythonWheelTask: ResolvedValues_PythonWheelTaskResolvedValues }
+    | { $case: 'dbtTask'; dbtTask: ResolvedValues_DbtTaskResolvedValues }
+    | { $case: 'sqlTask'; sqlTask: ResolvedValues_SqlTaskResolvedValues }
+    | { $case: 'runJobTask'; runJobTask: ResolvedValues_RunJobTaskResolvedValues }
+    | { $case: 'conditionTask'; conditionTask: ResolvedValues_ConditionTaskResolvedValues }
+    | { $case: 'simulationTask'; simulationTask: ResolvedValues_SimulationTaskResolvedValues }
     | undefined;
 }
 
@@ -3385,9 +3386,9 @@ export interface Run {
   jobClusters?: JobCluster[] | undefined;
   /**
    * An optional specification for a remote Git repository containing the source code used by tasks. Version-controlled source code is supported by notebook, dbt, Python script, and SQL File tasks.
-   *
+   * 
    * If `git_source` is set, these tasks retrieve the file from the remote repository by default. However, this behavior can be overridden by setting `source` to `WORKSPACE` on the task.
-   *
+   * 
    * Note: dbt and SQL File tasks support only version-controlled sources. If dbt or SQL File tasks are used, `git_source` must be defined on the job.
    */
   gitSource?: GitSource | undefined;
@@ -3407,7 +3408,7 @@ export interface Run {
   hasMore?: boolean | undefined;
   /**
    * The actual performance target used by the serverless run during execution. This can differ from the client-set performance target on the request depending on whether the performance mode is supported by the job type.
-   *
+   * 
    * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
    */
@@ -3453,20 +3454,20 @@ export interface RunJobTask {
    * If not specified upon `run-now`, it defaults to an empty list.
    * jar_params cannot be specified in conjunction with notebook_params.
    * The JSON representation of this field (for example `{"jar_params":["john doe","35"]}`) cannot exceed 10,000 bytes.
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   jarParams?: string[] | undefined;
   /**
    * A map from keys to values for jobs with notebook task, for example `"notebook_params": {"name": "john doe", "age": "35"}`.
    * The map is passed to the notebook and is accessible through the [dbutils.widgets.get](/dev-tools/databricks-utils.html) function.
-   *
+   * 
    * If not specified upon `run-now`, the triggered run uses the job’s base parameters.
-   *
+   * 
    * notebook_params cannot be specified in conjunction with jar_params.
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
-   *
+   * 
    * The JSON representation of this field (for example `{"notebook_params":{"name":"john doe","age":"35"}}`) cannot exceed 10,000 bytes.
    */
   notebookParams?: Record<string, string> | undefined;
@@ -3475,11 +3476,11 @@ export interface RunJobTask {
    * The parameters are passed to Python file as command-line parameters. If specified upon `run-now`, it would overwrite
    * the parameters specified in job setting. The JSON representation of this field (for example `{"python_params":["john doe","35"]}`)
    * cannot exceed 10,000 bytes.
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
-   *
+   * 
    * Important
-   *
+   * 
    * These parameters accept only Latin characters (ASCII character set). Using non-ASCII characters returns an error.
    * Examples of invalid, non-ASCII characters are Chinese, Japanese kanjis, and emojis.
    */
@@ -3489,11 +3490,11 @@ export interface RunJobTask {
    * The parameters are passed to spark-submit script as command-line parameters. If specified upon `run-now`, it would overwrite the
    * parameters specified in job setting. The JSON representation of this field (for example `{"python_params":["john doe","35"]}`)
    * cannot exceed 10,000 bytes.
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
-   *
+   * 
    * Important
-   *
+   * 
    * These parameters accept only Latin characters (ASCII character set). Using non-ASCII characters returns an error.
    * Examples of invalid, non-ASCII characters are Chinese, Japanese kanjis, and emojis.
    */
@@ -3501,13 +3502,13 @@ export interface RunJobTask {
   pythonNamedParams?: Record<string, string> | undefined;
   /**
    * A map from keys to values for jobs with SQL task, for example `"sql_params": {"name": "john doe", "age": "35"}`. The SQL alert task does not support custom parameters.
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   sqlParams?: Record<string, string> | undefined;
   /**
    * An array of commands to execute for jobs with the dbt task, for example `"dbt_commands": ["dbt deps", "dbt seed", "dbt deps", "dbt seed", "dbt run"]`
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   dbtCommands?: string[] | undefined;
@@ -3557,7 +3558,7 @@ export interface RunLifeCycleState {}
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface RunLifecycleStateV2 {}
 
-export interface RunNow {
+export interface RunNowRequest {
   /** The ID of the job to be executed */
   jobId?: number | undefined;
   /** Job-level parameters used in the run. for example `"param": "overriding_val"` */
@@ -3566,12 +3567,12 @@ export interface RunNow {
    * An optional token to guarantee the idempotency of job run requests. If a run with the provided token already exists,
    * the request does not create a new run but returns the ID of the existing run instead. If a run with the provided token is deleted,
    * an error is returned.
-   *
+   * 
    * If you specify the idempotency token, upon failure you can retry until the request succeeds. <Databricks> guarantees that exactly one run
    * is launched with that idempotency token.
-   *
+   * 
    * This token must have at most 64 characters.
-   *
+   * 
    * For more information, see [How to ensure idempotency for jobs](https://kb.databricks.com/jobs/jobs-idempotency.html).
    */
   idempotencyToken?: string | undefined;
@@ -3581,7 +3582,7 @@ export interface RunNow {
   only?: string[] | undefined;
   /**
    * The performance mode on a serverless job. The performance target determines the level of compute performance or cost-efficiency for the run. This field overrides the performance target defined on the job level.
-   *
+   * 
    * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
    */
@@ -3594,20 +3595,20 @@ export interface RunNow {
    * If not specified upon `run-now`, it defaults to an empty list.
    * jar_params cannot be specified in conjunction with notebook_params.
    * The JSON representation of this field (for example `{"jar_params":["john doe","35"]}`) cannot exceed 10,000 bytes.
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   jarParams?: string[] | undefined;
   /**
    * A map from keys to values for jobs with notebook task, for example `"notebook_params": {"name": "john doe", "age": "35"}`.
    * The map is passed to the notebook and is accessible through the [dbutils.widgets.get](/dev-tools/databricks-utils.html) function.
-   *
+   * 
    * If not specified upon `run-now`, the triggered run uses the job’s base parameters.
-   *
+   * 
    * notebook_params cannot be specified in conjunction with jar_params.
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
-   *
+   * 
    * The JSON representation of this field (for example `{"notebook_params":{"name":"john doe","age":"35"}}`) cannot exceed 10,000 bytes.
    */
   notebookParams?: Record<string, string> | undefined;
@@ -3616,11 +3617,11 @@ export interface RunNow {
    * The parameters are passed to Python file as command-line parameters. If specified upon `run-now`, it would overwrite
    * the parameters specified in job setting. The JSON representation of this field (for example `{"python_params":["john doe","35"]}`)
    * cannot exceed 10,000 bytes.
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
-   *
+   * 
    * Important
-   *
+   * 
    * These parameters accept only Latin characters (ASCII character set). Using non-ASCII characters returns an error.
    * Examples of invalid, non-ASCII characters are Chinese, Japanese kanjis, and emojis.
    */
@@ -3630,11 +3631,11 @@ export interface RunNow {
    * The parameters are passed to spark-submit script as command-line parameters. If specified upon `run-now`, it would overwrite the
    * parameters specified in job setting. The JSON representation of this field (for example `{"python_params":["john doe","35"]}`)
    * cannot exceed 10,000 bytes.
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
-   *
+   * 
    * Important
-   *
+   * 
    * These parameters accept only Latin characters (ASCII character set). Using non-ASCII characters returns an error.
    * Examples of invalid, non-ASCII characters are Chinese, Japanese kanjis, and emojis.
    */
@@ -3642,13 +3643,13 @@ export interface RunNow {
   pythonNamedParams?: Record<string, string> | undefined;
   /**
    * A map from keys to values for jobs with SQL task, for example `"sql_params": {"name": "john doe", "age": "35"}`. The SQL alert task does not support custom parameters.
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   sqlParams?: Record<string, string> | undefined;
   /**
    * An array of commands to execute for jobs with the dbt task, for example `"dbt_commands": ["dbt deps", "dbt seed", "dbt deps", "dbt seed", "dbt run"]`
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   dbtCommands?: string[] | undefined;
@@ -3656,7 +3657,7 @@ export interface RunNow {
 
 /** Name-based parameters for jobs running notebook tasks. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunNow_JobParametersEntry {
+export interface RunNowRequest_JobParametersEntry {
   /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
   key?: string | undefined;
   value?: string | undefined;
@@ -3664,7 +3665,7 @@ export interface RunNow_JobParametersEntry {
 
 /** Name-based parameters for jobs running notebook tasks. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunNow_NotebookParamsEntry {
+export interface RunNowRequest_NotebookParamsEntry {
   /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
   key?: string | undefined;
   value?: string | undefined;
@@ -3672,7 +3673,7 @@ export interface RunNow_NotebookParamsEntry {
 
 /** Name-based parameters for jobs running notebook tasks. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunNow_PythonNamedParamsEntry {
+export interface RunNowRequest_PythonNamedParamsEntry {
   /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
   key?: string | undefined;
   value?: string | undefined;
@@ -3680,7 +3681,7 @@ export interface RunNow_PythonNamedParamsEntry {
 
 /** Run was started successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunNow_Response {
+export interface RunNowRequest_Response {
   /** The globally unique ID of the newly triggered run. */
   runId?: number | undefined;
   /** A unique identifier for this job run. This is set to the same value as `run_id`. */
@@ -3689,7 +3690,7 @@ export interface RunNow_Response {
 
 /** Name-based parameters for jobs running notebook tasks. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface RunNow_SqlParamsEntry {
+export interface RunNowRequest_SqlParamsEntry {
   /** Named parameter, can be passed to dbutils.widgets.get() to retrieve the corresponding value. */
   key?: string | undefined;
   value?: string | undefined;
@@ -3704,20 +3705,20 @@ export interface RunParameters {
    * If not specified upon `run-now`, it defaults to an empty list.
    * jar_params cannot be specified in conjunction with notebook_params.
    * The JSON representation of this field (for example `{"jar_params":["john doe","35"]}`) cannot exceed 10,000 bytes.
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   jarParams?: string[] | undefined;
   /**
    * A map from keys to values for jobs with notebook task, for example `"notebook_params": {"name": "john doe", "age": "35"}`.
    * The map is passed to the notebook and is accessible through the [dbutils.widgets.get](/dev-tools/databricks-utils.html) function.
-   *
+   * 
    * If not specified upon `run-now`, the triggered run uses the job’s base parameters.
-   *
+   * 
    * notebook_params cannot be specified in conjunction with jar_params.
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
-   *
+   * 
    * The JSON representation of this field (for example `{"notebook_params":{"name":"john doe","age":"35"}}`) cannot exceed 10,000 bytes.
    */
   notebookParams?: Record<string, string> | undefined;
@@ -3726,11 +3727,11 @@ export interface RunParameters {
    * The parameters are passed to Python file as command-line parameters. If specified upon `run-now`, it would overwrite
    * the parameters specified in job setting. The JSON representation of this field (for example `{"python_params":["john doe","35"]}`)
    * cannot exceed 10,000 bytes.
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
-   *
+   * 
    * Important
-   *
+   * 
    * These parameters accept only Latin characters (ASCII character set). Using non-ASCII characters returns an error.
    * Examples of invalid, non-ASCII characters are Chinese, Japanese kanjis, and emojis.
    */
@@ -3740,11 +3741,11 @@ export interface RunParameters {
    * The parameters are passed to spark-submit script as command-line parameters. If specified upon `run-now`, it would overwrite the
    * parameters specified in job setting. The JSON representation of this field (for example `{"python_params":["john doe","35"]}`)
    * cannot exceed 10,000 bytes.
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
-   *
+   * 
    * Important
-   *
+   * 
    * These parameters accept only Latin characters (ASCII character set). Using non-ASCII characters returns an error.
    * Examples of invalid, non-ASCII characters are Chinese, Japanese kanjis, and emojis.
    */
@@ -3752,13 +3753,13 @@ export interface RunParameters {
   pythonNamedParams?: Record<string, string> | undefined;
   /**
    * A map from keys to values for jobs with SQL task, for example `"sql_params": {"name": "john doe", "age": "35"}`. The SQL alert task does not support custom parameters.
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   sqlParams?: Record<string, string> | undefined;
   /**
    * An array of commands to execute for jobs with the dbt task, for example `"dbt_commands": ["dbt deps", "dbt seed", "dbt deps", "dbt seed", "dbt run"]`
-   *
+   * 
    * ⚠ **Deprecation note** Use [job parameters](/jobs/job-parameters.html#job-parameter-pushdown) to pass information down to tasks.
    */
   dbtCommands?: string[] | undefined;
@@ -3832,7 +3833,7 @@ export interface RunTask {
   status?: RunStatus | undefined;
   /**
    * The actual performance target used by the serverless run during execution. This can differ from the client-set performance target on the request depending on whether the performance mode is supported by the job type.
-   *
+   * 
    * * `STANDARD`: Enables cost-efficient execution of serverless workloads.
    * * `PERFORMANCE_OPTIMIZED`: Prioritizes fast startup and execution times through rapid scaling and optimized cluster performance.
    */
@@ -3940,7 +3941,7 @@ export interface RunTask {
          */
         cleanRoomsNotebookTask: CleanRoomsNotebookTask;
       }
-    | {$case: 'genAiComputeTask'; genAiComputeTask: GenAiComputeTask}
+    | { $case: 'genAiComputeTask'; genAiComputeTask: GenAiComputeTask }
     | {
         $case: 'alertTask';
         /**
@@ -3964,7 +3965,7 @@ export interface RunTask {
         /** Task type for dbt cloud, deprecated in favor of the new name dbt_platform_task */
         dbtCloudTask: DbtCloudTask;
       }
-    | {$case: 'dbtPlatformTask'; dbtPlatformTask: DbtPlatformTask}
+    | { $case: 'dbtPlatformTask'; dbtPlatformTask: DbtPlatformTask }
     | {
         $case: 'pythonOperatorTask';
         /** The task runs a Python operator task. */
@@ -4129,7 +4130,7 @@ export interface RunTaskSettings {
          */
         cleanRoomsNotebookTask: CleanRoomsNotebookTask;
       }
-    | {$case: 'genAiComputeTask'; genAiComputeTask: GenAiComputeTask}
+    | { $case: 'genAiComputeTask'; genAiComputeTask: GenAiComputeTask }
     | {
         $case: 'alertTask';
         /**
@@ -4153,7 +4154,7 @@ export interface RunTaskSettings {
         /** Task type for dbt cloud, deprecated in favor of the new name dbt_platform_task */
         dbtCloudTask: DbtCloudTask;
       }
-    | {$case: 'dbtPlatformTask'; dbtPlatformTask: DbtPlatformTask}
+    | { $case: 'dbtPlatformTask'; dbtPlatformTask: DbtPlatformTask }
     | {
         $case: 'pythonOperatorTask';
         /** The task runs a Python operator task. */
@@ -4248,19 +4249,19 @@ export interface S3StorageInfo {
 export interface SparkJarTask {
   /**
    * Deprecated since 04/2016. For classic compute, provide a `jar` through the `libraries` field instead. For serverless compute, provide a `jar` though the `java_dependencies` field inside the `environments` list.
-   *
+   * 
    * See the examples of classic and serverless compute usage at the top of the page.
    */
   jarUri?: string | undefined;
   /**
    * The full name of the class containing the main method to be executed. This class must be contained in a JAR provided as a library.
-   *
+   * 
    * The code must use `SparkContext.getOrCreate` to obtain a Spark context; otherwise, runs of the job fail.
    */
   mainClassName?: string | undefined;
   /**
    * Parameters passed to the main method.
-   *
+   * 
    * Use [Task parameter variables](/jobs.html#parameter-variables) to set parameters containing information about job runs.
    */
   parameters?: string[] | undefined;
@@ -4273,7 +4274,7 @@ export interface SparkPythonTask {
   pythonFile?: string | undefined;
   /**
    * Command line parameters passed to the Python file.
-   *
+   * 
    * Use [Task parameter variables](/jobs.html#parameter-variables) to set parameters containing information about job runs.
    */
   parameters?: string[] | undefined;
@@ -4281,7 +4282,7 @@ export interface SparkPythonTask {
    * Optional location type of the Python file. When set to `WORKSPACE` or not specified, the file will be retrieved from the local
    * <Databricks> workspace or cloud location (if the `python_file` has a URI format). When set to `GIT`,
    * the Python file will be retrieved from a Git repository defined in `git_source`.
-   *
+   * 
    * * `WORKSPACE`: The Python file is located in a <Databricks> workspace or at a cloud filesystem URI.
    * * `GIT`: The Python file is located in a remote Git repository.
    */
@@ -4291,7 +4292,7 @@ export interface SparkPythonTask {
 export interface SparkSubmitTask {
   /**
    * Command-line parameters passed to spark submit.
-   *
+   * 
    * Use [Task parameter variables](/jobs.html#parameter-variables) to set parameters containing information about job runs.
    */
   parameters?: string[] | undefined;
@@ -4454,7 +4455,7 @@ export interface SqlTaskFile {
    * Optional location type of the SQL file. When set to `WORKSPACE`, the SQL file will be retrieved
    * from the local <Databricks> workspace. When set to `GIT`, the SQL file will be retrieved from a Git repository
    * defined in `git_source`. If the value is empty, the task will use `GIT` if `git_source` is defined and `WORKSPACE` otherwise.
-   *
+   * 
    * * `WORKSPACE`: SQL file is located in <Databricks> workspace.
    * * `GIT`: SQL file is located in cloud Git provider.
    */
@@ -4486,7 +4487,7 @@ export interface SqlTaskSubscription {
     | undefined;
 }
 
-export interface SubmitRun {
+export interface SubmitRunRequest {
   /** List of permissions to set on the job. */
   accessControlList?: AccessControlRequest[] | undefined;
   /** The queue settings of the one-time run. */
@@ -4502,21 +4503,21 @@ export interface SubmitRun {
    * An optional token that can be used to guarantee the idempotency of job run requests. If a run with the provided token already exists,
    * the request does not create a new run but returns the ID of the existing run instead. If a run with the provided token is deleted,
    * an error is returned.
-   *
+   * 
    * If you specify the idempotency token, upon failure you can retry until the request succeeds. <Databricks> guarantees that exactly
    * one run is launched with that idempotency token.
-   *
+   * 
    * This token must have at most 64 characters.
-   *
+   * 
    * For more information, see [How to ensure idempotency for jobs](https://kb.databricks.com/jobs/jobs-idempotency.html).
    */
   idempotencyToken?: string | undefined;
   tasks?: RunTaskSettings[] | undefined;
   /**
    * An optional specification for a remote Git repository containing the source code used by tasks. Version-controlled source code is supported by notebook, dbt, Python script, and SQL File tasks.
-   *
+   * 
    * If `git_source` is set, these tasks retrieve the file from the remote repository by default. However, this behavior can be overridden by setting `source` to `WORKSPACE` on the task.
-   *
+   * 
    * Note: dbt and SQL File tasks support only version-controlled sources. If dbt or SQL File tasks are used, `git_source` must be defined on the job.
    */
   gitSource?: GitSource | undefined;
@@ -4542,7 +4543,7 @@ export interface SubmitRun {
 
 /** Run was created and started successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface SubmitRun_Response {
+export interface SubmitRunRequest_Response {
   /** The canonical identifier for the newly submitted run. */
   runId?: number | undefined;
 }
@@ -4630,7 +4631,7 @@ export interface TaskSettings {
   dependsOn?: TaskDependency[] | undefined;
   /**
    * An optional value specifying the condition determining whether the task is run once its dependencies have been completed.
-   *
+   * 
    * * `ALL_SUCCESS`: All dependencies have executed and succeeded
    * * `AT_LEAST_ONE_SUCCESS`: At least one dependency has succeeded
    * * `NONE_FAILED`: None of the dependencies have failed and at least one was executed
@@ -4729,7 +4730,7 @@ export interface TaskSettings {
          */
         cleanRoomsNotebookTask: CleanRoomsNotebookTask;
       }
-    | {$case: 'genAiComputeTask'; genAiComputeTask: GenAiComputeTask}
+    | { $case: 'genAiComputeTask'; genAiComputeTask: GenAiComputeTask }
     | {
         $case: 'alertTask';
         /**
@@ -4753,7 +4754,7 @@ export interface TaskSettings {
         /** Task type for dbt cloud, deprecated in favor of the new name dbt_platform_task */
         dbtCloudTask: DbtCloudTask;
       }
-    | {$case: 'dbtPlatformTask'; dbtPlatformTask: DbtPlatformTask}
+    | { $case: 'dbtPlatformTask'; dbtPlatformTask: DbtPlatformTask }
     | {
         $case: 'pythonOperatorTask';
         /** The task runs a Python operator task. */
@@ -4827,28 +4828,28 @@ export interface TriggerSettings {
         /** Periodic trigger settings. */
         periodic: PeriodicTriggerConfiguration;
       }
-    | {$case: 'tableUpdate'; tableUpdate: TableTriggerConfiguration}
-    | {$case: 'model'; model: ModelTriggerConfiguration}
+    | { $case: 'tableUpdate'; tableUpdate: TableTriggerConfiguration }
+    | { $case: 'model'; model: ModelTriggerConfiguration }
     | undefined;
 }
 
-export interface TriggerStateProto {
+export interface TriggerState {
   triggerType?:
-    | {$case: 'table'; table: TableTriggerState}
-    | {$case: 'fileArrival'; fileArrival: FileArrivalTriggerState}
+    | { $case: 'table'; table: TableTriggerState }
+    | { $case: 'fileArrival'; fileArrival: FileArrivalTriggerState }
     | undefined;
 }
 
-export interface UpdateJob {
+export interface UpdateJobRequest {
   /** The canonical identifier of the job to update. This field is required. */
   jobId?: number | undefined;
   /**
    * The new settings for the job.
-   *
+   * 
    * Top-level fields specified in `new_settings` are completely replaced, except for arrays which are merged. That is, new and existing entries are completely replaced based on the respective key fields, i.e. `task_key` or `job_cluster_key`, while previous entries are kept.
-   *
+   * 
    * Partially updating nested fields is not supported.
-   *
+   * 
    * Changes to the field `JobSettings.timeout_seconds` are applied to active runs. Changes to other fields are applied to future runs only.
    */
   newSettings?: JobSettings | undefined;
@@ -4858,7 +4859,7 @@ export interface UpdateJob {
 
 /** Job was updated successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface UpdateJob_Response {}
+export interface UpdateJobRequest_Response {}
 
 export interface ViewItem {
   /** Content of the view. */
@@ -4937,9 +4938,7 @@ export const unmarshalAlertTaskSchema: z.ZodType<AlertTask> = z
     alert_id: z.string().optional(),
     warehouse_id: z.string().optional(),
     workspace_path: z.string().optional(),
-    subscribers: z
-      .array(z.lazy(() => unmarshalAlertTaskSubscriberSchema))
-      .optional(),
+    subscribers: z.array(z.lazy(() => unmarshalAlertTaskSubscriberSchema)).optional(),
   })
   .transform(d => ({
     alertId: d.alert_id,
@@ -4956,20 +4955,14 @@ export const unmarshalAlertTaskOutputSchema: z.ZodType<AlertTaskOutput> = z
     alertState: d.alert_state,
   }));
 
-export const unmarshalAlertTaskSubscriberSchema: z.ZodType<AlertTaskSubscriber> =
-  z
-    .object({
-      user_name: z.string().optional(),
-      destination_id: z.string().optional(),
-    })
-    .transform(d => ({
-      subscriberType:
-        d.user_name !== undefined
-          ? {$case: 'userName' as const, userName: d.user_name}
-          : d.destination_id !== undefined
-            ? {$case: 'destinationId' as const, destinationId: d.destination_id}
-            : undefined,
-    }));
+export const unmarshalAlertTaskSubscriberSchema: z.ZodType<AlertTaskSubscriber> = z
+  .object({
+    user_name: z.string().optional(),
+    destination_id: z.string().optional(),
+  })
+  .transform(d => ({
+    subscriberType: d.user_name !== undefined ? { $case: 'userName' as const, userName: d.user_name } : d.destination_id !== undefined ? { $case: 'destinationId' as const, destinationId: d.destination_id } : undefined,
+  }));
 
 export const unmarshalAutoScaleSchema: z.ZodType<AutoScale> = z
   .object({
@@ -5009,9 +5002,7 @@ export const unmarshalAwsAttributesSchema: z.ZodType<AwsAttributes> = z
 
 export const unmarshalAzureAttributesSchema: z.ZodType<AzureAttributes> = z
   .object({
-    log_analytics_info: z
-      .lazy(() => unmarshalLogAnalyticsInfoSchema)
-      .optional(),
+    log_analytics_info: z.lazy(() => unmarshalLogAnalyticsInfoSchema).optional(),
     first_on_demand: z.number().optional(),
     availability: z.enum(AzureAvailability).optional(),
     spot_bid_max_price: z.number().optional(),
@@ -5030,7 +5021,7 @@ export const unmarshalBaseJobSchema: z.ZodType<BaseJob> = z
     run_as_user_name: z.string().optional(),
     settings: z.lazy(() => unmarshalJobSettingsSchema).optional(),
     created_time: z.number().optional(),
-    trigger_state: z.lazy(() => unmarshalTriggerStateProtoSchema).optional(),
+    trigger_state: z.lazy(() => unmarshalTriggerStateSchema).optional(),
     has_more: z.boolean().optional(),
     effective_budget_policy_id: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
@@ -5058,12 +5049,8 @@ export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
     schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
     cluster_spec: z.lazy(() => unmarshalClusterSpecSchema).optional(),
     cluster_instance: z.lazy(() => unmarshalClusterInstanceSchema).optional(),
-    job_parameters: z
-      .array(z.lazy(() => unmarshalRun_JobLevelParametersSchema))
-      .optional(),
-    overriding_parameters: z
-      .lazy(() => unmarshalRunParametersSchema)
-      .optional(),
+    job_parameters: z.array(z.lazy(() => unmarshalRun_JobLevelParametersSchema)).optional(),
+    overriding_parameters: z.lazy(() => unmarshalRunParametersSchema).optional(),
     trigger: z.enum(TriggerType).optional(),
     trigger_info: z.lazy(() => unmarshalRunTriggerInfoSchema).optional(),
     run_name: z.string().optional(),
@@ -5078,9 +5065,7 @@ export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
     status: z.lazy(() => unmarshalRunStatusSchema).optional(),
     job_run_id: z.number().optional(),
     has_more: z.boolean().optional(),
-    effective_performance_target: z
-      .enum(PerformanceTarget_PerformanceTarget)
-      .optional(),
+    effective_performance_target: z.enum(PerformanceTarget_PerformanceTarget).optional(),
     effective_usage_policy_id: z.string().optional(),
     start_time: z.number().optional(),
     setup_duration: z.number().optional(),
@@ -5128,62 +5113,51 @@ export const unmarshalBaseRunSchema: z.ZodType<BaseRun> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCancelAllRuns_ResponseSchema: z.ZodType<CancelAllRuns_Response> =
-  z.object({});
+export const unmarshalCancelAllRunsRequest_ResponseSchema: z.ZodType<CancelAllRunsRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCancelRun_ResponseSchema: z.ZodType<CancelRun_Response> =
-  z.object({});
+export const unmarshalCancelRunRequest_ResponseSchema: z.ZodType<CancelRunRequest_Response> = z
+  .object({
+  });
 
-export const unmarshalCleanRoomTaskRunStateSchema: z.ZodType<CleanRoomTaskRunState> =
-  z
-    .object({
-      life_cycle_state: z
-        .enum(CleanRoomTaskRunLifeCycleState_CleanRoomTaskRunLifeCycleState)
-        .optional(),
-      result_state: z
-        .enum(CleanRoomTaskRunResultState_CleanRoomTaskRunResultState)
-        .optional(),
-    })
-    .transform(d => ({
-      lifeCycleState: d.life_cycle_state,
-      resultState: d.result_state,
-    }));
+export const unmarshalCleanRoomTaskRunStateSchema: z.ZodType<CleanRoomTaskRunState> = z
+  .object({
+    life_cycle_state: z.enum(CleanRoomTaskRunLifeCycleState_CleanRoomTaskRunLifeCycleState).optional(),
+    result_state: z.enum(CleanRoomTaskRunResultState_CleanRoomTaskRunResultState).optional(),
+  })
+  .transform(d => ({
+    lifeCycleState: d.life_cycle_state,
+    resultState: d.result_state,
+  }));
 
-export const unmarshalCleanRoomsNotebookTaskSchema: z.ZodType<CleanRoomsNotebookTask> =
-  z
-    .object({
-      clean_room_name: z.string().optional(),
-      notebook_name: z.string().optional(),
-      etag: z.string().optional(),
-      notebook_base_parameters: z.record(z.string(), z.string()).optional(),
-    })
-    .transform(d => ({
-      cleanRoomName: d.clean_room_name,
-      notebookName: d.notebook_name,
-      etag: d.etag,
-      notebookBaseParameters: d.notebook_base_parameters,
-    }));
+export const unmarshalCleanRoomsNotebookTaskSchema: z.ZodType<CleanRoomsNotebookTask> = z
+  .object({
+    clean_room_name: z.string().optional(),
+    notebook_name: z.string().optional(),
+    etag: z.string().optional(),
+    notebook_base_parameters: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    cleanRoomName: d.clean_room_name,
+    notebookName: d.notebook_name,
+    etag: d.etag,
+    notebookBaseParameters: d.notebook_base_parameters,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCleanRoomsNotebookTask_CleanRoomsNotebookTaskOutputSchema: z.ZodType<CleanRoomsNotebookTask_CleanRoomsNotebookTaskOutput> =
-  z
-    .object({
-      clean_room_job_run_state: z
-        .lazy(() => unmarshalCleanRoomTaskRunStateSchema)
-        .optional(),
-      notebook_output: z
-        .lazy(() => unmarshalNotebookTask_NotebookOutputSchema)
-        .optional(),
-      output_schema_info: z
-        .lazy(() => unmarshalOutputSchemaInfoSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      cleanRoomJobRunState: d.clean_room_job_run_state,
-      notebookOutput: d.notebook_output,
-      outputSchemaInfo: d.output_schema_info,
-    }));
+export const unmarshalCleanRoomsNotebookTask_CleanRoomsNotebookTaskOutputSchema: z.ZodType<CleanRoomsNotebookTask_CleanRoomsNotebookTaskOutput> = z
+  .object({
+    clean_room_job_run_state: z.lazy(() => unmarshalCleanRoomTaskRunStateSchema).optional(),
+    notebook_output: z.lazy(() => unmarshalNotebookTask_NotebookOutputSchema).optional(),
+    output_schema_info: z.lazy(() => unmarshalOutputSchemaInfoSchema).optional(),
+  })
+  .transform(d => ({
+    cleanRoomJobRunState: d.clean_room_job_run_state,
+    notebookOutput: d.notebook_output,
+    outputSchemaInfo: d.output_schema_info,
+  }));
 
 export const unmarshalClusterInstanceSchema: z.ZodType<ClusterInstance> = z
   .object({
@@ -5202,14 +5176,7 @@ export const unmarshalClusterLogConfSchema: z.ZodType<ClusterLogConf> = z
     volumes: z.lazy(() => unmarshalVolumesStorageInfoSchema).optional(),
   })
   .transform(d => ({
-    storageInfo:
-      d.dbfs !== undefined
-        ? {$case: 'dbfs' as const, dbfs: d.dbfs}
-        : d.s3 !== undefined
-          ? {$case: 's3' as const, s3: d.s3}
-          : d.volumes !== undefined
-            ? {$case: 'volumes' as const, volumes: d.volumes}
-            : undefined,
+    storageInfo: d.dbfs !== undefined ? { $case: 'dbfs' as const, dbfs: d.dbfs } : d.s3 !== undefined ? { $case: 's3' as const, s3: d.s3 } : d.volumes !== undefined ? { $case: 'volumes' as const, volumes: d.volumes } : undefined,
   }));
 
 export const unmarshalClusterSpecSchema: z.ZodType<ClusterSpec> = z
@@ -5220,108 +5187,83 @@ export const unmarshalClusterSpecSchema: z.ZodType<ClusterSpec> = z
     libraries: z.array(z.lazy(() => unmarshalLibrarySchema)).optional(),
   })
   .transform(d => ({
-    spec:
-      d.existing_cluster_id !== undefined
-        ? {
-            $case: 'existingClusterId' as const,
-            existingClusterId: d.existing_cluster_id,
-          }
-        : d.new_cluster !== undefined
-          ? {$case: 'newCluster' as const, newCluster: d.new_cluster}
-          : d.job_cluster_key !== undefined
-            ? {
-                $case: 'jobClusterKey' as const,
-                jobClusterKey: d.job_cluster_key,
-              }
-            : undefined,
+    spec: d.existing_cluster_id !== undefined ? { $case: 'existingClusterId' as const, existingClusterId: d.existing_cluster_id } : d.new_cluster !== undefined ? { $case: 'newCluster' as const, newCluster: d.new_cluster } : d.job_cluster_key !== undefined ? { $case: 'jobClusterKey' as const, jobClusterKey: d.job_cluster_key } : undefined,
     libraries: d.libraries,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalClusterSpec_NewClusterSchema: z.ZodType<ClusterSpec_NewCluster> =
-  z
-    .object({
-      apply_policy_default_values: z.boolean().optional(),
-      cluster_name: z.string().optional(),
-      spark_version: z.string().optional(),
-      spark_conf: z.record(z.string(), z.string()).optional(),
-      aws_attributes: z.lazy(() => unmarshalAwsAttributesSchema).optional(),
-      azure_attributes: z.lazy(() => unmarshalAzureAttributesSchema).optional(),
-      gcp_attributes: z.lazy(() => unmarshalGcpAttributesSchema).optional(),
-      node_type_id: z.string().optional(),
-      driver_node_type_id: z.string().optional(),
-      worker_node_type_flexibility: z
-        .lazy(() => unmarshalNodeTypeFlexibilitySchema)
-        .optional(),
-      driver_node_type_flexibility: z
-        .lazy(() => unmarshalNodeTypeFlexibilitySchema)
-        .optional(),
-      ssh_public_keys: z.array(z.string()).optional(),
-      custom_tags: z.record(z.string(), z.string()).optional(),
-      cluster_log_conf: z.lazy(() => unmarshalClusterLogConfSchema).optional(),
-      spark_env_vars: z.record(z.string(), z.string()).optional(),
-      autotermination_minutes: z.number().optional(),
-      enable_elastic_disk: z.boolean().optional(),
-      init_scripts: z
-        .array(z.lazy(() => unmarshalInitScriptInfoSchema))
-        .optional(),
-      docker_image: z.lazy(() => unmarshalDockerImageSchema).optional(),
-      instance_pool_id: z.string().optional(),
-      single_user_name: z.string().optional(),
-      policy_id: z.string().optional(),
-      enable_local_disk_encryption: z.boolean().optional(),
-      driver_instance_pool_id: z.string().optional(),
-      workload_type: z.lazy(() => unmarshalWorkloadTypeSchema).optional(),
-      data_security_mode: z.enum(DataSecurityMode).optional(),
-      runtime_engine: z.enum(RuntimeEngine).optional(),
-      kind: z.enum(ComputeKind).optional(),
-      use_ml_runtime: z.boolean().optional(),
-      is_single_node: z.boolean().optional(),
-      remote_disk_throughput: z.number().optional(),
-      total_initial_remote_disk_size: z.number().optional(),
-      num_workers: z.number().optional(),
-      autoscale: z.lazy(() => unmarshalAutoScaleSchema).optional(),
-    })
-    .transform(d => ({
-      applyPolicyDefaultValues: d.apply_policy_default_values,
-      clusterName: d.cluster_name,
-      sparkVersion: d.spark_version,
-      sparkConf: d.spark_conf,
-      awsAttributes: d.aws_attributes,
-      azureAttributes: d.azure_attributes,
-      gcpAttributes: d.gcp_attributes,
-      nodeTypeId: d.node_type_id,
-      driverNodeTypeId: d.driver_node_type_id,
-      workerNodeTypeFlexibility: d.worker_node_type_flexibility,
-      driverNodeTypeFlexibility: d.driver_node_type_flexibility,
-      sshPublicKeys: d.ssh_public_keys,
-      customTags: d.custom_tags,
-      clusterLogConf: d.cluster_log_conf,
-      sparkEnvVars: d.spark_env_vars,
-      autoterminationMinutes: d.autotermination_minutes,
-      enableElasticDisk: d.enable_elastic_disk,
-      initScripts: d.init_scripts,
-      dockerImage: d.docker_image,
-      instancePoolId: d.instance_pool_id,
-      singleUserName: d.single_user_name,
-      policyId: d.policy_id,
-      enableLocalDiskEncryption: d.enable_local_disk_encryption,
-      driverInstancePoolId: d.driver_instance_pool_id,
-      workloadType: d.workload_type,
-      dataSecurityMode: d.data_security_mode,
-      runtimeEngine: d.runtime_engine,
-      kind: d.kind,
-      useMlRuntime: d.use_ml_runtime,
-      isSingleNode: d.is_single_node,
-      remoteDiskThroughput: d.remote_disk_throughput,
-      totalInitialRemoteDiskSize: d.total_initial_remote_disk_size,
-      size:
-        d.num_workers !== undefined
-          ? {$case: 'numWorkers' as const, numWorkers: d.num_workers}
-          : d.autoscale !== undefined
-            ? {$case: 'autoscale' as const, autoscale: d.autoscale}
-            : undefined,
-    }));
+export const unmarshalClusterSpec_NewClusterSchema: z.ZodType<ClusterSpec_NewCluster> = z
+  .object({
+    apply_policy_default_values: z.boolean().optional(),
+    cluster_name: z.string().optional(),
+    spark_version: z.string().optional(),
+    spark_conf: z.record(z.string(), z.string()).optional(),
+    aws_attributes: z.lazy(() => unmarshalAwsAttributesSchema).optional(),
+    azure_attributes: z.lazy(() => unmarshalAzureAttributesSchema).optional(),
+    gcp_attributes: z.lazy(() => unmarshalGcpAttributesSchema).optional(),
+    node_type_id: z.string().optional(),
+    driver_node_type_id: z.string().optional(),
+    worker_node_type_flexibility: z.lazy(() => unmarshalNodeTypeFlexibilitySchema).optional(),
+    driver_node_type_flexibility: z.lazy(() => unmarshalNodeTypeFlexibilitySchema).optional(),
+    ssh_public_keys: z.array(z.string()).optional(),
+    custom_tags: z.record(z.string(), z.string()).optional(),
+    cluster_log_conf: z.lazy(() => unmarshalClusterLogConfSchema).optional(),
+    spark_env_vars: z.record(z.string(), z.string()).optional(),
+    autotermination_minutes: z.number().optional(),
+    enable_elastic_disk: z.boolean().optional(),
+    init_scripts: z.array(z.lazy(() => unmarshalInitScriptInfoSchema)).optional(),
+    docker_image: z.lazy(() => unmarshalDockerImageSchema).optional(),
+    instance_pool_id: z.string().optional(),
+    single_user_name: z.string().optional(),
+    policy_id: z.string().optional(),
+    enable_local_disk_encryption: z.boolean().optional(),
+    driver_instance_pool_id: z.string().optional(),
+    workload_type: z.lazy(() => unmarshalWorkloadTypeSchema).optional(),
+    data_security_mode: z.enum(DataSecurityMode).optional(),
+    runtime_engine: z.enum(RuntimeEngine).optional(),
+    kind: z.enum(ComputeKind).optional(),
+    use_ml_runtime: z.boolean().optional(),
+    is_single_node: z.boolean().optional(),
+    remote_disk_throughput: z.number().optional(),
+    total_initial_remote_disk_size: z.number().optional(),
+    num_workers: z.number().optional(),
+    autoscale: z.lazy(() => unmarshalAutoScaleSchema).optional(),
+  })
+  .transform(d => ({
+    applyPolicyDefaultValues: d.apply_policy_default_values,
+    clusterName: d.cluster_name,
+    sparkVersion: d.spark_version,
+    sparkConf: d.spark_conf,
+    awsAttributes: d.aws_attributes,
+    azureAttributes: d.azure_attributes,
+    gcpAttributes: d.gcp_attributes,
+    nodeTypeId: d.node_type_id,
+    driverNodeTypeId: d.driver_node_type_id,
+    workerNodeTypeFlexibility: d.worker_node_type_flexibility,
+    driverNodeTypeFlexibility: d.driver_node_type_flexibility,
+    sshPublicKeys: d.ssh_public_keys,
+    customTags: d.custom_tags,
+    clusterLogConf: d.cluster_log_conf,
+    sparkEnvVars: d.spark_env_vars,
+    autoterminationMinutes: d.autotermination_minutes,
+    enableElasticDisk: d.enable_elastic_disk,
+    initScripts: d.init_scripts,
+    dockerImage: d.docker_image,
+    instancePoolId: d.instance_pool_id,
+    singleUserName: d.single_user_name,
+    policyId: d.policy_id,
+    enableLocalDiskEncryption: d.enable_local_disk_encryption,
+    driverInstancePoolId: d.driver_instance_pool_id,
+    workloadType: d.workload_type,
+    dataSecurityMode: d.data_security_mode,
+    runtimeEngine: d.runtime_engine,
+    kind: d.kind,
+    useMlRuntime: d.use_ml_runtime,
+    isSingleNode: d.is_single_node,
+    remoteDiskThroughput: d.remote_disk_throughput,
+    totalInitialRemoteDiskSize: d.total_initial_remote_disk_size,
+    size: d.num_workers !== undefined ? { $case: 'numWorkers' as const, numWorkers: d.num_workers } : d.autoscale !== undefined ? { $case: 'autoscale' as const, autoscale: d.autoscale } : undefined,
+  }));
 
 export const unmarshalComputeSchema: z.ZodType<Compute> = z
   .object({
@@ -5357,26 +5299,24 @@ export const unmarshalConditionTaskSchema: z.ZodType<ConditionTask> = z
     outcome: d.outcome,
   }));
 
-export const unmarshalContinuousSettingsSchema: z.ZodType<ContinuousSettings> =
-  z
-    .object({
-      pause_status: z.enum(SchedulePauseStatus).optional(),
-      task_retry_mode: z.enum(TaskRetryMode).optional(),
-    })
-    .transform(d => ({
-      pauseStatus: d.pause_status,
-      taskRetryMode: d.task_retry_mode,
-    }));
+export const unmarshalContinuousSettingsSchema: z.ZodType<ContinuousSettings> = z
+  .object({
+    pause_status: z.enum(SchedulePauseStatus).optional(),
+    task_retry_mode: z.enum(TaskRetryMode).optional(),
+  })
+  .transform(d => ({
+    pauseStatus: d.pause_status,
+    taskRetryMode: d.task_retry_mode,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateJob_ResponseSchema: z.ZodType<CreateJob_Response> =
-  z
-    .object({
-      job_id: z.number().optional(),
-    })
-    .transform(d => ({
-      jobId: d.job_id,
-    }));
+export const unmarshalCreateJobRequest_ResponseSchema: z.ZodType<CreateJobRequest_Response> = z
+  .object({
+    job_id: z.number().optional(),
+  })
+  .transform(d => ({
+    jobId: d.job_id,
+  }));
 
 export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
   .object({
@@ -5390,18 +5330,15 @@ export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
     pauseStatus: d.pause_status,
   }));
 
-export const unmarshalDashboardPageSnapshotSchema: z.ZodType<DashboardPageSnapshot> =
-  z
-    .object({
-      page_display_name: z.string().optional(),
-      widget_error_details: z
-        .array(z.lazy(() => unmarshalWidgetErrorDetailSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      pageDisplayName: d.page_display_name,
-      widgetErrorDetails: d.widget_error_details,
-    }));
+export const unmarshalDashboardPageSnapshotSchema: z.ZodType<DashboardPageSnapshot> = z
+  .object({
+    page_display_name: z.string().optional(),
+    widget_error_details: z.array(z.lazy(() => unmarshalWidgetErrorDetailSchema)).optional(),
+  })
+  .transform(d => ({
+    pageDisplayName: d.page_display_name,
+    widgetErrorDetails: d.widget_error_details,
+  }));
 
 export const unmarshalDashboardTaskSchema: z.ZodType<DashboardTask> = z
   .object({
@@ -5417,16 +5354,13 @@ export const unmarshalDashboardTaskSchema: z.ZodType<DashboardTask> = z
     filters: d.filters,
   }));
 
-export const unmarshalDashboardTaskOutputSchema: z.ZodType<DashboardTaskOutput> =
-  z
-    .object({
-      page_snapshots: z
-        .array(z.lazy(() => unmarshalDashboardPageSnapshotSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      pageSnapshots: d.page_snapshots,
-    }));
+export const unmarshalDashboardTaskOutputSchema: z.ZodType<DashboardTaskOutput> = z
+  .object({
+    page_snapshots: z.array(z.lazy(() => unmarshalDashboardPageSnapshotSchema)).optional(),
+  })
+  .transform(d => ({
+    pageSnapshots: d.page_snapshots,
+  }));
 
 export const unmarshalDbfsStorageInfoSchema: z.ZodType<DbfsStorageInfo> = z
   .object({
@@ -5436,20 +5370,19 @@ export const unmarshalDbfsStorageInfoSchema: z.ZodType<DbfsStorageInfo> = z
     destination: d.destination,
   }));
 
-export const unmarshalDbtCloudJobRunStepSchema: z.ZodType<DbtCloudJobRunStep> =
-  z
-    .object({
-      index: z.number().optional(),
-      name: z.string().optional(),
-      status: z.enum(DbtPlatformRunStatus).optional(),
-      logs: z.string().optional(),
-    })
-    .transform(d => ({
-      index: d.index,
-      name: d.name,
-      status: d.status,
-      logs: d.logs,
-    }));
+export const unmarshalDbtCloudJobRunStepSchema: z.ZodType<DbtCloudJobRunStep> = z
+  .object({
+    index: z.number().optional(),
+    name: z.string().optional(),
+    status: z.enum(DbtPlatformRunStatus).optional(),
+    logs: z.string().optional(),
+  })
+  .transform(d => ({
+    index: d.index,
+    name: d.name,
+    status: d.status,
+    logs: d.logs,
+  }));
 
 export const unmarshalDbtCloudTaskSchema: z.ZodType<DbtCloudTask> = z
   .object({
@@ -5461,39 +5394,35 @@ export const unmarshalDbtCloudTaskSchema: z.ZodType<DbtCloudTask> = z
     connectionResourceName: d.connection_resource_name,
   }));
 
-export const unmarshalDbtCloudTaskOutputSchema: z.ZodType<DbtCloudTaskOutput> =
-  z
-    .object({
-      dbt_cloud_job_run_id: z.number().optional(),
-      dbt_cloud_job_run_url: z.string().optional(),
-      dbt_cloud_job_run_output: z
-        .array(z.lazy(() => unmarshalDbtCloudJobRunStepSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      dbtCloudJobRunId: d.dbt_cloud_job_run_id,
-      dbtCloudJobRunUrl: d.dbt_cloud_job_run_url,
-      dbtCloudJobRunOutput: d.dbt_cloud_job_run_output,
-    }));
+export const unmarshalDbtCloudTaskOutputSchema: z.ZodType<DbtCloudTaskOutput> = z
+  .object({
+    dbt_cloud_job_run_id: z.number().optional(),
+    dbt_cloud_job_run_url: z.string().optional(),
+    dbt_cloud_job_run_output: z.array(z.lazy(() => unmarshalDbtCloudJobRunStepSchema)).optional(),
+  })
+  .transform(d => ({
+    dbtCloudJobRunId: d.dbt_cloud_job_run_id,
+    dbtCloudJobRunUrl: d.dbt_cloud_job_run_url,
+    dbtCloudJobRunOutput: d.dbt_cloud_job_run_output,
+  }));
 
-export const unmarshalDbtPlatformJobRunStepSchema: z.ZodType<DbtPlatformJobRunStep> =
-  z
-    .object({
-      index: z.number().optional(),
-      name: z.string().optional(),
-      status: z.enum(DbtPlatformRunStatus).optional(),
-      logs: z.string().optional(),
-      name_truncated: z.boolean().optional(),
-      logs_truncated: z.boolean().optional(),
-    })
-    .transform(d => ({
-      index: d.index,
-      name: d.name,
-      status: d.status,
-      logs: d.logs,
-      nameTruncated: d.name_truncated,
-      logsTruncated: d.logs_truncated,
-    }));
+export const unmarshalDbtPlatformJobRunStepSchema: z.ZodType<DbtPlatformJobRunStep> = z
+  .object({
+    index: z.number().optional(),
+    name: z.string().optional(),
+    status: z.enum(DbtPlatformRunStatus).optional(),
+    logs: z.string().optional(),
+    name_truncated: z.boolean().optional(),
+    logs_truncated: z.boolean().optional(),
+  })
+  .transform(d => ({
+    index: d.index,
+    name: d.name,
+    status: d.status,
+    logs: d.logs,
+    nameTruncated: d.name_truncated,
+    logsTruncated: d.logs_truncated,
+  }));
 
 export const unmarshalDbtPlatformTaskSchema: z.ZodType<DbtPlatformTask> = z
   .object({
@@ -5505,22 +5434,19 @@ export const unmarshalDbtPlatformTaskSchema: z.ZodType<DbtPlatformTask> = z
     connectionResourceName: d.connection_resource_name,
   }));
 
-export const unmarshalDbtPlatformTaskOutputSchema: z.ZodType<DbtPlatformTaskOutput> =
-  z
-    .object({
-      dbt_platform_job_run_id: z.string().optional(),
-      dbt_platform_job_run_url: z.string().optional(),
-      dbt_platform_job_run_output: z
-        .array(z.lazy(() => unmarshalDbtPlatformJobRunStepSchema))
-        .optional(),
-      steps_truncated: z.boolean().optional(),
-    })
-    .transform(d => ({
-      dbtPlatformJobRunId: d.dbt_platform_job_run_id,
-      dbtPlatformJobRunUrl: d.dbt_platform_job_run_url,
-      dbtPlatformJobRunOutput: d.dbt_platform_job_run_output,
-      stepsTruncated: d.steps_truncated,
-    }));
+export const unmarshalDbtPlatformTaskOutputSchema: z.ZodType<DbtPlatformTaskOutput> = z
+  .object({
+    dbt_platform_job_run_id: z.string().optional(),
+    dbt_platform_job_run_url: z.string().optional(),
+    dbt_platform_job_run_output: z.array(z.lazy(() => unmarshalDbtPlatformJobRunStepSchema)).optional(),
+    steps_truncated: z.boolean().optional(),
+  })
+  .transform(d => ({
+    dbtPlatformJobRunId: d.dbt_platform_job_run_id,
+    dbtPlatformJobRunUrl: d.dbt_platform_job_run_url,
+    dbtPlatformJobRunOutput: d.dbt_platform_job_run_output,
+    stepsTruncated: d.steps_truncated,
+  }));
 
 export const unmarshalDbtTaskSchema: z.ZodType<DbtTask> = z
   .object({
@@ -5543,24 +5469,25 @@ export const unmarshalDbtTaskSchema: z.ZodType<DbtTask> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDbtTask_DbtTaskOutputSchema: z.ZodType<DbtTask_DbtTaskOutput> =
-  z
-    .object({
-      artifacts_link: z.string().optional(),
-      artifacts_headers: z.record(z.string(), z.string()).optional(),
-    })
-    .transform(d => ({
-      artifactsLink: d.artifacts_link,
-      artifactsHeaders: d.artifacts_headers,
-    }));
+export const unmarshalDbtTask_DbtTaskOutputSchema: z.ZodType<DbtTask_DbtTaskOutput> = z
+  .object({
+    artifacts_link: z.string().optional(),
+    artifacts_headers: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    artifactsLink: d.artifacts_link,
+    artifactsHeaders: d.artifacts_headers,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteJob_ResponseSchema: z.ZodType<DeleteJob_Response> =
-  z.object({});
+export const unmarshalDeleteJobRequest_ResponseSchema: z.ZodType<DeleteJobRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteRun_ResponseSchema: z.ZodType<DeleteRun_Response> =
-  z.object({});
+export const unmarshalDeleteRunRequest_ResponseSchema: z.ZodType<DeleteRunRequest_Response> = z
+  .object({
+  });
 
 export const unmarshalDockerBasicAuthSchema: z.ZodType<DockerBasicAuth> = z
   .object({
@@ -5579,46 +5506,34 @@ export const unmarshalDockerImageSchema: z.ZodType<DockerImage> = z
   })
   .transform(d => ({
     url: d.url,
-    credsOneof:
-      d.basic_auth !== undefined
-        ? {$case: 'basicAuth' as const, basicAuth: d.basic_auth}
-        : undefined,
+    credsOneof: d.basic_auth !== undefined ? { $case: 'basicAuth' as const, basicAuth: d.basic_auth } : undefined,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEnforcePolicyComplianceForJob_ResponseSchema: z.ZodType<EnforcePolicyComplianceForJob_Response> =
-  z
-    .object({
-      has_changes: z.boolean().optional(),
-      job_cluster_changes: z
-        .array(
-          z.lazy(
-            () =>
-              unmarshalEnforcePolicyComplianceForJob_Response_JobClusterSettingsChangeSchema
-          )
-        )
-        .optional(),
-      settings: z.lazy(() => unmarshalJobSettingsSchema).optional(),
-    })
-    .transform(d => ({
-      hasChanges: d.has_changes,
-      jobClusterChanges: d.job_cluster_changes,
-      settings: d.settings,
-    }));
+export const unmarshalEnforcePolicyComplianceForJob_ResponseSchema: z.ZodType<EnforcePolicyComplianceForJob_Response> = z
+  .object({
+    has_changes: z.boolean().optional(),
+    job_cluster_changes: z.array(z.lazy(() => unmarshalEnforcePolicyComplianceForJob_Response_JobClusterSettingsChangeSchema)).optional(),
+    settings: z.lazy(() => unmarshalJobSettingsSchema).optional(),
+  })
+  .transform(d => ({
+    hasChanges: d.has_changes,
+    jobClusterChanges: d.job_cluster_changes,
+    settings: d.settings,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEnforcePolicyComplianceForJob_Response_JobClusterSettingsChangeSchema: z.ZodType<EnforcePolicyComplianceForJob_Response_JobClusterSettingsChange> =
-  z
-    .object({
-      field: z.string().optional(),
-      previous_value: z.string().optional(),
-      new_value: z.string().optional(),
-    })
-    .transform(d => ({
-      field: d.field,
-      previousValue: d.previous_value,
-      newValue: d.new_value,
-    }));
+export const unmarshalEnforcePolicyComplianceForJob_Response_JobClusterSettingsChangeSchema: z.ZodType<EnforcePolicyComplianceForJob_Response_JobClusterSettingsChange> = z
+  .object({
+    field: z.string().optional(),
+    previous_value: z.string().optional(),
+    new_value: z.string().optional(),
+  })
+  .transform(d => ({
+    field: d.field,
+    previousValue: d.previous_value,
+    newValue: d.new_value,
+  }));
 
 export const unmarshalEnvironmentSchema: z.ZodType<Environment> = z
   .object({
@@ -5637,36 +5552,33 @@ export const unmarshalEnvironmentSchema: z.ZodType<Environment> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalExportRun_ResponseSchema: z.ZodType<ExportRun_Response> =
-  z
-    .object({
-      views: z.array(z.lazy(() => unmarshalViewItemSchema)).optional(),
-    })
-    .transform(d => ({
-      views: d.views,
-    }));
+export const unmarshalExportRunRequest_ResponseSchema: z.ZodType<ExportRunRequest_Response> = z
+  .object({
+    views: z.array(z.lazy(() => unmarshalViewItemSchema)).optional(),
+  })
+  .transform(d => ({
+    views: d.views,
+  }));
 
-export const unmarshalFileArrivalTriggerConfigurationSchema: z.ZodType<FileArrivalTriggerConfiguration> =
-  z
-    .object({
-      url: z.string().optional(),
-      min_time_between_triggers_seconds: z.number().optional(),
-      wait_after_last_change_seconds: z.number().optional(),
-    })
-    .transform(d => ({
-      url: d.url,
-      minTimeBetweenTriggersSeconds: d.min_time_between_triggers_seconds,
-      waitAfterLastChangeSeconds: d.wait_after_last_change_seconds,
-    }));
+export const unmarshalFileArrivalTriggerConfigurationSchema: z.ZodType<FileArrivalTriggerConfiguration> = z
+  .object({
+    url: z.string().optional(),
+    min_time_between_triggers_seconds: z.number().optional(),
+    wait_after_last_change_seconds: z.number().optional(),
+  })
+  .transform(d => ({
+    url: d.url,
+    minTimeBetweenTriggersSeconds: d.min_time_between_triggers_seconds,
+    waitAfterLastChangeSeconds: d.wait_after_last_change_seconds,
+  }));
 
-export const unmarshalFileArrivalTriggerStateSchema: z.ZodType<FileArrivalTriggerState> =
-  z
-    .object({
-      using_file_events: z.boolean().optional(),
-    })
-    .transform(d => ({
-      usingFileEvents: d.using_file_events,
-    }));
+export const unmarshalFileArrivalTriggerStateSchema: z.ZodType<FileArrivalTriggerState> = z
+  .object({
+    using_file_events: z.boolean().optional(),
+  })
+  .transform(d => ({
+    usingFileEvents: d.using_file_events,
+  }));
 
 export const unmarshalForEachTaskSchema: z.ZodType<ForEachTask> = z
   .object({
@@ -5733,7 +5645,7 @@ export const unmarshalGenAiComputeTaskSchema: z.ZodType<GenAiComputeTask> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetJob_ResponseSchema: z.ZodType<GetJob_Response> = z
+export const unmarshalGetJobRequest_ResponseSchema: z.ZodType<GetJobRequest_Response> = z
   .object({
     next_page_token: z.string().optional(),
     job_id: z.number().optional(),
@@ -5741,7 +5653,7 @@ export const unmarshalGetJob_ResponseSchema: z.ZodType<GetJob_Response> = z
     run_as_user_name: z.string().optional(),
     settings: z.lazy(() => unmarshalJobSettingsSchema).optional(),
     created_time: z.number().optional(),
-    trigger_state: z.lazy(() => unmarshalTriggerStateProtoSchema).optional(),
+    trigger_state: z.lazy(() => unmarshalTriggerStateSchema).optional(),
     has_more: z.boolean().optional(),
     effective_budget_policy_id: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
@@ -5760,19 +5672,47 @@ export const unmarshalGetJob_ResponseSchema: z.ZodType<GetJob_Response> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetPolicyComplianceForJob_ResponseSchema: z.ZodType<GetPolicyComplianceForJob_Response> =
-  z
-    .object({
-      is_compliant: z.boolean().optional(),
-      violations: z.record(z.string(), z.string()).optional(),
-    })
-    .transform(d => ({
-      isCompliant: d.is_compliant,
-      violations: d.violations,
-    }));
+export const unmarshalGetPolicyComplianceForJob_ResponseSchema: z.ZodType<GetPolicyComplianceForJob_Response> = z
+  .object({
+    is_compliant: z.boolean().optional(),
+    violations: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    isCompliant: d.is_compliant,
+    violations: d.violations,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetRun_ResponseSchema: z.ZodType<GetRun_Response> = z
+export const unmarshalGetRunOutputRequest_ResponseSchema: z.ZodType<GetRunOutputRequest_Response> = z
+  .object({
+    metadata: z.lazy(() => unmarshalRunSchema).optional(),
+    error: z.string().optional(),
+    info: z.string().optional(),
+    notebook_output: z.lazy(() => unmarshalNotebookTask_NotebookOutputSchema).optional(),
+    sql_output: z.lazy(() => unmarshalSqlTask_SqlOutputSchema).optional(),
+    dbt_output: z.lazy(() => unmarshalDbtTask_DbtTaskOutputSchema).optional(),
+    run_job_output: z.lazy(() => unmarshalRunJobTask_RunJobTaskOutputSchema).optional(),
+    clean_rooms_notebook_output: z.lazy(() => unmarshalCleanRoomsNotebookTask_CleanRoomsNotebookTaskOutputSchema).optional(),
+    dashboard_output: z.lazy(() => unmarshalDashboardTaskOutputSchema).optional(),
+    dbt_cloud_output: z.lazy(() => unmarshalDbtCloudTaskOutputSchema).optional(),
+    dbt_platform_output: z.lazy(() => unmarshalDbtPlatformTaskOutputSchema).optional(),
+    alert_output: z.lazy(() => unmarshalAlertTaskOutputSchema).optional(),
+    logs: z.string().optional(),
+    logs_truncated: z.boolean().optional(),
+    error_trace: z.string().optional(),
+  })
+  .transform(d => ({
+    metadata: d.metadata,
+    error: d.error,
+    info: d.info,
+    result: d.notebook_output !== undefined ? { $case: 'notebookOutput' as const, notebookOutput: d.notebook_output } : d.sql_output !== undefined ? { $case: 'sqlOutput' as const, sqlOutput: d.sql_output } : d.dbt_output !== undefined ? { $case: 'dbtOutput' as const, dbtOutput: d.dbt_output } : d.run_job_output !== undefined ? { $case: 'runJobOutput' as const, runJobOutput: d.run_job_output } : d.clean_rooms_notebook_output !== undefined ? { $case: 'cleanRoomsNotebookOutput' as const, cleanRoomsNotebookOutput: d.clean_rooms_notebook_output } : d.dashboard_output !== undefined ? { $case: 'dashboardOutput' as const, dashboardOutput: d.dashboard_output } : d.dbt_cloud_output !== undefined ? { $case: 'dbtCloudOutput' as const, dbtCloudOutput: d.dbt_cloud_output } : d.dbt_platform_output !== undefined ? { $case: 'dbtPlatformOutput' as const, dbtPlatformOutput: d.dbt_platform_output } : d.alert_output !== undefined ? { $case: 'alertOutput' as const, alertOutput: d.alert_output } : undefined,
+    logs: d.logs,
+    logsTruncated: d.logs_truncated,
+    errorTrace: d.error_trace,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalGetRunRequest_ResponseSchema: z.ZodType<GetRunRequest_Response> = z
   .object({
     next_page_token: z.string().optional(),
     job_id: z.number().optional(),
@@ -5784,12 +5724,8 @@ export const unmarshalGetRun_ResponseSchema: z.ZodType<GetRun_Response> = z
     schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
     cluster_spec: z.lazy(() => unmarshalClusterSpecSchema).optional(),
     cluster_instance: z.lazy(() => unmarshalClusterInstanceSchema).optional(),
-    job_parameters: z
-      .array(z.lazy(() => unmarshalRun_JobLevelParametersSchema))
-      .optional(),
-    overriding_parameters: z
-      .lazy(() => unmarshalRunParametersSchema)
-      .optional(),
+    job_parameters: z.array(z.lazy(() => unmarshalRun_JobLevelParametersSchema)).optional(),
+    overriding_parameters: z.lazy(() => unmarshalRunParametersSchema).optional(),
     trigger: z.enum(TriggerType).optional(),
     trigger_info: z.lazy(() => unmarshalRunTriggerInfoSchema).optional(),
     run_name: z.string().optional(),
@@ -5804,9 +5740,7 @@ export const unmarshalGetRun_ResponseSchema: z.ZodType<GetRun_Response> = z
     status: z.lazy(() => unmarshalRunStatusSchema).optional(),
     job_run_id: z.number().optional(),
     has_more: z.boolean().optional(),
-    effective_performance_target: z
-      .enum(PerformanceTarget_PerformanceTarget)
-      .optional(),
+    effective_performance_target: z.enum(PerformanceTarget_PerformanceTarget).optional(),
     effective_usage_policy_id: z.string().optional(),
     start_time: z.number().optional(),
     setup_duration: z.number().optional(),
@@ -5854,99 +5788,13 @@ export const unmarshalGetRun_ResponseSchema: z.ZodType<GetRun_Response> = z
     queueDuration: d.queue_duration,
   }));
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetRunOutput_ResponseSchema: z.ZodType<GetRunOutput_Response> =
-  z
-    .object({
-      metadata: z.lazy(() => unmarshalRunSchema).optional(),
-      error: z.string().optional(),
-      info: z.string().optional(),
-      notebook_output: z
-        .lazy(() => unmarshalNotebookTask_NotebookOutputSchema)
-        .optional(),
-      sql_output: z.lazy(() => unmarshalSqlTask_SqlOutputSchema).optional(),
-      dbt_output: z.lazy(() => unmarshalDbtTask_DbtTaskOutputSchema).optional(),
-      run_job_output: z
-        .lazy(() => unmarshalRunJobTask_RunJobTaskOutputSchema)
-        .optional(),
-      clean_rooms_notebook_output: z
-        .lazy(
-          () =>
-            unmarshalCleanRoomsNotebookTask_CleanRoomsNotebookTaskOutputSchema
-        )
-        .optional(),
-      dashboard_output: z
-        .lazy(() => unmarshalDashboardTaskOutputSchema)
-        .optional(),
-      dbt_cloud_output: z
-        .lazy(() => unmarshalDbtCloudTaskOutputSchema)
-        .optional(),
-      dbt_platform_output: z
-        .lazy(() => unmarshalDbtPlatformTaskOutputSchema)
-        .optional(),
-      alert_output: z.lazy(() => unmarshalAlertTaskOutputSchema).optional(),
-      logs: z.string().optional(),
-      logs_truncated: z.boolean().optional(),
-      error_trace: z.string().optional(),
-    })
-    .transform(d => ({
-      metadata: d.metadata,
-      error: d.error,
-      info: d.info,
-      result:
-        d.notebook_output !== undefined
-          ? {
-              $case: 'notebookOutput' as const,
-              notebookOutput: d.notebook_output,
-            }
-          : d.sql_output !== undefined
-            ? {$case: 'sqlOutput' as const, sqlOutput: d.sql_output}
-            : d.dbt_output !== undefined
-              ? {$case: 'dbtOutput' as const, dbtOutput: d.dbt_output}
-              : d.run_job_output !== undefined
-                ? {
-                    $case: 'runJobOutput' as const,
-                    runJobOutput: d.run_job_output,
-                  }
-                : d.clean_rooms_notebook_output !== undefined
-                  ? {
-                      $case: 'cleanRoomsNotebookOutput' as const,
-                      cleanRoomsNotebookOutput: d.clean_rooms_notebook_output,
-                    }
-                  : d.dashboard_output !== undefined
-                    ? {
-                        $case: 'dashboardOutput' as const,
-                        dashboardOutput: d.dashboard_output,
-                      }
-                    : d.dbt_cloud_output !== undefined
-                      ? {
-                          $case: 'dbtCloudOutput' as const,
-                          dbtCloudOutput: d.dbt_cloud_output,
-                        }
-                      : d.dbt_platform_output !== undefined
-                        ? {
-                            $case: 'dbtPlatformOutput' as const,
-                            dbtPlatformOutput: d.dbt_platform_output,
-                          }
-                        : d.alert_output !== undefined
-                          ? {
-                              $case: 'alertOutput' as const,
-                              alertOutput: d.alert_output,
-                            }
-                          : undefined,
-      logs: d.logs,
-      logsTruncated: d.logs_truncated,
-      errorTrace: d.error_trace,
-    }));
-
-export const unmarshalGitMetadataSnapshotSchema: z.ZodType<GitMetadataSnapshot> =
-  z
-    .object({
-      used_commit: z.string().optional(),
-    })
-    .transform(d => ({
-      usedCommit: d.used_commit,
-    }));
+export const unmarshalGitMetadataSnapshotSchema: z.ZodType<GitMetadataSnapshot> = z
+  .object({
+    used_commit: z.string().optional(),
+  })
+  .transform(d => ({
+    usedCommit: d.used_commit,
+  }));
 
 export const unmarshalGitSourceSchema: z.ZodType<GitSource> = z
   .object({
@@ -5962,14 +5810,7 @@ export const unmarshalGitSourceSchema: z.ZodType<GitSource> = z
   .transform(d => ({
     gitUrl: d.git_url,
     gitProvider: d.git_provider,
-    gitReference:
-      d.git_branch !== undefined
-        ? {$case: 'gitBranch' as const, gitBranch: d.git_branch}
-        : d.git_tag !== undefined
-          ? {$case: 'gitTag' as const, gitTag: d.git_tag}
-          : d.git_commit !== undefined
-            ? {$case: 'gitCommit' as const, gitCommit: d.git_commit}
-            : undefined,
+    gitReference: d.git_branch !== undefined ? { $case: 'gitBranch' as const, gitBranch: d.git_branch } : d.git_tag !== undefined ? { $case: 'gitTag' as const, gitTag: d.git_tag } : d.git_commit !== undefined ? { $case: 'gitCommit' as const, gitCommit: d.git_commit } : undefined,
     gitSnapshot: d.git_snapshot,
     jobSource: d.job_source,
     sparseCheckout: d.sparse_checkout,
@@ -5986,22 +5827,7 @@ export const unmarshalInitScriptInfoSchema: z.ZodType<InitScriptInfo> = z
     volumes: z.lazy(() => unmarshalVolumesStorageInfoSchema).optional(),
   })
   .transform(d => ({
-    storageInfo:
-      d.dbfs !== undefined
-        ? {$case: 'dbfs' as const, dbfs: d.dbfs}
-        : d.s3 !== undefined
-          ? {$case: 's3' as const, s3: d.s3}
-          : d.file !== undefined
-            ? {$case: 'file' as const, file: d.file}
-            : d.gcs !== undefined
-              ? {$case: 'gcs' as const, gcs: d.gcs}
-              : d.abfss !== undefined
-                ? {$case: 'abfss' as const, abfss: d.abfss}
-                : d.workspace !== undefined
-                  ? {$case: 'workspace' as const, workspace: d.workspace}
-                  : d.volumes !== undefined
-                    ? {$case: 'volumes' as const, volumes: d.volumes}
-                    : undefined,
+    storageInfo: d.dbfs !== undefined ? { $case: 'dbfs' as const, dbfs: d.dbfs } : d.s3 !== undefined ? { $case: 's3' as const, s3: d.s3 } : d.file !== undefined ? { $case: 'file' as const, file: d.file } : d.gcs !== undefined ? { $case: 'gcs' as const, gcs: d.gcs } : d.abfss !== undefined ? { $case: 'abfss' as const, abfss: d.abfss } : d.workspace !== undefined ? { $case: 'workspace' as const, workspace: d.workspace } : d.volumes !== undefined ? { $case: 'volumes' as const, volumes: d.volumes } : undefined,
   }));
 
 export const unmarshalJobClusterSchema: z.ZodType<JobCluster> = z
@@ -6024,25 +5850,23 @@ export const unmarshalJobDeploymentSchema: z.ZodType<JobDeployment> = z
     metadataFilePath: d.metadata_file_path,
   }));
 
-export const unmarshalJobEmailNotificationsSchema: z.ZodType<JobEmailNotifications> =
-  z
-    .object({
-      on_start: z.array(z.string()).optional(),
-      on_success: z.array(z.string()).optional(),
-      on_failure: z.array(z.string()).optional(),
-      on_duration_warning_threshold_exceeded: z.array(z.string()).optional(),
-      on_streaming_backlog_exceeded: z.array(z.string()).optional(),
-      no_alert_for_skipped_runs: z.boolean().optional(),
-    })
-    .transform(d => ({
-      onStart: d.on_start,
-      onSuccess: d.on_success,
-      onFailure: d.on_failure,
-      onDurationWarningThresholdExceeded:
-        d.on_duration_warning_threshold_exceeded,
-      onStreamingBacklogExceeded: d.on_streaming_backlog_exceeded,
-      noAlertForSkippedRuns: d.no_alert_for_skipped_runs,
-    }));
+export const unmarshalJobEmailNotificationsSchema: z.ZodType<JobEmailNotifications> = z
+  .object({
+    on_start: z.array(z.string()).optional(),
+    on_success: z.array(z.string()).optional(),
+    on_failure: z.array(z.string()).optional(),
+    on_duration_warning_threshold_exceeded: z.array(z.string()).optional(),
+    on_streaming_backlog_exceeded: z.array(z.string()).optional(),
+    no_alert_for_skipped_runs: z.boolean().optional(),
+  })
+  .transform(d => ({
+    onStart: d.on_start,
+    onSuccess: d.on_success,
+    onFailure: d.on_failure,
+    onDurationWarningThresholdExceeded: d.on_duration_warning_threshold_exceeded,
+    onStreamingBacklogExceeded: d.on_streaming_backlog_exceeded,
+    noAlertForSkippedRuns: d.no_alert_for_skipped_runs,
+  }));
 
 export const unmarshalJobEnvironmentSchema: z.ZodType<JobEnvironment> = z
   .object({
@@ -6071,32 +5895,16 @@ export const unmarshalJobRunAsSchema: z.ZodType<JobRunAs> = z
     group_name: z.string().optional(),
   })
   .transform(d => ({
-    identity:
-      d.user_name !== undefined
-        ? {$case: 'userName' as const, userName: d.user_name}
-        : d.service_principal_name !== undefined
-          ? {
-              $case: 'servicePrincipalName' as const,
-              servicePrincipalName: d.service_principal_name,
-            }
-          : d.group_name !== undefined
-            ? {$case: 'groupName' as const, groupName: d.group_name}
-            : undefined,
+    identity: d.user_name !== undefined ? { $case: 'userName' as const, userName: d.user_name } : d.service_principal_name !== undefined ? { $case: 'servicePrincipalName' as const, servicePrincipalName: d.service_principal_name } : d.group_name !== undefined ? { $case: 'groupName' as const, groupName: d.group_name } : undefined,
   }));
 
 export const unmarshalJobSettingsSchema: z.ZodType<JobSettings> = z
   .object({
     name: z.string().optional(),
     description: z.string().optional(),
-    email_notifications: z
-      .lazy(() => unmarshalJobEmailNotificationsSchema)
-      .optional(),
-    webhook_notifications: z
-      .lazy(() => unmarshalWebhookNotificationsSchema)
-      .optional(),
-    notification_settings: z
-      .lazy(() => unmarshalNotificationSettingsSchema)
-      .optional(),
+    email_notifications: z.lazy(() => unmarshalJobEmailNotificationsSchema).optional(),
+    webhook_notifications: z.lazy(() => unmarshalWebhookNotificationsSchema).optional(),
+    notification_settings: z.lazy(() => unmarshalNotificationSettingsSchema).optional(),
     timeout_seconds: z.number().optional(),
     health: z.lazy(() => unmarshalJobsHealthRulesSchema).optional(),
     schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
@@ -6109,15 +5917,11 @@ export const unmarshalJobSettingsSchema: z.ZodType<JobSettings> = z
     tags: z.record(z.string(), z.string()).optional(),
     format: z.enum(Format).optional(),
     queue: z.lazy(() => unmarshalQueueSettingsSchema).optional(),
-    parameters: z
-      .array(z.lazy(() => unmarshalJobLevelParameterSchema))
-      .optional(),
+    parameters: z.array(z.lazy(() => unmarshalJobLevelParameterSchema)).optional(),
     run_as: z.lazy(() => unmarshalJobRunAsSchema).optional(),
     edit_mode: z.enum(JobEditMode).optional(),
     deployment: z.lazy(() => unmarshalJobDeploymentSchema).optional(),
-    environments: z
-      .array(z.lazy(() => unmarshalJobEnvironmentSchema))
-      .optional(),
+    environments: z.array(z.lazy(() => unmarshalJobEnvironmentSchema)).optional(),
     budget_policy_id: z.string().optional(),
     usage_policy_id: z.string().optional(),
     performance_target: z.enum(PerformanceTarget_PerformanceTarget).optional(),
@@ -6166,13 +5970,7 @@ export const unmarshalJobSourceSchema: z.ZodType<JobSource> = z
   })
   .transform(d => ({
     jobConfigPath: d.job_config_path,
-    importFromGitReference:
-      d.import_from_git_branch !== undefined
-        ? {
-            $case: 'importFromGitBranch' as const,
-            importFromGitBranch: d.import_from_git_branch,
-          }
-        : undefined,
+    importFromGitReference: d.import_from_git_branch !== undefined ? { $case: 'importFromGitBranch' as const, importFromGitBranch: d.import_from_git_branch } : undefined,
     dirtyState: d.dirty_state,
   }));
 
@@ -6207,61 +6005,37 @@ export const unmarshalLibrarySchema: z.ZodType<Library> = z
     requirements: z.string().optional(),
   })
   .transform(d => ({
-    lib:
-      d.jar !== undefined
-        ? {$case: 'jar' as const, jar: d.jar}
-        : d.egg !== undefined
-          ? {$case: 'egg' as const, egg: d.egg}
-          : d.pypi !== undefined
-            ? {$case: 'pypi' as const, pypi: d.pypi}
-            : d.maven !== undefined
-              ? {$case: 'maven' as const, maven: d.maven}
-              : d.cran !== undefined
-                ? {$case: 'cran' as const, cran: d.cran}
-                : d.whl !== undefined
-                  ? {$case: 'whl' as const, whl: d.whl}
-                  : d.requirements !== undefined
-                    ? {
-                        $case: 'requirements' as const,
-                        requirements: d.requirements,
-                      }
-                    : undefined,
+    lib: d.jar !== undefined ? { $case: 'jar' as const, jar: d.jar } : d.egg !== undefined ? { $case: 'egg' as const, egg: d.egg } : d.pypi !== undefined ? { $case: 'pypi' as const, pypi: d.pypi } : d.maven !== undefined ? { $case: 'maven' as const, maven: d.maven } : d.cran !== undefined ? { $case: 'cran' as const, cran: d.cran } : d.whl !== undefined ? { $case: 'whl' as const, whl: d.whl } : d.requirements !== undefined ? { $case: 'requirements' as const, requirements: d.requirements } : undefined,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListJobComplianceForPolicy_JobComplianceSchema: z.ZodType<ListJobComplianceForPolicy_JobCompliance> =
-  z
-    .object({
-      job_id: z.number().optional(),
-      is_compliant: z.boolean().optional(),
-      violations: z.record(z.string(), z.string()).optional(),
-    })
-    .transform(d => ({
-      jobId: d.job_id,
-      isCompliant: d.is_compliant,
-      violations: d.violations,
-    }));
+export const unmarshalListJobComplianceForPolicy_JobComplianceSchema: z.ZodType<ListJobComplianceForPolicy_JobCompliance> = z
+  .object({
+    job_id: z.number().optional(),
+    is_compliant: z.boolean().optional(),
+    violations: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    jobId: d.job_id,
+    isCompliant: d.is_compliant,
+    violations: d.violations,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListJobComplianceForPolicy_ResponseSchema: z.ZodType<ListJobComplianceForPolicy_Response> =
-  z
-    .object({
-      jobs: z
-        .array(
-          z.lazy(() => unmarshalListJobComplianceForPolicy_JobComplianceSchema)
-        )
-        .optional(),
-      next_page_token: z.string().optional(),
-      prev_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      jobs: d.jobs,
-      nextPageToken: d.next_page_token,
-      prevPageToken: d.prev_page_token,
-    }));
+export const unmarshalListJobComplianceForPolicy_ResponseSchema: z.ZodType<ListJobComplianceForPolicy_Response> = z
+  .object({
+    jobs: z.array(z.lazy(() => unmarshalListJobComplianceForPolicy_JobComplianceSchema)).optional(),
+    next_page_token: z.string().optional(),
+    prev_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    jobs: d.jobs,
+    nextPageToken: d.next_page_token,
+    prevPageToken: d.prev_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListJobs_ResponseSchema: z.ZodType<ListJobs_Response> = z
+export const unmarshalListJobsRequest_ResponseSchema: z.ZodType<ListJobsRequest_Response> = z
   .object({
     jobs: z.array(z.lazy(() => unmarshalBaseJobSchema)).optional(),
     has_more: z.boolean().optional(),
@@ -6276,7 +6050,7 @@ export const unmarshalListJobs_ResponseSchema: z.ZodType<ListJobs_Response> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListRuns_ResponseSchema: z.ZodType<ListRuns_Response> = z
+export const unmarshalListRunsRequest_ResponseSchema: z.ZodType<ListRunsRequest_Response> = z
   .object({
     runs: z.array(z.lazy(() => unmarshalBaseRunSchema)).optional(),
     has_more: z.boolean().optional(),
@@ -6320,33 +6094,29 @@ export const unmarshalMavenLibrarySchema: z.ZodType<MavenLibrary> = z
     exclusions: d.exclusions,
   }));
 
-export const unmarshalModelTriggerConfigurationSchema: z.ZodType<ModelTriggerConfiguration> =
-  z
-    .object({
-      securable_name: z.string().optional(),
-      aliases: z.array(z.string()).optional(),
-      condition: z
-        .enum(ModelTriggerConfiguration_ModelTriggerCondition)
-        .optional(),
-      min_time_between_triggers_seconds: z.number().optional(),
-      wait_after_last_change_seconds: z.number().optional(),
-    })
-    .transform(d => ({
-      securableName: d.securable_name,
-      aliases: d.aliases,
-      condition: d.condition,
-      minTimeBetweenTriggersSeconds: d.min_time_between_triggers_seconds,
-      waitAfterLastChangeSeconds: d.wait_after_last_change_seconds,
-    }));
+export const unmarshalModelTriggerConfigurationSchema: z.ZodType<ModelTriggerConfiguration> = z
+  .object({
+    securable_name: z.string().optional(),
+    aliases: z.array(z.string()).optional(),
+    condition: z.enum(ModelTriggerConfiguration_ModelTriggerCondition).optional(),
+    min_time_between_triggers_seconds: z.number().optional(),
+    wait_after_last_change_seconds: z.number().optional(),
+  })
+  .transform(d => ({
+    securableName: d.securable_name,
+    aliases: d.aliases,
+    condition: d.condition,
+    minTimeBetweenTriggersSeconds: d.min_time_between_triggers_seconds,
+    waitAfterLastChangeSeconds: d.wait_after_last_change_seconds,
+  }));
 
-export const unmarshalNodeTypeFlexibilitySchema: z.ZodType<NodeTypeFlexibility> =
-  z
-    .object({
-      alternate_node_type_ids: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      alternateNodeTypeIds: d.alternate_node_type_ids,
-    }));
+export const unmarshalNodeTypeFlexibilitySchema: z.ZodType<NodeTypeFlexibility> = z
+  .object({
+    alternate_node_type_ids: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    alternateNodeTypeIds: d.alternate_node_type_ids,
+  }));
 
 export const unmarshalNotebookTaskSchema: z.ZodType<NotebookTask> = z
   .object({
@@ -6363,29 +6133,27 @@ export const unmarshalNotebookTaskSchema: z.ZodType<NotebookTask> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalNotebookTask_NotebookOutputSchema: z.ZodType<NotebookTask_NotebookOutput> =
-  z
-    .object({
-      result: z.string().optional(),
-      truncated: z.boolean().optional(),
-    })
-    .transform(d => ({
-      result: d.result,
-      truncated: d.truncated,
-    }));
+export const unmarshalNotebookTask_NotebookOutputSchema: z.ZodType<NotebookTask_NotebookOutput> = z
+  .object({
+    result: z.string().optional(),
+    truncated: z.boolean().optional(),
+  })
+  .transform(d => ({
+    result: d.result,
+    truncated: d.truncated,
+  }));
 
-export const unmarshalNotificationSettingsSchema: z.ZodType<NotificationSettings> =
-  z
-    .object({
-      no_alert_for_skipped_runs: z.boolean().optional(),
-      no_alert_for_canceled_runs: z.boolean().optional(),
-      alert_on_last_attempt: z.boolean().optional(),
-    })
-    .transform(d => ({
-      noAlertForSkippedRuns: d.no_alert_for_skipped_runs,
-      noAlertForCanceledRuns: d.no_alert_for_canceled_runs,
-      alertOnLastAttempt: d.alert_on_last_attempt,
-    }));
+export const unmarshalNotificationSettingsSchema: z.ZodType<NotificationSettings> = z
+  .object({
+    no_alert_for_skipped_runs: z.boolean().optional(),
+    no_alert_for_canceled_runs: z.boolean().optional(),
+    alert_on_last_attempt: z.boolean().optional(),
+  })
+  .transform(d => ({
+    noAlertForSkippedRuns: d.no_alert_for_skipped_runs,
+    noAlertForCanceledRuns: d.no_alert_for_canceled_runs,
+    alertOnLastAttempt: d.alert_on_last_attempt,
+  }));
 
 export const unmarshalOutputSchemaInfoSchema: z.ZodType<OutputSchemaInfo> = z
   .object({
@@ -6399,34 +6167,48 @@ export const unmarshalOutputSchemaInfoSchema: z.ZodType<OutputSchemaInfo> = z
     expirationTime: d.expiration_time,
   }));
 
-export const unmarshalPeriodicTriggerConfigurationSchema: z.ZodType<PeriodicTriggerConfiguration> =
-  z
-    .object({
-      interval: z.number().optional(),
-      unit: z.enum(PeriodicTriggerConfiguration_TimeUnit).optional(),
-    })
-    .transform(d => ({
-      interval: d.interval,
-      unit: d.unit,
-    }));
+export const unmarshalPeriodicTriggerConfigurationSchema: z.ZodType<PeriodicTriggerConfiguration> = z
+  .object({
+    interval: z.number().optional(),
+    unit: z.enum(PeriodicTriggerConfiguration_TimeUnit).optional(),
+  })
+  .transform(d => ({
+    interval: d.interval,
+    unit: d.unit,
+  }));
 
-export const unmarshalPipelineParametersSchema: z.ZodType<PipelineParameters> =
-  z
-    .object({
-      full_refresh: z.boolean().optional(),
-    })
-    .transform(d => ({
-      fullRefresh: d.full_refresh,
-    }));
+export const unmarshalPipelineParametersSchema: z.ZodType<PipelineParameters> = z
+  .object({
+    full_refresh: z.boolean().optional(),
+    refresh_selection: z.array(z.string()).optional(),
+    full_refresh_selection: z.array(z.string()).optional(),
+    reset_checkpoint_selection: z.array(z.string()).optional(),
+    refresh_flow_selection: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    fullRefresh: d.full_refresh,
+    refreshSelection: d.refresh_selection,
+    fullRefreshSelection: d.full_refresh_selection,
+    resetCheckpointSelection: d.reset_checkpoint_selection,
+    refreshFlowSelection: d.refresh_flow_selection,
+  }));
 
 export const unmarshalPipelineTaskSchema: z.ZodType<PipelineTask> = z
   .object({
     pipeline_id: z.string().optional(),
     full_refresh: z.boolean().optional(),
+    refresh_selection: z.array(z.string()).optional(),
+    full_refresh_selection: z.array(z.string()).optional(),
+    reset_checkpoint_selection: z.array(z.string()).optional(),
+    refresh_flow_selection: z.array(z.string()).optional(),
   })
   .transform(d => ({
     pipelineId: d.pipeline_id,
     fullRefresh: d.full_refresh,
+    refreshSelection: d.refresh_selection,
+    fullRefreshSelection: d.full_refresh_selection,
+    resetCheckpointSelection: d.reset_checkpoint_selection,
+    refreshFlowSelection: d.refresh_flow_selection,
   }));
 
 export const unmarshalPowerBiModelSchema: z.ZodType<PowerBiModel> = z
@@ -6475,30 +6257,26 @@ export const unmarshalPowerBiTaskSchema: z.ZodType<PowerBiTask> = z
     refreshAfterUpdate: d.refresh_after_update,
   }));
 
-export const unmarshalPythonOperatorTaskSchema: z.ZodType<PythonOperatorTask> =
-  z
-    .object({
-      parameters: z
-        .array(z.lazy(() => unmarshalPythonOperatorTask_ParameterSchema))
-        .optional(),
-      main: z.string().optional(),
-    })
-    .transform(d => ({
-      parameters: d.parameters,
-      main: d.main,
-    }));
+export const unmarshalPythonOperatorTaskSchema: z.ZodType<PythonOperatorTask> = z
+  .object({
+    parameters: z.array(z.lazy(() => unmarshalPythonOperatorTask_ParameterSchema)).optional(),
+    main: z.string().optional(),
+  })
+  .transform(d => ({
+    parameters: d.parameters,
+    main: d.main,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPythonOperatorTask_ParameterSchema: z.ZodType<PythonOperatorTask_Parameter> =
-  z
-    .object({
-      name: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      value: d.value,
-    }));
+export const unmarshalPythonOperatorTask_ParameterSchema: z.ZodType<PythonOperatorTask_Parameter> = z
+  .object({
+    name: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    value: d.value,
+  }));
 
 export const unmarshalPythonPyPiLibrarySchema: z.ZodType<PythonPyPiLibrary> = z
   .object({
@@ -6561,9 +6339,7 @@ export const unmarshalRepairSchema: z.ZodType<Repair> = z
     id: z.number().optional(),
     task_run_ids: z.array(z.number()).optional(),
     status: z.lazy(() => unmarshalRunStatusSchema).optional(),
-    effective_performance_target: z
-      .enum(PerformanceTarget_PerformanceTarget)
-      .optional(),
+    effective_performance_target: z.enum(PerformanceTarget_PerformanceTarget).optional(),
   })
   .transform(d => ({
     type: d.type,
@@ -6577,188 +6353,123 @@ export const unmarshalRepairSchema: z.ZodType<Repair> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRepairRun_ResponseSchema: z.ZodType<RepairRun_Response> =
-  z
-    .object({
-      repair_id: z.number().optional(),
-    })
-    .transform(d => ({
-      repairId: d.repair_id,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalResetJob_ResponseSchema: z.ZodType<ResetJob_Response> =
-  z.object({});
-
-export const unmarshalResolvedValuesSchema: z.ZodType<ResolvedValues> = z
+export const unmarshalRepairRunRequest_ResponseSchema: z.ZodType<RepairRunRequest_Response> = z
   .object({
-    notebook_task: z
-      .lazy(() => unmarshalResolvedValues_NotebookTaskResolvedValuesSchema)
-      .optional(),
-    spark_jar_task: z
-      .lazy(() => unmarshalResolvedValues_SparkJarTaskResolvedValuesSchema)
-      .optional(),
-    spark_python_task: z
-      .lazy(() => unmarshalResolvedValues_SparkPythonTaskResolvedValuesSchema)
-      .optional(),
-    spark_submit_task: z
-      .lazy(() => unmarshalResolvedValues_SparkSubmitTaskResolvedValuesSchema)
-      .optional(),
-    python_wheel_task: z
-      .lazy(() => unmarshalResolvedValues_PythonWheelTaskResolvedValuesSchema)
-      .optional(),
-    dbt_task: z
-      .lazy(() => unmarshalResolvedValues_DbtTaskResolvedValuesSchema)
-      .optional(),
-    sql_task: z
-      .lazy(() => unmarshalResolvedValues_SqlTaskResolvedValuesSchema)
-      .optional(),
-    run_job_task: z
-      .lazy(() => unmarshalResolvedValues_RunJobTaskResolvedValuesSchema)
-      .optional(),
-    condition_task: z
-      .lazy(() => unmarshalResolvedValues_ConditionTaskResolvedValuesSchema)
-      .optional(),
-    simulation_task: z
-      .lazy(() => unmarshalResolvedValues_SimulationTaskResolvedValuesSchema)
-      .optional(),
+    repair_id: z.number().optional(),
   })
   .transform(d => ({
-    resolved:
-      d.notebook_task !== undefined
-        ? {$case: 'notebookTask' as const, notebookTask: d.notebook_task}
-        : d.spark_jar_task !== undefined
-          ? {$case: 'sparkJarTask' as const, sparkJarTask: d.spark_jar_task}
-          : d.spark_python_task !== undefined
-            ? {
-                $case: 'sparkPythonTask' as const,
-                sparkPythonTask: d.spark_python_task,
-              }
-            : d.spark_submit_task !== undefined
-              ? {
-                  $case: 'sparkSubmitTask' as const,
-                  sparkSubmitTask: d.spark_submit_task,
-                }
-              : d.python_wheel_task !== undefined
-                ? {
-                    $case: 'pythonWheelTask' as const,
-                    pythonWheelTask: d.python_wheel_task,
-                  }
-                : d.dbt_task !== undefined
-                  ? {$case: 'dbtTask' as const, dbtTask: d.dbt_task}
-                  : d.sql_task !== undefined
-                    ? {$case: 'sqlTask' as const, sqlTask: d.sql_task}
-                    : d.run_job_task !== undefined
-                      ? {
-                          $case: 'runJobTask' as const,
-                          runJobTask: d.run_job_task,
-                        }
-                      : d.condition_task !== undefined
-                        ? {
-                            $case: 'conditionTask' as const,
-                            conditionTask: d.condition_task,
-                          }
-                        : d.simulation_task !== undefined
-                          ? {
-                              $case: 'simulationTask' as const,
-                              simulationTask: d.simulation_task,
-                            }
-                          : undefined,
+    repairId: d.repair_id,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalResolvedValues_ConditionTaskResolvedValuesSchema: z.ZodType<ResolvedValues_ConditionTaskResolvedValues> =
-  z
-    .object({
-      left: z.string().optional(),
-      right: z.string().optional(),
-    })
-    .transform(d => ({
-      left: d.left,
-      right: d.right,
-    }));
+export const unmarshalResetJobRequest_ResponseSchema: z.ZodType<ResetJobRequest_Response> = z
+  .object({
+  });
+
+export const unmarshalResolvedValuesSchema: z.ZodType<ResolvedValues> = z
+  .object({
+    notebook_task: z.lazy(() => unmarshalResolvedValues_NotebookTaskResolvedValuesSchema).optional(),
+    spark_jar_task: z.lazy(() => unmarshalResolvedValues_SparkJarTaskResolvedValuesSchema).optional(),
+    spark_python_task: z.lazy(() => unmarshalResolvedValues_SparkPythonTaskResolvedValuesSchema).optional(),
+    spark_submit_task: z.lazy(() => unmarshalResolvedValues_SparkSubmitTaskResolvedValuesSchema).optional(),
+    python_wheel_task: z.lazy(() => unmarshalResolvedValues_PythonWheelTaskResolvedValuesSchema).optional(),
+    dbt_task: z.lazy(() => unmarshalResolvedValues_DbtTaskResolvedValuesSchema).optional(),
+    sql_task: z.lazy(() => unmarshalResolvedValues_SqlTaskResolvedValuesSchema).optional(),
+    run_job_task: z.lazy(() => unmarshalResolvedValues_RunJobTaskResolvedValuesSchema).optional(),
+    condition_task: z.lazy(() => unmarshalResolvedValues_ConditionTaskResolvedValuesSchema).optional(),
+    simulation_task: z.lazy(() => unmarshalResolvedValues_SimulationTaskResolvedValuesSchema).optional(),
+  })
+  .transform(d => ({
+    resolved: d.notebook_task !== undefined ? { $case: 'notebookTask' as const, notebookTask: d.notebook_task } : d.spark_jar_task !== undefined ? { $case: 'sparkJarTask' as const, sparkJarTask: d.spark_jar_task } : d.spark_python_task !== undefined ? { $case: 'sparkPythonTask' as const, sparkPythonTask: d.spark_python_task } : d.spark_submit_task !== undefined ? { $case: 'sparkSubmitTask' as const, sparkSubmitTask: d.spark_submit_task } : d.python_wheel_task !== undefined ? { $case: 'pythonWheelTask' as const, pythonWheelTask: d.python_wheel_task } : d.dbt_task !== undefined ? { $case: 'dbtTask' as const, dbtTask: d.dbt_task } : d.sql_task !== undefined ? { $case: 'sqlTask' as const, sqlTask: d.sql_task } : d.run_job_task !== undefined ? { $case: 'runJobTask' as const, runJobTask: d.run_job_task } : d.condition_task !== undefined ? { $case: 'conditionTask' as const, conditionTask: d.condition_task } : d.simulation_task !== undefined ? { $case: 'simulationTask' as const, simulationTask: d.simulation_task } : undefined,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalResolvedValues_DbtTaskResolvedValuesSchema: z.ZodType<ResolvedValues_DbtTaskResolvedValues> =
-  z
-    .object({
-      commands: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      commands: d.commands,
-    }));
+export const unmarshalResolvedValues_ConditionTaskResolvedValuesSchema: z.ZodType<ResolvedValues_ConditionTaskResolvedValues> = z
+  .object({
+    left: z.string().optional(),
+    right: z.string().optional(),
+  })
+  .transform(d => ({
+    left: d.left,
+    right: d.right,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalResolvedValues_NotebookTaskResolvedValuesSchema: z.ZodType<ResolvedValues_NotebookTaskResolvedValues> =
-  z
-    .object({
-      base_parameters: z.record(z.string(), z.string()).optional(),
-    })
-    .transform(d => ({
-      baseParameters: d.base_parameters,
-    }));
+export const unmarshalResolvedValues_DbtTaskResolvedValuesSchema: z.ZodType<ResolvedValues_DbtTaskResolvedValues> = z
+  .object({
+    commands: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    commands: d.commands,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalResolvedValues_PythonWheelTaskResolvedValuesSchema: z.ZodType<ResolvedValues_PythonWheelTaskResolvedValues> =
-  z
-    .object({
-      parameters: z.array(z.string()).optional(),
-      named_parameters: z.record(z.string(), z.string()).optional(),
-    })
-    .transform(d => ({
-      parameters: d.parameters,
-      namedParameters: d.named_parameters,
-    }));
+export const unmarshalResolvedValues_NotebookTaskResolvedValuesSchema: z.ZodType<ResolvedValues_NotebookTaskResolvedValues> = z
+  .object({
+    base_parameters: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    baseParameters: d.base_parameters,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalResolvedValues_RunJobTaskResolvedValuesSchema: z.ZodType<ResolvedValues_RunJobTaskResolvedValues> =
-  z
-    .object({
-      parameters: z.record(z.string(), z.string()).optional(),
-      job_parameters: z.record(z.string(), z.string()).optional(),
-    })
-    .transform(d => ({
-      parameters: d.parameters,
-      jobParameters: d.job_parameters,
-    }));
+export const unmarshalResolvedValues_PythonWheelTaskResolvedValuesSchema: z.ZodType<ResolvedValues_PythonWheelTaskResolvedValues> = z
+  .object({
+    parameters: z.array(z.string()).optional(),
+    named_parameters: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    parameters: d.parameters,
+    namedParameters: d.named_parameters,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalResolvedValues_SimulationTaskResolvedValuesSchema: z.ZodType<ResolvedValues_SimulationTaskResolvedValues> =
-  z
-    .object({
-      parameters: z.record(z.string(), z.string()).optional(),
-    })
-    .transform(d => ({
-      parameters: d.parameters,
-    }));
+export const unmarshalResolvedValues_RunJobTaskResolvedValuesSchema: z.ZodType<ResolvedValues_RunJobTaskResolvedValues> = z
+  .object({
+    parameters: z.record(z.string(), z.string()).optional(),
+    job_parameters: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    parameters: d.parameters,
+    jobParameters: d.job_parameters,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalResolvedValues_SparkJarTaskResolvedValuesSchema: z.ZodType<ResolvedValues_SparkJarTaskResolvedValues> =
-  z
-    .object({
-      parameters: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      parameters: d.parameters,
-    }));
+export const unmarshalResolvedValues_SimulationTaskResolvedValuesSchema: z.ZodType<ResolvedValues_SimulationTaskResolvedValues> = z
+  .object({
+    parameters: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    parameters: d.parameters,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalResolvedValues_SparkPythonTaskResolvedValuesSchema: z.ZodType<ResolvedValues_SparkPythonTaskResolvedValues> =
-  z.object({});
+export const unmarshalResolvedValues_SparkJarTaskResolvedValuesSchema: z.ZodType<ResolvedValues_SparkJarTaskResolvedValues> = z
+  .object({
+    parameters: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    parameters: d.parameters,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalResolvedValues_SparkSubmitTaskResolvedValuesSchema: z.ZodType<ResolvedValues_SparkSubmitTaskResolvedValues> =
-  z.object({});
+export const unmarshalResolvedValues_SparkPythonTaskResolvedValuesSchema: z.ZodType<ResolvedValues_SparkPythonTaskResolvedValues> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalResolvedValues_SqlTaskResolvedValuesSchema: z.ZodType<ResolvedValues_SqlTaskResolvedValues> =
-  z
-    .object({
-      parameters: z.record(z.string(), z.string()).optional(),
-    })
-    .transform(d => ({
-      parameters: d.parameters,
-    }));
+export const unmarshalResolvedValues_SparkSubmitTaskResolvedValuesSchema: z.ZodType<ResolvedValues_SparkSubmitTaskResolvedValues> = z
+  .object({
+  });
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalResolvedValues_SqlTaskResolvedValuesSchema: z.ZodType<ResolvedValues_SqlTaskResolvedValues> = z
+  .object({
+    parameters: z.record(z.string(), z.string()).optional(),
+  })
+  .transform(d => ({
+    parameters: d.parameters,
+  }));
 
 export const unmarshalRunSchema: z.ZodType<Run> = z
   .object({
@@ -6771,12 +6482,8 @@ export const unmarshalRunSchema: z.ZodType<Run> = z
     schedule: z.lazy(() => unmarshalCronScheduleSchema).optional(),
     cluster_spec: z.lazy(() => unmarshalClusterSpecSchema).optional(),
     cluster_instance: z.lazy(() => unmarshalClusterInstanceSchema).optional(),
-    job_parameters: z
-      .array(z.lazy(() => unmarshalRun_JobLevelParametersSchema))
-      .optional(),
-    overriding_parameters: z
-      .lazy(() => unmarshalRunParametersSchema)
-      .optional(),
+    job_parameters: z.array(z.lazy(() => unmarshalRun_JobLevelParametersSchema)).optional(),
+    overriding_parameters: z.lazy(() => unmarshalRunParametersSchema).optional(),
     trigger: z.enum(TriggerType).optional(),
     trigger_info: z.lazy(() => unmarshalRunTriggerInfoSchema).optional(),
     run_name: z.string().optional(),
@@ -6791,9 +6498,7 @@ export const unmarshalRunSchema: z.ZodType<Run> = z
     status: z.lazy(() => unmarshalRunStatusSchema).optional(),
     job_run_id: z.number().optional(),
     has_more: z.boolean().optional(),
-    effective_performance_target: z
-      .enum(PerformanceTarget_PerformanceTarget)
-      .optional(),
+    effective_performance_target: z.enum(PerformanceTarget_PerformanceTarget).optional(),
     effective_usage_policy_id: z.string().optional(),
     start_time: z.number().optional(),
     setup_duration: z.number().optional(),
@@ -6841,18 +6546,17 @@ export const unmarshalRunSchema: z.ZodType<Run> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRun_JobLevelParametersSchema: z.ZodType<Run_JobLevelParameters> =
-  z
-    .object({
-      name: z.string().optional(),
-      default: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      default: d.default,
-      value: d.value,
-    }));
+export const unmarshalRun_JobLevelParametersSchema: z.ZodType<Run_JobLevelParameters> = z
+  .object({
+    name: z.string().optional(),
+    default: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    default: d.default,
+    value: d.value,
+  }));
 
 export const unmarshalRunJobTaskSchema: z.ZodType<RunJobTask> = z
   .object({
@@ -6881,17 +6585,16 @@ export const unmarshalRunJobTaskSchema: z.ZodType<RunJobTask> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRunJobTask_RunJobTaskOutputSchema: z.ZodType<RunJobTask_RunJobTaskOutput> =
-  z
-    .object({
-      run_id: z.number().optional(),
-    })
-    .transform(d => ({
-      runId: d.run_id,
-    }));
+export const unmarshalRunJobTask_RunJobTaskOutputSchema: z.ZodType<RunJobTask_RunJobTaskOutput> = z
+  .object({
+    run_id: z.number().optional(),
+  })
+  .transform(d => ({
+    runId: d.run_id,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRunNow_ResponseSchema: z.ZodType<RunNow_Response> = z
+export const unmarshalRunNowRequest_ResponseSchema: z.ZodType<RunNowRequest_Response> = z
   .object({
     run_id: z.number().optional(),
     number_in_job: z.number().optional(),
@@ -6942,9 +6645,7 @@ export const unmarshalRunStateSchema: z.ZodType<RunState> = z
 export const unmarshalRunStatusSchema: z.ZodType<RunStatus> = z
   .object({
     state: z.enum(RunLifecycleStateV2_State).optional(),
-    termination_details: z
-      .lazy(() => unmarshalTerminationDetailsSchema)
-      .optional(),
+    termination_details: z.lazy(() => unmarshalTerminationDetailsSchema).optional(),
     queue_details: z.lazy(() => unmarshalQueueDetailsSchema).optional(),
   })
   .transform(d => ({
@@ -6963,24 +6664,16 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
     git_source: z.lazy(() => unmarshalGitSourceSchema).optional(),
     resolved_values: z.lazy(() => unmarshalResolvedValuesSchema).optional(),
     status: z.lazy(() => unmarshalRunStatusSchema).optional(),
-    effective_performance_target: z
-      .enum(PerformanceTarget_PerformanceTarget)
-      .optional(),
+    effective_performance_target: z.enum(PerformanceTarget_PerformanceTarget).optional(),
     task_key: z.string().optional(),
     description: z.string().optional(),
     depends_on: z.array(z.lazy(() => unmarshalTaskDependencySchema)).optional(),
     run_if: z.enum(TaskDependencyType).optional(),
     timeout_seconds: z.number().optional(),
-    email_notifications: z
-      .lazy(() => unmarshalJobEmailNotificationsSchema)
-      .optional(),
+    email_notifications: z.lazy(() => unmarshalJobEmailNotificationsSchema).optional(),
     health: z.lazy(() => unmarshalJobsHealthRulesSchema).optional(),
-    notification_settings: z
-      .lazy(() => unmarshalNotificationSettingsSchema)
-      .optional(),
-    webhook_notifications: z
-      .lazy(() => unmarshalWebhookNotificationsSchema)
-      .optional(),
+    notification_settings: z.lazy(() => unmarshalNotificationSettingsSchema).optional(),
+    webhook_notifications: z.lazy(() => unmarshalWebhookNotificationsSchema).optional(),
     environment_key: z.string().optional(),
     disabled: z.boolean().optional(),
     compute: z.lazy(() => unmarshalComputeSchema).optional(),
@@ -6995,20 +6688,14 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
     run_job_task: z.lazy(() => unmarshalRunJobTaskSchema).optional(),
     condition_task: z.lazy(() => unmarshalConditionTaskSchema).optional(),
     for_each_task: z.lazy(() => unmarshalForEachTaskSchema).optional(),
-    clean_rooms_notebook_task: z
-      .lazy(() => unmarshalCleanRoomsNotebookTaskSchema)
-      .optional(),
-    gen_ai_compute_task: z
-      .lazy(() => unmarshalGenAiComputeTaskSchema)
-      .optional(),
+    clean_rooms_notebook_task: z.lazy(() => unmarshalCleanRoomsNotebookTaskSchema).optional(),
+    gen_ai_compute_task: z.lazy(() => unmarshalGenAiComputeTaskSchema).optional(),
     alert_task: z.lazy(() => unmarshalAlertTaskSchema).optional(),
     power_bi_task: z.lazy(() => unmarshalPowerBiTaskSchema).optional(),
     dashboard_task: z.lazy(() => unmarshalDashboardTaskSchema).optional(),
     dbt_cloud_task: z.lazy(() => unmarshalDbtCloudTaskSchema).optional(),
     dbt_platform_task: z.lazy(() => unmarshalDbtPlatformTaskSchema).optional(),
-    python_operator_task: z
-      .lazy(() => unmarshalPythonOperatorTaskSchema)
-      .optional(),
+    python_operator_task: z.lazy(() => unmarshalPythonOperatorTaskSchema).optional(),
     existing_cluster_id: z.string().optional(),
     new_cluster: z.lazy(() => unmarshalClusterSpec_NewClusterSchema).optional(),
     job_cluster_key: z.string().optional(),
@@ -7044,115 +6731,11 @@ export const unmarshalRunTaskSchema: z.ZodType<RunTask> = z
     health: d.health,
     notificationSettings: d.notification_settings,
     webhookNotifications: d.webhook_notifications,
-    environmentRef:
-      d.environment_key !== undefined
-        ? {$case: 'environmentKey' as const, environmentKey: d.environment_key}
-        : undefined,
+    environmentRef: d.environment_key !== undefined ? { $case: 'environmentKey' as const, environmentKey: d.environment_key } : undefined,
     disabled: d.disabled,
     compute: d.compute,
-    task:
-      d.notebook_task !== undefined
-        ? {$case: 'notebookTask' as const, notebookTask: d.notebook_task}
-        : d.spark_jar_task !== undefined
-          ? {$case: 'sparkJarTask' as const, sparkJarTask: d.spark_jar_task}
-          : d.spark_python_task !== undefined
-            ? {
-                $case: 'sparkPythonTask' as const,
-                sparkPythonTask: d.spark_python_task,
-              }
-            : d.spark_submit_task !== undefined
-              ? {
-                  $case: 'sparkSubmitTask' as const,
-                  sparkSubmitTask: d.spark_submit_task,
-                }
-              : d.pipeline_task !== undefined
-                ? {
-                    $case: 'pipelineTask' as const,
-                    pipelineTask: d.pipeline_task,
-                  }
-                : d.python_wheel_task !== undefined
-                  ? {
-                      $case: 'pythonWheelTask' as const,
-                      pythonWheelTask: d.python_wheel_task,
-                    }
-                  : d.dbt_task !== undefined
-                    ? {$case: 'dbtTask' as const, dbtTask: d.dbt_task}
-                    : d.sql_task !== undefined
-                      ? {$case: 'sqlTask' as const, sqlTask: d.sql_task}
-                      : d.run_job_task !== undefined
-                        ? {
-                            $case: 'runJobTask' as const,
-                            runJobTask: d.run_job_task,
-                          }
-                        : d.condition_task !== undefined
-                          ? {
-                              $case: 'conditionTask' as const,
-                              conditionTask: d.condition_task,
-                            }
-                          : d.for_each_task !== undefined
-                            ? {
-                                $case: 'forEachTask' as const,
-                                forEachTask: d.for_each_task,
-                              }
-                            : d.clean_rooms_notebook_task !== undefined
-                              ? {
-                                  $case: 'cleanRoomsNotebookTask' as const,
-                                  cleanRoomsNotebookTask:
-                                    d.clean_rooms_notebook_task,
-                                }
-                              : d.gen_ai_compute_task !== undefined
-                                ? {
-                                    $case: 'genAiComputeTask' as const,
-                                    genAiComputeTask: d.gen_ai_compute_task,
-                                  }
-                                : d.alert_task !== undefined
-                                  ? {
-                                      $case: 'alertTask' as const,
-                                      alertTask: d.alert_task,
-                                    }
-                                  : d.power_bi_task !== undefined
-                                    ? {
-                                        $case: 'powerBiTask' as const,
-                                        powerBiTask: d.power_bi_task,
-                                      }
-                                    : d.dashboard_task !== undefined
-                                      ? {
-                                          $case: 'dashboardTask' as const,
-                                          dashboardTask: d.dashboard_task,
-                                        }
-                                      : d.dbt_cloud_task !== undefined
-                                        ? {
-                                            $case: 'dbtCloudTask' as const,
-                                            dbtCloudTask: d.dbt_cloud_task,
-                                          }
-                                        : d.dbt_platform_task !== undefined
-                                          ? {
-                                              $case: 'dbtPlatformTask' as const,
-                                              dbtPlatformTask:
-                                                d.dbt_platform_task,
-                                            }
-                                          : d.python_operator_task !== undefined
-                                            ? {
-                                                $case:
-                                                  'pythonOperatorTask' as const,
-                                                pythonOperatorTask:
-                                                  d.python_operator_task,
-                                              }
-                                            : undefined,
-    spec:
-      d.existing_cluster_id !== undefined
-        ? {
-            $case: 'existingClusterId' as const,
-            existingClusterId: d.existing_cluster_id,
-          }
-        : d.new_cluster !== undefined
-          ? {$case: 'newCluster' as const, newCluster: d.new_cluster}
-          : d.job_cluster_key !== undefined
-            ? {
-                $case: 'jobClusterKey' as const,
-                jobClusterKey: d.job_cluster_key,
-              }
-            : undefined,
+    task: d.notebook_task !== undefined ? { $case: 'notebookTask' as const, notebookTask: d.notebook_task } : d.spark_jar_task !== undefined ? { $case: 'sparkJarTask' as const, sparkJarTask: d.spark_jar_task } : d.spark_python_task !== undefined ? { $case: 'sparkPythonTask' as const, sparkPythonTask: d.spark_python_task } : d.spark_submit_task !== undefined ? { $case: 'sparkSubmitTask' as const, sparkSubmitTask: d.spark_submit_task } : d.pipeline_task !== undefined ? { $case: 'pipelineTask' as const, pipelineTask: d.pipeline_task } : d.python_wheel_task !== undefined ? { $case: 'pythonWheelTask' as const, pythonWheelTask: d.python_wheel_task } : d.dbt_task !== undefined ? { $case: 'dbtTask' as const, dbtTask: d.dbt_task } : d.sql_task !== undefined ? { $case: 'sqlTask' as const, sqlTask: d.sql_task } : d.run_job_task !== undefined ? { $case: 'runJobTask' as const, runJobTask: d.run_job_task } : d.condition_task !== undefined ? { $case: 'conditionTask' as const, conditionTask: d.condition_task } : d.for_each_task !== undefined ? { $case: 'forEachTask' as const, forEachTask: d.for_each_task } : d.clean_rooms_notebook_task !== undefined ? { $case: 'cleanRoomsNotebookTask' as const, cleanRoomsNotebookTask: d.clean_rooms_notebook_task } : d.gen_ai_compute_task !== undefined ? { $case: 'genAiComputeTask' as const, genAiComputeTask: d.gen_ai_compute_task } : d.alert_task !== undefined ? { $case: 'alertTask' as const, alertTask: d.alert_task } : d.power_bi_task !== undefined ? { $case: 'powerBiTask' as const, powerBiTask: d.power_bi_task } : d.dashboard_task !== undefined ? { $case: 'dashboardTask' as const, dashboardTask: d.dashboard_task } : d.dbt_cloud_task !== undefined ? { $case: 'dbtCloudTask' as const, dbtCloudTask: d.dbt_cloud_task } : d.dbt_platform_task !== undefined ? { $case: 'dbtPlatformTask' as const, dbtPlatformTask: d.dbt_platform_task } : d.python_operator_task !== undefined ? { $case: 'pythonOperatorTask' as const, pythonOperatorTask: d.python_operator_task } : undefined,
+    spec: d.existing_cluster_id !== undefined ? { $case: 'existingClusterId' as const, existingClusterId: d.existing_cluster_id } : d.new_cluster !== undefined ? { $case: 'newCluster' as const, newCluster: d.new_cluster } : d.job_cluster_key !== undefined ? { $case: 'jobClusterKey' as const, jobClusterKey: d.job_cluster_key } : undefined,
     libraries: d.libraries,
     maxRetries: d.max_retries,
     minRetryIntervalMillis: d.min_retry_interval_millis,
@@ -7248,148 +6831,109 @@ export const unmarshalSqlTaskSchema: z.ZodType<SqlTask> = z
   })
   .transform(d => ({
     parameters: d.parameters,
-    sqlTaskType:
-      d.query !== undefined
-        ? {$case: 'query' as const, query: d.query}
-        : d.dashboard !== undefined
-          ? {$case: 'dashboard' as const, dashboard: d.dashboard}
-          : d.alert !== undefined
-            ? {$case: 'alert' as const, alert: d.alert}
-            : d.file !== undefined
-              ? {$case: 'file' as const, file: d.file}
-              : undefined,
+    sqlTaskType: d.query !== undefined ? { $case: 'query' as const, query: d.query } : d.dashboard !== undefined ? { $case: 'dashboard' as const, dashboard: d.dashboard } : d.alert !== undefined ? { $case: 'alert' as const, alert: d.alert } : d.file !== undefined ? { $case: 'file' as const, file: d.file } : undefined,
     warehouseId: d.warehouse_id,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSqlTask_SqlAlertOutputSchema: z.ZodType<SqlTask_SqlAlertOutput> =
-  z
-    .object({
-      query_text: z.string().optional(),
-      sql_statements: z
-        .array(z.lazy(() => unmarshalSqlTask_SqlStatementOutputSchema))
-        .optional(),
-      output_link: z.string().optional(),
-      warehouse_id: z.string().optional(),
-      alert_state: z.enum(SqlAlertState_SqlAlertState).optional(),
-    })
-    .transform(d => ({
-      queryText: d.query_text,
-      sqlStatements: d.sql_statements,
-      outputLink: d.output_link,
-      warehouseId: d.warehouse_id,
-      alertState: d.alert_state,
-    }));
+export const unmarshalSqlTask_SqlAlertOutputSchema: z.ZodType<SqlTask_SqlAlertOutput> = z
+  .object({
+    query_text: z.string().optional(),
+    sql_statements: z.array(z.lazy(() => unmarshalSqlTask_SqlStatementOutputSchema)).optional(),
+    output_link: z.string().optional(),
+    warehouse_id: z.string().optional(),
+    alert_state: z.enum(SqlAlertState_SqlAlertState).optional(),
+  })
+  .transform(d => ({
+    queryText: d.query_text,
+    sqlStatements: d.sql_statements,
+    outputLink: d.output_link,
+    warehouseId: d.warehouse_id,
+    alertState: d.alert_state,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSqlTask_SqlDashboardOutputSchema: z.ZodType<SqlTask_SqlDashboardOutput> =
-  z
-    .object({
-      widgets: z
-        .array(z.lazy(() => unmarshalSqlTask_SqlDashboardWidgetOutputSchema))
-        .optional(),
-      warehouse_id: z.string().optional(),
-    })
-    .transform(d => ({
-      widgets: d.widgets,
-      warehouseId: d.warehouse_id,
-    }));
+export const unmarshalSqlTask_SqlDashboardOutputSchema: z.ZodType<SqlTask_SqlDashboardOutput> = z
+  .object({
+    widgets: z.array(z.lazy(() => unmarshalSqlTask_SqlDashboardWidgetOutputSchema)).optional(),
+    warehouse_id: z.string().optional(),
+  })
+  .transform(d => ({
+    widgets: d.widgets,
+    warehouseId: d.warehouse_id,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSqlTask_SqlDashboardWidgetOutputSchema: z.ZodType<SqlTask_SqlDashboardWidgetOutput> =
-  z
-    .object({
-      widget_id: z.string().optional(),
-      widget_title: z.string().optional(),
-      output_link: z.string().optional(),
-      status: z.enum(SqlTask_SqlTaskQueryStatus).optional(),
-      error: z.lazy(() => unmarshalSqlTask_SqlOutputErrorSchema).optional(),
-      start_time: z.number().optional(),
-      end_time: z.number().optional(),
-    })
-    .transform(d => ({
-      widgetId: d.widget_id,
-      widgetTitle: d.widget_title,
-      outputLink: d.output_link,
-      status: d.status,
-      error: d.error,
-      startTime: d.start_time,
-      endTime: d.end_time,
-    }));
+export const unmarshalSqlTask_SqlDashboardWidgetOutputSchema: z.ZodType<SqlTask_SqlDashboardWidgetOutput> = z
+  .object({
+    widget_id: z.string().optional(),
+    widget_title: z.string().optional(),
+    output_link: z.string().optional(),
+    status: z.enum(SqlTask_SqlTaskQueryStatus).optional(),
+    error: z.lazy(() => unmarshalSqlTask_SqlOutputErrorSchema).optional(),
+    start_time: z.number().optional(),
+    end_time: z.number().optional(),
+  })
+  .transform(d => ({
+    widgetId: d.widget_id,
+    widgetTitle: d.widget_title,
+    outputLink: d.output_link,
+    status: d.status,
+    error: d.error,
+    startTime: d.start_time,
+    endTime: d.end_time,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const unmarshalSqlTask_SqlOutputSchema: z.ZodType<SqlTask_SqlOutput> = z
   .object({
-    query_output: z
-      .lazy(() => unmarshalSqlTask_SqlQueryOutputSchema)
-      .optional(),
-    dashboard_output: z
-      .lazy(() => unmarshalSqlTask_SqlDashboardOutputSchema)
-      .optional(),
-    alert_output: z
-      .lazy(() => unmarshalSqlTask_SqlAlertOutputSchema)
-      .optional(),
+    query_output: z.lazy(() => unmarshalSqlTask_SqlQueryOutputSchema).optional(),
+    dashboard_output: z.lazy(() => unmarshalSqlTask_SqlDashboardOutputSchema).optional(),
+    alert_output: z.lazy(() => unmarshalSqlTask_SqlAlertOutputSchema).optional(),
   })
   .transform(d => ({
-    sqlOutputType:
-      d.query_output !== undefined
-        ? {$case: 'queryOutput' as const, queryOutput: d.query_output}
-        : d.dashboard_output !== undefined
-          ? {
-              $case: 'dashboardOutput' as const,
-              dashboardOutput: d.dashboard_output,
-            }
-          : d.alert_output !== undefined
-            ? {$case: 'alertOutput' as const, alertOutput: d.alert_output}
-            : undefined,
+    sqlOutputType: d.query_output !== undefined ? { $case: 'queryOutput' as const, queryOutput: d.query_output } : d.dashboard_output !== undefined ? { $case: 'dashboardOutput' as const, dashboardOutput: d.dashboard_output } : d.alert_output !== undefined ? { $case: 'alertOutput' as const, alertOutput: d.alert_output } : undefined,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSqlTask_SqlOutputErrorSchema: z.ZodType<SqlTask_SqlOutputError> =
-  z
-    .object({
-      message: z.string().optional(),
-    })
-    .transform(d => ({
-      message: d.message,
-    }));
+export const unmarshalSqlTask_SqlOutputErrorSchema: z.ZodType<SqlTask_SqlOutputError> = z
+  .object({
+    message: z.string().optional(),
+  })
+  .transform(d => ({
+    message: d.message,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSqlTask_SqlQueryOutputSchema: z.ZodType<SqlTask_SqlQueryOutput> =
-  z
-    .object({
-      query_text: z.string().optional(),
-      endpoint_id: z.string().optional(),
-      sql_statements: z
-        .array(z.lazy(() => unmarshalSqlTask_SqlStatementOutputSchema))
-        .optional(),
-      output_link: z.string().optional(),
-      warehouse_id: z.string().optional(),
-    })
-    .transform(d => ({
-      queryText: d.query_text,
-      endpointId: d.endpoint_id,
-      sqlStatements: d.sql_statements,
-      outputLink: d.output_link,
-      warehouseId: d.warehouse_id,
-    }));
+export const unmarshalSqlTask_SqlQueryOutputSchema: z.ZodType<SqlTask_SqlQueryOutput> = z
+  .object({
+    query_text: z.string().optional(),
+    endpoint_id: z.string().optional(),
+    sql_statements: z.array(z.lazy(() => unmarshalSqlTask_SqlStatementOutputSchema)).optional(),
+    output_link: z.string().optional(),
+    warehouse_id: z.string().optional(),
+  })
+  .transform(d => ({
+    queryText: d.query_text,
+    endpointId: d.endpoint_id,
+    sqlStatements: d.sql_statements,
+    outputLink: d.output_link,
+    warehouseId: d.warehouse_id,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSqlTask_SqlStatementOutputSchema: z.ZodType<SqlTask_SqlStatementOutput> =
-  z
-    .object({
-      lookup_key: z.string().optional(),
-    })
-    .transform(d => ({
-      lookupKey: d.lookup_key,
-    }));
+export const unmarshalSqlTask_SqlStatementOutputSchema: z.ZodType<SqlTask_SqlStatementOutput> = z
+  .object({
+    lookup_key: z.string().optional(),
+  })
+  .transform(d => ({
+    lookupKey: d.lookup_key,
+  }));
 
 export const unmarshalSqlTaskAlertSchema: z.ZodType<SqlTaskAlert> = z
   .object({
     alert_id: z.string().optional(),
-    subscriptions: z
-      .array(z.lazy(() => unmarshalSqlTaskSubscriptionSchema))
-      .optional(),
+    subscriptions: z.array(z.lazy(() => unmarshalSqlTaskSubscriptionSchema)).optional(),
     pause_subscriptions: z.boolean().optional(),
   })
   .transform(d => ({
@@ -7401,9 +6945,7 @@ export const unmarshalSqlTaskAlertSchema: z.ZodType<SqlTaskAlert> = z
 export const unmarshalSqlTaskDashboardSchema: z.ZodType<SqlTaskDashboard> = z
   .object({
     dashboard_id: z.string().optional(),
-    subscriptions: z
-      .array(z.lazy(() => unmarshalSqlTaskSubscriptionSchema))
-      .optional(),
+    subscriptions: z.array(z.lazy(() => unmarshalSqlTaskSubscriptionSchema)).optional(),
     custom_subject: z.string().optional(),
     pause_subscriptions: z.boolean().optional(),
   })
@@ -7429,42 +6971,30 @@ export const unmarshalSqlTaskQuerySchema: z.ZodType<SqlTaskQuery> = z
     query_id: z.string().optional(),
   })
   .transform(d => ({
-    queryType:
-      d.query_id !== undefined
-        ? {$case: 'queryId' as const, queryId: d.query_id}
-        : undefined,
+    queryType: d.query_id !== undefined ? { $case: 'queryId' as const, queryId: d.query_id } : undefined,
   }));
 
-export const unmarshalSqlTaskSubscriptionSchema: z.ZodType<SqlTaskSubscription> =
-  z
-    .object({
-      user_name: z.string().optional(),
-      destination_id: z.string().optional(),
-    })
-    .transform(d => ({
-      subscriptionType:
-        d.user_name !== undefined
-          ? {$case: 'userName' as const, userName: d.user_name}
-          : d.destination_id !== undefined
-            ? {$case: 'destinationId' as const, destinationId: d.destination_id}
-            : undefined,
-    }));
+export const unmarshalSqlTaskSubscriptionSchema: z.ZodType<SqlTaskSubscription> = z
+  .object({
+    user_name: z.string().optional(),
+    destination_id: z.string().optional(),
+  })
+  .transform(d => ({
+    subscriptionType: d.user_name !== undefined ? { $case: 'userName' as const, userName: d.user_name } : d.destination_id !== undefined ? { $case: 'destinationId' as const, destinationId: d.destination_id } : undefined,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSubmitRun_ResponseSchema: z.ZodType<SubmitRun_Response> =
-  z
-    .object({
-      run_id: z.number().optional(),
-    })
-    .transform(d => ({
-      runId: d.run_id,
-    }));
+export const unmarshalSubmitRunRequest_ResponseSchema: z.ZodType<SubmitRunRequest_Response> = z
+  .object({
+    run_id: z.number().optional(),
+  })
+  .transform(d => ({
+    runId: d.run_id,
+  }));
 
 export const unmarshalSubscriptionSchema: z.ZodType<Subscription> = z
   .object({
-    subscribers: z
-      .array(z.lazy(() => unmarshalSubscription_SubscriberSchema))
-      .optional(),
+    subscribers: z.array(z.lazy(() => unmarshalSubscription_SubscriberSchema)).optional(),
     paused: z.boolean().optional(),
     custom_subject: z.string().optional(),
   })
@@ -7475,20 +7005,14 @@ export const unmarshalSubscriptionSchema: z.ZodType<Subscription> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalSubscription_SubscriberSchema: z.ZodType<Subscription_Subscriber> =
-  z
-    .object({
-      user_name: z.string().optional(),
-      destination_id: z.string().optional(),
-    })
-    .transform(d => ({
-      subscriptionType:
-        d.user_name !== undefined
-          ? {$case: 'userName' as const, userName: d.user_name}
-          : d.destination_id !== undefined
-            ? {$case: 'destinationId' as const, destinationId: d.destination_id}
-            : undefined,
-    }));
+export const unmarshalSubscription_SubscriberSchema: z.ZodType<Subscription_Subscriber> = z
+  .object({
+    user_name: z.string().optional(),
+    destination_id: z.string().optional(),
+  })
+  .transform(d => ({
+    subscriptionType: d.user_name !== undefined ? { $case: 'userName' as const, userName: d.user_name } : d.destination_id !== undefined ? { $case: 'destinationId' as const, destinationId: d.destination_id } : undefined,
+  }));
 
 export const unmarshalTableStateSchema: z.ZodType<TableState> = z
   .object({
@@ -7500,26 +7024,23 @@ export const unmarshalTableStateSchema: z.ZodType<TableState> = z
     hasSeenUpdates: d.has_seen_updates,
   }));
 
-export const unmarshalTableTriggerConfigurationSchema: z.ZodType<TableTriggerConfiguration> =
-  z
-    .object({
-      table_names: z.array(z.string()).optional(),
-      min_time_between_triggers_seconds: z.number().optional(),
-      wait_after_last_change_seconds: z.number().optional(),
-      condition: z.enum(TableTriggerConfiguration_Condition).optional(),
-    })
-    .transform(d => ({
-      tableNames: d.table_names,
-      minTimeBetweenTriggersSeconds: d.min_time_between_triggers_seconds,
-      waitAfterLastChangeSeconds: d.wait_after_last_change_seconds,
-      condition: d.condition,
-    }));
+export const unmarshalTableTriggerConfigurationSchema: z.ZodType<TableTriggerConfiguration> = z
+  .object({
+    table_names: z.array(z.string()).optional(),
+    min_time_between_triggers_seconds: z.number().optional(),
+    wait_after_last_change_seconds: z.number().optional(),
+    condition: z.enum(TableTriggerConfiguration_Condition).optional(),
+  })
+  .transform(d => ({
+    tableNames: d.table_names,
+    minTimeBetweenTriggersSeconds: d.min_time_between_triggers_seconds,
+    waitAfterLastChangeSeconds: d.wait_after_last_change_seconds,
+    condition: d.condition,
+  }));
 
 export const unmarshalTableTriggerStateSchema: z.ZodType<TableTriggerState> = z
   .object({
-    last_seen_table_states: z
-      .array(z.lazy(() => unmarshalTableStateSchema))
-      .optional(),
+    last_seen_table_states: z.array(z.lazy(() => unmarshalTableStateSchema)).optional(),
     using_scalable_monitoring: z.boolean().optional(),
   })
   .transform(d => ({
@@ -7544,15 +7065,9 @@ export const unmarshalTaskSettingsSchema: z.ZodType<TaskSettings> = z
     run_if: z.enum(TaskDependencyType).optional(),
     timeout_seconds: z.number().optional(),
     health: z.lazy(() => unmarshalJobsHealthRulesSchema).optional(),
-    email_notifications: z
-      .lazy(() => unmarshalJobEmailNotificationsSchema)
-      .optional(),
-    notification_settings: z
-      .lazy(() => unmarshalNotificationSettingsSchema)
-      .optional(),
-    webhook_notifications: z
-      .lazy(() => unmarshalWebhookNotificationsSchema)
-      .optional(),
+    email_notifications: z.lazy(() => unmarshalJobEmailNotificationsSchema).optional(),
+    notification_settings: z.lazy(() => unmarshalNotificationSettingsSchema).optional(),
+    webhook_notifications: z.lazy(() => unmarshalWebhookNotificationsSchema).optional(),
     description: z.string().optional(),
     environment_key: z.string().optional(),
     disabled: z.boolean().optional(),
@@ -7568,20 +7083,14 @@ export const unmarshalTaskSettingsSchema: z.ZodType<TaskSettings> = z
     run_job_task: z.lazy(() => unmarshalRunJobTaskSchema).optional(),
     condition_task: z.lazy(() => unmarshalConditionTaskSchema).optional(),
     for_each_task: z.lazy(() => unmarshalForEachTaskSchema).optional(),
-    clean_rooms_notebook_task: z
-      .lazy(() => unmarshalCleanRoomsNotebookTaskSchema)
-      .optional(),
-    gen_ai_compute_task: z
-      .lazy(() => unmarshalGenAiComputeTaskSchema)
-      .optional(),
+    clean_rooms_notebook_task: z.lazy(() => unmarshalCleanRoomsNotebookTaskSchema).optional(),
+    gen_ai_compute_task: z.lazy(() => unmarshalGenAiComputeTaskSchema).optional(),
     alert_task: z.lazy(() => unmarshalAlertTaskSchema).optional(),
     power_bi_task: z.lazy(() => unmarshalPowerBiTaskSchema).optional(),
     dashboard_task: z.lazy(() => unmarshalDashboardTaskSchema).optional(),
     dbt_cloud_task: z.lazy(() => unmarshalDbtCloudTaskSchema).optional(),
     dbt_platform_task: z.lazy(() => unmarshalDbtPlatformTaskSchema).optional(),
-    python_operator_task: z
-      .lazy(() => unmarshalPythonOperatorTaskSchema)
-      .optional(),
+    python_operator_task: z.lazy(() => unmarshalPythonOperatorTaskSchema).optional(),
     existing_cluster_id: z.string().optional(),
     new_cluster: z.lazy(() => unmarshalClusterSpec_NewClusterSchema).optional(),
     job_cluster_key: z.string().optional(),
@@ -7601,115 +7110,11 @@ export const unmarshalTaskSettingsSchema: z.ZodType<TaskSettings> = z
     notificationSettings: d.notification_settings,
     webhookNotifications: d.webhook_notifications,
     description: d.description,
-    environmentRef:
-      d.environment_key !== undefined
-        ? {$case: 'environmentKey' as const, environmentKey: d.environment_key}
-        : undefined,
+    environmentRef: d.environment_key !== undefined ? { $case: 'environmentKey' as const, environmentKey: d.environment_key } : undefined,
     disabled: d.disabled,
     compute: d.compute,
-    task:
-      d.notebook_task !== undefined
-        ? {$case: 'notebookTask' as const, notebookTask: d.notebook_task}
-        : d.spark_jar_task !== undefined
-          ? {$case: 'sparkJarTask' as const, sparkJarTask: d.spark_jar_task}
-          : d.spark_python_task !== undefined
-            ? {
-                $case: 'sparkPythonTask' as const,
-                sparkPythonTask: d.spark_python_task,
-              }
-            : d.spark_submit_task !== undefined
-              ? {
-                  $case: 'sparkSubmitTask' as const,
-                  sparkSubmitTask: d.spark_submit_task,
-                }
-              : d.pipeline_task !== undefined
-                ? {
-                    $case: 'pipelineTask' as const,
-                    pipelineTask: d.pipeline_task,
-                  }
-                : d.python_wheel_task !== undefined
-                  ? {
-                      $case: 'pythonWheelTask' as const,
-                      pythonWheelTask: d.python_wheel_task,
-                    }
-                  : d.dbt_task !== undefined
-                    ? {$case: 'dbtTask' as const, dbtTask: d.dbt_task}
-                    : d.sql_task !== undefined
-                      ? {$case: 'sqlTask' as const, sqlTask: d.sql_task}
-                      : d.run_job_task !== undefined
-                        ? {
-                            $case: 'runJobTask' as const,
-                            runJobTask: d.run_job_task,
-                          }
-                        : d.condition_task !== undefined
-                          ? {
-                              $case: 'conditionTask' as const,
-                              conditionTask: d.condition_task,
-                            }
-                          : d.for_each_task !== undefined
-                            ? {
-                                $case: 'forEachTask' as const,
-                                forEachTask: d.for_each_task,
-                              }
-                            : d.clean_rooms_notebook_task !== undefined
-                              ? {
-                                  $case: 'cleanRoomsNotebookTask' as const,
-                                  cleanRoomsNotebookTask:
-                                    d.clean_rooms_notebook_task,
-                                }
-                              : d.gen_ai_compute_task !== undefined
-                                ? {
-                                    $case: 'genAiComputeTask' as const,
-                                    genAiComputeTask: d.gen_ai_compute_task,
-                                  }
-                                : d.alert_task !== undefined
-                                  ? {
-                                      $case: 'alertTask' as const,
-                                      alertTask: d.alert_task,
-                                    }
-                                  : d.power_bi_task !== undefined
-                                    ? {
-                                        $case: 'powerBiTask' as const,
-                                        powerBiTask: d.power_bi_task,
-                                      }
-                                    : d.dashboard_task !== undefined
-                                      ? {
-                                          $case: 'dashboardTask' as const,
-                                          dashboardTask: d.dashboard_task,
-                                        }
-                                      : d.dbt_cloud_task !== undefined
-                                        ? {
-                                            $case: 'dbtCloudTask' as const,
-                                            dbtCloudTask: d.dbt_cloud_task,
-                                          }
-                                        : d.dbt_platform_task !== undefined
-                                          ? {
-                                              $case: 'dbtPlatformTask' as const,
-                                              dbtPlatformTask:
-                                                d.dbt_platform_task,
-                                            }
-                                          : d.python_operator_task !== undefined
-                                            ? {
-                                                $case:
-                                                  'pythonOperatorTask' as const,
-                                                pythonOperatorTask:
-                                                  d.python_operator_task,
-                                              }
-                                            : undefined,
-    spec:
-      d.existing_cluster_id !== undefined
-        ? {
-            $case: 'existingClusterId' as const,
-            existingClusterId: d.existing_cluster_id,
-          }
-        : d.new_cluster !== undefined
-          ? {$case: 'newCluster' as const, newCluster: d.new_cluster}
-          : d.job_cluster_key !== undefined
-            ? {
-                $case: 'jobClusterKey' as const,
-                jobClusterKey: d.job_cluster_key,
-              }
-            : undefined,
+    task: d.notebook_task !== undefined ? { $case: 'notebookTask' as const, notebookTask: d.notebook_task } : d.spark_jar_task !== undefined ? { $case: 'sparkJarTask' as const, sparkJarTask: d.spark_jar_task } : d.spark_python_task !== undefined ? { $case: 'sparkPythonTask' as const, sparkPythonTask: d.spark_python_task } : d.spark_submit_task !== undefined ? { $case: 'sparkSubmitTask' as const, sparkSubmitTask: d.spark_submit_task } : d.pipeline_task !== undefined ? { $case: 'pipelineTask' as const, pipelineTask: d.pipeline_task } : d.python_wheel_task !== undefined ? { $case: 'pythonWheelTask' as const, pythonWheelTask: d.python_wheel_task } : d.dbt_task !== undefined ? { $case: 'dbtTask' as const, dbtTask: d.dbt_task } : d.sql_task !== undefined ? { $case: 'sqlTask' as const, sqlTask: d.sql_task } : d.run_job_task !== undefined ? { $case: 'runJobTask' as const, runJobTask: d.run_job_task } : d.condition_task !== undefined ? { $case: 'conditionTask' as const, conditionTask: d.condition_task } : d.for_each_task !== undefined ? { $case: 'forEachTask' as const, forEachTask: d.for_each_task } : d.clean_rooms_notebook_task !== undefined ? { $case: 'cleanRoomsNotebookTask' as const, cleanRoomsNotebookTask: d.clean_rooms_notebook_task } : d.gen_ai_compute_task !== undefined ? { $case: 'genAiComputeTask' as const, genAiComputeTask: d.gen_ai_compute_task } : d.alert_task !== undefined ? { $case: 'alertTask' as const, alertTask: d.alert_task } : d.power_bi_task !== undefined ? { $case: 'powerBiTask' as const, powerBiTask: d.power_bi_task } : d.dashboard_task !== undefined ? { $case: 'dashboardTask' as const, dashboardTask: d.dashboard_task } : d.dbt_cloud_task !== undefined ? { $case: 'dbtCloudTask' as const, dbtCloudTask: d.dbt_cloud_task } : d.dbt_platform_task !== undefined ? { $case: 'dbtPlatformTask' as const, dbtPlatformTask: d.dbt_platform_task } : d.python_operator_task !== undefined ? { $case: 'pythonOperatorTask' as const, pythonOperatorTask: d.python_operator_task } : undefined,
+    spec: d.existing_cluster_id !== undefined ? { $case: 'existingClusterId' as const, existingClusterId: d.existing_cluster_id } : d.new_cluster !== undefined ? { $case: 'newCluster' as const, newCluster: d.new_cluster } : d.job_cluster_key !== undefined ? { $case: 'jobClusterKey' as const, jobClusterKey: d.job_cluster_key } : undefined,
     libraries: d.libraries,
     maxRetries: d.max_retries,
     minRetryIntervalMillis: d.min_retry_interval_millis,
@@ -7717,66 +7122,44 @@ export const unmarshalTaskSettingsSchema: z.ZodType<TaskSettings> = z
     disableAutoOptimization: d.disable_auto_optimization,
   }));
 
-export const unmarshalTerminationDetailsSchema: z.ZodType<TerminationDetails> =
-  z
-    .object({
-      code: z.enum(TerminationCode_Code).optional(),
-      type: z.enum(TerminationType_Type).optional(),
-      message: z.string().optional(),
-    })
-    .transform(d => ({
-      code: d.code,
-      type: d.type,
-      message: d.message,
-    }));
+export const unmarshalTerminationDetailsSchema: z.ZodType<TerminationDetails> = z
+  .object({
+    code: z.enum(TerminationCode_Code).optional(),
+    type: z.enum(TerminationType_Type).optional(),
+    message: z.string().optional(),
+  })
+  .transform(d => ({
+    code: d.code,
+    type: d.type,
+    message: d.message,
+  }));
 
 export const unmarshalTriggerSettingsSchema: z.ZodType<TriggerSettings> = z
   .object({
     pause_status: z.enum(SchedulePauseStatus).optional(),
-    file_arrival: z
-      .lazy(() => unmarshalFileArrivalTriggerConfigurationSchema)
-      .optional(),
-    periodic: z
-      .lazy(() => unmarshalPeriodicTriggerConfigurationSchema)
-      .optional(),
-    table_update: z
-      .lazy(() => unmarshalTableTriggerConfigurationSchema)
-      .optional(),
+    file_arrival: z.lazy(() => unmarshalFileArrivalTriggerConfigurationSchema).optional(),
+    periodic: z.lazy(() => unmarshalPeriodicTriggerConfigurationSchema).optional(),
+    table_update: z.lazy(() => unmarshalTableTriggerConfigurationSchema).optional(),
     model: z.lazy(() => unmarshalModelTriggerConfigurationSchema).optional(),
   })
   .transform(d => ({
     pauseStatus: d.pause_status,
-    configuration:
-      d.file_arrival !== undefined
-        ? {$case: 'fileArrival' as const, fileArrival: d.file_arrival}
-        : d.periodic !== undefined
-          ? {$case: 'periodic' as const, periodic: d.periodic}
-          : d.table_update !== undefined
-            ? {$case: 'tableUpdate' as const, tableUpdate: d.table_update}
-            : d.model !== undefined
-              ? {$case: 'model' as const, model: d.model}
-              : undefined,
+    configuration: d.file_arrival !== undefined ? { $case: 'fileArrival' as const, fileArrival: d.file_arrival } : d.periodic !== undefined ? { $case: 'periodic' as const, periodic: d.periodic } : d.table_update !== undefined ? { $case: 'tableUpdate' as const, tableUpdate: d.table_update } : d.model !== undefined ? { $case: 'model' as const, model: d.model } : undefined,
   }));
 
-export const unmarshalTriggerStateProtoSchema: z.ZodType<TriggerStateProto> = z
+export const unmarshalTriggerStateSchema: z.ZodType<TriggerState> = z
   .object({
     table: z.lazy(() => unmarshalTableTriggerStateSchema).optional(),
-    file_arrival: z
-      .lazy(() => unmarshalFileArrivalTriggerStateSchema)
-      .optional(),
+    file_arrival: z.lazy(() => unmarshalFileArrivalTriggerStateSchema).optional(),
   })
   .transform(d => ({
-    triggerType:
-      d.table !== undefined
-        ? {$case: 'table' as const, table: d.table}
-        : d.file_arrival !== undefined
-          ? {$case: 'fileArrival' as const, fileArrival: d.file_arrival}
-          : undefined,
+    triggerType: d.table !== undefined ? { $case: 'table' as const, table: d.table } : d.file_arrival !== undefined ? { $case: 'fileArrival' as const, fileArrival: d.file_arrival } : undefined,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateJob_ResponseSchema: z.ZodType<UpdateJob_Response> =
-  z.object({});
+export const unmarshalUpdateJobRequest_ResponseSchema: z.ZodType<UpdateJobRequest_Response> = z
+  .object({
+  });
 
 export const unmarshalViewItemSchema: z.ZodType<ViewItem> = z
   .object({
@@ -7790,14 +7173,13 @@ export const unmarshalViewItemSchema: z.ZodType<ViewItem> = z
     type: d.type,
   }));
 
-export const unmarshalVolumesStorageInfoSchema: z.ZodType<VolumesStorageInfo> =
-  z
-    .object({
-      destination: z.string().optional(),
-    })
-    .transform(d => ({
-      destination: d.destination,
-    }));
+export const unmarshalVolumesStorageInfoSchema: z.ZodType<VolumesStorageInfo> = z
+  .object({
+    destination: z.string().optional(),
+  })
+  .transform(d => ({
+    destination: d.destination,
+  }));
 
 export const unmarshalWebhookSchema: z.ZodType<Webhook> = z
   .object({
@@ -7807,27 +7189,21 @@ export const unmarshalWebhookSchema: z.ZodType<Webhook> = z
     id: d.id,
   }));
 
-export const unmarshalWebhookNotificationsSchema: z.ZodType<WebhookNotifications> =
-  z
-    .object({
-      on_start: z.array(z.lazy(() => unmarshalWebhookSchema)).optional(),
-      on_success: z.array(z.lazy(() => unmarshalWebhookSchema)).optional(),
-      on_failure: z.array(z.lazy(() => unmarshalWebhookSchema)).optional(),
-      on_duration_warning_threshold_exceeded: z
-        .array(z.lazy(() => unmarshalWebhookSchema))
-        .optional(),
-      on_streaming_backlog_exceeded: z
-        .array(z.lazy(() => unmarshalWebhookSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      onStart: d.on_start,
-      onSuccess: d.on_success,
-      onFailure: d.on_failure,
-      onDurationWarningThresholdExceeded:
-        d.on_duration_warning_threshold_exceeded,
-      onStreamingBacklogExceeded: d.on_streaming_backlog_exceeded,
-    }));
+export const unmarshalWebhookNotificationsSchema: z.ZodType<WebhookNotifications> = z
+  .object({
+    on_start: z.array(z.lazy(() => unmarshalWebhookSchema)).optional(),
+    on_success: z.array(z.lazy(() => unmarshalWebhookSchema)).optional(),
+    on_failure: z.array(z.lazy(() => unmarshalWebhookSchema)).optional(),
+    on_duration_warning_threshold_exceeded: z.array(z.lazy(() => unmarshalWebhookSchema)).optional(),
+    on_streaming_backlog_exceeded: z.array(z.lazy(() => unmarshalWebhookSchema)).optional(),
+  })
+  .transform(d => ({
+    onStart: d.on_start,
+    onSuccess: d.on_success,
+    onFailure: d.on_failure,
+    onDurationWarningThresholdExceeded: d.on_duration_warning_threshold_exceeded,
+    onStreamingBacklogExceeded: d.on_streaming_backlog_exceeded,
+  }));
 
 export const unmarshalWidgetErrorDetailSchema: z.ZodType<WidgetErrorDetail> = z
   .object({
@@ -7846,50 +7222,33 @@ export const unmarshalWorkloadTypeSchema: z.ZodType<WorkloadType> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalWorkloadType_ClientsTypesSchema: z.ZodType<WorkloadType_ClientsTypes> =
-  z
-    .object({
-      notebooks: z.boolean().optional(),
-      jobs: z.boolean().optional(),
-    })
-    .transform(d => ({
-      notebooks: d.notebooks,
-      jobs: d.jobs,
-    }));
+export const unmarshalWorkloadType_ClientsTypesSchema: z.ZodType<WorkloadType_ClientsTypes> = z
+  .object({
+    notebooks: z.boolean().optional(),
+    jobs: z.boolean().optional(),
+  })
+  .transform(d => ({
+    notebooks: d.notebooks,
+    jobs: d.jobs,
+  }));
 
-export const unmarshalWorkspaceStorageInfoSchema: z.ZodType<WorkspaceStorageInfo> =
-  z
-    .object({
-      destination: z.string().optional(),
-    })
-    .transform(d => ({
-      destination: d.destination,
-    }));
+export const unmarshalWorkspaceStorageInfoSchema: z.ZodType<WorkspaceStorageInfo> = z
+  .object({
+    destination: z.string().optional(),
+  })
+  .transform(d => ({
+    destination: d.destination,
+  }));
 
 export const marshalAccessControlRequestSchema: z.ZodType = z
   .object({
-    principalName: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('userName'), userName: z.string()}),
-        z.object({$case: z.literal('groupName'), groupName: z.string()}),
-        z.object({
-          $case: z.literal('servicePrincipalName'),
-          servicePrincipalName: z.string(),
-        }),
-      ])
-      .optional(),
+    principalName: z.discriminatedUnion('$case', [z.object({ $case: z.literal('userName'), userName: z.string() }), z.object({ $case: z.literal('groupName'), groupName: z.string() }), z.object({ $case: z.literal('servicePrincipalName'), servicePrincipalName: z.string() })]).optional(),
     permissionLevel: z.enum(AccessControlRequest_JobPermission).optional(),
   })
   .transform(d => ({
-    ...(d.principalName?.$case === 'userName' && {
-      user_name: d.principalName.userName,
-    }),
-    ...(d.principalName?.$case === 'groupName' && {
-      group_name: d.principalName.groupName,
-    }),
-    ...(d.principalName?.$case === 'servicePrincipalName' && {
-      service_principal_name: d.principalName.servicePrincipalName,
-    }),
+    ...(d.principalName?.$case === 'userName' && { user_name: d.principalName.userName }),
+    ...(d.principalName?.$case === 'groupName' && { group_name: d.principalName.groupName }),
+    ...(d.principalName?.$case === 'servicePrincipalName' && { service_principal_name: d.principalName.servicePrincipalName }),
     permission_level: d.permissionLevel,
   }));
 
@@ -7906,9 +7265,7 @@ export const marshalAlertTaskSchema: z.ZodType = z
     alertId: z.string().optional(),
     warehouseId: z.string().optional(),
     workspacePath: z.string().optional(),
-    subscribers: z
-      .array(z.lazy(() => marshalAlertTaskSubscriberSchema))
-      .optional(),
+    subscribers: z.array(z.lazy(() => marshalAlertTaskSubscriberSchema)).optional(),
   })
   .transform(d => ({
     alert_id: d.alertId,
@@ -7919,23 +7276,11 @@ export const marshalAlertTaskSchema: z.ZodType = z
 
 export const marshalAlertTaskSubscriberSchema: z.ZodType = z
   .object({
-    subscriberType: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('userName'), userName: z.string()}),
-        z.object({
-          $case: z.literal('destinationId'),
-          destinationId: z.string(),
-        }),
-      ])
-      .optional(),
+    subscriberType: z.discriminatedUnion('$case', [z.object({ $case: z.literal('userName'), userName: z.string() }), z.object({ $case: z.literal('destinationId'), destinationId: z.string() })]).optional(),
   })
   .transform(d => ({
-    ...(d.subscriberType?.$case === 'userName' && {
-      user_name: d.subscriberType.userName,
-    }),
-    ...(d.subscriberType?.$case === 'destinationId' && {
-      destination_id: d.subscriberType.destinationId,
-    }),
+    ...(d.subscriberType?.$case === 'userName' && { user_name: d.subscriberType.userName }),
+    ...(d.subscriberType?.$case === 'destinationId' && { destination_id: d.subscriberType.destinationId }),
   }));
 
 export const marshalAutoScaleSchema: z.ZodType = z
@@ -7988,7 +7333,7 @@ export const marshalAzureAttributesSchema: z.ZodType = z
     spot_bid_max_price: d.spotBidMaxPrice,
   }));
 
-export const marshalCancelAllRunsSchema: z.ZodType = z
+export const marshalCancelAllRunsRequestSchema: z.ZodType = z
   .object({
     jobId: z.number().optional(),
     allQueuedRuns: z.boolean().optional(),
@@ -7998,7 +7343,7 @@ export const marshalCancelAllRunsSchema: z.ZodType = z
     all_queued_runs: d.allQueuedRuns,
   }));
 
-export const marshalCancelRunSchema: z.ZodType = z
+export const marshalCancelRunRequestSchema: z.ZodType = z
   .object({
     runId: z.number().optional(),
   })
@@ -8022,27 +7367,12 @@ export const marshalCleanRoomsNotebookTaskSchema: z.ZodType = z
 
 export const marshalClusterLogConfSchema: z.ZodType = z
   .object({
-    storageInfo: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('dbfs'),
-          dbfs: z.lazy(() => marshalDbfsStorageInfoSchema),
-        }),
-        z.object({
-          $case: z.literal('s3'),
-          s3: z.lazy(() => marshalS3StorageInfoSchema),
-        }),
-        z.object({
-          $case: z.literal('volumes'),
-          volumes: z.lazy(() => marshalVolumesStorageInfoSchema),
-        }),
-      ])
-      .optional(),
+    storageInfo: z.discriminatedUnion('$case', [z.object({ $case: z.literal('dbfs'), dbfs: z.lazy(() => marshalDbfsStorageInfoSchema) }), z.object({ $case: z.literal('s3'), s3: z.lazy(() => marshalS3StorageInfoSchema) }), z.object({ $case: z.literal('volumes'), volumes: z.lazy(() => marshalVolumesStorageInfoSchema) })]).optional(),
   })
   .transform(d => ({
-    ...(d.storageInfo?.$case === 'dbfs' && {dbfs: d.storageInfo.dbfs}),
-    ...(d.storageInfo?.$case === 's3' && {s3: d.storageInfo.s3}),
-    ...(d.storageInfo?.$case === 'volumes' && {volumes: d.storageInfo.volumes}),
+    ...(d.storageInfo?.$case === 'dbfs' && { dbfs: d.storageInfo.dbfs }),
+    ...(d.storageInfo?.$case === 's3' && { s3: d.storageInfo.s3 }),
+    ...(d.storageInfo?.$case === 'volumes' && { volumes: d.storageInfo.volumes }),
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -8057,12 +7387,8 @@ export const marshalClusterSpec_NewClusterSchema: z.ZodType = z
     gcpAttributes: z.lazy(() => marshalGcpAttributesSchema).optional(),
     nodeTypeId: z.string().optional(),
     driverNodeTypeId: z.string().optional(),
-    workerNodeTypeFlexibility: z
-      .lazy(() => marshalNodeTypeFlexibilitySchema)
-      .optional(),
-    driverNodeTypeFlexibility: z
-      .lazy(() => marshalNodeTypeFlexibilitySchema)
-      .optional(),
+    workerNodeTypeFlexibility: z.lazy(() => marshalNodeTypeFlexibilitySchema).optional(),
+    driverNodeTypeFlexibility: z.lazy(() => marshalNodeTypeFlexibilitySchema).optional(),
     sshPublicKeys: z.array(z.string()).optional(),
     customTags: z.record(z.string(), z.string()).optional(),
     clusterLogConf: z.lazy(() => marshalClusterLogConfSchema).optional(),
@@ -8084,15 +7410,7 @@ export const marshalClusterSpec_NewClusterSchema: z.ZodType = z
     isSingleNode: z.boolean().optional(),
     remoteDiskThroughput: z.number().optional(),
     totalInitialRemoteDiskSize: z.number().optional(),
-    size: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('numWorkers'), numWorkers: z.number()}),
-        z.object({
-          $case: z.literal('autoscale'),
-          autoscale: z.lazy(() => marshalAutoScaleSchema),
-        }),
-      ])
-      .optional(),
+    size: z.discriminatedUnion('$case', [z.object({ $case: z.literal('numWorkers'), numWorkers: z.number() }), z.object({ $case: z.literal('autoscale'), autoscale: z.lazy(() => marshalAutoScaleSchema) })]).optional(),
   })
   .transform(d => ({
     apply_policy_default_values: d.applyPolicyDefaultValues,
@@ -8127,8 +7445,8 @@ export const marshalClusterSpec_NewClusterSchema: z.ZodType = z
     is_single_node: d.isSingleNode,
     remote_disk_throughput: d.remoteDiskThroughput,
     total_initial_remote_disk_size: d.totalInitialRemoteDiskSize,
-    ...(d.size?.$case === 'numWorkers' && {num_workers: d.size.numWorkers}),
-    ...(d.size?.$case === 'autoscale' && {autoscale: d.size.autoscale}),
+    ...(d.size?.$case === 'numWorkers' && { num_workers: d.size.numWorkers }),
+    ...(d.size?.$case === 'autoscale' && { autoscale: d.size.autoscale }),
   }));
 
 export const marshalComputeSchema: z.ZodType = z
@@ -8175,22 +7493,14 @@ export const marshalContinuousSettingsSchema: z.ZodType = z
     task_retry_mode: d.taskRetryMode,
   }));
 
-export const marshalCreateJobSchema: z.ZodType = z
+export const marshalCreateJobRequestSchema: z.ZodType = z
   .object({
-    accessControlList: z
-      .array(z.lazy(() => marshalAccessControlRequestSchema))
-      .optional(),
+    accessControlList: z.array(z.lazy(() => marshalAccessControlRequestSchema)).optional(),
     name: z.string().optional(),
     description: z.string().optional(),
-    emailNotifications: z
-      .lazy(() => marshalJobEmailNotificationsSchema)
-      .optional(),
-    webhookNotifications: z
-      .lazy(() => marshalWebhookNotificationsSchema)
-      .optional(),
-    notificationSettings: z
-      .lazy(() => marshalNotificationSettingsSchema)
-      .optional(),
+    emailNotifications: z.lazy(() => marshalJobEmailNotificationsSchema).optional(),
+    webhookNotifications: z.lazy(() => marshalWebhookNotificationsSchema).optional(),
+    notificationSettings: z.lazy(() => marshalNotificationSettingsSchema).optional(),
     timeoutSeconds: z.number().optional(),
     health: z.lazy(() => marshalJobsHealthRulesSchema).optional(),
     schedule: z.lazy(() => marshalCronScheduleSchema).optional(),
@@ -8203,9 +7513,7 @@ export const marshalCreateJobSchema: z.ZodType = z
     tags: z.record(z.string(), z.string()).optional(),
     format: z.enum(Format).optional(),
     queue: z.lazy(() => marshalQueueSettingsSchema).optional(),
-    parameters: z
-      .array(z.lazy(() => marshalJobLevelParameterSchema))
-      .optional(),
+    parameters: z.array(z.lazy(() => marshalJobLevelParameterSchema)).optional(),
     runAs: z.lazy(() => marshalJobRunAsSchema).optional(),
     editMode: z.enum(JobEditMode).optional(),
     deployment: z.lazy(() => marshalJobDeploymentSchema).optional(),
@@ -8325,7 +7633,7 @@ export const marshalDbtTaskSchema: z.ZodType = z
     source: d.source,
   }));
 
-export const marshalDeleteJobSchema: z.ZodType = z
+export const marshalDeleteJobRequestSchema: z.ZodType = z
   .object({
     jobId: z.number().optional(),
   })
@@ -8333,7 +7641,7 @@ export const marshalDeleteJobSchema: z.ZodType = z
     job_id: d.jobId,
   }));
 
-export const marshalDeleteRunSchema: z.ZodType = z
+export const marshalDeleteRunRequestSchema: z.ZodType = z
   .object({
     runId: z.number().optional(),
   })
@@ -8354,20 +7662,11 @@ export const marshalDockerBasicAuthSchema: z.ZodType = z
 export const marshalDockerImageSchema: z.ZodType = z
   .object({
     url: z.string().optional(),
-    credsOneof: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('basicAuth'),
-          basicAuth: z.lazy(() => marshalDockerBasicAuthSchema),
-        }),
-      ])
-      .optional(),
+    credsOneof: z.discriminatedUnion('$case', [z.object({ $case: z.literal('basicAuth'), basicAuth: z.lazy(() => marshalDockerBasicAuthSchema) })]).optional(),
   })
   .transform(d => ({
     url: d.url,
-    ...(d.credsOneof?.$case === 'basicAuth' && {
-      basic_auth: d.credsOneof.basicAuth,
-    }),
+    ...(d.credsOneof?.$case === 'basicAuth' && { basic_auth: d.credsOneof.basicAuth }),
   }));
 
 export const marshalEnforcePolicyComplianceForJobSchema: z.ZodType = z
@@ -8484,13 +7783,7 @@ export const marshalGitSourceSchema: z.ZodType = z
   .object({
     gitUrl: z.string().optional(),
     gitProvider: z.string().optional(),
-    gitReference: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('gitBranch'), gitBranch: z.string()}),
-        z.object({$case: z.literal('gitTag'), gitTag: z.string()}),
-        z.object({$case: z.literal('gitCommit'), gitCommit: z.string()}),
-      ])
-      .optional(),
+    gitReference: z.discriminatedUnion('$case', [z.object({ $case: z.literal('gitBranch'), gitBranch: z.string() }), z.object({ $case: z.literal('gitTag'), gitTag: z.string() }), z.object({ $case: z.literal('gitCommit'), gitCommit: z.string() })]).optional(),
     gitSnapshot: z.lazy(() => marshalGitMetadataSnapshotSchema).optional(),
     jobSource: z.lazy(() => marshalJobSourceSchema).optional(),
     sparseCheckout: z.lazy(() => marshalSparseCheckoutSchema).optional(),
@@ -8498,13 +7791,9 @@ export const marshalGitSourceSchema: z.ZodType = z
   .transform(d => ({
     git_url: d.gitUrl,
     git_provider: d.gitProvider,
-    ...(d.gitReference?.$case === 'gitBranch' && {
-      git_branch: d.gitReference.gitBranch,
-    }),
-    ...(d.gitReference?.$case === 'gitTag' && {git_tag: d.gitReference.gitTag}),
-    ...(d.gitReference?.$case === 'gitCommit' && {
-      git_commit: d.gitReference.gitCommit,
-    }),
+    ...(d.gitReference?.$case === 'gitBranch' && { git_branch: d.gitReference.gitBranch }),
+    ...(d.gitReference?.$case === 'gitTag' && { git_tag: d.gitReference.gitTag }),
+    ...(d.gitReference?.$case === 'gitCommit' && { git_commit: d.gitReference.gitCommit }),
     git_snapshot: d.gitSnapshot,
     job_source: d.jobSource,
     sparse_checkout: d.sparseCheckout,
@@ -8512,49 +7801,16 @@ export const marshalGitSourceSchema: z.ZodType = z
 
 export const marshalInitScriptInfoSchema: z.ZodType = z
   .object({
-    storageInfo: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('dbfs'),
-          dbfs: z.lazy(() => marshalDbfsStorageInfoSchema),
-        }),
-        z.object({
-          $case: z.literal('s3'),
-          s3: z.lazy(() => marshalS3StorageInfoSchema),
-        }),
-        z.object({
-          $case: z.literal('file'),
-          file: z.lazy(() => marshalLocalFileInfoSchema),
-        }),
-        z.object({
-          $case: z.literal('gcs'),
-          gcs: z.lazy(() => marshalGcsStorageInfoSchema),
-        }),
-        z.object({
-          $case: z.literal('abfss'),
-          abfss: z.lazy(() => marshalAdlsgen2InfoSchema),
-        }),
-        z.object({
-          $case: z.literal('workspace'),
-          workspace: z.lazy(() => marshalWorkspaceStorageInfoSchema),
-        }),
-        z.object({
-          $case: z.literal('volumes'),
-          volumes: z.lazy(() => marshalVolumesStorageInfoSchema),
-        }),
-      ])
-      .optional(),
+    storageInfo: z.discriminatedUnion('$case', [z.object({ $case: z.literal('dbfs'), dbfs: z.lazy(() => marshalDbfsStorageInfoSchema) }), z.object({ $case: z.literal('s3'), s3: z.lazy(() => marshalS3StorageInfoSchema) }), z.object({ $case: z.literal('file'), file: z.lazy(() => marshalLocalFileInfoSchema) }), z.object({ $case: z.literal('gcs'), gcs: z.lazy(() => marshalGcsStorageInfoSchema) }), z.object({ $case: z.literal('abfss'), abfss: z.lazy(() => marshalAdlsgen2InfoSchema) }), z.object({ $case: z.literal('workspace'), workspace: z.lazy(() => marshalWorkspaceStorageInfoSchema) }), z.object({ $case: z.literal('volumes'), volumes: z.lazy(() => marshalVolumesStorageInfoSchema) })]).optional(),
   })
   .transform(d => ({
-    ...(d.storageInfo?.$case === 'dbfs' && {dbfs: d.storageInfo.dbfs}),
-    ...(d.storageInfo?.$case === 's3' && {s3: d.storageInfo.s3}),
-    ...(d.storageInfo?.$case === 'file' && {file: d.storageInfo.file}),
-    ...(d.storageInfo?.$case === 'gcs' && {gcs: d.storageInfo.gcs}),
-    ...(d.storageInfo?.$case === 'abfss' && {abfss: d.storageInfo.abfss}),
-    ...(d.storageInfo?.$case === 'workspace' && {
-      workspace: d.storageInfo.workspace,
-    }),
-    ...(d.storageInfo?.$case === 'volumes' && {volumes: d.storageInfo.volumes}),
+    ...(d.storageInfo?.$case === 'dbfs' && { dbfs: d.storageInfo.dbfs }),
+    ...(d.storageInfo?.$case === 's3' && { s3: d.storageInfo.s3 }),
+    ...(d.storageInfo?.$case === 'file' && { file: d.storageInfo.file }),
+    ...(d.storageInfo?.$case === 'gcs' && { gcs: d.storageInfo.gcs }),
+    ...(d.storageInfo?.$case === 'abfss' && { abfss: d.storageInfo.abfss }),
+    ...(d.storageInfo?.$case === 'workspace' && { workspace: d.storageInfo.workspace }),
+    ...(d.storageInfo?.$case === 'volumes' && { volumes: d.storageInfo.volumes }),
   }));
 
 export const marshalJobClusterSchema: z.ZodType = z
@@ -8590,8 +7846,7 @@ export const marshalJobEmailNotificationsSchema: z.ZodType = z
     on_start: d.onStart,
     on_success: d.onSuccess,
     on_failure: d.onFailure,
-    on_duration_warning_threshold_exceeded:
-      d.onDurationWarningThresholdExceeded,
+    on_duration_warning_threshold_exceeded: d.onDurationWarningThresholdExceeded,
     on_streaming_backlog_exceeded: d.onStreamingBacklogExceeded,
     no_alert_for_skipped_runs: d.noAlertForSkippedRuns,
   }));
@@ -8618,40 +7873,21 @@ export const marshalJobLevelParameterSchema: z.ZodType = z
 
 export const marshalJobRunAsSchema: z.ZodType = z
   .object({
-    identity: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('userName'), userName: z.string()}),
-        z.object({
-          $case: z.literal('servicePrincipalName'),
-          servicePrincipalName: z.string(),
-        }),
-        z.object({$case: z.literal('groupName'), groupName: z.string()}),
-      ])
-      .optional(),
+    identity: z.discriminatedUnion('$case', [z.object({ $case: z.literal('userName'), userName: z.string() }), z.object({ $case: z.literal('servicePrincipalName'), servicePrincipalName: z.string() }), z.object({ $case: z.literal('groupName'), groupName: z.string() })]).optional(),
   })
   .transform(d => ({
-    ...(d.identity?.$case === 'userName' && {user_name: d.identity.userName}),
-    ...(d.identity?.$case === 'servicePrincipalName' && {
-      service_principal_name: d.identity.servicePrincipalName,
-    }),
-    ...(d.identity?.$case === 'groupName' && {
-      group_name: d.identity.groupName,
-    }),
+    ...(d.identity?.$case === 'userName' && { user_name: d.identity.userName }),
+    ...(d.identity?.$case === 'servicePrincipalName' && { service_principal_name: d.identity.servicePrincipalName }),
+    ...(d.identity?.$case === 'groupName' && { group_name: d.identity.groupName }),
   }));
 
 export const marshalJobSettingsSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
     description: z.string().optional(),
-    emailNotifications: z
-      .lazy(() => marshalJobEmailNotificationsSchema)
-      .optional(),
-    webhookNotifications: z
-      .lazy(() => marshalWebhookNotificationsSchema)
-      .optional(),
-    notificationSettings: z
-      .lazy(() => marshalNotificationSettingsSchema)
-      .optional(),
+    emailNotifications: z.lazy(() => marshalJobEmailNotificationsSchema).optional(),
+    webhookNotifications: z.lazy(() => marshalWebhookNotificationsSchema).optional(),
+    notificationSettings: z.lazy(() => marshalNotificationSettingsSchema).optional(),
     timeoutSeconds: z.number().optional(),
     health: z.lazy(() => marshalJobsHealthRulesSchema).optional(),
     schedule: z.lazy(() => marshalCronScheduleSchema).optional(),
@@ -8664,9 +7900,7 @@ export const marshalJobSettingsSchema: z.ZodType = z
     tags: z.record(z.string(), z.string()).optional(),
     format: z.enum(Format).optional(),
     queue: z.lazy(() => marshalQueueSettingsSchema).optional(),
-    parameters: z
-      .array(z.lazy(() => marshalJobLevelParameterSchema))
-      .optional(),
+    parameters: z.array(z.lazy(() => marshalJobLevelParameterSchema)).optional(),
     runAs: z.lazy(() => marshalJobRunAsSchema).optional(),
     editMode: z.enum(JobEditMode).optional(),
     deployment: z.lazy(() => marshalJobDeploymentSchema).optional(),
@@ -8714,21 +7948,12 @@ export const marshalJobSettingsSchema: z.ZodType = z
 export const marshalJobSourceSchema: z.ZodType = z
   .object({
     jobConfigPath: z.string().optional(),
-    importFromGitReference: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('importFromGitBranch'),
-          importFromGitBranch: z.string(),
-        }),
-      ])
-      .optional(),
+    importFromGitReference: z.discriminatedUnion('$case', [z.object({ $case: z.literal('importFromGitBranch'), importFromGitBranch: z.string() })]).optional(),
     dirtyState: z.enum(JobSource_DirtyState).optional(),
   })
   .transform(d => ({
     job_config_path: d.jobConfigPath,
-    ...(d.importFromGitReference?.$case === 'importFromGitBranch' && {
-      import_from_git_branch: d.importFromGitReference.importFromGitBranch,
-    }),
+    ...(d.importFromGitReference?.$case === 'importFromGitBranch' && { import_from_git_branch: d.importFromGitReference.importFromGitBranch }),
     dirty_state: d.dirtyState,
   }));
 
@@ -8754,35 +7979,16 @@ export const marshalJobsHealthRulesSchema: z.ZodType = z
 
 export const marshalLibrarySchema: z.ZodType = z
   .object({
-    lib: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('jar'), jar: z.string()}),
-        z.object({$case: z.literal('egg'), egg: z.string()}),
-        z.object({
-          $case: z.literal('pypi'),
-          pypi: z.lazy(() => marshalPythonPyPiLibrarySchema),
-        }),
-        z.object({
-          $case: z.literal('maven'),
-          maven: z.lazy(() => marshalMavenLibrarySchema),
-        }),
-        z.object({
-          $case: z.literal('cran'),
-          cran: z.lazy(() => marshalRCranLibrarySchema),
-        }),
-        z.object({$case: z.literal('whl'), whl: z.string()}),
-        z.object({$case: z.literal('requirements'), requirements: z.string()}),
-      ])
-      .optional(),
+    lib: z.discriminatedUnion('$case', [z.object({ $case: z.literal('jar'), jar: z.string() }), z.object({ $case: z.literal('egg'), egg: z.string() }), z.object({ $case: z.literal('pypi'), pypi: z.lazy(() => marshalPythonPyPiLibrarySchema) }), z.object({ $case: z.literal('maven'), maven: z.lazy(() => marshalMavenLibrarySchema) }), z.object({ $case: z.literal('cran'), cran: z.lazy(() => marshalRCranLibrarySchema) }), z.object({ $case: z.literal('whl'), whl: z.string() }), z.object({ $case: z.literal('requirements'), requirements: z.string() })]).optional(),
   })
   .transform(d => ({
-    ...(d.lib?.$case === 'jar' && {jar: d.lib.jar}),
-    ...(d.lib?.$case === 'egg' && {egg: d.lib.egg}),
-    ...(d.lib?.$case === 'pypi' && {pypi: d.lib.pypi}),
-    ...(d.lib?.$case === 'maven' && {maven: d.lib.maven}),
-    ...(d.lib?.$case === 'cran' && {cran: d.lib.cran}),
-    ...(d.lib?.$case === 'whl' && {whl: d.lib.whl}),
-    ...(d.lib?.$case === 'requirements' && {requirements: d.lib.requirements}),
+    ...(d.lib?.$case === 'jar' && { jar: d.lib.jar }),
+    ...(d.lib?.$case === 'egg' && { egg: d.lib.egg }),
+    ...(d.lib?.$case === 'pypi' && { pypi: d.lib.pypi }),
+    ...(d.lib?.$case === 'maven' && { maven: d.lib.maven }),
+    ...(d.lib?.$case === 'cran' && { cran: d.lib.cran }),
+    ...(d.lib?.$case === 'whl' && { whl: d.lib.whl }),
+    ...(d.lib?.$case === 'requirements' && { requirements: d.lib.requirements }),
   }));
 
 export const marshalLocalFileInfoSchema: z.ZodType = z
@@ -8819,9 +8025,7 @@ export const marshalModelTriggerConfigurationSchema: z.ZodType = z
   .object({
     securableName: z.string().optional(),
     aliases: z.array(z.string()).optional(),
-    condition: z
-      .enum(ModelTriggerConfiguration_ModelTriggerCondition)
-      .optional(),
+    condition: z.enum(ModelTriggerConfiguration_ModelTriggerCondition).optional(),
     minTimeBetweenTriggersSeconds: z.number().optional(),
     waitAfterLastChangeSeconds: z.number().optional(),
   })
@@ -8880,19 +8084,35 @@ export const marshalPeriodicTriggerConfigurationSchema: z.ZodType = z
 export const marshalPipelineParametersSchema: z.ZodType = z
   .object({
     fullRefresh: z.boolean().optional(),
+    refreshSelection: z.array(z.string()).optional(),
+    fullRefreshSelection: z.array(z.string()).optional(),
+    resetCheckpointSelection: z.array(z.string()).optional(),
+    refreshFlowSelection: z.array(z.string()).optional(),
   })
   .transform(d => ({
     full_refresh: d.fullRefresh,
+    refresh_selection: d.refreshSelection,
+    full_refresh_selection: d.fullRefreshSelection,
+    reset_checkpoint_selection: d.resetCheckpointSelection,
+    refresh_flow_selection: d.refreshFlowSelection,
   }));
 
 export const marshalPipelineTaskSchema: z.ZodType = z
   .object({
     pipelineId: z.string().optional(),
     fullRefresh: z.boolean().optional(),
+    refreshSelection: z.array(z.string()).optional(),
+    fullRefreshSelection: z.array(z.string()).optional(),
+    resetCheckpointSelection: z.array(z.string()).optional(),
+    refreshFlowSelection: z.array(z.string()).optional(),
   })
   .transform(d => ({
     pipeline_id: d.pipelineId,
     full_refresh: d.fullRefresh,
+    refresh_selection: d.refreshSelection,
+    full_refresh_selection: d.fullRefreshSelection,
+    reset_checkpoint_selection: d.resetCheckpointSelection,
+    refresh_flow_selection: d.refreshFlowSelection,
   }));
 
 export const marshalPowerBiModelSchema: z.ZodType = z
@@ -8943,9 +8163,7 @@ export const marshalPowerBiTaskSchema: z.ZodType = z
 
 export const marshalPythonOperatorTaskSchema: z.ZodType = z
   .object({
-    parameters: z
-      .array(z.lazy(() => marshalPythonOperatorTask_ParameterSchema))
-      .optional(),
+    parameters: z.array(z.lazy(() => marshalPythonOperatorTask_ParameterSchema)).optional(),
     main: z.string().optional(),
   })
   .transform(d => ({
@@ -9006,7 +8224,7 @@ export const marshalRCranLibrarySchema: z.ZodType = z
     repo: d.repo,
   }));
 
-export const marshalRepairRunSchema: z.ZodType = z
+export const marshalRepairRunRequestSchema: z.ZodType = z
   .object({
     runId: z.number().optional(),
     latestRepairId: z.number().optional(),
@@ -9042,7 +8260,7 @@ export const marshalRepairRunSchema: z.ZodType = z
     dbt_commands: d.dbtCommands,
   }));
 
-export const marshalResetJobSchema: z.ZodType = z
+export const marshalResetJobRequestSchema: z.ZodType = z
   .object({
     jobId: z.number().optional(),
     newSettings: z.lazy(() => marshalJobSettingsSchema).optional(),
@@ -9078,7 +8296,7 @@ export const marshalRunJobTaskSchema: z.ZodType = z
     dbt_commands: d.dbtCommands,
   }));
 
-export const marshalRunNowSchema: z.ZodType = z
+export const marshalRunNowRequestSchema: z.ZodType = z
   .object({
     jobId: z.number().optional(),
     jobParameters: z.record(z.string(), z.string()).optional(),
@@ -9119,124 +8337,15 @@ export const marshalRunTaskSettingsSchema: z.ZodType = z
     dependsOn: z.array(z.lazy(() => marshalTaskDependencySchema)).optional(),
     runIf: z.enum(TaskDependencyType).optional(),
     timeoutSeconds: z.number().optional(),
-    emailNotifications: z
-      .lazy(() => marshalJobEmailNotificationsSchema)
-      .optional(),
+    emailNotifications: z.lazy(() => marshalJobEmailNotificationsSchema).optional(),
     health: z.lazy(() => marshalJobsHealthRulesSchema).optional(),
-    notificationSettings: z
-      .lazy(() => marshalNotificationSettingsSchema)
-      .optional(),
-    webhookNotifications: z
-      .lazy(() => marshalWebhookNotificationsSchema)
-      .optional(),
-    environmentRef: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('environmentKey'),
-          environmentKey: z.string(),
-        }),
-      ])
-      .optional(),
+    notificationSettings: z.lazy(() => marshalNotificationSettingsSchema).optional(),
+    webhookNotifications: z.lazy(() => marshalWebhookNotificationsSchema).optional(),
+    environmentRef: z.discriminatedUnion('$case', [z.object({ $case: z.literal('environmentKey'), environmentKey: z.string() })]).optional(),
     disabled: z.boolean().optional(),
     compute: z.lazy(() => marshalComputeSchema).optional(),
-    task: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('notebookTask'),
-          notebookTask: z.lazy(() => marshalNotebookTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('sparkJarTask'),
-          sparkJarTask: z.lazy(() => marshalSparkJarTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('sparkPythonTask'),
-          sparkPythonTask: z.lazy(() => marshalSparkPythonTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('sparkSubmitTask'),
-          sparkSubmitTask: z.lazy(() => marshalSparkSubmitTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('pipelineTask'),
-          pipelineTask: z.lazy(() => marshalPipelineTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('pythonWheelTask'),
-          pythonWheelTask: z.lazy(() => marshalPythonWheelTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('dbtTask'),
-          dbtTask: z.lazy(() => marshalDbtTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('sqlTask'),
-          sqlTask: z.lazy(() => marshalSqlTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('runJobTask'),
-          runJobTask: z.lazy(() => marshalRunJobTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('conditionTask'),
-          conditionTask: z.lazy(() => marshalConditionTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('forEachTask'),
-          forEachTask: z.lazy(() => marshalForEachTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('cleanRoomsNotebookTask'),
-          cleanRoomsNotebookTask: z.lazy(
-            () => marshalCleanRoomsNotebookTaskSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('genAiComputeTask'),
-          genAiComputeTask: z.lazy(() => marshalGenAiComputeTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('alertTask'),
-          alertTask: z.lazy(() => marshalAlertTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('powerBiTask'),
-          powerBiTask: z.lazy(() => marshalPowerBiTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('dashboardTask'),
-          dashboardTask: z.lazy(() => marshalDashboardTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('dbtCloudTask'),
-          dbtCloudTask: z.lazy(() => marshalDbtCloudTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('dbtPlatformTask'),
-          dbtPlatformTask: z.lazy(() => marshalDbtPlatformTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('pythonOperatorTask'),
-          pythonOperatorTask: z.lazy(() => marshalPythonOperatorTaskSchema),
-        }),
-      ])
-      .optional(),
-    spec: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('existingClusterId'),
-          existingClusterId: z.string(),
-        }),
-        z.object({
-          $case: z.literal('newCluster'),
-          newCluster: z.lazy(() => marshalClusterSpec_NewClusterSchema),
-        }),
-        z.object({
-          $case: z.literal('jobClusterKey'),
-          jobClusterKey: z.string(),
-        }),
-      ])
-      .optional(),
+    task: z.discriminatedUnion('$case', [z.object({ $case: z.literal('notebookTask'), notebookTask: z.lazy(() => marshalNotebookTaskSchema) }), z.object({ $case: z.literal('sparkJarTask'), sparkJarTask: z.lazy(() => marshalSparkJarTaskSchema) }), z.object({ $case: z.literal('sparkPythonTask'), sparkPythonTask: z.lazy(() => marshalSparkPythonTaskSchema) }), z.object({ $case: z.literal('sparkSubmitTask'), sparkSubmitTask: z.lazy(() => marshalSparkSubmitTaskSchema) }), z.object({ $case: z.literal('pipelineTask'), pipelineTask: z.lazy(() => marshalPipelineTaskSchema) }), z.object({ $case: z.literal('pythonWheelTask'), pythonWheelTask: z.lazy(() => marshalPythonWheelTaskSchema) }), z.object({ $case: z.literal('dbtTask'), dbtTask: z.lazy(() => marshalDbtTaskSchema) }), z.object({ $case: z.literal('sqlTask'), sqlTask: z.lazy(() => marshalSqlTaskSchema) }), z.object({ $case: z.literal('runJobTask'), runJobTask: z.lazy(() => marshalRunJobTaskSchema) }), z.object({ $case: z.literal('conditionTask'), conditionTask: z.lazy(() => marshalConditionTaskSchema) }), z.object({ $case: z.literal('forEachTask'), forEachTask: z.lazy(() => marshalForEachTaskSchema) }), z.object({ $case: z.literal('cleanRoomsNotebookTask'), cleanRoomsNotebookTask: z.lazy(() => marshalCleanRoomsNotebookTaskSchema) }), z.object({ $case: z.literal('genAiComputeTask'), genAiComputeTask: z.lazy(() => marshalGenAiComputeTaskSchema) }), z.object({ $case: z.literal('alertTask'), alertTask: z.lazy(() => marshalAlertTaskSchema) }), z.object({ $case: z.literal('powerBiTask'), powerBiTask: z.lazy(() => marshalPowerBiTaskSchema) }), z.object({ $case: z.literal('dashboardTask'), dashboardTask: z.lazy(() => marshalDashboardTaskSchema) }), z.object({ $case: z.literal('dbtCloudTask'), dbtCloudTask: z.lazy(() => marshalDbtCloudTaskSchema) }), z.object({ $case: z.literal('dbtPlatformTask'), dbtPlatformTask: z.lazy(() => marshalDbtPlatformTaskSchema) }), z.object({ $case: z.literal('pythonOperatorTask'), pythonOperatorTask: z.lazy(() => marshalPythonOperatorTaskSchema) })]).optional(),
+    spec: z.discriminatedUnion('$case', [z.object({ $case: z.literal('existingClusterId'), existingClusterId: z.string() }), z.object({ $case: z.literal('newCluster'), newCluster: z.lazy(() => marshalClusterSpec_NewClusterSchema) }), z.object({ $case: z.literal('jobClusterKey'), jobClusterKey: z.string() })]).optional(),
     libraries: z.array(z.lazy(() => marshalLibrarySchema)).optional(),
     maxRetries: z.number().optional(),
     minRetryIntervalMillis: z.number().optional(),
@@ -9253,63 +8362,31 @@ export const marshalRunTaskSettingsSchema: z.ZodType = z
     health: d.health,
     notification_settings: d.notificationSettings,
     webhook_notifications: d.webhookNotifications,
-    ...(d.environmentRef?.$case === 'environmentKey' && {
-      environment_key: d.environmentRef.environmentKey,
-    }),
+    ...(d.environmentRef?.$case === 'environmentKey' && { environment_key: d.environmentRef.environmentKey }),
     disabled: d.disabled,
     compute: d.compute,
-    ...(d.task?.$case === 'notebookTask' && {
-      notebook_task: d.task.notebookTask,
-    }),
-    ...(d.task?.$case === 'sparkJarTask' && {
-      spark_jar_task: d.task.sparkJarTask,
-    }),
-    ...(d.task?.$case === 'sparkPythonTask' && {
-      spark_python_task: d.task.sparkPythonTask,
-    }),
-    ...(d.task?.$case === 'sparkSubmitTask' && {
-      spark_submit_task: d.task.sparkSubmitTask,
-    }),
-    ...(d.task?.$case === 'pipelineTask' && {
-      pipeline_task: d.task.pipelineTask,
-    }),
-    ...(d.task?.$case === 'pythonWheelTask' && {
-      python_wheel_task: d.task.pythonWheelTask,
-    }),
-    ...(d.task?.$case === 'dbtTask' && {dbt_task: d.task.dbtTask}),
-    ...(d.task?.$case === 'sqlTask' && {sql_task: d.task.sqlTask}),
-    ...(d.task?.$case === 'runJobTask' && {run_job_task: d.task.runJobTask}),
-    ...(d.task?.$case === 'conditionTask' && {
-      condition_task: d.task.conditionTask,
-    }),
-    ...(d.task?.$case === 'forEachTask' && {for_each_task: d.task.forEachTask}),
-    ...(d.task?.$case === 'cleanRoomsNotebookTask' && {
-      clean_rooms_notebook_task: d.task.cleanRoomsNotebookTask,
-    }),
-    ...(d.task?.$case === 'genAiComputeTask' && {
-      gen_ai_compute_task: d.task.genAiComputeTask,
-    }),
-    ...(d.task?.$case === 'alertTask' && {alert_task: d.task.alertTask}),
-    ...(d.task?.$case === 'powerBiTask' && {power_bi_task: d.task.powerBiTask}),
-    ...(d.task?.$case === 'dashboardTask' && {
-      dashboard_task: d.task.dashboardTask,
-    }),
-    ...(d.task?.$case === 'dbtCloudTask' && {
-      dbt_cloud_task: d.task.dbtCloudTask,
-    }),
-    ...(d.task?.$case === 'dbtPlatformTask' && {
-      dbt_platform_task: d.task.dbtPlatformTask,
-    }),
-    ...(d.task?.$case === 'pythonOperatorTask' && {
-      python_operator_task: d.task.pythonOperatorTask,
-    }),
-    ...(d.spec?.$case === 'existingClusterId' && {
-      existing_cluster_id: d.spec.existingClusterId,
-    }),
-    ...(d.spec?.$case === 'newCluster' && {new_cluster: d.spec.newCluster}),
-    ...(d.spec?.$case === 'jobClusterKey' && {
-      job_cluster_key: d.spec.jobClusterKey,
-    }),
+    ...(d.task?.$case === 'notebookTask' && { notebook_task: d.task.notebookTask }),
+    ...(d.task?.$case === 'sparkJarTask' && { spark_jar_task: d.task.sparkJarTask }),
+    ...(d.task?.$case === 'sparkPythonTask' && { spark_python_task: d.task.sparkPythonTask }),
+    ...(d.task?.$case === 'sparkSubmitTask' && { spark_submit_task: d.task.sparkSubmitTask }),
+    ...(d.task?.$case === 'pipelineTask' && { pipeline_task: d.task.pipelineTask }),
+    ...(d.task?.$case === 'pythonWheelTask' && { python_wheel_task: d.task.pythonWheelTask }),
+    ...(d.task?.$case === 'dbtTask' && { dbt_task: d.task.dbtTask }),
+    ...(d.task?.$case === 'sqlTask' && { sql_task: d.task.sqlTask }),
+    ...(d.task?.$case === 'runJobTask' && { run_job_task: d.task.runJobTask }),
+    ...(d.task?.$case === 'conditionTask' && { condition_task: d.task.conditionTask }),
+    ...(d.task?.$case === 'forEachTask' && { for_each_task: d.task.forEachTask }),
+    ...(d.task?.$case === 'cleanRoomsNotebookTask' && { clean_rooms_notebook_task: d.task.cleanRoomsNotebookTask }),
+    ...(d.task?.$case === 'genAiComputeTask' && { gen_ai_compute_task: d.task.genAiComputeTask }),
+    ...(d.task?.$case === 'alertTask' && { alert_task: d.task.alertTask }),
+    ...(d.task?.$case === 'powerBiTask' && { power_bi_task: d.task.powerBiTask }),
+    ...(d.task?.$case === 'dashboardTask' && { dashboard_task: d.task.dashboardTask }),
+    ...(d.task?.$case === 'dbtCloudTask' && { dbt_cloud_task: d.task.dbtCloudTask }),
+    ...(d.task?.$case === 'dbtPlatformTask' && { dbt_platform_task: d.task.dbtPlatformTask }),
+    ...(d.task?.$case === 'pythonOperatorTask' && { python_operator_task: d.task.pythonOperatorTask }),
+    ...(d.spec?.$case === 'existingClusterId' && { existing_cluster_id: d.spec.existingClusterId }),
+    ...(d.spec?.$case === 'newCluster' && { new_cluster: d.spec.newCluster }),
+    ...(d.spec?.$case === 'jobClusterKey' && { job_cluster_key: d.spec.jobClusterKey }),
     libraries: d.libraries,
     max_retries: d.maxRetries,
     min_retry_interval_millis: d.minRetryIntervalMillis,
@@ -9382,45 +8459,22 @@ export const marshalSparseCheckoutSchema: z.ZodType = z
 export const marshalSqlTaskSchema: z.ZodType = z
   .object({
     parameters: z.record(z.string(), z.string()).optional(),
-    sqlTaskType: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('query'),
-          query: z.lazy(() => marshalSqlTaskQuerySchema),
-        }),
-        z.object({
-          $case: z.literal('dashboard'),
-          dashboard: z.lazy(() => marshalSqlTaskDashboardSchema),
-        }),
-        z.object({
-          $case: z.literal('alert'),
-          alert: z.lazy(() => marshalSqlTaskAlertSchema),
-        }),
-        z.object({
-          $case: z.literal('file'),
-          file: z.lazy(() => marshalSqlTaskFileSchema),
-        }),
-      ])
-      .optional(),
+    sqlTaskType: z.discriminatedUnion('$case', [z.object({ $case: z.literal('query'), query: z.lazy(() => marshalSqlTaskQuerySchema) }), z.object({ $case: z.literal('dashboard'), dashboard: z.lazy(() => marshalSqlTaskDashboardSchema) }), z.object({ $case: z.literal('alert'), alert: z.lazy(() => marshalSqlTaskAlertSchema) }), z.object({ $case: z.literal('file'), file: z.lazy(() => marshalSqlTaskFileSchema) })]).optional(),
     warehouseId: z.string().optional(),
   })
   .transform(d => ({
     parameters: d.parameters,
-    ...(d.sqlTaskType?.$case === 'query' && {query: d.sqlTaskType.query}),
-    ...(d.sqlTaskType?.$case === 'dashboard' && {
-      dashboard: d.sqlTaskType.dashboard,
-    }),
-    ...(d.sqlTaskType?.$case === 'alert' && {alert: d.sqlTaskType.alert}),
-    ...(d.sqlTaskType?.$case === 'file' && {file: d.sqlTaskType.file}),
+    ...(d.sqlTaskType?.$case === 'query' && { query: d.sqlTaskType.query }),
+    ...(d.sqlTaskType?.$case === 'dashboard' && { dashboard: d.sqlTaskType.dashboard }),
+    ...(d.sqlTaskType?.$case === 'alert' && { alert: d.sqlTaskType.alert }),
+    ...(d.sqlTaskType?.$case === 'file' && { file: d.sqlTaskType.file }),
     warehouse_id: d.warehouseId,
   }));
 
 export const marshalSqlTaskAlertSchema: z.ZodType = z
   .object({
     alertId: z.string().optional(),
-    subscriptions: z
-      .array(z.lazy(() => marshalSqlTaskSubscriptionSchema))
-      .optional(),
+    subscriptions: z.array(z.lazy(() => marshalSqlTaskSubscriptionSchema)).optional(),
     pauseSubscriptions: z.boolean().optional(),
   })
   .transform(d => ({
@@ -9432,9 +8486,7 @@ export const marshalSqlTaskAlertSchema: z.ZodType = z
 export const marshalSqlTaskDashboardSchema: z.ZodType = z
   .object({
     dashboardId: z.string().optional(),
-    subscriptions: z
-      .array(z.lazy(() => marshalSqlTaskSubscriptionSchema))
-      .optional(),
+    subscriptions: z.array(z.lazy(() => marshalSqlTaskSubscriptionSchema)).optional(),
     customSubject: z.string().optional(),
     pauseSubscriptions: z.boolean().optional(),
   })
@@ -9457,42 +8509,24 @@ export const marshalSqlTaskFileSchema: z.ZodType = z
 
 export const marshalSqlTaskQuerySchema: z.ZodType = z
   .object({
-    queryType: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('queryId'), queryId: z.string()}),
-      ])
-      .optional(),
+    queryType: z.discriminatedUnion('$case', [z.object({ $case: z.literal('queryId'), queryId: z.string() })]).optional(),
   })
   .transform(d => ({
-    ...(d.queryType?.$case === 'queryId' && {query_id: d.queryType.queryId}),
+    ...(d.queryType?.$case === 'queryId' && { query_id: d.queryType.queryId }),
   }));
 
 export const marshalSqlTaskSubscriptionSchema: z.ZodType = z
   .object({
-    subscriptionType: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('userName'), userName: z.string()}),
-        z.object({
-          $case: z.literal('destinationId'),
-          destinationId: z.string(),
-        }),
-      ])
-      .optional(),
+    subscriptionType: z.discriminatedUnion('$case', [z.object({ $case: z.literal('userName'), userName: z.string() }), z.object({ $case: z.literal('destinationId'), destinationId: z.string() })]).optional(),
   })
   .transform(d => ({
-    ...(d.subscriptionType?.$case === 'userName' && {
-      user_name: d.subscriptionType.userName,
-    }),
-    ...(d.subscriptionType?.$case === 'destinationId' && {
-      destination_id: d.subscriptionType.destinationId,
-    }),
+    ...(d.subscriptionType?.$case === 'userName' && { user_name: d.subscriptionType.userName }),
+    ...(d.subscriptionType?.$case === 'destinationId' && { destination_id: d.subscriptionType.destinationId }),
   }));
 
-export const marshalSubmitRunSchema: z.ZodType = z
+export const marshalSubmitRunRequestSchema: z.ZodType = z
   .object({
-    accessControlList: z
-      .array(z.lazy(() => marshalAccessControlRequestSchema))
-      .optional(),
+    accessControlList: z.array(z.lazy(() => marshalAccessControlRequestSchema)).optional(),
     queue: z.lazy(() => marshalQueueSettingsSchema).optional(),
     runAs: z.lazy(() => marshalJobRunAsSchema).optional(),
     runName: z.string().optional(),
@@ -9501,15 +8535,9 @@ export const marshalSubmitRunSchema: z.ZodType = z
     idempotencyToken: z.string().optional(),
     tasks: z.array(z.lazy(() => marshalRunTaskSettingsSchema)).optional(),
     gitSource: z.lazy(() => marshalGitSourceSchema).optional(),
-    webhookNotifications: z
-      .lazy(() => marshalWebhookNotificationsSchema)
-      .optional(),
-    emailNotifications: z
-      .lazy(() => marshalJobEmailNotificationsSchema)
-      .optional(),
-    notificationSettings: z
-      .lazy(() => marshalNotificationSettingsSchema)
-      .optional(),
+    webhookNotifications: z.lazy(() => marshalWebhookNotificationsSchema).optional(),
+    emailNotifications: z.lazy(() => marshalJobEmailNotificationsSchema).optional(),
+    notificationSettings: z.lazy(() => marshalNotificationSettingsSchema).optional(),
     environments: z.array(z.lazy(() => marshalJobEnvironmentSchema)).optional(),
     budgetPolicyId: z.string().optional(),
     usagePolicyId: z.string().optional(),
@@ -9534,9 +8562,7 @@ export const marshalSubmitRunSchema: z.ZodType = z
 
 export const marshalSubscriptionSchema: z.ZodType = z
   .object({
-    subscribers: z
-      .array(z.lazy(() => marshalSubscription_SubscriberSchema))
-      .optional(),
+    subscribers: z.array(z.lazy(() => marshalSubscription_SubscriberSchema)).optional(),
     paused: z.boolean().optional(),
     customSubject: z.string().optional(),
   })
@@ -9549,23 +8575,11 @@ export const marshalSubscriptionSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalSubscription_SubscriberSchema: z.ZodType = z
   .object({
-    subscriptionType: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('userName'), userName: z.string()}),
-        z.object({
-          $case: z.literal('destinationId'),
-          destinationId: z.string(),
-        }),
-      ])
-      .optional(),
+    subscriptionType: z.discriminatedUnion('$case', [z.object({ $case: z.literal('userName'), userName: z.string() }), z.object({ $case: z.literal('destinationId'), destinationId: z.string() })]).optional(),
   })
   .transform(d => ({
-    ...(d.subscriptionType?.$case === 'userName' && {
-      user_name: d.subscriptionType.userName,
-    }),
-    ...(d.subscriptionType?.$case === 'destinationId' && {
-      destination_id: d.subscriptionType.destinationId,
-    }),
+    ...(d.subscriptionType?.$case === 'userName' && { user_name: d.subscriptionType.userName }),
+    ...(d.subscriptionType?.$case === 'destinationId' && { destination_id: d.subscriptionType.destinationId }),
   }));
 
 export const marshalTableTriggerConfigurationSchema: z.ZodType = z
@@ -9599,124 +8613,15 @@ export const marshalTaskSettingsSchema: z.ZodType = z
     runIf: z.enum(TaskDependencyType).optional(),
     timeoutSeconds: z.number().optional(),
     health: z.lazy(() => marshalJobsHealthRulesSchema).optional(),
-    emailNotifications: z
-      .lazy(() => marshalJobEmailNotificationsSchema)
-      .optional(),
-    notificationSettings: z
-      .lazy(() => marshalNotificationSettingsSchema)
-      .optional(),
-    webhookNotifications: z
-      .lazy(() => marshalWebhookNotificationsSchema)
-      .optional(),
+    emailNotifications: z.lazy(() => marshalJobEmailNotificationsSchema).optional(),
+    notificationSettings: z.lazy(() => marshalNotificationSettingsSchema).optional(),
+    webhookNotifications: z.lazy(() => marshalWebhookNotificationsSchema).optional(),
     description: z.string().optional(),
-    environmentRef: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('environmentKey'),
-          environmentKey: z.string(),
-        }),
-      ])
-      .optional(),
+    environmentRef: z.discriminatedUnion('$case', [z.object({ $case: z.literal('environmentKey'), environmentKey: z.string() })]).optional(),
     disabled: z.boolean().optional(),
     compute: z.lazy(() => marshalComputeSchema).optional(),
-    task: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('notebookTask'),
-          notebookTask: z.lazy(() => marshalNotebookTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('sparkJarTask'),
-          sparkJarTask: z.lazy(() => marshalSparkJarTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('sparkPythonTask'),
-          sparkPythonTask: z.lazy(() => marshalSparkPythonTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('sparkSubmitTask'),
-          sparkSubmitTask: z.lazy(() => marshalSparkSubmitTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('pipelineTask'),
-          pipelineTask: z.lazy(() => marshalPipelineTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('pythonWheelTask'),
-          pythonWheelTask: z.lazy(() => marshalPythonWheelTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('dbtTask'),
-          dbtTask: z.lazy(() => marshalDbtTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('sqlTask'),
-          sqlTask: z.lazy(() => marshalSqlTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('runJobTask'),
-          runJobTask: z.lazy(() => marshalRunJobTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('conditionTask'),
-          conditionTask: z.lazy(() => marshalConditionTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('forEachTask'),
-          forEachTask: z.lazy(() => marshalForEachTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('cleanRoomsNotebookTask'),
-          cleanRoomsNotebookTask: z.lazy(
-            () => marshalCleanRoomsNotebookTaskSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('genAiComputeTask'),
-          genAiComputeTask: z.lazy(() => marshalGenAiComputeTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('alertTask'),
-          alertTask: z.lazy(() => marshalAlertTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('powerBiTask'),
-          powerBiTask: z.lazy(() => marshalPowerBiTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('dashboardTask'),
-          dashboardTask: z.lazy(() => marshalDashboardTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('dbtCloudTask'),
-          dbtCloudTask: z.lazy(() => marshalDbtCloudTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('dbtPlatformTask'),
-          dbtPlatformTask: z.lazy(() => marshalDbtPlatformTaskSchema),
-        }),
-        z.object({
-          $case: z.literal('pythonOperatorTask'),
-          pythonOperatorTask: z.lazy(() => marshalPythonOperatorTaskSchema),
-        }),
-      ])
-      .optional(),
-    spec: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('existingClusterId'),
-          existingClusterId: z.string(),
-        }),
-        z.object({
-          $case: z.literal('newCluster'),
-          newCluster: z.lazy(() => marshalClusterSpec_NewClusterSchema),
-        }),
-        z.object({
-          $case: z.literal('jobClusterKey'),
-          jobClusterKey: z.string(),
-        }),
-      ])
-      .optional(),
+    task: z.discriminatedUnion('$case', [z.object({ $case: z.literal('notebookTask'), notebookTask: z.lazy(() => marshalNotebookTaskSchema) }), z.object({ $case: z.literal('sparkJarTask'), sparkJarTask: z.lazy(() => marshalSparkJarTaskSchema) }), z.object({ $case: z.literal('sparkPythonTask'), sparkPythonTask: z.lazy(() => marshalSparkPythonTaskSchema) }), z.object({ $case: z.literal('sparkSubmitTask'), sparkSubmitTask: z.lazy(() => marshalSparkSubmitTaskSchema) }), z.object({ $case: z.literal('pipelineTask'), pipelineTask: z.lazy(() => marshalPipelineTaskSchema) }), z.object({ $case: z.literal('pythonWheelTask'), pythonWheelTask: z.lazy(() => marshalPythonWheelTaskSchema) }), z.object({ $case: z.literal('dbtTask'), dbtTask: z.lazy(() => marshalDbtTaskSchema) }), z.object({ $case: z.literal('sqlTask'), sqlTask: z.lazy(() => marshalSqlTaskSchema) }), z.object({ $case: z.literal('runJobTask'), runJobTask: z.lazy(() => marshalRunJobTaskSchema) }), z.object({ $case: z.literal('conditionTask'), conditionTask: z.lazy(() => marshalConditionTaskSchema) }), z.object({ $case: z.literal('forEachTask'), forEachTask: z.lazy(() => marshalForEachTaskSchema) }), z.object({ $case: z.literal('cleanRoomsNotebookTask'), cleanRoomsNotebookTask: z.lazy(() => marshalCleanRoomsNotebookTaskSchema) }), z.object({ $case: z.literal('genAiComputeTask'), genAiComputeTask: z.lazy(() => marshalGenAiComputeTaskSchema) }), z.object({ $case: z.literal('alertTask'), alertTask: z.lazy(() => marshalAlertTaskSchema) }), z.object({ $case: z.literal('powerBiTask'), powerBiTask: z.lazy(() => marshalPowerBiTaskSchema) }), z.object({ $case: z.literal('dashboardTask'), dashboardTask: z.lazy(() => marshalDashboardTaskSchema) }), z.object({ $case: z.literal('dbtCloudTask'), dbtCloudTask: z.lazy(() => marshalDbtCloudTaskSchema) }), z.object({ $case: z.literal('dbtPlatformTask'), dbtPlatformTask: z.lazy(() => marshalDbtPlatformTaskSchema) }), z.object({ $case: z.literal('pythonOperatorTask'), pythonOperatorTask: z.lazy(() => marshalPythonOperatorTaskSchema) })]).optional(),
+    spec: z.discriminatedUnion('$case', [z.object({ $case: z.literal('existingClusterId'), existingClusterId: z.string() }), z.object({ $case: z.literal('newCluster'), newCluster: z.lazy(() => marshalClusterSpec_NewClusterSchema) }), z.object({ $case: z.literal('jobClusterKey'), jobClusterKey: z.string() })]).optional(),
     libraries: z.array(z.lazy(() => marshalLibrarySchema)).optional(),
     maxRetries: z.number().optional(),
     minRetryIntervalMillis: z.number().optional(),
@@ -9733,63 +8638,31 @@ export const marshalTaskSettingsSchema: z.ZodType = z
     notification_settings: d.notificationSettings,
     webhook_notifications: d.webhookNotifications,
     description: d.description,
-    ...(d.environmentRef?.$case === 'environmentKey' && {
-      environment_key: d.environmentRef.environmentKey,
-    }),
+    ...(d.environmentRef?.$case === 'environmentKey' && { environment_key: d.environmentRef.environmentKey }),
     disabled: d.disabled,
     compute: d.compute,
-    ...(d.task?.$case === 'notebookTask' && {
-      notebook_task: d.task.notebookTask,
-    }),
-    ...(d.task?.$case === 'sparkJarTask' && {
-      spark_jar_task: d.task.sparkJarTask,
-    }),
-    ...(d.task?.$case === 'sparkPythonTask' && {
-      spark_python_task: d.task.sparkPythonTask,
-    }),
-    ...(d.task?.$case === 'sparkSubmitTask' && {
-      spark_submit_task: d.task.sparkSubmitTask,
-    }),
-    ...(d.task?.$case === 'pipelineTask' && {
-      pipeline_task: d.task.pipelineTask,
-    }),
-    ...(d.task?.$case === 'pythonWheelTask' && {
-      python_wheel_task: d.task.pythonWheelTask,
-    }),
-    ...(d.task?.$case === 'dbtTask' && {dbt_task: d.task.dbtTask}),
-    ...(d.task?.$case === 'sqlTask' && {sql_task: d.task.sqlTask}),
-    ...(d.task?.$case === 'runJobTask' && {run_job_task: d.task.runJobTask}),
-    ...(d.task?.$case === 'conditionTask' && {
-      condition_task: d.task.conditionTask,
-    }),
-    ...(d.task?.$case === 'forEachTask' && {for_each_task: d.task.forEachTask}),
-    ...(d.task?.$case === 'cleanRoomsNotebookTask' && {
-      clean_rooms_notebook_task: d.task.cleanRoomsNotebookTask,
-    }),
-    ...(d.task?.$case === 'genAiComputeTask' && {
-      gen_ai_compute_task: d.task.genAiComputeTask,
-    }),
-    ...(d.task?.$case === 'alertTask' && {alert_task: d.task.alertTask}),
-    ...(d.task?.$case === 'powerBiTask' && {power_bi_task: d.task.powerBiTask}),
-    ...(d.task?.$case === 'dashboardTask' && {
-      dashboard_task: d.task.dashboardTask,
-    }),
-    ...(d.task?.$case === 'dbtCloudTask' && {
-      dbt_cloud_task: d.task.dbtCloudTask,
-    }),
-    ...(d.task?.$case === 'dbtPlatformTask' && {
-      dbt_platform_task: d.task.dbtPlatformTask,
-    }),
-    ...(d.task?.$case === 'pythonOperatorTask' && {
-      python_operator_task: d.task.pythonOperatorTask,
-    }),
-    ...(d.spec?.$case === 'existingClusterId' && {
-      existing_cluster_id: d.spec.existingClusterId,
-    }),
-    ...(d.spec?.$case === 'newCluster' && {new_cluster: d.spec.newCluster}),
-    ...(d.spec?.$case === 'jobClusterKey' && {
-      job_cluster_key: d.spec.jobClusterKey,
-    }),
+    ...(d.task?.$case === 'notebookTask' && { notebook_task: d.task.notebookTask }),
+    ...(d.task?.$case === 'sparkJarTask' && { spark_jar_task: d.task.sparkJarTask }),
+    ...(d.task?.$case === 'sparkPythonTask' && { spark_python_task: d.task.sparkPythonTask }),
+    ...(d.task?.$case === 'sparkSubmitTask' && { spark_submit_task: d.task.sparkSubmitTask }),
+    ...(d.task?.$case === 'pipelineTask' && { pipeline_task: d.task.pipelineTask }),
+    ...(d.task?.$case === 'pythonWheelTask' && { python_wheel_task: d.task.pythonWheelTask }),
+    ...(d.task?.$case === 'dbtTask' && { dbt_task: d.task.dbtTask }),
+    ...(d.task?.$case === 'sqlTask' && { sql_task: d.task.sqlTask }),
+    ...(d.task?.$case === 'runJobTask' && { run_job_task: d.task.runJobTask }),
+    ...(d.task?.$case === 'conditionTask' && { condition_task: d.task.conditionTask }),
+    ...(d.task?.$case === 'forEachTask' && { for_each_task: d.task.forEachTask }),
+    ...(d.task?.$case === 'cleanRoomsNotebookTask' && { clean_rooms_notebook_task: d.task.cleanRoomsNotebookTask }),
+    ...(d.task?.$case === 'genAiComputeTask' && { gen_ai_compute_task: d.task.genAiComputeTask }),
+    ...(d.task?.$case === 'alertTask' && { alert_task: d.task.alertTask }),
+    ...(d.task?.$case === 'powerBiTask' && { power_bi_task: d.task.powerBiTask }),
+    ...(d.task?.$case === 'dashboardTask' && { dashboard_task: d.task.dashboardTask }),
+    ...(d.task?.$case === 'dbtCloudTask' && { dbt_cloud_task: d.task.dbtCloudTask }),
+    ...(d.task?.$case === 'dbtPlatformTask' && { dbt_platform_task: d.task.dbtPlatformTask }),
+    ...(d.task?.$case === 'pythonOperatorTask' && { python_operator_task: d.task.pythonOperatorTask }),
+    ...(d.spec?.$case === 'existingClusterId' && { existing_cluster_id: d.spec.existingClusterId }),
+    ...(d.spec?.$case === 'newCluster' && { new_cluster: d.spec.newCluster }),
+    ...(d.spec?.$case === 'jobClusterKey' && { job_cluster_key: d.spec.jobClusterKey }),
     libraries: d.libraries,
     max_retries: d.maxRetries,
     min_retry_interval_millis: d.minRetryIntervalMillis,
@@ -9800,44 +8673,17 @@ export const marshalTaskSettingsSchema: z.ZodType = z
 export const marshalTriggerSettingsSchema: z.ZodType = z
   .object({
     pauseStatus: z.enum(SchedulePauseStatus).optional(),
-    configuration: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('fileArrival'),
-          fileArrival: z.lazy(
-            () => marshalFileArrivalTriggerConfigurationSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('periodic'),
-          periodic: z.lazy(() => marshalPeriodicTriggerConfigurationSchema),
-        }),
-        z.object({
-          $case: z.literal('tableUpdate'),
-          tableUpdate: z.lazy(() => marshalTableTriggerConfigurationSchema),
-        }),
-        z.object({
-          $case: z.literal('model'),
-          model: z.lazy(() => marshalModelTriggerConfigurationSchema),
-        }),
-      ])
-      .optional(),
+    configuration: z.discriminatedUnion('$case', [z.object({ $case: z.literal('fileArrival'), fileArrival: z.lazy(() => marshalFileArrivalTriggerConfigurationSchema) }), z.object({ $case: z.literal('periodic'), periodic: z.lazy(() => marshalPeriodicTriggerConfigurationSchema) }), z.object({ $case: z.literal('tableUpdate'), tableUpdate: z.lazy(() => marshalTableTriggerConfigurationSchema) }), z.object({ $case: z.literal('model'), model: z.lazy(() => marshalModelTriggerConfigurationSchema) })]).optional(),
   })
   .transform(d => ({
     pause_status: d.pauseStatus,
-    ...(d.configuration?.$case === 'fileArrival' && {
-      file_arrival: d.configuration.fileArrival,
-    }),
-    ...(d.configuration?.$case === 'periodic' && {
-      periodic: d.configuration.periodic,
-    }),
-    ...(d.configuration?.$case === 'tableUpdate' && {
-      table_update: d.configuration.tableUpdate,
-    }),
-    ...(d.configuration?.$case === 'model' && {model: d.configuration.model}),
+    ...(d.configuration?.$case === 'fileArrival' && { file_arrival: d.configuration.fileArrival }),
+    ...(d.configuration?.$case === 'periodic' && { periodic: d.configuration.periodic }),
+    ...(d.configuration?.$case === 'tableUpdate' && { table_update: d.configuration.tableUpdate }),
+    ...(d.configuration?.$case === 'model' && { model: d.configuration.model }),
   }));
 
-export const marshalUpdateJobSchema: z.ZodType = z
+export const marshalUpdateJobRequestSchema: z.ZodType = z
   .object({
     jobId: z.number().optional(),
     newSettings: z.lazy(() => marshalJobSettingsSchema).optional(),
@@ -9870,19 +8716,14 @@ export const marshalWebhookNotificationsSchema: z.ZodType = z
     onStart: z.array(z.lazy(() => marshalWebhookSchema)).optional(),
     onSuccess: z.array(z.lazy(() => marshalWebhookSchema)).optional(),
     onFailure: z.array(z.lazy(() => marshalWebhookSchema)).optional(),
-    onDurationWarningThresholdExceeded: z
-      .array(z.lazy(() => marshalWebhookSchema))
-      .optional(),
-    onStreamingBacklogExceeded: z
-      .array(z.lazy(() => marshalWebhookSchema))
-      .optional(),
+    onDurationWarningThresholdExceeded: z.array(z.lazy(() => marshalWebhookSchema)).optional(),
+    onStreamingBacklogExceeded: z.array(z.lazy(() => marshalWebhookSchema)).optional(),
   })
   .transform(d => ({
     on_start: d.onStart,
     on_success: d.onSuccess,
     on_failure: d.onFailure,
-    on_duration_warning_threshold_exceeded:
-      d.onDurationWarningThresholdExceeded,
+    on_duration_warning_threshold_exceeded: d.onDurationWarningThresholdExceeded,
     on_streaming_backlog_exceeded: d.onStreamingBacklogExceeded,
   }));
 

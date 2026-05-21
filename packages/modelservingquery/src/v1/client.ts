@@ -9,17 +9,14 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
-import type {QueryEndpointInput, QueryEndpointResponse} from './model';
+import type {
+  QueryEndpointInputRequest,
+  QueryEndpointResponse,
+} from './model';
 import {
-  marshalQueryEndpointInputSchema,
+  marshalQueryEndpointInputRequestSchema,
   unmarshalQueryEndpointResponseSchema,
 } from './model';
 
@@ -55,22 +52,15 @@ export class Client {
   }
 
   /** Query a serving endpoint */
-  async query(
-    req: QueryEndpointInput,
-    options?: CallOptions
-  ): Promise<QueryEndpointResponse> {
+  async query(req: QueryEndpointInputRequest, options?: CallOptions): Promise<QueryEndpointResponse> {
     const url = `${this.host}/api/serving-endpoints/${req.name ?? ''}/invocations`;
-    const body = marshalRequest(req, marshalQueryEndpointInputSchema);
+    const body = marshalRequest(req, marshalQueryEndpointInputRequestSchema);
     let resp: QueryEndpointResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalQueryEndpointResponseSchema);
     };
     await executeCall(call, options);

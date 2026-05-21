@@ -18,23 +18,23 @@ import {
 } from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  CreateLogDeliveryConfiguration,
-  CreateLogDeliveryConfiguration_Response,
-  GetLogDeliveryConfiguration,
-  GetLogDeliveryConfiguration_Response,
-  ListLogDeliveryConfiguration,
-  ListLogDeliveryConfiguration_Response,
+  CreateLogDeliveryConfigurationRequest,
+  CreateLogDeliveryConfigurationRequest_Response,
+  GetLogDeliveryConfigurationRequest,
+  GetLogDeliveryConfigurationRequest_Response,
+  ListLogDeliveryConfigurationRequest,
+  ListLogDeliveryConfigurationRequest_Response,
   LogDeliveryConfiguration,
-  UpdateLogDeliveryConfiguration,
-  UpdateLogDeliveryConfiguration_Response,
+  UpdateLogDeliveryConfigurationRequest,
+  UpdateLogDeliveryConfigurationRequest_Response,
 } from './model';
 import {
-  marshalCreateLogDeliveryConfigurationSchema,
-  marshalUpdateLogDeliveryConfigurationSchema,
-  unmarshalCreateLogDeliveryConfiguration_ResponseSchema,
-  unmarshalGetLogDeliveryConfiguration_ResponseSchema,
-  unmarshalListLogDeliveryConfiguration_ResponseSchema,
-  unmarshalUpdateLogDeliveryConfiguration_ResponseSchema,
+  marshalCreateLogDeliveryConfigurationRequestSchema,
+  marshalUpdateLogDeliveryConfigurationRequestSchema,
+  unmarshalCreateLogDeliveryConfigurationRequest_ResponseSchema,
+  unmarshalGetLogDeliveryConfigurationRequest_ResponseSchema,
+  unmarshalListLogDeliveryConfigurationRequest_ResponseSchema,
+  unmarshalUpdateLogDeliveryConfigurationRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -88,15 +88,15 @@ export class Client {
    * You cannot delete a log delivery configuration, but you can disable it (see [Enable or disable log delivery configuration](:method:LogDelivery/PatchStatus)).
    */
   async createLogDeliveryConfiguration(
-    req: CreateLogDeliveryConfiguration,
+    req: CreateLogDeliveryConfigurationRequest,
     options?: CallOptions
-  ): Promise<CreateLogDeliveryConfiguration_Response> {
+  ): Promise<CreateLogDeliveryConfigurationRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.logDeliveryConfiguration?.accountId ?? ''}/log-delivery`;
     const body = marshalRequest(
       req,
-      marshalCreateLogDeliveryConfigurationSchema
+      marshalCreateLogDeliveryConfigurationRequestSchema
     );
-    let resp: CreateLogDeliveryConfiguration_Response | undefined;
+    let resp: CreateLogDeliveryConfigurationRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -108,7 +108,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalCreateLogDeliveryConfiguration_ResponseSchema
+        unmarshalCreateLogDeliveryConfigurationRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -120,11 +120,11 @@ export class Client {
 
   /** Gets a <Databricks> log delivery configuration object for an account, both specified by ID. */
   async getLogDeliveryConfiguration(
-    req: GetLogDeliveryConfiguration,
+    req: GetLogDeliveryConfigurationRequest,
     options?: CallOptions
-  ): Promise<GetLogDeliveryConfiguration_Response> {
+  ): Promise<GetLogDeliveryConfigurationRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/log-delivery/${req.configId ?? ''}`;
-    let resp: GetLogDeliveryConfiguration_Response | undefined;
+    let resp: GetLogDeliveryConfigurationRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -136,7 +136,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalGetLogDeliveryConfiguration_ResponseSchema
+        unmarshalGetLogDeliveryConfigurationRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -148,9 +148,9 @@ export class Client {
 
   /** Gets all <Databricks> log delivery configurations associated with an account specified by ID. */
   async listLogDeliveryConfiguration(
-    req: ListLogDeliveryConfiguration,
+    req: ListLogDeliveryConfigurationRequest,
     options?: CallOptions
-  ): Promise<ListLogDeliveryConfiguration_Response> {
+  ): Promise<ListLogDeliveryConfigurationRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/log-delivery`;
     const params = new URLSearchParams();
     if (req.credentialsId !== undefined) {
@@ -167,7 +167,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListLogDeliveryConfiguration_Response | undefined;
+    let resp: ListLogDeliveryConfigurationRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -179,7 +179,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListLogDeliveryConfiguration_ResponseSchema
+        unmarshalListLogDeliveryConfigurationRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -190,10 +190,10 @@ export class Client {
   }
 
   async *listLogDeliveryConfigurationIter(
-    req: ListLogDeliveryConfiguration,
+    req: ListLogDeliveryConfigurationRequest,
     options?: CallOptions
   ): AsyncGenerator<LogDeliveryConfiguration> {
-    const pageReq: ListLogDeliveryConfiguration = {...req};
+    const pageReq: ListLogDeliveryConfigurationRequest = {...req};
     for (;;) {
       const resp = await this.listLogDeliveryConfiguration(pageReq, options);
       for (const item of resp.logDeliveryConfigurations ?? []) {
@@ -212,15 +212,15 @@ export class Client {
    * Note that you can't re-enable a delivery configuration if this would violate the delivery configuration limits described under [Create log delivery](:method:LogDelivery/Create).
    */
   async updateLogDeliveryConfiguration(
-    req: UpdateLogDeliveryConfiguration,
+    req: UpdateLogDeliveryConfigurationRequest,
     options?: CallOptions
-  ): Promise<UpdateLogDeliveryConfiguration_Response> {
+  ): Promise<UpdateLogDeliveryConfigurationRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/log-delivery/${req.configId ?? ''}`;
     const body = marshalRequest(
       req,
-      marshalUpdateLogDeliveryConfigurationSchema
+      marshalUpdateLogDeliveryConfigurationRequestSchema
     );
-    let resp: UpdateLogDeliveryConfiguration_Response | undefined;
+    let resp: UpdateLogDeliveryConfigurationRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -232,7 +232,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalUpdateLogDeliveryConfiguration_ResponseSchema
+        unmarshalUpdateLogDeliveryConfigurationRequest_ResponseSchema
       );
     };
     await executeCall(call, options);

@@ -19,46 +19,46 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   AclItem,
-  CreateScope,
-  CreateScope_Response,
-  DeleteAcl,
-  DeleteAcl_Response,
-  DeleteScope,
-  DeleteScope_Response,
-  DeleteSecret,
-  DeleteSecret_Response,
-  GetAcl,
-  GetSecret,
-  GetSecret_Response,
-  ListAcls,
-  ListAcls_Response,
-  ListScopes,
-  ListScopes_Response,
-  ListSecrets,
-  ListSecrets_Response,
-  PutAcl,
-  PutAcl_Response,
-  PutSecret,
-  PutSecret_Response,
+  CreateScopeRequest,
+  CreateScopeRequest_Response,
+  DeleteAclRequest,
+  DeleteAclRequest_Response,
+  DeleteScopeRequest,
+  DeleteScopeRequest_Response,
+  DeleteSecretRequest,
+  DeleteSecretRequest_Response,
+  GetAclRequest,
+  GetSecretRequest,
+  GetSecretRequest_Response,
+  ListAclsRequest,
+  ListAclsRequest_Response,
+  ListScopesRequest,
+  ListScopesRequest_Response,
+  ListSecretsRequest,
+  ListSecretsRequest_Response,
+  PutAclRequest,
+  PutAclRequest_Response,
+  PutSecretRequest,
+  PutSecretRequest_Response,
 } from './model';
 import {
-  marshalCreateScopeSchema,
-  marshalDeleteAclSchema,
-  marshalDeleteScopeSchema,
-  marshalDeleteSecretSchema,
-  marshalPutAclSchema,
-  marshalPutSecretSchema,
+  marshalCreateScopeRequestSchema,
+  marshalDeleteAclRequestSchema,
+  marshalDeleteScopeRequestSchema,
+  marshalDeleteSecretRequestSchema,
+  marshalPutAclRequestSchema,
+  marshalPutSecretRequestSchema,
   unmarshalAclItemSchema,
-  unmarshalCreateScope_ResponseSchema,
-  unmarshalDeleteAcl_ResponseSchema,
-  unmarshalDeleteScope_ResponseSchema,
-  unmarshalDeleteSecret_ResponseSchema,
-  unmarshalGetSecret_ResponseSchema,
-  unmarshalListAcls_ResponseSchema,
-  unmarshalListScopes_ResponseSchema,
-  unmarshalListSecrets_ResponseSchema,
-  unmarshalPutAcl_ResponseSchema,
-  unmarshalPutSecret_ResponseSchema,
+  unmarshalCreateScopeRequest_ResponseSchema,
+  unmarshalDeleteAclRequest_ResponseSchema,
+  unmarshalDeleteScopeRequest_ResponseSchema,
+  unmarshalDeleteSecretRequest_ResponseSchema,
+  unmarshalGetSecretRequest_ResponseSchema,
+  unmarshalListAclsRequest_ResponseSchema,
+  unmarshalListScopesRequest_ResponseSchema,
+  unmarshalListSecretsRequest_ResponseSchema,
+  unmarshalPutAclRequest_ResponseSchema,
+  unmarshalPutSecretRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -135,12 +135,12 @@ export class Client {
    * Throws ``UNAUTHENTICATED`` if unable to verify user access permission on Azure KeyVault
    */
   async createScope(
-    req: CreateScope,
+    req: CreateScopeRequest,
     options?: CallOptions
-  ): Promise<CreateScope_Response> {
+  ): Promise<CreateScopeRequest_Response> {
     const url = `${this.host}/api/2.0/secrets/scopes/create`;
-    const body = marshalRequest(req, marshalCreateScopeSchema);
-    let resp: CreateScope_Response | undefined;
+    const body = marshalRequest(req, marshalCreateScopeRequestSchema);
+    let resp: CreateScopeRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -150,7 +150,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCreateScope_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalCreateScopeRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -178,12 +181,12 @@ export class Client {
    * Throws ``INVALID_PARAMETER_VALUE`` if the permission or principal is invalid.
    */
   async deleteAcl(
-    req: DeleteAcl,
+    req: DeleteAclRequest,
     options?: CallOptions
-  ): Promise<DeleteAcl_Response> {
+  ): Promise<DeleteAclRequest_Response> {
     const url = `${this.host}/api/2.0/secrets/acls/delete`;
-    const body = marshalRequest(req, marshalDeleteAclSchema);
-    let resp: DeleteAcl_Response | undefined;
+    const body = marshalRequest(req, marshalDeleteAclRequestSchema);
+    let resp: DeleteAclRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -193,7 +196,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteAcl_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalDeleteAclRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -218,12 +221,12 @@ export class Client {
    * Throws ``BAD_REQUEST`` if system user attempts to delete internal secret scope.
    */
   async deleteScope(
-    req: DeleteScope,
+    req: DeleteScopeRequest,
     options?: CallOptions
-  ): Promise<DeleteScope_Response> {
+  ): Promise<DeleteScopeRequest_Response> {
     const url = `${this.host}/api/2.0/secrets/scopes/delete`;
-    const body = marshalRequest(req, marshalDeleteScopeSchema);
-    let resp: DeleteScope_Response | undefined;
+    const body = marshalRequest(req, marshalDeleteScopeRequestSchema);
+    let resp: DeleteScopeRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -233,7 +236,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteScope_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalDeleteScopeRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -260,12 +266,12 @@ export class Client {
    * Throws ``BAD_REQUEST`` if system user attempts to delete an internal secret, or request is made against Azure KeyVault backed scope.
    */
   async deleteSecret(
-    req: DeleteSecret,
+    req: DeleteSecretRequest,
     options?: CallOptions
-  ): Promise<DeleteSecret_Response> {
+  ): Promise<DeleteSecretRequest_Response> {
     const url = `${this.host}/api/2.0/secrets/delete`;
-    const body = marshalRequest(req, marshalDeleteSecretSchema);
-    let resp: DeleteSecret_Response | undefined;
+    const body = marshalRequest(req, marshalDeleteSecretRequestSchema);
+    let resp: DeleteSecretRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -275,7 +281,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalDeleteSecret_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalDeleteSecretRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -302,7 +311,7 @@ export class Client {
    * Throws ``PERMISSION_DENIED`` if the user does not have permission to make this API call.
    * Throws ``INVALID_PARAMETER_VALUE`` if the permission or principal is invalid.
    */
-  async getAcl(req: GetAcl, options?: CallOptions): Promise<AclItem> {
+  async getAcl(req: GetAclRequest, options?: CallOptions): Promise<AclItem> {
     const url = `${this.host}/api/2.0/secrets/acls/get`;
     const params = new URLSearchParams();
     if (req.scope !== undefined) {
@@ -363,9 +372,9 @@ export class Client {
    * Throws ``MALFORMED_REQUEST`` if secret manager cannot access AKV with any other 4xx error
    */
   async getSecret(
-    req: GetSecret,
+    req: GetSecretRequest,
     options?: CallOptions
-  ): Promise<GetSecret_Response> {
+  ): Promise<GetSecretRequest_Response> {
     const url = `${this.host}/api/2.0/secrets/get`;
     const params = new URLSearchParams();
     if (req.scope !== undefined) {
@@ -376,7 +385,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: GetSecret_Response | undefined;
+    let resp: GetSecretRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -386,7 +395,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalGetSecret_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalGetSecretRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -418,9 +427,9 @@ export class Client {
    * Throws ``PERMISSION_DENIED`` if the user does not have permission to make this API call.
    */
   async listAcls(
-    req: ListAcls,
+    req: ListAclsRequest,
     options?: CallOptions
-  ): Promise<ListAcls_Response> {
+  ): Promise<ListAclsRequest_Response> {
     const url = `${this.host}/api/2.0/secrets/acls/list`;
     const params = new URLSearchParams();
     if (req.scope !== undefined) {
@@ -428,7 +437,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListAcls_Response | undefined;
+    let resp: ListAclsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -438,7 +447,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListAcls_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListAclsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -467,11 +476,11 @@ export class Client {
    * Throws ``PERMISSION_DENIED`` if the user does not have permission to make this API call.
    */
   async listScopes(
-    _req: ListScopes,
+    _req: ListScopesRequest,
     options?: CallOptions
-  ): Promise<ListScopes_Response> {
+  ): Promise<ListScopesRequest_Response> {
     const url = `${this.host}/api/2.0/secrets/scopes/list`;
-    let resp: ListScopes_Response | undefined;
+    let resp: ListScopesRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -481,7 +490,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListScopes_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalListScopesRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -518,9 +527,9 @@ export class Client {
    * Throws ``PERMISSION_DENIED`` if the user does not have permission to make this API call.
    */
   async listSecrets(
-    req: ListSecrets,
+    req: ListSecretsRequest,
     options?: CallOptions
-  ): Promise<ListSecrets_Response> {
+  ): Promise<ListSecretsRequest_Response> {
     const url = `${this.host}/api/2.0/secrets/list`;
     const params = new URLSearchParams();
     if (req.scope !== undefined) {
@@ -528,7 +537,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListSecrets_Response | undefined;
+    let resp: ListSecretsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -538,7 +547,10 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalListSecrets_ResponseSchema);
+      resp = parseResponse(
+        respBody,
+        unmarshalListSecretsRequest_ResponseSchema
+      );
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -581,10 +593,13 @@ export class Client {
    * Throws ``INVALID_PARAMETER_VALUE`` if the permission or principal is invalid.
    * Throws ``PERMISSION_DENIED`` if the user does not have permission to make this API call.
    */
-  async putAcl(req: PutAcl, options?: CallOptions): Promise<PutAcl_Response> {
+  async putAcl(
+    req: PutAclRequest,
+    options?: CallOptions
+  ): Promise<PutAclRequest_Response> {
     const url = `${this.host}/api/2.0/secrets/acls/put`;
-    const body = marshalRequest(req, marshalPutAclSchema);
-    let resp: PutAcl_Response | undefined;
+    const body = marshalRequest(req, marshalPutAclRequestSchema);
+    let resp: PutAclRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -594,7 +609,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalPutAcl_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalPutAclRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -636,12 +651,12 @@ export class Client {
    * Throws ``BAD_REQUEST`` if request is made against Azure KeyVault backed scope.
    */
   async putSecret(
-    req: PutSecret,
+    req: PutSecretRequest,
     options?: CallOptions
-  ): Promise<PutSecret_Response> {
+  ): Promise<PutSecretRequest_Response> {
     const url = `${this.host}/api/2.0/secrets/put`;
-    const body = marshalRequest(req, marshalPutSecretSchema);
-    let resp: PutSecret_Response | undefined;
+    const body = marshalRequest(req, marshalPutSecretRequestSchema);
+    let resp: PutSecretRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -651,7 +666,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalPutSecret_ResponseSchema);
+      resp = parseResponse(respBody, unmarshalPutSecretRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

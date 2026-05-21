@@ -9,52 +9,45 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-  flattenQueryParams,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse, flattenQueryParams} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CheckPolicyRequest,
   CheckPolicyResponse,
-  DeleteWorkspacePermissionAssignment,
-  DeleteWorkspacePermissionAssignment_Response,
+  DeleteWorkspacePermissionAssignmentRequest,
+  DeleteWorkspacePermissionAssignmentRequest_Response,
   GetAssignableRolesForResourceRequest,
   GetAssignableRolesForResourceResponse,
-  GetObjectPermissions,
-  GetPermissionLevels,
-  GetPermissionLevels_Response,
+  GetObjectPermissionsRequest,
+  GetPermissionLevelsRequest,
+  GetPermissionLevelsRequest_Response,
   GetRuleSetRequest,
-  GetWorkspacePermissionAssignments,
-  GetWorkspacePermissionAssignments_Response,
-  ListWorkspacePermissions,
-  ListWorkspacePermissions_Response,
+  GetWorkspacePermissionAssignmentsRequest,
+  GetWorkspacePermissionAssignmentsRequest_Response,
+  ListWorkspacePermissionsRequest,
+  ListWorkspacePermissionsRequest_Response,
   PermissionsResponse,
   RuleSet,
-  SetObjectPermissions,
-  UpdateObjectPermissions,
+  SetObjectPermissionsRequest,
+  UpdateObjectPermissionsRequest,
   UpdateRuleSetRequest,
-  UpdateWorkspacePermissionAssignment,
+  UpdateWorkspacePermissionAssignmentRequest,
   WorkspacePermissionAssignmentOutput,
 } from './model';
 import {
   marshalActorSchema,
   marshalConsistencyTokenSchema,
   marshalResourceInfoSchema,
-  marshalSetObjectPermissionsSchema,
-  marshalUpdateObjectPermissionsSchema,
+  marshalSetObjectPermissionsRequestSchema,
+  marshalUpdateObjectPermissionsRequestSchema,
   marshalUpdateRuleSetRequestSchema,
-  marshalUpdateWorkspacePermissionAssignmentSchema,
+  marshalUpdateWorkspacePermissionAssignmentRequestSchema,
   unmarshalCheckPolicyResponseSchema,
-  unmarshalDeleteWorkspacePermissionAssignment_ResponseSchema,
+  unmarshalDeleteWorkspacePermissionAssignmentRequest_ResponseSchema,
   unmarshalGetAssignableRolesForResourceResponseSchema,
-  unmarshalGetPermissionLevels_ResponseSchema,
-  unmarshalGetWorkspacePermissionAssignments_ResponseSchema,
-  unmarshalListWorkspacePermissions_ResponseSchema,
+  unmarshalGetPermissionLevelsRequest_ResponseSchema,
+  unmarshalGetWorkspacePermissionAssignmentsRequest_ResponseSchema,
+  unmarshalListWorkspacePermissionsRequest_ResponseSchema,
   unmarshalPermissionsResponseSchema,
   unmarshalRuleSetSchema,
   unmarshalWorkspacePermissionAssignmentOutputSchema,
@@ -96,25 +89,15 @@ export class Client {
   }
 
   /** Deletes the workspace permissions assignment in a given account and workspace for the specified principal. */
-  async deleteWorkspacePermissionAssignment(
-    req: DeleteWorkspacePermissionAssignment,
-    options?: CallOptions
-  ): Promise<DeleteWorkspacePermissionAssignment_Response> {
+  async deleteWorkspacePermissionAssignment(req: DeleteWorkspacePermissionAssignmentRequest, options?: CallOptions): Promise<DeleteWorkspacePermissionAssignmentRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments/principals/${String(req.principalId ?? '')}`;
-    let resp: DeleteWorkspacePermissionAssignment_Response | undefined;
+    let resp: DeleteWorkspacePermissionAssignmentRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteWorkspacePermissionAssignment_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteWorkspacePermissionAssignmentRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -124,25 +107,15 @@ export class Client {
   }
 
   /** Get the permission assignments for the specified <Account> and <Workspace>. */
-  async getWorkspacePermissionAssignments(
-    req: GetWorkspacePermissionAssignments,
-    options?: CallOptions
-  ): Promise<GetWorkspacePermissionAssignments_Response> {
+  async getWorkspacePermissionAssignments(req: GetWorkspacePermissionAssignmentsRequest, options?: CallOptions): Promise<GetWorkspacePermissionAssignmentsRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments`;
-    let resp: GetWorkspacePermissionAssignments_Response | undefined;
+    let resp: GetWorkspacePermissionAssignmentsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetWorkspacePermissionAssignments_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetWorkspacePermissionAssignmentsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -152,25 +125,15 @@ export class Client {
   }
 
   /** Get an array of workspace permissions for the specified account and workspace. */
-  async listWorkspacePermissions(
-    req: ListWorkspacePermissions,
-    options?: CallOptions
-  ): Promise<ListWorkspacePermissions_Response> {
+  async listWorkspacePermissions(req: ListWorkspacePermissionsRequest, options?: CallOptions): Promise<ListWorkspacePermissionsRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments/permissions`;
-    let resp: ListWorkspacePermissions_Response | undefined;
+    let resp: ListWorkspacePermissionsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListWorkspacePermissions_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListWorkspacePermissionsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -180,29 +143,16 @@ export class Client {
   }
 
   /** Creates or updates the workspace permissions assignment in a given account and workspace for the specified principal. */
-  async updateWorkspacePermissionAssignment(
-    req: UpdateWorkspacePermissionAssignment,
-    options?: CallOptions
-  ): Promise<WorkspacePermissionAssignmentOutput> {
+  async updateWorkspacePermissionAssignment(req: UpdateWorkspacePermissionAssignmentRequest, options?: CallOptions): Promise<WorkspacePermissionAssignmentOutput> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}/permissionassignments/principals/${String(req.principalId ?? '')}`;
-    const body = marshalRequest(
-      req,
-      marshalUpdateWorkspacePermissionAssignmentSchema
-    );
+    const body = marshalRequest(req, marshalUpdateWorkspacePermissionAssignmentRequestSchema);
     let resp: WorkspacePermissionAssignmentOutput | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalWorkspacePermissionAssignmentOutputSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalWorkspacePermissionAssignmentOutputSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -215,10 +165,7 @@ export class Client {
    * Gets all the roles that can be granted on an account level resource. A role is grantable if the rule set on the
    * resource can contain an access rule of the role.
    */
-  async getAssignableRolesForResource(
-    req: GetAssignableRolesForResourceRequest,
-    options?: CallOptions
-  ): Promise<GetAssignableRolesForResourceResponse> {
+  async getAssignableRolesForResource(req: GetAssignableRolesForResourceRequest, options?: CallOptions): Promise<GetAssignableRolesForResourceResponse> {
     const url = `${this.host}/api/2.0/preview/accounts/${req.accountId ?? this.accountId ?? ''}/access-control/assignable-roles`;
     const params = new URLSearchParams();
     if (req.resource !== undefined) {
@@ -231,15 +178,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetAssignableRolesForResourceResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetAssignableRolesForResourceResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -252,10 +192,7 @@ export class Client {
    * Gets all the roles that can be granted on an account level resource. A role is grantable if the rule set on the
    * resource can contain an access rule of the role.
    */
-  async getAssignableRolesForResourceProxy(
-    req: GetAssignableRolesForResourceRequest,
-    options?: CallOptions
-  ): Promise<GetAssignableRolesForResourceResponse> {
+  async getAssignableRolesForResourceProxy(req: GetAssignableRolesForResourceRequest, options?: CallOptions): Promise<GetAssignableRolesForResourceResponse> {
     const url = `${this.host}/api/2.0/preview/accounts/${req.accountId ?? this.accountId ?? ''}/access-control/assignable-roles`;
     const params = new URLSearchParams();
     if (req.resource !== undefined) {
@@ -268,15 +205,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetAssignableRolesForResourceResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetAssignableRolesForResourceResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -289,10 +219,7 @@ export class Client {
    * Get a rule set by its name. A rule set is always attached to a resource and contains a list of access rules on the
    * said resource. Currently only a default rule set for each resource is supported.
    */
-  async getRuleSet(
-    req: GetRuleSetRequest,
-    options?: CallOptions
-  ): Promise<RuleSet> {
+  async getRuleSet(req: GetRuleSetRequest, options?: CallOptions): Promise<RuleSet> {
     const url = `${this.host}/api/2.0/preview/accounts/${req.accountId ?? this.accountId ?? ''}/access-control/rule-sets`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
@@ -308,11 +235,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalRuleSetSchema);
     };
     await executeCall(call, options);
@@ -326,10 +249,7 @@ export class Client {
    * Get a rule set by its name. A rule set is always attached to a resource and contains a list of access rules on the
    * said resource. Currently only a default rule set for each resource is supported.
    */
-  async getRuleSetProxy(
-    req: GetRuleSetRequest,
-    options?: CallOptions
-  ): Promise<RuleSet> {
+  async getRuleSetProxy(req: GetRuleSetRequest, options?: CallOptions): Promise<RuleSet> {
     const url = `${this.host}/api/2.0/preview/accounts/${req.accountId ?? this.accountId ?? ''}/access-control/rule-sets`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
@@ -345,11 +265,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalRuleSetSchema);
     };
     await executeCall(call, options);
@@ -363,10 +279,7 @@ export class Client {
    * Replace the rules of a rule set. First, use get to read the current version of the rule set before modifying it.
    * This pattern helps prevent conflicts between concurrent updates.
    */
-  async updateRuleSet(
-    req: UpdateRuleSetRequest,
-    options?: CallOptions
-  ): Promise<RuleSet> {
+  async updateRuleSet(req: UpdateRuleSetRequest, options?: CallOptions): Promise<RuleSet> {
     const url = `${this.host}/api/2.0/preview/accounts/${req.accountId ?? this.accountId ?? ''}/access-control/rule-sets`;
     const body = marshalRequest(req, marshalUpdateRuleSetRequestSchema);
     let resp: RuleSet | undefined;
@@ -374,11 +287,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalRuleSetSchema);
     };
     await executeCall(call, options);
@@ -392,10 +301,7 @@ export class Client {
    * Replace the rules of a rule set. First, use get to read the current version of the rule set before modifying it.
    * This pattern helps prevent conflicts between concurrent updates.
    */
-  async updateRuleSetProxy(
-    req: UpdateRuleSetRequest,
-    options?: CallOptions
-  ): Promise<RuleSet> {
+  async updateRuleSetProxy(req: UpdateRuleSetRequest, options?: CallOptions): Promise<RuleSet> {
     const url = `${this.host}/api/2.0/preview/accounts/${req.accountId ?? this.accountId ?? ''}/access-control/rule-sets`;
     const body = marshalRequest(req, marshalUpdateRuleSetRequestSchema);
     let resp: RuleSet | undefined;
@@ -403,11 +309,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalRuleSetSchema);
     };
     await executeCall(call, options);
@@ -418,21 +320,14 @@ export class Client {
   }
 
   /** Gets the permissions of an object. Objects can inherit permissions from their parent objects or root object. */
-  async getObjectPermissions(
-    req: GetObjectPermissions,
-    options?: CallOptions
-  ): Promise<PermissionsResponse> {
+  async getObjectPermissions(req: GetObjectPermissionsRequest, options?: CallOptions): Promise<PermissionsResponse> {
     const url = `${this.host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}`;
     let resp: PermissionsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalPermissionsResponseSchema);
     };
     await executeCall(call, options);
@@ -443,25 +338,15 @@ export class Client {
   }
 
   /** Gets the permission levels that a user can have on an object. */
-  async getPermissionLevels(
-    req: GetPermissionLevels,
-    options?: CallOptions
-  ): Promise<GetPermissionLevels_Response> {
+  async getPermissionLevels(req: GetPermissionLevelsRequest, options?: CallOptions): Promise<GetPermissionLevelsRequest_Response> {
     const url = `${this.host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}/permissionLevels`;
-    let resp: GetPermissionLevels_Response | undefined;
+    let resp: GetPermissionLevelsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetPermissionLevels_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetPermissionLevelsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -471,22 +356,15 @@ export class Client {
   }
 
   /** Sets permissions on an object, replacing existing permissions if they exist. Deletes all direct permissions if none are specified. Objects can inherit permissions from their parent objects or root object. */
-  async setObjectPermissions(
-    req: SetObjectPermissions,
-    options?: CallOptions
-  ): Promise<PermissionsResponse> {
+  async setObjectPermissions(req: SetObjectPermissionsRequest, options?: CallOptions): Promise<PermissionsResponse> {
     const url = `${this.host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}`;
-    const body = marshalRequest(req, marshalSetObjectPermissionsSchema);
+    const body = marshalRequest(req, marshalSetObjectPermissionsRequestSchema);
     let resp: PermissionsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalPermissionsResponseSchema);
     };
     await executeCall(call, options);
@@ -497,22 +375,15 @@ export class Client {
   }
 
   /** Updates the permissions on an object. Objects can inherit permissions from their parent objects or root object. */
-  async updateObjectPermissions(
-    req: UpdateObjectPermissions,
-    options?: CallOptions
-  ): Promise<PermissionsResponse> {
+  async updateObjectPermissions(req: UpdateObjectPermissionsRequest, options?: CallOptions): Promise<PermissionsResponse> {
     const url = `${this.host}/api/2.0/permissions/${req.requestObjectType ?? ''}/${req.requestObjectId ?? ''}`;
-    const body = marshalRequest(req, marshalUpdateObjectPermissionsSchema);
+    const body = marshalRequest(req, marshalUpdateObjectPermissionsRequestSchema);
     let resp: PermissionsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalPermissionsResponseSchema);
     };
     await executeCall(call, options);
@@ -523,10 +394,7 @@ export class Client {
   }
 
   /** Check access policy to a resource. */
-  async checkPolicy(
-    req: CheckPolicyRequest,
-    options?: CallOptions
-  ): Promise<CheckPolicyResponse> {
+  async checkPolicy(req: CheckPolicyRequest, options?: CallOptions): Promise<CheckPolicyResponse> {
     const url = `${this.host}/api/2.0/access-control/check-policy-v2`;
     const params = new URLSearchParams();
     if (req.actor !== undefined) {
@@ -539,21 +407,13 @@ export class Client {
       params.append('resource', req.resource);
     }
     if (req.consistencyToken !== undefined) {
-      flattenQueryParams(
-        'consistency_token',
-        marshalConsistencyTokenSchema.parse(req.consistencyToken),
-        params
-      );
+      flattenQueryParams('consistency_token', marshalConsistencyTokenSchema.parse(req.consistencyToken), params);
     }
     if (req.authzIdentity !== undefined) {
       params.append('authz_identity', req.authzIdentity);
     }
     if (req.resourceInfo !== undefined) {
-      flattenQueryParams(
-        'resource_info',
-        marshalResourceInfoSchema.parse(req.resourceInfo),
-        params
-      );
+      flattenQueryParams('resource_info', marshalResourceInfoSchema.parse(req.resourceInfo), params);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -562,11 +422,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCheckPolicyResponseSchema);
     };
     await executeCall(call, options);

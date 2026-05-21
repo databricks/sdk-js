@@ -5,15 +5,9 @@ import type {JsonValue} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
-  z.union([
-    z.null(),
-    z.number(),
-    z.string(),
-    z.boolean(),
-    z.record(z.string(), jsonValueSchema),
-    z.array(jsonValueSchema),
-  ])
+  z.union([z.null(), z.number(), z.string(), z.boolean(), z.record(z.string(), jsonValueSchema), z.array(jsonValueSchema)])
 );
+
 
 /** Type of a deployment resource. */
 export enum DeploymentResourceType {
@@ -465,7 +459,7 @@ export interface Operation {
   state?: JsonValue | undefined;
   /**
    * ID reference for the actual resource in the workspace
-   * (e.g. the job ID, pipeline ID). Should be unset for delete operations.
+   * (e.g. the job ID, pipeline ID).
    */
   resourceId?: string | undefined;
   /** When the operation was recorded. */
@@ -562,18 +556,9 @@ export const unmarshalDeploymentSchema: z.ZodType<Deployment> = z
     status: z.enum(DeploymentStatus).optional(),
     last_version_id: z.string().optional(),
     created_by: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    destroy_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    destroy_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     destroyed_by: z.string().optional(),
   })
   .transform(d => ({
@@ -591,58 +576,51 @@ export const unmarshalDeploymentSchema: z.ZodType<Deployment> = z
 
 export const unmarshalHeartbeatResponseSchema: z.ZodType<HeartbeatResponse> = z
   .object({
-    expire_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    expire_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
   })
   .transform(d => ({
     expireTime: d.expire_time,
   }));
 
-export const unmarshalListDeploymentsResponseSchema: z.ZodType<ListDeploymentsResponse> =
-  z
-    .object({
-      deployments: z.array(z.lazy(() => unmarshalDeploymentSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      deployments: d.deployments,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListDeploymentsResponseSchema: z.ZodType<ListDeploymentsResponse> = z
+  .object({
+    deployments: z.array(z.lazy(() => unmarshalDeploymentSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    deployments: d.deployments,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListOperationsResponseSchema: z.ZodType<ListOperationsResponse> =
-  z
-    .object({
-      operations: z.array(z.lazy(() => unmarshalOperationSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      operations: d.operations,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListOperationsResponseSchema: z.ZodType<ListOperationsResponse> = z
+  .object({
+    operations: z.array(z.lazy(() => unmarshalOperationSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    operations: d.operations,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListResourcesResponseSchema: z.ZodType<ListResourcesResponse> =
-  z
-    .object({
-      resources: z.array(z.lazy(() => unmarshalResourceSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      resources: d.resources,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListResourcesResponseSchema: z.ZodType<ListResourcesResponse> = z
+  .object({
+    resources: z.array(z.lazy(() => unmarshalResourceSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    resources: d.resources,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListVersionsResponseSchema: z.ZodType<ListVersionsResponse> =
-  z
-    .object({
-      versions: z.array(z.lazy(() => unmarshalVersionSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      versions: d.versions,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListVersionsResponseSchema: z.ZodType<ListVersionsResponse> = z
+  .object({
+    versions: z.array(z.lazy(() => unmarshalVersionSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    versions: d.versions,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalOperationSchema: z.ZodType<Operation> = z
   .object({
@@ -651,10 +629,7 @@ export const unmarshalOperationSchema: z.ZodType<Operation> = z
     action_type: z.enum(OperationActionType).optional(),
     state: jsonValueSchema.optional(),
     resource_id: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     status: z.enum(OperationStatus).optional(),
     error_message: z.string().optional(),
   })
@@ -694,14 +669,8 @@ export const unmarshalVersionSchema: z.ZodType<Version> = z
     name: z.string().optional(),
     version_id: z.string().optional(),
     created_by: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    complete_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    complete_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     cli_version: z.string().optional(),
     status: z.enum(VersionStatus).optional(),
     version_type: z.enum(VersionType).optional(),
@@ -745,18 +714,9 @@ export const marshalDeploymentSchema: z.ZodType = z
     status: z.enum(DeploymentStatus).optional(),
     lastVersionId: z.string().optional(),
     createdBy: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    destroyTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    destroyTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     destroyedBy: z.string().optional(),
   })
   .transform(d => ({
@@ -787,10 +747,7 @@ export const marshalOperationSchema: z.ZodType = z
     actionType: z.enum(OperationActionType).optional(),
     state: jsonValueSchema.optional(),
     resourceId: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     status: z.enum(OperationStatus).optional(),
     errorMessage: z.string().optional(),
   })
@@ -810,14 +767,8 @@ export const marshalVersionSchema: z.ZodType = z
     name: z.string().optional(),
     versionId: z.string().optional(),
     createdBy: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    completeTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    completeTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     cliVersion: z.string().optional(),
     status: z.enum(VersionStatus).optional(),
     versionType: z.enum(VersionType).optional(),

@@ -10,13 +10,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CleanRoom,
@@ -113,14 +107,11 @@ export class Client {
    * using the :method:cleanrooms/get method.
    * When this method returns, the clean room will be in a PROVISIONING state, with only name, owner, comment, created_at and status populated.
    * The clean room will be usable once it enters an ACTIVE state.
-   *
+   * 
    * The caller must be a metastore admin or have the **CREATE_CLEAN_ROOM** privilege on the
    * metastore.
    */
-  async createCleanRoom(
-    req: CreateCleanRoomRequest,
-    options?: CallOptions
-  ): Promise<CleanRoom> {
+  async createCleanRoom(req: CreateCleanRoomRequest, options?: CallOptions): Promise<CleanRoom> {
     const url = `${this.host}/api/2.0/clean-rooms`;
     const body = marshalRequest(req.cleanRoom, marshalCleanRoomSchema);
     let resp: CleanRoom | undefined;
@@ -128,11 +119,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCleanRoomSchema);
     };
     await executeCall(call, options);
@@ -142,15 +129,20 @@ export class Client {
     return resp;
   }
 
-  async createCleanRoomWaiter(
+async createCleanRoomWaiter(
     req: CreateCleanRoomRequest,
     options?: CallOptions
   ): Promise<CreateCleanRoomWaiter> {
     const resp = await this.createCleanRoom(req, options);
     if (resp.name === undefined) {
-      throw new Error('response field name required for polling is missing');
+      throw new Error(
+        'response field name required for polling is missing'
+      );
     }
-    return new CreateCleanRoomWaiter(this, resp.name);
+    return new CreateCleanRoomWaiter(
+      this,
+      resp.name,
+    );
   }
 
   /**
@@ -160,10 +152,7 @@ export class Client {
    * The privilege must be maintained indefinitely for the clean room to be able to access the asset.
    * Typically, you should use a group as the clean room owner.
    */
-  async createCleanRoomAsset(
-    req: CreateCleanRoomAssetRequest,
-    options?: CallOptions
-  ): Promise<CleanRoomAsset> {
+  async createCleanRoomAsset(req: CreateCleanRoomAssetRequest, options?: CallOptions): Promise<CleanRoomAsset> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.asset?.cleanRoomName ?? ''}/assets`;
     const body = marshalRequest(req.asset, marshalCleanRoomAssetSchema);
     let resp: CleanRoomAsset | undefined;
@@ -171,11 +160,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCleanRoomAssetSchema);
     };
     await executeCall(call, options);
@@ -186,29 +171,16 @@ export class Client {
   }
 
   /** Submit an asset review */
-  async createCleanRoomAssetReview(
-    req: CreateCleanRoomAssetReviewRequest,
-    options?: CallOptions
-  ): Promise<CreateCleanRoomAssetReviewResponse> {
+  async createCleanRoomAssetReview(req: CreateCleanRoomAssetReviewRequest, options?: CallOptions): Promise<CreateCleanRoomAssetReviewResponse> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}/reviews`;
-    const body = marshalRequest(
-      req,
-      marshalCreateCleanRoomAssetReviewRequestSchema
-    );
+    const body = marshalRequest(req, marshalCreateCleanRoomAssetReviewRequestSchema);
     let resp: CreateCleanRoomAssetReviewResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateCleanRoomAssetReviewResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalCreateCleanRoomAssetReviewResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -218,25 +190,15 @@ export class Client {
   }
 
   /** Create an auto-approval rule */
-  async createCleanRoomAutoApprovalRule(
-    req: CreateCleanRoomAutoApprovalRuleRequest,
-    options?: CallOptions
-  ): Promise<CleanRoomAutoApprovalRule> {
+  async createCleanRoomAutoApprovalRule(req: CreateCleanRoomAutoApprovalRuleRequest, options?: CallOptions): Promise<CleanRoomAutoApprovalRule> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.autoApprovalRule?.cleanRoomName ?? ''}/auto-approval-rules`;
-    const body = marshalRequest(
-      req,
-      marshalCreateCleanRoomAutoApprovalRuleRequestSchema
-    );
+    const body = marshalRequest(req, marshalCreateCleanRoomAutoApprovalRuleRequestSchema);
     let resp: CleanRoomAutoApprovalRule | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCleanRoomAutoApprovalRuleSchema);
     };
     await executeCall(call, options);
@@ -247,29 +209,16 @@ export class Client {
   }
 
   /** Create the output catalog of the clean room. */
-  async createCleanRoomOutputCatalog(
-    req: CreateCleanRoomOutputCatalogRequest,
-    options?: CallOptions
-  ): Promise<CreateCleanRoomOutputCatalogResponse> {
+  async createCleanRoomOutputCatalog(req: CreateCleanRoomOutputCatalogRequest, options?: CallOptions): Promise<CreateCleanRoomOutputCatalogResponse> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/output-catalogs`;
-    const body = marshalRequest(
-      req.outputCatalog,
-      marshalCleanRoomOutputCatalogSchema
-    );
+    const body = marshalRequest(req.outputCatalog, marshalCleanRoomOutputCatalogSchema);
     let resp: CreateCleanRoomOutputCatalogResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateCleanRoomOutputCatalogResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalCreateCleanRoomOutputCatalogResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -284,44 +233,27 @@ export class Client {
    * in their metastore, but it will be in a DELETED state
    * and no operations other than deletion can be performed on it.
    */
-  async deleteCleanRoom(
-    req: DeleteCleanRoomRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteCleanRoom(req: DeleteCleanRoomRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Delete a clean room asset - unshare/remove the asset from the clean room */
-  async deleteCleanRoomAsset(
-    req: DeleteCleanRoomAssetRequest,
-    options?: CallOptions
-  ): Promise<DeleteCleanRoomAssetResponse> {
+  async deleteCleanRoomAsset(req: DeleteCleanRoomAssetRequest, options?: CallOptions): Promise<DeleteCleanRoomAssetResponse> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}`;
     let resp: DeleteCleanRoomAssetResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteCleanRoomAssetResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteCleanRoomAssetResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -331,40 +263,26 @@ export class Client {
   }
 
   /** Delete a auto-approval rule by rule ID */
-  async deleteCleanRoomAutoApprovalRule(
-    req: DeleteCleanRoomAutoApprovalRuleRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteCleanRoomAutoApprovalRule(req: DeleteCleanRoomAutoApprovalRuleRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/auto-approval-rules/${req.ruleId ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Get the details of a clean room given its name. */
-  async getCleanRoom(
-    req: GetCleanRoomRequest,
-    options?: CallOptions
-  ): Promise<CleanRoom> {
+  async getCleanRoom(req: GetCleanRoomRequest, options?: CallOptions): Promise<CleanRoom> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.name ?? ''}`;
     let resp: CleanRoom | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCleanRoomSchema);
     };
     await executeCall(call, options);
@@ -375,21 +293,14 @@ export class Client {
   }
 
   /** Get the details of a clean room asset by its type and full name. */
-  async getCleanRoomAsset(
-    req: GetCleanRoomAssetRequest,
-    options?: CallOptions
-  ): Promise<CleanRoomAsset> {
+  async getCleanRoomAsset(req: GetCleanRoomAssetRequest, options?: CallOptions): Promise<CleanRoomAsset> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}`;
     let resp: CleanRoomAsset | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCleanRoomAssetSchema);
     };
     await executeCall(call, options);
@@ -400,21 +311,14 @@ export class Client {
   }
 
   /** Get a specific revision of an asset */
-  async getCleanRoomAssetRevision(
-    req: GetCleanRoomAssetRevisionRequest,
-    options?: CallOptions
-  ): Promise<CleanRoomAsset> {
+  async getCleanRoomAssetRevision(req: GetCleanRoomAssetRevisionRequest, options?: CallOptions): Promise<CleanRoomAsset> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}/revisions/${req.etag ?? ''}`;
     let resp: CleanRoomAsset | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCleanRoomAssetSchema);
     };
     await executeCall(call, options);
@@ -425,21 +329,14 @@ export class Client {
   }
 
   /** Get a auto-approval rule by rule ID */
-  async getCleanRoomAutoApprovalRule(
-    req: GetCleanRoomAutoApprovalRuleRequest,
-    options?: CallOptions
-  ): Promise<CleanRoomAutoApprovalRule> {
+  async getCleanRoomAutoApprovalRule(req: GetCleanRoomAutoApprovalRuleRequest, options?: CallOptions): Promise<CleanRoomAutoApprovalRule> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/auto-approval-rules/${req.ruleId ?? ''}`;
     let resp: CleanRoomAutoApprovalRule | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCleanRoomAutoApprovalRuleSchema);
     };
     await executeCall(call, options);
@@ -450,10 +347,7 @@ export class Client {
   }
 
   /** List revisions for an asset */
-  async listCleanRoomAssetRevisions(
-    req: ListCleanRoomAssetRevisionsRequest,
-    options?: CallOptions
-  ): Promise<ListCleanRoomAssetRevisionsResponse> {
+  async listCleanRoomAssetRevisions(req: ListCleanRoomAssetRevisionsRequest, options?: CallOptions): Promise<ListCleanRoomAssetRevisionsResponse> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.assetType ?? ''}/${req.name ?? ''}/revisions`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -469,15 +363,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListCleanRoomAssetRevisionsResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListCleanRoomAssetRevisionsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -486,10 +373,8 @@ export class Client {
     return resp;
   }
 
-  async *listCleanRoomAssetRevisionsIter(
-    req: ListCleanRoomAssetRevisionsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<CleanRoomAsset> {
+
+  async *listCleanRoomAssetRevisionsIter(req: ListCleanRoomAssetRevisionsRequest, options?: CallOptions): AsyncGenerator<CleanRoomAsset> {
     const pageReq: ListCleanRoomAssetRevisionsRequest = {...req};
     for (;;) {
       const resp = await this.listCleanRoomAssetRevisions(pageReq, options);
@@ -503,11 +388,9 @@ export class Client {
     }
   }
 
+
   /** List assets. */
-  async listCleanRoomAssets(
-    req: ListCleanRoomAssetsRequest,
-    options?: CallOptions
-  ): Promise<ListCleanRoomAssetsResponse> {
+  async listCleanRoomAssets(req: ListCleanRoomAssetsRequest, options?: CallOptions): Promise<ListCleanRoomAssetsResponse> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -520,15 +403,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListCleanRoomAssetsResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListCleanRoomAssetsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -537,10 +413,8 @@ export class Client {
     return resp;
   }
 
-  async *listCleanRoomAssetsIter(
-    req: ListCleanRoomAssetsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<CleanRoomAsset> {
+
+  async *listCleanRoomAssetsIter(req: ListCleanRoomAssetsRequest, options?: CallOptions): AsyncGenerator<CleanRoomAsset> {
     const pageReq: ListCleanRoomAssetsRequest = {...req};
     for (;;) {
       const resp = await this.listCleanRoomAssets(pageReq, options);
@@ -554,11 +428,9 @@ export class Client {
     }
   }
 
+
   /** List all auto-approval rules for the caller */
-  async listCleanRoomAutoApprovalRules(
-    req: ListCleanRoomAutoApprovalRulesRequest,
-    options?: CallOptions
-  ): Promise<ListCleanRoomAutoApprovalRulesResponse> {
+  async listCleanRoomAutoApprovalRules(req: ListCleanRoomAutoApprovalRulesRequest, options?: CallOptions): Promise<ListCleanRoomAutoApprovalRulesResponse> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/auto-approval-rules`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -574,15 +446,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListCleanRoomAutoApprovalRulesResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListCleanRoomAutoApprovalRulesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -591,10 +456,8 @@ export class Client {
     return resp;
   }
 
-  async *listCleanRoomAutoApprovalRulesIter(
-    req: ListCleanRoomAutoApprovalRulesRequest,
-    options?: CallOptions
-  ): AsyncGenerator<CleanRoomAutoApprovalRule> {
+
+  async *listCleanRoomAutoApprovalRulesIter(req: ListCleanRoomAutoApprovalRulesRequest, options?: CallOptions): AsyncGenerator<CleanRoomAutoApprovalRule> {
     const pageReq: ListCleanRoomAutoApprovalRulesRequest = {...req};
     for (;;) {
       const resp = await this.listCleanRoomAutoApprovalRules(pageReq, options);
@@ -608,11 +471,9 @@ export class Client {
     }
   }
 
+
   /** List all the historical notebook task runs in a clean room. */
-  async listCleanRoomNotebookTaskRunsHandler(
-    req: ListCleanRoomNotebookTaskRunsRequest,
-    options?: CallOptions
-  ): Promise<ListCleanRoomNotebookTaskRunsResponse> {
+  async listCleanRoomNotebookTaskRunsHandler(req: ListCleanRoomNotebookTaskRunsRequest, options?: CallOptions): Promise<ListCleanRoomNotebookTaskRunsResponse> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/runs`;
     const params = new URLSearchParams();
     if (req.notebookName !== undefined) {
@@ -631,15 +492,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListCleanRoomNotebookTaskRunsResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListCleanRoomNotebookTaskRunsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -648,16 +502,11 @@ export class Client {
     return resp;
   }
 
-  async *listCleanRoomNotebookTaskRunsHandlerIter(
-    req: ListCleanRoomNotebookTaskRunsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<CleanRoomNotebookTaskRun> {
+
+  async *listCleanRoomNotebookTaskRunsHandlerIter(req: ListCleanRoomNotebookTaskRunsRequest, options?: CallOptions): AsyncGenerator<CleanRoomNotebookTaskRun> {
     const pageReq: ListCleanRoomNotebookTaskRunsRequest = {...req};
     for (;;) {
-      const resp = await this.listCleanRoomNotebookTaskRunsHandler(
-        pageReq,
-        options
-      );
+      const resp = await this.listCleanRoomNotebookTaskRunsHandler(pageReq, options);
       for (const item of resp.runs ?? []) {
         yield item;
       }
@@ -668,14 +517,12 @@ export class Client {
     }
   }
 
+
   /**
    * Get a list of all clean rooms of the metastore. Only clean rooms
    * the caller has access to are returned.
    */
-  async listCleanRooms(
-    req: ListCleanRoomsRequest,
-    options?: CallOptions
-  ): Promise<ListCleanRoomsResponse> {
+  async listCleanRooms(req: ListCleanRoomsRequest, options?: CallOptions): Promise<ListCleanRoomsResponse> {
     const url = `${this.host}/api/2.0/clean-rooms`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -691,11 +538,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListCleanRoomsResponseSchema);
     };
     await executeCall(call, options);
@@ -705,10 +548,8 @@ export class Client {
     return resp;
   }
 
-  async *listCleanRoomsIter(
-    req: ListCleanRoomsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<CleanRoom> {
+
+  async *listCleanRoomsIter(req: ListCleanRoomsRequest, options?: CallOptions): AsyncGenerator<CleanRoom> {
     const pageReq: ListCleanRoomsRequest = {...req};
     for (;;) {
       const resp = await this.listCleanRooms(pageReq, options);
@@ -722,17 +563,15 @@ export class Client {
     }
   }
 
+
   /**
    * Update a clean room.
    * The caller must be the owner of the clean room, have **MODIFY_CLEAN_ROOM** privilege, or
    * be metastore admin.
-   *
+   * 
    * When the caller is a metastore admin, only the __owner__ field can be updated.
    */
-  async updateCleanRoom(
-    req: UpdateCleanRoomRequest,
-    options?: CallOptions
-  ): Promise<CleanRoom> {
+  async updateCleanRoom(req: UpdateCleanRoomRequest, options?: CallOptions): Promise<CleanRoom> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.name ?? ''}`;
     const body = marshalRequest(req, marshalUpdateCleanRoomRequestSchema);
     let resp: CleanRoom | undefined;
@@ -740,11 +579,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCleanRoomSchema);
     };
     await executeCall(call, options);
@@ -758,10 +593,7 @@ export class Client {
    * Update a clean room asset. For example, updating the content of a notebook;
    * changing the shared partitions of a table; etc.
    */
-  async updateCleanRoomAsset(
-    req: UpdateCleanRoomAssetRequest,
-    options?: CallOptions
-  ): Promise<CleanRoomAsset> {
+  async updateCleanRoomAsset(req: UpdateCleanRoomAssetRequest, options?: CallOptions): Promise<CleanRoomAsset> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.cleanRoomName ?? ''}/assets/${req.asset?.assetType ?? ''}/${req.asset?.name ?? ''}`;
     const body = marshalRequest(req.asset, marshalCleanRoomAssetSchema);
     let resp: CleanRoomAsset | undefined;
@@ -769,11 +601,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCleanRoomAssetSchema);
     };
     await executeCall(call, options);
@@ -784,25 +612,15 @@ export class Client {
   }
 
   /** Update a auto-approval rule by rule ID */
-  async updateCleanRoomAutoApprovalRule(
-    req: UpdateCleanRoomAutoApprovalRuleRequest,
-    options?: CallOptions
-  ): Promise<CleanRoomAutoApprovalRule> {
+  async updateCleanRoomAutoApprovalRule(req: UpdateCleanRoomAutoApprovalRuleRequest, options?: CallOptions): Promise<CleanRoomAutoApprovalRule> {
     const url = `${this.host}/api/2.0/clean-rooms/${req.autoApprovalRule?.cleanRoomName ?? ''}/auto-approval-rules/${req.autoApprovalRule?.ruleId ?? ''}`;
-    const body = marshalRequest(
-      req.autoApprovalRule,
-      marshalCleanRoomAutoApprovalRuleSchema
-    );
+    const body = marshalRequest(req.autoApprovalRule, marshalCleanRoomAutoApprovalRuleSchema);
     let resp: CleanRoomAutoApprovalRule | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCleanRoomAutoApprovalRuleSchema);
     };
     await executeCall(call, options);
@@ -816,7 +634,7 @@ export class Client {
 export class CreateCleanRoomWaiter {
   constructor(
     private readonly client: Client,
-    readonly name: string
+    readonly name: string,
   ) {}
 
   /**

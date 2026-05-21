@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum ForecastingExperiment_State {
   /** The forecasting experiment is pending and has not started yet. */
@@ -83,27 +84,25 @@ export interface GetForecastingExperimentRequest {
   experimentId?: string | undefined;
 }
 
-export const unmarshalCreateForecastingExperimentResponseSchema: z.ZodType<CreateForecastingExperimentResponse> =
-  z
-    .object({
-      experiment_id: z.string().optional(),
-    })
-    .transform(d => ({
-      experimentId: d.experiment_id,
-    }));
+export const unmarshalCreateForecastingExperimentResponseSchema: z.ZodType<CreateForecastingExperimentResponse> = z
+  .object({
+    experiment_id: z.string().optional(),
+  })
+  .transform(d => ({
+    experimentId: d.experiment_id,
+  }));
 
-export const unmarshalForecastingExperimentSchema: z.ZodType<ForecastingExperiment> =
-  z
-    .object({
-      experiment_id: z.string().optional(),
-      experiment_page_url: z.string().optional(),
-      state: z.enum(ForecastingExperiment_State).optional(),
-    })
-    .transform(d => ({
-      experimentId: d.experiment_id,
-      experimentPageUrl: d.experiment_page_url,
-      state: d.state,
-    }));
+export const unmarshalForecastingExperimentSchema: z.ZodType<ForecastingExperiment> = z
+  .object({
+    experiment_id: z.string().optional(),
+    experiment_page_url: z.string().optional(),
+    state: z.enum(ForecastingExperiment_State).optional(),
+  })
+  .transform(d => ({
+    experimentId: d.experiment_id,
+    experimentPageUrl: d.experiment_page_url,
+    state: d.state,
+  }));
 
 export const marshalCreateForecastingExperimentRequestSchema: z.ZodType = z
   .object({

@@ -5,6 +5,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 export enum CustomerFacingVpcEndpointUseCase {
   WORKSPACE_ACCESS = 'WORKSPACE_ACCESS',
   DATAPLANE_RELAY_ACCESS = 'DATAPLANE_RELAY_ACCESS',
@@ -35,7 +36,7 @@ export enum EndpointState {
 
 /**
  * Type of IP access list. Valid values are as follows and are case-sensitive:
- *
+ * 
  * * `ALLOW`: An allow list. Include this IP or range.
  * * `BLOCK`: A block list. Exclude this IP or range. IP addresses in the block list are excluded even if they are included in an allow list.
  */
@@ -62,7 +63,7 @@ export enum VpcStatus {
 
 /**
  * Type of IP access list. Valid values are as follows and are case-sensitive:
- *
+ * 
  * * `ALLOW`: An allow list. Include this IP or range.
  * * `BLOCK`: A block list. Exclude this IP or range. IP addresses in the block list are excluded even if they are included in an allow list.
  */
@@ -348,12 +349,10 @@ export interface CreateNccPrivateEndpointRuleRequest {
 }
 
 /** Properties of the new network connectivity configuration. */
-export interface CreateNetworkConnectivityConfigPublicRequest {
+export interface CreateNetworkConnectivityConfigRequest {
   /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
   accountId?: string | undefined;
-  networkConnectivityConfig?:
-    | CreateNetworkConnectivityConfiguration
-    | undefined;
+  networkConnectivityConfig?: CreateNetworkConnectivityConfiguration | undefined;
 }
 
 /** Properties of the new network connectivity configuration. */
@@ -374,9 +373,7 @@ export interface CreateNetworkConnectivityConfiguration {
    */
   region?: string | undefined;
   /** The network connectivity rules that apply to network traffic from your serverless compute resources. */
-  egressConfig?:
-    | CustomerFacingNetworkConnectivityConfigEgressConfig
-    | undefined;
+  egressConfig?: CustomerFacingNetworkConnectivityConfigEgressConfig | undefined;
   /** Time in epoch milliseconds when this object was updated. */
   updatedTime?: number | undefined;
   /** Time in epoch milliseconds when this object was created. */
@@ -390,7 +387,7 @@ export interface CreateNetworkPolicyRequest {
   networkPolicy?: AccountNetworkPolicy | undefined;
 }
 
-export interface CreateNetworkPublicRequest {
+export interface CreateNetworkRequest {
   accountId?: string | undefined;
   /** The human-readable name of the network configuration. */
   networkName?: string | undefined;
@@ -404,7 +401,7 @@ export interface CreateNetworkPublicRequest {
   gcpNetworkInfo?: GcpNetworkInfo | undefined;
 }
 
-export interface CreatePrivateAccessSettingsPublicRequest {
+export interface CreatePrivateAccessSettingsRequest {
   accountId?: string | undefined;
   /** The human-readable name of the private access settings object. */
   privateAccessSettingsName?: string | undefined;
@@ -448,12 +445,10 @@ export interface CreatePrivateEndpointRule {
    * - CREATING: The endpoint creation is in progress. Once successfully created, the state will transition to PENDING.
    * - CREATE_FAILED: The endpoint creation failed. You can check the error_message field for more details.
    */
-  connectionState?:
-    | NccPrivateEndpointRule_PrivateLinkConnectionState
-    | undefined;
+  connectionState?: NccPrivateEndpointRule_PrivateLinkConnectionState | undefined;
   /**
    * Only used by private endpoints to customer-managed private endpoint services.
-   *
+   * 
    * Domain names of target private link service.
    * When updating this field, the full list of target domain_names must be specified.
    */
@@ -471,7 +466,7 @@ export interface CreatePrivateEndpointRule {
   resourceId?: string | undefined;
   /**
    * Not used by customer-managed private endpoint services.
-   *
+   * 
    * The sub-resource type (group ID) of the target resource.
    * Note that to connect to workspace root storage (root DBFS), you need two endpoints, one for blob and one for dfs.
    */
@@ -484,7 +479,7 @@ export interface CreatePrivateEndpointRule {
   endpointService?: string | undefined;
   /**
    * Only used by private endpoints towards AWS S3 service.
-   *
+   * 
    * The globally unique S3 bucket names that will be accessed via the VPC endpoint.
    * The bucket names must be in the same region as the NCC/endpoint service.
    * When updating this field, we perform full update on this field. Please ensure a full list of desired
@@ -498,10 +493,12 @@ export interface CreatePrivateEndpointRule {
    * serverless compute resources. Only honored for first-party services on each cloud (e.g. AWS S3).
    */
   enabled?: boolean | undefined;
-  endpoint?: {$case: 'gcpEndpoint'; gcpEndpoint: GcpEndpoint} | undefined;
+  endpoint?:
+    | { $case: 'gcpEndpoint'; gcpEndpoint: GcpEndpoint }
+    | undefined;
 }
 
-export interface CreateVpcEndpointPublicRequest {
+export interface CreateVpcEndpointRequest {
   accountId?: string | undefined;
   /** The human-readable name of the storage configuration. */
   vpcEndpointName?: string | undefined;
@@ -542,18 +539,14 @@ export interface CustomerFacingIngressNetworkPolicy {
    * Configures how registered private endpoints are allowed or denied access.
    */
   privateAccess?: CustomerFacingIngressNetworkPolicy_PrivateAccess | undefined;
-  crossWorkspaceAccess?:
-    | CustomerFacingIngressNetworkPolicy_CrossWorkspaceAccess
-    | undefined;
+  crossWorkspaceAccess?: CustomerFacingIngressNetworkPolicy_CrossWorkspaceAccess | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CustomerFacingIngressNetworkPolicy_AccountApiDestination {
   scopes?: string[] | undefined;
   /** Qualifies the breadth of API access for the listed scopes. See ApiScopeQualifier. */
-  scopeQualifier?:
-    | CustomerFacingIngressNetworkPolicy_ApiScopeQualifier
-    | undefined;
+  scopeQualifier?: CustomerFacingIngressNetworkPolicy_ApiScopeQualifier | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -576,47 +569,29 @@ export interface CustomerFacingIngressNetworkPolicy_AppsRuntimeDestination {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CustomerFacingIngressNetworkPolicy_Authentication {
-  identityType?:
-    | CustomerFacingIngressNetworkPolicy_Authentication_IdentityType
-    | undefined;
+  identityType?: CustomerFacingIngressNetworkPolicy_Authentication_IdentityType | undefined;
   /** Valid only when IdentityType is IDENTITY_TYPE_SELECTED_IDENTITIES. */
-  identities?:
-    | CustomerFacingIngressNetworkPolicy_AuthenticationIdentity[]
-    | undefined;
+  identities?: CustomerFacingIngressNetworkPolicy_AuthenticationIdentity[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CustomerFacingIngressNetworkPolicy_AuthenticationIdentity {
-  principalType?:
-    | CustomerFacingIngressNetworkPolicy_AuthenticationIdentity_PrincipalType
-    | undefined;
+  principalType?: CustomerFacingIngressNetworkPolicy_AuthenticationIdentity_PrincipalType | undefined;
   principalId?: number | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CustomerFacingIngressNetworkPolicy_CrossWorkspaceAccess {
-  restrictionMode?:
-    | CustomerFacingIngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode
-    | undefined;
-  denyRules?:
-    | CustomerFacingIngressNetworkPolicy_CrossWorkspaceIngressRule[]
-    | undefined;
-  allowRules?:
-    | CustomerFacingIngressNetworkPolicy_CrossWorkspaceIngressRule[]
-    | undefined;
+  restrictionMode?: CustomerFacingIngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode | undefined;
+  denyRules?: CustomerFacingIngressNetworkPolicy_CrossWorkspaceIngressRule[] | undefined;
+  allowRules?: CustomerFacingIngressNetworkPolicy_CrossWorkspaceIngressRule[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CustomerFacingIngressNetworkPolicy_CrossWorkspaceIngressRule {
-  origin?:
-    | CustomerFacingIngressNetworkPolicy_CrossWorkspaceRequestOrigin
-    | undefined;
-  destination?:
-    | CustomerFacingIngressNetworkPolicy_RequestDestination
-    | undefined;
-  authentication?:
-    | CustomerFacingIngressNetworkPolicy_Authentication
-    | undefined;
+  origin?: CustomerFacingIngressNetworkPolicy_CrossWorkspaceRequestOrigin | undefined;
+  destination?: CustomerFacingIngressNetworkPolicy_RequestDestination | undefined;
+  authentication?: CustomerFacingIngressNetworkPolicy_Authentication | undefined;
   /** The label for this ingress rule. */
   label?: string | undefined;
 }
@@ -656,26 +631,16 @@ export interface CustomerFacingIngressNetworkPolicy_LakebaseRuntimeDestination {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CustomerFacingIngressNetworkPolicy_PrivateAccess {
-  restrictionMode?:
-    | CustomerFacingIngressNetworkPolicy_PrivateAccess_RestrictionMode
-    | undefined;
-  denyRules?:
-    | CustomerFacingIngressNetworkPolicy_PrivateIngressRule[]
-    | undefined;
-  allowRules?:
-    | CustomerFacingIngressNetworkPolicy_PrivateIngressRule[]
-    | undefined;
+  restrictionMode?: CustomerFacingIngressNetworkPolicy_PrivateAccess_RestrictionMode | undefined;
+  denyRules?: CustomerFacingIngressNetworkPolicy_PrivateIngressRule[] | undefined;
+  allowRules?: CustomerFacingIngressNetworkPolicy_PrivateIngressRule[] | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CustomerFacingIngressNetworkPolicy_PrivateIngressRule {
   origin?: CustomerFacingIngressNetworkPolicy_PrivateRequestOrigin | undefined;
-  destination?:
-    | CustomerFacingIngressNetworkPolicy_RequestDestination
-    | undefined;
-  authentication?:
-    | CustomerFacingIngressNetworkPolicy_Authentication
-    | undefined;
+  destination?: CustomerFacingIngressNetworkPolicy_RequestDestination | undefined;
+  authentication?: CustomerFacingIngressNetworkPolicy_Authentication | undefined;
   /** The label for this ingress rule. */
   label?: string | undefined;
 }
@@ -683,27 +648,18 @@ export interface CustomerFacingIngressNetworkPolicy_PrivateIngressRule {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CustomerFacingIngressNetworkPolicy_PrivateRequestOrigin {
   source?:
-    | {
-        $case: 'endpoints';
-        endpoints: CustomerFacingIngressNetworkPolicy_Endpoints;
-      }
-    | {$case: 'allRegisteredEndpoints'; allRegisteredEndpoints: boolean}
-    | {$case: 'azureWorkspacePrivateLink'; azureWorkspacePrivateLink: boolean}
-    | {$case: 'allPrivateAccess'; allPrivateAccess: boolean}
+    | { $case: 'endpoints'; endpoints: CustomerFacingIngressNetworkPolicy_Endpoints }
+    | { $case: 'allRegisteredEndpoints'; allRegisteredEndpoints: boolean }
+    | { $case: 'azureWorkspacePrivateLink'; azureWorkspacePrivateLink: boolean }
+    | { $case: 'allPrivateAccess'; allPrivateAccess: boolean }
     | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CustomerFacingIngressNetworkPolicy_PublicAccess {
-  restrictionMode?:
-    | CustomerFacingIngressNetworkPolicy_PublicAccess_RestrictionMode
-    | undefined;
-  denyRules?:
-    | CustomerFacingIngressNetworkPolicy_PublicIngressRule[]
-    | undefined;
-  allowRules?:
-    | CustomerFacingIngressNetworkPolicy_PublicIngressRule[]
-    | undefined;
+  restrictionMode?: CustomerFacingIngressNetworkPolicy_PublicAccess_RestrictionMode | undefined;
+  denyRules?: CustomerFacingIngressNetworkPolicy_PublicIngressRule[] | undefined;
+  allowRules?: CustomerFacingIngressNetworkPolicy_PublicIngressRule[] | undefined;
 }
 
 /**
@@ -713,12 +669,8 @@ export interface CustomerFacingIngressNetworkPolicy_PublicAccess {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CustomerFacingIngressNetworkPolicy_PublicIngressRule {
   origin?: CustomerFacingIngressNetworkPolicy_PublicRequestOrigin | undefined;
-  destination?:
-    | CustomerFacingIngressNetworkPolicy_RequestDestination
-    | undefined;
-  authentication?:
-    | CustomerFacingIngressNetworkPolicy_Authentication
-    | undefined;
+  destination?: CustomerFacingIngressNetworkPolicy_RequestDestination | undefined;
+  authentication?: CustomerFacingIngressNetworkPolicy_Authentication | undefined;
   /** The label for this ingress rule. */
   label?: string | undefined;
 }
@@ -751,36 +703,20 @@ export interface CustomerFacingIngressNetworkPolicy_RequestDestination {
    * When not set or false, at least one specific destination must be provided.
    */
   allDestinations?: boolean | undefined;
-  workspaceUi?:
-    | CustomerFacingIngressNetworkPolicy_WorkspaceUiDestination
-    | undefined;
-  workspaceApi?:
-    | CustomerFacingIngressNetworkPolicy_WorkspaceApiDestination
-    | undefined;
-  appsRuntime?:
-    | CustomerFacingIngressNetworkPolicy_AppsRuntimeDestination
-    | undefined;
-  lakebaseRuntime?:
-    | CustomerFacingIngressNetworkPolicy_LakebaseRuntimeDestination
-    | undefined;
-  accountUi?:
-    | CustomerFacingIngressNetworkPolicy_AccountUiDestination
-    | undefined;
-  accountApi?:
-    | CustomerFacingIngressNetworkPolicy_AccountApiDestination
-    | undefined;
-  accountDatabricksOne?:
-    | CustomerFacingIngressNetworkPolicy_AccountDatabricksOneDestination
-    | undefined;
+  workspaceUi?: CustomerFacingIngressNetworkPolicy_WorkspaceUiDestination | undefined;
+  workspaceApi?: CustomerFacingIngressNetworkPolicy_WorkspaceApiDestination | undefined;
+  appsRuntime?: CustomerFacingIngressNetworkPolicy_AppsRuntimeDestination | undefined;
+  lakebaseRuntime?: CustomerFacingIngressNetworkPolicy_LakebaseRuntimeDestination | undefined;
+  accountUi?: CustomerFacingIngressNetworkPolicy_AccountUiDestination | undefined;
+  accountApi?: CustomerFacingIngressNetworkPolicy_AccountApiDestination | undefined;
+  accountDatabricksOne?: CustomerFacingIngressNetworkPolicy_AccountDatabricksOneDestination | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CustomerFacingIngressNetworkPolicy_WorkspaceApiDestination {
   scopes?: string[] | undefined;
   /** Qualifies the breadth of API access for the listed scopes. See ApiScopeQualifier. */
-  scopeQualifier?:
-    | CustomerFacingIngressNetworkPolicy_ApiScopeQualifier
-    | undefined;
+  scopeQualifier?: CustomerFacingIngressNetworkPolicy_ApiScopeQualifier | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -812,9 +748,7 @@ export interface CustomerFacingNetworkConnectivityConfig {
    */
   region?: string | undefined;
   /** The network connectivity rules that apply to network traffic from your serverless compute resources. */
-  egressConfig?:
-    | CustomerFacingNetworkConnectivityConfigEgressConfig
-    | undefined;
+  egressConfig?: CustomerFacingNetworkConnectivityConfigEgressConfig | undefined;
   /** Time in epoch milliseconds when this object was updated. */
   updatedTime?: number | undefined;
   /** Time in epoch milliseconds when this object was created. */
@@ -837,14 +771,14 @@ export interface CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule {
   endpointService?: string | undefined;
   /**
    * Only used by private endpoints towards a VPC endpoint service for customer-managed VPC endpoint service.
-   *
+   * 
    * The target AWS resource FQDNs accessible via the VPC endpoint service.
    * When updating this field, we perform full update on this field. Please ensure a full list of desired domain_names is provided.
    */
   domainNames?: string[] | undefined;
   /**
    * Only used by private endpoints towards AWS S3 service.
-   *
+   * 
    * The globally unique S3 bucket names that will be accessed via the VPC endpoint.
    * The bucket names must be in the same region as the NCC/endpoint service.
    * When updating this field, we perform full update on this field.
@@ -864,9 +798,7 @@ export interface CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule {
    * - DISCONNECTED: Connection was removed by the private link resource owner, the private endpoint becomes informative and should be deleted for clean-up.
    * - EXPIRED: If the endpoint is created but not approved in 14 days, it is EXPIRED.
    */
-  connectionState?:
-    | CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule_PrivateLinkConnectionState
-    | undefined;
+  connectionState?: CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule_PrivateLinkConnectionState | undefined;
   /** Time in epoch milliseconds when this object was created. */
   creationTime?: number | undefined;
   /** Time in epoch milliseconds when this object was updated. */
@@ -877,7 +809,7 @@ export interface CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule {
   deactivatedAt?: number | undefined;
   /**
    * Only used by private endpoints towards an AWS S3 service.
-   *
+   * 
    * Update this field to activate/deactivate this private endpoint to allow egress access from serverless compute resources.
    */
   enabled?: boolean | undefined;
@@ -897,7 +829,7 @@ export interface CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule
   resourceId?: string | undefined;
   /**
    * Only used by private endpoints to Azure first-party services.
-   *
+   * 
    * The sub-resource type (group ID) of the target resource.
    * Note that to connect to workspace root storage (root DBFS), you need two endpoints, one for blob and one for dfs.
    */
@@ -916,9 +848,7 @@ export interface CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule
    * - DISCONNECTED: Connection was removed by the private link resource owner, the private endpoint becomes informative and should be deleted for clean-up.
    * - EXPIRED: If the endpoint was created but not approved in 14 days, it will be EXPIRED.
    */
-  connectionState?:
-    | CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState
-    | undefined;
+  connectionState?: CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState | undefined;
   /** Time in epoch milliseconds when this object was created. */
   creationTime?: number | undefined;
   /** Time in epoch milliseconds when this object was updated. */
@@ -929,7 +859,7 @@ export interface CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule
   deactivatedAt?: number | undefined;
   /**
    * Not used by customer-managed private endpoint services.
-   *
+   * 
    * Domain names of target private link service.
    * When updating this field, the full list of target domain_names must be specified.
    */
@@ -944,21 +874,15 @@ export interface CustomerFacingNetworkConnectivityConfigEgressConfig {
    */
   defaultRules?: NetworkConnectivityConfigEgressConfig_DefaultRule | undefined;
   /** The network connectivity rules that configured for each destinations. These rules override default rules. */
-  targetRules?:
-    | CustomerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRule
-    | undefined;
+  targetRules?: CustomerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRule | undefined;
 }
 
 /** Target rule controls the egress rules that are dedicated to specific resources. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface CustomerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRule {
-  azurePrivateEndpointRules?:
-    | CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule[]
-    | undefined;
+  azurePrivateEndpointRules?: CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule[] | undefined;
   /** AWS private endpoint rule controls the AWS private endpoint based egress rules. */
-  awsPrivateEndpointRules?:
-    | CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule[]
-    | undefined;
+  awsPrivateEndpointRules?: CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule[] | undefined;
 }
 
 /** * */
@@ -1065,7 +989,7 @@ export interface DeleteNccPrivateEndpointRuleRequest {
   privateEndpointRuleId?: string | undefined;
 }
 
-export interface DeleteNetworkConnectivityConfigPublicRequest {
+export interface DeleteNetworkConnectivityConfigRequest {
   /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
   accountId?: string | undefined;
   /** Your Network Connectivity Configuration ID. */
@@ -1079,18 +1003,18 @@ export interface DeleteNetworkPolicyRequest {
   accountId?: string | undefined;
 }
 
-export interface DeleteNetworkPublicRequest {
+export interface DeleteNetworkRequest {
   /** Databricks Account API network configuration ID. */
   networkId?: string | undefined;
   accountId?: string | undefined;
 }
 
-export interface DeletePrivateAccessSettingsPublicRequest {
+export interface DeletePrivateAccessSettingsRequest {
   privateAccessSettingsId?: string | undefined;
   accountId?: string | undefined;
 }
 
-export interface DeleteVpcEndpointPublicRequest {
+export interface DeleteVpcEndpointRequest {
   vpcEndpointId?: string | undefined;
   accountId?: string | undefined;
 }
@@ -1110,29 +1034,19 @@ export interface EgressNetworkPolicy {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface EgressNetworkPolicy_NetworkAccessPolicy {
   /** The restriction mode that controls how serverless workloads can access the internet. */
-  restrictionMode?:
-    | EgressNetworkPolicy_NetworkAccessPolicy_RestrictionMode
-    | undefined;
+  restrictionMode?: EgressNetworkPolicy_NetworkAccessPolicy_RestrictionMode | undefined;
   /** List of internet destinations that serverless workloads are allowed to access when in RESTRICTED_ACCESS mode. */
-  allowedInternetDestinations?:
-    | EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination[]
-    | undefined;
+  allowedInternetDestinations?: EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination[] | undefined;
   /** List of storage destinations that serverless workloads are allowed to access when in RESTRICTED_ACCESS mode. */
-  allowedStorageDestinations?:
-    | EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination[]
-    | undefined;
+  allowedStorageDestinations?: EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination[] | undefined;
   /** Optional. When policy_enforcement is not provided, we default to ENFORCE_MODE_ALL_SERVICES */
-  policyEnforcement?:
-    | EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement
-    | undefined;
+  policyEnforcement?: EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement | undefined;
   /**
    * List of internet destinations that serverless workloads are blocked from accessing.
    * These destinations are enforced when restriction mode is RESTRICTED_ACCESS or DRY_RUN.
    * Currently supports DNS_NAME type only; IP_RANGE support is planned.
    */
-  blockedInternetDestinations?:
-    | EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination[]
-    | undefined;
+  blockedInternetDestinations?: EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination[] | undefined;
 }
 
 /**
@@ -1145,9 +1059,7 @@ export interface EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination {
   /** The internet destination to which access will be allowed. Format dependent on the destination type. */
   destination?: string | undefined;
   /** The type of internet destination. Currently only DNS_NAME is supported. */
-  internetDestinationType?:
-    | EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination_InternetDestinationType
-    | undefined;
+  internetDestinationType?: EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination_InternetDestinationType | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1157,16 +1069,12 @@ export interface EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement {
    * while DRY_RUN only logs violations without blocking. When not specified,
    * defaults to ENFORCED.
    */
-  enforcementMode?:
-    | EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_EnforcementMode
-    | undefined;
+  enforcementMode?: EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_EnforcementMode | undefined;
   /**
    * When empty, it means dry run for all products.
    * When non-empty, it means dry run for specific products and for the other products, they will run in enforced mode.
    */
-  dryRunModeProductFilter?:
-    | EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_DryRunModeProductFilter[]
-    | undefined;
+  dryRunModeProductFilter?: EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_DryRunModeProductFilter[] | undefined;
 }
 
 /** Users can specify accessible storage destinations. */
@@ -1175,9 +1083,7 @@ export interface EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination {
   bucketName?: string | undefined;
   region?: string | undefined;
   /** The type of storage destination. */
-  storageDestinationType?:
-    | EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination_StorageDestinationType
-    | undefined;
+  storageDestinationType?: EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination_StorageDestinationType | undefined;
   /** The Azure storage account name. */
   azureStorageAccount?: string | undefined;
   /** The Azure storage service type (blob, dfs, etc.). */
@@ -1299,7 +1205,7 @@ export interface GetNccPrivateEndpointRuleRequest {
 }
 
 /** ***************************** Public facing RPC requests and responses *****************************\// */
-export interface GetNetworkConnectivityConfigPublicRequest {
+export interface GetNetworkConnectivityConfigRequest {
   /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
   accountId?: string | undefined;
   /** Your Network Connectivity Configuration ID. */
@@ -1313,18 +1219,18 @@ export interface GetNetworkPolicyRequest {
   accountId?: string | undefined;
 }
 
-export interface GetNetworkPublicRequest {
+export interface GetNetworkRequest {
   /** Databricks Account API network configuration ID. */
   networkId?: string | undefined;
   accountId?: string | undefined;
 }
 
-export interface GetPrivateAccessSettingsPublicRequest {
+export interface GetPrivateAccessSettingsRequest {
   privateAccessSettingsId?: string | undefined;
   accountId?: string | undefined;
 }
 
-export interface GetVpcEndpointPublicRequest {
+export interface GetVpcEndpointRequest {
   /** Databricks VPC endpoint ID. */
   vpcEndpointId?: string | undefined;
   accountId?: string | undefined;
@@ -1411,7 +1317,7 @@ export interface ListNccPrivateEndpointRulesResponse {
   nextPageToken?: string | undefined;
 }
 
-export interface ListNetworkConnectivityConfigsPublicRequest {
+export interface ListNetworkConnectivityConfigsRequest {
   /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
   accountId?: string | undefined;
   /** Pagination token to go to next page based on previous query. */
@@ -1419,7 +1325,7 @@ export interface ListNetworkConnectivityConfigsPublicRequest {
 }
 
 /** The network connectivity configuration list was successfully retrieved. */
-export interface ListNetworkConnectivityConfigsPublicResponse {
+export interface ListNetworkConnectivityConfigsResponse {
   items?: CustomerFacingNetworkConnectivityConfig[] | undefined;
   /** A token that can be used to get the next page of results. If null, there are no more results to show. */
   nextPageToken?: string | undefined;
@@ -1439,27 +1345,27 @@ export interface ListNetworkPoliciesResponse {
   nextPageToken?: string | undefined;
 }
 
-export interface ListNetworkPublicRequest {
+export interface ListNetworkRequest {
   accountId?: string | undefined;
 }
 
-export interface ListNetworkPublicResponse {
+export interface ListNetworkResponse {
   networks?: Network[] | undefined;
 }
 
-export interface ListPrivateAccessSettingsPublicRequest {
+export interface ListPrivateAccessSettingsRequest {
   accountId?: string | undefined;
 }
 
-export interface ListPrivateAccessSettingsPublicResponse {
+export interface ListPrivateAccessSettingsResponse {
   privateAccessSettings?: CustomerFacingPrivateAccessSettings[] | undefined;
 }
 
-export interface ListVpcEndpointPublicRequest {
+export interface ListVpcEndpointRequest {
   accountId?: string | undefined;
 }
 
-export interface ListVpcEndpointPublicResponse {
+export interface ListVpcEndpointResponse {
   vpcEndpoints?: CustomerFacingVpcEndpoint[] | undefined;
 }
 
@@ -1485,12 +1391,10 @@ export interface NccPrivateEndpointRule {
    * - CREATING: The endpoint creation is in progress. Once successfully created, the state will transition to PENDING.
    * - CREATE_FAILED: The endpoint creation failed. You can check the error_message field for more details.
    */
-  connectionState?:
-    | NccPrivateEndpointRule_PrivateLinkConnectionState
-    | undefined;
+  connectionState?: NccPrivateEndpointRule_PrivateLinkConnectionState | undefined;
   /**
    * Only used by private endpoints to customer-managed private endpoint services.
-   *
+   * 
    * Domain names of target private link service.
    * When updating this field, the full list of target domain_names must be specified.
    */
@@ -1508,7 +1412,7 @@ export interface NccPrivateEndpointRule {
   resourceId?: string | undefined;
   /**
    * Not used by customer-managed private endpoint services.
-   *
+   * 
    * The sub-resource type (group ID) of the target resource.
    * Note that to connect to workspace root storage (root DBFS), you need two endpoints, one for blob and one for dfs.
    */
@@ -1521,7 +1425,7 @@ export interface NccPrivateEndpointRule {
   endpointService?: string | undefined;
   /**
    * Only used by private endpoints towards AWS S3 service.
-   *
+   * 
    * The globally unique S3 bucket names that will be accessed via the VPC endpoint.
    * The bucket names must be in the same region as the NCC/endpoint service.
    * When updating this field, we perform full update on this field. Please ensure a full list of desired
@@ -1535,7 +1439,9 @@ export interface NccPrivateEndpointRule {
    * serverless compute resources. Only honored for first-party services on each cloud (e.g. AWS S3).
    */
   enabled?: boolean | undefined;
-  endpoint?: {$case: 'gcpEndpoint'; gcpEndpoint: GcpEndpoint} | undefined;
+  endpoint?:
+    | { $case: 'gcpEndpoint'; gcpEndpoint: GcpEndpoint }
+    | undefined;
 }
 
 export interface Network {
@@ -1562,7 +1468,7 @@ export interface Network {
   warningMessages?: NetworkWarning[] | undefined;
   vpcEndpoints?: NetworkVpcEndpoints | undefined;
   networkInfo?:
-    | {$case: 'gcpNetworkInfo'; gcpNetworkInfo: GcpNetworkInfo}
+    | { $case: 'gcpNetworkInfo'; gcpNetworkInfo: GcpNetworkInfo }
     | undefined;
 }
 
@@ -1576,12 +1482,8 @@ export interface NetworkConnectivityConfigEgressConfig {}
 /** Default rules don't have specific targets. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface NetworkConnectivityConfigEgressConfig_DefaultRule {
-  azureServiceEndpointRule?:
-    | NetworkConnectivityConfigEgressConfig_DefaultRule_AzureServiceEndpointRule
-    | undefined;
-  awsStableIpRule?:
-    | NetworkConnectivityConfigEgressConfig_DefaultRule_AwsStableIpRule
-    | undefined;
+  azureServiceEndpointRule?: NetworkConnectivityConfigEgressConfig_DefaultRule_AzureServiceEndpointRule | undefined;
+  awsStableIpRule?: NetworkConnectivityConfigEgressConfig_DefaultRule_AwsStableIpRule | undefined;
 }
 
 /** The stable AWS IP CIDR blocks. You can use these to configure the firewall of your resources to allow traffic from your <Databricks> workspace. */
@@ -1719,11 +1621,9 @@ export interface UpdateNetworkPolicyRequest {
   networkPolicy?: AccountNetworkPolicy | undefined;
 }
 
-export interface UpdatePrivateAccessSettingsPublicRequest {
+export interface UpdatePrivateAccessSettingsRequest {
   /** Properties of the new private access settings object. */
-  customerFacingPrivateAccessSettings?:
-    | CustomerFacingPrivateAccessSettings
-    | undefined;
+  customerFacingPrivateAccessSettings?: CustomerFacingPrivateAccessSettings | undefined;
 }
 
 /**
@@ -1748,12 +1648,10 @@ export interface UpdatePrivateEndpointRule {
    * - CREATING: The endpoint creation is in progress. Once successfully created, the state will transition to PENDING.
    * - CREATE_FAILED: The endpoint creation failed. You can check the error_message field for more details.
    */
-  connectionState?:
-    | NccPrivateEndpointRule_PrivateLinkConnectionState
-    | undefined;
+  connectionState?: NccPrivateEndpointRule_PrivateLinkConnectionState | undefined;
   /**
    * Only used by private endpoints to customer-managed private endpoint services.
-   *
+   * 
    * Domain names of target private link service.
    * When updating this field, the full list of target domain_names must be specified.
    */
@@ -1771,7 +1669,7 @@ export interface UpdatePrivateEndpointRule {
   resourceId?: string | undefined;
   /**
    * Not used by customer-managed private endpoint services.
-   *
+   * 
    * The sub-resource type (group ID) of the target resource.
    * Note that to connect to workspace root storage (root DBFS), you need two endpoints, one for blob and one for dfs.
    */
@@ -1784,7 +1682,7 @@ export interface UpdatePrivateEndpointRule {
   endpointService?: string | undefined;
   /**
    * Only used by private endpoints towards AWS S3 service.
-   *
+   * 
    * The globally unique S3 bucket names that will be accessed via the VPC endpoint.
    * The bucket names must be in the same region as the NCC/endpoint service.
    * When updating this field, we perform full update on this field. Please ensure a full list of desired
@@ -1798,7 +1696,9 @@ export interface UpdatePrivateEndpointRule {
    * serverless compute resources. Only honored for first-party services on each cloud (e.g. AWS S3).
    */
   enabled?: boolean | undefined;
-  endpoint?: {$case: 'gcpEndpoint'; gcpEndpoint: GcpEndpoint} | undefined;
+  endpoint?:
+    | { $case: 'gcpEndpoint'; gcpEndpoint: GcpEndpoint }
+    | undefined;
 }
 
 export interface UpdateWorkspaceNetworkOptionRequest {
@@ -1822,935 +1722,588 @@ export interface WorkspaceNetworkOption {
   workspaceId?: number | undefined;
 }
 
-export const unmarshalAccountIpAccessListSchema: z.ZodType<AccountIpAccessList> =
-  z
-    .object({
-      list_id: z.string().optional(),
-      label: z.string().optional(),
-      ip_addresses: z.array(z.string()).optional(),
-      address_count: z.number().optional(),
-      list_type: z.enum(AccountIpAccessListType_IpAccessListType).optional(),
-      created_at: z.number().optional(),
-      created_by: z.number().optional(),
-      updated_at: z.number().optional(),
-      updated_by: z.number().optional(),
-      enabled: z.boolean().optional(),
-    })
-    .transform(d => ({
-      listId: d.list_id,
-      label: d.label,
-      ipAddresses: d.ip_addresses,
-      addressCount: d.address_count,
-      listType: d.list_type,
-      createdAt: d.created_at,
-      createdBy: d.created_by,
-      updatedAt: d.updated_at,
-      updatedBy: d.updated_by,
-      enabled: d.enabled,
-    }));
+export const unmarshalAccountIpAccessListSchema: z.ZodType<AccountIpAccessList> = z
+  .object({
+    list_id: z.string().optional(),
+    label: z.string().optional(),
+    ip_addresses: z.array(z.string()).optional(),
+    address_count: z.number().optional(),
+    list_type: z.enum(AccountIpAccessListType_IpAccessListType).optional(),
+    created_at: z.number().optional(),
+    created_by: z.number().optional(),
+    updated_at: z.number().optional(),
+    updated_by: z.number().optional(),
+    enabled: z.boolean().optional(),
+  })
+  .transform(d => ({
+    listId: d.list_id,
+    label: d.label,
+    ipAddresses: d.ip_addresses,
+    addressCount: d.address_count,
+    listType: d.list_type,
+    createdAt: d.created_at,
+    createdBy: d.created_by,
+    updatedAt: d.updated_at,
+    updatedBy: d.updated_by,
+    enabled: d.enabled,
+  }));
 
-export const unmarshalAccountNetworkPolicySchema: z.ZodType<AccountNetworkPolicy> =
-  z
-    .object({
-      network_policy_id: z.string().optional(),
-      account_id: z.string().optional(),
-      egress: z.lazy(() => unmarshalEgressNetworkPolicySchema).optional(),
-      ingress: z
-        .lazy(() => unmarshalCustomerFacingIngressNetworkPolicySchema)
-        .optional(),
-      ingress_dry_run: z
-        .lazy(() => unmarshalCustomerFacingIngressNetworkPolicySchema)
-        .optional(),
-    })
-    .transform(d => ({
-      networkPolicyId: d.network_policy_id,
-      accountId: d.account_id,
-      egress: d.egress,
-      ingress: d.ingress,
-      ingressDryRun: d.ingress_dry_run,
-    }));
+export const unmarshalAccountNetworkPolicySchema: z.ZodType<AccountNetworkPolicy> = z
+  .object({
+    network_policy_id: z.string().optional(),
+    account_id: z.string().optional(),
+    egress: z.lazy(() => unmarshalEgressNetworkPolicySchema).optional(),
+    ingress: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicySchema).optional(),
+    ingress_dry_run: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicySchema).optional(),
+  })
+  .transform(d => ({
+    networkPolicyId: d.network_policy_id,
+    accountId: d.account_id,
+    egress: d.egress,
+    ingress: d.ingress,
+    ingressDryRun: d.ingress_dry_run,
+  }));
 
-export const unmarshalAzurePrivateEndpointInfoSchema: z.ZodType<AzurePrivateEndpointInfo> =
-  z
-    .object({
-      private_endpoint_name: z.string().optional(),
-      private_endpoint_resource_guid: z.string().optional(),
-      private_endpoint_resource_id: z.string().optional(),
-      private_link_service_id: z.string().optional(),
-    })
-    .transform(d => ({
-      privateEndpointName: d.private_endpoint_name,
-      privateEndpointResourceGuid: d.private_endpoint_resource_guid,
-      privateEndpointResourceId: d.private_endpoint_resource_id,
-      privateLinkServiceId: d.private_link_service_id,
-    }));
+export const unmarshalAzurePrivateEndpointInfoSchema: z.ZodType<AzurePrivateEndpointInfo> = z
+  .object({
+    private_endpoint_name: z.string().optional(),
+    private_endpoint_resource_guid: z.string().optional(),
+    private_endpoint_resource_id: z.string().optional(),
+    private_link_service_id: z.string().optional(),
+  })
+  .transform(d => ({
+    privateEndpointName: d.private_endpoint_name,
+    privateEndpointResourceGuid: d.private_endpoint_resource_guid,
+    privateEndpointResourceId: d.private_endpoint_resource_id,
+    privateLinkServiceId: d.private_link_service_id,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateAccountIpAccessListRequest_ResponseSchema: z.ZodType<CreateAccountIpAccessListRequest_Response> =
-  z
-    .object({
-      ip_access_list: z
-        .lazy(() => unmarshalAccountIpAccessListSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      ipAccessList: d.ip_access_list,
-    }));
+export const unmarshalCreateAccountIpAccessListRequest_ResponseSchema: z.ZodType<CreateAccountIpAccessListRequest_Response> = z
+  .object({
+    ip_access_list: z.lazy(() => unmarshalAccountIpAccessListSchema).optional(),
+  })
+  .transform(d => ({
+    ipAccessList: d.ip_access_list,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateIpAccessList_ResponseSchema: z.ZodType<CreateIpAccessList_Response> =
-  z
-    .object({
-      ip_access_list: z.lazy(() => unmarshalIpAccessListSchema).optional(),
-    })
-    .transform(d => ({
-      ipAccessList: d.ip_access_list,
-    }));
+export const unmarshalCreateIpAccessList_ResponseSchema: z.ZodType<CreateIpAccessList_Response> = z
+  .object({
+    ip_access_list: z.lazy(() => unmarshalIpAccessListSchema).optional(),
+  })
+  .transform(d => ({
+    ipAccessList: d.ip_access_list,
+  }));
 
-export const unmarshalCustomerFacingGcpVpcEndpointInfoSchema: z.ZodType<CustomerFacingGcpVpcEndpointInfo> =
-  z
-    .object({
-      psc_connection_id: z.string().optional(),
-      project_id: z.string().optional(),
-      psc_endpoint_name: z.string().optional(),
-      endpoint_region: z.string().optional(),
-      service_attachment_id: z.string().optional(),
-    })
-    .transform(d => ({
-      pscConnectionId: d.psc_connection_id,
-      projectId: d.project_id,
-      pscEndpointName: d.psc_endpoint_name,
-      endpointRegion: d.endpoint_region,
-      serviceAttachmentId: d.service_attachment_id,
-    }));
+export const unmarshalCustomerFacingGcpVpcEndpointInfoSchema: z.ZodType<CustomerFacingGcpVpcEndpointInfo> = z
+  .object({
+    psc_connection_id: z.string().optional(),
+    project_id: z.string().optional(),
+    psc_endpoint_name: z.string().optional(),
+    endpoint_region: z.string().optional(),
+    service_attachment_id: z.string().optional(),
+  })
+  .transform(d => ({
+    pscConnectionId: d.psc_connection_id,
+    projectId: d.project_id,
+    pscEndpointName: d.psc_endpoint_name,
+    endpointRegion: d.endpoint_region,
+    serviceAttachmentId: d.service_attachment_id,
+  }));
 
-export const unmarshalCustomerFacingIngressNetworkPolicySchema: z.ZodType<CustomerFacingIngressNetworkPolicy> =
-  z
-    .object({
-      public_access: z
-        .lazy(
-          () => unmarshalCustomerFacingIngressNetworkPolicy_PublicAccessSchema
-        )
-        .optional(),
-      private_access: z
-        .lazy(
-          () => unmarshalCustomerFacingIngressNetworkPolicy_PrivateAccessSchema
-        )
-        .optional(),
-      cross_workspace_access: z
-        .lazy(
-          () =>
-            unmarshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceAccessSchema
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      publicAccess: d.public_access,
-      privateAccess: d.private_access,
-      crossWorkspaceAccess: d.cross_workspace_access,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicySchema: z.ZodType<CustomerFacingIngressNetworkPolicy> = z
+  .object({
+    public_access: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_PublicAccessSchema).optional(),
+    private_access: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_PrivateAccessSchema).optional(),
+    cross_workspace_access: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceAccessSchema).optional(),
+  })
+  .transform(d => ({
+    publicAccess: d.public_access,
+    privateAccess: d.private_access,
+    crossWorkspaceAccess: d.cross_workspace_access,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_AccountApiDestinationSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_AccountApiDestination> =
-  z
-    .object({
-      scopes: z.array(z.string()).optional(),
-      scope_qualifier: z
-        .enum(CustomerFacingIngressNetworkPolicy_ApiScopeQualifier)
-        .optional(),
-    })
-    .transform(d => ({
-      scopes: d.scopes,
-      scopeQualifier: d.scope_qualifier,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_AccountApiDestinationSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_AccountApiDestination> = z
+  .object({
+    scopes: z.array(z.string()).optional(),
+    scope_qualifier: z.enum(CustomerFacingIngressNetworkPolicy_ApiScopeQualifier).optional(),
+  })
+  .transform(d => ({
+    scopes: d.scopes,
+    scopeQualifier: d.scope_qualifier,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_AccountDatabricksOneDestinationSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_AccountDatabricksOneDestination> =
-  z
-    .object({
-      all_destinations: z.boolean().optional(),
-    })
-    .transform(d => ({
-      allDestinations: d.all_destinations,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_AccountDatabricksOneDestinationSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_AccountDatabricksOneDestination> = z
+  .object({
+    all_destinations: z.boolean().optional(),
+  })
+  .transform(d => ({
+    allDestinations: d.all_destinations,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_AccountUiDestinationSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_AccountUiDestination> =
-  z
-    .object({
-      all_destinations: z.boolean().optional(),
-    })
-    .transform(d => ({
-      allDestinations: d.all_destinations,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_AccountUiDestinationSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_AccountUiDestination> = z
+  .object({
+    all_destinations: z.boolean().optional(),
+  })
+  .transform(d => ({
+    allDestinations: d.all_destinations,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_AppsRuntimeDestinationSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_AppsRuntimeDestination> =
-  z
-    .object({
-      all_destinations: z.boolean().optional(),
-    })
-    .transform(d => ({
-      allDestinations: d.all_destinations,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_AppsRuntimeDestinationSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_AppsRuntimeDestination> = z
+  .object({
+    all_destinations: z.boolean().optional(),
+  })
+  .transform(d => ({
+    allDestinations: d.all_destinations,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_AuthenticationSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_Authentication> =
-  z
-    .object({
-      identity_type: z
-        .enum(CustomerFacingIngressNetworkPolicy_Authentication_IdentityType)
-        .optional(),
-      identities: z
-        .array(
-          z.lazy(
-            () =>
-              unmarshalCustomerFacingIngressNetworkPolicy_AuthenticationIdentitySchema
-          )
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      identityType: d.identity_type,
-      identities: d.identities,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_AuthenticationSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_Authentication> = z
+  .object({
+    identity_type: z.enum(CustomerFacingIngressNetworkPolicy_Authentication_IdentityType).optional(),
+    identities: z.array(z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_AuthenticationIdentitySchema)).optional(),
+  })
+  .transform(d => ({
+    identityType: d.identity_type,
+    identities: d.identities,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_AuthenticationIdentitySchema: z.ZodType<CustomerFacingIngressNetworkPolicy_AuthenticationIdentity> =
-  z
-    .object({
-      principal_type: z
-        .enum(
-          CustomerFacingIngressNetworkPolicy_AuthenticationIdentity_PrincipalType
-        )
-        .optional(),
-      principal_id: z.number().optional(),
-    })
-    .transform(d => ({
-      principalType: d.principal_type,
-      principalId: d.principal_id,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_AuthenticationIdentitySchema: z.ZodType<CustomerFacingIngressNetworkPolicy_AuthenticationIdentity> = z
+  .object({
+    principal_type: z.enum(CustomerFacingIngressNetworkPolicy_AuthenticationIdentity_PrincipalType).optional(),
+    principal_id: z.number().optional(),
+  })
+  .transform(d => ({
+    principalType: d.principal_type,
+    principalId: d.principal_id,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceAccessSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_CrossWorkspaceAccess> =
-  z
-    .object({
-      restriction_mode: z
-        .enum(
-          CustomerFacingIngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode
-        )
-        .optional(),
-      deny_rules: z
-        .array(
-          z.lazy(
-            () =>
-              unmarshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceIngressRuleSchema
-          )
-        )
-        .optional(),
-      allow_rules: z
-        .array(
-          z.lazy(
-            () =>
-              unmarshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceIngressRuleSchema
-          )
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      restrictionMode: d.restriction_mode,
-      denyRules: d.deny_rules,
-      allowRules: d.allow_rules,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceAccessSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_CrossWorkspaceAccess> = z
+  .object({
+    restriction_mode: z.enum(CustomerFacingIngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode).optional(),
+    deny_rules: z.array(z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceIngressRuleSchema)).optional(),
+    allow_rules: z.array(z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceIngressRuleSchema)).optional(),
+  })
+  .transform(d => ({
+    restrictionMode: d.restriction_mode,
+    denyRules: d.deny_rules,
+    allowRules: d.allow_rules,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceIngressRuleSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_CrossWorkspaceIngressRule> =
-  z
-    .object({
-      origin: z
-        .lazy(
-          () =>
-            unmarshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceRequestOriginSchema
-        )
-        .optional(),
-      destination: z
-        .lazy(
-          () =>
-            unmarshalCustomerFacingIngressNetworkPolicy_RequestDestinationSchema
-        )
-        .optional(),
-      authentication: z
-        .lazy(
-          () => unmarshalCustomerFacingIngressNetworkPolicy_AuthenticationSchema
-        )
-        .optional(),
-      label: z.string().optional(),
-    })
-    .transform(d => ({
-      origin: d.origin,
-      destination: d.destination,
-      authentication: d.authentication,
-      label: d.label,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceIngressRuleSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_CrossWorkspaceIngressRule> = z
+  .object({
+    origin: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceRequestOriginSchema).optional(),
+    destination: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_RequestDestinationSchema).optional(),
+    authentication: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_AuthenticationSchema).optional(),
+    label: z.string().optional(),
+  })
+  .transform(d => ({
+    origin: d.origin,
+    destination: d.destination,
+    authentication: d.authentication,
+    label: d.label,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceRequestOriginSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_CrossWorkspaceRequestOrigin> =
-  z
-    .object({
-      all_source_workspaces: z.boolean().optional(),
-      selected_workspaces: z
-        .lazy(
-          () =>
-            unmarshalCustomerFacingIngressNetworkPolicy_WorkspaceIdListSchema
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      source:
-        d.all_source_workspaces !== undefined
-          ? {
-              $case: 'allSourceWorkspaces' as const,
-              allSourceWorkspaces: d.all_source_workspaces,
-            }
-          : d.selected_workspaces !== undefined
-            ? {
-                $case: 'selectedWorkspaces' as const,
-                selectedWorkspaces: d.selected_workspaces,
-              }
-            : undefined,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceRequestOriginSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_CrossWorkspaceRequestOrigin> = z
+  .object({
+    all_source_workspaces: z.boolean().optional(),
+    selected_workspaces: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_WorkspaceIdListSchema).optional(),
+  })
+  .transform(d => ({
+    source: d.all_source_workspaces !== undefined ? { $case: 'allSourceWorkspaces' as const, allSourceWorkspaces: d.all_source_workspaces } : d.selected_workspaces !== undefined ? { $case: 'selectedWorkspaces' as const, selectedWorkspaces: d.selected_workspaces } : undefined,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_EndpointsSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_Endpoints> =
-  z
-    .object({
-      endpoint_ids: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      endpointIds: d.endpoint_ids,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_EndpointsSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_Endpoints> = z
+  .object({
+    endpoint_ids: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    endpointIds: d.endpoint_ids,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_IpRangesSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_IpRanges> =
-  z
-    .object({
-      ip_ranges: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      ipRanges: d.ip_ranges,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_IpRangesSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_IpRanges> = z
+  .object({
+    ip_ranges: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    ipRanges: d.ip_ranges,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_LakebaseRuntimeDestinationSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_LakebaseRuntimeDestination> =
-  z
-    .object({
-      all_destinations: z.boolean().optional(),
-    })
-    .transform(d => ({
-      allDestinations: d.all_destinations,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_LakebaseRuntimeDestinationSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_LakebaseRuntimeDestination> = z
+  .object({
+    all_destinations: z.boolean().optional(),
+  })
+  .transform(d => ({
+    allDestinations: d.all_destinations,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_PrivateAccessSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_PrivateAccess> =
-  z
-    .object({
-      restriction_mode: z
-        .enum(CustomerFacingIngressNetworkPolicy_PrivateAccess_RestrictionMode)
-        .optional(),
-      deny_rules: z
-        .array(
-          z.lazy(
-            () =>
-              unmarshalCustomerFacingIngressNetworkPolicy_PrivateIngressRuleSchema
-          )
-        )
-        .optional(),
-      allow_rules: z
-        .array(
-          z.lazy(
-            () =>
-              unmarshalCustomerFacingIngressNetworkPolicy_PrivateIngressRuleSchema
-          )
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      restrictionMode: d.restriction_mode,
-      denyRules: d.deny_rules,
-      allowRules: d.allow_rules,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_PrivateAccessSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_PrivateAccess> = z
+  .object({
+    restriction_mode: z.enum(CustomerFacingIngressNetworkPolicy_PrivateAccess_RestrictionMode).optional(),
+    deny_rules: z.array(z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_PrivateIngressRuleSchema)).optional(),
+    allow_rules: z.array(z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_PrivateIngressRuleSchema)).optional(),
+  })
+  .transform(d => ({
+    restrictionMode: d.restriction_mode,
+    denyRules: d.deny_rules,
+    allowRules: d.allow_rules,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_PrivateIngressRuleSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_PrivateIngressRule> =
-  z
-    .object({
-      origin: z
-        .lazy(
-          () =>
-            unmarshalCustomerFacingIngressNetworkPolicy_PrivateRequestOriginSchema
-        )
-        .optional(),
-      destination: z
-        .lazy(
-          () =>
-            unmarshalCustomerFacingIngressNetworkPolicy_RequestDestinationSchema
-        )
-        .optional(),
-      authentication: z
-        .lazy(
-          () => unmarshalCustomerFacingIngressNetworkPolicy_AuthenticationSchema
-        )
-        .optional(),
-      label: z.string().optional(),
-    })
-    .transform(d => ({
-      origin: d.origin,
-      destination: d.destination,
-      authentication: d.authentication,
-      label: d.label,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_PrivateIngressRuleSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_PrivateIngressRule> = z
+  .object({
+    origin: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_PrivateRequestOriginSchema).optional(),
+    destination: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_RequestDestinationSchema).optional(),
+    authentication: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_AuthenticationSchema).optional(),
+    label: z.string().optional(),
+  })
+  .transform(d => ({
+    origin: d.origin,
+    destination: d.destination,
+    authentication: d.authentication,
+    label: d.label,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_PrivateRequestOriginSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_PrivateRequestOrigin> =
-  z
-    .object({
-      endpoints: z
-        .lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_EndpointsSchema)
-        .optional(),
-      all_registered_endpoints: z.boolean().optional(),
-      azure_workspace_private_link: z.boolean().optional(),
-      all_private_access: z.boolean().optional(),
-    })
-    .transform(d => ({
-      source:
-        d.endpoints !== undefined
-          ? {$case: 'endpoints' as const, endpoints: d.endpoints}
-          : d.all_registered_endpoints !== undefined
-            ? {
-                $case: 'allRegisteredEndpoints' as const,
-                allRegisteredEndpoints: d.all_registered_endpoints,
-              }
-            : d.azure_workspace_private_link !== undefined
-              ? {
-                  $case: 'azureWorkspacePrivateLink' as const,
-                  azureWorkspacePrivateLink: d.azure_workspace_private_link,
-                }
-              : d.all_private_access !== undefined
-                ? {
-                    $case: 'allPrivateAccess' as const,
-                    allPrivateAccess: d.all_private_access,
-                  }
-                : undefined,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_PrivateRequestOriginSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_PrivateRequestOrigin> = z
+  .object({
+    endpoints: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_EndpointsSchema).optional(),
+    all_registered_endpoints: z.boolean().optional(),
+    azure_workspace_private_link: z.boolean().optional(),
+    all_private_access: z.boolean().optional(),
+  })
+  .transform(d => ({
+    source: d.endpoints !== undefined ? { $case: 'endpoints' as const, endpoints: d.endpoints } : d.all_registered_endpoints !== undefined ? { $case: 'allRegisteredEndpoints' as const, allRegisteredEndpoints: d.all_registered_endpoints } : d.azure_workspace_private_link !== undefined ? { $case: 'azureWorkspacePrivateLink' as const, azureWorkspacePrivateLink: d.azure_workspace_private_link } : d.all_private_access !== undefined ? { $case: 'allPrivateAccess' as const, allPrivateAccess: d.all_private_access } : undefined,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_PublicAccessSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_PublicAccess> =
-  z
-    .object({
-      restriction_mode: z
-        .enum(CustomerFacingIngressNetworkPolicy_PublicAccess_RestrictionMode)
-        .optional(),
-      deny_rules: z
-        .array(
-          z.lazy(
-            () =>
-              unmarshalCustomerFacingIngressNetworkPolicy_PublicIngressRuleSchema
-          )
-        )
-        .optional(),
-      allow_rules: z
-        .array(
-          z.lazy(
-            () =>
-              unmarshalCustomerFacingIngressNetworkPolicy_PublicIngressRuleSchema
-          )
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      restrictionMode: d.restriction_mode,
-      denyRules: d.deny_rules,
-      allowRules: d.allow_rules,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_PublicAccessSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_PublicAccess> = z
+  .object({
+    restriction_mode: z.enum(CustomerFacingIngressNetworkPolicy_PublicAccess_RestrictionMode).optional(),
+    deny_rules: z.array(z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_PublicIngressRuleSchema)).optional(),
+    allow_rules: z.array(z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_PublicIngressRuleSchema)).optional(),
+  })
+  .transform(d => ({
+    restrictionMode: d.restriction_mode,
+    denyRules: d.deny_rules,
+    allowRules: d.allow_rules,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_PublicIngressRuleSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_PublicIngressRule> =
-  z
-    .object({
-      origin: z
-        .lazy(
-          () =>
-            unmarshalCustomerFacingIngressNetworkPolicy_PublicRequestOriginSchema
-        )
-        .optional(),
-      destination: z
-        .lazy(
-          () =>
-            unmarshalCustomerFacingIngressNetworkPolicy_RequestDestinationSchema
-        )
-        .optional(),
-      authentication: z
-        .lazy(
-          () => unmarshalCustomerFacingIngressNetworkPolicy_AuthenticationSchema
-        )
-        .optional(),
-      label: z.string().optional(),
-    })
-    .transform(d => ({
-      origin: d.origin,
-      destination: d.destination,
-      authentication: d.authentication,
-      label: d.label,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_PublicIngressRuleSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_PublicIngressRule> = z
+  .object({
+    origin: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_PublicRequestOriginSchema).optional(),
+    destination: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_RequestDestinationSchema).optional(),
+    authentication: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_AuthenticationSchema).optional(),
+    label: z.string().optional(),
+  })
+  .transform(d => ({
+    origin: d.origin,
+    destination: d.destination,
+    authentication: d.authentication,
+    label: d.label,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_PublicRequestOriginSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_PublicRequestOrigin> =
-  z
-    .object({
-      all_ip_ranges: z.boolean().optional(),
-      included_ip_ranges: z
-        .lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_IpRangesSchema)
-        .optional(),
-      excluded_ip_ranges: z
-        .lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_IpRangesSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      source:
-        d.all_ip_ranges !== undefined
-          ? {$case: 'allIpRanges' as const, allIpRanges: d.all_ip_ranges}
-          : d.included_ip_ranges !== undefined
-            ? {
-                $case: 'includedIpRanges' as const,
-                includedIpRanges: d.included_ip_ranges,
-              }
-            : d.excluded_ip_ranges !== undefined
-              ? {
-                  $case: 'excludedIpRanges' as const,
-                  excludedIpRanges: d.excluded_ip_ranges,
-                }
-              : undefined,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_PublicRequestOriginSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_PublicRequestOrigin> = z
+  .object({
+    all_ip_ranges: z.boolean().optional(),
+    included_ip_ranges: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_IpRangesSchema).optional(),
+    excluded_ip_ranges: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_IpRangesSchema).optional(),
+  })
+  .transform(d => ({
+    source: d.all_ip_ranges !== undefined ? { $case: 'allIpRanges' as const, allIpRanges: d.all_ip_ranges } : d.included_ip_ranges !== undefined ? { $case: 'includedIpRanges' as const, includedIpRanges: d.included_ip_ranges } : d.excluded_ip_ranges !== undefined ? { $case: 'excludedIpRanges' as const, excludedIpRanges: d.excluded_ip_ranges } : undefined,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_RequestDestinationSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_RequestDestination> =
-  z
-    .object({
-      all_destinations: z.boolean().optional(),
-      workspace_ui: z
-        .lazy(
-          () =>
-            unmarshalCustomerFacingIngressNetworkPolicy_WorkspaceUiDestinationSchema
-        )
-        .optional(),
-      workspace_api: z
-        .lazy(
-          () =>
-            unmarshalCustomerFacingIngressNetworkPolicy_WorkspaceApiDestinationSchema
-        )
-        .optional(),
-      apps_runtime: z
-        .lazy(
-          () =>
-            unmarshalCustomerFacingIngressNetworkPolicy_AppsRuntimeDestinationSchema
-        )
-        .optional(),
-      lakebase_runtime: z
-        .lazy(
-          () =>
-            unmarshalCustomerFacingIngressNetworkPolicy_LakebaseRuntimeDestinationSchema
-        )
-        .optional(),
-      account_ui: z
-        .lazy(
-          () =>
-            unmarshalCustomerFacingIngressNetworkPolicy_AccountUiDestinationSchema
-        )
-        .optional(),
-      account_api: z
-        .lazy(
-          () =>
-            unmarshalCustomerFacingIngressNetworkPolicy_AccountApiDestinationSchema
-        )
-        .optional(),
-      account_databricks_one: z
-        .lazy(
-          () =>
-            unmarshalCustomerFacingIngressNetworkPolicy_AccountDatabricksOneDestinationSchema
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      allDestinations: d.all_destinations,
-      workspaceUi: d.workspace_ui,
-      workspaceApi: d.workspace_api,
-      appsRuntime: d.apps_runtime,
-      lakebaseRuntime: d.lakebase_runtime,
-      accountUi: d.account_ui,
-      accountApi: d.account_api,
-      accountDatabricksOne: d.account_databricks_one,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_RequestDestinationSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_RequestDestination> = z
+  .object({
+    all_destinations: z.boolean().optional(),
+    workspace_ui: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_WorkspaceUiDestinationSchema).optional(),
+    workspace_api: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_WorkspaceApiDestinationSchema).optional(),
+    apps_runtime: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_AppsRuntimeDestinationSchema).optional(),
+    lakebase_runtime: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_LakebaseRuntimeDestinationSchema).optional(),
+    account_ui: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_AccountUiDestinationSchema).optional(),
+    account_api: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_AccountApiDestinationSchema).optional(),
+    account_databricks_one: z.lazy(() => unmarshalCustomerFacingIngressNetworkPolicy_AccountDatabricksOneDestinationSchema).optional(),
+  })
+  .transform(d => ({
+    allDestinations: d.all_destinations,
+    workspaceUi: d.workspace_ui,
+    workspaceApi: d.workspace_api,
+    appsRuntime: d.apps_runtime,
+    lakebaseRuntime: d.lakebase_runtime,
+    accountUi: d.account_ui,
+    accountApi: d.account_api,
+    accountDatabricksOne: d.account_databricks_one,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_WorkspaceApiDestinationSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_WorkspaceApiDestination> =
-  z
-    .object({
-      scopes: z.array(z.string()).optional(),
-      scope_qualifier: z
-        .enum(CustomerFacingIngressNetworkPolicy_ApiScopeQualifier)
-        .optional(),
-    })
-    .transform(d => ({
-      scopes: d.scopes,
-      scopeQualifier: d.scope_qualifier,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_WorkspaceApiDestinationSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_WorkspaceApiDestination> = z
+  .object({
+    scopes: z.array(z.string()).optional(),
+    scope_qualifier: z.enum(CustomerFacingIngressNetworkPolicy_ApiScopeQualifier).optional(),
+  })
+  .transform(d => ({
+    scopes: d.scopes,
+    scopeQualifier: d.scope_qualifier,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_WorkspaceIdListSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_WorkspaceIdList> =
-  z
-    .object({
-      workspace_ids: z.array(z.number()).optional(),
-    })
-    .transform(d => ({
-      workspaceIds: d.workspace_ids,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_WorkspaceIdListSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_WorkspaceIdList> = z
+  .object({
+    workspace_ids: z.array(z.number()).optional(),
+  })
+  .transform(d => ({
+    workspaceIds: d.workspace_ids,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingIngressNetworkPolicy_WorkspaceUiDestinationSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_WorkspaceUiDestination> =
-  z
-    .object({
-      all_destinations: z.boolean().optional(),
-    })
-    .transform(d => ({
-      allDestinations: d.all_destinations,
-    }));
+export const unmarshalCustomerFacingIngressNetworkPolicy_WorkspaceUiDestinationSchema: z.ZodType<CustomerFacingIngressNetworkPolicy_WorkspaceUiDestination> = z
+  .object({
+    all_destinations: z.boolean().optional(),
+  })
+  .transform(d => ({
+    allDestinations: d.all_destinations,
+  }));
 
-export const unmarshalCustomerFacingNetworkConnectivityConfigSchema: z.ZodType<CustomerFacingNetworkConnectivityConfig> =
-  z
-    .object({
-      network_connectivity_config_id: z.string().optional(),
-      account_id: z.string().optional(),
-      name: z.string().optional(),
-      region: z.string().optional(),
-      egress_config: z
-        .lazy(
-          () =>
-            unmarshalCustomerFacingNetworkConnectivityConfigEgressConfigSchema
-        )
-        .optional(),
-      updated_time: z.number().optional(),
-      creation_time: z.number().optional(),
-    })
-    .transform(d => ({
-      networkConnectivityConfigId: d.network_connectivity_config_id,
-      accountId: d.account_id,
-      name: d.name,
-      region: d.region,
-      egressConfig: d.egress_config,
-      updatedTime: d.updated_time,
-      creationTime: d.creation_time,
-    }));
+export const unmarshalCustomerFacingNetworkConnectivityConfigSchema: z.ZodType<CustomerFacingNetworkConnectivityConfig> = z
+  .object({
+    network_connectivity_config_id: z.string().optional(),
+    account_id: z.string().optional(),
+    name: z.string().optional(),
+    region: z.string().optional(),
+    egress_config: z.lazy(() => unmarshalCustomerFacingNetworkConnectivityConfigEgressConfigSchema).optional(),
+    updated_time: z.number().optional(),
+    creation_time: z.number().optional(),
+  })
+  .transform(d => ({
+    networkConnectivityConfigId: d.network_connectivity_config_id,
+    accountId: d.account_id,
+    name: d.name,
+    region: d.region,
+    egressConfig: d.egress_config,
+    updatedTime: d.updated_time,
+    creationTime: d.creation_time,
+  }));
 
-export const unmarshalCustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRuleSchema: z.ZodType<CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule> =
-  z
-    .object({
-      rule_id: z.string().optional(),
-      network_connectivity_config_id: z.string().optional(),
-      account_id: z.string().optional(),
-      endpoint_service: z.string().optional(),
-      domain_names: z.array(z.string()).optional(),
-      resource_names: z.array(z.string()).optional(),
-      vpc_endpoint_id: z.string().optional(),
-      connection_state: z
-        .enum(
-          CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule_PrivateLinkConnectionState
-        )
-        .optional(),
-      creation_time: z.number().optional(),
-      updated_time: z.number().optional(),
-      deactivated: z.boolean().optional(),
-      deactivated_at: z.number().optional(),
-      enabled: z.boolean().optional(),
-      error_message: z.string().optional(),
-    })
-    .transform(d => ({
-      ruleId: d.rule_id,
-      networkConnectivityConfigId: d.network_connectivity_config_id,
-      accountId: d.account_id,
-      endpointService: d.endpoint_service,
-      domainNames: d.domain_names,
-      resourceNames: d.resource_names,
-      vpcEndpointId: d.vpc_endpoint_id,
-      connectionState: d.connection_state,
-      creationTime: d.creation_time,
-      updatedTime: d.updated_time,
-      deactivated: d.deactivated,
-      deactivatedAt: d.deactivated_at,
-      enabled: d.enabled,
-      errorMessage: d.error_message,
-    }));
+export const unmarshalCustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRuleSchema: z.ZodType<CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule> = z
+  .object({
+    rule_id: z.string().optional(),
+    network_connectivity_config_id: z.string().optional(),
+    account_id: z.string().optional(),
+    endpoint_service: z.string().optional(),
+    domain_names: z.array(z.string()).optional(),
+    resource_names: z.array(z.string()).optional(),
+    vpc_endpoint_id: z.string().optional(),
+    connection_state: z.enum(CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule_PrivateLinkConnectionState).optional(),
+    creation_time: z.number().optional(),
+    updated_time: z.number().optional(),
+    deactivated: z.boolean().optional(),
+    deactivated_at: z.number().optional(),
+    enabled: z.boolean().optional(),
+    error_message: z.string().optional(),
+  })
+  .transform(d => ({
+    ruleId: d.rule_id,
+    networkConnectivityConfigId: d.network_connectivity_config_id,
+    accountId: d.account_id,
+    endpointService: d.endpoint_service,
+    domainNames: d.domain_names,
+    resourceNames: d.resource_names,
+    vpcEndpointId: d.vpc_endpoint_id,
+    connectionState: d.connection_state,
+    creationTime: d.creation_time,
+    updatedTime: d.updated_time,
+    deactivated: d.deactivated,
+    deactivatedAt: d.deactivated_at,
+    enabled: d.enabled,
+    errorMessage: d.error_message,
+  }));
 
-export const unmarshalCustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRuleSchema: z.ZodType<CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule> =
-  z
-    .object({
-      rule_id: z.string().optional(),
-      network_connectivity_config_id: z.string().optional(),
-      resource_id: z.string().optional(),
-      group_id: z.string().optional(),
-      endpoint_name: z.string().optional(),
-      connection_state: z
-        .enum(
-          CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState
-        )
-        .optional(),
-      creation_time: z.number().optional(),
-      updated_time: z.number().optional(),
-      deactivated: z.boolean().optional(),
-      deactivated_at: z.number().optional(),
-      domain_names: z.array(z.string()).optional(),
-      error_message: z.string().optional(),
-    })
-    .transform(d => ({
-      ruleId: d.rule_id,
-      networkConnectivityConfigId: d.network_connectivity_config_id,
-      resourceId: d.resource_id,
-      groupId: d.group_id,
-      endpointName: d.endpoint_name,
-      connectionState: d.connection_state,
-      creationTime: d.creation_time,
-      updatedTime: d.updated_time,
-      deactivated: d.deactivated,
-      deactivatedAt: d.deactivated_at,
-      domainNames: d.domain_names,
-      errorMessage: d.error_message,
-    }));
+export const unmarshalCustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRuleSchema: z.ZodType<CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule> = z
+  .object({
+    rule_id: z.string().optional(),
+    network_connectivity_config_id: z.string().optional(),
+    resource_id: z.string().optional(),
+    group_id: z.string().optional(),
+    endpoint_name: z.string().optional(),
+    connection_state: z.enum(CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState).optional(),
+    creation_time: z.number().optional(),
+    updated_time: z.number().optional(),
+    deactivated: z.boolean().optional(),
+    deactivated_at: z.number().optional(),
+    domain_names: z.array(z.string()).optional(),
+    error_message: z.string().optional(),
+  })
+  .transform(d => ({
+    ruleId: d.rule_id,
+    networkConnectivityConfigId: d.network_connectivity_config_id,
+    resourceId: d.resource_id,
+    groupId: d.group_id,
+    endpointName: d.endpoint_name,
+    connectionState: d.connection_state,
+    creationTime: d.creation_time,
+    updatedTime: d.updated_time,
+    deactivated: d.deactivated,
+    deactivatedAt: d.deactivated_at,
+    domainNames: d.domain_names,
+    errorMessage: d.error_message,
+  }));
 
-export const unmarshalCustomerFacingNetworkConnectivityConfigEgressConfigSchema: z.ZodType<CustomerFacingNetworkConnectivityConfigEgressConfig> =
-  z
-    .object({
-      default_rules: z
-        .lazy(
-          () => unmarshalNetworkConnectivityConfigEgressConfig_DefaultRuleSchema
-        )
-        .optional(),
-      target_rules: z
-        .lazy(
-          () =>
-            unmarshalCustomerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRuleSchema
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      defaultRules: d.default_rules,
-      targetRules: d.target_rules,
-    }));
+export const unmarshalCustomerFacingNetworkConnectivityConfigEgressConfigSchema: z.ZodType<CustomerFacingNetworkConnectivityConfigEgressConfig> = z
+  .object({
+    default_rules: z.lazy(() => unmarshalNetworkConnectivityConfigEgressConfig_DefaultRuleSchema).optional(),
+    target_rules: z.lazy(() => unmarshalCustomerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRuleSchema).optional(),
+  })
+  .transform(d => ({
+    defaultRules: d.default_rules,
+    targetRules: d.target_rules,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCustomerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRuleSchema: z.ZodType<CustomerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRule> =
-  z
-    .object({
-      azure_private_endpoint_rules: z
-        .array(
-          z.lazy(
-            () =>
-              unmarshalCustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRuleSchema
-          )
-        )
-        .optional(),
-      aws_private_endpoint_rules: z
-        .array(
-          z.lazy(
-            () =>
-              unmarshalCustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRuleSchema
-          )
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      azurePrivateEndpointRules: d.azure_private_endpoint_rules,
-      awsPrivateEndpointRules: d.aws_private_endpoint_rules,
-    }));
+export const unmarshalCustomerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRuleSchema: z.ZodType<CustomerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRule> = z
+  .object({
+    azure_private_endpoint_rules: z.array(z.lazy(() => unmarshalCustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRuleSchema)).optional(),
+    aws_private_endpoint_rules: z.array(z.lazy(() => unmarshalCustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRuleSchema)).optional(),
+  })
+  .transform(d => ({
+    azurePrivateEndpointRules: d.azure_private_endpoint_rules,
+    awsPrivateEndpointRules: d.aws_private_endpoint_rules,
+  }));
 
-export const unmarshalCustomerFacingPrivateAccessSettingsSchema: z.ZodType<CustomerFacingPrivateAccessSettings> =
-  z
-    .object({
-      private_access_settings_id: z.string().optional(),
-      account_id: z.string().optional(),
-      private_access_settings_name: z.string().optional(),
-      region: z.string().optional(),
-      public_access_enabled: z.boolean().optional(),
-      private_access_level: z.enum(PrivateAccessLevel).optional(),
-      allowed_vpc_endpoint_ids: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      privateAccessSettingsId: d.private_access_settings_id,
-      accountId: d.account_id,
-      privateAccessSettingsName: d.private_access_settings_name,
-      region: d.region,
-      publicAccessEnabled: d.public_access_enabled,
-      privateAccessLevel: d.private_access_level,
-      allowedVpcEndpointIds: d.allowed_vpc_endpoint_ids,
-    }));
+export const unmarshalCustomerFacingPrivateAccessSettingsSchema: z.ZodType<CustomerFacingPrivateAccessSettings> = z
+  .object({
+    private_access_settings_id: z.string().optional(),
+    account_id: z.string().optional(),
+    private_access_settings_name: z.string().optional(),
+    region: z.string().optional(),
+    public_access_enabled: z.boolean().optional(),
+    private_access_level: z.enum(PrivateAccessLevel).optional(),
+    allowed_vpc_endpoint_ids: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    privateAccessSettingsId: d.private_access_settings_id,
+    accountId: d.account_id,
+    privateAccessSettingsName: d.private_access_settings_name,
+    region: d.region,
+    publicAccessEnabled: d.public_access_enabled,
+    privateAccessLevel: d.private_access_level,
+    allowedVpcEndpointIds: d.allowed_vpc_endpoint_ids,
+  }));
 
-export const unmarshalCustomerFacingVpcEndpointSchema: z.ZodType<CustomerFacingVpcEndpoint> =
-  z
-    .object({
-      vpc_endpoint_id: z.string().optional(),
-      account_id: z.string().optional(),
-      vpc_endpoint_name: z.string().optional(),
-      aws_vpc_endpoint_id: z.string().optional(),
-      aws_endpoint_service_id: z.string().optional(),
-      use_case: z.enum(CustomerFacingVpcEndpointUseCase).optional(),
-      region: z.string().optional(),
-      aws_account_id: z.string().optional(),
-      state: z.string().optional(),
-      gcp_vpc_endpoint_info: z
-        .lazy(() => unmarshalCustomerFacingGcpVpcEndpointInfoSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      vpcEndpointId: d.vpc_endpoint_id,
-      accountId: d.account_id,
-      vpcEndpointName: d.vpc_endpoint_name,
-      awsVpcEndpointId: d.aws_vpc_endpoint_id,
-      awsEndpointServiceId: d.aws_endpoint_service_id,
-      useCase: d.use_case,
-      region: d.region,
-      awsAccountId: d.aws_account_id,
-      state: d.state,
-      vpcEndpointInfo:
-        d.gcp_vpc_endpoint_info !== undefined
-          ? {
-              $case: 'gcpVpcEndpointInfo' as const,
-              gcpVpcEndpointInfo: d.gcp_vpc_endpoint_info,
-            }
-          : undefined,
-    }));
+export const unmarshalCustomerFacingVpcEndpointSchema: z.ZodType<CustomerFacingVpcEndpoint> = z
+  .object({
+    vpc_endpoint_id: z.string().optional(),
+    account_id: z.string().optional(),
+    vpc_endpoint_name: z.string().optional(),
+    aws_vpc_endpoint_id: z.string().optional(),
+    aws_endpoint_service_id: z.string().optional(),
+    use_case: z.enum(CustomerFacingVpcEndpointUseCase).optional(),
+    region: z.string().optional(),
+    aws_account_id: z.string().optional(),
+    state: z.string().optional(),
+    gcp_vpc_endpoint_info: z.lazy(() => unmarshalCustomerFacingGcpVpcEndpointInfoSchema).optional(),
+  })
+  .transform(d => ({
+    vpcEndpointId: d.vpc_endpoint_id,
+    accountId: d.account_id,
+    vpcEndpointName: d.vpc_endpoint_name,
+    awsVpcEndpointId: d.aws_vpc_endpoint_id,
+    awsEndpointServiceId: d.aws_endpoint_service_id,
+    useCase: d.use_case,
+    region: d.region,
+    awsAccountId: d.aws_account_id,
+    state: d.state,
+    vpcEndpointInfo: d.gcp_vpc_endpoint_info !== undefined ? { $case: 'gcpVpcEndpointInfo' as const, gcpVpcEndpointInfo: d.gcp_vpc_endpoint_info } : undefined,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteAccountIpAccessListRequest_ResponseSchema: z.ZodType<DeleteAccountIpAccessListRequest_Response> =
-  z.object({});
+export const unmarshalDeleteAccountIpAccessListRequest_ResponseSchema: z.ZodType<DeleteAccountIpAccessListRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteIpAccessList_ResponseSchema: z.ZodType<DeleteIpAccessList_Response> =
-  z.object({});
+export const unmarshalDeleteIpAccessList_ResponseSchema: z.ZodType<DeleteIpAccessList_Response> = z
+  .object({
+  });
 
-export const unmarshalEgressNetworkPolicySchema: z.ZodType<EgressNetworkPolicy> =
-  z
-    .object({
-      network_access: z
-        .lazy(() => unmarshalEgressNetworkPolicy_NetworkAccessPolicySchema)
-        .optional(),
-    })
-    .transform(d => ({
-      networkAccess: d.network_access,
-    }));
+export const unmarshalEgressNetworkPolicySchema: z.ZodType<EgressNetworkPolicy> = z
+  .object({
+    network_access: z.lazy(() => unmarshalEgressNetworkPolicy_NetworkAccessPolicySchema).optional(),
+  })
+  .transform(d => ({
+    networkAccess: d.network_access,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEgressNetworkPolicy_NetworkAccessPolicySchema: z.ZodType<EgressNetworkPolicy_NetworkAccessPolicy> =
-  z
-    .object({
-      restriction_mode: z
-        .enum(EgressNetworkPolicy_NetworkAccessPolicy_RestrictionMode)
-        .optional(),
-      allowed_internet_destinations: z
-        .array(
-          z.lazy(
-            () =>
-              unmarshalEgressNetworkPolicy_NetworkAccessPolicy_InternetDestinationSchema
-          )
-        )
-        .optional(),
-      allowed_storage_destinations: z
-        .array(
-          z.lazy(
-            () =>
-              unmarshalEgressNetworkPolicy_NetworkAccessPolicy_StorageDestinationSchema
-          )
-        )
-        .optional(),
-      policy_enforcement: z
-        .lazy(
-          () =>
-            unmarshalEgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcementSchema
-        )
-        .optional(),
-      blocked_internet_destinations: z
-        .array(
-          z.lazy(
-            () =>
-              unmarshalEgressNetworkPolicy_NetworkAccessPolicy_InternetDestinationSchema
-          )
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      restrictionMode: d.restriction_mode,
-      allowedInternetDestinations: d.allowed_internet_destinations,
-      allowedStorageDestinations: d.allowed_storage_destinations,
-      policyEnforcement: d.policy_enforcement,
-      blockedInternetDestinations: d.blocked_internet_destinations,
-    }));
+export const unmarshalEgressNetworkPolicy_NetworkAccessPolicySchema: z.ZodType<EgressNetworkPolicy_NetworkAccessPolicy> = z
+  .object({
+    restriction_mode: z.enum(EgressNetworkPolicy_NetworkAccessPolicy_RestrictionMode).optional(),
+    allowed_internet_destinations: z.array(z.lazy(() => unmarshalEgressNetworkPolicy_NetworkAccessPolicy_InternetDestinationSchema)).optional(),
+    allowed_storage_destinations: z.array(z.lazy(() => unmarshalEgressNetworkPolicy_NetworkAccessPolicy_StorageDestinationSchema)).optional(),
+    policy_enforcement: z.lazy(() => unmarshalEgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcementSchema).optional(),
+    blocked_internet_destinations: z.array(z.lazy(() => unmarshalEgressNetworkPolicy_NetworkAccessPolicy_InternetDestinationSchema)).optional(),
+  })
+  .transform(d => ({
+    restrictionMode: d.restriction_mode,
+    allowedInternetDestinations: d.allowed_internet_destinations,
+    allowedStorageDestinations: d.allowed_storage_destinations,
+    policyEnforcement: d.policy_enforcement,
+    blockedInternetDestinations: d.blocked_internet_destinations,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEgressNetworkPolicy_NetworkAccessPolicy_InternetDestinationSchema: z.ZodType<EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination> =
-  z
-    .object({
-      destination: z.string().optional(),
-      internet_destination_type: z
-        .enum(
-          EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination_InternetDestinationType
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      destination: d.destination,
-      internetDestinationType: d.internet_destination_type,
-    }));
+export const unmarshalEgressNetworkPolicy_NetworkAccessPolicy_InternetDestinationSchema: z.ZodType<EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination> = z
+  .object({
+    destination: z.string().optional(),
+    internet_destination_type: z.enum(EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination_InternetDestinationType).optional(),
+  })
+  .transform(d => ({
+    destination: d.destination,
+    internetDestinationType: d.internet_destination_type,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcementSchema: z.ZodType<EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement> =
-  z
-    .object({
-      enforcement_mode: z
-        .enum(
-          EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_EnforcementMode
-        )
-        .optional(),
-      dry_run_mode_product_filter: z
-        .array(
-          z.enum(
-            EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_DryRunModeProductFilter
-          )
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      enforcementMode: d.enforcement_mode,
-      dryRunModeProductFilter: d.dry_run_mode_product_filter,
-    }));
+export const unmarshalEgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcementSchema: z.ZodType<EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement> = z
+  .object({
+    enforcement_mode: z.enum(EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_EnforcementMode).optional(),
+    dry_run_mode_product_filter: z.array(z.enum(EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_DryRunModeProductFilter)).optional(),
+  })
+  .transform(d => ({
+    enforcementMode: d.enforcement_mode,
+    dryRunModeProductFilter: d.dry_run_mode_product_filter,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEgressNetworkPolicy_NetworkAccessPolicy_StorageDestinationSchema: z.ZodType<EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination> =
-  z
-    .object({
-      bucket_name: z.string().optional(),
-      region: z.string().optional(),
-      storage_destination_type: z
-        .enum(
-          EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination_StorageDestinationType
-        )
-        .optional(),
-      azure_storage_account: z.string().optional(),
-      azure_storage_service: z.string().optional(),
-    })
-    .transform(d => ({
-      bucketName: d.bucket_name,
-      region: d.region,
-      storageDestinationType: d.storage_destination_type,
-      azureStorageAccount: d.azure_storage_account,
-      azureStorageService: d.azure_storage_service,
-    }));
+export const unmarshalEgressNetworkPolicy_NetworkAccessPolicy_StorageDestinationSchema: z.ZodType<EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination> = z
+  .object({
+    bucket_name: z.string().optional(),
+    region: z.string().optional(),
+    storage_destination_type: z.enum(EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination_StorageDestinationType).optional(),
+    azure_storage_account: z.string().optional(),
+    azure_storage_service: z.string().optional(),
+  })
+  .transform(d => ({
+    bucketName: d.bucket_name,
+    region: d.region,
+    storageDestinationType: d.storage_destination_type,
+    azureStorageAccount: d.azure_storage_account,
+    azureStorageService: d.azure_storage_service,
+  }));
 
 export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
   .object({
@@ -2761,13 +2314,8 @@ export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
     use_case: z.enum(EndpointUseCase_EndpointUseCase).optional(),
     region: z.string().optional(),
     state: z.enum(EndpointState).optional(),
-    azure_private_endpoint_info: z
-      .lazy(() => unmarshalAzurePrivateEndpointInfoSchema)
-      .optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    azure_private_endpoint_info: z.lazy(() => unmarshalAzurePrivateEndpointInfoSchema).optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -2777,13 +2325,7 @@ export const unmarshalEndpointSchema: z.ZodType<Endpoint> = z
     useCase: d.use_case,
     region: d.region,
     state: d.state,
-    endpointInfo:
-      d.azure_private_endpoint_info !== undefined
-        ? {
-            $case: 'azurePrivateEndpointInfo' as const,
-            azurePrivateEndpointInfo: d.azure_private_endpoint_info,
-          }
-        : undefined,
+    endpointInfo: d.azure_private_endpoint_info !== undefined ? { $case: 'azurePrivateEndpointInfo' as const, azurePrivateEndpointInfo: d.azure_private_endpoint_info } : undefined,
     createTime: d.create_time,
   }));
 
@@ -2794,13 +2336,7 @@ export const unmarshalGcpEndpointSchema: z.ZodType<GcpEndpoint> = z
   })
   .transform(d => ({
     pscEndpointUri: d.psc_endpoint_uri,
-    targetServices:
-      d.service_attachment !== undefined
-        ? {
-            $case: 'serviceAttachment' as const,
-            serviceAttachment: d.service_attachment,
-          }
-        : undefined,
+    targetServices: d.service_attachment !== undefined ? { $case: 'serviceAttachment' as const, serviceAttachment: d.service_attachment } : undefined,
   }));
 
 export const unmarshalGcpNetworkInfoSchema: z.ZodType<GcpNetworkInfo> = z
@@ -2822,26 +2358,22 @@ export const unmarshalGcpNetworkInfoSchema: z.ZodType<GcpNetworkInfo> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetAccountIpAccessListRequest_ResponseSchema: z.ZodType<GetAccountIpAccessListRequest_Response> =
-  z
-    .object({
-      ip_access_list: z
-        .lazy(() => unmarshalAccountIpAccessListSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      ipAccessList: d.ip_access_list,
-    }));
+export const unmarshalGetAccountIpAccessListRequest_ResponseSchema: z.ZodType<GetAccountIpAccessListRequest_Response> = z
+  .object({
+    ip_access_list: z.lazy(() => unmarshalAccountIpAccessListSchema).optional(),
+  })
+  .transform(d => ({
+    ipAccessList: d.ip_access_list,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetIpAccessList_ResponseSchema: z.ZodType<GetIpAccessList_Response> =
-  z
-    .object({
-      ip_access_list: z.lazy(() => unmarshalIpAccessListSchema).optional(),
-    })
-    .transform(d => ({
-      ipAccessList: d.ip_access_list,
-    }));
+export const unmarshalGetIpAccessList_ResponseSchema: z.ZodType<GetIpAccessList_Response> = z
+  .object({
+    ip_access_list: z.lazy(() => unmarshalIpAccessListSchema).optional(),
+  })
+  .transform(d => ({
+    ipAccessList: d.ip_access_list,
+  }));
 
 export const unmarshalIpAccessListSchema: z.ZodType<IpAccessList> = z
   .object({
@@ -2870,128 +2402,104 @@ export const unmarshalIpAccessListSchema: z.ZodType<IpAccessList> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListAccountIpAccessListsRequest_ResponseSchema: z.ZodType<ListAccountIpAccessListsRequest_Response> =
-  z
-    .object({
-      ip_access_lists: z
-        .array(z.lazy(() => unmarshalAccountIpAccessListSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      ipAccessLists: d.ip_access_lists,
-    }));
+export const unmarshalListAccountIpAccessListsRequest_ResponseSchema: z.ZodType<ListAccountIpAccessListsRequest_Response> = z
+  .object({
+    ip_access_lists: z.array(z.lazy(() => unmarshalAccountIpAccessListSchema)).optional(),
+  })
+  .transform(d => ({
+    ipAccessLists: d.ip_access_lists,
+  }));
 
-export const unmarshalListEndpointsResponseSchema: z.ZodType<ListEndpointsResponse> =
-  z
-    .object({
-      items: z.array(z.lazy(() => unmarshalEndpointSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      items: d.items,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListEndpointsResponseSchema: z.ZodType<ListEndpointsResponse> = z
+  .object({
+    items: z.array(z.lazy(() => unmarshalEndpointSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    items: d.items,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListIpAccessLists_ResponseSchema: z.ZodType<ListIpAccessLists_Response> =
-  z
-    .object({
-      ip_access_lists: z
-        .array(z.lazy(() => unmarshalIpAccessListSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      ipAccessLists: d.ip_access_lists,
-    }));
+export const unmarshalListIpAccessLists_ResponseSchema: z.ZodType<ListIpAccessLists_Response> = z
+  .object({
+    ip_access_lists: z.array(z.lazy(() => unmarshalIpAccessListSchema)).optional(),
+  })
+  .transform(d => ({
+    ipAccessLists: d.ip_access_lists,
+  }));
 
-export const unmarshalListNccPrivateEndpointRulesResponseSchema: z.ZodType<ListNccPrivateEndpointRulesResponse> =
-  z
-    .object({
-      items: z
-        .array(z.lazy(() => unmarshalNccPrivateEndpointRuleSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      items: d.items,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListNccPrivateEndpointRulesResponseSchema: z.ZodType<ListNccPrivateEndpointRulesResponse> = z
+  .object({
+    items: z.array(z.lazy(() => unmarshalNccPrivateEndpointRuleSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    items: d.items,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListNetworkConnectivityConfigsPublicResponseSchema: z.ZodType<ListNetworkConnectivityConfigsPublicResponse> =
-  z
-    .object({
-      items: z
-        .array(
-          z.lazy(() => unmarshalCustomerFacingNetworkConnectivityConfigSchema)
-        )
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      items: d.items,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListNetworkConnectivityConfigsResponseSchema: z.ZodType<ListNetworkConnectivityConfigsResponse> = z
+  .object({
+    items: z.array(z.lazy(() => unmarshalCustomerFacingNetworkConnectivityConfigSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    items: d.items,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListNetworkPoliciesResponseSchema: z.ZodType<ListNetworkPoliciesResponse> =
-  z
-    .object({
-      items: z
-        .array(z.lazy(() => unmarshalAccountNetworkPolicySchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      items: d.items,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListNetworkPoliciesResponseSchema: z.ZodType<ListNetworkPoliciesResponse> = z
+  .object({
+    items: z.array(z.lazy(() => unmarshalAccountNetworkPolicySchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    items: d.items,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalNccPrivateEndpointRuleSchema: z.ZodType<NccPrivateEndpointRule> =
-  z
-    .object({
-      rule_id: z.string().optional(),
-      network_connectivity_config_id: z.string().optional(),
-      connection_state: z
-        .enum(NccPrivateEndpointRule_PrivateLinkConnectionState)
-        .optional(),
-      domain_names: z.array(z.string()).optional(),
-      creation_time: z.number().optional(),
-      updated_time: z.number().optional(),
-      deactivated: z.boolean().optional(),
-      deactivated_at: z.number().optional(),
-      error_message: z.string().optional(),
-      resource_id: z.string().optional(),
-      group_id: z.string().optional(),
-      endpoint_name: z.string().optional(),
-      account_id: z.string().optional(),
-      endpoint_service: z.string().optional(),
-      resource_names: z.array(z.string()).optional(),
-      vpc_endpoint_id: z.string().optional(),
-      enabled: z.boolean().optional(),
-      gcp_endpoint: z.lazy(() => unmarshalGcpEndpointSchema).optional(),
-    })
-    .transform(d => ({
-      ruleId: d.rule_id,
-      networkConnectivityConfigId: d.network_connectivity_config_id,
-      connectionState: d.connection_state,
-      domainNames: d.domain_names,
-      creationTime: d.creation_time,
-      updatedTime: d.updated_time,
-      deactivated: d.deactivated,
-      deactivatedAt: d.deactivated_at,
-      errorMessage: d.error_message,
-      resourceId: d.resource_id,
-      groupId: d.group_id,
-      endpointName: d.endpoint_name,
-      accountId: d.account_id,
-      endpointService: d.endpoint_service,
-      resourceNames: d.resource_names,
-      vpcEndpointId: d.vpc_endpoint_id,
-      enabled: d.enabled,
-      endpoint:
-        d.gcp_endpoint !== undefined
-          ? {$case: 'gcpEndpoint' as const, gcpEndpoint: d.gcp_endpoint}
-          : undefined,
-    }));
+export const unmarshalNccPrivateEndpointRuleSchema: z.ZodType<NccPrivateEndpointRule> = z
+  .object({
+    rule_id: z.string().optional(),
+    network_connectivity_config_id: z.string().optional(),
+    connection_state: z.enum(NccPrivateEndpointRule_PrivateLinkConnectionState).optional(),
+    domain_names: z.array(z.string()).optional(),
+    creation_time: z.number().optional(),
+    updated_time: z.number().optional(),
+    deactivated: z.boolean().optional(),
+    deactivated_at: z.number().optional(),
+    error_message: z.string().optional(),
+    resource_id: z.string().optional(),
+    group_id: z.string().optional(),
+    endpoint_name: z.string().optional(),
+    account_id: z.string().optional(),
+    endpoint_service: z.string().optional(),
+    resource_names: z.array(z.string()).optional(),
+    vpc_endpoint_id: z.string().optional(),
+    enabled: z.boolean().optional(),
+    gcp_endpoint: z.lazy(() => unmarshalGcpEndpointSchema).optional(),
+  })
+  .transform(d => ({
+    ruleId: d.rule_id,
+    networkConnectivityConfigId: d.network_connectivity_config_id,
+    connectionState: d.connection_state,
+    domainNames: d.domain_names,
+    creationTime: d.creation_time,
+    updatedTime: d.updated_time,
+    deactivated: d.deactivated,
+    deactivatedAt: d.deactivated_at,
+    errorMessage: d.error_message,
+    resourceId: d.resource_id,
+    groupId: d.group_id,
+    endpointName: d.endpoint_name,
+    accountId: d.account_id,
+    endpointService: d.endpoint_service,
+    resourceNames: d.resource_names,
+    vpcEndpointId: d.vpc_endpoint_id,
+    enabled: d.enabled,
+    endpoint: d.gcp_endpoint !== undefined ? { $case: 'gcpEndpoint' as const, gcpEndpoint: d.gcp_endpoint } : undefined,
+  }));
 
 export const unmarshalNetworkSchema: z.ZodType<Network> = z
   .object({
@@ -3002,14 +2510,10 @@ export const unmarshalNetworkSchema: z.ZodType<Network> = z
     subnet_ids: z.array(z.string()).optional(),
     security_group_ids: z.array(z.string()).optional(),
     vpc_status: z.enum(VpcStatus).optional(),
-    error_messages: z
-      .array(z.lazy(() => unmarshalNetworkHealthSchema))
-      .optional(),
+    error_messages: z.array(z.lazy(() => unmarshalNetworkHealthSchema)).optional(),
     network_name: z.string().optional(),
     creation_time: z.number().optional(),
-    warning_messages: z
-      .array(z.lazy(() => unmarshalNetworkWarningSchema))
-      .optional(),
+    warning_messages: z.array(z.lazy(() => unmarshalNetworkWarningSchema)).optional(),
     vpc_endpoints: z.lazy(() => unmarshalNetworkVpcEndpointsSchema).optional(),
     gcp_network_info: z.lazy(() => unmarshalGcpNetworkInfoSchema).optional(),
   })
@@ -3026,57 +2530,41 @@ export const unmarshalNetworkSchema: z.ZodType<Network> = z
     creationTime: d.creation_time,
     warningMessages: d.warning_messages,
     vpcEndpoints: d.vpc_endpoints,
-    networkInfo:
-      d.gcp_network_info !== undefined
-        ? {$case: 'gcpNetworkInfo' as const, gcpNetworkInfo: d.gcp_network_info}
-        : undefined,
+    networkInfo: d.gcp_network_info !== undefined ? { $case: 'gcpNetworkInfo' as const, gcpNetworkInfo: d.gcp_network_info } : undefined,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalNetworkConnectivityConfigEgressConfig_DefaultRuleSchema: z.ZodType<NetworkConnectivityConfigEgressConfig_DefaultRule> =
-  z
-    .object({
-      azure_service_endpoint_rule: z
-        .lazy(
-          () =>
-            unmarshalNetworkConnectivityConfigEgressConfig_DefaultRule_AzureServiceEndpointRuleSchema
-        )
-        .optional(),
-      aws_stable_ip_rule: z
-        .lazy(
-          () =>
-            unmarshalNetworkConnectivityConfigEgressConfig_DefaultRule_AwsStableIpRuleSchema
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      azureServiceEndpointRule: d.azure_service_endpoint_rule,
-      awsStableIpRule: d.aws_stable_ip_rule,
-    }));
+export const unmarshalNetworkConnectivityConfigEgressConfig_DefaultRuleSchema: z.ZodType<NetworkConnectivityConfigEgressConfig_DefaultRule> = z
+  .object({
+    azure_service_endpoint_rule: z.lazy(() => unmarshalNetworkConnectivityConfigEgressConfig_DefaultRule_AzureServiceEndpointRuleSchema).optional(),
+    aws_stable_ip_rule: z.lazy(() => unmarshalNetworkConnectivityConfigEgressConfig_DefaultRule_AwsStableIpRuleSchema).optional(),
+  })
+  .transform(d => ({
+    azureServiceEndpointRule: d.azure_service_endpoint_rule,
+    awsStableIpRule: d.aws_stable_ip_rule,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalNetworkConnectivityConfigEgressConfig_DefaultRule_AwsStableIpRuleSchema: z.ZodType<NetworkConnectivityConfigEgressConfig_DefaultRule_AwsStableIpRule> =
-  z
-    .object({
-      cidr_blocks: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      cidrBlocks: d.cidr_blocks,
-    }));
+export const unmarshalNetworkConnectivityConfigEgressConfig_DefaultRule_AwsStableIpRuleSchema: z.ZodType<NetworkConnectivityConfigEgressConfig_DefaultRule_AwsStableIpRule> = z
+  .object({
+    cidr_blocks: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    cidrBlocks: d.cidr_blocks,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalNetworkConnectivityConfigEgressConfig_DefaultRule_AzureServiceEndpointRuleSchema: z.ZodType<NetworkConnectivityConfigEgressConfig_DefaultRule_AzureServiceEndpointRule> =
-  z
-    .object({
-      target_region: z.string().optional(),
-      target_services: z.array(z.enum(EgressResourceType)).optional(),
-      subnets: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      targetRegion: d.target_region,
-      targetServices: d.target_services,
-      subnets: d.subnets,
-    }));
+export const unmarshalNetworkConnectivityConfigEgressConfig_DefaultRule_AzureServiceEndpointRuleSchema: z.ZodType<NetworkConnectivityConfigEgressConfig_DefaultRule_AzureServiceEndpointRule> = z
+  .object({
+    target_region: z.string().optional(),
+    target_services: z.array(z.enum(EgressResourceType)).optional(),
+    subnets: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    targetRegion: d.target_region,
+    targetServices: d.target_services,
+    subnets: d.subnets,
+  }));
 
 export const unmarshalNetworkHealthSchema: z.ZodType<NetworkHealth> = z
   .object({
@@ -3088,16 +2576,15 @@ export const unmarshalNetworkHealthSchema: z.ZodType<NetworkHealth> = z
     errorMessage: d.error_message,
   }));
 
-export const unmarshalNetworkVpcEndpointsSchema: z.ZodType<NetworkVpcEndpoints> =
-  z
-    .object({
-      rest_api: z.array(z.string()).optional(),
-      dataplane_relay: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      restApi: d.rest_api,
-      dataplaneRelay: d.dataplane_relay,
-    }));
+export const unmarshalNetworkVpcEndpointsSchema: z.ZodType<NetworkVpcEndpoints> = z
+  .object({
+    rest_api: z.array(z.string()).optional(),
+    dataplane_relay: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    restApi: d.rest_api,
+    dataplaneRelay: d.dataplane_relay,
+  }));
 
 export const unmarshalNetworkWarningSchema: z.ZodType<NetworkWarning> = z
   .object({
@@ -3110,71 +2597,58 @@ export const unmarshalNetworkWarningSchema: z.ZodType<NetworkWarning> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalReplaceAccountIpAccessListRequest_ResponseSchema: z.ZodType<ReplaceAccountIpAccessListRequest_Response> =
-  z
-    .object({
-      ip_access_list: z
-        .lazy(() => unmarshalAccountIpAccessListSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      ipAccessList: d.ip_access_list,
-    }));
+export const unmarshalReplaceAccountIpAccessListRequest_ResponseSchema: z.ZodType<ReplaceAccountIpAccessListRequest_Response> = z
+  .object({
+    ip_access_list: z.lazy(() => unmarshalAccountIpAccessListSchema).optional(),
+  })
+  .transform(d => ({
+    ipAccessList: d.ip_access_list,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalReplaceIpAccessList_ResponseSchema: z.ZodType<ReplaceIpAccessList_Response> =
-  z
-    .object({
-      ip_access_list: z.lazy(() => unmarshalIpAccessListSchema).optional(),
-    })
-    .transform(d => ({
-      ipAccessList: d.ip_access_list,
-    }));
+export const unmarshalReplaceIpAccessList_ResponseSchema: z.ZodType<ReplaceIpAccessList_Response> = z
+  .object({
+    ip_access_list: z.lazy(() => unmarshalIpAccessListSchema).optional(),
+  })
+  .transform(d => ({
+    ipAccessList: d.ip_access_list,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateAccountIpAccessListRequest_ResponseSchema: z.ZodType<UpdateAccountIpAccessListRequest_Response> =
-  z
-    .object({
-      ip_access_list: z
-        .lazy(() => unmarshalAccountIpAccessListSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      ipAccessList: d.ip_access_list,
-    }));
+export const unmarshalUpdateAccountIpAccessListRequest_ResponseSchema: z.ZodType<UpdateAccountIpAccessListRequest_Response> = z
+  .object({
+    ip_access_list: z.lazy(() => unmarshalAccountIpAccessListSchema).optional(),
+  })
+  .transform(d => ({
+    ipAccessList: d.ip_access_list,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateIpAccessList_ResponseSchema: z.ZodType<UpdateIpAccessList_Response> =
-  z
-    .object({
-      ip_access_list: z.lazy(() => unmarshalIpAccessListSchema).optional(),
-    })
-    .transform(d => ({
-      ipAccessList: d.ip_access_list,
-    }));
+export const unmarshalUpdateIpAccessList_ResponseSchema: z.ZodType<UpdateIpAccessList_Response> = z
+  .object({
+    ip_access_list: z.lazy(() => unmarshalIpAccessListSchema).optional(),
+  })
+  .transform(d => ({
+    ipAccessList: d.ip_access_list,
+  }));
 
-export const unmarshalWorkspaceNetworkOptionSchema: z.ZodType<WorkspaceNetworkOption> =
-  z
-    .object({
-      network_policy_id: z.string().optional(),
-      workspace_id: z.number().optional(),
-    })
-    .transform(d => ({
-      networkPolicyId: d.network_policy_id,
-      workspaceId: d.workspace_id,
-    }));
+export const unmarshalWorkspaceNetworkOptionSchema: z.ZodType<WorkspaceNetworkOption> = z
+  .object({
+    network_policy_id: z.string().optional(),
+    workspace_id: z.number().optional(),
+  })
+  .transform(d => ({
+    networkPolicyId: d.network_policy_id,
+    workspaceId: d.workspace_id,
+  }));
 
 export const marshalAccountNetworkPolicySchema: z.ZodType = z
   .object({
     networkPolicyId: z.string().optional(),
     accountId: z.string().optional(),
     egress: z.lazy(() => marshalEgressNetworkPolicySchema).optional(),
-    ingress: z
-      .lazy(() => marshalCustomerFacingIngressNetworkPolicySchema)
-      .optional(),
-    ingressDryRun: z
-      .lazy(() => marshalCustomerFacingIngressNetworkPolicySchema)
-      .optional(),
+    ingress: z.lazy(() => marshalCustomerFacingIngressNetworkPolicySchema).optional(),
+    ingressDryRun: z.lazy(() => marshalCustomerFacingIngressNetworkPolicySchema).optional(),
   })
   .transform(d => ({
     network_policy_id: d.networkPolicyId,
@@ -3230,11 +2704,7 @@ export const marshalCreateNetworkConnectivityConfigurationSchema: z.ZodType = z
     accountId: z.string().optional(),
     name: z.string().optional(),
     region: z.string().optional(),
-    egressConfig: z
-      .lazy(
-        () => marshalCustomerFacingNetworkConnectivityConfigEgressConfigSchema
-      )
-      .optional(),
+    egressConfig: z.lazy(() => marshalCustomerFacingNetworkConnectivityConfigEgressConfigSchema).optional(),
     updatedTime: z.number().optional(),
     creationTime: z.number().optional(),
   })
@@ -3248,7 +2718,7 @@ export const marshalCreateNetworkConnectivityConfigurationSchema: z.ZodType = z
     creation_time: d.creationTime,
   }));
 
-export const marshalCreateNetworkPublicRequestSchema: z.ZodType = z
+export const marshalCreateNetworkRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     networkName: z.string().optional(),
@@ -3268,32 +2738,29 @@ export const marshalCreateNetworkPublicRequestSchema: z.ZodType = z
     gcp_network_info: d.gcpNetworkInfo,
   }));
 
-export const marshalCreatePrivateAccessSettingsPublicRequestSchema: z.ZodType =
-  z
-    .object({
-      accountId: z.string().optional(),
-      privateAccessSettingsName: z.string().optional(),
-      region: z.string().optional(),
-      publicAccessEnabled: z.boolean().optional(),
-      privateAccessLevel: z.enum(PrivateAccessLevel).optional(),
-      allowedVpcEndpointIds: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      account_id: d.accountId,
-      private_access_settings_name: d.privateAccessSettingsName,
-      region: d.region,
-      public_access_enabled: d.publicAccessEnabled,
-      private_access_level: d.privateAccessLevel,
-      allowed_vpc_endpoint_ids: d.allowedVpcEndpointIds,
-    }));
+export const marshalCreatePrivateAccessSettingsRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    privateAccessSettingsName: z.string().optional(),
+    region: z.string().optional(),
+    publicAccessEnabled: z.boolean().optional(),
+    privateAccessLevel: z.enum(PrivateAccessLevel).optional(),
+    allowedVpcEndpointIds: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    private_access_settings_name: d.privateAccessSettingsName,
+    region: d.region,
+    public_access_enabled: d.publicAccessEnabled,
+    private_access_level: d.privateAccessLevel,
+    allowed_vpc_endpoint_ids: d.allowedVpcEndpointIds,
+  }));
 
 export const marshalCreatePrivateEndpointRuleSchema: z.ZodType = z
   .object({
     ruleId: z.string().optional(),
     networkConnectivityConfigId: z.string().optional(),
-    connectionState: z
-      .enum(NccPrivateEndpointRule_PrivateLinkConnectionState)
-      .optional(),
+    connectionState: z.enum(NccPrivateEndpointRule_PrivateLinkConnectionState).optional(),
     domainNames: z.array(z.string()).optional(),
     creationTime: z.number().optional(),
     updatedTime: z.number().optional(),
@@ -3308,14 +2775,7 @@ export const marshalCreatePrivateEndpointRuleSchema: z.ZodType = z
     resourceNames: z.array(z.string()).optional(),
     vpcEndpointId: z.string().optional(),
     enabled: z.boolean().optional(),
-    endpoint: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('gcpEndpoint'),
-          gcpEndpoint: z.lazy(() => marshalGcpEndpointSchema),
-        }),
-      ])
-      .optional(),
+    endpoint: z.discriminatedUnion('$case', [z.object({ $case: z.literal('gcpEndpoint'), gcpEndpoint: z.lazy(() => marshalGcpEndpointSchema) })]).optional(),
   })
   .transform(d => ({
     rule_id: d.ruleId,
@@ -3335,36 +2795,23 @@ export const marshalCreatePrivateEndpointRuleSchema: z.ZodType = z
     resource_names: d.resourceNames,
     vpc_endpoint_id: d.vpcEndpointId,
     enabled: d.enabled,
-    ...(d.endpoint?.$case === 'gcpEndpoint' && {
-      gcp_endpoint: d.endpoint.gcpEndpoint,
-    }),
+    ...(d.endpoint?.$case === 'gcpEndpoint' && { gcp_endpoint: d.endpoint.gcpEndpoint }),
   }));
 
-export const marshalCreateVpcEndpointPublicRequestSchema: z.ZodType = z
+export const marshalCreateVpcEndpointRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     vpcEndpointName: z.string().optional(),
     region: z.string().optional(),
     awsVpcEndpointId: z.string().optional(),
-    vpcEndpointInfo: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('gcpVpcEndpointInfo'),
-          gcpVpcEndpointInfo: z.lazy(
-            () => marshalCustomerFacingGcpVpcEndpointInfoSchema
-          ),
-        }),
-      ])
-      .optional(),
+    vpcEndpointInfo: z.discriminatedUnion('$case', [z.object({ $case: z.literal('gcpVpcEndpointInfo'), gcpVpcEndpointInfo: z.lazy(() => marshalCustomerFacingGcpVpcEndpointInfoSchema) })]).optional(),
   })
   .transform(d => ({
     account_id: d.accountId,
     vpc_endpoint_name: d.vpcEndpointName,
     region: d.region,
     aws_vpc_endpoint_id: d.awsVpcEndpointId,
-    ...(d.vpcEndpointInfo?.$case === 'gcpVpcEndpointInfo' && {
-      gcp_vpc_endpoint_info: d.vpcEndpointInfo.gcpVpcEndpointInfo,
-    }),
+    ...(d.vpcEndpointInfo?.$case === 'gcpVpcEndpointInfo' && { gcp_vpc_endpoint_info: d.vpcEndpointInfo.gcpVpcEndpointInfo }),
   }));
 
 export const marshalCustomerFacingGcpVpcEndpointInfoSchema: z.ZodType = z
@@ -3385,18 +2832,9 @@ export const marshalCustomerFacingGcpVpcEndpointInfoSchema: z.ZodType = z
 
 export const marshalCustomerFacingIngressNetworkPolicySchema: z.ZodType = z
   .object({
-    publicAccess: z
-      .lazy(() => marshalCustomerFacingIngressNetworkPolicy_PublicAccessSchema)
-      .optional(),
-    privateAccess: z
-      .lazy(() => marshalCustomerFacingIngressNetworkPolicy_PrivateAccessSchema)
-      .optional(),
-    crossWorkspaceAccess: z
-      .lazy(
-        () =>
-          marshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceAccessSchema
-      )
-      .optional(),
+    publicAccess: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_PublicAccessSchema).optional(),
+    privateAccess: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_PrivateAccessSchema).optional(),
+    crossWorkspaceAccess: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceAccessSchema).optional(),
   })
   .transform(d => ({
     public_access: d.publicAccess,
@@ -3405,613 +2843,345 @@ export const marshalCustomerFacingIngressNetworkPolicySchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_AccountApiDestinationSchema: z.ZodType =
-  z
-    .object({
-      scopes: z.array(z.string()).optional(),
-      scopeQualifier: z
-        .enum(CustomerFacingIngressNetworkPolicy_ApiScopeQualifier)
-        .optional(),
-    })
-    .transform(d => ({
-      scopes: d.scopes,
-      scope_qualifier: d.scopeQualifier,
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_AccountApiDestinationSchema: z.ZodType = z
+  .object({
+    scopes: z.array(z.string()).optional(),
+    scopeQualifier: z.enum(CustomerFacingIngressNetworkPolicy_ApiScopeQualifier).optional(),
+  })
+  .transform(d => ({
+    scopes: d.scopes,
+    scope_qualifier: d.scopeQualifier,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_AccountDatabricksOneDestinationSchema: z.ZodType =
-  z
-    .object({
-      allDestinations: z.boolean().optional(),
-    })
-    .transform(d => ({
-      all_destinations: d.allDestinations,
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_AccountDatabricksOneDestinationSchema: z.ZodType = z
+  .object({
+    allDestinations: z.boolean().optional(),
+  })
+  .transform(d => ({
+    all_destinations: d.allDestinations,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_AccountUiDestinationSchema: z.ZodType =
-  z
-    .object({
-      allDestinations: z.boolean().optional(),
-    })
-    .transform(d => ({
-      all_destinations: d.allDestinations,
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_AccountUiDestinationSchema: z.ZodType = z
+  .object({
+    allDestinations: z.boolean().optional(),
+  })
+  .transform(d => ({
+    all_destinations: d.allDestinations,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_AppsRuntimeDestinationSchema: z.ZodType =
-  z
-    .object({
-      allDestinations: z.boolean().optional(),
-    })
-    .transform(d => ({
-      all_destinations: d.allDestinations,
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_AppsRuntimeDestinationSchema: z.ZodType = z
+  .object({
+    allDestinations: z.boolean().optional(),
+  })
+  .transform(d => ({
+    all_destinations: d.allDestinations,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_AuthenticationSchema: z.ZodType =
-  z
-    .object({
-      identityType: z
-        .enum(CustomerFacingIngressNetworkPolicy_Authentication_IdentityType)
-        .optional(),
-      identities: z
-        .array(
-          z.lazy(
-            () =>
-              marshalCustomerFacingIngressNetworkPolicy_AuthenticationIdentitySchema
-          )
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      identity_type: d.identityType,
-      identities: d.identities,
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_AuthenticationSchema: z.ZodType = z
+  .object({
+    identityType: z.enum(CustomerFacingIngressNetworkPolicy_Authentication_IdentityType).optional(),
+    identities: z.array(z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_AuthenticationIdentitySchema)).optional(),
+  })
+  .transform(d => ({
+    identity_type: d.identityType,
+    identities: d.identities,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_AuthenticationIdentitySchema: z.ZodType =
-  z
-    .object({
-      principalType: z
-        .enum(
-          CustomerFacingIngressNetworkPolicy_AuthenticationIdentity_PrincipalType
-        )
-        .optional(),
-      principalId: z.number().optional(),
-    })
-    .transform(d => ({
-      principal_type: d.principalType,
-      principal_id: d.principalId,
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_AuthenticationIdentitySchema: z.ZodType = z
+  .object({
+    principalType: z.enum(CustomerFacingIngressNetworkPolicy_AuthenticationIdentity_PrincipalType).optional(),
+    principalId: z.number().optional(),
+  })
+  .transform(d => ({
+    principal_type: d.principalType,
+    principal_id: d.principalId,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceAccessSchema: z.ZodType =
-  z
-    .object({
-      restrictionMode: z
-        .enum(
-          CustomerFacingIngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode
-        )
-        .optional(),
-      denyRules: z
-        .array(
-          z.lazy(
-            () =>
-              marshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceIngressRuleSchema
-          )
-        )
-        .optional(),
-      allowRules: z
-        .array(
-          z.lazy(
-            () =>
-              marshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceIngressRuleSchema
-          )
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      restriction_mode: d.restrictionMode,
-      deny_rules: d.denyRules,
-      allow_rules: d.allowRules,
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceAccessSchema: z.ZodType = z
+  .object({
+    restrictionMode: z.enum(CustomerFacingIngressNetworkPolicy_CrossWorkspaceAccess_RestrictionMode).optional(),
+    denyRules: z.array(z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceIngressRuleSchema)).optional(),
+    allowRules: z.array(z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceIngressRuleSchema)).optional(),
+  })
+  .transform(d => ({
+    restriction_mode: d.restrictionMode,
+    deny_rules: d.denyRules,
+    allow_rules: d.allowRules,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceIngressRuleSchema: z.ZodType =
-  z
-    .object({
-      origin: z
-        .lazy(
-          () =>
-            marshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceRequestOriginSchema
-        )
-        .optional(),
-      destination: z
-        .lazy(
-          () =>
-            marshalCustomerFacingIngressNetworkPolicy_RequestDestinationSchema
-        )
-        .optional(),
-      authentication: z
-        .lazy(
-          () => marshalCustomerFacingIngressNetworkPolicy_AuthenticationSchema
-        )
-        .optional(),
-      label: z.string().optional(),
-    })
-    .transform(d => ({
-      origin: d.origin,
-      destination: d.destination,
-      authentication: d.authentication,
-      label: d.label,
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceIngressRuleSchema: z.ZodType = z
+  .object({
+    origin: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceRequestOriginSchema).optional(),
+    destination: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_RequestDestinationSchema).optional(),
+    authentication: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_AuthenticationSchema).optional(),
+    label: z.string().optional(),
+  })
+  .transform(d => ({
+    origin: d.origin,
+    destination: d.destination,
+    authentication: d.authentication,
+    label: d.label,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceRequestOriginSchema: z.ZodType =
-  z
-    .object({
-      source: z
-        .discriminatedUnion('$case', [
-          z.object({
-            $case: z.literal('allSourceWorkspaces'),
-            allSourceWorkspaces: z.boolean(),
-          }),
-          z.object({
-            $case: z.literal('selectedWorkspaces'),
-            selectedWorkspaces: z.lazy(
-              () =>
-                marshalCustomerFacingIngressNetworkPolicy_WorkspaceIdListSchema
-            ),
-          }),
-        ])
-        .optional(),
-    })
-    .transform(d => ({
-      ...(d.source?.$case === 'allSourceWorkspaces' && {
-        all_source_workspaces: d.source.allSourceWorkspaces,
-      }),
-      ...(d.source?.$case === 'selectedWorkspaces' && {
-        selected_workspaces: d.source.selectedWorkspaces,
-      }),
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_CrossWorkspaceRequestOriginSchema: z.ZodType = z
+  .object({
+    source: z.discriminatedUnion('$case', [z.object({ $case: z.literal('allSourceWorkspaces'), allSourceWorkspaces: z.boolean() }), z.object({ $case: z.literal('selectedWorkspaces'), selectedWorkspaces: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_WorkspaceIdListSchema) })]).optional(),
+  })
+  .transform(d => ({
+    ...(d.source?.$case === 'allSourceWorkspaces' && { all_source_workspaces: d.source.allSourceWorkspaces }),
+    ...(d.source?.$case === 'selectedWorkspaces' && { selected_workspaces: d.source.selectedWorkspaces }),
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_EndpointsSchema: z.ZodType =
-  z
-    .object({
-      endpointIds: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      endpoint_ids: d.endpointIds,
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_EndpointsSchema: z.ZodType = z
+  .object({
+    endpointIds: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    endpoint_ids: d.endpointIds,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_IpRangesSchema: z.ZodType =
-  z
-    .object({
-      ipRanges: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      ip_ranges: d.ipRanges,
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_IpRangesSchema: z.ZodType = z
+  .object({
+    ipRanges: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    ip_ranges: d.ipRanges,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_LakebaseRuntimeDestinationSchema: z.ZodType =
-  z
-    .object({
-      allDestinations: z.boolean().optional(),
-    })
-    .transform(d => ({
-      all_destinations: d.allDestinations,
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_LakebaseRuntimeDestinationSchema: z.ZodType = z
+  .object({
+    allDestinations: z.boolean().optional(),
+  })
+  .transform(d => ({
+    all_destinations: d.allDestinations,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_PrivateAccessSchema: z.ZodType =
-  z
-    .object({
-      restrictionMode: z
-        .enum(CustomerFacingIngressNetworkPolicy_PrivateAccess_RestrictionMode)
-        .optional(),
-      denyRules: z
-        .array(
-          z.lazy(
-            () =>
-              marshalCustomerFacingIngressNetworkPolicy_PrivateIngressRuleSchema
-          )
-        )
-        .optional(),
-      allowRules: z
-        .array(
-          z.lazy(
-            () =>
-              marshalCustomerFacingIngressNetworkPolicy_PrivateIngressRuleSchema
-          )
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      restriction_mode: d.restrictionMode,
-      deny_rules: d.denyRules,
-      allow_rules: d.allowRules,
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_PrivateAccessSchema: z.ZodType = z
+  .object({
+    restrictionMode: z.enum(CustomerFacingIngressNetworkPolicy_PrivateAccess_RestrictionMode).optional(),
+    denyRules: z.array(z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_PrivateIngressRuleSchema)).optional(),
+    allowRules: z.array(z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_PrivateIngressRuleSchema)).optional(),
+  })
+  .transform(d => ({
+    restriction_mode: d.restrictionMode,
+    deny_rules: d.denyRules,
+    allow_rules: d.allowRules,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_PrivateIngressRuleSchema: z.ZodType =
-  z
-    .object({
-      origin: z
-        .lazy(
-          () =>
-            marshalCustomerFacingIngressNetworkPolicy_PrivateRequestOriginSchema
-        )
-        .optional(),
-      destination: z
-        .lazy(
-          () =>
-            marshalCustomerFacingIngressNetworkPolicy_RequestDestinationSchema
-        )
-        .optional(),
-      authentication: z
-        .lazy(
-          () => marshalCustomerFacingIngressNetworkPolicy_AuthenticationSchema
-        )
-        .optional(),
-      label: z.string().optional(),
-    })
-    .transform(d => ({
-      origin: d.origin,
-      destination: d.destination,
-      authentication: d.authentication,
-      label: d.label,
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_PrivateIngressRuleSchema: z.ZodType = z
+  .object({
+    origin: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_PrivateRequestOriginSchema).optional(),
+    destination: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_RequestDestinationSchema).optional(),
+    authentication: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_AuthenticationSchema).optional(),
+    label: z.string().optional(),
+  })
+  .transform(d => ({
+    origin: d.origin,
+    destination: d.destination,
+    authentication: d.authentication,
+    label: d.label,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_PrivateRequestOriginSchema: z.ZodType =
-  z
-    .object({
-      source: z
-        .discriminatedUnion('$case', [
-          z.object({
-            $case: z.literal('endpoints'),
-            endpoints: z.lazy(
-              () => marshalCustomerFacingIngressNetworkPolicy_EndpointsSchema
-            ),
-          }),
-          z.object({
-            $case: z.literal('allRegisteredEndpoints'),
-            allRegisteredEndpoints: z.boolean(),
-          }),
-          z.object({
-            $case: z.literal('azureWorkspacePrivateLink'),
-            azureWorkspacePrivateLink: z.boolean(),
-          }),
-          z.object({
-            $case: z.literal('allPrivateAccess'),
-            allPrivateAccess: z.boolean(),
-          }),
-        ])
-        .optional(),
-    })
-    .transform(d => ({
-      ...(d.source?.$case === 'endpoints' && {endpoints: d.source.endpoints}),
-      ...(d.source?.$case === 'allRegisteredEndpoints' && {
-        all_registered_endpoints: d.source.allRegisteredEndpoints,
-      }),
-      ...(d.source?.$case === 'azureWorkspacePrivateLink' && {
-        azure_workspace_private_link: d.source.azureWorkspacePrivateLink,
-      }),
-      ...(d.source?.$case === 'allPrivateAccess' && {
-        all_private_access: d.source.allPrivateAccess,
-      }),
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_PrivateRequestOriginSchema: z.ZodType = z
+  .object({
+    source: z.discriminatedUnion('$case', [z.object({ $case: z.literal('endpoints'), endpoints: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_EndpointsSchema) }), z.object({ $case: z.literal('allRegisteredEndpoints'), allRegisteredEndpoints: z.boolean() }), z.object({ $case: z.literal('azureWorkspacePrivateLink'), azureWorkspacePrivateLink: z.boolean() }), z.object({ $case: z.literal('allPrivateAccess'), allPrivateAccess: z.boolean() })]).optional(),
+  })
+  .transform(d => ({
+    ...(d.source?.$case === 'endpoints' && { endpoints: d.source.endpoints }),
+    ...(d.source?.$case === 'allRegisteredEndpoints' && { all_registered_endpoints: d.source.allRegisteredEndpoints }),
+    ...(d.source?.$case === 'azureWorkspacePrivateLink' && { azure_workspace_private_link: d.source.azureWorkspacePrivateLink }),
+    ...(d.source?.$case === 'allPrivateAccess' && { all_private_access: d.source.allPrivateAccess }),
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_PublicAccessSchema: z.ZodType =
-  z
-    .object({
-      restrictionMode: z
-        .enum(CustomerFacingIngressNetworkPolicy_PublicAccess_RestrictionMode)
-        .optional(),
-      denyRules: z
-        .array(
-          z.lazy(
-            () =>
-              marshalCustomerFacingIngressNetworkPolicy_PublicIngressRuleSchema
-          )
-        )
-        .optional(),
-      allowRules: z
-        .array(
-          z.lazy(
-            () =>
-              marshalCustomerFacingIngressNetworkPolicy_PublicIngressRuleSchema
-          )
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      restriction_mode: d.restrictionMode,
-      deny_rules: d.denyRules,
-      allow_rules: d.allowRules,
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_PublicAccessSchema: z.ZodType = z
+  .object({
+    restrictionMode: z.enum(CustomerFacingIngressNetworkPolicy_PublicAccess_RestrictionMode).optional(),
+    denyRules: z.array(z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_PublicIngressRuleSchema)).optional(),
+    allowRules: z.array(z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_PublicIngressRuleSchema)).optional(),
+  })
+  .transform(d => ({
+    restriction_mode: d.restrictionMode,
+    deny_rules: d.denyRules,
+    allow_rules: d.allowRules,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_PublicIngressRuleSchema: z.ZodType =
-  z
-    .object({
-      origin: z
-        .lazy(
-          () =>
-            marshalCustomerFacingIngressNetworkPolicy_PublicRequestOriginSchema
-        )
-        .optional(),
-      destination: z
-        .lazy(
-          () =>
-            marshalCustomerFacingIngressNetworkPolicy_RequestDestinationSchema
-        )
-        .optional(),
-      authentication: z
-        .lazy(
-          () => marshalCustomerFacingIngressNetworkPolicy_AuthenticationSchema
-        )
-        .optional(),
-      label: z.string().optional(),
-    })
-    .transform(d => ({
-      origin: d.origin,
-      destination: d.destination,
-      authentication: d.authentication,
-      label: d.label,
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_PublicIngressRuleSchema: z.ZodType = z
+  .object({
+    origin: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_PublicRequestOriginSchema).optional(),
+    destination: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_RequestDestinationSchema).optional(),
+    authentication: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_AuthenticationSchema).optional(),
+    label: z.string().optional(),
+  })
+  .transform(d => ({
+    origin: d.origin,
+    destination: d.destination,
+    authentication: d.authentication,
+    label: d.label,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_PublicRequestOriginSchema: z.ZodType =
-  z
-    .object({
-      source: z
-        .discriminatedUnion('$case', [
-          z.object({$case: z.literal('allIpRanges'), allIpRanges: z.boolean()}),
-          z.object({
-            $case: z.literal('includedIpRanges'),
-            includedIpRanges: z.lazy(
-              () => marshalCustomerFacingIngressNetworkPolicy_IpRangesSchema
-            ),
-          }),
-          z.object({
-            $case: z.literal('excludedIpRanges'),
-            excludedIpRanges: z.lazy(
-              () => marshalCustomerFacingIngressNetworkPolicy_IpRangesSchema
-            ),
-          }),
-        ])
-        .optional(),
-    })
-    .transform(d => ({
-      ...(d.source?.$case === 'allIpRanges' && {
-        all_ip_ranges: d.source.allIpRanges,
-      }),
-      ...(d.source?.$case === 'includedIpRanges' && {
-        included_ip_ranges: d.source.includedIpRanges,
-      }),
-      ...(d.source?.$case === 'excludedIpRanges' && {
-        excluded_ip_ranges: d.source.excludedIpRanges,
-      }),
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_PublicRequestOriginSchema: z.ZodType = z
+  .object({
+    source: z.discriminatedUnion('$case', [z.object({ $case: z.literal('allIpRanges'), allIpRanges: z.boolean() }), z.object({ $case: z.literal('includedIpRanges'), includedIpRanges: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_IpRangesSchema) }), z.object({ $case: z.literal('excludedIpRanges'), excludedIpRanges: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_IpRangesSchema) })]).optional(),
+  })
+  .transform(d => ({
+    ...(d.source?.$case === 'allIpRanges' && { all_ip_ranges: d.source.allIpRanges }),
+    ...(d.source?.$case === 'includedIpRanges' && { included_ip_ranges: d.source.includedIpRanges }),
+    ...(d.source?.$case === 'excludedIpRanges' && { excluded_ip_ranges: d.source.excludedIpRanges }),
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_RequestDestinationSchema: z.ZodType =
-  z
-    .object({
-      allDestinations: z.boolean().optional(),
-      workspaceUi: z
-        .lazy(
-          () =>
-            marshalCustomerFacingIngressNetworkPolicy_WorkspaceUiDestinationSchema
-        )
-        .optional(),
-      workspaceApi: z
-        .lazy(
-          () =>
-            marshalCustomerFacingIngressNetworkPolicy_WorkspaceApiDestinationSchema
-        )
-        .optional(),
-      appsRuntime: z
-        .lazy(
-          () =>
-            marshalCustomerFacingIngressNetworkPolicy_AppsRuntimeDestinationSchema
-        )
-        .optional(),
-      lakebaseRuntime: z
-        .lazy(
-          () =>
-            marshalCustomerFacingIngressNetworkPolicy_LakebaseRuntimeDestinationSchema
-        )
-        .optional(),
-      accountUi: z
-        .lazy(
-          () =>
-            marshalCustomerFacingIngressNetworkPolicy_AccountUiDestinationSchema
-        )
-        .optional(),
-      accountApi: z
-        .lazy(
-          () =>
-            marshalCustomerFacingIngressNetworkPolicy_AccountApiDestinationSchema
-        )
-        .optional(),
-      accountDatabricksOne: z
-        .lazy(
-          () =>
-            marshalCustomerFacingIngressNetworkPolicy_AccountDatabricksOneDestinationSchema
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      all_destinations: d.allDestinations,
-      workspace_ui: d.workspaceUi,
-      workspace_api: d.workspaceApi,
-      apps_runtime: d.appsRuntime,
-      lakebase_runtime: d.lakebaseRuntime,
-      account_ui: d.accountUi,
-      account_api: d.accountApi,
-      account_databricks_one: d.accountDatabricksOne,
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_RequestDestinationSchema: z.ZodType = z
+  .object({
+    allDestinations: z.boolean().optional(),
+    workspaceUi: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_WorkspaceUiDestinationSchema).optional(),
+    workspaceApi: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_WorkspaceApiDestinationSchema).optional(),
+    appsRuntime: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_AppsRuntimeDestinationSchema).optional(),
+    lakebaseRuntime: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_LakebaseRuntimeDestinationSchema).optional(),
+    accountUi: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_AccountUiDestinationSchema).optional(),
+    accountApi: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_AccountApiDestinationSchema).optional(),
+    accountDatabricksOne: z.lazy(() => marshalCustomerFacingIngressNetworkPolicy_AccountDatabricksOneDestinationSchema).optional(),
+  })
+  .transform(d => ({
+    all_destinations: d.allDestinations,
+    workspace_ui: d.workspaceUi,
+    workspace_api: d.workspaceApi,
+    apps_runtime: d.appsRuntime,
+    lakebase_runtime: d.lakebaseRuntime,
+    account_ui: d.accountUi,
+    account_api: d.accountApi,
+    account_databricks_one: d.accountDatabricksOne,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_WorkspaceApiDestinationSchema: z.ZodType =
-  z
-    .object({
-      scopes: z.array(z.string()).optional(),
-      scopeQualifier: z
-        .enum(CustomerFacingIngressNetworkPolicy_ApiScopeQualifier)
-        .optional(),
-    })
-    .transform(d => ({
-      scopes: d.scopes,
-      scope_qualifier: d.scopeQualifier,
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_WorkspaceApiDestinationSchema: z.ZodType = z
+  .object({
+    scopes: z.array(z.string()).optional(),
+    scopeQualifier: z.enum(CustomerFacingIngressNetworkPolicy_ApiScopeQualifier).optional(),
+  })
+  .transform(d => ({
+    scopes: d.scopes,
+    scope_qualifier: d.scopeQualifier,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_WorkspaceIdListSchema: z.ZodType =
-  z
-    .object({
-      workspaceIds: z.array(z.number()).optional(),
-    })
-    .transform(d => ({
-      workspace_ids: d.workspaceIds,
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_WorkspaceIdListSchema: z.ZodType = z
+  .object({
+    workspaceIds: z.array(z.number()).optional(),
+  })
+  .transform(d => ({
+    workspace_ids: d.workspaceIds,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingIngressNetworkPolicy_WorkspaceUiDestinationSchema: z.ZodType =
-  z
-    .object({
-      allDestinations: z.boolean().optional(),
-    })
-    .transform(d => ({
-      all_destinations: d.allDestinations,
-    }));
+export const marshalCustomerFacingIngressNetworkPolicy_WorkspaceUiDestinationSchema: z.ZodType = z
+  .object({
+    allDestinations: z.boolean().optional(),
+  })
+  .transform(d => ({
+    all_destinations: d.allDestinations,
+  }));
 
-export const marshalCustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRuleSchema: z.ZodType =
-  z
-    .object({
-      ruleId: z.string().optional(),
-      networkConnectivityConfigId: z.string().optional(),
-      accountId: z.string().optional(),
-      endpointService: z.string().optional(),
-      domainNames: z.array(z.string()).optional(),
-      resourceNames: z.array(z.string()).optional(),
-      vpcEndpointId: z.string().optional(),
-      connectionState: z
-        .enum(
-          CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule_PrivateLinkConnectionState
-        )
-        .optional(),
-      creationTime: z.number().optional(),
-      updatedTime: z.number().optional(),
-      deactivated: z.boolean().optional(),
-      deactivatedAt: z.number().optional(),
-      enabled: z.boolean().optional(),
-      errorMessage: z.string().optional(),
-    })
-    .transform(d => ({
-      rule_id: d.ruleId,
-      network_connectivity_config_id: d.networkConnectivityConfigId,
-      account_id: d.accountId,
-      endpoint_service: d.endpointService,
-      domain_names: d.domainNames,
-      resource_names: d.resourceNames,
-      vpc_endpoint_id: d.vpcEndpointId,
-      connection_state: d.connectionState,
-      creation_time: d.creationTime,
-      updated_time: d.updatedTime,
-      deactivated: d.deactivated,
-      deactivated_at: d.deactivatedAt,
-      enabled: d.enabled,
-      error_message: d.errorMessage,
-    }));
+export const marshalCustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRuleSchema: z.ZodType = z
+  .object({
+    ruleId: z.string().optional(),
+    networkConnectivityConfigId: z.string().optional(),
+    accountId: z.string().optional(),
+    endpointService: z.string().optional(),
+    domainNames: z.array(z.string()).optional(),
+    resourceNames: z.array(z.string()).optional(),
+    vpcEndpointId: z.string().optional(),
+    connectionState: z.enum(CustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRule_PrivateLinkConnectionState).optional(),
+    creationTime: z.number().optional(),
+    updatedTime: z.number().optional(),
+    deactivated: z.boolean().optional(),
+    deactivatedAt: z.number().optional(),
+    enabled: z.boolean().optional(),
+    errorMessage: z.string().optional(),
+  })
+  .transform(d => ({
+    rule_id: d.ruleId,
+    network_connectivity_config_id: d.networkConnectivityConfigId,
+    account_id: d.accountId,
+    endpoint_service: d.endpointService,
+    domain_names: d.domainNames,
+    resource_names: d.resourceNames,
+    vpc_endpoint_id: d.vpcEndpointId,
+    connection_state: d.connectionState,
+    creation_time: d.creationTime,
+    updated_time: d.updatedTime,
+    deactivated: d.deactivated,
+    deactivated_at: d.deactivatedAt,
+    enabled: d.enabled,
+    error_message: d.errorMessage,
+  }));
 
-export const marshalCustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRuleSchema: z.ZodType =
-  z
-    .object({
-      ruleId: z.string().optional(),
-      networkConnectivityConfigId: z.string().optional(),
-      resourceId: z.string().optional(),
-      groupId: z.string().optional(),
-      endpointName: z.string().optional(),
-      connectionState: z
-        .enum(
-          CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState
-        )
-        .optional(),
-      creationTime: z.number().optional(),
-      updatedTime: z.number().optional(),
-      deactivated: z.boolean().optional(),
-      deactivatedAt: z.number().optional(),
-      domainNames: z.array(z.string()).optional(),
-      errorMessage: z.string().optional(),
-    })
-    .transform(d => ({
-      rule_id: d.ruleId,
-      network_connectivity_config_id: d.networkConnectivityConfigId,
-      resource_id: d.resourceId,
-      group_id: d.groupId,
-      endpoint_name: d.endpointName,
-      connection_state: d.connectionState,
-      creation_time: d.creationTime,
-      updated_time: d.updatedTime,
-      deactivated: d.deactivated,
-      deactivated_at: d.deactivatedAt,
-      domain_names: d.domainNames,
-      error_message: d.errorMessage,
-    }));
+export const marshalCustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRuleSchema: z.ZodType = z
+  .object({
+    ruleId: z.string().optional(),
+    networkConnectivityConfigId: z.string().optional(),
+    resourceId: z.string().optional(),
+    groupId: z.string().optional(),
+    endpointName: z.string().optional(),
+    connectionState: z.enum(CustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRule_PrivateLinkConnectionState).optional(),
+    creationTime: z.number().optional(),
+    updatedTime: z.number().optional(),
+    deactivated: z.boolean().optional(),
+    deactivatedAt: z.number().optional(),
+    domainNames: z.array(z.string()).optional(),
+    errorMessage: z.string().optional(),
+  })
+  .transform(d => ({
+    rule_id: d.ruleId,
+    network_connectivity_config_id: d.networkConnectivityConfigId,
+    resource_id: d.resourceId,
+    group_id: d.groupId,
+    endpoint_name: d.endpointName,
+    connection_state: d.connectionState,
+    creation_time: d.creationTime,
+    updated_time: d.updatedTime,
+    deactivated: d.deactivated,
+    deactivated_at: d.deactivatedAt,
+    domain_names: d.domainNames,
+    error_message: d.errorMessage,
+  }));
 
-export const marshalCustomerFacingNetworkConnectivityConfigEgressConfigSchema: z.ZodType =
-  z
-    .object({
-      defaultRules: z
-        .lazy(
-          () => marshalNetworkConnectivityConfigEgressConfig_DefaultRuleSchema
-        )
-        .optional(),
-      targetRules: z
-        .lazy(
-          () =>
-            marshalCustomerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRuleSchema
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      default_rules: d.defaultRules,
-      target_rules: d.targetRules,
-    }));
+export const marshalCustomerFacingNetworkConnectivityConfigEgressConfigSchema: z.ZodType = z
+  .object({
+    defaultRules: z.lazy(() => marshalNetworkConnectivityConfigEgressConfig_DefaultRuleSchema).optional(),
+    targetRules: z.lazy(() => marshalCustomerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRuleSchema).optional(),
+  })
+  .transform(d => ({
+    default_rules: d.defaultRules,
+    target_rules: d.targetRules,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalCustomerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRuleSchema: z.ZodType =
-  z
-    .object({
-      azurePrivateEndpointRules: z
-        .array(
-          z.lazy(
-            () =>
-              marshalCustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRuleSchema
-          )
-        )
-        .optional(),
-      awsPrivateEndpointRules: z
-        .array(
-          z.lazy(
-            () =>
-              marshalCustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRuleSchema
-          )
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      azure_private_endpoint_rules: d.azurePrivateEndpointRules,
-      aws_private_endpoint_rules: d.awsPrivateEndpointRules,
-    }));
+export const marshalCustomerFacingNetworkConnectivityConfigEgressConfig_CustomerFacingTargetRuleSchema: z.ZodType = z
+  .object({
+    azurePrivateEndpointRules: z.array(z.lazy(() => marshalCustomerFacingNetworkConnectivityConfigAzurePrivateEndpointRuleSchema)).optional(),
+    awsPrivateEndpointRules: z.array(z.lazy(() => marshalCustomerFacingNetworkConnectivityConfigAwsPrivateEndpointRuleSchema)).optional(),
+  })
+  .transform(d => ({
+    azure_private_endpoint_rules: d.azurePrivateEndpointRules,
+    aws_private_endpoint_rules: d.awsPrivateEndpointRules,
+  }));
 
 export const marshalCustomerFacingPrivateAccessSettingsSchema: z.ZodType = z
   .object({
@@ -4035,9 +3205,7 @@ export const marshalCustomerFacingPrivateAccessSettingsSchema: z.ZodType = z
 
 export const marshalEgressNetworkPolicySchema: z.ZodType = z
   .object({
-    networkAccess: z
-      .lazy(() => marshalEgressNetworkPolicy_NetworkAccessPolicySchema)
-      .optional(),
+    networkAccess: z.lazy(() => marshalEgressNetworkPolicy_NetworkAccessPolicySchema).optional(),
   })
   .transform(d => ({
     network_access: d.networkAccess,
@@ -4046,39 +3214,11 @@ export const marshalEgressNetworkPolicySchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalEgressNetworkPolicy_NetworkAccessPolicySchema: z.ZodType = z
   .object({
-    restrictionMode: z
-      .enum(EgressNetworkPolicy_NetworkAccessPolicy_RestrictionMode)
-      .optional(),
-    allowedInternetDestinations: z
-      .array(
-        z.lazy(
-          () =>
-            marshalEgressNetworkPolicy_NetworkAccessPolicy_InternetDestinationSchema
-        )
-      )
-      .optional(),
-    allowedStorageDestinations: z
-      .array(
-        z.lazy(
-          () =>
-            marshalEgressNetworkPolicy_NetworkAccessPolicy_StorageDestinationSchema
-        )
-      )
-      .optional(),
-    policyEnforcement: z
-      .lazy(
-        () =>
-          marshalEgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcementSchema
-      )
-      .optional(),
-    blockedInternetDestinations: z
-      .array(
-        z.lazy(
-          () =>
-            marshalEgressNetworkPolicy_NetworkAccessPolicy_InternetDestinationSchema
-        )
-      )
-      .optional(),
+    restrictionMode: z.enum(EgressNetworkPolicy_NetworkAccessPolicy_RestrictionMode).optional(),
+    allowedInternetDestinations: z.array(z.lazy(() => marshalEgressNetworkPolicy_NetworkAccessPolicy_InternetDestinationSchema)).optional(),
+    allowedStorageDestinations: z.array(z.lazy(() => marshalEgressNetworkPolicy_NetworkAccessPolicy_StorageDestinationSchema)).optional(),
+    policyEnforcement: z.lazy(() => marshalEgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcementSchema).optional(),
+    blockedInternetDestinations: z.array(z.lazy(() => marshalEgressNetworkPolicy_NetworkAccessPolicy_InternetDestinationSchema)).optional(),
   })
   .transform(d => ({
     restriction_mode: d.restrictionMode,
@@ -4089,64 +3229,43 @@ export const marshalEgressNetworkPolicy_NetworkAccessPolicySchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEgressNetworkPolicy_NetworkAccessPolicy_InternetDestinationSchema: z.ZodType =
-  z
-    .object({
-      destination: z.string().optional(),
-      internetDestinationType: z
-        .enum(
-          EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination_InternetDestinationType
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      destination: d.destination,
-      internet_destination_type: d.internetDestinationType,
-    }));
+export const marshalEgressNetworkPolicy_NetworkAccessPolicy_InternetDestinationSchema: z.ZodType = z
+  .object({
+    destination: z.string().optional(),
+    internetDestinationType: z.enum(EgressNetworkPolicy_NetworkAccessPolicy_InternetDestination_InternetDestinationType).optional(),
+  })
+  .transform(d => ({
+    destination: d.destination,
+    internet_destination_type: d.internetDestinationType,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcementSchema: z.ZodType =
-  z
-    .object({
-      enforcementMode: z
-        .enum(
-          EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_EnforcementMode
-        )
-        .optional(),
-      dryRunModeProductFilter: z
-        .array(
-          z.enum(
-            EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_DryRunModeProductFilter
-          )
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      enforcement_mode: d.enforcementMode,
-      dry_run_mode_product_filter: d.dryRunModeProductFilter,
-    }));
+export const marshalEgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcementSchema: z.ZodType = z
+  .object({
+    enforcementMode: z.enum(EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_EnforcementMode).optional(),
+    dryRunModeProductFilter: z.array(z.enum(EgressNetworkPolicy_NetworkAccessPolicy_PolicyEnforcement_DryRunModeProductFilter)).optional(),
+  })
+  .transform(d => ({
+    enforcement_mode: d.enforcementMode,
+    dry_run_mode_product_filter: d.dryRunModeProductFilter,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEgressNetworkPolicy_NetworkAccessPolicy_StorageDestinationSchema: z.ZodType =
-  z
-    .object({
-      bucketName: z.string().optional(),
-      region: z.string().optional(),
-      storageDestinationType: z
-        .enum(
-          EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination_StorageDestinationType
-        )
-        .optional(),
-      azureStorageAccount: z.string().optional(),
-      azureStorageService: z.string().optional(),
-    })
-    .transform(d => ({
-      bucket_name: d.bucketName,
-      region: d.region,
-      storage_destination_type: d.storageDestinationType,
-      azure_storage_account: d.azureStorageAccount,
-      azure_storage_service: d.azureStorageService,
-    }));
+export const marshalEgressNetworkPolicy_NetworkAccessPolicy_StorageDestinationSchema: z.ZodType = z
+  .object({
+    bucketName: z.string().optional(),
+    region: z.string().optional(),
+    storageDestinationType: z.enum(EgressNetworkPolicy_NetworkAccessPolicy_StorageDestination_StorageDestinationType).optional(),
+    azureStorageAccount: z.string().optional(),
+    azureStorageService: z.string().optional(),
+  })
+  .transform(d => ({
+    bucket_name: d.bucketName,
+    region: d.region,
+    storage_destination_type: d.storageDestinationType,
+    azure_storage_account: d.azureStorageAccount,
+    azure_storage_service: d.azureStorageService,
+  }));
 
 export const marshalEndpointSchema: z.ZodType = z
   .object({
@@ -4157,20 +3276,8 @@ export const marshalEndpointSchema: z.ZodType = z
     useCase: z.enum(EndpointUseCase_EndpointUseCase).optional(),
     region: z.string().optional(),
     state: z.enum(EndpointState).optional(),
-    endpointInfo: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('azurePrivateEndpointInfo'),
-          azurePrivateEndpointInfo: z.lazy(
-            () => marshalAzurePrivateEndpointInfoSchema
-          ),
-        }),
-      ])
-      .optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    endpointInfo: z.discriminatedUnion('$case', [z.object({ $case: z.literal('azurePrivateEndpointInfo'), azurePrivateEndpointInfo: z.lazy(() => marshalAzurePrivateEndpointInfoSchema) })]).optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -4180,29 +3287,18 @@ export const marshalEndpointSchema: z.ZodType = z
     use_case: d.useCase,
     region: d.region,
     state: d.state,
-    ...(d.endpointInfo?.$case === 'azurePrivateEndpointInfo' && {
-      azure_private_endpoint_info: d.endpointInfo.azurePrivateEndpointInfo,
-    }),
+    ...(d.endpointInfo?.$case === 'azurePrivateEndpointInfo' && { azure_private_endpoint_info: d.endpointInfo.azurePrivateEndpointInfo }),
     create_time: d.createTime,
   }));
 
 export const marshalGcpEndpointSchema: z.ZodType = z
   .object({
     pscEndpointUri: z.string().optional(),
-    targetServices: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('serviceAttachment'),
-          serviceAttachment: z.string(),
-        }),
-      ])
-      .optional(),
+    targetServices: z.discriminatedUnion('$case', [z.object({ $case: z.literal('serviceAttachment'), serviceAttachment: z.string() })]).optional(),
   })
   .transform(d => ({
     psc_endpoint_uri: d.pscEndpointUri,
-    ...(d.targetServices?.$case === 'serviceAttachment' && {
-      service_attachment: d.targetServices.serviceAttachment,
-    }),
+    ...(d.targetServices?.$case === 'serviceAttachment' && { service_attachment: d.targetServices.serviceAttachment }),
   }));
 
 export const marshalGcpNetworkInfoSchema: z.ZodType = z
@@ -4224,50 +3320,37 @@ export const marshalGcpNetworkInfoSchema: z.ZodType = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalNetworkConnectivityConfigEgressConfig_DefaultRuleSchema: z.ZodType =
-  z
-    .object({
-      azureServiceEndpointRule: z
-        .lazy(
-          () =>
-            marshalNetworkConnectivityConfigEgressConfig_DefaultRule_AzureServiceEndpointRuleSchema
-        )
-        .optional(),
-      awsStableIpRule: z
-        .lazy(
-          () =>
-            marshalNetworkConnectivityConfigEgressConfig_DefaultRule_AwsStableIpRuleSchema
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      azure_service_endpoint_rule: d.azureServiceEndpointRule,
-      aws_stable_ip_rule: d.awsStableIpRule,
-    }));
+export const marshalNetworkConnectivityConfigEgressConfig_DefaultRuleSchema: z.ZodType = z
+  .object({
+    azureServiceEndpointRule: z.lazy(() => marshalNetworkConnectivityConfigEgressConfig_DefaultRule_AzureServiceEndpointRuleSchema).optional(),
+    awsStableIpRule: z.lazy(() => marshalNetworkConnectivityConfigEgressConfig_DefaultRule_AwsStableIpRuleSchema).optional(),
+  })
+  .transform(d => ({
+    azure_service_endpoint_rule: d.azureServiceEndpointRule,
+    aws_stable_ip_rule: d.awsStableIpRule,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalNetworkConnectivityConfigEgressConfig_DefaultRule_AwsStableIpRuleSchema: z.ZodType =
-  z
-    .object({
-      cidrBlocks: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      cidr_blocks: d.cidrBlocks,
-    }));
+export const marshalNetworkConnectivityConfigEgressConfig_DefaultRule_AwsStableIpRuleSchema: z.ZodType = z
+  .object({
+    cidrBlocks: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    cidr_blocks: d.cidrBlocks,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalNetworkConnectivityConfigEgressConfig_DefaultRule_AzureServiceEndpointRuleSchema: z.ZodType =
-  z
-    .object({
-      targetRegion: z.string().optional(),
-      targetServices: z.array(z.enum(EgressResourceType)).optional(),
-      subnets: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      target_region: d.targetRegion,
-      target_services: d.targetServices,
-      subnets: d.subnets,
-    }));
+export const marshalNetworkConnectivityConfigEgressConfig_DefaultRule_AzureServiceEndpointRuleSchema: z.ZodType = z
+  .object({
+    targetRegion: z.string().optional(),
+    targetServices: z.array(z.enum(EgressResourceType)).optional(),
+    subnets: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    target_region: d.targetRegion,
+    target_services: d.targetServices,
+    subnets: d.subnets,
+  }));
 
 export const marshalNetworkVpcEndpointsSchema: z.ZodType = z
   .object({
@@ -4351,9 +3434,7 @@ export const marshalUpdatePrivateEndpointRuleSchema: z.ZodType = z
   .object({
     ruleId: z.string().optional(),
     networkConnectivityConfigId: z.string().optional(),
-    connectionState: z
-      .enum(NccPrivateEndpointRule_PrivateLinkConnectionState)
-      .optional(),
+    connectionState: z.enum(NccPrivateEndpointRule_PrivateLinkConnectionState).optional(),
     domainNames: z.array(z.string()).optional(),
     creationTime: z.number().optional(),
     updatedTime: z.number().optional(),
@@ -4368,14 +3449,7 @@ export const marshalUpdatePrivateEndpointRuleSchema: z.ZodType = z
     resourceNames: z.array(z.string()).optional(),
     vpcEndpointId: z.string().optional(),
     enabled: z.boolean().optional(),
-    endpoint: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('gcpEndpoint'),
-          gcpEndpoint: z.lazy(() => marshalGcpEndpointSchema),
-        }),
-      ])
-      .optional(),
+    endpoint: z.discriminatedUnion('$case', [z.object({ $case: z.literal('gcpEndpoint'), gcpEndpoint: z.lazy(() => marshalGcpEndpointSchema) })]).optional(),
   })
   .transform(d => ({
     rule_id: d.ruleId,
@@ -4395,9 +3469,7 @@ export const marshalUpdatePrivateEndpointRuleSchema: z.ZodType = z
     resource_names: d.resourceNames,
     vpc_endpoint_id: d.vpcEndpointId,
     enabled: d.enabled,
-    ...(d.endpoint?.$case === 'gcpEndpoint' && {
-      gcp_endpoint: d.endpoint.gcpEndpoint,
-    }),
+    ...(d.endpoint?.$case === 'gcpEndpoint' && { gcp_endpoint: d.endpoint.gcpEndpoint }),
   }));
 
 export const marshalWorkspaceNetworkOptionSchema: z.ZodType = z
@@ -4426,10 +3498,7 @@ const updatePrivateEndpointRuleFieldMaskSchema: FieldMaskSchema = {
   endpointName: {wire: 'endpoint_name'},
   endpointService: {wire: 'endpoint_service'},
   errorMessage: {wire: 'error_message'},
-  gcpEndpoint: {
-    wire: 'gcp_endpoint',
-    children: () => gcpEndpointFieldMaskSchema,
-  },
+  gcpEndpoint: {wire: 'gcp_endpoint', children: () => gcpEndpointFieldMaskSchema},
   groupId: {wire: 'group_id'},
   networkConnectivityConfigId: {wire: 'network_connectivity_config_id'},
   resourceId: {wire: 'resource_id'},
@@ -4439,11 +3508,6 @@ const updatePrivateEndpointRuleFieldMaskSchema: FieldMaskSchema = {
   vpcEndpointId: {wire: 'vpc_endpoint_id'},
 };
 
-export function updatePrivateEndpointRuleFieldMask(
-  ...paths: string[]
-): FieldMask<UpdatePrivateEndpointRule> {
-  return FieldMask.build<UpdatePrivateEndpointRule>(
-    paths,
-    updatePrivateEndpointRuleFieldMaskSchema
-  );
+export function updatePrivateEndpointRuleFieldMask(...paths: string[]): FieldMask<UpdatePrivateEndpointRule> {
+  return FieldMask.build<UpdatePrivateEndpointRule>(paths, updatePrivateEndpointRuleFieldMaskSchema);
 }

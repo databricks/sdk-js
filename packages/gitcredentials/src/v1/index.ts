@@ -5,15 +5,15 @@ export {Client} from './client';
 export {} from './model';
 
 export type {
-  CreateCredentials,
-  CreateCredentials_Response,
+  CreateCredentialsRequest,
+  CreateCredentialsRequest_Response,
   Credential,
-  DeleteCredentials,
-  DeleteCredentials_Response,
-  GetCredentials,
-  GetCredentials_Response,
-  ListCredentials,
-  ListCredentials_Response,
-  UpdateCredentials,
-  UpdateCredentials_Response,
+  DeleteCredentialsRequest,
+  DeleteCredentialsRequest_Response,
+  GetCredentialsRequest,
+  GetCredentialsRequest_Response,
+  ListCredentialsRequest,
+  ListCredentialsRequest_Response,
+  UpdateCredentialsRequest,
+  UpdateCredentialsRequest_Response,
 } from './model';

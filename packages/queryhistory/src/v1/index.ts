@@ -1,5 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+
 export {Client} from './client';
 
 export {
@@ -13,8 +14,8 @@ export type {
   ChannelInfo,
   ExternalQuerySource,
   ExternalQuerySource_JobInfo,
-  ListQueries,
-  ListQueries_Response,
+  ListQueriesRequest,
+  ListQueriesRequest_Response,
   QueryFilter,
   QueryInfo,
   QueryMetrics,

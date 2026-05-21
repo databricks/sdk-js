@@ -9,34 +9,28 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
-  CreatePolicy,
-  CreatePolicy_Response,
-  DeletePolicy,
-  DeletePolicy_Response,
-  EditPolicy,
-  EditPolicy_Response,
-  GetPolicy,
-  ListPolicies,
-  ListPolicies_Response,
+  CreatePolicyRequest,
+  CreatePolicyRequest_Response,
+  DeletePolicyRequest,
+  DeletePolicyRequest_Response,
+  EditPolicyRequest,
+  EditPolicyRequest_Response,
+  GetPolicyRequest,
+  ListPoliciesRequest,
+  ListPoliciesRequest_Response,
   Policy,
 } from './model';
 import {
-  marshalCreatePolicySchema,
-  marshalDeletePolicySchema,
-  marshalEditPolicySchema,
-  unmarshalCreatePolicy_ResponseSchema,
-  unmarshalDeletePolicy_ResponseSchema,
-  unmarshalEditPolicy_ResponseSchema,
-  unmarshalListPolicies_ResponseSchema,
+  marshalCreatePolicyRequestSchema,
+  marshalDeletePolicyRequestSchema,
+  marshalEditPolicyRequestSchema,
+  unmarshalCreatePolicyRequest_ResponseSchema,
+  unmarshalDeletePolicyRequest_ResponseSchema,
+  unmarshalEditPolicyRequest_ResponseSchema,
+  unmarshalListPoliciesRequest_ResponseSchema,
   unmarshalPolicySchema,
 } from './model';
 
@@ -72,23 +66,16 @@ export class Client {
   }
 
   /** Creates a new policy with prescribed settings. */
-  async createPolicy(
-    req: CreatePolicy,
-    options?: CallOptions
-  ): Promise<CreatePolicy_Response> {
+  async createPolicy(req: CreatePolicyRequest, options?: CallOptions): Promise<CreatePolicyRequest_Response> {
     const url = `${this.host}/api/2.0/policies/clusters/create`;
-    const body = marshalRequest(req, marshalCreatePolicySchema);
-    let resp: CreatePolicy_Response | undefined;
+    const body = marshalRequest(req, marshalCreatePolicyRequestSchema);
+    let resp: CreatePolicyRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalCreatePolicy_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalCreatePolicyRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -98,23 +85,16 @@ export class Client {
   }
 
   /** Delete a policy for a cluster. Clusters governed by this policy can still run, but cannot be edited. */
-  async deletePolicy(
-    req: DeletePolicy,
-    options?: CallOptions
-  ): Promise<DeletePolicy_Response> {
+  async deletePolicy(req: DeletePolicyRequest, options?: CallOptions): Promise<DeletePolicyRequest_Response> {
     const url = `${this.host}/api/2.0/policies/clusters/delete`;
-    const body = marshalRequest(req, marshalDeletePolicySchema);
-    let resp: DeletePolicy_Response | undefined;
+    const body = marshalRequest(req, marshalDeletePolicyRequestSchema);
+    let resp: DeletePolicyRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalDeletePolicy_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeletePolicyRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -124,23 +104,16 @@ export class Client {
   }
 
   /** Update an existing policy for cluster. This operation may make some clusters governed by the previous policy invalid. */
-  async editPolicy(
-    req: EditPolicy,
-    options?: CallOptions
-  ): Promise<EditPolicy_Response> {
+  async editPolicy(req: EditPolicyRequest, options?: CallOptions): Promise<EditPolicyRequest_Response> {
     const url = `${this.host}/api/2.0/policies/clusters/edit`;
-    const body = marshalRequest(req, marshalEditPolicySchema);
-    let resp: EditPolicy_Response | undefined;
+    const body = marshalRequest(req, marshalEditPolicyRequestSchema);
+    let resp: EditPolicyRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalEditPolicy_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalEditPolicyRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -150,7 +123,7 @@ export class Client {
   }
 
   /** Get a cluster policy entity. Creation and editing is available to admins only. */
-  async getPolicy(req: GetPolicy, options?: CallOptions): Promise<Policy> {
+  async getPolicy(req: GetPolicyRequest, options?: CallOptions): Promise<Policy> {
     const url = `${this.host}/api/2.0/policies/clusters/get`;
     const params = new URLSearchParams();
     if (req.policyId !== undefined) {
@@ -163,11 +136,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalPolicySchema);
     };
     await executeCall(call, options);
@@ -178,10 +147,7 @@ export class Client {
   }
 
   /** Returns a list of policies accessible by the requesting user. */
-  async listPolicies(
-    req: ListPolicies,
-    options?: CallOptions
-  ): Promise<ListPolicies_Response> {
+  async listPolicies(req: ListPoliciesRequest, options?: CallOptions): Promise<ListPoliciesRequest_Response> {
     const url = `${this.host}/api/2.0/policies/clusters/list`;
     const params = new URLSearchParams();
     if (req.sortOrder !== undefined) {
@@ -192,17 +158,13 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListPolicies_Response | undefined;
+    let resp: ListPoliciesRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalListPolicies_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListPoliciesRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

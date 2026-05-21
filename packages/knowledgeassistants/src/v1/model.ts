@@ -5,6 +5,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum KnowledgeAssistant_State {
   STATE_UNSPECIFIED = 'STATE_UNSPECIFIED',
@@ -227,9 +228,9 @@ export interface KnowledgeSource {
   sourceType?: string | undefined;
   /** Specification for the knowledge source type. */
   spec?:
-    | {$case: 'index'; index: IndexSpec}
-    | {$case: 'files'; files: FilesSpec}
-    | {$case: 'fileTable'; fileTable: FileTableSpec}
+    | { $case: 'index'; index: IndexSpec }
+    | { $case: 'files'; files: FilesSpec }
+    | { $case: 'fileTable'; fileTable: FileTableSpec }
     | undefined;
   state?: KnowledgeSource_State | undefined;
   id?: string | undefined;
@@ -380,14 +381,8 @@ export const unmarshalExampleSchema: z.ZodType<Example> = z
     question: z.string().optional(),
     guidelines: z.array(z.string()).optional(),
     example_id: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -428,37 +423,33 @@ export const unmarshalIndexSpecSchema: z.ZodType<IndexSpec> = z
     docUriCol: d.doc_uri_col,
   }));
 
-export const unmarshalKnowledgeAssistantSchema: z.ZodType<KnowledgeAssistant> =
-  z
-    .object({
-      name: z.string().optional(),
-      state: z.enum(KnowledgeAssistant_State).optional(),
-      id: z.string().optional(),
-      display_name: z.string().optional(),
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-      creator: z.string().optional(),
-      create_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      endpoint_name: z.string().optional(),
-      experiment_id: z.string().optional(),
-      error_info: z.string().optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      state: d.state,
-      id: d.id,
-      displayName: d.display_name,
-      description: d.description,
-      instructions: d.instructions,
-      creator: d.creator,
-      createTime: d.create_time,
-      endpointName: d.endpoint_name,
-      experimentId: d.experiment_id,
-      errorInfo: d.error_info,
-    }));
+export const unmarshalKnowledgeAssistantSchema: z.ZodType<KnowledgeAssistant> = z
+  .object({
+    name: z.string().optional(),
+    state: z.enum(KnowledgeAssistant_State).optional(),
+    id: z.string().optional(),
+    display_name: z.string().optional(),
+    description: z.string().optional(),
+    instructions: z.string().optional(),
+    creator: z.string().optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    endpoint_name: z.string().optional(),
+    experiment_id: z.string().optional(),
+    error_info: z.string().optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    state: d.state,
+    id: d.id,
+    displayName: d.display_name,
+    description: d.description,
+    instructions: d.instructions,
+    creator: d.creator,
+    createTime: d.create_time,
+    endpointName: d.endpoint_name,
+    experimentId: d.experiment_id,
+    errorInfo: d.error_info,
+  }));
 
 export const unmarshalKnowledgeSourceSchema: z.ZodType<KnowledgeSource> = z
   .object({
@@ -471,70 +462,50 @@ export const unmarshalKnowledgeSourceSchema: z.ZodType<KnowledgeSource> = z
     file_table: z.lazy(() => unmarshalFileTableSpecSchema).optional(),
     state: z.enum(KnowledgeSource_State).optional(),
     id: z.string().optional(),
-    knowledge_cutoff_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    knowledge_cutoff_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
   })
   .transform(d => ({
     name: d.name,
     displayName: d.display_name,
     description: d.description,
     sourceType: d.source_type,
-    spec:
-      d.index !== undefined
-        ? {$case: 'index' as const, index: d.index}
-        : d.files !== undefined
-          ? {$case: 'files' as const, files: d.files}
-          : d.file_table !== undefined
-            ? {$case: 'fileTable' as const, fileTable: d.file_table}
-            : undefined,
+    spec: d.index !== undefined ? { $case: 'index' as const, index: d.index } : d.files !== undefined ? { $case: 'files' as const, files: d.files } : d.file_table !== undefined ? { $case: 'fileTable' as const, fileTable: d.file_table } : undefined,
     state: d.state,
     id: d.id,
     knowledgeCutoffTime: d.knowledge_cutoff_time,
     createTime: d.create_time,
   }));
 
-export const unmarshalListExamplesResponseSchema: z.ZodType<ListExamplesResponse> =
-  z
-    .object({
-      examples: z.array(z.lazy(() => unmarshalExampleSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      examples: d.examples,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListExamplesResponseSchema: z.ZodType<ListExamplesResponse> = z
+  .object({
+    examples: z.array(z.lazy(() => unmarshalExampleSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    examples: d.examples,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListKnowledgeAssistantsResponseSchema: z.ZodType<ListKnowledgeAssistantsResponse> =
-  z
-    .object({
-      knowledge_assistants: z
-        .array(z.lazy(() => unmarshalKnowledgeAssistantSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      knowledgeAssistants: d.knowledge_assistants,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListKnowledgeAssistantsResponseSchema: z.ZodType<ListKnowledgeAssistantsResponse> = z
+  .object({
+    knowledge_assistants: z.array(z.lazy(() => unmarshalKnowledgeAssistantSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    knowledgeAssistants: d.knowledge_assistants,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListKnowledgeSourcesResponseSchema: z.ZodType<ListKnowledgeSourcesResponse> =
-  z
-    .object({
-      knowledge_sources: z
-        .array(z.lazy(() => unmarshalKnowledgeSourceSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      knowledgeSources: d.knowledge_sources,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListKnowledgeSourcesResponseSchema: z.ZodType<ListKnowledgeSourcesResponse> = z
+  .object({
+    knowledge_sources: z.array(z.lazy(() => unmarshalKnowledgeSourceSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    knowledgeSources: d.knowledge_sources,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const marshalExampleSchema: z.ZodType = z
   .object({
@@ -542,14 +513,8 @@ export const marshalExampleSchema: z.ZodType = z
     question: z.string().optional(),
     guidelines: z.array(z.string()).optional(),
     exampleId: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -599,10 +564,7 @@ export const marshalKnowledgeAssistantSchema: z.ZodType = z
     description: z.string().optional(),
     instructions: z.string().optional(),
     creator: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     endpointName: z.string().optional(),
     experimentId: z.string().optional(),
     errorInfo: z.string().optional(),
@@ -627,41 +589,20 @@ export const marshalKnowledgeSourceSchema: z.ZodType = z
     displayName: z.string().optional(),
     description: z.string().optional(),
     sourceType: z.string().optional(),
-    spec: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('index'),
-          index: z.lazy(() => marshalIndexSpecSchema),
-        }),
-        z.object({
-          $case: z.literal('files'),
-          files: z.lazy(() => marshalFilesSpecSchema),
-        }),
-        z.object({
-          $case: z.literal('fileTable'),
-          fileTable: z.lazy(() => marshalFileTableSpecSchema),
-        }),
-      ])
-      .optional(),
+    spec: z.discriminatedUnion('$case', [z.object({ $case: z.literal('index'), index: z.lazy(() => marshalIndexSpecSchema) }), z.object({ $case: z.literal('files'), files: z.lazy(() => marshalFilesSpecSchema) }), z.object({ $case: z.literal('fileTable'), fileTable: z.lazy(() => marshalFileTableSpecSchema) })]).optional(),
     state: z.enum(KnowledgeSource_State).optional(),
     id: z.string().optional(),
-    knowledgeCutoffTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    knowledgeCutoffTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
   })
   .transform(d => ({
     name: d.name,
     display_name: d.displayName,
     description: d.description,
     source_type: d.sourceType,
-    ...(d.spec?.$case === 'index' && {index: d.spec.index}),
-    ...(d.spec?.$case === 'files' && {files: d.spec.files}),
-    ...(d.spec?.$case === 'fileTable' && {file_table: d.spec.fileTable}),
+    ...(d.spec?.$case === 'index' && { index: d.spec.index }),
+    ...(d.spec?.$case === 'files' && { files: d.spec.files }),
+    ...(d.spec?.$case === 'fileTable' && { file_table: d.spec.fileTable }),
     state: d.state,
     id: d.id,
     knowledge_cutoff_time: d.knowledgeCutoffTime,
@@ -718,13 +659,8 @@ const knowledgeAssistantFieldMaskSchema: FieldMaskSchema = {
   state: {wire: 'state'},
 };
 
-export function knowledgeAssistantFieldMask(
-  ...paths: string[]
-): FieldMask<KnowledgeAssistant> {
-  return FieldMask.build<KnowledgeAssistant>(
-    paths,
-    knowledgeAssistantFieldMaskSchema
-  );
+export function knowledgeAssistantFieldMask(...paths: string[]): FieldMask<KnowledgeAssistant> {
+  return FieldMask.build<KnowledgeAssistant>(paths, knowledgeAssistantFieldMaskSchema);
 }
 
 const knowledgeSourceFieldMaskSchema: FieldMaskSchema = {
@@ -741,11 +677,6 @@ const knowledgeSourceFieldMaskSchema: FieldMaskSchema = {
   state: {wire: 'state'},
 };
 
-export function knowledgeSourceFieldMask(
-  ...paths: string[]
-): FieldMask<KnowledgeSource> {
-  return FieldMask.build<KnowledgeSource>(
-    paths,
-    knowledgeSourceFieldMaskSchema
-  );
+export function knowledgeSourceFieldMask(...paths: string[]): FieldMask<KnowledgeSource> {
+  return FieldMask.build<KnowledgeSource>(paths, knowledgeSourceFieldMaskSchema);
 }

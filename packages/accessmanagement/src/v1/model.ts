@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 /** Permission level */
 export enum PermissionLevel {
   CAN_MANAGE = 'CAN_MANAGE',
@@ -93,7 +94,9 @@ export interface AccessControlResponse {
  * group can be a principal of a permission set assignment but an actor is always a user or a service principal
  */
 export interface Actor {
-  kind?: {$case: 'actorId'; actorId: number} | undefined;
+  kind?:
+    | { $case: 'actorId'; actorId: number }
+    | undefined;
 }
 
 export interface CheckPolicyRequest {
@@ -119,7 +122,7 @@ export interface ConsistencyToken {
 }
 
 /** Removes all permission assignments for a workspace given a principal. */
-export interface DeleteWorkspacePermissionAssignment {
+export interface DeleteWorkspacePermissionAssignmentRequest {
   /** The account ID. */
   accountId?: string | undefined;
   /** The workspace ID for the account. */
@@ -129,14 +132,14 @@ export interface DeleteWorkspacePermissionAssignment {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface DeleteWorkspacePermissionAssignment_Response {}
+export interface DeleteWorkspacePermissionAssignmentRequest_Response {}
 
 export interface GetAssignableRolesForResourceRequest {
   /** <Databricks> account ID. */
   accountId?: string | undefined;
   /**
    * The resource name for which assignable roles will be listed.
-   *
+   * 
    * Examples | Summary
    * :--- | :---
    * `resource=accounts/<ACCOUNT_ID>` | A resource name for the account.
@@ -151,21 +154,21 @@ export interface GetAssignableRolesForResourceResponse {
   roles?: Role[] | undefined;
 }
 
-export interface GetObjectPermissions {
+export interface GetObjectPermissionsRequest {
   /** The type of the request object. Can be one of the following: alerts, alertsv2, authorization, clusters, cluster-policies, dashboards, database-projects, dbsql-dashboards, directories, experiments, files, genie, instance-pools, jobs, knowledge-assistants, notebooks, pipelines, queries, registered-models, repos, serving-endpoints, supervisor-agents, vector-search-endpoints, or warehouses. */
   requestObjectType?: string | undefined;
   /** The id of the request object. */
   requestObjectId?: string | undefined;
 }
 
-export interface GetPermissionLevels {
+export interface GetPermissionLevelsRequest {
   /** The type of the request object. Can be one of the following: alerts, alertsv2, authorization, clusters, cluster-policies, dashboards, database-projects, dbsql-dashboards, directories, experiments, files, genie, instance-pools, jobs, knowledge-assistants, notebooks, pipelines, queries, registered-models, repos, serving-endpoints, supervisor-agents, vector-search-endpoints, or warehouses. */
   requestObjectType?: string | undefined;
   requestObjectId?: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetPermissionLevels_Response {
+export interface GetPermissionLevelsRequest_Response {
   /** Specific permission levels */
   permissionLevels?: PermissionsDescription[] | undefined;
 }
@@ -175,7 +178,7 @@ export interface GetRuleSetRequest {
   accountId?: string | undefined;
   /**
    * The ruleset name associated with the request.
-   *
+   * 
    * Examples | Summary
    * :--- | :---
    * `name=accounts/<ACCOUNT_ID>/ruleSets/default` | A name for a rule set on the account.
@@ -190,7 +193,7 @@ export interface GetRuleSetRequest {
    * strongly suggested that systems make use of the etag in the read -> modify -> write pattern to perform rule set
    * updates in order to avoid race conditions that is get an etag from a GET rule set request, and pass it with the
    * PUT update request to identify the rule set version you are updating.
-   *
+   * 
    * Examples | Summary
    * :--- | :---
    * `etag=` | An empty etag can only be used in GET to indicate no freshness requirements.
@@ -200,7 +203,7 @@ export interface GetRuleSetRequest {
 }
 
 /** Gets all the permission assignments for a workspace, given an account and a workspace. */
-export interface GetWorkspacePermissionAssignments {
+export interface GetWorkspacePermissionAssignmentsRequest {
   /** The account ID. */
   accountId?: string | undefined;
   /** The workspace ID for the account. */
@@ -208,7 +211,7 @@ export interface GetWorkspacePermissionAssignments {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface GetWorkspacePermissionAssignments_Response {
+export interface GetWorkspacePermissionAssignmentsRequest_Response {
   /** Array of permissions assignments defined for a workspace. */
   permissionAssignments?: WorkspacePermissionAssignmentOutput[] | undefined;
 }
@@ -228,7 +231,7 @@ export interface GrantRule {
 }
 
 /** List permissions for a workspace, given an account and a workspace. */
-export interface ListWorkspacePermissions {
+export interface ListWorkspacePermissionsRequest {
   /** The account ID. */
   accountId?: string | undefined;
   /** The workspace ID. */
@@ -236,7 +239,7 @@ export interface ListWorkspacePermissions {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface ListWorkspacePermissions_Response {
+export interface ListWorkspacePermissionsRequest_Response {
   /** Array of permissions defined for a workspace. */
   permissions?: PermissionOutput[] | undefined;
 }
@@ -335,7 +338,7 @@ export interface RuleSetUpdateRequest {
   grantRules?: GrantRule[] | undefined;
 }
 
-export interface SetObjectPermissions {
+export interface SetObjectPermissionsRequest {
   /** The type of the request object. Can be one of the following: alerts, alertsv2, authorization, clusters, cluster-policies, dashboards, database-projects, dbsql-dashboards, directories, experiments, files, genie, instance-pools, jobs, knowledge-assistants, notebooks, pipelines, queries, registered-models, repos, serving-endpoints, supervisor-agents, vector-search-endpoints, or warehouses. */
   requestObjectType?: string | undefined;
   /** The id of the request object. */
@@ -343,7 +346,7 @@ export interface SetObjectPermissions {
   accessControlList?: AccessControlRequest[] | undefined;
 }
 
-export interface UpdateObjectPermissions {
+export interface UpdateObjectPermissionsRequest {
   /** The type of the request object. Can be one of the following: alerts, alertsv2, authorization, clusters, cluster-policies, dashboards, database-projects, dbsql-dashboards, directories, experiments, files, genie, instance-pools, jobs, knowledge-assistants, notebooks, pipelines, queries, registered-models, repos, serving-endpoints, supervisor-agents, vector-search-endpoints, or warehouses. */
   requestObjectType?: string | undefined;
   /** The id of the request object. */
@@ -359,7 +362,7 @@ export interface UpdateRuleSetRequest {
   ruleSet?: RuleSetUpdateRequest | undefined;
 }
 
-export interface UpdateWorkspacePermissionAssignment {
+export interface UpdateWorkspacePermissionAssignmentRequest {
   /** The account ID. */
   accountId?: string | undefined;
   /** The workspace ID. */
@@ -389,45 +392,29 @@ export interface WorkspacePermissionAssignmentOutput {
   error?: string | undefined;
 }
 
-export const unmarshalAccessControlResponseSchema: z.ZodType<AccessControlResponse> =
-  z
-    .object({
-      user_name: z.string().optional(),
-      group_name: z.string().optional(),
-      service_principal_name: z.string().optional(),
-      display_name: z.string().optional(),
-      all_permissions: z
-        .array(z.lazy(() => unmarshalPermissionSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      principalName:
-        d.user_name !== undefined
-          ? {$case: 'userName' as const, userName: d.user_name}
-          : d.group_name !== undefined
-            ? {$case: 'groupName' as const, groupName: d.group_name}
-            : d.service_principal_name !== undefined
-              ? {
-                  $case: 'servicePrincipalName' as const,
-                  servicePrincipalName: d.service_principal_name,
-                }
-              : undefined,
-      displayName: d.display_name,
-      allPermissions: d.all_permissions,
-    }));
+export const unmarshalAccessControlResponseSchema: z.ZodType<AccessControlResponse> = z
+  .object({
+    user_name: z.string().optional(),
+    group_name: z.string().optional(),
+    service_principal_name: z.string().optional(),
+    display_name: z.string().optional(),
+    all_permissions: z.array(z.lazy(() => unmarshalPermissionSchema)).optional(),
+  })
+  .transform(d => ({
+    principalName: d.user_name !== undefined ? { $case: 'userName' as const, userName: d.user_name } : d.group_name !== undefined ? { $case: 'groupName' as const, groupName: d.group_name } : d.service_principal_name !== undefined ? { $case: 'servicePrincipalName' as const, servicePrincipalName: d.service_principal_name } : undefined,
+    displayName: d.display_name,
+    allPermissions: d.all_permissions,
+  }));
 
-export const unmarshalCheckPolicyResponseSchema: z.ZodType<CheckPolicyResponse> =
-  z
-    .object({
-      is_permitted: z.boolean().optional(),
-      consistency_token: z
-        .lazy(() => unmarshalConsistencyTokenSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      isPermitted: d.is_permitted,
-      consistencyToken: d.consistency_token,
-    }));
+export const unmarshalCheckPolicyResponseSchema: z.ZodType<CheckPolicyResponse> = z
+  .object({
+    is_permitted: z.boolean().optional(),
+    consistency_token: z.lazy(() => unmarshalConsistencyTokenSchema).optional(),
+  })
+  .transform(d => ({
+    isPermitted: d.is_permitted,
+    consistencyToken: d.consistency_token,
+  }));
 
 export const unmarshalConsistencyTokenSchema: z.ZodType<ConsistencyToken> = z
   .object({
@@ -438,41 +425,35 @@ export const unmarshalConsistencyTokenSchema: z.ZodType<ConsistencyToken> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteWorkspacePermissionAssignment_ResponseSchema: z.ZodType<DeleteWorkspacePermissionAssignment_Response> =
-  z.object({});
+export const unmarshalDeleteWorkspacePermissionAssignmentRequest_ResponseSchema: z.ZodType<DeleteWorkspacePermissionAssignmentRequest_Response> = z
+  .object({
+  });
 
-export const unmarshalGetAssignableRolesForResourceResponseSchema: z.ZodType<GetAssignableRolesForResourceResponse> =
-  z
-    .object({
-      roles: z.array(z.lazy(() => unmarshalRoleSchema)).optional(),
-    })
-    .transform(d => ({
-      roles: d.roles,
-    }));
-
-// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetPermissionLevels_ResponseSchema: z.ZodType<GetPermissionLevels_Response> =
-  z
-    .object({
-      permission_levels: z
-        .array(z.lazy(() => unmarshalPermissionsDescriptionSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      permissionLevels: d.permission_levels,
-    }));
+export const unmarshalGetAssignableRolesForResourceResponseSchema: z.ZodType<GetAssignableRolesForResourceResponse> = z
+  .object({
+    roles: z.array(z.lazy(() => unmarshalRoleSchema)).optional(),
+  })
+  .transform(d => ({
+    roles: d.roles,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetWorkspacePermissionAssignments_ResponseSchema: z.ZodType<GetWorkspacePermissionAssignments_Response> =
-  z
-    .object({
-      permission_assignments: z
-        .array(z.lazy(() => unmarshalWorkspacePermissionAssignmentOutputSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      permissionAssignments: d.permission_assignments,
-    }));
+export const unmarshalGetPermissionLevelsRequest_ResponseSchema: z.ZodType<GetPermissionLevelsRequest_Response> = z
+  .object({
+    permission_levels: z.array(z.lazy(() => unmarshalPermissionsDescriptionSchema)).optional(),
+  })
+  .transform(d => ({
+    permissionLevels: d.permission_levels,
+  }));
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
+export const unmarshalGetWorkspacePermissionAssignmentsRequest_ResponseSchema: z.ZodType<GetWorkspacePermissionAssignmentsRequest_Response> = z
+  .object({
+    permission_assignments: z.array(z.lazy(() => unmarshalWorkspacePermissionAssignmentOutputSchema)).optional(),
+  })
+  .transform(d => ({
+    permissionAssignments: d.permission_assignments,
+  }));
 
 export const unmarshalGrantRuleSchema: z.ZodType<GrantRule> = z
   .object({
@@ -485,16 +466,13 @@ export const unmarshalGrantRuleSchema: z.ZodType<GrantRule> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListWorkspacePermissions_ResponseSchema: z.ZodType<ListWorkspacePermissions_Response> =
-  z
-    .object({
-      permissions: z
-        .array(z.lazy(() => unmarshalPermissionOutputSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      permissions: d.permissions,
-    }));
+export const unmarshalListWorkspacePermissionsRequest_ResponseSchema: z.ZodType<ListWorkspacePermissionsRequest_Response> = z
+  .object({
+    permissions: z.array(z.lazy(() => unmarshalPermissionOutputSchema)).optional(),
+  })
+  .transform(d => ({
+    permissions: d.permissions,
+  }));
 
 export const unmarshalPermissionSchema: z.ZodType<Permission> = z
   .object({
@@ -518,31 +496,27 @@ export const unmarshalPermissionOutputSchema: z.ZodType<PermissionOutput> = z
     description: d.description,
   }));
 
-export const unmarshalPermissionsDescriptionSchema: z.ZodType<PermissionsDescription> =
-  z
-    .object({
-      permission_level: z.enum(PermissionLevel).optional(),
-      description: z.string().optional(),
-    })
-    .transform(d => ({
-      permissionLevel: d.permission_level,
-      description: d.description,
-    }));
+export const unmarshalPermissionsDescriptionSchema: z.ZodType<PermissionsDescription> = z
+  .object({
+    permission_level: z.enum(PermissionLevel).optional(),
+    description: z.string().optional(),
+  })
+  .transform(d => ({
+    permissionLevel: d.permission_level,
+    description: d.description,
+  }));
 
-export const unmarshalPermissionsResponseSchema: z.ZodType<PermissionsResponse> =
-  z
-    .object({
-      object_id: z.string().optional(),
-      object_type: z.string().optional(),
-      access_control_list: z
-        .array(z.lazy(() => unmarshalAccessControlResponseSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      objectId: d.object_id,
-      objectType: d.object_type,
-      accessControlList: d.access_control_list,
-    }));
+export const unmarshalPermissionsResponseSchema: z.ZodType<PermissionsResponse> = z
+  .object({
+    object_id: z.string().optional(),
+    object_type: z.string().optional(),
+    access_control_list: z.array(z.lazy(() => unmarshalAccessControlResponseSchema)).optional(),
+  })
+  .transform(d => ({
+    objectId: d.object_id,
+    objectType: d.object_type,
+    accessControlList: d.access_control_list,
+  }));
 
 export const unmarshalPrincipalOutputSchema: z.ZodType<PrincipalOutput> = z
   .object({
@@ -553,17 +527,7 @@ export const unmarshalPrincipalOutputSchema: z.ZodType<PrincipalOutput> = z
     display_name: z.string().optional(),
   })
   .transform(d => ({
-    principalName:
-      d.user_name !== undefined
-        ? {$case: 'userName' as const, userName: d.user_name}
-        : d.group_name !== undefined
-          ? {$case: 'groupName' as const, groupName: d.group_name}
-          : d.service_principal_name !== undefined
-            ? {
-                $case: 'servicePrincipalName' as const,
-                servicePrincipalName: d.service_principal_name,
-              }
-            : undefined,
+    principalName: d.user_name !== undefined ? { $case: 'userName' as const, userName: d.user_name } : d.group_name !== undefined ? { $case: 'groupName' as const, groupName: d.group_name } : d.service_principal_name !== undefined ? { $case: 'servicePrincipalName' as const, servicePrincipalName: d.service_principal_name } : undefined,
     principalId: d.principal_id,
     displayName: d.display_name,
   }));
@@ -588,56 +552,36 @@ export const unmarshalRuleSetSchema: z.ZodType<RuleSet> = z
     grantRules: d.grant_rules,
   }));
 
-export const unmarshalWorkspacePermissionAssignmentOutputSchema: z.ZodType<WorkspacePermissionAssignmentOutput> =
-  z
-    .object({
-      principal: z.lazy(() => unmarshalPrincipalOutputSchema).optional(),
-      permissions: z.array(z.enum(WorkspacePermission)).optional(),
-      error: z.string().optional(),
-    })
-    .transform(d => ({
-      principal: d.principal,
-      permissions: d.permissions,
-      error: d.error,
-    }));
+export const unmarshalWorkspacePermissionAssignmentOutputSchema: z.ZodType<WorkspacePermissionAssignmentOutput> = z
+  .object({
+    principal: z.lazy(() => unmarshalPrincipalOutputSchema).optional(),
+    permissions: z.array(z.enum(WorkspacePermission)).optional(),
+    error: z.string().optional(),
+  })
+  .transform(d => ({
+    principal: d.principal,
+    permissions: d.permissions,
+    error: d.error,
+  }));
 
 export const marshalAccessControlRequestSchema: z.ZodType = z
   .object({
-    principalName: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('userName'), userName: z.string()}),
-        z.object({$case: z.literal('groupName'), groupName: z.string()}),
-        z.object({
-          $case: z.literal('servicePrincipalName'),
-          servicePrincipalName: z.string(),
-        }),
-      ])
-      .optional(),
+    principalName: z.discriminatedUnion('$case', [z.object({ $case: z.literal('userName'), userName: z.string() }), z.object({ $case: z.literal('groupName'), groupName: z.string() }), z.object({ $case: z.literal('servicePrincipalName'), servicePrincipalName: z.string() })]).optional(),
     permissionLevel: z.enum(PermissionLevel).optional(),
   })
   .transform(d => ({
-    ...(d.principalName?.$case === 'userName' && {
-      user_name: d.principalName.userName,
-    }),
-    ...(d.principalName?.$case === 'groupName' && {
-      group_name: d.principalName.groupName,
-    }),
-    ...(d.principalName?.$case === 'servicePrincipalName' && {
-      service_principal_name: d.principalName.servicePrincipalName,
-    }),
+    ...(d.principalName?.$case === 'userName' && { user_name: d.principalName.userName }),
+    ...(d.principalName?.$case === 'groupName' && { group_name: d.principalName.groupName }),
+    ...(d.principalName?.$case === 'servicePrincipalName' && { service_principal_name: d.principalName.servicePrincipalName }),
     permission_level: d.permissionLevel,
   }));
 
 export const marshalActorSchema: z.ZodType = z
   .object({
-    kind: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('actorId'), actorId: z.number()}),
-      ])
-      .optional(),
+    kind: z.discriminatedUnion('$case', [z.object({ $case: z.literal('actorId'), actorId: z.number() })]).optional(),
   })
   .transform(d => ({
-    ...(d.kind?.$case === 'actorId' && {actor_id: d.kind.actorId}),
+    ...(d.kind?.$case === 'actorId' && { actor_id: d.kind.actorId }),
   }));
 
 export const marshalConsistencyTokenSchema: z.ZodType = z
@@ -682,13 +626,11 @@ export const marshalRuleSetUpdateRequestSchema: z.ZodType = z
     grant_rules: d.grantRules,
   }));
 
-export const marshalSetObjectPermissionsSchema: z.ZodType = z
+export const marshalSetObjectPermissionsRequestSchema: z.ZodType = z
   .object({
     requestObjectType: z.string().optional(),
     requestObjectId: z.string().optional(),
-    accessControlList: z
-      .array(z.lazy(() => marshalAccessControlRequestSchema))
-      .optional(),
+    accessControlList: z.array(z.lazy(() => marshalAccessControlRequestSchema)).optional(),
   })
   .transform(d => ({
     request_object_type: d.requestObjectType,
@@ -696,13 +638,11 @@ export const marshalSetObjectPermissionsSchema: z.ZodType = z
     access_control_list: d.accessControlList,
   }));
 
-export const marshalUpdateObjectPermissionsSchema: z.ZodType = z
+export const marshalUpdateObjectPermissionsRequestSchema: z.ZodType = z
   .object({
     requestObjectType: z.string().optional(),
     requestObjectId: z.string().optional(),
-    accessControlList: z
-      .array(z.lazy(() => marshalAccessControlRequestSchema))
-      .optional(),
+    accessControlList: z.array(z.lazy(() => marshalAccessControlRequestSchema)).optional(),
   })
   .transform(d => ({
     request_object_type: d.requestObjectType,
@@ -722,7 +662,7 @@ export const marshalUpdateRuleSetRequestSchema: z.ZodType = z
     rule_set: d.ruleSet,
   }));
 
-export const marshalUpdateWorkspacePermissionAssignmentSchema: z.ZodType = z
+export const marshalUpdateWorkspacePermissionAssignmentRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     workspaceId: z.number().optional(),

@@ -1,5 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+
 export {Client} from './client';
 
 export {
@@ -15,19 +16,19 @@ export type {
   CheckPolicyRequest,
   CheckPolicyResponse,
   ConsistencyToken,
-  DeleteWorkspacePermissionAssignment,
-  DeleteWorkspacePermissionAssignment_Response,
+  DeleteWorkspacePermissionAssignmentRequest,
+  DeleteWorkspacePermissionAssignmentRequest_Response,
   GetAssignableRolesForResourceRequest,
   GetAssignableRolesForResourceResponse,
-  GetObjectPermissions,
-  GetPermissionLevels,
-  GetPermissionLevels_Response,
+  GetObjectPermissionsRequest,
+  GetPermissionLevelsRequest,
+  GetPermissionLevelsRequest_Response,
   GetRuleSetRequest,
-  GetWorkspacePermissionAssignments,
-  GetWorkspacePermissionAssignments_Response,
+  GetWorkspacePermissionAssignmentsRequest,
+  GetWorkspacePermissionAssignmentsRequest_Response,
   GrantRule,
-  ListWorkspacePermissions,
-  ListWorkspacePermissions_Response,
+  ListWorkspacePermissionsRequest,
+  ListWorkspacePermissionsRequest_Response,
   Permission,
   PermissionOutput,
   PermissionsDescription,
@@ -37,9 +38,9 @@ export type {
   Role,
   RuleSet,
   RuleSetUpdateRequest,
-  SetObjectPermissions,
-  UpdateObjectPermissions,
+  SetObjectPermissionsRequest,
+  UpdateObjectPermissionsRequest,
   UpdateRuleSetRequest,
-  UpdateWorkspacePermissionAssignment,
+  UpdateWorkspacePermissionAssignmentRequest,
   WorkspacePermissionAssignmentOutput,
 } from './model';

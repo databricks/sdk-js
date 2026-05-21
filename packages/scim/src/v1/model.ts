@@ -4,15 +4,9 @@ import type {JsonValue} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
 const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
-  z.union([
-    z.null(),
-    z.number(),
-    z.string(),
-    z.boolean(),
-    z.record(z.string(), jsonValueSchema),
-    z.array(jsonValueSchema),
-  ])
+  z.union([z.null(), z.number(), z.string(), z.boolean(), z.record(z.string(), jsonValueSchema), z.array(jsonValueSchema)])
 );
+
 
 export enum GetSortOrder {
   GET_SORT_ORDER_UNSPECIFIED = 'GET_SORT_ORDER_UNSPECIFIED',
@@ -649,8 +643,12 @@ export interface ListUsersResponse {
   totalResults?: number | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface MeRequest {}
+export interface MeRequest {
+  /** Comma-separated list of attributes to return in response. */
+  attributes?: string | undefined;
+  /** Comma-separated list of attributes to exclude in response. */
+  excludedAttributes?: string | undefined;
+}
 
 export interface Name {
   /** Family name of the <Databricks> user. */
@@ -927,31 +925,28 @@ export interface User {
   userName?: string | undefined;
 }
 
-export const unmarshalAccountComplexValueSchema: z.ZodType<AccountComplexValue> =
-  z
-    .object({
-      display: z.string().optional(),
-      primary: z.boolean().optional(),
-      $ref: z.string().optional(),
-      type: z.string().optional(),
-      value: z.string().optional(),
-    })
-    .transform(d => ({
-      display: d.display,
-      primary: d.primary,
-      ref: d.$ref,
-      type: d.type,
-      value: d.value,
-    }));
+export const unmarshalAccountComplexValueSchema: z.ZodType<AccountComplexValue> = z
+  .object({
+    display: z.string().optional(),
+    primary: z.boolean().optional(),
+    $ref: z.string().optional(),
+    type: z.string().optional(),
+    value: z.string().optional(),
+  })
+  .transform(d => ({
+    display: d.display,
+    primary: d.primary,
+    ref: d.$ref,
+    type: d.type,
+    value: d.value,
+  }));
 
 export const unmarshalAccountGroupSchema: z.ZodType<AccountGroup> = z
   .object({
     displayName: z.string().optional(),
     externalId: z.string().optional(),
     id: z.string().optional(),
-    members: z
-      .array(z.lazy(() => unmarshalAccountComplexValueSchema))
-      .optional(),
+    members: z.array(z.lazy(() => unmarshalAccountComplexValueSchema)).optional(),
     meta: z.lazy(() => unmarshalAccountResourceMetaSchema).optional(),
     roles: z.array(z.lazy(() => unmarshalAccountComplexValueSchema)).optional(),
     account_id: z.string().optional(),
@@ -976,45 +971,39 @@ export const unmarshalAccountNameSchema: z.ZodType<AccountName> = z
     givenName: d.givenName,
   }));
 
-export const unmarshalAccountResourceMetaSchema: z.ZodType<AccountResourceMeta> =
-  z
-    .object({
-      resourceType: z.string().optional(),
-    })
-    .transform(d => ({
-      resourceType: d.resourceType,
-    }));
+export const unmarshalAccountResourceMetaSchema: z.ZodType<AccountResourceMeta> = z
+  .object({
+    resourceType: z.string().optional(),
+  })
+  .transform(d => ({
+    resourceType: d.resourceType,
+  }));
 
-export const unmarshalAccountServicePrincipalSchema: z.ZodType<AccountServicePrincipal> =
-  z
-    .object({
-      active: z.boolean().optional(),
-      applicationId: z.string().optional(),
-      displayName: z.string().optional(),
-      externalId: z.string().optional(),
-      id: z.string().optional(),
-      roles: z
-        .array(z.lazy(() => unmarshalAccountComplexValueSchema))
-        .optional(),
-      account_id: z.string().optional(),
-    })
-    .transform(d => ({
-      active: d.active,
-      applicationId: d.applicationId,
-      displayName: d.displayName,
-      externalId: d.externalId,
-      id: d.id,
-      roles: d.roles,
-      accountId: d.account_id,
-    }));
+export const unmarshalAccountServicePrincipalSchema: z.ZodType<AccountServicePrincipal> = z
+  .object({
+    active: z.boolean().optional(),
+    applicationId: z.string().optional(),
+    displayName: z.string().optional(),
+    externalId: z.string().optional(),
+    id: z.string().optional(),
+    roles: z.array(z.lazy(() => unmarshalAccountComplexValueSchema)).optional(),
+    account_id: z.string().optional(),
+  })
+  .transform(d => ({
+    active: d.active,
+    applicationId: d.applicationId,
+    displayName: d.displayName,
+    externalId: d.externalId,
+    id: d.id,
+    roles: d.roles,
+    accountId: d.account_id,
+  }));
 
 export const unmarshalAccountUserSchema: z.ZodType<AccountUser> = z
   .object({
     active: z.boolean().optional(),
     displayName: z.string().optional(),
-    emails: z
-      .array(z.lazy(() => unmarshalAccountComplexValueSchema))
-      .optional(),
+    emails: z.array(z.lazy(() => unmarshalAccountComplexValueSchema)).optional(),
     externalId: z.string().optional(),
     id: z.string().optional(),
     name: z.lazy(() => unmarshalAccountNameSchema).optional(),
@@ -1050,16 +1039,13 @@ export const unmarshalComplexValueSchema: z.ZodType<ComplexValue> = z
     value: d.value,
   }));
 
-export const unmarshalGetPasswordPermissionLevelsResponseSchema: z.ZodType<GetPasswordPermissionLevelsResponse> =
-  z
-    .object({
-      permission_levels: z
-        .array(z.lazy(() => unmarshalPasswordPermissionsDescriptionSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      permissionLevels: d.permission_levels,
-    }));
+export const unmarshalGetPasswordPermissionLevelsResponseSchema: z.ZodType<GetPasswordPermissionLevelsResponse> = z
+  .object({
+    permission_levels: z.array(z.lazy(() => unmarshalPasswordPermissionsDescriptionSchema)).optional(),
+  })
+  .transform(d => ({
+    permissionLevels: d.permission_levels,
+  }));
 
 export const unmarshalGroupSchema: z.ZodType<Group> = z
   .object({
@@ -1085,88 +1071,79 @@ export const unmarshalGroupSchema: z.ZodType<Group> = z
     schemas: d.schemas,
   }));
 
-export const unmarshalListAccountGroupsResponseSchema: z.ZodType<ListAccountGroupsResponse> =
-  z
-    .object({
-      itemsPerPage: z.number().optional(),
-      Resources: z.array(z.lazy(() => unmarshalAccountGroupSchema)).optional(),
-      startIndex: z.number().optional(),
-      totalResults: z.number().optional(),
-    })
-    .transform(d => ({
-      itemsPerPage: d.itemsPerPage,
-      resources: d.Resources,
-      startIndex: d.startIndex,
-      totalResults: d.totalResults,
-    }));
+export const unmarshalListAccountGroupsResponseSchema: z.ZodType<ListAccountGroupsResponse> = z
+  .object({
+    itemsPerPage: z.number().optional(),
+    Resources: z.array(z.lazy(() => unmarshalAccountGroupSchema)).optional(),
+    startIndex: z.number().optional(),
+    totalResults: z.number().optional(),
+  })
+  .transform(d => ({
+    itemsPerPage: d.itemsPerPage,
+    resources: d.Resources,
+    startIndex: d.startIndex,
+    totalResults: d.totalResults,
+  }));
 
-export const unmarshalListAccountServicePrincipalsResponseSchema: z.ZodType<ListAccountServicePrincipalsResponse> =
-  z
-    .object({
-      itemsPerPage: z.number().optional(),
-      Resources: z
-        .array(z.lazy(() => unmarshalAccountServicePrincipalSchema))
-        .optional(),
-      startIndex: z.number().optional(),
-      totalResults: z.number().optional(),
-    })
-    .transform(d => ({
-      itemsPerPage: d.itemsPerPage,
-      resources: d.Resources,
-      startIndex: d.startIndex,
-      totalResults: d.totalResults,
-    }));
+export const unmarshalListAccountServicePrincipalsResponseSchema: z.ZodType<ListAccountServicePrincipalsResponse> = z
+  .object({
+    itemsPerPage: z.number().optional(),
+    Resources: z.array(z.lazy(() => unmarshalAccountServicePrincipalSchema)).optional(),
+    startIndex: z.number().optional(),
+    totalResults: z.number().optional(),
+  })
+  .transform(d => ({
+    itemsPerPage: d.itemsPerPage,
+    resources: d.Resources,
+    startIndex: d.startIndex,
+    totalResults: d.totalResults,
+  }));
 
-export const unmarshalListAccountUsersResponseSchema: z.ZodType<ListAccountUsersResponse> =
-  z
-    .object({
-      itemsPerPage: z.number().optional(),
-      Resources: z.array(z.lazy(() => unmarshalAccountUserSchema)).optional(),
-      startIndex: z.number().optional(),
-      totalResults: z.number().optional(),
-    })
-    .transform(d => ({
-      itemsPerPage: d.itemsPerPage,
-      resources: d.Resources,
-      startIndex: d.startIndex,
-      totalResults: d.totalResults,
-    }));
+export const unmarshalListAccountUsersResponseSchema: z.ZodType<ListAccountUsersResponse> = z
+  .object({
+    itemsPerPage: z.number().optional(),
+    Resources: z.array(z.lazy(() => unmarshalAccountUserSchema)).optional(),
+    startIndex: z.number().optional(),
+    totalResults: z.number().optional(),
+  })
+  .transform(d => ({
+    itemsPerPage: d.itemsPerPage,
+    resources: d.Resources,
+    startIndex: d.startIndex,
+    totalResults: d.totalResults,
+  }));
 
-export const unmarshalListGroupsResponseSchema: z.ZodType<ListGroupsResponse> =
-  z
-    .object({
-      itemsPerPage: z.number().optional(),
-      Resources: z.array(z.lazy(() => unmarshalGroupSchema)).optional(),
-      schemas: z.array(z.enum(ListResponseSchema)).optional(),
-      startIndex: z.number().optional(),
-      totalResults: z.number().optional(),
-    })
-    .transform(d => ({
-      itemsPerPage: d.itemsPerPage,
-      resources: d.Resources,
-      schemas: d.schemas,
-      startIndex: d.startIndex,
-      totalResults: d.totalResults,
-    }));
+export const unmarshalListGroupsResponseSchema: z.ZodType<ListGroupsResponse> = z
+  .object({
+    itemsPerPage: z.number().optional(),
+    Resources: z.array(z.lazy(() => unmarshalGroupSchema)).optional(),
+    schemas: z.array(z.enum(ListResponseSchema)).optional(),
+    startIndex: z.number().optional(),
+    totalResults: z.number().optional(),
+  })
+  .transform(d => ({
+    itemsPerPage: d.itemsPerPage,
+    resources: d.Resources,
+    schemas: d.schemas,
+    startIndex: d.startIndex,
+    totalResults: d.totalResults,
+  }));
 
-export const unmarshalListServicePrincipalResponseSchema: z.ZodType<ListServicePrincipalResponse> =
-  z
-    .object({
-      itemsPerPage: z.number().optional(),
-      Resources: z
-        .array(z.lazy(() => unmarshalServicePrincipalSchema))
-        .optional(),
-      schemas: z.array(z.enum(ListResponseSchema)).optional(),
-      startIndex: z.number().optional(),
-      totalResults: z.number().optional(),
-    })
-    .transform(d => ({
-      itemsPerPage: d.itemsPerPage,
-      resources: d.Resources,
-      schemas: d.schemas,
-      startIndex: d.startIndex,
-      totalResults: d.totalResults,
-    }));
+export const unmarshalListServicePrincipalResponseSchema: z.ZodType<ListServicePrincipalResponse> = z
+  .object({
+    itemsPerPage: z.number().optional(),
+    Resources: z.array(z.lazy(() => unmarshalServicePrincipalSchema)).optional(),
+    schemas: z.array(z.enum(ListResponseSchema)).optional(),
+    startIndex: z.number().optional(),
+    totalResults: z.number().optional(),
+  })
+  .transform(d => ({
+    itemsPerPage: d.itemsPerPage,
+    resources: d.Resources,
+    schemas: d.schemas,
+    startIndex: d.startIndex,
+    totalResults: d.totalResults,
+  }));
 
 export const unmarshalListUsersResponseSchema: z.ZodType<ListUsersResponse> = z
   .object({
@@ -1194,63 +1171,55 @@ export const unmarshalNameSchema: z.ZodType<Name> = z
     givenName: d.givenName,
   }));
 
-export const unmarshalPasswordAccessControlResponseSchema: z.ZodType<PasswordAccessControlResponse> =
-  z
-    .object({
-      all_permissions: z
-        .array(z.lazy(() => unmarshalPasswordPermissionSchema))
-        .optional(),
-      display_name: z.string().optional(),
-      group_name: z.string().optional(),
-      service_principal_name: z.string().optional(),
-      user_name: z.string().optional(),
-    })
-    .transform(d => ({
-      allPermissions: d.all_permissions,
-      displayName: d.display_name,
-      groupName: d.group_name,
-      servicePrincipalName: d.service_principal_name,
-      userName: d.user_name,
-    }));
+export const unmarshalPasswordAccessControlResponseSchema: z.ZodType<PasswordAccessControlResponse> = z
+  .object({
+    all_permissions: z.array(z.lazy(() => unmarshalPasswordPermissionSchema)).optional(),
+    display_name: z.string().optional(),
+    group_name: z.string().optional(),
+    service_principal_name: z.string().optional(),
+    user_name: z.string().optional(),
+  })
+  .transform(d => ({
+    allPermissions: d.all_permissions,
+    displayName: d.display_name,
+    groupName: d.group_name,
+    servicePrincipalName: d.service_principal_name,
+    userName: d.user_name,
+  }));
 
-export const unmarshalPasswordPermissionSchema: z.ZodType<PasswordPermission> =
-  z
-    .object({
-      inherited: z.boolean().optional(),
-      inherited_from_object: z.array(z.string()).optional(),
-      permission_level: z.enum(PasswordPermission_Level).optional(),
-    })
-    .transform(d => ({
-      inherited: d.inherited,
-      inheritedFromObject: d.inherited_from_object,
-      permissionLevel: d.permission_level,
-    }));
+export const unmarshalPasswordPermissionSchema: z.ZodType<PasswordPermission> = z
+  .object({
+    inherited: z.boolean().optional(),
+    inherited_from_object: z.array(z.string()).optional(),
+    permission_level: z.enum(PasswordPermission_Level).optional(),
+  })
+  .transform(d => ({
+    inherited: d.inherited,
+    inheritedFromObject: d.inherited_from_object,
+    permissionLevel: d.permission_level,
+  }));
 
-export const unmarshalPasswordPermissionsSchema: z.ZodType<PasswordPermissions> =
-  z
-    .object({
-      access_control_list: z
-        .array(z.lazy(() => unmarshalPasswordAccessControlResponseSchema))
-        .optional(),
-      object_id: z.string().optional(),
-      object_type: z.string().optional(),
-    })
-    .transform(d => ({
-      accessControlList: d.access_control_list,
-      objectId: d.object_id,
-      objectType: d.object_type,
-    }));
+export const unmarshalPasswordPermissionsSchema: z.ZodType<PasswordPermissions> = z
+  .object({
+    access_control_list: z.array(z.lazy(() => unmarshalPasswordAccessControlResponseSchema)).optional(),
+    object_id: z.string().optional(),
+    object_type: z.string().optional(),
+  })
+  .transform(d => ({
+    accessControlList: d.access_control_list,
+    objectId: d.object_id,
+    objectType: d.object_type,
+  }));
 
-export const unmarshalPasswordPermissionsDescriptionSchema: z.ZodType<PasswordPermissionsDescription> =
-  z
-    .object({
-      description: z.string().optional(),
-      permission_level: z.enum(PasswordPermission_Level).optional(),
-    })
-    .transform(d => ({
-      description: d.description,
-      permissionLevel: d.permission_level,
-    }));
+export const unmarshalPasswordPermissionsDescriptionSchema: z.ZodType<PasswordPermissionsDescription> = z
+  .object({
+    description: z.string().optional(),
+    permission_level: z.enum(PasswordPermission_Level).optional(),
+  })
+  .transform(d => ({
+    description: d.description,
+    permissionLevel: d.permission_level,
+  }));
 
 export const unmarshalResourceMetaSchema: z.ZodType<ResourceMeta> = z
   .object({
@@ -1540,9 +1509,7 @@ export const marshalPasswordAccessControlRequestSchema: z.ZodType = z
 
 export const marshalPasswordPermissionsRequestSchema: z.ZodType = z
   .object({
-    accessControlList: z
-      .array(z.lazy(() => marshalPasswordAccessControlRequestSchema))
-      .optional(),
+    accessControlList: z.array(z.lazy(() => marshalPasswordAccessControlRequestSchema)).optional(),
   })
   .transform(d => ({
     access_control_list: d.accessControlList,

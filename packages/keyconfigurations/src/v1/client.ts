@@ -9,25 +9,19 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import {z} from 'zod';
 import type {
-  CreateCustomerManagedKeyPublicRequest,
+  CreateCustomerManagedKeyRequest,
   CustomerManagedKey,
-  DeleteCustomerManagedKeyPublicRequest,
-  GetCustomerManagedKeyPublicRequest,
-  ListCustomerManagedKeyPublicRequest,
-  ListCustomerManagedKeyPublicResponse,
+  DeleteCustomerManagedKeyRequest,
+  GetCustomerManagedKeyRequest,
+  ListCustomerManagedKeyRequest,
+  ListCustomerManagedKeyResponse,
 } from './model';
 import {
-  marshalCreateCustomerManagedKeyPublicRequestSchema,
+  marshalCreateCustomerManagedKeyRequestSchema,
   unmarshalCustomerManagedKeySchema,
 } from './model';
 
@@ -75,13 +69,13 @@ export class Client {
    * workspace's customer-managed key for workspace storage, the key encrypts the
    * workspace's root S3 bucket (which contains the workspace's root DBFS and system data)
    * and, optionally, cluster EBS volume data.
-   *
+   * 
    * **Important**: Customer-managed keys are supported only for some deployment types,
    * subscription types, and AWS regions that currently support creation of <Databricks> workspaces.
-   *
+   * 
    * This operation is available only if your account is on the E2 version of the
    * platform or on a select custom plan that allows multiple workspaces per account.
-   *
+   * 
    * **GCP only**: To create a customer-managed key on GCP, you must include the
    * `X-Databricks-GCP-SA-Access-Token` HTTP header in your request. This header must contain
    * a Google Cloud OAuth access token with the `cloud-platform` scope. The Google identity
@@ -89,25 +83,15 @@ export class Client {
    * IAM permissions on the key resource. For details on obtaining this token, see
    * [Authenticate with Google ID tokens](https://docs.databricks.com/gcp/en/dev-tools/auth/authentication-google-id.html).
    */
-  async createCustomerManagedKeyPublic(
-    req: CreateCustomerManagedKeyPublicRequest,
-    options?: CallOptions
-  ): Promise<CustomerManagedKey> {
+  async createCustomerManagedKeyPublic(req: CreateCustomerManagedKeyRequest, options?: CallOptions): Promise<CustomerManagedKey> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/customer-managed-keys`;
-    const body = marshalRequest(
-      req,
-      marshalCreateCustomerManagedKeyPublicRequestSchema
-    );
+    const body = marshalRequest(req, marshalCreateCustomerManagedKeyRequestSchema);
     let resp: CustomerManagedKey | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCustomerManagedKeySchema);
     };
     await executeCall(call, options);
@@ -118,21 +102,14 @@ export class Client {
   }
 
   /** Deletes a customer-managed key configuration object for an account. You cannot delete a configuration that is associated with a running workspace. */
-  async deleteCustomerManagedKeyPublic(
-    req: DeleteCustomerManagedKeyPublicRequest,
-    options?: CallOptions
-  ): Promise<CustomerManagedKey> {
+  async deleteCustomerManagedKeyPublic(req: DeleteCustomerManagedKeyRequest, options?: CallOptions): Promise<CustomerManagedKey> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/customer-managed-keys/${req.customerManagedKeyId ?? ''}`;
     let resp: CustomerManagedKey | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCustomerManagedKeySchema);
     };
     await executeCall(call, options);
@@ -150,27 +127,20 @@ export class Client {
    * Databricks SQL queries and query history. If it is specified as a workspace's
    * customer-managed key for storage, the key encrypts the workspace's root S3 bucket
    * (which contains the workspace's root DBFS and system data) and, optionally, cluster EBS volume data.
-   *
+   * 
    * **Important**: Customer-managed keys are supported only for some deployment types,
    * subscription types, and AWS regions.
-   *
+   * 
    * This operation is available only if your account is on the E2 version of the platform.",
    */
-  async getCustomerManagedKeyPublic(
-    req: GetCustomerManagedKeyPublicRequest,
-    options?: CallOptions
-  ): Promise<CustomerManagedKey> {
+  async getCustomerManagedKeyPublic(req: GetCustomerManagedKeyRequest, options?: CallOptions): Promise<CustomerManagedKey> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/customer-managed-keys/${req.customerManagedKeyId ?? ''}`;
     let resp: CustomerManagedKey | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCustomerManagedKeySchema);
     };
     await executeCall(call, options);
@@ -181,26 +151,16 @@ export class Client {
   }
 
   /** Lists <Databricks> customer-managed key configurations for an account. */
-  async listCustomerManagedKeyPublic(
-    req: ListCustomerManagedKeyPublicRequest,
-    options?: CallOptions
-  ): Promise<ListCustomerManagedKeyPublicResponse> {
+  async listCustomerManagedKeyPublic(req: ListCustomerManagedKeyRequest, options?: CallOptions): Promise<ListCustomerManagedKeyResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/customer-managed-keys`;
-    let resp: ListCustomerManagedKeyPublicResponse | undefined;
+    let resp: ListCustomerManagedKeyResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = {
-        customerManagedKeys: parseResponse(
-          respBody,
-          z.array(z.lazy(() => unmarshalCustomerManagedKeySchema))
-        ),
+        customerManagedKeys: parseResponse(respBody, z.array(z.lazy(() => unmarshalCustomerManagedKeySchema))),
       };
     };
     await executeCall(call, options);

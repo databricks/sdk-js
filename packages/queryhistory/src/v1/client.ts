@@ -9,18 +9,15 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  parseResponse,
-  flattenQueryParams,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, parseResponse, flattenQueryParams} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
-import type {ListQueries, ListQueries_Response} from './model';
+import type {
+  ListQueriesRequest,
+  ListQueriesRequest_Response,
+} from './model';
 import {
   marshalQueryFilterSchema,
-  unmarshalListQueries_ResponseSchema,
+  unmarshalListQueriesRequest_ResponseSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -56,23 +53,16 @@ export class Client {
 
   /**
    * List the history of queries through SQL warehouses, and serverless compute.
-   *
+   * 
    * You can filter by user ID, warehouse ID, status, and time range.
    * Most recently started queries are returned first (up to max_results in request).
    * The pagination token returned in response can be used to list subsequent query statuses.
    */
-  async listQueries(
-    req: ListQueries,
-    options?: CallOptions
-  ): Promise<ListQueries_Response> {
+  async listQueries(req: ListQueriesRequest, options?: CallOptions): Promise<ListQueriesRequest_Response> {
     const url = `${this.host}/api/2.0/sql/history/queries`;
     const params = new URLSearchParams();
     if (req.filterBy !== undefined) {
-      flattenQueryParams(
-        'filter_by',
-        marshalQueryFilterSchema.parse(req.filterBy),
-        params
-      );
+      flattenQueryParams('filter_by', marshalQueryFilterSchema.parse(req.filterBy), params);
     }
     if (req.maxResults !== undefined) {
       params.append('max_results', String(req.maxResults));
@@ -85,17 +75,13 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListQueries_Response | undefined;
+    let resp: ListQueriesRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalListQueries_ResponseSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListQueriesRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

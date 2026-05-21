@@ -10,13 +10,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateDatabaseCatalogRequest,
@@ -108,10 +102,7 @@ export class Client {
   }
 
   /** Create a Database Catalog. */
-  async createDatabaseCatalog(
-    req: CreateDatabaseCatalogRequest,
-    options?: CallOptions
-  ): Promise<DatabaseCatalog> {
+  async createDatabaseCatalog(req: CreateDatabaseCatalogRequest, options?: CallOptions): Promise<DatabaseCatalog> {
     const url = `${this.host}/api/2.0/database/catalogs`;
     const body = marshalRequest(req.catalog, marshalDatabaseCatalogSchema);
     let resp: DatabaseCatalog | undefined;
@@ -119,11 +110,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDatabaseCatalogSchema);
     };
     await executeCall(call, options);
@@ -134,25 +121,15 @@ export class Client {
   }
 
   /** Create a Database Instance. */
-  async createDatabaseInstance(
-    req: CreateDatabaseInstanceRequest,
-    options?: CallOptions
-  ): Promise<DatabaseInstance> {
+  async createDatabaseInstance(req: CreateDatabaseInstanceRequest, options?: CallOptions): Promise<DatabaseInstance> {
     const url = `${this.host}/api/2.0/database/instances`;
-    const body = marshalRequest(
-      req.databaseInstance,
-      marshalDatabaseInstanceSchema
-    );
+    const body = marshalRequest(req.databaseInstance, marshalDatabaseInstanceSchema);
     let resp: DatabaseInstance | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDatabaseInstanceSchema);
     };
     await executeCall(call, options);
@@ -162,22 +139,24 @@ export class Client {
     return resp;
   }
 
-  async createDatabaseInstanceWaiter(
+async createDatabaseInstanceWaiter(
     req: CreateDatabaseInstanceRequest,
     options?: CallOptions
   ): Promise<CreateDatabaseInstanceWaiter> {
     const resp = await this.createDatabaseInstance(req, options);
     if (resp.name === undefined) {
-      throw new Error('response field name required for polling is missing');
+      throw new Error(
+        'response field name required for polling is missing'
+      );
     }
-    return new CreateDatabaseInstanceWaiter(this, resp.name);
+    return new CreateDatabaseInstanceWaiter(
+      this,
+      resp.name,
+    );
   }
 
   /** Create a role for a Database Instance. */
-  async createDatabaseInstanceRole(
-    req: CreateDatabaseInstanceRoleRequest,
-    options?: CallOptions
-  ): Promise<DatabaseInstanceRole> {
+  async createDatabaseInstanceRole(req: CreateDatabaseInstanceRoleRequest, options?: CallOptions): Promise<DatabaseInstanceRole> {
     const url = `${this.host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles`;
     const params = new URLSearchParams();
     if (req.databaseInstanceName !== undefined) {
@@ -185,26 +164,13 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.databaseInstanceRole,
-      marshalDatabaseInstanceRoleSchema
-    );
+    const body = marshalRequest(req.databaseInstanceRole, marshalDatabaseInstanceRoleSchema);
     let resp: DatabaseInstanceRole | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'POST',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('POST', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDatabaseInstanceRoleSchema);
     };
     await executeCall(call, options);
@@ -218,10 +184,7 @@ export class Client {
    * Create a Database Table. Useful for registering pre-existing PG tables in UC.
    * See CreateSyncedDatabaseTable for creating synced tables in PG from a source table in UC.
    */
-  async createDatabaseTable(
-    req: CreateDatabaseTableRequest,
-    options?: CallOptions
-  ): Promise<DatabaseTable> {
+  async createDatabaseTable(req: CreateDatabaseTableRequest, options?: CallOptions): Promise<DatabaseTable> {
     const url = `${this.host}/api/2.0/database/tables`;
     const body = marshalRequest(req.table, marshalDatabaseTableSchema);
     let resp: DatabaseTable | undefined;
@@ -229,11 +192,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDatabaseTableSchema);
     };
     await executeCall(call, options);
@@ -244,25 +203,15 @@ export class Client {
   }
 
   /** Create a Synced Database Table. */
-  async createSyncedDatabaseTable(
-    req: CreateSyncedDatabaseTableRequest,
-    options?: CallOptions
-  ): Promise<SyncedDatabaseTable> {
+  async createSyncedDatabaseTable(req: CreateSyncedDatabaseTableRequest, options?: CallOptions): Promise<SyncedDatabaseTable> {
     const url = `${this.host}/api/2.0/database/synced_tables`;
-    const body = marshalRequest(
-      req.syncedTable,
-      marshalSyncedDatabaseTableSchema
-    );
+    const body = marshalRequest(req.syncedTable, marshalSyncedDatabaseTableSchema);
     let resp: SyncedDatabaseTable | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalSyncedDatabaseTableSchema);
     };
     await executeCall(call, options);
@@ -273,29 +222,19 @@ export class Client {
   }
 
   /** Delete a Database Catalog. */
-  async deleteDatabaseCatalog(
-    req: DeleteDatabaseCatalogRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteDatabaseCatalog(req: DeleteDatabaseCatalogRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/database/catalogs/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Delete a Database Instance. */
-  async deleteDatabaseInstance(
-    req: DeleteDatabaseInstanceRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteDatabaseInstance(req: DeleteDatabaseInstanceRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/database/instances/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -310,20 +249,13 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Deletes a role for a Database Instance. */
-  async deleteDatabaseInstanceRole(
-    req: DeleteDatabaseInstanceRoleRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteDatabaseInstanceRole(req: DeleteDatabaseInstanceRoleRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.reassignOwnedTo !== undefined) {
@@ -338,39 +270,25 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Delete a Database Table. */
-  async deleteDatabaseTable(
-    req: DeleteDatabaseTableRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteDatabaseTable(req: DeleteDatabaseTableRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/database/tables/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Delete a Synced Database Table. */
-  async deleteSyncedDatabaseTable(
-    req: DeleteSyncedDatabaseTableRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteSyncedDatabaseTable(req: DeleteSyncedDatabaseTableRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/database/synced_tables/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.purgeData !== undefined) {
@@ -382,20 +300,13 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Find a Database Instance by uid. */
-  async findDatabaseInstanceByUid(
-    req: FindDatabaseInstanceByUidRequest,
-    options?: CallOptions
-  ): Promise<DatabaseInstance> {
+  async findDatabaseInstanceByUid(req: FindDatabaseInstanceByUidRequest, options?: CallOptions): Promise<DatabaseInstance> {
     const url = `${this.host}/api/2.0/database/instances:findByUid`;
     const params = new URLSearchParams();
     if (req.uid !== undefined) {
@@ -408,11 +319,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDatabaseInstanceSchema);
     };
     await executeCall(call, options);
@@ -423,25 +330,15 @@ export class Client {
   }
 
   /** Generates a credential that can be used to access database instances. */
-  async generateDatabaseCredential(
-    req: GenerateDatabaseCredentialRequest,
-    options?: CallOptions
-  ): Promise<DatabaseCredential> {
+  async generateDatabaseCredential(req: GenerateDatabaseCredentialRequest, options?: CallOptions): Promise<DatabaseCredential> {
     const url = `${this.host}/api/2.0/database/credentials`;
-    const body = marshalRequest(
-      req,
-      marshalGenerateDatabaseCredentialRequestSchema
-    );
+    const body = marshalRequest(req, marshalGenerateDatabaseCredentialRequestSchema);
     let resp: DatabaseCredential | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDatabaseCredentialSchema);
     };
     await executeCall(call, options);
@@ -452,21 +349,14 @@ export class Client {
   }
 
   /** Get a Database Catalog. */
-  async getDatabaseCatalog(
-    req: GetDatabaseCatalogRequest,
-    options?: CallOptions
-  ): Promise<DatabaseCatalog> {
+  async getDatabaseCatalog(req: GetDatabaseCatalogRequest, options?: CallOptions): Promise<DatabaseCatalog> {
     const url = `${this.host}/api/2.0/database/catalogs/${req.name ?? ''}`;
     let resp: DatabaseCatalog | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDatabaseCatalogSchema);
     };
     await executeCall(call, options);
@@ -477,21 +367,14 @@ export class Client {
   }
 
   /** Get a Database Instance. */
-  async getDatabaseInstance(
-    req: GetDatabaseInstanceRequest,
-    options?: CallOptions
-  ): Promise<DatabaseInstance> {
+  async getDatabaseInstance(req: GetDatabaseInstanceRequest, options?: CallOptions): Promise<DatabaseInstance> {
     const url = `${this.host}/api/2.0/database/instances/${req.name ?? ''}`;
     let resp: DatabaseInstance | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDatabaseInstanceSchema);
     };
     await executeCall(call, options);
@@ -502,21 +385,14 @@ export class Client {
   }
 
   /** Gets a role for a Database Instance. */
-  async getDatabaseInstanceRole(
-    req: GetDatabaseInstanceRoleRequest,
-    options?: CallOptions
-  ): Promise<DatabaseInstanceRole> {
+  async getDatabaseInstanceRole(req: GetDatabaseInstanceRoleRequest, options?: CallOptions): Promise<DatabaseInstanceRole> {
     const url = `${this.host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles/${req.name ?? ''}`;
     let resp: DatabaseInstanceRole | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDatabaseInstanceRoleSchema);
     };
     await executeCall(call, options);
@@ -527,21 +403,14 @@ export class Client {
   }
 
   /** Get a Database Table. */
-  async getDatabaseTable(
-    req: GetDatabaseTableRequest,
-    options?: CallOptions
-  ): Promise<DatabaseTable> {
+  async getDatabaseTable(req: GetDatabaseTableRequest, options?: CallOptions): Promise<DatabaseTable> {
     const url = `${this.host}/api/2.0/database/tables/${req.name ?? ''}`;
     let resp: DatabaseTable | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDatabaseTableSchema);
     };
     await executeCall(call, options);
@@ -552,21 +421,14 @@ export class Client {
   }
 
   /** Get a Synced Database Table. */
-  async getSyncedDatabaseTable(
-    req: GetSyncedDatabaseTableRequest,
-    options?: CallOptions
-  ): Promise<SyncedDatabaseTable> {
+  async getSyncedDatabaseTable(req: GetSyncedDatabaseTableRequest, options?: CallOptions): Promise<SyncedDatabaseTable> {
     const url = `${this.host}/api/2.0/database/synced_tables/${req.name ?? ''}`;
     let resp: SyncedDatabaseTable | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalSyncedDatabaseTableSchema);
     };
     await executeCall(call, options);
@@ -577,10 +439,7 @@ export class Client {
   }
 
   /** This API is currently unimplemented, but exposed for Terraform support. */
-  async listDatabaseCatalogs(
-    req: ListDatabaseCatalogsRequest,
-    options?: CallOptions
-  ): Promise<ListDatabaseCatalogsResponse> {
+  async listDatabaseCatalogs(req: ListDatabaseCatalogsRequest, options?: CallOptions): Promise<ListDatabaseCatalogsResponse> {
     const url = `${this.host}/api/2.0/database/instances/${req.instanceName ?? ''}/catalogs`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -596,15 +455,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListDatabaseCatalogsResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListDatabaseCatalogsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -613,10 +465,8 @@ export class Client {
     return resp;
   }
 
-  async *listDatabaseCatalogsIter(
-    req: ListDatabaseCatalogsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<DatabaseCatalog> {
+
+  async *listDatabaseCatalogsIter(req: ListDatabaseCatalogsRequest, options?: CallOptions): AsyncGenerator<DatabaseCatalog> {
     const pageReq: ListDatabaseCatalogsRequest = {...req};
     for (;;) {
       const resp = await this.listDatabaseCatalogs(pageReq, options);
@@ -630,16 +480,14 @@ export class Client {
     }
   }
 
+
   /**
    * START OF PG ROLE APIs Section
    * These APIs are marked a PUBLIC with stage < PUBLIC_PREVIEW. With more recent Lakebase V2 plans, we don't plan to
    * ever advance these to PUBLIC_PREVIEW. These APIs will remain effectively undocumented/UI-only and we'll aim for a
    * new public roles API as part of V2 PuPr.
    */
-  async listDatabaseInstanceRoles(
-    req: ListDatabaseInstanceRolesRequest,
-    options?: CallOptions
-  ): Promise<ListDatabaseInstanceRolesResponse> {
+  async listDatabaseInstanceRoles(req: ListDatabaseInstanceRolesRequest, options?: CallOptions): Promise<ListDatabaseInstanceRolesResponse> {
     const url = `${this.host}/api/2.0/database/instances/${req.instanceName ?? ''}/roles`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -655,15 +503,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListDatabaseInstanceRolesResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListDatabaseInstanceRolesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -672,10 +513,8 @@ export class Client {
     return resp;
   }
 
-  async *listDatabaseInstanceRolesIter(
-    req: ListDatabaseInstanceRolesRequest,
-    options?: CallOptions
-  ): AsyncGenerator<DatabaseInstanceRole> {
+
+  async *listDatabaseInstanceRolesIter(req: ListDatabaseInstanceRolesRequest, options?: CallOptions): AsyncGenerator<DatabaseInstanceRole> {
     const pageReq: ListDatabaseInstanceRolesRequest = {...req};
     for (;;) {
       const resp = await this.listDatabaseInstanceRoles(pageReq, options);
@@ -689,11 +528,9 @@ export class Client {
     }
   }
 
+
   /** List Database Instances. */
-  async listDatabaseInstances(
-    req: ListDatabaseInstancesRequest,
-    options?: CallOptions
-  ): Promise<ListDatabaseInstancesResponse> {
+  async listDatabaseInstances(req: ListDatabaseInstancesRequest, options?: CallOptions): Promise<ListDatabaseInstancesResponse> {
     const url = `${this.host}/api/2.0/database/instances`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -709,15 +546,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListDatabaseInstancesResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListDatabaseInstancesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -726,10 +556,8 @@ export class Client {
     return resp;
   }
 
-  async *listDatabaseInstancesIter(
-    req: ListDatabaseInstancesRequest,
-    options?: CallOptions
-  ): AsyncGenerator<DatabaseInstance> {
+
+  async *listDatabaseInstancesIter(req: ListDatabaseInstancesRequest, options?: CallOptions): AsyncGenerator<DatabaseInstance> {
     const pageReq: ListDatabaseInstancesRequest = {...req};
     for (;;) {
       const resp = await this.listDatabaseInstances(pageReq, options);
@@ -743,11 +571,9 @@ export class Client {
     }
   }
 
+
   /** This API is currently unimplemented, but exposed for Terraform support. */
-  async listSyncedDatabaseTables(
-    req: ListSyncedDatabaseTablesRequest,
-    options?: CallOptions
-  ): Promise<ListSyncedDatabaseTablesResponse> {
+  async listSyncedDatabaseTables(req: ListSyncedDatabaseTablesRequest, options?: CallOptions): Promise<ListSyncedDatabaseTablesResponse> {
     const url = `${this.host}/api/2.0/database/instances/${req.instanceName ?? ''}/synced_tables`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -763,15 +589,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListSyncedDatabaseTablesResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListSyncedDatabaseTablesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -780,10 +599,8 @@ export class Client {
     return resp;
   }
 
-  async *listSyncedDatabaseTablesIter(
-    req: ListSyncedDatabaseTablesRequest,
-    options?: CallOptions
-  ): AsyncGenerator<SyncedDatabaseTable> {
+
+  async *listSyncedDatabaseTablesIter(req: ListSyncedDatabaseTablesRequest, options?: CallOptions): AsyncGenerator<SyncedDatabaseTable> {
     const pageReq: ListSyncedDatabaseTablesRequest = {...req};
     for (;;) {
       const resp = await this.listSyncedDatabaseTables(pageReq, options);
@@ -797,11 +614,9 @@ export class Client {
     }
   }
 
+
   /** This API is currently unimplemented, but exposed for Terraform support. */
-  async updateDatabaseCatalog(
-    req: UpdateDatabaseCatalogRequest,
-    options?: CallOptions
-  ): Promise<DatabaseCatalog> {
+  async updateDatabaseCatalog(req: UpdateDatabaseCatalogRequest, options?: CallOptions): Promise<DatabaseCatalog> {
     const url = `${this.host}/api/2.0/database/catalogs/${req.databaseCatalog?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -809,26 +624,13 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.databaseCatalog,
-      marshalDatabaseCatalogSchema
-    );
+    const body = marshalRequest(req.databaseCatalog, marshalDatabaseCatalogSchema);
     let resp: DatabaseCatalog | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDatabaseCatalogSchema);
     };
     await executeCall(call, options);
@@ -839,10 +641,7 @@ export class Client {
   }
 
   /** Update a Database Instance. */
-  async updateDatabaseInstance(
-    req: UpdateDatabaseInstanceRequest,
-    options?: CallOptions
-  ): Promise<DatabaseInstance> {
+  async updateDatabaseInstance(req: UpdateDatabaseInstanceRequest, options?: CallOptions): Promise<DatabaseInstance> {
     const url = `${this.host}/api/2.0/database/instances/${req.databaseInstance?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -850,26 +649,13 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.databaseInstance,
-      marshalDatabaseInstanceSchema
-    );
+    const body = marshalRequest(req.databaseInstance, marshalDatabaseInstanceSchema);
     let resp: DatabaseInstance | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDatabaseInstanceSchema);
     };
     await executeCall(call, options);
@@ -880,10 +666,7 @@ export class Client {
   }
 
   /** This API is currently unimplemented, but exposed for Terraform support. */
-  async updateSyncedDatabaseTable(
-    req: UpdateSyncedDatabaseTableRequest,
-    options?: CallOptions
-  ): Promise<SyncedDatabaseTable> {
+  async updateSyncedDatabaseTable(req: UpdateSyncedDatabaseTableRequest, options?: CallOptions): Promise<SyncedDatabaseTable> {
     const url = `${this.host}/api/2.0/database/synced_tables/${req.syncedTable?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -891,26 +674,13 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.syncedTable,
-      marshalSyncedDatabaseTableSchema
-    );
+    const body = marshalRequest(req.syncedTable, marshalSyncedDatabaseTableSchema);
     let resp: SyncedDatabaseTable | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalSyncedDatabaseTableSchema);
     };
     await executeCall(call, options);
@@ -924,7 +694,7 @@ export class Client {
 export class CreateDatabaseInstanceWaiter {
   constructor(
     private readonly client: Client,
-    readonly name: string
+    readonly name: string,
   ) {}
 
   /**
