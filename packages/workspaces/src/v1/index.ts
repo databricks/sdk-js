@@ -7,28 +7,28 @@ export {
 } from './client';
 
 export {
-  CustomerFacingComputeMode,
-  CustomerFacingStorageMode,
+  ComputeMode,
   GkeConnectivityType,
-  PublicPricingTier,
+  PricingTier,
+  StorageMode,
   WorkspaceStatus,
 } from './model';
 
 export type {
   AzureWorkspaceInfo,
-  CreateWorkspacePublicRequest,
-  CreateWorkspacePublicRequest_CustomTagsEntry,
-  CustomerFacingCloudResourceContainer,
-  CustomerFacingGcpCloudResourceContainer,
-  CustomerFacingWorkspace,
-  CustomerFacingWorkspace_CustomTagsEntry,
-  DeleteWorkspacePublicRequest,
+  CloudResourceContainer,
+  CreateWorkspaceRequest,
+  CreateWorkspaceRequest_CustomTagsEntry,
+  DeleteWorkspaceRequest,
+  GcpCloudResourceContainer,
   GcpCommonNetworkConfig,
   GcpManagedNetworkConfig,
-  GetWorkspacePublicRequest,
+  GetWorkspaceRequest,
   GkeConfig,
-  ListWorkspacesPublicRequest,
-  ListWorkspacesPublicResponse,
-  UpdateWorkspacePublicRequest,
+  ListWorkspacesRequest,
+  ListWorkspacesResponse,
+  UpdateWorkspaceRequest,
+  Workspace,
+  Workspace_CustomTagsEntry,
   WorkspaceNetwork,
 } from './model';

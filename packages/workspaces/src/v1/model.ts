@@ -8,18 +8,11 @@ import {z} from 'zod';
  * Corresponds to compute mode defined here:
  * https://src.dev.databricks.com/databricks/universe@9076536b18479afd639d1c1f9dd5a59f72215e69/-/blob/central/api/common.proto?L872
  */
-export enum CustomerFacingComputeMode {
+export enum ComputeMode {
   /** Classic + Serverless */
   HYBRID = 'HYBRID',
   /** Serverless-only. */
   SERVERLESS = 'SERVERLESS',
-}
-
-export enum CustomerFacingStorageMode {
-  /** The storage resources of the workspace are hosted by customers. */
-  CUSTOMER_HOSTED = 'CUSTOMER_HOSTED',
-  /** The storage resources of the workspace are hosted by Databricks. */
-  DEFAULT_STORAGE = 'DEFAULT_STORAGE',
 }
 
 /**
@@ -41,7 +34,7 @@ export enum GkeConnectivityType {
   PUBLIC_NODE_PUBLIC_MASTER = 'PUBLIC_NODE_PUBLIC_MASTER',
 }
 
-export enum PublicPricingTier {
+export enum PricingTier {
   /** unknown tier that signifies invalid tier values */
   UNKNOWN = 'UNKNOWN',
   /** Tier for CE workspaces */
@@ -54,6 +47,13 @@ export enum PublicPricingTier {
   ENTERPRISE = 'ENTERPRISE',
   /** Dedicated pricing tier that maps to the DEDICATED feature tier */
   DEDICATED = 'DEDICATED',
+}
+
+export enum StorageMode {
+  /** The storage resources of the workspace are hosted by customers. */
+  CUSTOMER_HOSTED = 'CUSTOMER_HOSTED',
+  /** The storage resources of the workspace are hosted by Databricks. */
+  DEFAULT_STORAGE = 'DEFAULT_STORAGE',
 }
 
 /**
@@ -113,7 +113,13 @@ export interface AzureWorkspaceInfo {
   subscriptionId?: string | undefined;
 }
 
-export interface CreateWorkspacePublicRequest {
+export interface CloudResourceContainer {
+  cloudResourceContainer?:
+    | {$case: 'gcp'; gcp: GcpCloudResourceContainer}
+    | undefined;
+}
+
+export interface CreateWorkspaceRequest {
   accountId?: string | undefined;
   /** The human-readable name of the workspace. */
   workspaceName?: string | undefined;
@@ -134,8 +140,8 @@ export interface CreateWorkspacePublicRequest {
    * The cloud name. This field always has the value `gcp`.
    */
   cloud?: string | undefined;
-  pricingTier?: PublicPricingTier | undefined;
-  cloudResourceContainer?: CustomerFacingCloudResourceContainer | undefined;
+  pricingTier?: PricingTier | undefined;
+  cloudResourceContainer?: CloudResourceContainer | undefined;
   /** ID of the workspace's credential configuration object. */
   credentialsId?: string | undefined;
   /** ID of the workspace's storage configuration object. */
@@ -162,29 +168,85 @@ export interface CreateWorkspacePublicRequest {
    * If the compute mode is `SERVERLESS`, a serverless workspace is created that comes pre-configured with serverless compute and default storage, providing a fully-managed, enterprise-ready SaaS experience. This means you don't need to provide any resources managed by you, such as credentials, storage, or network.
    * If the compute mode is `HYBRID` (which is the default option), a classic workspace is created that uses customer-managed resources.
    */
-  computeMode?: CustomerFacingComputeMode | undefined;
+  computeMode?: ComputeMode | undefined;
   /** The object ID of network connectivity config. Once assigned, the workspace serverless compute resources use the same set of stable IP CIDR blocks and optional private link to access your resources. */
   networkConnectivityConfigId?: string | undefined;
 }
 
 /** key-value representation of a custom workspace tag */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CreateWorkspacePublicRequest_CustomTagsEntry {
+export interface CreateWorkspaceRequest_CustomTagsEntry {
   key?: string | undefined;
   value?: string | undefined;
 }
 
-export interface CustomerFacingCloudResourceContainer {
-  cloudResourceContainer?:
-    | {$case: 'gcp'; gcp: CustomerFacingGcpCloudResourceContainer}
-    | undefined;
+export interface DeleteWorkspaceRequest {
+  workspaceId?: number | undefined;
+  accountId?: string | undefined;
 }
 
-export interface CustomerFacingGcpCloudResourceContainer {
+export interface GcpCloudResourceContainer {
   projectId?: string | undefined;
 }
 
-export interface CustomerFacingWorkspace {
+/**
+ * The shared network config for GCP workspace.
+ * This object has common network configurations that are network attributions of a workspace.
+ * DEPRECATED. Use GkeConfig instead.
+ */
+export interface GcpCommonNetworkConfig {
+  /** The type of network connectivity of the GKE cluster. */
+  gkeConnectivityType?: GkeConnectivityType | undefined;
+  /**
+   * The IP range that will be used to allocate GKE cluster master resources from.
+   * This field must not be set if gke_cluster_type=PUBLIC_NODE_PUBLIC_MASTER.
+   */
+  gkeClusterMasterIpRange?: string | undefined;
+}
+
+/** The network configuration for the workspace. */
+export interface GcpManagedNetworkConfig {
+  /**
+   * The IP range which will be used to allocate GKE cluster nodes from.
+   * Note: Pods, services and master IP range must be mutually exclusive.
+   */
+  subnetCidr?: string | undefined;
+  /** The IP range that will be used to allocate GKE cluster Pods from. */
+  gkeClusterPodIpRange?: string | undefined;
+  /** The IP range that will be used to allocate GKE cluster Services from. */
+  gkeClusterServiceIpRange?: string | undefined;
+}
+
+export interface GetWorkspaceRequest {
+  workspaceId?: number | undefined;
+  accountId?: string | undefined;
+}
+
+/** The configurations of the GKE cluster used by the GCP workspace. */
+export interface GkeConfig {
+  /** The type of network connectivity of the GKE cluster. */
+  connectivityType?: GkeConnectivityType | undefined;
+  /**
+   * The IP range that will be used to allocate GKE cluster master resources from.
+   * This field must not be set if gke_cluster_type=PUBLIC_NODE_PUBLIC_MASTER.
+   */
+  masterIpRange?: string | undefined;
+}
+
+export interface ListWorkspacesRequest {
+  accountId?: string | undefined;
+}
+
+export interface ListWorkspacesResponse {
+  workspaces?: Workspace[] | undefined;
+}
+
+export interface UpdateWorkspaceRequest {
+  customerFacingWorkspace?: Workspace | undefined;
+  updateMask?: FieldMask<Workspace> | undefined;
+}
+
+export interface Workspace {
   /** A unique integer ID for the workspace */
   workspaceId?: number | undefined;
   /** The human-readable name of the workspace. */
@@ -217,7 +279,7 @@ export interface CustomerFacingWorkspace {
         gcpManagedNetworkConfig: GcpManagedNetworkConfig;
       }
     | undefined;
-  pricingTier?: PublicPricingTier | undefined;
+  pricingTier?: PricingTier | undefined;
   /**
    * ID of the workspace's private access settings object. Only used for PrivateLink. You must specify this ID if you are using [AWS PrivateLink](https://aws.amazon.com/privatelink/) for either front-end (user-to-workspace connection), back-end (data plane to control plane connection), or both connection types.
    *
@@ -240,7 +302,7 @@ export interface CustomerFacingWorkspace {
   network?: WorkspaceNetwork | undefined;
   azureWorkspaceInfo?: AzureWorkspaceInfo | undefined;
   gkeConfig?: GkeConfig | undefined;
-  cloudResourceContainer?: CustomerFacingCloudResourceContainer | undefined;
+  cloudResourceContainer?: CloudResourceContainer | undefined;
   /**
    * The custom tags key-value pairing that is attached to this workspace. The key-value pair is a string of utf-8 characters. The value can be an empty string,
    * with maximum length of 255 characters. The key can be of maximum length of 127 characters, and cannot be empty.
@@ -249,9 +311,9 @@ export interface CustomerFacingWorkspace {
   /** The object ID of network connectivity config. */
   networkConnectivityConfigId?: string | undefined;
   /** The storage mode of the workspace. */
-  storageMode?: CustomerFacingStorageMode | undefined;
+  storageMode?: StorageMode | undefined;
   /** The compute mode of the workspace. */
-  computeMode?: CustomerFacingComputeMode | undefined;
+  computeMode?: ComputeMode | undefined;
   /**
    * A client owned field used to indicate the workspace status that the client expects to be in.
    * For now this is only used to unblock Temporal workflow for GCP least privileged workspace.
@@ -261,71 +323,9 @@ export interface CustomerFacingWorkspace {
 
 /** key-value representation of a custom workspace tag */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface CustomerFacingWorkspace_CustomTagsEntry {
+export interface Workspace_CustomTagsEntry {
   key?: string | undefined;
   value?: string | undefined;
-}
-
-export interface DeleteWorkspacePublicRequest {
-  workspaceId?: number | undefined;
-  accountId?: string | undefined;
-}
-
-/**
- * The shared network config for GCP workspace.
- * This object has common network configurations that are network attributions of a workspace.
- * DEPRECATED. Use GkeConfig instead.
- */
-export interface GcpCommonNetworkConfig {
-  /** The type of network connectivity of the GKE cluster. */
-  gkeConnectivityType?: GkeConnectivityType | undefined;
-  /**
-   * The IP range that will be used to allocate GKE cluster master resources from.
-   * This field must not be set if gke_cluster_type=PUBLIC_NODE_PUBLIC_MASTER.
-   */
-  gkeClusterMasterIpRange?: string | undefined;
-}
-
-/** The network configuration for the workspace. */
-export interface GcpManagedNetworkConfig {
-  /**
-   * The IP range which will be used to allocate GKE cluster nodes from.
-   * Note: Pods, services and master IP range must be mutually exclusive.
-   */
-  subnetCidr?: string | undefined;
-  /** The IP range that will be used to allocate GKE cluster Pods from. */
-  gkeClusterPodIpRange?: string | undefined;
-  /** The IP range that will be used to allocate GKE cluster Services from. */
-  gkeClusterServiceIpRange?: string | undefined;
-}
-
-export interface GetWorkspacePublicRequest {
-  workspaceId?: number | undefined;
-  accountId?: string | undefined;
-}
-
-/** The configurations of the GKE cluster used by the GCP workspace. */
-export interface GkeConfig {
-  /** The type of network connectivity of the GKE cluster. */
-  connectivityType?: GkeConnectivityType | undefined;
-  /**
-   * The IP range that will be used to allocate GKE cluster master resources from.
-   * This field must not be set if gke_cluster_type=PUBLIC_NODE_PUBLIC_MASTER.
-   */
-  masterIpRange?: string | undefined;
-}
-
-export interface ListWorkspacesPublicRequest {
-  accountId?: string | undefined;
-}
-
-export interface ListWorkspacesPublicResponse {
-  workspaces?: CustomerFacingWorkspace[] | undefined;
-}
-
-export interface UpdateWorkspacePublicRequest {
-  customerFacingWorkspace?: CustomerFacingWorkspace | undefined;
-  updateMask?: FieldMask<CustomerFacingWorkspace> | undefined;
 }
 
 /** The network configuration for workspaces. */
@@ -372,100 +372,23 @@ export const unmarshalAzureWorkspaceInfoSchema: z.ZodType<AzureWorkspaceInfo> =
       subscriptionId: d.subscription_id,
     }));
 
-export const unmarshalCustomerFacingCloudResourceContainerSchema: z.ZodType<CustomerFacingCloudResourceContainer> =
+export const unmarshalCloudResourceContainerSchema: z.ZodType<CloudResourceContainer> =
   z
     .object({
-      gcp: z
-        .lazy(() => unmarshalCustomerFacingGcpCloudResourceContainerSchema)
-        .optional(),
+      gcp: z.lazy(() => unmarshalGcpCloudResourceContainerSchema).optional(),
     })
     .transform(d => ({
       cloudResourceContainer:
         d.gcp !== undefined ? {$case: 'gcp' as const, gcp: d.gcp} : undefined,
     }));
 
-export const unmarshalCustomerFacingGcpCloudResourceContainerSchema: z.ZodType<CustomerFacingGcpCloudResourceContainer> =
+export const unmarshalGcpCloudResourceContainerSchema: z.ZodType<GcpCloudResourceContainer> =
   z
     .object({
       project_id: z.string().optional(),
     })
     .transform(d => ({
       projectId: d.project_id,
-    }));
-
-export const unmarshalCustomerFacingWorkspaceSchema: z.ZodType<CustomerFacingWorkspace> =
-  z
-    .object({
-      workspace_id: z.number().optional(),
-      workspace_name: z.string().optional(),
-      aws_region: z.string().optional(),
-      creation_time: z.number().optional(),
-      deployment_name: z.string().optional(),
-      workspace_status: z.enum(WorkspaceStatus).optional(),
-      account_id: z.string().optional(),
-      credentials_id: z.string().optional(),
-      storage_configuration_id: z.string().optional(),
-      workspace_status_message: z.string().optional(),
-      network_id: z.string().optional(),
-      gcp_managed_network_config: z
-        .lazy(() => unmarshalGcpManagedNetworkConfigSchema)
-        .optional(),
-      pricing_tier: z.enum(PublicPricingTier).optional(),
-      private_access_settings_id: z.string().optional(),
-      managed_services_customer_managed_key_id: z.string().optional(),
-      storage_customer_managed_key_id: z.string().optional(),
-      location: z.string().optional(),
-      cloud: z.string().optional(),
-      network: z.lazy(() => unmarshalWorkspaceNetworkSchema).optional(),
-      azure_workspace_info: z
-        .lazy(() => unmarshalAzureWorkspaceInfoSchema)
-        .optional(),
-      gke_config: z.lazy(() => unmarshalGkeConfigSchema).optional(),
-      cloud_resource_container: z
-        .lazy(() => unmarshalCustomerFacingCloudResourceContainerSchema)
-        .optional(),
-      custom_tags: z.record(z.string(), z.string()).optional(),
-      network_connectivity_config_id: z.string().optional(),
-      storage_mode: z.enum(CustomerFacingStorageMode).optional(),
-      compute_mode: z.enum(CustomerFacingComputeMode).optional(),
-      expected_workspace_status: z.enum(WorkspaceStatus).optional(),
-    })
-    .transform(d => ({
-      workspaceId: d.workspace_id,
-      workspaceName: d.workspace_name,
-      awsRegion: d.aws_region,
-      creationTime: d.creation_time,
-      deploymentName: d.deployment_name,
-      workspaceStatus: d.workspace_status,
-      accountId: d.account_id,
-      credentialsId: d.credentials_id,
-      storageConfigurationId: d.storage_configuration_id,
-      workspaceStatusMessage: d.workspace_status_message,
-      networkConfig:
-        d.network_id !== undefined
-          ? {$case: 'networkId' as const, networkId: d.network_id}
-          : d.gcp_managed_network_config !== undefined
-            ? {
-                $case: 'gcpManagedNetworkConfig' as const,
-                gcpManagedNetworkConfig: d.gcp_managed_network_config,
-              }
-            : undefined,
-      pricingTier: d.pricing_tier,
-      privateAccessSettingsId: d.private_access_settings_id,
-      managedServicesCustomerManagedKeyId:
-        d.managed_services_customer_managed_key_id,
-      storageCustomerManagedKeyId: d.storage_customer_managed_key_id,
-      location: d.location,
-      cloud: d.cloud,
-      network: d.network,
-      azureWorkspaceInfo: d.azure_workspace_info,
-      gkeConfig: d.gke_config,
-      cloudResourceContainer: d.cloud_resource_container,
-      customTags: d.custom_tags,
-      networkConnectivityConfigId: d.network_connectivity_config_id,
-      storageMode: d.storage_mode,
-      computeMode: d.compute_mode,
-      expectedWorkspaceStatus: d.expected_workspace_status,
     }));
 
 export const unmarshalGcpCommonNetworkConfigSchema: z.ZodType<GcpCommonNetworkConfig> =
@@ -502,6 +425,80 @@ export const unmarshalGkeConfigSchema: z.ZodType<GkeConfig> = z
     masterIpRange: d.master_ip_range,
   }));
 
+export const unmarshalWorkspaceSchema: z.ZodType<Workspace> = z
+  .object({
+    workspace_id: z.number().optional(),
+    workspace_name: z.string().optional(),
+    aws_region: z.string().optional(),
+    creation_time: z.number().optional(),
+    deployment_name: z.string().optional(),
+    workspace_status: z.enum(WorkspaceStatus).optional(),
+    account_id: z.string().optional(),
+    credentials_id: z.string().optional(),
+    storage_configuration_id: z.string().optional(),
+    workspace_status_message: z.string().optional(),
+    network_id: z.string().optional(),
+    gcp_managed_network_config: z
+      .lazy(() => unmarshalGcpManagedNetworkConfigSchema)
+      .optional(),
+    pricing_tier: z.enum(PricingTier).optional(),
+    private_access_settings_id: z.string().optional(),
+    managed_services_customer_managed_key_id: z.string().optional(),
+    storage_customer_managed_key_id: z.string().optional(),
+    location: z.string().optional(),
+    cloud: z.string().optional(),
+    network: z.lazy(() => unmarshalWorkspaceNetworkSchema).optional(),
+    azure_workspace_info: z
+      .lazy(() => unmarshalAzureWorkspaceInfoSchema)
+      .optional(),
+    gke_config: z.lazy(() => unmarshalGkeConfigSchema).optional(),
+    cloud_resource_container: z
+      .lazy(() => unmarshalCloudResourceContainerSchema)
+      .optional(),
+    custom_tags: z.record(z.string(), z.string()).optional(),
+    network_connectivity_config_id: z.string().optional(),
+    storage_mode: z.enum(StorageMode).optional(),
+    compute_mode: z.enum(ComputeMode).optional(),
+    expected_workspace_status: z.enum(WorkspaceStatus).optional(),
+  })
+  .transform(d => ({
+    workspaceId: d.workspace_id,
+    workspaceName: d.workspace_name,
+    awsRegion: d.aws_region,
+    creationTime: d.creation_time,
+    deploymentName: d.deployment_name,
+    workspaceStatus: d.workspace_status,
+    accountId: d.account_id,
+    credentialsId: d.credentials_id,
+    storageConfigurationId: d.storage_configuration_id,
+    workspaceStatusMessage: d.workspace_status_message,
+    networkConfig:
+      d.network_id !== undefined
+        ? {$case: 'networkId' as const, networkId: d.network_id}
+        : d.gcp_managed_network_config !== undefined
+          ? {
+              $case: 'gcpManagedNetworkConfig' as const,
+              gcpManagedNetworkConfig: d.gcp_managed_network_config,
+            }
+          : undefined,
+    pricingTier: d.pricing_tier,
+    privateAccessSettingsId: d.private_access_settings_id,
+    managedServicesCustomerManagedKeyId:
+      d.managed_services_customer_managed_key_id,
+    storageCustomerManagedKeyId: d.storage_customer_managed_key_id,
+    location: d.location,
+    cloud: d.cloud,
+    network: d.network,
+    azureWorkspaceInfo: d.azure_workspace_info,
+    gkeConfig: d.gke_config,
+    cloudResourceContainer: d.cloud_resource_container,
+    customTags: d.custom_tags,
+    networkConnectivityConfigId: d.network_connectivity_config_id,
+    storageMode: d.storage_mode,
+    computeMode: d.compute_mode,
+    expectedWorkspaceStatus: d.expected_workspace_status,
+  }));
+
 export const unmarshalWorkspaceNetworkSchema: z.ZodType<WorkspaceNetwork> = z
   .object({
     gcp_managed_network_config: z
@@ -535,7 +532,24 @@ export const marshalAzureWorkspaceInfoSchema: z.ZodType = z
     subscription_id: d.subscriptionId,
   }));
 
-export const marshalCreateWorkspacePublicRequestSchema: z.ZodType = z
+export const marshalCloudResourceContainerSchema: z.ZodType = z
+  .object({
+    cloudResourceContainer: z
+      .discriminatedUnion('$case', [
+        z.object({
+          $case: z.literal('gcp'),
+          gcp: z.lazy(() => marshalGcpCloudResourceContainerSchema),
+        }),
+      ])
+      .optional(),
+  })
+  .transform(d => ({
+    ...(d.cloudResourceContainer?.$case === 'gcp' && {
+      gcp: d.cloudResourceContainer.gcp,
+    }),
+  }));
+
+export const marshalCreateWorkspaceRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     workspaceName: z.string().optional(),
@@ -543,9 +557,9 @@ export const marshalCreateWorkspacePublicRequestSchema: z.ZodType = z
     awsRegion: z.string().optional(),
     location: z.string().optional(),
     cloud: z.string().optional(),
-    pricingTier: z.enum(PublicPricingTier).optional(),
+    pricingTier: z.enum(PricingTier).optional(),
     cloudResourceContainer: z
-      .lazy(() => marshalCustomerFacingCloudResourceContainerSchema)
+      .lazy(() => marshalCloudResourceContainerSchema)
       .optional(),
     credentialsId: z.string().optional(),
     storageConfigurationId: z.string().optional(),
@@ -558,7 +572,7 @@ export const marshalCreateWorkspacePublicRequestSchema: z.ZodType = z
     managedServicesCustomerManagedKeyId: z.string().optional(),
     storageCustomerManagedKeyId: z.string().optional(),
     customTags: z.record(z.string(), z.string()).optional(),
-    computeMode: z.enum(CustomerFacingComputeMode).optional(),
+    computeMode: z.enum(ComputeMode).optional(),
     networkConnectivityConfigId: z.string().optional(),
   })
   .transform(d => ({
@@ -584,26 +598,7 @@ export const marshalCreateWorkspacePublicRequestSchema: z.ZodType = z
     network_connectivity_config_id: d.networkConnectivityConfigId,
   }));
 
-export const marshalCustomerFacingCloudResourceContainerSchema: z.ZodType = z
-  .object({
-    cloudResourceContainer: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('gcp'),
-          gcp: z.lazy(
-            () => marshalCustomerFacingGcpCloudResourceContainerSchema
-          ),
-        }),
-      ])
-      .optional(),
-  })
-  .transform(d => ({
-    ...(d.cloudResourceContainer?.$case === 'gcp' && {
-      gcp: d.cloudResourceContainer.gcp,
-    }),
-  }));
-
-export const marshalCustomerFacingGcpCloudResourceContainerSchema: z.ZodType = z
+export const marshalGcpCloudResourceContainerSchema: z.ZodType = z
   .object({
     projectId: z.string().optional(),
   })
@@ -611,7 +606,39 @@ export const marshalCustomerFacingGcpCloudResourceContainerSchema: z.ZodType = z
     project_id: d.projectId,
   }));
 
-export const marshalCustomerFacingWorkspaceSchema: z.ZodType = z
+export const marshalGcpCommonNetworkConfigSchema: z.ZodType = z
+  .object({
+    gkeConnectivityType: z.enum(GkeConnectivityType).optional(),
+    gkeClusterMasterIpRange: z.string().optional(),
+  })
+  .transform(d => ({
+    gke_connectivity_type: d.gkeConnectivityType,
+    gke_cluster_master_ip_range: d.gkeClusterMasterIpRange,
+  }));
+
+export const marshalGcpManagedNetworkConfigSchema: z.ZodType = z
+  .object({
+    subnetCidr: z.string().optional(),
+    gkeClusterPodIpRange: z.string().optional(),
+    gkeClusterServiceIpRange: z.string().optional(),
+  })
+  .transform(d => ({
+    subnet_cidr: d.subnetCidr,
+    gke_cluster_pod_ip_range: d.gkeClusterPodIpRange,
+    gke_cluster_service_ip_range: d.gkeClusterServiceIpRange,
+  }));
+
+export const marshalGkeConfigSchema: z.ZodType = z
+  .object({
+    connectivityType: z.enum(GkeConnectivityType).optional(),
+    masterIpRange: z.string().optional(),
+  })
+  .transform(d => ({
+    connectivity_type: d.connectivityType,
+    master_ip_range: d.masterIpRange,
+  }));
+
+export const marshalWorkspaceSchema: z.ZodType = z
   .object({
     workspaceId: z.number().optional(),
     workspaceName: z.string().optional(),
@@ -634,7 +661,7 @@ export const marshalCustomerFacingWorkspaceSchema: z.ZodType = z
         }),
       ])
       .optional(),
-    pricingTier: z.enum(PublicPricingTier).optional(),
+    pricingTier: z.enum(PricingTier).optional(),
     privateAccessSettingsId: z.string().optional(),
     managedServicesCustomerManagedKeyId: z.string().optional(),
     storageCustomerManagedKeyId: z.string().optional(),
@@ -646,12 +673,12 @@ export const marshalCustomerFacingWorkspaceSchema: z.ZodType = z
       .optional(),
     gkeConfig: z.lazy(() => marshalGkeConfigSchema).optional(),
     cloudResourceContainer: z
-      .lazy(() => marshalCustomerFacingCloudResourceContainerSchema)
+      .lazy(() => marshalCloudResourceContainerSchema)
       .optional(),
     customTags: z.record(z.string(), z.string()).optional(),
     networkConnectivityConfigId: z.string().optional(),
-    storageMode: z.enum(CustomerFacingStorageMode).optional(),
-    computeMode: z.enum(CustomerFacingComputeMode).optional(),
+    storageMode: z.enum(StorageMode).optional(),
+    computeMode: z.enum(ComputeMode).optional(),
     expectedWorkspaceStatus: z.enum(WorkspaceStatus).optional(),
   })
   .transform(d => ({
@@ -689,38 +716,6 @@ export const marshalCustomerFacingWorkspaceSchema: z.ZodType = z
     expected_workspace_status: d.expectedWorkspaceStatus,
   }));
 
-export const marshalGcpCommonNetworkConfigSchema: z.ZodType = z
-  .object({
-    gkeConnectivityType: z.enum(GkeConnectivityType).optional(),
-    gkeClusterMasterIpRange: z.string().optional(),
-  })
-  .transform(d => ({
-    gke_connectivity_type: d.gkeConnectivityType,
-    gke_cluster_master_ip_range: d.gkeClusterMasterIpRange,
-  }));
-
-export const marshalGcpManagedNetworkConfigSchema: z.ZodType = z
-  .object({
-    subnetCidr: z.string().optional(),
-    gkeClusterPodIpRange: z.string().optional(),
-    gkeClusterServiceIpRange: z.string().optional(),
-  })
-  .transform(d => ({
-    subnet_cidr: d.subnetCidr,
-    gke_cluster_pod_ip_range: d.gkeClusterPodIpRange,
-    gke_cluster_service_ip_range: d.gkeClusterServiceIpRange,
-  }));
-
-export const marshalGkeConfigSchema: z.ZodType = z
-  .object({
-    connectivityType: z.enum(GkeConnectivityType).optional(),
-    masterIpRange: z.string().optional(),
-  })
-  .transform(d => ({
-    connectivity_type: d.connectivityType,
-    master_ip_range: d.masterIpRange,
-  }));
-
 export const marshalWorkspaceNetworkSchema: z.ZodType = z
   .object({
     network: z
@@ -751,19 +746,31 @@ const azureWorkspaceInfoFieldMaskSchema: FieldMaskSchema = {
   subscriptionId: {wire: 'subscription_id'},
 };
 
-const customerFacingCloudResourceContainerFieldMaskSchema: FieldMaskSchema = {
-  gcp: {
-    wire: 'gcp',
-    children: () => customerFacingGcpCloudResourceContainerFieldMaskSchema,
-  },
+const cloudResourceContainerFieldMaskSchema: FieldMaskSchema = {
+  gcp: {wire: 'gcp', children: () => gcpCloudResourceContainerFieldMaskSchema},
 };
 
-const customerFacingGcpCloudResourceContainerFieldMaskSchema: FieldMaskSchema =
-  {
-    projectId: {wire: 'project_id'},
-  };
+const gcpCloudResourceContainerFieldMaskSchema: FieldMaskSchema = {
+  projectId: {wire: 'project_id'},
+};
 
-const customerFacingWorkspaceFieldMaskSchema: FieldMaskSchema = {
+const gcpCommonNetworkConfigFieldMaskSchema: FieldMaskSchema = {
+  gkeClusterMasterIpRange: {wire: 'gke_cluster_master_ip_range'},
+  gkeConnectivityType: {wire: 'gke_connectivity_type'},
+};
+
+const gcpManagedNetworkConfigFieldMaskSchema: FieldMaskSchema = {
+  gkeClusterPodIpRange: {wire: 'gke_cluster_pod_ip_range'},
+  gkeClusterServiceIpRange: {wire: 'gke_cluster_service_ip_range'},
+  subnetCidr: {wire: 'subnet_cidr'},
+};
+
+const gkeConfigFieldMaskSchema: FieldMaskSchema = {
+  connectivityType: {wire: 'connectivity_type'},
+  masterIpRange: {wire: 'master_ip_range'},
+};
+
+const workspaceFieldMaskSchema: FieldMaskSchema = {
   accountId: {wire: 'account_id'},
   awsRegion: {wire: 'aws_region'},
   azureWorkspaceInfo: {
@@ -773,7 +780,7 @@ const customerFacingWorkspaceFieldMaskSchema: FieldMaskSchema = {
   cloud: {wire: 'cloud'},
   cloudResourceContainer: {
     wire: 'cloud_resource_container',
-    children: () => customerFacingCloudResourceContainerFieldMaskSchema,
+    children: () => cloudResourceContainerFieldMaskSchema,
   },
   computeMode: {wire: 'compute_mode'},
   creationTime: {wire: 'creation_time'},
@@ -804,30 +811,9 @@ const customerFacingWorkspaceFieldMaskSchema: FieldMaskSchema = {
   workspaceStatusMessage: {wire: 'workspace_status_message'},
 };
 
-export function customerFacingWorkspaceFieldMask(
-  ...paths: string[]
-): FieldMask<CustomerFacingWorkspace> {
-  return FieldMask.build<CustomerFacingWorkspace>(
-    paths,
-    customerFacingWorkspaceFieldMaskSchema
-  );
+export function workspaceFieldMask(...paths: string[]): FieldMask<Workspace> {
+  return FieldMask.build<Workspace>(paths, workspaceFieldMaskSchema);
 }
-
-const gcpCommonNetworkConfigFieldMaskSchema: FieldMaskSchema = {
-  gkeClusterMasterIpRange: {wire: 'gke_cluster_master_ip_range'},
-  gkeConnectivityType: {wire: 'gke_connectivity_type'},
-};
-
-const gcpManagedNetworkConfigFieldMaskSchema: FieldMaskSchema = {
-  gkeClusterPodIpRange: {wire: 'gke_cluster_pod_ip_range'},
-  gkeClusterServiceIpRange: {wire: 'gke_cluster_service_ip_range'},
-  subnetCidr: {wire: 'subnet_cidr'},
-};
-
-const gkeConfigFieldMaskSchema: FieldMaskSchema = {
-  connectivityType: {wire: 'connectivity_type'},
-  masterIpRange: {wire: 'master_ip_range'},
-};
 
 const workspaceNetworkFieldMaskSchema: FieldMaskSchema = {
   gcpCommonNetworkConfig: {

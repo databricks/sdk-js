@@ -531,14 +531,21 @@ export interface ListMaterializedFeaturesResponse {
 
 /** A materialized feature represents a feature that is continuously computed and stored. */
 export interface MaterializedFeature {
-  /** Unique identifier for the materialized feature. */
+  /** Server-assigned unique identifier for the materialized feature. */
   materializedFeatureId?: string | undefined;
   /** The full name of the feature in Unity Catalog. */
   featureName?: string | undefined;
-  /** The destination configuration for the materialized feature. Required on create, not returned in responses. */
   destination?:
-    | {$case: 'offlineStoreConfig'; offlineStoreConfig: OfflineStoreConfig}
-    | {$case: 'onlineStoreConfig'; onlineStoreConfig: OnlineStoreConfig}
+    | {
+        $case: 'offlineStoreConfig';
+        /** Destination for writing feature values to an offline Delta table. */
+        offlineStoreConfig: OfflineStoreConfig;
+      }
+    | {
+        $case: 'onlineStoreConfig';
+        /** Destination for writing feature values to an online Lakebase table. */
+        onlineStoreConfig: OnlineStoreConfig;
+      }
     | undefined;
   /** The fully qualified Unity Catalog path to the table containing the materialized feature (Delta table or Lakebase table). Output only. */
   tableName?: string | undefined;

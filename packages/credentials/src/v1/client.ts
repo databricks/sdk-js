@@ -19,24 +19,24 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import {z} from 'zod';
 import type {
-  AccountsCreateStorageCredentialPublicRequest,
-  AccountsCreateStorageCredentialPublicRequest_Response,
-  AccountsDeleteStorageCredentialPublicRequest,
-  AccountsDeleteStorageCredentialPublicRequest_Response,
-  AccountsGetStorageCredentialPublicRequest,
-  AccountsGetStorageCredentialPublicRequest_Response,
-  AccountsListStorageCredentialsPublicRequest,
-  AccountsListStorageCredentialsPublicRequest_Response,
-  AccountsUpdateStorageCredentialPublicRequest,
-  AccountsUpdateStorageCredentialPublicRequest_Response,
+  AccountsCreateStorageCredentialRequest,
+  AccountsCreateStorageCredentialRequest_Response,
+  AccountsDeleteStorageCredentialRequest,
+  AccountsDeleteStorageCredentialRequest_Response,
+  AccountsGetStorageCredentialRequest,
+  AccountsGetStorageCredentialRequest_Response,
+  AccountsListStorageCredentialsRequest,
+  AccountsListStorageCredentialsRequest_Response,
+  AccountsUpdateStorageCredentialRequest,
+  AccountsUpdateStorageCredentialRequest_Response,
   CreateCredentialRequest,
-  CreateCredentialsPublicRequest,
+  CreateCredentialsRequest,
   CreateStorageCredentialRequest,
   CredentialInfo,
   Credentials,
   DeleteCredentialRequest,
   DeleteCredentialRequest_Response,
-  DeleteCredentialsPublicRequest,
+  DeleteCredentialsRequest,
   DeleteStorageCredentialRequest,
   DeleteStorageCredentialRequest_Response,
   GenerateTemporaryPathCredentialRequest,
@@ -47,12 +47,12 @@ import type {
   GenerateTemporaryVolumeCredentialRequest,
   GenerateTemporaryVolumeCredentialRequest_Response,
   GetCredentialRequest,
-  GetCredentialsPublicRequest,
+  GetCredentialsRequest,
   GetStorageCredentialRequest,
   ListCredentialsPublicRequest,
-  ListCredentialsPublicResponse,
   ListCredentialsRequest,
   ListCredentialsRequest_Response,
+  ListCredentialsResponse,
   ListStorageCredentialsRequest,
   ListStorageCredentialsRequest_Response,
   StorageCredentialInfo,
@@ -65,10 +65,10 @@ import type {
   ValidateStorageCredentialRequest_Response,
 } from './model';
 import {
-  marshalAccountsCreateStorageCredentialPublicRequestSchema,
-  marshalAccountsUpdateStorageCredentialPublicRequestSchema,
+  marshalAccountsCreateStorageCredentialRequestSchema,
+  marshalAccountsUpdateStorageCredentialRequestSchema,
   marshalCreateCredentialRequestSchema,
-  marshalCreateCredentialsPublicRequestSchema,
+  marshalCreateCredentialsRequestSchema,
   marshalCreateStorageCredentialRequestSchema,
   marshalGenerateTemporaryPathCredentialRequestSchema,
   marshalGenerateTemporaryServiceCredentialRequestSchema,
@@ -78,11 +78,11 @@ import {
   marshalUpdateStorageCredentialRequestSchema,
   marshalValidateCredentialRequestSchema,
   marshalValidateStorageCredentialRequestSchema,
-  unmarshalAccountsCreateStorageCredentialPublicRequest_ResponseSchema,
-  unmarshalAccountsDeleteStorageCredentialPublicRequest_ResponseSchema,
-  unmarshalAccountsGetStorageCredentialPublicRequest_ResponseSchema,
-  unmarshalAccountsListStorageCredentialsPublicRequest_ResponseSchema,
-  unmarshalAccountsUpdateStorageCredentialPublicRequest_ResponseSchema,
+  unmarshalAccountsCreateStorageCredentialRequest_ResponseSchema,
+  unmarshalAccountsDeleteStorageCredentialRequest_ResponseSchema,
+  unmarshalAccountsGetStorageCredentialRequest_ResponseSchema,
+  unmarshalAccountsListStorageCredentialsRequest_ResponseSchema,
+  unmarshalAccountsUpdateStorageCredentialRequest_ResponseSchema,
   unmarshalCredentialsSchema,
   unmarshalDeleteCredentialRequest_ResponseSchema,
   unmarshalDeleteStorageCredentialRequest_ResponseSchema,
@@ -141,15 +141,15 @@ export class Client {
    * The caller must be a metastore admin and have the `CREATE_STORAGE_CREDENTIAL` privilege on the metastore.
    */
   async createAccountsStorageCredential(
-    req: AccountsCreateStorageCredentialPublicRequest,
+    req: AccountsCreateStorageCredentialRequest,
     options?: CallOptions
-  ): Promise<AccountsCreateStorageCredentialPublicRequest_Response> {
+  ): Promise<AccountsCreateStorageCredentialRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials`;
     const body = marshalRequest(
       req,
-      marshalAccountsCreateStorageCredentialPublicRequestSchema
+      marshalAccountsCreateStorageCredentialRequestSchema
     );
-    let resp: AccountsCreateStorageCredentialPublicRequest_Response | undefined;
+    let resp: AccountsCreateStorageCredentialRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -161,7 +161,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsCreateStorageCredentialPublicRequest_ResponseSchema
+        unmarshalAccountsCreateStorageCredentialRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -173,9 +173,9 @@ export class Client {
 
   /** Deletes a storage credential from the metastore. The caller must be an owner of the storage credential. */
   async deleteAccountsStorageCredential(
-    req: AccountsDeleteStorageCredentialPublicRequest,
+    req: AccountsDeleteStorageCredentialRequest,
     options?: CallOptions
-  ): Promise<AccountsDeleteStorageCredentialPublicRequest_Response> {
+  ): Promise<AccountsDeleteStorageCredentialRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
     const params = new URLSearchParams();
     if (req.force !== undefined) {
@@ -183,7 +183,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: AccountsDeleteStorageCredentialPublicRequest_Response | undefined;
+    let resp: AccountsDeleteStorageCredentialRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -195,7 +195,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsDeleteStorageCredentialPublicRequest_ResponseSchema
+        unmarshalAccountsDeleteStorageCredentialRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -210,11 +210,11 @@ export class Client {
    * storage credential, or have a level of privilege on the storage credential.
    */
   async getAccountsStorageCredential(
-    req: AccountsGetStorageCredentialPublicRequest,
+    req: AccountsGetStorageCredentialRequest,
     options?: CallOptions
-  ): Promise<AccountsGetStorageCredentialPublicRequest_Response> {
+  ): Promise<AccountsGetStorageCredentialRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
-    let resp: AccountsGetStorageCredentialPublicRequest_Response | undefined;
+    let resp: AccountsGetStorageCredentialRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -226,7 +226,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsGetStorageCredentialPublicRequest_ResponseSchema
+        unmarshalAccountsGetStorageCredentialRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -238,11 +238,11 @@ export class Client {
 
   /** Gets a list of all storage credentials that have been assigned to given metastore. */
   async listAccountsStorageCredentials(
-    req: AccountsListStorageCredentialsPublicRequest,
+    req: AccountsListStorageCredentialsRequest,
     options?: CallOptions
-  ): Promise<AccountsListStorageCredentialsPublicRequest_Response> {
+  ): Promise<AccountsListStorageCredentialsRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials`;
-    let resp: AccountsListStorageCredentialsPublicRequest_Response | undefined;
+    let resp: AccountsListStorageCredentialsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -254,7 +254,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsListStorageCredentialsPublicRequest_ResponseSchema
+        unmarshalAccountsListStorageCredentialsRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -269,15 +269,15 @@ export class Client {
    * If the caller is a metastore admin, only the **owner** credential can be changed.
    */
   async updateAccountsStorageCredential(
-    req: AccountsUpdateStorageCredentialPublicRequest,
+    req: AccountsUpdateStorageCredentialRequest,
     options?: CallOptions
-  ): Promise<AccountsUpdateStorageCredentialPublicRequest_Response> {
+  ): Promise<AccountsUpdateStorageCredentialRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/metastores/${req.metastoreId ?? ''}/storage-credentials/${req.nameArg ?? ''}`;
     const body = marshalRequest(
       req,
-      marshalAccountsUpdateStorageCredentialPublicRequestSchema
+      marshalAccountsUpdateStorageCredentialRequestSchema
     );
-    let resp: AccountsUpdateStorageCredentialPublicRequest_Response | undefined;
+    let resp: AccountsUpdateStorageCredentialRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -289,7 +289,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalAccountsUpdateStorageCredentialPublicRequest_ResponseSchema
+        unmarshalAccountsUpdateStorageCredentialRequest_ResponseSchema
       );
     };
     await executeCall(call, options);
@@ -925,14 +925,11 @@ export class Client {
    * For information about how to create a new workspace with this API, see [Create a new workspace using the Account API](http://docs.databricks.com/administration-guide/account-api/new-workspace.html)
    */
   async createCredentialsPublic(
-    req: CreateCredentialsPublicRequest,
+    req: CreateCredentialsRequest,
     options?: CallOptions
   ): Promise<Credentials> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/credentials`;
-    const body = marshalRequest(
-      req,
-      marshalCreateCredentialsPublicRequestSchema
-    );
+    const body = marshalRequest(req, marshalCreateCredentialsRequestSchema);
     let resp: Credentials | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -954,7 +951,7 @@ export class Client {
 
   /** Deletes a <Databricks> credential configuration object for an account, both specified by ID. You cannot delete a credential that is associated with any workspace. */
   async deleteCredentialsPublic(
-    req: DeleteCredentialsPublicRequest,
+    req: DeleteCredentialsRequest,
     options?: CallOptions
   ): Promise<Credentials> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/credentials/${req.credentialsId ?? ''}`;
@@ -979,7 +976,7 @@ export class Client {
 
   /** Gets a <Databricks> credential configuration object for an account, both specified by ID. */
   async getCredentialsPublic(
-    req: GetCredentialsPublicRequest,
+    req: GetCredentialsRequest,
     options?: CallOptions
   ): Promise<Credentials> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/credentials/${req.credentialsId ?? ''}`;
@@ -1006,9 +1003,9 @@ export class Client {
   async listCredentialsPublic(
     req: ListCredentialsPublicRequest,
     options?: CallOptions
-  ): Promise<ListCredentialsPublicResponse> {
+  ): Promise<ListCredentialsResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/credentials`;
-    let resp: ListCredentialsPublicResponse | undefined;
+    let resp: ListCredentialsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);

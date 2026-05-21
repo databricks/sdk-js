@@ -21,6 +21,10 @@ import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   AddExchangeForListingRequest,
   AddExchangeForListingResponse,
+  BatchGetListingsRequest,
+  BatchGetListingsResponse,
+  BatchGetProvidersRequest,
+  BatchGetProvidersResponse,
   CreateExchangeFilterRequest,
   CreateExchangeFilterResponse,
   CreateExchangeRequest,
@@ -29,6 +33,8 @@ import type {
   CreateFileRequest_Response,
   CreateListingRequest,
   CreateListingRequest_Response,
+  CreatePersonalizationRequest,
+  CreatePersonalizationRequest_Response,
   CreateProviderAnalyticsDashboardRequest,
   CreateProviderAnalyticsDashboardRequest_Response,
   CreateProviderRequest,
@@ -47,20 +53,41 @@ import type {
   ExchangeFilter,
   ExchangeListing,
   FileInfo,
+  GetAllInstallations,
+  GetAllInstallations_Response,
+  GetAllPersonalizationRequestsForConsumer,
+  GetAllPersonalizationRequestsForConsumer_Response,
   GetExchangeRequest,
   GetExchangeResponse,
   GetFileRequest,
   GetFileRequest_Response,
+  GetInstallationDetails,
+  GetInstallationDetails_Response,
   GetLatestVersionProviderAnalyticsDashboardRequest,
   GetLatestVersionProviderAnalyticsDashboardRequest_Response,
+  GetListingContent,
+  GetListingContent_Response,
+  GetListingFulfillments,
+  GetListingFulfillments_Response,
   GetListingRequest,
   GetListingRequest_Response,
   GetListingsRequest,
   GetListingsRequest_Response,
+  GetPersonalizationRequestsForConsumer,
+  GetPersonalizationRequestsForConsumer_Response,
   GetPersonalizationRequestsForProviderRequest,
   GetPersonalizationRequestsForProviderRequest_Response,
   GetProviderRequest,
   GetProviderRequest_Response,
+  GetPublishedListingForConsumer,
+  GetPublishedListingForConsumer_Response,
+  GetPublishedListingsForConsumer,
+  GetPublishedListingsForConsumer_Response,
+  GetPublishedProviderForConsumer,
+  GetPublishedProviderForConsumer_Response,
+  InstallListing,
+  InstallListing_Response,
+  InstallationDetail,
   ListExchangeFiltersRequest,
   ListExchangeFiltersResponse,
   ListExchangesForListingRequest,
@@ -75,15 +102,25 @@ import type {
   ListProviderAnalyticsDashboardRequest_Response,
   ListProvidersRequest,
   ListProvidersRequest_Response,
+  ListPublishedProvidersForConsumer,
+  ListPublishedProvidersForConsumer_Response,
   Listing,
+  ListingFulfillment,
   PersonalizationRequest,
   ProviderInfo,
   RemoveExchangeForListingRequest,
   RemoveExchangeForListingResponse,
+  SearchPublishedListingsForConsumer,
+  SearchPublishedListingsForConsumer_Response,
+  SharedDataObject,
+  UninstallListing,
+  UninstallListing_Response,
   UpdateExchangeFilterRequest,
   UpdateExchangeFilterResponse,
   UpdateExchangeRequest,
   UpdateExchangeResponse,
+  UpdateInstallationDetail,
+  UpdateInstallationDetail_Response,
   UpdateListingRequest,
   UpdateListingRequest_Response,
   UpdatePersonalizationRequestStatusRequest,
@@ -99,20 +136,27 @@ import {
   marshalCreateExchangeRequestSchema,
   marshalCreateFileRequestSchema,
   marshalCreateListingRequestSchema,
+  marshalCreatePersonalizationRequestSchema,
   marshalCreateProviderAnalyticsDashboardRequestSchema,
   marshalCreateProviderRequestSchema,
   marshalFileParentSchema,
+  marshalInstallListingSchema,
+  marshalListingTagSchema,
   marshalUpdateExchangeFilterRequestSchema,
   marshalUpdateExchangeRequestSchema,
+  marshalUpdateInstallationDetailSchema,
   marshalUpdateListingRequestSchema,
   marshalUpdatePersonalizationRequestStatusRequestSchema,
   marshalUpdateProviderAnalyticsDashboardRequestSchema,
   marshalUpdateProviderRequestSchema,
   unmarshalAddExchangeForListingResponseSchema,
+  unmarshalBatchGetListingsResponseSchema,
+  unmarshalBatchGetProvidersResponseSchema,
   unmarshalCreateExchangeFilterResponseSchema,
   unmarshalCreateExchangeResponseSchema,
   unmarshalCreateFileRequest_ResponseSchema,
   unmarshalCreateListingRequest_ResponseSchema,
+  unmarshalCreatePersonalizationRequest_ResponseSchema,
   unmarshalCreateProviderAnalyticsDashboardRequest_ResponseSchema,
   unmarshalCreateProviderRequest_ResponseSchema,
   unmarshalDeleteExchangeFilterResponseSchema,
@@ -120,13 +164,23 @@ import {
   unmarshalDeleteFileRequest_ResponseSchema,
   unmarshalDeleteListingRequest_ResponseSchema,
   unmarshalDeleteProviderRequest_ResponseSchema,
+  unmarshalGetAllInstallations_ResponseSchema,
+  unmarshalGetAllPersonalizationRequestsForConsumer_ResponseSchema,
   unmarshalGetExchangeResponseSchema,
   unmarshalGetFileRequest_ResponseSchema,
+  unmarshalGetInstallationDetails_ResponseSchema,
   unmarshalGetLatestVersionProviderAnalyticsDashboardRequest_ResponseSchema,
+  unmarshalGetListingContent_ResponseSchema,
+  unmarshalGetListingFulfillments_ResponseSchema,
   unmarshalGetListingRequest_ResponseSchema,
   unmarshalGetListingsRequest_ResponseSchema,
+  unmarshalGetPersonalizationRequestsForConsumer_ResponseSchema,
   unmarshalGetPersonalizationRequestsForProviderRequest_ResponseSchema,
   unmarshalGetProviderRequest_ResponseSchema,
+  unmarshalGetPublishedListingForConsumer_ResponseSchema,
+  unmarshalGetPublishedListingsForConsumer_ResponseSchema,
+  unmarshalGetPublishedProviderForConsumer_ResponseSchema,
+  unmarshalInstallListing_ResponseSchema,
   unmarshalListExchangeFiltersResponseSchema,
   unmarshalListExchangesForListingResponseSchema,
   unmarshalListExchangesResponseSchema,
@@ -134,9 +188,13 @@ import {
   unmarshalListListingsForExchangeResponseSchema,
   unmarshalListProviderAnalyticsDashboardRequest_ResponseSchema,
   unmarshalListProvidersRequest_ResponseSchema,
+  unmarshalListPublishedProvidersForConsumer_ResponseSchema,
   unmarshalRemoveExchangeForListingResponseSchema,
+  unmarshalSearchPublishedListingsForConsumer_ResponseSchema,
+  unmarshalUninstallListing_ResponseSchema,
   unmarshalUpdateExchangeFilterResponseSchema,
   unmarshalUpdateExchangeResponseSchema,
+  unmarshalUpdateInstallationDetail_ResponseSchema,
   unmarshalUpdateListingRequest_ResponseSchema,
   unmarshalUpdatePersonalizationRequestStatusRequest_ResponseSchema,
   unmarshalUpdateProviderAnalyticsDashboardRequest_ResponseSchema,
@@ -172,6 +230,757 @@ export class Client {
     }
     this.userAgent = info.toString();
     this.httpClient = newHttpClient(options);
+  }
+
+  /** Batch get a published listing in the Databricks Marketplace that the consumer has access to. */
+  async batchGetListings(
+    req: BatchGetListingsRequest,
+    options?: CallOptions
+  ): Promise<BatchGetListingsResponse> {
+    const url = `${this.host}/api/2.1/marketplace-consumer/listings:batchGet`;
+    const params = new URLSearchParams();
+    if (req.ids !== undefined) {
+      params.append('ids', String(req.ids));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: BatchGetListingsResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalBatchGetListingsResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Batch get a provider in the Databricks Marketplace with at least one visible listing. */
+  async batchGetProviders(
+    req: BatchGetProvidersRequest,
+    options?: CallOptions
+  ): Promise<BatchGetProvidersResponse> {
+    const url = `${this.host}/api/2.1/marketplace-consumer/providers:batchGet`;
+    const params = new URLSearchParams();
+    if (req.ids !== undefined) {
+      params.append('ids', String(req.ids));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: BatchGetProvidersResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalBatchGetProvidersResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Create a personalization request for a listing. */
+  async createPersonalizationRequest(
+    req: CreatePersonalizationRequest,
+    options?: CallOptions
+  ): Promise<CreatePersonalizationRequest_Response> {
+    const url = `${this.host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/personalization-requests`;
+    const body = marshalRequest(req, marshalCreatePersonalizationRequestSchema);
+    let resp: CreatePersonalizationRequest_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalCreatePersonalizationRequest_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** List all installations across all listings. */
+  async getAllInstallations(
+    req: GetAllInstallations,
+    options?: CallOptions
+  ): Promise<GetAllInstallations_Response> {
+    const url = `${this.host}/api/2.1/marketplace-consumer/installations`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: GetAllInstallations_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalGetAllInstallations_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *getAllInstallationsIter(
+    req: GetAllInstallations,
+    options?: CallOptions
+  ): AsyncGenerator<InstallationDetail> {
+    const pageReq: GetAllInstallations = {...req};
+    for (;;) {
+      const resp = await this.getAllInstallations(pageReq, options);
+      for (const item of resp.installations ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** List personalization requests for a consumer across all listings. */
+  async getAllPersonalizationRequestsForConsumer(
+    req: GetAllPersonalizationRequestsForConsumer,
+    options?: CallOptions
+  ): Promise<GetAllPersonalizationRequestsForConsumer_Response> {
+    const url = `${this.host}/api/2.1/marketplace-consumer/personalization-requests`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: GetAllPersonalizationRequestsForConsumer_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalGetAllPersonalizationRequestsForConsumer_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *getAllPersonalizationRequestsForConsumerIter(
+    req: GetAllPersonalizationRequestsForConsumer,
+    options?: CallOptions
+  ): AsyncGenerator<PersonalizationRequest> {
+    const pageReq: GetAllPersonalizationRequestsForConsumer = {...req};
+    for (;;) {
+      const resp = await this.getAllPersonalizationRequestsForConsumer(
+        pageReq,
+        options
+      );
+      for (const item of resp.personalizationRequests ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** List all installations for a particular listing. */
+  async getInstallationDetails(
+    req: GetInstallationDetails,
+    options?: CallOptions
+  ): Promise<GetInstallationDetails_Response> {
+    const url = `${this.host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/installations`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: GetInstallationDetails_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalGetInstallationDetails_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *getInstallationDetailsIter(
+    req: GetInstallationDetails,
+    options?: CallOptions
+  ): AsyncGenerator<InstallationDetail> {
+    const pageReq: GetInstallationDetails = {...req};
+    for (;;) {
+      const resp = await this.getInstallationDetails(pageReq, options);
+      for (const item of resp.installations ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** Get a high level preview of the metadata of listing installable content. */
+  async getListingContent(
+    req: GetListingContent,
+    options?: CallOptions
+  ): Promise<GetListingContent_Response> {
+    const url = `${this.host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/content`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: GetListingContent_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalGetListingContent_ResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *getListingContentIter(
+    req: GetListingContent,
+    options?: CallOptions
+  ): AsyncGenerator<SharedDataObject> {
+    const pageReq: GetListingContent = {...req};
+    for (;;) {
+      const resp = await this.getListingContent(pageReq, options);
+      for (const item of resp.sharedDataObjects ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /**
+   * Get all listings fulfillments associated with a listing. A _fulfillment_ is a potential installation.
+   * Standard installations contain metadata about the attached share or git repo. Only one of these fields will be present.
+   * Personalized installations contain metadata about the attached share or git repo, as well as the Delta Sharing recipient type.
+   */
+  async getListingFulfillments(
+    req: GetListingFulfillments,
+    options?: CallOptions
+  ): Promise<GetListingFulfillments_Response> {
+    const url = `${this.host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/fulfillments`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: GetListingFulfillments_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalGetListingFulfillments_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *getListingFulfillmentsIter(
+    req: GetListingFulfillments,
+    options?: CallOptions
+  ): AsyncGenerator<ListingFulfillment> {
+    const pageReq: GetListingFulfillments = {...req};
+    for (;;) {
+      const resp = await this.getListingFulfillments(pageReq, options);
+      for (const item of resp.fulfillments ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** Get the personalization request for a listing. Each consumer can make at *most* one personalization request for a listing. */
+  async getPersonalizationRequestsForConsumer(
+    req: GetPersonalizationRequestsForConsumer,
+    options?: CallOptions
+  ): Promise<GetPersonalizationRequestsForConsumer_Response> {
+    const url = `${this.host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/personalization-requests`;
+    let resp: GetPersonalizationRequestsForConsumer_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalGetPersonalizationRequestsForConsumer_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Get a published listing in the Databricks Marketplace that the consumer has access to. */
+  async getPublishedListingForConsumer(
+    req: GetPublishedListingForConsumer,
+    options?: CallOptions
+  ): Promise<GetPublishedListingForConsumer_Response> {
+    const url = `${this.host}/api/2.1/marketplace-consumer/listings/${req.id ?? ''}`;
+    let resp: GetPublishedListingForConsumer_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalGetPublishedListingForConsumer_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** List all published listings in the Databricks Marketplace that the consumer has access to. */
+  async getPublishedListingsForConsumer(
+    req: GetPublishedListingsForConsumer,
+    options?: CallOptions
+  ): Promise<GetPublishedListingsForConsumer_Response> {
+    const url = `${this.host}/api/2.1/marketplace-consumer/listings`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.assets !== undefined) {
+      params.append('assets', String(req.assets));
+    }
+    if (req.categories !== undefined) {
+      params.append('categories', String(req.categories));
+    }
+    if (req.tags !== undefined) {
+      flattenQueryParams(
+        'tags',
+        marshalListingTagSchema.parse(req.tags),
+        params
+      );
+    }
+    if (req.isFree !== undefined) {
+      params.append('is_free', String(req.isFree));
+    }
+    if (req.isPrivateExchange !== undefined) {
+      params.append('is_private_exchange', String(req.isPrivateExchange));
+    }
+    if (req.isStaffPick !== undefined) {
+      params.append('is_staff_pick', String(req.isStaffPick));
+    }
+    if (req.providerIds !== undefined) {
+      params.append('provider_ids', String(req.providerIds));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: GetPublishedListingsForConsumer_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalGetPublishedListingsForConsumer_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *getPublishedListingsForConsumerIter(
+    req: GetPublishedListingsForConsumer,
+    options?: CallOptions
+  ): AsyncGenerator<Listing> {
+    const pageReq: GetPublishedListingsForConsumer = {...req};
+    for (;;) {
+      const resp = await this.getPublishedListingsForConsumer(pageReq, options);
+      for (const item of resp.listings ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** Get a provider in the Databricks Marketplace with at least one visible listing. */
+  async getPublishedProviderForConsumer(
+    req: GetPublishedProviderForConsumer,
+    options?: CallOptions
+  ): Promise<GetPublishedProviderForConsumer_Response> {
+    const url = `${this.host}/api/2.1/marketplace-consumer/providers/${req.id ?? ''}`;
+    let resp: GetPublishedProviderForConsumer_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalGetPublishedProviderForConsumer_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** Install payload associated with a Databricks Marketplace listing. */
+  async installListing(
+    req: InstallListing,
+    options?: CallOptions
+  ): Promise<InstallListing_Response> {
+    const url = `${this.host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/installations`;
+    const body = marshalRequest(req, marshalInstallListingSchema);
+    let resp: InstallListing_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalInstallListing_ResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /** List all providers in the Databricks Marketplace with at least one visible listing. */
+  async listPublishedProvidersForConsumer(
+    req: ListPublishedProvidersForConsumer,
+    options?: CallOptions
+  ): Promise<ListPublishedProvidersForConsumer_Response> {
+    const url = `${this.host}/api/2.1/marketplace-consumer/providers`;
+    const params = new URLSearchParams();
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    if (req.isFeatured !== undefined) {
+      params.append('is_featured', String(req.isFeatured));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: ListPublishedProvidersForConsumer_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalListPublishedProvidersForConsumer_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *listPublishedProvidersForConsumerIter(
+    req: ListPublishedProvidersForConsumer,
+    options?: CallOptions
+  ): AsyncGenerator<ProviderInfo> {
+    const pageReq: ListPublishedProvidersForConsumer = {...req};
+    for (;;) {
+      const resp = await this.listPublishedProvidersForConsumer(
+        pageReq,
+        options
+      );
+      for (const item of resp.providers ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /**
+   * Search published listings in the Databricks Marketplace that the consumer has access to.
+   * This query supports a variety of different search parameters and performs fuzzy matching.
+   */
+  async searchPublishedListingsForConsumer(
+    req: SearchPublishedListingsForConsumer,
+    options?: CallOptions
+  ): Promise<SearchPublishedListingsForConsumer_Response> {
+    const url = `${this.host}/api/2.1/marketplace-consumer/search-listings`;
+    const params = new URLSearchParams();
+    if (req.query !== undefined) {
+      params.append('query', req.query);
+    }
+    if (req.isFree !== undefined) {
+      params.append('is_free', String(req.isFree));
+    }
+    if (req.isPrivateExchange !== undefined) {
+      params.append('is_private_exchange', String(req.isPrivateExchange));
+    }
+    if (req.providerIds !== undefined) {
+      params.append('provider_ids', String(req.providerIds));
+    }
+    if (req.categories !== undefined) {
+      params.append('categories', String(req.categories));
+    }
+    if (req.assets !== undefined) {
+      params.append('assets', String(req.assets));
+    }
+    if (req.pageToken !== undefined) {
+      params.append('page_token', req.pageToken);
+    }
+    if (req.pageSize !== undefined) {
+      params.append('page_size', String(req.pageSize));
+    }
+    const query = params.toString();
+    const fullUrl = query !== '' ? `${url}?${query}` : url;
+    let resp: SearchPublishedListingsForConsumer_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalSearchPublishedListingsForConsumer_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  async *searchPublishedListingsForConsumerIter(
+    req: SearchPublishedListingsForConsumer,
+    options?: CallOptions
+  ): AsyncGenerator<Listing> {
+    const pageReq: SearchPublishedListingsForConsumer = {...req};
+    for (;;) {
+      const resp = await this.searchPublishedListingsForConsumer(
+        pageReq,
+        options
+      );
+      for (const item of resp.listings ?? []) {
+        yield item;
+      }
+      if (resp.nextPageToken === undefined || resp.nextPageToken === '') {
+        return;
+      }
+      pageReq.pageToken = resp.nextPageToken;
+    }
+  }
+
+  /** Uninstall an installation associated with a Databricks Marketplace listing. */
+  async uninstallListing(
+    req: UninstallListing,
+    options?: CallOptions
+  ): Promise<UninstallListing_Response> {
+    const url = `${this.host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/installations/${req.installationId ?? ''}`;
+    let resp: UninstallListing_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers();
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(respBody, unmarshalUninstallListing_ResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
+  /**
+   * This is a update API that will update the part of the fields defined in the installation table as well
+   * as interact with external services according to the fields not included in the installation table
+   * 1. the token will be rotate if the rotateToken flag is true
+   * 2. the token will be forcibly rotate if the rotateToken flag is true and the tokenInfo field is empty
+   */
+  async updateInstallationDetail(
+    req: UpdateInstallationDetail,
+    options?: CallOptions
+  ): Promise<UpdateInstallationDetail_Response> {
+    const url = `${this.host}/api/2.1/marketplace-consumer/listings/${req.listingId ?? ''}/installations/${req.installationId ?? ''}`;
+    const body = marshalRequest(req, marshalUpdateInstallationDetailSchema);
+    let resp: UpdateInstallationDetail_Response | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({
+        request: httpReq,
+        httpClient: this.httpClient,
+        logger: this.logger,
+      });
+      resp = parseResponse(
+        respBody,
+        unmarshalUpdateInstallationDetail_ResponseSchema
+      );
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
   }
 
   /** Associate an exchange with a listing */

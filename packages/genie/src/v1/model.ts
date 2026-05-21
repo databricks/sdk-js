@@ -1527,6 +1527,8 @@ export interface GenieUpdateSpaceRequest {
    * has been modified since. Omit to apply the update unconditionally.
    */
   etag?: string | undefined;
+  /** Parent workspace folder path to move this Genie space under. */
+  parentPath?: string | undefined;
 }
 
 /**
@@ -2630,6 +2632,7 @@ export const marshalGenieUpdateSpaceRequestSchema: z.ZodType = z
     description: z.string().optional(),
     warehouseId: z.string().optional(),
     etag: z.string().optional(),
+    parentPath: z.string().optional(),
   })
   .transform(d => ({
     space_id: d.spaceId,
@@ -2638,4 +2641,5 @@ export const marshalGenieUpdateSpaceRequestSchema: z.ZodType = z
     description: d.description,
     warehouse_id: d.warehouseId,
     etag: d.etag,
+    parent_path: d.parentPath,
   }));

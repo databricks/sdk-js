@@ -19,15 +19,15 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import {z} from 'zod';
 import type {
-  CreateStorageConfigurationPublicRequest,
-  DeleteStorageConfigurationPublicRequest,
-  GetStorageConfigurationPublicRequest,
-  ListStorageConfigurationPublicRequest,
-  ListStorageConfigurationPublicResponse,
+  CreateStorageConfigurationRequest,
+  DeleteStorageConfigurationRequest,
+  GetStorageConfigurationRequest,
+  ListStorageConfigurationRequest,
+  ListStorageConfigurationResponse,
   StorageConfiguration,
 } from './model';
 import {
-  marshalCreateStorageConfigurationPublicRequestSchema,
+  marshalCreateStorageConfigurationRequestSchema,
   unmarshalStorageConfigurationSchema,
 } from './model';
 
@@ -68,13 +68,13 @@ export class Client {
 
   /** Creates a <Databricks> storage configuration for an account. */
   async createStorageConfigurationPublic(
-    req: CreateStorageConfigurationPublicRequest,
+    req: CreateStorageConfigurationRequest,
     options?: CallOptions
   ): Promise<StorageConfiguration> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/storage-configurations`;
     const body = marshalRequest(
       req,
-      marshalCreateStorageConfigurationPublicRequestSchema
+      marshalCreateStorageConfigurationRequestSchema
     );
     let resp: StorageConfiguration | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -97,7 +97,7 @@ export class Client {
 
   /** Deletes a <Databricks> storage configuration. You cannot delete a storage configuration that is associated with any workspace. */
   async deleteStorageConfigurationPublic(
-    req: DeleteStorageConfigurationPublicRequest,
+    req: DeleteStorageConfigurationRequest,
     options?: CallOptions
   ): Promise<StorageConfiguration> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/storage-configurations/${req.storageConfigurationId ?? ''}`;
@@ -122,7 +122,7 @@ export class Client {
 
   /** Gets a <Databricks> storage configuration for an account, both specified by ID. */
   async getStorageConfigurationPublic(
-    req: GetStorageConfigurationPublicRequest,
+    req: GetStorageConfigurationRequest,
     options?: CallOptions
   ): Promise<StorageConfiguration> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/storage-configurations/${req.storageConfigurationId ?? ''}`;
@@ -147,11 +147,11 @@ export class Client {
 
   /** Lists <Databricks> storage configurations for an account, specified by ID. */
   async listStorageConfigurationPublic(
-    req: ListStorageConfigurationPublicRequest,
+    req: ListStorageConfigurationRequest,
     options?: CallOptions
-  ): Promise<ListStorageConfigurationPublicResponse> {
+  ): Promise<ListStorageConfigurationResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/storage-configurations`;
-    let resp: ListStorageConfigurationPublicResponse | undefined;
+    let resp: ListStorageConfigurationResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);

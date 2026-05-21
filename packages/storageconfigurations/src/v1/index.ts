@@ -5,11 +5,11 @@ export {Client} from './client';
 export {} from './model';
 
 export type {
-  CreateStorageConfigurationPublicRequest,
-  DeleteStorageConfigurationPublicRequest,
-  GetStorageConfigurationPublicRequest,
-  ListStorageConfigurationPublicRequest,
-  ListStorageConfigurationPublicResponse,
+  CreateStorageConfigurationRequest,
+  DeleteStorageConfigurationRequest,
+  GetStorageConfigurationRequest,
+  ListStorageConfigurationRequest,
+  ListStorageConfigurationResponse,
   RootBucketInfo,
   StorageConfiguration,
 } from './model';

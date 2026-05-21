@@ -887,7 +887,7 @@ export interface BaseJob {
   /** The time at which this job was created in epoch milliseconds (milliseconds since 1/1/1970 UTC). */
   createdTime?: number | undefined;
   /** State of the trigger associated with the job. */
-  triggerState?: TriggerStateProto | undefined;
+  triggerState?: TriggerState | undefined;
   /**
    * Indicates if the job has more array properties (`tasks`, `job_clusters`) that are not shown. They can be accessed via :method:jobs/get endpoint.
    * It is only relevant for API 2.2 :method:jobs/list requests with `expand_tasks=true`.
@@ -1988,7 +1988,7 @@ export interface GetJobRequest_Response {
   /** The time at which this job was created in epoch milliseconds (milliseconds since 1/1/1970 UTC). */
   createdTime?: number | undefined;
   /** State of the trigger associated with the job. */
-  triggerState?: TriggerStateProto | undefined;
+  triggerState?: TriggerState | undefined;
   /**
    * Indicates if the job has more array properties (`tasks`, `job_clusters`) that are not shown. They can be accessed via :method:jobs/get endpoint.
    * It is only relevant for API 2.2 :method:jobs/list requests with `expand_tasks=true`.
@@ -4859,7 +4859,7 @@ export interface TriggerSettings {
     | undefined;
 }
 
-export interface TriggerStateProto {
+export interface TriggerState {
   triggerType?:
     | {$case: 'table'; table: TableTriggerState}
     | {$case: 'fileArrival'; fileArrival: FileArrivalTriggerState}
@@ -5057,7 +5057,7 @@ export const unmarshalBaseJobSchema: z.ZodType<BaseJob> = z
     run_as_user_name: z.string().optional(),
     settings: z.lazy(() => unmarshalJobSettingsSchema).optional(),
     created_time: z.number().optional(),
-    trigger_state: z.lazy(() => unmarshalTriggerStateProtoSchema).optional(),
+    trigger_state: z.lazy(() => unmarshalTriggerStateSchema).optional(),
     has_more: z.boolean().optional(),
     effective_budget_policy_id: z.string().optional(),
     effective_usage_policy_id: z.string().optional(),
@@ -5769,7 +5769,7 @@ export const unmarshalGetJobRequest_ResponseSchema: z.ZodType<GetJobRequest_Resp
       run_as_user_name: z.string().optional(),
       settings: z.lazy(() => unmarshalJobSettingsSchema).optional(),
       created_time: z.number().optional(),
-      trigger_state: z.lazy(() => unmarshalTriggerStateProtoSchema).optional(),
+      trigger_state: z.lazy(() => unmarshalTriggerStateSchema).optional(),
       has_more: z.boolean().optional(),
       effective_budget_policy_id: z.string().optional(),
       effective_usage_policy_id: z.string().optional(),
@@ -7806,7 +7806,7 @@ export const unmarshalTriggerSettingsSchema: z.ZodType<TriggerSettings> = z
               : undefined,
   }));
 
-export const unmarshalTriggerStateProtoSchema: z.ZodType<TriggerStateProto> = z
+export const unmarshalTriggerStateSchema: z.ZodType<TriggerState> = z
   .object({
     table: z.lazy(() => unmarshalTableTriggerStateSchema).optional(),
     file_arrival: z

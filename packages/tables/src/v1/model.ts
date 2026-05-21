@@ -74,7 +74,7 @@ export enum DataSourceFormat {
   ICEBERG = 'ICEBERG',
 }
 
-/** Latest kind: MODEL_SERVICE_SYSTEM_DELTASHARING = 330; Next id: 331 */
+/** Latest kind: AGENT_SERVICE_STANDARD = 331; Next id: 332 */
 export enum SecurableKind {
   TABLE_STANDARD = 'TABLE_STANDARD',
   TABLE_EXTERNAL = 'TABLE_EXTERNAL',

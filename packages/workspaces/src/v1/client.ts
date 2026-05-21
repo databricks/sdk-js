@@ -20,19 +20,19 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import {z} from 'zod';
 import type {
-  CreateWorkspacePublicRequest,
-  CustomerFacingWorkspace,
-  DeleteWorkspacePublicRequest,
-  GetWorkspacePublicRequest,
-  ListWorkspacesPublicRequest,
-  ListWorkspacesPublicResponse,
-  UpdateWorkspacePublicRequest,
+  CreateWorkspaceRequest,
+  DeleteWorkspaceRequest,
+  GetWorkspaceRequest,
+  ListWorkspacesRequest,
+  ListWorkspacesResponse,
+  UpdateWorkspaceRequest,
+  Workspace,
 } from './model';
 import {
   WorkspaceStatus,
-  marshalCreateWorkspacePublicRequestSchema,
-  marshalCustomerFacingWorkspaceSchema,
-  unmarshalCustomerFacingWorkspaceSchema,
+  marshalCreateWorkspaceRequestSchema,
+  marshalWorkspaceSchema,
+  unmarshalWorkspaceSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -86,12 +86,12 @@ export class Client {
    * This operation is available only if your account is on the E2 version of the platform or on a select custom plan that allows multiple workspaces per account.
    */
   async createWorkspacePublic(
-    req: CreateWorkspacePublicRequest,
+    req: CreateWorkspaceRequest,
     options?: CallOptions
-  ): Promise<CustomerFacingWorkspace> {
+  ): Promise<Workspace> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces`;
-    const body = marshalRequest(req, marshalCreateWorkspacePublicRequestSchema);
-    let resp: CustomerFacingWorkspace | undefined;
+    const body = marshalRequest(req, marshalCreateWorkspaceRequestSchema);
+    let resp: Workspace | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -101,7 +101,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCustomerFacingWorkspaceSchema);
+      resp = parseResponse(respBody, unmarshalWorkspaceSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -111,7 +111,7 @@ export class Client {
   }
 
   async createWorkspacePublicWaiter(
-    req: CreateWorkspacePublicRequest,
+    req: CreateWorkspaceRequest,
     options?: CallOptions
   ): Promise<CreateWorkspacePublicWaiter> {
     const resp = await this.createWorkspacePublic(req, options);
@@ -125,11 +125,11 @@ export class Client {
 
   /** Deletes a <Databricks> workspace, both specified by ID. */
   async deleteWorkspacePublic(
-    req: DeleteWorkspacePublicRequest,
+    req: DeleteWorkspaceRequest,
     options?: CallOptions
-  ): Promise<CustomerFacingWorkspace> {
+  ): Promise<Workspace> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}`;
-    let resp: CustomerFacingWorkspace | undefined;
+    let resp: Workspace | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -139,7 +139,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCustomerFacingWorkspaceSchema);
+      resp = parseResponse(respBody, unmarshalWorkspaceSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -153,11 +153,11 @@ export class Client {
    * For information about how to create a new workspace with this API **including error handling**, see [Create a new workspace using the Account API](http://docs.databricks.com/administration-guide/account-api/new-workspace.html).
    */
   async getWorkspacePublic(
-    req: GetWorkspacePublicRequest,
+    req: GetWorkspaceRequest,
     options?: CallOptions
-  ): Promise<CustomerFacingWorkspace> {
+  ): Promise<Workspace> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}`;
-    let resp: CustomerFacingWorkspace | undefined;
+    let resp: Workspace | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -167,7 +167,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCustomerFacingWorkspaceSchema);
+      resp = parseResponse(respBody, unmarshalWorkspaceSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -178,11 +178,11 @@ export class Client {
 
   /** Lists <Databricks> workspaces for an account. */
   async listWorkspacesPublic(
-    req: ListWorkspacesPublicRequest,
+    req: ListWorkspacesRequest,
     options?: CallOptions
-  ): Promise<ListWorkspacesPublicResponse> {
+  ): Promise<ListWorkspacesResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces`;
-    let resp: ListWorkspacesPublicResponse | undefined;
+    let resp: ListWorkspacesResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -195,7 +195,7 @@ export class Client {
       resp = {
         workspaces: parseResponse(
           respBody,
-          z.array(z.lazy(() => unmarshalCustomerFacingWorkspaceSchema))
+          z.array(z.lazy(() => unmarshalWorkspaceSchema))
         ),
       };
     };
@@ -208,9 +208,9 @@ export class Client {
 
   /** Updates a workspace. */
   async updateWorkspacePublic(
-    req: UpdateWorkspacePublicRequest,
+    req: UpdateWorkspaceRequest,
     options?: CallOptions
-  ): Promise<CustomerFacingWorkspace> {
+  ): Promise<Workspace> {
     const url = `${this.host}/api/2.0/accounts/${req.customerFacingWorkspace?.accountId ?? ''}/workspaces/${String(req.customerFacingWorkspace?.workspaceId ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -220,9 +220,9 @@ export class Client {
     const fullUrl = query !== '' ? `${url}?${query}` : url;
     const body = marshalRequest(
       req.customerFacingWorkspace,
-      marshalCustomerFacingWorkspaceSchema
+      marshalWorkspaceSchema
     );
-    let resp: CustomerFacingWorkspace | undefined;
+    let resp: Workspace | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
@@ -238,7 +238,7 @@ export class Client {
         httpClient: this.httpClient,
         logger: this.logger,
       });
-      resp = parseResponse(respBody, unmarshalCustomerFacingWorkspaceSchema);
+      resp = parseResponse(respBody, unmarshalWorkspaceSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -248,7 +248,7 @@ export class Client {
   }
 
   async updateWorkspacePublicWaiter(
-    req: UpdateWorkspacePublicRequest,
+    req: UpdateWorkspaceRequest,
     options?: CallOptions
   ): Promise<UpdateWorkspacePublicWaiter> {
     const resp = await this.updateWorkspacePublic(req, options);
@@ -272,8 +272,8 @@ export class CreateWorkspacePublicWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: CallOptions): Promise<CustomerFacingWorkspace> {
-    let result: CustomerFacingWorkspace | undefined;
+  async wait(options?: CallOptions): Promise<Workspace> {
+    let result: Workspace | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getWorkspacePublic(
@@ -352,8 +352,8 @@ export class UpdateWorkspacePublicWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: CallOptions): Promise<CustomerFacingWorkspace> {
-    let result: CustomerFacingWorkspace | undefined;
+  async wait(options?: CallOptions): Promise<Workspace> {
+    let result: Workspace | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getWorkspacePublic(
