@@ -8,7 +8,8 @@
 export type M2mCredentialsErrorCode =
   | 'CLIENT_ID_REQUIRED'
   | 'CLIENT_SECRET_REQUIRED'
-  | 'TOKEN_ENDPOINT_REQUIRED'
+  | 'HOST_REQUIRED'
+  | 'DISCOVERY_FAILED'
   | 'TOKEN_REQUEST_FAILED';
 
 /**
