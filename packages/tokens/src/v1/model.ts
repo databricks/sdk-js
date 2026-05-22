@@ -4,10 +4,11 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 export interface CreateTokenRequest {
   /**
    * The lifetime of the token, in seconds.
-   *
+   * 
    * If the lifetime is not specified, this token remains valid for 2 years.
    */
   lifetimeSeconds?: number | undefined;
@@ -65,28 +66,24 @@ export interface UpdateTokenRequest {
 export interface UpdateTokenResponse {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateTokenRequest_ResponseSchema: z.ZodType<CreateTokenRequest_Response> =
-  z
-    .object({
-      token_value: z.string().optional(),
-      token_info: z.lazy(() => unmarshalPublicTokenInfoSchema).optional(),
-    })
-    .transform(d => ({
-      tokenValue: d.token_value,
-      tokenInfo: d.token_info,
-    }));
+export const unmarshalCreateTokenRequest_ResponseSchema: z.ZodType<CreateTokenRequest_Response> = z
+  .object({
+    token_value: z.string().optional(),
+    token_info: z.lazy(() => unmarshalPublicTokenInfoSchema).optional(),
+  })
+  .transform(d => ({
+    tokenValue: d.token_value,
+    tokenInfo: d.token_info,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListTokensRequest_ResponseSchema: z.ZodType<ListTokensRequest_Response> =
-  z
-    .object({
-      token_infos: z
-        .array(z.lazy(() => unmarshalPublicTokenInfoSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      tokenInfos: d.token_infos,
-    }));
+export const unmarshalListTokensRequest_ResponseSchema: z.ZodType<ListTokensRequest_Response> = z
+  .object({
+    token_infos: z.array(z.lazy(() => unmarshalPublicTokenInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    tokenInfos: d.token_infos,
+  }));
 
 export const unmarshalPublicTokenInfoSchema: z.ZodType<PublicTokenInfo> = z
   .object({
@@ -103,11 +100,13 @@ export const unmarshalPublicTokenInfoSchema: z.ZodType<PublicTokenInfo> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalRevokeTokenRequest_ResponseSchema: z.ZodType<RevokeTokenRequest_Response> =
-  z.object({});
+export const unmarshalRevokeTokenRequest_ResponseSchema: z.ZodType<RevokeTokenRequest_Response> = z
+  .object({
+  });
 
-export const unmarshalUpdateTokenResponseSchema: z.ZodType<UpdateTokenResponse> =
-  z.object({});
+export const unmarshalUpdateTokenResponseSchema: z.ZodType<UpdateTokenResponse> = z
+  .object({
+  });
 
 export const marshalCreateTokenRequestSchema: z.ZodType = z
   .object({
@@ -147,10 +146,7 @@ export const marshalUpdateTokenRequestSchema: z.ZodType = z
   .object({
     tokenId: z.string().optional(),
     token: z.lazy(() => marshalPublicTokenInfoSchema).optional(),
-    updateMask: z
-      .any()
-      .transform((m: FieldMask) => m.toString())
-      .optional(),
+    updateMask: z.any().transform((m: FieldMask) => m.toString()).optional(),
   })
   .transform(d => ({
     token_id: d.tokenId,
@@ -165,11 +161,6 @@ const publicTokenInfoFieldMaskSchema: FieldMaskSchema = {
   tokenId: {wire: 'token_id'},
 };
 
-export function publicTokenInfoFieldMask(
-  ...paths: string[]
-): FieldMask<PublicTokenInfo> {
-  return FieldMask.build<PublicTokenInfo>(
-    paths,
-    publicTokenInfoFieldMaskSchema
-  );
+export function publicTokenInfoFieldMask(...paths: string[]): FieldMask<PublicTokenInfo> {
+  return FieldMask.build<PublicTokenInfo>(paths, publicTokenInfoFieldMaskSchema);
 }

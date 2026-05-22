@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateExampleRequest,
@@ -86,10 +80,7 @@ export class Client {
   }
 
   /** Creates an example for a Knowledge Assistant. */
-  async createExample(
-    req: CreateExampleRequest,
-    options?: CallOptions
-  ): Promise<Example> {
+  async createExample(req: CreateExampleRequest, options?: CallOptions): Promise<Example> {
     const url = `${this.host}/api/2.1/${req.parent ?? ''}/examples`;
     const body = marshalRequest(req.example, marshalExampleSchema);
     let resp: Example | undefined;
@@ -97,11 +88,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalExampleSchema);
     };
     await executeCall(call, options);
@@ -112,25 +99,15 @@ export class Client {
   }
 
   /** Creates a Knowledge Assistant. */
-  async createKnowledgeAssistant(
-    req: CreateKnowledgeAssistantRequest,
-    options?: CallOptions
-  ): Promise<KnowledgeAssistant> {
+  async createKnowledgeAssistant(req: CreateKnowledgeAssistantRequest, options?: CallOptions): Promise<KnowledgeAssistant> {
     const url = `${this.host}/api/2.1/knowledge-assistants`;
-    const body = marshalRequest(
-      req.knowledgeAssistant,
-      marshalKnowledgeAssistantSchema
-    );
+    const body = marshalRequest(req.knowledgeAssistant, marshalKnowledgeAssistantSchema);
     let resp: KnowledgeAssistant | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalKnowledgeAssistantSchema);
     };
     await executeCall(call, options);
@@ -141,25 +118,15 @@ export class Client {
   }
 
   /** Creates a Knowledge Source under a Knowledge Assistant. */
-  async createKnowledgeSource(
-    req: CreateKnowledgeSourceRequest,
-    options?: CallOptions
-  ): Promise<KnowledgeSource> {
+  async createKnowledgeSource(req: CreateKnowledgeSourceRequest, options?: CallOptions): Promise<KnowledgeSource> {
     const url = `${this.host}/api/2.1/${req.parent ?? ''}/knowledge-sources`;
-    const body = marshalRequest(
-      req.knowledgeSource,
-      marshalKnowledgeSourceSchema
-    );
+    const body = marshalRequest(req.knowledgeSource, marshalKnowledgeSourceSchema);
     let resp: KnowledgeSource | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalKnowledgeSourceSchema);
     };
     await executeCall(call, options);
@@ -170,78 +137,50 @@ export class Client {
   }
 
   /** Deletes an example from a Knowledge Assistant. */
-  async deleteExample(
-    req: DeleteExampleRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteExample(req: DeleteExampleRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Deletes a Knowledge Assistant. */
-  async deleteKnowledgeAssistant(
-    req: DeleteKnowledgeAssistantRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteKnowledgeAssistant(req: DeleteKnowledgeAssistantRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Deletes a Knowledge Source. */
-  async deleteKnowledgeSource(
-    req: DeleteKnowledgeSourceRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteKnowledgeSource(req: DeleteKnowledgeSourceRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Gets an example from a Knowledge Assistant. */
-  async getExample(
-    req: GetExampleRequest,
-    options?: CallOptions
-  ): Promise<Example> {
+  async getExample(req: GetExampleRequest, options?: CallOptions): Promise<Example> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     let resp: Example | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalExampleSchema);
     };
     await executeCall(call, options);
@@ -252,21 +191,14 @@ export class Client {
   }
 
   /** Gets a Knowledge Assistant. */
-  async getKnowledgeAssistant(
-    req: GetKnowledgeAssistantRequest,
-    options?: CallOptions
-  ): Promise<KnowledgeAssistant> {
+  async getKnowledgeAssistant(req: GetKnowledgeAssistantRequest, options?: CallOptions): Promise<KnowledgeAssistant> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     let resp: KnowledgeAssistant | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalKnowledgeAssistantSchema);
     };
     await executeCall(call, options);
@@ -277,21 +209,14 @@ export class Client {
   }
 
   /** Gets a Knowledge Source. */
-  async getKnowledgeSource(
-    req: GetKnowledgeSourceRequest,
-    options?: CallOptions
-  ): Promise<KnowledgeSource> {
+  async getKnowledgeSource(req: GetKnowledgeSourceRequest, options?: CallOptions): Promise<KnowledgeSource> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     let resp: KnowledgeSource | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalKnowledgeSourceSchema);
     };
     await executeCall(call, options);
@@ -302,10 +227,7 @@ export class Client {
   }
 
   /** Lists examples under a Knowledge Assistant. */
-  async listExamples(
-    req: ListExamplesRequest,
-    options?: CallOptions
-  ): Promise<ListExamplesResponse> {
+  async listExamples(req: ListExamplesRequest, options?: CallOptions): Promise<ListExamplesResponse> {
     const url = `${this.host}/api/2.1/${req.parent ?? ''}/examples`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -321,11 +243,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListExamplesResponseSchema);
     };
     await executeCall(call, options);
@@ -335,10 +253,8 @@ export class Client {
     return resp;
   }
 
-  async *listExamplesIter(
-    req: ListExamplesRequest,
-    options?: CallOptions
-  ): AsyncGenerator<Example> {
+
+  async *listExamplesIter(req: ListExamplesRequest, options?: CallOptions): AsyncGenerator<Example> {
     const pageReq: ListExamplesRequest = {...req};
     for (;;) {
       const resp = await this.listExamples(pageReq, options);
@@ -352,11 +268,9 @@ export class Client {
     }
   }
 
+
   /** List Knowledge Assistants */
-  async listKnowledgeAssistants(
-    req: ListKnowledgeAssistantsRequest,
-    options?: CallOptions
-  ): Promise<ListKnowledgeAssistantsResponse> {
+  async listKnowledgeAssistants(req: ListKnowledgeAssistantsRequest, options?: CallOptions): Promise<ListKnowledgeAssistantsResponse> {
     const url = `${this.host}/api/2.1/knowledge-assistants`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -372,15 +286,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListKnowledgeAssistantsResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListKnowledgeAssistantsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -389,10 +296,8 @@ export class Client {
     return resp;
   }
 
-  async *listKnowledgeAssistantsIter(
-    req: ListKnowledgeAssistantsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<KnowledgeAssistant> {
+
+  async *listKnowledgeAssistantsIter(req: ListKnowledgeAssistantsRequest, options?: CallOptions): AsyncGenerator<KnowledgeAssistant> {
     const pageReq: ListKnowledgeAssistantsRequest = {...req};
     for (;;) {
       const resp = await this.listKnowledgeAssistants(pageReq, options);
@@ -406,11 +311,9 @@ export class Client {
     }
   }
 
+
   /** Lists Knowledge Sources under a Knowledge Assistant. */
-  async listKnowledgeSources(
-    req: ListKnowledgeSourcesRequest,
-    options?: CallOptions
-  ): Promise<ListKnowledgeSourcesResponse> {
+  async listKnowledgeSources(req: ListKnowledgeSourcesRequest, options?: CallOptions): Promise<ListKnowledgeSourcesResponse> {
     const url = `${this.host}/api/2.1/${req.parent ?? ''}/knowledge-sources`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -426,15 +329,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListKnowledgeSourcesResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListKnowledgeSourcesResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -443,10 +339,8 @@ export class Client {
     return resp;
   }
 
-  async *listKnowledgeSourcesIter(
-    req: ListKnowledgeSourcesRequest,
-    options?: CallOptions
-  ): AsyncGenerator<KnowledgeSource> {
+
+  async *listKnowledgeSourcesIter(req: ListKnowledgeSourcesRequest, options?: CallOptions): AsyncGenerator<KnowledgeSource> {
     const pageReq: ListKnowledgeSourcesRequest = {...req};
     for (;;) {
       const resp = await this.listKnowledgeSources(pageReq, options);
@@ -460,31 +354,22 @@ export class Client {
     }
   }
 
+
   /** Sync all non-index Knowledge Sources for a Knowledge Assistant (index sources do not require sync) */
-  async syncKnowledgeSources(
-    req: SyncKnowledgeSourcesRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async syncKnowledgeSources(req: SyncKnowledgeSourcesRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}/knowledge-sources:sync`;
     const body = marshalRequest(req, marshalSyncKnowledgeSourcesRequestSchema);
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Updates an example in a Knowledge Assistant. */
-  async updateExample(
-    req: UpdateExampleRequest,
-    options?: CallOptions
-  ): Promise<Example> {
+  async updateExample(req: UpdateExampleRequest, options?: CallOptions): Promise<Example> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -497,18 +382,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalExampleSchema);
     };
     await executeCall(call, options);
@@ -519,10 +394,7 @@ export class Client {
   }
 
   /** Updates a Knowledge Assistant. */
-  async updateKnowledgeAssistant(
-    req: UpdateKnowledgeAssistantRequest,
-    options?: CallOptions
-  ): Promise<KnowledgeAssistant> {
+  async updateKnowledgeAssistant(req: UpdateKnowledgeAssistantRequest, options?: CallOptions): Promise<KnowledgeAssistant> {
     const url = `${this.host}/api/2.1/${req.knowledgeAssistant?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -530,26 +402,13 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.knowledgeAssistant,
-      marshalKnowledgeAssistantSchema
-    );
+    const body = marshalRequest(req.knowledgeAssistant, marshalKnowledgeAssistantSchema);
     let resp: KnowledgeAssistant | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalKnowledgeAssistantSchema);
     };
     await executeCall(call, options);
@@ -560,10 +419,7 @@ export class Client {
   }
 
   /** Updates a Knowledge Source. */
-  async updateKnowledgeSource(
-    req: UpdateKnowledgeSourceRequest,
-    options?: CallOptions
-  ): Promise<KnowledgeSource> {
+  async updateKnowledgeSource(req: UpdateKnowledgeSourceRequest, options?: CallOptions): Promise<KnowledgeSource> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -571,26 +427,13 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.knowledgeSource,
-      marshalKnowledgeSourceSchema
-    );
+    const body = marshalRequest(req.knowledgeSource, marshalKnowledgeSourceSchema);
     let resp: KnowledgeSource | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalKnowledgeSourceSchema);
     };
     await executeCall(call, options);

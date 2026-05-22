@@ -9,12 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   GetQuotaRequest,
@@ -64,21 +59,14 @@ export class Client {
    * child-parent pair. This API also refreshes the quota count if it is out of date.
    * Refreshes are triggered asynchronously. The updated count might not be returned in the first call.
    */
-  async getQuota(
-    req: GetQuotaRequest,
-    options?: CallOptions
-  ): Promise<GetQuotaRequest_Response> {
+  async getQuota(req: GetQuotaRequest, options?: CallOptions): Promise<GetQuotaRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/resource-quotas/${req.parentSecurableType ?? ''}/${req.parentFullName ?? ''}/${req.quotaName ?? ''}`;
     let resp: GetQuotaRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalGetQuotaRequest_ResponseSchema);
     };
     await executeCall(call, options);
@@ -91,14 +79,11 @@ export class Client {
   /**
    * ListQuotas returns all quota values under the metastore. There are no SLAs on the freshness of the counts
    * returned. This API does not trigger a refresh of quota counts.
-   *
+   * 
    * PAGINATION BEHAVIOR: The API is by default paginated, a page may contain zero results while still providing a next_page_token.
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
-  async listQuota(
-    req: ListQuotasRequest,
-    options?: CallOptions
-  ): Promise<ListQuotasRequest_Response> {
+  async listQuota(req: ListQuotasRequest, options?: CallOptions): Promise<ListQuotasRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/resource-quotas/all-resource-quotas`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -114,11 +99,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListQuotasRequest_ResponseSchema);
     };
     await executeCall(call, options);
@@ -128,10 +109,8 @@ export class Client {
     return resp;
   }
 
-  async *listQuotaIter(
-    req: ListQuotasRequest,
-    options?: CallOptions
-  ): AsyncGenerator<QuotaInfo> {
+
+  async *listQuotaIter(req: ListQuotasRequest, options?: CallOptions): AsyncGenerator<QuotaInfo> {
     const pageReq: ListQuotasRequest = {...req};
     for (;;) {
       const resp = await this.listQuota(pageReq, options);
@@ -144,4 +123,5 @@ export class Client {
       pageReq.pageToken = resp.nextPageToken;
     }
   }
+
 }

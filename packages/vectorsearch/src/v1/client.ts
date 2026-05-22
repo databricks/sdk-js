@@ -10,13 +10,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateEndpointRequest,
@@ -108,10 +102,7 @@ export class Client {
   }
 
   /** Create a new endpoint. */
-  async createEndpoint(
-    req: CreateEndpointRequest,
-    options?: CallOptions
-  ): Promise<Endpoint> {
+  async createEndpoint(req: CreateEndpointRequest, options?: CallOptions): Promise<Endpoint> {
     const url = `${this.host}/api/2.0/vector-search/endpoints`;
     const body = marshalRequest(req, marshalCreateEndpointRequestSchema);
     let resp: Endpoint | undefined;
@@ -119,11 +110,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalEndpointSchema);
     };
     await executeCall(call, options);
@@ -133,22 +120,24 @@ export class Client {
     return resp;
   }
 
-  async createEndpointWaiter(
+async createEndpointWaiter(
     req: CreateEndpointRequest,
     options?: CallOptions
   ): Promise<CreateEndpointWaiter> {
     const resp = await this.createEndpoint(req, options);
     if (resp.name === undefined) {
-      throw new Error('response field name required for polling is missing');
+      throw new Error(
+        'response field name required for polling is missing'
+      );
     }
-    return new CreateEndpointWaiter(this, resp.name);
+    return new CreateEndpointWaiter(
+      this,
+      resp.name,
+    );
   }
 
   /** Create a new index. */
-  async createVectorIndex(
-    req: CreateVectorIndexRequest,
-    options?: CallOptions
-  ): Promise<VectorIndex> {
+  async createVectorIndex(req: CreateVectorIndexRequest, options?: CallOptions): Promise<VectorIndex> {
     const url = `${this.host}/api/2.0/vector-search/indexes`;
     const body = marshalRequest(req, marshalCreateVectorIndexRequestSchema);
     let resp: VectorIndex | undefined;
@@ -156,11 +145,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalVectorIndexSchema);
     };
     await executeCall(call, options);
@@ -171,10 +156,7 @@ export class Client {
   }
 
   /** Handles the deletion of data from a specified vector index. */
-  async deleteDataVectorIndex(
-    req: DeleteDataVectorIndexRequest,
-    options?: CallOptions
-  ): Promise<DeleteDataVectorIndexResponse> {
+  async deleteDataVectorIndex(req: DeleteDataVectorIndexRequest, options?: CallOptions): Promise<DeleteDataVectorIndexResponse> {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/delete-data`;
     const params = new URLSearchParams();
     if (req.primaryKeys !== undefined) {
@@ -187,15 +169,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteDataVectorIndexResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteDataVectorIndexResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -205,21 +180,14 @@ export class Client {
   }
 
   /** Delete an AI Search endpoint. */
-  async deleteEndpoint(
-    req: DeleteEndpointRequest,
-    options?: CallOptions
-  ): Promise<DeleteEndpointResponse> {
+  async deleteEndpoint(req: DeleteEndpointRequest, options?: CallOptions): Promise<DeleteEndpointResponse> {
     const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
     let resp: DeleteEndpointResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDeleteEndpointResponseSchema);
     };
     await executeCall(call, options);
@@ -230,21 +198,14 @@ export class Client {
   }
 
   /** Delete an index. */
-  async deleteVectorIndex(
-    req: DeleteVectorIndexRequest,
-    options?: CallOptions
-  ): Promise<DeleteVectorIndexResponse> {
+  async deleteVectorIndex(req: DeleteVectorIndexRequest, options?: CallOptions): Promise<DeleteVectorIndexResponse> {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}`;
     let resp: DeleteVectorIndexResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDeleteVectorIndexResponseSchema);
     };
     await executeCall(call, options);
@@ -255,21 +216,14 @@ export class Client {
   }
 
   /** Get details for a single AI Search endpoint. */
-  async getEndpoint(
-    req: GetEndpointRequest,
-    options?: CallOptions
-  ): Promise<Endpoint> {
+  async getEndpoint(req: GetEndpointRequest, options?: CallOptions): Promise<Endpoint> {
     const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
     let resp: Endpoint | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalEndpointSchema);
     };
     await executeCall(call, options);
@@ -280,17 +234,11 @@ export class Client {
   }
 
   /** Get an index. */
-  async getVectorIndex(
-    req: GetVectorIndexRequest,
-    options?: CallOptions
-  ): Promise<VectorIndex> {
+  async getVectorIndex(req: GetVectorIndexRequest, options?: CallOptions): Promise<VectorIndex> {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.ensureRerankerCompatible !== undefined) {
-      params.append(
-        'ensure_reranker_compatible',
-        String(req.ensureRerankerCompatible)
-      );
+      params.append('ensure_reranker_compatible', String(req.ensureRerankerCompatible));
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -299,11 +247,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalVectorIndexSchema);
     };
     await executeCall(call, options);
@@ -314,10 +258,7 @@ export class Client {
   }
 
   /** List all AI Search endpoints in the workspace. */
-  async listEndpoint(
-    req: ListEndpointRequest,
-    options?: CallOptions
-  ): Promise<ListEndpointResponse> {
+  async listEndpoint(req: ListEndpointRequest, options?: CallOptions): Promise<ListEndpointResponse> {
     const url = `${this.host}/api/2.0/vector-search/endpoints`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -330,11 +271,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListEndpointResponseSchema);
     };
     await executeCall(call, options);
@@ -344,10 +281,8 @@ export class Client {
     return resp;
   }
 
-  async *listEndpointIter(
-    req: ListEndpointRequest,
-    options?: CallOptions
-  ): AsyncGenerator<Endpoint> {
+
+  async *listEndpointIter(req: ListEndpointRequest, options?: CallOptions): AsyncGenerator<Endpoint> {
     const pageReq: ListEndpointRequest = {...req};
     for (;;) {
       const resp = await this.listEndpoint(pageReq, options);
@@ -361,11 +296,9 @@ export class Client {
     }
   }
 
+
   /** List all indexes in the given endpoint. */
-  async listVectorIndex(
-    req: ListVectorIndexRequest,
-    options?: CallOptions
-  ): Promise<ListVectorIndexResponse> {
+  async listVectorIndex(req: ListVectorIndexRequest, options?: CallOptions): Promise<ListVectorIndexResponse> {
     const url = `${this.host}/api/2.0/vector-search/indexes`;
     const params = new URLSearchParams();
     if (req.endpointName !== undefined) {
@@ -381,11 +314,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListVectorIndexResponseSchema);
     };
     await executeCall(call, options);
@@ -395,10 +324,8 @@ export class Client {
     return resp;
   }
 
-  async *listVectorIndexIter(
-    req: ListVectorIndexRequest,
-    options?: CallOptions
-  ): AsyncGenerator<MiniVectorIndex> {
+
+  async *listVectorIndexIter(req: ListVectorIndexRequest, options?: CallOptions): AsyncGenerator<MiniVectorIndex> {
     const pageReq: ListVectorIndexRequest = {...req};
     for (;;) {
       const resp = await this.listVectorIndex(pageReq, options);
@@ -412,11 +339,9 @@ export class Client {
     }
   }
 
+
   /** Update an endpoint */
-  async patchEndpoint(
-    req: PatchEndpointRequest,
-    options?: CallOptions
-  ): Promise<Endpoint> {
+  async patchEndpoint(req: PatchEndpointRequest, options?: CallOptions): Promise<Endpoint> {
     const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}`;
     const body = marshalRequest(req, marshalPatchEndpointRequestSchema);
     let resp: Endpoint | undefined;
@@ -424,11 +349,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalEndpointSchema);
     };
     await executeCall(call, options);
@@ -439,29 +360,16 @@ export class Client {
   }
 
   /** Update the budget policy of an endpoint */
-  async patchEndpointBudgetPolicy(
-    req: PatchEndpointBudgetPolicyRequest,
-    options?: CallOptions
-  ): Promise<PatchEndpointBudgetPolicyResponse> {
+  async patchEndpointBudgetPolicy(req: PatchEndpointBudgetPolicyRequest, options?: CallOptions): Promise<PatchEndpointBudgetPolicyResponse> {
     const url = `${this.host}/api/2.0/vector-search/endpoints/${req.name ?? ''}/budget-policy`;
-    const body = marshalRequest(
-      req,
-      marshalPatchEndpointBudgetPolicyRequestSchema
-    );
+    const body = marshalRequest(req, marshalPatchEndpointBudgetPolicyRequestSchema);
     let resp: PatchEndpointBudgetPolicyResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalPatchEndpointBudgetPolicyResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalPatchEndpointBudgetPolicyResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -471,10 +379,7 @@ export class Client {
   }
 
   /** Query the specified vector index. */
-  async queryVectorIndex(
-    req: QueryVectorIndexRequest,
-    options?: CallOptions
-  ): Promise<QueryVectorIndexResponse> {
+  async queryVectorIndex(req: QueryVectorIndexRequest, options?: CallOptions): Promise<QueryVectorIndexResponse> {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/query`;
     const body = marshalRequest(req, marshalQueryVectorIndexRequestSchema);
     let resp: QueryVectorIndexResponse | undefined;
@@ -482,11 +387,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalQueryVectorIndexResponseSchema);
     };
     await executeCall(call, options);
@@ -497,25 +398,15 @@ export class Client {
   }
 
   /** Use `next_page_token` returned from previous `QueryVectorIndex` or `QueryVectorIndexNextPage` request to fetch next page of results. */
-  async queryVectorIndexNextPage(
-    req: QueryVectorIndexNextPageRequest,
-    options?: CallOptions
-  ): Promise<QueryVectorIndexResponse> {
+  async queryVectorIndexNextPage(req: QueryVectorIndexNextPageRequest, options?: CallOptions): Promise<QueryVectorIndexResponse> {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/query-next-page`;
-    const body = marshalRequest(
-      req,
-      marshalQueryVectorIndexNextPageRequestSchema
-    );
+    const body = marshalRequest(req, marshalQueryVectorIndexNextPageRequestSchema);
     let resp: QueryVectorIndexResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalQueryVectorIndexResponseSchema);
     };
     await executeCall(call, options);
@@ -526,10 +417,7 @@ export class Client {
   }
 
   /** Scan the specified vector index and return the first `num_results` entries after the exclusive `primary_key`. */
-  async scanVectorIndex(
-    req: ScanVectorIndexRequest,
-    options?: CallOptions
-  ): Promise<ScanVectorIndexResponse> {
+  async scanVectorIndex(req: ScanVectorIndexRequest, options?: CallOptions): Promise<ScanVectorIndexResponse> {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/scan`;
     const body = marshalRequest(req, marshalScanVectorIndexRequestSchema);
     let resp: ScanVectorIndexResponse | undefined;
@@ -537,11 +425,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalScanVectorIndexResponseSchema);
     };
     await executeCall(call, options);
@@ -552,10 +436,7 @@ export class Client {
   }
 
   /** Triggers a synchronization process for a specified vector index. */
-  async syncVectorIndex(
-    req: SyncVectorIndexRequest,
-    options?: CallOptions
-  ): Promise<SyncVectorIndexResponse> {
+  async syncVectorIndex(req: SyncVectorIndexRequest, options?: CallOptions): Promise<SyncVectorIndexResponse> {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/sync`;
     const body = marshalRequest(req, marshalSyncVectorIndexRequestSchema);
     let resp: SyncVectorIndexResponse | undefined;
@@ -563,11 +444,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalSyncVectorIndexResponseSchema);
     };
     await executeCall(call, options);
@@ -578,10 +455,7 @@ export class Client {
   }
 
   /** Handles the upserting of data into a specified vector index. */
-  async upsertDataVectorIndex(
-    req: UpsertDataVectorIndexRequest,
-    options?: CallOptions
-  ): Promise<UpsertDataVectorIndexResponse> {
+  async upsertDataVectorIndex(req: UpsertDataVectorIndexRequest, options?: CallOptions): Promise<UpsertDataVectorIndexResponse> {
     const url = `${this.host}/api/2.0/vector-search/indexes/${req.name ?? ''}/upsert-data`;
     const body = marshalRequest(req, marshalUpsertDataVectorIndexRequestSchema);
     let resp: UpsertDataVectorIndexResponse | undefined;
@@ -589,15 +463,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpsertDataVectorIndexResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalUpsertDataVectorIndexResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -610,7 +477,7 @@ export class Client {
 export class CreateEndpointWaiter {
   constructor(
     private readonly client: Client,
-    readonly name: string
+    readonly name: string,
   ) {}
 
   /**
@@ -638,7 +505,8 @@ export class CreateEndpointWaiter {
         case EndpointStatus_State.ONLINE:
           result = pollResp;
           return;
-        case EndpointStatus_State.OFFLINE: {
+        case EndpointStatus_State.OFFLINE:
+        {
           const msg = pollResp.endpointStatus?.message ?? '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }

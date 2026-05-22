@@ -10,29 +10,23 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import {z} from 'zod';
 import type {
-  CreateWorkspacePublicRequest,
-  CustomerFacingWorkspace,
-  DeleteWorkspacePublicRequest,
-  GetWorkspacePublicRequest,
-  ListWorkspacesPublicRequest,
-  ListWorkspacesPublicResponse,
-  UpdateWorkspacePublicRequest,
+  CreateWorkspaceRequest,
+  DeleteWorkspaceRequest,
+  GetWorkspaceRequest,
+  ListWorkspacesRequest,
+  ListWorkspacesResponse,
+  UpdateWorkspaceRequest,
+  Workspace,
 } from './model';
 import {
   WorkspaceStatus,
-  marshalCreateWorkspacePublicRequestSchema,
-  marshalCustomerFacingWorkspaceSchema,
-  unmarshalCustomerFacingWorkspaceSchema,
+  marshalCreateWorkspaceRequestSchema,
+  marshalWorkspaceSchema,
+  unmarshalWorkspaceSchema,
 } from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
@@ -74,34 +68,27 @@ export class Client {
 
   /**
    * Creates a new workspace using a credential configuration and a storage configuration, an optional network configuration (if using a customer-managed VPC), an optional managed services key configuration (if using customer-managed keys for managed services), and an optional storage key configuration (if using customer-managed keys for storage). The key configurations used for managed services and storage encryption can be the same or different.
-   *
+   * 
    * Important: This operation is asynchronous. A response with HTTP status code 200 means the request has been accepted and is in progress, but does not mean that the workspace deployed successfully and is running. The initial workspace status is typically PROVISIONING. Use the workspace ID (workspace_id) field in the response to identify the new workspace and make repeated GET requests with the workspace ID and check its status. The workspace becomes available when the status changes to RUNNING.
-   *
+   * 
    * You can share one customer-managed VPC with multiple workspaces in a single account. It is not required to create a new VPC for each workspace. However, you cannot reuse subnets or Security Groups between workspaces. If you plan to share one VPC with multiple workspaces, make sure you size your VPC and subnets accordingly. Because a Databricks Account API network configuration encapsulates this information, you cannot reuse a Databricks Account API network configuration across workspaces.
-   *
+   * 
    * For information about how to create a new workspace with this API including error handling, see [Create a new workspace using the Account API](http://docs.databricks.com/administration-guide/account-api/new-workspace.html).
-   *
+   * 
    * Important: Customer-managed VPCs, PrivateLink, and customer-managed keys are supported on a limited set of deployment and subscription types. If you have questions about availability, contact your <Databricks> representative.
-   *
+   * 
    * This operation is available only if your account is on the E2 version of the platform or on a select custom plan that allows multiple workspaces per account.
    */
-  async createWorkspacePublic(
-    req: CreateWorkspacePublicRequest,
-    options?: CallOptions
-  ): Promise<CustomerFacingWorkspace> {
+  async createWorkspacePublic(req: CreateWorkspaceRequest, options?: CallOptions): Promise<Workspace> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces`;
-    const body = marshalRequest(req, marshalCreateWorkspacePublicRequestSchema);
-    let resp: CustomerFacingWorkspace | undefined;
+    const body = marshalRequest(req, marshalCreateWorkspaceRequestSchema);
+    let resp: Workspace | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalCustomerFacingWorkspaceSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalWorkspaceSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -110,8 +97,8 @@ export class Client {
     return resp;
   }
 
-  async createWorkspacePublicWaiter(
-    req: CreateWorkspacePublicRequest,
+async createWorkspacePublicWaiter(
+    req: CreateWorkspaceRequest,
     options?: CallOptions
   ): Promise<CreateWorkspacePublicWaiter> {
     const resp = await this.createWorkspacePublic(req, options);
@@ -120,26 +107,22 @@ export class Client {
         'response field workspaceId required for polling is missing'
       );
     }
-    return new CreateWorkspacePublicWaiter(this, resp.workspaceId);
+    return new CreateWorkspacePublicWaiter(
+      this,
+      resp.workspaceId,
+    );
   }
 
   /** Deletes a <Databricks> workspace, both specified by ID. */
-  async deleteWorkspacePublic(
-    req: DeleteWorkspacePublicRequest,
-    options?: CallOptions
-  ): Promise<CustomerFacingWorkspace> {
+  async deleteWorkspacePublic(req: DeleteWorkspaceRequest, options?: CallOptions): Promise<Workspace> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}`;
-    let resp: CustomerFacingWorkspace | undefined;
+    let resp: Workspace | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalCustomerFacingWorkspaceSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalWorkspaceSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -152,22 +135,15 @@ export class Client {
    * Gets information including status for a <Databricks> workspace, specified by ID. In the response, the `workspace_status` field indicates the current status. After initial workspace creation (which is asynchronous), make repeated `GET` requests with the workspace ID and check its status. The workspace becomes available when the status changes to `RUNNING`.
    * For information about how to create a new workspace with this API **including error handling**, see [Create a new workspace using the Account API](http://docs.databricks.com/administration-guide/account-api/new-workspace.html).
    */
-  async getWorkspacePublic(
-    req: GetWorkspacePublicRequest,
-    options?: CallOptions
-  ): Promise<CustomerFacingWorkspace> {
+  async getWorkspacePublic(req: GetWorkspaceRequest, options?: CallOptions): Promise<Workspace> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces/${String(req.workspaceId ?? '')}`;
-    let resp: CustomerFacingWorkspace | undefined;
+    let resp: Workspace | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalCustomerFacingWorkspaceSchema);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalWorkspaceSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -177,26 +153,16 @@ export class Client {
   }
 
   /** Lists <Databricks> workspaces for an account. */
-  async listWorkspacesPublic(
-    req: ListWorkspacesPublicRequest,
-    options?: CallOptions
-  ): Promise<ListWorkspacesPublicResponse> {
+  async listWorkspacesPublic(req: ListWorkspacesRequest, options?: CallOptions): Promise<ListWorkspacesResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/workspaces`;
-    let resp: ListWorkspacesPublicResponse | undefined;
+    let resp: ListWorkspacesResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = {
-        workspaces: parseResponse(
-          respBody,
-          z.array(z.lazy(() => unmarshalCustomerFacingWorkspaceSchema))
-        ),
+        workspaces: parseResponse(respBody, z.array(z.lazy(() => unmarshalWorkspaceSchema))),
       };
     };
     await executeCall(call, options);
@@ -207,10 +173,7 @@ export class Client {
   }
 
   /** Updates a workspace. */
-  async updateWorkspacePublic(
-    req: UpdateWorkspacePublicRequest,
-    options?: CallOptions
-  ): Promise<CustomerFacingWorkspace> {
+  async updateWorkspacePublic(req: UpdateWorkspaceRequest, options?: CallOptions): Promise<Workspace> {
     const url = `${this.host}/api/2.0/accounts/${req.customerFacingWorkspace?.accountId ?? ''}/workspaces/${String(req.customerFacingWorkspace?.workspaceId ?? '')}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -218,27 +181,14 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.customerFacingWorkspace,
-      marshalCustomerFacingWorkspaceSchema
-    );
-    let resp: CustomerFacingWorkspace | undefined;
+    const body = marshalRequest(req.customerFacingWorkspace, marshalWorkspaceSchema);
+    let resp: Workspace | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(respBody, unmarshalCustomerFacingWorkspaceSchema);
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalWorkspaceSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -247,8 +197,8 @@ export class Client {
     return resp;
   }
 
-  async updateWorkspacePublicWaiter(
-    req: UpdateWorkspacePublicRequest,
+async updateWorkspacePublicWaiter(
+    req: UpdateWorkspaceRequest,
     options?: CallOptions
   ): Promise<UpdateWorkspacePublicWaiter> {
     const resp = await this.updateWorkspacePublic(req, options);
@@ -257,14 +207,17 @@ export class Client {
         'response field workspaceId required for polling is missing'
       );
     }
-    return new UpdateWorkspacePublicWaiter(this, resp.workspaceId);
+    return new UpdateWorkspacePublicWaiter(
+      this,
+      resp.workspaceId,
+    );
   }
 }
 
 export class CreateWorkspacePublicWaiter {
   constructor(
     private readonly client: Client,
-    readonly workspaceId: number
+    readonly workspaceId: number,
   ) {}
 
   /**
@@ -272,8 +225,8 @@ export class CreateWorkspacePublicWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: CallOptions): Promise<CustomerFacingWorkspace> {
-    let result: CustomerFacingWorkspace | undefined;
+  async wait(options?: CallOptions): Promise<Workspace> {
+    let result: Workspace | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getWorkspacePublic(
@@ -293,7 +246,8 @@ export class CreateWorkspacePublicWaiter {
           result = pollResp;
           return;
         case WorkspaceStatus.BANNED:
-        case WorkspaceStatus.FAILED: {
+        case WorkspaceStatus.FAILED:
+        {
           const msg = pollResp.workspaceStatusMessage ?? '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }
@@ -344,7 +298,7 @@ export class CreateWorkspacePublicWaiter {
 export class UpdateWorkspacePublicWaiter {
   constructor(
     private readonly client: Client,
-    readonly workspaceId: number
+    readonly workspaceId: number,
   ) {}
 
   /**
@@ -352,8 +306,8 @@ export class UpdateWorkspacePublicWaiter {
    *
    * Throws if a failure state is reached.
    */
-  async wait(options?: CallOptions): Promise<CustomerFacingWorkspace> {
-    let result: CustomerFacingWorkspace | undefined;
+  async wait(options?: CallOptions): Promise<Workspace> {
+    let result: Workspace | undefined;
 
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const pollResp = await this.client.getWorkspacePublic(
@@ -373,7 +327,8 @@ export class UpdateWorkspacePublicWaiter {
           result = pollResp;
           return;
         case WorkspaceStatus.BANNED:
-        case WorkspaceStatus.FAILED: {
+        case WorkspaceStatus.FAILED:
+        {
           const msg = pollResp.workspaceStatusMessage ?? '(no message)';
           throw new Error(`terminal state ${status}: ${msg}`);
         }

@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateExampleRequest,
@@ -84,10 +78,7 @@ export class Client {
   }
 
   /** Creates an example for a Supervisor Agent. */
-  async createExample(
-    req: CreateExampleRequest,
-    options?: CallOptions
-  ): Promise<Example> {
+  async createExample(req: CreateExampleRequest, options?: CallOptions): Promise<Example> {
     const url = `${this.host}/api/2.1/${req.parent ?? ''}/examples`;
     const body = marshalRequest(req.example, marshalExampleSchema);
     let resp: Example | undefined;
@@ -95,11 +86,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalExampleSchema);
     };
     await executeCall(call, options);
@@ -110,25 +97,15 @@ export class Client {
   }
 
   /** Creates a new Supervisor Agent. */
-  async createSupervisorAgent(
-    req: CreateSupervisorAgentRequest,
-    options?: CallOptions
-  ): Promise<SupervisorAgent> {
+  async createSupervisorAgent(req: CreateSupervisorAgentRequest, options?: CallOptions): Promise<SupervisorAgent> {
     const url = `${this.host}/api/2.1/supervisor-agents`;
-    const body = marshalRequest(
-      req.supervisorAgent,
-      marshalSupervisorAgentSchema
-    );
+    const body = marshalRequest(req.supervisorAgent, marshalSupervisorAgentSchema);
     let resp: SupervisorAgent | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalSupervisorAgentSchema);
     };
     await executeCall(call, options);
@@ -139,10 +116,7 @@ export class Client {
   }
 
   /** Creates a Tool under a Supervisor Agent. Specify one of "genie_space", "knowledge_assistant", "uc_function", "uc_connection", "app", "volume", "dashboard", "table", "vector_search_index", "catalog", "schema", "supervisor_agent", "web_search" in the request body. The legacy values "lakeview_dashboard" and "uc_table" are also accepted and remain equivalent to "dashboard" and "table" respectively. */
-  async createTool(
-    req: CreateToolRequest,
-    options?: CallOptions
-  ): Promise<Tool> {
+  async createTool(req: CreateToolRequest, options?: CallOptions): Promise<Tool> {
     const url = `${this.host}/api/2.1/${req.parent ?? ''}/tools`;
     const params = new URLSearchParams();
     if (req.toolId !== undefined) {
@@ -155,18 +129,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'POST',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('POST', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalToolSchema);
     };
     await executeCall(call, options);
@@ -177,78 +141,50 @@ export class Client {
   }
 
   /** Deletes an example from a Supervisor Agent. */
-  async deleteExample(
-    req: DeleteExampleRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteExample(req: DeleteExampleRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Deletes a Supervisor Agent. */
-  async deleteSupervisorAgent(
-    req: DeleteSupervisorAgentRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteSupervisorAgent(req: DeleteSupervisorAgentRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Deletes a Tool. */
-  async deleteTool(
-    req: DeleteToolRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteTool(req: DeleteToolRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Gets an example from a Supervisor Agent. */
-  async getExample(
-    req: GetExampleRequest,
-    options?: CallOptions
-  ): Promise<Example> {
+  async getExample(req: GetExampleRequest, options?: CallOptions): Promise<Example> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     let resp: Example | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalExampleSchema);
     };
     await executeCall(call, options);
@@ -259,21 +195,14 @@ export class Client {
   }
 
   /** Gets a Supervisor Agent. */
-  async getSupervisorAgent(
-    req: GetSupervisorAgentRequest,
-    options?: CallOptions
-  ): Promise<SupervisorAgent> {
+  async getSupervisorAgent(req: GetSupervisorAgentRequest, options?: CallOptions): Promise<SupervisorAgent> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     let resp: SupervisorAgent | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalSupervisorAgentSchema);
     };
     await executeCall(call, options);
@@ -291,11 +220,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalToolSchema);
     };
     await executeCall(call, options);
@@ -306,10 +231,7 @@ export class Client {
   }
 
   /** Lists examples under a Supervisor Agent. */
-  async listExamples(
-    req: ListExamplesRequest,
-    options?: CallOptions
-  ): Promise<ListExamplesResponse> {
+  async listExamples(req: ListExamplesRequest, options?: CallOptions): Promise<ListExamplesResponse> {
     const url = `${this.host}/api/2.1/${req.parent ?? ''}/examples`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -325,11 +247,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListExamplesResponseSchema);
     };
     await executeCall(call, options);
@@ -339,10 +257,8 @@ export class Client {
     return resp;
   }
 
-  async *listExamplesIter(
-    req: ListExamplesRequest,
-    options?: CallOptions
-  ): AsyncGenerator<Example> {
+
+  async *listExamplesIter(req: ListExamplesRequest, options?: CallOptions): AsyncGenerator<Example> {
     const pageReq: ListExamplesRequest = {...req};
     for (;;) {
       const resp = await this.listExamples(pageReq, options);
@@ -356,11 +272,9 @@ export class Client {
     }
   }
 
+
   /** Lists Supervisor Agents. */
-  async listSupervisorAgents(
-    req: ListSupervisorAgentsRequest,
-    options?: CallOptions
-  ): Promise<ListSupervisorAgentsResponse> {
+  async listSupervisorAgents(req: ListSupervisorAgentsRequest, options?: CallOptions): Promise<ListSupervisorAgentsResponse> {
     const url = `${this.host}/api/2.1/supervisor-agents`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -376,15 +290,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListSupervisorAgentsResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListSupervisorAgentsResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -393,10 +300,8 @@ export class Client {
     return resp;
   }
 
-  async *listSupervisorAgentsIter(
-    req: ListSupervisorAgentsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<SupervisorAgent> {
+
+  async *listSupervisorAgentsIter(req: ListSupervisorAgentsRequest, options?: CallOptions): AsyncGenerator<SupervisorAgent> {
     const pageReq: ListSupervisorAgentsRequest = {...req};
     for (;;) {
       const resp = await this.listSupervisorAgents(pageReq, options);
@@ -410,11 +315,9 @@ export class Client {
     }
   }
 
+
   /** Lists Tools under a Supervisor Agent. */
-  async listTools(
-    req: ListToolsRequest,
-    options?: CallOptions
-  ): Promise<ListToolsResponse> {
+  async listTools(req: ListToolsRequest, options?: CallOptions): Promise<ListToolsResponse> {
     const url = `${this.host}/api/2.1/${req.parent ?? ''}/tools`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -430,11 +333,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListToolsResponseSchema);
     };
     await executeCall(call, options);
@@ -444,10 +343,8 @@ export class Client {
     return resp;
   }
 
-  async *listToolsIter(
-    req: ListToolsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<Tool> {
+
+  async *listToolsIter(req: ListToolsRequest, options?: CallOptions): AsyncGenerator<Tool> {
     const pageReq: ListToolsRequest = {...req};
     for (;;) {
       const resp = await this.listTools(pageReq, options);
@@ -461,11 +358,9 @@ export class Client {
     }
   }
 
+
   /** Updates an example in a Supervisor Agent. */
-  async updateExample(
-    req: UpdateExampleRequest,
-    options?: CallOptions
-  ): Promise<Example> {
+  async updateExample(req: UpdateExampleRequest, options?: CallOptions): Promise<Example> {
     const url = `${this.host}/api/2.1/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -478,18 +373,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalExampleSchema);
     };
     await executeCall(call, options);
@@ -503,10 +388,7 @@ export class Client {
    * Updates a Supervisor Agent. The fields that are required depend on the paths specified in `update_mask`.
    * Only fields included in the mask will be updated.
    */
-  async updateSupervisorAgent(
-    req: UpdateSupervisorAgentRequest,
-    options?: CallOptions
-  ): Promise<SupervisorAgent> {
+  async updateSupervisorAgent(req: UpdateSupervisorAgentRequest, options?: CallOptions): Promise<SupervisorAgent> {
     const url = `${this.host}/api/2.1/${req.supervisorAgent?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -514,26 +396,13 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.supervisorAgent,
-      marshalSupervisorAgentSchema
-    );
+    const body = marshalRequest(req.supervisorAgent, marshalSupervisorAgentSchema);
     let resp: SupervisorAgent | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalSupervisorAgentSchema);
     };
     await executeCall(call, options);
@@ -547,10 +416,7 @@ export class Client {
    * Updates a Tool. Only the `description` field can be updated.
    * To change immutable fields such as tool type, spec, or tool ID, delete the tool and recreate it.
    */
-  async updateTool(
-    req: UpdateToolRequest,
-    options?: CallOptions
-  ): Promise<Tool> {
+  async updateTool(req: UpdateToolRequest, options?: CallOptions): Promise<Tool> {
     const url = `${this.host}/api/2.1/${req.tool?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -563,18 +429,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalToolSchema);
     };
     await executeCall(call, options);

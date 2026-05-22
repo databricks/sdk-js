@@ -1,5 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+
 export {Client} from './client';
 
 export {
@@ -13,16 +14,16 @@ export {
 } from './model';
 
 export type {
-  AccountsCreateStorageCredentialPublicRequest,
-  AccountsCreateStorageCredentialPublicRequest_Response,
-  AccountsDeleteStorageCredentialPublicRequest,
-  AccountsDeleteStorageCredentialPublicRequest_Response,
-  AccountsGetStorageCredentialPublicRequest,
-  AccountsGetStorageCredentialPublicRequest_Response,
-  AccountsListStorageCredentialsPublicRequest,
-  AccountsListStorageCredentialsPublicRequest_Response,
-  AccountsUpdateStorageCredentialPublicRequest,
-  AccountsUpdateStorageCredentialPublicRequest_Response,
+  AccountsCreateStorageCredentialRequest,
+  AccountsCreateStorageCredentialRequest_Response,
+  AccountsDeleteStorageCredentialRequest,
+  AccountsDeleteStorageCredentialRequest_Response,
+  AccountsGetStorageCredentialRequest,
+  AccountsGetStorageCredentialRequest_Response,
+  AccountsListStorageCredentialsRequest,
+  AccountsListStorageCredentialsRequest_Response,
+  AccountsUpdateStorageCredentialRequest,
+  AccountsUpdateStorageCredentialRequest_Response,
   AwsCredentials,
   AwsCredentials_StsRole,
   AwsIamRole,
@@ -34,14 +35,14 @@ export type {
   CreateAccountsStorageCredential,
   CreateCredentialAwsCredentials,
   CreateCredentialRequest,
-  CreateCredentialsPublicRequest,
+  CreateCredentialsRequest,
   CreateStorageCredentialRequest,
   CredentialInfo,
   Credentials,
   DatabricksGcpServiceAccount,
   DeleteCredentialRequest,
   DeleteCredentialRequest_Response,
-  DeleteCredentialsPublicRequest,
+  DeleteCredentialsRequest,
   DeleteStorageCredentialRequest,
   DeleteStorageCredentialRequest_Response,
   GcpOauthToken,
@@ -56,12 +57,12 @@ export type {
   GenerateTemporaryVolumeCredentialRequest,
   GenerateTemporaryVolumeCredentialRequest_Response,
   GetCredentialRequest,
-  GetCredentialsPublicRequest,
+  GetCredentialsRequest,
   GetStorageCredentialRequest,
   ListCredentialsPublicRequest,
-  ListCredentialsPublicResponse,
   ListCredentialsRequest,
   ListCredentialsRequest_Response,
+  ListCredentialsResponse,
   ListStorageCredentialsRequest,
   ListStorageCredentialsRequest_Response,
   R2Credentials,

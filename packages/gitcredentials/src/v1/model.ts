@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export interface CreateCredentialsRequest {
   /**
    * Git provider. This field is case-insensitive. The available Git providers are `gitHub`,
@@ -192,24 +193,23 @@ export interface UpdateCredentialsRequest {
 export interface UpdateCredentialsRequest_Response {}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateCredentialsRequest_ResponseSchema: z.ZodType<CreateCredentialsRequest_Response> =
-  z
-    .object({
-      credential_id: z.number().optional(),
-      git_provider: z.string().optional(),
-      git_username: z.string().optional(),
-      name: z.string().optional(),
-      is_default_for_provider: z.boolean().optional(),
-      git_email: z.string().optional(),
-    })
-    .transform(d => ({
-      credentialId: d.credential_id,
-      gitProvider: d.git_provider,
-      gitUsername: d.git_username,
-      name: d.name,
-      isDefaultForProvider: d.is_default_for_provider,
-      gitEmail: d.git_email,
-    }));
+export const unmarshalCreateCredentialsRequest_ResponseSchema: z.ZodType<CreateCredentialsRequest_Response> = z
+  .object({
+    credential_id: z.number().optional(),
+    git_provider: z.string().optional(),
+    git_username: z.string().optional(),
+    name: z.string().optional(),
+    is_default_for_provider: z.boolean().optional(),
+    git_email: z.string().optional(),
+  })
+  .transform(d => ({
+    credentialId: d.credential_id,
+    gitProvider: d.git_provider,
+    gitUsername: d.git_username,
+    name: d.name,
+    isDefaultForProvider: d.is_default_for_provider,
+    gitEmail: d.git_email,
+  }));
 
 export const unmarshalCredentialSchema: z.ZodType<Credential> = z
   .object({
@@ -230,42 +230,42 @@ export const unmarshalCredentialSchema: z.ZodType<Credential> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDeleteCredentialsRequest_ResponseSchema: z.ZodType<DeleteCredentialsRequest_Response> =
-  z.object({});
+export const unmarshalDeleteCredentialsRequest_ResponseSchema: z.ZodType<DeleteCredentialsRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetCredentialsRequest_ResponseSchema: z.ZodType<GetCredentialsRequest_Response> =
-  z
-    .object({
-      credential_id: z.number().optional(),
-      git_provider: z.string().optional(),
-      git_username: z.string().optional(),
-      name: z.string().optional(),
-      is_default_for_provider: z.boolean().optional(),
-      git_email: z.string().optional(),
-    })
-    .transform(d => ({
-      credentialId: d.credential_id,
-      gitProvider: d.git_provider,
-      gitUsername: d.git_username,
-      name: d.name,
-      isDefaultForProvider: d.is_default_for_provider,
-      gitEmail: d.git_email,
-    }));
+export const unmarshalGetCredentialsRequest_ResponseSchema: z.ZodType<GetCredentialsRequest_Response> = z
+  .object({
+    credential_id: z.number().optional(),
+    git_provider: z.string().optional(),
+    git_username: z.string().optional(),
+    name: z.string().optional(),
+    is_default_for_provider: z.boolean().optional(),
+    git_email: z.string().optional(),
+  })
+  .transform(d => ({
+    credentialId: d.credential_id,
+    gitProvider: d.git_provider,
+    gitUsername: d.git_username,
+    name: d.name,
+    isDefaultForProvider: d.is_default_for_provider,
+    gitEmail: d.git_email,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListCredentialsRequest_ResponseSchema: z.ZodType<ListCredentialsRequest_Response> =
-  z
-    .object({
-      credentials: z.array(z.lazy(() => unmarshalCredentialSchema)).optional(),
-    })
-    .transform(d => ({
-      credentials: d.credentials,
-    }));
+export const unmarshalListCredentialsRequest_ResponseSchema: z.ZodType<ListCredentialsRequest_Response> = z
+  .object({
+    credentials: z.array(z.lazy(() => unmarshalCredentialSchema)).optional(),
+  })
+  .transform(d => ({
+    credentials: d.credentials,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUpdateCredentialsRequest_ResponseSchema: z.ZodType<UpdateCredentialsRequest_Response> =
-  z.object({});
+export const unmarshalUpdateCredentialsRequest_ResponseSchema: z.ZodType<UpdateCredentialsRequest_Response> = z
+  .object({
+  });
 
 export const marshalCreateCredentialsRequestSchema: z.ZodType = z
   .object({

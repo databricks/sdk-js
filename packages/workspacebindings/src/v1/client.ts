@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   GetCatalogWorkspaceBindingsRequest,
@@ -72,25 +66,15 @@ export class Client {
    * Gets workspace bindings of the catalog.
    * The caller must be a metastore admin or an owner of the catalog.
    */
-  async getCatalogWorkspaceBindings(
-    req: GetCatalogWorkspaceBindingsRequest,
-    options?: CallOptions
-  ): Promise<GetCatalogWorkspaceBindingsRequest_Response> {
+  async getCatalogWorkspaceBindings(req: GetCatalogWorkspaceBindingsRequest, options?: CallOptions): Promise<GetCatalogWorkspaceBindingsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/workspace-bindings/catalogs/${req.catalogName ?? ''}`;
     let resp: GetCatalogWorkspaceBindingsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetCatalogWorkspaceBindingsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetCatalogWorkspaceBindingsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -102,16 +86,13 @@ export class Client {
   /**
    * Gets workspace bindings of the securable.
    * The caller must be a metastore admin or an owner of the securable.
-   *
+   * 
    * NOTE: we recommend using max_results=0 to use the paginated version of this API. Unpaginated calls will be deprecated soon.
-   *
+   * 
    * PAGINATION BEHAVIOR: When using pagination (max_results >= 0), a page may contain zero results while still providing a next_page_token.
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
-  async getWorkspaceBindings(
-    req: GetWorkspaceBindingsRequest,
-    options?: CallOptions
-  ): Promise<GetWorkspaceBindingsRequest_Response> {
+  async getWorkspaceBindings(req: GetWorkspaceBindingsRequest, options?: CallOptions): Promise<GetWorkspaceBindingsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/bindings/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -127,15 +108,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetWorkspaceBindingsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetWorkspaceBindingsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -144,10 +118,8 @@ export class Client {
     return resp;
   }
 
-  async *getWorkspaceBindingsIter(
-    req: GetWorkspaceBindingsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<WorkspaceBindingInfo> {
+
+  async *getWorkspaceBindingsIter(req: GetWorkspaceBindingsRequest, options?: CallOptions): AsyncGenerator<WorkspaceBindingInfo> {
     const pageReq: GetWorkspaceBindingsRequest = {...req};
     for (;;) {
       const resp = await this.getWorkspaceBindings(pageReq, options);
@@ -161,33 +133,21 @@ export class Client {
     }
   }
 
+
   /**
    * Updates workspace bindings of the catalog.
    * The caller must be a metastore admin or an owner of the catalog.
    */
-  async updateCatalogWorkspaceBindings(
-    req: UpdateCatalogWorkspaceBindingsRequest,
-    options?: CallOptions
-  ): Promise<UpdateCatalogWorkspaceBindingsRequest_Response> {
+  async updateCatalogWorkspaceBindings(req: UpdateCatalogWorkspaceBindingsRequest, options?: CallOptions): Promise<UpdateCatalogWorkspaceBindingsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/workspace-bindings/catalogs/${req.catalogName ?? ''}`;
-    const body = marshalRequest(
-      req,
-      marshalUpdateCatalogWorkspaceBindingsRequestSchema
-    );
+    const body = marshalRequest(req, marshalUpdateCatalogWorkspaceBindingsRequestSchema);
     let resp: UpdateCatalogWorkspaceBindingsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdateCatalogWorkspaceBindingsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalUpdateCatalogWorkspaceBindingsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -200,29 +160,16 @@ export class Client {
    * Updates workspace bindings of the securable.
    * The caller must be a metastore admin or an owner of the securable.
    */
-  async updateWorkspaceBindings(
-    req: UpdateWorkspaceBindingsRequest,
-    options?: CallOptions
-  ): Promise<UpdateWorkspaceBindingsRequest_Response> {
+  async updateWorkspaceBindings(req: UpdateWorkspaceBindingsRequest, options?: CallOptions): Promise<UpdateWorkspaceBindingsRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/bindings/${req.securableType ?? ''}/${req.securableFullName ?? ''}`;
-    const body = marshalRequest(
-      req,
-      marshalUpdateWorkspaceBindingsRequestSchema
-    );
+    const body = marshalRequest(req, marshalUpdateWorkspaceBindingsRequestSchema);
     let resp: UpdateWorkspaceBindingsRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdateWorkspaceBindingsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalUpdateWorkspaceBindingsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

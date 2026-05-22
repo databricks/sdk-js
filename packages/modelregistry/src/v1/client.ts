@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   ApproveTransitionRequest,
@@ -170,10 +164,7 @@ export class Client {
   }
 
   /** Approves a model version stage transition request. */
-  async approveTransitionRequest(
-    req: ApproveTransitionRequest,
-    options?: CallOptions
-  ): Promise<ApproveTransitionRequest_Response> {
+  async approveTransitionRequest(req: ApproveTransitionRequest, options?: CallOptions): Promise<ApproveTransitionRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/transition-requests/approve`;
     const body = marshalRequest(req, marshalApproveTransitionRequestSchema);
     let resp: ApproveTransitionRequest_Response | undefined;
@@ -181,15 +172,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalApproveTransitionRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalApproveTransitionRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -202,10 +186,7 @@ export class Client {
    * Posts a comment on a model version. A comment can be submitted either by a user or programmatically to display
    * relevant information about the model. For example, test results or deployment errors.
    */
-  async createComment(
-    req: CreateCommentRequest,
-    options?: CallOptions
-  ): Promise<CreateCommentRequest_Response> {
+  async createComment(req: CreateCommentRequest, options?: CallOptions): Promise<CreateCommentRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/comments/create`;
     const body = marshalRequest(req, marshalCreateCommentRequestSchema);
     let resp: CreateCommentRequest_Response | undefined;
@@ -213,15 +194,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateCommentRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalCreateCommentRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -234,10 +208,7 @@ export class Client {
    * **NOTE:** This endpoint is in Public Preview.
    * Creates a registry webhook.
    */
-  async createRegistryWebhook(
-    req: CreateRegistryWebhookRequest,
-    options?: CallOptions
-  ): Promise<CreateRegistryWebhookRequest_Response> {
+  async createRegistryWebhook(req: CreateRegistryWebhookRequest, options?: CallOptions): Promise<CreateRegistryWebhookRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/registry-webhooks/create`;
     const body = marshalRequest(req, marshalCreateRegistryWebhookRequestSchema);
     let resp: CreateRegistryWebhookRequest_Response | undefined;
@@ -245,15 +216,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateRegistryWebhookRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalCreateRegistryWebhookRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -263,10 +227,7 @@ export class Client {
   }
 
   /** Creates a model version stage transition request. */
-  async createTransitionRequest(
-    req: CreateTransitionRequest,
-    options?: CallOptions
-  ): Promise<CreateTransitionRequest_Response> {
+  async createTransitionRequest(req: CreateTransitionRequest, options?: CallOptions): Promise<CreateTransitionRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/transition-requests/create`;
     const body = marshalRequest(req, marshalCreateTransitionRequestSchema);
     let resp: CreateTransitionRequest_Response | undefined;
@@ -274,15 +235,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateTransitionRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalCreateTransitionRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -292,10 +246,7 @@ export class Client {
   }
 
   /** Deletes a comment on a model version. */
-  async deleteComment(
-    req: DeleteCommentRequest,
-    options?: CallOptions
-  ): Promise<DeleteCommentRequest_Response> {
+  async deleteComment(req: DeleteCommentRequest, options?: CallOptions): Promise<DeleteCommentRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/comments/delete`;
     const params = new URLSearchParams();
     if (req.id !== undefined) {
@@ -308,15 +259,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteCommentRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteCommentRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -329,10 +273,7 @@ export class Client {
    * **NOTE:** This endpoint is in Public Preview.
    * Deletes a registry webhook.
    */
-  async deleteRegistryWebhook(
-    req: DeleteRegistryWebhookRequest,
-    options?: CallOptions
-  ): Promise<DeleteRegistryWebhookRequest_Response> {
+  async deleteRegistryWebhook(req: DeleteRegistryWebhookRequest, options?: CallOptions): Promise<DeleteRegistryWebhookRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/registry-webhooks/delete`;
     const params = new URLSearchParams();
     if (req.id !== undefined) {
@@ -345,15 +286,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteRegistryWebhookRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteRegistryWebhookRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -363,10 +297,7 @@ export class Client {
   }
 
   /** Cancels a model version stage transition request. */
-  async deleteTransitionRequest(
-    req: DeleteTransitionRequest,
-    options?: CallOptions
-  ): Promise<DeleteTransitionRequest_Response> {
+  async deleteTransitionRequest(req: DeleteTransitionRequest, options?: CallOptions): Promise<DeleteTransitionRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/transition-requests/delete`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
@@ -391,15 +322,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteTransitionRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteTransitionRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -413,10 +337,7 @@ export class Client {
    * This is a <Databricks> workspace version of the [MLflow endpoint](https://www.mlflow.org/docs/latest/rest-api.html#get-registeredmodel)
    * that also returns the model's <Databricks> workspace ID and the permission level of the requesting user on the model.
    */
-  async getRegisteredModelDatabricks(
-    req: GetRegisteredModelDatabricksRequest,
-    options?: CallOptions
-  ): Promise<GetRegisteredModelDatabricksRequest_Response> {
+  async getRegisteredModelDatabricks(req: GetRegisteredModelDatabricksRequest, options?: CallOptions): Promise<GetRegisteredModelDatabricksRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/databricks/registered-models/get`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
@@ -429,15 +350,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetRegisteredModelDatabricksRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetRegisteredModelDatabricksRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -450,10 +364,7 @@ export class Client {
    * **NOTE:** This endpoint is in Public Preview.
    * Lists all registry webhooks.
    */
-  async listRegistryWebhooks(
-    req: ListRegistryWebhooksRequest,
-    options?: CallOptions
-  ): Promise<ListRegistryWebhooksRequest_Response> {
+  async listRegistryWebhooks(req: ListRegistryWebhooksRequest, options?: CallOptions): Promise<ListRegistryWebhooksRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/registry-webhooks/list`;
     const params = new URLSearchParams();
     if (req.modelName !== undefined) {
@@ -475,15 +386,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListRegistryWebhooksRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListRegistryWebhooksRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -492,10 +396,8 @@ export class Client {
     return resp;
   }
 
-  async *listRegistryWebhooksIter(
-    req: ListRegistryWebhooksRequest,
-    options?: CallOptions
-  ): AsyncGenerator<RegistryWebhook> {
+
+  async *listRegistryWebhooksIter(req: ListRegistryWebhooksRequest, options?: CallOptions): AsyncGenerator<RegistryWebhook> {
     const pageReq: ListRegistryWebhooksRequest = {...req};
     for (;;) {
       const resp = await this.listRegistryWebhooks(pageReq, options);
@@ -509,11 +411,9 @@ export class Client {
     }
   }
 
+
   /** Gets a list of all open stage transition requests for the model version. */
-  async listTransitionsRequest(
-    req: ListTransitionRequest,
-    options?: CallOptions
-  ): Promise<ListTransitionRequest_Response> {
+  async listTransitionsRequest(req: ListTransitionRequest, options?: CallOptions): Promise<ListTransitionRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/transition-requests/list`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
@@ -529,15 +429,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListTransitionRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListTransitionRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -547,10 +440,7 @@ export class Client {
   }
 
   /** Rejects a model version stage transition request. */
-  async rejectTransitionRequest(
-    req: RejectTransitionRequest,
-    options?: CallOptions
-  ): Promise<RejectTransitionRequest_Response> {
+  async rejectTransitionRequest(req: RejectTransitionRequest, options?: CallOptions): Promise<RejectTransitionRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/transition-requests/reject`;
     const body = marshalRequest(req, marshalRejectTransitionRequestSchema);
     let resp: RejectTransitionRequest_Response | undefined;
@@ -558,15 +448,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalRejectTransitionRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalRejectTransitionRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -579,10 +462,7 @@ export class Client {
    * **NOTE:** This endpoint is in Public Preview.
    * Tests a registry webhook.
    */
-  async testRegistryWebhook(
-    req: TestRegistryWebhookRequest,
-    options?: CallOptions
-  ): Promise<TestRegistryWebhookRequest_Response> {
+  async testRegistryWebhook(req: TestRegistryWebhookRequest, options?: CallOptions): Promise<TestRegistryWebhookRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/registry-webhooks/test`;
     const body = marshalRequest(req, marshalTestRegistryWebhookRequestSchema);
     let resp: TestRegistryWebhookRequest_Response | undefined;
@@ -590,15 +470,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalTestRegistryWebhookRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalTestRegistryWebhookRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -612,29 +485,16 @@ export class Client {
    * This is a <Databricks> workspace version of the [MLflow endpoint](https://www.mlflow.org/docs/latest/rest-api.html#transition-modelversion-stage)
    * that also accepts a comment associated with the transition to be recorded.
    */
-  async transitionModelVersionStageDatabricks(
-    req: TransitionModelVersionStageDatabricksRequest,
-    options?: CallOptions
-  ): Promise<TransitionModelVersionStageDatabricksRequest_Response> {
+  async transitionModelVersionStageDatabricks(req: TransitionModelVersionStageDatabricksRequest, options?: CallOptions): Promise<TransitionModelVersionStageDatabricksRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/databricks/model-versions/transition-stage`;
-    const body = marshalRequest(
-      req,
-      marshalTransitionModelVersionStageDatabricksRequestSchema
-    );
+    const body = marshalRequest(req, marshalTransitionModelVersionStageDatabricksRequestSchema);
     let resp: TransitionModelVersionStageDatabricksRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalTransitionModelVersionStageDatabricksRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalTransitionModelVersionStageDatabricksRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -644,10 +504,7 @@ export class Client {
   }
 
   /** Post an edit to a comment on a model version. */
-  async updateComment(
-    req: UpdateCommentRequest,
-    options?: CallOptions
-  ): Promise<UpdateCommentRequest_Response> {
+  async updateComment(req: UpdateCommentRequest, options?: CallOptions): Promise<UpdateCommentRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/comments/update`;
     const body = marshalRequest(req, marshalUpdateCommentRequestSchema);
     let resp: UpdateCommentRequest_Response | undefined;
@@ -655,15 +512,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdateCommentRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalUpdateCommentRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -676,10 +526,7 @@ export class Client {
    * **NOTE:** This endpoint is in Public Preview.
    * Updates a registry webhook.
    */
-  async updateRegistryWebhook(
-    req: UpdateRegistryWebhookRequest,
-    options?: CallOptions
-  ): Promise<UpdateRegistryWebhookRequest_Response> {
+  async updateRegistryWebhook(req: UpdateRegistryWebhookRequest, options?: CallOptions): Promise<UpdateRegistryWebhookRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/registry-webhooks/update`;
     const body = marshalRequest(req, marshalUpdateRegistryWebhookRequestSchema);
     let resp: UpdateRegistryWebhookRequest_Response | undefined;
@@ -687,15 +534,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdateRegistryWebhookRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalUpdateRegistryWebhookRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -705,10 +545,7 @@ export class Client {
   }
 
   /** Creates a model version. */
-  async createModelVersion(
-    req: CreateModelVersionRequest,
-    options?: CallOptions
-  ): Promise<CreateModelVersionRequest_Response> {
+  async createModelVersion(req: CreateModelVersionRequest, options?: CallOptions): Promise<CreateModelVersionRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/model-versions/create`;
     const body = marshalRequest(req, marshalCreateModelVersionRequestSchema);
     let resp: CreateModelVersionRequest_Response | undefined;
@@ -716,15 +553,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateModelVersionRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalCreateModelVersionRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -737,10 +567,7 @@ export class Client {
    * Creates a new registered model with the name specified in the request body.
    * Throws `RESOURCE_ALREADY_EXISTS` if a registered model with the given name exists.
    */
-  async createRegisteredModel(
-    req: CreateRegisteredModelRequest,
-    options?: CallOptions
-  ): Promise<CreateRegisteredModelRequest_Response> {
+  async createRegisteredModel(req: CreateRegisteredModelRequest, options?: CallOptions): Promise<CreateRegisteredModelRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/registered-models/create`;
     const body = marshalRequest(req, marshalCreateRegisteredModelRequestSchema);
     let resp: CreateRegisteredModelRequest_Response | undefined;
@@ -748,15 +575,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateRegisteredModelRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalCreateRegisteredModelRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -766,10 +586,7 @@ export class Client {
   }
 
   /** Deletes a model version. */
-  async deleteModelVersion(
-    req: DeleteModelVersionRequest,
-    options?: CallOptions
-  ): Promise<DeleteModelVersionRequest_Response> {
+  async deleteModelVersion(req: DeleteModelVersionRequest, options?: CallOptions): Promise<DeleteModelVersionRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/model-versions/delete`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
@@ -785,15 +602,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteModelVersionRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteModelVersionRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -803,10 +613,7 @@ export class Client {
   }
 
   /** Deletes a model version tag. */
-  async deleteModelVersionTag(
-    req: DeleteModelVersionTagRequest,
-    options?: CallOptions
-  ): Promise<DeleteModelVersionTagRequest_Response> {
+  async deleteModelVersionTag(req: DeleteModelVersionTagRequest, options?: CallOptions): Promise<DeleteModelVersionTagRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/model-versions/delete-tag`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
@@ -825,15 +632,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteModelVersionTagRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteModelVersionTagRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -843,10 +643,7 @@ export class Client {
   }
 
   /** Deletes a registered model. */
-  async deleteRegisteredModel(
-    req: DeleteRegisteredModelRequest,
-    options?: CallOptions
-  ): Promise<DeleteRegisteredModelRequest_Response> {
+  async deleteRegisteredModel(req: DeleteRegisteredModelRequest, options?: CallOptions): Promise<DeleteRegisteredModelRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/registered-models/delete`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
@@ -859,15 +656,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteRegisteredModelRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteRegisteredModelRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -877,10 +667,7 @@ export class Client {
   }
 
   /** Deletes the tag for a registered model. */
-  async deleteRegisteredModelTag(
-    req: DeleteRegisteredModelTagRequest,
-    options?: CallOptions
-  ): Promise<DeleteRegisteredModelTagRequest_Response> {
+  async deleteRegisteredModelTag(req: DeleteRegisteredModelTagRequest, options?: CallOptions): Promise<DeleteRegisteredModelTagRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/registered-models/delete-tag`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
@@ -896,15 +683,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteRegisteredModelTagRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteRegisteredModelTagRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -914,10 +694,7 @@ export class Client {
   }
 
   /** Gets the latest version of a registered model. */
-  async getLatestVersions(
-    req: GetLatestVersionsRequest,
-    options?: CallOptions
-  ): Promise<GetLatestVersionsRequest_Response> {
+  async getLatestVersions(req: GetLatestVersionsRequest, options?: CallOptions): Promise<GetLatestVersionsRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/registered-models/get-latest-versions`;
     const body = marshalRequest(req, marshalGetLatestVersionsRequestSchema);
     let resp: GetLatestVersionsRequest_Response | undefined;
@@ -925,15 +702,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetLatestVersionsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetLatestVersionsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -943,10 +713,7 @@ export class Client {
   }
 
   /** Get a model version. */
-  async getModelVersion(
-    req: GetModelVersionRequest,
-    options?: CallOptions
-  ): Promise<GetModelVersionRequest_Response> {
+  async getModelVersion(req: GetModelVersionRequest, options?: CallOptions): Promise<GetModelVersionRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/model-versions/get`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
@@ -962,15 +729,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetModelVersionRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetModelVersionRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -980,10 +740,7 @@ export class Client {
   }
 
   /** Gets a URI to download the model version. */
-  async getModelVersionDownloadUri(
-    req: GetModelVersionDownloadUriRequest,
-    options?: CallOptions
-  ): Promise<GetModelVersionDownloadUriRequest_Response> {
+  async getModelVersionDownloadUri(req: GetModelVersionDownloadUriRequest, options?: CallOptions): Promise<GetModelVersionDownloadUriRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/model-versions/get-download-uri`;
     const params = new URLSearchParams();
     if (req.name !== undefined) {
@@ -999,15 +756,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetModelVersionDownloadUriRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetModelVersionDownloadUriRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1017,10 +767,7 @@ export class Client {
   }
 
   /** Lists all available registered models, up to the limit specified in __max_results__. */
-  async listRegisteredModels(
-    req: ListRegisteredModelsRequest,
-    options?: CallOptions
-  ): Promise<ListRegisteredModelsRequest_Response> {
+  async listRegisteredModels(req: ListRegisteredModelsRequest, options?: CallOptions): Promise<ListRegisteredModelsRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/registered-models/list`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -1036,15 +783,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListRegisteredModelsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListRegisteredModelsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1053,10 +793,8 @@ export class Client {
     return resp;
   }
 
-  async *listRegisteredModelsIter(
-    req: ListRegisteredModelsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<RegisteredModel> {
+
+  async *listRegisteredModelsIter(req: ListRegisteredModelsRequest, options?: CallOptions): AsyncGenerator<RegisteredModel> {
     const pageReq: ListRegisteredModelsRequest = {...req};
     for (;;) {
       const resp = await this.listRegisteredModels(pageReq, options);
@@ -1070,11 +808,9 @@ export class Client {
     }
   }
 
+
   /** Renames a registered model. */
-  async renameRegisteredModel(
-    req: RenameRegisteredModelRequest,
-    options?: CallOptions
-  ): Promise<RenameRegisteredModelRequest_Response> {
+  async renameRegisteredModel(req: RenameRegisteredModelRequest, options?: CallOptions): Promise<RenameRegisteredModelRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/registered-models/rename`;
     const body = marshalRequest(req, marshalRenameRegisteredModelRequestSchema);
     let resp: RenameRegisteredModelRequest_Response | undefined;
@@ -1082,15 +818,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalRenameRegisteredModelRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalRenameRegisteredModelRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1100,10 +829,7 @@ export class Client {
   }
 
   /** Searches for specific model versions based on the supplied __filter__. */
-  async searchModelVersions(
-    req: SearchModelVersionsRequest,
-    options?: CallOptions
-  ): Promise<SearchModelVersionsRequest_Response> {
+  async searchModelVersions(req: SearchModelVersionsRequest, options?: CallOptions): Promise<SearchModelVersionsRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/model-versions/search`;
     const params = new URLSearchParams();
     if (req.filter !== undefined) {
@@ -1125,15 +851,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalSearchModelVersionsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalSearchModelVersionsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1142,10 +861,8 @@ export class Client {
     return resp;
   }
 
-  async *searchModelVersionsIter(
-    req: SearchModelVersionsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<ModelVersion> {
+
+  async *searchModelVersionsIter(req: SearchModelVersionsRequest, options?: CallOptions): AsyncGenerator<ModelVersion> {
     const pageReq: SearchModelVersionsRequest = {...req};
     for (;;) {
       const resp = await this.searchModelVersions(pageReq, options);
@@ -1159,11 +876,9 @@ export class Client {
     }
   }
 
+
   /** Search for registered models based on the specified __filter__. */
-  async searchRegisteredModels(
-    req: SearchRegisteredModelsRequest,
-    options?: CallOptions
-  ): Promise<SearchRegisteredModelsRequest_Response> {
+  async searchRegisteredModels(req: SearchRegisteredModelsRequest, options?: CallOptions): Promise<SearchRegisteredModelsRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/registered-models/search`;
     const params = new URLSearchParams();
     if (req.filter !== undefined) {
@@ -1185,15 +900,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalSearchRegisteredModelsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalSearchRegisteredModelsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1202,10 +910,8 @@ export class Client {
     return resp;
   }
 
-  async *searchRegisteredModelsIter(
-    req: SearchRegisteredModelsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<RegisteredModel> {
+
+  async *searchRegisteredModelsIter(req: SearchRegisteredModelsRequest, options?: CallOptions): AsyncGenerator<RegisteredModel> {
     const pageReq: SearchRegisteredModelsRequest = {...req};
     for (;;) {
       const resp = await this.searchRegisteredModels(pageReq, options);
@@ -1219,11 +925,9 @@ export class Client {
     }
   }
 
+
   /** Sets a model version tag. */
-  async setModelVersionTag(
-    req: SetModelVersionTagRequest,
-    options?: CallOptions
-  ): Promise<SetModelVersionTagRequest_Response> {
+  async setModelVersionTag(req: SetModelVersionTagRequest, options?: CallOptions): Promise<SetModelVersionTagRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/model-versions/set-tag`;
     const body = marshalRequest(req, marshalSetModelVersionTagRequestSchema);
     let resp: SetModelVersionTagRequest_Response | undefined;
@@ -1231,15 +935,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalSetModelVersionTagRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalSetModelVersionTagRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1249,10 +946,7 @@ export class Client {
   }
 
   /** Sets a tag on a registered model. */
-  async setRegisteredModelTag(
-    req: SetRegisteredModelTagRequest,
-    options?: CallOptions
-  ): Promise<SetRegisteredModelTagRequest_Response> {
+  async setRegisteredModelTag(req: SetRegisteredModelTagRequest, options?: CallOptions): Promise<SetRegisteredModelTagRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/registered-models/set-tag`;
     const body = marshalRequest(req, marshalSetRegisteredModelTagRequestSchema);
     let resp: SetRegisteredModelTagRequest_Response | undefined;
@@ -1260,15 +954,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalSetRegisteredModelTagRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalSetRegisteredModelTagRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1278,10 +965,7 @@ export class Client {
   }
 
   /** Updates the model version. */
-  async updateModelVersion(
-    req: UpdateModelVersionRequest,
-    options?: CallOptions
-  ): Promise<UpdateModelVersionRequest_Response> {
+  async updateModelVersion(req: UpdateModelVersionRequest, options?: CallOptions): Promise<UpdateModelVersionRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/model-versions/update`;
     const body = marshalRequest(req, marshalUpdateModelVersionRequestSchema);
     let resp: UpdateModelVersionRequest_Response | undefined;
@@ -1289,15 +973,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdateModelVersionRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalUpdateModelVersionRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -1307,10 +984,7 @@ export class Client {
   }
 
   /** Updates a registered model. */
-  async updateRegisteredModel(
-    req: UpdateRegisteredModelRequest,
-    options?: CallOptions
-  ): Promise<UpdateRegisteredModelRequest_Response> {
+  async updateRegisteredModel(req: UpdateRegisteredModelRequest, options?: CallOptions): Promise<UpdateRegisteredModelRequest_Response> {
     const url = `${this.host}/api/2.0/mlflow/registered-models/update`;
     const body = marshalRequest(req, marshalUpdateRegisteredModelRequestSchema);
     let resp: UpdateRegisteredModelRequest_Response | undefined;
@@ -1318,15 +992,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdateRegisteredModelRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalUpdateRegisteredModelRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

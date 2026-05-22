@@ -5,6 +5,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 export enum DatePrecision {
   DAY_PRECISION = 'DAY_PRECISION',
   MINUTE_PRECISION = 'MINUTE_PRECISION',
@@ -388,26 +389,13 @@ export const unmarshalDateRangeSchema: z.ZodType<DateRange> = z
 
 export const unmarshalDateRangeValueSchema: z.ZodType<DateRangeValue> = z
   .object({
-    dynamic_date_range_value: z
-      .enum(DateRangeValue_DynamicDateRange)
-      .optional(),
+    dynamic_date_range_value: z.enum(DateRangeValue_DynamicDateRange).optional(),
     date_range_value: z.lazy(() => unmarshalDateRangeSchema).optional(),
     precision: z.enum(DatePrecision).optional(),
     start_day_of_week: z.number().optional(),
   })
   .transform(d => ({
-    value:
-      d.dynamic_date_range_value !== undefined
-        ? {
-            $case: 'dynamicDateRangeValue' as const,
-            dynamicDateRangeValue: d.dynamic_date_range_value,
-          }
-        : d.date_range_value !== undefined
-          ? {
-              $case: 'dateRangeValue' as const,
-              dateRangeValue: d.date_range_value,
-            }
-          : undefined,
+    value: d.dynamic_date_range_value !== undefined ? { $case: 'dynamicDateRangeValue' as const, dynamicDateRangeValue: d.dynamic_date_range_value } : d.date_range_value !== undefined ? { $case: 'dateRangeValue' as const, dateRangeValue: d.date_range_value } : undefined,
     precision: d.precision,
     startDayOfWeek: d.start_day_of_week,
   }));
@@ -419,27 +407,19 @@ export const unmarshalDateValueSchema: z.ZodType<DateValue> = z
     precision: z.enum(DatePrecision).optional(),
   })
   .transform(d => ({
-    value:
-      d.dynamic_date_value !== undefined
-        ? {
-            $case: 'dynamicDateValue' as const,
-            dynamicDateValue: d.dynamic_date_value,
-          }
-        : d.date_value !== undefined
-          ? {$case: 'dateValue' as const, dateValue: d.date_value}
-          : undefined,
+    value: d.dynamic_date_value !== undefined ? { $case: 'dynamicDateValue' as const, dynamicDateValue: d.dynamic_date_value } : d.date_value !== undefined ? { $case: 'dateValue' as const, dateValue: d.date_value } : undefined,
     precision: d.precision,
   }));
 
-export const unmarshalEmptySchema: z.ZodType<Empty> = z.object({});
+export const unmarshalEmptySchema: z.ZodType<Empty> = z
+  .object({
+  });
 
 export const unmarshalEnumValueSchema: z.ZodType<EnumValue> = z
   .object({
     values: z.array(z.string()).optional(),
     enum_options: z.string().optional(),
-    multi_values_options: z
-      .lazy(() => unmarshalMultiValuesOptionsSchema)
-      .optional(),
+    multi_values_options: z.lazy(() => unmarshalMultiValuesOptionsSchema).optional(),
   })
   .transform(d => ({
     values: d.values,
@@ -447,91 +427,77 @@ export const unmarshalEnumValueSchema: z.ZodType<EnumValue> = z
     multiValuesOptions: d.multi_values_options,
   }));
 
-export const unmarshalListQueriesResponseSchema: z.ZodType<ListQueriesResponse> =
-  z
-    .object({
-      results: z
-        .array(z.lazy(() => unmarshalListQueryObjectsResponseQuerySchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      results: d.results,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListQueriesResponseSchema: z.ZodType<ListQueriesResponse> = z
+  .object({
+    results: z.array(z.lazy(() => unmarshalListQueryObjectsResponseQuerySchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    results: d.results,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListQueryObjectsResponseQuerySchema: z.ZodType<ListQueryObjectsResponseQuery> =
-  z
-    .object({
-      id: z.string().optional(),
-      display_name: z.string().optional(),
-      description: z.string().optional(),
-      owner_user_name: z.string().optional(),
-      warehouse_id: z.string().optional(),
-      query_text: z.string().optional(),
-      run_as_mode: z.enum(RunAsMode).optional(),
-      lifecycle_state: z.enum(LifecycleState).optional(),
-      last_modifier_user_name: z.string().optional(),
-      parent_path: z.string().optional(),
-      tags: z.array(z.string()).optional(),
-      create_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      update_time: z
-        .string()
-        .transform(s => Temporal.Instant.from(s))
-        .optional(),
-      parameters: z
-        .array(z.lazy(() => unmarshalQueryParameterSchema))
-        .optional(),
-      apply_auto_limit: z.boolean().optional(),
-      catalog: z.string().optional(),
-      schema: z.string().optional(),
-    })
-    .transform(d => ({
-      id: d.id,
-      displayName: d.display_name,
-      description: d.description,
-      ownerUserName: d.owner_user_name,
-      warehouseId: d.warehouse_id,
-      queryText: d.query_text,
-      runAsMode: d.run_as_mode,
-      lifecycleState: d.lifecycle_state,
-      lastModifierUserName: d.last_modifier_user_name,
-      parentPath: d.parent_path,
-      tags: d.tags,
-      createTime: d.create_time,
-      updateTime: d.update_time,
-      parameters: d.parameters,
-      applyAutoLimit: d.apply_auto_limit,
-      catalog: d.catalog,
-      schema: d.schema,
-    }));
+export const unmarshalListQueryObjectsResponseQuerySchema: z.ZodType<ListQueryObjectsResponseQuery> = z
+  .object({
+    id: z.string().optional(),
+    display_name: z.string().optional(),
+    description: z.string().optional(),
+    owner_user_name: z.string().optional(),
+    warehouse_id: z.string().optional(),
+    query_text: z.string().optional(),
+    run_as_mode: z.enum(RunAsMode).optional(),
+    lifecycle_state: z.enum(LifecycleState).optional(),
+    last_modifier_user_name: z.string().optional(),
+    parent_path: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    parameters: z.array(z.lazy(() => unmarshalQueryParameterSchema)).optional(),
+    apply_auto_limit: z.boolean().optional(),
+    catalog: z.string().optional(),
+    schema: z.string().optional(),
+  })
+  .transform(d => ({
+    id: d.id,
+    displayName: d.display_name,
+    description: d.description,
+    ownerUserName: d.owner_user_name,
+    warehouseId: d.warehouse_id,
+    queryText: d.query_text,
+    runAsMode: d.run_as_mode,
+    lifecycleState: d.lifecycle_state,
+    lastModifierUserName: d.last_modifier_user_name,
+    parentPath: d.parent_path,
+    tags: d.tags,
+    createTime: d.create_time,
+    updateTime: d.update_time,
+    parameters: d.parameters,
+    applyAutoLimit: d.apply_auto_limit,
+    catalog: d.catalog,
+    schema: d.schema,
+  }));
 
-export const unmarshalListVisualizationsForQueryResponseSchema: z.ZodType<ListVisualizationsForQueryResponse> =
-  z
-    .object({
-      results: z.array(z.lazy(() => unmarshalVisualizationSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      results: d.results,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListVisualizationsForQueryResponseSchema: z.ZodType<ListVisualizationsForQueryResponse> = z
+  .object({
+    results: z.array(z.lazy(() => unmarshalVisualizationSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    results: d.results,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalMultiValuesOptionsSchema: z.ZodType<MultiValuesOptions> =
-  z
-    .object({
-      prefix: z.string().optional(),
-      separator: z.string().optional(),
-      suffix: z.string().optional(),
-    })
-    .transform(d => ({
-      prefix: d.prefix,
-      separator: d.separator,
-      suffix: d.suffix,
-    }));
+export const unmarshalMultiValuesOptionsSchema: z.ZodType<MultiValuesOptions> = z
+  .object({
+    prefix: z.string().optional(),
+    separator: z.string().optional(),
+    suffix: z.string().optional(),
+  })
+  .transform(d => ({
+    prefix: d.prefix,
+    separator: d.separator,
+    suffix: d.suffix,
+  }));
 
 export const unmarshalNumericValueSchema: z.ZodType<NumericValue> = z
   .object({
@@ -554,14 +520,8 @@ export const unmarshalQuerySchema: z.ZodType<Query> = z
     last_modifier_user_name: z.string().optional(),
     parent_path: z.string().optional(),
     tags: z.array(z.string()).optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     parameters: z.array(z.lazy(() => unmarshalQueryParameterSchema)).optional(),
     apply_auto_limit: z.boolean().optional(),
     catalog: z.string().optional(),
@@ -591,9 +551,7 @@ export const unmarshalQueryBackedValueSchema: z.ZodType<QueryBackedValue> = z
   .object({
     values: z.array(z.string()).optional(),
     query_id: z.string().optional(),
-    multi_values_options: z
-      .lazy(() => unmarshalMultiValuesOptionsSchema)
-      .optional(),
+    multi_values_options: z.lazy(() => unmarshalMultiValuesOptionsSchema).optional(),
   })
   .transform(d => ({
     values: d.values,
@@ -610,33 +568,12 @@ export const unmarshalQueryParameterSchema: z.ZodType<QueryParameter> = z
     enum_value: z.lazy(() => unmarshalEnumValueSchema).optional(),
     date_value: z.lazy(() => unmarshalDateValueSchema).optional(),
     date_range_value: z.lazy(() => unmarshalDateRangeValueSchema).optional(),
-    query_backed_value: z
-      .lazy(() => unmarshalQueryBackedValueSchema)
-      .optional(),
+    query_backed_value: z.lazy(() => unmarshalQueryBackedValueSchema).optional(),
   })
   .transform(d => ({
     title: d.title,
     name: d.name,
-    parameterValue:
-      d.text_value !== undefined
-        ? {$case: 'textValue' as const, textValue: d.text_value}
-        : d.numeric_value !== undefined
-          ? {$case: 'numericValue' as const, numericValue: d.numeric_value}
-          : d.enum_value !== undefined
-            ? {$case: 'enumValue' as const, enumValue: d.enum_value}
-            : d.date_value !== undefined
-              ? {$case: 'dateValue' as const, dateValue: d.date_value}
-              : d.date_range_value !== undefined
-                ? {
-                    $case: 'dateRangeValue' as const,
-                    dateRangeValue: d.date_range_value,
-                  }
-                : d.query_backed_value !== undefined
-                  ? {
-                      $case: 'queryBackedValue' as const,
-                      queryBackedValue: d.query_backed_value,
-                    }
-                  : undefined,
+    parameterValue: d.text_value !== undefined ? { $case: 'textValue' as const, textValue: d.text_value } : d.numeric_value !== undefined ? { $case: 'numericValue' as const, numericValue: d.numeric_value } : d.enum_value !== undefined ? { $case: 'enumValue' as const, enumValue: d.enum_value } : d.date_value !== undefined ? { $case: 'dateValue' as const, dateValue: d.date_value } : d.date_range_value !== undefined ? { $case: 'dateRangeValue' as const, dateRangeValue: d.date_range_value } : d.query_backed_value !== undefined ? { $case: 'queryBackedValue' as const, queryBackedValue: d.query_backed_value } : undefined,
   }));
 
 export const unmarshalTextValueSchema: z.ZodType<TextValue> = z
@@ -652,14 +589,8 @@ export const unmarshalVisualizationSchema: z.ZodType<Visualization> = z
     id: z.string().optional(),
     display_name: z.string().optional(),
     type: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     serialized_query_plan: z.string().optional(),
     serialized_options: z.string().optional(),
     query_id: z.string().optional(),
@@ -698,14 +629,8 @@ export const marshalCreateQueryRequestQuerySchema: z.ZodType = z
     lastModifierUserName: z.string().optional(),
     parentPath: z.string().optional(),
     tags: z.array(z.string()).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     parameters: z.array(z.lazy(() => marshalQueryParameterSchema)).optional(),
     applyAutoLimit: z.boolean().optional(),
     catalog: z.string().optional(),
@@ -743,50 +668,25 @@ export const marshalDateRangeSchema: z.ZodType = z
 
 export const marshalDateRangeValueSchema: z.ZodType = z
   .object({
-    value: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('dynamicDateRangeValue'),
-          dynamicDateRangeValue: z.enum(DateRangeValue_DynamicDateRange),
-        }),
-        z.object({
-          $case: z.literal('dateRangeValue'),
-          dateRangeValue: z.lazy(() => marshalDateRangeSchema),
-        }),
-      ])
-      .optional(),
+    value: z.discriminatedUnion('$case', [z.object({ $case: z.literal('dynamicDateRangeValue'), dynamicDateRangeValue: z.enum(DateRangeValue_DynamicDateRange) }), z.object({ $case: z.literal('dateRangeValue'), dateRangeValue: z.lazy(() => marshalDateRangeSchema) })]).optional(),
     precision: z.enum(DatePrecision).optional(),
     startDayOfWeek: z.number().optional(),
   })
   .transform(d => ({
-    ...(d.value?.$case === 'dynamicDateRangeValue' && {
-      dynamic_date_range_value: d.value.dynamicDateRangeValue,
-    }),
-    ...(d.value?.$case === 'dateRangeValue' && {
-      date_range_value: d.value.dateRangeValue,
-    }),
+    ...(d.value?.$case === 'dynamicDateRangeValue' && { dynamic_date_range_value: d.value.dynamicDateRangeValue }),
+    ...(d.value?.$case === 'dateRangeValue' && { date_range_value: d.value.dateRangeValue }),
     precision: d.precision,
     start_day_of_week: d.startDayOfWeek,
   }));
 
 export const marshalDateValueSchema: z.ZodType = z
   .object({
-    value: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('dynamicDateValue'),
-          dynamicDateValue: z.enum(DateValue_DynamicDate),
-        }),
-        z.object({$case: z.literal('dateValue'), dateValue: z.string()}),
-      ])
-      .optional(),
+    value: z.discriminatedUnion('$case', [z.object({ $case: z.literal('dynamicDateValue'), dynamicDateValue: z.enum(DateValue_DynamicDate) }), z.object({ $case: z.literal('dateValue'), dateValue: z.string() })]).optional(),
     precision: z.enum(DatePrecision).optional(),
   })
   .transform(d => ({
-    ...(d.value?.$case === 'dynamicDateValue' && {
-      dynamic_date_value: d.value.dynamicDateValue,
-    }),
-    ...(d.value?.$case === 'dateValue' && {date_value: d.value.dateValue}),
+    ...(d.value?.$case === 'dynamicDateValue' && { dynamic_date_value: d.value.dynamicDateValue }),
+    ...(d.value?.$case === 'dateValue' && { date_value: d.value.dateValue }),
     precision: d.precision,
   }));
 
@@ -794,9 +694,7 @@ export const marshalEnumValueSchema: z.ZodType = z
   .object({
     values: z.array(z.string()).optional(),
     enumOptions: z.string().optional(),
-    multiValuesOptions: z
-      .lazy(() => marshalMultiValuesOptionsSchema)
-      .optional(),
+    multiValuesOptions: z.lazy(() => marshalMultiValuesOptionsSchema).optional(),
   })
   .transform(d => ({
     values: d.values,
@@ -828,9 +726,7 @@ export const marshalQueryBackedValueSchema: z.ZodType = z
   .object({
     values: z.array(z.string()).optional(),
     queryId: z.string().optional(),
-    multiValuesOptions: z
-      .lazy(() => marshalMultiValuesOptionsSchema)
-      .optional(),
+    multiValuesOptions: z.lazy(() => marshalMultiValuesOptionsSchema).optional(),
   })
   .transform(d => ({
     values: d.values,
@@ -842,56 +738,17 @@ export const marshalQueryParameterSchema: z.ZodType = z
   .object({
     title: z.string().optional(),
     name: z.string().optional(),
-    parameterValue: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('textValue'),
-          textValue: z.lazy(() => marshalTextValueSchema),
-        }),
-        z.object({
-          $case: z.literal('numericValue'),
-          numericValue: z.lazy(() => marshalNumericValueSchema),
-        }),
-        z.object({
-          $case: z.literal('enumValue'),
-          enumValue: z.lazy(() => marshalEnumValueSchema),
-        }),
-        z.object({
-          $case: z.literal('dateValue'),
-          dateValue: z.lazy(() => marshalDateValueSchema),
-        }),
-        z.object({
-          $case: z.literal('dateRangeValue'),
-          dateRangeValue: z.lazy(() => marshalDateRangeValueSchema),
-        }),
-        z.object({
-          $case: z.literal('queryBackedValue'),
-          queryBackedValue: z.lazy(() => marshalQueryBackedValueSchema),
-        }),
-      ])
-      .optional(),
+    parameterValue: z.discriminatedUnion('$case', [z.object({ $case: z.literal('textValue'), textValue: z.lazy(() => marshalTextValueSchema) }), z.object({ $case: z.literal('numericValue'), numericValue: z.lazy(() => marshalNumericValueSchema) }), z.object({ $case: z.literal('enumValue'), enumValue: z.lazy(() => marshalEnumValueSchema) }), z.object({ $case: z.literal('dateValue'), dateValue: z.lazy(() => marshalDateValueSchema) }), z.object({ $case: z.literal('dateRangeValue'), dateRangeValue: z.lazy(() => marshalDateRangeValueSchema) }), z.object({ $case: z.literal('queryBackedValue'), queryBackedValue: z.lazy(() => marshalQueryBackedValueSchema) })]).optional(),
   })
   .transform(d => ({
     title: d.title,
     name: d.name,
-    ...(d.parameterValue?.$case === 'textValue' && {
-      text_value: d.parameterValue.textValue,
-    }),
-    ...(d.parameterValue?.$case === 'numericValue' && {
-      numeric_value: d.parameterValue.numericValue,
-    }),
-    ...(d.parameterValue?.$case === 'enumValue' && {
-      enum_value: d.parameterValue.enumValue,
-    }),
-    ...(d.parameterValue?.$case === 'dateValue' && {
-      date_value: d.parameterValue.dateValue,
-    }),
-    ...(d.parameterValue?.$case === 'dateRangeValue' && {
-      date_range_value: d.parameterValue.dateRangeValue,
-    }),
-    ...(d.parameterValue?.$case === 'queryBackedValue' && {
-      query_backed_value: d.parameterValue.queryBackedValue,
-    }),
+    ...(d.parameterValue?.$case === 'textValue' && { text_value: d.parameterValue.textValue }),
+    ...(d.parameterValue?.$case === 'numericValue' && { numeric_value: d.parameterValue.numericValue }),
+    ...(d.parameterValue?.$case === 'enumValue' && { enum_value: d.parameterValue.enumValue }),
+    ...(d.parameterValue?.$case === 'dateValue' && { date_value: d.parameterValue.dateValue }),
+    ...(d.parameterValue?.$case === 'dateRangeValue' && { date_range_value: d.parameterValue.dateRangeValue }),
+    ...(d.parameterValue?.$case === 'queryBackedValue' && { query_backed_value: d.parameterValue.queryBackedValue }),
   }));
 
 export const marshalTextValueSchema: z.ZodType = z
@@ -905,10 +762,7 @@ export const marshalTextValueSchema: z.ZodType = z
 export const marshalUpdateQueryRequestSchema: z.ZodType = z
   .object({
     query: z.lazy(() => marshalUpdateQueryRequestQuerySchema).optional(),
-    updateMask: z
-      .any()
-      .transform((m: FieldMask) => m.toString())
-      .optional(),
+    updateMask: z.any().transform((m: FieldMask) => m.toString()).optional(),
     id: z.string().optional(),
     autoResolveDisplayName: z.boolean().optional(),
   })
@@ -932,14 +786,8 @@ export const marshalUpdateQueryRequestQuerySchema: z.ZodType = z
     lastModifierUserName: z.string().optional(),
     parentPath: z.string().optional(),
     tags: z.array(z.string()).optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     parameters: z.array(z.lazy(() => marshalQueryParameterSchema)).optional(),
     applyAutoLimit: z.boolean().optional(),
     catalog: z.string().optional(),
@@ -985,11 +833,6 @@ const updateQueryRequestQueryFieldMaskSchema: FieldMaskSchema = {
   warehouseId: {wire: 'warehouse_id'},
 };
 
-export function updateQueryRequestQueryFieldMask(
-  ...paths: string[]
-): FieldMask<UpdateQueryRequestQuery> {
-  return FieldMask.build<UpdateQueryRequestQuery>(
-    paths,
-    updateQueryRequestQueryFieldMaskSchema
-  );
+export function updateQueryRequestQueryFieldMask(...paths: string[]): FieldMask<UpdateQueryRequestQuery> {
+  return FieldMask.build<UpdateQueryRequestQuery>(paths, updateQueryRequestQueryFieldMaskSchema);
 }

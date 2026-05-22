@@ -11,7 +11,10 @@ import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
 import {buildHttpRequest, executeCall, sendAndCheckError} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
-import type {DownloadRequest, DownloadResponse} from './model';
+import type {
+  DownloadRequest,
+  DownloadResponse,
+} from './model';
 
 // Package identity segment for this client to be used in the User-Agent header.
 const PACKAGE_SEGMENT = {
@@ -51,21 +54,18 @@ export class Client {
   /**
    * Returns billable usage logs in CSV format for the specified account and date range.
    * For the data schema, see:
-   *
+   * 
    * - AWS: [CSV file schema](https://docs.databricks.com/administration-guide/account-settings/usage-analysis.html#schema).
    * - GCP: [CSV file schema](https://docs.gcp.databricks.com/administration-guide/account-settings/usage-analysis.html#csv-file-schema).
-   *
+   * 
    * Note that this method might take multiple minutes to complete.
-   *
+   * 
    * **Warning**: Depending on the queried date range, the number of workspaces
    * in the account, the size of the response and the internet speed of the caller,
    * this API may hit a timeout after a few minutes. If you experience this, try to mitigate
    * by calling the API with narrower date ranges.
    */
-  async download(
-    req: DownloadRequest,
-    options?: CallOptions
-  ): Promise<DownloadResponse> {
+  async download(req: DownloadRequest, options?: CallOptions): Promise<DownloadResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/usage/download`;
     const params = new URLSearchParams();
     if (req.startMonth !== undefined) {
@@ -84,11 +84,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const httpResp = await sendAndCheckError({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpResp = await sendAndCheckError({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = {
         contents: httpResp.body ?? undefined,
       };

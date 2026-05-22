@@ -1,8 +1,11 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+
 export {Client} from './client';
 
-export {BindingType} from './model';
+export {
+  BindingType,
+} from './model';
 
 export type {
   GetCatalogWorkspaceBindingsRequest,

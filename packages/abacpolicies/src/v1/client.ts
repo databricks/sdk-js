@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreatePolicyRequest,
@@ -69,10 +63,7 @@ export class Client {
    * Creates a new policy on a securable.
    * The new policy applies to the securable and all its descendants.
    */
-  async createPolicy(
-    req: CreatePolicyRequest,
-    options?: CallOptions
-  ): Promise<PolicyInfo> {
+  async createPolicy(req: CreatePolicyRequest, options?: CallOptions): Promise<PolicyInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/policies`;
     const body = marshalRequest(req.policyInfo, marshalPolicyInfoSchema);
     let resp: PolicyInfo | undefined;
@@ -80,11 +71,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalPolicyInfoSchema);
     };
     await executeCall(call, options);
@@ -95,25 +82,15 @@ export class Client {
   }
 
   /** Delete an ABAC policy defined on a securable. */
-  async deletePolicy(
-    req: DeletePolicyRequest,
-    options?: CallOptions
-  ): Promise<DeletePolicyRequest_Response> {
+  async deletePolicy(req: DeletePolicyRequest, options?: CallOptions): Promise<DeletePolicyRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}/${req.name ?? ''}`;
     let resp: DeletePolicyRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeletePolicyRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeletePolicyRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -123,21 +100,14 @@ export class Client {
   }
 
   /** Get the policy definition on a securable */
-  async getPolicy(
-    req: GetPolicyRequest,
-    options?: CallOptions
-  ): Promise<PolicyInfo> {
+  async getPolicy(req: GetPolicyRequest, options?: CallOptions): Promise<PolicyInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}/${req.name ?? ''}`;
     let resp: PolicyInfo | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalPolicyInfoSchema);
     };
     await executeCall(call, options);
@@ -150,14 +120,11 @@ export class Client {
   /**
    * List all policies defined on a securable.
    * Optionally, the list can include inherited policies defined on the securable's parent schema or catalog.
-   *
+   * 
    * PAGINATION BEHAVIOR: The API is by default paginated, a page may contain zero results while still providing a next_page_token.
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
-  async listPolicies(
-    req: ListPoliciesRequest,
-    options?: CallOptions
-  ): Promise<ListPoliciesRequest_Response> {
+  async listPolicies(req: ListPoliciesRequest, options?: CallOptions): Promise<ListPoliciesRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}`;
     const params = new URLSearchParams();
     if (req.includeInherited !== undefined) {
@@ -176,15 +143,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListPoliciesRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListPoliciesRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -193,10 +153,8 @@ export class Client {
     return resp;
   }
 
-  async *listPoliciesIter(
-    req: ListPoliciesRequest,
-    options?: CallOptions
-  ): AsyncGenerator<PolicyInfo> {
+
+  async *listPoliciesIter(req: ListPoliciesRequest, options?: CallOptions): AsyncGenerator<PolicyInfo> {
     const pageReq: ListPoliciesRequest = {...req};
     for (;;) {
       const resp = await this.listPolicies(pageReq, options);
@@ -210,11 +168,9 @@ export class Client {
     }
   }
 
+
   /** Update an ABAC policy on a securable. */
-  async updatePolicy(
-    req: UpdatePolicyRequest,
-    options?: CallOptions
-  ): Promise<PolicyInfo> {
+  async updatePolicy(req: UpdatePolicyRequest, options?: CallOptions): Promise<PolicyInfo> {
     const url = `${this.host}/api/2.1/unity-catalog/policies/${req.onSecurableType ?? ''}/${req.onSecurableFullname ?? ''}/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -227,18 +183,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalPolicyInfoSchema);
     };
     await executeCall(call, options);

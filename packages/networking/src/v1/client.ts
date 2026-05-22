@@ -26,11 +26,11 @@ import type {
   CreateIpAccessList,
   CreateIpAccessList_Response,
   CreateNccPrivateEndpointRuleRequest,
-  CreateNetworkConnectivityConfigPublicRequest,
+  CreateNetworkConnectivityConfigRequest,
   CreateNetworkPolicyRequest,
-  CreateNetworkPublicRequest,
-  CreatePrivateAccessSettingsPublicRequest,
-  CreateVpcEndpointPublicRequest,
+  CreateNetworkRequest,
+  CreatePrivateAccessSettingsRequest,
+  CreateVpcEndpointRequest,
   CustomerFacingNetworkConnectivityConfig,
   CustomerFacingPrivateAccessSettings,
   CustomerFacingVpcEndpoint,
@@ -40,11 +40,11 @@ import type {
   DeleteIpAccessList,
   DeleteIpAccessList_Response,
   DeleteNccPrivateEndpointRuleRequest,
-  DeleteNetworkConnectivityConfigPublicRequest,
+  DeleteNetworkConnectivityConfigRequest,
   DeleteNetworkPolicyRequest,
-  DeleteNetworkPublicRequest,
-  DeletePrivateAccessSettingsPublicRequest,
-  DeleteVpcEndpointPublicRequest,
+  DeleteNetworkRequest,
+  DeletePrivateAccessSettingsRequest,
+  DeleteVpcEndpointRequest,
   Endpoint,
   GetAccountIpAccessListRequest,
   GetAccountIpAccessListRequest_Response,
@@ -52,11 +52,11 @@ import type {
   GetIpAccessList,
   GetIpAccessList_Response,
   GetNccPrivateEndpointRuleRequest,
-  GetNetworkConnectivityConfigPublicRequest,
+  GetNetworkConnectivityConfigRequest,
   GetNetworkPolicyRequest,
-  GetNetworkPublicRequest,
-  GetPrivateAccessSettingsPublicRequest,
-  GetVpcEndpointPublicRequest,
+  GetNetworkRequest,
+  GetPrivateAccessSettingsRequest,
+  GetVpcEndpointRequest,
   GetWorkspaceNetworkOptionRequest,
   ListAccountIpAccessListsRequest,
   ListAccountIpAccessListsRequest_Response,
@@ -66,16 +66,16 @@ import type {
   ListIpAccessLists_Response,
   ListNccPrivateEndpointRulesRequest,
   ListNccPrivateEndpointRulesResponse,
-  ListNetworkConnectivityConfigsPublicRequest,
-  ListNetworkConnectivityConfigsPublicResponse,
+  ListNetworkConnectivityConfigsRequest,
+  ListNetworkConnectivityConfigsResponse,
   ListNetworkPoliciesRequest,
   ListNetworkPoliciesResponse,
-  ListNetworkPublicRequest,
-  ListNetworkPublicResponse,
-  ListPrivateAccessSettingsPublicRequest,
-  ListPrivateAccessSettingsPublicResponse,
-  ListVpcEndpointPublicRequest,
-  ListVpcEndpointPublicResponse,
+  ListNetworkRequest,
+  ListNetworkResponse,
+  ListPrivateAccessSettingsRequest,
+  ListPrivateAccessSettingsResponse,
+  ListVpcEndpointRequest,
+  ListVpcEndpointResponse,
   NccPrivateEndpointRule,
   Network,
   ReplaceAccountIpAccessListRequest,
@@ -88,7 +88,7 @@ import type {
   UpdateIpAccessList_Response,
   UpdateNccPrivateEndpointRuleRequest,
   UpdateNetworkPolicyRequest,
-  UpdatePrivateAccessSettingsPublicRequest,
+  UpdatePrivateAccessSettingsRequest,
   UpdateWorkspaceNetworkOptionRequest,
   WorkspaceNetworkOption,
 } from './model';
@@ -97,10 +97,10 @@ import {
   marshalCreateAccountIpAccessListRequestSchema,
   marshalCreateIpAccessListSchema,
   marshalCreateNetworkConnectivityConfigurationSchema,
-  marshalCreateNetworkPublicRequestSchema,
-  marshalCreatePrivateAccessSettingsPublicRequestSchema,
+  marshalCreateNetworkRequestSchema,
+  marshalCreatePrivateAccessSettingsRequestSchema,
   marshalCreatePrivateEndpointRuleSchema,
-  marshalCreateVpcEndpointPublicRequestSchema,
+  marshalCreateVpcEndpointRequestSchema,
   marshalCustomerFacingPrivateAccessSettingsSchema,
   marshalEndpointSchema,
   marshalReplaceAccountIpAccessListRequestSchema,
@@ -124,7 +124,7 @@ import {
   unmarshalListEndpointsResponseSchema,
   unmarshalListIpAccessLists_ResponseSchema,
   unmarshalListNccPrivateEndpointRulesResponseSchema,
-  unmarshalListNetworkConnectivityConfigsPublicResponseSchema,
+  unmarshalListNetworkConnectivityConfigsResponseSchema,
   unmarshalListNetworkPoliciesResponseSchema,
   unmarshalNccPrivateEndpointRuleSchema,
   unmarshalNetworkSchema,
@@ -743,7 +743,7 @@ export class Client {
    * See [configure serverless secure connectivity](https://learn.microsoft.com/azure/databricks/security/network/serverless-network-security).
    */
   async createNetworkConnectivityConfigPublic(
-    req: CreateNetworkConnectivityConfigPublicRequest,
+    req: CreateNetworkConnectivityConfigRequest,
     options?: CallOptions
   ): Promise<CustomerFacingNetworkConnectivityConfig> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/network-connectivity-configs`;
@@ -775,7 +775,7 @@ export class Client {
 
   /** Deletes a network connectivity configuration. */
   async deleteNetworkConnectivityConfigPublic(
-    req: DeleteNetworkConnectivityConfigPublicRequest,
+    req: DeleteNetworkConnectivityConfigRequest,
     options?: CallOptions
   ): Promise<void> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/network-connectivity-configs/${req.networkConnectivityConfigId ?? ''}`;
@@ -794,7 +794,7 @@ export class Client {
 
   /** Gets a network connectivity configuration. */
   async getNetworkConnectivityConfigPublic(
-    req: GetNetworkConnectivityConfigPublicRequest,
+    req: GetNetworkConnectivityConfigRequest,
     options?: CallOptions
   ): Promise<CustomerFacingNetworkConnectivityConfig> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/network-connectivity-configs/${req.networkConnectivityConfigId ?? ''}`;
@@ -822,9 +822,9 @@ export class Client {
 
   /** Gets an array of network connectivity configurations. */
   async listNetworkConnectivityConfigsPublic(
-    req: ListNetworkConnectivityConfigsPublicRequest,
+    req: ListNetworkConnectivityConfigsRequest,
     options?: CallOptions
-  ): Promise<ListNetworkConnectivityConfigsPublicResponse> {
+  ): Promise<ListNetworkConnectivityConfigsResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/network-connectivity-configs`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -832,7 +832,7 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    let resp: ListNetworkConnectivityConfigsPublicResponse | undefined;
+    let resp: ListNetworkConnectivityConfigsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -844,7 +844,7 @@ export class Client {
       });
       resp = parseResponse(
         respBody,
-        unmarshalListNetworkConnectivityConfigsPublicResponseSchema
+        unmarshalListNetworkConnectivityConfigsResponseSchema
       );
     };
     await executeCall(call, options);
@@ -855,10 +855,10 @@ export class Client {
   }
 
   async *listNetworkConnectivityConfigsPublicIter(
-    req: ListNetworkConnectivityConfigsPublicRequest,
+    req: ListNetworkConnectivityConfigsRequest,
     options?: CallOptions
   ): AsyncGenerator<CustomerFacingNetworkConnectivityConfig> {
-    const pageReq: ListNetworkConnectivityConfigsPublicRequest = {...req};
+    const pageReq: ListNetworkConnectivityConfigsRequest = {...req};
     for (;;) {
       const resp = await this.listNetworkConnectivityConfigsPublic(
         pageReq,
@@ -1217,11 +1217,11 @@ export class Client {
 
   /** Creates a <Databricks> network configuration that represents an VPC and its resources. The VPC will be used for new <Databricks> clusters. This requires a pre-existing VPC and subnets. */
   async createNetworkPublic(
-    req: CreateNetworkPublicRequest,
+    req: CreateNetworkRequest,
     options?: CallOptions
   ): Promise<Network> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/networks`;
-    const body = marshalRequest(req, marshalCreateNetworkPublicRequestSchema);
+    const body = marshalRequest(req, marshalCreateNetworkRequestSchema);
     let resp: Network | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1248,13 +1248,13 @@ export class Client {
    * internet or only from private endpoints.
    */
   async createPrivateAccessSettingsPublic(
-    req: CreatePrivateAccessSettingsPublicRequest,
+    req: CreatePrivateAccessSettingsRequest,
     options?: CallOptions
   ): Promise<CustomerFacingPrivateAccessSettings> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/private-access-settings`;
     const body = marshalRequest(
       req,
-      marshalCreatePrivateAccessSettingsPublicRequestSchema
+      marshalCreatePrivateAccessSettingsRequestSchema
     );
     let resp: CustomerFacingPrivateAccessSettings | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -1292,14 +1292,11 @@ export class Client {
    * [<Databricks> article about PrivateLink](https://docs.databricks.com/administration-guide/cloud-configurations/aws/privatelink.html).
    */
   async createVpcEndpointPublic(
-    req: CreateVpcEndpointPublicRequest,
+    req: CreateVpcEndpointRequest,
     options?: CallOptions
   ): Promise<CustomerFacingVpcEndpoint> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/vpc-endpoints`;
-    const body = marshalRequest(
-      req,
-      marshalCreateVpcEndpointPublicRequestSchema
-    );
+    const body = marshalRequest(req, marshalCreateVpcEndpointRequestSchema);
     let resp: CustomerFacingVpcEndpoint | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
@@ -1325,7 +1322,7 @@ export class Client {
    * This operation is available only if your account is on the E2 version of the platform.
    */
   async deleteNetworkPublic(
-    req: DeleteNetworkPublicRequest,
+    req: DeleteNetworkRequest,
     options?: CallOptions
   ): Promise<Network> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/networks/${req.networkId ?? ''}`;
@@ -1350,7 +1347,7 @@ export class Client {
 
   /** Deletes a <Databricks> private access settings configuration, both specified by ID. */
   async deletePrivateAccessSettingsPublic(
-    req: DeletePrivateAccessSettingsPublicRequest,
+    req: DeletePrivateAccessSettingsRequest,
     options?: CallOptions
   ): Promise<CustomerFacingPrivateAccessSettings> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/private-access-settings/${req.privateAccessSettingsId ?? ''}`;
@@ -1378,7 +1375,7 @@ export class Client {
 
   /** Deletes a Databricks VPC endpoint configuration. You cannot delete a VPC endpoint configuration that is associated with any workspace. */
   async deleteVpcEndpointPublic(
-    req: DeleteVpcEndpointPublicRequest,
+    req: DeleteVpcEndpointRequest,
     options?: CallOptions
   ): Promise<CustomerFacingVpcEndpoint> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/vpc-endpoints/${req.vpcEndpointId ?? ''}`;
@@ -1403,7 +1400,7 @@ export class Client {
 
   /** Gets a <Databricks> network configuration, which represents a cloud VPC and its resources. */
   async getNetworkPublic(
-    req: GetNetworkPublicRequest,
+    req: GetNetworkRequest,
     options?: CallOptions
   ): Promise<Network> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/networks/${req.networkId ?? ''}`;
@@ -1428,7 +1425,7 @@ export class Client {
 
   /** Gets a <Databricks> private access settings configuration, both specified by ID. */
   async getPrivateAccessSettingsPublic(
-    req: GetPrivateAccessSettingsPublicRequest,
+    req: GetPrivateAccessSettingsRequest,
     options?: CallOptions
   ): Promise<CustomerFacingPrivateAccessSettings> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/private-access-settings/${req.privateAccessSettingsId ?? ''}`;
@@ -1461,7 +1458,7 @@ export class Client {
    * [AWS PrivateLink](https://aws.amazon.com/privatelink).
    */
   async getVpcEndpointPublic(
-    req: GetVpcEndpointPublicRequest,
+    req: GetVpcEndpointRequest,
     options?: CallOptions
   ): Promise<CustomerFacingVpcEndpoint> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/vpc-endpoints/${req.vpcEndpointId ?? ''}`;
@@ -1486,11 +1483,11 @@ export class Client {
 
   /** Lists <Databricks> network configurations for an account. */
   async listNetworkPublic(
-    req: ListNetworkPublicRequest,
+    req: ListNetworkRequest,
     options?: CallOptions
-  ): Promise<ListNetworkPublicResponse> {
+  ): Promise<ListNetworkResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/networks`;
-    let resp: ListNetworkPublicResponse | undefined;
+    let resp: ListNetworkResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -1516,11 +1513,11 @@ export class Client {
 
   /** Lists <Databricks> private access settings for an account. */
   async listPrivateAccessSettingsPublic(
-    req: ListPrivateAccessSettingsPublicRequest,
+    req: ListPrivateAccessSettingsRequest,
     options?: CallOptions
-  ): Promise<ListPrivateAccessSettingsPublicResponse> {
+  ): Promise<ListPrivateAccessSettingsResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/private-access-settings`;
-    let resp: ListPrivateAccessSettingsPublicResponse | undefined;
+    let resp: ListPrivateAccessSettingsResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -1548,11 +1545,11 @@ export class Client {
 
   /** Lists Databricks VPC endpoint configurations for an account. */
   async listVpcEndpointPublic(
-    req: ListVpcEndpointPublicRequest,
+    req: ListVpcEndpointRequest,
     options?: CallOptions
-  ): Promise<ListVpcEndpointPublicResponse> {
+  ): Promise<ListVpcEndpointResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/vpc-endpoints`;
-    let resp: ListVpcEndpointPublicResponse | undefined;
+    let resp: ListVpcEndpointResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
@@ -1583,7 +1580,7 @@ export class Client {
    * Before configuring PrivateLink, read the <Databricks> article about PrivateLink.
    */
   async updatePrivateAccessSettingsPublic(
-    req: UpdatePrivateAccessSettingsPublicRequest,
+    req: UpdatePrivateAccessSettingsRequest,
     options?: CallOptions
   ): Promise<CustomerFacingPrivateAccessSettings> {
     const url = `${this.host}/api/2.0/accounts/${req.customerFacingPrivateAccessSettings?.accountId ?? ''}/private-access-settings/${req.customerFacingPrivateAccessSettings?.privateAccessSettingsId ?? ''}`;

@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CancelCustomLlmOptimizationRunRequest,
@@ -66,33 +60,20 @@ export class Client {
   }
 
   /** Cancel a Custom LLM Optimization Run. */
-  async cancelCustomLlmOptimizationRun(
-    req: CancelCustomLlmOptimizationRunRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async cancelCustomLlmOptimizationRun(req: CancelCustomLlmOptimizationRunRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/custom-llms/${req.id ?? ''}/optimize/cancel`;
-    const body = marshalRequest(
-      req,
-      marshalCancelCustomLlmOptimizationRunRequestSchema
-    );
+    const body = marshalRequest(req, marshalCancelCustomLlmOptimizationRunRequestSchema);
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Create a Custom LLM. */
-  async createCustomLlm(
-    req: CreateCustomLlmRequest,
-    options?: CallOptions
-  ): Promise<CustomLlm> {
+  async createCustomLlm(req: CreateCustomLlmRequest, options?: CallOptions): Promise<CustomLlm> {
     const url = `${this.host}/api/2.0/custom-llms`;
     const body = marshalRequest(req, marshalCreateCustomLlmRequestSchema);
     let resp: CustomLlm | undefined;
@@ -100,11 +81,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCustomLlmSchema);
     };
     await executeCall(call, options);
@@ -115,40 +92,26 @@ export class Client {
   }
 
   /** Delete a Custom LLM. */
-  async deleteCustomLlm(
-    req: DeleteCustomLlmRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteCustomLlm(req: DeleteCustomLlmRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/custom-llms/${req.id ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Get a Custom LLM. */
-  async getCustomLlm(
-    req: GetCustomLlmRequest,
-    options?: CallOptions
-  ): Promise<CustomLlm> {
+  async getCustomLlm(req: GetCustomLlmRequest, options?: CallOptions): Promise<CustomLlm> {
     const url = `${this.host}/api/2.0/custom-llms/${req.id ?? ''}`;
     let resp: CustomLlm | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCustomLlmSchema);
     };
     await executeCall(call, options);
@@ -159,25 +122,15 @@ export class Client {
   }
 
   /** Start a Custom LLM Optimization Run. */
-  async startCustomLlmOptimizationRun(
-    req: StartCustomLlmOptimizationRunRequest,
-    options?: CallOptions
-  ): Promise<CustomLlm> {
+  async startCustomLlmOptimizationRun(req: StartCustomLlmOptimizationRunRequest, options?: CallOptions): Promise<CustomLlm> {
     const url = `${this.host}/api/2.0/custom-llms/${req.id ?? ''}/optimize`;
-    const body = marshalRequest(
-      req,
-      marshalStartCustomLlmOptimizationRunRequestSchema
-    );
+    const body = marshalRequest(req, marshalStartCustomLlmOptimizationRunRequestSchema);
     let resp: CustomLlm | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCustomLlmSchema);
     };
     await executeCall(call, options);
@@ -188,10 +141,7 @@ export class Client {
   }
 
   /** Update a Custom LLM. */
-  async updateCustomLlm(
-    req: UpdateCustomLlmRequest,
-    options?: CallOptions
-  ): Promise<CustomLlm> {
+  async updateCustomLlm(req: UpdateCustomLlmRequest, options?: CallOptions): Promise<CustomLlm> {
     const url = `${this.host}/api/2.0/custom-llms/${req.id ?? ''}`;
     const body = marshalRequest(req, marshalUpdateCustomLlmRequestSchema);
     let resp: CustomLlm | undefined;
@@ -199,11 +149,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCustomLlmSchema);
     };
     await executeCall(call, options);

@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateDashboardRequest,
@@ -39,6 +33,8 @@ import type {
   MigrateDashboardRequest,
   PublishDashboardRequest,
   PublishedDashboard,
+  RevertDashboardRequest,
+  RevertDashboardResponse,
   Schedule,
   Subscription,
   TrashDashboardRequest,
@@ -52,6 +48,7 @@ import {
   marshalDashboardSchema,
   marshalMigrateDashboardRequestSchema,
   marshalPublishDashboardRequestSchema,
+  marshalRevertDashboardRequestSchema,
   marshalScheduleSchema,
   marshalSubscriptionSchema,
   unmarshalDashboardSchema,
@@ -60,6 +57,7 @@ import {
   unmarshalListSchedulesResponseSchema,
   unmarshalListSubscriptionsResponseSchema,
   unmarshalPublishedDashboardSchema,
+  unmarshalRevertDashboardResponseSchema,
   unmarshalScheduleSchema,
   unmarshalSubscriptionSchema,
   unmarshalTrashDashboardResponseSchema,
@@ -98,10 +96,7 @@ export class Client {
   }
 
   /** Create a draft dashboard. */
-  async createDashboard(
-    req: CreateDashboardRequest,
-    options?: CallOptions
-  ): Promise<Dashboard> {
+  async createDashboard(req: CreateDashboardRequest, options?: CallOptions): Promise<Dashboard> {
     const url = `${this.host}/api/2.0/lakeview/dashboards`;
     const params = new URLSearchParams();
     if (req.datasetCatalog !== undefined) {
@@ -117,18 +112,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'POST',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('POST', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDashboardSchema);
     };
     await executeCall(call, options);
@@ -139,10 +124,7 @@ export class Client {
   }
 
   /** Create dashboard schedule. */
-  async createSchedule(
-    req: CreateScheduleRequest,
-    options?: CallOptions
-  ): Promise<Schedule> {
+  async createSchedule(req: CreateScheduleRequest, options?: CallOptions): Promise<Schedule> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.schedule?.dashboardId ?? ''}/schedules`;
     const body = marshalRequest(req.schedule, marshalScheduleSchema);
     let resp: Schedule | undefined;
@@ -150,11 +132,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalScheduleSchema);
     };
     await executeCall(call, options);
@@ -165,10 +143,7 @@ export class Client {
   }
 
   /** Create schedule subscription. */
-  async createSubscription(
-    req: CreateSubscriptionRequest,
-    options?: CallOptions
-  ): Promise<Subscription> {
+  async createSubscription(req: CreateSubscriptionRequest, options?: CallOptions): Promise<Subscription> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.subscription?.dashboardId ?? ''}/schedules/${req.subscription?.scheduleId ?? ''}/subscriptions`;
     const body = marshalRequest(req.subscription, marshalSubscriptionSchema);
     let resp: Subscription | undefined;
@@ -176,11 +151,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalSubscriptionSchema);
     };
     await executeCall(call, options);
@@ -191,10 +162,7 @@ export class Client {
   }
 
   /** Delete dashboard schedule. */
-  async deleteSchedule(
-    req: DeleteScheduleRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteSchedule(req: DeleteScheduleRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/schedules/${req.scheduleId ?? ''}`;
     const params = new URLSearchParams();
     if (req.etag !== undefined) {
@@ -206,20 +174,13 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Delete schedule subscription. */
-  async deleteSubscription(
-    req: DeleteSubscriptionRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteSubscription(req: DeleteSubscriptionRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/schedules/${req.scheduleId ?? ''}/subscriptions/${req.subscriptionId ?? ''}`;
     const params = new URLSearchParams();
     if (req.etag !== undefined) {
@@ -231,31 +192,20 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Get a draft dashboard. */
-  async getDashboard(
-    req: GetDashboardRequest,
-    options?: CallOptions
-  ): Promise<Dashboard> {
+  async getDashboard(req: GetDashboardRequest, options?: CallOptions): Promise<Dashboard> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}`;
     let resp: Dashboard | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDashboardSchema);
     };
     await executeCall(call, options);
@@ -266,21 +216,14 @@ export class Client {
   }
 
   /** Get the current published dashboard. */
-  async getPublishedDashboard(
-    req: GetPublishedDashboardRequest,
-    options?: CallOptions
-  ): Promise<PublishedDashboard> {
+  async getPublishedDashboard(req: GetPublishedDashboardRequest, options?: CallOptions): Promise<PublishedDashboard> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/published`;
     let resp: PublishedDashboard | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalPublishedDashboardSchema);
     };
     await executeCall(call, options);
@@ -291,10 +234,7 @@ export class Client {
   }
 
   /** Get a required authorization details and scopes of a published dashboard to mint an OAuth token. */
-  async getPublishedDashboardTokenInfo(
-    req: GetPublishedDashboardTokenInfoRequest,
-    options?: CallOptions
-  ): Promise<GetPublishedDashboardTokenInfoResponse> {
+  async getPublishedDashboardTokenInfo(req: GetPublishedDashboardTokenInfoRequest, options?: CallOptions): Promise<GetPublishedDashboardTokenInfoResponse> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/published/tokeninfo`;
     const params = new URLSearchParams();
     if (req.externalValue !== undefined) {
@@ -310,15 +250,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetPublishedDashboardTokenInfoResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetPublishedDashboardTokenInfoResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -328,21 +261,14 @@ export class Client {
   }
 
   /** Get dashboard schedule. */
-  async getSchedule(
-    req: GetScheduleRequest,
-    options?: CallOptions
-  ): Promise<Schedule> {
+  async getSchedule(req: GetScheduleRequest, options?: CallOptions): Promise<Schedule> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/schedules/${req.scheduleId ?? ''}`;
     let resp: Schedule | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalScheduleSchema);
     };
     await executeCall(call, options);
@@ -353,21 +279,14 @@ export class Client {
   }
 
   /** Get schedule subscription. */
-  async getSubscription(
-    req: GetSubscriptionRequest,
-    options?: CallOptions
-  ): Promise<Subscription> {
+  async getSubscription(req: GetSubscriptionRequest, options?: CallOptions): Promise<Subscription> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/schedules/${req.scheduleId ?? ''}/subscriptions/${req.subscriptionId ?? ''}`;
     let resp: Subscription | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalSubscriptionSchema);
     };
     await executeCall(call, options);
@@ -378,10 +297,7 @@ export class Client {
   }
 
   /** List dashboards. */
-  async listDashboards(
-    req: ListDashboardsRequest,
-    options?: CallOptions
-  ): Promise<ListDashboardsResponse> {
+  async listDashboards(req: ListDashboardsRequest, options?: CallOptions): Promise<ListDashboardsResponse> {
     const url = `${this.host}/api/2.0/lakeview/dashboards`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -403,11 +319,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListDashboardsResponseSchema);
     };
     await executeCall(call, options);
@@ -417,10 +329,8 @@ export class Client {
     return resp;
   }
 
-  async *listDashboardsIter(
-    req: ListDashboardsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<Dashboard> {
+
+  async *listDashboardsIter(req: ListDashboardsRequest, options?: CallOptions): AsyncGenerator<Dashboard> {
     const pageReq: ListDashboardsRequest = {...req};
     for (;;) {
       const resp = await this.listDashboards(pageReq, options);
@@ -434,11 +344,9 @@ export class Client {
     }
   }
 
+
   /** List dashboard schedules. */
-  async listSchedules(
-    req: ListSchedulesRequest,
-    options?: CallOptions
-  ): Promise<ListSchedulesResponse> {
+  async listSchedules(req: ListSchedulesRequest, options?: CallOptions): Promise<ListSchedulesResponse> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/schedules`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -454,11 +362,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListSchedulesResponseSchema);
     };
     await executeCall(call, options);
@@ -468,10 +372,8 @@ export class Client {
     return resp;
   }
 
-  async *listSchedulesIter(
-    req: ListSchedulesRequest,
-    options?: CallOptions
-  ): AsyncGenerator<Schedule> {
+
+  async *listSchedulesIter(req: ListSchedulesRequest, options?: CallOptions): AsyncGenerator<Schedule> {
     const pageReq: ListSchedulesRequest = {...req};
     for (;;) {
       const resp = await this.listSchedules(pageReq, options);
@@ -485,11 +387,9 @@ export class Client {
     }
   }
 
+
   /** List schedule subscriptions. */
-  async listSubscriptions(
-    req: ListSubscriptionsRequest,
-    options?: CallOptions
-  ): Promise<ListSubscriptionsResponse> {
+  async listSubscriptions(req: ListSubscriptionsRequest, options?: CallOptions): Promise<ListSubscriptionsResponse> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/schedules/${req.scheduleId ?? ''}/subscriptions`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -505,11 +405,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListSubscriptionsResponseSchema);
     };
     await executeCall(call, options);
@@ -519,10 +415,8 @@ export class Client {
     return resp;
   }
 
-  async *listSubscriptionsIter(
-    req: ListSubscriptionsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<Subscription> {
+
+  async *listSubscriptionsIter(req: ListSubscriptionsRequest, options?: CallOptions): AsyncGenerator<Subscription> {
     const pageReq: ListSubscriptionsRequest = {...req};
     for (;;) {
       const resp = await this.listSubscriptions(pageReq, options);
@@ -536,11 +430,9 @@ export class Client {
     }
   }
 
+
   /** Migrates a classic SQL dashboard to Lakeview. */
-  async migrateDashboard(
-    req: MigrateDashboardRequest,
-    options?: CallOptions
-  ): Promise<Dashboard> {
+  async migrateDashboard(req: MigrateDashboardRequest, options?: CallOptions): Promise<Dashboard> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/migrate`;
     const body = marshalRequest(req, marshalMigrateDashboardRequestSchema);
     let resp: Dashboard | undefined;
@@ -548,11 +440,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDashboardSchema);
     };
     await executeCall(call, options);
@@ -563,10 +451,7 @@ export class Client {
   }
 
   /** Publish the current draft dashboard. */
-  async publishDashboard(
-    req: PublishDashboardRequest,
-    options?: CallOptions
-  ): Promise<PublishedDashboard> {
+  async publishDashboard(req: PublishDashboardRequest, options?: CallOptions): Promise<PublishedDashboard> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/published`;
     const body = marshalRequest(req, marshalPublishDashboardRequestSchema);
     let resp: PublishedDashboard | undefined;
@@ -574,11 +459,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalPublishedDashboardSchema);
     };
     await executeCall(call, options);
@@ -588,22 +469,34 @@ export class Client {
     return resp;
   }
 
+  /** Revert a dashboard's definition in draft mode to the last published version. */
+  async revertDashboard(req: RevertDashboardRequest, options?: CallOptions): Promise<RevertDashboardResponse> {
+    const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/revert`;
+    const body = marshalRequest(req, marshalRevertDashboardRequestSchema);
+    let resp: RevertDashboardResponse | undefined;
+    const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
+      const headers = new Headers({'Content-Type': 'application/json'});
+      headers.set('User-Agent', this.userAgent);
+      const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalRevertDashboardResponseSchema);
+    };
+    await executeCall(call, options);
+    if (resp === undefined) {
+      throw new Error('API call completed without a result.');
+    }
+    return resp;
+  }
+
   /** Trash a dashboard. */
-  async trashDashboard(
-    req: TrashDashboardRequest,
-    options?: CallOptions
-  ): Promise<TrashDashboardResponse> {
+  async trashDashboard(req: TrashDashboardRequest, options?: CallOptions): Promise<TrashDashboardResponse> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}`;
     let resp: TrashDashboardResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalTrashDashboardResponseSchema);
     };
     await executeCall(call, options);
@@ -614,21 +507,14 @@ export class Client {
   }
 
   /** Unpublish the dashboard. */
-  async unpublishDashboard(
-    req: UnpublishDashboardRequest,
-    options?: CallOptions
-  ): Promise<UnpublishDashboardResponse> {
+  async unpublishDashboard(req: UnpublishDashboardRequest, options?: CallOptions): Promise<UnpublishDashboardResponse> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboardId ?? ''}/published`;
     let resp: UnpublishDashboardResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalUnpublishDashboardResponseSchema);
     };
     await executeCall(call, options);
@@ -639,10 +525,7 @@ export class Client {
   }
 
   /** Update a draft dashboard. */
-  async updateDashboard(
-    req: UpdateDashboardRequest,
-    options?: CallOptions
-  ): Promise<Dashboard> {
+  async updateDashboard(req: UpdateDashboardRequest, options?: CallOptions): Promise<Dashboard> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.dashboard?.dashboardId ?? ''}`;
     const params = new URLSearchParams();
     if (req.datasetCatalog !== undefined) {
@@ -658,18 +541,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalDashboardSchema);
     };
     await executeCall(call, options);
@@ -680,10 +553,7 @@ export class Client {
   }
 
   /** Update dashboard schedule. */
-  async updateSchedule(
-    req: UpdateScheduleRequest,
-    options?: CallOptions
-  ): Promise<Schedule> {
+  async updateSchedule(req: UpdateScheduleRequest, options?: CallOptions): Promise<Schedule> {
     const url = `${this.host}/api/2.0/lakeview/dashboards/${req.schedule?.dashboardId ?? ''}/schedules/${req.schedule?.scheduleId ?? ''}`;
     const body = marshalRequest(req.schedule, marshalScheduleSchema);
     let resp: Schedule | undefined;
@@ -691,11 +561,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalScheduleSchema);
     };
     await executeCall(call, options);

@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateFailoverGroupRequest,
@@ -75,10 +69,7 @@ export class Client {
   }
 
   /** Create a new failover group. */
-  async createFailoverGroup(
-    req: CreateFailoverGroupRequest,
-    options?: CallOptions
-  ): Promise<FailoverGroup> {
+  async createFailoverGroup(req: CreateFailoverGroupRequest, options?: CallOptions): Promise<FailoverGroup> {
     const url = `${this.host}/api/disaster-recovery/v1/${req.parent ?? ''}/failover-groups`;
     const params = new URLSearchParams();
     if (req.validateOnly !== undefined) {
@@ -94,18 +85,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'POST',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('POST', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalFailoverGroupSchema);
     };
     await executeCall(call, options);
@@ -116,10 +97,7 @@ export class Client {
   }
 
   /** Create a new stable URL. */
-  async createStableUrl(
-    req: CreateStableUrlRequest,
-    options?: CallOptions
-  ): Promise<StableUrl> {
+  async createStableUrl(req: CreateStableUrlRequest, options?: CallOptions): Promise<StableUrl> {
     const url = `${this.host}/api/disaster-recovery/v1/${req.parent ?? ''}/stable-urls`;
     const params = new URLSearchParams();
     if (req.validateOnly !== undefined) {
@@ -135,18 +113,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'POST',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('POST', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalStableUrlSchema);
     };
     await executeCall(call, options);
@@ -157,10 +125,7 @@ export class Client {
   }
 
   /** Delete a failover group. */
-  async deleteFailoverGroup(
-    req: DeleteFailoverGroupRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteFailoverGroup(req: DeleteFailoverGroupRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/disaster-recovery/v1/${req.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.etag !== undefined) {
@@ -172,39 +137,25 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Delete a stable URL. */
-  async deleteStableUrl(
-    req: DeleteStableUrlRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteStableUrl(req: DeleteStableUrlRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/disaster-recovery/v1/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Initiate a failover to a new primary region. */
-  async failoverFailoverGroup(
-    req: FailoverFailoverGroupRequest,
-    options?: CallOptions
-  ): Promise<FailoverGroup> {
+  async failoverFailoverGroup(req: FailoverFailoverGroupRequest, options?: CallOptions): Promise<FailoverGroup> {
     const url = `${this.host}/api/disaster-recovery/v1/${req.name ?? ''}/failover`;
     const body = marshalRequest(req, marshalFailoverFailoverGroupRequestSchema);
     let resp: FailoverGroup | undefined;
@@ -212,11 +163,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalFailoverGroupSchema);
     };
     await executeCall(call, options);
@@ -227,21 +174,14 @@ export class Client {
   }
 
   /** Get a failover group. */
-  async getFailoverGroup(
-    req: GetFailoverGroupRequest,
-    options?: CallOptions
-  ): Promise<FailoverGroup> {
+  async getFailoverGroup(req: GetFailoverGroupRequest, options?: CallOptions): Promise<FailoverGroup> {
     const url = `${this.host}/api/disaster-recovery/v1/${req.name ?? ''}`;
     let resp: FailoverGroup | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalFailoverGroupSchema);
     };
     await executeCall(call, options);
@@ -252,21 +192,14 @@ export class Client {
   }
 
   /** Get a stable URL. */
-  async getStableUrl(
-    req: GetStableUrlRequest,
-    options?: CallOptions
-  ): Promise<StableUrl> {
+  async getStableUrl(req: GetStableUrlRequest, options?: CallOptions): Promise<StableUrl> {
     const url = `${this.host}/api/disaster-recovery/v1/${req.name ?? ''}`;
     let resp: StableUrl | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalStableUrlSchema);
     };
     await executeCall(call, options);
@@ -277,10 +210,7 @@ export class Client {
   }
 
   /** List failover groups. */
-  async listFailoverGroups(
-    req: ListFailoverGroupsRequest,
-    options?: CallOptions
-  ): Promise<ListFailoverGroupsResponse> {
+  async listFailoverGroups(req: ListFailoverGroupsRequest, options?: CallOptions): Promise<ListFailoverGroupsResponse> {
     const url = `${this.host}/api/disaster-recovery/v1/${req.parent ?? ''}/failover-groups`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -296,11 +226,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListFailoverGroupsResponseSchema);
     };
     await executeCall(call, options);
@@ -310,10 +236,8 @@ export class Client {
     return resp;
   }
 
-  async *listFailoverGroupsIter(
-    req: ListFailoverGroupsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<FailoverGroup> {
+
+  async *listFailoverGroupsIter(req: ListFailoverGroupsRequest, options?: CallOptions): AsyncGenerator<FailoverGroup> {
     const pageReq: ListFailoverGroupsRequest = {...req};
     for (;;) {
       const resp = await this.listFailoverGroups(pageReq, options);
@@ -327,11 +251,9 @@ export class Client {
     }
   }
 
+
   /** List stable URLs for an account. */
-  async listStableUrls(
-    req: ListStableUrlsRequest,
-    options?: CallOptions
-  ): Promise<ListStableUrlsResponse> {
+  async listStableUrls(req: ListStableUrlsRequest, options?: CallOptions): Promise<ListStableUrlsResponse> {
     const url = `${this.host}/api/disaster-recovery/v1/${req.parent ?? ''}/stable-urls`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -347,11 +269,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListStableUrlsResponseSchema);
     };
     await executeCall(call, options);
@@ -361,10 +279,8 @@ export class Client {
     return resp;
   }
 
-  async *listStableUrlsIter(
-    req: ListStableUrlsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<StableUrl> {
+
+  async *listStableUrlsIter(req: ListStableUrlsRequest, options?: CallOptions): AsyncGenerator<StableUrl> {
     const pageReq: ListStableUrlsRequest = {...req};
     for (;;) {
       const resp = await this.listStableUrls(pageReq, options);
@@ -378,11 +294,9 @@ export class Client {
     }
   }
 
+
   /** Update a failover group. */
-  async updateFailoverGroup(
-    req: UpdateFailoverGroupRequest,
-    options?: CallOptions
-  ): Promise<FailoverGroup> {
+  async updateFailoverGroup(req: UpdateFailoverGroupRequest, options?: CallOptions): Promise<FailoverGroup> {
     const url = `${this.host}/api/disaster-recovery/v1/${req.failoverGroup?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -395,18 +309,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalFailoverGroupSchema);
     };
     await executeCall(call, options);

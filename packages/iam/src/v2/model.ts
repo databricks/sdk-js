@@ -4,6 +4,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 export enum Entitlement {
   ENTITLEMENT_UNSPECIFIED = 'ENTITLEMENT_UNSPECIFIED',
   WORKSPACE_ACCESS = 'WORKSPACE_ACCESS',
@@ -343,47 +344,39 @@ export const unmarshalGroupSchema: z.ZodType<Group> = z
     groupName: d.group_name,
   }));
 
-export const unmarshalListWorkspaceAssignmentDetailsResponseSchema: z.ZodType<ListWorkspaceAssignmentDetailsResponse> =
-  z
-    .object({
-      workspace_assignment_details: z
-        .array(z.lazy(() => unmarshalWorkspaceAssignmentDetailSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      workspaceAssignmentDetails: d.workspace_assignment_details,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListWorkspaceAssignmentDetailsResponseSchema: z.ZodType<ListWorkspaceAssignmentDetailsResponse> = z
+  .object({
+    workspace_assignment_details: z.array(z.lazy(() => unmarshalWorkspaceAssignmentDetailSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    workspaceAssignmentDetails: d.workspace_assignment_details,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalResolveGroupResponseSchema: z.ZodType<ResolveGroupResponse> =
-  z
-    .object({
-      group: z.lazy(() => unmarshalGroupSchema).optional(),
-    })
-    .transform(d => ({
-      group: d.group,
-    }));
+export const unmarshalResolveGroupResponseSchema: z.ZodType<ResolveGroupResponse> = z
+  .object({
+    group: z.lazy(() => unmarshalGroupSchema).optional(),
+  })
+  .transform(d => ({
+    group: d.group,
+  }));
 
-export const unmarshalResolveServicePrincipalResponseSchema: z.ZodType<ResolveServicePrincipalResponse> =
-  z
-    .object({
-      service_principal: z
-        .lazy(() => unmarshalServicePrincipalSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      servicePrincipal: d.service_principal,
-    }));
+export const unmarshalResolveServicePrincipalResponseSchema: z.ZodType<ResolveServicePrincipalResponse> = z
+  .object({
+    service_principal: z.lazy(() => unmarshalServicePrincipalSchema).optional(),
+  })
+  .transform(d => ({
+    servicePrincipal: d.service_principal,
+  }));
 
-export const unmarshalResolveUserResponseSchema: z.ZodType<ResolveUserResponse> =
-  z
-    .object({
-      user: z.lazy(() => unmarshalUserSchema).optional(),
-    })
-    .transform(d => ({
-      user: d.user,
-    }));
+export const unmarshalResolveUserResponseSchema: z.ZodType<ResolveUserResponse> = z
+  .object({
+    user: z.lazy(() => unmarshalUserSchema).optional(),
+  })
+  .transform(d => ({
+    user: d.user,
+  }));
 
 export const unmarshalServicePrincipalSchema: z.ZodType<ServicePrincipal> = z
   .object({
@@ -432,43 +425,41 @@ export const unmarshalUser_NameSchema: z.ZodType<User_Name> = z
     familyName: d.family_name,
   }));
 
-export const unmarshalWorkspaceAccessDetailSchema: z.ZodType<WorkspaceAccessDetail> =
-  z
-    .object({
-      principal_id: z.number().optional(),
-      workspace_id: z.number().optional(),
-      account_id: z.string().optional(),
-      principal_type: z.enum(PrincipalType).optional(),
-      access_type: z.enum(WorkspaceAccessDetail_AccessType).optional(),
-      status: z.enum(State).optional(),
-      permissions: z.array(z.enum(WorkspacePermission)).optional(),
-    })
-    .transform(d => ({
-      principalId: d.principal_id,
-      workspaceId: d.workspace_id,
-      accountId: d.account_id,
-      principalType: d.principal_type,
-      accessType: d.access_type,
-      status: d.status,
-      permissions: d.permissions,
-    }));
+export const unmarshalWorkspaceAccessDetailSchema: z.ZodType<WorkspaceAccessDetail> = z
+  .object({
+    principal_id: z.number().optional(),
+    workspace_id: z.number().optional(),
+    account_id: z.string().optional(),
+    principal_type: z.enum(PrincipalType).optional(),
+    access_type: z.enum(WorkspaceAccessDetail_AccessType).optional(),
+    status: z.enum(State).optional(),
+    permissions: z.array(z.enum(WorkspacePermission)).optional(),
+  })
+  .transform(d => ({
+    principalId: d.principal_id,
+    workspaceId: d.workspace_id,
+    accountId: d.account_id,
+    principalType: d.principal_type,
+    accessType: d.access_type,
+    status: d.status,
+    permissions: d.permissions,
+  }));
 
-export const unmarshalWorkspaceAssignmentDetailSchema: z.ZodType<WorkspaceAssignmentDetail> =
-  z
-    .object({
-      principal_id: z.number().optional(),
-      workspace_id: z.number().optional(),
-      account_id: z.string().optional(),
-      principal_type: z.enum(PrincipalType).optional(),
-      entitlements: z.array(z.enum(Entitlement)).optional(),
-    })
-    .transform(d => ({
-      principalId: d.principal_id,
-      workspaceId: d.workspace_id,
-      accountId: d.account_id,
-      principalType: d.principal_type,
-      entitlements: d.entitlements,
-    }));
+export const unmarshalWorkspaceAssignmentDetailSchema: z.ZodType<WorkspaceAssignmentDetail> = z
+  .object({
+    principal_id: z.number().optional(),
+    workspace_id: z.number().optional(),
+    account_id: z.string().optional(),
+    principal_type: z.enum(PrincipalType).optional(),
+    entitlements: z.array(z.enum(Entitlement)).optional(),
+  })
+  .transform(d => ({
+    principalId: d.principal_id,
+    workspaceId: d.workspace_id,
+    accountId: d.account_id,
+    principalType: d.principal_type,
+    entitlements: d.entitlements,
+  }));
 
 export const marshalResolveGroupProxyRequestSchema: z.ZodType = z
   .object({
@@ -548,11 +539,6 @@ const workspaceAssignmentDetailFieldMaskSchema: FieldMaskSchema = {
   workspaceId: {wire: 'workspace_id'},
 };
 
-export function workspaceAssignmentDetailFieldMask(
-  ...paths: string[]
-): FieldMask<WorkspaceAssignmentDetail> {
-  return FieldMask.build<WorkspaceAssignmentDetail>(
-    paths,
-    workspaceAssignmentDetailFieldMaskSchema
-  );
+export function workspaceAssignmentDetailFieldMask(...paths: string[]): FieldMask<WorkspaceAssignmentDetail> {
+  return FieldMask.build<WorkspaceAssignmentDetail>(paths, workspaceAssignmentDetailFieldMaskSchema);
 }

@@ -5,6 +5,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 /** Request message for CreateSecret. */
 export interface CreateSecretRequest {
   /**
@@ -61,7 +62,7 @@ export interface ListSecretsRequest {
   pageToken?: string | undefined;
   /**
    * Maximum number of secrets to return.
-   *
+   * 
    * - If not specified, at most 10000 secrets are returned.
    * - If set to a value greater than 0, the page length is the minimum of this value and 10000.
    * - If set to 0, the page length is set to 10000.
@@ -162,16 +163,15 @@ export interface UpdateSecretRequest {
   updateMask?: FieldMask<Secret> | undefined;
 }
 
-export const unmarshalListSecretsResponseSchema: z.ZodType<ListSecretsResponse> =
-  z
-    .object({
-      secrets: z.array(z.lazy(() => unmarshalSecretSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      secrets: d.secrets,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListSecretsResponseSchema: z.ZodType<ListSecretsResponse> = z
+  .object({
+    secrets: z.array(z.lazy(() => unmarshalSecretSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    secrets: d.secrets,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalSecretSchema: z.ZodType<Secret> = z
   .object({
@@ -179,15 +179,9 @@ export const unmarshalSecretSchema: z.ZodType<Secret> = z
     owner: z.string().optional(),
     effective_owner: z.string().optional(),
     metastore_id: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     created_by: z.string().optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     updated_by: z.string().optional(),
     comment: z.string().optional(),
     full_name: z.string().optional(),
@@ -196,10 +190,7 @@ export const unmarshalSecretSchema: z.ZodType<Secret> = z
     value: z.string().optional(),
     effective_value: z.string().optional(),
     browse_only: z.boolean().optional(),
-    expire_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    expire_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     external_secret_id: z.string().optional(),
   })
   .transform(d => ({
@@ -228,15 +219,9 @@ export const marshalSecretSchema: z.ZodType = z
     owner: z.string().optional(),
     effectiveOwner: z.string().optional(),
     metastoreId: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     createdBy: z.string().optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     updatedBy: z.string().optional(),
     comment: z.string().optional(),
     fullName: z.string().optional(),
@@ -245,10 +230,7 @@ export const marshalSecretSchema: z.ZodType = z
     value: z.string().optional(),
     effectiveValue: z.string().optional(),
     browseOnly: z.boolean().optional(),
-    expireTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    expireTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     externalSecretId: z.string().optional(),
   })
   .transform(d => ({

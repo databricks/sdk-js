@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export enum UsageDashboardMajorVersion {
   USAGE_DASHBOARD_MAJOR_VERSION_UNSPECIFIED = 'USAGE_DASHBOARD_MAJOR_VERSION_UNSPECIFIED',
   USAGE_DASHBOARD_MAJOR_VERSION_1 = 'USAGE_DASHBOARD_MAJOR_VERSION_1',
@@ -49,26 +50,24 @@ export interface GetBillingUsageDashboardRequest_Response {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCreateBillingUsageDashboardRequest_ResponseSchema: z.ZodType<CreateBillingUsageDashboardRequest_Response> =
-  z
-    .object({
-      dashboard_id: z.string().optional(),
-    })
-    .transform(d => ({
-      dashboardId: d.dashboard_id,
-    }));
+export const unmarshalCreateBillingUsageDashboardRequest_ResponseSchema: z.ZodType<CreateBillingUsageDashboardRequest_Response> = z
+  .object({
+    dashboard_id: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboardId: d.dashboard_id,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalGetBillingUsageDashboardRequest_ResponseSchema: z.ZodType<GetBillingUsageDashboardRequest_Response> =
-  z
-    .object({
-      dashboard_id: z.string().optional(),
-      dashboard_url: z.string().optional(),
-    })
-    .transform(d => ({
-      dashboardId: d.dashboard_id,
-      dashboardUrl: d.dashboard_url,
-    }));
+export const unmarshalGetBillingUsageDashboardRequest_ResponseSchema: z.ZodType<GetBillingUsageDashboardRequest_Response> = z
+  .object({
+    dashboard_id: z.string().optional(),
+    dashboard_url: z.string().optional(),
+  })
+  .transform(d => ({
+    dashboardId: d.dashboard_id,
+    dashboardUrl: d.dashboard_url,
+  }));
 
 export const marshalCreateBillingUsageDashboardRequestSchema: z.ZodType = z
   .object({

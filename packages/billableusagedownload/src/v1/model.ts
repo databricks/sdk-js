@@ -1,5 +1,6 @@
 // Code generated from API definition by Databricks SDK Generator. DO NOT EDIT.
 
+
 export interface DownloadRequest {
   /**
    * <Databricks> account ID of any type. For non-E2 account types, get

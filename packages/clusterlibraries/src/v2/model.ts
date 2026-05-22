@@ -2,13 +2,14 @@
 
 import {z} from 'zod';
 
+
 /** The status of a library on a specific cluster. */
 export enum LibraryInstallStatus {
   /** No action has yet been taken to install the library. This state should be very short lived. */
   PENDING = 'PENDING',
   /**
    * Metadata necessary to install the library is being retrieved from the provided repository.
-   *
+   * 
    * For jar and egg libraries, this step is a no-op.
    */
   RESOLVING = 'RESOLVING',
@@ -149,7 +150,7 @@ export interface MavenLibrary {
   repo?: string | undefined;
   /**
    * List of dependences to exclude. For example: `["slf4j:slf4j", "*:hadoop-client"]`.
-   *
+   * 
    * Maven dependency exclusions:
    * https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html.
    */
@@ -186,22 +187,20 @@ export interface UninstallLibrariesRequest {
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
 export interface UninstallLibrariesRequest_Response {}
 
-export const unmarshalClusterLibraryStatusesSchema: z.ZodType<ClusterLibraryStatuses> =
-  z
-    .object({
-      cluster_id: z.string().optional(),
-      library_statuses: z
-        .array(z.lazy(() => unmarshalLibraryFullStatusSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      clusterId: d.cluster_id,
-      libraryStatuses: d.library_statuses,
-    }));
+export const unmarshalClusterLibraryStatusesSchema: z.ZodType<ClusterLibraryStatuses> = z
+  .object({
+    cluster_id: z.string().optional(),
+    library_statuses: z.array(z.lazy(() => unmarshalLibraryFullStatusSchema)).optional(),
+  })
+  .transform(d => ({
+    clusterId: d.cluster_id,
+    libraryStatuses: d.library_statuses,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalInstallLibrariesRequest_ResponseSchema: z.ZodType<InstallLibrariesRequest_Response> =
-  z.object({});
+export const unmarshalInstallLibrariesRequest_ResponseSchema: z.ZodType<InstallLibrariesRequest_Response> = z
+  .object({
+  });
 
 export const unmarshalLibrarySchema: z.ZodType<Library> = z
   .object({
@@ -214,25 +213,7 @@ export const unmarshalLibrarySchema: z.ZodType<Library> = z
     requirements: z.string().optional(),
   })
   .transform(d => ({
-    lib:
-      d.jar !== undefined
-        ? {$case: 'jar' as const, jar: d.jar}
-        : d.egg !== undefined
-          ? {$case: 'egg' as const, egg: d.egg}
-          : d.pypi !== undefined
-            ? {$case: 'pypi' as const, pypi: d.pypi}
-            : d.maven !== undefined
-              ? {$case: 'maven' as const, maven: d.maven}
-              : d.cran !== undefined
-                ? {$case: 'cran' as const, cran: d.cran}
-                : d.whl !== undefined
-                  ? {$case: 'whl' as const, whl: d.whl}
-                  : d.requirements !== undefined
-                    ? {
-                        $case: 'requirements' as const,
-                        requirements: d.requirements,
-                      }
-                    : undefined,
+    lib: d.jar !== undefined ? { $case: 'jar' as const, jar: d.jar } : d.egg !== undefined ? { $case: 'egg' as const, egg: d.egg } : d.pypi !== undefined ? { $case: 'pypi' as const, pypi: d.pypi } : d.maven !== undefined ? { $case: 'maven' as const, maven: d.maven } : d.cran !== undefined ? { $case: 'cran' as const, cran: d.cran } : d.whl !== undefined ? { $case: 'whl' as const, whl: d.whl } : d.requirements !== undefined ? { $case: 'requirements' as const, requirements: d.requirements } : undefined,
   }));
 
 export const unmarshalLibraryFullStatusSchema: z.ZodType<LibraryFullStatus> = z
@@ -250,16 +231,13 @@ export const unmarshalLibraryFullStatusSchema: z.ZodType<LibraryFullStatus> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListAllClusterLibraryStatusesRequest_ResponseSchema: z.ZodType<ListAllClusterLibraryStatusesRequest_Response> =
-  z
-    .object({
-      statuses: z
-        .array(z.lazy(() => unmarshalClusterLibraryStatusesSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      statuses: d.statuses,
-    }));
+export const unmarshalListAllClusterLibraryStatusesRequest_ResponseSchema: z.ZodType<ListAllClusterLibraryStatusesRequest_Response> = z
+  .object({
+    statuses: z.array(z.lazy(() => unmarshalClusterLibraryStatusesSchema)).optional(),
+  })
+  .transform(d => ({
+    statuses: d.statuses,
+  }));
 
 export const unmarshalMavenLibrarySchema: z.ZodType<MavenLibrary> = z
   .object({
@@ -294,8 +272,9 @@ export const unmarshalRCranLibrarySchema: z.ZodType<RCranLibrary> = z
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalUninstallLibrariesRequest_ResponseSchema: z.ZodType<UninstallLibrariesRequest_Response> =
-  z.object({});
+export const unmarshalUninstallLibrariesRequest_ResponseSchema: z.ZodType<UninstallLibrariesRequest_Response> = z
+  .object({
+  });
 
 export const marshalInstallLibrariesRequestSchema: z.ZodType = z
   .object({
@@ -309,35 +288,16 @@ export const marshalInstallLibrariesRequestSchema: z.ZodType = z
 
 export const marshalLibrarySchema: z.ZodType = z
   .object({
-    lib: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('jar'), jar: z.string()}),
-        z.object({$case: z.literal('egg'), egg: z.string()}),
-        z.object({
-          $case: z.literal('pypi'),
-          pypi: z.lazy(() => marshalPythonPyPiLibrarySchema),
-        }),
-        z.object({
-          $case: z.literal('maven'),
-          maven: z.lazy(() => marshalMavenLibrarySchema),
-        }),
-        z.object({
-          $case: z.literal('cran'),
-          cran: z.lazy(() => marshalRCranLibrarySchema),
-        }),
-        z.object({$case: z.literal('whl'), whl: z.string()}),
-        z.object({$case: z.literal('requirements'), requirements: z.string()}),
-      ])
-      .optional(),
+    lib: z.discriminatedUnion('$case', [z.object({ $case: z.literal('jar'), jar: z.string() }), z.object({ $case: z.literal('egg'), egg: z.string() }), z.object({ $case: z.literal('pypi'), pypi: z.lazy(() => marshalPythonPyPiLibrarySchema) }), z.object({ $case: z.literal('maven'), maven: z.lazy(() => marshalMavenLibrarySchema) }), z.object({ $case: z.literal('cran'), cran: z.lazy(() => marshalRCranLibrarySchema) }), z.object({ $case: z.literal('whl'), whl: z.string() }), z.object({ $case: z.literal('requirements'), requirements: z.string() })]).optional(),
   })
   .transform(d => ({
-    ...(d.lib?.$case === 'jar' && {jar: d.lib.jar}),
-    ...(d.lib?.$case === 'egg' && {egg: d.lib.egg}),
-    ...(d.lib?.$case === 'pypi' && {pypi: d.lib.pypi}),
-    ...(d.lib?.$case === 'maven' && {maven: d.lib.maven}),
-    ...(d.lib?.$case === 'cran' && {cran: d.lib.cran}),
-    ...(d.lib?.$case === 'whl' && {whl: d.lib.whl}),
-    ...(d.lib?.$case === 'requirements' && {requirements: d.lib.requirements}),
+    ...(d.lib?.$case === 'jar' && { jar: d.lib.jar }),
+    ...(d.lib?.$case === 'egg' && { egg: d.lib.egg }),
+    ...(d.lib?.$case === 'pypi' && { pypi: d.lib.pypi }),
+    ...(d.lib?.$case === 'maven' && { maven: d.lib.maven }),
+    ...(d.lib?.$case === 'cran' && { cran: d.lib.cran }),
+    ...(d.lib?.$case === 'whl' && { whl: d.lib.whl }),
+    ...(d.lib?.$case === 'requirements' && { requirements: d.lib.requirements }),
   }));
 
 export const marshalMavenLibrarySchema: z.ZodType = z

@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateCustomOAuthAppIntegrationRequest,
@@ -97,32 +91,19 @@ export class Client {
 
   /**
    * Create Custom OAuth App Integration.
-   *
+   * 
    * You can retrieve the custom OAuth app integration via :method:CustomAppIntegration/get.
    */
-  async createCustomOAuthAppIntegration(
-    req: CreateCustomOAuthAppIntegrationRequest,
-    options?: CallOptions
-  ): Promise<CustomOAuthAppIntegrationSecret> {
+  async createCustomOAuthAppIntegration(req: CreateCustomOAuthAppIntegrationRequest, options?: CallOptions): Promise<CustomOAuthAppIntegrationSecret> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/custom-app-integrations`;
-    const body = marshalRequest(
-      req,
-      marshalCreateCustomOAuthAppIntegrationRequestSchema
-    );
+    const body = marshalRequest(req, marshalCreateCustomOAuthAppIntegrationRequestSchema);
     let resp: CustomOAuthAppIntegrationSecret | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalCustomOAuthAppIntegrationSecretSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalCustomOAuthAppIntegrationSecretSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -133,32 +114,19 @@ export class Client {
 
   /**
    * Create Published OAuth App Integration.
-   *
+   * 
    * You can retrieve the published OAuth app integration via :method:PublishedAppIntegration/get.
    */
-  async createPublishedOAuthAppIntegration(
-    req: CreatePublishedOAuthAppIntegrationRequest,
-    options?: CallOptions
-  ): Promise<CreatePublishedOAuthAppIntegrationRequest_Response> {
+  async createPublishedOAuthAppIntegration(req: CreatePublishedOAuthAppIntegrationRequest, options?: CallOptions): Promise<CreatePublishedOAuthAppIntegrationRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/published-app-integrations`;
-    const body = marshalRequest(
-      req,
-      marshalCreatePublishedOAuthAppIntegrationRequestSchema
-    );
+    const body = marshalRequest(req, marshalCreatePublishedOAuthAppIntegrationRequestSchema);
     let resp: CreatePublishedOAuthAppIntegrationRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreatePublishedOAuthAppIntegrationRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalCreatePublishedOAuthAppIntegrationRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -171,25 +139,15 @@ export class Client {
    * Delete an existing Custom OAuth App Integration.
    * You can retrieve the custom OAuth app integration via :method:CustomAppIntegration/get.
    */
-  async deleteCustomOAuthAppIntegration(
-    req: DeleteCustomOAuthAppIntegrationRequest,
-    options?: CallOptions
-  ): Promise<DeleteCustomOAuthAppIntegrationRequest_Response> {
+  async deleteCustomOAuthAppIntegration(req: DeleteCustomOAuthAppIntegrationRequest, options?: CallOptions): Promise<DeleteCustomOAuthAppIntegrationRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/custom-app-integrations/${req.integrationId ?? ''}`;
     let resp: DeleteCustomOAuthAppIntegrationRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteCustomOAuthAppIntegrationRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteCustomOAuthAppIntegrationRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -202,25 +160,15 @@ export class Client {
    * Delete an existing Published OAuth App Integration.
    * You can retrieve the published OAuth app integration via :method:PublishedAppIntegration/get.
    */
-  async deletePublishedOAuthAppIntegration(
-    req: DeletePublishedOAuthAppIntegrationRequest,
-    options?: CallOptions
-  ): Promise<DeletePublishedOAuthAppIntegrationRequest_Response> {
+  async deletePublishedOAuthAppIntegration(req: DeletePublishedOAuthAppIntegrationRequest, options?: CallOptions): Promise<DeletePublishedOAuthAppIntegrationRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/published-app-integrations/${req.integrationId ?? ''}`;
     let resp: DeletePublishedOAuthAppIntegrationRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeletePublishedOAuthAppIntegrationRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeletePublishedOAuthAppIntegrationRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -230,21 +178,14 @@ export class Client {
   }
 
   /** Gets the Custom OAuth App Integration for the given integration id. */
-  async getCustomOAuthAppIntegration(
-    req: GetCustomOAuthAppIntegrationRequest,
-    options?: CallOptions
-  ): Promise<CustomOAuthAppIntegration> {
+  async getCustomOAuthAppIntegration(req: GetCustomOAuthAppIntegrationRequest, options?: CallOptions): Promise<CustomOAuthAppIntegration> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/custom-app-integrations/${req.integrationId ?? ''}`;
     let resp: CustomOAuthAppIntegration | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalCustomOAuthAppIntegrationSchema);
     };
     await executeCall(call, options);
@@ -255,25 +196,15 @@ export class Client {
   }
 
   /** Gets the Published OAuth App Integration for the given integration id. */
-  async getPublishedOAuthAppIntegration(
-    req: GetPublishedOAuthAppIntegrationRequest,
-    options?: CallOptions
-  ): Promise<PublishedOAuthAppIntegration> {
+  async getPublishedOAuthAppIntegration(req: GetPublishedOAuthAppIntegrationRequest, options?: CallOptions): Promise<PublishedOAuthAppIntegration> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/published-app-integrations/${req.integrationId ?? ''}`;
     let resp: PublishedOAuthAppIntegration | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalPublishedOAuthAppIntegrationSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalPublishedOAuthAppIntegrationSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -283,10 +214,7 @@ export class Client {
   }
 
   /** Get the list of custom OAuth app integrations for the specified <Account> */
-  async listCustomOAuthAppIntegrations(
-    req: ListCustomOAuthAppIntegrationsRequest,
-    options?: CallOptions
-  ): Promise<ListCustomOAuthAppIntegrationsRequest_Response> {
+  async listCustomOAuthAppIntegrations(req: ListCustomOAuthAppIntegrationsRequest, options?: CallOptions): Promise<ListCustomOAuthAppIntegrationsRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/custom-app-integrations`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -296,10 +224,7 @@ export class Client {
       params.append('page_size', String(req.pageSize));
     }
     if (req.includeCreatorUsername !== undefined) {
-      params.append(
-        'include_creator_username',
-        String(req.includeCreatorUsername)
-      );
+      params.append('include_creator_username', String(req.includeCreatorUsername));
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -308,15 +233,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListCustomOAuthAppIntegrationsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListCustomOAuthAppIntegrationsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -325,10 +243,8 @@ export class Client {
     return resp;
   }
 
-  async *listCustomOAuthAppIntegrationsIter(
-    req: ListCustomOAuthAppIntegrationsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<CustomOAuthAppIntegration> {
+
+  async *listCustomOAuthAppIntegrationsIter(req: ListCustomOAuthAppIntegrationsRequest, options?: CallOptions): AsyncGenerator<CustomOAuthAppIntegration> {
     const pageReq: ListCustomOAuthAppIntegrationsRequest = {...req};
     for (;;) {
       const resp = await this.listCustomOAuthAppIntegrations(pageReq, options);
@@ -342,11 +258,9 @@ export class Client {
     }
   }
 
+
   /** Get the list of published OAuth app integrations for the specified <Account> */
-  async listPublishedOAuthAppIntegrations(
-    req: ListPublishedOAuthAppIntegrationsRequest,
-    options?: CallOptions
-  ): Promise<ListPublishedOAuthAppIntegrationsRequest_Response> {
+  async listPublishedOAuthAppIntegrations(req: ListPublishedOAuthAppIntegrationsRequest, options?: CallOptions): Promise<ListPublishedOAuthAppIntegrationsRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/published-app-integrations`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -362,15 +276,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListPublishedOAuthAppIntegrationsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListPublishedOAuthAppIntegrationsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -379,16 +286,11 @@ export class Client {
     return resp;
   }
 
-  async *listPublishedOAuthAppIntegrationsIter(
-    req: ListPublishedOAuthAppIntegrationsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<PublishedOAuthAppIntegration> {
+
+  async *listPublishedOAuthAppIntegrationsIter(req: ListPublishedOAuthAppIntegrationsRequest, options?: CallOptions): AsyncGenerator<PublishedOAuthAppIntegration> {
     const pageReq: ListPublishedOAuthAppIntegrationsRequest = {...req};
     for (;;) {
-      const resp = await this.listPublishedOAuthAppIntegrations(
-        pageReq,
-        options
-      );
+      const resp = await this.listPublishedOAuthAppIntegrations(pageReq, options);
       for (const item of resp.apps ?? []) {
         yield item;
       }
@@ -399,11 +301,9 @@ export class Client {
     }
   }
 
+
   /** Get all the available published OAuth apps in <Databricks>. */
-  async listPublishedOAuthApps(
-    req: ListPublishedOAuthAppsRequest,
-    options?: CallOptions
-  ): Promise<ListPublishedOAuthAppsRequest_Response> {
+  async listPublishedOAuthApps(req: ListPublishedOAuthAppsRequest, options?: CallOptions): Promise<ListPublishedOAuthAppsRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/published-apps`;
     const params = new URLSearchParams();
     if (req.pageToken !== undefined) {
@@ -419,15 +319,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListPublishedOAuthAppsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListPublishedOAuthAppsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -436,10 +329,8 @@ export class Client {
     return resp;
   }
 
-  async *listPublishedOAuthAppsIter(
-    req: ListPublishedOAuthAppsRequest,
-    options?: CallOptions
-  ): AsyncGenerator<PublishedOAuthApp> {
+
+  async *listPublishedOAuthAppsIter(req: ListPublishedOAuthAppsRequest, options?: CallOptions): AsyncGenerator<PublishedOAuthApp> {
     const pageReq: ListPublishedOAuthAppsRequest = {...req};
     for (;;) {
       const resp = await this.listPublishedOAuthApps(pageReq, options);
@@ -453,33 +344,21 @@ export class Client {
     }
   }
 
+
   /**
    * Updates an existing custom OAuth App Integration.
    * You can retrieve the custom OAuth app integration via :method:CustomAppIntegration/get.
    */
-  async updateCustomOAuthAppIntegration(
-    req: UpdateCustomOAuthAppIntegrationRequest,
-    options?: CallOptions
-  ): Promise<UpdateCustomOAuthAppIntegrationRequest_Response> {
+  async updateCustomOAuthAppIntegration(req: UpdateCustomOAuthAppIntegrationRequest, options?: CallOptions): Promise<UpdateCustomOAuthAppIntegrationRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/custom-app-integrations/${req.integrationId ?? ''}`;
-    const body = marshalRequest(
-      req,
-      marshalUpdateCustomOAuthAppIntegrationRequestSchema
-    );
+    const body = marshalRequest(req, marshalUpdateCustomOAuthAppIntegrationRequestSchema);
     let resp: UpdateCustomOAuthAppIntegrationRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdateCustomOAuthAppIntegrationRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalUpdateCustomOAuthAppIntegrationRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -492,29 +371,16 @@ export class Client {
    * Updates an existing published OAuth App Integration.
    * You can retrieve the published OAuth app integration via :method:PublishedAppIntegration/get.
    */
-  async updatePublishedOAuthAppIntegration(
-    req: UpdatePublishedOAuthAppIntegrationRequest,
-    options?: CallOptions
-  ): Promise<UpdatePublishedOAuthAppIntegrationRequest_Response> {
+  async updatePublishedOAuthAppIntegration(req: UpdatePublishedOAuthAppIntegrationRequest, options?: CallOptions): Promise<UpdatePublishedOAuthAppIntegrationRequest_Response> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/oauth2/published-app-integrations/${req.integrationId ?? ''}`;
-    const body = marshalRequest(
-      req,
-      marshalUpdatePublishedOAuthAppIntegrationRequestSchema
-    );
+    const body = marshalRequest(req, marshalUpdatePublishedOAuthAppIntegrationRequestSchema);
     let resp: UpdatePublishedOAuthAppIntegrationRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdatePublishedOAuthAppIntegrationRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalUpdatePublishedOAuthAppIntegrationRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

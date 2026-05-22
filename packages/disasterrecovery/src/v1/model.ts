@@ -5,6 +5,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 /** The type of failover to perform. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested enum name.
 export enum FailoverFailoverGroupRequest_FailoverType {
@@ -331,26 +332,13 @@ export const unmarshalFailoverGroupSchema: z.ZodType<FailoverGroup> = z
     name: z.string().optional(),
     effective_primary_region: z.string().optional(),
     regions: z.array(z.string()).optional(),
-    workspace_sets: z
-      .array(z.lazy(() => unmarshalWorkspaceSetSchema))
-      .optional(),
-    unity_catalog_assets: z
-      .lazy(() => unmarshalUcReplicationConfigSchema)
-      .optional(),
+    workspace_sets: z.array(z.lazy(() => unmarshalWorkspaceSetSchema)).optional(),
+    unity_catalog_assets: z.lazy(() => unmarshalUcReplicationConfigSchema).optional(),
     state: z.enum(FailoverGroup_State).optional(),
     etag: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    replication_point: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    replication_point: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     initial_primary_region: z.string().optional(),
   })
   .transform(d => ({
@@ -367,52 +355,45 @@ export const unmarshalFailoverGroupSchema: z.ZodType<FailoverGroup> = z
     initialPrimaryRegion: d.initial_primary_region,
   }));
 
-export const unmarshalListFailoverGroupsResponseSchema: z.ZodType<ListFailoverGroupsResponse> =
-  z
-    .object({
-      failover_groups: z
-        .array(z.lazy(() => unmarshalFailoverGroupSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      failoverGroups: d.failover_groups,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListFailoverGroupsResponseSchema: z.ZodType<ListFailoverGroupsResponse> = z
+  .object({
+    failover_groups: z.array(z.lazy(() => unmarshalFailoverGroupSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    failoverGroups: d.failover_groups,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListStableUrlsResponseSchema: z.ZodType<ListStableUrlsResponse> =
-  z
-    .object({
-      stable_urls: z.array(z.lazy(() => unmarshalStableUrlSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      stableUrls: d.stable_urls,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListStableUrlsResponseSchema: z.ZodType<ListStableUrlsResponse> = z
+  .object({
+    stable_urls: z.array(z.lazy(() => unmarshalStableUrlSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    stableUrls: d.stable_urls,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalLocationMappingSchema: z.ZodType<LocationMapping> = z
   .object({
     name: z.string().optional(),
-    uri_by_region: z
-      .array(z.lazy(() => unmarshalLocationMappingEntrySchema))
-      .optional(),
+    uri_by_region: z.array(z.lazy(() => unmarshalLocationMappingEntrySchema)).optional(),
   })
   .transform(d => ({
     name: d.name,
     uriByRegion: d.uri_by_region,
   }));
 
-export const unmarshalLocationMappingEntrySchema: z.ZodType<LocationMappingEntry> =
-  z
-    .object({
-      region: z.string().optional(),
-      uri: z.string().optional(),
-    })
-    .transform(d => ({
-      region: d.region,
-      uri: d.uri,
-    }));
+export const unmarshalLocationMappingEntrySchema: z.ZodType<LocationMappingEntry> = z
+  .object({
+    region: z.string().optional(),
+    uri: z.string().optional(),
+  })
+  .transform(d => ({
+    region: d.region,
+    uri: d.uri,
+  }));
 
 export const unmarshalStableUrlSchema: z.ZodType<StableUrl> = z
   .object({
@@ -436,20 +417,17 @@ export const unmarshalUcCatalogSchema: z.ZodType<UcCatalog> = z
     name: d.name,
   }));
 
-export const unmarshalUcReplicationConfigSchema: z.ZodType<UcReplicationConfig> =
-  z
-    .object({
-      location_mappings: z
-        .array(z.lazy(() => unmarshalLocationMappingSchema))
-        .optional(),
-      catalogs: z.array(z.lazy(() => unmarshalUcCatalogSchema)).optional(),
-      data_replication_workspace_set: z.string().optional(),
-    })
-    .transform(d => ({
-      locationMappings: d.location_mappings,
-      catalogs: d.catalogs,
-      dataReplicationWorkspaceSet: d.data_replication_workspace_set,
-    }));
+export const unmarshalUcReplicationConfigSchema: z.ZodType<UcReplicationConfig> = z
+  .object({
+    location_mappings: z.array(z.lazy(() => unmarshalLocationMappingSchema)).optional(),
+    catalogs: z.array(z.lazy(() => unmarshalUcCatalogSchema)).optional(),
+    data_replication_workspace_set: z.string().optional(),
+  })
+  .transform(d => ({
+    locationMappings: d.location_mappings,
+    catalogs: d.catalogs,
+    dataReplicationWorkspaceSet: d.data_replication_workspace_set,
+  }));
 
 export const unmarshalWorkspaceSetSchema: z.ZodType<WorkspaceSet> = z
   .object({
@@ -485,23 +463,12 @@ export const marshalFailoverGroupSchema: z.ZodType = z
     effectivePrimaryRegion: z.string().optional(),
     regions: z.array(z.string()).optional(),
     workspaceSets: z.array(z.lazy(() => marshalWorkspaceSetSchema)).optional(),
-    unityCatalogAssets: z
-      .lazy(() => marshalUcReplicationConfigSchema)
-      .optional(),
+    unityCatalogAssets: z.lazy(() => marshalUcReplicationConfigSchema).optional(),
     state: z.enum(FailoverGroup_State).optional(),
     etag: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    replicationPoint: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    replicationPoint: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     initialPrimaryRegion: z.string().optional(),
   })
   .transform(d => ({
@@ -521,9 +488,7 @@ export const marshalFailoverGroupSchema: z.ZodType = z
 export const marshalLocationMappingSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    uriByRegion: z
-      .array(z.lazy(() => marshalLocationMappingEntrySchema))
-      .optional(),
+    uriByRegion: z.array(z.lazy(() => marshalLocationMappingEntrySchema)).optional(),
   })
   .transform(d => ({
     name: d.name,
@@ -564,9 +529,7 @@ export const marshalUcCatalogSchema: z.ZodType = z
 
 export const marshalUcReplicationConfigSchema: z.ZodType = z
   .object({
-    locationMappings: z
-      .array(z.lazy(() => marshalLocationMappingSchema))
-      .optional(),
+    locationMappings: z.array(z.lazy(() => marshalLocationMappingSchema)).optional(),
     catalogs: z.array(z.lazy(() => marshalUcCatalogSchema)).optional(),
     dataReplicationWorkspaceSet: z.string().optional(),
   })
@@ -599,17 +562,12 @@ const failoverGroupFieldMaskSchema: FieldMaskSchema = {
   regions: {wire: 'regions'},
   replicationPoint: {wire: 'replication_point'},
   state: {wire: 'state'},
-  unityCatalogAssets: {
-    wire: 'unity_catalog_assets',
-    children: () => ucReplicationConfigFieldMaskSchema,
-  },
+  unityCatalogAssets: {wire: 'unity_catalog_assets', children: () => ucReplicationConfigFieldMaskSchema},
   updateTime: {wire: 'update_time'},
   workspaceSets: {wire: 'workspace_sets'},
 };
 
-export function failoverGroupFieldMask(
-  ...paths: string[]
-): FieldMask<FailoverGroup> {
+export function failoverGroupFieldMask(...paths: string[]): FieldMask<FailoverGroup> {
   return FieldMask.build<FailoverGroup>(paths, failoverGroupFieldMaskSchema);
 }
 

@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 export interface DisableSystemSchemaRequest {
   /** Full name of the system schema. */
   schema?: string | undefined;
@@ -61,26 +62,25 @@ export interface SystemSchemaInfo {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalDisableSystemSchemaRequest_ResponseSchema: z.ZodType<DisableSystemSchemaRequest_Response> =
-  z.object({});
+export const unmarshalDisableSystemSchemaRequest_ResponseSchema: z.ZodType<DisableSystemSchemaRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEnableSystemSchemaRequest_ResponseSchema: z.ZodType<EnableSystemSchemaRequest_Response> =
-  z.object({});
+export const unmarshalEnableSystemSchemaRequest_ResponseSchema: z.ZodType<EnableSystemSchemaRequest_Response> = z
+  .object({
+  });
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalListSystemSchemasRequest_ResponseSchema: z.ZodType<ListSystemSchemasRequest_Response> =
-  z
-    .object({
-      schemas: z
-        .array(z.lazy(() => unmarshalSystemSchemaInfoSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      schemas: d.schemas,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListSystemSchemasRequest_ResponseSchema: z.ZodType<ListSystemSchemasRequest_Response> = z
+  .object({
+    schemas: z.array(z.lazy(() => unmarshalSystemSchemaInfoSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    schemas: d.schemas,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalSystemSchemaInfoSchema: z.ZodType<SystemSchemaInfo> = z
   .object({

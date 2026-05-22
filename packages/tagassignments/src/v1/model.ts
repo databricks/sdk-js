@@ -4,6 +4,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 export interface CreateTagAssignmentRequest {
   tagAssignment?: TagAssignment | undefined;
 }
@@ -59,18 +60,15 @@ export interface UpdateTagAssignmentRequest {
   updateMask?: FieldMask<TagAssignment> | undefined;
 }
 
-export const unmarshalListTagAssignmentsResponseSchema: z.ZodType<ListTagAssignmentsResponse> =
-  z
-    .object({
-      tag_assignments: z
-        .array(z.lazy(() => unmarshalTagAssignmentSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      tagAssignments: d.tag_assignments,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListTagAssignmentsResponseSchema: z.ZodType<ListTagAssignmentsResponse> = z
+  .object({
+    tag_assignments: z.array(z.lazy(() => unmarshalTagAssignmentSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    tagAssignments: d.tag_assignments,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const unmarshalTagAssignmentSchema: z.ZodType<TagAssignment> = z
   .object({
@@ -107,8 +105,6 @@ const tagAssignmentFieldMaskSchema: FieldMaskSchema = {
   tagValue: {wire: 'tag_value'},
 };
 
-export function tagAssignmentFieldMask(
-  ...paths: string[]
-): FieldMask<TagAssignment> {
+export function tagAssignmentFieldMask(...paths: string[]): FieldMask<TagAssignment> {
   return FieldMask.build<TagAssignment>(paths, tagAssignmentFieldMaskSchema);
 }

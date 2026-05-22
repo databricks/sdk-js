@@ -5,6 +5,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 export enum SystemType {
   SYSTEM_TYPE_UNSPECIFIED = 'SYSTEM_TYPE_UNSPECIFIED',
   OTHER = 'OTHER',
@@ -112,15 +113,9 @@ export const unmarshalExternalMetadataSchema: z.ZodType<ExternalMetadata> = z
     properties: z.record(z.string(), z.string()).optional(),
     owner: z.string().optional(),
     metastore_id: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     created_by: z.string().optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     updated_by: z.string().optional(),
     id: z.string().optional(),
   })
@@ -141,18 +136,15 @@ export const unmarshalExternalMetadataSchema: z.ZodType<ExternalMetadata> = z
     id: d.id,
   }));
 
-export const unmarshalListExternalMetadataResponseV2Schema: z.ZodType<ListExternalMetadataResponseV2> =
-  z
-    .object({
-      external_metadata: z
-        .array(z.lazy(() => unmarshalExternalMetadataSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      externalMetadata: d.external_metadata,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListExternalMetadataResponseV2Schema: z.ZodType<ListExternalMetadataResponseV2> = z
+  .object({
+    external_metadata: z.array(z.lazy(() => unmarshalExternalMetadataSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    externalMetadata: d.external_metadata,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const marshalExternalMetadataSchema: z.ZodType = z
   .object({
@@ -165,15 +157,9 @@ export const marshalExternalMetadataSchema: z.ZodType = z
     properties: z.record(z.string(), z.string()).optional(),
     owner: z.string().optional(),
     metastoreId: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     createdBy: z.string().optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     updatedBy: z.string().optional(),
     id: z.string().optional(),
   })
@@ -211,11 +197,6 @@ const externalMetadataFieldMaskSchema: FieldMaskSchema = {
   url: {wire: 'url'},
 };
 
-export function externalMetadataFieldMask(
-  ...paths: string[]
-): FieldMask<ExternalMetadata> {
-  return FieldMask.build<ExternalMetadata>(
-    paths,
-    externalMetadataFieldMaskSchema
-  );
+export function externalMetadataFieldMask(...paths: string[]): FieldMask<ExternalMetadata> {
+  return FieldMask.build<ExternalMetadata>(paths, externalMetadataFieldMaskSchema);
 }

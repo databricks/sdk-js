@@ -9,14 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-  flattenQueryParams,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse, flattenQueryParams} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   BudgetPolicy,
@@ -73,10 +66,7 @@ export class Client {
   }
 
   /** Creates a new policy. */
-  async createBudgetPolicy(
-    req: CreateBudgetPolicyRequest,
-    options?: CallOptions
-  ): Promise<BudgetPolicy> {
+  async createBudgetPolicy(req: CreateBudgetPolicyRequest, options?: CallOptions): Promise<BudgetPolicy> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/budget-policies`;
     const body = marshalRequest(req, marshalCreateBudgetPolicyRequestSchema);
     let resp: BudgetPolicy | undefined;
@@ -84,11 +74,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalBudgetPolicySchema);
     };
     await executeCall(call, options);
@@ -99,40 +85,26 @@ export class Client {
   }
 
   /** Deletes a policy */
-  async deleteBudgetPolicy(
-    req: DeleteBudgetPolicyRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteBudgetPolicy(req: DeleteBudgetPolicyRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/budget-policies/${req.policyId ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Retrieves a policy by it's ID. */
-  async getBudgetPolicy(
-    req: GetBudgetPolicyRequest,
-    options?: CallOptions
-  ): Promise<BudgetPolicy> {
+  async getBudgetPolicy(req: GetBudgetPolicyRequest, options?: CallOptions): Promise<BudgetPolicy> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/budget-policies/${req.policyId ?? ''}`;
     let resp: BudgetPolicy | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalBudgetPolicySchema);
     };
     await executeCall(call, options);
@@ -143,10 +115,7 @@ export class Client {
   }
 
   /** Lists all policies. Policies are returned in the alphabetically ascending order of their names. */
-  async listBudgetPolicies(
-    req: ListBudgetPoliciesRequest,
-    options?: CallOptions
-  ): Promise<ListBudgetPoliciesResponse> {
+  async listBudgetPolicies(req: ListBudgetPoliciesRequest, options?: CallOptions): Promise<ListBudgetPoliciesResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/budget-policies`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -156,18 +125,10 @@ export class Client {
       params.append('page_token', req.pageToken);
     }
     if (req.filterBy !== undefined) {
-      flattenQueryParams(
-        'filter_by',
-        marshalFilterSchema.parse(req.filterBy),
-        params
-      );
+      flattenQueryParams('filter_by', marshalFilterSchema.parse(req.filterBy), params);
     }
     if (req.sortSpec !== undefined) {
-      flattenQueryParams(
-        'sort_spec',
-        marshalSortSpecSchema.parse(req.sortSpec),
-        params
-      );
+      flattenQueryParams('sort_spec', marshalSortSpecSchema.parse(req.sortSpec), params);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -176,11 +137,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListBudgetPoliciesResponseSchema);
     };
     await executeCall(call, options);
@@ -190,10 +147,8 @@ export class Client {
     return resp;
   }
 
-  async *listBudgetPoliciesIter(
-    req: ListBudgetPoliciesRequest,
-    options?: CallOptions
-  ): AsyncGenerator<BudgetPolicy> {
+
+  async *listBudgetPoliciesIter(req: ListBudgetPoliciesRequest, options?: CallOptions): AsyncGenerator<BudgetPolicy> {
     const pageReq: ListBudgetPoliciesRequest = {...req};
     for (;;) {
       const resp = await this.listBudgetPolicies(pageReq, options);
@@ -207,19 +162,13 @@ export class Client {
     }
   }
 
+
   /** Updates a policy */
-  async updateBudgetPolicy(
-    req: UpdateBudgetPolicyRequest,
-    options?: CallOptions
-  ): Promise<BudgetPolicy> {
+  async updateBudgetPolicy(req: UpdateBudgetPolicyRequest, options?: CallOptions): Promise<BudgetPolicy> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/budget-policies/${req.policy?.policyId ?? ''}`;
     const params = new URLSearchParams();
     if (req.limitConfig !== undefined) {
-      flattenQueryParams(
-        'limit_config',
-        marshalLimitConfigSchema.parse(req.limitConfig),
-        params
-      );
+      flattenQueryParams('limit_config', marshalLimitConfigSchema.parse(req.limitConfig), params);
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
@@ -228,18 +177,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalBudgetPolicySchema);
     };
     await executeCall(call, options);

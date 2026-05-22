@@ -5,6 +5,7 @@ import {FieldMask} from '@databricks/sdk-core/wkt';
 import type {FieldMaskSchema} from '@databricks/sdk-core/wkt';
 import {z} from 'zod';
 
+
 export enum Aggregation {
   SUM = 'SUM',
   COUNT = 'COUNT',
@@ -131,8 +132,8 @@ export interface AlertNotification {
 export interface AlertOperand {
   /** Only one of the following fields may be set, depending on the type of operand/threshold. */
   operand?:
-    | {$case: 'column'; column: AlertOperandColumn}
-    | {$case: 'value'; value: AlertOperandValue}
+    | { $case: 'column'; column: AlertOperandColumn }
+    | { $case: 'value'; value: AlertOperandValue }
     | undefined;
 }
 
@@ -146,9 +147,9 @@ export interface AlertOperandColumn {
 export interface AlertOperandValue {
   /** Only one of the following fields may be set, depending on the type of threshold value. */
   value?:
-    | {$case: 'stringValue'; stringValue: string}
-    | {$case: 'doubleValue'; doubleValue: number}
-    | {$case: 'boolValue'; boolValue: boolean}
+    | { $case: 'stringValue'; stringValue: string }
+    | { $case: 'doubleValue'; doubleValue: number }
+    | { $case: 'boolValue'; boolValue: boolean }
     | undefined;
 }
 
@@ -169,8 +170,8 @@ export interface AlertRunAs {
 
 export interface AlertSubscription {
   subscriptionType?:
-    | {$case: 'userEmail'; userEmail: string}
-    | {$case: 'destinationId'; destinationId: string}
+    | { $case: 'userEmail'; userEmail: string }
+    | { $case: 'destinationId'; destinationId: string }
     | undefined;
 }
 
@@ -231,14 +232,8 @@ export const unmarshalAlertSchema: z.ZodType<Alert> = z
     id: z.string().optional(),
     display_name: z.string().optional(),
     owner_user_name: z.string().optional(),
-    create_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
-    update_time: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    create_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
+    update_time: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     parent_path: z.string().optional(),
     query_text: z.string().optional(),
     warehouse_id: z.string().optional(),
@@ -277,10 +272,7 @@ export const unmarshalAlertEvaluationSchema: z.ZodType<AlertEvaluation> = z
     threshold: z.lazy(() => unmarshalAlertOperandSchema).optional(),
     notification: z.lazy(() => unmarshalAlertNotificationSchema).optional(),
     state: z.enum(AlertEvaluationState).optional(),
-    last_evaluated_at: z
-      .string()
-      .transform(s => Temporal.Instant.from(s))
-      .optional(),
+    last_evaluated_at: z.string().transform(s => Temporal.Instant.from(s)).optional(),
     empty_result_state: z.enum(AlertEvaluationState).optional(),
   })
   .transform(d => ({
@@ -295,9 +287,7 @@ export const unmarshalAlertEvaluationSchema: z.ZodType<AlertEvaluation> = z
 
 export const unmarshalAlertNotificationSchema: z.ZodType<AlertNotification> = z
   .object({
-    subscriptions: z
-      .array(z.lazy(() => unmarshalAlertSubscriptionSchema))
-      .optional(),
+    subscriptions: z.array(z.lazy(() => unmarshalAlertSubscriptionSchema)).optional(),
     retrigger_seconds: z.number().optional(),
     notify_on_ok: z.boolean().optional(),
   })
@@ -313,26 +303,20 @@ export const unmarshalAlertOperandSchema: z.ZodType<AlertOperand> = z
     value: z.lazy(() => unmarshalAlertOperandValueSchema).optional(),
   })
   .transform(d => ({
-    operand:
-      d.column !== undefined
-        ? {$case: 'column' as const, column: d.column}
-        : d.value !== undefined
-          ? {$case: 'value' as const, value: d.value}
-          : undefined,
+    operand: d.column !== undefined ? { $case: 'column' as const, column: d.column } : d.value !== undefined ? { $case: 'value' as const, value: d.value } : undefined,
   }));
 
-export const unmarshalAlertOperandColumnSchema: z.ZodType<AlertOperandColumn> =
-  z
-    .object({
-      name: z.string().optional(),
-      display: z.string().optional(),
-      aggregation: z.enum(Aggregation).optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      display: d.display,
-      aggregation: d.aggregation,
-    }));
+export const unmarshalAlertOperandColumnSchema: z.ZodType<AlertOperandColumn> = z
+  .object({
+    name: z.string().optional(),
+    display: z.string().optional(),
+    aggregation: z.enum(Aggregation).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    display: d.display,
+    aggregation: d.aggregation,
+  }));
 
 export const unmarshalAlertOperandValueSchema: z.ZodType<AlertOperandValue> = z
   .object({
@@ -341,14 +325,7 @@ export const unmarshalAlertOperandValueSchema: z.ZodType<AlertOperandValue> = z
     bool_value: z.boolean().optional(),
   })
   .transform(d => ({
-    value:
-      d.string_value !== undefined
-        ? {$case: 'stringValue' as const, stringValue: d.string_value}
-        : d.double_value !== undefined
-          ? {$case: 'doubleValue' as const, doubleValue: d.double_value}
-          : d.bool_value !== undefined
-            ? {$case: 'boolValue' as const, boolValue: d.bool_value}
-            : undefined,
+    value: d.string_value !== undefined ? { $case: 'stringValue' as const, stringValue: d.string_value } : d.double_value !== undefined ? { $case: 'doubleValue' as const, doubleValue: d.double_value } : d.bool_value !== undefined ? { $case: 'boolValue' as const, boolValue: d.bool_value } : undefined,
   }));
 
 export const unmarshalAlertRunAsSchema: z.ZodType<AlertRunAs> = z
@@ -357,15 +334,7 @@ export const unmarshalAlertRunAsSchema: z.ZodType<AlertRunAs> = z
     service_principal_name: z.string().optional(),
   })
   .transform(d => ({
-    identity:
-      d.user_name !== undefined
-        ? {$case: 'userName' as const, userName: d.user_name}
-        : d.service_principal_name !== undefined
-          ? {
-              $case: 'servicePrincipalName' as const,
-              servicePrincipalName: d.service_principal_name,
-            }
-          : undefined,
+    identity: d.user_name !== undefined ? { $case: 'userName' as const, userName: d.user_name } : d.service_principal_name !== undefined ? { $case: 'servicePrincipalName' as const, servicePrincipalName: d.service_principal_name } : undefined,
   }));
 
 export const unmarshalAlertSubscriptionSchema: z.ZodType<AlertSubscription> = z
@@ -374,12 +343,7 @@ export const unmarshalAlertSubscriptionSchema: z.ZodType<AlertSubscription> = z
     destination_id: z.string().optional(),
   })
   .transform(d => ({
-    subscriptionType:
-      d.user_email !== undefined
-        ? {$case: 'userEmail' as const, userEmail: d.user_email}
-        : d.destination_id !== undefined
-          ? {$case: 'destinationId' as const, destinationId: d.destination_id}
-          : undefined,
+    subscriptionType: d.user_email !== undefined ? { $case: 'userEmail' as const, userEmail: d.user_email } : d.destination_id !== undefined ? { $case: 'destinationId' as const, destinationId: d.destination_id } : undefined,
   }));
 
 export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
@@ -394,32 +358,27 @@ export const unmarshalCronScheduleSchema: z.ZodType<CronSchedule> = z
     pauseStatus: d.pause_status,
   }));
 
-export const unmarshalEmptySchema: z.ZodType<Empty> = z.object({});
+export const unmarshalEmptySchema: z.ZodType<Empty> = z
+  .object({
+  });
 
-export const unmarshalListAlertsResponseSchema: z.ZodType<ListAlertsResponse> =
-  z
-    .object({
-      alerts: z.array(z.lazy(() => unmarshalAlertSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      alerts: d.alerts,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListAlertsResponseSchema: z.ZodType<ListAlertsResponse> = z
+  .object({
+    alerts: z.array(z.lazy(() => unmarshalAlertSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    alerts: d.alerts,
+    nextPageToken: d.next_page_token,
+  }));
 
 export const marshalAlertSchema: z.ZodType = z
   .object({
     id: z.string().optional(),
     displayName: z.string().optional(),
     ownerUserName: z.string().optional(),
-    createTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
-    updateTime: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    createTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
+    updateTime: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     parentPath: z.string().optional(),
     queryText: z.string().optional(),
     warehouseId: z.string().optional(),
@@ -458,10 +417,7 @@ export const marshalAlertEvaluationSchema: z.ZodType = z
     threshold: z.lazy(() => marshalAlertOperandSchema).optional(),
     notification: z.lazy(() => marshalAlertNotificationSchema).optional(),
     state: z.enum(AlertEvaluationState).optional(),
-    lastEvaluatedAt: z
-      .any()
-      .transform((d: Temporal.Instant) => d.toString())
-      .optional(),
+    lastEvaluatedAt: z.any().transform((d: Temporal.Instant) => d.toString()).optional(),
     emptyResultState: z.enum(AlertEvaluationState).optional(),
   })
   .transform(d => ({
@@ -476,9 +432,7 @@ export const marshalAlertEvaluationSchema: z.ZodType = z
 
 export const marshalAlertNotificationSchema: z.ZodType = z
   .object({
-    subscriptions: z
-      .array(z.lazy(() => marshalAlertSubscriptionSchema))
-      .optional(),
+    subscriptions: z.array(z.lazy(() => marshalAlertSubscriptionSchema)).optional(),
     retriggerSeconds: z.number().optional(),
     notifyOnOk: z.boolean().optional(),
   })
@@ -490,22 +444,11 @@ export const marshalAlertNotificationSchema: z.ZodType = z
 
 export const marshalAlertOperandSchema: z.ZodType = z
   .object({
-    operand: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('column'),
-          column: z.lazy(() => marshalAlertOperandColumnSchema),
-        }),
-        z.object({
-          $case: z.literal('value'),
-          value: z.lazy(() => marshalAlertOperandValueSchema),
-        }),
-      ])
-      .optional(),
+    operand: z.discriminatedUnion('$case', [z.object({ $case: z.literal('column'), column: z.lazy(() => marshalAlertOperandColumnSchema) }), z.object({ $case: z.literal('value'), value: z.lazy(() => marshalAlertOperandValueSchema) })]).optional(),
   })
   .transform(d => ({
-    ...(d.operand?.$case === 'column' && {column: d.operand.column}),
-    ...(d.operand?.$case === 'value' && {value: d.operand.value}),
+    ...(d.operand?.$case === 'column' && { column: d.operand.column }),
+    ...(d.operand?.$case === 'value' && { value: d.operand.value }),
   }));
 
 export const marshalAlertOperandColumnSchema: z.ZodType = z
@@ -522,62 +465,30 @@ export const marshalAlertOperandColumnSchema: z.ZodType = z
 
 export const marshalAlertOperandValueSchema: z.ZodType = z
   .object({
-    value: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('stringValue'), stringValue: z.string()}),
-        z.object({$case: z.literal('doubleValue'), doubleValue: z.number()}),
-        z.object({$case: z.literal('boolValue'), boolValue: z.boolean()}),
-      ])
-      .optional(),
+    value: z.discriminatedUnion('$case', [z.object({ $case: z.literal('stringValue'), stringValue: z.string() }), z.object({ $case: z.literal('doubleValue'), doubleValue: z.number() }), z.object({ $case: z.literal('boolValue'), boolValue: z.boolean() })]).optional(),
   })
   .transform(d => ({
-    ...(d.value?.$case === 'stringValue' && {
-      string_value: d.value.stringValue,
-    }),
-    ...(d.value?.$case === 'doubleValue' && {
-      double_value: d.value.doubleValue,
-    }),
-    ...(d.value?.$case === 'boolValue' && {bool_value: d.value.boolValue}),
+    ...(d.value?.$case === 'stringValue' && { string_value: d.value.stringValue }),
+    ...(d.value?.$case === 'doubleValue' && { double_value: d.value.doubleValue }),
+    ...(d.value?.$case === 'boolValue' && { bool_value: d.value.boolValue }),
   }));
 
 export const marshalAlertRunAsSchema: z.ZodType = z
   .object({
-    identity: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('userName'), userName: z.string()}),
-        z.object({
-          $case: z.literal('servicePrincipalName'),
-          servicePrincipalName: z.string(),
-        }),
-      ])
-      .optional(),
+    identity: z.discriminatedUnion('$case', [z.object({ $case: z.literal('userName'), userName: z.string() }), z.object({ $case: z.literal('servicePrincipalName'), servicePrincipalName: z.string() })]).optional(),
   })
   .transform(d => ({
-    ...(d.identity?.$case === 'userName' && {user_name: d.identity.userName}),
-    ...(d.identity?.$case === 'servicePrincipalName' && {
-      service_principal_name: d.identity.servicePrincipalName,
-    }),
+    ...(d.identity?.$case === 'userName' && { user_name: d.identity.userName }),
+    ...(d.identity?.$case === 'servicePrincipalName' && { service_principal_name: d.identity.servicePrincipalName }),
   }));
 
 export const marshalAlertSubscriptionSchema: z.ZodType = z
   .object({
-    subscriptionType: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('userEmail'), userEmail: z.string()}),
-        z.object({
-          $case: z.literal('destinationId'),
-          destinationId: z.string(),
-        }),
-      ])
-      .optional(),
+    subscriptionType: z.discriminatedUnion('$case', [z.object({ $case: z.literal('userEmail'), userEmail: z.string() }), z.object({ $case: z.literal('destinationId'), destinationId: z.string() })]).optional(),
   })
   .transform(d => ({
-    ...(d.subscriptionType?.$case === 'userEmail' && {
-      user_email: d.subscriptionType.userEmail,
-    }),
-    ...(d.subscriptionType?.$case === 'destinationId' && {
-      destination_id: d.subscriptionType.destinationId,
-    }),
+    ...(d.subscriptionType?.$case === 'userEmail' && { user_email: d.subscriptionType.userEmail }),
+    ...(d.subscriptionType?.$case === 'destinationId' && { destination_id: d.subscriptionType.destinationId }),
   }));
 
 export const marshalCronScheduleSchema: z.ZodType = z
@@ -597,14 +508,8 @@ const alertFieldMaskSchema: FieldMaskSchema = {
   customDescription: {wire: 'custom_description'},
   customSummary: {wire: 'custom_summary'},
   displayName: {wire: 'display_name'},
-  effectiveRunAs: {
-    wire: 'effective_run_as',
-    children: () => alertRunAsFieldMaskSchema,
-  },
-  evaluation: {
-    wire: 'evaluation',
-    children: () => alertEvaluationFieldMaskSchema,
-  },
+  effectiveRunAs: {wire: 'effective_run_as', children: () => alertRunAsFieldMaskSchema},
+  evaluation: {wire: 'evaluation', children: () => alertEvaluationFieldMaskSchema},
   id: {wire: 'id'},
   lifecycleState: {wire: 'lifecycle_state'},
   ownerUserName: {wire: 'owner_user_name'},
@@ -625,10 +530,7 @@ const alertEvaluationFieldMaskSchema: FieldMaskSchema = {
   comparisonOperator: {wire: 'comparison_operator'},
   emptyResultState: {wire: 'empty_result_state'},
   lastEvaluatedAt: {wire: 'last_evaluated_at'},
-  notification: {
-    wire: 'notification',
-    children: () => alertNotificationFieldMaskSchema,
-  },
+  notification: {wire: 'notification', children: () => alertNotificationFieldMaskSchema},
   source: {wire: 'source', children: () => alertOperandColumnFieldMaskSchema},
   state: {wire: 'state'},
   threshold: {wire: 'threshold', children: () => alertOperandFieldMaskSchema},

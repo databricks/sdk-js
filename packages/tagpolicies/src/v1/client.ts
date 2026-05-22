@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateTagPolicyRequest,
@@ -64,10 +58,7 @@ export class Client {
   }
 
   /** Creates a new tag policy, making the associated tag key governed. For Terraform usage, see the [Tag Policy Terraform documentation](https://registry.terraform.io/providers/databricks/databricks/latest/docs/resources/tag_policy). To manage permissions for tag policies, use the [Account Access Control Proxy API](https://docs.databricks.com/api/workspace/accountaccesscontrolproxy). */
-  async createTagPolicy(
-    req: CreateTagPolicyRequest,
-    options?: CallOptions
-  ): Promise<TagPolicy> {
+  async createTagPolicy(req: CreateTagPolicyRequest, options?: CallOptions): Promise<TagPolicy> {
     const url = `${this.host}/api/2.1/tag-policies`;
     const body = marshalRequest(req.tagPolicy, marshalTagPolicySchema);
     let resp: TagPolicy | undefined;
@@ -75,11 +66,7 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalTagPolicySchema);
     };
     await executeCall(call, options);
@@ -90,40 +77,26 @@ export class Client {
   }
 
   /** Deletes a tag policy by its associated governed tag's key, leaving that tag key ungoverned. For Terraform usage, see the [Tag Policy Terraform documentation](https://registry.terraform.io/providers/databricks/databricks/latest/docs/resources/tag_policy). */
-  async deleteTagPolicy(
-    req: DeleteTagPolicyRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteTagPolicy(req: DeleteTagPolicyRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.1/tag-policies/${req.tagKey ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
 
   /** Gets a single tag policy by its associated governed tag's key. For Terraform usage, see the [Tag Policy Terraform documentation](https://registry.terraform.io/providers/databricks/databricks/latest/docs/data-sources/tag_policy). To list granted permissions for tag policies, use the [Account Access Control Proxy API](https://docs.databricks.com/api/workspace/accountaccesscontrolproxy). */
-  async getTagPolicy(
-    req: GetTagPolicyRequest,
-    options?: CallOptions
-  ): Promise<TagPolicy> {
+  async getTagPolicy(req: GetTagPolicyRequest, options?: CallOptions): Promise<TagPolicy> {
     const url = `${this.host}/api/2.1/tag-policies/${req.tagKey ?? ''}`;
     let resp: TagPolicy | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalTagPolicySchema);
     };
     await executeCall(call, options);
@@ -134,10 +107,7 @@ export class Client {
   }
 
   /** Lists the tag policies for all governed tags in the account. For Terraform usage, see the [Tag Policy Terraform documentation](https://registry.terraform.io/providers/databricks/databricks/latest/docs/data-sources/tag_policies). To list granted permissions for tag policies, use the [Account Access Control Proxy API](https://docs.databricks.com/api/workspace/accountaccesscontrolproxy). */
-  async listTagPolicies(
-    req: ListTagPoliciesRequest,
-    options?: CallOptions
-  ): Promise<ListTagPoliciesResponse> {
+  async listTagPolicies(req: ListTagPoliciesRequest, options?: CallOptions): Promise<ListTagPoliciesResponse> {
     const url = `${this.host}/api/2.1/tag-policies`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -153,11 +123,7 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalListTagPoliciesResponseSchema);
     };
     await executeCall(call, options);
@@ -167,10 +133,8 @@ export class Client {
     return resp;
   }
 
-  async *listTagPoliciesIter(
-    req: ListTagPoliciesRequest,
-    options?: CallOptions
-  ): AsyncGenerator<TagPolicy> {
+
+  async *listTagPoliciesIter(req: ListTagPoliciesRequest, options?: CallOptions): AsyncGenerator<TagPolicy> {
     const pageReq: ListTagPoliciesRequest = {...req};
     for (;;) {
       const resp = await this.listTagPolicies(pageReq, options);
@@ -184,11 +148,9 @@ export class Client {
     }
   }
 
+
   /** Updates an existing tag policy for a single governed tag. For Terraform usage, see the [Tag Policy Terraform documentation](https://registry.terraform.io/providers/databricks/databricks/latest/docs/resources/tag_policy). To manage permissions for tag policies, use the [Account Access Control Proxy API](https://docs.databricks.com/api/workspace/accountaccesscontrolproxy). */
-  async updateTagPolicy(
-    req: UpdateTagPolicyRequest,
-    options?: CallOptions
-  ): Promise<TagPolicy> {
+  async updateTagPolicy(req: UpdateTagPolicyRequest, options?: CallOptions): Promise<TagPolicy> {
     const url = `${this.host}/api/2.1/tag-policies/${req.tagPolicy?.tagKey ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -201,18 +163,8 @@ export class Client {
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalTagPolicySchema);
     };
     await executeCall(call, options);

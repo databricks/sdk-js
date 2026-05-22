@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateExternalMetadataRequest,
@@ -67,25 +61,15 @@ export class Client {
    * Creates a new external metadata object in the parent metastore if the caller is a metastore admin or has the **CREATE_EXTERNAL_METADATA** privilege.
    * Grants **BROWSE** to all account users upon creation by default.
    */
-  async createExternalMetadataV2(
-    req: CreateExternalMetadataRequest,
-    options?: CallOptions
-  ): Promise<ExternalMetadata> {
+  async createExternalMetadataV2(req: CreateExternalMetadataRequest, options?: CallOptions): Promise<ExternalMetadata> {
     const url = `${this.host}/api/2.0/lineage-tracking/external-metadata`;
-    const body = marshalRequest(
-      req.externalMetadata,
-      marshalExternalMetadataSchema
-    );
+    const body = marshalRequest(req.externalMetadata, marshalExternalMetadataSchema);
     let resp: ExternalMetadata | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalExternalMetadataSchema);
     };
     await executeCall(call, options);
@@ -99,20 +83,13 @@ export class Client {
    * Deletes the external metadata object that matches the supplied name.
    * The caller must be a metastore admin, the owner of the external metadata object, or a user that has the **MANAGE** privilege.
    */
-  async deleteExternalMetadataV2(
-    req: DeleteExternalMetadataRequest,
-    options?: CallOptions
-  ): Promise<void> {
+  async deleteExternalMetadataV2(req: DeleteExternalMetadataRequest, options?: CallOptions): Promise<void> {
     const url = `${this.host}/api/2.0/lineage-tracking/external-metadata/${req.name ?? ''}`;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
     };
     await executeCall(call, options);
   }
@@ -121,21 +98,14 @@ export class Client {
    * Gets the specified external metadata object in a metastore.
    * The caller must be a metastore admin, the owner of the external metadata object, or a user that has the **BROWSE** privilege.
    */
-  async getExternalMetadataV2(
-    req: GetExternalMetadataRequest,
-    options?: CallOptions
-  ): Promise<ExternalMetadata> {
+  async getExternalMetadataV2(req: GetExternalMetadataRequest, options?: CallOptions): Promise<ExternalMetadata> {
     const url = `${this.host}/api/2.0/lineage-tracking/external-metadata/${req.name ?? ''}`;
     let resp: ExternalMetadata | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalExternalMetadataSchema);
     };
     await executeCall(call, options);
@@ -151,10 +121,7 @@ export class Client {
    * Otherwise, only external metadata objects that the caller has **BROWSE** on will be retrieved.
    * There is no guarantee of a specific ordering of the elements in the array.
    */
-  async listExternalMetadataV2(
-    req: ListExternalMetadataRequest,
-    options?: CallOptions
-  ): Promise<ListExternalMetadataResponseV2> {
+  async listExternalMetadataV2(req: ListExternalMetadataRequest, options?: CallOptions): Promise<ListExternalMetadataResponseV2> {
     const url = `${this.host}/api/2.0/lineage-tracking/external-metadata`;
     const params = new URLSearchParams();
     if (req.pageSize !== undefined) {
@@ -170,15 +137,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListExternalMetadataResponseV2Schema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListExternalMetadataResponseV2Schema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -187,10 +147,8 @@ export class Client {
     return resp;
   }
 
-  async *listExternalMetadataV2Iter(
-    req: ListExternalMetadataRequest,
-    options?: CallOptions
-  ): AsyncGenerator<ExternalMetadata> {
+
+  async *listExternalMetadataV2Iter(req: ListExternalMetadataRequest, options?: CallOptions): AsyncGenerator<ExternalMetadata> {
     const pageReq: ListExternalMetadataRequest = {...req};
     for (;;) {
       const resp = await this.listExternalMetadataV2(pageReq, options);
@@ -204,15 +162,13 @@ export class Client {
     }
   }
 
+
   /**
    * Updates the external metadata object that matches the supplied name. The caller can only update either the owner or other metadata fields in one request.
    * The caller must be a metastore admin, the owner of the external metadata object, or a user that has the **MODIFY** privilege.
    * If the caller is updating the owner, they must also have the **MANAGE** privilege.
    */
-  async updateExternalMetadataV2(
-    req: UpdateExternalMetadataRequest,
-    options?: CallOptions
-  ): Promise<ExternalMetadata> {
+  async updateExternalMetadataV2(req: UpdateExternalMetadataRequest, options?: CallOptions): Promise<ExternalMetadata> {
     const url = `${this.host}/api/2.0/lineage-tracking/external-metadata/${req.externalMetadata?.name ?? ''}`;
     const params = new URLSearchParams();
     if (req.updateMask !== undefined) {
@@ -220,26 +176,13 @@ export class Client {
     }
     const query = params.toString();
     const fullUrl = query !== '' ? `${url}?${query}` : url;
-    const body = marshalRequest(
-      req.externalMetadata,
-      marshalExternalMetadataSchema
-    );
+    const body = marshalRequest(req.externalMetadata, marshalExternalMetadataSchema);
     let resp: ExternalMetadata | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
-      const httpReq = buildHttpRequest(
-        'PATCH',
-        fullUrl,
-        headers,
-        callSignal,
-        body
-      );
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
+      const httpReq = buildHttpRequest('PATCH', fullUrl, headers, callSignal, body);
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
       resp = parseResponse(respBody, unmarshalExternalMetadataSchema);
     };
     await executeCall(call, options);

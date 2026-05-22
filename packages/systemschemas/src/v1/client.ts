@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   DisableSystemSchemaRequest,
@@ -68,25 +62,15 @@ export class Client {
    * Disables the system schema and removes it from the system catalog.
    * The caller must be an account admin or a metastore admin.
    */
-  async disableSystemSchema(
-    req: DisableSystemSchemaRequest,
-    options?: CallOptions
-  ): Promise<DisableSystemSchemaRequest_Response> {
+  async disableSystemSchema(req: DisableSystemSchemaRequest, options?: CallOptions): Promise<DisableSystemSchemaRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.metastoreId ?? ''}/systemschemas/${req.schema ?? ''}`;
     let resp: DisableSystemSchemaRequest_Response | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', url, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDisableSystemSchemaRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDisableSystemSchemaRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -99,10 +83,7 @@ export class Client {
    * Enables the system schema and adds it to the system catalog.
    * The caller must be an account admin or a metastore admin.
    */
-  async enableSystemSchema(
-    req: EnableSystemSchemaRequest,
-    options?: CallOptions
-  ): Promise<EnableSystemSchemaRequest_Response> {
+  async enableSystemSchema(req: EnableSystemSchemaRequest, options?: CallOptions): Promise<EnableSystemSchemaRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.metastoreId ?? ''}/systemschemas/${req.schema ?? ''}`;
     const body = marshalRequest(req, marshalEnableSystemSchemaRequestSchema);
     let resp: EnableSystemSchemaRequest_Response | undefined;
@@ -110,15 +91,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PUT', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalEnableSystemSchemaRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalEnableSystemSchemaRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -130,16 +104,13 @@ export class Client {
   /**
    * Gets an array of system schemas for a metastore.
    * The caller must be an account admin or a metastore admin.
-   *
+   * 
    * NOTE: we recommend using max_results=0 to use the paginated version of this API. Unpaginated calls will be deprecated soon.
-   *
+   * 
    * PAGINATION BEHAVIOR: When using pagination (max_results >= 0), a page may contain zero results while still providing a next_page_token.
    * Clients must continue reading pages until next_page_token is absent, which is the only indication that the end of results has been reached.
    */
-  async listSystemSchemas(
-    req: ListSystemSchemasRequest,
-    options?: CallOptions
-  ): Promise<ListSystemSchemasRequest_Response> {
+  async listSystemSchemas(req: ListSystemSchemasRequest, options?: CallOptions): Promise<ListSystemSchemasRequest_Response> {
     const url = `${this.host}/api/2.1/unity-catalog/metastores/${req.metastoreId ?? ''}/systemschemas`;
     const params = new URLSearchParams();
     if (req.maxResults !== undefined) {
@@ -155,15 +126,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListSystemSchemasRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListSystemSchemasRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -172,10 +136,8 @@ export class Client {
     return resp;
   }
 
-  async *listSystemSchemasIter(
-    req: ListSystemSchemasRequest,
-    options?: CallOptions
-  ): AsyncGenerator<SystemSchemaInfo> {
+
+  async *listSystemSchemasIter(req: ListSystemSchemasRequest, options?: CallOptions): AsyncGenerator<SystemSchemaInfo> {
     const pageReq: ListSystemSchemasRequest = {...req};
     for (;;) {
       const resp = await this.listSystemSchemas(pageReq, options);
@@ -188,4 +150,5 @@ export class Client {
       pageReq.pageToken = resp.nextPageToken;
     }
   }
+
 }

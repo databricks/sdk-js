@@ -9,13 +9,7 @@ import type {CallOptions} from '@databricks/sdk-options/call';
 import type {ClientOptions} from '@databricks/sdk-options/client';
 import type {HttpClient} from '@databricks/sdk-core/http';
 import {newHttpClient} from './transport';
-import {
-  buildHttpRequest,
-  executeCall,
-  executeHttpCall,
-  marshalRequest,
-  parseResponse,
-} from './utils';
+import {buildHttpRequest, executeCall, executeHttpCall, marshalRequest, parseResponse} from './utils';
 import pkgJson from '../../package.json' with {type: 'json'};
 import type {
   CreateCredentialsRequest,
@@ -75,10 +69,7 @@ export class Client {
    * Use the PATCH endpoint to update existing credentials, or the DELETE endpoint to
    * delete existing credentials.
    */
-  async createCredentials(
-    req: CreateCredentialsRequest,
-    options?: CallOptions
-  ): Promise<CreateCredentialsRequest_Response> {
+  async createCredentials(req: CreateCredentialsRequest, options?: CallOptions): Promise<CreateCredentialsRequest_Response> {
     const url = `${this.host}/api/2.0/git-credentials`;
     const body = marshalRequest(req, marshalCreateCredentialsRequestSchema);
     let resp: CreateCredentialsRequest_Response | undefined;
@@ -86,15 +77,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('POST', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalCreateCredentialsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalCreateCredentialsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -104,10 +88,7 @@ export class Client {
   }
 
   /** Deletes the specified Git credential. */
-  async deleteCredentials(
-    req: DeleteCredentialsRequest,
-    options?: CallOptions
-  ): Promise<DeleteCredentialsRequest_Response> {
+  async deleteCredentials(req: DeleteCredentialsRequest, options?: CallOptions): Promise<DeleteCredentialsRequest_Response> {
     const url = `${this.host}/api/2.0/git-credentials/${String(req.id ?? '')}`;
     const params = new URLSearchParams();
     if (req.principalId !== undefined) {
@@ -120,15 +101,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('DELETE', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalDeleteCredentialsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalDeleteCredentialsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -138,10 +112,7 @@ export class Client {
   }
 
   /** Gets the Git credential with the specified credential ID. */
-  async getCredentials(
-    req: GetCredentialsRequest,
-    options?: CallOptions
-  ): Promise<GetCredentialsRequest_Response> {
+  async getCredentials(req: GetCredentialsRequest, options?: CallOptions): Promise<GetCredentialsRequest_Response> {
     const url = `${this.host}/api/2.0/git-credentials/${String(req.id ?? '')}`;
     const params = new URLSearchParams();
     if (req.principalId !== undefined) {
@@ -154,15 +125,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalGetCredentialsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalGetCredentialsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -172,10 +136,7 @@ export class Client {
   }
 
   /** Lists the calling user's Git credentials. */
-  async listCredentials(
-    req: ListCredentialsRequest,
-    options?: CallOptions
-  ): Promise<ListCredentialsRequest_Response> {
+  async listCredentials(req: ListCredentialsRequest, options?: CallOptions): Promise<ListCredentialsRequest_Response> {
     const url = `${this.host}/api/2.0/git-credentials`;
     const params = new URLSearchParams();
     if (req.principalId !== undefined) {
@@ -188,15 +149,8 @@ export class Client {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('GET', fullUrl, headers, callSignal);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalListCredentialsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalListCredentialsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {
@@ -206,10 +160,7 @@ export class Client {
   }
 
   /** Updates the specified Git credential. */
-  async updateCredentials(
-    req: UpdateCredentialsRequest,
-    options?: CallOptions
-  ): Promise<UpdateCredentialsRequest_Response> {
+  async updateCredentials(req: UpdateCredentialsRequest, options?: CallOptions): Promise<UpdateCredentialsRequest_Response> {
     const url = `${this.host}/api/2.0/git-credentials/${String(req.id ?? '')}`;
     const body = marshalRequest(req, marshalUpdateCredentialsRequestSchema);
     let resp: UpdateCredentialsRequest_Response | undefined;
@@ -217,15 +168,8 @@ export class Client {
       const headers = new Headers({'Content-Type': 'application/json'});
       headers.set('User-Agent', this.userAgent);
       const httpReq = buildHttpRequest('PATCH', url, headers, callSignal, body);
-      const respBody = await executeHttpCall({
-        request: httpReq,
-        httpClient: this.httpClient,
-        logger: this.logger,
-      });
-      resp = parseResponse(
-        respBody,
-        unmarshalUpdateCredentialsRequest_ResponseSchema
-      );
+      const respBody = await executeHttpCall({request: httpReq, httpClient: this.httpClient, logger: this.logger});
+      resp = parseResponse(respBody, unmarshalUpdateCredentialsRequest_ResponseSchema);
     };
     await executeCall(call, options);
     if (resp === undefined) {

@@ -2,6 +2,7 @@
 
 import {z} from 'zod';
 
+
 /**
  * Copied from elastic-spark-common/api/messages/runs.proto.
  * Using the original definition to remove coupling with jobs API definition
@@ -285,9 +286,9 @@ export interface CleanRoomAsset {
   /**
    * A fully qualified name that uniquely identifies the asset within the clean room.
    * This is also the name displayed in the clean room UI.
-   *
+   * 
    * For UC securable assets (tables, volumes, etc.), the format is *shared_catalog*.*shared_schema*.*asset_name*
-   *
+   * 
    * For notebooks, the name is the notebook file name.
    * For jar analyses, the name is the jar analysis name.
    */
@@ -582,9 +583,9 @@ export interface CleanRoomRemoteDetail {
   /**
    * Collaborators in the central clean room. There should one and only one collaborator
    * in the list that satisfies the owner condition:
-   *
+   * 
    * 1. It has the creator's global_metastore_id (determined by caller of CreateCleanRoom).
-   *
+   * 
    * 2. Its invite_recipient_email is empty.
    */
   collaborators?: CleanRoomCollaborator[] | undefined;
@@ -678,7 +679,7 @@ export interface CreateCleanRoomAssetReviewRequest {
   /** Asset type. Can either be NOTEBOOK_FILE or JAR_ANALYSIS. */
   assetType?: CleanRoomAsset_AssetType | undefined;
   review?:
-    | {$case: 'notebookReview'; notebookReview: NotebookVersionReview}
+    | { $case: 'notebookReview'; notebookReview: NotebookVersionReview }
     | undefined;
 }
 
@@ -751,19 +752,11 @@ export interface EgressNetworkPolicy {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface EgressNetworkPolicy_InternetAccessPolicy {
-  restrictionMode?:
-    | EgressNetworkPolicy_InternetAccessPolicy_RestrictionMode
-    | undefined;
-  allowedInternetDestinations?:
-    | EgressNetworkPolicy_InternetAccessPolicy_InternetDestination[]
-    | undefined;
-  allowedStorageDestinations?:
-    | EgressNetworkPolicy_InternetAccessPolicy_StorageDestination[]
-    | undefined;
+  restrictionMode?: EgressNetworkPolicy_InternetAccessPolicy_RestrictionMode | undefined;
+  allowedInternetDestinations?: EgressNetworkPolicy_InternetAccessPolicy_InternetDestination[] | undefined;
+  allowedStorageDestinations?: EgressNetworkPolicy_InternetAccessPolicy_StorageDestination[] | undefined;
   /** Optional. If not specified, assume the policy is enforced for all workloads. */
-  logOnlyMode?:
-    | EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode
-    | undefined;
+  logOnlyMode?: EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode | undefined;
 }
 
 /**
@@ -774,22 +767,14 @@ export interface EgressNetworkPolicy_InternetAccessPolicy {
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface EgressNetworkPolicy_InternetAccessPolicy_InternetDestination {
   destination?: string | undefined;
-  type?:
-    | EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationType
-    | undefined;
-  protocol?:
-    | EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationFilteringProtocol
-    | undefined;
+  type?: EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationType | undefined;
+  protocol?: EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationFilteringProtocol | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export interface EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode {
-  logOnlyModeType?:
-    | EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_LogOnlyModeType
-    | undefined;
-  workloads?:
-    | EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_WorkloadType[]
-    | undefined;
+  logOnlyModeType?: EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_LogOnlyModeType | undefined;
+  workloads?: EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_WorkloadType[] | undefined;
 }
 
 /** Users can specify accessible storage destinations. */
@@ -797,9 +782,7 @@ export interface EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode {
 export interface EgressNetworkPolicy_InternetAccessPolicy_StorageDestination {
   bucketName?: string | undefined;
   region?: string | undefined;
-  type?:
-    | EgressNetworkPolicy_InternetAccessPolicy_StorageDestination_StorageDestinationType
-    | undefined;
+  type?: EgressNetworkPolicy_InternetAccessPolicy_StorageDestination_StorageDestinationType | undefined;
   azureStorageAccount?: string | undefined;
   allowedPaths?: string[] | undefined;
   azureStorageService?: string | undefined;
@@ -965,9 +948,7 @@ export interface PartitionSpecification_Partition_PartitionValue {
    */
   recipientPropertyKey?: string | undefined;
   /** The operator to apply for the value. */
-  op?:
-    | PartitionSpecification_Partition_PartitionValue_PartitionValueOp
-    | undefined;
+  op?: PartitionSpecification_Partition_PartitionValue_PartitionValueOp | undefined;
 }
 
 /**
@@ -1013,18 +994,14 @@ export interface UpdateCleanRoomRequest {
 export const unmarshalCleanRoomSchema: z.ZodType<CleanRoom> = z
   .object({
     name: z.string().optional(),
-    remote_detailed_info: z
-      .lazy(() => unmarshalCleanRoomRemoteDetailSchema)
-      .optional(),
+    remote_detailed_info: z.lazy(() => unmarshalCleanRoomRemoteDetailSchema).optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
     created_at: z.number().optional(),
     updated_at: z.number().optional(),
     status: z.enum(CleanRoom_Status_Enum).optional(),
     local_collaborator_alias: z.string().optional(),
-    output_catalog: z
-      .lazy(() => unmarshalCleanRoomOutputCatalogSchema)
-      .optional(),
+    output_catalog: z.lazy(() => unmarshalCleanRoomOutputCatalogSchema).optional(),
     access_restricted: z.enum(CleanRoom_AccessRestricted).optional(),
   })
   .transform(d => ({
@@ -1048,24 +1025,14 @@ export const unmarshalCleanRoomAssetSchema: z.ZodType<CleanRoomAsset> = z
     added_at: z.number().optional(),
     status: z.enum(CleanRoomAsset_Status_Enum).optional(),
     owner_collaborator_alias: z.string().optional(),
-    table_local_details: z
-      .lazy(() => unmarshalCleanRoomAsset_TableLocalDetailsSchema)
-      .optional(),
-    volume_local_details: z
-      .lazy(() => unmarshalCleanRoomAsset_VolumeLocalDetailsSchema)
-      .optional(),
-    view_local_details: z
-      .lazy(() => unmarshalCleanRoomAsset_ViewLocalDetailsSchema)
-      .optional(),
-    foreign_table_local_details: z
-      .lazy(() => unmarshalCleanRoomAsset_ForeignTableLocalDetailsSchema)
-      .optional(),
+    table_local_details: z.lazy(() => unmarshalCleanRoomAsset_TableLocalDetailsSchema).optional(),
+    volume_local_details: z.lazy(() => unmarshalCleanRoomAsset_VolumeLocalDetailsSchema).optional(),
+    view_local_details: z.lazy(() => unmarshalCleanRoomAsset_ViewLocalDetailsSchema).optional(),
+    foreign_table_local_details: z.lazy(() => unmarshalCleanRoomAsset_ForeignTableLocalDetailsSchema).optional(),
     table: z.lazy(() => unmarshalCleanRoomAsset_TableSchema).optional(),
     notebook: z.lazy(() => unmarshalCleanRoomAsset_NotebookSchema).optional(),
     view: z.lazy(() => unmarshalCleanRoomAsset_ViewSchema).optional(),
-    foreign_table: z
-      .lazy(() => unmarshalCleanRoomAsset_ForeignTableSchema)
-      .optional(),
+    foreign_table: z.lazy(() => unmarshalCleanRoomAsset_ForeignTableSchema).optional(),
   })
   .transform(d => ({
     cleanRoomName: d.clean_room_name,
@@ -1074,304 +1041,224 @@ export const unmarshalCleanRoomAssetSchema: z.ZodType<CleanRoomAsset> = z
     addedAt: d.added_at,
     status: d.status,
     ownerCollaboratorAlias: d.owner_collaborator_alias,
-    localDetails:
-      d.table_local_details !== undefined
-        ? {
-            $case: 'tableLocalDetails' as const,
-            tableLocalDetails: d.table_local_details,
-          }
-        : d.volume_local_details !== undefined
-          ? {
-              $case: 'volumeLocalDetails' as const,
-              volumeLocalDetails: d.volume_local_details,
-            }
-          : d.view_local_details !== undefined
-            ? {
-                $case: 'viewLocalDetails' as const,
-                viewLocalDetails: d.view_local_details,
-              }
-            : d.foreign_table_local_details !== undefined
-              ? {
-                  $case: 'foreignTableLocalDetails' as const,
-                  foreignTableLocalDetails: d.foreign_table_local_details,
-                }
-              : undefined,
-    details:
-      d.table !== undefined
-        ? {$case: 'table' as const, table: d.table}
-        : d.notebook !== undefined
-          ? {$case: 'notebook' as const, notebook: d.notebook}
-          : d.view !== undefined
-            ? {$case: 'view' as const, view: d.view}
-            : d.foreign_table !== undefined
-              ? {$case: 'foreignTable' as const, foreignTable: d.foreign_table}
-              : undefined,
+    localDetails: d.table_local_details !== undefined ? { $case: 'tableLocalDetails' as const, tableLocalDetails: d.table_local_details } : d.volume_local_details !== undefined ? { $case: 'volumeLocalDetails' as const, volumeLocalDetails: d.volume_local_details } : d.view_local_details !== undefined ? { $case: 'viewLocalDetails' as const, viewLocalDetails: d.view_local_details } : d.foreign_table_local_details !== undefined ? { $case: 'foreignTableLocalDetails' as const, foreignTableLocalDetails: d.foreign_table_local_details } : undefined,
+    details: d.table !== undefined ? { $case: 'table' as const, table: d.table } : d.notebook !== undefined ? { $case: 'notebook' as const, notebook: d.notebook } : d.view !== undefined ? { $case: 'view' as const, view: d.view } : d.foreign_table !== undefined ? { $case: 'foreignTable' as const, foreignTable: d.foreign_table } : undefined,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCleanRoomAsset_ForeignTableSchema: z.ZodType<CleanRoomAsset_ForeignTable> =
-  z
-    .object({
-      columns: z.array(z.lazy(() => unmarshalColumnInfoSchema)).optional(),
-    })
-    .transform(d => ({
-      columns: d.columns,
-    }));
+export const unmarshalCleanRoomAsset_ForeignTableSchema: z.ZodType<CleanRoomAsset_ForeignTable> = z
+  .object({
+    columns: z.array(z.lazy(() => unmarshalColumnInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    columns: d.columns,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCleanRoomAsset_ForeignTableLocalDetailsSchema: z.ZodType<CleanRoomAsset_ForeignTableLocalDetails> =
-  z
-    .object({
-      local_name: z.string().optional(),
-    })
-    .transform(d => ({
-      localName: d.local_name,
-    }));
+export const unmarshalCleanRoomAsset_ForeignTableLocalDetailsSchema: z.ZodType<CleanRoomAsset_ForeignTableLocalDetails> = z
+  .object({
+    local_name: z.string().optional(),
+  })
+  .transform(d => ({
+    localName: d.local_name,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCleanRoomAsset_NotebookSchema: z.ZodType<CleanRoomAsset_Notebook> =
-  z
-    .object({
-      notebook_content: z.string().optional(),
-      etag: z.string().optional(),
-      runner_collaborator_aliases: z.array(z.string()).optional(),
-      reviews: z
-        .array(z.lazy(() => unmarshalCleanRoomNotebookReviewSchema))
-        .optional(),
-      review_state: z
-        .enum(CleanRoomNotebookReview_NotebookReviewState)
-        .optional(),
-    })
-    .transform(d => ({
-      notebookContent: d.notebook_content,
-      etag: d.etag,
-      runnerCollaboratorAliases: d.runner_collaborator_aliases,
-      reviews: d.reviews,
-      reviewState: d.review_state,
-    }));
+export const unmarshalCleanRoomAsset_NotebookSchema: z.ZodType<CleanRoomAsset_Notebook> = z
+  .object({
+    notebook_content: z.string().optional(),
+    etag: z.string().optional(),
+    runner_collaborator_aliases: z.array(z.string()).optional(),
+    reviews: z.array(z.lazy(() => unmarshalCleanRoomNotebookReviewSchema)).optional(),
+    review_state: z.enum(CleanRoomNotebookReview_NotebookReviewState).optional(),
+  })
+  .transform(d => ({
+    notebookContent: d.notebook_content,
+    etag: d.etag,
+    runnerCollaboratorAliases: d.runner_collaborator_aliases,
+    reviews: d.reviews,
+    reviewState: d.review_state,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCleanRoomAsset_TableSchema: z.ZodType<CleanRoomAsset_Table> =
-  z
-    .object({
-      columns: z.array(z.lazy(() => unmarshalColumnInfoSchema)).optional(),
-    })
-    .transform(d => ({
-      columns: d.columns,
-    }));
+export const unmarshalCleanRoomAsset_TableSchema: z.ZodType<CleanRoomAsset_Table> = z
+  .object({
+    columns: z.array(z.lazy(() => unmarshalColumnInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    columns: d.columns,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCleanRoomAsset_TableLocalDetailsSchema: z.ZodType<CleanRoomAsset_TableLocalDetails> =
-  z
-    .object({
-      local_name: z.string().optional(),
-      partitions: z
-        .array(z.lazy(() => unmarshalPartitionSpecification_PartitionSchema))
-        .optional(),
-    })
-    .transform(d => ({
-      localName: d.local_name,
-      partitions: d.partitions,
-    }));
+export const unmarshalCleanRoomAsset_TableLocalDetailsSchema: z.ZodType<CleanRoomAsset_TableLocalDetails> = z
+  .object({
+    local_name: z.string().optional(),
+    partitions: z.array(z.lazy(() => unmarshalPartitionSpecification_PartitionSchema)).optional(),
+  })
+  .transform(d => ({
+    localName: d.local_name,
+    partitions: d.partitions,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCleanRoomAsset_ViewSchema: z.ZodType<CleanRoomAsset_View> =
-  z
-    .object({
-      columns: z.array(z.lazy(() => unmarshalColumnInfoSchema)).optional(),
-    })
-    .transform(d => ({
-      columns: d.columns,
-    }));
+export const unmarshalCleanRoomAsset_ViewSchema: z.ZodType<CleanRoomAsset_View> = z
+  .object({
+    columns: z.array(z.lazy(() => unmarshalColumnInfoSchema)).optional(),
+  })
+  .transform(d => ({
+    columns: d.columns,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCleanRoomAsset_ViewLocalDetailsSchema: z.ZodType<CleanRoomAsset_ViewLocalDetails> =
-  z
-    .object({
-      local_name: z.string().optional(),
-    })
-    .transform(d => ({
-      localName: d.local_name,
-    }));
+export const unmarshalCleanRoomAsset_ViewLocalDetailsSchema: z.ZodType<CleanRoomAsset_ViewLocalDetails> = z
+  .object({
+    local_name: z.string().optional(),
+  })
+  .transform(d => ({
+    localName: d.local_name,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalCleanRoomAsset_VolumeLocalDetailsSchema: z.ZodType<CleanRoomAsset_VolumeLocalDetails> =
-  z
-    .object({
-      local_name: z.string().optional(),
-    })
-    .transform(d => ({
-      localName: d.local_name,
-    }));
+export const unmarshalCleanRoomAsset_VolumeLocalDetailsSchema: z.ZodType<CleanRoomAsset_VolumeLocalDetails> = z
+  .object({
+    local_name: z.string().optional(),
+  })
+  .transform(d => ({
+    localName: d.local_name,
+  }));
 
-export const unmarshalCleanRoomAutoApprovalRuleSchema: z.ZodType<CleanRoomAutoApprovalRule> =
-  z
-    .object({
-      clean_room_name: z.string().optional(),
-      rule_id: z.string().optional(),
-      rule_owner_collaborator_alias: z.string().optional(),
-      author_collaborator_alias: z.string().optional(),
-      author_scope: z.enum(CleanRoomAutoApprovalRule_AuthorScope).optional(),
-      runner_collaborator_alias: z.string().optional(),
-      created_at: z.number().optional(),
-    })
-    .transform(d => ({
-      cleanRoomName: d.clean_room_name,
-      ruleId: d.rule_id,
-      ruleOwnerCollaboratorAlias: d.rule_owner_collaborator_alias,
-      authors:
-        d.author_collaborator_alias !== undefined
-          ? {
-              $case: 'authorCollaboratorAlias' as const,
-              authorCollaboratorAlias: d.author_collaborator_alias,
-            }
-          : d.author_scope !== undefined
-            ? {$case: 'authorScope' as const, authorScope: d.author_scope}
-            : undefined,
-      runners:
-        d.runner_collaborator_alias !== undefined
-          ? {
-              $case: 'runnerCollaboratorAlias' as const,
-              runnerCollaboratorAlias: d.runner_collaborator_alias,
-            }
-          : undefined,
-      createdAt: d.created_at,
-    }));
+export const unmarshalCleanRoomAutoApprovalRuleSchema: z.ZodType<CleanRoomAutoApprovalRule> = z
+  .object({
+    clean_room_name: z.string().optional(),
+    rule_id: z.string().optional(),
+    rule_owner_collaborator_alias: z.string().optional(),
+    author_collaborator_alias: z.string().optional(),
+    author_scope: z.enum(CleanRoomAutoApprovalRule_AuthorScope).optional(),
+    runner_collaborator_alias: z.string().optional(),
+    created_at: z.number().optional(),
+  })
+  .transform(d => ({
+    cleanRoomName: d.clean_room_name,
+    ruleId: d.rule_id,
+    ruleOwnerCollaboratorAlias: d.rule_owner_collaborator_alias,
+    authors: d.author_collaborator_alias !== undefined ? { $case: 'authorCollaboratorAlias' as const, authorCollaboratorAlias: d.author_collaborator_alias } : d.author_scope !== undefined ? { $case: 'authorScope' as const, authorScope: d.author_scope } : undefined,
+    runners: d.runner_collaborator_alias !== undefined ? { $case: 'runnerCollaboratorAlias' as const, runnerCollaboratorAlias: d.runner_collaborator_alias } : undefined,
+    createdAt: d.created_at,
+  }));
 
-export const unmarshalCleanRoomCollaboratorSchema: z.ZodType<CleanRoomCollaborator> =
-  z
-    .object({
-      global_metastore_id: z.string().optional(),
-      organization_name: z.string().optional(),
-      invite_recipient_workspace_id: z.number().optional(),
-      invite_recipient_email: z.string().optional(),
-      collaborator_alias: z.string().optional(),
-      display_name: z.string().optional(),
-    })
-    .transform(d => ({
-      globalMetastoreId: d.global_metastore_id,
-      organizationName: d.organization_name,
-      inviteRecipientWorkspaceId: d.invite_recipient_workspace_id,
-      inviteRecipientEmail: d.invite_recipient_email,
-      collaboratorAlias: d.collaborator_alias,
-      displayName: d.display_name,
-    }));
+export const unmarshalCleanRoomCollaboratorSchema: z.ZodType<CleanRoomCollaborator> = z
+  .object({
+    global_metastore_id: z.string().optional(),
+    organization_name: z.string().optional(),
+    invite_recipient_workspace_id: z.number().optional(),
+    invite_recipient_email: z.string().optional(),
+    collaborator_alias: z.string().optional(),
+    display_name: z.string().optional(),
+  })
+  .transform(d => ({
+    globalMetastoreId: d.global_metastore_id,
+    organizationName: d.organization_name,
+    inviteRecipientWorkspaceId: d.invite_recipient_workspace_id,
+    inviteRecipientEmail: d.invite_recipient_email,
+    collaboratorAlias: d.collaborator_alias,
+    displayName: d.display_name,
+  }));
 
-export const unmarshalCleanRoomNotebookReviewSchema: z.ZodType<CleanRoomNotebookReview> =
-  z
-    .object({
-      reviewer_collaborator_alias: z.string().optional(),
-      created_at_millis: z.number().optional(),
-      review_state: z
-        .enum(CleanRoomNotebookReview_NotebookReviewState)
-        .optional(),
-      comment: z.string().optional(),
-      review_sub_reason: z
-        .enum(CleanRoomNotebookReview_NotebookReviewSubReason)
-        .optional(),
-    })
-    .transform(d => ({
-      reviewerCollaboratorAlias: d.reviewer_collaborator_alias,
-      createdAtMillis: d.created_at_millis,
-      reviewState: d.review_state,
-      comment: d.comment,
-      reviewSubReason: d.review_sub_reason,
-    }));
+export const unmarshalCleanRoomNotebookReviewSchema: z.ZodType<CleanRoomNotebookReview> = z
+  .object({
+    reviewer_collaborator_alias: z.string().optional(),
+    created_at_millis: z.number().optional(),
+    review_state: z.enum(CleanRoomNotebookReview_NotebookReviewState).optional(),
+    comment: z.string().optional(),
+    review_sub_reason: z.enum(CleanRoomNotebookReview_NotebookReviewSubReason).optional(),
+  })
+  .transform(d => ({
+    reviewerCollaboratorAlias: d.reviewer_collaborator_alias,
+    createdAtMillis: d.created_at_millis,
+    reviewState: d.review_state,
+    comment: d.comment,
+    reviewSubReason: d.review_sub_reason,
+  }));
 
-export const unmarshalCleanRoomNotebookTaskRunSchema: z.ZodType<CleanRoomNotebookTaskRun> =
-  z
-    .object({
-      notebook_name: z.string().optional(),
-      start_time: z.number().optional(),
-      run_duration: z.number().optional(),
-      notebook_job_run_state: z
-        .lazy(() => unmarshalCleanRoomTaskRunStateSchema)
-        .optional(),
-      collaborator_job_run_info: z
-        .lazy(() => unmarshalCollaboratorJobRunInfoSchema)
-        .optional(),
-      output_schema_name: z.string().optional(),
-      output_schema_expiration_time: z.number().optional(),
-      notebook_etag: z.string().optional(),
-      notebook_updated_at: z.number().optional(),
-    })
-    .transform(d => ({
-      notebookName: d.notebook_name,
-      startTime: d.start_time,
-      runDuration: d.run_duration,
-      notebookJobRunState: d.notebook_job_run_state,
-      collaboratorJobRunInfo: d.collaborator_job_run_info,
-      outputSchemaName: d.output_schema_name,
-      outputSchemaExpirationTime: d.output_schema_expiration_time,
-      notebookEtag: d.notebook_etag,
-      notebookUpdatedAt: d.notebook_updated_at,
-    }));
+export const unmarshalCleanRoomNotebookTaskRunSchema: z.ZodType<CleanRoomNotebookTaskRun> = z
+  .object({
+    notebook_name: z.string().optional(),
+    start_time: z.number().optional(),
+    run_duration: z.number().optional(),
+    notebook_job_run_state: z.lazy(() => unmarshalCleanRoomTaskRunStateSchema).optional(),
+    collaborator_job_run_info: z.lazy(() => unmarshalCollaboratorJobRunInfoSchema).optional(),
+    output_schema_name: z.string().optional(),
+    output_schema_expiration_time: z.number().optional(),
+    notebook_etag: z.string().optional(),
+    notebook_updated_at: z.number().optional(),
+  })
+  .transform(d => ({
+    notebookName: d.notebook_name,
+    startTime: d.start_time,
+    runDuration: d.run_duration,
+    notebookJobRunState: d.notebook_job_run_state,
+    collaboratorJobRunInfo: d.collaborator_job_run_info,
+    outputSchemaName: d.output_schema_name,
+    outputSchemaExpirationTime: d.output_schema_expiration_time,
+    notebookEtag: d.notebook_etag,
+    notebookUpdatedAt: d.notebook_updated_at,
+  }));
 
-export const unmarshalCleanRoomOutputCatalogSchema: z.ZodType<CleanRoomOutputCatalog> =
-  z
-    .object({
-      status: z.enum(CleanRoomOutputCatalog_OutputCatalogStatus).optional(),
-      catalog_name: z.string().optional(),
-    })
-    .transform(d => ({
-      status: d.status,
-      catalogName: d.catalog_name,
-    }));
+export const unmarshalCleanRoomOutputCatalogSchema: z.ZodType<CleanRoomOutputCatalog> = z
+  .object({
+    status: z.enum(CleanRoomOutputCatalog_OutputCatalogStatus).optional(),
+    catalog_name: z.string().optional(),
+  })
+  .transform(d => ({
+    status: d.status,
+    catalogName: d.catalog_name,
+  }));
 
-export const unmarshalCleanRoomRemoteDetailSchema: z.ZodType<CleanRoomRemoteDetail> =
-  z
-    .object({
-      central_clean_room_id: z.string().optional(),
-      cloud_vendor: z.string().optional(),
-      region: z.string().optional(),
-      collaborators: z
-        .array(z.lazy(() => unmarshalCleanRoomCollaboratorSchema))
-        .optional(),
-      creator: z.lazy(() => unmarshalCleanRoomCollaboratorSchema).optional(),
-      egress_network_policy: z
-        .lazy(() => unmarshalEgressNetworkPolicySchema)
-        .optional(),
-      compliance_security_profile: z
-        .lazy(() => unmarshalComplianceSecurityProfileSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      centralCleanRoomId: d.central_clean_room_id,
-      cloudVendor: d.cloud_vendor,
-      region: d.region,
-      collaborators: d.collaborators,
-      creator: d.creator,
-      egressNetworkPolicy: d.egress_network_policy,
-      complianceSecurityProfile: d.compliance_security_profile,
-    }));
+export const unmarshalCleanRoomRemoteDetailSchema: z.ZodType<CleanRoomRemoteDetail> = z
+  .object({
+    central_clean_room_id: z.string().optional(),
+    cloud_vendor: z.string().optional(),
+    region: z.string().optional(),
+    collaborators: z.array(z.lazy(() => unmarshalCleanRoomCollaboratorSchema)).optional(),
+    creator: z.lazy(() => unmarshalCleanRoomCollaboratorSchema).optional(),
+    egress_network_policy: z.lazy(() => unmarshalEgressNetworkPolicySchema).optional(),
+    compliance_security_profile: z.lazy(() => unmarshalComplianceSecurityProfileSchema).optional(),
+  })
+  .transform(d => ({
+    centralCleanRoomId: d.central_clean_room_id,
+    cloudVendor: d.cloud_vendor,
+    region: d.region,
+    collaborators: d.collaborators,
+    creator: d.creator,
+    egressNetworkPolicy: d.egress_network_policy,
+    complianceSecurityProfile: d.compliance_security_profile,
+  }));
 
-export const unmarshalCleanRoomTaskRunStateSchema: z.ZodType<CleanRoomTaskRunState> =
-  z
-    .object({
-      life_cycle_state: z.enum(CleanRoomTaskRunLifeCycleState).optional(),
-      result_state: z.enum(CleanRoomTaskRunResultState).optional(),
-    })
-    .transform(d => ({
-      lifeCycleState: d.life_cycle_state,
-      resultState: d.result_state,
-    }));
+export const unmarshalCleanRoomTaskRunStateSchema: z.ZodType<CleanRoomTaskRunState> = z
+  .object({
+    life_cycle_state: z.enum(CleanRoomTaskRunLifeCycleState).optional(),
+    result_state: z.enum(CleanRoomTaskRunResultState).optional(),
+  })
+  .transform(d => ({
+    lifeCycleState: d.life_cycle_state,
+    resultState: d.result_state,
+  }));
 
-export const unmarshalCollaboratorJobRunInfoSchema: z.ZodType<CollaboratorJobRunInfo> =
-  z
-    .object({
-      collaborator_job_id: z.number().optional(),
-      collaborator_job_run_id: z.number().optional(),
-      collaborator_task_run_id: z.number().optional(),
-      collaborator_workspace_id: z.number().optional(),
-      collaborator_alias: z.string().optional(),
-    })
-    .transform(d => ({
-      collaboratorJobId: d.collaborator_job_id,
-      collaboratorJobRunId: d.collaborator_job_run_id,
-      collaboratorTaskRunId: d.collaborator_task_run_id,
-      collaboratorWorkspaceId: d.collaborator_workspace_id,
-      collaboratorAlias: d.collaborator_alias,
-    }));
+export const unmarshalCollaboratorJobRunInfoSchema: z.ZodType<CollaboratorJobRunInfo> = z
+  .object({
+    collaborator_job_id: z.number().optional(),
+    collaborator_job_run_id: z.number().optional(),
+    collaborator_task_run_id: z.number().optional(),
+    collaborator_workspace_id: z.number().optional(),
+    collaborator_alias: z.string().optional(),
+  })
+  .transform(d => ({
+    collaboratorJobId: d.collaborator_job_id,
+    collaboratorJobRunId: d.collaborator_job_run_id,
+    collaboratorTaskRunId: d.collaborator_task_run_id,
+    collaboratorWorkspaceId: d.collaborator_workspace_id,
+    collaboratorAlias: d.collaborator_alias,
+  }));
 
 export const unmarshalColumnInfoSchema: z.ZodType<ColumnInfo> = z
   .object({
@@ -1407,9 +1294,7 @@ export const unmarshalColumnMaskSchema: z.ZodType<ColumnMask> = z
   .object({
     function_name: z.string().optional(),
     using_column_names: z.array(z.string()).optional(),
-    using_arguments: z
-      .array(z.lazy(() => unmarshalPolicyFunctionArgumentSchema))
-      .optional(),
+    using_arguments: z.array(z.lazy(() => unmarshalPolicyFunctionArgumentSchema)).optional(),
   })
   .transform(d => ({
     functionName: d.function_name,
@@ -1417,288 +1302,195 @@ export const unmarshalColumnMaskSchema: z.ZodType<ColumnMask> = z
     usingArguments: d.using_arguments,
   }));
 
-export const unmarshalComplianceSecurityProfileSchema: z.ZodType<ComplianceSecurityProfile> =
-  z
-    .object({
-      is_enabled: z.boolean().optional(),
-      compliance_standards: z.array(z.enum(ComplianceStandard)).optional(),
-    })
-    .transform(d => ({
-      isEnabled: d.is_enabled,
-      complianceStandards: d.compliance_standards,
-    }));
+export const unmarshalComplianceSecurityProfileSchema: z.ZodType<ComplianceSecurityProfile> = z
+  .object({
+    is_enabled: z.boolean().optional(),
+    compliance_standards: z.array(z.enum(ComplianceStandard)).optional(),
+  })
+  .transform(d => ({
+    isEnabled: d.is_enabled,
+    complianceStandards: d.compliance_standards,
+  }));
 
-export const unmarshalCreateCleanRoomAssetReviewResponseSchema: z.ZodType<CreateCleanRoomAssetReviewResponse> =
-  z
-    .object({
-      notebook_reviews: z
-        .array(z.lazy(() => unmarshalCleanRoomNotebookReviewSchema))
-        .optional(),
-      notebook_review_state: z
-        .enum(CleanRoomNotebookReview_NotebookReviewState)
-        .optional(),
-    })
-    .transform(d => ({
-      notebookReviews: d.notebook_reviews,
-      reviewState:
-        d.notebook_review_state !== undefined
-          ? {
-              $case: 'notebookReviewState' as const,
-              notebookReviewState: d.notebook_review_state,
-            }
-          : undefined,
-    }));
+export const unmarshalCreateCleanRoomAssetReviewResponseSchema: z.ZodType<CreateCleanRoomAssetReviewResponse> = z
+  .object({
+    notebook_reviews: z.array(z.lazy(() => unmarshalCleanRoomNotebookReviewSchema)).optional(),
+    notebook_review_state: z.enum(CleanRoomNotebookReview_NotebookReviewState).optional(),
+  })
+  .transform(d => ({
+    notebookReviews: d.notebook_reviews,
+    reviewState: d.notebook_review_state !== undefined ? { $case: 'notebookReviewState' as const, notebookReviewState: d.notebook_review_state } : undefined,
+  }));
 
-export const unmarshalCreateCleanRoomOutputCatalogResponseSchema: z.ZodType<CreateCleanRoomOutputCatalogResponse> =
-  z
-    .object({
-      output_catalog: z
-        .lazy(() => unmarshalCleanRoomOutputCatalogSchema)
-        .optional(),
-    })
-    .transform(d => ({
-      outputCatalog: d.output_catalog,
-    }));
+export const unmarshalCreateCleanRoomOutputCatalogResponseSchema: z.ZodType<CreateCleanRoomOutputCatalogResponse> = z
+  .object({
+    output_catalog: z.lazy(() => unmarshalCleanRoomOutputCatalogSchema).optional(),
+  })
+  .transform(d => ({
+    outputCatalog: d.output_catalog,
+  }));
 
-export const unmarshalDeleteCleanRoomAssetResponseSchema: z.ZodType<DeleteCleanRoomAssetResponse> =
-  z.object({});
+export const unmarshalDeleteCleanRoomAssetResponseSchema: z.ZodType<DeleteCleanRoomAssetResponse> = z
+  .object({
+  });
 
-export const unmarshalEgressNetworkPolicySchema: z.ZodType<EgressNetworkPolicy> =
-  z
-    .object({
-      internet_access: z
-        .lazy(() => unmarshalEgressNetworkPolicy_InternetAccessPolicySchema)
-        .optional(),
-    })
-    .transform(d => ({
-      internetAccess: d.internet_access,
-    }));
+export const unmarshalEgressNetworkPolicySchema: z.ZodType<EgressNetworkPolicy> = z
+  .object({
+    internet_access: z.lazy(() => unmarshalEgressNetworkPolicy_InternetAccessPolicySchema).optional(),
+  })
+  .transform(d => ({
+    internetAccess: d.internet_access,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEgressNetworkPolicy_InternetAccessPolicySchema: z.ZodType<EgressNetworkPolicy_InternetAccessPolicy> =
-  z
-    .object({
-      restriction_mode: z
-        .enum(EgressNetworkPolicy_InternetAccessPolicy_RestrictionMode)
-        .optional(),
-      allowed_internet_destinations: z
-        .array(
-          z.lazy(
-            () =>
-              unmarshalEgressNetworkPolicy_InternetAccessPolicy_InternetDestinationSchema
-          )
-        )
-        .optional(),
-      allowed_storage_destinations: z
-        .array(
-          z.lazy(
-            () =>
-              unmarshalEgressNetworkPolicy_InternetAccessPolicy_StorageDestinationSchema
-          )
-        )
-        .optional(),
-      log_only_mode: z
-        .lazy(
-          () =>
-            unmarshalEgressNetworkPolicy_InternetAccessPolicy_LogOnlyModeSchema
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      restrictionMode: d.restriction_mode,
-      allowedInternetDestinations: d.allowed_internet_destinations,
-      allowedStorageDestinations: d.allowed_storage_destinations,
-      logOnlyMode: d.log_only_mode,
-    }));
+export const unmarshalEgressNetworkPolicy_InternetAccessPolicySchema: z.ZodType<EgressNetworkPolicy_InternetAccessPolicy> = z
+  .object({
+    restriction_mode: z.enum(EgressNetworkPolicy_InternetAccessPolicy_RestrictionMode).optional(),
+    allowed_internet_destinations: z.array(z.lazy(() => unmarshalEgressNetworkPolicy_InternetAccessPolicy_InternetDestinationSchema)).optional(),
+    allowed_storage_destinations: z.array(z.lazy(() => unmarshalEgressNetworkPolicy_InternetAccessPolicy_StorageDestinationSchema)).optional(),
+    log_only_mode: z.lazy(() => unmarshalEgressNetworkPolicy_InternetAccessPolicy_LogOnlyModeSchema).optional(),
+  })
+  .transform(d => ({
+    restrictionMode: d.restriction_mode,
+    allowedInternetDestinations: d.allowed_internet_destinations,
+    allowedStorageDestinations: d.allowed_storage_destinations,
+    logOnlyMode: d.log_only_mode,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEgressNetworkPolicy_InternetAccessPolicy_InternetDestinationSchema: z.ZodType<EgressNetworkPolicy_InternetAccessPolicy_InternetDestination> =
-  z
-    .object({
-      destination: z.string().optional(),
-      type: z
-        .enum(
-          EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationType
-        )
-        .optional(),
-      protocol: z
-        .enum(
-          EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationFilteringProtocol
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      destination: d.destination,
-      type: d.type,
-      protocol: d.protocol,
-    }));
+export const unmarshalEgressNetworkPolicy_InternetAccessPolicy_InternetDestinationSchema: z.ZodType<EgressNetworkPolicy_InternetAccessPolicy_InternetDestination> = z
+  .object({
+    destination: z.string().optional(),
+    type: z.enum(EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationType).optional(),
+    protocol: z.enum(EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationFilteringProtocol).optional(),
+  })
+  .transform(d => ({
+    destination: d.destination,
+    type: d.type,
+    protocol: d.protocol,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEgressNetworkPolicy_InternetAccessPolicy_LogOnlyModeSchema: z.ZodType<EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode> =
-  z
-    .object({
-      log_only_mode_type: z
-        .enum(
-          EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_LogOnlyModeType
-        )
-        .optional(),
-      workloads: z
-        .array(
-          z.enum(
-            EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_WorkloadType
-          )
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      logOnlyModeType: d.log_only_mode_type,
-      workloads: d.workloads,
-    }));
+export const unmarshalEgressNetworkPolicy_InternetAccessPolicy_LogOnlyModeSchema: z.ZodType<EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode> = z
+  .object({
+    log_only_mode_type: z.enum(EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_LogOnlyModeType).optional(),
+    workloads: z.array(z.enum(EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_WorkloadType)).optional(),
+  })
+  .transform(d => ({
+    logOnlyModeType: d.log_only_mode_type,
+    workloads: d.workloads,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalEgressNetworkPolicy_InternetAccessPolicy_StorageDestinationSchema: z.ZodType<EgressNetworkPolicy_InternetAccessPolicy_StorageDestination> =
-  z
-    .object({
-      bucket_name: z.string().optional(),
-      region: z.string().optional(),
-      type: z
-        .enum(
-          EgressNetworkPolicy_InternetAccessPolicy_StorageDestination_StorageDestinationType
-        )
-        .optional(),
-      azure_storage_account: z.string().optional(),
-      allowed_paths: z.array(z.string()).optional(),
-      azure_storage_service: z.string().optional(),
-      azure_dns_zone: z.string().optional(),
-      azure_container: z.string().optional(),
-    })
-    .transform(d => ({
-      bucketName: d.bucket_name,
-      region: d.region,
-      type: d.type,
-      azureStorageAccount: d.azure_storage_account,
-      allowedPaths: d.allowed_paths,
-      azureStorageService: d.azure_storage_service,
-      azureDnsZone: d.azure_dns_zone,
-      azureContainer: d.azure_container,
-    }));
+export const unmarshalEgressNetworkPolicy_InternetAccessPolicy_StorageDestinationSchema: z.ZodType<EgressNetworkPolicy_InternetAccessPolicy_StorageDestination> = z
+  .object({
+    bucket_name: z.string().optional(),
+    region: z.string().optional(),
+    type: z.enum(EgressNetworkPolicy_InternetAccessPolicy_StorageDestination_StorageDestinationType).optional(),
+    azure_storage_account: z.string().optional(),
+    allowed_paths: z.array(z.string()).optional(),
+    azure_storage_service: z.string().optional(),
+    azure_dns_zone: z.string().optional(),
+    azure_container: z.string().optional(),
+  })
+  .transform(d => ({
+    bucketName: d.bucket_name,
+    region: d.region,
+    type: d.type,
+    azureStorageAccount: d.azure_storage_account,
+    allowedPaths: d.allowed_paths,
+    azureStorageService: d.azure_storage_service,
+    azureDnsZone: d.azure_dns_zone,
+    azureContainer: d.azure_container,
+  }));
 
-export const unmarshalListCleanRoomAssetRevisionsResponseSchema: z.ZodType<ListCleanRoomAssetRevisionsResponse> =
-  z
-    .object({
-      revisions: z
-        .array(z.lazy(() => unmarshalCleanRoomAssetSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      revisions: d.revisions,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListCleanRoomAssetRevisionsResponseSchema: z.ZodType<ListCleanRoomAssetRevisionsResponse> = z
+  .object({
+    revisions: z.array(z.lazy(() => unmarshalCleanRoomAssetSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    revisions: d.revisions,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListCleanRoomAssetsResponseSchema: z.ZodType<ListCleanRoomAssetsResponse> =
-  z
-    .object({
-      assets: z.array(z.lazy(() => unmarshalCleanRoomAssetSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      assets: d.assets,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListCleanRoomAssetsResponseSchema: z.ZodType<ListCleanRoomAssetsResponse> = z
+  .object({
+    assets: z.array(z.lazy(() => unmarshalCleanRoomAssetSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    assets: d.assets,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListCleanRoomAutoApprovalRulesResponseSchema: z.ZodType<ListCleanRoomAutoApprovalRulesResponse> =
-  z
-    .object({
-      rules: z
-        .array(z.lazy(() => unmarshalCleanRoomAutoApprovalRuleSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      rules: d.rules,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListCleanRoomAutoApprovalRulesResponseSchema: z.ZodType<ListCleanRoomAutoApprovalRulesResponse> = z
+  .object({
+    rules: z.array(z.lazy(() => unmarshalCleanRoomAutoApprovalRuleSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    rules: d.rules,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListCleanRoomNotebookTaskRunsResponseSchema: z.ZodType<ListCleanRoomNotebookTaskRunsResponse> =
-  z
-    .object({
-      runs: z
-        .array(z.lazy(() => unmarshalCleanRoomNotebookTaskRunSchema))
-        .optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      runs: d.runs,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListCleanRoomNotebookTaskRunsResponseSchema: z.ZodType<ListCleanRoomNotebookTaskRunsResponse> = z
+  .object({
+    runs: z.array(z.lazy(() => unmarshalCleanRoomNotebookTaskRunSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    runs: d.runs,
+    nextPageToken: d.next_page_token,
+  }));
 
-export const unmarshalListCleanRoomsResponseSchema: z.ZodType<ListCleanRoomsResponse> =
-  z
-    .object({
-      clean_rooms: z.array(z.lazy(() => unmarshalCleanRoomSchema)).optional(),
-      next_page_token: z.string().optional(),
-    })
-    .transform(d => ({
-      cleanRooms: d.clean_rooms,
-      nextPageToken: d.next_page_token,
-    }));
+export const unmarshalListCleanRoomsResponseSchema: z.ZodType<ListCleanRoomsResponse> = z
+  .object({
+    clean_rooms: z.array(z.lazy(() => unmarshalCleanRoomSchema)).optional(),
+    next_page_token: z.string().optional(),
+  })
+  .transform(d => ({
+    cleanRooms: d.clean_rooms,
+    nextPageToken: d.next_page_token,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPartitionSpecification_PartitionSchema: z.ZodType<PartitionSpecification_Partition> =
-  z
-    .object({
-      values: z
-        .array(
-          z.lazy(
-            () => unmarshalPartitionSpecification_Partition_PartitionValueSchema
-          )
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      values: d.values,
-    }));
+export const unmarshalPartitionSpecification_PartitionSchema: z.ZodType<PartitionSpecification_Partition> = z
+  .object({
+    values: z.array(z.lazy(() => unmarshalPartitionSpecification_Partition_PartitionValueSchema)).optional(),
+  })
+  .transform(d => ({
+    values: d.values,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalPartitionSpecification_Partition_PartitionValueSchema: z.ZodType<PartitionSpecification_Partition_PartitionValue> =
-  z
-    .object({
-      name: z.string().optional(),
-      value: z.string().optional(),
-      recipient_property_key: z.string().optional(),
-      op: z
-        .enum(PartitionSpecification_Partition_PartitionValue_PartitionValueOp)
-        .optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      value: d.value,
-      recipientPropertyKey: d.recipient_property_key,
-      op: d.op,
-    }));
+export const unmarshalPartitionSpecification_Partition_PartitionValueSchema: z.ZodType<PartitionSpecification_Partition_PartitionValue> = z
+  .object({
+    name: z.string().optional(),
+    value: z.string().optional(),
+    recipient_property_key: z.string().optional(),
+    op: z.enum(PartitionSpecification_Partition_PartitionValue_PartitionValueOp).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    value: d.value,
+    recipientPropertyKey: d.recipient_property_key,
+    op: d.op,
+  }));
 
-export const unmarshalPolicyFunctionArgumentSchema: z.ZodType<PolicyFunctionArgument> =
-  z
-    .object({
-      column: z.string().optional(),
-      constant: z.string().optional(),
-    })
-    .transform(d => ({
-      arg:
-        d.column !== undefined
-          ? {$case: 'column' as const, column: d.column}
-          : d.constant !== undefined
-            ? {$case: 'constant' as const, constant: d.constant}
-            : undefined,
-    }));
+export const unmarshalPolicyFunctionArgumentSchema: z.ZodType<PolicyFunctionArgument> = z
+  .object({
+    column: z.string().optional(),
+    constant: z.string().optional(),
+  })
+  .transform(d => ({
+    arg: d.column !== undefined ? { $case: 'column' as const, column: d.column } : d.constant !== undefined ? { $case: 'constant' as const, constant: d.constant } : undefined,
+  }));
 
 export const marshalCleanRoomSchema: z.ZodType = z
   .object({
     name: z.string().optional(),
-    remoteDetailedInfo: z
-      .lazy(() => marshalCleanRoomRemoteDetailSchema)
-      .optional(),
+    remoteDetailedInfo: z.lazy(() => marshalCleanRoomRemoteDetailSchema).optional(),
     owner: z.string().optional(),
     comment: z.string().optional(),
     createdAt: z.number().optional(),
@@ -1729,54 +1521,8 @@ export const marshalCleanRoomAssetSchema: z.ZodType = z
     addedAt: z.number().optional(),
     status: z.enum(CleanRoomAsset_Status_Enum).optional(),
     ownerCollaboratorAlias: z.string().optional(),
-    localDetails: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('tableLocalDetails'),
-          tableLocalDetails: z.lazy(
-            () => marshalCleanRoomAsset_TableLocalDetailsSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('volumeLocalDetails'),
-          volumeLocalDetails: z.lazy(
-            () => marshalCleanRoomAsset_VolumeLocalDetailsSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('viewLocalDetails'),
-          viewLocalDetails: z.lazy(
-            () => marshalCleanRoomAsset_ViewLocalDetailsSchema
-          ),
-        }),
-        z.object({
-          $case: z.literal('foreignTableLocalDetails'),
-          foreignTableLocalDetails: z.lazy(
-            () => marshalCleanRoomAsset_ForeignTableLocalDetailsSchema
-          ),
-        }),
-      ])
-      .optional(),
-    details: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('table'),
-          table: z.lazy(() => marshalCleanRoomAsset_TableSchema),
-        }),
-        z.object({
-          $case: z.literal('notebook'),
-          notebook: z.lazy(() => marshalCleanRoomAsset_NotebookSchema),
-        }),
-        z.object({
-          $case: z.literal('view'),
-          view: z.lazy(() => marshalCleanRoomAsset_ViewSchema),
-        }),
-        z.object({
-          $case: z.literal('foreignTable'),
-          foreignTable: z.lazy(() => marshalCleanRoomAsset_ForeignTableSchema),
-        }),
-      ])
-      .optional(),
+    localDetails: z.discriminatedUnion('$case', [z.object({ $case: z.literal('tableLocalDetails'), tableLocalDetails: z.lazy(() => marshalCleanRoomAsset_TableLocalDetailsSchema) }), z.object({ $case: z.literal('volumeLocalDetails'), volumeLocalDetails: z.lazy(() => marshalCleanRoomAsset_VolumeLocalDetailsSchema) }), z.object({ $case: z.literal('viewLocalDetails'), viewLocalDetails: z.lazy(() => marshalCleanRoomAsset_ViewLocalDetailsSchema) }), z.object({ $case: z.literal('foreignTableLocalDetails'), foreignTableLocalDetails: z.lazy(() => marshalCleanRoomAsset_ForeignTableLocalDetailsSchema) })]).optional(),
+    details: z.discriminatedUnion('$case', [z.object({ $case: z.literal('table'), table: z.lazy(() => marshalCleanRoomAsset_TableSchema) }), z.object({ $case: z.literal('notebook'), notebook: z.lazy(() => marshalCleanRoomAsset_NotebookSchema) }), z.object({ $case: z.literal('view'), view: z.lazy(() => marshalCleanRoomAsset_ViewSchema) }), z.object({ $case: z.literal('foreignTable'), foreignTable: z.lazy(() => marshalCleanRoomAsset_ForeignTableSchema) })]).optional(),
   })
   .transform(d => ({
     clean_room_name: d.cleanRoomName,
@@ -1785,24 +1531,14 @@ export const marshalCleanRoomAssetSchema: z.ZodType = z
     added_at: d.addedAt,
     status: d.status,
     owner_collaborator_alias: d.ownerCollaboratorAlias,
-    ...(d.localDetails?.$case === 'tableLocalDetails' && {
-      table_local_details: d.localDetails.tableLocalDetails,
-    }),
-    ...(d.localDetails?.$case === 'volumeLocalDetails' && {
-      volume_local_details: d.localDetails.volumeLocalDetails,
-    }),
-    ...(d.localDetails?.$case === 'viewLocalDetails' && {
-      view_local_details: d.localDetails.viewLocalDetails,
-    }),
-    ...(d.localDetails?.$case === 'foreignTableLocalDetails' && {
-      foreign_table_local_details: d.localDetails.foreignTableLocalDetails,
-    }),
-    ...(d.details?.$case === 'table' && {table: d.details.table}),
-    ...(d.details?.$case === 'notebook' && {notebook: d.details.notebook}),
-    ...(d.details?.$case === 'view' && {view: d.details.view}),
-    ...(d.details?.$case === 'foreignTable' && {
-      foreign_table: d.details.foreignTable,
-    }),
+    ...(d.localDetails?.$case === 'tableLocalDetails' && { table_local_details: d.localDetails.tableLocalDetails }),
+    ...(d.localDetails?.$case === 'volumeLocalDetails' && { volume_local_details: d.localDetails.volumeLocalDetails }),
+    ...(d.localDetails?.$case === 'viewLocalDetails' && { view_local_details: d.localDetails.viewLocalDetails }),
+    ...(d.localDetails?.$case === 'foreignTableLocalDetails' && { foreign_table_local_details: d.localDetails.foreignTableLocalDetails }),
+    ...(d.details?.$case === 'table' && { table: d.details.table }),
+    ...(d.details?.$case === 'notebook' && { notebook: d.details.notebook }),
+    ...(d.details?.$case === 'view' && { view: d.details.view }),
+    ...(d.details?.$case === 'foreignTable' && { foreign_table: d.details.foreignTable }),
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
@@ -1829,9 +1565,7 @@ export const marshalCleanRoomAsset_NotebookSchema: z.ZodType = z
     notebookContent: z.string().optional(),
     etag: z.string().optional(),
     runnerCollaboratorAliases: z.array(z.string()).optional(),
-    reviews: z
-      .array(z.lazy(() => marshalCleanRoomNotebookReviewSchema))
-      .optional(),
+    reviews: z.array(z.lazy(() => marshalCleanRoomNotebookReviewSchema)).optional(),
     reviewState: z.enum(CleanRoomNotebookReview_NotebookReviewState).optional(),
   })
   .transform(d => ({
@@ -1855,9 +1589,7 @@ export const marshalCleanRoomAsset_TableSchema: z.ZodType = z
 export const marshalCleanRoomAsset_TableLocalDetailsSchema: z.ZodType = z
   .object({
     localName: z.string().optional(),
-    partitions: z
-      .array(z.lazy(() => marshalPartitionSpecification_PartitionSchema))
-      .optional(),
+    partitions: z.array(z.lazy(() => marshalPartitionSpecification_PartitionSchema)).optional(),
   })
   .transform(d => ({
     local_name: d.localName,
@@ -1896,41 +1628,17 @@ export const marshalCleanRoomAutoApprovalRuleSchema: z.ZodType = z
     cleanRoomName: z.string().optional(),
     ruleId: z.string().optional(),
     ruleOwnerCollaboratorAlias: z.string().optional(),
-    authors: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('authorCollaboratorAlias'),
-          authorCollaboratorAlias: z.string(),
-        }),
-        z.object({
-          $case: z.literal('authorScope'),
-          authorScope: z.enum(CleanRoomAutoApprovalRule_AuthorScope),
-        }),
-      ])
-      .optional(),
-    runners: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('runnerCollaboratorAlias'),
-          runnerCollaboratorAlias: z.string(),
-        }),
-      ])
-      .optional(),
+    authors: z.discriminatedUnion('$case', [z.object({ $case: z.literal('authorCollaboratorAlias'), authorCollaboratorAlias: z.string() }), z.object({ $case: z.literal('authorScope'), authorScope: z.enum(CleanRoomAutoApprovalRule_AuthorScope) })]).optional(),
+    runners: z.discriminatedUnion('$case', [z.object({ $case: z.literal('runnerCollaboratorAlias'), runnerCollaboratorAlias: z.string() })]).optional(),
     createdAt: z.number().optional(),
   })
   .transform(d => ({
     clean_room_name: d.cleanRoomName,
     rule_id: d.ruleId,
     rule_owner_collaborator_alias: d.ruleOwnerCollaboratorAlias,
-    ...(d.authors?.$case === 'authorCollaboratorAlias' && {
-      author_collaborator_alias: d.authors.authorCollaboratorAlias,
-    }),
-    ...(d.authors?.$case === 'authorScope' && {
-      author_scope: d.authors.authorScope,
-    }),
-    ...(d.runners?.$case === 'runnerCollaboratorAlias' && {
-      runner_collaborator_alias: d.runners.runnerCollaboratorAlias,
-    }),
+    ...(d.authors?.$case === 'authorCollaboratorAlias' && { author_collaborator_alias: d.authors.authorCollaboratorAlias }),
+    ...(d.authors?.$case === 'authorScope' && { author_scope: d.authors.authorScope }),
+    ...(d.runners?.$case === 'runnerCollaboratorAlias' && { runner_collaborator_alias: d.runners.runnerCollaboratorAlias }),
     created_at: d.createdAt,
   }));
 
@@ -1958,9 +1666,7 @@ export const marshalCleanRoomNotebookReviewSchema: z.ZodType = z
     createdAtMillis: z.number().optional(),
     reviewState: z.enum(CleanRoomNotebookReview_NotebookReviewState).optional(),
     comment: z.string().optional(),
-    reviewSubReason: z
-      .enum(CleanRoomNotebookReview_NotebookReviewSubReason)
-      .optional(),
+    reviewSubReason: z.enum(CleanRoomNotebookReview_NotebookReviewSubReason).optional(),
   })
   .transform(d => ({
     reviewer_collaborator_alias: d.reviewerCollaboratorAlias,
@@ -1985,16 +1691,10 @@ export const marshalCleanRoomRemoteDetailSchema: z.ZodType = z
     centralCleanRoomId: z.string().optional(),
     cloudVendor: z.string().optional(),
     region: z.string().optional(),
-    collaborators: z
-      .array(z.lazy(() => marshalCleanRoomCollaboratorSchema))
-      .optional(),
+    collaborators: z.array(z.lazy(() => marshalCleanRoomCollaboratorSchema)).optional(),
     creator: z.lazy(() => marshalCleanRoomCollaboratorSchema).optional(),
-    egressNetworkPolicy: z
-      .lazy(() => marshalEgressNetworkPolicySchema)
-      .optional(),
-    complianceSecurityProfile: z
-      .lazy(() => marshalComplianceSecurityProfileSchema)
-      .optional(),
+    egressNetworkPolicy: z.lazy(() => marshalEgressNetworkPolicySchema).optional(),
+    complianceSecurityProfile: z.lazy(() => marshalComplianceSecurityProfileSchema).optional(),
   })
   .transform(d => ({
     central_clean_room_id: d.centralCleanRoomId,
@@ -2040,9 +1740,7 @@ export const marshalColumnMaskSchema: z.ZodType = z
   .object({
     functionName: z.string().optional(),
     usingColumnNames: z.array(z.string()).optional(),
-    usingArguments: z
-      .array(z.lazy(() => marshalPolicyFunctionArgumentSchema))
-      .optional(),
+    usingArguments: z.array(z.lazy(() => marshalPolicyFunctionArgumentSchema)).optional(),
   })
   .transform(d => ({
     function_name: d.functionName,
@@ -2065,29 +1763,18 @@ export const marshalCreateCleanRoomAssetReviewRequestSchema: z.ZodType = z
     cleanRoomName: z.string().optional(),
     name: z.string().optional(),
     assetType: z.enum(CleanRoomAsset_AssetType).optional(),
-    review: z
-      .discriminatedUnion('$case', [
-        z.object({
-          $case: z.literal('notebookReview'),
-          notebookReview: z.lazy(() => marshalNotebookVersionReviewSchema),
-        }),
-      ])
-      .optional(),
+    review: z.discriminatedUnion('$case', [z.object({ $case: z.literal('notebookReview'), notebookReview: z.lazy(() => marshalNotebookVersionReviewSchema) })]).optional(),
   })
   .transform(d => ({
     clean_room_name: d.cleanRoomName,
     name: d.name,
     asset_type: d.assetType,
-    ...(d.review?.$case === 'notebookReview' && {
-      notebook_review: d.review.notebookReview,
-    }),
+    ...(d.review?.$case === 'notebookReview' && { notebook_review: d.review.notebookReview }),
   }));
 
 export const marshalCreateCleanRoomAutoApprovalRuleRequestSchema: z.ZodType = z
   .object({
-    autoApprovalRule: z
-      .lazy(() => marshalCleanRoomAutoApprovalRuleSchema)
-      .optional(),
+    autoApprovalRule: z.lazy(() => marshalCleanRoomAutoApprovalRuleSchema).optional(),
   })
   .transform(d => ({
     auto_approval_rule: d.autoApprovalRule,
@@ -2095,122 +1782,73 @@ export const marshalCreateCleanRoomAutoApprovalRuleRequestSchema: z.ZodType = z
 
 export const marshalEgressNetworkPolicySchema: z.ZodType = z
   .object({
-    internetAccess: z
-      .lazy(() => marshalEgressNetworkPolicy_InternetAccessPolicySchema)
-      .optional(),
+    internetAccess: z.lazy(() => marshalEgressNetworkPolicy_InternetAccessPolicySchema).optional(),
   })
   .transform(d => ({
     internet_access: d.internetAccess,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEgressNetworkPolicy_InternetAccessPolicySchema: z.ZodType =
-  z
-    .object({
-      restrictionMode: z
-        .enum(EgressNetworkPolicy_InternetAccessPolicy_RestrictionMode)
-        .optional(),
-      allowedInternetDestinations: z
-        .array(
-          z.lazy(
-            () =>
-              marshalEgressNetworkPolicy_InternetAccessPolicy_InternetDestinationSchema
-          )
-        )
-        .optional(),
-      allowedStorageDestinations: z
-        .array(
-          z.lazy(
-            () =>
-              marshalEgressNetworkPolicy_InternetAccessPolicy_StorageDestinationSchema
-          )
-        )
-        .optional(),
-      logOnlyMode: z
-        .lazy(
-          () =>
-            marshalEgressNetworkPolicy_InternetAccessPolicy_LogOnlyModeSchema
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      restriction_mode: d.restrictionMode,
-      allowed_internet_destinations: d.allowedInternetDestinations,
-      allowed_storage_destinations: d.allowedStorageDestinations,
-      log_only_mode: d.logOnlyMode,
-    }));
+export const marshalEgressNetworkPolicy_InternetAccessPolicySchema: z.ZodType = z
+  .object({
+    restrictionMode: z.enum(EgressNetworkPolicy_InternetAccessPolicy_RestrictionMode).optional(),
+    allowedInternetDestinations: z.array(z.lazy(() => marshalEgressNetworkPolicy_InternetAccessPolicy_InternetDestinationSchema)).optional(),
+    allowedStorageDestinations: z.array(z.lazy(() => marshalEgressNetworkPolicy_InternetAccessPolicy_StorageDestinationSchema)).optional(),
+    logOnlyMode: z.lazy(() => marshalEgressNetworkPolicy_InternetAccessPolicy_LogOnlyModeSchema).optional(),
+  })
+  .transform(d => ({
+    restriction_mode: d.restrictionMode,
+    allowed_internet_destinations: d.allowedInternetDestinations,
+    allowed_storage_destinations: d.allowedStorageDestinations,
+    log_only_mode: d.logOnlyMode,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEgressNetworkPolicy_InternetAccessPolicy_InternetDestinationSchema: z.ZodType =
-  z
-    .object({
-      destination: z.string().optional(),
-      type: z
-        .enum(
-          EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationType
-        )
-        .optional(),
-      protocol: z
-        .enum(
-          EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationFilteringProtocol
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      destination: d.destination,
-      type: d.type,
-      protocol: d.protocol,
-    }));
+export const marshalEgressNetworkPolicy_InternetAccessPolicy_InternetDestinationSchema: z.ZodType = z
+  .object({
+    destination: z.string().optional(),
+    type: z.enum(EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationType).optional(),
+    protocol: z.enum(EgressNetworkPolicy_InternetAccessPolicy_InternetDestination_InternetDestinationFilteringProtocol).optional(),
+  })
+  .transform(d => ({
+    destination: d.destination,
+    type: d.type,
+    protocol: d.protocol,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEgressNetworkPolicy_InternetAccessPolicy_LogOnlyModeSchema: z.ZodType =
-  z
-    .object({
-      logOnlyModeType: z
-        .enum(
-          EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_LogOnlyModeType
-        )
-        .optional(),
-      workloads: z
-        .array(
-          z.enum(
-            EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_WorkloadType
-          )
-        )
-        .optional(),
-    })
-    .transform(d => ({
-      log_only_mode_type: d.logOnlyModeType,
-      workloads: d.workloads,
-    }));
+export const marshalEgressNetworkPolicy_InternetAccessPolicy_LogOnlyModeSchema: z.ZodType = z
+  .object({
+    logOnlyModeType: z.enum(EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_LogOnlyModeType).optional(),
+    workloads: z.array(z.enum(EgressNetworkPolicy_InternetAccessPolicy_LogOnlyMode_WorkloadType)).optional(),
+  })
+  .transform(d => ({
+    log_only_mode_type: d.logOnlyModeType,
+    workloads: d.workloads,
+  }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalEgressNetworkPolicy_InternetAccessPolicy_StorageDestinationSchema: z.ZodType =
-  z
-    .object({
-      bucketName: z.string().optional(),
-      region: z.string().optional(),
-      type: z
-        .enum(
-          EgressNetworkPolicy_InternetAccessPolicy_StorageDestination_StorageDestinationType
-        )
-        .optional(),
-      azureStorageAccount: z.string().optional(),
-      allowedPaths: z.array(z.string()).optional(),
-      azureStorageService: z.string().optional(),
-      azureDnsZone: z.string().optional(),
-      azureContainer: z.string().optional(),
-    })
-    .transform(d => ({
-      bucket_name: d.bucketName,
-      region: d.region,
-      type: d.type,
-      azure_storage_account: d.azureStorageAccount,
-      allowed_paths: d.allowedPaths,
-      azure_storage_service: d.azureStorageService,
-      azure_dns_zone: d.azureDnsZone,
-      azure_container: d.azureContainer,
-    }));
+export const marshalEgressNetworkPolicy_InternetAccessPolicy_StorageDestinationSchema: z.ZodType = z
+  .object({
+    bucketName: z.string().optional(),
+    region: z.string().optional(),
+    type: z.enum(EgressNetworkPolicy_InternetAccessPolicy_StorageDestination_StorageDestinationType).optional(),
+    azureStorageAccount: z.string().optional(),
+    allowedPaths: z.array(z.string()).optional(),
+    azureStorageService: z.string().optional(),
+    azureDnsZone: z.string().optional(),
+    azureContainer: z.string().optional(),
+  })
+  .transform(d => ({
+    bucket_name: d.bucketName,
+    region: d.region,
+    type: d.type,
+    azure_storage_account: d.azureStorageAccount,
+    allowed_paths: d.allowedPaths,
+    azure_storage_service: d.azureStorageService,
+    azure_dns_zone: d.azureDnsZone,
+    azure_container: d.azureContainer,
+  }));
 
 export const marshalNotebookVersionReviewSchema: z.ZodType = z
   .object({
@@ -2227,48 +1865,34 @@ export const marshalNotebookVersionReviewSchema: z.ZodType = z
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
 export const marshalPartitionSpecification_PartitionSchema: z.ZodType = z
   .object({
-    values: z
-      .array(
-        z.lazy(
-          () => marshalPartitionSpecification_Partition_PartitionValueSchema
-        )
-      )
-      .optional(),
+    values: z.array(z.lazy(() => marshalPartitionSpecification_Partition_PartitionValueSchema)).optional(),
   })
   .transform(d => ({
     values: d.values,
   }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const marshalPartitionSpecification_Partition_PartitionValueSchema: z.ZodType =
-  z
-    .object({
-      name: z.string().optional(),
-      value: z.string().optional(),
-      recipientPropertyKey: z.string().optional(),
-      op: z
-        .enum(PartitionSpecification_Partition_PartitionValue_PartitionValueOp)
-        .optional(),
-    })
-    .transform(d => ({
-      name: d.name,
-      value: d.value,
-      recipient_property_key: d.recipientPropertyKey,
-      op: d.op,
-    }));
+export const marshalPartitionSpecification_Partition_PartitionValueSchema: z.ZodType = z
+  .object({
+    name: z.string().optional(),
+    value: z.string().optional(),
+    recipientPropertyKey: z.string().optional(),
+    op: z.enum(PartitionSpecification_Partition_PartitionValue_PartitionValueOp).optional(),
+  })
+  .transform(d => ({
+    name: d.name,
+    value: d.value,
+    recipient_property_key: d.recipientPropertyKey,
+    op: d.op,
+  }));
 
 export const marshalPolicyFunctionArgumentSchema: z.ZodType = z
   .object({
-    arg: z
-      .discriminatedUnion('$case', [
-        z.object({$case: z.literal('column'), column: z.string()}),
-        z.object({$case: z.literal('constant'), constant: z.string()}),
-      ])
-      .optional(),
+    arg: z.discriminatedUnion('$case', [z.object({ $case: z.literal('column'), column: z.string() }), z.object({ $case: z.literal('constant'), constant: z.string() })]).optional(),
   })
   .transform(d => ({
-    ...(d.arg?.$case === 'column' && {column: d.arg.column}),
-    ...(d.arg?.$case === 'constant' && {constant: d.arg.constant}),
+    ...(d.arg?.$case === 'column' && { column: d.arg.column }),
+    ...(d.arg?.$case === 'constant' && { constant: d.arg.constant }),
   }));
 
 export const marshalUpdateCleanRoomRequestSchema: z.ZodType = z

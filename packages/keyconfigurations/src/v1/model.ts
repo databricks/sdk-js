@@ -79,7 +79,7 @@ export interface CreateAzureKeyInfo {
   keyAccessConfiguration?: KeyAccessConfiguration | undefined;
 }
 
-export interface CreateCustomerManagedKeyPublicRequest {
+export interface CreateCustomerManagedKeyRequest {
   accountId?: string | undefined;
   /**
    * (-- The key information. Exactly one of aws_key_info, gcp_key_info, or
@@ -133,7 +133,7 @@ export interface CustomerManagedKey {
   useCases?: CmkUseCase[] | undefined;
 }
 
-export interface DeleteCustomerManagedKeyPublicRequest {
+export interface DeleteCustomerManagedKeyRequest {
   /** <Databricks> encryption key configuration ID. */
   customerManagedKeyId?: string | undefined;
   accountId?: string | undefined;
@@ -162,7 +162,7 @@ export interface GcpServiceAccount {
   serviceAccountEmail?: string | undefined;
 }
 
-export interface GetCustomerManagedKeyPublicRequest {
+export interface GetCustomerManagedKeyRequest {
   /** <Databricks> encryption key configuration ID. */
   customerManagedKeyId?: string | undefined;
   accountId?: string | undefined;
@@ -173,11 +173,11 @@ export interface KeyAccessConfiguration {
   credentialId?: string | undefined;
 }
 
-export interface ListCustomerManagedKeyPublicRequest {
+export interface ListCustomerManagedKeyRequest {
   accountId?: string | undefined;
 }
 
-export interface ListCustomerManagedKeyPublicResponse {
+export interface ListCustomerManagedKeyResponse {
   customerManagedKeys?: CustomerManagedKey[] | undefined;
 }
 
@@ -306,7 +306,7 @@ export const marshalCreateAzureKeyInfoSchema: z.ZodType = z
     key_access_configuration: d.keyAccessConfiguration,
   }));
 
-export const marshalCreateCustomerManagedKeyPublicRequestSchema: z.ZodType = z
+export const marshalCreateCustomerManagedKeyRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     keyInfo: z
