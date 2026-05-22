@@ -267,7 +267,7 @@ export type {
   TerminationDetails,
   TerminationType,
   TriggerSettings,
-  TriggerStateProto,
+  TriggerState,
   UpdateJobRequest,
   UpdateJobRequest_Response,
   ViewItem,

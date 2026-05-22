@@ -18,7 +18,7 @@ export enum DeltaSharingScope_Enum {
 }
 
 /** The mapping from workspace to metastore. */
-export interface AccountsCreateMetastoreAssignmentPublicRequest {
+export interface AccountsCreateMetastoreAssignmentRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
   accountId?: string | undefined;
   /** Workspace ID. */
@@ -30,22 +30,22 @@ export interface AccountsCreateMetastoreAssignmentPublicRequest {
 
 /** The metastore assignment was successfully created. */
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface AccountsCreateMetastoreAssignmentPublicRequest_Response {}
+export interface AccountsCreateMetastoreAssignmentRequest_Response {}
 
 /** Properties of the new metastore. */
-export interface AccountsCreateMetastorePublicRequest {
+export interface AccountsCreateMetastoreRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
   accountId?: string | undefined;
   metastoreInfo?: CreateAccountsMetastore | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface AccountsCreateMetastorePublicRequest_Response {
+export interface AccountsCreateMetastoreRequest_Response {
   metastoreInfo?: MetastoreInfo | undefined;
 }
 
 /** Delete a metastore assignment to a workspace */
-export interface AccountsDeleteMetastoreAssignmentPublicRequest {
+export interface AccountsDeleteMetastoreAssignmentRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
   accountId?: string | undefined;
   /** Workspace ID. */
@@ -56,10 +56,10 @@ export interface AccountsDeleteMetastoreAssignmentPublicRequest {
 
 /** The metastore assignment was successfully deleted. */
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface AccountsDeleteMetastoreAssignmentPublicRequest_Response {}
+export interface AccountsDeleteMetastoreAssignmentRequest_Response {}
 
 /** Delete a metastore for the given account */
-export interface AccountsDeleteMetastorePublicRequest {
+export interface AccountsDeleteMetastoreRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
   accountId?: string | undefined;
   /** Unity Catalog metastore ID */
@@ -70,10 +70,10 @@ export interface AccountsDeleteMetastorePublicRequest {
 
 /** The metastore was successfully deleted. */
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface AccountsDeleteMetastorePublicRequest_Response {}
+export interface AccountsDeleteMetastoreRequest_Response {}
 
 /** Retrieves the assignment of which metastore to a given workspace */
-export interface AccountsGetMetastoreAssignmentPublicRequest {
+export interface AccountsGetMetastoreAssignmentRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
   accountId?: string | undefined;
   /** Workspace ID. */
@@ -82,12 +82,12 @@ export interface AccountsGetMetastoreAssignmentPublicRequest {
 
 /** The workspace metastore assignment was successfully returned. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface AccountsGetMetastoreAssignmentPublicRequest_Response {
+export interface AccountsGetMetastoreAssignmentRequest_Response {
   metastoreAssignment?: MetastoreAssignment | undefined;
 }
 
 /** Get a metastore for a given account */
-export interface AccountsGetMetastorePublicRequest {
+export interface AccountsGetMetastoreRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
   accountId?: string | undefined;
   /** Unity Catalog metastore ID */
@@ -96,25 +96,25 @@ export interface AccountsGetMetastorePublicRequest {
 
 /** The metastore was successfully returned. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface AccountsGetMetastorePublicRequest_Response {
+export interface AccountsGetMetastoreRequest_Response {
   metastoreInfo?: MetastoreInfo | undefined;
 }
 
 /** List the metastores for an account */
-export interface AccountsListMetastoresPublicRequest {
+export interface AccountsListMetastoresRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
   accountId?: string | undefined;
 }
 
 /** Metastores were returned successfully. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface AccountsListMetastoresPublicRequest_Response {
+export interface AccountsListMetastoresRequest_Response {
   /** An array of metastore information objects. */
   metastores?: MetastoreInfo[] | undefined;
 }
 
 /** Lists all workspace IDs for a given metastore */
-export interface AccountsListWorkspaceIdsForMetastorePublicRequest {
+export interface AccountsListWorkspaceIdsForMetastoreRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
   accountId?: string | undefined;
   /** Unity Catalog metastore ID */
@@ -123,12 +123,12 @@ export interface AccountsListWorkspaceIdsForMetastorePublicRequest {
 
 /** The metastore assignments were successfully returned. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface AccountsListWorkspaceIdsForMetastorePublicRequest_Response {
+export interface AccountsListWorkspaceIdsForMetastoreRequest_Response {
   workspaceIds?: number[] | undefined;
 }
 
 /** The metastore assignment to update. */
-export interface AccountsUpdateMetastoreAssignmentPublicRequest {
+export interface AccountsUpdateMetastoreAssignmentRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
   accountId?: string | undefined;
   /** Workspace ID. */
@@ -140,10 +140,10 @@ export interface AccountsUpdateMetastoreAssignmentPublicRequest {
 
 /** The metastore assignment was successfully updated. */
 // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-empty-object-type -- Proto-style nested message name.
-export interface AccountsUpdateMetastoreAssignmentPublicRequest_Response {}
+export interface AccountsUpdateMetastoreAssignmentRequest_Response {}
 
 /** Properties of the metastore to change. */
-export interface AccountsUpdateMetastorePublicRequest {
+export interface AccountsUpdateMetastoreRequest {
   /** <Databricks> account ID of any type. For non-E2 account types, get your account ID from the [Accounts Console](https://docs.databricks.com/administration-guide/account-settings/usage.html) */
   accountId?: string | undefined;
   /** Unity Catalog metastore ID */
@@ -154,7 +154,7 @@ export interface AccountsUpdateMetastorePublicRequest {
 
 /** The metastore update request succeeded. */
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export interface AccountsUpdateMetastorePublicRequest_Response {
+export interface AccountsUpdateMetastoreRequest_Response {
   metastoreInfo?: MetastoreInfo | undefined;
 }
 
@@ -514,11 +514,11 @@ export interface UpdateMetastoreRequest {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsCreateMetastoreAssignmentPublicRequest_ResponseSchema: z.ZodType<AccountsCreateMetastoreAssignmentPublicRequest_Response> =
+export const unmarshalAccountsCreateMetastoreAssignmentRequest_ResponseSchema: z.ZodType<AccountsCreateMetastoreAssignmentRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsCreateMetastorePublicRequest_ResponseSchema: z.ZodType<AccountsCreateMetastorePublicRequest_Response> =
+export const unmarshalAccountsCreateMetastoreRequest_ResponseSchema: z.ZodType<AccountsCreateMetastoreRequest_Response> =
   z
     .object({
       metastore_info: z.lazy(() => unmarshalMetastoreInfoSchema).optional(),
@@ -528,15 +528,15 @@ export const unmarshalAccountsCreateMetastorePublicRequest_ResponseSchema: z.Zod
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsDeleteMetastoreAssignmentPublicRequest_ResponseSchema: z.ZodType<AccountsDeleteMetastoreAssignmentPublicRequest_Response> =
+export const unmarshalAccountsDeleteMetastoreAssignmentRequest_ResponseSchema: z.ZodType<AccountsDeleteMetastoreAssignmentRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsDeleteMetastorePublicRequest_ResponseSchema: z.ZodType<AccountsDeleteMetastorePublicRequest_Response> =
+export const unmarshalAccountsDeleteMetastoreRequest_ResponseSchema: z.ZodType<AccountsDeleteMetastoreRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsGetMetastoreAssignmentPublicRequest_ResponseSchema: z.ZodType<AccountsGetMetastoreAssignmentPublicRequest_Response> =
+export const unmarshalAccountsGetMetastoreAssignmentRequest_ResponseSchema: z.ZodType<AccountsGetMetastoreAssignmentRequest_Response> =
   z
     .object({
       metastore_assignment: z
@@ -548,7 +548,7 @@ export const unmarshalAccountsGetMetastoreAssignmentPublicRequest_ResponseSchema
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsGetMetastorePublicRequest_ResponseSchema: z.ZodType<AccountsGetMetastorePublicRequest_Response> =
+export const unmarshalAccountsGetMetastoreRequest_ResponseSchema: z.ZodType<AccountsGetMetastoreRequest_Response> =
   z
     .object({
       metastore_info: z.lazy(() => unmarshalMetastoreInfoSchema).optional(),
@@ -558,7 +558,7 @@ export const unmarshalAccountsGetMetastorePublicRequest_ResponseSchema: z.ZodTyp
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsListMetastoresPublicRequest_ResponseSchema: z.ZodType<AccountsListMetastoresPublicRequest_Response> =
+export const unmarshalAccountsListMetastoresRequest_ResponseSchema: z.ZodType<AccountsListMetastoresRequest_Response> =
   z
     .object({
       metastores: z
@@ -570,7 +570,7 @@ export const unmarshalAccountsListMetastoresPublicRequest_ResponseSchema: z.ZodT
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsListWorkspaceIdsForMetastorePublicRequest_ResponseSchema: z.ZodType<AccountsListWorkspaceIdsForMetastorePublicRequest_Response> =
+export const unmarshalAccountsListWorkspaceIdsForMetastoreRequest_ResponseSchema: z.ZodType<AccountsListWorkspaceIdsForMetastoreRequest_Response> =
   z
     .object({
       workspace_ids: z.array(z.number()).optional(),
@@ -580,11 +580,11 @@ export const unmarshalAccountsListWorkspaceIdsForMetastorePublicRequest_Response
     }));
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsUpdateMetastoreAssignmentPublicRequest_ResponseSchema: z.ZodType<AccountsUpdateMetastoreAssignmentPublicRequest_Response> =
+export const unmarshalAccountsUpdateMetastoreAssignmentRequest_ResponseSchema: z.ZodType<AccountsUpdateMetastoreAssignmentRequest_Response> =
   z.object({});
 
 // eslint-disable-next-line @typescript-eslint/naming-convention -- Proto-style nested message name.
-export const unmarshalAccountsUpdateMetastorePublicRequest_ResponseSchema: z.ZodType<AccountsUpdateMetastorePublicRequest_Response> =
+export const unmarshalAccountsUpdateMetastoreRequest_ResponseSchema: z.ZodType<AccountsUpdateMetastoreRequest_Response> =
   z
     .object({
       metastore_info: z.lazy(() => unmarshalMetastoreInfoSchema).optional(),
@@ -728,7 +728,7 @@ export const unmarshalMetastoreInfoSchema: z.ZodType<MetastoreInfo> = z
 export const unmarshalUpdateMetastoreAssignmentRequest_ResponseSchema: z.ZodType<UpdateMetastoreAssignmentRequest_Response> =
   z.object({});
 
-export const marshalAccountsCreateMetastoreAssignmentPublicRequestSchema: z.ZodType =
+export const marshalAccountsCreateMetastoreAssignmentRequestSchema: z.ZodType =
   z
     .object({
       accountId: z.string().optional(),
@@ -745,7 +745,7 @@ export const marshalAccountsCreateMetastoreAssignmentPublicRequestSchema: z.ZodT
       metastore_assignment: d.metastoreAssignment,
     }));
 
-export const marshalAccountsCreateMetastorePublicRequestSchema: z.ZodType = z
+export const marshalAccountsCreateMetastoreRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     metastoreInfo: z
@@ -757,7 +757,7 @@ export const marshalAccountsCreateMetastorePublicRequestSchema: z.ZodType = z
     metastore_info: d.metastoreInfo,
   }));
 
-export const marshalAccountsUpdateMetastoreAssignmentPublicRequestSchema: z.ZodType =
+export const marshalAccountsUpdateMetastoreAssignmentRequestSchema: z.ZodType =
   z
     .object({
       accountId: z.string().optional(),
@@ -774,7 +774,7 @@ export const marshalAccountsUpdateMetastoreAssignmentPublicRequestSchema: z.ZodT
       metastore_assignment: d.metastoreAssignment,
     }));
 
-export const marshalAccountsUpdateMetastorePublicRequestSchema: z.ZodType = z
+export const marshalAccountsUpdateMetastoreRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     metastoreId: z.string().optional(),

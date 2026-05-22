@@ -1700,7 +1700,7 @@ export interface ProjectSpec {
    * To preserve existing tags, omit this field from the update_mask (or use wildcard "*" which auto-excludes empty tags).
    */
   customTags?: ProjectCustomTag[] | undefined;
-  /** Whether to enable PG native password login on all endpoints in this project. Defaults to true. */
+  /** Whether to enable PG native password login on all endpoints in this project. Defaults to false. */
   enablePgNativeLogin?: boolean | undefined;
   /**
    * The full resource path for the default branch of the project

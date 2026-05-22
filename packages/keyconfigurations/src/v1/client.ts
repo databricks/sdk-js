@@ -19,15 +19,15 @@ import {
 import pkgJson from '../../package.json' with {type: 'json'};
 import {z} from 'zod';
 import type {
-  CreateCustomerManagedKeyPublicRequest,
+  CreateCustomerManagedKeyRequest,
   CustomerManagedKey,
-  DeleteCustomerManagedKeyPublicRequest,
-  GetCustomerManagedKeyPublicRequest,
-  ListCustomerManagedKeyPublicRequest,
-  ListCustomerManagedKeyPublicResponse,
+  DeleteCustomerManagedKeyRequest,
+  GetCustomerManagedKeyRequest,
+  ListCustomerManagedKeyRequest,
+  ListCustomerManagedKeyResponse,
 } from './model';
 import {
-  marshalCreateCustomerManagedKeyPublicRequestSchema,
+  marshalCreateCustomerManagedKeyRequestSchema,
   unmarshalCustomerManagedKeySchema,
 } from './model';
 
@@ -90,13 +90,13 @@ export class Client {
    * [Authenticate with Google ID tokens](https://docs.databricks.com/gcp/en/dev-tools/auth/authentication-google-id.html).
    */
   async createCustomerManagedKeyPublic(
-    req: CreateCustomerManagedKeyPublicRequest,
+    req: CreateCustomerManagedKeyRequest,
     options?: CallOptions
   ): Promise<CustomerManagedKey> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/customer-managed-keys`;
     const body = marshalRequest(
       req,
-      marshalCreateCustomerManagedKeyPublicRequestSchema
+      marshalCreateCustomerManagedKeyRequestSchema
     );
     let resp: CustomerManagedKey | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
@@ -119,7 +119,7 @@ export class Client {
 
   /** Deletes a customer-managed key configuration object for an account. You cannot delete a configuration that is associated with a running workspace. */
   async deleteCustomerManagedKeyPublic(
-    req: DeleteCustomerManagedKeyPublicRequest,
+    req: DeleteCustomerManagedKeyRequest,
     options?: CallOptions
   ): Promise<CustomerManagedKey> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/customer-managed-keys/${req.customerManagedKeyId ?? ''}`;
@@ -157,7 +157,7 @@ export class Client {
    * This operation is available only if your account is on the E2 version of the platform.",
    */
   async getCustomerManagedKeyPublic(
-    req: GetCustomerManagedKeyPublicRequest,
+    req: GetCustomerManagedKeyRequest,
     options?: CallOptions
   ): Promise<CustomerManagedKey> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/customer-managed-keys/${req.customerManagedKeyId ?? ''}`;
@@ -182,11 +182,11 @@ export class Client {
 
   /** Lists <Databricks> customer-managed key configurations for an account. */
   async listCustomerManagedKeyPublic(
-    req: ListCustomerManagedKeyPublicRequest,
+    req: ListCustomerManagedKeyRequest,
     options?: CallOptions
-  ): Promise<ListCustomerManagedKeyPublicResponse> {
+  ): Promise<ListCustomerManagedKeyResponse> {
     const url = `${this.host}/api/2.0/accounts/${req.accountId ?? this.accountId ?? ''}/customer-managed-keys`;
-    let resp: ListCustomerManagedKeyPublicResponse | undefined;
+    let resp: ListCustomerManagedKeyResponse | undefined;
     const call: Call = async (callSignal?: AbortSignal): Promise<void> => {
       const headers = new Headers();
       headers.set('User-Agent', this.userAgent);

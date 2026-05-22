@@ -348,7 +348,7 @@ export interface CreateNccPrivateEndpointRuleRequest {
 }
 
 /** Properties of the new network connectivity configuration. */
-export interface CreateNetworkConnectivityConfigPublicRequest {
+export interface CreateNetworkConnectivityConfigRequest {
   /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
   accountId?: string | undefined;
   networkConnectivityConfig?:
@@ -390,7 +390,7 @@ export interface CreateNetworkPolicyRequest {
   networkPolicy?: AccountNetworkPolicy | undefined;
 }
 
-export interface CreateNetworkPublicRequest {
+export interface CreateNetworkRequest {
   accountId?: string | undefined;
   /** The human-readable name of the network configuration. */
   networkName?: string | undefined;
@@ -404,7 +404,7 @@ export interface CreateNetworkPublicRequest {
   gcpNetworkInfo?: GcpNetworkInfo | undefined;
 }
 
-export interface CreatePrivateAccessSettingsPublicRequest {
+export interface CreatePrivateAccessSettingsRequest {
   accountId?: string | undefined;
   /** The human-readable name of the private access settings object. */
   privateAccessSettingsName?: string | undefined;
@@ -501,7 +501,7 @@ export interface CreatePrivateEndpointRule {
   endpoint?: {$case: 'gcpEndpoint'; gcpEndpoint: GcpEndpoint} | undefined;
 }
 
-export interface CreateVpcEndpointPublicRequest {
+export interface CreateVpcEndpointRequest {
   accountId?: string | undefined;
   /** The human-readable name of the storage configuration. */
   vpcEndpointName?: string | undefined;
@@ -1065,7 +1065,7 @@ export interface DeleteNccPrivateEndpointRuleRequest {
   privateEndpointRuleId?: string | undefined;
 }
 
-export interface DeleteNetworkConnectivityConfigPublicRequest {
+export interface DeleteNetworkConnectivityConfigRequest {
   /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
   accountId?: string | undefined;
   /** Your Network Connectivity Configuration ID. */
@@ -1079,18 +1079,18 @@ export interface DeleteNetworkPolicyRequest {
   accountId?: string | undefined;
 }
 
-export interface DeleteNetworkPublicRequest {
+export interface DeleteNetworkRequest {
   /** Databricks Account API network configuration ID. */
   networkId?: string | undefined;
   accountId?: string | undefined;
 }
 
-export interface DeletePrivateAccessSettingsPublicRequest {
+export interface DeletePrivateAccessSettingsRequest {
   privateAccessSettingsId?: string | undefined;
   accountId?: string | undefined;
 }
 
-export interface DeleteVpcEndpointPublicRequest {
+export interface DeleteVpcEndpointRequest {
   vpcEndpointId?: string | undefined;
   accountId?: string | undefined;
 }
@@ -1299,7 +1299,7 @@ export interface GetNccPrivateEndpointRuleRequest {
 }
 
 /** ***************************** Public facing RPC requests and responses *****************************\// */
-export interface GetNetworkConnectivityConfigPublicRequest {
+export interface GetNetworkConnectivityConfigRequest {
   /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
   accountId?: string | undefined;
   /** Your Network Connectivity Configuration ID. */
@@ -1313,18 +1313,18 @@ export interface GetNetworkPolicyRequest {
   accountId?: string | undefined;
 }
 
-export interface GetNetworkPublicRequest {
+export interface GetNetworkRequest {
   /** Databricks Account API network configuration ID. */
   networkId?: string | undefined;
   accountId?: string | undefined;
 }
 
-export interface GetPrivateAccessSettingsPublicRequest {
+export interface GetPrivateAccessSettingsRequest {
   privateAccessSettingsId?: string | undefined;
   accountId?: string | undefined;
 }
 
-export interface GetVpcEndpointPublicRequest {
+export interface GetVpcEndpointRequest {
   /** Databricks VPC endpoint ID. */
   vpcEndpointId?: string | undefined;
   accountId?: string | undefined;
@@ -1411,7 +1411,7 @@ export interface ListNccPrivateEndpointRulesResponse {
   nextPageToken?: string | undefined;
 }
 
-export interface ListNetworkConnectivityConfigsPublicRequest {
+export interface ListNetworkConnectivityConfigsRequest {
   /** Your <Databricks> account ID. You can find your account ID in your <Databricks> accounts console. */
   accountId?: string | undefined;
   /** Pagination token to go to next page based on previous query. */
@@ -1419,7 +1419,7 @@ export interface ListNetworkConnectivityConfigsPublicRequest {
 }
 
 /** The network connectivity configuration list was successfully retrieved. */
-export interface ListNetworkConnectivityConfigsPublicResponse {
+export interface ListNetworkConnectivityConfigsResponse {
   items?: CustomerFacingNetworkConnectivityConfig[] | undefined;
   /** A token that can be used to get the next page of results. If null, there are no more results to show. */
   nextPageToken?: string | undefined;
@@ -1439,27 +1439,27 @@ export interface ListNetworkPoliciesResponse {
   nextPageToken?: string | undefined;
 }
 
-export interface ListNetworkPublicRequest {
+export interface ListNetworkRequest {
   accountId?: string | undefined;
 }
 
-export interface ListNetworkPublicResponse {
+export interface ListNetworkResponse {
   networks?: Network[] | undefined;
 }
 
-export interface ListPrivateAccessSettingsPublicRequest {
+export interface ListPrivateAccessSettingsRequest {
   accountId?: string | undefined;
 }
 
-export interface ListPrivateAccessSettingsPublicResponse {
+export interface ListPrivateAccessSettingsResponse {
   privateAccessSettings?: CustomerFacingPrivateAccessSettings[] | undefined;
 }
 
-export interface ListVpcEndpointPublicRequest {
+export interface ListVpcEndpointRequest {
   accountId?: string | undefined;
 }
 
-export interface ListVpcEndpointPublicResponse {
+export interface ListVpcEndpointResponse {
   vpcEndpoints?: CustomerFacingVpcEndpoint[] | undefined;
 }
 
@@ -1719,7 +1719,7 @@ export interface UpdateNetworkPolicyRequest {
   networkPolicy?: AccountNetworkPolicy | undefined;
 }
 
-export interface UpdatePrivateAccessSettingsPublicRequest {
+export interface UpdatePrivateAccessSettingsRequest {
   /** Properties of the new private access settings object. */
   customerFacingPrivateAccessSettings?:
     | CustomerFacingPrivateAccessSettings
@@ -2917,7 +2917,7 @@ export const unmarshalListNccPrivateEndpointRulesResponseSchema: z.ZodType<ListN
       nextPageToken: d.next_page_token,
     }));
 
-export const unmarshalListNetworkConnectivityConfigsPublicResponseSchema: z.ZodType<ListNetworkConnectivityConfigsPublicResponse> =
+export const unmarshalListNetworkConnectivityConfigsResponseSchema: z.ZodType<ListNetworkConnectivityConfigsResponse> =
   z
     .object({
       items: z
@@ -3248,7 +3248,7 @@ export const marshalCreateNetworkConnectivityConfigurationSchema: z.ZodType = z
     creation_time: d.creationTime,
   }));
 
-export const marshalCreateNetworkPublicRequestSchema: z.ZodType = z
+export const marshalCreateNetworkRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     networkName: z.string().optional(),
@@ -3268,24 +3268,23 @@ export const marshalCreateNetworkPublicRequestSchema: z.ZodType = z
     gcp_network_info: d.gcpNetworkInfo,
   }));
 
-export const marshalCreatePrivateAccessSettingsPublicRequestSchema: z.ZodType =
-  z
-    .object({
-      accountId: z.string().optional(),
-      privateAccessSettingsName: z.string().optional(),
-      region: z.string().optional(),
-      publicAccessEnabled: z.boolean().optional(),
-      privateAccessLevel: z.enum(PrivateAccessLevel).optional(),
-      allowedVpcEndpointIds: z.array(z.string()).optional(),
-    })
-    .transform(d => ({
-      account_id: d.accountId,
-      private_access_settings_name: d.privateAccessSettingsName,
-      region: d.region,
-      public_access_enabled: d.publicAccessEnabled,
-      private_access_level: d.privateAccessLevel,
-      allowed_vpc_endpoint_ids: d.allowedVpcEndpointIds,
-    }));
+export const marshalCreatePrivateAccessSettingsRequestSchema: z.ZodType = z
+  .object({
+    accountId: z.string().optional(),
+    privateAccessSettingsName: z.string().optional(),
+    region: z.string().optional(),
+    publicAccessEnabled: z.boolean().optional(),
+    privateAccessLevel: z.enum(PrivateAccessLevel).optional(),
+    allowedVpcEndpointIds: z.array(z.string()).optional(),
+  })
+  .transform(d => ({
+    account_id: d.accountId,
+    private_access_settings_name: d.privateAccessSettingsName,
+    region: d.region,
+    public_access_enabled: d.publicAccessEnabled,
+    private_access_level: d.privateAccessLevel,
+    allowed_vpc_endpoint_ids: d.allowedVpcEndpointIds,
+  }));
 
 export const marshalCreatePrivateEndpointRuleSchema: z.ZodType = z
   .object({
@@ -3340,7 +3339,7 @@ export const marshalCreatePrivateEndpointRuleSchema: z.ZodType = z
     }),
   }));
 
-export const marshalCreateVpcEndpointPublicRequestSchema: z.ZodType = z
+export const marshalCreateVpcEndpointRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     vpcEndpointName: z.string().optional(),

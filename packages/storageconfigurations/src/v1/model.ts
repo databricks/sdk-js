@@ -2,7 +2,7 @@
 
 import {z} from 'zod';
 
-export interface CreateStorageConfigurationPublicRequest {
+export interface CreateStorageConfigurationRequest {
   accountId?: string | undefined;
   /** The human-readable name of the storage configuration. */
   storageConfigurationName?: string | undefined;
@@ -17,21 +17,21 @@ export interface CreateStorageConfigurationPublicRequest {
   roleArn?: string | undefined;
 }
 
-export interface DeleteStorageConfigurationPublicRequest {
+export interface DeleteStorageConfigurationRequest {
   storageConfigurationId?: string | undefined;
   accountId?: string | undefined;
 }
 
-export interface GetStorageConfigurationPublicRequest {
+export interface GetStorageConfigurationRequest {
   storageConfigurationId?: string | undefined;
   accountId?: string | undefined;
 }
 
-export interface ListStorageConfigurationPublicRequest {
+export interface ListStorageConfigurationRequest {
   accountId?: string | undefined;
 }
 
-export interface ListStorageConfigurationPublicResponse {
+export interface ListStorageConfigurationResponse {
   storageConfigurations?: StorageConfiguration[] | undefined;
 }
 
@@ -87,7 +87,7 @@ export const unmarshalStorageConfigurationSchema: z.ZodType<StorageConfiguration
       roleArn: d.role_arn,
     }));
 
-export const marshalCreateStorageConfigurationPublicRequestSchema: z.ZodType = z
+export const marshalCreateStorageConfigurationRequestSchema: z.ZodType = z
   .object({
     accountId: z.string().optional(),
     storageConfigurationName: z.string().optional(),
